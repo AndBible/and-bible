@@ -21,7 +21,11 @@ import net.bible.service.llm.AgentTool
 import net.bible.service.llm.LlmStrings
 
 /** [LlmStrings] over a [StringTable]; mirrors `AndroidLlmStrings`. */
-class KeyedLlmStrings(private val t: StringTable) : LlmStrings {
+class KeyedLlmStrings(private val table: () -> StringTable) : LlmStrings {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override val actionActiveWindow: String get() = t.text("action_active_window")
     override fun actionAddEntryToStudypad(a1: String): String = t.fmt("action_add_entry_to_studypad", a1)
     override fun actionAddLabelToBookmark(a1: String, a2: String): String = t.fmt("action_add_label_to_bookmark", a1, a2)

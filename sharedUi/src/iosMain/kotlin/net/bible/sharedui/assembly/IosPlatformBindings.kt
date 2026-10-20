@@ -104,7 +104,7 @@ import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
 import net.bible.sharedui.strings.keyed.KeyedLlmStrings
 import net.bible.sharedui.strings.keyed.KeyedSettingLabels
-import net.bible.sharedui.strings.keyed.PendingTextDisplayPrefItems
+import net.bible.sharedui.strings.keyed.BundleTextDisplayPrefItems
 import net.bible.sharedui.strings.keyed.keyedSpeakPhrases
 import okio.Path
 import org.crosswire.common.util.WebResource
@@ -169,13 +169,20 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<AppDirectories> { parts.directories }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { IosAppStartup.databasesOpen }) }
 
-        // --- strings (one table for the chosen UI language)
-        single<CoreStrings> { KeyedCoreStrings(parts.strings) }
-        single<LlmStrings> { KeyedLlmStrings(parts.strings) }
-        single<LabelNameStrings> { KeyedLabelNameStrings(parts.strings) }
-        single<SettingLabels> { KeyedSettingLabels(parts.strings) }
-        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog(parts.strings) }
-        single<TextDisplayPrefItems> { PendingTextDisplayPrefItems(strings = { parts.strings }, contentSource = { get() }) }
+        // --- strings (retained wrappers read the current language per access)
+        single { parts.stringTableHolder }
+        single<CoreStrings> { KeyedCoreStrings { get<IosStringTableHolder>().current } }
+        single<LlmStrings> { KeyedLlmStrings { get<IosStringTableHolder>().current } }
+        single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
+        single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
+        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
+        single<TextDisplayPrefItems> {
+            BundleTextDisplayPrefItems(
+                strings = { parts.strings }, contentSource = { get() },
+                backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
+            )
+        }
+        single<net.bible.sharedlogic.platform.BackgroundImageCatalog> { get<AddonCatalog>() as SharedAddonCatalog }
 
         // --- locale, calendar, text
         single<DateTimeFormats> { IosDateTimeFormats() }

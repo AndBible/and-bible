@@ -67,6 +67,24 @@ class IosLocalCalendar(
 
     override fun addDays(epochMs: Long, days: Int): Long = plusUnit(epochMs, NSCalendarUnitDay, days)
 
+    override fun localYmd(epochMs: Long): Triple<Int, Int, Int> = calendar.components(
+        NSCalendarUnitYear or NSCalendarUnitMonth or NSCalendarUnitDay, fromDate = date(epochMs),
+    ).let { Triple(it.year.toInt(), it.month.toInt(), it.day.toInt()) }
+
+    override fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int): Long {
+        val cal = calendar
+        val parts = cal.components(
+            NSCalendarUnitYear or NSCalendarUnitMonth or NSCalendarUnitDay or
+                platform.Foundation.NSCalendarUnitHour or platform.Foundation.NSCalendarUnitMinute or platform.Foundation.NSCalendarUnitSecond,
+            fromDate = date(epochMs),
+        )
+        parts.year = year.toLong()
+        parts.month = month1to12.toLong()
+        parts.day = day.toLong()
+        val wholeSeconds = requireNotNull(cal.dateFromComponents(parts)).timeIntervalSince1970.toLong() * 1000
+        return wholeSeconds + ((epochMs % 1000) + 1000) % 1000
+    }
+
     override fun currentYear(): Int = calendar.component(NSCalendarUnitYear, fromDate = NSDate()).toInt()
 
     override fun formatDefaultDate(epochMs: Long): String = NSDateFormatter().apply {

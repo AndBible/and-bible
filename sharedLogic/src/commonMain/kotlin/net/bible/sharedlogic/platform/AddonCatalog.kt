@@ -23,6 +23,13 @@ import org.crosswire.jsword.book.Book
 /** A reading plan provided by an installed add-on module; [path] is the plan file inside the module. */
 class AddonReadingPlan(val book: Book, val fileName: String, val isDateBased: Boolean, val path: Path)
 
+/** Background images keyed by installed module initials, never by a user-supplied filesystem path. */
+data class AddonBackgroundImage(val name: String, val path: Path)
+
+interface BackgroundImageCatalog {
+    val backgroundImages: Map<String, AddonBackgroundImage>
+}
+
 /** Add-on content (SWORD-module provided reading plans) as a platform port. */
 interface AddonCatalog {
     /** Drops cached add-on lookups; called when installed books change. */

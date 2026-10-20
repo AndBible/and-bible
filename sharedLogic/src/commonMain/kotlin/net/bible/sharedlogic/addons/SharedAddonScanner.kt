@@ -74,6 +74,18 @@ class SharedAddonScanner(
         return byCode
     }
 
+    /** Same first-marker, module-initials lookup as Android's providedBackgroundImages. */
+    fun backgroundImages(): Map<String, net.bible.sharedlogic.platform.AddonBackgroundImage> = buildMap {
+        for (book in addons) {
+            val marker = book.bookMetaData.getValues("AndBibleProvidesBackgroundImage")?.firstOrNull() ?: continue
+            val parts = marker.split(';')
+            val path = (book.base() ?: continue).child(parts.getOrElse(1) { "" })
+            if (files.metadataOrNull(path)?.isRegularFile == true) {
+                put(book.initials, net.bible.sharedlogic.platform.AddonBackgroundImage(parts[0], path))
+            }
+        }
+    }
+
     fun promptPacks(): List<PromptPackRef> {
         val packs = mutableListOf<PromptPackRef>()
         for (book in addons) {
@@ -96,7 +108,9 @@ class SharedAddonScanner(
 class SharedAddonCatalog(
     private val scanner: SharedAddonScanner,
     private val promptPacks: SharedPromptPackSource,
-) : AddonCatalog {
+) : AddonCatalog, net.bible.sharedlogic.platform.BackgroundImageCatalog {
+    override val backgroundImages get() = scanner.backgroundImages()
+
     override fun clearCaches() {
         scanner.clearCaches()
         promptPacks.notifyReloaded()

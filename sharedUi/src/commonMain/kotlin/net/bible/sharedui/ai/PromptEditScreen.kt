@@ -107,6 +107,7 @@ import net.bible.sharedui.settings.GenericSettingsEditorSheet
 import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
@@ -431,6 +432,13 @@ private fun PromptTabContent(
     onSetTextTransformation: (Boolean) -> Unit,
     strings: Strings,
 ) {
+    // The controller echoes a keystroke back a dispatch later (collectAsState), so each text field keeps its typed text
+    // locally. What re-seeds it is the key: the prompt id (load() changes it from null, and a new prompt gets its id on
+    // save). No controller write to these fields under the same id exists today; if one is added, the helper adopts a
+    // value this field never sent.
+    val nameText = rememberControllerText(state.name, state.id)
+    val descriptionText = rememberControllerText(state.description, state.id)
+    val templateText = rememberControllerText(state.template, state.id)
     Column(
         Modifier
             .fillMaxSize()
@@ -438,8 +446,8 @@ private fun PromptTabContent(
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         OutlinedTextField(
-            value = state.name,
-            onValueChange = onSetName,
+            value = nameText.text,
+            onValueChange = { nameText.edit(it, onSetName) },
             label = { Text(strings.promptNameLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),
@@ -448,8 +456,8 @@ private fun PromptTabContent(
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = state.description,
-            onValueChange = onSetDescription,
+            value = descriptionText.text,
+            onValueChange = { descriptionText.edit(it, onSetDescription) },
             label = { Text(strings.promptDescriptionLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),
@@ -458,8 +466,8 @@ private fun PromptTabContent(
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = state.template,
-            onValueChange = onSetTemplate,
+            value = templateText.text,
+            onValueChange = { templateText.edit(it, onSetTemplate) },
             label = { Text(strings.promptTemplateLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),

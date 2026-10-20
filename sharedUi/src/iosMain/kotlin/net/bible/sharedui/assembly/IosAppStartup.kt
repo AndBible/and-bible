@@ -92,12 +92,13 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
     val bundleResourcePath: String get() = NSBundle.mainBundle.resourcePath.orEmpty()
 
-    /** The UI language (C4); read once. */
+    /** Initial language (C4); later changes use the same holder, without touching databases. */
     val uiLanguage: String by lazy {
         config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings)
     }
 
-    val strings: StringTable by lazy { iosStringTable(uiLanguage, ::bundleRawResource) }
+    val stringTableHolder by lazy { IosStringTableHolder(iosStringTable(uiLanguage, ::bundleRawResource)) }
+    val strings: StringTable get() = stringTableHolder.live
 
     /** The locale JSword formats with: the UI language when the config pins one, else the device locale. */
     fun jswordLocaleTag(): String =

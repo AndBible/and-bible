@@ -77,6 +77,11 @@ class ReadingPlanSelectorController(
         }
     }
 
+    /** Relabels loaded entries without reloading plans or re-opening dismissed warnings. */
+    fun updateMetadata(transform: (PlanEntry) -> PlanEntry) {
+        _plans.value = _plans.value.map(transform)
+    }
+
     fun select(planCode: String) = onSelect(planCode)
 
     fun reset(planCode: String) {

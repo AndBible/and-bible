@@ -31,7 +31,10 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.PlatformText
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
-import net.bible.sharedui.ios.ports.IosAppSettingsService
+import net.bible.android.view.activity.settings.AppSettingsServiceImpl
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedcore.settings.DeviceLocalPrefs
+import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedui.ios.ports.IosClipboardText
 import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
@@ -53,10 +56,13 @@ fun buildIosHostBindings(): Module = module {
     }
     single<ExternalLinks> { IosExternalLinks() }
     single<ClipboardText> { IosClipboardText() }
-    single<PlatformText> { IosPlatformText() }
+    single<PlatformText> { IosPlatformText { get<net.bible.sharedui.assembly.IosStringTableHolder>().current } }
     single<DebugActions> { IosDebugActions(get(), get<CoreStrings>()) }
-    single<SettingsPlatform> { IosSettingsPlatform(get<CoreStrings>()) }
+    single<DeviceLocalPrefs> { get<IosDeviceSettings>() }
+    single { IosSettingsPlatform(get<CoreStrings>(), get(), get()) }
+    single<SettingsPlatform> { get<IosSettingsPlatform>() }
+    single<SettingsPlatformFlags> { get<IosSettingsPlatform>() }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }
     single<DocumentInstallStarter> { IosDocumentInstallStarter() }
-    single<AppSettingsService> { IosAppSettingsService() }
+    factory<AppSettingsService> { AppSettingsServiceImpl() }
 }

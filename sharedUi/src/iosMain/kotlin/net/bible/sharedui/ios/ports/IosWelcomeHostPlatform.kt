@@ -1,97 +1,107 @@
-/*
- * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
- *
- * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
- *
- * AndBible is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- *
- * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with AndBible.
- * If not, see http://www.gnu.org/licenses/.
- */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedui.ios.ports
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
-import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.startup.StartupWelcomeController
-import net.bible.sharedcore.startup.StartupWelcomeInfo
+import kotlinx.coroutines.CoroutineScope
+import net.bible.sharedui.assembly.IosStringTableHolder
+import kotlinx.coroutines.launch
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupHost
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.app.welcome.WelcomeFlowCore
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 import net.bible.sharedui.assembly.iosStringTable
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.icons.AbIcons
 import net.bible.sharedui.strings.keyed.StringTable
+import org.jetbrains.compose.resources.painterResource
+import org.koin.core.Koin
 import platform.Foundation.NSBundle
 
-/**
- * Welcome on iOS: the Easy start and Download paths are real; Import, Restore, Redownload and the links are pending.
- * [leaveFor] initialises the app off the main thread and navigates (Android `WelcomeFlow.leaveFor`).
- */
+/** iOS device seams around the same Welcome flow used by Android. */
 @kotlin.native.HiddenFromObjC
 class IosWelcomeHostPlatform(
+    private val koin: Koin,
+    private val scope: CoroutineScope,
     private val table: StringTable = iosStringTable("en"),
-    private val isDiscrete: () -> Boolean = { false },
-    private val leaveFor: (String) -> Unit = { IosPending.log("WelcomeHostPlatform.leaveFor") },
+    private val initialise: suspend () -> Unit,
+    private val navigate: (String) -> Unit,
 ) : WelcomeHostPlatform {
-    // Discrete-aware like Android's startupWelcomeAppNameRes: the calculator name hides the app.
-    override val appName: String
-        get() = table.text(if (isDiscrete()) "app_name_calculator" else "app_name_long")
-
+    private val environment get() = koin.get<AppEnvironment>()
+    private val discrete get() = environment.isDiscrete
+    override val appName: String get() = table.text(if (discrete) "app_name_calculator" else "app_name_long")
     override val windowTitle: String get() = appName
-
-    override val logo: @Composable () -> Painter? = { null }
-
-    // The previous-install (Redownload) probe reads the database, so it is not asked on the main thread here.
-    override val controller: StartupWelcomeController by lazy { StartupWelcomeController { loadInfo() } }
-
-    private fun loadInfo(): StartupWelcomeInfo {
-        val zip = table.fmt("format_zip", table.text("app_name_short"))
-        val formats = table.fmt(
-            "supported_formats",
-            "$zip, ${table.text("format_mybible")}, ${table.text("format_mysword")}, ${table.text("format_epub")}",
-        )
-        val versionName = NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
-        return StartupWelcomeInfo(
-            versionText = table.fmt("version_text", versionName),
-            supportedFormatsText = formats,
-            previousInstallDetected = false,
-            easyStartAvailable = table.tag.substringBefore('-').substringBefore('_') == "en",
-            homepageButtonsVisible = !isDiscrete(),
-        )
+    override val logo: @Composable () -> Painter? = {
+        painterResource(AbIcons.identityIconResources.getValue(if (discrete) "ic_calculator_color" else "ic_logo"))
     }
 
-    override fun onDownload() = leaveFor(NavRoutes.download(firstDownload = true))
-
-    override fun onImport() {
-        IosPending.log("WelcomeHostPlatform.onImport")
+    private val core by lazy {
+        WelcomeFlowCore(
+            versionText = {
+                table.fmt("version_text", NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: "")
+            },
+            supportedFormatsText = {
+                val zip = table.fmt("format_zip", table.text(if (discrete) "app_name_calculator" else "app_name_andbible"))
+                table.fmt("supported_formats", "$zip, ${table.text("format_mybible")}, ${table.text("format_mysword")}, ${table.text("format_epub")}")
+            },
+            language = { koin.getOrNull<IosStringTableHolder>()?.current?.tag ?: table.tag }, isDiscrete = { discrete },
+            knownInstalled = { DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao().getKnownInstalled() },
+            // IosAppEnvironment uses NSURLVolumeAvailableCapacityForImportantUsageKey.
+            megabytesFree = { environment.megabytesFree },
+            refuseDownload = { koin.get<UserNotifier>().showError(koin.get<CoreStrings>().storageSpaceWarning) },
+            initialise = initialise,
+            ensureSyncLoaded = { koin.get<DocumentSyncSettings>().ensureLoaded() },
+            navigate = navigate,
+            bookLabel = { table.fmt("something_with_parenthesis", it.name, it.language) },
+        )
+    }
+    private val controllerLazy = lazy {
+        core.controller.also { scope.launch { refreshInfo() } }
+    }
+    override val controller get() = controllerLazy.value
+    suspend fun refreshInfo() = core.refreshInfo()
+    fun refreshTextIfCreated() {
+        if (controllerLazy.isInitialized()) core.refreshTextIfCreated()
     }
 
+    /** Bound after AppHosts exists; resolving the platform itself must not construct another host graph. */
+    var openImport: () -> Unit = {}
+    var afterRestore: () -> Unit = {}
+    private var leaving = false
+    private fun launchLeave(action: suspend () -> Unit) {
+        if (leaving) return
+        leaving = true
+        scope.launch {
+            try { action() }
+            catch (e: kotlin.coroutines.cancellation.CancellationException) { throw e }
+            catch (e: Throwable) { net.bible.sharedcore.log.Log.e("IosWelcome", "Leaving Welcome failed", e) }
+            finally { leaving = false }
+        }
+    }
+    override fun onDownload() = launchLeave { core.onDownload() }
+    override fun onEasyStart() = launchLeave { core.onEasyStart() }
+    override fun onImport() = launchLeave { core.initialiseThen(openImport) }
     override fun onRestore() {
-        IosPending.log("WelcomeHostPlatform.onRestore")
+        scope.launch {
+            val host = koin.get<BackupHost>()
+            net.bible.sharedui.app.welcome.restoreWelcomeBackup(
+                pick = { host.pickBackupFile() },
+                restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
+                reportError = { message, cause -> host.showErrorReport(message, cause) },
+                fallbackError = { table.text("error_occurred") },
+                afterRestore = { afterRestore() },
+            )
+        }
     }
-
-    override fun onRedownload() {
-        IosPending.log("WelcomeHostPlatform.onRedownload")
-    }
-
-    override fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
-
-    override fun onOpenHomepage() {
-        IosPending.log("WelcomeHostPlatform.onOpenHomepage")
-    }
-
-    override fun onOpenGithub() {
-        IosPending.log("WelcomeHostPlatform.onOpenGithub")
-    }
-
+    override fun onRedownload() { scope.launch { core.onRedownload() } }
+    override fun onOpenHomepage() = koin.get<ExternalLinks>().open(table.text("homepage"))
+    override fun onOpenGithub() = koin.get<ExternalLinks>().open(table.text("github_page"))
     @Composable
-    override fun Dialogs() {
-        IosPending.log("WelcomeHostPlatform.Dialogs")
-    }
+    override fun Dialogs() = core.RedownloadDialog(scope)
 }

@@ -91,7 +91,7 @@ class ClassicKeyChooserRemovalGuardTest {
     @Test fun theSurvivingKeyChooserCollaboratorsStillExist() {
         val mustExist = listOf(
             "src/main/java/net/bible/android/view/activity/navigation/genbookmap/KeyItemAdapter.kt",
-            "src/main/java/net/bible/android/view/activity/navigation/genbookmap/KeyChooserKeys.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/navigation/genbookmap/KeyChooserKeys.kt",
         )
         val missing = mustExist.filterNot { File(it).exists() }
         assertEquals(

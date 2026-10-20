@@ -31,6 +31,40 @@ class GridChoosePassageControllerTest {
         onFinish = { finished = it },
     )
 
+    @Test fun refreshRebuildsLabelsWithoutChangingDraftBackStackOrPreferences() = runTest {
+        var language = "en"
+        var selectedBook = 0
+        var selectedChapter = 1
+        var writes = 0
+        var result = ""
+        val c = GridChoosePassageController(this, opts,
+            { step, _ -> ui(step).copy(title = "$language:$step:$selectedBook:$selectedChapter") },
+            { writes++ },
+            { selectedBook = it; BookPick.GoChapter },
+            { selectedChapter = it; ChapterPick.GoVerse },
+            { "$selectedBook.$selectedChapter.$it" }, { result = it })
+        language = "fi"
+        c.refresh()
+        assertEquals("fi:BOOK:0:1", c.ui.value?.title)
+        assertEquals(GridStep.BOOK, c.step.value)
+        c.pick(43)
+        c.pick(3)
+        language = "en"
+        c.refresh()
+        assertEquals("en:VERSE:43:3", c.ui.value?.title)
+        assertEquals(GridStep.VERSE, c.step.value)
+        assertEquals(opts, c.options.value)
+        assertEquals(0, writes)
+        assertTrue(c.back())
+        assertEquals(GridStep.CHAPTER, c.step.value)
+        c.pick(4)
+        c.pick(16)
+        assertEquals("43.4.16", result)
+        assertTrue(c.back())
+        assertTrue(c.back())
+        assertFalse(c.back())
+    }
+
     @Test fun starts_on_book() = runTest {
         val c = make()
         assertEquals(GridStep.BOOK, c.step.value)

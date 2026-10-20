@@ -45,7 +45,7 @@ class NavControllerNavigator(private val navController: () -> NavHostController)
 }
 
 /**
- * [HostShell] for iOS. There is no activity to finish or recreate, so [exitHost] and [recreateHost] are pending.
+ * [HostShell] for iOS. [recreateHost] refreshes the language in place; only [exitHost] is pending.
  * The history route keeps the Android compare-and-clear semantics: only the owner that published the current route
  * can clear it, because navigation-compose runs the entering destination's effects before the leaving one's disposal.
  */
@@ -54,6 +54,7 @@ class IosHostShell(
     override val hostScope: CoroutineScope,
     private val navigator: IosNavigator,
     private val onExit: (() -> Unit)? = null,
+    private val recompose: () -> Unit = {},
 ) : HostShell {
     // The history-route fields are main-thread only (composition effects), so they take no lock.
     private var historyRouteOwner: Any? = null
@@ -69,7 +70,7 @@ class IosHostShell(
         onExit?.invoke() ?: IosPending.log("HostShell.exitHost")
     }
 
-    override fun recreateHost() = IosPending.log("HostShell.recreateHost")
+    override fun recreateHost() = recompose()
 
     override fun setWindowTitle(title: String) {
         windowTitle = title

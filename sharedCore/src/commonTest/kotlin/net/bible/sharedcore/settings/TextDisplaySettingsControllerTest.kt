@@ -50,6 +50,14 @@ class TextDisplaySettingsControllerTest {
                            onNav: (String) -> Unit = {}) =
         TextDisplaySettingsController(svc, scope, TextDisplaySettingsLabels.forTest(), onNav)
 
+    @Test fun retainedControllerRelocalizesWithoutChangingValues() {
+        val c = controller(FakeService(snapshot()))
+        val before = c.state.value.items.filterIsInstance<SettingsItem.ListChoiceRow>().map { it.selectedValue }
+        c.updateLabels(TextDisplaySettingsLabels.forTest().copy(categoryFontColors = "Fontti"))
+        assertTrue(c.state.value.items.filterIsInstance<SettingsItem.Category>().any { it.title == "Fontti" })
+        assertEquals(before, c.state.value.items.filterIsInstance<SettingsItem.ListChoiceRow>().map { it.selectedValue })
+    }
+
     @Test fun buildsNineCategoriesInXmlOrder() {
         val items = controller(FakeService(snapshot())).state.value.items
         val cats = items.filterIsInstance<SettingsItem.Category>().map { it.key }

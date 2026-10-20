@@ -33,10 +33,11 @@ fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
  * `:strings-gen` unit test can execute it directly (the emitter prints [FMT_FUNCTION_SOURCE]
  * verbatim into `StringsData.kt`, whose body is kept byte-identical to this). Handles:
  *   - `%%` → `%`
- *   - `%s` / `%d` → successive ordinary arguments, independently of explicit indexes
  *   - `%n$s` / `%n$d` → arg `n` (1-based) as its string
+ *   - unpositional `%s` / `%d` / `%f` (optional width, `.precision`; no flags) → the next argument in order
  *   - `%n$[0]?<width>?[Xx]` → arg `n` formatted as hex (`X`=upper, `x`=lower), zero-padded to
  *     `width` (e.g. `0x%1${'$'}02X` with `0xF8` → `0xF8`, with `0x09` → `0x09`)
+ * The decimal separator is always '.' (no locale); flags, `%n`, `%b`, `%x`, `%e` and `%,d` stay verbatim.
  * NO `String.format` (JVM-only) — a hand-rolled scan, so the emitted copy is iOS-safe.
  *
  * The body between the FMT-BODY-START/END markers is the SINGLE source of truth: [FMT_FUNCTION_SOURCE]
@@ -46,7 +47,7 @@ fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
 internal fun fmt(template: String, vararg args: Any?): String {
     val out = StringBuilder(template.length)
     var i = 0
-    var ordinaryIndex = 1
+    var next = 0
     val n = template.length
     while (i < n) {
         val c = template[i]
@@ -58,13 +59,6 @@ internal fun fmt(template: String, vararg args: Any?): String {
         // c == '%'
         if (i + 1 < n && template[i + 1] == '%') {
             out.append('%')
-            i += 2
-            continue
-        }
-        // Explicit indexes do not advance the ordinary argument sequence.
-        if (i + 1 < n && (template[i + 1] == 's' || template[i + 1] == 'd')) {
-            out.append(args.getOrNull(ordinaryIndex - 1)?.toString() ?: "")
-            ordinaryIndex++
             i += 2
             continue
         }
@@ -104,9 +98,55 @@ internal fun fmt(template: String, vararg args: Any?): String {
                 i++
             }
         } else {
-            // Not a recognized spec — emit the '%' verbatim and advance one char.
-            out.append('%')
-            i++
+            // Unpositional %s / %d / %f (optional width and .precision, no flags) take the arguments in order,
+            // like Android's Resources.getString(id, args). Anything else keeps its '%' verbatim.
+            var m = i + 1
+            val zeroPad = m < n && template[m] == '0'
+            var width = 0
+            while (m < n && template[m] in '0'..'9') {
+                width = width * 10 + (template[m] - '0')
+                m++
+            }
+            var precision = -1
+            if (m < n && template[m] == '.') {
+                m++
+                precision = 0
+                while (m < n && template[m] in '0'..'9') {
+                    precision = precision * 10 + (template[m] - '0')
+                    m++
+                }
+            }
+            val conv = if (m < n) template[m] else ' '
+            if (conv == 's' || conv == 'd' || conv == 'f') {
+                val arg = args.getOrNull(next++)
+                val body = when (conv) {
+                    's' -> arg?.toString() ?: ""
+                    'd' -> (arg as? Number)?.toLong()?.toString() ?: arg?.toString() ?: ""
+                    else -> {
+                        val value = (arg as? Number)?.toDouble()
+                        if (value == null) {
+                            ""
+                        } else if (value != value || value.isInfinite()) {
+                            value.toString()
+                        } else {
+                            val decimals = if (precision < 0) 6 else precision
+                            var scale = 1L
+                            repeat(decimals) { scale *= 10L }
+                            val magnitude = if (value < 0.0) -value else value
+                            val scaled = (magnitude * scale + 0.5 + 1e-9).toLong()
+                            val frac = (scaled % scale).toString().padStart(decimals, '0')
+                            val sign = if (value < 0.0 && scaled != 0L) "-" else ""
+                            sign + (scaled / scale).toString() + (if (decimals == 0) "" else "." + frac)
+                        }
+                    }
+                }
+                out.append(if (width > body.length) body.padStart(width, if (zeroPad) '0' else ' ') else body)
+                i = m + 1
+            } else {
+                // Not a recognized spec — emit the '%' verbatim and advance one char.
+                out.append('%')
+                i++
+            }
         }
     }
     return out.toString()
@@ -123,7 +163,7 @@ internal val FMT_FUNCTION_SOURCE: String =
     |fun fmt(template: String, vararg args: Any?): String {
     |    val out = StringBuilder(template.length)
     |    var i = 0
-    |    var ordinaryIndex = 1
+    |    var next = 0
     |    val n = template.length
     |    while (i < n) {
     |        val c = template[i]
@@ -135,13 +175,6 @@ internal val FMT_FUNCTION_SOURCE: String =
     |        // c == '%'
     |        if (i + 1 < n && template[i + 1] == '%') {
     |            out.append('%')
-    |            i += 2
-    |            continue
-    |        }
-    |        // Explicit indexes do not advance the ordinary argument sequence.
-    |        if (i + 1 < n && (template[i + 1] == 's' || template[i + 1] == 'd')) {
-    |            out.append(args.getOrNull(ordinaryIndex - 1)?.toString() ?: "")
-    |            ordinaryIndex++
     |            i += 2
     |            continue
     |        }
@@ -181,9 +214,55 @@ internal val FMT_FUNCTION_SOURCE: String =
     |                i++
     |            }
     |        } else {
-    |            // Not a recognized spec — emit the '%' verbatim and advance one char.
-    |            out.append('%')
-    |            i++
+    |            // Unpositional %s / %d / %f (optional width and .precision, no flags) take the arguments in order,
+    |            // like Android's Resources.getString(id, args). Anything else keeps its '%' verbatim.
+    |            var m = i + 1
+    |            val zeroPad = m < n && template[m] == '0'
+    |            var width = 0
+    |            while (m < n && template[m] in '0'..'9') {
+    |                width = width * 10 + (template[m] - '0')
+    |                m++
+    |            }
+    |            var precision = -1
+    |            if (m < n && template[m] == '.') {
+    |                m++
+    |                precision = 0
+    |                while (m < n && template[m] in '0'..'9') {
+    |                    precision = precision * 10 + (template[m] - '0')
+    |                    m++
+    |                }
+    |            }
+    |            val conv = if (m < n) template[m] else ' '
+    |            if (conv == 's' || conv == 'd' || conv == 'f') {
+    |                val arg = args.getOrNull(next++)
+    |                val body = when (conv) {
+    |                    's' -> arg?.toString() ?: ""
+    |                    'd' -> (arg as? Number)?.toLong()?.toString() ?: arg?.toString() ?: ""
+    |                    else -> {
+    |                        val value = (arg as? Number)?.toDouble()
+    |                        if (value == null) {
+    |                            ""
+    |                        } else if (value != value || value.isInfinite()) {
+    |                            value.toString()
+    |                        } else {
+    |                            val decimals = if (precision < 0) 6 else precision
+    |                            var scale = 1L
+    |                            repeat(decimals) { scale *= 10L }
+    |                            val magnitude = if (value < 0.0) -value else value
+    |                            val scaled = (magnitude * scale + 0.5 + 1e-9).toLong()
+    |                            val frac = (scaled % scale).toString().padStart(decimals, '0')
+    |                            val sign = if (value < 0.0 && scaled != 0L) "-" else ""
+    |                            sign + (scaled / scale).toString() + (if (decimals == 0) "" else "." + frac)
+    |                        }
+    |                    }
+    |                }
+    |                out.append(if (width > body.length) body.padStart(width, if (zeroPad) '0' else ' ') else body)
+    |                i = m + 1
+    |            } else {
+    |                // Not a recognized spec — emit the '%' verbatim and advance one char.
+    |                out.append('%')
+    |                i++
+    |            }
     |        }
     |    }
     |    return out.toString()
@@ -374,7 +453,8 @@ fun emitGeneratedStrings(
     val sb = StringBuilder()
     sb.append("package ").append(PACKAGE).append("\n\n")
     sb.append("// GENERATED by :strings-gen (IosStringsEmitter). DO NOT EDIT.\n\n")
-    sb.append("internal class GeneratedStrings(private val tag: String) : Strings {\n")
+    sb.append("internal class GeneratedStrings(private val localeTag: () -> String) : Strings {\n")
+    sb.append("    private val tag: String get() = localeTag()\n")
 
     for (member in interfaceMembers) {
         val mapping = mappingByName[member.name]
@@ -417,6 +497,7 @@ fun emitGeneratedStrings(
     }
 
     sb.append("}\n\n")
-    sb.append("fun iosStrings(localeTag: String): Strings = GeneratedStrings(localeTag)\n")
+    sb.append("fun iosStrings(localeTag: String): Strings = GeneratedStrings { localeTag }\n")
+    sb.append("fun iosStrings(localeTag: () -> String): Strings = GeneratedStrings(localeTag)\n")
     return sb.toString()
 }

@@ -32,6 +32,12 @@ interface LocalCalendar {
     /** [epochMs] plus [days] calendar days: the local wall-clock time is kept across DST changes. */
     fun addDays(epochMs: Long, days: Int): Long
 
+    /** Gregorian year, one-based month and day in the current local time zone. */
+    fun localYmd(epochMs: Long): Triple<Int, Int, Int>
+
+    /** Replaces the local date, retaining local hour, minute, second and millisecond across DST. */
+    fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int): Long
+
     /** The current year in the local time zone. */
     fun currentYear(): Int
 

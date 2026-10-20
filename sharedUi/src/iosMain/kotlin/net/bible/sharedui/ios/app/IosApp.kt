@@ -27,7 +27,7 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
@@ -68,10 +68,15 @@ import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.resolveDeviceUiLanguage
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
@@ -138,26 +143,32 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
  */
 @Composable
 @kotlin.native.HiddenFromObjC
-fun IosApp(strings: Strings, recoveryStartRoute: String? = null, recoveryDark: Boolean = false, onRecoveryBack: () -> Unit = {}) {
+fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, onRecoveryBack: () -> Unit = {}) {
+    val koin = remember { KoinPlatform.getKoin() }
+    val holder = remember { koin.get<IosStringTableHolder>() }
+    val language = holder.current.tag
+    val strings = remember(language) { iosStrings(language) }
+    val liveStrings = remember { iosStrings { holder.current.tag } }
     // Recovery deliberately stops after Koin-only startup. No night observer, usable-Bible query,
     // reading initialisation, workspace saver or return-to-reading listener is allowed on this path.
     if (recoveryStartRoute != null) {
         check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
         CompositionLocalProvider(
             LocalStrings provides strings,
+            LocalLiveSettingsLanguage provides true,
+            net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
             LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
             LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
         ) {
             AbTheme(darkTheme = recoveryDark) {
                 check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
                 Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
-                    IosAppContent(strings, IosAppStartup.stringTable, recoveryStartRoute, null, onRecoveryBack)
+                    IosAppContent(liveStrings, IosAppStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
                 }
             }
         }
         return
     }
-    val koin = remember { KoinPlatform.getKoin() }
     val table = remember { IosAppStartup.stringTable }
     val nightObserver = remember { IosNightModeObserver(koin.get<NightModeState>()) { IosReadingWindows.nightModeChanged() } }
     DisposableEffect(nightObserver) {
@@ -178,6 +189,8 @@ fun IosApp(strings: Strings, recoveryStartRoute: String? = null, recoveryDark: B
     }
     CompositionLocalProvider(
         LocalStrings provides strings,
+        LocalLiveSettingsLanguage provides true,
+        net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {
@@ -188,7 +201,7 @@ fun IosApp(strings: Strings, recoveryStartRoute: String? = null, recoveryDark: B
                     CircularProgressIndicator()
                 }
             } else {
-                IosAppContent(strings, table, route, nightObserver)
+                IosAppContent(liveStrings, table, route, nightObserver, holder)
             }
         }
     }
@@ -200,6 +213,7 @@ private fun IosAppContent(
     table: StringTable,
     route: String,
     nightObserver: IosNightModeObserver?,
+    holder: IosStringTableHolder,
     onRecoveryBack: (() -> Unit)? = null,
 ) {
     val koin = remember { KoinPlatform.getKoin() }
@@ -207,7 +221,11 @@ private fun IosAppContent(
     val scope = rememberCoroutineScope()
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
     if (nightObserver != null) SaveWorkspaceOnBackground(koin)
-    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) }
+    val shell = remember {
+        IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) {
+            holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
+        }
+    }
     DisposableEffect(shell) {
         net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = { shell.navigate(NavRoutes.BACKUP) }
         net.bible.service.cloudsync.ios.IosErrorReportHooks.report = { cause -> net.bible.sharedui.ios.report.IosBugReport(table).report(cause) }
@@ -216,7 +234,16 @@ private fun IosAppContent(
             net.bible.service.cloudsync.ios.IosErrorReportHooks.report = null
         }
     }
-    val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
+    val windowSize = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
+    val liveWindowSize = androidx.compose.runtime.rememberUpdatedState(windowSize)
+    val ports = remember {
+        buildIosHostPorts(shell, koin, table,
+            initialiseWelcome = {
+                withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
+            },
+            isPortrait = { liveWindowSize.value.let { it.width <= it.height } },
+        )
+    }
     val appHosts = remember { AppHosts(koin, shell, ports, strings, onReportBug = {
         scope.launch { net.bible.sharedui.ios.report.IosBugReport(table).report() }
     }) }
@@ -233,24 +260,39 @@ private fun IosAppContent(
             koin.get<net.bible.android.control.backup.BackupHost>().showErrorReport(strings.errorOccurred, IllegalStateException("Task 5 simulator error"))
         }
     }
+    val welcome = remember { ports.welcomePlatform() as net.bible.sharedui.ios.ports.IosWelcomeHostPlatform }
+    SideEffect {
+        welcome.openImport = { appHosts.installZip.open() }
+        welcome.refreshTextIfCreated()
+    }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
-    val graphs = remember(navController) { appHosts.graphs(navController, channels) }
+    val debugReadingReady = remember { androidx.compose.runtime.mutableStateOf(false) }
+    val language = holder.current.tag
+    val graphs = remember(navController, language) { appHosts.graphs(navController, channels) }
     if (nightObserver != null) DisposableEffect(navController) {
         val gate = IosWelcomeReturnGate(
             scope = scope,
             usableBible = { withContext(Dispatchers.Default) { hasUsableBible(SwordDocumentFacade.bibles) } },
+            unlockIfNeeded = {
+                net.bible.service.sword.unlockLockedBiblesIfNoneUsable(
+                    object : net.bible.service.sword.BookUnlocker {
+                        override suspend fun unlock(book: Book): Boolean = ports.documentDialogs.awaitUnlock(book.initials)
+                    },
+                )
+            },
             ensureReading = { IosReadingReady.ensure(table) },
             currentRoute = { navController.currentDestination?.route },
             openReading = { shell.openReading() },
-            // Android: controller.setProgress(null) + refreshInfo(); the info load is cheap and database-free on iOS.
             refreshWelcome = {
                 nsLog("IosApp: no usable Bible after the flow, staying on Welcome")
-                ports.welcomePlatform().controller.apply { setProgress(null); refresh() }
+                welcome.controller.setProgress(null)
+                scope.launch { welcome.refreshInfo() }
             },
             log = { nsLog("IosApp: $it") },
         )
+        welcome.afterRestore = gate::afterExternalFlow
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
             gate.onDestination(
                 destination.route,
@@ -266,7 +308,7 @@ private fun IosAppContent(
         graphs = graphs,
         readingGraph = {
             readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
-                if (nightObserver != null) IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
+                if (nightObserver != null) IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
             })
         },
         overlays = {
@@ -302,7 +344,11 @@ private fun IosAppContent(
                     }
                 }
             }
-            IosAppDialogOverlay()
+            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts)
+            IosAppDialogOverlay(
+                // Alert dialogs may cover sheets; sheet-shaped global requests must exclude reading sheets.
+                onSheetOpening = { readingHostHolder.closeSheetsIfCreated() },
+            )
         },
     )
     LaunchedEffect(appHosts, navController) {
@@ -331,6 +377,8 @@ private fun IosAppContent(
 private class ReadingHostHolder {
     private var host: IosReadingHost? = null
 
+    fun closeSheetsIfCreated() { host?.hostState?.closeModalOverlays() }
+
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver): IosReadingHost =
         host ?: IosReadingHost(
             IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark,
@@ -352,6 +400,7 @@ private fun IosReadingDestination(
     koin: Koin,
     nightObserver: IosNightModeObserver,
     holder: ReadingHostHolder,
+    onDebugReady: () -> Unit,
 ) {
     val ready by produceState<Boolean?>(null) {
         value = try {
@@ -375,8 +424,11 @@ private fun IosReadingDestination(
         return
     }
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
-    // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
-    LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
+    // lifecycle tests launch with it and assert John 3 before saving and relaunching their own workspace.
+    LaunchedEffect(Unit) {
+        IosDebugLaunchArgs.openRefOnce()
+        onDebugReady()
+    }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }

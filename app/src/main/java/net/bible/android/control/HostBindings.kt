@@ -33,6 +33,8 @@ fun buildHostBindings() = module {
     single<SettingsPlatform> { AndroidSettingsPlatform(androidContext()) }
     // A factory: the app settings service is host-held (one per host), never a process singleton; it caches four
     // JSword dictionary scans for its lifetime.
+    single<net.bible.sharedcore.settings.DeviceLocalPrefs> { net.bible.android.view.activity.settings.AndroidDeviceLocalPrefs() }
+    single<net.bible.sharedcore.settings.SettingsPlatformFlags> { net.bible.android.view.activity.settings.AndroidSettingsPlatformFlags() }
     factory<AppSettingsService> { AppSettingsServiceImpl() }
     // A factory: its thumbnail cache is per host, as the activity's own resolver was.
     factory<TextDisplayPlatform> { AndroidTextDisplayPlatform { get<TextDisplaySettingsServiceImpl>() } }

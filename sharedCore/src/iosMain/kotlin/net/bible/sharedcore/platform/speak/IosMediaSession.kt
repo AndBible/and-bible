@@ -1,6 +1,7 @@
 package net.bible.sharedcore.platform.speak
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedcore.log.Log
 import platform.MediaPlayer.*
 
 /** Owns only its command targets; the consumer calls this adapter on Main and releases it. */
@@ -27,6 +28,7 @@ class IosMediaSession(
         bind(commandCenter.togglePlayPauseCommand) {
             if (state == MediaPlaybackState.PLAYING) commands.pause() else commands.play()
         }
+        Log.i("IosMediaSession", "activated: ownedTargets=${targets.size}, enabledOwnedCommands=${targets.count { it.first.enabled }}")
     }
 
     private fun bind(command: MPRemoteCommand, action: () -> Unit) {
@@ -70,8 +72,10 @@ class IosMediaSession(
     }
 
     override fun release() {
+        val ownedCommands = targets.map { it.first }
         removeTargets()
         state = MediaPlaybackState.STOPPED
         infoCenter.nowPlayingInfo = null
+        Log.i("IosMediaSession", "released: removedTargets=${ownedCommands.size}, remainingOwnedTargets=${targets.size}, enabledReleasedCommands=${ownedCommands.count { it.enabled }}")
     }
 }

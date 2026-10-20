@@ -143,4 +143,27 @@ internal class StubCoreStrings : CoreStrings {
     override val helpBookmarksText = "helpBookmarksText"
     override val watchTutorialVideo = "watchTutorialVideo"
     override val bookmarksAndMyNotesTitle = "bookmarksAndMyNotesTitle"
+
+    override val prefsNightModeDescriptionsSystemAutoManual: List<String> = listOf("prefsNightModeDescriptionsSystemAutoManual")
+    override val prefsNightModeValuesSystemAutoManual: List<String> = listOf("prefsNightModeValuesSystemAutoManual")
+    override val prefsNightModeDescriptionsSystemManual: List<String> = listOf("prefsNightModeDescriptionsSystemManual")
+    override val prefsNightModeValuesSystemManual: List<String> = listOf("prefsNightModeValuesSystemManual")
+    override val prefsBibleBookmarkModalActionNames: List<String> = listOf("prefsBibleBookmarkModalActionNames")
+    override val prefsBibleBookmarkModalActionIds: List<String> = listOf("prefsBibleBookmarkModalActionIds")
+    override val prefsGenBookmarkModalActionNames: List<String> = listOf("prefsGenBookmarkModalActionNames")
+    override val prefsGenBookmarkModalActionIds: List<String> = listOf("prefsGenBookmarkModalActionIds")
+    override val experimentalFeaturesNames: List<String> = listOf("experimentalFeaturesNames")
+    override val experimentalFeaturesValues: List<String> = listOf("experimentalFeaturesValues")
+    override val prefsToolbarButtonActionDescriptions: List<String> = listOf("prefsToolbarButtonActionDescriptions")
+    override val prefsToolbarButtonActionValues: List<String> = listOf("prefsToolbarButtonActionValues")
+    override val prefsBibleViewSwipeModeDescriptions: List<String> = listOf("prefsBibleViewSwipeModeDescriptions")
+    override val prefsBibleViewSwipeModeValues: List<String> = listOf("prefsBibleViewSwipeModeValues")
+    override val prefsThemePaletteStyleNames: List<String> = listOf("prefsThemePaletteStyleNames")
+    override val prefsThemePaletteStyleValues: List<String> = listOf("prefsThemePaletteStyleValues")
+    override val prefsInterfaceLocaleDescriptions: List<String> = listOf("prefsInterfaceLocaleDescriptions")
+    override val prefsInterfaceLocaleValues: List<String> = listOf("prefsInterfaceLocaleValues")
+    override val prefsNotesContentTypeEntries: List<String> = listOf("prefsNotesContentTypeEntries")
+    override val prefsNotesContentTypeValues: List<String> = listOf("prefsNotesContentTypeValues")
+    override val prefsDisplayColorModeNames: List<String> = listOf("prefsDisplayColorModeNames")
+    override val prefsDisplayColorModeValues: List<String> = listOf("prefsDisplayColorModeValues")
 }

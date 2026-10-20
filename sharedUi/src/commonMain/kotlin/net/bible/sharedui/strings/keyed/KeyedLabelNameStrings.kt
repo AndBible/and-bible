@@ -20,7 +20,11 @@ package net.bible.sharedui.strings.keyed
 import net.bible.sharedlogic.platform.LabelNameStrings
 
 /** [LabelNameStrings] over a [StringTable]; mirrors `AndroidLabelNameStrings`. */
-class KeyedLabelNameStrings(private val t: StringTable) : LabelNameStrings {
+class KeyedLabelNameStrings(private val table: () -> StringTable) : LabelNameStrings {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override val speak: String get() = t.text("speak")
     override val unlabelled: String get() = t.text("label_unlabelled")
     override val paragraphBreak: String get() = t.text("add_paragraph_break")

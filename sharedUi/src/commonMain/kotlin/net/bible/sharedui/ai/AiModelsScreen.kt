@@ -69,6 +69,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.TwoLineListItem
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.components.selectionStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -260,6 +261,11 @@ private fun ModelFormDialog(
 ) {
     val strings = LocalStrings.current
     var showDeleteConfirm by remember(state.id) { mutableStateOf(false) }
+    // The controller echoes a keystroke back a dispatch later (collectAsState), so each field keeps its typed text locally
+    // and takes over the controller's value only for its own writes. Re-seeded when another model is edited.
+    val customModelIdText = rememberControllerText(state.customModelId, state.id)
+    val priceInputText = rememberControllerText(state.priceInput, state.id)
+    val priceOutputText = rememberControllerText(state.priceOutput, state.id)
 
     val providerName = (state.providerChoices + providers).firstOrNull { it.id == state.providerId }?.displayName
         ?: state.providerId
@@ -340,8 +346,8 @@ private fun ModelFormDialog(
                         if (state.isCustom) {
                             Spacer(Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = state.customModelId,
-                                onValueChange = { onField(AiModelsController.Field.CUSTOM_MODEL_ID, it) },
+                                value = customModelIdText.text,
+                                onValueChange = { customModelIdText.edit(it) { v -> onField(AiModelsController.Field.CUSTOM_MODEL_ID, v) } },
                                 singleLine = true,
                                 label = { Text(strings.llmCustomModelHint) },
                                 modifier = Modifier.fillMaxWidth(),
@@ -371,8 +377,8 @@ private fun ModelFormDialog(
                 if (state.showPriceFields) {
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = state.priceInput,
-                        onValueChange = { onField(AiModelsController.Field.PRICE_INPUT, it) },
+                        value = priceInputText.text,
+                        onValueChange = { priceInputText.edit(it) { v -> onField(AiModelsController.Field.PRICE_INPUT, v) } },
                         singleLine = true,
                         label = { Text(strings.llmCustomInputPriceLabel) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -380,8 +386,8 @@ private fun ModelFormDialog(
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = state.priceOutput,
-                        onValueChange = { onField(AiModelsController.Field.PRICE_OUTPUT, it) },
+                        value = priceOutputText.text,
+                        onValueChange = { priceOutputText.edit(it) { v -> onField(AiModelsController.Field.PRICE_OUTPUT, v) } },
                         singleLine = true,
                         label = { Text(strings.llmCustomOutputPriceLabel) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

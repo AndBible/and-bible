@@ -30,6 +30,11 @@ import net.bible.sharedcore.settings.SettingsItem
 sealed interface AppDialogRequest {
     val title: String?
 
+    /** Resolve at composition time so an open iOS dialog follows the current language. */
+    class Localized(val resolve: () -> AppDialogRequest) : AppDialogRequest {
+        override val title: String? get() = resolve().title
+    }
+
     /** Class A. [neutralText] is the third button ("Report error", "Show unlock info"). */
     data class Message(
         override val title: String?,

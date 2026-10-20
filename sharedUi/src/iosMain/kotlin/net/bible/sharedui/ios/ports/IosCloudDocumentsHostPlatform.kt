@@ -21,13 +21,20 @@ package net.bible.sharedui.ios.ports
 import androidx.compose.runtime.Composable
 import net.bible.sharedui.app.download.CloudDocumentsHostPlatform
 import net.bible.sharedui.app.download.CloudDocumentsOverflowItem
-import net.bible.sharedui.ios.IosPending
+import androidx.compose.material3.Icon
+import net.bible.sharedui.icons.AbIcons
+import org.jetbrains.compose.resources.painterResource
 
-/** Pending (stream H): the overflow icons render nothing. */
+/** Cloud document actions use the shared, theme-tinted vectors. */
 @kotlin.native.HiddenFromObjC
 class IosCloudDocumentsHostPlatform : CloudDocumentsHostPlatform {
     @Composable
     override fun OverflowIcon(item: CloudDocumentsOverflowItem) {
-        IosPending.log("CloudDocumentsHostPlatform.OverflowIcon")
+        val key = when (item) {
+            CloudDocumentsOverflowItem.SYNC_NOW -> "ic_sync_white_24dp"
+            CloudDocumentsOverflowItem.RESCAN -> "ic_baseline_refresh_24"
+            CloudDocumentsOverflowItem.HELP -> "ic_help_white_24dp"
+        }
+        Icon(painterResource(AbIcons.cloudDocumentsOverflowIconResources.getValue(key)), contentDescription = null)
     }
 }

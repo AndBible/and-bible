@@ -28,7 +28,11 @@ import net.bible.sharedlogic.settings.TextDisplayString
  * [SettingLabels] over a [StringTable]: the static title of each text display setting (the keys `getPrefItem` uses
  * in `OptionsMenuItems.kt`). Android's dynamic titles (current font size, margins, ...) are not part of this port.
  */
-class KeyedSettingLabels(private val t: StringTable) : SettingLabels {
+class KeyedSettingLabels(private val table: () -> StringTable) : SettingLabels {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override fun label(bundle: SettingsBundle, type: TextDisplaySettings.Types): String = t.text(titleKey(type))
 
     companion object {

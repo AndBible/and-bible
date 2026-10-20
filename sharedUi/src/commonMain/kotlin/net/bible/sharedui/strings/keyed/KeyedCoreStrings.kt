@@ -23,7 +23,11 @@ import net.bible.sharedcore.platform.CoreStrings
  * [CoreStrings] over a [StringTable]: the same resource keys as `AndroidCoreStrings`, so the two cannot drift apart.
  * Misspelt keys are caught by `KeyedStringsTest` (a missing key answers itself).
  */
-class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
+class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override val errorReport: String get() = t.text("report_error")
     override val errorBackup: String get() = t.text("backup_and_restore")
     override val errorSkip: String get() = t.text("error_skip")
@@ -186,4 +190,27 @@ class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
     override val helpBookmarksText: String get() = t.text("help_bookmarks_text")
     override val watchTutorialVideo: String get() = t.text("watch_tutorial_video")
     override val bookmarksAndMyNotesTitle: String get() = t.text("bookmarks_and_mynotes_title")
+
+    override val prefsNightModeDescriptionsSystemAutoManual: List<String> get() = t.array("prefs_night_mode_descriptions_system_auto_manual")
+    override val prefsNightModeValuesSystemAutoManual: List<String> get() = t.array("prefs_night_mode_values_system_auto_manual")
+    override val prefsNightModeDescriptionsSystemManual: List<String> get() = t.array("prefs_night_mode_descriptions_system_manual")
+    override val prefsNightModeValuesSystemManual: List<String> get() = t.array("prefs_night_mode_values_system_manual")
+    override val prefsBibleBookmarkModalActionNames: List<String> get() = t.array("prefs_bible_bookmark_modal_action_names")
+    override val prefsBibleBookmarkModalActionIds: List<String> get() = t.array("prefs_bible_bookmark_modal_action_ids")
+    override val prefsGenBookmarkModalActionNames: List<String> get() = t.array("prefs_gen_bookmark_modal_action_names")
+    override val prefsGenBookmarkModalActionIds: List<String> get() = t.array("prefs_gen_bookmark_modal_action_ids")
+    override val experimentalFeaturesNames: List<String> get() = t.array("experimental_features_names")
+    override val experimentalFeaturesValues: List<String> get() = t.array("experimental_features_values")
+    override val prefsToolbarButtonActionDescriptions: List<String> get() = t.array("prefs_toolbar_button_action_descriptions")
+    override val prefsToolbarButtonActionValues: List<String> get() = t.array("prefs_toolbar_button_action_values")
+    override val prefsBibleViewSwipeModeDescriptions: List<String> get() = t.array("prefs_bible_view_swipe_mode_descriptions")
+    override val prefsBibleViewSwipeModeValues: List<String> get() = t.array("prefs_bible_view_swipe_mode_values")
+    override val prefsThemePaletteStyleNames: List<String> get() = t.array("prefs_theme_palette_style_names")
+    override val prefsThemePaletteStyleValues: List<String> get() = t.array("prefs_theme_palette_style_values")
+    override val prefsInterfaceLocaleDescriptions: List<String> get() = t.array("prefs_interface_locale_descriptions")
+    override val prefsInterfaceLocaleValues: List<String> get() = t.array("prefs_interface_locale_values")
+    override val prefsNotesContentTypeEntries: List<String> get() = t.array("prefs_notes_content_type_entries")
+    override val prefsNotesContentTypeValues: List<String> get() = t.array("prefs_notes_content_type_values")
+    override val prefsDisplayColorModeNames: List<String> get() = t.array("prefs_display_color_mode_names")
+    override val prefsDisplayColorModeValues: List<String> get() = t.array("prefs_display_color_mode_values")
 }

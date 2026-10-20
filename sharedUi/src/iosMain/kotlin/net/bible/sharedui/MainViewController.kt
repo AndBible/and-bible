@@ -91,6 +91,7 @@ fun MainViewController(): UIViewController {
     crashTracker.onLaunch()
     IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
+    IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
     val language = resolveDeviceUiLanguage(settings)
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
@@ -168,7 +169,7 @@ fun MainViewController(): UIViewController {
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
             else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
-                IosApp(strings, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
                 }
@@ -210,7 +211,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
-                IosApp(strings)
+                IosApp()
             }
             return@ComposeUIViewController
         }

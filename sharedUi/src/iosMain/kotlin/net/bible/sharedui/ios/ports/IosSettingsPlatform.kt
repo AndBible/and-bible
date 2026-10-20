@@ -20,12 +20,25 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedui.app.ports.SettingsPlatform
-import net.bible.sharedui.ios.IosPending
+import net.bible.android.view.activity.settings.SettingsReset
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.DeviceLocalPrefs
+import net.bible.sharedcore.settings.SettingsPlatformFlags
 
-/** Reset is pending (stream H); the confirm / dismiss words come from the app strings. */
+/** Uses the shared reset contract, including the original device-local exclusions. */
 @kotlin.native.HiddenFromObjC
-class IosSettingsPlatform(private val strings: CoreStrings) : SettingsPlatform {
-    override fun resetAllSettings() = IosPending.log("SettingsPlatform.resetAllSettings")
+class IosSettingsPlatform(
+    private val strings: CoreStrings,
+    private val settings: AppSettings,
+    private val devicePrefs: DeviceLocalPrefs,
+) : SettingsPlatform, SettingsPlatformFlags {
+    override fun resetAllSettings() = SettingsReset.performReset(settings, devicePrefs)
+    override val sdcardPermissionVisible = false
+    override val openLinksVisible = false
+    override val debugToolsVisible = false
+    override val autoNightModeAvailable = false
+    override val isOnyx = false
+    override fun onSystemBarSettingChanged() = Unit
     override val isDiscreteBuild: Boolean = false
     override val confirmText: String get() = strings.okay
     override val dismissText: String get() = strings.cancel

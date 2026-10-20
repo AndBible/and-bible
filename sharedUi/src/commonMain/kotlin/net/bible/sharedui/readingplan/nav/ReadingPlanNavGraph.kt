@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.readingplan.nav
 
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -147,6 +149,7 @@ class DailyReadingDeps(
     val onImportPlan: () -> Unit,
     val onPlanMissing: () -> Boolean,
     val title: String,
+    val refreshMetadata: suspend (DailyReadingController) -> Unit = {},
 )
 
 /**
@@ -175,6 +178,7 @@ class SelectorDeps(
     val controllerFor: (scope: kotlinx.coroutines.CoroutineScope, onSelect: (planCode: String) -> Unit) -> ReadingPlanSelectorController,
     val subscribeEvents: (onReadingPlansChanged: () -> Unit) -> () -> Unit,
     val title: String,
+    val refreshMetadata: suspend (ReadingPlanSelectorController) -> Unit = {},
 )
 
 /**
@@ -312,6 +316,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         }
 
         val loaded by d.loaded.collectAsState()
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings, loaded) { d.refreshMetadata(controller) }
+        }
 
         // THE HISTORY SEAM. HistoryManager stores `intentForHistoryList` at the moment the user
         // navigates away (HistoryManager.kt:172-175) and later re-launches it, so the stored route
@@ -467,6 +475,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         }
 
         val plans by controller.plans.collectAsState()
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings, controller, plans.map { it.planCode }) { d.refreshMetadata(controller) }
+        }
         val duplicateWarning by controller.duplicateWarning.collectAsState()
         val error by controller.error.collectAsState()
 

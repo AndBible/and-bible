@@ -179,12 +179,14 @@ class IosInstallZipTest {
 
     @Test fun externalBackslashBasenamesInstallInsidePromptDirectoryWithoutChangingSourceIdentity() = withInstallScope { scope ->
         val root = net.bible.sharedui.assembly.IosAssemblyTest.sharedRoot
-        net.bible.sharedui.assembly.IosAppStartup.resetForTest()
+        net.bible.sharedui.assembly.awaitStartupOnMain { net.bible.sharedui.assembly.IosAppStartup.resetForTest() }
         try {
-            net.bible.sharedui.assembly.IosAppStartup.start(net.bible.sharedui.assembly.IosAppConfig(
-                root = root, uiLanguage = "en", repositories = org.crosswire.common.util.PropertyMap(),
-                secretStore = net.bible.sharedui.assembly.InMemorySecretStore(),
-            ))
+            net.bible.sharedui.assembly.awaitStartupOnMain {
+                net.bible.sharedui.assembly.IosAppStartup.ensureStarted(net.bible.sharedui.assembly.IosAppConfig(
+                    root = root, uiLanguage = "en", repositories = org.crosswire.common.util.PropertyMap(),
+                    secretStore = net.bible.sharedui.assembly.InMemorySecretStore(),
+                ))
+            }
             val koin = org.koin.mp.KoinPlatform.getKoin()
             val modules = koin.get<net.bible.sharedcore.platform.AppDirectories>().modulesDir
             val token = NSUUID().UUIDString
@@ -266,7 +268,7 @@ class IosInstallZipTest {
                 FileSystem.SYSTEM.deleteRecursively(root / "basename-acquire-$token", mustExist = false)
                 platform.Foundation.NSFileManager.defaultManager.removeItemAtURL(sourceDir, null)
             }
-        } finally { net.bible.sharedui.assembly.IosAppStartup.resetForTest() }
+        } finally { net.bible.sharedui.assembly.awaitStartupOnMain { net.bible.sharedui.assembly.IosAppStartup.resetForTest() } }
     }
 
     @Test fun resolveDecisionResumesTheActualControllerJob() = withInstallScope { scope ->

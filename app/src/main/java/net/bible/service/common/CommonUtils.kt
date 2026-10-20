@@ -761,161 +761,58 @@ object CommonUtils : CommonUtilsBase() {
         settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
+    private fun documentDialogsCore(context: Context) = net.bible.sharedui.app.ports.DocumentDialogsCore(
+        dialogs,
+        { net.bible.sharedui.strings.keyed.StringTable(
+            "android", { key -> context.getString(documentDialogStringIds.getValue(key)) },
+            { key, args -> context.getString(documentDialogStringIds.getValue(key), *args) },
+            { _, _ -> error("No plurals") }, { emptyList() },
+        ) },
+    )
+    private val documentDialogStringIds = mapOf(
+        "okay" to R.string.okay,
+        "cancel" to R.string.cancel,
+        "yes" to R.string.yes,
+        "no" to R.string.no,
+        "give_passphrase_for_module" to R.string.give_passphrase_for_module,
+        "show_unlock_info" to R.string.show_unlock_info,
+        "try_again_passphrase" to R.string.try_again_passphrase,
+        "warn_bad_document" to R.string.warn_bad_document,
+        "module_about_copyright" to R.string.module_about_copyright,
+        "unlock_info" to R.string.unlock_info,
+        "module_about_installed_version" to R.string.module_about_installed_version,
+        "module_about_latest_version" to R.string.module_about_latest_version,
+        "about_version_history" to R.string.about_version_history,
+        "module_about_versification" to R.string.module_about_versification,
+        "module_about_repository" to R.string.module_about_repository,
+        "module_about_osisId" to R.string.module_about_osisId,
+        "help_read_more_link" to R.string.help_read_more_link,
+        "bookmark_warning" to R.string.bookmark_warning,
+        "bookmark_warning2" to R.string.bookmark_warning2,
+        "bookmark_warning3" to R.string.bookmark_warning3,
+        "bookmark_warning4" to R.string.bookmark_warning4,
+        "buy_development" to R.string.buy_development,
+        "buy_development2" to R.string.buy_development2,
+        "watch_tutorial_video" to R.string.watch_tutorial_video,
+        "help_full_documentation_link" to R.string.help_full_documentation_link,
+        "help" to R.string.help,
+    )
+
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
-        var repeat = true
-        while (repeat) {
-            val answer = dialogs.await(
-                AppDialogRequest.TextInput(
-                    title = application.getString(R.string.give_passphrase_for_module, book.initials),
-                    message = null,
-                    initial = book.unlockKey ?: "",
-                    confirmText = application.getString(R.string.okay),
-                    dismissText = application.getString(R.string.cancel),
-                    neutralText = application.getString(R.string.show_unlock_info),
-                    cancellable = false,
-                    draftKey = "unlock:${book.initials}",
-                ),
-            )
-            val passphrase: String? = when (answer) {
-                is AppDialogResult.Text -> answer.value
-                AppDialogResult.Neutral -> {
-                    showAbout(context, book)
-                    continue
-                }
-                else -> null
+        return documentDialogsCore(application).unlockDocument(book) { passphrase ->
+            docDao.getBook(book.initials)?.apply {
+                cipherKey = passphrase
+                docDao.update(this)
             }
-            if (passphrase != null) {
-                val success = book.unlock(passphrase)
-                if (success) {
-                    docDao.getBook(book.initials)?.apply {
-                        cipherKey = passphrase
-                        docDao.update(this)
-                    }
-                    return true
-                }
-            }
-            repeat = dialogs.await(
-                AppDialogRequest.Confirm(
-                    title = application.getString(R.string.try_again_passphrase),
-                    message = null,
-                    confirmText = application.getString(R.string.yes),
-                    dismissText = application.getString(R.string.no),
-                    cancellable = false,
-                ),
-            ) == AppDialogResult.Ok
         }
-        return false
     }
 
     /** about display is generic so handle it here
      */
     suspend fun showAbout(context: Context, document: Book) {
-        var about = "<b>${document.name}</b>\n\n"
-        val badDocument = document.bookMetaData.getProperty("BadDocument")
-        if(badDocument != null) {
-            about += "<b>${application.getString(R.string.warn_bad_document)}</b>\n\n"
-        }
-        about += document.bookMetaData.getProperty("About") ?: ""
-        // either process the odd formatting chars in about
-        about = about.replace("\\pard", "")
-        about = about.replace("\\par", "\n")
-
-        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
-
-        if(shortPromo != null) {
-            about += "\n\n${shortPromo}"
-        }
-
-        // Copyright and distribution information
-        val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
-        val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
-        val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
-        val unlockInfo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_UNLOCK_INFO)
-        var copyrightMerged = ""
-        if (StringUtils.isNotBlank(shortCopyright)) {
-            copyrightMerged += shortCopyright
-        } else if (StringUtils.isNotBlank(copyright)) {
-            copyrightMerged += "\n\n" + copyright
-        }
-        if (StringUtils.isNotBlank(distributionLicense)) {
-            copyrightMerged += "\n\n" +distributionLicense
-        }
-        if (StringUtils.isNotBlank(copyrightMerged)) {
-            val copyrightMsg = application.getString(R.string.module_about_copyright, copyrightMerged)
-            about += "\n\n" + copyrightMsg
-        }
-        if(unlockInfo != null) {
-            about += "\n\n<b>${application.getString(R.string.unlock_info)}</b>\n\n$unlockInfo"
-        }
-
-        // add version
-        val existingDocument = Books.installed().getBook(document.initials)
-        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
-        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
-
-        val versionLatest = document.bookMetaData.getProperty("Version")
-        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
-
-        val versionMessageInstalled = if(existingVersion != null)
-            application.getString(R.string.module_about_installed_version,
-                try {
-                    Version(existingVersion).toString()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error parsing version $existingVersion", e)
-                    existingVersion
-                }, existingVersionDate)
-        else null
-
-        val versionMessageLatest = if(versionLatest != null)
-            application.getString((
-                if (existingDocument != null)
-                    R.string.module_about_latest_version
-                else
-                    R.string.module_about_installed_version),
-                try {Version(versionLatest).toString()} catch(e: Exception) {versionLatest}, versionLatestDate)
-        else null
-
-        if(versionMessageLatest != null) {
-            about += "\n\n" + versionMessageLatest
-        }
-
-        val history = document.bookMetaData.getValues("History")
-        if(history != null) {
-            about += "\n\n" + application.getString(R.string.about_version_history, "\n" +
-                history.reversed().joinToString("\n"))
-        }
-
-        // add versification
-        if (document is SwordBook) {
-            val versification = document.versification
-            val versificationMsg = application.getString(R.string.module_about_versification, versification.name)
-            about += "\n\n" + versificationMsg
-        }
-
-        // add id
-        if (document is SwordBook) {
-            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
-            val repoMessage = if(repoName != null) application.getString(R.string.module_about_repository, repoName) else ""
-            val osisIdMessage = application.getString(R.string.module_about_osisId, document.initials)
-            about += """
-
-
-                $osisIdMessage
-                
-                $repoMessage
-                """.trimIndent()
-        }
-        about = about.replace("\n", "<br>")
-        dialogs.await(
-            AppDialogRequest.Message(
-                title = null,
-                message = about,
-                confirmText = application.getString(R.string.okay),
-                cancellable = false,
-            ),
-        )
+        documentDialogsCore(application).showAbout(document)
     }
 
     /**
@@ -946,43 +843,11 @@ object CommonUtils : CommonUtilsBase() {
             } else this
         }
 
-        val buy = app.getString(R.string.buy_development)
-        val support = app.getString(R.string.buy_development2)
-        val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
-
-        var htmlMessage = ""
-
-        for(helpItem in help) {
-            val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-
-            val links = mutableListOf<String>()
-            if(helpItem.videoLink != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
-            }
-            if(helpItem.docUrl != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${app.getString(R.string.help_read_more_link)}</a></i>")
-            }
-            val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
-
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$helpText<br>$linksHtml<br>"
-        }
-
-        val fullDocsLink = app.getString(R.string.help_full_documentation_link)
-        val fullDocsMessage = "<a href=\"${DocsLinks.BASE_URL}\">$fullDocsLink</a>"
-
-        dialogs.post(
-            AppDialogRequest.Notice(
-                title = app.getString(R.string.help),
-                showTitleLogo = true,
-                blocks = listOfNotNull(
-                    AppDialogRequest.NoticeBlock.Html(htmlMessage),
-                    AppDialogRequest.NoticeBlock.Html(fullDocsMessage),
-                    AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage"),
-                    if (showVersion) AppDialogRequest.NoticeBlock.Html("<i>$versionMsg</i>") else null,
-                ),
-                confirmText = app.getString(android.R.string.ok),
-            ),
-        )
+        dialogs.post(documentDialogsCore(app).helpNotice(
+            help.map { net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(app.getString(it.title), app.getString(it.text), it.videoLink, it.docUrl) },
+            versionMsg = if (showVersion) versionMsg else null,
+            okText = app.getString(android.R.string.ok),
+        ))
     }
 
     /**
@@ -1001,17 +866,7 @@ object CommonUtils : CommonUtilsBase() {
         messageResId: Int,
         helpUrl: String,
     ) {
-        val readMore = activity.getString(R.string.help_read_more_link)
-        val messageHtml = activity.getString(messageResId) +
-            "<br><br><i><a href=\"$helpUrl\">$readMore</a></i>"
-        dialogs.post(
-            AppDialogRequest.Message(
-                title = activity.getString(titleResId),
-                message = messageHtml,
-                confirmText = activity.getString(R.string.okay),
-                cancellable = true,
-            ),
-        )
+        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl))
     }
 
     /**
@@ -1570,20 +1425,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun documentUpgradeConfirmation(context: Activity): Boolean = context.run {
-        val warningTitle = getString(R.string.bookmark_warning)
-        val warningMessage = getString(R.string.bookmark_warning2)
-        val warningRecommendation = getString(R.string.bookmark_warning4)
-        val warningQuestion = getString(R.string.bookmark_warning3)
-        val warningMsg = "$warningMessage<br><br>$warningRecommendation<br><br>$warningQuestion"
-        dialogs.await(
-            AppDialogRequest.Confirm(
-                title = warningTitle,
-                message = warningMsg,
-                confirmText = getString(R.string.yes),
-                dismissText = getString(R.string.cancel),
-                cancellable = false,
-            ),
-        ) == AppDialogResult.Ok
+        documentDialogsCore(this).confirmUpgrade()
     }
     fun prependDictionaryKeyWithZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length

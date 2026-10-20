@@ -74,7 +74,8 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     DateTimeFormats::class, UserNotifier::class, ReadingPlanSource::class,
     DownloadHttp::class, LlmHttpTransport::class,
     SpeakPlatform::class, SpeakSettingsStore::class, MarkdownRenderer::class, AgentPlatform::class,
-    AddonCatalog::class, PromptPackSource::class, PlatformLocales::class, LocaleSupport::class,
+    AddonCatalog::class, net.bible.sharedlogic.platform.BackgroundImageCatalog::class,
+    PromptPackSource::class, PlatformLocales::class, LocaleSupport::class,
     ReadOnlyModuleDbOpener::class, SearchIndexScheduler::class, LocalCalendar::class,
     FirstLoadEdge::class, EpubStoreEdge::class, MyDocumentStoreEdge::class, SentenceBreaker::class,
     NightModeState::class,
@@ -95,4 +96,5 @@ val IOS_HOST_BINDING_TYPES: List<KClass<*>> = listOf(
     net.bible.sharedui.app.ports.SettingsPlatform::class, net.bible.sharedui.app.ports.TextDisplayPlatform::class,
     net.bible.sharedui.app.ports.DocumentInstallStarter::class, net.bible.sharedcore.settings.AppSettingsService::class,
     net.bible.sharedui.app.ports.NotificationPermission::class,
+    net.bible.sharedcore.settings.DeviceLocalPrefs::class, net.bible.sharedcore.settings.SettingsPlatformFlags::class,
 )

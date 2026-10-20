@@ -26,9 +26,18 @@ class IosDownloadHostPlatformTest {
     fun copiesAndCreatesParentDirectories() {
         val src = write("src.tmp", "hello")
         val dst = root / "a" / "b" / "dst.zip"
-        assertTrue(IosDownloadHostPlatform().copyFile(src, dst))
+        assertTrue(copyFileReplacing(src, dst))
         assertEquals("hello", fs.read(dst) { readUtf8() })
         assertTrue(fs.exists(src), "source is copied, not moved")
+    }
+
+    @Test
+    fun insufficientSpacePreservesExistingTarget() {
+        val src = write("src.tmp", "large module")
+        val dst = write("dst.zip", "previous module")
+        assertFalse(copyFileReplacing(src, dst, freeBytes = { 1L }))
+        assertEquals("previous module", fs.read(dst) { readUtf8() })
+        assertFalse(fs.exists(root / "dst.zip.tmp"))
     }
 
     @Test

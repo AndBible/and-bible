@@ -63,8 +63,12 @@ class MediaButtonHandler(speakControl: SpeakControl, private val session: MediaS
         private fun buttonsEnabled() = KoinPlatform.getKoin().get<AppSettings>().getBoolean(ENABLE_PREF, true)
         var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl, session: MediaSession) {
-            if (buttonsEnabled()) {
+            val enabled = buttonsEnabled()
+            Log.i(TAG, "attach requested: enable_bluetooth_pref=$enabled, existingHandler=${handler != null}")
+            if (enabled) {
                 handler = MediaButtonHandler(speakControl, session)
+            } else {
+                Log.i(TAG, "attach skipped: enable_bluetooth_pref=false (existing handler unchanged)")
             }
         }
         fun release() {

@@ -71,6 +71,22 @@ class AppSettingsControllerTest {
         c.state.value.items.single { it.key == "theme_palette_style" } as SettingsItem.ListChoiceRow
 
     @Test
+    fun retainedControllerRelocalizesOpenResetWithoutChangingSelection() {
+        val service = FakeAppSettingsService(snap())
+        val c = controller(service)
+        c.requestReset()
+        c.updateLabels(AppSettingsLabels.forTest().copy(
+            screenTitle = "Asetukset",
+            resetConfirmMessage = "Palautetaanko asetukset?",
+            themePaletteStyleTitle = "Teema",
+        ))
+        assertEquals("Asetukset", c.state.value.title)
+        assertEquals("Teema", themeRow(c).title)
+        assertEquals("tonal_spot_grey", themeRow(c).selectedValue)
+        assertEquals(AppSettingsDialog.ConfirmReset("Palautetaanko asetukset?"), c.dialog.value)
+    }
+
+    @Test
     fun themeStyleRowShowsTheStoredValueAndChoices() {
         val row = themeRow(controller(FakeAppSettingsService(snap())))
         assertEquals("tonal_spot_grey", row.selectedValue)

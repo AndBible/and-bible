@@ -25,6 +25,8 @@ import kotlin.native.Platform
  *
  * - `-resetData`: [resetAppData] before startup, so the app starts as a fresh install.
  * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown.
+ * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
+ * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 internal object IosDebugLaunchArgs {
@@ -51,6 +53,15 @@ internal object IosDebugLaunchArgs {
 
     /** Disposable cross-platform acceptance only; no persisted override or production namespace change. */
     fun syncNamespace(): String? = net.bible.service.cloudsync.ios.task7SyncNamespace(Platform.isDebugBinary, arguments)
+    fun featureScenario() = net.bible.sharedui.app.DebugFeatureScenario.parse(Platform.isDebugBinary, arguments)
+
+    /** Explicit device-local fixture, separate from the database-only reset contract. */
+    fun normalizeStandardFixture() {
+        val settings = net.bible.sharedcore.platform.IosDeviceSettings()
+        net.bible.sharedui.app.applyDebugStandardFixture(Platform.isDebugBinary, arguments, settings::setString, settings::setBoolean)
+    }
+
+    val referenceApplied: Boolean get() = openRef() == null || openRefDone
 
     /** True when `-resetData` was passed. */
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments

@@ -248,7 +248,7 @@ fun NumericSliderContent(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var current by remember(numeric) { mutableIntStateOf(numeric.value) }
+    var current by remember(numeric.value, numeric.min, numeric.max) { mutableIntStateOf(numeric.value) }
     AbSliderRow(
         label = "",
         value = current,

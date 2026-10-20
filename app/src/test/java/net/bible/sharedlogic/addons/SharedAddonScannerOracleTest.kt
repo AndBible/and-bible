@@ -1,6 +1,12 @@
 package net.bible.sharedlogic.addons
 
 import fi.sykero.kdom.Content
+import net.bible.android.control.buildPlatformBindings
+import net.bible.sharedlogic.platform.AddonBackgroundImage
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.platform.BackgroundImageCatalog
+import org.koin.dsl.koinApplication
+import org.junit.Assert.assertSame
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.AndBibleAddons
@@ -72,7 +78,9 @@ class SharedAddonScannerOracleTest {
 
     private val addonsField = AndBibleAddons::class.java.getDeclaredField("_addons").apply { isAccessible = true }
 
-    @After fun resetAddons() = addonsField.set(AndBibleAddons, null)
+    private val originalAddons = addonsField.get(AndBibleAddons)
+
+    @After fun resetAddons() = addonsField.set(AndBibleAddons, originalAddons)
 
     private fun inject(books: List<Book>) = addonsField.set(AndBibleAddons, books)
 
@@ -101,6 +109,34 @@ class SharedAddonScannerOracleTest {
         }
         assertTrue(shared.getValue("two.v2").isDateBased)
         assertEquals("C", shared.getValue("one").book.initials)
+    }
+
+    @Test fun androidBackgroundCatalogMapsReadableModulesThroughTheRealGraph() {
+        val location = folder.newFolder("background-module")
+        val image = File(location, "images/paper.png").apply {
+            parentFile.mkdirs()
+            writeBytes(byteArrayOf(1, 2, 3))
+        }
+        inject(listOf(
+            StubBook(Meta("PaperModule", location, mapOf(
+                "AndBibleProvidesBackgroundImage" to listOf("Paper display name;images/paper.png")
+            ), emptyMap())),
+            StubBook(Meta("MissingImage", location, mapOf(
+                "AndBibleProvidesBackgroundImage" to listOf("Missing;images/missing.png")
+            ), emptyMap())),
+            StubBook(Meta("NotAnImage", location, emptyMap(), emptyMap())),
+        ))
+        val app = koinApplication { allowOverride(false); modules(buildPlatformBindings()) }
+        try {
+            val catalog = app.koin.get<BackgroundImageCatalog>()
+            assertSame("Both interfaces must share the actual Android add-on catalog", app.koin.get<AddonCatalog>(), catalog)
+            assertEquals(
+                mapOf("PaperModule" to AddonBackgroundImage("Paper display name", image.toOkioPath())),
+                catalog.backgroundImages,
+            )
+        } finally {
+            app.close()
+        }
     }
 
     @Test fun promptPacksMatchAndroid() {

@@ -26,10 +26,17 @@ class IosWelcomeReturnGate(
     private val openReading: () -> Unit,
     private val refreshWelcome: () -> Unit,
     private val log: (String) -> Unit = {},
+    private val unlockIfNeeded: suspend () -> Unit = {},
 ) {
     /** True while a flow is out of Welcome (main thread only). */
     var awaitingReturn = false
         private set
+
+    /** A successful restore returns from an external picker without changing the navigation destination. */
+    fun afterExternalFlow() {
+        awaitingReturn = true
+        onDestination(currentRoute(), welcomeOnStack = true)
+    }
 
     /** [route] is the new current destination's route; [welcomeOnStack] whether a Welcome entry is on the back stack. */
     fun onDestination(route: String?, welcomeOnStack: Boolean) {
@@ -41,7 +48,7 @@ class IosWelcomeReturnGate(
         awaitingReturn = false
         scope.launch {
             try {
-                // pending: unlock-if-needed (Android gate (b) unlocks locked Bibles with stored keys first; no iOS port yet)
+                unlockIfNeeded()
                 if (!usableBible()) {
                     refreshWelcome()
                     return@launch

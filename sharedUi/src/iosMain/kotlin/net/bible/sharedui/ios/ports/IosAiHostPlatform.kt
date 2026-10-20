@@ -18,24 +18,38 @@
 
 package net.bible.sharedui.ios.ports
 
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedlogic.platform.LocaleSupport
+import net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG
 import net.bible.sharedui.app.ai.AiHostPlatform
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
+import platform.Foundation.*
 
-/** Pending (stream H). */
+/** Locale choices are rebuilt against the current string table, including an already-open chooser. */
 @kotlin.native.HiddenFromObjC
-class IosAiHostPlatform : AiHostPlatform {
-    override fun languageChoices(): List<SettingsItem.Choice> {
-        IosPending.log("AiHostPlatform.languageChoices")
-        return emptyList()
+class IosAiHostPlatform(
+    private val strings: CoreStrings,
+    private val locales: LocaleSupport,
+    private val table: () -> StringTable,
+    private val reportError: suspend (String, Throwable) -> Unit,
+) : AiHostPlatform {
+    override fun languageChoices(): List<SettingsItem.Choice> = buildList {
+        val t = table()
+        add(SettingsItem.Choice("", t.fmt("ai_language_app_default", locales.defaultDisplayLanguage())))
+        val descriptions = strings.prefsInterfaceLocaleDescriptions
+        strings.prefsInterfaceLocaleValues.forEachIndexed { i, code ->
+            if (code.isNotEmpty()) add(SettingsItem.Choice(code, descriptions[i]))
+        }
+        add(SettingsItem.Choice(AI_CUSTOM_LANGUAGE_TAG, t.text("ai_language_custom")))
     }
 
-    override fun formatLogTimestamp(epochMs: Long): String {
-        IosPending.log("AiHostPlatform.formatLogTimestamp")
-        return epochMs.toString()
-    }
+    override fun formatLogTimestamp(epochMs: Long): String = NSDateFormatter().apply {
+        locale = NSLocale.localeWithLocaleIdentifier(table().tag)
+        calendar = NSCalendar(calendarIdentifier = NSCalendarIdentifierGregorian)
+        timeZone = NSTimeZone.defaultTimeZone
+        dateFormat = "yyyy-MM-dd HH:mm"
+    }.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 
-    override suspend fun showErrorDialog(message: String, cause: Throwable) {
-        IosPending.log("AiHostPlatform.showErrorDialog")
-    }
+    override suspend fun showErrorDialog(message: String, cause: Throwable) = reportError(message, cause)
 }

@@ -126,6 +126,38 @@ class AndroidLocalCalendarTest {
         assertEquals(oldTruncate(justAfterGap), calendar.startOfDay(justAfterGap))
     }
 
+    @Test fun ymdRoundTripKeepsTimeOfDay() = inZone("Europe/Helsinki") {
+        val start = at("Europe/Helsinki", 2026, 3, 28, 9, 17) + 12345
+        val changed = calendar.withLocalYmd(start, 2026, 3, 30)
+        assertEquals(Triple(2026, 3, 30), calendar.localYmd(changed))
+        assertEquals(at("Europe/Helsinki", 2026, 3, 30, 9, 17) + 12345, changed)
+        assertEquals(start, calendar.withLocalYmd(changed, 2026, 3, 28))
+    }
+
+    @Test fun withLocalYmdNormalizesTargetDstGapLikeCalendarSet() = inZone("America/New_York") {
+        // Calendar.set resolves the absent 02:30 on March 8 forward to 03:30.
+        assertTargetDstDate(1772868612345L, 2026, 3, 8, 3)
+    }
+
+    @Test fun withLocalYmdKeepsWallTimeInTargetDstFold() = inZone("America/New_York") {
+        assertTargetDstDate(1793601012345L, 2026, 11, 1, 1)
+    }
+
+    private fun assertTargetDstDate(start: Long, year: Int, month: Int, day: Int, expectedHour: Int) {
+        val oldInline = Calendar.getInstance().apply {
+            timeInMillis = start
+            set(year, month - 1, day)
+        }.timeInMillis
+        val changed = calendar.withLocalYmd(start, year, month, day)
+        assertEquals(oldInline, changed)
+        assertEquals(Triple(year, month, day), calendar.localYmd(changed))
+        val parts = Calendar.getInstance().apply { timeInMillis = changed }
+        assertEquals(expectedHour, parts.get(Calendar.HOUR_OF_DAY))
+        assertEquals(30, parts.get(Calendar.MINUTE))
+        assertEquals(12, parts.get(Calendar.SECOND))
+        assertEquals(345, parts.get(Calendar.MILLISECOND))
+    }
+
     @Test fun currentYearMatchesCalendar() {
         assertEquals(Calendar.getInstance().get(Calendar.YEAR), calendar.currentYear())
     }

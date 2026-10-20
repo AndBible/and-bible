@@ -18,12 +18,19 @@
 package net.bible.android.platform
 
 import net.bible.service.common.AndBibleAddons
+import net.bible.sharedlogic.platform.AddonBackgroundImage
+import net.bible.sharedlogic.platform.BackgroundImageCatalog
 import net.bible.sharedlogic.platform.AddonCatalog
 import net.bible.sharedlogic.platform.AddonReadingPlan
 import okio.Path.Companion.toOkioPath
 
-/** Android [AddonCatalog]: delegates to [AndBibleAddons]. */
-class AndroidAddonCatalog : AddonCatalog {
+/** Android add-on catalogs: delegates to the readable inventory in [AndBibleAddons]. */
+class AndroidAddonCatalog : AddonCatalog, BackgroundImageCatalog {
+    override val backgroundImages: Map<String, AddonBackgroundImage>
+        get() = AndBibleAddons.providedBackgroundImages.mapValues { (_, image) ->
+            AddonBackgroundImage(image.name, image.file.toOkioPath())
+        }
+
     override fun clearCaches() = AndBibleAddons.clearCaches()
 
     override val readingPlans: Map<String, AddonReadingPlan>

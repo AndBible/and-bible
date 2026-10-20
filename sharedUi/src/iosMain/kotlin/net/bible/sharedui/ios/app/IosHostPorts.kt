@@ -19,7 +19,6 @@
 package net.bible.sharedui.ios.app
 
 import net.bible.android.control.backup.BackupHost
-import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.ios.IosPending
@@ -49,9 +48,8 @@ import org.koin.core.Koin
 
 /**
  * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
- * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]) and the Welcome and Download ports, which
- * are partly real (Easy start / Download via [leaveWelcomeFor], first-download `copyFile`; Import, Restore, links,
- * unlock and About stay pending). [shell] is reserved for ports that grow real behaviour.
+ * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome, document/help dialogs,
+ * and the Download/cloud document ports.
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
@@ -59,26 +57,34 @@ fun buildIosHostPorts(
     shell: IosHostShell,
     koin: Koin,
     table: StringTable = iosStringTable("en"),
-    leaveWelcomeFor: (String) -> Unit = { IosPending.log("WelcomeHostPlatform.leaveFor") },
+    initialiseWelcome: suspend () -> Unit = {},
+    isPortrait: () -> Boolean = { true },
 ): HostPorts {
-    val welcome = IosWelcomeHostPlatform(table, { koin.get<AppEnvironment>().isDiscrete }, leaveWelcomeFor)
-    val chooser = IosChooserHostPlatform()
-    val bookmark = IosBookmarkHostPlatform()
-    val readingPlan = IosReadingPlanHostPlatform()
+    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
+    val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
     val installZip = IosInstallZipHostPlatform(table = table)
-    val download = IosDownloadHostPlatform()
+    val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
+    val picker = IosDocumentPicker()
+    val bookmark by lazy {
+        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
+    }
+    val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
+    val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get())
+    val download = IosDownloadHostPlatform(documents)
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()
-    val ai = IosAiHostPlatform()
+    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable) { message, cause ->
+        koin.get<BackupHost>().showErrorReport(message, cause)
+    }
     return HostPorts(
-        documentPicker = IosDocumentPicker(),
+        documentPicker = picker,
         imagePicker = IosImagePicker(),
         textShare = IosTextShare(),
         notificationPermission = koin.get<NotificationPermission>(),
         systemScreens = IosSystemScreens(),
-        documentDialogs = IosDocumentDialogs(),
-        helpDialogs = IosHelpDialogs(),
+        documentDialogs = documents,
+        helpDialogs = IosHelpDialogs(koin.get(), currentTable),
         welcomePlatform = { welcome },
         chooserPlatform = { chooser },
         labelIcons = IosLabelIcons(),

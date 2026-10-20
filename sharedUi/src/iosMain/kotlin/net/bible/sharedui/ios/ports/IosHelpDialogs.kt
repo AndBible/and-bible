@@ -1,31 +1,35 @@
-/*
- * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
- *
- * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
- *
- * AndBible is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- *
- * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with AndBible.
- * If not, see http://www.gnu.org/licenses/.
- */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package net.bible.sharedui.ios.ports
 
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.app.ports.DocumentDialogsCore
 import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.app.ports.HelpTopic
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
 
-/** Pending (stream H). */
 @kotlin.native.HiddenFromObjC
-class IosHelpDialogs : HelpDialogs {
+class IosHelpDialogs(private val dialogs: AppDialogController, private val table: () -> StringTable) : HelpDialogs {
     override fun show(topic: HelpTopic) {
-        IosPending.log("HelpDialogs.show")
+        val core = DocumentDialogsCore(dialogs, table)
+        dialogs.post(AppDialogRequest.Localized {
+            val t = table()
+            when (topic) {
+                HelpTopic.WORKSPACES -> core.helpNotice(listOf(DocumentDialogsCore.HelpItem(
+                    t.text("help_workspaces_title"), t.text("help_workspaces_text"),
+                    "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ", DocsLinks.page("workspaces"),
+                )))
+                else -> {
+                    val (key, page) = when (topic) {
+                        HelpTopic.READING_PROGRESS -> "help_reading_progress_text" to "reading_progress"
+                        HelpTopic.DOCUMENT_SYNC -> "help_document_sync_text" to "document_sync"
+                        HelpTopic.AI_CONNECTION -> "help_ai_connection_text" to "ai"
+                        else -> error("Handled workspace help")
+                    }
+                    core.helpDialog(t.text("help"), t.text(key), if (topic == HelpTopic.AI_CONNECTION) DocsLinks.page(page, "getting-started") else DocsLinks.page(page))
+                }
+            }
+        })
     }
 }

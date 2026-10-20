@@ -2,11 +2,8 @@ package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
-import net.bible.sharedui.ios.ports.IosAppSettingsService
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
-import net.bible.sharedui.ios.ports.IosPlatformText
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
-import net.bible.sharedui.app.ports.PluralKey
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -34,20 +31,6 @@ class IosPendingTest {
     @Test
     fun pendingPortReturnsNoOpValues() {
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
-        assertEquals("1", IosPlatformText().plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT, 1))
-        assertNull(IosTextDisplayPlatform().thumbnail("t"))
-        val emitted = mutableListOf<String>()
-        IosPending.onFirstReport = { emitted += it }
-        val entry = IosTextDisplayPlatform().entryFor(TextDisplaySettingsArgs())
-        IosTextDisplayPlatform().entryFor(TextDisplaySettingsArgs())
-        assertEquals(1, emitted.count { it == "TextDisplayPlatform.entryFor" })
-        assertEquals(0, entry.service.loadText(entry.scope).rows.size)
-        assertNull(entry.resultOnLeave())
-        val settings = IosAppSettingsService()
-        settings.setBool("k", true)
-        assertFalse(settings.snapshot.value.navigateToVerse)
-        assertTrue(settings.snapshot.value.openLinksInSpecialWindow)
-        assertTrue("AppSettingsService.setBool" in IosPending.reported)
     }
 }
 
@@ -76,6 +59,23 @@ class IosHostPortsTest {
             modules(org.koin.dsl.module {
                 single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
                 single<NotificationPermission> { permission }
+                single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.sharedlogic.platform.ios.IosLocalCalendar() }
+                single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.sharedlogic.platform.ios.IosLocaleSupport }
+                single<net.bible.sharedcore.platform.CoreStrings> {
+                    net.bible.sharedui.strings.keyed.KeyedCoreStrings(net.bible.sharedui.assembly.iosStringTable("en"))
+                }
+                single<net.bible.sharedcore.platform.AppSettings> {
+                    net.bible.sharedlogic.settings.DatabaseAppSettings(
+                        { net.bible.service.db.DatabaseContainer.instance.settingsStore },
+                        { net.bible.sharedui.assembly.IosAppStartup.databasesOpen },
+                    )
+                }
+                single<net.bible.service.sword.ContentSource> { net.bible.sharedlogic.platform.ios.IosContentSource() }
+                // Document ports now use the real app-wide dialog queue and error notifier.
+                single { net.bible.sharedcore.ui.dialog.AppDialogController() }
+                single<net.bible.sharedcore.platform.UserNotifier> {
+                    net.bible.sharedlogic.platform.ios.IosUserNotifier(get())
+                }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
                 }
@@ -90,23 +90,21 @@ class IosHostPortsTest {
             })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
             assertSame(permission, ports.notificationPermission)
-            ports.welcomePlatform().onImport()
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
-            ports.welcomePlatform().controller.refresh()
-            ports.chooserPlatform().backupModules()
-            assertEquals(emptyList(), ports.chooserPlatform().docRows(emptyList()))
+            assertTrue(ports.chooserPlatform() is net.bible.sharedui.ios.ports.IosChooserHostPlatform)
             ports.bookmarkPlatform().documentsRecreation()
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)
             ports.installZipPlatform().initialiseIfStartedUninitialised()
             assertTrue(Regex("ai_prompts_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}\\.csv").matches(ports.promptFiles().suggestedExportName()))
-            assertEquals(emptyList(), ports.aiPlatform().languageChoices())
+            assertEquals("", ports.aiPlatform().languageChoices().first().value)
+            assertEquals(net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG, ports.aiPlatform().languageChoices().last().value)
             ports.orientationLock.lockPortrait().invoke()
             assertEquals(null, ports.myDocumentFiles.displayName(DocumentRef("x")))
-            assertTrue(ports.labelIcons.iconKeys.isEmpty())
+            assertEquals(net.bible.sharedui.icons.AbIcons.labelIconResources.keys.toList() + null,
+                ports.labelIcons.iconKeys)
             ports.cloudDocumentsPlatform()
             ports.bugReport()
-            assertTrue("WelcomeHostPlatform.onImport" in IosPending.reported)
             assertFalse("TextShare.shareText" in IosPending.reported)
         } finally {
             org.koin.core.context.stopKoin()
