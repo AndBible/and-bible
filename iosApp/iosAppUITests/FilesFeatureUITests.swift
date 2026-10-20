@@ -62,7 +62,8 @@ final class FilesFeatureUITests: XCTestCase {
 
     private func launch(_ mode: String, token: String) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-resetData", "-filesFeatureTest", mode, "-filesFeatureToken", token,
+        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+                               "-resetData", "-filesFeatureTest", mode, "-filesFeatureToken", token,
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         let alert = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch

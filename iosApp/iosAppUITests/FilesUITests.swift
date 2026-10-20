@@ -33,7 +33,8 @@ final class FilesUITests: XCTestCase {
 
     private func launchPort(_ port: String) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-filesPortTest", port, "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+                               "-filesPortTest", port, "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissNotificationPermissionIfPresent()
         XCTAssertTrue(element(app, "files-port-idle").waitForExistence(timeout: 60), "Debug port harness not ready")
@@ -317,7 +318,8 @@ final class FilesUITests: XCTestCase {
 
     private func launchSavePort(_ mode: String, filename: String, reset: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-filesPortTest", mode, "-filesPortFilename", filename,
+        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+                               "-filesPortTest", mode, "-filesPortFilename", filename,
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         if reset { app.launchArguments += ["-resetData"] }
         app.launch()
