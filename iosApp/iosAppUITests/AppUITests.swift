@@ -82,8 +82,10 @@ class RealAppUITestCase: XCTestCase {
         usleep(700_000)
     }
 
-    /// Scroll nudge for a bottom sheet's list, with explicit geometry: both the start and the end stay below the sheet's
-    /// drag handle and title (about y 0.57), so a downward drag scrolls the list instead of pulling the sheet closed.
+    /// Scroll nudge for a bottom sheet's list, with explicit geometry: both ends stay below the sheet's drag handle and
+    /// title (about y 0.57). Only upward drags (revealing lower rows) are always safe. A downward drag from inside the
+    /// list is turned into the sheet's dismiss gesture while the list is within roughly 150 pt of its top, so use it
+    /// only when the list is far from the top; otherwise close the sheet with its Close button.
     func nudgeSheetList(_ app: XCUIApplication, up: Bool) {
         let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.62))
         let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.80))

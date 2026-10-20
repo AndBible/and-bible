@@ -221,14 +221,23 @@ final class HRuntimeUITests: RealAppUITestCase {
             .allElementsBoundByIndex.contains { $0.isSelected }
         require(selectedFinnish, app, "language-selection-not-retained-AX")
         shot(app, "ai-language-finnish-retained")
-        // Restore the application-language default through the real first row; the summary must return to its source
-        // text "App language (English)" (aiLanguageAppDefault, AiSettingsServiceImpl.kt:102).
+        // Close with the header button (no downward drag, which can dismiss a bottom sheet): the choice must be unchanged.
+        let closeSheet = button(app, "Close")
+        require(closeSheet.exists && closeSheet.isHittable, app, "language-sheet-close-missing")
+        closeSheet.tap()
+        require(waitUntil(timeout: 10) { !self.button(app, "Close").exists && !self.text(app, "fi: Suomi").exists }, app, "language-sheet-not-closed")
+        require(button(app, "AI response language, suomi (fi)").waitForExistence(timeout: 10), app, "ai-language-changed-by-close")
+        // Restore the application-language default through the real first row. A reopened sheet starts at the list top, so
+        // the row is visible at once; it is not Selected now (Finnish is), which makes the later restore non-vacuous.
+        // Source text "App language (English)": aiLanguageAppDefault, AiSettingsServiceImpl.kt:102.
+        tapText(app, "AI response language")
+        require(button(app, "Close").waitForExistence(timeout: 10), app, "language-restore-sheet-missing")
         let restoreRow = text(app, "App language (English)")
-        for _ in 0..<40 where !(restoreRow.exists && restoreRow.isHittable) {
-            require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
-            nudgeSheetList(app, up: false)
-        }
-        require(restoreRow.exists && waitForStableOnScreen(app, restoreRow), app, "language-restore-row-not-settled")
+        require(restoreRow.waitForExistence(timeout: 10) && waitForStableOnScreen(app, restoreRow), app, "language-restore-row-not-settled")
+        let defaultSelectedBefore = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", "App language (English)"))
+            .allElementsBoundByIndex.contains { $0.isSelected }
+        require(!defaultSelectedBefore, app, "language-default-already-selected")
         restoreRow.tap()
         require(waitUntil(timeout: 10) { !self.button(app, "Close").exists && !self.text(app, "fi: Suomi").exists }, app, "language-restore-sheet-not-dismissed")
         require(button(app, "AI response language, App language (English)").waitForExistence(timeout: 10), app, "ai-language-summary-not-restored")
