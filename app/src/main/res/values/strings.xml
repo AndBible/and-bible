@@ -2157,5 +2157,6 @@
     <string name="prompt_favorite_add">Add to favourites</string>
     <string name="prompt_favorite_remove">Remove from favourites</string>
     <string name="window_unmaximise">Restore all windows</string>
+    <string name="window_menu_button">Window menu</string>
     <string name="paste_from_clipboard">Paste</string>
 </resources>

@@ -1223,6 +1223,7 @@ interface Strings {
     val railNewWindow: String                    // R.string.new_window (tab rail "+" with exactly one window)
     val railUnmaximise: String                   // R.string.window_unmaximise (tab rail, a window is maximised)
     val railExpandCollapse: String               // R.string.expand_collapse (tab rail chevron)
+    val paneWindowMenu: String                   // R.string.window_menu_button (a pane's ☰ window button, for screen readers)
     val pasteFromClipboard: String               // R.string.paste_from_clipboard
 }
 

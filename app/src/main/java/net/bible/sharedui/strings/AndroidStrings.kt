@@ -1145,5 +1145,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val railNewWindow: String get() = context.getString(R.string.new_window)
     override val railUnmaximise: String get() = context.getString(R.string.window_unmaximise)
     override val railExpandCollapse: String get() = context.getString(R.string.expand_collapse)
+    override val paneWindowMenu: String get() = context.getString(R.string.window_menu_button)
     override val pasteFromClipboard: String get() = context.getString(R.string.paste_from_clipboard)
 }

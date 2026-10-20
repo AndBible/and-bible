@@ -732,6 +732,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
             )
             WindowButton(
                 label = "☰",
+                contentDescription = LocalStrings.current.paneWindowMenu,
                 isActive = isActive,
                 isMinimised = false,
                 isPinned = shouldShowPinIndicator(

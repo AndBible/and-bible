@@ -57,6 +57,14 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -220,6 +228,8 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  *   id, so this file stays iOS-clean.
  * @param leadingIcon doc-type icon (host-supplied [Painter], never `R.drawable`/`ImageVector`
  *   resource ids); `null` → none shown. Ignored (visually) when [isLinks] is true.
+ * @param contentDescription The accessibility name when the visible text is not one (the Pane's "☰"); `null`
+ *   names the button by its merged visible texts (the Rail tab's page title and document).
  * @param topLabel Rail only: classic's tiny `topButtonText` row — `window.pageManager.titleText`
  *   (e.g. "Gen 1"), host-supplied like [label] so this file stays iOS-clean. `null` (the default,
  *   and what the Pane call site passes) renders no top row, matching classic hiding
@@ -239,6 +249,7 @@ fun WindowButton(
     modifier: Modifier = Modifier,
     leadingIcon: Painter? = null,
     topLabel: String? = null,
+    contentDescription: String? = null,
 ) {
     val mono = isPureMonochrome()
     val colors = MaterialTheme.colorScheme
@@ -311,7 +322,19 @@ fun WindowButton(
             )
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { onClick() }, onLongPress = { onLongPress() })
-            },
+            }
+            // The gesture detector alone is invisible to VoiceOver/TalkBack: expose one button with both actions,
+            // named by [contentDescription] when given (the pane's ☰ glyph), else by its merged texts (the rail tab).
+            .then(
+                if (contentDescription != null) {
+                    Modifier.clearAndSetSemantics {
+                        this.contentDescription = contentDescription
+                        buttonActions(onClick, onLongPress)
+                    }
+                } else {
+                    Modifier.semantics(mergeDescendants = true) { buttonActions(onClick, onLongPress) }
+                },
+            ),
     ) {
         when (mode) {
             WindowButtonMode.Pane -> Text(
@@ -422,6 +445,12 @@ fun WindowButton(
             )
         }
     }
+}
+
+private fun SemanticsPropertyReceiver.buttonActions(tap: () -> Unit, longPress: () -> Unit) {
+    role = Role.Button
+    onClick { tap(); true }
+    onLongClick { longPress(); true }
 }
 
 @Composable
