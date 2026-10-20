@@ -177,9 +177,19 @@ final class HRuntimeUITests: RealAppUITestCase {
         require(text(app, fixtureProvider).waitForExistence(timeout: 15), app, "custom-provider-not-saved")
         tapButton(app, "Back")
         tapText(app, "AI response language")
+        // The choice list is a bottom sheet that slides in: evidence is taken only once its first real row is settled.
+        let appLanguage = text(app, "App language (English)")
+        require(appLanguage.waitForExistence(timeout: 10) && waitForStableOnScreen(app, appLanguage), app, "language-sheet-not-settled")
         attachTree(app, "ai-language-exact-choice-list")
         shot(app, "ai-language-real-list")
-        require(text(app, "Custom\u{2026}").exists, app, "language-custom-choice-missing")
+        // "Custom…" is appended after the ~60 locales in a lazy list: scroll (bounded) to it, require it settled, never tap it.
+        let customChoice = text(app, "Custom\u{2026}")
+        for _ in 0..<40 where !customChoice.exists { nudgeList(app, up: true) }
+        require(customChoice.exists && waitForStableOnScreen(app, customChoice), app, "language-custom-choice-missing")
+        // Back up to the real Finnish row before the existing selection step.
+        let finnishChoice = text(app, "fi: Suomi")
+        for _ in 0..<40 where !(finnishChoice.exists && finnishChoice.isHittable) { nudgeList(app, up: false) }
+        require(finnishChoice.exists && waitForStableOnScreen(app, finnishChoice), app, "language-finnish-choice-not-settled")
         let wasFinnish = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label == %@", "fi: Suomi"))
             .allElementsBoundByIndex.contains { $0.isSelected }
