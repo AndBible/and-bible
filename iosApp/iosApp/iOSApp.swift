@@ -5,12 +5,16 @@ import SharedUi
 struct iOSApp: App {
     init() {
         IosPlatformBootstrap.shared.registerBackgroundTasks()
+        #if DEBUG
+        IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()
+        #endif
     }
 
     var body: some Scene {
         WindowGroup {
             ComposeView()
                 .ignoresSafeArea()
+                .onOpenURL { IosPlatformBootstrap.shared.openIncomingFile(url: $0.absoluteString) }
         }
     }
 }

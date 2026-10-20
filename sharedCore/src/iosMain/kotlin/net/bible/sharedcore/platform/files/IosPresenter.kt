@@ -1,7 +1,8 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedcore.platform.files
 
+import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,8 @@ internal class FilePresentation<T>(
     private var release: (() -> Unit)? = null,
 ) : NSObject(), UIDocumentPickerDelegateProtocol,
     UIAdaptivePresentationControllerDelegateProtocol, UIPopoverPresentationControllerDelegateProtocol {
+    val isPending: Boolean get() = continuation != null
+
     fun present(from: UIViewController) {
         val sheet = controller ?: return
         (sheet as? UIDocumentPickerViewController)?.delegate = this
@@ -86,6 +89,32 @@ internal class FilePresentation<T>(
     override fun presentationControllerDidDismiss(presentationController: UIPresentationController) { finish(cancelled) }
     override fun popoverPresentationControllerDidDismissPopover(popoverPresentationController: UIPopoverPresentationController) {
         finish(cancelled)
+    }
+}
+
+/** Narrow bridge for host-owned sheets; terminal ownership remains in [FilePresentation]. */
+@kotlin.native.HiddenFromObjC
+class IosSheetPresentation<T>(
+    controller: UIViewController,
+    continuation: CancellableContinuation<T>,
+    cancelled: T,
+    release: () -> Unit,
+) {
+    private val presentation = FilePresentation(controller, continuation, cancelled, release = release)
+    val isPending: Boolean get() = presentation.isPending
+    fun finish(result: T) = presentation.finish(result)
+    fun present(from: UIViewController) {
+        controllerAnchor(from)
+        presentation.present(from)
+    }
+    private val sheet = controller
+    private fun controllerAnchor(from: UIViewController) {
+        sheet.popoverPresentationController?.apply {
+            sourceView = from.view
+            sourceRect = from.view.bounds.useContents {
+                platform.CoreGraphics.CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0)
+            }
+        }
     }
 }
 

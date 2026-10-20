@@ -227,6 +227,10 @@ object IosAppStartup {
         // Stop the app scope first: coroutines of a finished test (store collectors, ordered launches) must not run
         // into the next test's databases.
         runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()?.cancel() }
+        // JSword outlives Koin: detach this app's exact listener before its dependencies are closed.
+        KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.versification.BookInstallWatcher>()?.let {
+            org.crosswire.jsword.book.Books.installed().removeBooksListener(it.listener)
+        }
         runCatching { stopKoin() }
         SharedAppStartup.resetForTest()
         if (opened) {

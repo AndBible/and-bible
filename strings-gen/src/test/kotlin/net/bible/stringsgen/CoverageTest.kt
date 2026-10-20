@@ -11,8 +11,8 @@ class CoverageTest {
 
     @Test fun base_strings_parse_and_have_expected_volume() {
         val kv = parseStringsXml(baseXml.readText())
-        // Verified 2026-07-09: 1507 <string> entries in the base file.
-        assertTrue(kv.size in 1400..1600, "expected ~1507 base strings, got ${kv.size}")
+        // Keep a bounded volume check without pinning the count to a stale snapshot.
+        assertTrue(kv.size in 1500..1800, "expected 1500..1800 base strings, got ${kv.size}")
         // Spot-check a known pilot string exists.
         assertTrue("calc_division_by_zero" in kv, "calc_division_by_zero missing")
     }
@@ -42,10 +42,20 @@ class CoverageTest {
         assertEquals(mapOf("A" to "base-A"), mergeLocale(null, base))
     }
 
-    @Test fun real_base_has_the_five_plurals() {
+    @Test fun real_base_has_the_six_plurals() {
         val p = parsePluralsXml(baseXml.readText())
-        assertEquals(5, p.size, "expected 5 plurals, got ${p.keys}")
-        assertTrue("cloud_doc_sync_now_count" in p)
+        assertEquals(
+            setOf(
+                "cloud_doc_sync_now_count",
+                "cloud_doc_sync_now_count_size",
+                "cloud_doc_bulk_remove_all_confirm",
+                "cloud_doc_bulk_remove_cloud_confirm",
+                "cloud_doc_bulk_purge_confirm",
+                "cloud_doc_bulk_block_confirm",
+            ),
+            p.keys,
+            "unexpected base plural keys",
+        )
         assertTrue(p.values.all { "one" in it && "other" in it }, "each plural must have one+other")
     }
 

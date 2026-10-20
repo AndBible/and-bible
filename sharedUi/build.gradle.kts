@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -120,6 +121,14 @@ kotlin.sourceSets.configureEach {
     if (name == "iosTest" || name == "jvmTest") {
         kotlin.srcDir(files(project(":sharedLogic").layout.buildDirectory.dir("generated/startupFixture/kotlin"))
             .builtBy(project(":sharedLogic").tasks.named("generateStartupFixture")))
+    }
+}
+
+// Like sharedCore, UIKit/provider tests need a booted simulator's system daemons, not standalone spawn.
+providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
+    tasks.withType<KotlinNativeSimulatorTest>().matching { it.name == "iosSimulatorArm64Test" }.configureEach {
+        device.set(simulator)
+        standalone.set(false)
     }
 }
 

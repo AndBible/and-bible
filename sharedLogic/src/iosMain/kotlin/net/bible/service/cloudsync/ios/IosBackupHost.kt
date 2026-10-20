@@ -11,8 +11,7 @@ private const val TAG = "IosBackupHost"
 
 /**
  * iOS [BackupHost]: file picking and delivery are delegated (I1's `IosFilePicker` / `IosFileDelivery`);
- * the error report is an app dialog. Restoring modules from a file has no iOS mechanism yet
- * (spec C7): [restoreModules] logs `I2-pending: restore modules` and does nothing.
+ * the error report is an app dialog. The live UI registers [onRestoreModules] to open InstallZip.
  */
 class IosBackupHost(
     picker: FilePicker,
@@ -29,7 +28,8 @@ class IosBackupHost(
         dialogs().await(AppDialogRequest.Message(title = null, message = html, confirmText = okText()))
     }
 
-    override suspend fun restoreModules() {
-        Log.i(TAG, "I2-pending: restore modules")
-    }
+    /** Bound only while the app's navigation hosts are alive; cleared when the composition is disposed. */
+    var onRestoreModules: () -> Unit = {}
+
+    override suspend fun restoreModules() = onRestoreModules()
 }

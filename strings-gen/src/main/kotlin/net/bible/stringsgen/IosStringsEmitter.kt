@@ -20,7 +20,7 @@ private const val DATA_CHUNK_SIZE = 100
 private const val PACKAGE = "net.bible.sharedui.strings"
 
 /** Minimal CLDR quantity selection: 'one' for count==1 else 'other'.
- *  (AndBible's 5 plurals declare only one/other; full CLDR rules are future work.) */
+ *  (AndBible's 6 plurals declare only one/other; full CLDR rules are future work.) */
 fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
 
 /** Verbatim source of [selectQuantity], emitted into `StringsData.kt` (mirrors the `fmt` twin pattern). */
@@ -33,6 +33,7 @@ fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
  * `:strings-gen` unit test can execute it directly (the emitter prints [FMT_FUNCTION_SOURCE]
  * verbatim into `StringsData.kt`, whose body is kept byte-identical to this). Handles:
  *   - `%%` → `%`
+ *   - `%s` / `%d` → successive ordinary arguments, independently of explicit indexes
  *   - `%n$s` / `%n$d` → arg `n` (1-based) as its string
  *   - `%n$[0]?<width>?[Xx]` → arg `n` formatted as hex (`X`=upper, `x`=lower), zero-padded to
  *     `width` (e.g. `0x%1${'$'}02X` with `0xF8` → `0xF8`, with `0x09` → `0x09`)
@@ -45,6 +46,7 @@ fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
 internal fun fmt(template: String, vararg args: Any?): String {
     val out = StringBuilder(template.length)
     var i = 0
+    var ordinaryIndex = 1
     val n = template.length
     while (i < n) {
         val c = template[i]
@@ -56,6 +58,13 @@ internal fun fmt(template: String, vararg args: Any?): String {
         // c == '%'
         if (i + 1 < n && template[i + 1] == '%') {
             out.append('%')
+            i += 2
+            continue
+        }
+        // Explicit indexes do not advance the ordinary argument sequence.
+        if (i + 1 < n && (template[i + 1] == 's' || template[i + 1] == 'd')) {
+            out.append(args.getOrNull(ordinaryIndex - 1)?.toString() ?: "")
+            ordinaryIndex++
             i += 2
             continue
         }
@@ -114,6 +123,7 @@ internal val FMT_FUNCTION_SOURCE: String =
     |fun fmt(template: String, vararg args: Any?): String {
     |    val out = StringBuilder(template.length)
     |    var i = 0
+    |    var ordinaryIndex = 1
     |    val n = template.length
     |    while (i < n) {
     |        val c = template[i]
@@ -125,6 +135,13 @@ internal val FMT_FUNCTION_SOURCE: String =
     |        // c == '%'
     |        if (i + 1 < n && template[i + 1] == '%') {
     |            out.append('%')
+    |            i += 2
+    |            continue
+    |        }
+    |        // Explicit indexes do not advance the ordinary argument sequence.
+    |        if (i + 1 < n && (template[i + 1] == 's' || template[i + 1] == 'd')) {
+    |            out.append(args.getOrNull(ordinaryIndex - 1)?.toString() ?: "")
+    |            ordinaryIndex++
     |            i += 2
     |            continue
     |        }

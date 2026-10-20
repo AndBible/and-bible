@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
@@ -55,6 +56,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
@@ -187,6 +189,14 @@ private fun IosAppContent(
     val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
+    DisposableEffect(appHosts) {
+        val backup = ports.backupHost as net.bible.service.cloudsync.ios.IosBackupHost
+        val restore: () -> Unit = { appHosts.installZip.open() }
+        backup.onRestoreModules = restore
+        onDispose {
+            if (backup.onRestoreModules === restore) backup.onRestoreModules = {}
+        }
+    }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
@@ -223,8 +233,45 @@ private fun IosAppContent(
                 IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
             })
         },
-        overlays = { appHosts.Overlays() },
+        overlays = {
+            appHosts.Overlays()
+            net.bible.sharedui.ios.files.IosFilesRuntimeHarness.Overlay(strings) {
+                navController.currentBackStackEntryFlow.first()
+            }
+            val incomingEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+            net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.Overlay(
+                strings,
+                backupRoute = incomingEntry?.destination?.route == NavRoutes.BACKUP,
+                openBackup = { shell.navigate(NavRoutes.BACKUP) },
+            )
+            net.bible.sharedui.ios.files.IosFilesFeatureHarness.Overlay(
+                strings, incomingEntry?.destination?.route,
+                awaitGraph = { navController.currentBackStackEntryFlow.first() },
+                navigate = { shell.navigate(it) },
+            )
+            IosAppDialogOverlay()
+        },
     )
+    LaunchedEffect(appHosts, navController) {
+        // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
+        navController.currentBackStackEntryFlow.first()
+        if (!net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.preflightBeforeBind()) return@LaunchedEffect
+        val owner = net.bible.sharedui.ios.files.IosIncomingFiles.bind(
+            open = { refs, complete ->
+                appHosts.installZip.open(
+                    action = net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW,
+                    uris = refs,
+                    onResult = { complete() },
+                )
+            },
+            onFailure = {
+                koin.get<net.bible.sharedcore.platform.UserNotifier>()
+                    .showError(koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred)
+            },
+        )
+        try { kotlinx.coroutines.awaitCancellation() }
+        finally { net.bible.sharedui.ios.files.IosIncomingFiles.detach(owner) }
+    }
 }
 
 /** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */

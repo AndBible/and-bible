@@ -49,6 +49,16 @@ targets:
         "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
         "DEVELOPMENT_TEAM[sdk=iphonesimulator*]": ""
     preBuildScripts:
+      - name: "Generate debug files-port asset"
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          DEST="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/files-port-fixtures"
+          if [ "$CONFIGURATION" = "Debug" ]; then
+            python3 -I "$SRCROOT/scripts/generate-files-test-fixtures.py" --output-dir "$DEST"
+          else
+            rm -rf "$DEST"
+          fi
       - name: "Compile & embed SharedUi Kotlin framework"
         basedOnDependencyAnalysis: false
         script: |

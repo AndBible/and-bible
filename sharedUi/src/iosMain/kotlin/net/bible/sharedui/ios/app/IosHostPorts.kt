@@ -65,7 +65,7 @@ fun buildIosHostPorts(
     val chooser = IosChooserHostPlatform()
     val bookmark = IosBookmarkHostPlatform()
     val readingPlan = IosReadingPlanHostPlatform()
-    val installZip = IosInstallZipHostPlatform()
+    val installZip = IosInstallZipHostPlatform(table = table)
     val download = IosDownloadHostPlatform()
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()

@@ -4,7 +4,6 @@ import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.ios.ports.IosAppSettingsService
 import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
-import net.bible.sharedui.ios.ports.IosExternalLinks
 import net.bible.sharedui.ios.ports.IosPlatformText
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import net.bible.sharedui.app.ports.PluralKey
@@ -33,8 +32,6 @@ class IosPendingTest {
 
     @Test
     fun pendingPortReturnsNoOpValues() {
-        IosExternalLinks().open("https://example.org")
-        assertFalse(IosExternalLinks().askBeforeOpening)
         IosDebugActions().showTestError("x")
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
         assertEquals("1", IosPlatformText().plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT, 1))
@@ -50,7 +47,6 @@ class IosPendingTest {
         settings.setBool("k", true)
         assertFalse(settings.snapshot.value.navigateToVerse)
         assertTrue(settings.snapshot.value.openLinksInSpecialWindow)
-        assertTrue("ExternalLinks.open" in IosPending.reported)
         assertTrue("AppSettingsService.setBool" in IosPending.reported)
     }
 }
@@ -98,17 +94,15 @@ class IosHostPortsTest {
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)
             ports.installZipPlatform().initialiseIfStartedUninitialised()
-                        assertEquals("", ports.promptFiles().suggestedExportName())
+            assertTrue(Regex("ai_prompts_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}\\.csv").matches(ports.promptFiles().suggestedExportName()))
             assertEquals(emptyList(), ports.aiPlatform().languageChoices())
-            ports.textShare.shareText("a", "b")
-            ports.systemScreens.openAppLinkSettings()
             ports.orientationLock.lockPortrait().invoke()
             assertEquals(null, ports.myDocumentFiles.displayName(DocumentRef("x")))
             assertTrue(ports.labelIcons.iconKeys.isEmpty())
             ports.cloudDocumentsPlatform()
             ports.bugReport()
             assertTrue("WelcomeHostPlatform.onImport" in IosPending.reported)
-            assertTrue("TextShare.shareText" in IosPending.reported)
+            assertFalse("TextShare.shareText" in IosPending.reported)
         } finally {
             org.koin.core.context.stopKoin()
         }
