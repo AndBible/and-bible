@@ -56,7 +56,7 @@ final class FilesDialogUITests: XCTestCase {
     private func runRetention(background: Bool) {
         let token = UUID().uuidString
         let app = XCUIApplication()
-        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
                                "-filesPortTest", background ? "dialog-background" : "dialog-native",
                                "-filesDialogToken", token, "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()

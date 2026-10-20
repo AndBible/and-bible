@@ -62,7 +62,7 @@ final class IncomingFilesUITests: XCTestCase {
 
     private func launch(fixture: String? = nil) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
                                "-resetData", "-incomingRuntimeTest", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         if let fixture = fixture { app.launchArguments += ["-incomingFixture", fixture] }
         app.launch()

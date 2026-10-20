@@ -28,6 +28,14 @@ final class DiscreteUITests: XCTestCase {
         }
     }
 
+    /// The unlock scenarios need discrete_mode=true persisted on the device by the controller before launch (the real
+    /// device setting, not an argument-domain override); in an ordinary suite run they skip, like SyncAcceptanceUITests.
+    private func requireControllerPreparedDiscreteMode() throws {
+        guard ProcessInfo.processInfo.environment["TASK6_DISCRETE_ACCEPTANCE"] == "1" else {
+            throw XCTSkip("Controller-only discrete acceptance is not enabled (TEST_RUNNER_TASK6_DISCRETE_ACCEPTANCE=1)")
+        }
+    }
+
     private func assertContentHidden(_ app: XCUIApplication) {
         XCTAssertFalse(element(app, "reading-host").exists, "Reading content visible before PIN unlock")
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before PIN unlock")
@@ -87,7 +95,8 @@ final class DiscreteUITests: XCTestCase {
 
     /// Controller starts from the primary icon and persists discrete_mode=true before this scenario.
     /// Accept the OS-owned disclosure (C6), then retain a SpringBoard image for visual icon inspection.
-    func testDiscreteIconAfterUnlock() {
+    func testDiscreteIconAfterUnlock() throws {
+        try requireControllerPreparedDiscreteMode()
         let app = XCUIApplication()
         // Controller also uses an English simulator for the SpringBoard-owned system disclosure.
         app.launchArguments += ["-calculator_pin", "1234", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -124,7 +133,8 @@ final class DiscreteUITests: XCTestCase {
         shot(springboard, "home-calculator-icon")
     }
 
-    func testCalculatorGateUnlocksWithPin() {
+    func testCalculatorGateUnlocksWithPin() throws {
+        try requireControllerPreparedDiscreteMode()
         let app = XCUIApplication()
         // NSUserDefaults argument-domain override keeps the PIN deterministic without mutating stored preferences.
         // discrete_mode is deliberately persisted by the controller before launch, exercising the real device setting.

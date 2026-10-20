@@ -233,7 +233,18 @@ class RealAppUITestCase: XCTestCase {
 
     func selectKJV(_ app: XCUIApplication) {
         let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
-        if !kjv.waitForExistence(timeout: 30) { attachTree(app, "chooser-no-kjv") }
+        // Easy start's OK enables once the FIRST Bible is installed; KJV can still be downloading, and the chooser
+        // lists the installed documents as it opens (classic parity). Reopen it until KJV has been installed.
+        let reopen = element(app, "debug-open-chooser")
+        let deadline = Date().addingTimeInterval(240)
+        var found = kjv.waitForExistence(timeout: 30)
+        while !found && Date() < deadline && reopen.exists {
+            app.buttons["Back"].firstMatch.tap()
+            sleep(5)
+            reopen.tap()
+            found = kjv.waitForExistence(timeout: 15)
+        }
+        if !found { attachTree(app, "chooser-no-kjv") }
         XCTAssertTrue(kjv.exists, "KJV must be selected through the real document chooser")
         kjv.tap()
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30))

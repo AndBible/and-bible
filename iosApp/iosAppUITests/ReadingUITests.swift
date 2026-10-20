@@ -1,10 +1,11 @@
 import XCTest
 
 /// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app on KJV: the tests launch with the
-/// debug-only `-openRef John.3.16` (see `IosDebugLaunchArgs.kt`) and `-resetDatabases` (fresh one-window workspace,
-/// installed modules kept), so no test inherits the windows or the document another one left. When no Bible is
-/// installed (a `-resetData` test ran before), the first launch provisions KJV through the real Easy start, as
-/// `AppUITests` does; the suite does not depend on the run order. Labels were confirmed against Mac element trees.
+/// debug-only `-openRef John.3.16` on `-openDocument KJV` (see `IosDebugLaunchArgs.kt`), `-resetDatabases` (fresh
+/// one-window workspace, installed modules kept) and `-standardTestFixture` (English UI, no disguise), so no test
+/// inherits the windows, document or language another one left. When KJV is not installed (a `-resetData` test ran
+/// before: Welcome, or reading without John 3), the launch provisions it through the real Easy start, as `AppUITests`
+/// does; the suite does not depend on the run order. Labels were confirmed against Mac element trees.
 final class ReadingUITests: RealAppUITestCase {
     /// 'Nicodemus' is a phrase label three times in KJV John 3 (verses 1, 4 and 9), in every pane showing the chapter.
     private let nicodemusPerPane = 3
@@ -12,9 +13,12 @@ final class ReadingUITests: RealAppUITestCase {
     // MARK: helpers (launch, element, shot, attachTree, waitUntil, john3Shown, paneIds: RealAppUITestCase)
 
     private func launchReading() throws -> XCUIApplication {
-        let arguments = ["-resetDatabases", "-openRef", "John.3.16"]
+        // KJV explicitly: a fresh workspace opens the first installed Bible, which other suites' fixtures can shadow.
+        let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"]
         var app = launch(arguments)
-        if element(app, "welcome-screen").waitForExistence(timeout: 3) {
+        let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
+        XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
+        if welcome.exists || !john3Shown(app, timeout: 30) {
             app.terminate()
             let fresh = freshReading()
             selectKJV(fresh)

@@ -10,6 +10,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.IosAppDirectories
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSApplicationSupportDirectory
@@ -25,7 +26,8 @@ import kotlin.native.Platform
  *
  * - `-resetData`: [resetAppData] before startup, so the app starts as a fresh install.
  * - `-resetDatabases`: [resetAppDatabases] before startup, a fresh workspace with the installed modules kept.
- * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown.
+ * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown;
+ *   with `-openDocument <initials>` it also switches that window to the installed book.
  * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
@@ -68,10 +70,15 @@ internal object IosDebugLaunchArgs {
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments
 
     /** The value after `-openRef`, or null. */
-    fun openRef(): String? {
+    fun openRef(): String? = argumentValue("-openRef")
+
+    /** The value after `-openDocument` (book initials the `-openRef` window switches to), or null. */
+    fun openDocument(): String? = argumentValue("-openDocument")
+
+    private fun argumentValue(name: String): String? {
         if (!Platform.isDebugBinary) return null
         val args = arguments
-        val i = args.indexOf("-openRef")
+        val i = args.indexOf(name)
         return if (i >= 0) args.getOrNull(i + 1) else null
     }
 
@@ -133,8 +140,12 @@ internal object IosDebugLaunchArgs {
             repeat(10) { attempt ->
                 try {
                     val key = PassageKeyFactory.instance().getKey(KJVA, ref)
+                    // A null document keeps the window's own (a fresh workspace's is the first installed Bible).
+                    val document = openDocument()?.let { initials ->
+                        checkNotNull(Books.installed().getBook(initials)) { "-openDocument $initials is not installed" }
+                    }
                     // The active window itself (showLink opens the links window, i.e. a NEW split window for a fresh workspace).
-                    KoinPlatform.getKoin().get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(null, key)
+                    KoinPlatform.getKoin().get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(document, key)
                     nsLog("-openRef $ref: shown")
                     openRefDone = true // only after success: a cancelled LaunchedEffect may run again
                     return@withContext

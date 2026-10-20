@@ -73,7 +73,7 @@ final class WelcomeRuntimeUITests: RealAppUITestCase {
         // No document is installed here; provisioning/reading has separate lifecycle coverage.
     }
 
-    func testAdvancedImportPreludeAndPendingPickerCancellation() {
+    func testAdvancedImportPreludeAndNativePickerCancellation() {
         let app = advancedWelcome()
         requireRow(app, "Load Documents From Files").tap()
         let prelude = app.staticTexts.matching(NSPredicate(
@@ -90,13 +90,24 @@ final class WelcomeRuntimeUITests: RealAppUITestCase {
         shot(app, "welcome-import-prelude")
         attachTree(app, "welcome-import-prelude")
         proceed.tap()
-        // IosDocumentPicker currently returns empty: this observes route cancellation, NOT installation.
-        require(waitUntil(timeout: 30) { !proceed.exists && !self.button(app, "Cancel").exists && self.row(app, "Restore Database File").isHittable },
-                app, "import-cancelled", "Pending F picker must return from import without claiming success")
+        // Stream F's real UIDocumentPicker opens (written while it was a pending stub that returned empty): cancel
+        // it. This observes route cancellation, NOT installation.
+        let cancel = button(app, "Cancel")
+        let pickerShown = waitUntil(timeout: 20) {
+            !proceed.exists && app.navigationBars.firstMatch.exists && cancel.exists && cancel.isHittable
+        }
+        require(pickerShown, app, "import-native-picker", "Proceed must open the actual UIKit Files picker with Cancel")
+        shot(app, "welcome-import-native-picker")
+        cancel.tap()
+        require(waitUntil(timeout: 30) {
+            !app.navigationBars.firstMatch.exists && self.row(app, "Restore Database File").isHittable
+        }, app, "import-cancelled", "Picker cancellation must return from import without claiming success")
         require(element(app, "welcome-screen").exists, app,
                 "import-return", "Cancelled import must retain Welcome")
-        shot(app, "welcome-import-return-f-limited")
-        attachTree(app, "welcome-import-return-f-limited")
+        require(!element(app, "reading-host").exists, app,
+                "import-no-reading", "Cancelled import must not report an installed document")
+        shot(app, "welcome-import-cancelled")
+        attachTree(app, "welcome-import-cancelled")
     }
 
     func testAdvancedRestoreNativePickerCancellation() {

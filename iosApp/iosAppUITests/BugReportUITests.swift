@@ -7,7 +7,7 @@ final class BugReportUITests: XCTestCase {
 
     private func app(_ extra: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-discrete_mode", "NO", "-show_calculator", "NO", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + extra
+        app.launchArguments = ["-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + extra
         app.launch()
         return app
     }

@@ -253,3 +253,9 @@ container-side job never leaves the Mac locked or busy. Watchdog events go to
   `-task6ResetCrashState`; `IosDebugLaunchArgs.kt`). XCTest kills the app without a background transition,
   which the crash-loop gate counts as a crash: a UI test class that launches the app without
   `-task6ResetCrashState` lands on the "An error has occurred" recovery screen after two such kills in an hour.
+- Device settings persist across test classes on one simulator: `FeatureUITests` switches the UI to Finnish, and
+  `-AppleLanguages (en)` does not override the app's own `locale_pref`. A test that reads English labels launches
+  with `-standardTestFixture` (English, no disguise).
+- Opt-in, controller-prepared classes skip in an ordinary run: `SyncAcceptanceUITests`
+  (`TEST_RUNNER_TASK7_SYNC_ACCEPTANCE=1` plus a fixture) and the two `DiscreteUITests` unlock scenarios
+  (`TEST_RUNNER_TASK6_DISCRETE_ACCEPTANCE=1`, after persisting `discrete_mode=true` on the simulator).

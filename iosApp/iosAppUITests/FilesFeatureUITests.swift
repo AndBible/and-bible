@@ -62,7 +62,7 @@ final class FilesFeatureUITests: XCTestCase {
 
     private func launch(_ mode: String, token: String) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
                                "-resetData", "-filesFeatureTest", mode, "-filesFeatureToken", token,
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
