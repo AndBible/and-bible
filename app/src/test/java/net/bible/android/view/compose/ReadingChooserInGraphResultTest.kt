@@ -51,7 +51,7 @@ import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.test.DatabaseResetter
-import net.bible.test.awaitHostCondition
+import net.bible.test.settleWorkspaceSwitches
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -205,12 +205,10 @@ class ReadingChooserInGraphResultTest {
         channel<WorkspaceResult>(activity, "workspaceResults")
             .deliver(nav, WorkspaceResult(workspaceId = target.id.toString(), changed = false))
         idle()
-        // The switch runs in lifecycleScope and reads the target workspace on a real IO thread, which
-        // idle() (simulated looper time) does not wait for; under a slow disk or host load the assert
-        // below used to run before it finished.
-        awaitHostCondition("the in-graph workspace answer must switch the host's window repository") {
-            activity.hostWindowRepository.id == target.id
-        }
+        // The switch runs in lifecycleScope: it reads the target workspace on a real IO thread and applies it
+        // on the main looper, which idle() (simulated time) does not wait for. Wait on the in-flight counter,
+        // which covers the whole switch.
+        settleWorkspaceSwitches()
 
         assertEquals(
             "an in-graph pop produces no onResume, so the WORKSPACE_CHANGED answer must be applied at once",
