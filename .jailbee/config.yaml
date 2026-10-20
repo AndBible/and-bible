@@ -19,11 +19,15 @@ new:
 # Resources
 # ---------------------------------------------------------------------------
 
-# Android Gradle builds are memory-hungry: JVM + Gradle daemon + Kotlin
-# compiler easily take 8-12 GiB on a full build, and an in-container emulator
-# needs the rest. Lower these for your host in the local layer if needed.
+# Android Gradle builds are memory-hungry. Measured peaks with the GRADLE_OPTS
+# below: warm verify 14.7 GiB, cold compile + verify 16.1 GiB (in a scope
+# without the Claude processes). A /tmp tmpfs adds another 1.5-3.5 GiB during a
+# run. 20 GiB is the interim size; 16 GiB is the target once /tmp is on disk.
+# No emulator during a heavy gate (about 6 GiB). Numbers: the design spec in
+# docs/superpowers/specs/2026-10-20-jailbee-agent-guide-and-container-memory-design.md.
+# Lower these for your host in the local layer if needed.
 defaults:
-  memory: 32GiB
+  memory: 20GiB
   cpu: 8
   network: strict
 
@@ -205,11 +209,21 @@ egress_allow:
 # tmux, autostart steps, the IDE). There is deliberately no ADB_SERVER_SOCKET
 # here; see `host_ports`. ANDROID_AVD_HOME is container-local on purpose (see
 # `shared_caches`): scripts/andbible-emu.sh creates the AVD on first boot.
+#
+# GRADLE_OPTS is container-only tuning (the host keeps Gradle defaults), see
+# the design spec "Experiment results" and "Design" 4 for the numbers:
+#   testForks=2: 2 unit-test JVM forks are as fast as 4 on this 8-core box.
+#   testHeap=2g: the fork heap barely moves RSS, so a smaller heap is cheap.
+#   compiler strategy in-process: the idle Kotlin daemon held about 3.5 GiB.
+#   G1PeriodicGCInterval/MinHeapFreeRatio/MaxHeapFreeRatio: the daemon returns
+#     heap after compiling instead of keeping the peak.
+#   -Xmx4g: the Gradle daemon heap; HeapDumpOnOutOfMemoryError for post-mortems.
 container:
   env:
     ANDROID_HOME: /opt/android-sdk
     ANDROID_SDK_ROOT: /opt/android-sdk
     ANDROID_AVD_HOME: /home/dev/.local/share/android-avd
+    GRADLE_OPTS: '-Dorg.gradle.project.testForks=2 -Dorg.gradle.project.testHeap=2g -Dorg.gradle.project.kotlin.compiler.execution.strategy=in-process -Dorg.gradle.jvmargs=-Xmx4g\ -XX:+HeapDumpOnOutOfMemoryError\ -Dfile.encoding=UTF-8\ -XX:G1PeriodicGCInterval=15000\ -XX:MinHeapFreeRatio=10\ -XX:MaxHeapFreeRatio=20'
 
 # ---------------------------------------------------------------------------
 # Golden image
