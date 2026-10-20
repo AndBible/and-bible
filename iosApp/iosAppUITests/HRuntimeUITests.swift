@@ -206,24 +206,31 @@ final class HRuntimeUITests: RealAppUITestCase {
         // locale: "suomi (fi)", the same text the Android run read back.
         require(text(app, "suomi (fi)").waitForExistence(timeout: 10), app, "ai-language-summary-not-suomi-fi")
         require(button(app, "AI response language, suomi (fi)").exists, app, "ai-language-row-label-not-suomi-fi")
+        // Reopen: the selection must be retained. The list is moved only by bounded sheet nudges (a fast fling left it
+        // decelerating and swallowed a tap), the real Finnish row must settle, and it is observed but NOT tapped again.
         tapText(app, "AI response language")
+        require(button(app, "Close").waitForExistence(timeout: 10), app, "language-reopen-sheet-missing")
         let finnish = text(app, "fi: Suomi")
-        for _ in 0..<12 where !finnish.isHittable { app.swipeUp() }
+        for _ in 0..<40 where !(finnish.exists && finnish.isHittable) {
+            require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
+            nudgeSheetList(app, up: true)
+        }
+        require(finnish.exists && waitForStableOnScreen(app, finnish), app, "language-reopen-finnish-not-settled")
         let selectedFinnish = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label == %@", "fi: Suomi"))
             .allElementsBoundByIndex.contains { $0.isSelected }
-        require(finnish.exists && selectedFinnish, app, "language-selection-not-retained-AX")
+        require(selectedFinnish, app, "language-selection-not-retained-AX")
         shot(app, "ai-language-finnish-retained")
-        // Selecting the same exact choice closes the real list; application language remains English.
-        finnish.tap()
-        require(text(app, "suomi (fi)").waitForExistence(timeout: 10), app, "ai-language-summary-lost-after-reopen")
         // Restore the application-language default through the real first row; the summary must return to its source
         // text "App language (English)" (aiLanguageAppDefault, AiSettingsServiceImpl.kt:102).
-        tapText(app, "AI response language")
         let restoreRow = text(app, "App language (English)")
-        require(restoreRow.waitForExistence(timeout: 10) && waitForStableOnScreen(app, restoreRow), app, "language-restore-row-not-settled")
+        for _ in 0..<40 where !(restoreRow.exists && restoreRow.isHittable) {
+            require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
+            nudgeSheetList(app, up: false)
+        }
+        require(restoreRow.exists && waitForStableOnScreen(app, restoreRow), app, "language-restore-row-not-settled")
         restoreRow.tap()
-        require(waitUntil(timeout: 10) { !self.button(app, "Close").exists }, app, "language-restore-sheet-not-dismissed")
+        require(waitUntil(timeout: 10) { !self.button(app, "Close").exists && !self.text(app, "fi: Suomi").exists }, app, "language-restore-sheet-not-dismissed")
         require(button(app, "AI response language, App language (English)").waitForExistence(timeout: 10), app, "ai-language-summary-not-restored")
         require(!text(app, "suomi (fi)").exists, app, "ai-language-finnish-summary-still-shown")
         for _ in 0..<12 where !text(app, "Providers").isHittable { app.swipeDown() }
