@@ -44,6 +44,8 @@
 #   MAC_TIMEOUT      seconds before a remote Gradle/xcodebuild step is killed (default 3000)
 #   MAC_LOCK_WAIT    seconds to wait for another container's build lock (default 5400; a dead holder's
 #                    lock is broken automatically, so this only bounds waiting behind live runs)
+#   TEST_RUNNER_*    forwarded to `xcode-test`; xcodebuild hands them to the UI tests without the prefix
+#                    (e.g. TEST_RUNNER_FILES_TEST_PHOTO_LABEL for FilesUITests, see docs/ios-remote-mac.md)
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -251,6 +253,7 @@ if [ $cmd = xcode-test ]; then
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
     xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == \"$APP_PROCESS\"' > build/app-$which.log 2>&1 &
     LOGPID=\$!; sleep 2
+    $(for v in $(compgen -v TEST_RUNNER_ || true); do printf 'export %s=%q\n' "$v" "${!v}"; done)
     tmo $TIMEOUT xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \\
         -destination \"platform=iOS Simulator,id=\$UDID\" -resultBundlePath build/ios-$which.xcresult $(q "$@") \\
         > build/xcodebuild-$which.log 2>&1; rc=\$?

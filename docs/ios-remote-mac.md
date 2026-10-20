@@ -234,3 +234,22 @@ the lock when its holder process is gone, and each run has a watchdog that stops
 connection ends (remote runs use a separate, non-multiplexed connection for that reason), so a killed
 container-side job never leaves the Mac locked or busy. Watchdog events go to
 `~/work/.mac-remote-watchdog.log` (shown by `check`).
+
+### UI tests that need simulator fixtures
+
+- `FilesUITests.testImageSelectionCopiesExpectedProviderAsset` picks one known photo in the real PHPicker.
+  Add the fixture once per simulator and pass its picker label (the label carries the import time, so
+  read it from the picker's element tree, e.g. a run with a placeholder label attaches it):
+
+  ```bash
+  scripts/mac-remote.sh run 'python3 -I iosApp/scripts/generate-files-test-fixtures.py --output-dir build/files-fixtures &&
+      xcrun simctl addmedia booted build/files-fixtures/andbible-port-quadrants.png'
+  TEST_RUNNER_FILES_TEST_PHOTO_LABEL='Photo, October 21, 0.23' scripts/mac-remote.sh xcode-test iphone
+  ```
+
+  Without the variable the test fails at once with "Controller must provide the deterministic fixture
+  asset's exact Photos label".
+- The real-app tests reset what they need through debug launch arguments (`-resetData`, `-resetDatabases`,
+  `-task6ResetCrashState`; `IosDebugLaunchArgs.kt`). XCTest kills the app without a background transition,
+  which the crash-loop gate counts as a crash: a UI test class that launches the app without
+  `-task6ResetCrashState` lands on the "An error has occurred" recovery screen after two such kills in an hour.
