@@ -894,32 +894,31 @@ final class ReadingUITests: RealAppUITestCase {
         if !chromeGone { attachTree(app, "fullscreen-chrome-still-shown") }
         XCTAssertTrue(chromeGone, "the toolbar is still shown in full screen")
 
-        // The overlay shows only while the window buttons are shown (2 s idle timer, restarted by a touch). It may have
-        // timed out already, so a touch at the pane margin brings it back.
+        // The overlay shows only while the window buttons are shown, i.e. within 2 s of the last touch on a pane
+        // (`windowButtonsVisibility`, restarted by `ReadingHostState.onBibleViewTouched`). It has usually timed out by now,
+        // so a single tap at the pane margin (a double tap would leave full screen) starts the countdown and the overlay is
+        // looked for straight away.
         let overlay = byLabel(app, "KJV:Joh 3:16")
-        var overlayShown = overlay.waitForExistence(timeout: 5)
+        paneMargin(app).tap()
+        let overlayShown = overlay.waitForExistence(timeout: 3)
+        shot(app, "fullscreen-overlay")
+        var diagnosis = ""
         if !overlayShown {
-            // Round 2 finding: the overlay is composed only while the window buttons are shown (2 s idle timer), and on iOS a
-            // touch on the pane never restarts that timer (only `ReadingHostState.openPaneMenu` calls
-            // `windowButtonsVisibility.onTouch()`; Android's `ComposeReadingViewHost.onBibleViewTouched` has no iOS caller).
-            // A touch at the pane margin is tried first (the Android behaviour), then the pane menu route that does bump it.
-            paneMargin(app).tap()
-            overlayShown = overlay.waitForExistence(timeout: 3)
-            if !overlayShown {
-                let note = XCTAttachment(string: "PRODUCT GAP: a touch on the pane does not bring the window buttons (and with them the Bible reference overlay) back in full screen; opening the pane menu does.")
-                note.name = "fullscreen-overlay-touch-gap"; note.lifetime = .keepAlways; add(note)
-                let windowMenu = byLabel(app, "Window menu")
-                if windowMenu.waitForExistence(timeout: 5) {
-                    windowMenu.tap()
-                    usleep(800_000)
-                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5)).tap()   // dismiss; the 2 s countdown restarts
-                    overlayShown = overlay.waitForExistence(timeout: 3)
-                }
+            attachTree(app, "fullscreen-no-overlay")
+            // Diagnose a second cause: with the pane menu open the buttons are forced visible and the timer is suspended, so
+            // the overlay must be there if the host's text and Bible flag are right.
+            let windowMenu = byLabel(app, "Window menu")
+            if windowMenu.waitForExistence(timeout: 3) {
+                windowMenu.tap()
+                let menuUp = app.buttons.matching(NSPredicate(format: "label == 'New window' OR label == 'Maximise'")).firstMatch.waitForExistence(timeout: 5)
+                let overlayWithMenu = labelStarting(app, "KJV:").exists
+                attachTree(app, "fullscreen-pane-menu-open")
+                diagnosis = " (pane menu opened: \(menuUp), overlay with the menu open: \(overlayWithMenu))"
             }
         }
-        if !overlayShown { attachTree(app, "fullscreen-no-overlay"); shot(app, "fullscreen-no-overlay") }
-        shot(app, "fullscreen-overlay")
-        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:16' is not shown in full screen, not even after opening the pane menu")
+        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:16' is not shown right after a tap in full screen\(diagnosis)")
+        if !overlayShown { return }
+        XCTAssertFalse(toolbarShown(app), "a single tap left full screen")
 
         // Double tap leaves full screen.
         paneMargin(app).doubleTap()
@@ -1255,9 +1254,19 @@ final class ReadingUITests: RealAppUITestCase {
             guard toggle.exists && toggle.isHittable else {
                 attachTree(app, "settings-no-one-step-switch"); XCTFail("no 'One-step bookmarking' switch in the Application preferences"); return
             }
-            let before = toggle.isSelected
+            // A Compose switch is exposed as a Switch whose state is its `value` ("0"/"1"); `isSelected` did not move on the
+            // Mac run, so both are read. If the tap in the row's middle does not toggle, tap the thumb at the trailing end.
+            let state = { "\(toggle.value as? String ?? "nil")|\(toggle.isSelected)" }
+            let before = state()
+            attachTree(app, "settings-one-step-before (\(before))")
             toggle.tap()
-            XCTAssertTrue(waitUntil(timeout: 10) { toggle.isSelected != before }, "the 'One-step bookmarking' switch did not change")
+            var changed = waitUntil(timeout: 4) { state() != before }
+            if !changed {
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+                changed = waitUntil(timeout: 6) { state() != before }
+            }
+            if !changed { attachTree(app, "settings-one-step-unchanged (\(state()))"); shot(app, "settings-one-step-unchanged") }
+            XCTAssertTrue(changed, "the 'One-step bookmarking' switch stays '\(before)' (value|selected) after tapping it")
             let back = app.buttons["Back"]
             guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return }
             back.tap()
