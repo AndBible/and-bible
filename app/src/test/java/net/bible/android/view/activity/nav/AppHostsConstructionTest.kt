@@ -53,6 +53,14 @@ class AppHostsConstructionTest {
             assertNotNull(activity.appHosts)
             assertEquals(AppHostsState(), activity.appHosts.saveState())
             DatabaseContainer.detachInstanceForTest()
+            // Witness: record who builds a container from here on, so a failure names the builder
+            // (this test was red once in a full run and green alone, so the builder was a background thread).
+            originalFactory = DatabaseContainer.containerFactory
+            val original = originalFactory!!
+            DatabaseContainer.containerFactory = {
+                builds += Throwable("container built on thread '${Thread.currentThread().name}'")
+                original()
+            }
             val standalone = AppHosts(getKoin(), activity, activity.hostPorts, AndroidStrings(activity))
             assertEquals(AppHostsState(), standalone.saveState())
             // Assembling the deps (as every host launch does) must stay lazy too: no service, no database.
@@ -63,10 +71,20 @@ class AppHostsConstructionTest {
                 graphs.myDocuments, graphs.chooser, graphs.workspace, graphs.backup, graphs.installZip, graphs.welcome,
             ).forEach { assertNotNull(it) }
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
-            assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
+            assertNull(
+                "constructing the app hosts built the database container; builders: " +
+                    builds.joinToString("\n") { it.stackTraceToString().lines().take(40).joinToString("\n") },
+                DatabaseContainer.detachInstanceForTest(),
+            )
             shadowOf(Looper.getMainLooper()).idle()
-        } finally { controller.close() }
+        } finally {
+            originalFactory?.let { DatabaseContainer.containerFactory = it }
+            controller.close()
+        }
     }
+
+    private var originalFactory: (() -> DatabaseContainer)? = null
+    private val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
 
     private fun channels() = AppResultChannels(
         readingProgress = NavResultChannel { },
