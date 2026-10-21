@@ -198,7 +198,6 @@ class IosReadingHost(
      * `fullScreen.state` in common code; the status bar is a UIKit matter, see [iosSetStatusBarHidden].
      */
     internal fun setFullScreen(value: Boolean, byDoubleTap: Boolean = false) {
-        nsLog("TEMP-OVERLAY-DIAG setFullScreen($value, byDoubleTap=$byDoubleTap) before=${fullScreen.state.value}") // TEMP-OVERLAY-DIAG
         fullScreen.set(value, byDoubleTap)
         statusBarHidden(fullScreen.state.value)
     }
@@ -231,19 +230,6 @@ class IosReadingHost(
     internal fun refreshOverlay() {
         // Like `refreshToolbar`: runs from event handlers and `deps()`, where a throw must not break the event stream.
         try {
-            // TEMP-OVERLAY-DIAG
-            run {
-                val pc = koin.get<PageControl>()
-                val page = pc.currentPageManager.currentPage
-                nsLog(
-                    "TEMP-OVERLAY-DIAG refreshOverlay doc=${page.currentDocument?.abbreviation} cat=${page.currentDocument?.bookCategory} " +
-                        "bibleVerse=${runCatching { pc.currentBibleVerse.getName() }.getOrElse { "ERR $it" }} " +
-                        "displayKey=${runCatching { page.displayKey?.getName() }.getOrElse { "ERR $it" }} " +
-                        "text='${runCatching { bibleOverlayText(pc) }.getOrElse { "ERR $it" }}' " +
-                        "isBibleShown=${windowControl.activeWindow.pageManager.isBibleShown} fullScreen=${fullScreen.state.value} " +
-                        "hide=${koin.get<AppSettings>().getBoolean("hide_bible_reference_overlay", false)}",
-                )
-            }
             overlayText.value = bibleOverlayText(koin.get<PageControl>()) ?: ""
             activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
         } catch (e: Exception) {
@@ -486,14 +472,12 @@ class IosReadingHost(
                 // Android's overlay events (`VerseChanged`, active window); `BibleVerseChanged` too, where no `VerseChanged` follows.
                 // `ContentLoaded` as well, like the toolbar title: the first page is only current once its content has loaded
                 // (an event sent before this host subscribed is lost), and without this the overlay text stayed empty.
-                nsLog("TEMP-OVERLAY-DIAG event $change") // TEMP-OVERLAY-DIAG
                 if (change is PageChange.VerseChanged || change is PageChange.BibleVerseChanged || change == PageChange.ContentLoaded) refreshOverlay()
             },
         )
         subscriptions.add(
             koin.get<WindowStateServiceImpl>().windowChanges.subscribeOnMain { change ->
                 if (change is WindowChange.ActiveWindowChanged) {
-                    nsLog("TEMP-OVERLAY-DIAG event ActiveWindowChanged") // TEMP-OVERLAY-DIAG
                     refreshOverlay()
                     searchState.controller.activeDocumentChanged()
                 }
@@ -670,8 +654,6 @@ class IosReadingHost(
     fun deps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons? = null): ReadingHostDeps {
         // The state service only refreshes on events; the first snapshot is taken here, once the repository exists.
         toolbarHost.refreshToolbar()
-        nsLog("TEMP-OVERLAY-DIAG deps()") // TEMP-OVERLAY-DIAG
-        net.bible.sharedui.reading.host.tempOverlayDiag = { nsLog("TEMP-OVERLAY-DIAG $it") } // TEMP-OVERLAY-DIAG
         refreshOverlay()
         return buildDeps(icons, paneIcons)
     }
