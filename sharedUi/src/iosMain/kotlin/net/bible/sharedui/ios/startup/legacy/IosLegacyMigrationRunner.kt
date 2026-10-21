@@ -5,7 +5,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -64,31 +63,29 @@ internal object IosLegacyMigrationRunner {
     private val lock = Mutex()
     private var attempt: Deferred<LegacyGateDecision>? = null
 
-    /** Test seam for the environment only. Setting it forgets any cached attempt. */
+    /** Test seam for the environment only: tests only, set before [run]. Setting it forgets any cached attempt. */
     internal var testHooks: RunnerHooks? = null
         set(value) {
             field = value
             attempt = null
         }
 
-    /** The decision of the process's one attempt; a waiter's cancellation does not cancel the attempt. */
+    /**
+     * The decision of the process's one attempt; a waiter's cancellation does not cancel the attempt, and a finished
+     * attempt (including a Recover decision) is never repeated in this process.
+     *
+     * May throw: a failure while applying the extras (for example the `applied.json` write) or any unexpected error
+     * of the attempt. The caller must then never proceed to open the databases; the settled flag stays unset and the
+     * import request is kept. A failed attempt is not cached, so the next call repeats it, which is safe because the
+     * migrator answers `AlreadyDone` and the extras applier is idempotent.
+     */
     suspend fun run(): LegacyGateDecision {
         val shared = lock.withLock {
-            attempt ?: scope.async { execute(testHooks ?: productionHooks()) }.also { created ->
-                attempt = created
-                // An exception (as opposed to a Recover decision) leaves nothing decided: allow a later retry.
-                created.invokeOnCompletion { failure -> if (failure != null) scope.launch { lock.withLock { if (attempt === created) attempt = null } } }
-            }
+            // A failed attempt is replaced; a completed decision (Proceed or Recover) stays.
+            attempt?.takeUnless { it.isCompleted && it.isCancelled }
+                ?: scope.async { execute(testHooks ?: productionHooks()) }.also { attempt = it }
         }
         return shared.await()
-    }
-
-    /**
-     * Forgets a finished attempt so the next [run] starts a new one (the recovery screen's "try again"). A running
-     * attempt is kept.
-     */
-    suspend fun forgetFinishedAttempt() {
-        lock.withLock { if (attempt?.isCompleted == true) attempt = null }
     }
 
     private suspend fun execute(hooks: RunnerHooks): LegacyGateDecision {

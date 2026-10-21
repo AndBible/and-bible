@@ -5,6 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.bible.service.cloudsync.ios.SECRET_CREDENTIAL_KEYS
 import net.bible.service.legacymigration.DeviceLocalPref
 import net.bible.service.legacymigration.LegacyExtras
@@ -87,12 +88,16 @@ class IosLegacyMigrationRunnerTest {
         )
     }
 
+    /** A bug fails the test instead of hanging the native test binary. */
+    private fun blocking(body: suspend kotlinx.coroutines.CoroutineScope.() -> Unit) =
+        runBlocking { withTimeout(5_000) { body() } }
+
     @AfterTest fun tearDown() {
         IosLegacyMigrationRunner.testHooks = null
         FileSystem.SYSTEM.deleteRecursively(root, mustExist = false)
     }
 
-    @Test fun concurrentCallersShareOneAttempt() = runBlocking {
+    @Test fun concurrentCallersShareOneAttempt() = blocking {
         var runs = 0
         IosLegacyMigrationRunner.testHooks = hooks { runs++; delay(100); LegacyMigrationOutcome.NothingToMigrate }
         val a = async { IosLegacyMigrationRunner.run() }
@@ -104,7 +109,7 @@ class IosLegacyMigrationRunnerTest {
         assertEquals(1, runs)
     }
 
-    @Test fun protectedDataWaitBlocksUntilAvailable() = runBlocking {
+    @Test fun protectedDataWaitBlocksUntilAvailable() = blocking {
         val flag = Flag()
         var runs = 0
         val changes = Channel<Unit>(Channel.UNLIMITED)
@@ -124,7 +129,7 @@ class IosLegacyMigrationRunnerTest {
         assertEquals(1, runs)
     }
 
-    @Test fun proceedSetsSettledAfterPrefsApplied() = runBlocking {
+    @Test fun proceedSetsSettledAfterPrefsApplied() = blocking {
         val recording = object : ForwardingFileSystem(FileSystem.SYSTEM) {
             override fun delete(path: Path, mustExist: Boolean) {
                 if (path.name == "import-request.json") events += "clearRequest"
@@ -147,11 +152,51 @@ class IosLegacyMigrationRunnerTest {
         assertFalse(h.control.importRequested())
     }
 
-    @Test fun recoverLeavesSettledUnset() = runBlocking {
-        IosLegacyMigrationRunner.testHooks = hooks { LegacyMigrationOutcome.GaveUp(2, LegacyMigrationException.Kind.CORRUPT_STORE) }
+    @Test fun recoverLeavesSettledUnset() = blocking {
+        var runs = 0
+        IosLegacyMigrationRunner.testHooks = hooks { runs++; LegacyMigrationOutcome.GaveUp(2, LegacyMigrationException.Kind.CORRUPT_STORE) }
         assertIs<LegacyGateDecision.Recover>(IosLegacyMigrationRunner.run())
         assertFalse("settled" in events, "events: $events")
         assertTrue(events.none { it.startsWith("prefs:") })
+        // The finished Recover attempt is not repeated in this process.
+        assertIs<LegacyGateDecision.Recover>(IosLegacyMigrationRunner.run())
+        assertEquals(1, runs)
+    }
+
+    @Test fun applyFailureThrowsLeavesNothingSettledAndNextRunRepeats() = blocking {
+        var failWrites = true
+        var runs = 0
+        val failing = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun sink(file: Path, mustCreate: Boolean): okio.Sink {
+                if (failWrites && file.name.startsWith("applied.json")) throw okio.IOException("disk full")
+                return super.sink(file, mustCreate)
+            }
+            override fun atomicMove(source: Path, target: Path) {
+                if (failWrites && target.name.startsWith("applied.json")) throw okio.IOException("disk full")
+                super.atomicMove(source, target)
+            }
+            override fun delete(path: Path, mustExist: Boolean) {
+                if (path.name == "import-request.json") events += "clearRequest"
+                super.delete(path, mustExist)
+            }
+        }
+        val h = hooks(fileSystem = failing) { runs++; LegacyMigrationOutcome.NothingToMigrate }
+        failing.createDirectories(h.control.dir)
+        val extras = LegacyExtras(emptyMap(), null, false, false, emptyList(), listOf(DeviceLocalPref("some_pref", PrefType.STRING, "v")))
+        failing.write(h.control.dir / LegacyExtrasFile.NAME) { writeUtf8(LegacyExtrasFile.encode(extras, MigrationReport())) }
+        h.control.requestImport()
+        IosLegacyMigrationRunner.testHooks = h
+
+        val failure = runCatching { IosLegacyMigrationRunner.run() }.exceptionOrNull()
+        assertTrue(failure != null, "run() must throw when the extras cannot be recorded")
+        assertFalse("settled" in events, "events: $events")
+        assertFalse("clearRequest" in events, "events: $events")
+        assertTrue(h.control.importRequested())
+
+        failWrites = false
+        assertEquals(LegacyGateDecision.Proceed, IosLegacyMigrationRunner.run())
+        assertEquals(2, runs)
+        assertTrue("settled" in events)
     }
 
     @Test fun nextcloudSecretKeyMatchesSyncPlatform() {
