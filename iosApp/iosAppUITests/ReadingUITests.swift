@@ -872,6 +872,15 @@ final class ReadingUITests: RealAppUITestCase {
         app.webViews.staticTexts.matching(NSPredicate(format: "label == %@", "\u{2014} \(chapter) \u{2014}")).firstMatch.exists
     }
 
+    /// 'Nicodemus' labels whose frame is on screen. The web view keeps the neighbouring chapters it has loaded in the
+    /// accessibility tree (the iPad trees hold John 2, 3 and 4 with the off-screen words at negative y), so after a move to
+    /// John 4 the John 3 words are still in the tree but not on screen.
+    private func nicodemusOnScreen(_ app: XCUIApplication) -> Int {
+        let screen = app.windows.firstMatch.frame
+        return app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).allElementsBoundByIndex
+            .filter { $0.frame.height > 0 && $0.frame.intersects(screen) && $0.frame.minY >= screen.minY }.count
+    }
+
     // MARK: Task 11: full screen
 
     /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar and shows the Bible reference overlay with
@@ -961,10 +970,10 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(pane.waitForExistence(timeout: 15), "no pane")
         pane.swipeLeft()
         let title = { self.toolbarTitle(app)?.label ?? "" }
-        let next = waitUntil(timeout: 30) { title().hasPrefix("John 4") && nicodemusInWebViews(app) == 0 }
+        let next = waitUntil(timeout: 30) { title().hasPrefix("John 4") && chapterMarkerShown(app, 4) && nicodemusOnScreen(app) == 0 }
         if !next { attachTree(app, "swipe-left-not-john-4") }
         shot(app, "swipe-left")
-        XCTAssertTrue(next, "after a left swipe the title is '\(title())' and 'Nicodemus' appears \(nicodemusInWebViews(app)) times; expected John 4 without Nicodemus")
+        XCTAssertTrue(next, "after a left swipe the title is '\(title())' and 'Nicodemus' is on screen \(nicodemusOnScreen(app)) times; expected John 4 without Nicodemus on screen")
 
         pane.swipeRight()
         let backAgain = waitUntil(timeout: 30) { title().hasPrefix("John 3") && nicodemusInWebViews(app) == nicodemusPerPane }
@@ -1140,7 +1149,7 @@ final class ReadingUITests: RealAppUITestCase {
         let reading = element(app, "reading-host").waitForExistence(timeout: 30)
         if !reading { attachTree(app, "progress-chapter-no-reading") }
         XCTAssertTrue(reading, "tapping chapter 4 did not return to the reading view")
-        let onFour = waitUntil(timeout: 30) { chapterMarkerShown(app, 4) && nicodemusInWebViews(app) == 0 }
+        let onFour = waitUntil(timeout: 30) { chapterMarkerShown(app, 4) && nicodemusOnScreen(app) == 0 }
         if !onFour { attachTree(app, "progress-chapter-not-john-4") }
         XCTAssertTrue(onFour, "the reading view does not show the chapter marker of John 4")
     }
