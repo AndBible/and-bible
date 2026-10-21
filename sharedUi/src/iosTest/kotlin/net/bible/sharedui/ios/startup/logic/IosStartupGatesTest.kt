@@ -119,4 +119,27 @@ class IosStartupGatesTest {
         assertEquals(recovery, gates.current)
         assertNull(gates.result)
     }
+
+    @Test fun productionGateListIsCalculatorLegacyCrashRecovery() {
+        val list = productionStartupGates({ true }, { true }, { true })
+        assertEquals(3, list.size)
+        assertTrue(list[0] is StartupGate.Calculator)
+        assertTrue(list[1] is StartupGate.LegacyMigration)
+        assertTrue(list[2] is StartupGate.CrashRecovery)
+        // And the chain walks them in that order.
+        val gates = IosStartupGates(list)
+        gates.advance()
+        assertEquals(list[0], gates.current)
+        gates.advance()
+        assertEquals(list[1], gates.current)
+        gates.advance()
+        assertEquals(list[2], gates.current)
+    }
+
+    @Test fun productionGateListWiresEachPredicateToItsOwnGate() {
+        val calls = mutableListOf<String>()
+        val list = productionStartupGates({ calls += "calc"; false }, { calls += "legacy"; false }, { calls += "crash"; false })
+        IosStartupGates(list).advance()
+        assertEquals(listOf("calc", "legacy", "crash"), calls)
+    }
 }

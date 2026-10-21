@@ -31,4 +31,32 @@ class LegacyAdmissionTest {
         assertFalse(backgroundAdmissionAllowed(protectedData = false, crashRecoveryPending = false, settled = true))
         assertFalse(backgroundAdmissionAllowed(protectedData = true, crashRecoveryPending = true, settled = true))
     }
+
+    @Test fun legacyGateIsNeverRequiredOnceStartupBegan() {
+        assertTrue(legacyGateRequired(settled = false, startupBegan = false))
+        assertFalse(legacyGateRequired(settled = true, startupBegan = false))
+        // The import row cleared the settled flag in a process whose databases are open: no migration may run.
+        assertFalse(legacyGateRequired(settled = false, startupBegan = true))
+        assertFalse(legacyGateRequired(settled = true, startupBegan = true))
+    }
+
+    @Test fun recreatedHostAfterAnImportRequestDoesNotEnterTheGate() {
+        val prefs = MapPrefs()
+        val latch = StartupLatch()
+        val required = { legacyGateRequired(legacySettled(prefs), latch.began) }
+        prefs.setBoolean(LEGACY_SETTLED_KEY, true)
+        val firstHost = IosStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
+        assertEquals(StartupGateResult.Continue, firstHost.result)
+        latch.markBegan() // startup opened the databases
+        prefs.remove(LEGACY_SETTLED_KEY) // requestImport() cleared the flag
+        val recreated = IosStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
+        assertEquals(null, recreated.current, "the legacy gate must not run in this process")
+        assertEquals(StartupGateResult.Continue, recreated.result)
+    }
+
+    @Test fun coldLaunchWithRequestedImportStillEntersTheGate() {
+        val latch = StartupLatch()
+        val gates = IosStartupGates(productionStartupGates({ false }, { legacyGateRequired(false, latch.began) }, { false })).apply { advance() }
+        assertTrue(gates.current is StartupGate.LegacyMigration)
+    }
 }

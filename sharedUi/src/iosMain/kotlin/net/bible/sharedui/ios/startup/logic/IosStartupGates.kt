@@ -8,6 +8,21 @@ internal sealed interface StartupGate {
     class CrashRecovery(val required: () -> Boolean) : StartupGate
 }
 
+/**
+ * The production gate chain, in order: calculator, legacy migration, crash recovery. One function so a test sees the
+ * order the app really uses (the legacy migration must follow the calculator, so nothing runs behind the disguise, and
+ * precede crash recovery, whose accounting starts only when the migration has resolved).
+ */
+internal fun productionStartupGates(
+    calculatorRequired: () -> Boolean,
+    legacyMigrationRequired: () -> Boolean,
+    crashRecoveryRequired: () -> Boolean,
+): List<StartupGate> = listOf(
+    StartupGate.Calculator(calculatorRequired),
+    StartupGate.LegacyMigration(legacyMigrationRequired),
+    StartupGate.CrashRecovery(crashRecoveryRequired),
+)
+
 internal enum class StartupGateResult { Continue, OpenBackup, Exit }
 
 /** A single owner advances the chain; neither a screen nor its effects can race normal startup. */

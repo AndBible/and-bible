@@ -125,10 +125,11 @@ fun MainViewController(): UIViewController {
         // Do not start either startup stage (or show a splash) behind the disguise.
         // Not saveable: a recreated host must pass the gate again.
         val gates = remember {
-            IosStartupGates(listOf(
-                StartupGate.Calculator { requiresCalculator },
-                StartupGate.LegacyMigration { !legacySettled(settings) },
-                StartupGate.CrashRecovery { crashTracker.shouldOfferRecovery() },
+            IosStartupGates(productionStartupGates(
+                calculatorRequired = { requiresCalculator },
+                // Never after startup began in this process: the migration renames Room files that may be open.
+                legacyMigrationRequired = { legacyGateRequired(legacySettled(settings), processStartupLatch.began) },
+                crashRecoveryRequired = { crashTracker.shouldOfferRecovery() },
             )).apply { advance() }
         }
         var gateRevision by remember { mutableStateOf(0) }
@@ -184,7 +185,10 @@ fun MainViewController(): UIViewController {
         // Keyed on recoveryBackup: after a backup returns to a settled chain the effect must rerun to launch normal startup.
         LaunchedEffect(recoveryBackup) {
             net.bible.sharedui.assembly.awaitIosUiStartup(
-                ensureStarted = { IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language)) },
+                ensureStarted = {
+                    processStartupLatch.markBegan()
+                    IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language))
+                },
                 state = startupState,
                 processScope = startupScope,
                 recoveryBackup = recoveryBackup,
