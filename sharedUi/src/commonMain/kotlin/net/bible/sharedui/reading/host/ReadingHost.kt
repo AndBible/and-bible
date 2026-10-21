@@ -805,4 +805,5 @@ private fun BoxScope.PaneWindowButtonOverlay(
  * The top safe-area inset the pane window buttons must clear. Zero everywhere except iOS full screen, where the status bar is
  * hidden but the notch / Dynamic Island safe area stays and nothing else (the toolbar is gone) pads it.
  */
+@kotlin.native.HiddenFromObjC
 val LocalReadingTopSafeInset = androidx.compose.runtime.compositionLocalOf { 0.dp }
