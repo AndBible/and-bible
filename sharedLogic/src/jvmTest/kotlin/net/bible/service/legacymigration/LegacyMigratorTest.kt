@@ -239,9 +239,20 @@ class LegacyMigratorTest {
     fun replaceModeKeepsTheBackupWhenARelaunchRetriesTheRename() {
         val e = env()
         writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
-        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform, replaceExisting = true))
-        // A later launch (default mode) must not delete the kept files.
+        var failures = 0
+        val fs = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun atomicMove(source: Path, target: Path) {
+                if (source.name == "replaced" && failures++ == 0) throw java.io.IOException("injected one-time rename failure")
+                super.atomicMove(source, target)
+            }
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator(PlatformWithFileSystem(e.platform, fs), replaceExisting = true).run() })
+        assertEquals(1, failures)
+        assertTrue(File(e.migrationDir.toString(), "replaced").isDirectory, "the failed rename left replaced/")
+        assertEquals(emptyList(), beforeImportDirs(e))
+        // A later launch (default mode) retries the rename: the marker says the backup belongs to an import.
         assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertFalse(File(e.migrationDir.toString(), "replaced").exists())
         assertEquals(3, countRows(File(beforeImportDirs(e).single(), "bookmarks.sqlite3")))
     }
 
@@ -298,9 +309,17 @@ class LegacyMigratorTest {
         val e = env()
         createEmptyRoomDatabase(File(e.databases.toString(), "bookmarks.sqlite3"))
         File(e.databases.toString(), "settings.sqlite3").writeBytes(ByteArray(0)) // an empty file is empty too
-        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        var replacedExistedBeforeCleanUp = false
+        val outcome = runBlocking {
+            migrator(e.platform, stepHook = { if (it == Step.ADOPT_DONE) replacedExistedBeforeCleanUp = File(e.migrationDir.toString(), "replaced").isDirectory }).run()
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+        assertTrue(replacedExistedBeforeCleanUp, "the backup really existed, so its absence below is cleanUp's work")
         assertEquals(baseline, databaseSummary(e.databases))
         assertFalse(File(e.migrationDir.toString(), "replaced").exists())
+        assertEquals(emptyList(), beforeImportDirs(e), "a normal migration keeps no before-import directory")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertEquals(emptyList(), beforeImportDirs(e))
     }
 
     @Test

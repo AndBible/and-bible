@@ -279,6 +279,7 @@ class LegacyMigrator(
             current = current.copy(phase = MigrationPhase.ADOPTING, plan = plan, moved = emptyList())
             states.write(current) // the intent is on disk before the first move
             current = adopter.move(current) { hook(Step.ADOPT_FIRST_MOVE) }
+            if (replaceExisting && fs.exists(replacedDir)) atomicWrite(replacedDir / IMPORT_MARKER, "import")
             hook(Step.ADOPT_DONE)
 
             finished = extras
@@ -529,19 +530,21 @@ class LegacyMigrator(
     }
 
     /**
-     * After the commit: `replaced/` holding any data (a replaced non-empty database, its side files) becomes
-     * `before-import-<epoch ms>/` and is never deleted; one holding only empty files is deleted. A failed rename leaves
-     * `replaced/`, and the next launch retries.
+     * After the commit: a `replaced/` that carries the import marker (written when [replaceExisting] moved files aside)
+     * becomes `before-import-<epoch ms>/` and is never deleted; any other `replaced/` (backups of empty databases from a
+     * normal migration) is deleted. A failed rename leaves `replaced/` with its marker, and the next launch retries.
      */
     private fun keepOrDeleteReplaced() {
         if (!fs.exists(replacedDir)) return
-        val holdsData = fs.listRecursively(replacedDir).any { (fs.metadataOrNull(it)?.size ?: 0L) > 0L }
-        if (holdsData) fs.atomicMove(replacedDir, dir / "before-import-${Clock.System.now().toEpochMilliseconds()}")
+        if (fs.exists(replacedDir / IMPORT_MARKER)) fs.atomicMove(replacedDir, dir / "before-import-${Clock.System.now().toEpochMilliseconds()}")
         else fs.deleteRecursively(replacedDir, mustExist = false)
     }
 
     private companion object {
         /** An attempt count at which no further automatic attempt is made. */
         const val MAX_ATTEMPTS = 2
+
+        /** File inside `replaced/` that says its content belongs to a user-requested import and must be kept. */
+        const val IMPORT_MARKER = ".import"
     }
 }

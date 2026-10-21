@@ -7,6 +7,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import net.bible.service.legacymigration.state.MigrationPhase
 import net.bible.service.legacymigration.state.MigrationStateStore
 import net.bible.service.legacymigration.state.atomicWriteFile
+import kotlin.time.Clock
 import okio.FileSystem
 import okio.Path
 
@@ -36,7 +37,8 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
 
     fun decline(reason: DeclineReason) {
         fs.createDirectories(dir)
-        atomicWriteFile(fs, declinedFile, """{"reason":"${reason.name}"}""")
+        val name = when (reason) { DeclineReason.START_FRESH -> "startFresh"; DeclineReason.RESTORED_BACKUP -> "restoredBackup" }
+        atomicWriteFile(fs, declinedFile, """{"reason": "$name", "at": ${Clock.System.now().toEpochMilliseconds()}}""")
     }
 
     /** An import can be offered: old stores exist and no real migration has completed (a "nothing to migrate" marker does not count). */
@@ -46,8 +48,10 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
     fun requestImport() {
         fs.createDirectories(dir)
         fs.delete(declinedFile, mustExist = false)
+        // A "nothing to migrate" marker would make the migrator answer AlreadyDone; a real migration's marker is never touched.
+        if (fs.exists(doneFile) && nothingToMigrate()) fs.delete(doneFile)
         resetAttempts()
-        atomicWriteFile(fs, importRequestFile, """{"requestedAt":${kotlin.time.Clock.System.now().toEpochMilliseconds()}}""")
+        atomicWriteFile(fs, importRequestFile, """{"requestedAt":${Clock.System.now().toEpochMilliseconds()}}""")
     }
 
     fun importRequested(): Boolean = fs.exists(importRequestFile)
@@ -62,7 +66,8 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
      * is in phase `ADOPTING`: its plan is needed for the rollback.
      */
     fun resetAttempts(): Boolean {
-        if (states.read()?.phase == MigrationPhase.ADOPTING) return false
+        // A state file that cannot be read counts as not adopting (the store maps it to an exhausted budget).
+        if (runCatching { states.read() }.getOrNull()?.phase == MigrationPhase.ADOPTING) return false
         states.delete()
         return true
     }

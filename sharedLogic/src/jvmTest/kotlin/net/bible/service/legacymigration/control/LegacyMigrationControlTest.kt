@@ -7,6 +7,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import net.bible.service.legacymigration.LegacyMigrationOutcome
 import net.bible.service.legacymigration.LegacyMigrator
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
@@ -40,7 +44,11 @@ class LegacyMigrationControlTest {
         assertFalse(c.isSettled())
         c.decline(DeclineReason.START_FRESH)
         assertTrue(c.isSettled())
-        assertTrue(file(c, "declined.json").readText().contains("START_FRESH"))
+        val json = Json.parseToJsonElement(file(c, "declined.json").readText()).jsonObject
+        assertEquals("startFresh", json.getValue("reason").jsonPrimitive.content)
+        assertTrue(json.getValue("at").jsonPrimitive.long > 0L)
+        c.decline(DeclineReason.RESTORED_BACKUP)
+        assertEquals("restoredBackup", Json.parseToJsonElement(file(c, "declined.json").readText()).jsonObject.getValue("reason").jsonPrimitive.content)
     }
 
     @Test
@@ -111,5 +119,38 @@ class LegacyMigrationControlTest {
         val c = control(p)
         installLegacyApp(fx, p)
         assertTrue(c.importAvailable())
+    }
+
+    @Test
+    fun requestImportOnACorruptStateFileDoesNotThrow() {
+        val p = platform()
+        val c = control(p)
+        File(c.dir.toString()).mkdirs()
+        file(c, "state.json").writeText("{ not json")
+        c.requestImport()
+        assertTrue(c.importRequested())
+        assertFalse(file(c, "state.json").exists())
+    }
+
+    @Test
+    fun requestImportAfterNothingToMigrateLetsAReplaceRunMigrate() {
+        val fx = fixture("1.0.1", "17", "rich")
+        val p = FakeLegacyPlatform.from(fx)
+        assertEquals(LegacyMigrationOutcome.NothingToMigrate, run(p))
+        installLegacyApp(fx, p)
+        val c = control(p)
+        c.requestImport()
+        assertFalse(file(c, "done.json").exists())
+        val outcome = runBlocking { LegacyMigrator(p, JvmLegacyDatabaseFactory(), replaceExisting = true).run() }
+        assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+    }
+
+    @Test
+    fun requestImportKeepsARealMigrationsDoneMarker() {
+        val p = platform()
+        val c = control(p)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(p))
+        c.requestImport()
+        assertTrue(file(c, "done.json").exists())
     }
 }
