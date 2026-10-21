@@ -30,8 +30,9 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * The WebView's document offsets in CSS px (= dp on iOS), the counterpart of Android's `ReadingInsets` ledger
  * (`BibleView.topOffset` / `bottomOffset`).
  *
- * [top] is 0: the toolbar is an in-flow row above the panes and pads the status bar itself, so no pane extends under it
- * (Android's `topOffset2` is a constant 0 for the same reason). [bottom] is what overlays the panes' lower edge: the
+ * [top] is 0 while the toolbar is up: it is an in-flow row above the panes and pads the status bar itself, so no pane extends
+ * under it (Android's `topOffset2` is a constant 0 for the same reason). In full screen on iOS the toolbar is gone but the
+ * notch / Dynamic Island safe area stays, so [setSystemTopInset] makes it the top offset then. [bottom] is what overlays the panes' lower edge: the
  * system bottom inset (home indicator) unless the speak bar is up (it sits below the panes and pads that inset
  * itself, `bottomOffsetForWebView`'s F111 rule), the minimised-window restore row (40dp, Android's theme
  * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on; read live), the agent log's collapsed
@@ -50,7 +51,12 @@ class ReadingOffsets(
     private var speakBarVisible = false
     private var containerSize: Pair<Int, Int>? = null
 
-    val top: Float get() = 0f
+    private var systemTopInset = 0f
+
+    val top: Float get() = systemTopInset
+
+    /** The top safe-area inset in dp, to be reported only while nothing else pads it (full screen); 0 otherwise. */
+    fun setSystemTopInset(dp: Float) = change { if (systemTopInset != dp) { systemTopInset = dp; true } else false }
 
     val bottom: Float get() = (if (speakBarVisible) 0f else systemBottomInset) + (if (restoreButtonsVisible()) WINDOW_BUTTON_HEIGHT_DP else 0f) + agentLog + searchSheet
 

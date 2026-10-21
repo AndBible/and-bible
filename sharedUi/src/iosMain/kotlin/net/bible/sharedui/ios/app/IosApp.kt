@@ -23,6 +23,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.ui.unit.dp
+import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.PushPin
@@ -562,10 +565,13 @@ private fun IosReadingDestination(
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
+    HideStatusBarInFullScreen(host)
     KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() })
     TiltScrollWhileReading(koin)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
-        CompositionLocalProvider(LocalReadingPane provides paneFactory) {
+        val density = LocalDensity.current
+        val topInset = if (host.fullScreen.state.value) with(density) { WindowInsets.safeDrawing.getTop(density).toDp() } else 0.dp
+        CompositionLocalProvider(LocalReadingPane provides paneFactory, LocalReadingTopSafeInset provides topInset) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
         }
     }
@@ -582,9 +588,25 @@ private fun MeasureReadingOffsets(host: IosReadingHost) {
     val density = LocalDensity.current
     val bottomPx = WindowInsets.navigationBars.getBottom(density)
     val containerSize = LocalWindowInfo.current.containerSize
+    // Full screen removes the toolbar that pads the top; the notch / island safe area stays (see ReadingOffsets.top).
+    val topPx = if (host.fullScreen.state.value) WindowInsets.safeDrawing.getTop(density) else 0
     SideEffect {
+        host.offsets.setSystemTopInset(topPx / density.density)
         host.offsets.setSystemBottomInset(bottomPx / density.density)
         host.offsets.setContainerSize(containerSize.width, containerSize.height)
+    }
+}
+
+/**
+ * The status bar follows full screen only while the reading route is composed: other screens reached from full screen
+ * (settings, search results) get it back, and returning to reading hides it again if full screen is still on.
+ */
+@Composable
+private fun HideStatusBarInFullScreen(host: IosReadingHost) {
+    val fullScreen = host.fullScreen.state.value
+    DisposableEffect(fullScreen) {
+        iosSetStatusBarHidden(fullScreen)
+        onDispose { iosSetStatusBarHidden(false) }
     }
 }
 

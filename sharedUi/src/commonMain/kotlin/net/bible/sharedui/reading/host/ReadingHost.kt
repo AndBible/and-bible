@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
@@ -463,7 +464,8 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                     overflowIcon = deps.menuIcon,
                     paneOverlay = { windowId ->
                         val window = layout.windows.firstOrNull { it.id == windowId }
-                        PaneWindowButtonOverlay(
+                        val topInset = LocalReadingTopSafeInset.current
+                        val buttons: @Composable BoxScope.() -> Unit = { PaneWindowButtonOverlay(
                             windowId = windowId,
                             window = window,
                             isActive = windowId == layout.activeWindowId,
@@ -486,7 +488,9 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                             onPaneMenuItemClick = { id, item -> onPaneMenuItemClick(deps, id, item) },
                             onPaneMenuDismiss = state::closePaneMenu,
                             icon = deps.menuIcon,
-                        )
+                        ) }
+                        // iOS full screen: the safe area stays under the status bar, so the buttons sit below it.
+                        if (topInset > 0.dp) Box(Modifier.matchParentSize().padding(top = topInset)) { buttons() } else buttons()
                     },
                     agentLog = deps.agentLogSlot,
                     speakBar = deps.speakBarSlot,
@@ -796,3 +800,9 @@ private fun BoxScope.PaneWindowButtonOverlay(
         )
     }
 }
+
+/**
+ * The top safe-area inset the pane window buttons must clear. Zero everywhere except iOS full screen, where the status bar is
+ * hidden but the notch / Dynamic Island safe area stays and nothing else (the toolbar is gone) pads it.
+ */
+val LocalReadingTopSafeInset = androidx.compose.runtime.compositionLocalOf { 0.dp }

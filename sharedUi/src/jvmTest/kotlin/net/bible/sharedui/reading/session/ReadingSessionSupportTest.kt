@@ -24,6 +24,21 @@ import kotlin.test.assertNull
 /** The platform-free parts of the iOS session assembly: document offsets, active languages, the chooser guard. */
 class ReadingSessionSupportTest {
     @Test
+    fun topOffsetIsTheSafeAreaOnlyWhenReported() {
+        var changes = 0
+        val offsets = ReadingOffsets { changes++ }
+        assertEquals(0f, offsets.top)
+        offsets.setSystemTopInset(59f) // full screen on an island iPhone
+        assertEquals(59f, offsets.top)
+        assertEquals(1, changes)
+        offsets.setSystemTopInset(59f)
+        assertEquals(1, changes)
+        offsets.setSystemTopInset(0f) // left full screen: the toolbar pads again
+        assertEquals(0f, offsets.top)
+        assertEquals(2, changes)
+    }
+
+    @Test
     fun offsetsFollowTheToolbarAndSafeArea() {
         var changes = 0
         var restore = false
