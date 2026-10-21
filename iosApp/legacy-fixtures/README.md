@@ -9,10 +9,11 @@ Spec: `docs/superpowers/specs/2026-10-17-i3-legacy-migration-design.md` (section
 
 | File | Purpose |
 | --- | --- |
-| `I3FixtureGeneratorTests.swift` | XCTest. Seeds four scenarios with the Swift app's real models. Compiles against 1.0.1 and the pin. |
+| `I3FixtureGeneratorTests.swift` | XCTest. Seeds five scenarios (`fresh`, `rich`, `restored-android`, `preserved-ai`, `extended`) with the Swift app's real models. Compiles against 1.0.1 and the pin. |
 | `I3OracleExportTests.swift` | XCTest, pin only. Runs the app's startup repair on each generated store and writes the Swift exporters' outputs. |
 | `run-on-mac.sh` | Remote-Mac driver: `generate <app> <ios>`, `oracle`, `package`. |
 | `package_fixtures.py` (+ `test_package_fixtures.py`) | Packs generated stores and oracle outputs into deterministic zips plus `manifest.json`. |
+| `merge_manifest.py` (+ `test_merge_manifest.py`) | Adds the entries of one scenario to the committed `manifest.json`, leaving all other entries as they are. |
 | `../../.github/workflows/ios-i3-legacy-fixtures.yml` | Fallback: the same build and run on CI simulators. |
 
 Swift app revisions (repository `AndBible/and-bible-ios`):
@@ -125,6 +126,25 @@ below `I3_FIXTURE_OUT/<scenario>/` instead of Application Support.
 - **preserved-ai**: `rich` plus `PreservedDatabases/ai_settings.sqlite3` (Android schema v23): one provider that
   exists only on the Android side and a `GlobalAiSettings` row with the same fixed id
   (`a1000000-0000-0000-0000-000000000001`) as the Swift row but different values. Input for merge rule U11.
+
+- **extended**: `rich` (so the KJVA ordinal pair of `seedProgress`, memorized 15 and target 20-21, is inherited: it
+  was cheap, no extra work) plus
+  - `global_text_display_settings` (flat JSON of a sentinel `TextDisplaySettings`, seed 9);
+  - workspace fidelity rows (`remote_sync.workspaces.fidelity.*`): workspace speak settings JSON, a page-manager entry
+    (window A1), workspace and page-manager text-display fidelity, and the global text-display entry;
+  - a Boolean sentinel for every Boolean `Setting` that `SettingsMapper.DEFINITIONS` maps (SWIFT_DATA, BOOL): the
+    value is the opposite of the default (list `I3Seed.booleanSentinels`, 26 keys);
+  - two custom repositories, `Fixture Https` (`https://repo.example.org/sword`) and `Plain Http`
+    (`http://example.org/sword`, W10), as `Repository` rows (`ZREPOSITORY`) and as `sword_install/CustomRepositories.json`
+    + `sword_install/InstallMgr.conf` in the scenario directory (so they sit in the zip under `sword_install/`; the Kotlin
+    side copies them to `Documents/sword_install` with `installLegacySwordSources`). The oracle copies that directory
+    for its `RepositorySourceManager`, so the oracle `.abdb.zip` contains the repositories;
+  - sidecar: `discrete_mode=false`, `show_calculator=false`, `locale_pref="en"`; Keychain: the two items of `rich`.
+  Generated for `1.0.2/26` and `1.0.1/18` only (two cells, not the full matrix).
+
+Add the `extended` cells without touching the other 24 zips: after `generate 1.0.2 26`, `generate 1.0.1 18`, `oracle`
+and `package`, fetch, copy only `1.0.2/26/extended.zip` and `1.0.1/18/extended.zip`, then
+`python3 merge_manifest.py <fixtures>/manifest.json build/i3-fixtures/package/manifest.json extended`.
 
 ### Suffixed composite columns
 

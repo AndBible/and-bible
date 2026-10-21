@@ -123,10 +123,18 @@ final class I3OracleExportTests: XCTestCase {
         // its own rows (Swift rows win). The AI oracle is ai_settings.sqlite3 from step 4b; the union with
         // the preserved file is computed by the Kotlin side.
         try fileManager.createDirectory(at: preservedRoot, withIntermediateDirectories: true)
+        // Custom repositories come from the fixture's `sword_install` files (scenario `extended`); they are
+        // copied first because the source manager may rewrite them. Other fixtures have none, so the
+        // manager starts from its defaults in an empty directory, as before.
+        let repositoriesRoot = scratch.appendingPathComponent("repositories", isDirectory: true)
+        let fixtureSwordInstall = fixture.appendingPathComponent("sword_install", isDirectory: true)
+        if fileManager.fileExists(atPath: fixtureSwordInstall.path) {
+            try fileManager.copyItem(at: fixtureSwordInstall, to: repositoriesRoot)
+        }
         let backupService = AndroidDatabaseBackupService(
             temporaryDirectory: scratch,
             repositorySourceManager: RepositorySourceManager(
-                basePath: scratch.appendingPathComponent("repositories", isDirectory: true).path
+                basePath: repositoriesRoot.path
             ),
             preservedDatabaseStore: AndroidDatabaseBackupPreservedDatabaseStore(rootDirectory: preservedRoot)
         )

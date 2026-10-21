@@ -65,6 +65,19 @@ fun installLegacyApp(fx: FixtureDir, platform: FakeLegacyPlatform, withPreserved
     }
 }
 
+/**
+ * TASK 13 STUB (extended fixture, not used yet): copies the `sword_install` files of [fx] (`CustomRepositories.json`
+ * and `InstallMgr.conf`, only present in the `extended` scenario) to `Documents/sword_install` below [platform], where
+ * the Swift app kept them and where `LegacyMigrator` reads them. The `extendedFixture*` tests (Task 13 step 2) call it
+ * after [installLegacyApp]; they are written once the generated `extended.zip` cells are committed.
+ */
+fun installLegacySwordSources(fx: FixtureDir, platform: FakeLegacyPlatform) {
+    val source = File(fx.root.toString(), "sword_install")
+    check(source.isDirectory) { "fixture ${fx.app}/${fx.ios}/${fx.scenario} has no sword_install directory" }
+    val target = File(platform.documents.toString(), "sword_install").also { it.mkdirs() }
+    for (f in source.listFiles().orEmpty()) if (f.isFile) f.copyTo(File(target, f.name), overwrite = true)
+}
+
 /** sha256 of every file below [root] (relative path to hash), without the `-shm` index files (SQLite may touch those). */
 fun hashTree(root: Path): Map<String, String> = File(root.toString()).walkTopDown()
     .filter { it.isFile && !it.name.endsWith("-shm") }

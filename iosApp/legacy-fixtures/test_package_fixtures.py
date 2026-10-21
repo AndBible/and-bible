@@ -45,6 +45,19 @@ class PackageFixturesTest(unittest.TestCase):
             self.assertEqual(json.load(f), manifest)
         self.assertFalse(os.path.exists(os.path.join(self.out, "1.0.2", "26", "stray.zip")))
 
+    def test_extended_scenario_keeps_nested_sword_install_files(self):
+        extended = os.path.join(self.gen, "1.0.2", "26", "extended")
+        write(os.path.join(extended, "AndBible.store"), b"a")
+        write(os.path.join(extended, "sidecar.json"), b"{}")
+        write(os.path.join(extended, "sword_install", "CustomRepositories.json"), b"{}")
+        write(os.path.join(extended, "sword_install", "InstallMgr.conf"), b"[Sources]\n")
+        manifest = package_fixtures.package(self.gen, self.oracle, self.out)
+        self.assertIn(("1.0.2", "26", "extended"), [(m["app"], m["ios"], m["scenario"]) for m in manifest])
+        with zipfile.ZipFile(os.path.join(self.out, "1.0.2", "26", "extended.zip")) as z:
+            self.assertEqual(sorted(z.namelist()),
+                             ["AndBible.store", "sidecar.json", "sword_install/CustomRepositories.json",
+                              "sword_install/InstallMgr.conf"])
+
     def test_deterministic(self):
         first = package_fixtures.package(self.gen, self.oracle, self.out)
         second = package_fixtures.package(self.gen, self.oracle, self.out + "2")

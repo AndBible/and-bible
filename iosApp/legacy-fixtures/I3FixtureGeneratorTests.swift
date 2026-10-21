@@ -15,6 +15,7 @@
 //   <scenario>/LocalStore.store*      device-local store
 //   <scenario>/sidecar.json           UserDefaults dictionary + Keychain items (test values only)
 //   <scenario>/PreservedDatabases/ai_settings.sqlite3   (scenario `preserved-ai` only)
+//   <scenario>/sword_install/{CustomRepositories.json,InstallMgr.conf}   (scenario `extended` only)
 
 import Foundation
 import SwiftData
@@ -63,6 +64,19 @@ final class I3FixtureGeneratorTests: XCTestCase {
                 to: preserved.appendingPathComponent("ai_settings.sqlite3")
             )
             return I3Sidecar.rich
+        }
+    }
+
+    /// `rich` plus workspace fidelity rows, a global text-display row, a non-default value for every
+    /// Boolean the migration maps from the `Setting` table, and two custom repositories (one `https://`,
+    /// one `http://example.org/sword`) both as `Repository` rows and as `sword_install` files.
+    /// The KJVA ordinal pair (memorized and target ranges) is inherited from `rich` (`seedProgress`).
+    func testScenarioExtended() throws {
+        try generate(scenario: "extended") { container, directory in
+            let context = ModelContext(container)
+            try I3Seed.seedRich(context)
+            try I3Seed.seedExtended(context, directory: directory)
+            return I3Sidecar.extended
         }
     }
 
@@ -174,6 +188,18 @@ struct I3Sidecar {
         )
     }
 
+    /// The `extended` sidecar: the two Keychain items of `rich`, discrete mode and calculator off.
+    static var extended: I3Sidecar {
+        I3Sidecar(
+            userDefaults: [
+                "discrete_mode": false,
+                "show_calculator": false,
+                "locale_pref": "en",
+            ],
+            keychain: rich.keychain
+        )
+    }
+
     func write(to url: URL) throws {
         let object: [String: Any] = [
             "userDefaults": userDefaults,
@@ -246,6 +272,160 @@ enum I3Seed {
         try seedProgress(settingsStore)
         try seedAI(context)
         try context.save()
+    }
+
+    // MARK: Extended
+
+    /// Stable identities of the `extended` repositories.
+    static let repositoryHttps = UUID(uuidString: "13000000-0000-0000-0000-000000000601")!
+    static let repositoryHttp = UUID(uuidString: "13000000-0000-0000-0000-000000000602")!
+
+    /// Every Boolean `Setting` the Kotlin `SettingsMapper.DEFINITIONS` maps (storage SWIFT_DATA, type BOOL),
+    /// with the value OPPOSITE to its default, so a migration that falls back to the default is detected.
+    /// The second element is the default in `AppPreferenceRegistry`; the stored value is its negation.
+    static let booleanSentinels: [(key: String, defaultValue: Bool)] = [
+        ("navigate_to_verse_pref", false),
+        ("open_links_in_special_window_pref", true),
+        ("screen_keep_on_pref", false),
+        ("double_tap_to_fullscreen", true),
+        ("auto_fullscreen_pref", false),
+        ("disable_two_step_bookmarking", false),
+        ("volume_keys_scroll", true),
+        ("book_grid_ltr", false),
+        ("book_grid_group_by_category", false),
+        ("book_grid_show_long_name", false),
+        ("book_grid_show_progress", true),
+        ("bookmark_show_notes", true),
+        ("monochrome_mode", false),
+        ("disable_animations", false),
+        ("disable_click_to_edit", false),
+        ("full_screen_hide_buttons_pref", true),
+        ("hide_window_buttons", false),
+        ("hide_bible_reference_overlay", false),
+        ("show_active_window_indicator", true),
+        ("enable_bluetooth_pref", true),
+        ("speak_autoBookmark", false),
+        ("speak_synchronize", true),
+        ("speak_replaceDivineName", false),
+        ("speak_restoreSettingsFromBookmarks", false),
+        ("request_sdcard_permission_pref", false),
+        ("show_errorbox", false),
+    ]
+
+    /// Custom repository records of `CustomRepositories.json`, as `RepositorySourceManager` persists them.
+    /// Field names: name, description, type, host, catalogDirectory, packageDirectory, manifestURL, sourceURL.
+    static let customRepositoryRecords: [[String: String]] = [
+        [
+            "name": "Fixture Https",
+            "description": "https://repo.example.org/sword",
+            "type": "sword-https",
+            "host": "repo.example.org",
+            "catalogDirectory": "/sword",
+            "packageDirectory": "/sword/packages",
+            "manifestURL": "https://repo.example.org/sword/manifest.json",
+            "sourceURL": "https://repo.example.org/sword",
+        ],
+        // W10: a plain http source is kept as it is by the migration.
+        [
+            "name": "Plain Http",
+            "description": "http://example.org/sword",
+            "type": "sword-https",
+            "host": "example.org",
+            "catalogDirectory": "/sword",
+            "packageDirectory": "/sword/zip",
+            "manifestURL": "",
+            "sourceURL": "http://example.org/sword",
+        ],
+    ]
+
+    static func seedExtended(_ context: ModelContext, directory: URL) throws {
+        let settingsStore = SettingsStore(modelContext: context)
+
+        // Boolean sentinels: the opposite of every default.
+        for (key, defaultValue) in booleanSentinels {
+            settingsStore.setBool(key, value: !defaultValue)
+        }
+
+        // Global text display settings (Android `global_text_display_settings`): the flat JSON of the Swift value.
+        let globalJSON = String(
+            data: try JSONEncoder().encode(sentinelTextDisplay(seed: 9)),
+            encoding: .utf8
+        )!
+        settingsStore.setString("global_text_display_settings", value: globalJSON)
+
+        // Workspace fidelity rows (`remote_sync.workspaces.fidelity.*`).
+        let fidelityStore = RemoteSyncWorkspaceFidelityStore(settingsStore: settingsStore)
+        fidelityStore.setSpeakSettingsJSON(
+            "{\"playbackSettings\":{\"speed\":131},\"sleepTimer\":17}",
+            for: workspaceA
+        )
+        fidelityStore.setPageManagerEntry(
+            RemoteSyncWorkspaceFidelityStore.PageManagerEntry(
+                windowID: windowA1,
+                rawCurrentCategoryName: "BIBLE",
+                commentarySourceBookAndKey: "MHC.Gen.1.1",
+                dictionaryAnchorOrdinal: 11,
+                generalBookAnchorOrdinal: 12,
+                mapAnchorOrdinal: 13
+            )
+        )
+        // The text-display fidelity rows are written as the JSON `RemoteSyncWorkspaceRoomFidelityStore` encodes
+        // (synthesized Codable, sorted keys), without its internal types, so this file compiles on 1.0.1 as well.
+        let textFidelity: [String: Any] = [
+            "autoTrackReading": true,
+            "scrollHelperLines": false,
+            "scrollHelperLineStyle": 3,
+            "showPageButtons": false,
+            "showReadingProgress": true,
+            "dayBackgroundImage": "day-bg.png",
+            "nightBackgroundImage": "night-bg.png",
+            "dayBackgroundImageOpacity": 41,
+            "nightBackgroundImageOpacity": 42,
+        ]
+        func json(_ object: [String: Any]) throws -> String {
+            String(decoding: try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]), as: UTF8.self)
+        }
+        let base = "remote_sync.workspaces.fidelity"
+        settingsStore.setString(
+            "\(base).workspace_text_display.\(workspaceA.uuidString.lowercased())",
+            value: try json(textFidelity)
+        )
+        settingsStore.setString(
+            "\(base).page_manager_text_display.\(windowA1.uuidString.lowercased())",
+            value: try json(textFidelity)
+        )
+        settingsStore.setString(
+            "\(base).global_text_display",
+            value: try json([
+                "id": "13000000-0000-0000-0000-000000000701",
+                "fidelity": textFidelity,
+            ])
+        )
+
+        // Custom repositories: `Repository` rows in LocalStore ...
+        context.insert(Repository(id: repositoryHttps, name: "Fixture Https", url: "https://repo.example.org/sword"))
+        context.insert(Repository(id: repositoryHttp, name: "Plain Http", url: "http://example.org/sword"))
+        try context.save()
+
+        // ... and the `sword_install` files of the Documents directory.
+        let swordInstall = directory.appendingPathComponent("sword_install", isDirectory: true)
+        try FileManager.default.createDirectory(at: swordInstall, withIntermediateDirectories: true)
+        let records = try JSONSerialization.data(
+            withJSONObject: ["version": 1, "repositories": customRepositoryRecords],
+            options: [.prettyPrinted, .sortedKeys]
+        )
+        try records.write(to: swordInstall.appendingPathComponent("CustomRepositories.json"), options: .atomic)
+        // SWORD's three-field rows; built-in sources are left out (they are not migrated either way).
+        let conf = """
+        [General]
+        PassiveFTP=true
+
+        [Sources]
+        HTTPSource=Fixture Https|repo.example.org|/sword
+        HTTPSource=Plain Http|example.org|/sword
+
+        """
+        try conf.write(to: swordInstall.appendingPathComponent("InstallMgr.conf"), atomically: true, encoding: .utf8)
     }
 
     // MARK: Workspaces
