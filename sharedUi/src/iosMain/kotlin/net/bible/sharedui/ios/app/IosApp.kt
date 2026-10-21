@@ -23,11 +23,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,6 +49,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -191,6 +196,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
                 check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
                 Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
                     IosAppContent(liveStrings, IosAppStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
+                    IosDebugFontScaleProbe()
                 }
             }
         }
@@ -237,15 +243,32 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
             if (route == null) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
+                    IosDebugFontScaleProbe()
                 }
             } else {
                 Box(Modifier.fillMaxSize()) {
                     IosAppContent(liveStrings, table, route, nightObserver, holder)
                     AppToastHost(Modifier.align(Alignment.BottomCenter))
+                    IosDebugFontScaleProbe()
                 }
             }
         }
     }
+}
+
+/** Reports the unmodified Compose density, including while the real app resolves its start route. */
+@Composable
+private fun IosDebugFontScaleProbe() {
+    if (!kotlin.native.Platform.isDebugBinary) return
+    val enabled = remember { "-debugFontScaleProbe" in platform.Foundation.NSProcessInfo.processInfo.arguments }
+    if (!enabled) return
+    val scale = LocalDensity.current.fontScale.toString()
+    Text(
+        text = scale,
+        modifier = Modifier.requiredSize(1.dp).testTag("ab-font-scale").semantics {
+            stateDescription = scale
+        },
+    )
 }
 
 /** `SettingsStore.changes` of the open settings database (the key of every `AppSettings` write); empty before it exists. */
