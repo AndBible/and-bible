@@ -259,7 +259,11 @@ final class LegacyMigrationUITests: XCTestCase {
         // The window count and titles are not exposed as accessibility identifiers; the screenshot is the evidence.
         shot(app, "i3b-rich-ready")
         let notices = dismissNotices(app, firstTimeout: 90, quietTimeout: 12)
-        XCTAssertEqual(notices, 3, "Expected the iCloud, Nextcloud and unsent-patches notices")
+        // Exactly the iCloud and Nextcloud notices: `icloud_sync_enabled` is true and the seeded sync_adapter is NEXT_CLOUD.
+        // The unsent-patches notice needs regular files under Application Support/AndBible/RemoteSyncOutbox/<category>/ (see
+        // LegacyExtras `hasUnsentPatches`), which the fixture does not contain (covered by SettingsAndLedgerTest, JVM), and
+        // the skipped-bookmarks notice needs unverified bookmarks, which it has none of.
+        XCTAssertEqual(notices, 2, "Expected the iCloud and Nextcloud notices (the fixture has no outbox files)")
         XCTAssertTrue(isReady(app), "The app left Ready while the notices were dismissed")
     }
 
@@ -340,8 +344,16 @@ final class LegacyMigrationUITests: XCTestCase {
 
         // The next launch runs the migration again, replacing the fresh databases (the app log has the
         // `before-import-*` line, Application Support/LegacyMigration/before-import-* holds the kept databases).
-        let relaunched = launch([])
-        XCTAssertTrue(waitForReady(relaunched, timeout: 150), "The import launch did not reach Ready")
+        // -task6ResetCrashState: the test killed the app twice unclean (terminate) since the last settled launch, which must
+        // not turn the import launch into the crash-recovery screen (that is a different feature).
+        let relaunched = launch(["-task6ResetCrashState"])
+        let importReady = waitForReady(relaunched, timeout: 150)
+        if !importReady {
+            let states = ["legacy-progress", "legacy-recovery", "crash-recovery", "legacy-try-again", "welcome-screen", "reading-host"]
+            print("I3B-STATE import launch not Ready; visible: \(states.filter { element(relaunched, $0).exists })")
+            diagnoseMissing(relaunched, "import-launch")
+        }
+        XCTAssertTrue(importReady, "The import launch did not reach Ready")
         XCTAssertFalse(element(relaunched, "legacy-recovery").exists)
         XCTAssertFalse(element(relaunched, "legacy-progress").exists)
         shot(relaunched, "i3b-after-import")
