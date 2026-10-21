@@ -4,6 +4,8 @@ package net.bible.sharedui.app.settings
 
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -162,7 +164,19 @@ class SettingsHost(
             askBeforeOpeningLink = { links.askBeforeOpening },
             onOpenExternal = { links.open(it) },
             onReportBug = onReportBug,
-            onImportLegacyData = { legacyDataImport()?.let { import -> shell.hostScope.launch { import.confirmAndRequest() } } },
+            onImportLegacyData = {
+                legacyDataImport()?.let { import ->
+                    shell.hostScope.launch {
+                        try {
+                            import.confirmAndRequest()
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e("SettingsHost", "legacy data import request failed", e)
+                        }
+                    }
+                }
+            },
         ),
         syncSettings = SyncSettingsDeps(
             controller = { syncSettingsController },

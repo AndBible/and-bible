@@ -76,6 +76,14 @@ class IosLegacyDataImportTest {
     }
 
     @Test
+    fun availableIsCachedAndFalseWithoutOldStores() = runBlocking {
+        val import = import(AppDialogController())
+        assertFalse(import.available())
+        import.prime()
+        assertFalse(import.available()) // the temp dir holds no old stores
+    }
+
+    @Test
     fun confirmNoChangesNothing() = runBlocking {
         settings.putBoolean(LEGACY_SETTLED_KEY, true)
         val dialogs = AppDialogController()

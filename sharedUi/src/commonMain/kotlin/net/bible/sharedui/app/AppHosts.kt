@@ -55,7 +55,6 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedui.app.ai.AiHost
 import net.bible.sharedui.app.backup.BackupFeatureHost
-import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.download.CloudDocumentsHost
@@ -72,6 +71,7 @@ import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.sharedui.app.mydocuments.MyDocumentsHost
 import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
+import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.readingplan.ReadingPlanHost
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.app.search.SearchHost

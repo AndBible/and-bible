@@ -1,8 +1,10 @@
 package net.bible.sharedui.ios.startup.legacy
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.service.legacymigration.control.LegacyMigrationControl
+import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -21,7 +23,28 @@ internal class IosLegacyDataImport(
     private val table: () -> StringTable,
     private val settings: DeviceLocalPrefs,
 ) : LegacyDataImport {
-    override fun available(): Boolean = control.importAvailable()
+    @kotlin.concurrent.Volatile
+    private var cachedAvailable = false
+
+    /**
+     * Answers from the value computed by [prime]; false until then. The settings snapshot builder reads this on Main on
+     * every build/refresh, so it must not touch the disk (`importAvailable()` reads files).
+     */
+    override fun available(): Boolean = cachedAvailable
+
+    /**
+     * Computes [LegacyMigrationControl.importAvailable] once, off Main, into the cache. Called from the Ready-branch
+     * startup effect, before the user can open settings. Never throws (a failure leaves the row hidden).
+     */
+    suspend fun prime() {
+        try {
+            cachedAvailable = withContext(Dispatchers.Default) { control.importAvailable() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            nsLog("legacy import availability check failed: ${e.stackTraceToString()}")
+        }
+    }
 
     override suspend fun confirmAndRequest() {
         val strings = table()
