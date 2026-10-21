@@ -659,6 +659,23 @@ class LegacyMigratorTest {
     }
 
     @Test
+    fun aTransientIndexErrorKeepsFilesAdoptedUnflaggedAndACorruptOneFlagsIt() {
+        val e = env()
+        oldEpub(e.platform)
+        val index = File(e.platform.documents.toString(), "epub/.epub-generations/Book-1/g1/index.sqlite3")
+        val good = index.readBytes()
+        index.delete(); index.mkdirs() // cannot be opened: transient
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":false"))
+        index.deleteRecursively(); index.writeBytes("not a database at all, just text".toByteArray()) // corrupt: permanent
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+        assertFalse(File(e.platform.documents.toString(), "sword/epub/Book.epub").exists())
+        assertTrue(good.isNotEmpty())
+    }
+
+    @Test
     fun aNothingToMigrateMarkerNeverAdoptsEpubs() {
         val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
         oldEpub(platform)

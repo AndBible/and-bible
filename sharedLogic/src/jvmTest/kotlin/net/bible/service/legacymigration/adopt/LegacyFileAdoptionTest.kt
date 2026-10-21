@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import androidx.sqlite.SQLiteException
 import net.bible.service.db.openSqlite
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
@@ -227,5 +228,71 @@ class LegacyFileAdoptionTest {
 
         assertEquals(listOf("epub/Good.epub"), result.moved)
         assertTrue(result.skipped.contains("Bad-1"))
+    }
+
+    // ---- error classification ---------------------------------------------------------------------------------------
+
+    private fun adoptWith(open: (okio.Path) -> androidx.sqlite.SQLiteConnection) =
+        LegacyFileAdoption(FileSystem.SYSTEM, documents.toOkioPath(), modules.toOkioPath(), open).adopt()
+
+    @Test
+    fun aTransientIndexErrorIsFailedNotSkippedSoTheAdoptionIsRetried() {
+        generation("T-1", "g1", "T.epub", "t")
+        for (code in listOf(14, 10, 5)) { // CANTOPEN, IOERR, BUSY
+            val result = adoptWith { throw SQLiteException("Error code: $code, message: transient") }
+            assertEquals(listOf("T-1"), result.failed)
+            assertEquals(emptyList(), result.skipped)
+            assertFalse(result.complete)
+        }
+        assertFalse(File(modules, "epub/T.epub").exists())
+        // The next attempt, with the index readable again, adopts it.
+        assertEquals(listOf("epub/T.epub"), adopt().moved)
+    }
+
+    @Test
+    fun aCorruptIndexIsSkippedForGood() {
+        generation("K-1", "g1", "K.epub", "k")
+        for (code in listOf(11, 26)) { // CORRUPT, NOTADB
+            val result = adoptWith { throw SQLiteException("Error code: $code, message: bad") }
+            assertEquals(listOf("K-1"), result.skipped)
+            assertTrue(result.complete)
+        }
+    }
+
+    @Test
+    fun anIndexThatCannotBeOpenedAsAFileIsFailed() {
+        generation("D-9", "g1", "D.epub", "d")
+        val index = File(documents, "epub/.epub-generations/D-9/g1/index.sqlite3")
+        index.delete()
+        index.mkdirs() // a directory where the database should be: CANTOPEN, not a verdict on the book
+        val result = adopt()
+        assertEquals(listOf("D-9"), result.failed)
+        assertFalse(result.complete)
+    }
+
+    @Test
+    fun aLeftoverTempFolderOfAKilledRunIsCleanedAndTheBookThenAdopted() {
+        generation("L-1", "g1", "L.epub", "fresh")
+        file(modules, ".legacy-adopt-tmp/L-1/OEBPS/content.opf", "half a copy")
+        file(modules, ".legacy-adopt-tmp/L-1/stray.txt", "stray")
+
+        val result = adopt()
+
+        assertEquals(listOf("epub/L.epub"), result.moved)
+        assertEquals("opf fresh", File(modules, "epub/L.epub/OEBPS/content.opf").readText())
+        assertFalse(File(modules, "epub/L.epub/stray.txt").exists())
+        assertFalse(File(modules, ".legacy-adopt-tmp").exists())
+    }
+
+    @Test
+    fun aLargeFileThatDiffersLateIsAConflictAndEqualOnesAreNot() {
+        generation("B-1", "g1", "B.epub", "b")
+        val big = ByteArray(200_000) { (it % 251).toByte() }
+        File(documents, "epub/.epub-generations/B-1/g1/package/big.bin").writeBytes(big)
+        File(modules, "epub/B.epub").also { packageTree(it, "b") }
+        File(modules, "epub/B.epub/big.bin").writeBytes(big)
+        assertEquals(listOf("epub/B.epub"), adopt().alreadyInPlace)
+        File(modules, "epub/B.epub/big.bin").writeBytes(big.also { it[199_999] = 0 })
+        assertEquals(listOf("epub/B.epub"), adopt().conflicts)
     }
 }

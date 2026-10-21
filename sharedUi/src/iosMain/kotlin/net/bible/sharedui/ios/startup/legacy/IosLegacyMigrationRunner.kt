@@ -1,5 +1,6 @@
 package net.bible.sharedui.ios.startup.legacy
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ import net.bible.service.legacymigration.control.LegacyGateDecision
 import net.bible.service.legacymigration.control.LegacyMigrationControl
 import net.bible.service.legacymigration.control.decideGate
 import net.bible.service.legacymigration.extras.LegacyExtrasApplier
+import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.IosAppDirectories
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
@@ -92,15 +94,7 @@ internal object IosLegacyMigrationRunner {
         awaitProtectedData(hooks.protectedDataAvailable, hooks.awaitProtectedDataChange)
         val control = hooks.control
         val platform = hooks.platform
-        val migrator = LegacyMigrator(
-            platform = platform,
-            databases = IosLegacyDatabaseFactory(),
-            replaceExisting = control.importRequested(),
-            userPlanDir = IosAppDirectories(platform.applicationSupport / "AndBible", platform.documents).manualReadingPlanDir,
-            stepHook = { step ->
-                if (step == Step.MAP) IosDebugLaunchArgs.legacyStepDelayMs()?.let { delay(it) }
-            },
-        )
+        val migrator = newMigrator(platform, replaceExisting = control.importRequested())
         val decision = decideGate(hooks.runMigrator(migrator))
         if (decision is LegacyGateDecision.Proceed) {
             // Order matters: a crash between the steps must leave the flag unset so the next launch re-enters the gate.
@@ -109,6 +103,43 @@ internal object IosLegacyMigrationRunner {
             hooks.markSettled()
         }
         return decision
+    }
+
+    /** The one construction of the migrator, for the startup attempt and the post-commit retry. */
+    private fun newMigrator(platform: LegacyPlatform, replaceExisting: Boolean): LegacyMigrator {
+        val directories = IosAppDirectories(platform.applicationSupport / "AndBible", platform.documents)
+        return LegacyMigrator(
+            platform = platform,
+            databases = IosLegacyDatabaseFactory(),
+            replaceExisting = replaceExisting,
+            userPlanDir = directories.manualReadingPlanDir,
+            stepHook = { step ->
+                if (step == Step.MAP) IosDebugLaunchArgs.legacyStepDelayMs()?.let { delay(it) }
+            },
+            modulesDir = directories.modulesDir,
+        )
+    }
+
+    /**
+     * Retries the post-commit leftovers (the old search index deletion and the EPUB adoption) once the migration is
+     * settled: the gate is skipped from then on, so nothing else would run the migrator's `AlreadyDone` path. Does nothing
+     * unless `done.json` still lacks one of the two flags. Best-effort: never throws (cancellation is rethrown) and runs
+     * off Main. Waits for the startup attempt if one is in flight, so two migrators never work on the directories at once.
+     */
+    internal suspend fun retryPostCommit() {
+        try {
+            withContext(Dispatchers.Default) {
+                lock.withLock { attempt }?.let { runCatching { it.await() } }
+                val hooks = testHooks ?: productionHooks()
+                if (!hooks.control.postCommitPending()) return@withContext
+                // replaceExisting = false: the AlreadyDone path never reads it, and an import request must stay untouched.
+                hooks.runMigrator(newMigrator(hooks.platform, replaceExisting = false))
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("legacy migration: post-commit retry failed: ${e.message}")
+        }
     }
 
     private fun productionHooks(): RunnerHooks {

@@ -50,6 +50,7 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.ios.startup.legacy.IosLegacyDataImport
+import net.bible.sharedui.ios.startup.legacy.IosLegacyMigrationRunner
 import net.bible.sharedui.ios.startup.legacy.IosLegacyNotices
 import org.koin.mp.KoinPlatform
 import net.bible.sharedui.platform.IosPlatformBootstrap
@@ -234,6 +235,7 @@ fun MainViewController(): UIViewController {
                 (koin.getOrNull<LegacyDataImport>() as? IosLegacyDataImport)?.prime()
                 val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
                 IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
+                IosLegacyMigrationRunner.retryPostCommit()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {

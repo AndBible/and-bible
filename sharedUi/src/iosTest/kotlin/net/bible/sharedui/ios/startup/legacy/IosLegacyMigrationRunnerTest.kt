@@ -202,4 +202,40 @@ class IosLegacyMigrationRunnerTest {
     @Test fun nextcloudSecretKeyMatchesSyncPlatform() {
         assertTrue(NEXTCLOUD_PASSWORD_SECRET in SECRET_CREDENTIAL_KEYS)
     }
+
+    private fun writeDone(h: RunnerHooks, json: String) {
+        FileSystem.SYSTEM.createDirectories(h.control.dir)
+        FileSystem.SYSTEM.write(h.control.dir / "done.json") { writeUtf8(json) }
+    }
+
+    @Test fun retryPostCommitRunsTheMigratorOnceWhenAFlagIsMissing() = blocking {
+        var runs = 0
+        val h = hooks { runs++; LegacyMigrationOutcome.AlreadyDone }
+        writeDone(h, """{"nothingToMigrate":false,"searchIndexDeleted":true,"filesAdopted":false}""")
+        IosLegacyMigrationRunner.testHooks = h
+
+        IosLegacyMigrationRunner.retryPostCommit()
+
+        assertEquals(1, runs)
+    }
+
+    @Test fun retryPostCommitDoesNothingWhenEverythingIsFlaggedOrThereIsNothingToRetry() = blocking {
+        var runs = 0
+        val h = hooks { runs++; LegacyMigrationOutcome.AlreadyDone }
+        IosLegacyMigrationRunner.testHooks = h
+        writeDone(h, """{"nothingToMigrate":false,"searchIndexDeleted":true,"filesAdopted":true}""")
+        IosLegacyMigrationRunner.retryPostCommit()
+        writeDone(h, """{"nothingToMigrate":true,"searchIndexDeleted":false,"filesAdopted":false}""")
+        IosLegacyMigrationRunner.retryPostCommit()
+        FileSystem.SYSTEM.delete(h.control.dir / "done.json")
+        IosLegacyMigrationRunner.retryPostCommit()
+        assertEquals(0, runs)
+    }
+
+    @Test fun retryPostCommitNeverThrows() = blocking {
+        val h = hooks { throw IllegalStateException("boom") }
+        writeDone(h, """{"nothingToMigrate":false,"searchIndexDeleted":false}""")
+        IosLegacyMigrationRunner.testHooks = h
+        IosLegacyMigrationRunner.retryPostCommit()
+    }
 }

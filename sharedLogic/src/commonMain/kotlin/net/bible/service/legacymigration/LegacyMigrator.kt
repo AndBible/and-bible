@@ -301,7 +301,7 @@ class LegacyMigrator(
             committed = true
             // COMMITTED: from here on nothing may undo the adoption. Everything below is best-effort and idempotent.
             bestEffort { finishSearchIndexDeletion() }
-                bestEffort { finishFileAdoption() }
+            bestEffort { finishFileAdoption() }
             bestEffortCleanUp()
             return LegacyMigrationOutcome.Migrated(report, extras)
         } catch (e: CancellationException) {

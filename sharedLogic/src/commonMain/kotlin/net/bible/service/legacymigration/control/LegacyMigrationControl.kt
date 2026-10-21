@@ -72,6 +72,19 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
         return true
     }
 
+    /**
+     * True when `done.json` says a post-commit leftover (the old search index or the EPUB adoption) is still unflagged, so a
+     * migrator run on the `AlreadyDone` path has something to do. False for no marker, a `nothingToMigrate` marker, an
+     * unreadable marker, or both flags set. Only reads one small file.
+     */
+    fun postCommitPending(): Boolean = try {
+        val marker = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        marker["nothingToMigrate"]?.jsonPrimitive?.booleanOrNull != true &&
+            (marker["searchIndexDeleted"]?.jsonPrimitive?.booleanOrNull != true || marker["filesAdopted"]?.jsonPrimitive?.booleanOrNull != true)
+    } catch (e: Exception) {
+        false
+    }
+
     private fun nothingToMigrate(): Boolean = try {
         Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject["nothingToMigrate"]?.jsonPrimitive?.booleanOrNull == true
     } catch (e: Exception) {

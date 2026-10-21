@@ -1,11 +1,18 @@
 package net.bible.service.legacymigration.adopt
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import androidx.sqlite.SQLiteConnection
+import net.bible.service.db.isCorruptionError
 import net.bible.service.db.openSqlite
+import net.bible.service.db.sqlitePrimaryResultCode
 import okio.FileSystem
+import okio.IOException
+import okio.buffer
+import okio.use
 import okio.Path
 
 /**
@@ -78,7 +85,12 @@ data class AdoptionResult(
  * a dot or contains a path separator or NUL is skipped, never sanitised (a guessed name would change the book's initials and
  * orphan its bookmarks). One broken entry never stops the others.
  */
-class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: Path, private val newModulesDir: Path) {
+class LegacyFileAdoption(
+    private val fs: FileSystem,
+    private val oldDocuments: Path,
+    private val newModulesDir: Path,
+    private val openIndex: (Path) -> SQLiteConnection = { openSqlite(it.toString(), readOnly = true) },
+) {
     private val epubLibrary = oldDocuments / "epub"
     private val tempRoot = newModulesDir / ".legacy-adopt-tmp"
 
@@ -93,8 +105,15 @@ class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: P
         val skipped = mutableListOf<String>()
         val failed = mutableListOf<String>()
         try {
-            for (entry in entries(skipped)) {
-                val name = sourceFileName(entry.index)
+            for (entry in entries(skipped, failed)) {
+                val name = try {
+                    sourceFileName(entry.index)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    failed += entry.id
+                    continue
+                }
                 if (name == null || !isSafeName(name)) { skipped += entry.id; continue }
                 val label = "epub/$name"
                 val target = newModulesDir / "epub" / name
@@ -116,18 +135,33 @@ class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: P
     }
 
     /** Published generations first, then flat packages without one; ids whose pointer or generation is unusable go to [skipped]. */
-    private fun entries(skipped: MutableList<String>): List<Entry> {
+    private fun entries(skipped: MutableList<String>, failed: MutableList<String>): List<Entry> {
         val names = fs.list(epubLibrary).map { it.name }.sorted()
         val result = mutableListOf<Entry>()
         val published = mutableSetOf<String>()
         for (name in names.filter { it.endsWith(POINTER_SUFFIX) }) {
             val id = name.removeSuffix(POINTER_SUFFIX)
             published += id
-            val generation = runCatching {
-                val json = Json.parseToJsonElement(fs.read(epubLibrary / name) { readUtf8() }).jsonObject
+            val text = try {
+                fs.read(epubLibrary / name) { readUtf8() }
+            } catch (e: IOException) {
+                failed += id // transient: the pointer exists but cannot be read now
+                continue
+            }
+            // A pointer that is not the expected JSON is permanent damage, not a transient error.
+            val generation = try {
+                val json = Json.parseToJsonElement(text).jsonObject
                 check(json["identifier"]?.jsonPrimitive?.content == id)
                 json["generationIdentifier"]!!.jsonPrimitive.content
-            }.getOrNull()
+            } catch (e: SerializationException) {
+                null
+            } catch (e: IllegalArgumentException) {
+                null
+            } catch (e: IllegalStateException) {
+                null
+            } catch (e: NullPointerException) {
+                null
+            }
             val dir = generation?.takeIf { isSafeName(it) }?.let { epubLibrary / GENERATIONS / id / it }
             if (dir == null || !isSafeName(id) || fs.metadataOrNull(dir / "package")?.isDirectory != true) { skipped += id; continue }
             result += Entry(id, dir / "package", dir / "index.sqlite3")
@@ -139,16 +173,26 @@ class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: P
         return result
     }
 
-    /** The `source_file_name` of the book's index, or null when the index cannot be read or does not name it. */
-    private fun sourceFileName(index: Path): String? = runCatching {
-        if (!fs.exists(index)) return@runCatching null
-        val db = openSqlite(index.toString(), readOnly = true)
-        try {
-            db.prepare("SELECT value FROM metadata WHERE key = 'source_file_name'").use { if (it.step()) it.getText(0) else null }
-        } finally {
-            db.close()
+    /**
+     * The `source_file_name` of the book's index. Null (permanent: the entry is skipped) when the index is missing, has no
+     * such row or table, or is corrupt or not a database. Any other failure (CANTOPEN, IOERR, BUSY, ...) is rethrown: it may
+     * pass, so the caller counts the entry as failed and the adoption is retried.
+     */
+    private fun sourceFileName(index: Path): String? {
+        if (!fs.exists(index)) return null
+        return try {
+            val db = openIndex(index)
+            try {
+                db.prepare("SELECT value FROM metadata WHERE key = 'source_file_name'").use { if (it.step()) it.getText(0) else null }
+            } finally {
+                db.close()
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (isCorruptionError(e) || sqlitePrimaryResultCode(e) == SQLITE_ERROR) null else throw e
         }
-    }.getOrNull()
+    }
 
     private fun isSafeName(name: String) =
         name.isNotEmpty() && !name.startsWith(".") && name.none { it == '/' || it == '\\' || it == '\u0000' }
@@ -174,7 +218,26 @@ class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: P
         val left = files(a)
         val right = files(b)
         if (left.keys != right.keys) return false
-        return left.all { (relative, path) -> fs.read(path) { readByteString() } == fs.read(right.getValue(relative)) { readByteString() } }
+        return left.all { (relative, path) -> sameBytes(path, right.getValue(relative)) }
+    }
+
+    /** Sizes first, then a chunked comparison, so a large EPUB is never held in memory twice. */
+    private fun sameBytes(a: Path, b: Path): Boolean {
+        if (fs.metadata(a).size != fs.metadata(b).size) return false
+        var remaining = fs.metadata(a).size ?: return false
+        return fs.source(a).buffer().use { left ->
+            fs.source(b).buffer().use { right ->
+                var equal = true
+                while (equal && remaining > 0) {
+                    val n = minOf(CHUNK, remaining)
+                    left.require(n)
+                    right.require(n)
+                    equal = left.readByteString(n) == right.readByteString(n)
+                    remaining -= n
+                }
+                equal
+            }
+        }
     }
 
     private fun files(root: Path): Map<String, Path> =
@@ -183,6 +246,8 @@ class LegacyFileAdoption(private val fs: FileSystem, private val oldDocuments: P
 
     private companion object {
         const val POINTER_SUFFIX = ".epub-current.json"
+        const val CHUNK = 64L * 1024
+        const val SQLITE_ERROR = 1 // e.g. no such table: the index is not the old app's
         const val GENERATIONS = ".epub-generations"
     }
 }
