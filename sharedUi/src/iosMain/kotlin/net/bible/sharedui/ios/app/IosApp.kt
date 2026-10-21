@@ -182,6 +182,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
         check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
         CompositionLocalProvider(
             LocalStrings provides strings,
+            net.bible.sharedui.components.LocalSheetDragHandleDescription provides strings.sheetDragHandle,
             LocalLiveSettingsLanguage provides true,
             net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
             LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
@@ -228,6 +229,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
     }
     CompositionLocalProvider(
         LocalStrings provides strings,
+        net.bible.sharedui.components.LocalSheetDragHandleDescription provides strings.sheetDragHandle,
         LocalLiveSettingsLanguage provides true,
         net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },

@@ -221,6 +221,7 @@ fun MainViewController(): UIViewController {
         }
         CompositionLocalProvider(
             LocalStrings provides strings,
+            net.bible.sharedui.components.LocalSheetDragHandleDescription provides strings.sheetDragHandle,
             LocalBibleWebView provides IosBibleWebViewFactory,
         ) {
             IosPocApp(scenario, documentJson, darkTheme = dark)

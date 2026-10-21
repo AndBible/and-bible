@@ -22,6 +22,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.dismiss
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
@@ -47,6 +52,8 @@ fun AbModalBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val mono = isPureMonochrome()
+    val handleDescription = dragHandleDescription ?: LocalSheetDragHandleDescription.current
+    val scope = rememberCoroutineScope()
     val ink = monoInk(LocalIsDarkTheme.current)
     val shape = BottomSheetDefaults.ExpandedShape
     val outlineModifier = if (mono) Modifier.drawWithContent {
@@ -81,8 +88,21 @@ fun AbModalBottomSheet(
         scrimColor = if (mono) Color.Transparent else BottomSheetDefaults.ScrimColor,
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
-        dragHandle = { AbSheetDragHandle(description = dragHandleDescription, mono = mono) },
+        // With a description the handle is drawn by us as the first row of the content (same place, same pixels as
+        // M3's wrapper) so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
+        // empty label on iOS (audit: "Element has no description" on the 32x48 handle).
+        dragHandle = if (handleDescription != null) null else ({ AbSheetDragHandle(description = null, mono = mono) }),
     ) {
+        if (handleDescription != null) {
+            AbSheetDragHandle(
+                description = handleDescription,
+                mono = mono,
+                onDismiss = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) onDismissRequest() }
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
         MirrorHostSystemBars()
         if (mono) NoDialogNavigationContrast()
         content()
@@ -90,18 +110,31 @@ fun AbModalBottomSheet(
 }
 
 /**
- * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in a node that REPLACES its
- * semantics (`clearAndSetSemantics`): setting `contentDescription` on the handle's own modifier was not exposed
- * to VoiceOver on iOS (the audit still saw an unnamed 32x48 element), because the handle sets its own, empty
- * description on the same node. The wrapper keeps the pixels identical and the parent sheet still merges it.
+ * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in ONE node that replaces its
+ * semantics (`clearAndSetSemantics`): the screen-reader name plus the dismiss action M3's own wrapper offers
+ * ([onDismiss]). Pixels are identical to the stock handle. See the call site for why the wrapper is ours.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AbSheetDragHandle(description: String?, mono: Boolean) {
+internal fun AbSheetDragHandle(
+    description: String?,
+    mono: Boolean,
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {},
+) {
     val handle: @Composable () -> Unit = {
         if (mono) BottomSheetDefaults.DragHandle(color = monoInk(LocalIsDarkTheme.current))
         else BottomSheetDefaults.DragHandle()
     }
     if (description == null) handle()
-    else Box(Modifier.clearAndSetSemantics { contentDescription = description }) { handle() }
+    else Box(modifier.clearAndSetSemantics {
+        contentDescription = description
+        dismiss { onDismiss(); true }
+    }) { handle() }
 }
+
+/**
+ * R3: the drag-handle name for every [AbModalBottomSheet] that has no explicit `dragHandleDescription`. Provided
+ * where the iOS host provides `LocalStrings`; null elsewhere (Android keeps M3's own localized handle).
+ */
+val LocalSheetDragHandleDescription = staticCompositionLocalOf<String?> { null }
