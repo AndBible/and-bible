@@ -151,9 +151,14 @@ class IosReadingWindowsTest {
             window = { window }, windowControl = { windowControl }, settings = { koin.get() },
             nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { portrait },
         )
-        assertEquals(59f, platform(first, portrait = true).topOffset)
-        assertEquals(0f, platform(second, portrait = true).topOffset, "a lower stacked pane clears nothing at the top")
-        assertEquals(59f, platform(second, portrait = false).topOffset, "side by side, every pane touches the top")
+        try {
+            assertEquals(59f, platform(first, portrait = true).topOffset)
+            assertEquals(0f, platform(second, portrait = true).topOffset, "a lower stacked pane clears nothing at the top")
+            assertEquals(59f, platform(second, portrait = false).topOffset, "side by side, every pane touches the top")
+        } finally {
+            // The window lives in the shared workspace database; leave it as found (a later test expects one window).
+            windowControl.closeWindow(second)
+        }
     }
 
     /** The WebViews get the installed Bibles' languages (whatever this test's module set holds), not a constant. */
