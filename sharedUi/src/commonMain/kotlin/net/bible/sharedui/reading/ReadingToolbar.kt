@@ -56,6 +56,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.text.BasicTextField
+import net.bible.sharedui.components.rememberControllerText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -252,8 +253,8 @@ const val SEARCH_FIELD_TAG = "reading-search-field"
  * `TextFieldValue` here makes the field correct no matter how many hops the hoisted value takes.
  *
  * An external change (a seeded query, the clear button, a recent-term pick) is adopted with the
- * caret placed at the end; an echo of our own edit — [fieldValue]'s text already matches [value] —
- * is left alone, selection intact.
+ * caret placed at the end; an echo of our own edit, however late or out of step with newer keystrokes
+ * (see [ControllerTextState]), is left alone, selection intact.
  *
  * Extracted to its own (public, not just inlined) composable so [SearchFieldCaretTest] in `:app` can
  * drive the SAME field the toolbar renders, via [SEARCH_FIELD_TAG] — a test against a copy of this
@@ -270,15 +271,18 @@ fun ReadingSearchField(
     modifier: Modifier = Modifier,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit = { it() },
 ) {
+    // The host's echo can trail several keystrokes (iOS: collectAsState a dispatch later), so a stale echo of an
+    // edit already shown must not overwrite the text; ControllerTextState tells it from a genuine external write.
+    val controllerText = rememberControllerText(value)
     var fieldValue by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
-    if (fieldValue.text != value) {
-        fieldValue = TextFieldValue(value, TextRange(value.length))
+    if (fieldValue.text != controllerText.text) {
+        fieldValue = TextFieldValue(controllerText.text, TextRange(controllerText.text.length))
     }
     BasicTextField(
         value = fieldValue,
         onValueChange = {
             fieldValue = it
-            onValueChange(it.text)
+            controllerText.edit(it.text, onValueChange)
         },
         singleLine = true,
         textStyle = textStyle,

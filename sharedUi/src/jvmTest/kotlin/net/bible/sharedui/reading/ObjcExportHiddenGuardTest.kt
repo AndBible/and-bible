@@ -71,6 +71,8 @@ class ObjcExportHiddenGuardTest {
                 File(common, "android/view/activity/navigation/DocRowMapper.kt"),
                 File(keyed, "KeyedPaneMenuStrings.kt"), File(keyed, "KeyedReadingMenuStrings.kt"),
                 File(keyed, "SharedTextDisplayPrefItems.kt"),
+                // R3: the top-level reading files outside the scanned subdirectories.
+                File(reading, "TiltAxis.kt"), File(reading, "WorkspaceResultTarget.kt"),
                 File(common, "sharedui/components/AppToastHost.kt"), File(common, "sharedui/strings/PaneMenuStrings.kt"),
             )
         return r2 + listOf("bridge", "session", "host").flatMap {
@@ -127,6 +129,7 @@ class ObjcExportHiddenGuardTest {
         val names = files.map { it.name }.toSet()
         assertTrue("ReadingHostSlots.kt" in names && "QuickSheets.kt" in names && "GridPassageHostSupport.kt" in names,
             "scope must include the recursive slots tree and the moved grid support, got $names")
+        assertTrue("TiltAxis.kt" in names && "WorkspaceResultTarget.kt" in names, "scope must include the top-level reading files, got $names")
         val (missing, publicCount) = violations(files)
         assertTrue(publicCount > 30, "scanner must see the public declarations, saw $publicCount")
         assertTrue(missing.isEmpty(), "public declarations without @kotlin.native.HiddenFromObjC:\n" + missing.joinToString("\n"))

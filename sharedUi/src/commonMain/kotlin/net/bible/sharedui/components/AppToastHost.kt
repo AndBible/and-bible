@@ -19,6 +19,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -87,7 +88,7 @@ object AppToasts {
 /**
  * Draws [AppToasts]: a snackbar-style pill at the bottom of the screen, announced to the screen reader as a polite live
  * region. Colours come from the theme's inverse pair, so monochrome mode stays grayscale. With animations disabled
- * ([LocalDisableAnimations]) it appears and disappears without a fade.
+ * ([LocalDisableAnimations]) it appears and disappears without a fade; with them on it fades in as well as out.
  */
 @kotlin.native.HiddenFromObjC
 @Composable
@@ -111,7 +112,11 @@ fun AppToastHost(modifier: Modifier = Modifier) {
             if (disableAnimations) {
                 if (visible) ToastPill(content.text)
             } else {
-                AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) { ToastPill(content.text) }
+                // A MutableTransitionState that starts hidden: AnimatedVisibility composed with visible = true from the
+                // start skips its enter animation, and this branch is first composed exactly when a toast appears.
+                val visibility = remember { MutableTransitionState(false) }
+                visibility.targetState = visible
+                AnimatedVisibility(visibleState = visibility, enter = fadeIn(), exit = fadeOut()) { ToastPill(content.text) }
             }
         }
     }

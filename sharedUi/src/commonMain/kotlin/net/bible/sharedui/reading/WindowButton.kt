@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -251,6 +252,8 @@ fun WindowButton(
     topLabel: String? = null,
     contentDescription: String? = null,
 ) {
+    val latestOnClick = rememberUpdatedState(onClick)
+    val latestOnLongPress = rememberUpdatedState(onLongPress)
     val mono = isPureMonochrome()
     val colors = MaterialTheme.colorScheme
     val dark = LocalIsDarkTheme.current
@@ -320,8 +323,10 @@ fun WindowButton(
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },
             )
+            // The detector is keyed on Unit and so installed once: read the lambdas through state, or it keeps
+            // calling the ones of the first composition.
             .pointerInput(Unit) {
-                detectTapGestures(onTap = { onClick() }, onLongPress = { onLongPress() })
+                detectTapGestures(onTap = { latestOnClick.value() }, onLongPress = { latestOnLongPress.value() })
             }
             // The gesture detector alone is invisible to VoiceOver/TalkBack: expose one button with both actions,
             // named by [contentDescription] when given (the pane's ☰ glyph), else by its merged texts (the rail tab).

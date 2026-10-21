@@ -40,6 +40,14 @@ import net.bible.sharedlogic.settings.TextDisplayString
 import org.crosswire.jsword.book.FeatureType
 
 /**
+ * A font choice for a CSS generic family, labelled as Android's font picker labels it (`FontDefinition.name`: dashes
+ * become spaces, first letter capitalised), so both platforms show "Sans serif".
+ */
+@kotlin.native.HiddenFromObjC
+fun genericFontChoice(family: String): SettingsItem.Choice =
+    SettingsItem.Choice(family, family.replace("-", " ").replaceFirstChar { it.uppercase() })
+
+/**
  * The real [TextDisplayPrefItems] for platforms without Android's `OptionsMenuItems` (iOS): the same value, inheritance,
  * enabled/visible and title rules as the Android items (`Preference` and its subclasses behind `getPrefItem`), over the
  * common window repository, document control and app settings, with strings from [strings] by Android's resource keys.
@@ -62,14 +70,6 @@ import org.crosswire.jsword.book.FeatureType
  * The picker's content source, the provided background images and the installed fonts are passed in, as those live
  * below this module.
  */
-/**
- * A font choice for a CSS generic family, labelled as Android's font picker labels it (`FontDefinition.name`: dashes
- * become spaces, first letter capitalised), so both platforms show "Sans serif".
- */
-@kotlin.native.HiddenFromObjC
-fun genericFontChoice(family: String): SettingsItem.Choice =
-    SettingsItem.Choice(family, family.replace("-", " ").replaceFirstChar { it.uppercase() })
-
 @kotlin.native.HiddenFromObjC
 class SharedTextDisplayPrefItems(
     private val strings: () -> StringTable,

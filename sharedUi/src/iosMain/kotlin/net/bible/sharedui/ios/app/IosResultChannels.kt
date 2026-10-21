@@ -20,18 +20,17 @@ package net.bible.sharedui.ios.app
 
 import androidx.navigation.NavHostController
 import net.bible.sharedui.app.AppResultChannels
-import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.nav.NavResultChannel
 
 /**
  * The result channels for iOS. A [NavResultChannel] already publishes to its parent entry and pops; the only
  * Android-specific part is the fallback that finishes the activity with a result. iOS has one NavHost and no
- * activity, so that fallback is a reported no-op.
+ * activity, so that fallback pops the back stack ([iosExitWithResult]), the only "finish" iOS has.
  */
 @kotlin.native.HiddenFromObjC
-@Suppress("UNUSED_PARAMETER")
 fun iosResultChannels(navController: () -> NavHostController): AppResultChannels {
-    fun <T> channel() = NavResultChannel<T> { IosPending.log("NavResultChannel.exitWithResult") }
+    val navigator = NavControllerNavigator(navController)
+    fun <T> channel() = NavResultChannel<T>(iosExitWithResult(navigator))
     return AppResultChannels(
         readingProgress = channel(),
         bookmark = channel(),
@@ -49,3 +48,10 @@ fun iosResultChannels(navController: () -> NavHostController): AppResultChannels
         beforeSwitchMyDocument = {},
     )
 }
+
+/**
+ * The "no parent entry" fallback of a [NavResultChannel]: a result has nobody to be published to, so the screen is left
+ * by popping the back stack (the result is dropped, as an Android activity finishing without a caller would).
+ */
+@kotlin.native.HiddenFromObjC
+internal fun <T> iosExitWithResult(navigator: IosNavigator): (T) -> Unit = { navigator.popBackStack() }

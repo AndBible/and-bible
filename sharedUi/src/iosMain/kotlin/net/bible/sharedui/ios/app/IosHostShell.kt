@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.HostShell
-import net.bible.sharedui.ios.IosPending
 
 /** The three navigation operations [IosHostShell] needs; a seam so the shell is testable without a NavHost. */
 @kotlin.native.HiddenFromObjC
@@ -47,7 +46,7 @@ class NavControllerNavigator(private val navController: () -> NavHostController)
 }
 
 /**
- * [HostShell] for iOS. [recreateHost] refreshes the language in place; only [exitHost] is pending.
+ * [HostShell] for iOS. [recreateHost] refreshes the language in place; [exitHost] without an `onExit` returns to the reading screen.
  * The history route keeps the Android compare-and-clear semantics: only the owner that published the current route
  * can clear it, because navigation-compose runs the entering destination's effects before the leaving one's disposal.
  */
@@ -86,8 +85,9 @@ class IosHostShell(
     override var windowTitle: String = ""
         private set
 
+    /** The recovery flow's [onExit] when given, else the only "finish" iOS has: back to the reading screen. */
     override fun exitHost() {
-        onExit?.invoke() ?: IosPending.log("HostShell.exitHost")
+        if (onExit != null) onExit.invoke() else openReading()
     }
 
     override fun recreateHost() = recompose()

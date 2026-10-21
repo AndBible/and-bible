@@ -111,10 +111,26 @@ class IosHostShellTest {
     }
 
     @Test
-    fun exitAndRecreateArePendingNotThrowing() {
-        shell.exitHost()
+    fun recreateAndTitleDoNotNavigate() {
         shell.recreateHost()
         shell.setWindowTitle("t")
         assertEquals("t", shell.windowTitle)
+        assertEquals(emptyList(), nav.calls)
+    }
+
+    @Test
+    fun exitHostWithoutHandlerReturnsToReading() {
+        nav.stack += NavRoutes.READING
+        shell.exitHost()
+        assertEquals(listOf(readingReuse), nav.calls)
+        nav.calls.clear()
+        shell.exitHost() // no reading entry any more: the first-run path opens a fresh one
+        assertEquals(listOf(readingReuse, popDownload, popWelcome, "navigate(${NavRoutes.READING})"), nav.calls)
+    }
+
+    @Test
+    fun resultChannelFallbackPops() {
+        iosExitWithResult<String>(nav)("answer")
+        assertEquals(listOf("pop"), nav.calls)
     }
 }

@@ -2,6 +2,10 @@ package net.bible.sharedui.components
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import net.bible.sharedui.theme.LocalDisableAnimations
@@ -90,5 +94,35 @@ class AppToastHostTest {
         mainClock.advanceTimeBy(AppToasts.SHORT_MILLIS + 1500)
         waitForIdle()
         onNodeWithText("Fading").assertDoesNotExist()
+    }
+
+    /** With animations on the pill fades IN (it is not at full opacity on its first frame); with them off it is solid at once. */
+    @Test
+    fun fadeInOnlyWhenAnimationsAreOn() {
+        fun firstFramePixel(disable: Boolean): Int {
+            var pixel = 0
+            runComposeUiTest {
+                mainClock.autoAdvance = false
+                setContent {
+                    CompositionLocalProvider(LocalDisableAnimations provides disable) {
+                        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.background(androidx.compose.ui.graphics.Color.White)) {
+                            AppToastHost()
+                        }
+                    }
+                }
+                AppToasts.show("Fading")
+                mainClock.advanceTimeByFrame()
+                mainClock.advanceTimeByFrame()
+                val image = onNodeWithText("Fading").captureToImage().toPixelMap()
+                pixel = image[2, image.height / 2].toArgb()
+                mainClock.autoAdvance = true
+                waitForIdle()
+            }
+            AppToasts.clear()
+            return pixel
+        }
+        val solid = firstFramePixel(disable = true)
+        val fading = firstFramePixel(disable = false)
+        kotlin.test.assertNotEquals(solid, fading, "an animated toast starts translucent, not at its final colour")
     }
 }
