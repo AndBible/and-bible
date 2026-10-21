@@ -23,7 +23,8 @@ class IosReadingWindowSurfaceTest {
         override val isAttached = true
         override val mainDispatcher = Dispatchers.Main
         override fun post(block: () -> Unit) = block()
-        override fun evaluate(js: String, callback: ((String) -> Unit)?) {}
+        val evaluated = mutableListOf<String>()
+        override fun evaluate(js: String, callback: ((String) -> Unit)?) { evaluated += js }
     }
 
     private class Links : ExternalLinks {
@@ -35,6 +36,37 @@ class IosReadingWindowSurfaceTest {
     private class Shares : TextShare {
         val shared = mutableListOf<Pair<String, String>>()
         override fun shareText(text: String, chooserTitle: String) { shared += text to chooserTitle }
+    }
+
+    @Test
+    fun stopSelectionByDefaultPreservesTheEditorCaret() {
+        val host = Host()
+        val surface = IosReadingWindowSurface(host)
+
+        // selectionCleared uses the default: a collapsed editor caret must stay in the DOM.
+        surface.stopSelection()
+
+        assertTrue(host.evaluated.isEmpty(), "stopping native selection must not remove the editor caret")
+    }
+
+    @Test
+    fun stopSelectionFalsePreservesTheEditorCaret() {
+        val host = Host()
+        val surface = IosReadingWindowSurface(host)
+
+        surface.stopSelection(removeRanges = false)
+
+        assertTrue(host.evaluated.isEmpty(), "removeRanges=false must not evaluate a DOM selection clear")
+    }
+
+    @Test
+    fun stopSelectionTrueClearsDomRangesExactlyOnce() {
+        val host = Host()
+        val surface = IosReadingWindowSurface(host)
+
+        surface.stopSelection(removeRanges = true)
+
+        assertEquals(listOf("window.getSelection().removeAllRanges()"), host.evaluated)
     }
 
     @Test

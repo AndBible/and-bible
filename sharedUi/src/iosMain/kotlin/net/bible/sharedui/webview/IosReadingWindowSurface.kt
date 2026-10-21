@@ -85,7 +85,8 @@ class IosReadingWindowSurface(
     }
 
     override fun stopSelection(removeRanges: Boolean) {
-        host.evaluate("window.getSelection().removeAllRanges()", null)
+        // A collapsed editor caret is also a DOM range; keep it unless removal is requested.
+        if (removeRanges) host.evaluate("window.getSelection().removeAllRanges()", null)
     }
 
     override fun toast(text: String) = toast.invoke(text)
