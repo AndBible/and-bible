@@ -189,7 +189,7 @@ class DocumentDialogsCore(
     @kotlin.native.HiddenFromObjC
     data class HelpItem(val title: String, val text: String, val videoLink: String? = null, val docUrl: String? = null)
 
-    fun helpNotice(help: List<HelpItem>, versionMsg: String? = null, okText: String = table().text("okay")): AppDialogRequest.Notice {
+    fun helpNotice(help: List<HelpItem>, versionMsg: String? = null, okText: String = table().text("okay"), includeSponsor: Boolean = true): AppDialogRequest.Notice {
         val buyMessage = "<b>${table().text("buy_development2")}</b>: <a href=\"https://shop.andbible.org\">${table().text("buy_development")}</a>"
         var htmlMessage = ""
 
@@ -217,7 +217,7 @@ class DocumentDialogsCore(
                 blocks = listOfNotNull(
                     AppDialogRequest.NoticeBlock.Html(htmlMessage),
                     AppDialogRequest.NoticeBlock.Html(fullDocsMessage),
-                    AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage"),
+                    if (includeSponsor) AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage") else null,
                     if (versionMsg != null) AppDialogRequest.NoticeBlock.Html("<i>$versionMsg</i>") else null,
                 ),
                 confirmText = okText,

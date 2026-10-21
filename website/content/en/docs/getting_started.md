@@ -51,6 +51,20 @@ In other languages there are no tabs and the screen shows the Advanced options d
 - **Restore Database File**: restore a backup of your bookmarks, notes and settings. See
   [Backup and restore](backup_restore.md).
 
+## Help and sharing on iOS
+
+The iOS drawer's **Help & tips** shows all eight help topics, tutorial and manual links,
+and the app version. It does not include the Android development-shop promotion.
+**Licence** displays the complete licence bundled with the app, so it is available offline.
+**Recommend to a friend** opens the system share sheet with a description of AndBible and
+its homepage, without an app-store link.
+
+The iOS **Report a bug** action asks for confirmation before preparing a report with device
+and version details, any retained crash details, and a compressed recent app log. JavaScript
+error reports use the same consent flow and include the WebView error diagnostic.
+
+The iOS drawer does not currently offer a rating or development-purchase action.
+
 ## Linux setup
 
 1. [Install Waydroid](https://docs.waydro.id/usage/install-on-desktops)

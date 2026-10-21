@@ -2159,4 +2159,6 @@
     <string name="window_unmaximise">Restore all windows</string>
     <string name="window_menu_button">Window menu</string>
     <string name="paste_from_clipboard">Paste</string>
+    <!-- H2: platform-neutral iOS recommendation. -->
+    <string name="tell_friend_message2_device">It is a powerful, yet easy to use, offline Bible study application.</string>
 </resources>

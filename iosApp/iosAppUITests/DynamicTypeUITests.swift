@@ -28,7 +28,10 @@ final class DynamicTypeUITests: RealAppUITestCase {
         ]
         launchAtTextSize(app, category)
         let first = "settings-row-navigate_to_verse_pref"
-        XCTAssertTrue(element(app, first).waitForExistence(timeout: 60), "Real Settings root must appear")
+        guard app.staticTexts["Application preferences"].firstMatch.waitForExistence(timeout: 60) else {
+            XCTFail("Real Settings root must appear")
+            return
+        }
         let ids = [
             first,
             "settings-row-open_links_in_special_window_pref",

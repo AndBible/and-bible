@@ -284,16 +284,7 @@ class MenuCommandHandler(
                     isHandled = true
                 }
                 R.id.appLicence -> {
-                    val messageHtml = BibleApplication.application.resources.openRawResource(R.raw.license).readBytes().decodeToString()
-
-                    appDialogs.post(
-                        AppDialogRequest.Message(
-                            title = hostActivity.getString(R.string.app_licence_title),
-                            message = messageHtml,
-                            confirmText = hostActivity.getString(android.R.string.ok),
-                            cancellable = true,
-                        ),
-                    )
+                    CommonUtils.showLicence(hostActivity)
                     isHandled = true
                 }
                 R.id.bugReport -> {

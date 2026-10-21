@@ -850,6 +850,16 @@ object CommonUtils : CommonUtilsBase() {
         ))
     }
 
+    fun showLicence(activity: ActivityBase) {
+        val html = application.resources.openRawResource(R.raw.license).use { it.readBytes().decodeToString() }
+        dialogs.post(AppDialogRequest.Message(
+            title = activity.getString(R.string.app_licence_title),
+            message = html,
+            confirmText = activity.getString(android.R.string.ok),
+            cancellable = true,
+        ))
+    }
+
     /**
      * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
      *

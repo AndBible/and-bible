@@ -534,6 +534,7 @@ class IosAssemblyTest {
             net.bible.sharedcore.platform.IosDeviceSettings::class,
             net.bible.sharedcore.http.IosHttpClients::class,
             IosStringTableHolder::class,
+            net.bible.sharedui.ios.reading.IosReadingExtras::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */

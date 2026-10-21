@@ -73,6 +73,7 @@ targets:
           RAW="$SRCROOT/../app/src/main/res/raw"
           # repositories.txt: IosAppStartup reads it from the bundle root.
           cp "$RAW/repositories.txt" "$RES/repositories.txt"
+          cp "$RAW/license.html" "$RES/license.html"
           # The two LLM system prompts (KeyedLlmStrings, IosPlatformParts.bundleRawResource).
           cp "$RAW/llm_agent_system_prompt.md" "$RAW/llm_text_transformation_system_prompt.md" "$RES/"
           # Reading plans: IosReadingPlanSource reads <bundle>/readingplan/*.properties.
