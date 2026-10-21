@@ -250,3 +250,9 @@ Pass criteria:
 The Swift app may be unable to build or launch on the simulator under the overridden id (CloudKit entitlement, signing). If it
 fails within two attempts, stop and record the exact error here and in the status entry as: "install-over smoke not possible on
 the simulator; covered by seeded runs and owed on the device checklist". The script then exits non-zero with that wording.
+
+Result of the first run (1.0.2 on iOS 26.5, iPhone 15 simulator, 2026-10-21): the Swift app built on the first attempt and
+showed its first-run Welcome screen (no documents installed); the new app installed over it migrated (`done.json`
+present, `nothingToMigrate` false) and shows its Welcome screen; no crash reports. The filtered app log captured 0
+lines (the `LegacyMigration`/`I2P2` messages are not in the unified log of a Debug simulator launch), so `done.json`
+is the evidence, not the log.

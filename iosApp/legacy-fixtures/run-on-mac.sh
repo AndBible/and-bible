@@ -313,7 +313,7 @@ mode_install_over() {
     fi
     find "$data" -maxdepth 4 2>/dev/null | sort >"$out/new-data-files.txt" || true
     find "$HOME/Library/Logs/DiagnosticReports" \( -name 'AndBible*' -o -name 'iosApp*' \) -newer "$marker" 2>/dev/null \
-        | tee "$out/crashes.txt" | sed 's/^/   crash report: /'
+        | tee "$out/crashes.txt" | sed 's/^/   crash report: /' || true
     if [ -s "$out/crashes.txt" ]; then echo "   FAIL: crash reports since the start of the run (copy: scripts/mac-remote.sh sim crashes)" >&2; fi
     echo "install-over: done; results in $out (fetch with scripts/mac-remote.sh fetch build/i3-fixtures/install-over)"
 }
