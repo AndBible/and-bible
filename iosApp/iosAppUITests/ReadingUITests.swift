@@ -1190,12 +1190,31 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: selection menu
 
-    /// Long-presses the first 'Nicodemus' of the chapter: the page selects the word and UIKit shows the edit menu with
-    /// the AndBible rows ahead of the system ones.
-    private func longPressNicodemus(_ app: XCUIApplication) -> Bool {
-        let word = app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
-        guard word.waitForExistence(timeout: 20) else { attachTree(app, "selection-no-word"); XCTFail("no 'Nicodemus' text to select"); return false }
-        word.press(forDuration: 1.2)
+    /// Long-presses a word that is on screen: the page selects it and UIKit shows the edit menu with the AndBible rows
+    /// ahead of the system ones. The reader may be scrolled (the Mac tree showed the title at John 3:11), so 'Nicodemus'
+    /// (verse 1) can be above the fold; the word is picked from ONE snapshot of the pane web view: the first plain word of
+    /// five letters or more whose frame lies well inside the visible text area.
+    private func longPressVisibleWord(_ app: XCUIApplication) -> Bool {
+        let pane = firstPane(app)
+        guard pane.waitForExistence(timeout: 20) else { attachTree(app, "selection-no-pane"); XCTFail("no pane web view"); return false }
+        _ = waitUntil(timeout: 20) { nicodemusInWebViews(app) > 0 || !bibleWebViewWords(app).isEmpty }
+        let visible = app.windows.firstMatch.frame
+        var target: CGRect?
+        func find(_ snapshot: XCUIElementSnapshot) {
+            if target == nil, snapshot.elementType == .staticText, snapshot.label.count >= 5,
+               snapshot.label.allSatisfy({ $0.isLetter }),
+               snapshot.frame.minY > visible.minY + 220, snapshot.frame.maxY < visible.maxY - 160,
+               snapshot.frame.minX > 20, snapshot.frame.maxX < visible.maxX - 20, snapshot.frame.width > 30 {
+                target = snapshot.frame
+            }
+            for child in snapshot.children { find(child) }
+        }
+        if let snapshot = try? pane.snapshot() { find(snapshot) }
+        guard let frame = target else {
+            attachTree(app, "selection-no-word"); XCTFail("no visible plain word in the pane to select"); return false
+        }
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+            .withOffset(CGVector(dx: frame.midX, dy: frame.midY)).press(forDuration: 1.2)
         return true
     }
 
@@ -1224,7 +1243,7 @@ final class ReadingUITests: RealAppUITestCase {
         continueAfterFailure = true
         let app = try launchReading()
         XCTContext.runActivity(named: "two-step (default)") { _ in
-            guard longPressNicodemus(app) else { return }
+            guard longPressVisibleWord(app) else { return }
             guard let bookmark = editMenuItem(app, "Bookmark") else {
                 attachTree(app, "two-step-no-bookmark-row"); shot(app, "two-step-no-bookmark-row")
                 XCTFail("the selection menu has no 'Bookmark' row"); return
@@ -1271,9 +1290,16 @@ final class ReadingUITests: RealAppUITestCase {
             guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return }
             back.tap()
             XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 20), "did not return to the reading view")
+            // Back returns to the reading view with the drawer still open over it (Mac tree): close it so the page is reachable.
+            let scrim = app.buttons.matching(NSPredicate(format: "label == 'Close navigation menu'")).firstMatch
+            if scrim.waitForExistence(timeout: 5) {
+                scrim.tap()
+                XCTAssertTrue(waitUntil(timeout: 10) { !scrim.exists }, "the drawer did not close")
+            }
+            XCTAssertTrue(waitUntil(timeout: 20) { toolbarShown(app) }, "the reading toolbar is not back after the preferences")
         }
         XCTContext.runActivity(named: "one-step (disable_two_step_bookmarking)") { _ in
-            guard longPressNicodemus(app) else { return }
+            guard longPressVisibleWord(app) else { return }
             let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
             if selection == nil || verses == nil { attachTree(app, "one-step-no-rows"); shot(app, "one-step-no-rows") }
             XCTAssertNotNil(selection, "with two-step bookmarking off the first menu has no 'Selection' row")
