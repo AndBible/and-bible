@@ -30,6 +30,8 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.bridge.webSearchUrl
 import net.bible.sharedui.reading.session.BibleWindowSession
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
 import org.crosswire.jsword.versification.BookName
 import platform.UIKit.UIAction
 import platform.UIKit.UIMenu
@@ -82,10 +84,12 @@ internal class IosSelectionMenuEnvironment(
 
     override fun resolveRef(text: String): String? {
         val key = linkControl().resolveRef(text) ?: return null
-        // The short book name, as Android's menu title uses (the setting is process-wide; Android takes a lock, this runs on the main thread only).
-        val wasFull = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        return try { key.getName() } finally { BookName.setFullBookName(wasFull) }
+        // The short book name, as Android's menu title uses. The setting is process-wide: the same monitor as `withShortBookNames`.
+        return withMonitor(bookNameMonitor) {
+            val wasFull = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            try { key.getName() } finally { BookName.setFullBookName(wasFull) }
+        }
     }
 
     override fun openRef(text: String) {
