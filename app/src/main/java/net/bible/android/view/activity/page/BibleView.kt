@@ -559,6 +559,34 @@ class BibleView(
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
+    private fun selectionMenuId(item: SelectionMenuItem): Int = when (item) {
+        SelectionMenuItem.AddBookmark -> R.id.add_bookmark
+        SelectionMenuItem.AddBookmarkSelection -> R.id.add_bookmark_selection
+        SelectionMenuItem.AddBookmarkWholeVerse -> R.id.add_bookmark_whole_verse
+        SelectionMenuItem.AddParagraphBreak -> R.id.add_paragraph_break
+        SelectionMenuItem.Compare -> R.id.compare
+        SelectionMenuItem.Memorize -> R.id.memorize
+        SelectionMenuItem.ShareVerses -> R.id.share_verses
+        SelectionMenuItem.OpenRef -> R.id.open_ref
+        SelectionMenuItem.Search -> R.id.search
+        SelectionMenuItem.WebSearch -> R.id.web_search
+        SelectionMenuItem.LookupDictionary -> R.id.lookup_dictionary
+        SelectionMenuItem.Copy -> R.id.copy
+        SelectionMenuItem.LlmAction -> R.id.llm_action
+    }
+
+    /** Shows exactly the [items] among the inflated selection menu's rows and hides the rest. */
+    private fun applySelectionMenuItems(menu: Menu, items: List<SelectionMenuItem>) {
+        val visibleIds = items.map(::selectionMenuId).toSet()
+        for (item in SelectionMenuItem.entries) {
+            val id = selectionMenuId(item)
+            val menuItem = menu.findItem(id) ?: continue
+            menuItem.isVisible = id in visibleIds
+            // For some reason, these do not seem to be correct from XML, even though specified there
+            if (id in visibleIds) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
+    }
+
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
 
@@ -566,45 +594,26 @@ class BibleView(
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
 
-            val sel = currentSelection
-
-            // For some reason, these do not seem to be correct from XML, even though specified there
-            if(isBible && CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
-                menu.findItem(R.id.add_bookmark_selection).run {
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
-                }
-                menu.findItem(R.id.add_bookmark_whole_verse).run{
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
-                }
-            } else {
-                menu.findItem(R.id.add_bookmark).run {
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
-                }
-            }
-
-            menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            if(sel == null) {
-                menu.findItem(R.id.add_bookmark).isVisible = false
-                menu.findItem(R.id.add_bookmark_selection).isVisible = false
-                menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
-                menu.findItem(R.id.add_paragraph_break).isVisible = false
-            }
-            if(!isBible) {
-                menu.findItem(R.id.compare).isVisible = false
-                menu.findItem(R.id.share_verses).isVisible = false
-            }
-            if (!CommonUtils.settings.addParagraphBreakEnabled) {
-                menu.findItem(R.id.add_paragraph_break).isVisible = false
-            }
-
             val ref = currentSelectionRef
+            val text = currentSelectionText
+            // The common policy decides which rows show (same decisions the code here used to make inline).
+            val items = selectionMenuItems(
+                SelectionMenuInput(
+                    isBible = isBible,
+                    twoStepDisabled = CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false),
+                    hasVerseSelection = currentSelection != null,
+                    selectionText = text,
+                    resolvedRef = ref != null,
+                    paragraphBreakEnabled = CommonUtils.settings.addParagraphBreakEnabled,
+                    hasLookupDictionaries = text != null && SwordDocumentFacade.wordLookupDictionaries(CommonUtils.settings).isNotEmpty(),
+                    llmConfigured = text != null && CommonUtils.settings.llmConfigured,
+                ),
+                step2 = false,
+            )
+            applySelectionMenuItems(menu, items)
+
             if(ref != null) {
                 val item = menu.findItem(R.id.open_ref)
-                item.isVisible = true
                 synchronized(BookName::class.java) {
                     val wasFullBookName = BookName.isFullBookName()
                     BookName.setFullBookName(false)
@@ -615,25 +624,9 @@ class BibleView(
                     }
                 }
             }
-            if(ref == null && currentSelectionText != null) {
+            if(ref == null && text != null) {
                 val item = menu.findItem(R.id.search)
-                item.isVisible = true
-                item.title = if(currentSelectionText!!.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
-            }
-            if (currentSelectionText != null) {
-                menu.findItem(R.id.web_search).apply {
-                    isVisible = true
-                }
-            }
-            if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries(CommonUtils.settings).isNotEmpty()) {
-                menu.findItem(R.id.lookup_dictionary).apply {
-                    isVisible = true
-                }
-            }
-            if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
-                menu.findItem(R.id.llm_action).apply {
-                    isVisible = true
-                }
+                item.title = if(text.length < 16) context.getString(R.string.search_what, text) else context.getString(R.string.search)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
@@ -644,9 +637,6 @@ class BibleView(
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
-                if(!isBible) {
-                    menu.findItem(R.id.copy).isVisible = true
-                }
             }
 
             menuPrepared = false
@@ -656,6 +646,10 @@ class BibleView(
             if(step2) {
                 mode.menu.clear()
                 mode.menuInflater.inflate(R.menu.bibleview_selection2, menu)
+                applySelectionMenuItems(menu, selectionMenuItems(SelectionMenuInput(
+                    isBible = true, twoStepDisabled = false, hasVerseSelection = true, selectionText = currentSelectionText,
+                    resolvedRef = false, paragraphBreakEnabled = false, hasLookupDictionaries = false, llmConfigured = false,
+                ), step2 = true))
                 step2 = false
                 return true
             }

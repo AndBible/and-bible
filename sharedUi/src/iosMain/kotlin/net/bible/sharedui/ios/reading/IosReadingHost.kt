@@ -511,6 +511,18 @@ class IosReadingHost(
     /** Strong's find-all in the reading view's search; false: not handled, the caller falls back to its own route. */
     fun openSearchStrongs(ref: String, documentInitials: List<String>): Boolean = searchState.openSearchStrongs(ref, documentInitials)
 
+    /**
+     * The text-selection menu's "Search": the reading view's search opens and runs [text] as a phrase search, decorated
+     * exactly as Android's `BibleView` does before it hands the query to the hosted search (`preDecorated = true`).
+     */
+    fun openSearchWithSelection(text: String) {
+        val decorated = koin.get<net.bible.android.control.search.SearchControl>().decorateSearchString(
+            text, org.crosswire.jsword.index.search.SearchType.PHRASE,
+            net.bible.android.control.search.SearchControl.SearchBibleSection.ALL, "",
+        )
+        searchState.openSearch(decorated, preDecorated = true)
+    }
+
     /** Ends the slots' own background work (the search index feed); call before cancelling [scope]. */
     fun dispose() {
         if (fullScreen.state.value) setFullScreen(false) // never leave the status bar hidden behind a closed reading view

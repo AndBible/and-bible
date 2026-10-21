@@ -28,7 +28,11 @@ import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.android.control.link.LinkControl
+import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.strings.keyed.KeyedSelectionMenuStrings
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.android.view.activity.page.SwipeAction
@@ -85,6 +89,13 @@ object IosReadingWindows {
     }
 
     private val assemblies = mutableMapOf<String, Assembly>()
+
+    /**
+     * The text-selection menu of the bound host (one for all windows; it caches per window id); null while no host is
+     * bound. The AI action ([IosSelectionMenu]'s `onLlmAction`) is wired by Task 4.
+     */
+    var selectionMenu: IosSelectionMenu? = null
+        private set
     private var binding: Binding? = null
 
     /**
@@ -95,6 +106,16 @@ object IosReadingWindows {
         unbind()
         val b = Binding(host, scope, koin, nightModeState)
         binding = b
+        selectionMenu = IosSelectionMenu(
+            windows = { id -> assemblies[id]?.let { IosSelectionMenuWindow(it.session, it.bridge) { koin.get<SwordContentFacade>() } } },
+            environment = IosSelectionMenuEnvironment(
+                settings = { koin.get<AppSettings>() },
+                linkControl = { koin.get<LinkControl>() },
+                links = { koin.get<ExternalLinks>() },
+                openSearch = { host.openSearchWithSelection(it) },
+            ),
+            strings = { KeyedSelectionMenuStrings(IosAppStartup.stringTable) },
+        )
         // The languages of the installed Bibles (Android's `getActiveLanguages`), read when each window's WebView is created.
         IosReadingWebViews.activeLanguages = ::installedLanguagesJson
         b.subscriptions.add(koin.get<WindowStateServiceImpl>().windowChanges.subscribe { change ->
@@ -125,6 +146,7 @@ object IosReadingWindows {
         for (id in assemblies.keys.toList()) release(id)
         binding?.subscriptions?.cancelAll()
         binding = null
+        selectionMenu = null
     }
 
     private fun requireBinding(): Binding = checkNotNull(binding) { "IosReadingWindows.bind has not been called" }
@@ -250,6 +272,7 @@ object IosReadingWindows {
             a.relay.stop()
             a.session.dispose()
         }
+        selectionMenu?.clear(windowId)
         IosReadingWebViews.release(windowId)
     }
 

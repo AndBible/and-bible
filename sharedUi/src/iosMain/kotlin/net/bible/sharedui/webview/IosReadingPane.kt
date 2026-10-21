@@ -12,6 +12,14 @@ import net.bible.sharedcore.bibleview.BridgeDispatcher
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.ios.reading.IosReadingGestures
 import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.ios.reading.IosSelectionMenu
+import net.bible.sharedui.ios.reading.IosSelectionMessageHandler
+import net.bible.sharedui.ios.reading.SELECTION_HANDLER_NAME
+import net.bible.sharedui.ios.reading.SELECTION_USER_SCRIPT
+import net.bible.sharedui.ios.reading.insertSelectionMenu
+import platform.UIKit.UIMenuBuilderProtocol
+import platform.WebKit.WKUserScript
+import platform.WebKit.WKUserScriptInjectionTime
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.session.BibleWindowSession
@@ -37,6 +45,18 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     WKWebView(frame, configuration) {
     var onAttached: (() -> Unit)? = null
 
+    /** Adds the AndBible rows to the system edit menu (see [insertSelectionMenu]); null leaves the menu as WebKit builds it. */
+    var onBuildMenu: ((UIMenuBuilderProtocol) -> Unit)? = null
+
+    override fun buildMenuWithBuilder(builder: UIMenuBuilderProtocol) {
+        super.buildMenuWithBuilder(builder)
+        try {
+            onBuildMenu?.invoke(builder)
+        } catch (t: Throwable) {
+            nsLog("bridge: selection menu failure $t")
+        }
+    }
+
     override fun didMoveToWindow() {
         super.didMoveToWindow()
         if (window != null) {
@@ -58,6 +78,9 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
 
     /** Set when wiring the session threw; the pane stays empty instead of retrying on every recomposition. */
     var failed: Boolean = false
+
+    /** The `"selection"` script-message handler (held strongly: WebKit holds it weakly); null when the window has no selection menu. */
+    var selectionHandler: IosSelectionMessageHandler? = null
 
     /** The pane's gesture recognisers once attached (see [attachReadingGestures]); detached when the window is released. */
     var gestureRecognisers: IosReadingGestureRecognisers? = null
@@ -105,6 +128,11 @@ object IosReadingWebViews {
             entry.handlerCount = 0
         }
         entry.handler = null
+        if (entry.selectionHandler != null) {
+            entry.webView.configuration.userContentController.removeScriptMessageHandlerForName(SELECTION_HANDLER_NAME)
+            entry.selectionHandler = null
+        }
+        entry.webView.onBuildMenu = null
         entry.gestureRecognisers?.detach()
         entry.gestureRecognisers = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
@@ -134,7 +162,13 @@ object IosReadingWebViews {
      * Adds the bridge handler and loads the bundle, once per window. [dark] is only the attach-time initial value of
      * the `night` URL parameter; live night mode reaches the page through `set_config`.
      */
-    internal fun attachSession(windowId: String, session: BibleWindowSession, bridge: BibleBridge, dark: Boolean) {
+    internal fun attachSession(
+        windowId: String,
+        session: BibleWindowSession,
+        bridge: BibleBridge,
+        dark: Boolean,
+        selectionMenu: IosSelectionMenu? = null,
+    ) {
         val entry = entry(windowId)
         if (entry.handler != null) return
         val log: (String) -> Unit = { msg -> nsLog("bridge[$windowId]: $msg") }
@@ -148,9 +182,31 @@ object IosReadingWebViews {
         entry.handler = handler // strong reference: WebKit holds the handler weakly
         entry.webView.configuration.userContentController.addScriptMessageHandler(handler, "bridge")
         entry.handlerCount++
+        if (selectionMenu != null) attachSelectionMenu(entry, windowId, selectionMenu)
         val lang = NSLocale.currentLocale.languageCode.ifEmpty { "en" }
         bundleLoader(entry.webView, lang, dark)
     }
+}
+
+/**
+ * Wires the text-selection menu to the window's WebView: the page reports its selection (debounced) to a native handler
+ * that fills [menu]'s cache, and the web view's edit-menu hook adds the AndBible rows from that cache. Must run before the
+ * bundle loads (the user script applies to later page loads).
+ */
+private fun attachSelectionMenu(entry: ReadingEntry, windowId: String, menu: IosSelectionMenu) {
+    if (entry.selectionHandler != null) return
+    val handler = IosSelectionMessageHandler(windowId, menu)
+    val controller = entry.webView.configuration.userContentController
+    controller.addUserScript(
+        WKUserScript(
+            source = SELECTION_USER_SCRIPT,
+            injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+            forMainFrameOnly = true,
+        ),
+    )
+    controller.addScriptMessageHandler(handler, SELECTION_HANDLER_NAME)
+    entry.selectionHandler = handler
+    entry.webView.onBuildMenu = { builder -> insertSelectionMenu(builder, windowId, menu) }
 }
 
 /** Attaches [gestures] to the window's WebView once (a second call, or a window without a handler, does nothing). */
@@ -171,6 +227,7 @@ internal fun attachReadingPane(
     bridgeFor: ((windowId: String) -> BibleBridge)?,
     nightMode: () -> Boolean,
     isOpen: (windowId: String) -> Boolean = { true },
+    selectionMenu: IosSelectionMenu? = null,
 ) {
     // A closed or missing window gets no entry, no session and no WebView, whatever the recomposition order.
     if (!isOpen(windowId)) return
@@ -179,7 +236,7 @@ internal fun attachReadingPane(
     try {
         val session = sessionFor(windowId)
         val bridge = bridgeFor?.invoke(windowId) ?: ReadingBridge(session)
-        IosReadingWebViews.attachSession(windowId, session, bridge, nightMode())
+        IosReadingWebViews.attachSession(windowId, session, bridge, nightMode(), selectionMenu)
     } catch (t: Throwable) {
         entry.failed = true
         nsLog("bridge[$windowId]: reading pane wiring failed $t")
@@ -200,8 +257,10 @@ fun iosReadingPaneFactory(
     isOpen: (windowId: String) -> Boolean = { true },
     /** The reading gestures (double tap, auto full screen, swipe) for a window's pane; null (no host bound) leaves the pane gesture-free. */
     gesturesFor: (windowId: String) -> IosReadingGestures? = { IosReadingWindows.gesturesFor(it) },
+    /** The text-selection menu of the bound host; null (no host bound) leaves WebKit's edit menu untouched. */
+    selectionMenu: () -> IosSelectionMenu? = { IosReadingWindows.selectionMenu },
 ): ReadingPaneFactory = { windowId, modifier ->
-    attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen)
+    attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen, selectionMenu())
     if (isOpen(windowId)) attachReadingGestures(windowId, gesturesFor(windowId))
     // ReadingHost composes panes only for windows in the layout; this check covers the gap between the window
     // closing and the asynchronous release, so recomposition never recreates a released window's WebView.
