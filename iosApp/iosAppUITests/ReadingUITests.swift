@@ -961,10 +961,13 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: swipe
 
-    /// A swipe from right to left reads on: in chapter mode (`bible_view_swipe_mode` CHAPTER, given explicitly) John 3
+    /// A swipe from right to left reads on: in chapter mode (`bible_view_swipe_mode`, default CHAPTER) John 3
     /// becomes John 4 (no 'Nicodemus' in it any more), a swipe back returns to John 3.
     func testSwipeLeftOpensNextChapter() throws {
-        let app = try launchReading(extraArguments: ["-bible_view_swipe_mode", "CHAPTER"])
+        // No launch argument for `bible_view_swipe_mode`: the setting is read from the DB-backed app settings, which a launch
+        // argument does not reach. The test relies on the default, which `IosReadingGestures.onSwipe` resolves to CHAPTER
+        // when nothing is stored (`-resetDatabases` starts without stored settings).
+        let app = try launchReading()
         XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown before the swipe")
         let pane = firstPane(app)
         XCTAssertTrue(pane.waitForExistence(timeout: 15), "no pane")
