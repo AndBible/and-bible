@@ -55,6 +55,7 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedui.app.ai.AiHost
 import net.bible.sharedui.app.backup.BackupFeatureHost
+import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.download.CloudDocumentsHost
@@ -137,6 +138,7 @@ class AppHosts(
             readingProgressSettingsServiceProvider = { koin.get() },
             readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
             onReportBug = onReportBug,
+            legacyDataImport = { koin.getOrNull<LegacyDataImport>() },
         )
     }
 

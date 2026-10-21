@@ -120,6 +120,8 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
     readingProgressShortcutSummary = readingProgressSettingsSummary,
     textDisplayShortcutTitle = globalTextDisplaySettingsTitle,
     textDisplayShortcutSummary = globalTextDisplaySettingsSummary,
+    importLegacyDataTitle = legacyImportTitle,
+    importLegacyDataSummary = legacyImportSummary,
 )
 
 /** The sync settings screen's labels. */

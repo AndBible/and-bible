@@ -9,5 +9,7 @@ interface SettingsPlatformFlags {
     val isOnyx: Boolean
     val isDiscreteBuild: Boolean get() = false
     val isBeta: Boolean get() = false
+    /** Whether the "import data from the previous app version" row is offered (iOS only; false elsewhere). */
+    val legacyImportVisible: Boolean get() = false
     fun onSystemBarSettingChanged()
 }

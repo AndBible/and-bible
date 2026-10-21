@@ -16,6 +16,11 @@
  */
 package net.bible.sharedui.assembly
 
+import net.bible.sharedui.app.settings.LegacyDataImport
+import net.bible.sharedui.ios.startup.legacy.IosLegacyDataImport
+import net.bible.sharedui.ios.startup.legacy.legacyMigrationControl
+import net.bible.service.legacymigration.IosLegacyPlatform
+import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.android.control.buildSharedBindings
 import net.bible.android.control.link.LinkPlatform
@@ -250,6 +255,14 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
             IosAgentPlatform(get(), get<AppDialogController>(), get<AgentPermissionController>(), { parts.strings.text(it) })
         }
         single<NightModeState> { IosNightModeState(parts.deviceSettings) }
+        single<LegacyDataImport> {
+            IosLegacyDataImport(
+                control = legacyMigrationControl(IosLegacyPlatform(IosKeychainSecretStore())),
+                dialogs = get<AppDialogController>(),
+                table = { get<IosStringTableHolder>().current },
+                settings = parts.deviceSettings,
+            )
+        }
 
         // --- reading UI ports: routed through the shared root ([IosRootLinks] once the app root and reading host exist)
         single<GlobalTextDisplaySettingsSource> {

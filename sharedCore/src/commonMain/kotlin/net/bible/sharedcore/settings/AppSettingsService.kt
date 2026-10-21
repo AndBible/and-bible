@@ -73,6 +73,7 @@ data class AppSettingsSnapshot(
     val sdcardPermissionVisible: Boolean,
     val openLinksVisible: Boolean,
     val debugToolsVisible: Boolean = false,                    // test_error_dialog rows (host: BuildConfig.DEBUG)
+    val legacyImportVisible: Boolean = false,                  // import_legacy_data row (iOS: old app's stores exist)
 )
 
 /** value/label pair mirrored from a classic entries/entryValues array pair. */

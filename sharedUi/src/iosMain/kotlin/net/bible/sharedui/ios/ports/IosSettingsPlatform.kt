@@ -24,6 +24,8 @@ import net.bible.android.view.activity.settings.SettingsReset
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
+import net.bible.sharedui.app.settings.LegacyDataImport
+import org.koin.mp.KoinPlatform
 
 /** Uses the shared reset contract, including the original device-local exclusions. */
 @kotlin.native.HiddenFromObjC
@@ -31,11 +33,13 @@ class IosSettingsPlatform(
     private val strings: CoreStrings,
     private val settings: AppSettings,
     private val devicePrefs: DeviceLocalPrefs,
+    private val legacyImport: () -> LegacyDataImport? = { KoinPlatform.getKoin().getOrNull<LegacyDataImport>() },
 ) : SettingsPlatform, SettingsPlatformFlags {
     override fun resetAllSettings() = SettingsReset.performReset(settings, devicePrefs)
     override val sdcardPermissionVisible = false
     override val openLinksVisible = false
     override val debugToolsVisible = false
+    override val legacyImportVisible: Boolean get() = legacyImport()?.available() == true
     override val autoNightModeAvailable = false
     override val isOnyx = false
     override fun onSystemBarSettingChanged() = Unit

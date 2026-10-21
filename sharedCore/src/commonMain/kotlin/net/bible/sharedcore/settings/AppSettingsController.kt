@@ -23,6 +23,7 @@ object AppSettingsNav {
     const val CRASH_APP = "crash_app"
     const val TEST_ERROR_DIALOG = "test_error_dialog"
     const val TEST_ERROR_DIALOG_QUEUE = "test_error_dialog_queue"
+    const val IMPORT_LEGACY_DATA = "import_legacy_data"
 }
 
 /** Which modal the main app settings screen is currently showing (screen-local, driven by the
@@ -491,6 +492,14 @@ class AppSettingsController(
                 summary = labels.testErrorDialogQueueSummary,
                 visible = s.debugToolsVisible,
                 iconKey = AppSettingsNav.TEST_ERROR_DIALOG_QUEUE,
+            ),
+            // Last category (Advanced) holds the backup-like rows; the app has no dedicated backup category.
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.IMPORT_LEGACY_DATA,
+                title = labels.importLegacyDataTitle,
+                summary = labels.importLegacyDataSummary,
+                // No iconKey: the Android parity test pins every icon row to the classic settings.xml, which has no such row.
+                visible = s.legacyImportVisible,
             ),
         )
         return SettingsScreenState(title = labels.screenTitle, items = items)
