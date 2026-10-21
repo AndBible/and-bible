@@ -129,6 +129,36 @@ class PageTiltScrollControlTest {
     }
 
     @Test
+    fun nonFiniteSamplesAreIgnored() {
+        startAndCalibrate(-38f)
+        scrolls.clear()
+        // A degenerate rotation vector makes the platform orientation NaN; it must not crash
+        // the sensor callback nor replace the last good pose.
+        for (bad in listOf(Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)) {
+            sensor.emit(bad)
+            driver.step()
+        }
+        assertTrue(sensor.running)
+        assertTrue(scrolls.isEmpty(), "bad samples must not scroll: $scrolls")
+        sensor.emit(-60f)
+        driver.step()
+        assertEquals(listOf(true to 1), scrolls)
+    }
+
+    @Test
+    fun nonFiniteFirstSampleLeavesControlIdle() {
+        driver.setAppActive(true)
+        sensor.emit(Float.NaN)
+        driver.step()
+        assertTrue(scrolls.isEmpty())
+        sensor.emit(-38f)
+        driver.step()
+        sensor.emit(-60f)
+        driver.step()
+        assertEquals(listOf(true to 1), scrolls)
+    }
+
+    @Test
     fun unavailableSensorNeverStarts() {
         val none = FakeTiltSensor(isAvailable = false)
         val c = PageTiltScrollControl(none) { true }
