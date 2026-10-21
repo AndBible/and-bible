@@ -20,6 +20,7 @@ import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -223,10 +224,17 @@ fun MainViewController(): UIViewController {
             }
         }
         LaunchedEffect(Unit) {
-            // Never throws: showPending logs and returns on failure. Koin is resolved the way the Ready branch does.
-            val koin = KoinPlatform.getKoin()
-            val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
-            IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
+            // showPending logs its own failures, but the setup around it (Koin, string table, dialogs) can throw too, and
+            // an exception escaping a LaunchedEffect crashes the app: a notice failure must never take Ready down.
+            try {
+                val koin = KoinPlatform.getKoin()
+                val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
+                IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                nsLog("legacy notices: failed after Ready: ${e.stackTraceToString()}")
+            }
         }
         if (Platform.isDebugBinary) {
             LaunchedEffect(Unit) {
