@@ -262,6 +262,17 @@ class IosReadingHostTest {
         assertEquals(windows.activeWindow.pageManager.isBibleShown, deps.activeIsBibleShown.value)
     }
 
+    /** The first page becomes current only once its content has loaded, so that event rebuilds the overlay too (like the toolbar title). */
+    @Test
+    fun overlayRefreshesWhenContentLoaded() = withReadingHost { host, deps ->
+        val windows = KoinPlatform.getKoin().get<WindowControl>()
+        host.overlayText.value = "stale"
+        host.activeIsBibleShown.value = !windows.activeWindow.pageManager.isBibleShown
+        awaitStartupOnMain { net.bible.android.control.PassageChangeMediator.contentChangeFinished() }
+        assertTrue(deps.overlayText.value != "stale", "overlay text was not rebuilt on ContentLoaded: '${deps.overlayText.value}'")
+        assertEquals(windows.activeWindow.pageManager.isBibleShown, deps.activeIsBibleShown.value)
+    }
+
     /** Full screen lives in the host, so a rebuilt composition (rotation) still sees it; the status bar is not touched again. */
     @Test
     fun rotationKeepsFullScreen() {

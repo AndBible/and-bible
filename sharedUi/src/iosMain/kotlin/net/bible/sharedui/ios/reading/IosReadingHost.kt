@@ -470,7 +470,9 @@ class IosReadingHost(
             PassageChangeMediator.changes.subscribeOnMain { change ->
                 if (change is PageChange.VerseChanged) searchState.controller.activeDocumentChanged()
                 // Android's overlay events (`VerseChanged`, active window); `BibleVerseChanged` too, where no `VerseChanged` follows.
-                if (change is PageChange.VerseChanged || change is PageChange.BibleVerseChanged) refreshOverlay()
+                // `ContentLoaded` as well, like the toolbar title: the first page is only current once its content has loaded
+                // (an event sent before this host subscribed is lost), and without this the overlay text stayed empty.
+                if (change is PageChange.VerseChanged || change is PageChange.BibleVerseChanged || change == PageChange.ContentLoaded) refreshOverlay()
             },
         )
         subscriptions.add(
