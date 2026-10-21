@@ -24,7 +24,7 @@ import org.koin.mp.KoinPlatform
 class IosInstallZipHostPlatform(
     private val controller: () -> InstallServiceController = { IosInstallPipeline.controller },
     private val scope: CoroutineScope = IosInstallPipeline.scope,
-    private val table: StringTable = iosStringTable("en"),
+    private val table: () -> StringTable = { iosStringTable("en") },
     private val notificationPermission: NotificationPermission = IosNotificationPermission(),
     // "If started": before startup completes (or after a reset) there is nothing to initialise, and the table is not there to read.
     private val initialise: suspend () -> Unit = { if (IosAppStartup.isStarted) IosInstallPipeline.ensureInitialized() },
@@ -40,6 +40,7 @@ class IosInstallZipHostPlatform(
     override fun displayName(uri: DocumentRef): String? = IosInstallPipeline.url(uri.uri).lastPathComponent
 
     override fun formatsText(): String {
+        val table = table()
         val zip = table.fmt("format_zip", table.text("app_name_andbible"))
         val formats = listOf(zip, table.text("format_mybible"), table.text("format_mysword"),
             table.text("format_esword"), table.text("format_epub"), table.text("format_ttf"),
@@ -49,7 +50,9 @@ class IosInstallZipHostPlatform(
 
     override fun resolveDecision(jobId: JobId, proceed: Boolean) = controller().resolveDecision(jobId, proceed)
 
-    override fun mapPhase(job: InstallJobState): InstallUiState = when (val phase = job.phase) {
+    override fun mapPhase(job: InstallJobState): InstallUiState {
+        val table = table()
+        return when (val phase = job.phase) {
         InstallPhase.Queued, InstallPhase.Inspecting ->
             InstallUiState.Progress(job.displayName, table.text("checking_zip_file"), null, true)
         is InstallPhase.Acquiring ->
@@ -72,12 +75,15 @@ class IosInstallZipHostPlatform(
         InstallPhase.Cancelled -> InstallUiState.Error(table.text("install_zip_canceled"))
     }
 
+    }
+
     override fun requestNotificationPermission() {
         scope.launch { notificationPermission.request() }
     }
 
     override fun noFileManager() {
         scope.launch {
+            val table = table()
             KoinPlatform.getKoin().get<AppDialogController>().await(AppDialogRequest.Message(
                 title = null, message = table.text("no_file_manager"), confirmText = table.text("okay"),
             ))

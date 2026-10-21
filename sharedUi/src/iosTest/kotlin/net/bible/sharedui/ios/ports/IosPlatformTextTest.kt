@@ -28,6 +28,17 @@ class IosPlatformTextTest {
         }
     }
 
+    @Test fun liveFacadePluralFormattingUsesCurrentNumericSymbols() {
+        val holder = IosStringTableHolder(iosStringTable("en"))
+        val live = holder.live
+        assertEquals("15", live.pluralFormat("%d", 15, 15))
+        holder.switchTo("ar")
+        assertEquals("١٥", live.pluralFormat("%d", 15, 15))
+        assertEquals("١٥", live.plural("%d", 15))
+        holder.switchTo("en")
+        assertEquals("15", live.pluralFormat("%d", 15, 15))
+    }
+
     @Test
     fun fileSizeFormat() {
         val text = IosPlatformText { iosStringTable("en") }

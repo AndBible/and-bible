@@ -47,9 +47,8 @@ import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 import org.koin.core.Koin
 
 /**
- * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
- * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome, document/help dialogs,
- * and the Download/cloud document ports.
+ * Assembles the 22 implemented [HostPorts] for iOS; no port is pending.
+ * Retained language-sensitive ports read the current table through a provider.
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
@@ -62,8 +61,8 @@ fun buildIosHostPorts(
 ): HostPorts {
     val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
     val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
-    val installZip = IosInstallZipHostPlatform(table = table)
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
+    val installZip = IosInstallZipHostPlatform(table = currentTable)
     val picker = IosDocumentPicker()
     val bookmark by lazy {
         IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())

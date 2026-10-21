@@ -58,7 +58,10 @@ settings hierarchy described above.
 ### General
 
 - **Application language:** Choose the language for the application interface
-    (dialogs, menus, settings).
+    (dialogs, menus, settings). On iOS, formatted numeric values such as module
+    sizes use the selected language's decimal separator and digits (for example,
+    `1,5 MB` in Finnish). The file-installation instructions and supported-format
+    list also follow language changes without restarting the app.
 - **Night mode:** Control when the dark theme is used:
 
     - *Manual* (default) – toggle dark mode from the three-dot menu.

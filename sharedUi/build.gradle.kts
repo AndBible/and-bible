@@ -99,6 +99,7 @@ kotlin {
             // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.
             kotlin.srcDir(iosStringsOutDir)
             dependencies {
+                implementation(project(":strings-gen")) // Test-only access to the real resource/API mapping parsers.
                 implementation(compose.desktop.currentOs)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.uiTest)
@@ -146,4 +147,5 @@ providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
 // Headless desktop Compose (no X server in the container / CI).
 tasks.matching { it.name == "jvmTest" }.configureEach {
     (this as Test).systemProperty("java.awt.headless", "true")
+    systemProperty("repoRoot", rootProject.projectDir.absolutePath)
 }
