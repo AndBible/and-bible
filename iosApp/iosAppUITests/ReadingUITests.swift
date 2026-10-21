@@ -943,7 +943,7 @@ final class ReadingUITests: RealAppUITestCase {
         if !overlayShown { return }
 
         // Full-screen content stays below the top safe area: the window buttons are shown (overlay is up), and the pane's
-        // window-menu button and web view start at least 40 pt down on an iPhone (status bar / Dynamic Island inset 47-59 pt).
+        // window-menu button starts at least 40 pt down on an iPhone (status bar / Dynamic Island inset 47-59 pt).
         // iPad has no such inset in this layout, so only a sanity check there.
         let windowMenuButton = byLabel(app, "Window menu")
         if windowMenuButton.waitForExistence(timeout: 3) {
@@ -953,8 +953,8 @@ final class ReadingUITests: RealAppUITestCase {
                 XCTAssertGreaterThanOrEqual(minY, 0, "the window menu button is above the screen: \(windowMenuButton.frame)")
             } else {
                 XCTAssertGreaterThanOrEqual(minY, 40, "the window menu button (frame \(windowMenuButton.frame)) is inside the top safe area in full screen")
-                let paneTop = firstPane(app).frame.minY
-                XCTAssertGreaterThanOrEqual(paneTop, 40, "the pane web view (top \(paneTop)) starts inside the top safe area in full screen")
+                // The web view's own frame starts at 0 by design; the content offset below the safe area is applied inside the
+                // page and is covered by `ReadingSessionSupportTest.topOffsetIsTheSafeAreaOnlyWhenReported`.
             }
         } else {
             attachTree(app, "fullscreen-safe-area-no-window-menu"); shot(app, "fullscreen-safe-area")
