@@ -128,6 +128,9 @@ class IosReadingKeysTest {
         val main = windowControl.activeWindow
         val links = main.targetLinksWindow
         try {
+            // `targetLinksWindow` creates the links window on first use, and a new window starts VISIBLE: minimise it so
+            // the premise ("no links window is showing") is true, as it is for a user whose links window was dismissed.
+            windowControl.windowRepository.minimise(links)
             assertFalse(links.isVisible, "premise: no links window is open")
             settings.setBoolean("open_links_in_special_window_pref", false)
             linkControl.showLink(null, key)
@@ -159,14 +162,15 @@ class IosReadingKeysTest {
             settings.setBoolean("navigate_to_verse_pref", false)
             val offResults = mutableListOf<String>()
             val off = chooser.gridChoosePassageController(scope, true) { result: PassageResult -> offResults += result.verse }
-            off.pick(0) // Genesis: has chapters, so the chapter step
+            // The grid's book ids are BibleBook ordinals (the intro "books" come first), not positions among the real books.
+            off.pick(BibleBook.GEN.ordinal) // Genesis: has chapters, so the chapter step
             off.pick(1) // chapter 1: finishes at its first verse
             assertEquals(listOf("Gen.1.1"), offResults, "pref off: a chapter finishes the chooser")
 
             settings.setBoolean("navigate_to_verse_pref", true)
             val onResults = mutableListOf<String>()
             val on = chooser.gridChoosePassageController(scope, true) { result: PassageResult -> onResults += result.verse }
-            on.pick(0)
+            on.pick(BibleBook.GEN.ordinal)
             on.pick(1)
             assertEquals(emptyList(), onResults, "pref on: a chapter does not finish the chooser")
             assertEquals(GridStep.VERSE, on.step.value, "pref on: the verse step follows")
