@@ -20,11 +20,3 @@ internal fun legacySettled(settings: DeviceLocalPrefs): Boolean = settings.getBo
  */
 internal fun backgroundAdmissionAllowed(protectedData: Boolean, crashRecoveryPending: Boolean, settled: Boolean): Boolean =
     protectedData && !crashRecoveryPending && settled
-
-/**
- * Records the launch for crash accounting only when the legacy migration is settled; otherwise the gate's `onResolve`
- * does it later, so a long first migration is not counted as a crash loop. [IosCrashTracker.onLaunch] is idempotent.
- */
-internal fun recordLaunchIfSettled(settled: Boolean, tracker: IosCrashTracker) {
-    if (settled) tracker.onLaunch()
-}
