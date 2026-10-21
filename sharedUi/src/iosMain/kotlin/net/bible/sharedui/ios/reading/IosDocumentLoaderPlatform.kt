@@ -23,11 +23,13 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.service.common.DisplayColorMode
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.DocumentLoaderPlatform
 import net.bible.sharedui.reading.session.ReadingOffsets
+import org.koin.mp.KoinPlatform
 
 /**
  * iOS [DocumentLoaderPlatform] for one reading window.
@@ -48,6 +50,8 @@ class IosDocumentLoaderPlatform(
     private val llmConfigured: () -> Boolean = { false },
     private val offsets: () -> ReadingOffsets = { ReadingOffsets() },
     private val isPortrait: () -> Boolean = ::iosIsPortrait,
+    /** Android's `CommonUtils.isBeta`: the error box is a beta-only debug aid, so the setting counts only in a beta build. */
+    private val isBeta: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isBeta },
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
     override val topOffset: Float get() = offsets().top
@@ -79,7 +83,7 @@ class IosDocumentLoaderPlatform(
             isBottomWindow = repository.lastVisibleWindow == w,
             hasActiveIndicator = hasActiveIndicator,
             nightMode = nightModeState().nightMode,
-            showErrorBox = false,
+            showErrorBox = isBeta() && s.getBoolean("show_errorbox", false),
             favouriteLabels = favouriteLabelIds,
             recentLabels = workspaceSettings.recentLabels.map { it.labelId },
             studyPadCursors = workspaceSettings.studyPadCursors.toMap(),
