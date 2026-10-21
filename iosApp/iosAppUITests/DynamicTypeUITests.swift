@@ -4,6 +4,7 @@ import XCTest
 final class DynamicTypeUITests: RealAppUITestCase {
     func testMeasureFontScaleAtXXXL() {
         let app = launch([
+            "-standardTestFixture",
             "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryXXXL",
             "-debugFontScaleProbe"
         ])
