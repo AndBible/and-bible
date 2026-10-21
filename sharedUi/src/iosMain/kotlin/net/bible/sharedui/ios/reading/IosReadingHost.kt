@@ -632,7 +632,7 @@ class IosReadingHost(
     /**
      * The toolbar callbacks: all sixteen do what Android's `ReadingCommands`/`ComposeReadingViewHost` toolbar callbacks
      * do ([ReadingToolbarCommands]); none is a logged pending. The gaps inside them (auto assign labels,
-     * some drawer rows) are named on [IosReadingToolbarHost] and `ReadingDrawerMenu.OMITTED_ROWS`.
+     * the drawer's extra rows) are named on [IosReadingToolbarHost]; the extra rows wait for an `IosReadingExtras`.
      */
     internal fun callbacks(): ReadingToolbarCallbacks = toolbarCommands.callbacks()
 

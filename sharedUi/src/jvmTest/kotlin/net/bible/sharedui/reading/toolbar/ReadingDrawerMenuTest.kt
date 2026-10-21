@@ -162,7 +162,7 @@ class ReadingDrawerMenuTest {
     }
 
     /** Shown plus omitted rows are exactly Android's drawer table, so a row cannot disappear without being named. */
-    @Test fun shownAndOmittedRowsTogetherAreAndroidsDrawer() {
+    @Test fun omittedRowsPinMatchesAndroidTable() {
         val source = File("../app/src/main/java/net/bible/android/view/activity/page/DrawerMenuStateBuilder.kt").readText()
         val androidIds = Regex("StaticEntry\\(R\\.id\\.(\\w+), \"(\\w+)\"").findAll(source).map { it.groupValues[2] }.toList()
         assertTrue(androidIds.size >= 20, "found the Android table: $androidIds")

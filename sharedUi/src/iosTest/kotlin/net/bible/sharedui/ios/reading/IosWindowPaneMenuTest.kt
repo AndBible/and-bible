@@ -285,4 +285,35 @@ class IosWindowPaneMenuTest {
         assertTrue(WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD in IOS_IMPLEMENTED_PANE_MENU_ROWS)
         assertTrue(WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV in IOS_IMPLEMENTED_PANE_MENU_ROWS)
     }
+
+    /** Every icon key the drawer can emit (all extras offered) has an iOS icon, so no row renders icon-less. */
+    @Test
+    fun everyDrawerRowIconKeyIsMapped() {
+        val host = object : net.bible.sharedui.reading.toolbar.ReadingDrawerHost {
+            override fun openChooseDocument() {}
+            override fun openSearch() {}
+            override fun showSpeakTransport() {}
+            override fun showHistorySheet() {}
+            override fun openDownloads() {}
+            override fun openMyDocuments() {}
+            override fun openBookmarks() {}
+            override fun openReadingProgress() {}
+            override fun openReadingPlan() {}
+            override fun navigate(route: String) {}
+            override fun openUrl(url: String) {}
+            override fun searchable() = true
+            override fun speakable() = true
+            override fun versionName() = "1"
+            override fun openStudyPads() {}
+            override fun extraRowOffered(id: String) = true
+            override fun runExtraRow(id: String) {}
+        }
+        val table = net.bible.sharedui.assembly.iosStringTable("en")
+        val state = net.bible.sharedui.reading.toolbar.ReadingDrawerMenu(host) {
+            net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings(table)
+        }.build()
+        val items = state.groups.flatMap { it.items }
+        assertEquals(net.bible.sharedui.reading.toolbar.ReadingDrawerMenu.ROW_IDS, items.map { it.id })
+        assertEquals(emptyList(), items.filter { iosDrawerIcon(it.iconKey) == null }.map { it.id + ":" + it.iconKey })
+    }
 }

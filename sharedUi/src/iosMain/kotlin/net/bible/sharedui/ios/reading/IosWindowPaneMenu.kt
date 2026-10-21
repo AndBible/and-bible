@@ -66,6 +66,13 @@ import androidx.compose.material.icons.outlined.Spellcheck
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StickyNote2
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.AttachMoney
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Copyright
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.RateReview
+import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.TextFormat
 import androidx.compose.material.icons.outlined.Title
@@ -303,6 +310,16 @@ fun iosDrawerIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_baseline_bookmark_24" -> Icons.Outlined.Bookmark
     "ic_reading_plan_24dp" -> Icons.Outlined.EventNote
     "ic_bar_chart_24dp" -> Icons.Outlined.BarChart
+    // R3
+    "ic_baseline_studypads_24" -> Icons.Outlined.Notes
+    "ic_settings_backup_restore_db_24dp" -> Icons.Outlined.SettingsBackupRestore
+    "ic_syncdb_24dp" -> Icons.Outlined.Sync
+    "ic_help_white_24dp" -> Icons.Outlined.Info
+    "baseline_attach_money_24" -> Icons.Outlined.AttachMoney
+    "ic_baseline_copyright_24" -> Icons.Outlined.Copyright
+    "ic_baseline_people_24" -> Icons.Outlined.People
+    "ic_rate_review_white_24dp" -> Icons.Outlined.RateReview
+    "ic_bug_report_white_24dp" -> Icons.Outlined.BugReport
     else -> null
 }
 

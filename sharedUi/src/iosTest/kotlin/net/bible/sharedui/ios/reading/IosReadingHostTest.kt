@@ -280,7 +280,7 @@ class IosReadingHostTest {
     /**
      * Every `ReadingToolbarCallbacks` member is invoked by name; none may log a pending. The allow-list of callbacks
      * that may stay pending is EMPTY: every gap is inside a wired callback and named on `IosReadingToolbarHost`
-     * and `ReadingDrawerMenu.OMITTED_ROWS`.
+     * (the drawer's extra rows wait for an `IosReadingExtras` implementation).
      * Not compiled or run on Linux (no Mac): owed to the Mac run.
      */
     @Test

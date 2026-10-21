@@ -406,6 +406,7 @@ class IosReadingNavigatorTest {
         )
     }
 
+    /** Checks the manager's seed and that the answer is applied to the workspace settings; the pad itself is opened by BookmarkHost.selectStudyPad. */
     @Test
     fun studyPadsOpensTheChosenPad() = withNavigator {
         val old = IdType()
