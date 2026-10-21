@@ -89,9 +89,11 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsLevel
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -798,13 +800,12 @@ object CommonUtils : CommonUtilsBase() {
         "help" to R.string.help,
     )
 
-    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         return documentDialogsCore(application).unlockDocument(book) { passphrase ->
-            docDao.getBook(book.initials)?.apply {
-                cipherKey = passphrase
-                docDao.update(this)
+            val watcher = KoinJavaComponent.get<BookInstallWatcher>(BookInstallWatcher::class.java)
+            watcher.updateRow(book.initials) { existing ->
+                existing?.copy(cipherKey = passphrase)
+                    ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", passphrase)
             }
         }
     }
