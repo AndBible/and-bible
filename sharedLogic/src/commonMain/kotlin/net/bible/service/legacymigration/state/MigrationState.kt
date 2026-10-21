@@ -38,7 +38,8 @@ data class PlannedMove(val name: String, val replaces: Boolean)
  * The content of `state.json`: the [phase], how many attempts were started ([attempt], counted when an attempt starts, so
  * a crashed attempt counts), when the current one started, the kind of the last failure (for `GaveUp`), and, while
  * [MigrationPhase.ADOPTING], the adoption [plan] (written before the first move) and the names already [moved] (progress
- * information; the rollback does not depend on it).
+ * information; the rollback does not depend on it). [secretsWritten] holds the secret-store key names (never values) the
+ * migration wrote after the adoption and that a rollback removes again.
  */
 data class MigrationState(
     val phase: MigrationPhase,
@@ -47,6 +48,7 @@ data class MigrationState(
     val lastKind: LegacyMigrationException.Kind? = null,
     val plan: List<PlannedMove> = emptyList(),
     val moved: List<String> = emptyList(),
+    val secretsWritten: List<String> = emptyList(),
 ) {
     fun toJson(): String = buildJsonObject {
         put("phase", phase.name)
@@ -55,6 +57,7 @@ data class MigrationState(
         lastKind?.let { put("lastKind", it.name) }
         put("plan", JsonArray(plan.map { buildJsonObject { put("name", it.name); put("replaces", it.replaces) } }))
         put("moved", JsonArray(moved.map { JsonPrimitive(it) }))
+        put("secretsWritten", JsonArray(secretsWritten.map { JsonPrimitive(it) }))
     }.toString()
 
     companion object {
@@ -70,6 +73,7 @@ data class MigrationState(
                     PlannedMove(it.jsonObject.getValue("name").jsonPrimitive.content, it.jsonObject.getValue("replaces").jsonPrimitive.booleanOrNull!!)
                 },
                 moved = o["moved"]?.jsonArray.orEmpty().map { it.jsonPrimitive.content },
+                secretsWritten = o["secretsWritten"]?.jsonArray.orEmpty().map { it.jsonPrimitive.content },
             )
         }
     }

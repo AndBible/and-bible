@@ -16,6 +16,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
+import net.bible.service.legacymigration.extras.LegacyExtrasFile
 import net.bible.service.legacymigration.map.BookmarksMapper
 import net.bible.service.legacymigration.map.CategoryMapper
 import net.bible.service.legacymigration.map.LegacyCategory
@@ -235,6 +236,99 @@ class LegacyMigratorTest {
         File(db.path + "-wal").writeText("pending frames")
         assertEquals(Kind.ADOPTION_FAILED, assertIs<LegacyMigrationOutcome.Failed>(run(e.platform)).kind)
         assertTrue(File(db.path + "-wal").exists())
+    }
+
+    // ---- extras and secrets before the commit -----------------------------------------------------------------
+
+    private val aiKeyValue = "test-ai-key-not-a-secret"
+    private val passwordValue = "test-gdrive-password-not-a-secret"
+
+    private fun richAiKeyNames(): List<String> {
+        val e = env()
+        return assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform)).extras.aiKeys.keys.map { apiKeyName(it) }
+    }
+
+    /** Models a kill right before the `done.json` rename (the commit point). */
+    private class KillBeforeDoneFileSystem(delegate: FileSystem) : okio.ForwardingFileSystem(delegate) {
+        override fun atomicMove(source: Path, target: Path) {
+            if (target.name == "done.json") throw SimulatedKill("killed before the done.json rename")
+            super.atomicMove(source, target)
+        }
+    }
+
+    /** Delegates to [delegate] and notes, at the first `put`, which of [watched] were present. */
+    private class ObservingSecrets(private val delegate: net.bible.sharedcore.platform.secrets.SecretStore, private val watched: List<String>) : net.bible.sharedcore.platform.secrets.SecretStore {
+        var presentAtFirstPut: List<String>? = null
+        override fun get(key: String) = delegate.get(key)
+        override fun put(key: String, value: String) {
+            if (presentAtFirstPut == null) presentAtFirstPut = watched.filter { delegate.get(it) != null }
+            delegate.put(key, value)
+        }
+        override fun remove(key: String) = delegate.remove(key)
+    }
+
+    private class PlatformWithSecrets(platform: LegacyPlatform, override val secrets: net.bible.sharedcore.platform.secrets.SecretStore) : LegacyPlatform by platform
+
+    @Test
+    fun extrasFileExistsBeforeCommitAndSurvivesCleanup() {
+        val failing = env()
+        assertIs<LegacyMigrationOutcome.Failed>(run(failing.platform, Step.ADOPT_DONE))
+        assertFalse(File(failing.migrationDir.toString(), "extras.json").exists(), "extras.json is written only after the secrets")
+
+        val e = env()
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val extrasFile = File(e.migrationDir.toString(), "extras.json")
+        val done = File(e.migrationDir.toString(), "done.json")
+        assertTrue(extrasFile.isFile && done.isFile)
+        val text = extrasFile.readText()
+        assertFalse(text.contains(aiKeyValue) || text.contains(passwordValue), "no secrets in extras.json")
+        assertTrue(LegacyExtrasFile.decode(text).sync?.hadPassword == true)
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertTrue(extrasFile.isFile, "cleanUp keeps extras.json")
+    }
+
+    @Test
+    fun nextcloudPasswordStoredUnderAndroidKey() {
+        val e = env()
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals(passwordValue, e.platform.secrets.get("cloud_sync_password"))
+    }
+
+    @Test
+    fun existingSecretIsKeptAndReported() {
+        val name = richAiKeyNames().first()
+        val e = env()
+        e.platform.secrets.put(name, "user")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals("user", e.platform.secrets.get(name))
+        assertTrue(
+            migrated.report.entries.any { it is net.bible.service.legacymigration.map.ReportEntry.Skipped && it.category == LegacyCategory.SETTINGS && it.reason == "secret already present: llm_api_key_\u2026" },
+            migrated.report.entries.toString(),
+        )
+    }
+
+    @Test
+    fun killAfterSecretsRollsBackSecrets() {
+        val names = richAiKeyNames() + "cloud_sync_password"
+        val e = env()
+        assertFailsWith<SimulatedKill> { run(PlatformWithFileSystem(e.platform, KillBeforeDoneFileSystem(FileSystem.SYSTEM))) }
+        assertEquals(aiKeyValue, e.platform.secrets.get(names.first()), "the killed run had written the secrets")
+        assertEquals(passwordValue, e.platform.secrets.get("cloud_sync_password"))
+
+        val observing = ObservingSecrets(e.platform.secrets, names)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(PlatformWithSecrets(e.platform, observing)))
+        assertEquals(emptyList(), observing.presentAtFirstPut, "the rollback removed the earlier secrets before the new ones were written")
+        for (name in names) assertNotNull(e.platform.secrets.get(name), name)
+    }
+
+    @Test
+    fun inProcessFailureAfterSecretsRemovesThem() {
+        val names = richAiKeyNames() + "cloud_sync_password"
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(e.platform, Step.SECRETS))
+        assertTrue(failed.rolledBack)
+        for (name in names) assertEquals(null, e.platform.secrets.get(name), name)
+        assertEquals(emptyList(), e.databaseFiles())
     }
 
     // ---- crash windows -----------------------------------------------------------------------------------------

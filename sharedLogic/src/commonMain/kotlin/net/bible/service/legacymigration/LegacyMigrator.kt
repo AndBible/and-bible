@@ -13,6 +13,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
 import net.bible.service.legacymigration.adopt.Adopter
+import net.bible.service.legacymigration.extras.LegacyExtrasFile
 import net.bible.service.legacymigration.adopt.StagingValidator
 import net.bible.service.legacymigration.map.AiSettingsMapper
 import net.bible.service.legacymigration.map.BookmarksMapper
@@ -56,6 +57,9 @@ enum class Step {
 
     /** After every staged database was moved, before the secrets, the plan files, the search index and the marker. */
     ADOPT_DONE,
+
+    /** After the missing secrets were written (the state records their names), before `extras.json`, the plan files and the marker. */
+    SECRETS,
 }
 
 /** What [LegacyMigrator.run] decided or did. */
@@ -163,7 +167,7 @@ class LegacyMigrator(
     private val doneFile = dir / "done.json"
     private val reportFile = dir / "report.json"
     private val states = MigrationStateStore(fs, dir)
-    private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states)
+    private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states, platform.secrets)
 
     private val mutex = Mutex()
 
@@ -197,8 +201,9 @@ class LegacyMigrator(
             // A previous run died between "plan written" and "done.json": undo whatever it moved.
             val pending = state!!
             try {
-                adopter.rollback(pending.plan)
-                state = pending.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList())
+                adopter.rollback(pending.plan, pending.secretsWritten)
+                fs.delete(dir / LegacyExtrasFile.NAME, mustExist = false) // written before the commit by the rolled-back attempt
+                state = pending.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList(), secretsWritten = emptyList())
                 states.write(state)
             } catch (e: CancellationException) {
                 throw e
@@ -272,7 +277,14 @@ class LegacyMigrator(
             hook(Step.ADOPT_DONE)
 
             finished = extras
-            for ((id, key) in extras.aiKeys) platform.secrets.put(apiKeyName(id), key)
+            // Secrets: only keys that are absent are written (an existing one is the user's and is kept), and their names go to
+            // state.json first, so a rollback after a kill removes exactly what this run added.
+            val toWrite = absentSecrets(extras, report)
+            current = current.copy(secretsWritten = toWrite.keys.toList())
+            states.write(current)
+            for ((name, value) in toWrite) platform.secrets.put(name, value)
+            hook(Step.SECRETS)
+            atomicWrite(dir / LegacyExtrasFile.NAME, LegacyExtrasFile.encode(extras, report))
             copyUserPlanFiles(extras)
             bestEffort { writeReport(report, "migrated", attempt, null) }
             writeDone(discoverSources(), nothingToMigrate = false, attempt = attempt, adopted = staged)
@@ -294,7 +306,10 @@ class LegacyMigrator(
             // Undo a started adoption before anything else; the state keeps the attempt count and the failure kind.
             var rolledBack = true
             val failed = try {
-                if (current.phase == MigrationPhase.ADOPTING) adopter.rollback(current.plan)
+                if (current.phase == MigrationPhase.ADOPTING) {
+                    adopter.rollback(current.plan, current.secretsWritten)
+                    fs.delete(dir / LegacyExtrasFile.NAME, mustExist = false)
+                }
                 // The rollback is complete: the copies and staged files are of no further use (the next attempt starts over).
                 for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
                 current.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList(), lastKind = kind)
@@ -362,7 +377,7 @@ class LegacyMigrator(
         get() = when (this) {
             Step.COPY, Step.READ, Step.MAP -> Kind.CORRUPT_STORE
             Step.VALIDATE -> Kind.VALIDATION_FAILED
-            Step.ADOPT_FIRST_MOVE, Step.ADOPT_DONE -> Kind.ADOPTION_FAILED
+            Step.ADOPT_FIRST_MOVE, Step.ADOPT_DONE, Step.SECRETS -> Kind.ADOPTION_FAILED
         }
 
     // ---- sources ------------------------------------------------------------------------------------------------
@@ -413,6 +428,26 @@ class LegacyMigrator(
     }
 
     // ---- adoption extras ------------------------------------------------------------------------------------------
+
+    /**
+     * The secrets of [extras] that the secret store does not hold yet, by store key (AI keys under `apiKeyName(id)`, the
+     * Nextcloud password under [NEXTCLOUD_PASSWORD_SECRET]). A key that is already present is kept and reported in [report].
+     */
+    private fun absentSecrets(extras: LegacyExtras, report: MigrationReport): Map<String, String> {
+        val wanted = LinkedHashMap<String, String>()
+        for ((id, key) in extras.aiKeys) wanted[apiKeyName(id)] = key
+        extras.sync?.password?.let { wanted[NEXTCLOUD_PASSWORD_SECRET] = it }
+        val absent = LinkedHashMap<String, String>()
+        for ((name, value) in wanted) {
+            if (platform.secrets.get(name) == null) {
+                absent[name] = value
+            } else {
+                val shown = if (name == NEXTCLOUD_PASSWORD_SECRET) name else "llm_api_key_\u2026"
+                report.skipped(LegacyCategory.SETTINGS, "secret already present: $shown", 1)
+            }
+        }
+        return absent
+    }
 
     /** Copies the user's own plan files to [userPlanDir] when they are not there yet (never overwrites). */
     private fun copyUserPlanFiles(extras: LegacyExtras) {
@@ -474,7 +509,7 @@ class LegacyMigrator(
         atomicWriteFile(fs, target, text)
     }
 
-    /** Deletes `work/`, `staging/`, `replaced/` and `state.json`. Only called when `done.json` exists or the run is complete. */
+    /** Deletes `work/`, `staging/`, `replaced/` and `state.json` (`extras.json`, `applied.json` and the rest stay). Only called when `done.json` exists or the run is complete. */
     private fun cleanUp() {
         for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
         for (name in listOf("done.json.tmp", "report.json.tmp")) fs.delete(dir / name, mustExist = false)
