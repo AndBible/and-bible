@@ -52,13 +52,22 @@ class IosCloudAdapterFactory(
         "ICLOUD_DRIVE" -> FileTreeCloudAdapter(iCloudStore(), deviceId, tempDir, awaitReady = awaitReady)
         "NEXT_CLOUD" -> {
             val user = platform.credential("cloud_sync_username")
+            val serverUrl = platform.credential("cloud_sync_server_url").trim()
             webDav(
                 WebDavConfig(
-                    nextcloudDavUrl(platform.credential("cloud_sync_server_url"), user),
+                    nextcloudDavUrl(serverUrl, user),
                     user,
                     platform.credential("cloud_sync_password"),
                     platform.credential("cloud_sync_folder_path"),
                 ), ui,
+                beforeClient = {
+                    if (!platform.plainHttpAllowed(serverUrl)) {
+                        val refusal = PlainHttpRefusedException(serverUrl)
+                        throw net.bible.service.cloudsync.CloudSyncUserFacingException(
+                            ui.message(net.bible.service.cloudsync.webdav.WebDavMessage.HTTPS_REQUIRED), true, refusal,
+                        )
+                    }
+                },
             )
         }
         "WEBDAV" -> webDav(
@@ -72,6 +81,9 @@ class IosCloudAdapterFactory(
         else -> throw IllegalStateException("Unknown cloud adapter id: $id")
     }
 
-    private fun webDav(config: WebDavConfig, ui: WebDavSignInUi) =
-        WebDavCloudAdapter(config, platform.webDavState, ui, deviceId, clientFactory)
+    private fun webDav(config: WebDavConfig, ui: WebDavSignInUi, beforeClient: () -> Unit = {}) =
+        WebDavCloudAdapter(config, platform.webDavState, ui, deviceId, { c, s ->
+            beforeClient()
+            clientFactory(c, s)
+        })
 }

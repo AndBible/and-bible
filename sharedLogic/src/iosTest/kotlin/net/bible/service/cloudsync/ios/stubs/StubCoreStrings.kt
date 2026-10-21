@@ -76,6 +76,7 @@ internal class StubCoreStrings : CoreStrings {
     override val webDavNotAFolder = "webDavNotAFolder"
     override val webDavCertificateChanged = "webDavCertificateChanged"
     override val webDavStorageFull = "webDavStorageFull"
+    override val webDavHttpsRequired = "webDavHttpsRequired"
     override val iCloudDrive = "iCloudDrive"
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String) = "$host|$subject|$issuer|$from|$until|$fingerprint"
     override val signInFailed = "signInFailed"

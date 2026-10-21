@@ -118,6 +118,34 @@ class IosCloudAdapterFactoryTest {
         )
     }
 
+    @Test fun publicHttpNextcloudRefusedBeforeClientCreation() = runTest {
+        platform.setCredential("cloud_sync_server_url", "http://example.org/nc")
+        platform.setCredential("cloud_sync_username", "anna")
+        val failure = runCatching { factory().create("NEXT_CLOUD").signIn() }.exceptionOrNull()
+        assertTrue(failure != null, "stored public HTTP must not bypass entry-time policy")
+        assertTrue(recorded.isEmpty(), "refuse before constructing a client or sending a request")
+        val refusal = generateSequence(failure) { it.cause }.filterIsInstance<PlainHttpRefusedException>().firstOrNull()
+        assertTrue(refusal != null, "retain a typed platform-policy cause")
+        assertEquals("http://example.org/nc", refusal.url)
+        assertEquals("HTTPS_REQUIRED", failure.message)
+    }
+
+    @Test fun plainHttpRefusalDiagnosticDoesNotExposeUrlSecrets() {
+        val url = "http://alice:password-secret@example.org/nc?token=query-secret"
+        val refusal = PlainHttpRefusedException(url)
+        assertEquals(url, refusal.url, "typed contract retains the rejected URL")
+        for (secret in listOf("alice", "password-secret", "query-secret", "token=")) {
+            assertFalse(refusal.toString().contains(secret), "diagnostic must omit URL credentials")
+        }
+    }
+
+    @Test fun localHttpNextcloudReachesClientFactory() = runTest {
+        platform.setCredential("cloud_sync_server_url", "http://NAS.local:8080/")
+        platform.setCredential("cloud_sync_username", "anna")
+        runCatching { factory().create("NEXT_CLOUD").signIn() }
+        assertEquals("http://NAS.local:8080/remote.php/dav/files/anna/", recorded.single().serverUrl)
+    }
+
     @Test fun webDavUsesWebdavKeys() = runTest {
         platform.setCredential("webdav_sync_server_url", "https://w.example/dav/")
         platform.setCredential("webdav_sync_username", "bob")

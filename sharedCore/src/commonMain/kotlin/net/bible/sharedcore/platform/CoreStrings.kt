@@ -70,6 +70,7 @@ interface CoreStrings {
     val webDavNotAFolder: String
     val webDavCertificateChanged: String
     val webDavStorageFull: String
+    val webDavHttpsRequired: String
     val iCloudDrive: String
     fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     val signInFailed: String

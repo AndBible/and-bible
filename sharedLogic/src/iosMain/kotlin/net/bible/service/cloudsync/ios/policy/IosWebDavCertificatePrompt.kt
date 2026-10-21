@@ -33,5 +33,6 @@ internal class IosWebDavCertificatePrompt(
         WebDavMessage.NOT_A_FOLDER -> strings.webDavNotAFolder
         WebDavMessage.CERTIFICATE_CHANGED -> strings.webDavCertificateChanged
         WebDavMessage.STORAGE_FULL -> strings.webDavStorageFull
+        WebDavMessage.HTTPS_REQUIRED -> strings.webDavHttpsRequired
     }
 }

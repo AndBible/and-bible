@@ -220,12 +220,11 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setText(key: String, rawValue: String): Boolean {
-        // WebDAV addresses are often pasted with a trailing space/newline; trim before validating and storing.
-        val value = if (isWebDav && key == "cloud_sync_server_url") rawValue.trim() else rawValue
+        // Addresses are often pasted with a trailing space/newline.
+        val value = if (key == "cloud_sync_server_url") rawValue.trim() else rawValue
         if (key == "cloud_sync_server_url") {
             val valid = if (isWebDav) WebDavUrl.validate(value) else {
-                val isHttpOrHttps = value.startsWith("http://") || value.startsWith("https://")
-                platform.isValidUrl(value) && isHttpOrHttps && !value.endsWith("/login") && !value.contains(" ")
+                validNextcloudUrl(value) && platform.plainHttpAllowed(value)
             }
             if (!valid) return false
         }
@@ -240,6 +239,16 @@ class SyncSettingsServiceImpl(
             if (pin != null && WebDavConfig(value, "", "", "").host != pin.host) webDavState.certPin = null
         }
         return true
+    }
+
+    private fun validNextcloudUrl(value: String): Boolean =
+        (value.startsWith("http://", ignoreCase = true) || value.startsWith("https://", ignoreCase = true)) &&
+            platform.isValidUrl(value) && !value.endsWith("/login") && value.none { it.isWhitespace() }
+
+    override fun plainHttpRefused(url: String): Boolean {
+        val value = url.trim()
+        return !isWebDav && value.startsWith("http://", ignoreCase = true) &&
+            validNextcloudUrl(value) && !platform.plainHttpAllowed(value)
     }
 
     override fun forgetCertificate() {

@@ -37,6 +37,12 @@ class IosSyncSettingsPlatform(
         return (scheme == "http" || scheme == "https") && !url.host.isNullOrEmpty()
     }
 
+    override fun plainHttpAllowed(url: String): Boolean {
+        val parsed = NSURL.URLWithString(url.trim()) ?: return false
+        return !parsed.scheme.equals("http", ignoreCase = true) ||
+            net.bible.sharedcore.http.LocalNetworkHost.isLocal(parsed.host ?: "")
+    }
+
     override fun formatFileSize(bytes: Long): String =
         NSByteCountFormatter.stringFromByteCount(bytes, NSByteCountFormatterCountStyleFile)
 

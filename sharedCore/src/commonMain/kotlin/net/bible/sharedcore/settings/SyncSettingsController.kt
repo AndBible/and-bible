@@ -34,7 +34,7 @@ class SyncSettingsController(
             SyncDialog.None -> d
             is SyncDialog.ResetConfirm -> d.copy(message = labels.resetConfirmMessage)
             is SyncDialog.ForgetCertificate -> d.copy(message = labels.forgetCertificateMessage)
-            is SyncDialog.UrlError -> d.copy(message = if (service.snapshot.value.httpsOnly) labels.httpsRequiredMessage else labels.invalidUrlMessage)
+            is SyncDialog.UrlError -> d.copy(message = if (d.httpsRequired) labels.httpsRequiredMessage else labels.invalidUrlMessage)
             is SyncDialog.EnableDocuments -> d.copy(title = labels.documentsEnableDialogTitle, message = service.formatEnableDocumentsMessage(d.summary))
         }
         _state.value = _state.value.copy(screen = build(service.snapshot.value), dialog = dialog)
@@ -196,8 +196,10 @@ class SyncSettingsController(
     fun onTextInput(key: String, value: String) {
         val ok = service.setText(key, value)
         if (!ok) {
-            val httpsOnly = key == "cloud_sync_server_url" && service.snapshot.value.httpsOnly
-            setDialog(SyncDialog.UrlError(if (httpsOnly) labels.httpsRequiredMessage else labels.invalidUrlMessage))
+            val httpsRequired = key == "cloud_sync_server_url" &&
+                (service.snapshot.value.httpsOnly ||
+                    value.trim().startsWith("http://", ignoreCase = true) && service.plainHttpRefused(value))
+            setDialog(SyncDialog.UrlError(if (httpsRequired) labels.httpsRequiredMessage else labels.invalidUrlMessage, httpsRequired))
         } else service.refresh()
     }
 

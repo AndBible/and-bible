@@ -90,6 +90,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val webDavNotAFolder: String get() = context.getString(R.string.webdav_not_a_folder)
     override val webDavCertificateChanged: String get() = context.getString(R.string.webdav_certificate_changed)
     override val webDavStorageFull: String get() = context.getString(R.string.webdav_storage_full)
+    override val webDavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
     override val iCloudDrive: String get() = context.getString(R.string.adapters_icloud_drive)
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = context.getString(R.string.webdav_untrusted_certificate_message, host, subject, issuer, from, until, fingerprint)
     override val signInFailed: String get() = context.getString(R.string.sign_in_failed)
