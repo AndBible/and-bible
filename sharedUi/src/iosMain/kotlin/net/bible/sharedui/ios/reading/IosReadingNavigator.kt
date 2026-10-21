@@ -257,6 +257,21 @@ class IosReadingNavigator(
     }
 
     /**
+     * The drawer's StudyPads row (Android's `studyPadsButton`): the label manager in `STUDYPAD` mode seeded from the
+     * workspace settings; the manager opens the chosen StudyPad in the active window itself, and an answer is applied to
+     * the workspace settings with [updateFrom]. A cancel (the manager left without an answer) and missing workspace
+     * settings change nothing. Returns whether an answer was applied.
+     */
+    suspend fun openStudyPads(): Boolean {
+        val settings = workspaceSettings() ?: return false
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+            .applyFrom(settings).toJSON()
+        val result = awaitManageLabels(data) ?: return false
+        settings.updateFrom(ManageLabelsContract.ManageLabelsData.fromJSON(result.data))
+        return true
+    }
+
+    /**
      * The overflow menu's "Auto assign labels" (Android's `AutoAssignPreference.openDialog`): the label manager in
      * `WORKSPACE` mode seeded from the workspace settings. A reset answer clears the auto-assign labels and the primary
      * one; any other answer is applied with [updateFrom]. Returns whether the settings changed: false for a cancel (the

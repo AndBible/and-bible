@@ -393,4 +393,45 @@ class IosReadingNavigatorTest {
         assertEquals(false, navigatorFor(null).editAutoAssignLabels())
         assertEquals(emptyList(), nav.routes)
     }
+
+    // ----- R3 Task 6: drawer StudyPads row -----
+
+    private fun Fixture.deliverStudyPad(labelIds: Set<IdType>) {
+        labels.publishForTest(
+            ManageLabelsResult(
+                ManageLabelsContract.ManageLabelsData(
+                    ManageLabelsContract.Mode.STUDYPAD, autoAssignLabels = labelIds.toMutableSet(),
+                ).toJSON(),
+            ),
+        )
+    }
+
+    @Test
+    fun studyPadsOpensTheChosenPad() = withNavigator {
+        val old = IdType()
+        val chosen = IdType()
+        val settings = settingsWith(setOf(old), old)
+        val answer = testScope.async { navigatorFor(settings).openStudyPads() }
+        yield()
+        val seeded = ManageLabelsContract.ManageLabelsData(ManageLabelsContract.Mode.STUDYPAD).applyFrom(settings).toJSON()
+        assertEquals(listOf(NavRoutes.manageLabels(seeded)), nav.routes, "the label manager opens in StudyPad mode seeded from the settings")
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        deliverStudyPad(setOf(chosen))
+        open(NavRoutes.READING)
+        assertTrue(answer.await(), "the answer was applied")
+        assertEquals(setOf(chosen), settings.autoAssignLabels, "the answer reaches the workspace settings as Android applies it")
+    }
+
+    @Test
+    fun studyPadsCancelChangesNothing() = withNavigator {
+        val old = IdType()
+        val settings = settingsWith(setOf(old), old)
+        val answer = testScope.async { navigatorFor(settings).openStudyPads() }
+        yield()
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        open(NavRoutes.READING) // left without an answer
+        assertEquals(false, answer.await())
+        assertEquals(setOf(old), settings.autoAssignLabels)
+        assertEquals(old, settings.autoAssignPrimaryLabel)
+    }
 }

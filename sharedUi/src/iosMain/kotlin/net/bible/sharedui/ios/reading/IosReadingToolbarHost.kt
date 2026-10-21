@@ -82,7 +82,8 @@ import platform.Foundation.NSBundle
  * What is NOT here, by name:
  * - Stand-in: a recent text option that is neither a toggle nor sheet-editable opens the full text options screen
  *   (Android calls the option's own dialog).
- * - Drawer rows listed in `ReadingDrawerMenu.OMITTED_ROWS`.
+ * - The drawer's help, licence, bug report, tell a friend, rate and buy rows: they run through [IosReadingExtras] and are
+ *   hidden while it offers none.
  *
  * [overflowItems] and [overflowExpanded] are the menu's state, handed to `ReadingHostDeps`.
  */
@@ -116,6 +117,8 @@ internal class IosReadingToolbarHost(
     private val showLlmActionsSource: () -> Unit = {},
     private val deviceSettings: IosDeviceSettings = IosDeviceSettings(),
     private val tiltAvailable: () -> Boolean = { iosMotionManager.deviceMotionAvailable },
+    /** The drawer's help, licence, bug report, tell a friend, rate and buy rows; [IosReadingExtras.None] hides them all. */
+    private val extras: IosReadingExtras = IosReadingExtras.None,
 ) : ReadingToolbarHost, ReadingOverflowHost, ReadingDrawerHost {
 
     /** The overflow menu's rows and open flag; `ReadingOverflowController` fills the rows when the menu opens. */
@@ -382,6 +385,14 @@ internal class IosReadingToolbarHost(
     override fun openReadingPlan() = shell.navigate(NavRoutes.dailyReading())
 
     override fun navigate(route: String) = shell.navigate(route)
+
+    // R3
+    override fun openStudyPads() {
+        scope.launch { navigator.openStudyPads() }
+    }
+
+    override fun extraRowOffered(id: String): Boolean = id in extras.offeredRows
+    override fun runExtraRow(id: String) = extras.runRow(id)
     override fun openUrl(url: String) = externalLinks.open(url)
 
     override fun searchable(): Boolean = activePageManager.currentPage.isSearchable

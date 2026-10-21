@@ -105,6 +105,7 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedlogic.text.CommonHtmlToPlainText
 import net.bible.sharedui.components.AppToasts
 import net.bible.sharedui.ios.app.IosRootLinks
+import net.bible.sharedui.ios.reading.IosReadingExtras
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
@@ -279,11 +280,15 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         }
         single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }
         single<LinkPlatform> {
+            val koinScope = this
             IosLinkPlatform(
                 openRoute = IosRootLinks::openRoute,
                 searchStrongs = IosRootLinks::searchStrongsInReadingView,
-                // Android mails an error report; iOS has no such flow yet, so the error is logged only.
-                reportError = { nsLog("LinkPlatform.reportJsError: no iOS error report flow yet") },
+                // Android mails an error report; without a bound IosReadingExtras (H2) the error is logged only.
+                reportError = {
+                    koinScope.getOrNull<IosReadingExtras>()?.reportJsError()
+                        ?: nsLog("LinkPlatform.reportJsError: no iOS error report flow yet")
+                },
             )
         }
         single<HistoryPlatform> { IosHistoryPlatform(isOnReading = IosRootLinks::isOnReadingScreen, leave = IosRootLinks::leaveCurrentScreen) }

@@ -575,6 +575,7 @@ class IosReadingHost(
         fakeBooks = { koin.get<FakeBookFactory>() },
         llmConfiguredSource = ::llmConfigured,
         showLlmActionsSource = ::showWorkspaceLlmActions,
+        extras = koin.getOrNull<IosReadingExtras>() ?: IosReadingExtras.None,
     )
 
     private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
