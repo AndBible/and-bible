@@ -27,9 +27,9 @@ import net.bible.sharedui.ios.startup.LEGACY_SETTLED_KEY
 import net.bible.sharedui.ios.startup.StartupGateResult
 
 /**
- * Model shown when [IosLegacyMigrationRunner.run] throws. The migration itself has already proceeded and only applying
- * the extras failed, so "Start without old data" and "Restore a backup" would be wrong; the runner does not cache a
- * failed attempt, so closing and reopening the app retries safely.
+ * Model shown when [IosLegacyMigrationRunner.run] throws an unexpected error (a failure to apply the extras after the
+ * commit does not throw, see the runner). "Start without old data" and "Restore a backup" would be wrong here; the
+ * runner does not cache a failed attempt, so closing and reopening the app retries safely.
  */
 internal val legacyRunnerFailureModel = LegacyRecoveryModel(
     reason = RecoveryReason.FAILED,

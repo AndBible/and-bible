@@ -123,7 +123,7 @@ fun MainViewController(): UIViewController {
         val reporter = remember { IosBugReport(iosStringTable(language)) }
         var reporting by remember { mutableStateOf(false) }
         // Do not start either startup stage (or show a splash) behind the disguise.
-        // Not saveable: a recreated host must pass the gate again.
+        // Not saveable: a recreated host must pass the calculator gate again (the legacy gate is latched off once startup began).
         val gates = remember {
             IosStartupGates(productionStartupGates(
                 calculatorRequired = { requiresCalculator },

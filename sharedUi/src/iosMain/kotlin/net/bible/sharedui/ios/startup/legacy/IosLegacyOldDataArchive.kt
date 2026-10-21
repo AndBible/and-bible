@@ -50,7 +50,7 @@ internal object IosLegacyOldDataArchive {
         fs.createDirectories(tempDir)
         fs.listOrNull(tempDir).orEmpty()
             .filter { it.name.startsWith("AndBible-old-data-") && it.name.endsWith(".zip") }
-            .forEach { fs.delete(it, mustExist = false) }
+            .forEach { runCatching { fs.delete(it, mustExist = false) } }
         val zipPath = tempDir / "AndBible-old-data-$nowMs.zip"
         try {
             ZipWriter(fs.sink(zipPath)).use { zip ->

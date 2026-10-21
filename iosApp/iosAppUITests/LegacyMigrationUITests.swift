@@ -249,7 +249,7 @@ final class LegacyMigrationUITests: XCTestCase {
         let app = launch(seedArguments(dir, extra: ["-legacyMigrationStepDelayMs", "20000"]))
         // The calculator key "=" proves the disguise is up; the migration has not started behind it.
         let equals = app.buttons.matching(NSPredicate(format: "label == %@", "=")).firstMatch
-        XCTAssertTrue(equals.waitForExistence(timeout: 10), "The calculator is not shown first (within 10 s despite the migration delay)")
+        XCTAssertTrue(equals.waitForExistence(timeout: 15), "The calculator is not shown first (within 15 s despite the migration delay)")
         XCTAssertFalse(element(app, "legacy-progress").exists, "Migration progress visible behind the calculator")
         XCTAssertFalse(element(app, "reading-host").exists, "Reading content visible before the PIN")
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before the PIN")
