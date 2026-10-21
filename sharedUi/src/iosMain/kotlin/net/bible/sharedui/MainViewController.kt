@@ -171,7 +171,8 @@ fun MainViewController(): UIViewController {
         if (gates.result == StartupGateResult.Exit) return@ComposeUIViewController
         val recoveryBackup = gates.result == StartupGateResult.OpenBackup
         var recoveryBindingsReady by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
+        // Keyed on recoveryBackup: after a backup returns to a settled chain the effect must rerun to launch normal startup.
+        LaunchedEffect(recoveryBackup) {
             net.bible.sharedui.assembly.awaitIosUiStartup(
                 ensureStarted = { IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language)) },
                 state = startupState,

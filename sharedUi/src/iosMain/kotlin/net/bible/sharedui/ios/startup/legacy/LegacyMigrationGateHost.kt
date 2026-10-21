@@ -51,6 +51,8 @@ internal fun LegacyMigrationGateHost(neutral: Boolean, reporter: IosBugReport, o
     val control = remember { IosLegacyMigrationRunner.testHooks?.control ?: productionControl() }
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
+    var actionBusy by remember { mutableStateOf(false) }
+    var reporting by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         try {
@@ -91,24 +93,36 @@ internal fun LegacyMigrationGateHost(neutral: Boolean, reporter: IosBugReport, o
     LegacyRecoveryScreen(
         model = shown,
         onSaveOldData = {
-            scope.launch {
-                try {
-                    iosShareFile(IosLegacyOldDataArchive.write(control))
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (t: Throwable) {
-                    nsLog("saving old data failed: ${t.stackTraceToString()}")
+            if (!actionBusy) {
+                actionBusy = true
+                scope.launch {
+                    try {
+                        iosShareFile(IosLegacyOldDataArchive.write(control))
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (t: Throwable) {
+                        nsLog("saving old data failed: ${t.stackTraceToString()}")
+                    } finally {
+                        actionBusy = false
+                    }
                 }
             }
         },
         onReport = {
-            scope.launch {
-                val bytes = withContext(Dispatchers.Default) { IosLegacyOldDataArchive.reportBytes(control) }
-                val extras = listOfNotNull(bytes?.let { Attachment("legacy_migration_report.json", "application/json", it) })
-                reporter.report(failure, extras)
+            if (!reporting) {
+                reporting = true
+                scope.launch {
+                    try {
+                        val bytes = withContext(Dispatchers.Default) { IosLegacyOldDataArchive.reportBytes(control) }
+                        val extras = listOfNotNull(bytes?.let { Attachment("legacy_migration_report.json", "application/json", it) })
+                        reporter.report(failure, extras)
+                    } finally {
+                        reporting = false
+                    }
+                }
             }
         },
-        onTryAgain = { control.resetAttempts() },
+        onTryAgain = { scope.launch { withContext(Dispatchers.Default) { runCatching { control.resetAttempts() } } } },
         onRestoreBackup = { settle(DeclineReason.RESTORED_BACKUP, StartupGateResult.OpenBackup) },
         onStartFresh = { settle(DeclineReason.START_FRESH, StartupGateResult.Continue) },
     )
