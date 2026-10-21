@@ -898,7 +898,8 @@ final class ReadingUITests: RealAppUITestCase {
         // (`windowButtonsVisibility`, restarted by `ReadingHostState.onBibleViewTouched`). It has usually timed out by now,
         // so a single tap at the pane margin (a double tap would leave full screen) starts the countdown and the overlay is
         // looked for straight away.
-        let overlay = byLabel(app, "KJV:Joh 3:16")
+        // The overlay shows the CURRENT verse (it follows the scroll position, as on Android), so any verse of John 3.
+        let overlay = labelStarting(app, "KJV:Joh 3:")
         paneMargin(app).tap()
         let overlayShown = overlay.waitForExistence(timeout: 3)
         shot(app, "fullscreen-overlay")
@@ -916,7 +917,11 @@ final class ReadingUITests: RealAppUITestCase {
                 diagnosis = " (pane menu opened: \(menuUp), overlay with the menu open: \(overlayWithMenu))"
             }
         }
-        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:16' is not shown right after a tap in full screen\(diagnosis)")
+        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:<verse>' is not shown right after a tap in full screen\(diagnosis)")
+        if overlayShown {
+            XCTAssertNotNil(overlay.label.range(of: "^KJV:Joh 3:[0-9]+$", options: .regularExpression),
+                            "the overlay text '\(overlay.label)' is not of the form 'KJV:Joh 3:<verse>'")
+        }
         if !overlayShown { return }
         XCTAssertFalse(toolbarShown(app), "a single tap left full screen")
 
