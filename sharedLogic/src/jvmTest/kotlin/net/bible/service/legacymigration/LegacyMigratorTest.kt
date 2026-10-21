@@ -24,7 +24,9 @@ import net.bible.service.legacymigration.map.MigrationReport
 import net.bible.service.legacymigration.map.SettingsMapper
 import net.bible.service.legacymigration.map.WorkspacesMapper
 import net.bible.service.legacymigration.read.LegacySnapshot
+import net.bible.service.legacymigration.map.ReportEntry
 import net.bible.service.legacymigration.stage.StagingDatabases
+import net.bible.service.legacymigration.testsupport.compareWithOracleDetailed
 import net.bible.service.legacymigration.testsupport.CountingFileSystem
 import net.bible.service.legacymigration.testsupport.CrashingFileSystem
 import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
@@ -970,6 +972,74 @@ class LegacyMigratorTest {
                 assertFalse(s.step(), "exactly one repository")
             } finally { s.close() }
         } finally { c.close() }
+    }
+
+    // ---- extended fixture (Task 13): fidelity rows, Boolean sentinels, custom repositories -------------------------
+
+    private val extendedCells = listOf("1.0.2" to "26", "1.0.1" to "18")
+
+    /** Migrates the `extended` cell and returns the adopted databases opened as staging (a copy), plus the report. */
+    private fun <T> withMigratedExtended(app: String, ios: String, block: (StagingDatabases, MigrationReport, FixtureDir) -> T): T {
+        val e = env(app, ios, "extended")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform), "$app/$ios")
+        val copy = java.nio.file.Files.createTempDirectory("extended-").toFile()
+        try {
+            for (name in e.databaseFiles().filter { it.endsWith(".sqlite3") }) File(e.databases.toString(), name).copyTo(File(copy, name))
+            val staging = StagingDatabases(copy.toOkioPath(), JvmLegacyDatabaseFactory())
+            // The oracle comparison reads `openedDatabase`, so open what the tests look at.
+            listOf(staging.repositories, staging.workspaces, staging.settings)
+            try { return block(staging, migrated.report, e.fx) } finally { staging.close() }
+        } finally {
+            copy.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun extendedFixtureMatchesOracle() {
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, report, fx ->
+                val label = "$app/$ios/extended"
+                val repositories = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.REPOSITORIES, staging) }
+                assertEquals(emptyList(), repositories.differences, label)
+                assertEquals(2, repositories.comparedRows["CustomRepository"], "$label: the oracle holds both custom repositories")
+                val workspaces = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.WORKSPACES, staging) }
+                assertEquals(emptyList(), workspaces.differences, label)
+                assertEquals(1, workspaces.comparedRows["GlobalTextDisplaySettings"], "$label: the global text display row is compared")
+                assertEquals(emptyList(), report.entries.filterIsInstance<ReportEntry.UnknownKey>(), label)
+            }
+        }
+    }
+
+    @Test
+    fun extendedBooleansLandAsSentinels() {
+        val keys = SettingsMapper.DEFINITIONS.filter { it.storage == SettingsMapper.Storage.SWIFT_DATA && it.type == SettingsMapper.ValueType.BOOL }
+        assertTrue(keys.size >= 26, "the ledger maps ${keys.size} Boolean settings")
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, _, _ ->
+                val stored = runBlocking { staging.settings.booleanSettingDao().all().associate { it.key to it.value } }
+                for (def in keys) {
+                    val nonDefault = def.default != "true"
+                    assertEquals(nonDefault, stored[def.key], "$app/$ios ${def.key} (default ${def.default})")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun extendedHttpRepositoryKeptVerbatim() {
+        // W10: the repository whose source is plain http is migrated as stored; the schema has no source-URL column,
+        // so what survives is name, description, host and catalog directory. Nothing is reported as skipped.
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, report, _ ->
+                val rows = runBlocking { staging.repositories.customRepositoryDao().all() }.associateBy { it.name }
+                assertEquals(setOf("Fixture Https", "Plain Http"), rows.keys, "$app/$ios")
+                val http = rows.getValue("Plain Http")
+                assertEquals(listOf("http://example.org/sword", "example.org", "/sword"), listOf(http.description, http.host, http.catalogDirectory), "$app/$ios")
+                assertEquals("https://repo.example.org/sword", rows.getValue("Fixture Https").description)
+                assertEquals("repo.example.org", rows.getValue("Fixture Https").host)
+                assertEquals(emptyList(), report.entries.filterIsInstance<ReportEntry.Skipped>().filter { it.category == LegacyCategory.REPOSITORIES }, "$app/$ios")
+            }
+        }
     }
 
     @Test

@@ -79,7 +79,7 @@ class ReadingPlansAndProgressMapperTest {
     @Test
     fun everyFixtureMatchesItsOracleForReadingPlans() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         for (fx in fixtures) {
             val (result, report) = mapPlansAndCompare(fx)
             assertEquals(emptyList(), result.differences, label(fx))
@@ -98,10 +98,10 @@ class ReadingPlansAndProgressMapperTest {
 
     @Test
     fun comparisonIsNotVacuousForRichFixtures() {
-        // `rich` and `preserved-ai` hold a started plan with a completed day and progress rows; the others hold none
+        // `rich`, `preserved-ai` and `extended` hold a started plan with a completed day and progress rows; the others hold none
         // (their oracle still has the default GlobalReadingProgressSettings row, which must compare equal too).
         for (fx in allFixtures()) {
-            val rich = fx.scenario == "rich" || fx.scenario == "preserved-ai"
+            val rich = fx.scenario == "rich" || fx.scenario == "preserved-ai" || fx.scenario == "extended"
             val plans = mapPlansAndCompare(fx).first.comparedRows
             val progress = mapProgressAndCompare(fx).first.comparedRows
             if (rich) {

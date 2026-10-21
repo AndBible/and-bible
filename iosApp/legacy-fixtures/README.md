@@ -39,7 +39,7 @@ scripts/mac-remote.sh fetch build/i3-fixtures
 
 Copy `build/i3-fixtures/package/*` (the `<app>/<ios>/<scenario>.zip` files and `manifest.json`; manifest
 `path` values are relative to that directory) to `sharedLogic/src/jvmTest/resources/legacymigration/fixtures/`
-(total at most 20 MB, check with `du -sh`; currently 2.8 MB, 24 zips). Legacy checkouts and DerivedData live in
+(total at most 20 MB, check with `du -sh`; currently 3.0 MB, 26 zips). Legacy checkouts and DerivedData live in
 `~/work/i3-legacy` on the Mac; logs in `build/i3-fixtures/logs`.
 
 The packaging test must run from its own directory: `cd iosApp/legacy-fixtures && python3 -m unittest test_package_fixtures`.
@@ -52,7 +52,9 @@ Fallback, CI: push to `ios` (changes under `iosApp/legacy-fixtures/**` or the wo
 ## Committed cells
 
 Generated on the remote Mac, Xcode 26.6, simulator runtimes iOS 17.5, 18.6 and 26.5. Apps `1.0.1` and `1.0.2`
-x iOS `17`, `18`, `26` x scenarios `fresh`, `rich`, `restored-android`, `preserved-ai` (24 zips). The oracle ran
+x iOS `17`, `18`, `26` x scenarios `fresh`, `rich`, `restored-android`, `preserved-ai` (24 zips), plus the scenario `extended` for only
+`1.0.2`/iOS 26 and `1.0.1`/iOS 18 (2 zips, 26 in all; same model fingerprints as the other cells of those two apps/runtimes).
+The oracle ran
 on the pin under iOS 26 over all stores. Distinct model fingerprints (first 12 hex): 1.0.1/17 `b9c461c2cd73`;
 1.0.1/18 and 1.0.1/26 `f350194971fe`; 1.0.2/17 `e5fea2ccf6c5`; 1.0.2/18 and 1.0.2/26 `8cdd5de71d3a`.
 
@@ -128,7 +130,7 @@ below `I3_FIXTURE_OUT/<scenario>/` instead of Application Support.
   (`a1000000-0000-0000-0000-000000000001`) as the Swift row but different values. Input for merge rule U11.
 
 - **extended**: `rich` (so the KJVA ordinal pair of `seedProgress`, memorized 15 and target 20-21, is inherited: it
-  was cheap, no extra work) plus
+  was cheap, no extra work, and the existing progress oracle tests compare it) plus
   - `global_text_display_settings` (flat JSON of a sentinel `TextDisplaySettings`, seed 9);
   - workspace fidelity rows (`remote_sync.workspaces.fidelity.*`): workspace speak settings JSON, a page-manager entry
     (window A1), workspace and page-manager text-display fidelity, and the global text-display entry;

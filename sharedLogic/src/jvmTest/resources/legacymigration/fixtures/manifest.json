@@ -35,6 +35,14 @@
     "app": "1.0.1",
     "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
     "ios": "18",
+    "path": "1.0.1/18/extended.zip",
+    "scenario": "extended",
+    "sha256": "90894d2f8453351780250d7b272db5200520b19b1647bd14e5a66dd0fae98d09"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "18",
     "path": "1.0.1/18/fresh.zip",
     "scenario": "fresh",
     "sha256": "04658375114979560421d2e399968a4c936fee938bef51f1802cc85aa811904f"
@@ -158,6 +166,14 @@
     "path": "1.0.2/18/rich.zip",
     "scenario": "rich",
     "sha256": "0ab6615c9161bd95336feb5e71b0dec58c3efd6c42d5243d95a02158c731cd04"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "26",
+    "path": "1.0.2/26/extended.zip",
+    "scenario": "extended",
+    "sha256": "fa28d29937217dfcfe711d227b5f46db933c53366fdc8430d576e8644feef397"
   },
   {
     "app": "1.0.2",

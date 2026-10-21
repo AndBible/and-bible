@@ -115,7 +115,7 @@ class MyDocumentsAndAiMapperTest {
     @Test
     fun everyFixtureMatchesItsMyDocumentsOracle() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         var documentRows = 0
         var pageRows = 0
         var contentRows = 0

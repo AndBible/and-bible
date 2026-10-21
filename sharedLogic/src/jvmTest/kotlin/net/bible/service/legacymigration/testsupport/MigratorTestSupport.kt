@@ -49,12 +49,17 @@ class PlatformWithFileSystem(platform: LegacyPlatform, override val fileSystem: 
 /**
  * Puts the legacy app's files of [fx] where the Swift app kept them below [platform]: the two stores with sidecars in
  * `Application Support`, the preserved AI file under `AndBible/AndroidDatabaseBackup/PreservedDatabases` (only when
- * [withPreserved]).
+ * [withPreserved]), and the `sword_install` files below `Documents` when the fixture has them.
  */
 fun installLegacyApp(fx: FixtureDir, platform: FakeLegacyPlatform, withPreserved: Boolean = false) {
     val support = File(platform.applicationSupport.toString())
     for (f in File(fx.root.toString()).listFiles().orEmpty()) {
         if (f.isFile && f.name.contains(".store")) f.copyTo(File(support, f.name), overwrite = true)
+    }
+    // The `extended` scenario also carries the Swift app's custom repository files (Documents/sword_install).
+    File(fx.root.toString(), "sword_install").takeIf { it.isDirectory }?.let { source ->
+        val target = File(platform.documents.toString(), "sword_install").also { it.mkdirs() }
+        for (f in source.listFiles().orEmpty()) if (f.isFile) f.copyTo(File(target, f.name), overwrite = true)
     }
     if (withPreserved) {
         val preserved = File(fx.root.toString(), "PreservedDatabases/ai_settings.sqlite3")
@@ -63,19 +68,6 @@ fun installLegacyApp(fx: FixtureDir, platform: FakeLegacyPlatform, withPreserved
         target.parentFile.mkdirs()
         preserved.copyTo(target)
     }
-}
-
-/**
- * TASK 13 STUB (extended fixture, not used yet): copies the `sword_install` files of [fx] (`CustomRepositories.json`
- * and `InstallMgr.conf`, only present in the `extended` scenario) to `Documents/sword_install` below [platform], where
- * the Swift app kept them and where `LegacyMigrator` reads them. The `extendedFixture*` tests (Task 13 step 2) call it
- * after [installLegacyApp]; they are written once the generated `extended.zip` cells are committed.
- */
-fun installLegacySwordSources(fx: FixtureDir, platform: FakeLegacyPlatform) {
-    val source = File(fx.root.toString(), "sword_install")
-    check(source.isDirectory) { "fixture ${fx.app}/${fx.ios}/${fx.scenario} has no sword_install directory" }
-    val target = File(platform.documents.toString(), "sword_install").also { it.mkdirs() }
-    for (f in source.listFiles().orEmpty()) if (f.isFile) f.copyTo(File(target, f.name), overwrite = true)
 }
 
 /** sha256 of every file below [root] (relative path to hash), without the `-shm` index files (SQLite may touch those). */

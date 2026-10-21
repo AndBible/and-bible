@@ -120,7 +120,7 @@ class SettingsAndLedgerTest {
     @Test
     fun everyFixtureMatchesItsSettingsOracle() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         var booleanRows = 0
         var stringRows = 0
         var currentWorkspaceRows = 0
@@ -158,12 +158,14 @@ class SettingsAndLedgerTest {
         for (fx in allFixtures()) {
             val staging = newStaging()
             val report = MigrationReport()
-            runBlocking { snapshot(fx).use { RepositoriesMapper(null, FileSystem.SYSTEM).map(it, staging, report) } }
+            // Only `extended` ships the Swift repository files (sword_install/); the other fixtures have none.
+            val json = File(fx.root.toFile(), "sword_install/CustomRepositories.json").takeIf { it.isFile }?.toOkioPath()
+            runBlocking { snapshot(fx).use { RepositoriesMapper(json, FileSystem.SYSTEM).map(it, staging, report) } }
             val result = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.REPOSITORIES, staging) }
             assertEquals(emptyList(), result.differences, fx.scenario)
-            // The fixtures carry no custom repositories (the Swift files are outside the stores): the oracle tables are empty.
-            assertEquals(0, result.comparedRows["CustomRepository"], fx.scenario)
-            assertEquals(emptyList(), report.entries)
+            // The other fixtures carry no custom repositories (the Swift files are outside the stores): the oracle tables are empty.
+            assertEquals(if (json == null) 0 else 2, result.comparedRows["CustomRepository"], fx.scenario)
+            assertEquals(emptyList(), report.entries.filter { it !is ReportEntry.Written }, fx.scenario)
         }
     }
 

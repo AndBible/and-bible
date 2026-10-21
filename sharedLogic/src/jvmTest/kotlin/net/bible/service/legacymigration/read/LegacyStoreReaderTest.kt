@@ -241,7 +241,7 @@ class LegacyStoreReaderTest {
     @Test
     fun readsEveryManifestFixture() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         val fingerprints = mutableSetOf<String>()
         for (fx in fixtures) {
             val expected = fx.reportCounts()
