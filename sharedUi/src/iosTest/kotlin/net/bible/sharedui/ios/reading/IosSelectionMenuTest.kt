@@ -53,7 +53,8 @@ class IosSelectionMenuTest {
         override fun copy(text: String) { calls += "copy $text" }
     }
 
-    private val table = StringTable("en", { it }, { k, _ -> k }, { _, _ -> "" }, { emptyList() })
+    // Keys read back as themselves, except the one format string the test reads through its placeholder.
+    private val table = StringTable("en", { if (it == "search_what") "Find \"%s\"" else it }, { k, _ -> k }, { _, _ -> "" }, { emptyList() })
 
     private fun verseJson(text: String, ordinal: Int = 1) =
         """{"bookInitials":"KJV","startOrdinal":$ordinal,"startOffset":0,"endOrdinal":$ordinal,"endOffset":5,"bookmarks":[],"text":"$text"}"""
@@ -154,8 +155,9 @@ class IosSelectionMenuTest {
         assertEquals(listOf("search word", "web word", "lookup word", "copy word"), f.env.calls)
         f.menu.run("w1", SelectionMenuItem.ShareVerses, snapshot)
         f.menu.run("w1", SelectionMenuItem.Memorize, snapshot)
-        assertEquals(listOf("share", "clear"), f.windows.getValue("w1").calls.take(2))
-        assertTrue("memorize" in f.windows.getValue("w1").calls)
+        // Every run ends with a "clear" (the selection is consumed), so compare the actions alone.
+        assertEquals(listOf("share", "memorize"), f.windows.getValue("w1").calls.filter { it != "clear" })
+        assertEquals(6, f.windows.getValue("w1").calls.count { it == "clear" }, "one clear per run")
     }
 
     /** The AI row stays hidden until the AI is configured (Task 4 wires it); once shown it calls the hook with the verse selection. */
@@ -175,6 +177,7 @@ class IosSelectionMenuTest {
         val f = fixture("w1")
         f.menu.cacheSelection("gone", verseJson("x"))
         f.menu.run("gone", SelectionMenuItem.Compare)
+        assertEquals(emptyList(), f.menu.items("gone"), "an unknown window shows no rows")
         assertEquals("x", f.menu.snapshot("gone")?.text, "an unknown window runs nothing and keeps its cache")
         f.menu.clear("gone")
         assertNull(f.menu.snapshot("gone"))

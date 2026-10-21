@@ -119,7 +119,13 @@ class IosSelectionMenu(
         if (raw == "null" || raw.isBlank()) return null
         val selection = try { AppJson.decodeFromString(kotlinx.serialization.serializer<Selection?>(), raw) } catch (e: Exception) { null }
         val text = selection?.text
-            ?: try { AppJson.decodeFromString(kotlinx.serialization.serializer<String>(), raw) } catch (e: Exception) { raw }
+            ?: try {
+                AppJson.decodeFromString(kotlinx.serialization.serializer<String>(), raw)
+            } catch (e: Exception) {
+                // Neither a Selection object nor a JSON string: keep the raw text (as Android does) but say so.
+                nsLog("selection menu: unreadable selection JSON (${raw.length} characters): $e")
+                raw
+            }
         return CachedSelection(selection, text, runCatching { environment.resolveRef(text) }.getOrNull())
     }
 
@@ -137,6 +143,7 @@ class IosSelectionMenu(
     /** The policy's items for the window's [selection] (cached one by default); empty without a selection. */
     fun items(windowId: String, step2: Boolean = false, selection: CachedSelection? = cache[windowId]): List<SelectionMenuItem> {
         selection ?: return emptyList()
+        if (windows(windowId) == null) return emptyList() // a released or unknown window shows nothing
         return selectionMenuItems(input(windowId, selection), step2)
     }
 
