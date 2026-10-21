@@ -75,50 +75,78 @@ final class LegacyMigrationUITests: XCTestCase {
     private func waitForReady(_ app: XCUIApplication, timeout: TimeInterval = 120) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            dismissSystemAlert()
+            dismissSystemAlert(app)
             if element(app, "reading-host").exists || element(app, "welcome-screen").exists { return true }
             usleep(300_000)
         }
         return false
     }
 
-    /// Dismisses an iOS system alert from SpringBoard (discrete mode changes the app icon, and iOS then shows
-    /// "You have changed the icon for ..."; it blocks our Compose dialogs). Taps its first button (OK / Don't Allow).
-    /// Returns true when an alert was dismissed.
+    /// Dismisses an iOS alert that blocks our Compose dialogs: discrete mode changes the app icon and iOS shows
+    /// "You have changed the icon for ...". Like DiscreteUITests, looks in BOTH the app's own alerts and SpringBoard's,
+    /// since the owner differs by iOS version. Taps the first button (OK / Don't Allow). True when one was dismissed.
     @discardableResult
-    private func dismissSystemAlert() -> Bool {
-        let alert = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch
-        guard alert.exists else { return false }
-        let button = alert.buttons.firstMatch
-        guard button.exists else { return false }
-        button.tap()
-        return true
+    private func dismissSystemAlert(_ app: XCUIApplication) -> Bool {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        for owner in [app, springboard] {
+            let alert = owner.alerts.firstMatch
+            if alert.exists, alert.buttons.firstMatch.exists {
+                alert.buttons.firstMatch.tap()
+                return true
+            }
+        }
+        return false
     }
 
     private func isReady(_ app: XCUIApplication) -> Bool {
         element(app, "reading-host").exists || element(app, "welcome-screen").exists
     }
 
-    /// Taps the confirm button of the Compose message/confirm dialog currently shown (tag `dialog-confirm`).
-    /// Returns false when no dialog appeared within [timeout].
-    private func confirmDialog(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
-        let confirm = element(app, "dialog-confirm")
+    /// The confirm button of the Compose dialog on top: the `dialog-confirm` testTag when the framework exports it,
+    /// otherwise a button whose label is one of [labels] (the strings `okay` = "OK" in en and fi, `yes` = "Yes" / "Kyllä").
+    private func dialogConfirm(_ app: XCUIApplication, _ labels: [String]) -> XCUIElement {
+        let tagged = element(app, "dialog-confirm")
+        if tagged.exists { return tagged }
+        return app.buttons.matching(NSPredicate(format: "label IN %@", labels)).firstMatch
+    }
+
+    /// Attaches what is exposed (app tree, SpringBoard tree, screenshot) so a missing dialog can be diagnosed.
+    private func diagnoseDialog(_ app: XCUIApplication, _ name: String) {
+        for (title, text) in [("app", app.debugDescription),
+                              ("springboard", XCUIApplication(bundleIdentifier: "com.apple.springboard").debugDescription)] {
+            let attachment = XCTAttachment(string: text)
+            attachment.name = "tree-\(title)-\(name)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        shot(app, "dialog-missing-\(name)")
+    }
+
+    /// Taps the confirm button of the Compose message/confirm dialog currently shown. Returns false (after attaching
+    /// diagnostics when [diagnose]) when none appeared within [timeout].
+    private func confirmDialog(_ app: XCUIApplication, timeout: TimeInterval, labels: [String] = ["OK"],
+                               diagnose: Bool = true, name: String = "dialog") -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            dismissSystemAlert()
-            if confirm.exists { break }
+            dismissSystemAlert(app)
+            if dialogConfirm(app, labels).exists { break }
             usleep(300_000)
         }
-        guard confirm.exists else { return false }
+        let confirm = dialogConfirm(app, labels)
+        guard confirm.exists else {
+            if diagnose { diagnoseDialog(app, name) }
+            return false
+        }
         confirm.tap()
-        return gone(app, "dialog-confirm", timeout: 10)
+        let predicate = NSPredicate { _, _ in !self.dialogConfirm(app, labels).exists }
+        return XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: app)], timeout: 10) == .completed
     }
 
     /// Dismisses the one-time notices one after the other; returns how many there were.
     private func dismissNotices(_ app: XCUIApplication, firstTimeout: TimeInterval, quietTimeout: TimeInterval) -> Int {
         var count = 0
         var timeout = firstTimeout
-        while confirmDialog(app, timeout: timeout) {
+        while confirmDialog(app, timeout: timeout, diagnose: count == 0, name: "notice-\(count + 1)") {
             count += 1
             shot(app, "notice-dismissed-\(count)")
             timeout = quietTimeout
@@ -225,8 +253,8 @@ final class LegacyMigrationUITests: XCTestCase {
         let row = openSettingsRow(settings, startingWith: "Import data from the previous app version")
         XCTAssertTrue(row.waitForExistence(timeout: 60) && row.isHittable, "The import row is not offered")
         row.tap()
-        XCTAssertTrue(confirmDialog(settings, timeout: 15), "No import confirmation dialog")
-        XCTAssertTrue(confirmDialog(settings, timeout: 15), "No 'reopen the app' message")
+        XCTAssertTrue(confirmDialog(settings, timeout: 15, labels: ["Yes", "Kyllä"], name: "import-confirm"), "No import confirmation dialog")
+        XCTAssertTrue(confirmDialog(settings, timeout: 15, name: "import-reopen"), "No 'reopen the app' message")
         settings.terminate()
 
         // The next launch runs the migration again, replacing the fresh databases (the app log has the
