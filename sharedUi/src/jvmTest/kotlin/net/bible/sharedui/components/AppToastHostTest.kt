@@ -1,16 +1,20 @@
 package net.bible.sharedui.components
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import net.bible.sharedui.theme.LocalDisableAnimations
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertNotEquals
 
 @OptIn(ExperimentalTestApi::class)
 class AppToastHostTest {
@@ -105,7 +109,7 @@ class AppToastHostTest {
                 mainClock.autoAdvance = false
                 setContent {
                     CompositionLocalProvider(LocalDisableAnimations provides disable) {
-                        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.background(androidx.compose.ui.graphics.Color.White)) {
+                        Box(Modifier.background(Color.White)) {
                             AppToastHost()
                         }
                     }
@@ -123,6 +127,6 @@ class AppToastHostTest {
         }
         val solid = firstFramePixel(disable = true)
         val fading = firstFramePixel(disable = false)
-        kotlin.test.assertNotEquals(solid, fading, "an animated toast starts translucent, not at its final colour")
+        assertNotEquals(solid, fading, "an animated toast starts translucent, not at its final colour")
     }
 }

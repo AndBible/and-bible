@@ -347,7 +347,7 @@ private fun IosAppContent(
         welcome.openImport = { appHosts.installZip.open() }
         welcome.refreshTextIfCreated()
     }
-    val channels = remember { iosResultChannels { navController } }
+    val channels = remember { iosResultChannels({ navController }, shell::openReading) }
     val readingToken = remember { Any() }
     val readingResults = remember {
         IosReadingResults(

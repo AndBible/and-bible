@@ -130,7 +130,18 @@ class IosHostShellTest {
 
     @Test
     fun resultChannelFallbackPops() {
-        iosExitWithResult<String>(nav)("answer")
+        var opened = 0
+        iosExitWithResult<String>(nav) { opened++ }("answer")
         assertEquals(listOf("pop"), nav.calls)
+        assertEquals(0, opened)
+    }
+
+    @Test
+    fun resultChannelFallbackOpensReadingWhenThereIsNothingToPop() {
+        nav.popResult = false
+        var opened = 0
+        iosExitWithResult<String>(nav) { opened++; shell.openReading() }("answer")
+        assertEquals(listOf("pop", readingReuse, popDownload, popWelcome, "navigate(${NavRoutes.READING})"), nav.calls)
+        assertEquals(1, opened)
     }
 }

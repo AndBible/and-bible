@@ -21,7 +21,6 @@ package net.bible.sharedui.ios.app
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.assembly.iosStringTable
-import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.ios.ports.IosAiHostPlatform
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
@@ -47,7 +46,7 @@ import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 import org.koin.core.Koin
 
 /**
- * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
+ * Assembles the 22 [HostPorts] for iOS, among them
  * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome, document/help dialogs,
  * and the Download/cloud document ports.
  */

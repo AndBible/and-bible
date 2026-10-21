@@ -167,7 +167,7 @@ class IosAssemblyTest {
             val shell = net.bible.sharedui.ios.app.IosHostShell(scope, net.bible.sharedui.ios.app.NavControllerNavigator { nav })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin, IosAppStartup.stringTable)
             val hosts = net.bible.sharedui.app.AppHosts(koin, shell, ports, net.bible.sharedui.strings.iosStrings("en"))
-            val graphs = hosts.graphs(nav, net.bible.sharedui.ios.app.iosResultChannels { nav })
+            val graphs = hosts.graphs(nav, net.bible.sharedui.ios.app.iosResultChannels({ nav }, shell::openReading))
             assertTrue(net.bible.sharedui.app.routeStartsUninitialised(net.bible.sharedcore.nav.NavRoutes.BACKUP))
             assertFalse(koin.get<net.bible.sharedcore.platform.AppEnvironment>().isInitialized)
             val controller = graphs.backup.controllerFor()
