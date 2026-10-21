@@ -28,3 +28,7 @@ internal fun reportDetails(device: ReportDevice, crashTime: Long, crashStack: St
     if (cause != null) appendLine("Current Exception:\n${cause.stackTraceToString()}")
 }
 internal fun aiReportEligible(modelSupported: Boolean, log: ByteArray): Boolean = modelSupported && log.isNotEmpty()
+
+/** The standard report attachments: the gzipped app log first, then [extra]. */
+internal fun reportAttachments(gzippedLog: ByteArray, extra: List<Attachment>): List<Attachment> =
+    listOf(Attachment("app_log.txt.gz", "application/gzip", gzippedLog)) + extra
