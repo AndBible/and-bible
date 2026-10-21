@@ -271,6 +271,12 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         buttonsShown = windowButtonsVisible,
         hideSetting = state.settings.getBoolean("hide_bible_reference_overlay", false),
     )
+    // TEMP-OVERLAY-DIAG
+    tempOverlayDiag?.invoke(
+        "gate fullScreen=$fullScreen activeIsBibleShown=$activeIsBibleShown buttonsShown=$windowButtonsVisible " +
+            "textEmpty=${overlayText.isEmpty()} text='$overlayText' hideSetting=${state.settings.getBoolean("hide_bible_reference_overlay", false)} " +
+            "-> overlayVisible=$overlayVisible",
+    )
     // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):
     // these genuinely remove the button. `windowButtonsVisible` is the 2s IDLE TIMER, which classic
     // expresses as an ALPHA fade, not a removal (SplitBibleArea.kt:528-575), so it is passed
@@ -796,3 +802,6 @@ private fun BoxScope.PaneWindowButtonOverlay(
         )
     }
 }
+
+/** TEMP-OVERLAY-DIAG: set by the iOS host to NSLog; null elsewhere (Android never sets it). */
+var tempOverlayDiag: ((String) -> Unit)? = null
