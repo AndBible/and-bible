@@ -771,4 +771,544 @@ final class ReadingUITests: RealAppUITestCase {
             shot(app, "\(level)-overflow")
         }
     }
+
+    // MARK: Task 11: reading completeness (R3)
+
+    /// First element of any type whose label starts with `prefix` (labels that carry a trailing ellipsis or a count).
+    private func labelStarting(_ app: XCUIApplication, _ prefix: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch
+    }
+
+    /// The first pane's web view (`bible-webview-<windowId>`).
+    private func firstPane(_ app: XCUIApplication) -> XCUIElement {
+        app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'")).firstMatch
+    }
+
+    /// A point at the right edge of the pane, clear of the verse text (no word selection, no link).
+    private func paneMargin(_ app: XCUIApplication) -> XCUICoordinate {
+        firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5))
+    }
+
+    /// True while the toolbar (its home button and the overflow button) is on screen. Compose drops the toolbar from the
+    /// tree in full screen (`ReadingViewScreen`: `if (!fullScreen)`), it is not merely hidden.
+    private func toolbarShown(_ app: XCUIApplication) -> Bool {
+        app.buttons["Menu"].exists && byLabel(app, "More options").exists
+    }
+
+    /// Opens the drawer with the home ("Menu") button and taps the row labelled `label`, scrolling the drawer when the
+    /// row is below the fold. Returns false (tree attached, failure recorded) when the row cannot be reached.
+    @discardableResult
+    private func openDrawerRow(_ app: XCUIApplication, _ label: String) -> Bool {
+        let menu = app.buttons["Menu"]
+        guard menu.waitForExistence(timeout: 15) else {
+            attachTree(app, "drawer-\(label)-no-menu"); XCTFail("home (Menu) button not found"); return false
+        }
+        menu.tap()
+        let row = byLabel(app, label)
+        guard row.waitForExistence(timeout: 10) else {
+            attachTree(app, "drawer-no-\(label)"); XCTFail("the drawer shows no '\(label)' row"); return false
+        }
+        var swipes = 0
+        while !row.isHittable && swipes < 8 { app.swipeUp(); swipes += 1 }
+        guard row.isHittable else {
+            attachTree(app, "drawer-\(label)-not-hittable"); XCTFail("drawer row '\(label)' is not reachable"); return false
+        }
+        row.tap()
+        return true
+    }
+
+    /// Replaces the text of the single-line field of the dialog on screen (a Compose `OutlinedTextField`, exported as a
+    /// text view) with `text`: tap at the right end of the field (caret after the text), wait for keyboard focus (typing
+    /// right after a focus switch drops the first key), delete what is there, type, read the field back.
+    private func replaceDialogText(_ app: XCUIApplication, with text: String, _ step: String) -> Bool {
+        let field = app.textViews.firstMatch
+        guard field.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-field"); XCTFail("\(step): the dialog has no text field"); return false
+        }
+        let original = field.value as? String ?? ""
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
+        guard waitUntil(timeout: 5, { field.debugDescription.contains("Keyboard Focused") }) else {
+            attachTree(app, "\(step)-no-focus"); XCTFail("\(step): the dialog field did not get keyboard focus"); return false
+        }
+        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.count + 2) + text)
+        let typed = waitUntil(timeout: 5) { (field.value as? String) == text }
+        if !typed { attachTree(app, "\(step)-readback") }
+        XCTAssertTrue(typed, "\(step): the field reads '\(field.value as? String ?? "nil")', expected '\(text)'")
+        return typed
+    }
+
+    /// The single-line dialog's confirm button ("OK", `okay`).
+    private func confirmDialog(_ app: XCUIApplication, _ step: String) -> Bool {
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        guard ok.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-ok"); XCTFail("\(step): no OK button"); return false
+        }
+        ok.tap()
+        return true
+    }
+
+    // MARK: Task 11: full screen
+
+    /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar and shows the Bible reference overlay with
+    /// Android's real short-name form `KJV:Joh 3:16` (`bibleOverlayText`: "<abbreviation>:<title>" with short book names;
+    /// ruling R5). A double tap on the pane leaves full screen (the chrome returns, the overlay goes), a second one
+    /// enters it again by double tap (the locked path) and a third leaves.
+    func testOverflowFullScreenHidesChromeAndShowsOverlay() throws {
+        let app = try launchReading()
+        XCTAssertTrue(toolbarShown(app), "the toolbar must be shown before full screen")
+        let more = byLabel(app, "More options")
+        XCTAssertTrue(more.waitForExistence(timeout: 15), "no 'More options' button")
+        more.tap()
+        let fullscreen = app.buttons.matching(NSPredicate(format: "label == 'Fullscreen'")).firstMatch
+        guard fullscreen.waitForExistence(timeout: 10) else {
+            attachTree(app, "fullscreen-no-row"); XCTFail("the overflow menu has no 'Fullscreen' row"); return
+        }
+        fullscreen.tap()
+
+        let chromeGone = waitUntil(timeout: 15) { !app.buttons["Menu"].exists && !byLabel(app, "More options").exists }
+        if !chromeGone { attachTree(app, "fullscreen-chrome-still-shown") }
+        XCTAssertTrue(chromeGone, "the toolbar is still shown in full screen")
+
+        // The overlay shows only while the window buttons are shown (2 s idle timer, restarted by a touch). It may have
+        // timed out already, so a touch at the pane margin brings it back.
+        let overlay = byLabel(app, "KJV:Joh 3:16")
+        var overlayShown = overlay.waitForExistence(timeout: 5)
+        if !overlayShown {
+            paneMargin(app).tap()
+            overlayShown = overlay.waitForExistence(timeout: 10)
+        }
+        if !overlayShown { attachTree(app, "fullscreen-no-overlay") }
+        shot(app, "fullscreen-overlay")
+        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:16' is not shown in full screen")
+
+        // Double tap leaves full screen.
+        paneMargin(app).doubleTap()
+        let back = waitUntil(timeout: 15) { toolbarShown(app) }
+        if !back { attachTree(app, "fullscreen-double-tap-no-exit") }
+        XCTAssertTrue(back, "a double tap did not bring the toolbar back")
+        XCTAssertTrue(waitUntil(timeout: 10) { !overlay.exists }, "the overlay stays after leaving full screen")
+
+        // Double tap enters (double_tap_to_fullscreen defaults on), the next one leaves again.
+        paneMargin(app).doubleTap()
+        let entered = waitUntil(timeout: 15) { !app.buttons["Menu"].exists && !byLabel(app, "More options").exists }
+        if !entered { attachTree(app, "fullscreen-double-tap-no-enter") }
+        XCTAssertTrue(entered, "a double tap did not enter full screen")
+        paneMargin(app).doubleTap()
+        XCTAssertTrue(waitUntil(timeout: 15) { toolbarShown(app) }, "the second double tap did not leave full screen")
+    }
+
+    // MARK: Task 11: swipe
+
+    /// A swipe from right to left reads on: in chapter mode (`bible_view_swipe_mode` CHAPTER, given explicitly) John 3
+    /// becomes John 4 (no 'Nicodemus' in it any more), a swipe back returns to John 3.
+    func testSwipeLeftOpensNextChapter() throws {
+        let app = try launchReading(extraArguments: ["-bible_view_swipe_mode", "CHAPTER"])
+        XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown before the swipe")
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15), "no pane")
+        pane.swipeLeft()
+        let title = { self.toolbarTitle(app)?.label ?? "" }
+        let next = waitUntil(timeout: 30) { title().hasPrefix("John 4") && nicodemusInWebViews(app) == 0 }
+        if !next { attachTree(app, "swipe-left-not-john-4") }
+        shot(app, "swipe-left")
+        XCTAssertTrue(next, "after a left swipe the title is '\(title())' and 'Nicodemus' appears \(nicodemusInWebViews(app)) times; expected John 4 without Nicodemus")
+
+        pane.swipeRight()
+        let backAgain = waitUntil(timeout: 30) { title().hasPrefix("John 3") && nicodemusInWebViews(app) == nicodemusPerPane }
+        if !backAgain { attachTree(app, "swipe-right-not-john-3") }
+        XCTAssertTrue(backAgain, "after a right swipe the title is '\(title())'; expected John 3 again")
+    }
+
+    // MARK: Task 11: workspaces
+
+    /// Overflow "Workspaces" -> "Manage workspaces…" opens the selector (title bar "New" action, per-row "Menu").
+    private func openWorkspaceSelector(_ app: XCUIApplication, _ step: String) -> Bool {
+        let more = byLabel(app, "More options")
+        guard more.waitForExistence(timeout: 15) else {
+            attachTree(app, "\(step)-no-overflow"); XCTFail("\(step): no 'More options' button"); return false
+        }
+        more.tap()
+        let row = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+        guard row.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-workspaces-row"); XCTFail("\(step): no 'Workspaces' overflow row"); return false
+        }
+        row.tap()
+        let manage = labelStarting(app, "Manage workspaces")
+        guard manage.waitForExistence(timeout: 15) else {
+            attachTree(app, "\(step)-no-manage"); XCTFail("\(step): the workspaces sheet has no 'Manage workspaces' row"); return false
+        }
+        manage.tap()
+        guard byLabel(app, "New").waitForExistence(timeout: 15) else {
+            attachTree(app, "\(step)-selector-not-shown"); XCTFail("\(step): the workspace selector did not open (no 'New' action)"); return false
+        }
+        return true
+    }
+
+    /// The row menu ("Menu") button of the selector row whose label starts with `name`: the nearest one to the row.
+    private func workspaceRowMenu(_ app: XCUIApplication, _ name: String, _ step: String) -> XCUIElement? {
+        let row = labelStarting(app, name)
+        guard row.waitForExistence(timeout: 15) else {
+            attachTree(app, "\(step)-no-row"); XCTFail("\(step): no workspace row '\(name)'"); return nil
+        }
+        let y = row.frame.midY
+        let menus = app.buttons.matching(NSPredicate(format: "label == 'Menu'")).allElementsBoundByIndex.filter { $0.frame.height > 0 }
+        guard let nearest = menus.min(by: { abs($0.frame.midY - y) < abs($1.frame.midY - y) }) else {
+            attachTree(app, "\(step)-no-row-menu"); XCTFail("\(step): row '\(name)' has no menu button"); return nil
+        }
+        return nearest
+    }
+
+    /// Taps the exact-label item of the open dropdown (`Rename`, `Remove`).
+    private func tapRowMenuItem(_ app: XCUIApplication, _ label: String, _ step: String) -> Bool {
+        let item = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+        guard item.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-\(label)"); XCTFail("\(step): the row menu has no '\(label)'"); return false
+        }
+        item.tap()
+        return true
+    }
+
+    /// Creates a workspace in the selector; the selector then leaves with the new workspace current
+    /// (`WorkspaceSelectorController.createNew` ends in `selectWorkspace`, as Android's `goToWorkspace`).
+    private func createWorkspace(_ app: XCUIApplication, named name: String) -> Bool {
+        byLabel(app, "New").tap()
+        guard app.staticTexts.matching(NSPredicate(format: "label == 'Give name for new workspace'")).firstMatch
+            .waitForExistence(timeout: 10) else {
+            attachTree(app, "create-\(name)-no-dialog"); XCTFail("no 'Give name for new workspace' dialog"); return false
+        }
+        guard replaceDialogText(app, with: name, "create \(name)"), confirmDialog(app, "create \(name)") else { return false }
+        let left = element(app, "reading-host").waitForExistence(timeout: 30) && !byLabel(app, "New").exists
+        if !left { attachTree(app, "create-\(name)-selector-stays") }
+        XCTAssertTrue(left, "creating '\(name)' did not return to the reading view")
+        return left
+    }
+
+    /// Create, rename and delete in the workspace selector, each checked in the list and after Save in the workspaces
+    /// quick sheet: Alpha is created (becomes current), renamed to Beta and saved; Gamma is created (current); Beta, now
+    /// not current, is removed and saved; only Gamma of the three remains. Labels: `give_name_workspace`, `rename`,
+    /// `delete_workspace` ("Remove"), `save_and_exit` ("Save"), `new_item` ("New"), `menu`, `workspace_listing_with_current`.
+    func testWorkspaceCreateRenameDelete() throws {
+        continueAfterFailure = false
+        let app = try launchReading()
+
+        // Create Alpha.
+        guard openWorkspaceSelector(app, "open 1") else { return }
+        guard createWorkspace(app, named: "UITest Alpha") else { return }
+
+        // Rename Alpha to Beta and Save.
+        guard openWorkspaceSelector(app, "open 2") else { return }
+        XCTAssertTrue(labelStarting(app, "UITest Alpha").waitForExistence(timeout: 10), "the created workspace is not listed")
+        guard let alphaMenu = workspaceRowMenu(app, "UITest Alpha", "rename") else { return }
+        alphaMenu.tap()
+        guard tapRowMenuItem(app, "Rename", "rename") else { return }
+        guard replaceDialogText(app, with: "UITest Beta", "rename"), confirmDialog(app, "rename") else { return }
+        XCTAssertTrue(labelStarting(app, "UITest Beta").waitForExistence(timeout: 10), "the renamed row 'UITest Beta' is not listed")
+        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "the old name 'UITest Alpha' is still listed after the rename")
+        shot(app, "workspace-renamed")
+        let save = app.buttons.matching(NSPredicate(format: "label == 'Save'")).firstMatch
+        XCTAssertTrue(save.waitForExistence(timeout: 10), "no 'Save' button")
+        XCTAssertTrue(save.isEnabled, "'Save' stays disabled after a rename (the selector is not dirty)")
+        save.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "Save did not return to the reading view")
+
+        // Create Gamma (current), then delete Beta (not current) and Save.
+        guard openWorkspaceSelector(app, "open 3") else { return }
+        XCTAssertTrue(labelStarting(app, "UITest Beta").waitForExistence(timeout: 10), "the rename was not kept: 'UITest Beta' is not listed")
+        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "'UITest Alpha' is back after the rename was saved")
+        guard createWorkspace(app, named: "UITest Gamma") else { return }
+        guard openWorkspaceSelector(app, "open 4") else { return }
+        guard let betaMenu = workspaceRowMenu(app, "UITest Beta", "delete") else { return }
+        betaMenu.tap()
+        guard tapRowMenuItem(app, "Remove", "delete") else { return }
+        let gone = waitUntil(timeout: 10) { !labelStarting(app, "UITest Beta").exists }
+        if !gone { attachTree(app, "delete-row-stays") }
+        XCTAssertTrue(gone, "'UITest Beta' is still listed after Remove")
+        XCTAssertTrue(labelStarting(app, "UITest Gamma").exists, "removing Beta removed Gamma too")
+        let save2 = app.buttons.matching(NSPredicate(format: "label == 'Save'")).firstMatch
+        XCTAssertTrue(save2.waitForExistence(timeout: 10) && save2.isEnabled, "'Save' is not enabled after a Remove")
+        save2.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "Save did not return to the reading view after the delete")
+
+        // The result is persisted: the quick switch list shows Gamma only.
+        let more = byLabel(app, "More options")
+        XCTAssertTrue(more.waitForExistence(timeout: 15))
+        more.tap()
+        let row = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "no 'Workspaces' overflow row")
+        row.tap()
+        XCTAssertTrue(quickSheetShown(app, timeout: 15), "the workspaces quick sheet did not open")
+        XCTAssertTrue(labelStarting(app, "UITest Gamma").waitForExistence(timeout: 10), "'UITest Gamma' is not in the workspace list")
+        XCTAssertFalse(labelStarting(app, "UITest Beta").exists, "the removed 'UITest Beta' is still in the workspace list")
+        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "the renamed 'UITest Alpha' is still in the workspace list")
+        shot(app, "workspace-final-list")
+    }
+
+    // MARK: Task 11: reading progress
+
+    /// Drawer "Read/Memory Progress" opens the screen (Reading / Memorization tabs, the Old and New Testament book
+    /// grids); the "Joh" cell opens John's chapter grid and chapter "4" returns to the reading view on John 4 (the chapter
+    /// answer opens in the asking window). Labels: `reading_progress_title`, `memorize_tab_*`,
+    /// `reading_progress_old_testament`, `reading_progress_new_testament`; the cell labels are the books' short names.
+    func testReadingProgressFromDrawer() throws {
+        let app = try launchReading()
+        guard openDrawerRow(app, "Read/Memory Progress") else { return }
+        for expected in ["Old Testament", "New Testament"] {
+            let shown = app.staticTexts.matching(NSPredicate(format: "label == %@", expected)).firstMatch.waitForExistence(timeout: 20)
+            if !shown { attachTree(app, "progress-no-\(expected)") }
+            XCTAssertTrue(shown, "the progress screen shows no '\(expected)' heading")
+        }
+        XCTAssertTrue(labelStarting(app, "Memorization").exists, "no Memorization tab")
+        shot(app, "reading-progress")
+
+        // John's cell (NT grid): scroll it into view if needed.
+        let john = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Joh'")).firstMatch
+        var swipes = 0
+        while !(john.exists && john.isHittable) && swipes < 6 { app.swipeUp(); swipes += 1 }
+        guard john.exists && john.isHittable else {
+            attachTree(app, "progress-no-john-cell"); XCTFail("no hittable 'Joh' book cell in the New Testament grid"); return
+        }
+        john.tap()
+
+        // The chapter grid: the lowest cell labelled "4" (the grid sits above the calendar, whose day numbers come after).
+        let chapter4 = { () -> XCUIElement? in
+            app.descendants(matching: .any).matching(NSPredicate(format: "label == '4'")).allElementsBoundByIndex
+                .filter { $0.frame.height > 0 && $0.isHittable }.min(by: { $0.frame.minY < $1.frame.minY })
+        }
+        let found = waitUntil(timeout: 15) { chapter4() != nil }
+        guard found, let cell = chapter4() else {
+            attachTree(app, "progress-no-chapter-4"); XCTFail("John's chapter grid shows no hittable chapter '4'"); return
+        }
+        cell.tap()
+        let reading = element(app, "reading-host").waitForExistence(timeout: 30)
+        if !reading { attachTree(app, "progress-chapter-no-reading") }
+        XCTAssertTrue(reading, "tapping chapter 4 did not return to the reading view")
+        let onFour = waitUntil(timeout: 30) { self.toolbarTitle(app)?.label.hasPrefix("John 4") == true && nicodemusInWebViews(app) == 0 }
+        if !onFour { attachTree(app, "progress-chapter-not-john-4") }
+        XCTAssertTrue(onFour, "the reading view shows '\(toolbarTitle(app)?.label ?? "no title")', expected John 4")
+    }
+
+    // MARK: Task 11: in-place search
+
+    /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
+    /// when the prompt "An index is required to search" appears: "Create"), the sheet shows "<n> verses in 1
+    /// translations" with n > 0 and result cards; the card of John 7:50 (or 19:39) opens that chapter (a chapter with
+    /// one 'Nicodemus', unlike John 3 with three).
+    func testInPlaceSearchShowsResults() throws {
+        let app = try launchReading()
+        guard openDrawerRow(app, "Find") else { return }
+        let field = element(app, "reading-search-field")
+        guard field.waitForExistence(timeout: 15) else {
+            attachTree(app, "search-no-field"); XCTFail("the in-place search field did not open"); return
+        }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the search field has no keyboard focus")
+        field.typeText("Nicodemus")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "Nicodemus" }, "the search field reads '\(field.value as? String ?? "nil")'")
+        field.typeText("\n")
+
+        let countLabel = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", "[0-9]+ verses in [0-9]+ translations")).firstMatch
+        let create = app.buttons.matching(NSPredicate(format: "label == 'Create'")).firstMatch
+        // Either the results arrive, or the index prompt comes first (a fresh simulator has no KJV index).
+        _ = waitUntil(timeout: 60) { countLabel.exists || create.exists }
+        if !countLabel.exists && create.exists {
+            shot(app, "search-index-prompt")
+            create.tap()
+        }
+        let results = countLabel.waitForExistence(timeout: 300)
+        if !results { attachTree(app, "search-no-results"); shot(app, "search-no-results") }
+        XCTAssertTrue(results, "no result count ('<n> verses in <m> translations') after searching 'Nicodemus'")
+        guard results else { return }
+        let total = Int(countLabel.label.split(separator: " ").first ?? "") ?? 0
+        XCTAssertGreaterThan(total, 0, "the search found no verse: '\(countLabel.label)'")
+        shot(app, "search-results")
+
+        // A result card that leads away from John 3: John 7:50 or John 19:39 (each card is a clickable card whose
+        // label starts with its reference).
+        var target: XCUIElement?
+        for _ in 0..<8 where target == nil {
+            for ref in ["7:50", "19:39"] {
+                let card = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS 'Nicodemus'", ref)).firstMatch
+                if card.exists && card.isHittable { target = card; break }
+            }
+            if target == nil { nudgeSheetList(app) }
+        }
+        guard let card = target else {
+            attachTree(app, "search-no-john-7-50-card"); XCTFail("no result card for John 7:50 or John 19:39 (total \(total))"); return
+        }
+        let expectedChapter = card.label.contains("7:50") ? "John 7" : "John 19"
+        card.tap()
+        let opened = waitUntil(timeout: 30) {
+            self.toolbarTitle(app)?.label.hasPrefix(expectedChapter) == true || nicodemusInWebViews(app) == 1
+        }
+        if !opened { attachTree(app, "search-card-did-not-open"); shot(app, "search-card-did-not-open") }
+        XCTAssertTrue(opened, "tapping the card did not open \(expectedChapter) (title '\(toolbarTitle(app)?.label ?? "none")', Nicodemus x\(nicodemusInWebViews(app)))")
+    }
+
+    // MARK: Task 11: selection menu
+
+    /// Long-presses the first 'Nicodemus' of the chapter: the page selects the word and UIKit shows the edit menu with
+    /// the AndBible rows ahead of the system ones.
+    private func longPressNicodemus(_ app: XCUIApplication) -> Bool {
+        let word = app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
+        guard word.waitForExistence(timeout: 20) else { attachTree(app, "selection-no-word"); XCTFail("no 'Nicodemus' text to select"); return false }
+        word.press(forDuration: 1.2)
+        return true
+    }
+
+    /// An item of the edit menu by exact label. The menu is paged on a narrow screen, so the next-page chevron is tried
+    /// when the item is not on the first page.
+    private func editMenuItem(_ app: XCUIApplication, _ label: String, timeout: TimeInterval = 12) -> XCUIElement? {
+        let item = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+        let next = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == 'show.next.items.menu.button' OR label == 'Show more items'")).firstMatch
+        let deadline = Date().addingTimeInterval(timeout)
+        var pages = 0
+        while Date() < deadline {
+            if item.exists { return item }
+            if next.exists && next.isHittable && pages < 4 { next.tap(); pages += 1 }
+            usleep(500_000)
+        }
+        return item.exists ? item : nil
+    }
+
+    /// Two-step bookmarking (`disable_two_step_bookmarking` off, the default): the menu of a verse selection on a Bible
+    /// has the single "Bookmark" row (`add_bookmark1`), not the step-two rows; choosing it shows "Selection"
+    /// (`add_bookmark3`) and "Verses" (`add_bookmark_whole_verse1`). With the setting on both rows are in the first menu
+    /// and "Bookmark" is not. The UIKit edit menu is driven by a long press on a word and read through the accessibility
+    /// tree; if the Mac run shows the rows are not exposed, this test records the tree.
+    func testTwoStepBookmarkFromSelection() throws {
+        continueAfterFailure = true
+        var app = try launchReading()
+        XCTContext.runActivity(named: "two-step (default)") { _ in
+            guard longPressNicodemus(app) else { return }
+            guard let bookmark = editMenuItem(app, "Bookmark") else {
+                attachTree(app, "two-step-no-bookmark-row"); shot(app, "two-step-no-bookmark-row")
+                XCTFail("the selection menu has no 'Bookmark' row"); return
+            }
+            shot(app, "two-step-first-menu")
+            XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Selection'")).firstMatch.exists,
+                           "step-two row 'Selection' is shown before 'Bookmark' was chosen")
+            XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Verses'")).firstMatch.exists,
+                           "step-two row 'Verses' is shown before 'Bookmark' was chosen")
+            bookmark.tap()
+            let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
+            if selection == nil || verses == nil { attachTree(app, "two-step-no-step-two"); shot(app, "two-step-no-step-two") }
+            XCTAssertNotNil(selection, "step two has no 'Selection' row")
+            XCTAssertNotNil(verses, "step two has no 'Verses' row")
+            shot(app, "two-step-second-menu")
+        }
+
+        app = (try? relaunchReading(app, extraArguments: ["-disable_two_step_bookmarking", "YES"])) ?? app
+        XCTContext.runActivity(named: "one-step (disable_two_step_bookmarking)") { _ in
+            guard longPressNicodemus(app) else { return }
+            let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
+            if selection == nil || verses == nil { attachTree(app, "one-step-no-rows"); shot(app, "one-step-no-rows") }
+            XCTAssertNotNil(selection, "with two-step bookmarking off the first menu has no 'Selection' row")
+            XCTAssertNotNil(verses, "with two-step bookmarking off the first menu has no 'Verses' row")
+            XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Bookmark'")).firstMatch.exists,
+                           "the single 'Bookmark' row is shown although two-step bookmarking is off")
+            shot(app, "one-step-menu")
+        }
+    }
+
+    // MARK: Task 11: drawer rows
+
+    /// The R3 drawer rows open their screens: Study Pads (the label manager: title and the "New" action), Backup &
+    /// Restore (its "Backup to…" and "Restore or Import from…" buttons) and Device synchronization (the
+    /// "Synchronization Backend" row). A fresh process for each row.
+    func testDrawerStudyPadsBackupAndCloudSyncOpen() throws {
+        continueAfterFailure = true
+        var app = try launchReading()
+
+        XCTContext.runActivity(named: "Study Pads") { _ in
+            guard openDrawerRow(app, "Study Pads") else { return }
+            let new = byLabel(app, "New")
+            let shown = new.waitForExistence(timeout: 20)
+            if !shown { attachTree(app, "studypads-not-shown") }
+            XCTAssertTrue(shown, "Study Pads did not open the label manager (no 'New' action)")
+            XCTAssertFalse(element(app, "reading-host").exists && byLabel(app, "More options").exists, "the reading toolbar is still shown over the Study Pads screen")
+            shot(app, "drawer-studypads")
+        }
+
+        app = (try? relaunchReading(app)) ?? app
+        XCTContext.runActivity(named: "Backup & Restore") { _ in
+            guard openDrawerRow(app, "Backup & Restore") else { return }
+            let backup = labelStarting(app, "Backup to")
+            let shown = backup.waitForExistence(timeout: 20)
+            if !shown { attachTree(app, "backup-not-shown") }
+            XCTAssertTrue(shown, "Backup & Restore did not open (no 'Backup to…' button)")
+            XCTAssertTrue(labelStarting(app, "Restore or Import from").exists, "no 'Restore or Import from…' button")
+            shot(app, "drawer-backup")
+        }
+
+        app = (try? relaunchReading(app)) ?? app
+        XCTContext.runActivity(named: "Device synchronization") { _ in
+            guard openDrawerRow(app, "Device synchronization") else { return }
+            let backend = labelStarting(app, "Synchronization Backend")
+            let shown = backend.waitForExistence(timeout: 20)
+            if !shown { attachTree(app, "sync-not-shown") }
+            XCTAssertTrue(shown, "Device synchronization did not open (no 'Synchronization Backend' row)")
+            shot(app, "drawer-sync")
+        }
+    }
+
+    // MARK: Task 11: pane menu exports
+
+    /// A StudyPad window's pane menu carries the export rows `export_fileformat` "Export as HTML",
+    /// `export_something` + `studypad` "Export Study Pad" and `export_bookmarks_csv` "Export Bookmarks as CSV" (the rows
+    /// that open a dialog may carry a trailing " …"); the Bible window's menu has none of them. The StudyPad is made
+    /// through the drawer: Study Pads, "New" (the editor proposes the name "Label N"), "OK", then its row.
+    func testPaneMenuExportRowsOnAStudyPad() throws {
+        let app = try launchReading()
+        func menuRow(_ label: String) -> XCUIElement {
+            app.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
+        }
+        func openPaneMenu() -> Bool {
+            let window = byLabel(app, "Window menu")
+            guard window.waitForExistence(timeout: 15) else {
+                attachTree(app, "pane-menu-no-window-button"); XCTFail("no pane 'Window menu' button"); return false
+            }
+            window.tap()
+            return true
+        }
+
+        // The Bible window first: none of the export rows.
+        guard openPaneMenu() else { return }
+        XCTAssertTrue(menuRow("Maximise").waitForExistence(timeout: 10) || menuRow("Close").waitForExistence(timeout: 5), "the pane menu did not open")
+        for row in ["Export as HTML", "Export Study Pad", "Export Bookmarks as CSV"] {
+            XCTAssertFalse(menuRow(row).exists, "the Bible window's pane menu shows '\(row)'")
+        }
+        shot(app, "pane-menu-bible")
+        app.terminate()
+
+        // A StudyPad in the window.
+        let app2 = try launchReading()
+        guard openDrawerRow(app2, "Study Pads") else { return }
+        let new = byLabel(app2, "New")
+        guard new.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-new"); XCTFail("no 'New' action in the Study Pads manager"); return }
+        new.tap()
+        let ok = app2.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        guard ok.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-editor"); XCTFail("the label editor did not open (no 'OK')"); return }
+        ok.tap()
+        let row = app2.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES %@", "Label [0-9]+.*")).firstMatch
+        guard row.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-row"); XCTFail("the new Study Pad 'Label N' is not listed"); return }
+        row.tap()
+        guard element(app2, "reading-host").waitForExistence(timeout: 30) else { attachTree(app2, "studypad-no-reading"); XCTFail("choosing the Study Pad did not return to the reading view"); return }
+        // The StudyPad document replaces the Bible in the window: the chapter text is gone.
+        XCTAssertTrue(waitUntil(timeout: 30) { nicodemusInWebViews(app2) == 0 }, "the window still shows John 3 after opening the Study Pad")
+
+        let window = byLabel(app2, "Window menu")
+        guard window.waitForExistence(timeout: 15) else { attachTree(app2, "studypad-no-window-button"); XCTFail("no pane 'Window menu' button on the Study Pad window"); return }
+        window.tap()
+        for label in ["Export as HTML", "Export Study Pad", "Export Bookmarks as CSV"] {
+            let row = app2.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
+            let shown = row.waitForExistence(timeout: 10)
+            if !shown { attachTree(app2, "studypad-menu-no-\(label)"); shot(app2, "studypad-menu") }
+            XCTAssertTrue(shown, "the Study Pad window's pane menu has no '\(label)' row")
+        }
+        shot(app2, "pane-menu-studypad")
+    }
 }
