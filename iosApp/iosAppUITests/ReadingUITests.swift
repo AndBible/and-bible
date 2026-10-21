@@ -207,42 +207,44 @@ final class ReadingUITests: RealAppUITestCase {
         let device = XCUIDevice.shared
         addTeardownBlock { device.orientation = .portrait }
 
-        // Surface name, whether it needs landscape on an iPhone (the toolbar fits Find and Speak only there), opener.
-        let surfaces: [(name: String, landscape: Bool, open: (XCUIApplication) -> Bool)] = [
-            ("reading with two panes (toolbar, window buttons)", false, { app in
+        // Surface name; whether it needs landscape on an iPhone (the toolbar fits Find and Speak only there); how many
+        // element-less "potentially inaccessible text" detections of a popup / sheet window are tolerated
+        // (0 = none, the surface is in the main window); opener.
+        let surfaces: [(name: String, landscape: Bool, detectionCap: Int, open: (XCUIApplication) -> Bool)] = [
+            ("reading with two panes (toolbar, window buttons)", false, 0, { app in
                 self.addWindow(app, from: 1); return true
             }),
-            ("overflow menu", false, { app in
+            ("overflow menu", false, 9, { app in
                 let more = self.byLabel(app, "More options")
                 guard more.waitForExistence(timeout: 10) else { return false }
                 more.tap()
                 return app.buttons["Night mode"].waitForExistence(timeout: 10)
             }),
-            ("drawer", false, { app in
+            ("drawer", false, 0, { app in
                 let menu = app.buttons["Menu"]
                 guard menu.waitForExistence(timeout: 10) else { return false }
                 menu.tap()
                 return self.byLabel(app, "History").waitForExistence(timeout: 10)
             }),
-            ("pane menu", false, { app in
+            ("pane menu", false, 14, { app in
                 self.addWindow(app, from: 1)
                 guard let tab = self.windowTabs(app).first else { return false }
                 tab.press(forDuration: 1.0)
                 return app.buttons.matching(NSPredicate(format: "label == 'Maximise' OR label == 'Maximise …'"))
                     .firstMatch.waitForExistence(timeout: 10)
             }),
-            ("key chooser quick sheet", false, { app in
+            ("key chooser quick sheet", false, 4, { app in
                 guard let title = self.toolbarTitle(app) else { return false }
                 title.tap()
                 return self.quickSheetShown(app, timeout: 15)
             }),
-            ("speak bar", true, { app in
+            ("speak bar", true, 0, { app in
                 let speak = self.byLabel(app, "Speak")
                 guard speak.waitForExistence(timeout: 10) else { return false }
                 speak.tap()
                 return self.byLabel(app, "Next").waitForExistence(timeout: 15)
             }),
-            ("search in place", true, { app in
+            ("search in place", true, 0, { app in
                 let find = self.byLabel(app, "Find")
                 guard find.waitForExistence(timeout: 10) else { return false }
                 find.tap()
@@ -262,7 +264,7 @@ final class ReadingUITests: RealAppUITestCase {
                 continue
             }
             shot(app, "audit-\(surface.name)")
-            try audit(app, surface: surface.name, into: &findings)
+            try audit(app, surface: surface.name, detectionCap: surface.detectionCap, into: &findings)
         }
 
         let note = XCTAttachment(string: "Not audited: selection menu (UIKit-owned), full-screen overlay (no stable opener)")
@@ -276,12 +278,16 @@ final class ReadingUITests: RealAppUITestCase {
     /// Audits what is on screen and appends one line per finding to `findings`. The handler returns true for every issue
     /// so the audit itself does not stop at the first one; the test fails on the collected list afterwards.
     ///
-    /// Issue filters (R3, each with its reason in `knownLimitations`): Bible text words inside a pane web view (hit area
-    /// only) and the visual text detection on popup / sheet windows. Chrome findings are never filtered.
+    /// Filters (R3, each with its reason): Bible text words inside a pane web view (hit area only), and the visual text
+    /// detection ("Potentially inaccessible text", no element) on popup / sheet windows, capped at `detectionCap`
+    /// (what the Mac run showed: pane menu 14, overflow 9, key chooser sheet 4): a surplus detection is a finding and
+    /// fails. Chrome findings are never filtered. Both are T14 status notes.
     @available(iOS 17.0, *)
-    private func audit(_ app: XCUIApplication, surface: String, into findings: inout [String]) throws {
-        let popupSurfaces = ["overflow menu", "pane menu", "key chooser quick sheet"]
-        // (reason, matcher). Add an entry only with the controller's decision; keep it as narrow as possible.
+    private func audit(_ app: XCUIApplication, surface: String, detectionCap: Int, into findings: inout [String]) throws {
+        // The words of the Bible text under the pane web views, read once per surface (a per-issue query risks the
+        // audit timeout). Empty when a modal window hides the panes from the tree, which is fine: no hit-area findings.
+        let webViewWords = Set(app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+            .staticTexts.allElementsBoundByIndex.map { $0.label })
         let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = [
             // R3 decision (T14 status): the Bible text runs. WebKit exposes every word / punctuation mark / verse number
             // inside the pane's WKWebView as its own tiny static text (labels ',' '.' 'in' '¶' '17' ...). The text is
@@ -292,24 +298,26 @@ final class ReadingUITests: RealAppUITestCase {
             ("Bible text word inside a pane web view (hit area of running text; scaled by font_size_multiplier)", { issue in
                 guard issue.auditType == .hitRegion, let element = issue.element, element.elementType == .staticText,
                       !element.label.isEmpty, element.frame.width < 60, element.frame.height < 60 else { return false }
-                let sameWordInWebView = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
-                    .staticTexts.matching(NSPredicate(format: "label == %@", element.label))
-                return sameWordInWebView.count > 0
-            }),
-            // R3 decision: "Potentially inaccessible text" (elementDetection) is the audit's visual text detection and it
-            // reports no element. It fired only on surfaces drawn in their own window (overflow and pane menu popups,
-            // the key chooser sheet), never on the drawer, which is the same Compose text in the main window. In the same
-            // run every row of those popups is found and tapped by its label (see tapMenuItem and the Task 9 tests), so
-            // the text IS in the accessibility tree; the detection cannot see across the separate window.
-            ("visual text detection on a Compose popup / sheet window whose rows are verified by label elsewhere", { issue in
-                issue.auditType == .elementDetection && issue.element == nil && popupSurfaces.contains(surface)
+                return webViewWords.contains(element.label)
             }),
         ]
         var found: [String] = []
+        var detectionFiltered = 0
         do {
             try app.performAccessibilityAudit { issue in
                 if let limitation = knownLimitations.first(where: { $0.matches(issue) }) {
                     let a = XCTAttachment(string: "[\(surface)] filtered (\(limitation.reason)): \(issue.compactDescription)")
+                    a.name = "a11y-filtered"; a.lifetime = .keepAlways; self.add(a)
+                    return true
+                }
+                // R3 decision (T14 status): "Potentially inaccessible text" (elementDetection) is the audit's visual text
+                // detection and reports no element. It fired only on surfaces drawn in their own window (overflow and
+                // pane menu popups, the key chooser sheet), never on the drawer (same Compose text, main window). Every
+                // row of those popups is found and tapped by label in the Task 9 tests, so the text IS in the tree.
+                // Capped per surface: a detection beyond the cap is a new finding and fails.
+                if issue.auditType == .elementDetection, issue.element == nil, detectionFiltered < detectionCap {
+                    detectionFiltered += 1
+                    let a = XCTAttachment(string: "[\(surface)] filtered detection \(detectionFiltered)/\(detectionCap) (popup window text detection): \(issue.compactDescription)")
                     a.name = "a11y-filtered"; a.lifetime = .keepAlways; self.add(a)
                     return true
                 }
@@ -320,6 +328,9 @@ final class ReadingUITests: RealAppUITestCase {
                 return true   // collected, reported and failed after all surfaces
             }
         } catch let error as NSError where error.domain == "com.apple.xcode.xctest.accessibilityAudit" && error.code == -56 {
+            // Keep what was found so far visible before skipping.
+            let partial = "audit of '\(surface)' timed out; findings so far:\n" + (findings + found).joined(separator: "\n")
+            let a = XCTAttachment(string: partial); a.name = "a11y-findings-partial"; a.lifetime = .keepAlways; add(a)
             throw XCTSkip("Accessibility audit did not complete in time on this runner")
         }
         findings.append(contentsOf: found)

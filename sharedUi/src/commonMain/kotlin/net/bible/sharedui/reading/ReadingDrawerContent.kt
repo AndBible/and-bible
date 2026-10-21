@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -60,6 +61,11 @@ import net.bible.sharedcore.reading.DrawerMenuState
  * them here rather than sprinkling paddings through the tree.
  */
 val ReadingDrawerWidth: Dp = 300.dp
+/**
+ * R3: when true (provided by the iOS host only) drawer rows grow and wrap with large text instead of keeping the
+ * fixed single-line 48dp row, so nothing is clipped at XXXL / AX5. Default false = the Android behaviour.
+ */
+val LocalDrawerRowsGrowWithText = staticCompositionLocalOf { false }
 private val DrawerRowHeight = 48.dp
 private val DrawerRowHorizontalPadding = 16.dp
 private val DrawerIconLabelGap = 16.dp
@@ -169,14 +175,16 @@ private fun DrawerRow(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
+    val grow = LocalDrawerRowsGrowWithText.current
     val contentColor =
         if (enabled) MaterialTheme.colorScheme.onSurface
         else LocalAbColors.current.monoDisabled
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            // R3: a minimum, not a fixed height, so a row grows with Dynamic Type instead of clipping its label.
-            .heightIn(min = DrawerRowHeight)
+            // R3: iOS only (Dynamic Type): a minimum, not a fixed height, so the row grows instead of clipping its
+            // label. Android keeps the classic fixed 48dp single-line row (no golden drift).
+            .then(if (grow) Modifier.heightIn(min = DrawerRowHeight) else Modifier.height(DrawerRowHeight))
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = DrawerRowHorizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
@@ -185,7 +193,12 @@ private fun DrawerRow(
             Icon(painter = icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(DrawerIconSize))
             Spacer(Modifier.width(DrawerIconLabelGap))
         }
-        Text(text = label, style = MaterialTheme.typography.bodyLarge, color = contentColor)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = contentColor,
+            maxLines = if (grow) Int.MAX_VALUE else 1,
+        )
     }
 }
 

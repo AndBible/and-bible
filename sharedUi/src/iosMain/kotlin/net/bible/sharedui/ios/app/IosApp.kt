@@ -80,6 +80,7 @@ import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.components.AppToastHost
 import net.bible.sharedui.components.FailClosedLinkRouting
+import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.ios.reading.ChooserTarget
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
@@ -92,6 +93,7 @@ import net.bible.sharedui.ios.reading.rememberIosPaneIcons
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.LocalCategoryIcon
+import net.bible.sharedui.reading.LocalDrawerRowsGrowWithText
 import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.reading.host.LocalReadingPane
@@ -182,7 +184,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
         check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
         CompositionLocalProvider(
             LocalStrings provides strings,
-            net.bible.sharedui.components.LocalSheetDragHandleDescription provides strings.sheetDragHandle,
+            LocalSheetDragHandleDescription provides strings.sheetDragHandle,
             LocalLiveSettingsLanguage provides true,
             net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
             LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
@@ -229,7 +231,8 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
     }
     CompositionLocalProvider(
         LocalStrings provides strings,
-        net.bible.sharedui.components.LocalSheetDragHandleDescription provides strings.sheetDragHandle,
+        LocalSheetDragHandleDescription provides strings.sheetDragHandle,
+        LocalDrawerRowsGrowWithText provides true,
         LocalLiveSettingsLanguage provides true,
         net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
