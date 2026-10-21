@@ -1,5 +1,6 @@
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +21,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
@@ -80,16 +81,27 @@ fun AbModalBottomSheet(
         scrimColor = if (mono) Color.Transparent else BottomSheetDefaults.ScrimColor,
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
-        dragHandle = {
-            val handleModifier = if (dragHandleDescription != null) {
-                Modifier.semantics { contentDescription = dragHandleDescription }
-            } else Modifier
-            if (mono) BottomSheetDefaults.DragHandle(modifier = handleModifier, color = monoInk(LocalIsDarkTheme.current))
-            else BottomSheetDefaults.DragHandle(modifier = handleModifier)
-        },
+        dragHandle = { AbSheetDragHandle(description = dragHandleDescription, mono = mono) },
     ) {
         MirrorHostSystemBars()
         if (mono) NoDialogNavigationContrast()
         content()
     }
+}
+
+/**
+ * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in a node that REPLACES its
+ * semantics (`clearAndSetSemantics`): setting `contentDescription` on the handle's own modifier was not exposed
+ * to VoiceOver on iOS (the audit still saw an unnamed 32x48 element), because the handle sets its own, empty
+ * description on the same node. The wrapper keeps the pixels identical and the parent sheet still merges it.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AbSheetDragHandle(description: String?, mono: Boolean) {
+    val handle: @Composable () -> Unit = {
+        if (mono) BottomSheetDefaults.DragHandle(color = monoInk(LocalIsDarkTheme.current))
+        else BottomSheetDefaults.DragHandle()
+    }
+    if (description == null) handle()
+    else Box(Modifier.clearAndSetSemantics { contentDescription = description }) { handle() }
 }

@@ -282,16 +282,19 @@ final class ReadingUITests: RealAppUITestCase {
     private func audit(_ app: XCUIApplication, surface: String, into findings: inout [String]) throws {
         let popupSurfaces = ["overflow menu", "pane menu", "key chooser quick sheet"]
         // (reason, matcher). Add an entry only with the controller's decision; keep it as narrow as possible.
-        let webViewFrames = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
-            .allElementsBoundByIndex.map { $0.frame }
         let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = [
             // R3 decision (T14 status): the Bible text runs. WebKit exposes every word / punctuation mark / verse number
-            // inside the pane's WKWebView as its own tiny static text; confirmed from the Mac findings (labels ',' '.'
-            // 'in' '¶' '17' ...). The text is scaled by the user's own font_size_multiplier, not by chrome, and a word
-            // of running text is not a control. Only the hit-area category, only static texts, only inside a pane web view.
+            // inside the pane's WKWebView as its own tiny static text (labels ',' '.' 'in' '¶' '17' ...). The text is
+            // scaled by the user's own font_size_multiplier, not by chrome, and a word of running text is not a control.
+            // The audit reports those elements' frames in the web content's own coordinate space (small or negative
+            // values), so frame arithmetic cannot identify them; the hierarchy does: the element must be one of the
+            // static texts under a pane web view (same label, tiny size). Only hit area, only static texts.
             ("Bible text word inside a pane web view (hit area of running text; scaled by font_size_multiplier)", { issue in
-                guard issue.auditType == .hitRegion, let element = issue.element, element.elementType == .staticText else { return false }
-                return webViewFrames.contains { $0.intersects(element.frame) }
+                guard issue.auditType == .hitRegion, let element = issue.element, element.elementType == .staticText,
+                      !element.label.isEmpty, element.frame.width < 60, element.frame.height < 60 else { return false }
+                let sameWordInWebView = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+                    .staticTexts.matching(NSPredicate(format: "label == %@", element.label))
+                return sameWordInWebView.count > 0
             }),
             // R3 decision: "Potentially inaccessible text" (elementDetection) is the audit's visual text detection and it
             // reports no element. It fired only on surfaces drawn in their own window (overflow and pane menu popups,
