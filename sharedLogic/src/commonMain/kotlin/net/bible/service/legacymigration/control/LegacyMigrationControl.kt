@@ -1,0 +1,75 @@
+package net.bible.service.legacymigration.control
+
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import net.bible.service.legacymigration.state.MigrationPhase
+import net.bible.service.legacymigration.state.MigrationStateStore
+import net.bible.service.legacymigration.state.atomicWriteFile
+import okio.FileSystem
+import okio.Path
+
+/** Why the user (or the app) chose not to migrate the legacy data. */
+enum class DeclineReason { START_FRESH, RESTORED_BACKUP }
+
+/**
+ * The small marker files next to the migration state in `applicationSupport/LegacyMigration/`: `declined.json` (the user
+ * chose to start without the old data or restored a backup, so the migration is settled without `done.json`) and
+ * `import-request.json` (the user asked for a later import; the runner consumes it). The migrator itself never reads them;
+ * the startup runner and the settings screen do.
+ */
+class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Path) {
+    val dir: Path = applicationSupport / "LegacyMigration"
+    private val support = applicationSupport
+    private val doneFile = dir / "done.json"
+    private val declinedFile = dir / "declined.json"
+    private val importRequestFile = dir / "import-request.json"
+    private val states = MigrationStateStore(fs, dir)
+
+    /** True when a store of the old app exists: a cloud store (`AndBible.store`, else `CloudStore.store`, else `AndBible.store.backup`) and `LocalStore.store`. */
+    fun sourcesExist(): Boolean =
+        listOf("AndBible.store", "CloudStore.store", "AndBible.store.backup").any { fs.exists(support / it) } && fs.exists(support / "LocalStore.store")
+
+    /** The migration needs no further decision: it completed (or found nothing) or the user declined it. */
+    fun isSettled(): Boolean = fs.exists(doneFile) || fs.exists(declinedFile)
+
+    fun decline(reason: DeclineReason) {
+        fs.createDirectories(dir)
+        atomicWriteFile(fs, declinedFile, """{"reason":"${reason.name}"}""")
+    }
+
+    /** An import can be offered: old stores exist and no real migration has completed (a "nothing to migrate" marker does not count). */
+    fun importAvailable(): Boolean = sourcesExist() && !(fs.exists(doneFile) && !nothingToMigrate())
+
+    /** Clears a decline and the attempt counter and records the request for the runner. */
+    fun requestImport() {
+        fs.createDirectories(dir)
+        fs.delete(declinedFile, mustExist = false)
+        resetAttempts()
+        atomicWriteFile(fs, importRequestFile, """{"requestedAt":${kotlin.time.Clock.System.now().toEpochMilliseconds()}}""")
+    }
+
+    fun importRequested(): Boolean = fs.exists(importRequestFile)
+
+    /** Called by the runner after a settled outcome. */
+    fun clearImportRequest() {
+        fs.delete(importRequestFile, mustExist = false)
+    }
+
+    /**
+     * Forgets the attempt counter so the next run starts at attempt 1. Refused (false, nothing changed) while `state.json`
+     * is in phase `ADOPTING`: its plan is needed for the rollback.
+     */
+    fun resetAttempts(): Boolean {
+        if (states.read()?.phase == MigrationPhase.ADOPTING) return false
+        states.delete()
+        return true
+    }
+
+    private fun nothingToMigrate(): Boolean = try {
+        Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject["nothingToMigrate"]?.jsonPrimitive?.booleanOrNull == true
+    } catch (e: Exception) {
+        false
+    }
+}

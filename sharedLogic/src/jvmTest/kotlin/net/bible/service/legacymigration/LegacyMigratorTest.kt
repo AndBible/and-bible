@@ -46,6 +46,7 @@ import net.bible.service.legacymigration.testsupport.installLegacyApp
 import net.bible.service.legacymigration.testsupport.writeSqlite
 import net.bible.service.llm.apiKeyName
 import okio.FileSystem
+import okio.ForwardingFileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
 
@@ -68,10 +69,22 @@ class LegacyMigratorTest {
         platform: LegacyPlatform,
         mappers: List<CategoryMapper>? = null,
         failAt: Step? = null,
-    ) = if (mappers == null) LegacyMigrator(platform, JvmLegacyDatabaseFactory(), failAt = failAt)
-    else LegacyMigrator(platform, JvmLegacyDatabaseFactory(), mappers, failAt)
+        replaceExisting: Boolean = false,
+        stepHook: suspend (Step) -> Unit = {},
+    ) = LegacyMigrator(platform, JvmLegacyDatabaseFactory(), mappers ?: defaultMappers(platform), failAt, platform.documents / "jsword" / "readingplan", replaceExisting, stepHook)
 
-    private fun run(platform: LegacyPlatform, failAt: Step? = null) = runBlocking { migrator(platform, null, failAt).run() }
+    private fun run(platform: LegacyPlatform, failAt: Step? = null, replaceExisting: Boolean = false) =
+        runBlocking { migrator(platform, null, failAt, replaceExisting).run() }
+
+    private fun countRows(file: File): Int {
+        val c = net.bible.service.db.openSqlite(file.path, readOnly = true)
+        try {
+            val s = c.prepare("SELECT COUNT(*) FROM t")
+            try { s.step(); return s.getLong(0).toInt() } finally { s.close() }
+        } finally {
+            c.close()
+        }
+    }
 
     /** The staged contents of a clean run, the reference of every "same result after a failure" assertion. */
     private val baseline: Map<String, Map<String, Int>> by lazy {
@@ -204,6 +217,78 @@ class LegacyMigratorTest {
         assertTrue(bytes.contentEquals(existing.readBytes()), "the user's database is untouched")
         assertEquals(listOf("workspaces.sqlite3"), e.databaseFiles(), "no other database was adopted either")
         assertFalse(File(e.migrationDir.toString(), "done.json").exists())
+    }
+
+    // ---- replace mode ---------------------------------------------------------------------------------------------
+
+    private fun beforeImportDirs(e: Env): List<File> =
+        File(e.migrationDir.toString()).listFiles { f -> f.name.startsWith("before-import-") }.orEmpty().toList()
+
+    @Test
+    fun replaceModeReplacesNonEmptyAndKeepsTheOldFiles() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform, replaceExisting = true))
+        val kept = beforeImportDirs(e).single()
+        assertEquals(3, countRows(File(kept, "bookmarks.sqlite3")))
+        assertFalse(File(e.migrationDir.toString(), "replaced").exists(), "replaced/ was renamed, not left behind")
+        assertEquals(baseline, databaseSummary(e.databases))
+    }
+
+    @Test
+    fun replaceModeKeepsTheBackupWhenARelaunchRetriesTheRename() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform, replaceExisting = true))
+        // A later launch (default mode) must not delete the kept files.
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertEquals(3, countRows(File(beforeImportDirs(e).single(), "bookmarks.sqlite3")))
+    }
+
+    @Test
+    fun replaceModeMovesSideFilesAndRollbackRestoresThem() {
+        val e = env()
+        val target = File(e.databases.toString(), "bookmarks.sqlite3")
+        writeSqlite(target, rows = 3)
+        val wal = File(e.databases.toString(), "bookmarks.sqlite3-wal")
+        wal.writeBytes(ByteArray(64) { it.toByte() })
+        val targetBytes = target.readBytes()
+        val walBytes = wal.readBytes()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(e.platform, Step.ADOPT_DONE, replaceExisting = true))
+        assertTrue(failed.rolledBack)
+        assertTrue(targetBytes.contentEquals(target.readBytes()), "the database is back byte-identical")
+        assertTrue(wal.isFile && walBytes.contentEquals(wal.readBytes()), "the -wal is back byte-identical")
+        assertEquals(emptyList(), beforeImportDirs(e))
+    }
+
+    @Test
+    fun withoutReplaceModeNonEmptyStillFails() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        assertEquals(Kind.ADOPTION_FAILED, assertIs<LegacyMigrationOutcome.Failed>(run(e.platform)).kind)
+    }
+
+    @Test
+    fun stepHookRunsInStepOrder() {
+        val e = env()
+        val seen = mutableListOf<Step>()
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator(e.platform, stepHook = { seen += it }).run() })
+        assertEquals(Step.entries.toList(), seen)
+    }
+
+    @Test
+    fun extrasFileIsWrittenBeforeTheCommitMove() {
+        val e = env()
+        val extras = File(e.migrationDir.toString(), "extras.json")
+        var existedAtCommit: Boolean? = null
+        val fs = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun atomicMove(source: Path, target: Path) {
+                if (target.name == "done.json") existedAtCommit = extras.isFile
+                super.atomicMove(source, target)
+            }
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(PlatformWithFileSystem(e.platform, fs)))
+        assertEquals(true, existedAtCommit, "extras.json must exist when done.json is committed")
     }
 
     // ---- existing databases: what may be replaced ---------------------------------------------------------------
