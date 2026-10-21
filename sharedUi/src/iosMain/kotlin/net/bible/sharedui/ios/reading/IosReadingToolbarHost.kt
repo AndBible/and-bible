@@ -303,10 +303,12 @@ internal class IosReadingToolbarHost(
 
     override fun toggleFullScreen() = toggleFullScreen.invoke()
 
-    override fun nightMode(): Boolean = deviceSettings.getBoolean(NIGHT_MODE_KEY, false)
+    private val nightState by lazy { net.bible.sharedlogic.platform.ios.IosNightModeState(deviceSettings) }
 
-    /** iOS night mode is the manual preference only (Android's sensor and system branches have no iOS counterpart yet). */
-    override fun nightModeSwitchable(): Boolean = true
+    override fun nightMode(): Boolean = nightState.nightMode
+
+    /** Like Android's overflow row, the toggle only works in manual mode; "system" (the default) follows the appearance. */
+    override fun nightModeSwitchable(): Boolean = nightState.mode == "manual"
     override fun setNightMode(on: Boolean) = deviceSettings.putBoolean(NIGHT_MODE_KEY, on)
 
     override fun tiltPossible(): Boolean = tiltAvailable()

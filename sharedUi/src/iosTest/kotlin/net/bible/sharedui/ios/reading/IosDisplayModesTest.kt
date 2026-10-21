@@ -48,7 +48,13 @@ import net.bible.sharedui.ios.app.IosReadingReady
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.attachReadingPane
 import org.koin.mp.KoinPlatform
+import net.bible.sharedlogic.platform.ios.IosNightModeState
+import net.bible.sharedcore.platform.IosDeviceSettings
 import platform.Foundation.NSDate
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSUUID
+import platform.Foundation.NSUserDefaults
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.Foundation.NSRunLoop
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.Foundation.runUntilDate
@@ -76,7 +82,10 @@ class IosDisplayModesTest {
         }
     }
 
-    private fun withWindows(night: FakeNight, body: (windowId: String) -> Unit) {
+    private fun withWindows(night: NightModeState, body: (windowId: String) -> Unit) = withWindows({ night }, body)
+
+    /** [nightFor] gets the started Koin, so a test can use the production [NightModeState] binding. */
+    private fun withWindows(nightFor: (org.koin.core.Koin) -> NightModeState, body: (windowId: String) -> Unit) {
         try {
             awaitStartupOnMain { IosAppStartup.ensureStarted(
                 IosAppConfig(
@@ -88,6 +97,7 @@ class IosDisplayModesTest {
             awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
+            val night = nightFor(koin)
             val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
             IosReadingWindows.bind(host, scope, koin, night)
             body(koin.get<WindowControl>().activeWindow.id.toString())
@@ -157,6 +167,122 @@ class IosDisplayModesTest {
             settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
             assertFalse(observer.monochrome.value)
             assertEquals(3, changes)
+        } finally {
+            observer.stop()
+            scope.cancel()
+        }
+    }
+
+    private fun spinMain() = NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.1))
+
+    private fun post(name: String?) = NSNotificationCenter.defaultCenter.postNotificationName(name!!, null)
+
+    /**
+     * Night mode "system" (an absent preference) while the app is backgrounded and the appearance flips: nothing is
+     * delivered in the background; on become-active the observer re-reads, the chrome state follows, and the page gets
+     * the new config through the relay (set_config) with the same WebView and no second bundle load (no reload flash,
+     * the scroll position survives).
+     */
+    @Test
+    fun systemAppearanceChangeRefreshesOnActive() {
+        val suiteName = "display-modes-" + NSUUID().UUIDString
+        val defaults = NSUserDefaults(suiteName = suiteName)
+        var systemDark = false
+        val state = IosNightModeState(IosDeviceSettings(defaults)) { systemDark }
+        withWindows(state) { id ->
+            var loads = 0
+            IosReadingWebViews.bundleLoader = { _, _, _ -> loads++ }
+            attachReadingPane(id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+            val webView = IosReadingWebViews.entry(id).webView
+            val relay = IosReadingWindows.relayPlatformFor(id)!!
+            val configsBefore = relay.configUpdates
+            var changes = 0
+            val observer = IosNightModeObserver(state, restored = { null }) {
+                changes++
+                IosReadingWindows.nightModeChanged()
+            }
+            try {
+                observer.start()
+                observer.refresh()
+                assertFalse(observer.dark.value)
+                assertEquals(0, changes)
+
+                systemDark = true // flips while backgrounded: no notification is delivered
+                spinMain()
+                assertFalse(observer.dark.value)
+                assertEquals(0, changes)
+
+                post(UIApplicationDidBecomeActiveNotification)
+                spinMain()
+                assertTrue(observer.dark.value, "chrome follows the system on return")
+                assertEquals(1, changes)
+                assertEquals(configsBefore + 1, relay.configUpdates, "the open page gets set_config")
+                assertEquals(1, loads, "no reload flash, no lost scroll position")
+                assertSame(webView, IosReadingWebViews.entry(id).webView)
+
+                post(UIApplicationDidBecomeActiveNotification) // active again, nothing changed: no report
+                spinMain()
+                assertEquals(1, changes)
+                assertEquals(configsBefore + 1, relay.configUpdates)
+            } finally {
+                observer.stop()
+                NSUserDefaults.standardUserDefaults.removePersistentDomainForName(suiteName)
+            }
+        }
+    }
+
+    /**
+     * The settings screen writes `night_mode_pref3` through [net.bible.android.view.activity.settings.AppSettingsServiceImpl]
+     * to the device-local prefs; the production [NightModeState] binding (the one the observer and the loader share)
+     * sees that write after the user-defaults notification. The key is removed afterwards (the standard defaults are shared).
+     */
+    @Test
+    fun settingsScreenWriteReachesTheObserver() {
+        val standard = NSUserDefaults.standardUserDefaults
+        val hadMode = standard.objectForKey("night_mode_pref3")
+        val hadManual = standard.objectForKey("night_mode_pref")
+        standard.removeObjectForKey("night_mode_pref3")
+        standard.setBool(true, forKey = "night_mode_pref")
+        withWindows({ it.get<NightModeState>() }) {
+            val koin = KoinPlatform.getKoin()
+            val observer = IosNightModeObserver(koin.get<NightModeState>(), restored = { null })
+            try {
+                observer.start()
+                observer.refresh()
+                koin.get<net.bible.sharedcore.settings.AppSettingsService>().setString("night_mode_pref3", "manual")
+                spinMain()
+                assertEquals("manual", standard.stringForKey("night_mode_pref3"))
+                assertTrue(observer.dark.value, "manual with night_mode_pref=true is dark")
+                koin.get<net.bible.sharedcore.settings.AppSettingsService>().setBool("night_mode_pref", false)
+                spinMain()
+                assertFalse(observer.dark.value)
+            } finally {
+                observer.stop()
+                if (hadMode == null) standard.removeObjectForKey("night_mode_pref3") else standard.setObject(hadMode, forKey = "night_mode_pref3")
+                if (hadManual == null) standard.removeObjectForKey("night_mode_pref") else standard.setObject(hadManual, forKey = "night_mode_pref")
+            }
+        }
+    }
+
+    /** A database restore or sign-in announces itself on `DatabaseContainer.databaseRestored`; the observer re-reads then. */
+    @Test
+    fun restoreRereadsNightMode() {
+        val night = FakeNight(false)
+        val restored = net.bible.sharedcore.event.EventSource<Unit>()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        var changes = 0
+        val observer = IosNightModeObserver(night, restored = { restored }) { changes++ }
+        try {
+            observer.start(scope)
+            night.dark = true // the restore replaced the stored mode: no notification of its own
+            assertFalse(observer.dark.value)
+            restored.emit(Unit)
+            assertTrue(observer.dark.value)
+            assertEquals(1, changes)
+            observer.stop()
+            night.dark = false
+            restored.emit(Unit)
+            assertTrue(observer.dark.value, "a stopped observer no longer listens")
         } finally {
             observer.stop()
             scope.cancel()

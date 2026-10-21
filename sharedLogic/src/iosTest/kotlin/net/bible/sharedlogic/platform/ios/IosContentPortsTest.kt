@@ -166,16 +166,6 @@ class IosContentPortsTest {
         assertEquals("""{"a":1}""", defaults.stringForKey("SpeakSettings"))
     }
 
-    @Test fun nightModeReadsTheManualPreferenceKey() {
-        val defaults = suite()
-        val state = IosNightModeState(IosDeviceSettings(defaults))
-        assertFalse(state.nightMode)
-        defaults.setBool(true, forKey = "night_mode_pref")
-        assertTrue(state.nightMode)
-        defaults.setBool(false, forKey = "night_mode_pref")
-        assertFalse(state.nightMode)
-    }
-
     // --- IosSearchIndexScheduler
 
     private class Fixture(val scope: AppCoroutineScope = AppCoroutineScope(SupervisorJob() + Dispatchers.Default)) {

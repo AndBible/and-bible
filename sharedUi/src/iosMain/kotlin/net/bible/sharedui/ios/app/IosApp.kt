@@ -214,6 +214,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
         nightObserver.refresh()
         onDispose { nightObserver.stop() }
     }
+    ReportSystemAppearance(nightObserver)
     val dark by nightObserver.dark
     val startRoute by produceState<String?>(null) {
         value = try {
@@ -670,4 +671,15 @@ private fun SaveWorkspaceOnBackground(koin: Koin) {
             .map { center.addObserverForName(it, null, NSOperationQueue.mainQueue, save) }
         onDispose { observers.forEach { center.removeObserver(it) } }
     }
+}
+
+/**
+ * Reports a system appearance change to [observer] while the app is in the foreground (a change while backgrounded is
+ * picked up by the observer's own become-active refresh). The observer decides whether anything changed and, if so,
+ * re-sends the page config without a reload.
+ */
+@Composable
+private fun ReportSystemAppearance(observer: IosNightModeObserver) {
+    val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    LaunchedEffect(systemDark) { observer.refresh() }
 }

@@ -312,6 +312,8 @@ class IosNightModeObserver(
     private val state: NightModeState,
     private val settings: AppSettings? = null,
     private val settingsChanges: kotlinx.coroutines.flow.Flow<String>? = null,
+    /** Fires after a database restore or sign-in replaced the databases (resolved on [start]); the modes are re-read then. */
+    private val restored: () -> net.bible.sharedcore.event.Events<Unit>? = { net.bible.service.db.DatabaseContainer.databaseRestored },
     private val onChange: () -> Unit = {},
 ) {
     private val darkState = androidx.compose.runtime.mutableStateOf(state.nightMode)
@@ -323,6 +325,7 @@ class IosNightModeObserver(
     val monochrome: androidx.compose.runtime.State<Boolean> get() = monochromeState
     private val observers = mutableListOf<Any>()
     private var settingsWatch: kotlinx.coroutines.Job? = null
+    private var restoreWatch: kotlinx.coroutines.Job? = null
 
     private fun readMonochrome(): Boolean =
         settings != null && (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL
@@ -356,6 +359,13 @@ class IosNightModeObserver(
         if (scope != null && settingsChanges != null) {
             settingsWatch = watchSettingKeys(settingsChanges, DISPLAY_MODE_KEYS, scope) { refresh() }
         }
+        // A restore can replace the stored modes behind the observer's back, with no notification of its own.
+        val restoredEvents = restored()
+        if (scope != null && restoredEvents != null) {
+            restoreWatch = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                restoredEvents.asFlow().collect { refresh() }
+            }
+        }
     }
 
     fun stop() {
@@ -364,6 +374,8 @@ class IosNightModeObserver(
         observers.clear()
         settingsWatch?.cancel()
         settingsWatch = null
+        restoreWatch?.cancel()
+        restoreWatch = null
     }
 
     private companion object {

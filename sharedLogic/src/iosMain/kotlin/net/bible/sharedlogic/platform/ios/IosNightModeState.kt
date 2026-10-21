@@ -18,16 +18,34 @@ package net.bible.sharedlogic.platform.ios
 
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedlogic.platform.resolveNightMode
+import platform.UIKit.UIScreen
+import platform.UIKit.UIUserInterfaceStyle
 
 /**
- * iOS [NightModeState]: the manual night-mode preference, the key Android's `ScreenSettings.nightMode` reads in its
- * manual branch (`night_mode_pref`, default false). Android's light-sensor and system-mode branches have no iOS
- * counterpart yet: following the system appearance is phase 2.
+ * iOS [NightModeState]: the `night_mode_pref3` mode and the manual `night_mode_pref` Boolean, both in `NSUserDefaults`
+ * under Android's key names, resolved by the common [resolveNightMode]. An ABSENT mode is `"system"` (spec H7: neither
+ * the reader nor the settings screen writes a default on first launch), so a fresh install follows the system
+ * appearance. There is no light sensor on iOS, so `"automatic"` behaves as `"system"` (the settings screen does not
+ * offer it: `autoNightModeAvailable` stays false). [systemDark] is read on every access, so the answer is live.
  */
-class IosNightModeState(private val deviceSettings: IosDeviceSettings) : NightModeState {
-    override val nightMode: Boolean get() = deviceSettings.getBoolean(NIGHT_MODE_KEY, false)
+class IosNightModeState(
+    private val deviceSettings: IosDeviceSettings,
+    private val systemDark: () -> Boolean = ::iosSystemIsDark,
+) : NightModeState {
+    /** The stored mode, `"system"` when the preference was never written. */
+    val mode: String get() = deviceSettings.getString(NIGHT_MODE_MODE_KEY) ?: DEFAULT_MODE
 
-    private companion object {
+    override val nightMode: Boolean
+        get() = resolveNightMode(mode, deviceSettings.getBoolean(NIGHT_MODE_KEY, false), systemDark(), autoReading = null)
+
+    companion object {
         const val NIGHT_MODE_KEY = "night_mode_pref"
+        const val NIGHT_MODE_MODE_KEY = "night_mode_pref3"
+        const val DEFAULT_MODE = "system"
     }
 }
+
+/** True when the device is in dark appearance (the screen's own trait collection, unaffected by any app override). */
+fun iosSystemIsDark(): Boolean =
+    UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
