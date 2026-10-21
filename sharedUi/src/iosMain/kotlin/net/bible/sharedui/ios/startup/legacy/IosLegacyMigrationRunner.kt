@@ -116,7 +116,7 @@ internal object IosLegacyMigrationRunner {
         val settings = IosDeviceSettings()
         return RunnerHooks(
             platform = platform,
-            control = LegacyMigrationControl(platform.fileSystem, platform.applicationSupport, sync = platform::syncFile),
+            control = legacyMigrationControl(platform),
             devicePrefs = settings,
             protectedDataAvailable = ::protectedDataAvailableNow,
             awaitProtectedDataChange = ::awaitProtectedDataNotification,
@@ -124,6 +124,10 @@ internal object IosLegacyMigrationRunner {
         )
     }
 }
+
+/** The one construction of the migration control (directory `Application Support/LegacyMigration`), shared with [IosLegacyNotices]. */
+internal fun legacyMigrationControl(platform: LegacyPlatform): LegacyMigrationControl =
+    LegacyMigrationControl(platform.fileSystem, platform.applicationSupport, sync = platform::syncFile)
 
 /** H3: the old stores sit under file protection; before the first unlock they cannot be read, so wait (never fail). */
 internal suspend fun awaitProtectedData(available: suspend () -> Boolean, awaitChange: suspend () -> Unit) {

@@ -45,6 +45,10 @@ import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedui.ios.startup.legacy.IosLegacyNotices
+import org.koin.mp.KoinPlatform
 import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.poc.IosPocApp
 import net.bible.sharedui.poc.PocScenario
@@ -217,6 +221,12 @@ fun MainViewController(): UIViewController {
                 runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
                     .onFailure { nsLog("background sync scheduling failed: ${it.stackTraceToString()}") }
             }
+        }
+        LaunchedEffect(Unit) {
+            // Never throws: showPending logs and returns on failure. Koin is resolved the way the Ready branch does.
+            val koin = KoinPlatform.getKoin()
+            val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
+            IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
         }
         if (Platform.isDebugBinary) {
             LaunchedEffect(Unit) {
