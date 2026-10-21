@@ -131,6 +131,25 @@ sim_fallback() {
     if [ -n "$src" ]; then cp -R "$src"/. "$out"/; else echo "No i3-fixtures directory found"; fi
 }
 
+# Scenarios every `generate` must produce (one directory with AndBible.store each) and the XCTest case for each.
+EXPECTED_SCENARIOS="fresh rich restored-android preserved-ai extended"
+
+# Fail loudly unless every expected scenario was produced and its test case ran. Prints what was produced.
+verify_generated() {
+    local out="$1" log="$2" installed="$3" missing=0 scenario
+    echo "== generated scenarios in $out:"
+    for scenario in $EXPECTED_SCENARIOS; do
+        if [ -f "$out/$scenario/AndBible.store" ]; then echo "   ok      $scenario"; else echo "   MISSING $scenario" >&2; missing=1; fi
+    done
+    echo "== XCTest cases that ran (from $log):"
+    grep -E "Test Case .*(testScenario[A-Za-z]*) (started|passed|failed)" "$log" | sed 's/^/   /' || true
+    grep -E "error:|\*\* TEST FAILED|\*\* BUILD FAILED" "$log" | head -n 20 | sed 's/^/   LOG: /' || true
+    if [ "$missing" -ne 0 ]; then
+        echo "   installed test file defines: $(grep -c 'func testScenario' "$installed") scenarios, extended present: $(grep -c 'func testScenarioExtended' "$installed")" >&2
+        die "expected scenarios are missing in $out (see the lines above and $log)"
+    fi
+}
+
 mode_generate() {
     [ $# -eq 2 ] || die "usage: generate <app 1.0.1|1.0.2> <ios major>"
     local app="$1" ios="$2" ref dir out log bundle
@@ -146,6 +165,8 @@ mode_generate() {
     build_libsword "$dir"
     make_simulator "I3 fixtures iOS $ios" "$ios" "generate-$app-$ios"
     install_test "$dir" I3FixtureGeneratorTests.swift
+    grep -q 'func testScenarioExtended' "$dir/Sources/BibleCore/Tests/BibleCoreTests/I3FixtureGeneratorTests.swift" \
+        || die "the synced $HERE/I3FixtureGeneratorTests.swift has no testScenarioExtended (stale tree sync?)"
     bundle="$LOGS/generate-$app-$ios.xcresult"
     rm -rf "$out" "$bundle"; mkdir -p "$out"
     local rc=0
@@ -160,6 +181,7 @@ mode_generate() {
         CODE_SIGNING_ALLOWED=NO ) 2>&1 | tee "$log" || rc=$?
     sim_fallback "$out" "$SIM_UDID"
     find "$out" -type f | sort | tee "$LOGS/generated-files-$app-$ios.txt"
+    verify_generated "$out" "$log" "$dir/Sources/BibleCore/Tests/BibleCoreTests/I3FixtureGeneratorTests.swift"
     return "$rc"
 }
 
