@@ -180,6 +180,20 @@ class IosReadingHost(
         statusBarHidden(fullScreen.state.value)
     }
 
+    /**
+     * Double tap, auto full screen and swipe mode for every pane (see [IosReadingGestures]). Full-screen changes go
+     * through [setFullScreen] so the status bar follows; a swipe is carried out by [IosReadingWindows.performSwipe].
+     */
+    internal val gestures: IosReadingGestures by lazy {
+        IosReadingGestures(
+            fullScreen = fullScreen,
+            settings = koin.get<AppSettings>(),
+            isRtl = ::iosIsRightToLeft,
+            onSwipe = IosReadingWindows::performSwipe,
+            setFullScreen = ::setFullScreen,
+        )
+    }
+
     /** What opening search does to full screen: leaves it, as the search field lives in the toolbar full screen hides. */
     internal val onLeaveFullScreen: () -> Unit = { setFullScreen(false) }
 

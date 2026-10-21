@@ -10,6 +10,8 @@ import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BridgeDispatcher
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedui.ios.reading.IosReadingGestures
+import net.bible.sharedui.ios.reading.IosReadingWindows
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.session.BibleWindowSession
@@ -56,6 +58,9 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
 
     /** Set when wiring the session threw; the pane stays empty instead of retrying on every recomposition. */
     var failed: Boolean = false
+
+    /** The pane's gesture recognisers once attached (see [attachReadingGestures]); detached when the window is released. */
+    var gestureRecognisers: IosReadingGestureRecognisers? = null
 }
 
 /**
@@ -100,6 +105,8 @@ object IosReadingWebViews {
             entry.handlerCount = 0
         }
         entry.handler = null
+        entry.gestureRecognisers?.detach()
+        entry.gestureRecognisers = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
     }
@@ -146,6 +153,14 @@ object IosReadingWebViews {
     }
 }
 
+/** Attaches [gestures] to the window's WebView once (a second call, or a window without a handler, does nothing). */
+internal fun attachReadingGestures(windowId: String, gestures: IosReadingGestures?) {
+    if (gestures == null) return
+    val entry = IosReadingWebViews.entry(windowId)
+    if (entry.gestureRecognisers != null || entry.failed) return
+    entry.gestureRecognisers = IosReadingGestureRecognisers(windowId, entry.webView, gestures).also { it.attach() }
+}
+
 /**
  * Wires the window's pane once: asks [sessionFor] / [bridgeFor] and registers the bridge handler with the
  * night parameter [nightMode] answers now. A failure is logged and parks the pane (no retry per recomposition).
@@ -183,8 +198,11 @@ fun iosReadingPaneFactory(
     bridgeFor: ((windowId: String) -> BibleBridge)? = null,
     nightMode: () -> Boolean = { false },
     isOpen: (windowId: String) -> Boolean = { true },
+    /** The reading gestures (double tap, auto full screen, swipe) for a window's pane; null (no host bound) leaves the pane gesture-free. */
+    gesturesFor: (windowId: String) -> IosReadingGestures? = { IosReadingWindows.gesturesFor(it) },
 ): ReadingPaneFactory = { windowId, modifier ->
     attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen)
+    if (isOpen(windowId)) attachReadingGestures(windowId, gesturesFor(windowId))
     // ReadingHost composes panes only for windows in the layout; this check covers the gap between the window
     // closing and the asynchronous release, so recomposition never recreates a released window's WebView.
     if (isOpen(windowId)) {

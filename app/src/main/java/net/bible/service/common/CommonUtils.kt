@@ -237,8 +237,6 @@ open class CommonUtilsBase : KoinComponent {
     val bibleTraverser: BibleTraverser by inject()
 }
 
-enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
-
 class Ref<T>(var value: T? = null)
 
 /**

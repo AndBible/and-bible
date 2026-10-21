@@ -31,6 +31,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.android.view.activity.page.SwipeAction
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.event.Subscriptions
@@ -136,6 +137,24 @@ object IosReadingWindows {
 
     /** The window's bridge (the one `sessionFor` assembled), for the WebView's message handler. */
     fun bridgeFor(windowId: String): BibleBridge = assembly(windowId).bridge
+
+    /** The reading gestures of the bound host, for the pane factory; null while no host is bound. */
+    fun gesturesFor(@Suppress("UNUSED_PARAMETER") windowId: String): IosReadingGestures? = binding?.host?.gestures
+
+    /**
+     * Carries out a decided swipe on [windowId]: chapter moves go through the window's [ReadingBridge] (the same stale-page
+     * guard a JS-initiated chapter change has), page moves emit the scroll events Android's volume keys emit.
+     */
+    fun performSwipe(windowId: String, action: SwipeAction) {
+        val a = assemblies[windowId] ?: return
+        when (action) {
+            SwipeAction.NextChapter -> a.bridge.goToNextChapter()
+            SwipeAction.PreviousChapter -> a.bridge.goToPreviousChapter()
+            SwipeAction.PageDown -> a.session.emit(BibleViewEvents.scrollDown())
+            SwipeAction.PageUp -> a.session.emit(BibleViewEvents.scrollUp())
+            SwipeAction.None -> {}
+        }
+    }
 
     /** The window's relay platform (test view of what the relay forwards); null when not assembled. */
     internal fun relayPlatformFor(windowId: String): IosSessionEventRelayPlatform? = assemblies[windowId]?.relayPlatform
