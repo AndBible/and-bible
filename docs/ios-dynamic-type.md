@@ -49,10 +49,27 @@ integration check of the actual app's Compose density: the controller changes th
 simulator's system category from default Large to AX5 while the app remains
 running in the background, then foregrounds the same app. The
 reference observer's injected-source unit test does not replace this check.
-The fixed implementation's live check is pending. XXXL/AX5 Settings reachability
-passed on iPhone and iPad; visual review still found ellipsized summaries at XXXL
-and overlapping back/search controls at AX5. Those bar-adoption/layout fixes belong
-to the feature-screen audit; the full visual pass bar is not yet satisfied.
+At the verified foundation snapshot (`7c816eeebf`), the live Large → AX5 → Large
+check passed in 9.606 seconds: effective fontScale was 1.0 → 3.1176472 → 1.0,
+with the same process (PID 23053) on both foreground activations. Final launch
+and Settings tests passed on both iPhone and iPad (3 tests per device, zero
+failures), including XXXL launch scale 1.3529412 and XXXL/AX5 reachability.
+The framework linked successfully; native sharedUi tests reported 58 classes,
+362 tests and zero failures, errors or skips. Controller evidence is recorded in
+`task-1-live-green.log`, `task-1-final-iphone.log` and `task-1-final-ipad.log`
+in the Task 1 execution workspace.
+
+Visual review still found ellipsized summaries at XXXL and overlapping
+back/search controls at AX5, plus a debug OK control over the status bar.
+These are explicitly open Task 13/R3 bar-adoption and screen-audit work;
+reachability does not satisfy the full visual pass bar. The foundation supplies
+the cap contract but does not yet wrap every fixed-height bar.
+
+Task 13 must also verify actual Bible text sizing during system text-size
+changes: leaving WebView code unchanged does not by itself prove independence
+from the root density provider. Keep the app's font-size multiplier unchanged
+while checking that system text size does not resize Bible text, then verify
+that the multiplier still changes Bible text. This runtime evidence is pending.
 
 ## Audit evidence
 
