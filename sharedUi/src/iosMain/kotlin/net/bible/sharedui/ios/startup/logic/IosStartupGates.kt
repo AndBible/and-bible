@@ -1,9 +1,10 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package net.bible.sharedui.ios.startup
 
-/** Ordered pre-database gates. I3b inserts legacy migration AFTER crash recovery and BEFORE startup. */
+/** Ordered pre-database gates: calculator, legacy migration, crash recovery, then startup. */
 internal sealed interface StartupGate {
     class Calculator(val required: () -> Boolean) : StartupGate
+    class LegacyMigration(val required: () -> Boolean) : StartupGate
     class CrashRecovery(val required: () -> Boolean) : StartupGate
 }
 
@@ -20,7 +21,14 @@ internal class IosStartupGates(private val gates: List<StartupGate>) {
     fun returnFromBackup() {
         if (result != StartupGateResult.OpenBackup) return
         result = null
-        current = gates.getOrNull(index - 1)
+        val gate = gates.getOrNull(index - 1)
+        // The legacy gate can be settled by the backup restore: re-check it and move on. CrashRecovery is latched.
+        if (gate is StartupGate.LegacyMigration && !gate.required()) {
+            current = null
+            advance()
+            return
+        }
+        current = gate
     }
 
     fun advance(resolution: StartupGateResult = StartupGateResult.Continue) {
@@ -34,6 +42,7 @@ internal class IosStartupGates(private val gates: List<StartupGate>) {
             val gate = gates[index++]
             val required = when (gate) {
                 is StartupGate.Calculator -> gate.required()
+                is StartupGate.LegacyMigration -> gate.required()
                 is StartupGate.CrashRecovery -> gate.required()
             }
             if (required) { current = gate; return }

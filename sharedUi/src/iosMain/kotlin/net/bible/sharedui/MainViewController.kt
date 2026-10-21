@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,7 +89,9 @@ fun MainViewController(): UIViewController {
     }
     IosDebugLaunchArgs.resetTask6CrashState(IosDeviceSettings())
     IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
-    crashTracker.onLaunch()
+    val legacySettledAtLaunch = legacySettled(IosDeviceSettings())
+    // An unsettled legacy migration may run long: crash accounting starts when its gate resolves instead.
+    recordLaunchIfSettled(legacySettledAtLaunch, crashTracker)
     IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
@@ -114,6 +117,7 @@ fun MainViewController(): UIViewController {
         val gates = remember {
             IosStartupGates(listOf(
                 StartupGate.Calculator { requiresCalculator },
+                StartupGate.LegacyMigration { !legacySettled(settings) },
                 StartupGate.CrashRecovery { crashTracker.shouldOfferRecovery() },
             )).apply { advance() }
         }
@@ -128,6 +132,18 @@ fun MainViewController(): UIViewController {
             is StartupGate.Calculator -> {
                 CompositionLocalProvider(LocalStrings provides strings) {
                     AbTheme(darkTheme = splashDark) { IosCalculatorGate(settings) { resolve(StartupGateResult.Continue) } }
+                }
+                return@ComposeUIViewController
+            }
+            is StartupGate.LegacyMigration -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) {
+                        LegacyMigrationGateHost(
+                            neutral = requiresCalculator,
+                            reporter = reporter,
+                            onResolve = { r -> crashTracker.onLaunch(); resolve(r) },
+                        )
+                    }
                 }
                 return@ComposeUIViewController
             }
