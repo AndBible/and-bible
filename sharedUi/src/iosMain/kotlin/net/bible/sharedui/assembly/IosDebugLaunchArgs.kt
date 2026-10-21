@@ -30,6 +30,7 @@ import kotlin.native.Platform
  *   with `-openDocument <initials>` it also switches that window to the installed book.
  * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
  * - `-legacyMigrationStepDelayMs <ms>`: [legacyStepDelayMs], delay after the legacy migration's MAP step.
+ * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
@@ -78,6 +79,9 @@ internal object IosDebugLaunchArgs {
      * observe the progress screen. Null when absent, malformed or on a release binary.
      */
     fun legacyStepDelayMs(): Long? = argumentValue("-legacyMigrationStepDelayMs")?.toLongOrNull()?.takeIf { it > 0 }
+
+    /** Debug only: the unpacked fixture scenario directory after `-seedLegacyFixture`, or null. */
+    fun legacySeedDir(): String? = argumentValue("-seedLegacyFixture")
 
     /** The value after `-openDocument` (book initials the `-openRef` window switches to), or null. */
     fun openDocument(): String? = argumentValue("-openDocument")

@@ -95,6 +95,8 @@ fun MainViewController(): UIViewController {
         nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}")
         platform.posix.abort()
     }
+    // Debug only, before anything reads the settled flag or the discrete/locale preferences (see IosLegacyDebugSeed).
+    net.bible.sharedui.ios.startup.legacy.IosLegacyDebugSeed.seedOnce()
     IosDebugLaunchArgs.resetTask6CrashState(IosDeviceSettings())
     IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
     val legacySettledAtLaunch = legacySettled(IosDeviceSettings())

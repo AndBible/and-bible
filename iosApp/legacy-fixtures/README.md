@@ -198,3 +198,20 @@ Differences that matter for the data, and how they are handled:
 - `DataMigration.migrateIfNeeded()` acts on the simulator's Application Support directory, which is why the
   oracle installs each store there before running it. It is a no-op for healthy `AndBible.store` files.
 - The oracle never modifies `I3_FIXTURE_IN`.
+
+## Simulator end to end (I3b, `LegacyMigrationUITests`)
+
+The debug app seeds itself from an unpacked fixture (`-seedLegacyFixture <dir>`, `IosLegacyDebugSeed`): the old stores,
+the `sidecar.json` UserDefaults and Keychain items, and a reset of the new app's migration state. The tests are opt-in
+(`XCTSkip` unless `I3B_FIXTURE_DIR` is set) and never pass `-resetData` or `-resetDatabases`. They need the `1.0.2/26`
+`rich` and `extended` fixtures:
+
+```
+scripts/mac-remote.sh run 'mkdir -p build/i3b && for s in rich extended; do rm -rf build/i3b/$s; unzip -q -o sharedLogic/src/jvmTest/resources/legacymigration/fixtures/1.0.2/26/$s.zip -d build/i3b/$s; done; pwd'
+# <pwd> is the printed absolute path of the Mac checkout
+TEST_RUNNER_I3B_FIXTURE_DIR=<pwd>/build/i3b scripts/mac-remote.sh xcode-test iphone -only-testing:iosAppUITests/LegacyMigrationUITests
+TEST_RUNNER_I3B_FIXTURE_DIR=<pwd>/build/i3b scripts/mac-remote.sh xcode-test ipad -only-testing:iosAppUITests/LegacyMigrationUITests
+```
+
+Look at the screenshot attachments `i3b-calculator-first` and `i3b-legacy-recovery`. `testRollbackPendingHidesUnsafeActions`
+always skips (ROLLBACK_PENDING cannot be induced from the UI; the JVM test covers it).

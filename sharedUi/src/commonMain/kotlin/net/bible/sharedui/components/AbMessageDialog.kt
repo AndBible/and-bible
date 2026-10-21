@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 
@@ -56,12 +57,12 @@ fun AbMessageDialog(
         text = if (html != null) {
             { AbHtmlText(html, Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) }
         } else null,
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmText) } },
+        confirmButton = { TextButton(onClick = onConfirm, modifier = Modifier.testTag("dialog-confirm")) { Text(confirmText) } },
         dismissButton = if (dismissText != null || neutralText != null) {
             {
                 Row {
-                    if (neutralText != null) TextButton(onClick = onNeutral) { Text(neutralText) }
-                    if (dismissText != null) TextButton(onClick = onDismiss) { Text(dismissText) }
+                    if (neutralText != null) TextButton(onClick = onNeutral, modifier = Modifier.testTag("dialog-neutral")) { Text(neutralText) }
+                    if (dismissText != null) TextButton(onClick = onDismiss, modifier = Modifier.testTag("dialog-dismiss")) { Text(dismissText) }
                 }
             }
         } else null,

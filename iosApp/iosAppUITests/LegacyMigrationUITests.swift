@@ -1,0 +1,219 @@
+import XCTest
+
+/// Simulator end to end of the I3b legacy migration (plan decision M-7, Task 14).
+///
+/// Opt-in: every test skips unless `I3B_FIXTURE_DIR` is set (pass `TEST_RUNNER_I3B_FIXTURE_DIR=<dir>` to xcodebuild;
+/// `scripts/mac-remote.sh` forwards it). `<dir>` holds the unpacked fixture scenarios `rich/` and `extended/`
+/// (`unzip` of `sharedLogic/src/jvmTest/resources/legacymigration/fixtures/1.0.2/26/<scenario>.zip`).
+///
+/// The debug app seeds itself from a fixture directory (`-seedLegacyFixture <dir>`, see `IosLegacyDebugSeed`): the old
+/// stores, the sidecar's UserDefaults and Keychain items, and a reset of the new app's migration state. No test passes
+/// `-resetData` or `-resetDatabases`, they would wipe the seeded state. Dialogs are found by testTag, never by label,
+/// because the `rich` fixture is Finnish. The tests share one simulator app container, so each one seeds its own scenario
+/// on its first launch and later launches of the same test omit the seed argument.
+final class LegacyMigrationUITests: XCTestCase {
+    override func setUp() { continueAfterFailure = false }
+
+    // MARK: Helpers
+
+    private func fixtureRoot() throws -> String {
+        guard let dir = ProcessInfo.processInfo.environment["I3B_FIXTURE_DIR"], !dir.isEmpty else {
+            throw XCTSkip("Legacy migration end to end is opt-in: set TEST_RUNNER_I3B_FIXTURE_DIR to the directory with the unpacked rich/ and extended/ fixtures")
+        }
+        return dir
+    }
+
+    private func scenario(_ name: String) throws -> String {
+        let path = try fixtureRoot() + "/" + name
+        XCTAssertTrue(FileManager.default.fileExists(atPath: path + "/sidecar.json"), "Missing fixture \(path)/sidecar.json")
+        return path
+    }
+
+    private func element(_ app: XCUIApplication, _ id: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: id).firstMatch
+    }
+
+    private func shot(_ app: XCUIApplication, _ name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// Launches with exactly [arguments] (a fresh `XCUIApplication` so a previous launch's arguments never leak in).
+    private func launch(_ arguments: [String]) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = arguments
+        app.launch()
+        return app
+    }
+
+    private func seedArguments(_ dir: String, extra: [String] = []) -> [String] {
+        ["-seedLegacyFixture", dir, "-task6ResetCrashState"] + extra
+    }
+
+    private func gone(_ app: XCUIApplication, _ id: String, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate { _, _ in !self.element(app, id).exists }
+        return XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: app)], timeout: timeout) == .completed
+    }
+
+    /// Either reading or Welcome is a valid Ready state: which one depends on the Bible modules installed on the simulator.
+    private func waitForReady(_ app: XCUIApplication, timeout: TimeInterval = 120) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if element(app, "reading-host").exists || element(app, "welcome-screen").exists { return true }
+            usleep(300_000)
+        }
+        return false
+    }
+
+    private func isReady(_ app: XCUIApplication) -> Bool {
+        element(app, "reading-host").exists || element(app, "welcome-screen").exists
+    }
+
+    /// Taps the confirm button of the Compose message/confirm dialog currently shown (tag `dialog-confirm`).
+    /// Returns false when no dialog appeared within [timeout].
+    private func confirmDialog(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let confirm = element(app, "dialog-confirm")
+        guard confirm.waitForExistence(timeout: timeout) else { return false }
+        confirm.tap()
+        return gone(app, "dialog-confirm", timeout: 10)
+    }
+
+    /// Dismisses the one-time notices one after the other; returns how many there were.
+    private func dismissNotices(_ app: XCUIApplication, firstTimeout: TimeInterval, quietTimeout: TimeInterval) -> Int {
+        var count = 0
+        var timeout = firstTimeout
+        while confirmDialog(app, timeout: timeout) {
+            count += 1
+            shot(app, "notice-dismissed-\(count)")
+            timeout = quietTimeout
+        }
+        return count
+    }
+
+    /// Two launches that are killed while the progress view is up, so the third launch finds the migration given up.
+    private func killTwiceDuringMigration(_ dir: String) {
+        let delay = ["-legacyMigrationStepDelayMs", "20000"]
+        let first = launch(seedArguments(dir, extra: delay))
+        XCTAssertTrue(element(first, "legacy-progress").waitForExistence(timeout: 90), "Launch 1: no migration progress view")
+        first.terminate()
+        let second = launch(delay)
+        XCTAssertTrue(element(second, "legacy-progress").waitForExistence(timeout: 90), "Launch 2: no migration progress view")
+        second.terminate()
+    }
+
+    private func openSettingsRow(_ app: XCUIApplication, startingWith text: String) -> XCUIElement {
+        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", text)).firstMatch
+        for _ in 0..<12 {
+            if row.exists && row.isHittable { break }
+            app.swipeUp()
+        }
+        return row
+    }
+
+    // MARK: Tests
+
+    /// `rich` (Finnish, discrete): the disguise comes first, nothing is visible before the PIN, then the three notices.
+    func testDiscreteFixtureShowsCalculatorFirst() throws {
+        let dir = try scenario("rich")
+        let app = launch(seedArguments(dir))
+        // The calculator key "=" proves the disguise is up; the migration has not started behind it.
+        let equals = app.buttons.matching(NSPredicate(format: "label == %@", "=")).firstMatch
+        XCTAssertTrue(equals.waitForExistence(timeout: 60), "The calculator is not shown first")
+        XCTAssertFalse(element(app, "legacy-progress").exists, "Migration progress visible behind the calculator")
+        XCTAssertFalse(element(app, "reading-host").exists, "Reading content visible before the PIN")
+        XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before the PIN")
+        shot(app, "i3b-calculator-first")
+
+        for label in ["4", "3", "2", "1", "="] {
+            let key = app.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
+            XCTAssertTrue(key.waitForExistence(timeout: 10), "Calculator key \(label) missing")
+            key.tap()
+        }
+        XCTAssertTrue(waitForReady(app), "No reading view or Welcome after the PIN and the migration")
+        // The window count and titles are not exposed as accessibility identifiers; the screenshot is the evidence.
+        shot(app, "i3b-rich-ready")
+        let notices = dismissNotices(app, firstTimeout: 60, quietTimeout: 8)
+        XCTAssertEqual(notices, 3, "Expected the iCloud, Nextcloud and unsent-patches notices")
+        XCTAssertTrue(isReady(app), "The app left Ready while the notices were dismissed")
+    }
+
+    /// `extended` (English, no disguise): reading, then the Nextcloud notice; Settings keeps the server URL.
+    func testExtendedMigratesAndShowsSyncNotice() throws {
+        let dir = try scenario("extended")
+        let app = launch(seedArguments(dir, extra: ["-task5Settings"]))
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label == %@", "=")).firstMatch.waitForExistence(timeout: 5),
+                       "The calculator must not be shown for a non-discrete fixture")
+        // -task5Settings starts on Settings; the notice dialog appears on top of whichever screen is first.
+        let notices = dismissNotices(app, firstTimeout: 120, quietTimeout: 8)
+        XCTAssertGreaterThanOrEqual(notices, 1, "Expected at least the Nextcloud notice")
+        shot(app, "i3b-extended-after-notices")
+
+        let sync = openSettingsRow(app, startingWith: "Device synchronization")
+        XCTAssertTrue(sync.exists && sync.isHittable, "Device synchronization row not reachable")
+        sync.tap()
+        let server = openSettingsRow(app, startingWith: "Server URL")
+        XCTAssertTrue(server.waitForExistence(timeout: 15), "Server URL row missing")
+        XCTAssertEqual(server.label, "Server URL, https://cloud.example.invalid/remote.php/dav/files/fixture")
+        shot(app, "i3b-extended-sync-settings") // sync-off is judged on this screenshot (no stable identifier)
+    }
+
+    /// W9: two kills while migrating, the third launch lands on the legacy recovery screen, not on crash recovery.
+    func testTwoKillsDuringMigrationLandOnLegacyRecovery() throws {
+        let dir = try scenario("extended")
+        killTwiceDuringMigration(dir)
+        let third = launch([])
+        XCTAssertTrue(element(third, "legacy-recovery").waitForExistence(timeout: 90), "Launch 3: no legacy recovery screen")
+        XCTAssertFalse(element(third, "crash-recovery").exists, "Crash recovery must not preempt the legacy recovery")
+        XCTAssertFalse(element(third, "crash-backup").exists)
+        XCTAssertTrue(element(third, "legacy-restore").exists, "legacy-restore missing in the given-up state")
+        XCTAssertTrue(element(third, "legacy-start-fresh").exists, "legacy-start-fresh missing in the given-up state")
+        shot(third, "i3b-legacy-recovery")
+    }
+
+    /// From the given-up state: start fresh, then import the old data again from Settings and relaunch.
+    func testStartFreshThenImportReplaces() throws {
+        let dir = try scenario("extended")
+        killTwiceDuringMigration(dir)
+        let third = launch([])
+        XCTAssertTrue(element(third, "legacy-start-fresh").waitForExistence(timeout: 90), "No start-fresh action on the recovery screen")
+        element(third, "legacy-start-fresh").tap()
+        let confirm = element(third, "legacy-start-fresh-confirm")
+        XCTAssertTrue(confirm.waitForExistence(timeout: 10), "No start-fresh confirmation")
+        confirm.tap()
+        XCTAssertTrue(waitForReady(third), "Start fresh did not reach Welcome or reading")
+        shot(third, "i3b-start-fresh-ready")
+        third.terminate()
+
+        // Settings: the import row is offered because the old stores are still there.
+        let settings = launch(["-task5Settings"])
+        let row = openSettingsRow(settings, startingWith: "Import data from the previous app version")
+        XCTAssertTrue(row.waitForExistence(timeout: 60) && row.isHittable, "The import row is not offered")
+        row.tap()
+        XCTAssertTrue(confirmDialog(settings, timeout: 15), "No import confirmation dialog")
+        XCTAssertTrue(confirmDialog(settings, timeout: 15), "No 'reopen the app' message")
+        settings.terminate()
+
+        // The next launch runs the migration again, replacing the fresh databases (the app log has the
+        // `before-import-*` line, Application Support/LegacyMigration/before-import-* holds the kept databases).
+        let relaunched = launch([])
+        XCTAssertTrue(waitForReady(relaunched, timeout: 150), "The import launch did not reach Ready")
+        XCTAssertFalse(element(relaunched, "legacy-recovery").exists)
+        XCTAssertFalse(element(relaunched, "legacy-progress").exists)
+        shot(relaunched, "i3b-after-import")
+    }
+
+    /// NOT IMPLEMENTED on purpose. ROLLBACK_PENDING needs a rollback that FAILS. A kill during ADOPTING is rolled back
+    /// successfully by the next launch (which then migrates again), so no launch argument can leave the databases in an
+    /// unsafe state deterministically; `-legacyMigrationStepDelayMs` only delays after the MAP step. The hidden
+    /// `legacy-restore` / `legacy-start-fresh` actions for that reason are covered by the Task 4 JVM test only.
+    func testRollbackPendingHidesUnsafeActions() throws {
+        _ = try fixtureRoot()
+        throw XCTSkip("ROLLBACK_PENDING cannot be induced deterministically from the UI; covered by the Task 4 JVM test")
+    }
+
+    // testRestoreBackupThenBackReachesReady is intentionally absent: `legacy-restore` resolves the gate with `OpenBackup`, which
+    // hands over to the backup-restore flow that needs a backup file the seeded fixtures do not put in the app container
+    // (the flow's picker is a system UI), so a deterministic back-to-Ready path is not reachable from the UI test.
+}
