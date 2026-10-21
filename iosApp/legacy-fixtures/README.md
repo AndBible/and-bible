@@ -11,7 +11,7 @@ Spec: `docs/superpowers/specs/2026-10-17-i3-legacy-migration-design.md` (section
 | --- | --- |
 | `I3FixtureGeneratorTests.swift` | XCTest. Seeds five scenarios (`fresh`, `rich`, `restored-android`, `preserved-ai`, `extended`) with the Swift app's real models. Compiles against 1.0.1 and the pin. |
 | `I3OracleExportTests.swift` | XCTest, pin only. Runs the app's startup repair on each generated store and writes the Swift exporters' outputs. |
-| `run-on-mac.sh` | Remote-Mac driver: `generate <app> <ios>`, `oracle`, `package`. |
+| `run-on-mac.sh` | Remote-Mac driver: `generate <app> <ios>`, `oracle`, `package`, `install-over <app>`. |
 | `package_fixtures.py` (+ `test_package_fixtures.py`) | Packs generated stores and oracle outputs into deterministic zips plus `manifest.json`. |
 | `merge_manifest.py` (+ `test_merge_manifest.py`) | Adds the entries of one scenario to the committed `manifest.json`, leaving all other entries as they are. |
 | `../../.github/workflows/ios-i3-legacy-fixtures.yml` | Fallback: the same build and run on CI simulators. |
@@ -220,3 +220,33 @@ always skips (ROLLBACK_PENDING cannot be induced from the UI; the JVM test cover
 `-clearLegacySeed`, which removes the seeded stores, `LegacyMigration/`, `databases/`, the settled flag, the seeded UserDefaults keys
 and the seeded Keychain items (recorded on seed), so later suites do not inherit them. Run it by hand after an aborted run:
 `xcrun simctl launch <udid> org.andbible.ios.dev -clearLegacySeed`. A failing seed aborts the launch (`I3B-seed FAILED` in the log).
+
+## Install-over smoke (I3b Task 15, best effort)
+
+The real upgrade path: the pinned Swift app is built with the dev bundle id, run once on the simulator, then the new app is
+installed over it (same bundle id `org.andbible.ios.dev`, so the data container survives).
+
+```
+scripts/mac-remote.sh xcode-build iphone      # leaves build/dd-iphone/.../AndBibleDev.app on the Mac
+scripts/mac-remote.sh run bash iosApp/legacy-fixtures/run-on-mac.sh install-over 1.0.2
+scripts/mac-remote.sh fetch build/i3-fixtures/install-over
+scripts/mac-remote.sh sim crashes
+```
+
+Steps: build the checkout at `~/work/i3-legacy/app-<app>` (`PRODUCT_BUNDLE_IDENTIFIER=org.andbible.ios.dev`,
+`CODE_SIGNING_ALLOWED=NO`, scheme `AndBible`, override with `INSTALL_OVER_SCHEME`; two attempts) on its own iOS 26 simulator
+"I3 install-over iOS 26"; uninstall the dev id, install and launch the Swift app, wait 20 s, screenshot, terminate; install the new
+app (`INSTALL_OVER_NEW_APP` overrides its path), launch, wait 60 s, screenshot. Results in
+`build/i3-fixtures/install-over/<app>/`: `1-swift-app.png`, `2-new-app.png`, `new-app-filtered.log` (lines matching
+`LegacyMigration|I2P2`), `done-json-path.txt` + `done.json` (found under `simctl get_app_container <udid> org.andbible.ios.dev data`),
+`crashes.txt`, `swift-build-<n>.log`, `swift-data-files.txt`, `new-data-files.txt`.
+
+Pass criteria:
+
+- the new app shows the reading view or Welcome (`2-new-app.png`), with the Swift app's first-launch workspace migrated;
+- `done.json` exists and `nothingToMigrate` is false (the script prints PASS or FAIL);
+- no crash in `scripts/mac-remote.sh sim crashes` (`crashes.txt` is empty).
+
+The Swift app may be unable to build or launch on the simulator under the overridden id (CloudKit entitlement, signing). If it
+fails within two attempts, stop and record the exact error here and in the status entry as: "install-over smoke not possible on
+the simulator; covered by seeded runs and owed on the device checklist". The script then exits non-zero with that wording.
