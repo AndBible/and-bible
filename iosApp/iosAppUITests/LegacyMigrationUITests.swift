@@ -244,10 +244,12 @@ final class LegacyMigrationUITests: XCTestCase {
     /// `rich` (Finnish, discrete): the disguise comes first, nothing is visible before the PIN, then the two notices (iCloud and Nextcloud).
     func testDiscreteFixtureShowsCalculatorFirst() throws {
         let dir = try scenario("rich")
-        let app = launch(seedArguments(dir))
+        // A long step delay makes the gate order observable: were the migration gate ahead of the calculator, its progress
+        // view would show for the whole delay while the calculator stays absent.
+        let app = launch(seedArguments(dir, extra: ["-legacyMigrationStepDelayMs", "20000"]))
         // The calculator key "=" proves the disguise is up; the migration has not started behind it.
         let equals = app.buttons.matching(NSPredicate(format: "label == %@", "=")).firstMatch
-        XCTAssertTrue(equals.waitForExistence(timeout: 60), "The calculator is not shown first")
+        XCTAssertTrue(equals.waitForExistence(timeout: 10), "The calculator is not shown first (within 10 s despite the migration delay)")
         XCTAssertFalse(element(app, "legacy-progress").exists, "Migration progress visible behind the calculator")
         XCTAssertFalse(element(app, "reading-host").exists, "Reading content visible before the PIN")
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before the PIN")
@@ -258,7 +260,9 @@ final class LegacyMigrationUITests: XCTestCase {
             XCTAssertTrue(key.waitForExistence(timeout: 10), "Calculator key \(label) missing")
             key.tap()
         }
-        XCTAssertTrue(waitForReady(app), "No reading view or Welcome after the PIN and the migration")
+        // After the PIN the legacy gate runs (and waits out the step delay behind its progress view).
+        XCTAssertTrue(element(app, "legacy-progress").waitForExistence(timeout: 30), "No migration progress view after the PIN")
+        XCTAssertTrue(waitForReady(app, timeout: 180), "No reading view or Welcome after the PIN and the migration")
         // The window count and titles are not exposed as accessibility identifiers; the screenshot is the evidence.
         shot(app, "i3b-rich-ready")
         let notices = dismissNotices(app, firstTimeout: 90, quietTimeout: 12)

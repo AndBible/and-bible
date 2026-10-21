@@ -34,7 +34,7 @@ class IosLegacyOldDataArchiveTest {
         return bytes
     }
 
-    /** Stores trio with side files, a store mid-write, a plist, a report, and files that must stay out of the zip. */
+    /** Stores trio with side files, a store mid-write, a report, and files that must stay out of the zip. */
     private fun layout(): Map<String, ByteArray> {
         val expected = linkedMapOf<String, ByteArray>()
         expected["AndBible.store"] = put(support / "AndBible.store", "cloud")
@@ -42,9 +42,9 @@ class IosLegacyOldDataArchiveTest {
         expected["AndBible.store-shm"] = put(support / "AndBible.store-shm", "cloud-shm")
         expected["LocalStore.store"] = put(support / "LocalStore.store", "local")
         expected["AndBible.store.backup"] = put(support / "AndBible.store.backup", "backup")
-        expected["Library/Preferences/$bundleId.plist"] = put(prefs / "$bundleId.plist", "plist")
         expected["LegacyMigration/report.json"] = put(support / "LegacyMigration" / "report.json", "{\"ok\":false}")
-        // Must not be archived.
+        // Must not be archived: the plist is the new app's own (same bundle id: calculator PIN, Nextcloud user and URL).
+        put(prefs / "$bundleId.plist", "plist")
         put(support / "LegacyMigration" / "state.json", "state")
         put(support / "keychain-secret.txt", "secret")
         put(prefs / "other.plist", "other")
@@ -64,11 +64,11 @@ class IosLegacyOldDataArchiveTest {
 
     private fun write() = runBlocking {
         IosLegacyOldDataArchive.write(
-            LegacyMigrationControl(fs, support), fs = fs, preferencesDir = prefs, bundleId = bundleId, tempDir = out, nowMs = 42L,
+            LegacyMigrationControl(fs, support), fs = fs, tempDir = out, nowMs = 42L,
         )
     }
 
-    @Test fun zipHoldsStoresPlistAndReportOnly() {
+    @Test fun zipHoldsStoresAndReportOnly() {
         val expected = layout()
         val path = write()
         assertEquals((out / "AndBible-old-data-42.zip").toString(), path)
@@ -95,8 +95,18 @@ class IosLegacyOldDataArchiveTest {
         write()
         assertEquals(before, hashes())
         assertEquals(modified, paths.associateWith { fs.metadata(it).lastModifiedAtMillis })
-        assertEquals(expected.size + 1, paths.size) // the state file is in the list and stays untouched
+        assertEquals(expected.size + 2, paths.size) // the state file and the (unarchived) plist are listed and stay untouched
         assertTrue(paths.all { fs.exists(it) })
+    }
+
+    @Test fun earlierZipsAreDeletedByTheNextAttempt() {
+        put(support / "AndBible.store", "cloud")
+        val stale = out / "AndBible-old-data-1.zip"
+        put(stale, "old zip")
+        val unrelated = out / "keep.txt"
+        put(unrelated, "keep")
+        write()
+        assertTrue(!fs.exists(stale) && fs.exists(unrelated) && fs.exists(out / "AndBible-old-data-42.zip"))
     }
 
     @Test fun reportBytesAreReadFromTheMigrationDirectory() {
