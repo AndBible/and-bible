@@ -652,7 +652,8 @@ class BackupControl(
      */
     suspend fun makeDatabaseBackupFile(): Path? {
         if(env.isInitialized && DatabaseContainer.ready) {
-            windowControl.windowRepository.saveIntoDb()
+            // The live snapshot stops speech, whose platform cleanup must run on Main.
+            withContext(Dispatchers.Main) { windowControl.windowRepository.saveIntoDb() }
             // The save is an ordered write-through: the zip must not read the file before it lands.
             windowControl.windowRepository.persistence.awaitPersisted()
             // A setting changed just before "backup now" may still be queued in the store's writer.

@@ -7,6 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
@@ -230,13 +233,24 @@ class WorkspacePersistenceOrderingTest {
     }
 
     /** Breaks if the backup zips the database before the last enqueued save has landed. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test fun backupContainsTheLastSave() {
+        val dispatcher = kotlinx.coroutines.test.StandardTestDispatcher()
+        Dispatchers.setMain(dispatcher)
+        try {
+            kotlinx.coroutines.test.runTest(dispatcher) { backupContainsTheLastSaveOnTestMain() }
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    private suspend fun backupContainsTheLastSaveOnTestMain() {
         val before = savedVerseNo()
         repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 11)
         assertNotEquals(before, 11)
         // The save inside the backup queues behind the held gate; only BackupControl's own wait lets it through.
         gate.hold()
-        val zip = runBlocking { net.bible.test.testBackupControl().makeDatabaseBackupFile() }!!.toFile()
+        val zip = withContext(Dispatchers.IO) { net.bible.test.testBackupControl().makeDatabaseBackupFile() }!!.toFile()
         val extracted = File(BibleApplication.application.cacheDir, "backup-workspaces.sqlite3").apply { delete() }
         ZipFile(zip).use { z ->
             z.getInputStream(z.getEntry("db/${WorkspaceDatabase.dbFileName}")).use { input ->
