@@ -55,6 +55,7 @@ import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatSize
 import androidx.compose.material.icons.outlined.Fullscreen
 import androidx.compose.material.icons.outlined.Headphones
+import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material.icons.outlined.LabelOff
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Notes
@@ -78,7 +79,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsCall
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
+import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.ios.ports.IosDocumentPicker
+import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
+import org.koin.mp.KoinPlatform
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
@@ -99,9 +117,17 @@ import org.crosswire.jsword.book.BookCategory
 /**
  * The iOS side of the window (☰) pane menu: what [WindowPaneMenuPlatform] does on iOS.
  *
- * **Left out on iOS (named gaps, the builder omits their rows, see [IOS_OMITTED_PANE_MENU_ROWS]):** HTML export, StudyPad
- * export and StudyPad bookmarks CSV export (the iOS file export flows are still pending ports, `IosStudyPadExportPlatform`).
- * The LLM actions row is real: it opens the prompt selector for the window's current page ([openPromptSelector]).
+ * Every platform-routed row is implemented; [IOS_OMITTED_PANE_MENU_ROWS] is empty. The export rows mirror Android's
+ * `ReadingCommands`: HTML export asks the window's page to export itself (the answer reaches the window surface's share
+ * sheet), StudyPad export hands the window's label to [studyPadExport], and the bookmarks CSV export hands the label's Bible
+ * bookmarks to [exportCsv]; the last two do nothing outside a StudyPad window (the builder shows them only there). The LLM
+ * actions row opens the prompt selector for the window's current page ([openPromptSelector]).
+ *
+ * @param emitEvent sends a JS event to the window's page (false/absent window: dropped)
+ * @param studyPadExport the StudyPad archive export; [chooseDestination] asks "save or share"
+ * @param bookmarksWithLabel the Bible bookmarks of a StudyPad label, in Bible order
+ * @param exportCsv the bookmarks CSV export flow
+ * @param scope where the asynchronous exports run (the host's main scope)
  */
 @kotlin.native.HiddenFromObjC
 class IosWindowPaneMenuPlatform(
@@ -113,7 +139,42 @@ class IosWindowPaneMenuPlatform(
     private val copiedMessage: () -> String,
     private val bridgeFor: (windowId: String) -> net.bible.sharedcore.bibleview.BibleBridge?,
     private val openPromptSelector: (Selection, PromptContext, DocumentCategory?) -> Unit,
+    private val emitEvent: (windowId: String, call: JsCall) -> Unit = { windowId, call ->
+        if (IosReadingWindows.hasAssembly(windowId)) IosReadingWindows.sessionFor(windowId).emit(call)
+    },
+    private val studyPadExport: StudyPadExportPlatform = IosStudyPadExportPlatform(),
+    private val chooseDestination: suspend () -> SaveOrShare? = {
+        val koin = KoinPlatform.getKoin()
+        val strings = koin.get<CoreStrings>()
+        koin.get<BackupControl>().classicDestinationPrompt(strings.exportDestinationTitle, strings.exportDestinationMessage)
+    },
+    private val bookmarksWithLabel: suspend (BookmarkEntities.Label) -> List<BookmarkEntities.BibleBookmarkWithNotes> =
+        { label -> KoinPlatform.getKoin().get<BookmarkControl>().getBibleBookmarksWithLabel(label) },
+    private val exportCsv: suspend (List<BookmarkEntities.BibleBookmarkWithNotes>) -> Unit = { bookmarks ->
+        val koin = KoinPlatform.getKoin()
+        IosBookmarkHostPlatform(
+            { koin.get() }, IosDocumentPicker(), koin.get(), koin.get(),
+            { koin.getOrNull<IosStringTableHolder>()?.current ?: IosAppStartup.stringTable }, koin.get(), koin.get(),
+        ).exportBookmarksCsv(bookmarks)
+    },
+    private val scope: CoroutineScope = shell.hostScope,
 ) : WindowPaneMenuPlatform {
+    /** The label of the StudyPad shown in [window], as Android's `ReadingCommands` reads it; null for any other document. */
+    private fun studyPadLabel(window: Window): BookmarkEntities.Label? =
+        (window.bibleView?.firstDocument as? StudyPadDocument)?.label
+
+    override fun exportHtml(window: Window) = emitEvent(window.id.toString(), BibleViewEvents.exportHtml())
+
+    override fun exportStudyPad(window: Window) {
+        val label = studyPadLabel(window) ?: return
+        scope.launch { studyPadExport.export(listOf(label), chooseDestination) }
+    }
+
+    override fun exportStudyPadCsv(window: Window) {
+        val label = studyPadLabel(window) ?: return
+        scope.launch { exportCsv(bookmarksWithLabel(label)) }
+    }
+
     private fun route(window: Window) = NavRoutes.textDisplaySettings(
         scopeLevel = "window", windowId = window.id.toString(), workspaceId = windowControl().windowRepository.id.toString(),
     )
@@ -159,13 +220,9 @@ class IosWindowPaneMenuPlatform(
 fun windowMenuSelection(bookInitials: String?, osisRef: String?): Selection? =
     if (bookInitials != null && osisRef != null) Selection(bookInitials, osisRef, -1, -1) else null
 
-/** The pane menu rows iOS does not offer (their actions are not implemented, so the builder leaves them out). */
+/** The pane menu rows iOS does not offer (their actions are not implemented, so the builder leaves them out): none. */
 @kotlin.native.HiddenFromObjC
-val IOS_OMITTED_PANE_MENU_ROWS: Set<String> = setOf(
-    WindowPaneMenuStateBuilder.ID_EXPORT_HTML,
-    WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD,
-    WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV,
-)
+val IOS_OMITTED_PANE_MENU_ROWS: Set<String> = emptySet()
 
 /**
  * The platform-routed rows [IosWindowPaneMenuPlatform] implements. Together with [IOS_OMITTED_PANE_MENU_ROWS] it is exactly
@@ -177,6 +234,9 @@ val IOS_IMPLEMENTED_PANE_MENU_ROWS: Set<String> = setOf(
     WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK,
     WindowPaneMenuStateBuilder.ID_COPY_REFERENCE,
     WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU,
+    WindowPaneMenuStateBuilder.ID_EXPORT_HTML,
+    WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD,
+    WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV,
 )
 
 /** Material stand-in for the Android drawable named [iconKey] (pane menu rows and the text option rows); null when unmapped. */
@@ -223,6 +283,7 @@ fun iosPaneMenuIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_tilt_to_scroll_24dp" -> Icons.Outlined.ScreenRotation
     "ic_reverse_split_mode_24dp" -> Icons.Outlined.SwapVert
     "ic_window_pinning_24" -> Icons.Outlined.PushPin
+    "ic_label_settings_24" -> Icons.Outlined.Label
     else -> null
 }
 

@@ -65,6 +65,7 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
 
     // --- R3 ---
     val llmActions get() = t.text("llm_actions")
+    val autoAssignLabels get() = t.text("auto_assign_labels_title")
 
     companion object {
         /** Every resource key this class reads. */
@@ -77,7 +78,7 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
             "how_to_contribute", "app_licence_title", "contact", "tell_friend_title", "rate_application",
             "send_bug_report_title", "app_name_medium", "version_text",
             // R3
-            "llm_actions",
+            "llm_actions", "auto_assign_labels_title",
         )
     }
 }

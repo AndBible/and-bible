@@ -255,4 +255,25 @@ class IosReadingNavigator(
         workspaceSettings()?.updateFrom(resultData)
         return resultData.selectedLabels.toList()
     }
+
+    /**
+     * The overflow menu's "Auto assign labels" (Android's `AutoAssignPreference.openDialog`): the label manager in
+     * `WORKSPACE` mode seeded from the workspace settings. A reset answer clears the auto-assign labels and the primary
+     * one; any other answer is applied with [updateFrom]. Returns whether the settings changed: false for a cancel (the
+     * manager left without an answer) and when there are no workspace settings to edit.
+     */
+    suspend fun editAutoAssignLabels(): Boolean {
+        val settings = workspaceSettings() ?: return false
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.WORKSPACE)
+            .applyFrom(settings).toJSON()
+        val result = awaitManageLabels(data) ?: return false
+        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
+        if (resultData.reset) {
+            settings.autoAssignLabels = mutableSetOf()
+            settings.autoAssignPrimaryLabel = null
+        } else {
+            settings.updateFrom(resultData)
+        }
+        return true
+    }
 }

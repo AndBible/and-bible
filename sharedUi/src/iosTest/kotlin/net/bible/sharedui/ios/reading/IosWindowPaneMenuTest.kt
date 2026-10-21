@@ -17,7 +17,26 @@
 
 package net.bible.sharedui.ios.reading
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import net.bible.android.control.page.Document
+import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowView
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsCall
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
+import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import org.koin.mp.KoinPlatform
@@ -102,5 +121,168 @@ class IosWindowPaneMenuTest {
             assertEquals(-1, selection.endOrdinal)
             assertEquals(page.documentCategory, category)
         }
+    }
+
+    // ----- R3 Task 5: export rows -----
+
+    /** A view that only reports [firstDocument], as the one Android's builder and `ReadingCommands` read. */
+    private class FakeWindowView(override val firstDocument: Document?) : WindowView {
+        override val verseRangeLoaded: VerseRange? = null
+        override var lastUpdated: Long = 0L
+        override var listenEvents: Boolean = true
+        override fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) = Unit
+        override fun highlightBibleOrdinalRange(range: IntRange) = Unit
+        override fun destroy() = Unit
+        override suspend fun loadDocument(
+            document: Document, updateLocation: Boolean, key: Key?, anchorOrdinal: OrdinalRange?, htmlId: String?,
+            windowContentGeneration: Long?,
+        ) = Unit
+        override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) = Unit
+        override fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) = Unit
+        override fun hasChapterLoaded(chapter: Int) = false
+        override fun requestFocus() = false
+        override fun updateTextDisplaySettings(onAttach: Boolean) = Unit
+        override fun adjustLoadingCount(adj: Int) = false
+    }
+
+    private fun studyPad(label: BookmarkEntities.Label) =
+        StudyPadDocument(label, null, emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+
+    private class Recorder {
+        val events = mutableListOf<Pair<String, String>>()
+        val exported = mutableListOf<List<BookmarkEntities.Label>>()
+        val destinations = mutableListOf<SaveOrShare?>()
+        val askedForBookmarks = mutableListOf<BookmarkEntities.Label>()
+        val csv = mutableListOf<List<BookmarkEntities.BibleBookmarkWithNotes>>()
+        val bookmarkOfLabel = mutableMapOf<String, List<BookmarkEntities.BibleBookmarkWithNotes>>()
+    }
+
+    /** The platform over recording fakes, run synchronously (an unconfined scope), plus the real dispatcher over it. */
+    private fun withExportPlatform(
+        block: (platform: IosWindowPaneMenuPlatform, dispatcher: WindowPaneMenuDispatcher, window: Window, rec: Recorder) -> Unit,
+    ) {
+        withIosReadingHost { host, _ ->
+            val koin = KoinPlatform.getKoin()
+            val control = koin.get<WindowControl>()
+            val rec = Recorder()
+            val platform = IosWindowPaneMenuPlatform(
+                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+                windowControl = { control },
+                slots = { host.slots },
+                clipboard = koin.get(),
+                toast = {}, copiedMessage = { "" }, bridgeFor = { null },
+                openPromptSelector = { _, _, _ -> },
+                emitEvent = { id, call -> rec.events += id to call.js },
+                studyPadExport = object : StudyPadExportPlatform {
+                    override suspend fun export(labels: List<BookmarkEntities.Label>, chooseDestination: suspend () -> SaveOrShare?) {
+                        rec.exported += labels
+                        rec.destinations += chooseDestination()
+                    }
+                },
+                chooseDestination = { SaveOrShare.SHARE },
+                bookmarksWithLabel = { label ->
+                    rec.askedForBookmarks += label
+                    rec.bookmarkOfLabel[label.name].orEmpty()
+                },
+                exportCsv = { rec.csv += it },
+                scope = CoroutineScope(Dispatchers.Unconfined),
+            )
+            val dispatcher = WindowPaneMenuDispatcher(
+                windowControl = control,
+                speakControl = koin.get<SpeakControl>(),
+                windowRepository = { control.windowRepository },
+                controller = { null },
+                prefItems = koin.get<TextDisplayPrefItems>(),
+                recentDisplaySettings = { emptyList<TextDisplaySettings.Types>() },
+                globalTextDisplaySettings = { TextDisplaySettings.default },
+                platform = platform,
+            )
+            block(platform, dispatcher, control.activeWindow, rec)
+        }
+    }
+
+    @Test
+    fun exportHtmlEmitsTheEventForTheWindow() = withExportPlatform { _, dispatcher, window, rec ->
+        val id = window.id.toString()
+        assertFalse(dispatcher.handle(id, WindowPaneMenuStateBuilder.ID_EXPORT_HTML), "the row closes the menu")
+        assertEquals(listOf(id to BibleViewEvents.exportHtml().js), rec.events, "only the asking window's page is told")
+    }
+
+    @Test
+    fun exportStudyPadExportsTheWindowsLabel() = withExportPlatform { _, dispatcher, window, rec ->
+        val label = BookmarkEntities.Label(name = "Pad A")
+        window.bibleView = FakeWindowView(studyPad(label))
+        try {
+            assertFalse(dispatcher.handle(window.id.toString(), WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD))
+        } finally {
+            window.bibleView = null
+        }
+        assertEquals(listOf(listOf("Pad A")), rec.exported.map { l -> l.map { it.name } }, "exactly that label")
+        assertEquals(listOf<SaveOrShare?>(SaveOrShare.SHARE), rec.destinations, "the export asks through the chooser it was given")
+        assertEquals(emptyList(), rec.csv)
+    }
+
+    @Test
+    fun exportStudyPadCsvExportsItsBookmarks() = withExportPlatform { _, dispatcher, window, rec ->
+        val label = BookmarkEntities.Label(name = "Pad B")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1"), textRange = null, wholeVerse = true, book = null,
+        )
+        rec.bookmarkOfLabel["Pad B"] = listOf(bookmark)
+        rec.bookmarkOfLabel["Other"] = emptyList()
+        window.bibleView = FakeWindowView(studyPad(label))
+        try {
+            assertFalse(dispatcher.handle(window.id.toString(), WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV))
+        } finally {
+            window.bibleView = null
+        }
+        assertEquals(listOf("Pad B"), rec.askedForBookmarks.map { it.name })
+        assertEquals(1, rec.csv.size)
+        assertTrue(rec.csv.single().single() === bookmark, "the label's own bookmarks are exported")
+        assertEquals(emptyList(), rec.exported, "the CSV row does not export the archive")
+    }
+
+    /** Outside a StudyPad window the two label exports do nothing (the builder does not offer them either). */
+    @Test
+    fun studyPadExportsDoNothingWithoutAStudyPad() = withExportPlatform { _, dispatcher, window, rec ->
+        val id = window.id.toString()
+        dispatcher.handle(id, WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD)
+        dispatcher.handle(id, WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV)
+        assertEquals(emptyList(), rec.exported)
+        assertEquals(emptyList(), rec.askedForBookmarks)
+        assertEquals(emptyList(), rec.csv)
+    }
+
+    private fun paneMenuIdsFor(document: Document?): List<String> {
+        var ids = emptyList<String>()
+        withIosReadingHost { host, _ ->
+            val window = KoinPlatform.getKoin().get<WindowControl>().activeWindow
+            window.bibleView = document?.let { FakeWindowView(it) }
+            try {
+                ids = host.hooks.paneMenuItemsFor(window.id.toString())!!.map { it.id }
+            } finally {
+                window.bibleView = null
+            }
+        }
+        return ids
+    }
+
+    /** The builder's own rule, now unfiltered: a StudyPad shows all three rows, a Bible page none. */
+    @Test
+    fun exportRowsHiddenOutsideStudyPads() {
+        val exportRows = setOf(
+            WindowPaneMenuStateBuilder.ID_EXPORT_HTML, WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD,
+            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV,
+        )
+        assertEquals(emptySet(), paneMenuIdsFor(null).toSet() intersect exportRows, "no document: no export rows")
+        assertEquals(exportRows, paneMenuIdsFor(studyPad(BookmarkEntities.Label(name = "P"))).toSet() intersect exportRows)
+    }
+
+    @Test
+    fun nothingIsOmittedAnymore() {
+        assertTrue(IOS_OMITTED_PANE_MENU_ROWS.isEmpty())
+        assertTrue(WindowPaneMenuStateBuilder.ID_EXPORT_HTML in IOS_IMPLEMENTED_PANE_MENU_ROWS)
+        assertTrue(WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD in IOS_IMPLEMENTED_PANE_MENU_ROWS)
+        assertTrue(WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV in IOS_IMPLEMENTED_PANE_MENU_ROWS)
     }
 }

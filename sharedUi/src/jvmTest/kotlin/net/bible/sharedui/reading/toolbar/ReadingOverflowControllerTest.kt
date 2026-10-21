@@ -57,6 +57,7 @@ class ReadingOverflowControllerTest {
         var onReady: (() -> Unit)? = null
         var llm = false
 
+        override fun editAutoAssignLabels() { calls += "autoAssign" }
         override fun llmConfigured() = llm
         override fun showLlmActions() { calls += "llmActions" }
         override fun toggleFullScreen() { calls += "fullscreen" }
@@ -97,9 +98,9 @@ class ReadingOverflowControllerTest {
     }
 
     @Test fun rowsComeInAndroidsOrderAndHideWhatTheDeviceCannotDo() {
-        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "allTextOptions"), ids())
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "autoAssignLabels", "allTextOptions"), ids())
         host.tiltOk = false; host.multi = true
-        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "splitMode", "autoPinMode", "allTextOptions"), ids())
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "splitMode", "autoPinMode", "autoAssignLabels", "allTextOptions"), ids())
     }
 
     /** Android shows the AI row only with an LLM configured, after the pinning row and before the recent text options. */
@@ -108,7 +109,7 @@ class ReadingOverflowControllerTest {
         assertFalse("llmActionsSubMenu" in ids(), "no LLM configured: no row")
         host.llm = true
         assertEquals(
-            listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "llmActionsSubMenu", "textOptionItem:0", "allTextOptions"),
+            listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "autoAssignLabels", "llmActionsSubMenu", "textOptionItem:0", "allTextOptions"),
             ids(),
         )
         val row = menu.build().first { it.id == "llmActionsSubMenu" }
@@ -116,6 +117,17 @@ class ReadingOverflowControllerTest {
         assertEquals(table.text("llm_actions"), row.label)
         assertTrue(row.opensDialog)
         assertFalse(row.checkable)
+    }
+
+    /** Android's "Label settings" row (`AutoAssignPreference`): a dialog row after pinning, no check, clicking closes the menu. */
+    @Test fun autoAssignLabelsRowOpensTheLabelManagerAndClosesTheMenu() {
+        val row = menu.build().first { it.id == "autoAssignLabels" }
+        assertEquals("ic_label_settings_24", row.iconKey)
+        assertEquals(table.text("auto_assign_labels_title"), row.label)
+        assertTrue(row.opensDialog)
+        assertFalse(row.checkable)
+        assertFalse(menu.handle("autoAssignLabels"))
+        assertEquals(listOf("autoAssign"), host.calls)
     }
 
     @Test fun clickingTheLlmActionsRowOpensThePromptSelectorAndClosesTheMenu() {
@@ -153,7 +165,7 @@ class ReadingOverflowControllerTest {
     @Test fun recentTextOptionsSitBetweenTheStaticRowsAndAllTextOptionsAndStartTheLastSection() {
         host.recent = listOf(Types.FOOTNOTES to FakeItem(true), Types.JUSTIFY to FakeItem(false, enabled = false))
         val items = menu.build()
-        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "textOptionItem:0", "allTextOptions"), items.map { it.id })
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "autoAssignLabels", "textOptionItem:0", "allTextOptions"), items.map { it.id })
         assertTrue(items.first { it.id == "textOptionItem:0" }.startsNewSection)
         assertFalse(items.first { it.id == "allTextOptions" }.startsNewSection)
         // With no recent row, allTextOptions carries the divider itself.

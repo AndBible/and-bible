@@ -80,8 +80,6 @@ import platform.Foundation.NSBundle
  * `ReadingDrawerMenu` (common, unit tested); this class only reads and writes what they ask for.
  *
  * What is NOT here, by name:
- * - Overflow "Auto assign labels": the workspace label manager's result (applied to the workspace settings) is not
- *   exposed by [IosReadingNavigator]; needs a navigator member that awaits the manager.
  * - Stand-in: a recent text option that is neither a toggle nor sheet-editable opens the full text options screen
  *   (Android calls the option's own dialog).
  * - Drawer rows listed in `ReadingDrawerMenu.OMITTED_ROWS`.
@@ -337,6 +335,11 @@ internal class IosReadingToolbarHost(
         },
         globalSettings = globalSettings(),
     )
+
+    /** The overflow "Label settings" row: the navigator awaits the workspace label manager and applies its answer. */
+    override fun editAutoAssignLabels() {
+        scope.launch { navigator.editAutoAssignLabels() }
+    }
 
     override fun llmConfigured(): Boolean = llmConfiguredSource()
     override fun showLlmActions() = showLlmActionsSource()

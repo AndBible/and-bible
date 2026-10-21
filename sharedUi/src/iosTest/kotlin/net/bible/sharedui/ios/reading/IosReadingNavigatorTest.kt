@@ -312,4 +312,85 @@ class IosReadingNavigatorTest {
         // without an answer. A modal manager makes two overlapping asks unreachable in the app; this pins the behaviour.
         assertNull(secondAnswer.await())
     }
+
+    // ----- R3 Task 5: overflow "Auto assign labels" -----
+
+    private fun Fixture.navigatorFor(settings: net.bible.android.database.WorkspaceEntities.WorkspaceSettings?) = IosReadingNavigator(
+        shell = shell,
+        hostState = hostState,
+        links = links,
+        labelResults = labels,
+        downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
+        fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
+        workspaceSettings = { settings },
+        mainContext = Dispatchers.Unconfined,
+    )
+
+    private fun Fixture.deliverWorkspace(labelIds: Set<IdType>, primary: IdType?, reset: Boolean = false) {
+        labels.publishForTest(
+            ManageLabelsResult(
+                ManageLabelsContract.ManageLabelsData(
+                    ManageLabelsContract.Mode.WORKSPACE, autoAssignLabels = labelIds.toMutableSet(),
+                    autoAssignPrimaryLabel = primary, reset = reset,
+                ).toJSON(),
+            ),
+        )
+    }
+
+    private fun settingsWith(labels: Set<IdType>, primary: IdType?) =
+        net.bible.android.database.WorkspaceEntities.WorkspaceSettings(
+            autoAssignLabels = labels.toMutableSet(), autoAssignPrimaryLabel = primary,
+        )
+
+    @Test
+    fun autoAssignAppliesTheResult() = withNavigator {
+        val old = IdType()
+        val a = IdType()
+        val b = IdType()
+        val settings = settingsWith(setOf(old), old)
+        val answer = testScope.async { navigatorFor(settings).editAutoAssignLabels() }
+        yield()
+        val seeded = ManageLabelsContract.ManageLabelsData(ManageLabelsContract.Mode.WORKSPACE).applyFrom(settings).toJSON()
+        assertEquals(listOf(NavRoutes.manageLabels(seeded)), nav.routes, "the manager opens in workspace mode seeded from the settings")
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        deliverWorkspace(setOf(a, b), primary = b)
+        open(NavRoutes.READING)
+        assertTrue(answer.await(), "changed")
+        assertEquals(setOf(a, b), settings.autoAssignLabels)
+        assertEquals(b, settings.autoAssignPrimaryLabel)
+    }
+
+    @Test
+    fun autoAssignResetClearsTheLabels() = withNavigator {
+        val old = IdType()
+        val settings = settingsWith(setOf(old, IdType()), old)
+        val answer = testScope.async { navigatorFor(settings).editAutoAssignLabels() }
+        yield()
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        // A reset answer carries stale labels too: they must not be applied.
+        deliverWorkspace(setOf(IdType()), primary = IdType(), reset = true)
+        open(NavRoutes.READING)
+        assertTrue(answer.await(), "a reset is a change")
+        assertEquals(emptySet(), settings.autoAssignLabels)
+        assertNull(settings.autoAssignPrimaryLabel)
+    }
+
+    @Test
+    fun autoAssignCancelChangesNothing() = withNavigator {
+        val old = IdType()
+        val settings = settingsWith(setOf(old), old)
+        val answer = testScope.async { navigatorFor(settings).editAutoAssignLabels() }
+        yield()
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        open(NavRoutes.READING) // left without an answer
+        assertEquals(false, answer.await())
+        assertEquals(setOf(old), settings.autoAssignLabels)
+        assertEquals(old, settings.autoAssignPrimaryLabel)
+    }
+
+    @Test
+    fun autoAssignWithoutWorkspaceSettingsOpensNothing() = withNavigator {
+        assertEquals(false, navigatorFor(null).editAutoAssignLabels())
+        assertEquals(emptyList(), nav.routes)
+    }
 }
