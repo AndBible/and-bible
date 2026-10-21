@@ -275,6 +275,22 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(findings.isEmpty, report)
     }
 
+    /// The labels of all static texts under the pane web views, read with ONE snapshot per web view (a snapshot is a
+    /// single round trip; resolving each of the 500+ word elements of an iPad pane through its own query took 0.36 s each
+    /// and timed the run out). Non-empty labels only; empty when no pane web view is in the tree or a snapshot fails.
+    private func bibleWebViewWords(_ app: XCUIApplication) -> Set<String> {
+        func collect(_ snapshot: XCUIElementSnapshot, into words: inout Set<String>) {
+            if snapshot.elementType == .staticText, !snapshot.label.isEmpty { words.insert(snapshot.label) }
+            for child in snapshot.children { collect(child, into: &words) }
+        }
+        var words = Set<String>()
+        let webViews = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+        for webView in webViews.allElementsBoundByIndex {   // a handful of panes, not the words
+            if let snapshot = try? webView.snapshot() { collect(snapshot, into: &words) }
+        }
+        return words
+    }
+
     /// Audits what is on screen and appends one line per finding to `findings`. The handler returns true for every issue
     /// so the audit itself does not stop at the first one; the test fails on the collected list afterwards.
     ///
@@ -286,8 +302,7 @@ final class ReadingUITests: RealAppUITestCase {
     private func audit(_ app: XCUIApplication, surface: String, detectionCap: Int, into findings: inout [String]) throws {
         // The words of the Bible text under the pane web views, read once per surface (a per-issue query risks the
         // audit timeout). Empty when a modal window hides the panes from the tree, which is fine: no hit-area findings.
-        let webViewWords = Set(app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
-            .staticTexts.allElementsBoundByIndex.map { $0.label })
+        let webViewWords = bibleWebViewWords(app)
         let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = [
             // R3 decision (T14 status): the Bible text runs. WebKit exposes every word / punctuation mark / verse number
             // inside the pane's WKWebView as its own tiny static text (labels ',' '.' 'in' '¶' '17' ...). The text is
