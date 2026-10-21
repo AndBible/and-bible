@@ -153,4 +153,16 @@ class LegacyMigrationControlTest {
         c.requestImport()
         assertTrue(file(c, "done.json").exists())
     }
+
+    @Test
+    fun markerWritesSyncTheTempFileThenTheDirectory() {
+        val p = platform()
+        val synced = mutableListOf<okio.Path>()
+        val c = LegacyMigrationControl(p.fileSystem, p.applicationSupport) { synced += it }
+        c.decline(DeclineReason.START_FRESH)
+        assertEquals(listOf("declined.json.tmp", "LegacyMigration"), synced.map { it.name })
+        synced.clear()
+        c.requestImport()
+        assertEquals(listOf("import-request.json.tmp", "LegacyMigration"), synced.map { it.name })
+    }
 }

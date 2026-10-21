@@ -860,6 +860,16 @@ class LegacyMigratorTest {
         val stateWrites = followedByDirectory("state.json.tmp")
         assertTrue(stateWrites.size >= 3, "every state write syncs its temp file: $names")
         assertTrue(stateWrites.all { it == "<dir>" }, "the directory is synced right after each rename: $names")
+        // Ordering, from the directory listing at each call: the temp file exists when it is synced, and when the directory
+        // is synced right after, the rename is done (temp gone, target present). Syncing the parent before the rename fails this.
+        for ((i, call) in recording.calls.withIndex()) {
+            if (!call.path.name.endsWith(".tmp")) continue
+            val target = call.path.name.removeSuffix(".tmp")
+            assertTrue(call.path.name in call.children, "${call.path.name} exists when its content is synced")
+            val dirCall = recording.calls[i + 1]
+            assertEquals(e.migrationDir, dirCall.path, "the directory follows ${call.path.name}")
+            assertTrue(call.path.name !in dirCall.children && target in dirCall.children, "renamed before the directory sync of $target: ${dirCall.children}")
+        }
         for (marker in listOf("done.json.tmp", "report.json.tmp")) {
             val writes = followedByDirectory(marker)
             assertTrue(writes.isNotEmpty() && writes.all { it == "<dir>" }, "$marker is synced, then the directory: $names")
@@ -899,13 +909,51 @@ class LegacyMigratorTest {
         File(documents, "jsword/readingplan").mkdirs()
         File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
         File(documents, "jsword/readingplan/other.properties").writeText("1=Exod.1")
-        val target = File(documents.parentFile, "manual/readingplan")
         val before = hashTree(e.platform.documents)
         val migrator = LegacyMigrator(e.platform, JvmLegacyDatabaseFactory(), userPlanDir = e.platform.documents.parent!! / "manual" / "readingplan")
         assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator.run() })
+        val target = File(documents.parentFile, "manual/readingplan")
         assertEquals("1=Gen.1", File(target, "mine.properties").readText())
         assertEquals("1=Exod.1", File(target, "other.properties").readText())
         assertEquals(listOf("mine.properties", "other.properties"), target.list().orEmpty().sorted(), "no temporary file is left")
         assertEquals(before, hashTree(e.platform.documents), "the source directory is unchanged")
+    }
+
+    @Test
+    fun copiedUserPlanFilesAreSyncedThenTheirDirectory() {
+        val e = env()
+        val documents = File(e.platform.documents.toString())
+        File(documents, "jsword/readingplan").mkdirs()
+        File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
+        val planDir = e.platform.documents.parent!! / "manual" / "readingplan"
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { LegacyMigrator(recording, JvmLegacyDatabaseFactory(), userPlanDir = planDir).run() })
+        val i = recording.synced.indexOfFirst { it.name == "mine.properties.tmp" }
+        assertTrue(i >= 0, "the temp copy is synced")
+        assertTrue("mine.properties.tmp" in recording.calls[i].children, "temp exists at its sync")
+        assertEquals(planDir, recording.calls[i + 1].path)
+        assertTrue("mine.properties.tmp" !in recording.calls[i + 1].children && "mine.properties" in recording.calls[i + 1].children, "renamed before the directory sync")
+    }
+
+    @Test
+    fun aFailingSyncOfTheDoneMarkerFailsTheAttemptAndRollsBack() {
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(RecordingSyncPlatform(e.platform) { it.name == "done.json.tmp" }))
+        assertTrue(failed.rolledBack)
+        assertFalse(File(e.migrationDir.toString(), "done.json").exists(), "no commit marker")
+        assertEquals(emptyList(), e.databaseFiles(), "nothing stays adopted")
+    }
+
+    @Test
+    fun aFailingDirectorySyncAfterTheDoneRenameCountsAsCommitted() {
+        val e = env()
+        val fs = e.platform.fileSystem
+        val done = e.migrationDir / "done.json"
+        // Fails only the directory sync that follows the done.json rename (the marker exists then).
+        val platform = RecordingSyncPlatform(e.platform) { it == e.migrationDir && fs.exists(done) }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(platform))
+        assertTrue(File(e.migrationDir.toString(), "done.json").exists(), "committed: the marker is there")
+        assertEquals(baseline, databaseSummary(e.databases), "the adoption stays")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform), "a later start sees the same committed state")
     }
 }

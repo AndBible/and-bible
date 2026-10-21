@@ -469,7 +469,9 @@ class LegacyMigrator(
             fs.createDirectories(userPlanDir)
             val temp = userPlanDir / (file.name + ".tmp")
             fs.copy(file, temp)
+            platform.syncFile(temp)
             fs.atomicMove(temp, target)
+            platform.syncFile(userPlanDir)
         }
     }
 

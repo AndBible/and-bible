@@ -158,10 +158,22 @@ fun readText(file: File, sql: String): String {
 }
 
 /** A platform whose Keychain cannot be read (locked device, missing entitlement); its message carries a fake secret that must never be echoed. */
-/** Records every [syncFile] call (in order) and forwards the rest to [platform]. */
-class RecordingSyncPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
-    val synced = mutableListOf<okio.Path>()
-    override fun syncFile(path: okio.Path) { synced += path }
+/**
+ * Records every [syncFile] call (in order) and forwards the rest to [platform]. [children] is the snapshot, taken at the
+ * call, of the entries in the synced directory (or, for a file, of its parent), so a test can prove the order of
+ * "write temp, sync temp, rename, sync directory". [failOn] makes a call throw (after being recorded).
+ */
+class RecordingSyncPlatform(private val platform: LegacyPlatform, private val failOn: (okio.Path) -> Boolean = { false }) : LegacyPlatform by platform {
+    class Call(val path: okio.Path, val children: Set<String>)
+
+    val calls = mutableListOf<Call>()
+    val synced: List<okio.Path> get() = calls.map { it.path }
+
+    override fun syncFile(path: okio.Path) {
+        val dir = if (platform.fileSystem.metadataOrNull(path)?.isDirectory == true) path else path.parent!!
+        calls += Call(path, platform.fileSystem.listOrNull(dir).orEmpty().map { it.name }.toSet())
+        if (failOn(path)) throw okio.IOException("injected sync failure for ${path.name}")
+    }
 }
 
 class ThrowingKeychainPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
