@@ -14,6 +14,20 @@ import XCTest
 final class LegacyMigrationUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
+    /// After the whole class: one launch with `-clearLegacySeed` removes the seeded stores, UserDefaults and Keychain items
+    /// and the migration state, so other suites (which use -resetData, leaving these alone) never inherit them.
+    override class func tearDown() {
+        guard ProcessInfo.processInfo.environment["I3B_FIXTURE_DIR"]?.isEmpty == false else { return }
+        MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            app.launchArguments = ["-clearLegacySeed", "-task6ResetCrashState"]
+            app.launch()
+            _ = app.wait(for: .runningForeground, timeout: 30)
+            app.terminate()
+        }
+        super.tearDown()
+    }
+
     // MARK: Helpers
 
     private func fixtureRoot() throws -> String {

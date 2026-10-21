@@ -31,6 +31,7 @@ import kotlin.native.Platform
  * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
  * - `-legacyMigrationStepDelayMs <ms>`: [legacyStepDelayMs], delay after the legacy migration's MAP step.
  * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
+ * - `-clearLegacySeed`: [clearLegacySeed], undoes the seed so other suites do not inherit it.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
@@ -81,7 +82,10 @@ internal object IosDebugLaunchArgs {
     fun legacyStepDelayMs(): Long? = argumentValue("-legacyMigrationStepDelayMs")?.toLongOrNull()?.takeIf { it > 0 }
 
     /** Debug only: the unpacked fixture scenario directory after `-seedLegacyFixture`, or null. */
-    fun legacySeedDir(): String? = argumentValue("-seedLegacyFixture")
+    fun legacySeedDir(): String? = argumentValue("-seedLegacyFixture")?.takeIf { !it.startsWith("-") }
+
+    /** Debug only: `-clearLegacySeed` removes everything `-seedLegacyFixture` put in the container (see `IosLegacyDebugSeed`). */
+    fun clearLegacySeed(): Boolean = Platform.isDebugBinary && "-clearLegacySeed" in arguments
 
     /** The value after `-openDocument` (book initials the `-openRef` window switches to), or null. */
     fun openDocument(): String? = argumentValue("-openDocument")

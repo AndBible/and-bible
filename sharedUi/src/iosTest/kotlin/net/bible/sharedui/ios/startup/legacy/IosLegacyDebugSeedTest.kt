@@ -51,4 +51,16 @@ class IosLegacyDebugSeedTest {
         }
         for (name in listOf("sidecar.json", "CloudStore.store", "AndBible", "databases")) assertTrue(!isLegacyStoreFile(name), name)
     }
+
+    @Test fun keychainPairsRoundTripAndKeepPipesInTheAccount() {
+        val items = listOf(SeedKeychainItem("org.svc", "a|b", "v"), SeedKeychainItem("org.other", "acc", "w"))
+        assertEquals(listOf("org.svc|a|b", "org.other|acc"), encodeKeychainPairs(items))
+        assertEquals(listOf("org.svc" to "a|b", "org.other" to "acc"), decodeKeychainPairs(encodeKeychainPairs(items)))
+        assertEquals(listOf("s" to "x"), decodeKeychainPairs(listOf("noseparator", "|noservice", "s|x")), "malformed entries are dropped")
+    }
+
+    @Test fun forgottenDefaultsKeysAreDistinct() {
+        assertEquals(listOf("a", "b", "c"), defaultsKeysToForget(listOf("a", "b"), listOf("b", "c")))
+        assertEquals(emptyList(), defaultsKeysToForget(emptyList(), emptyList()))
+    }
 }

@@ -215,3 +215,8 @@ TEST_RUNNER_I3B_FIXTURE_DIR=<pwd>/build/i3b scripts/mac-remote.sh xcode-test ipa
 
 Look at the screenshot attachments `i3b-calculator-first` and `i3b-legacy-recovery`. `testRollbackPendingHidesUnsafeActions`
 always skips (ROLLBACK_PENDING cannot be induced from the UI; the JVM test covers it).
+
+`-seedLegacyFixture` needs a directory value (a value starting with `-` is ignored). The class tears down with one launch with
+`-clearLegacySeed`, which removes the seeded stores, `LegacyMigration/`, `databases/`, the settled flag, the seeded UserDefaults keys
+and the seeded Keychain items (recorded on seed), so later suites do not inherit them. Run it by hand after an aborted run:
+`xcrun simctl launch <udid> org.andbible.ios.dev -clearLegacySeed`. A failing seed aborts the launch (`I3B-seed FAILED` in the log).
