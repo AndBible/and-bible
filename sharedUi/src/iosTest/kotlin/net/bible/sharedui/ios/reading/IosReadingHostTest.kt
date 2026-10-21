@@ -108,39 +108,7 @@ class IosReadingHostTest {
         openUrl: (String) -> Unit = {},
         statusBar: (Boolean) -> Unit = {},
         block: (host: IosReadingHost, deps: net.bible.sharedui.reading.host.ReadingHostDeps) -> Unit,
-    ) {
-        val scope = MainScope()
-        try {
-            awaitStartupOnMain { IosAppStartup.ensureStarted(
-                IosAppConfig(
-                    root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
-                    repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-                ),
-            ) }
-            awaitStartupOnMain { IosAppStartup.openDatabases() }
-            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
-            runBlocking {
-                ReadingAppInit.initialise(platform)
-                ReadingAppInit.prepareData(platform)
-            }
-            val koin = KoinPlatform.getKoin()
-            ReadingAppInit.createWindowRepository(scope)
-            val p = ColorPainter(Color.Black)
-            val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
-            val host = IosReadingHost(
-                scope, IosHostShell(scope, NoNavigator), koin, FakeNight(false), openUrl = openUrl, statusBarHidden = statusBar,
-            )
-            try {
-                block(host, host.deps(icons))
-            } finally {
-                host.dispose()
-            }
-        } finally {
-            scope.cancel()
-            ReadingAppInit.resetForTest()
-            runBlocking { IosAppStartup.resetForTest() }
-        }
-    }
+    ) = withIosReadingHost(openUrl = openUrl, statusBar = statusBar, block = block)
 
     /**
      * EVERY `ReadingHostDeps` field is accounted for: supplied (not the inert default `ReadingHostDeps` ships) or on the named
@@ -201,6 +169,15 @@ class IosReadingHostTest {
             "onSearchSheetOffsetsChanged" to (deps.onSearchSheetOffsetsChanged !== d1.onSearchSheetOffsetsChanged),
             "searchUnavailableDocName" to (deps.searchUnavailableDocName === search.searchUnavailableDocName),
             "onSearchUnavailableMessageShown" to (deps.onSearchUnavailableMessageShown !== d1.onSearchUnavailableMessageShown),
+            // the in-reader AI dialogs (Task 4): the host's own controller drives them
+            "llmDialog" to (deps.llmDialog === host.llmDialogs.state),
+            "onLlmPromptChosen" to (deps.onLlmPromptChosen !== d1.onLlmPromptChosen),
+            "onLlmToggleFavorite" to (deps.onLlmToggleFavorite !== d1.onLlmToggleFavorite),
+            "onLlmCategoryExpandedChanged" to (deps.onLlmCategoryExpandedChanged !== d1.onLlmCategoryExpandedChanged),
+            "onLlmSpecifySubmitted" to (deps.onLlmSpecifySubmitted !== d1.onLlmSpecifySubmitted),
+            "onLlmModelChosen" to (deps.onLlmModelChosen !== d1.onLlmModelChosen),
+            "onLlmRegenerateConfirmed" to (deps.onLlmRegenerateConfirmed !== d1.onLlmRegenerateConfirmed),
+            "onLlmDismiss" to (deps.onLlmDismiss !== d1.onLlmDismiss),
             // platform-built slots
             "agentLogSlot" to (deps.agentLogSlot != null && d1.agentLogSlot == null),
             "speakBarSlot" to (deps.speakBarSlot != null && d1.speakBarSlot == null),
@@ -219,20 +196,11 @@ class IosReadingHostTest {
         // - generation, imeBottomPaddingPx: Android bumps/feeds them from activity events; iOS never rebuilds the pane subtree
         //   and Compose handles the keyboard inset itself.
         // - onDrawerInMotion, onDrawerIdleClosed: Android shows/hides the system bars around the drawer; iOS has no such chrome.
-        // - the seven LLM fields: no agent start on iOS (the LLM dialog host is not mounted; see hooksAndSlot...).
         val inert: Map<String, Boolean> = mapOf(
             "generation" to (deps.generation.value == 0),
             "imeBottomPaddingPx" to (deps.imeBottomPaddingPx.value == 0),
             "onDrawerInMotion" to (deps.onDrawerInMotion === d1.onDrawerInMotion),
             "onDrawerIdleClosed" to (deps.onDrawerIdleClosed === d1.onDrawerIdleClosed),
-            "llmDialog" to (deps.llmDialog.value == net.bible.sharedcore.ai.reading.ReadingLlmDialogState()),
-            "onLlmPromptChosen" to (deps.onLlmPromptChosen === d1.onLlmPromptChosen),
-            "onLlmToggleFavorite" to (deps.onLlmToggleFavorite === d1.onLlmToggleFavorite),
-            "onLlmCategoryExpandedChanged" to (deps.onLlmCategoryExpandedChanged === d1.onLlmCategoryExpandedChanged),
-            "onLlmSpecifySubmitted" to (deps.onLlmSpecifySubmitted === d1.onLlmSpecifySubmitted),
-            "onLlmModelChosen" to (deps.onLlmModelChosen === d1.onLlmModelChosen),
-            "onLlmRegenerateConfirmed" to (deps.onLlmRegenerateConfirmed === d1.onLlmRegenerateConfirmed),
-            "onLlmDismiss" to (deps.onLlmDismiss === d1.onLlmDismiss),
         )
         assertEquals(emptyList(), inert.filterValues { !it }.keys.toList(), "allow-listed fields that are no longer inert")
 
@@ -312,7 +280,7 @@ class IosReadingHostTest {
     /**
      * Every `ReadingToolbarCallbacks` member is invoked by name; none may log a pending. The allow-list of callbacks
      * that may stay pending is EMPTY: every gap is inside a wired callback and named on `IosReadingToolbarHost` (full
-     * screen, auto assign labels and LLM actions in the overflow menu) and `ReadingDrawerMenu.OMITTED_ROWS`.
+     * screen and auto assign labels in the overflow menu) and `ReadingDrawerMenu.OMITTED_ROWS`.
      * Not compiled or run on Linux (no Mac): owed to the Mac run.
      */
     @Test
@@ -390,15 +358,14 @@ class IosReadingHostTest {
             "installedDocRows" to (h.installedDocRows !== defaults.installedDocRows),
             "recentDocumentInitials" to (h.recentDocumentInitials !== defaults.recentDocumentInitials),
             "paneMenuItemsFor" to (h.paneMenuItemsFor !== defaults.paneMenuItemsFor),
+            "dismissLlmSheets" to (h.dismissLlmSheets !== defaults.dismissLlmSheets),
+            "openPromptSelector" to (h.openPromptSelector !== defaults.openPromptSelector),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
-        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (Task 4 left them: the agent run is started by Android's
-        // AgentForegroundService.startAgent/startRegenerate, which has no common or iOS counterpart, and the LLM dialog host is
-        // not mounted on iOS; the agent's permission prompt and question dialogs ARE real now, in IosAgentPlatform), and the three optional overrides that
-        // default to the repository's own behaviour.
+        // INERT ALLOW-LIST (hooks): regenerate (the regenerate flow belongs to the AI document pages, not to Task 4's prompt
+        // selector; its dialog is driven by the same controller once a page asks), and the three optional overrides that
+        // default to the repository's own behaviour. The agent's permission prompt and question dialogs are real, in IosAgentPlatform.
         val inertHooks = mapOf(
-            "dismissLlmSheets" to (h.dismissLlmSheets === defaults.dismissLlmSheets),
-            "openPromptSelector" to (h.openPromptSelector === defaults.openPromptSelector),
             "openRegenerate" to (h.openRegenerate === defaults.openRegenerate),
             "activeWindowId" to (h.activeWindowId == null),
             "historyItemsFor" to (h.historyItemsFor == null),

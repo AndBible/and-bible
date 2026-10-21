@@ -65,8 +65,8 @@ internal class IosSelectionMenuWindow(
 
 /**
  * The production [SelectionMenuEnvironment]: settings from [settings], links from [linkControl], search through
- * [openSearch] (the reading host), web search through [links] and the pasteboard. [llmConfigured] stays false until
- * the in-reader AI (Task 4) reports its configuration, which keeps the AI row hidden.
+ * [openSearch] (the reading host), web search through [links] and the pasteboard. [llmConfiguredSource] answers
+ * whether the AI features are configured (false hides the AI row).
  */
 internal class IosSelectionMenuEnvironment(
     private val settings: () -> AppSettings,

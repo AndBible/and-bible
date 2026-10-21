@@ -81,8 +81,8 @@ class SelectionMenuRow(val item: SelectionMenuItem, val title: String)
  * bookmarks straight away, as Android does.
  *
  * @param window the window's actions, null for an unknown or released window
- * @param onLlmAction the AI action for a selection (Android: `showLlmPromptSelector`); Task 4 wires it. The row is
- *   hidden while [SelectionMenuEnvironment.llmConfigured] is false, so the default does nothing visible.
+ * @param onLlmAction the AI action for a selection (Android: `showLlmPromptSelector`); the reading host opens the
+ *   prompt selector. The row is hidden while [SelectionMenuEnvironment.llmConfigured] is false.
  */
 @kotlin.native.HiddenFromObjC
 class IosSelectionMenu(

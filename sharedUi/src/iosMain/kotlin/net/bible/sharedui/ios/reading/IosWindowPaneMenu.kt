@@ -78,15 +78,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.service.llm.PromptContext
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedlogic.settings.PrefItemHandle
 import net.bible.sharedui.app.ports.ClipboardText
+import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuPlatform
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.sharedui.ios.app.IosHostShell
@@ -97,8 +100,8 @@ import org.crosswire.jsword.book.BookCategory
  * The iOS side of the window (☰) pane menu: what [WindowPaneMenuPlatform] does on iOS.
  *
  * **Left out on iOS (named gaps, the builder omits their rows, see [IOS_OMITTED_PANE_MENU_ROWS]):** HTML export, StudyPad
- * export, StudyPad bookmarks CSV export (the iOS file export flows are still pending ports, `IosStudyPadExportPlatform`), and
- * the LLM actions row (no agent start on iOS yet; `openPromptSelector` is an inert hook).
+ * export and StudyPad bookmarks CSV export (the iOS file export flows are still pending ports, `IosStudyPadExportPlatform`).
+ * The LLM actions row is real: it opens the prompt selector for the window's current page ([openPromptSelector]).
  */
 @kotlin.native.HiddenFromObjC
 class IosWindowPaneMenuPlatform(
@@ -109,6 +112,7 @@ class IosWindowPaneMenuPlatform(
     private val toast: (String) -> Unit,
     private val copiedMessage: () -> String,
     private val bridgeFor: (windowId: String) -> net.bible.sharedcore.bibleview.BibleBridge?,
+    private val openPromptSelector: (Selection, PromptContext, DocumentCategory?) -> Unit,
 ) : WindowPaneMenuPlatform {
     private fun route(window: Window) = NavRoutes.textDisplaySettings(
         scopeLevel = "window", windowId = window.id.toString(), workspaceId = windowControl().windowRepository.id.toString(),
@@ -137,11 +141,23 @@ class IosWindowPaneMenuPlatform(
         bridgeFor(window.id.toString())?.createWholePageBookmark(bookInitials, osisRef)
     }
 
+    /** Android's `ReadingCommands.llmActions`: the prompt selector for the window's page; nothing without a document and key. */
+    override fun llmActions(window: Window) {
+        val currentPage = window.pageManager.currentPage
+        val selection = windowMenuSelection(currentPage.currentDocument?.initials, currentPage.key?.getOsisRef()) ?: return
+        openPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+    }
+
     override fun copyReference(label: String, url: String) {
         clipboard.write(label, url)
         toast(copiedMessage())
     }
 }
+
+/** The whole-page selection the window (☰) menu's AI row hands to the prompt selector; null without a document or key. */
+@kotlin.native.HiddenFromObjC
+fun windowMenuSelection(bookInitials: String?, osisRef: String?): Selection? =
+    if (bookInitials != null && osisRef != null) Selection(bookInitials, osisRef, -1, -1) else null
 
 /** The pane menu rows iOS does not offer (their actions are not implemented, so the builder leaves them out). */
 @kotlin.native.HiddenFromObjC
@@ -149,7 +165,6 @@ val IOS_OMITTED_PANE_MENU_ROWS: Set<String> = setOf(
     WindowPaneMenuStateBuilder.ID_EXPORT_HTML,
     WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD,
     WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV,
-    WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU,
 )
 
 /**
@@ -161,6 +176,7 @@ val IOS_IMPLEMENTED_PANE_MENU_ROWS: Set<String> = setOf(
     WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS,
     WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK,
     WindowPaneMenuStateBuilder.ID_COPY_REFERENCE,
+    WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU,
 )
 
 /** Material stand-in for the Android drawable named [iconKey] (pane menu rows and the text option rows); null when unmapped. */

@@ -55,7 +55,10 @@ class ReadingOverflowControllerTest {
         var autoPinStored = true // autoPin stored value; the menu row shows its inverse
         var recent: List<Pair<Types, PrefItemHandle>> = emptyList()
         var onReady: (() -> Unit)? = null
+        var llm = false
 
+        override fun llmConfigured() = llm
+        override fun showLlmActions() { calls += "llmActions" }
         override fun toggleFullScreen() { calls += "fullscreen" }
         override fun nightMode() = night
         override fun nightModeSwitchable() = switchable
@@ -97,6 +100,27 @@ class ReadingOverflowControllerTest {
         assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "allTextOptions"), ids())
         host.tiltOk = false; host.multi = true
         assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "splitMode", "autoPinMode", "allTextOptions"), ids())
+    }
+
+    /** Android shows the AI row only with an LLM configured, after the pinning row and before the recent text options. */
+    @Test fun llmActionsRowFollowsTheConfigurationAndSitsAfterPinning() {
+        host.recent = listOf(Types.FOOTNOTES to FakeItem(true))
+        assertFalse("llmActionsSubMenu" in ids(), "no LLM configured: no row")
+        host.llm = true
+        assertEquals(
+            listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "llmActionsSubMenu", "textOptionItem:0", "allTextOptions"),
+            ids(),
+        )
+        val row = menu.build().first { it.id == "llmActionsSubMenu" }
+        assertEquals("icon_robot", row.iconKey)
+        assertEquals(table.text("llm_actions"), row.label)
+        assertTrue(row.opensDialog)
+        assertFalse(row.checkable)
+    }
+
+    @Test fun clickingTheLlmActionsRowOpensThePromptSelectorAndClosesTheMenu() {
+        assertFalse(menu.handle("llmActionsSubMenu"))
+        assertEquals(listOf("llmActions"), host.calls)
     }
 
     @Test fun nightModeAndPinRowsShowTheirStateAndPinIsTheInverseOfAutoPin() {

@@ -17,16 +17,59 @@
 
 package net.bible.sharedui.ios.reading
 
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
+import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** The iOS omit list and implemented list partition the dispatcher's platform rows: nothing shown that does nothing. */
 class IosWindowPaneMenuTest {
     @Test
-    fun omittedAndImplementedRowsPartitionThePlatformRows() {
+    fun implementedPlusOmittedEqualsPlatformRows() {
         assertTrue((IOS_OMITTED_PANE_MENU_ROWS intersect IOS_IMPLEMENTED_PANE_MENU_ROWS).isEmpty(), "a row is omitted or implemented, not both")
         assertEquals(WindowPaneMenuDispatcher.PLATFORM_ROWS, IOS_OMITTED_PANE_MENU_ROWS + IOS_IMPLEMENTED_PANE_MENU_ROWS)
+    }
+
+    @Test
+    fun llmRowIsNoLongerOmittedAndIsImplemented() {
+        assertFalse(WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU in IOS_OMITTED_PANE_MENU_ROWS)
+        assertTrue(WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU in IOS_IMPLEMENTED_PANE_MENU_ROWS)
+    }
+
+    private fun paneMenuIds(llmConfigured: Boolean): List<String> {
+        var ids = emptyList<String>()
+        withIosReadingHost(llmConfigured = { llmConfigured }) { host, _ ->
+            val active = KoinPlatform.getKoin().get<WindowControl>().activeWindow.id.toString()
+            ids = host.hooks.paneMenuItemsFor(active)!!.map { it.id }
+        }
+        return ids
+    }
+
+    /** Android shows the AI row for a visible window when an LLM is configured. */
+    @Test
+    fun llmRowShownWhenConfigured() {
+        assertTrue(WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU in paneMenuIds(llmConfigured = true))
+    }
+
+    @Test
+    fun llmRowHiddenWhenNotConfigured() {
+        assertFalse(WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU in paneMenuIds(llmConfigured = false))
+    }
+
+    /** The row's selection is the window's current page, as Android's `llmActions` builds it; no document or key: no selection. */
+    @Test
+    fun windowMenuSelectionNamesTheCurrentPage() {
+        val selection = windowMenuSelection("KJV", "Gen.1.1")!!
+        assertEquals("KJV", selection.bookInitials)
+        assertEquals("Gen.1.1", selection.osisRef)
+        assertEquals(-1, selection.startOrdinal)
+        assertEquals(-1, selection.endOrdinal)
+        assertNull(windowMenuSelection(null, "Gen.1.1"))
+        assertNull(windowMenuSelection("KJV", null))
     }
 }

@@ -47,6 +47,7 @@ class KeyedReadingMenuStringsTest {
             administration; download; backupAndRestore; cloudSync; aiSettings; settings; information; helpAndTips
             buyDevelopment; questions; howToContribute; appLicence; contact; tellFriend; rateApplication; bugReport
             appNameMedium; versionText("1")
+            llmActions // R3
         }
         assertEquals(read, KeyedReadingMenuStrings.KEYS.toSet())
         assertEquals(KeyedReadingMenuStrings.KEYS.size, read.size, "no duplicates in KEYS")

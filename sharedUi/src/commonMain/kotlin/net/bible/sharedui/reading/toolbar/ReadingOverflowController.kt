@@ -55,6 +55,12 @@ interface ReadingOverflowHost {
     /** Sets it and applies it to the windows (Android's `autoPinChanged`). */
     fun setAutoPin(on: Boolean)
 
+    /** Whether an LLM is configured, which shows the "AI Actions" row (Android: `CommonUtils.settings.llmConfigured`). */
+    fun llmConfigured(): Boolean
+
+    /** Opens the prompt selector for the workspace menu (Android: `PromptContext.WORKSPACE_MENU`, no selection). */
+    fun showLlmActions()
+
     /** The recently used text display settings, sorted as Android's last-used menu rows, as workspace-level items. */
     fun recentTextOptions(): List<Pair<TextDisplaySettings.Types, PrefItemHandle>>
 
@@ -73,7 +79,7 @@ interface ReadingOverflowHost {
  *
  * Rows Android has that iOS does not (each named, with its missing dependency, in `IosReadingToolbarHost`):
  * Auto assign labels (the label manager's workspace
- * mode needs a result path the navigator does not expose), LLM actions (no LLM configuration on iOS yet).
+ * mode needs a result path the navigator does not expose).
  *
  * A stand-in, not an omission: a recent text option that is neither a toggle nor sheet-editable (Android calls its
  * `openDialog`) opens the full text options screen instead.
@@ -112,6 +118,12 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
             ID_AUTO_PIN_MODE, s.windowPinning, checkable = true, checked = !host.autoPin(), enabled = true,
             opensDialog = false, iconKey = "ic_window_pinning_24",
         )
+        if (host.llmConfigured()) {
+            items += OptionsMenuItem(
+                ID_LLM_ACTIONS, s.llmActions, checkable = false, checked = false, enabled = true,
+                opensDialog = true, iconKey = "icon_robot",
+            )
+        }
         var firstOfSection = true
         host.recentTextOptions().forEachIndexed { order, (_, item) ->
             if (!(item.enabled && item.visible)) return@forEachIndexed
@@ -147,6 +159,7 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
             ID_TILT_TO_SCROLL -> { host.setTiltToScroll(!host.tiltToScroll()); return true }
             ID_SPLIT_MODE -> { host.setReverseSplit(!host.reverseSplit()); return true }
             ID_AUTO_PIN_MODE -> { host.setAutoPin(!host.autoPin()); return true }
+            ID_LLM_ACTIONS -> host.showLlmActions()
             ID_ALL_TEXT_OPTIONS -> host.openAllTextOptions()
             else -> if (id.startsWith(TEXT_OPTION_PREFIX)) return handleTextOption(id.removePrefix(TEXT_OPTION_PREFIX).toIntOrNull())
         }
@@ -178,6 +191,7 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
         const val ID_TILT_TO_SCROLL = "tiltToScroll"
         const val ID_SPLIT_MODE = "splitMode"
         const val ID_AUTO_PIN_MODE = "autoPinMode"
+        const val ID_LLM_ACTIONS = "llmActionsSubMenu"
         const val ID_ALL_TEXT_OPTIONS = "allTextOptions"
         const val TEXT_OPTION_PREFIX = "textOptionItem:"
     }

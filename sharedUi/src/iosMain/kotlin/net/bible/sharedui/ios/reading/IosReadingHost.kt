@@ -52,7 +52,10 @@ import net.bible.android.control.page.GlobalTextDisplaySettingsSource
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.Selection
+import net.bible.service.llm.PromptContext
 import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
@@ -66,8 +69,14 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
+import net.bible.sharedcore.ai.reading.ReadingLlmDialog
+import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
+import net.bible.sharedcore.ai.reading.ReadingLlmService
+import net.bible.sharedcore.reading.ReadingOverlay
+import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.WorkspaceResult
@@ -152,6 +161,15 @@ class IosReadingHost(
     private val readingResults: IosReadingResults? = null,
     /** Hides or shows the system status bar (full screen hides it); the app's [iosSetStatusBarHidden] by default. */
     private val statusBarHidden: (Boolean) -> Unit = ::iosSetStatusBarHidden,
+    /** Whether the AI features are configured (Android: `CommonUtils.settings.llmConfigured`); shows the AI rows and menu item. */
+    private val llmConfiguredSource: () -> Boolean = defaultLlmConfigured(koin),
+    /** The prompt lists and model choices behind the prompt selector dialog. */
+    private val llmService: () -> ReadingLlmService = { koin.get() },
+    /**
+     * Starts an agent run once a prompt (and its specification and model) is chosen; null runs [IosAgentStarter]
+     * (Android: `AgentForegroundService.startAgent`).
+     */
+    private val startAgent: ((promptId: IdType, selection: Selection, userSpecification: String?, modelOverrideId: IdType?) -> Unit)? = null,
 ) {
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
@@ -243,7 +261,63 @@ class IosReadingHost(
             installedDocRows = ::installedDocRows,
             recentDocumentInitials = { koin.get<RecentDocumentsStore>().read() },
             paneMenuItemsFor = ::paneMenuItemsFor,
+            dismissLlmSheets = ::dismissLlmSheets,
+            openPromptSelector = ::openPromptSelector,
     )
+
+    /**
+     * The reading view's AI dialogs (prompt selector, specify-before-run, model choice): the same common controller Android's
+     * host drives. Opening one of its two sheets closes the other modal overlays first ([ReadingOverlayExclusion]).
+     */
+    internal val llmDialogs: ReadingLlmDialogController by lazy {
+        ReadingLlmDialogController(
+            llmService(),
+            scope,
+            onSheetOpening = { ReadingOverlayExclusion.closedBy(ReadingOverlay.Llm).forEach(hostState::closeOverlay) },
+        )
+    }
+
+    private val agentStarter: IosAgentStarter by lazy { IosAgentStarter(scope, windowRepositoryId = { windowControl.windowRepository.id }) }
+
+    /** Dismisses the two SHEET-shaped AI dialogs; the AlertDialog-shaped ones stay (a dialog over a sheet is fine). */
+    private fun dismissLlmSheets() {
+        when (llmDialogs.state.value.dialog) {
+            is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> llmDialogs.dismiss()
+            is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
+        }
+    }
+
+    /**
+     * Android's `ComposeReadingViewHost.showPromptSelector`: opens the prompt selector for [selection] in [context]; choosing
+     * a prompt starts the agent with the chosen specification and model.
+     */
+    internal fun openPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?) {
+        llmDialogs.openPromptSelector(context.name, category?.name) { promptId, userSpecification, modelOverrideId ->
+            val model = modelOverrideId?.let { IdType(it) }
+            val start = startAgent ?: agentStarter::start
+            start(IdType(promptId), selection, userSpecification, model)
+        }
+    }
+
+    /**
+     * The selection menu's AI action (Android: `showLlmPromptSelector` with `VERSE_SELECTION`). The document category is the
+     * window the selection is in; Android reads the active window, which is the same one when the user selects in it.
+     */
+    internal fun openSelectionPromptSelector(windowId: String, selection: Selection) {
+        val window = windowControl.windowRepository.getWindow(IdType(windowId)) ?: windowControl.windowRepository.activeWindow
+        openPromptSelector(selection, PromptContext.VERSE_SELECTION, window.pageManager.currentPage.documentCategory)
+    }
+
+    /** Whether the AI features are configured; the one answer the pane menu, overflow menu and selection menu share. */
+    internal fun llmConfigured(): Boolean = llmConfiguredSource()
+
+    /** The overflow menu's "AI Actions": no selection, `WORKSPACE_MENU`, any document category (Android's `llmActionsSubMenu`). */
+    private fun showWorkspaceLlmActions() {
+        val noSelection = Selection(
+            bookInitials = null, startOrdinal = -1, startOffset = null, endOrdinal = -1, endOffset = null, bookmarks = emptyList(),
+        )
+        openPromptSelector(noSelection, PromptContext.WORKSPACE_MENU, null)
+    }
 
     val hostState: ReadingHostState = ReadingHostState(
         scope = scope,
@@ -265,6 +339,7 @@ class IosReadingHost(
             toast = ::toast,
             copiedMessage = { KeyedPaneMenuStrings(IosAppStartup.stringTable).referenceCopiedToClipboard },
             bridgeFor = { id -> if (IosReadingWindows.hasAssembly(id)) IosReadingWindows.bridgeFor(id) else null },
+            openPromptSelector = ::openPromptSelector,
         )
     }
 
@@ -282,7 +357,7 @@ class IosReadingHost(
             prefItems = koin.get<TextDisplayPrefItems>(),
             recentDisplaySettings = { RecentDisplaySettings(settings).sorted },
             globalTextDisplaySettings = { koin.get<GlobalTextDisplaySettingsSource>().current },
-            llmConfigured = { false },
+            llmConfigured = llmConfiguredSource,
             omit = IOS_OMITTED_PANE_MENU_ROWS,
         ).build(window)
     }
@@ -478,6 +553,8 @@ class IosReadingHost(
         externalLinks = koin.get<ExternalLinks>(),
         windowStateService = { koin.get<WindowStateServiceImpl>() },
         fakeBooks = { koin.get<FakeBookFactory>() },
+        llmConfiguredSource = ::llmConfigured,
+        showLlmActionsSource = ::showWorkspaceLlmActions,
     )
 
     private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
@@ -534,7 +611,7 @@ class IosReadingHost(
     /**
      * The toolbar callbacks: all sixteen do what Android's `ReadingCommands`/`ComposeReadingViewHost` toolbar callbacks
      * do ([ReadingToolbarCommands]); none is a logged pending. The gaps inside them (auto assign labels,
-     * LLM actions, some drawer rows) are named on [IosReadingToolbarHost] and `ReadingDrawerMenu.OMITTED_ROWS`.
+     * some drawer rows) are named on [IosReadingToolbarHost] and `ReadingDrawerMenu.OMITTED_ROWS`.
      */
     internal fun callbacks(): ReadingToolbarCallbacks = toolbarCommands.callbacks()
 
@@ -645,10 +722,24 @@ class IosReadingHost(
         },
         handlePaneMenuItem = ::handlePaneMenuItem,
         menuIcon = { key -> rememberIosPaneMenuIcon(key) },
+        llmDialog = llmDialogs.state,
+        onLlmPromptChosen = llmDialogs::onPromptChosen,
+        onLlmToggleFavorite = llmDialogs::onToggleFavorite,
+        onLlmCategoryExpandedChanged = llmDialogs::onCategoryExpandedChanged,
+        onLlmSpecifySubmitted = llmDialogs::onSpecifySubmitted,
+        onLlmModelChosen = llmDialogs::onModelChosen,
+        onLlmRegenerateConfirmed = llmDialogs::onRegenerateConfirmed,
+        onLlmDismiss = llmDialogs::dismiss,
     )
 
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
         iosReadingNavDeps(this, shell, IosAppStartup.stringTable, readingResults?.collectors() ?: emptyList(), content)
+
+    internal companion object {
+        /** The production answer: the prompt service's configured flag; false while the service is not available yet. */
+        fun defaultLlmConfigured(koin: Koin): () -> Boolean =
+            { runCatching { koin.get<PromptService>().configured.value }.getOrDefault(false) }
+    }
 }
 
 /** The reading destination's [ReadingNavDeps]; [hostToken] is the identity the destination registers under. */

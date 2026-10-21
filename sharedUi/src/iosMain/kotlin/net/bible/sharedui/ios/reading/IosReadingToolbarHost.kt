@@ -82,7 +82,6 @@ import platform.Foundation.NSBundle
  * What is NOT here, by name:
  * - Overflow "Auto assign labels": the workspace label manager's result (applied to the workspace settings) is not
  *   exposed by [IosReadingNavigator]; needs a navigator member that awaits the manager.
- * - Overflow "LLM actions": no LLM configuration on iOS yet (the pane menu omits it for the same reason).
  * - Stand-in: a recent text option that is neither a toggle nor sheet-editable opens the full text options screen
  *   (Android calls the option's own dialog).
  * - Drawer rows listed in `ReadingDrawerMenu.OMITTED_ROWS`.
@@ -113,6 +112,10 @@ internal class IosReadingToolbarHost(
     private val externalLinks: ExternalLinks,
     private val windowStateService: () -> WindowStateServiceImpl,
     private val fakeBooks: () -> FakeBookFactory,
+    /** Whether the AI features are configured: shows the overflow "AI Actions" row. */
+    private val llmConfiguredSource: () -> Boolean = { false },
+    /** Opens the prompt selector for the workspace menu (the overflow "AI Actions" row). */
+    private val showLlmActionsSource: () -> Unit = {},
     private val deviceSettings: IosDeviceSettings = IosDeviceSettings(),
     private val tiltAvailable: () -> Boolean = { iosMotionManager.deviceMotionAvailable },
 ) : ReadingToolbarHost, ReadingOverflowHost, ReadingDrawerHost {
@@ -334,6 +337,9 @@ internal class IosReadingToolbarHost(
         },
         globalSettings = globalSettings(),
     )
+
+    override fun llmConfigured(): Boolean = llmConfiguredSource()
+    override fun showLlmActions() = showLlmActionsSource()
 
     override fun recentTextOptions(): List<Pair<TextDisplaySettings.Types, PrefItemHandle>> {
         val bundle = workspaceBundle()

@@ -63,6 +63,9 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
     val appNameMedium get() = t.text("app_name_medium")
     fun versionText(version: String) = t.fmt("version_text", version)
 
+    // --- R3 ---
+    val llmActions get() = t.text("llm_actions")
+
     companion object {
         /** Every resource key this class reads. */
         val KEYS = listOf(
@@ -73,6 +76,8 @@ class KeyedReadingMenuStrings(private val t: StringTable) {
             "ai_settings", "settings", "information", "help_and_tips", "buy_development", "questions_title",
             "how_to_contribute", "app_licence_title", "contact", "tell_friend_title", "rate_application",
             "send_bug_report_title", "app_name_medium", "version_text",
+            // R3
+            "llm_actions",
         )
     }
 }
