@@ -27,6 +27,7 @@ import kotlin.native.Platform
 /** Debug evidence boundary: the real queue and installer own every mutation of the document registry. */
 internal object IosIncomingRuntimeHarness {
     private var enabled = false
+    private var controlsVisible by mutableStateOf(false)
     private var ready by mutableStateOf(false)
     private var failed by mutableStateOf(false)
     private var swordVerified by mutableStateOf(false)
@@ -37,6 +38,7 @@ internal object IosIncomingRuntimeHarness {
         if (!Platform.isDebugBinary) return
         val args = NSProcessInfo.processInfo.arguments.map { it.toString() }
         enabled = "-incomingRuntimeTest" in args
+        controlsVisible = enabled && "-incomingRuntimeControls" in args
         if (!enabled) return
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
@@ -125,6 +127,8 @@ internal object IosIncomingRuntimeHarness {
                 delay(250)
             }
         }
+        // Backend proof remains active even when diagnostics are hidden for normal navigation.
+        if (!controlsVisible) return
         Column {
             if (ready && !failed) Text(strings.okay, Modifier.testTag("incoming-runtime-ready"))
             if (failed) Text(strings.errorOccurred, Modifier.testTag("incoming-runtime-error"))
@@ -135,7 +139,10 @@ internal object IosIncomingRuntimeHarness {
                 nsLog("IncomingFilesHarness event=offer-button-click basename=f-runtime.epub")
                 scope.launch { try { offer("f-runtime.epub") } catch (error: Exception) { fail(error) } }
             }) { Text(strings.okay) }
-            Button(enabled = ready && !failed, modifier = Modifier.testTag("incoming-open-backup"), onClick = openBackup) {
+            Button(enabled = ready && !failed, modifier = Modifier.testTag("incoming-open-backup"), onClick = {
+                controlsVisible = false
+                openBackup()
+            }) {
                 Text(strings.okay)
             }
         }
