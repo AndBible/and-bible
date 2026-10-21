@@ -29,6 +29,7 @@ import kotlin.native.Platform
  * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown;
  *   with `-openDocument <initials>` it also switches that window to the installed book.
  * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
+ * - `-legacyMigrationStepDelayMs <ms>`: [legacyStepDelayMs], delay after the legacy migration's MAP step.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
@@ -71,6 +72,12 @@ internal object IosDebugLaunchArgs {
 
     /** The value after `-openRef`, or null. */
     fun openRef(): String? = argumentValue("-openRef")
+
+    /**
+     * Debug only: `-legacyMigrationStepDelayMs <ms>` slows the legacy migration after its MAP step so a UI test can
+     * observe the progress screen. Null when absent, malformed or on a release binary.
+     */
+    fun legacyStepDelayMs(): Long? = argumentValue("-legacyMigrationStepDelayMs")?.toLongOrNull()?.takeIf { it > 0 }
 
     /** The value after `-openDocument` (book initials the `-openRef` window switches to), or null. */
     fun openDocument(): String? = argumentValue("-openDocument")
