@@ -470,7 +470,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
 
-    private fun refreshScreenKeepOn() {
+    protected fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
         if (keepOn) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
