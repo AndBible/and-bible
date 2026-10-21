@@ -1029,8 +1029,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun prepareData() {
-        // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
-        blockingAtEdge { ReadingAppInit.prepareData(readingAppInitPlatform) }
+        blockingAtEdge { ReadingAppInit.prepareData(readingAppInitPlatform) } // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
     }
 
     const val lorem = ReadingAppInit.LOREM
