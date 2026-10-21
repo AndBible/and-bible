@@ -18,15 +18,15 @@ enum class DeclineReason { START_FRESH, RESTORED_BACKUP }
  * The small marker files next to the migration state in `applicationSupport/LegacyMigration/`: `declined.json` (the user
  * chose to start without the old data or restored a backup, so the migration is settled without `done.json`) and
  * `import-request.json` (the user asked for a later import; the runner consumes it). The migrator itself never reads them;
- * the startup runner and the settings screen do.
+ * the startup runner and the settings screen do. [sync] is `platform::syncFile` for durable writes on iOS (default: none).
  */
-class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Path) {
+class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Path, private val sync: (Path) -> Unit = {}) {
     val dir: Path = applicationSupport / "LegacyMigration"
     private val support = applicationSupport
     private val doneFile = dir / "done.json"
     private val declinedFile = dir / "declined.json"
     private val importRequestFile = dir / "import-request.json"
-    private val states = MigrationStateStore(fs, dir)
+    private val states = MigrationStateStore(fs, dir, sync)
 
     /** True when a store of the old app exists: a cloud store (`AndBible.store`, else `CloudStore.store`, else `AndBible.store.backup`) and `LocalStore.store`. */
     fun sourcesExist(): Boolean =
@@ -38,7 +38,7 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
     fun decline(reason: DeclineReason) {
         fs.createDirectories(dir)
         val name = when (reason) { DeclineReason.START_FRESH -> "startFresh"; DeclineReason.RESTORED_BACKUP -> "restoredBackup" }
-        atomicWriteFile(fs, declinedFile, """{"reason": "$name", "at": ${Clock.System.now().toEpochMilliseconds()}}""")
+        atomicWriteFile(fs, declinedFile, """{"reason": "$name", "at": ${Clock.System.now().toEpochMilliseconds()}}""", sync)
     }
 
     /** An import can be offered: old stores exist and no real migration has completed (a "nothing to migrate" marker does not count). */
@@ -51,7 +51,7 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
         // A "nothing to migrate" marker would make the migrator answer AlreadyDone; a real migration's marker is never touched.
         if (fs.exists(doneFile) && nothingToMigrate()) fs.delete(doneFile)
         resetAttempts()
-        atomicWriteFile(fs, importRequestFile, """{"requestedAt":${Clock.System.now().toEpochMilliseconds()}}""")
+        atomicWriteFile(fs, importRequestFile, """{"requestedAt":${Clock.System.now().toEpochMilliseconds()}}""", sync)
     }
 
     fun importRequested(): Boolean = fs.exists(importRequestFile)

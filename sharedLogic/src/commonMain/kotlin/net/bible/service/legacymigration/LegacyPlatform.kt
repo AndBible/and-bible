@@ -33,6 +33,13 @@ interface LegacyPlatform {
      */
     fun legacyKeychain(service: String, account: String): String?
 
+    /**
+     * Forces the file or directory at [path] to stable storage (`fsync`; works on a directory too). The migration calls it
+     * for the temporary file before a rename and for the directory after it. Throws when [path] cannot be opened or synced.
+     * The default does nothing: on the JVM okio's `flush()` already fsyncs files and tests need no durability.
+     */
+    fun syncFile(path: Path) {}
+
     /** The new app's own secret store (API keys are written here by the adopter, not by the mappers). */
     val secrets: SecretStore
 }

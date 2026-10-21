@@ -172,7 +172,7 @@ class LegacyMigrator(
     private val replacedDir = dir / "replaced"
     private val doneFile = dir / "done.json"
     private val reportFile = dir / "report.json"
-    private val states = MigrationStateStore(fs, dir)
+    private val states = MigrationStateStore(fs, dir, platform::syncFile)
     private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states, platform.secrets)
 
     private val mutex = Mutex()
@@ -360,7 +360,7 @@ class LegacyMigrator(
         } catch (e: LegacyMigrationException) {
             throw e
         } catch (e: Exception) {
-            throw LegacyMigrationException(Kind.CORRUPT_STORE, "Keychain unavailable: the legacy secrets could not be read (${e::class.simpleName})", e)
+            throw LegacyMigrationException(Kind.KEYCHAIN_UNAVAILABLE, "Keychain unavailable: the legacy secrets could not be read (${e::class.simpleName})", e)
         }
     }
 
@@ -518,7 +518,7 @@ class LegacyMigrator(
     }
 
     private fun atomicWrite(target: Path, text: String) {
-        atomicWriteFile(fs, target, text)
+        atomicWriteFile(fs, target, text, platform::syncFile)
     }
 
     /** Deletes `work/`, `staging/`, `replaced/` and `state.json` (`extras.json`, `applied.json` and the rest stay). Only called when `done.json` exists or the run is complete. */

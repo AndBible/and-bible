@@ -30,6 +30,7 @@ import net.bible.service.legacymigration.testsupport.CrashingFileSystem
 import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
 import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
 import net.bible.service.legacymigration.testsupport.ThrowAfterDoneMoveFileSystem
+import net.bible.service.legacymigration.testsupport.RecordingSyncPlatform
 import net.bible.service.legacymigration.testsupport.ThrowingKeychainPlatform
 import net.bible.service.legacymigration.testsupport.execSql
 import net.bible.service.legacymigration.testsupport.makeModelUnknown
@@ -642,7 +643,7 @@ class LegacyMigratorTest {
         val e = env()
         val failed = assertIs<LegacyMigrationOutcome.Failed>(run(ThrowingKeychainPlatform(e.platform)))
         assertTrue(failed.rolledBack)
-        assertEquals(Kind.CORRUPT_STORE, failed.kind)
+        assertEquals(Kind.KEYCHAIN_UNAVAILABLE, failed.kind)
         assertEquals(emptyList(), e.databaseFiles(), "nothing adopted")
         assertFalse(File(e.migrationDir.toString(), "done.json").exists())
         val report = File(e.migrationDir.toString(), "report.json").readText()
@@ -837,5 +838,74 @@ class LegacyMigratorTest {
 
     private suspend fun net.bible.android.database.BookmarkDatabase.useWriterConnection2(sql: String) {
         useWriterConnection { c -> c.usePrepared(sql) { it.step() } }
+    }
+
+    // ---- durable writes, Keychain kind, W10, H6 ---------------------------------------------------------------
+
+    @Test
+    fun keychainFailureIsItsOwnKind() {
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(ThrowingKeychainPlatform(e.platform)))
+        assertEquals(Kind.KEYCHAIN_UNAVAILABLE, failed.kind)
+        assertEquals(1, failed.attempt)
+    }
+
+    @Test
+    fun durableWritesSyncTempAndDirectory() {
+        val e = env()
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(recording))
+        val names = recording.synced.map { if (it == e.migrationDir) "<dir>" else it.name }
+        fun followedByDirectory(temp: String) = names.withIndex().filter { it.value == temp }.map { names.getOrNull(it.index + 1) }
+        val stateWrites = followedByDirectory("state.json.tmp")
+        assertTrue(stateWrites.size >= 3, "every state write syncs its temp file: $names")
+        assertTrue(stateWrites.all { it == "<dir>" }, "the directory is synced right after each rename: $names")
+        for (marker in listOf("done.json.tmp", "report.json.tmp")) {
+            val writes = followedByDirectory(marker)
+            assertTrue(writes.isNotEmpty() && writes.all { it == "<dir>" }, "$marker is synced, then the directory: $names")
+        }
+    }
+
+    @Test
+    fun httpCustomRepositoryKeptVerbatim() {
+        // W10: a repository whose source URL is plain http is migrated as it is; it is neither upgraded nor reported as skipped.
+        val e = env()
+        val sword = File(e.platform.documents.toString(), "sword_install").also { it.mkdirs() }
+        File(sword, "CustomRepositories.json").writeText(
+            """{"version":1,"repositories":[{"name":"Plain Http","description":"http://example.org/sword","type":"sword-https","host":"example.org",""" +
+                """"catalogDirectory":"/sword","packageDirectory":"/sword/zip","manifestURL":"","sourceURL":"http://example.org/sword"}]}""",
+        )
+        // A sidecar record only counts for a source of InstallMgr.conf (the Swift loadSources), so the conf names it too.
+        File(sword, "InstallMgr.conf").writeText("[Sources]\nHTTPSource=Plain Http|example.org|/sword\n")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals(emptyList(), migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Skipped>()
+            .filter { it.category == LegacyCategory.REPOSITORIES })
+        val c = net.bible.service.db.openSqlite(File(e.databases.toString(), "repositories.sqlite3").path, readOnly = true)
+        try {
+            val s = c.prepare("SELECT name, description, host, catalogDirectory FROM CustomRepository")
+            try {
+                assertTrue(s.step())
+                assertEquals(listOf("Plain Http", "http://example.org/sword", "example.org", "/sword"), (0..3).map { s.getText(it) })
+                assertFalse(s.step(), "exactly one repository")
+            } finally { s.close() }
+        } finally { c.close() }
+    }
+
+    @Test
+    fun userPlanFilesGoToTheGivenDir() {
+        // H6: the files of Documents/jsword/readingplan are copied to the directory the caller names; the source stays.
+        val e = env()
+        val documents = File(e.platform.documents.toString())
+        File(documents, "jsword/readingplan").mkdirs()
+        File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
+        File(documents, "jsword/readingplan/other.properties").writeText("1=Exod.1")
+        val target = File(documents.parentFile, "manual/readingplan")
+        val before = hashTree(e.platform.documents)
+        val migrator = LegacyMigrator(e.platform, JvmLegacyDatabaseFactory(), userPlanDir = e.platform.documents.parent!! / "manual" / "readingplan")
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator.run() })
+        assertEquals("1=Gen.1", File(target, "mine.properties").readText())
+        assertEquals("1=Exod.1", File(target, "other.properties").readText())
+        assertEquals(listOf("mine.properties", "other.properties"), target.list().orEmpty().sorted(), "no temporary file is left")
+        assertEquals(before, hashTree(e.platform.documents), "the source directory is unchanged")
     }
 }

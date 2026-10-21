@@ -110,10 +110,10 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             for (row in rows.sortedWith(sort)) {
                 val cells = def.fromLegacy(row, drops) ?: continue
                 if (def === GLOBAL && !(cells[0] as ByteArray).contentEquals(GlobalAiSettings.SINGLETON_ID.toByteArray()!!)) {
-                    drops.add("GlobalAiSettings row with an id other than the singleton"); continue
+                    drops.add("GlobalAiSettings row with an id other than the singleton", table = def.table); continue
                 }
                 val tagged = Tagged(cells, preserved = false)
-                if (byId.put(tagged.id, tagged) != null) drops.add("duplicate ${def.label} id")
+                if (byId.put(tagged.id, tagged) != null) drops.add("duplicate ${def.label} id", table = def.table)
             }
             tables.rows.getValue(def) += byId.values
         }
@@ -188,19 +188,19 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
                     val after = survey(db)
                     for (def in ALL) {
                         val lost = (before.rows[def.table] ?: 0L) - (after.rows[def.table] ?: 0L)
-                        if (lost > 0) drops.add(migrationDropReason(def.table, version.toInt()), lost.toInt())
+                        if (lost > 0) drops.add(migrationDropReason(def.table, version.toInt()), lost.toInt(), def.table)
                     }
                     if (before.promptModelLinks > after.promptModelLinks) {
-                        drops.add(migrationLinkDropReason(version.toInt()), (before.promptModelLinks - after.promptModelLinks).toInt())
+                        drops.add(migrationLinkDropReason(version.toInt()), (before.promptModelLinks - after.promptModelLinks).toInt(), PROMPT.table)
                     }
                 }
                 for (def in ALL) {
-                    if (def.table !in existing) { drops.add("preserved ai_settings.sqlite3 has no ${def.table} table"); continue }
+                    if (def.table !in existing) { drops.add("preserved ai_settings.sqlite3 has no ${def.table} table", table = def.table); continue }
                     tables.rows.getValue(def) += readTable(db, def, drops)
                 }
                 if ("LlmRawLogRecord" in existing) {
                     val logs = scalar(db, "SELECT COUNT(*) FROM LlmRawLogRecord").toInt()
-                    if (logs > 0) drops.add("preserved LlmRawLogRecord rows are device-local debug logs and are not migrated", logs)
+                    if (logs > 0) drops.add("preserved LlmRawLogRecord rows are device-local debug logs and are not migrated", logs, "LlmRawLogRecord")
                 }
             } finally {
                 db.close()
@@ -239,14 +239,14 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
                 for ((i, col) in def.columns.withIndex()) {
                     val type = st.getColumnType(i)
                     val cell: Any? = when {
-                        type == SQLITE_DATA_NULL -> if (col.nullable) null else { drops.add("preserved ${def.label} row with an unexpected value"); continue@rows }
+                        type == SQLITE_DATA_NULL -> if (col.nullable) null else { drops.add("preserved ${def.label} row with an unexpected value", table = def.table); continue@rows }
                         col.kind == Kind.ID && type == SQLITE_DATA_BLOB && st.getBlob(i).size == 16 -> st.getBlob(i)
                         col.kind == Kind.TEXT && type == SQLITE_DATA_TEXT -> Txt(st.getBlob(i))
                         (col.kind == Kind.INT64 || col.kind == Kind.DATE) && type == SQLITE_DATA_INTEGER -> st.getLong(i)
                         col.kind == Kind.INT32 && type == SQLITE_DATA_INTEGER && st.getLong(i) in Int.MIN_VALUE..Int.MAX_VALUE -> st.getLong(i)
                         col.kind == Kind.BOOL && type == SQLITE_DATA_INTEGER -> if (st.getLong(i) != 0L) 1L else 0L
                         col.kind == Kind.REAL && (type == SQLITE_DATA_FLOAT || type == SQLITE_DATA_INTEGER) && st.getDouble(i).isFinite() -> st.getDouble(i)
-                        else -> { drops.add("preserved ${def.label} row with an unexpected value"); continue@rows }
+                        else -> { drops.add("preserved ${def.label} row with an unexpected value", table = def.table); continue@rows }
                     }
                     cells += cell
                 }
@@ -270,9 +270,9 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             for (row in swift.rows.getValue(def)) byId[row.id] = row
             for (row in preserved.rows.getValue(def)) {
                 if (def === GLOBAL && !(row.cells[0] as ByteArray).contentEquals(GlobalAiSettings.SINGLETON_ID.toByteArray()!!)) {
-                    drops.add("preserved GlobalAiSettings row with an id other than the singleton"); continue
+                    drops.add("preserved GlobalAiSettings row with an id other than the singleton", table = def.table); continue
                 }
-                if (row.id in byId) drops.add(supersededReason(def.table)) else byId[row.id] = row
+                if (row.id in byId) drops.add(supersededReason(def.table), table = def.table) else byId[row.id] = row
             }
             merged.rows.getValue(def) += byId.values
         }
@@ -283,11 +283,11 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
         val winners = HashMap<String, ByteArray>()
         val models = merged.rows.getValue(MODEL).filter { row ->
             val provider = (row.cells[1] as ByteArray).hexKey()
-            if (provider !in providerIds) { drops.add("LlmConfiguredModel without an exported provider"); return@filter false }
+            if (provider !in providerIds) { drops.add("LlmConfiguredModel without an exported provider", table = MODEL.table); return@filter false }
             val pair = provider + "\u0000" + (row.cells[2] as Txt).bytes.decodeToString()
             val winner = winners[pair]
             if (winner == null) { winners[pair] = row.cells[0] as ByteArray; true } else {
-                drops.add(if (row.preserved) MODEL_CONFLICT_REASON else "duplicate LlmConfiguredModel provider and model id")
+                drops.add(if (row.preserved) MODEL_CONFLICT_REASON else "duplicate LlmConfiguredModel provider and model id", table = MODEL.table)
                 remap[row.id] = winner
                 false
             }
@@ -306,7 +306,7 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
         val usages = merged.rows.getValue(USAGE).map { row -> Tagged(row.cells.toMutableList().also { it[1] = followed(it[1]) }, row.preserved) }
             .filter { row ->
                 usedPairs.add((row.cells[1] as ByteArray).hexKey() + "\u0000" + (row.cells[2] as Txt).bytes.decodeToString()).also {
-                    if (!it) drops.add(if (row.preserved) "preserved duplicate LlmUsageRecord model and device" else "duplicate LlmUsageRecord model and device")
+                    if (!it) drops.add(if (row.preserved) "preserved duplicate LlmUsageRecord model and device" else "duplicate LlmUsageRecord model and device", table = USAGE.table)
                 }
             }
 
@@ -327,7 +327,7 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
         val ref = cells[index] as ByteArray? ?: return cells
         val target = remap[ref.hexKey()] ?: ref
         if (target.hexKey() in modelIds) return if (target === ref) cells else cells.toMutableList().also { it[index] = target }
-        drops.add("$label configuredModelId without an exported model cleared")
+        drops.add("$label configuredModelId without an exported model cleared", table = label)
         return cells.toMutableList().also { it[index] = null }
     }
 

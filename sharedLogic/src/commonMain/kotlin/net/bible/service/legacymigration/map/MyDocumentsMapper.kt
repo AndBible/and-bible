@@ -94,11 +94,11 @@ class MyDocumentsMapper : CategoryMapper {
         val documentsById = LinkedHashMap<String, List<Any?>>()
         for (row in data.documents.sortedWith(compareBy<LegacyRow>({ it.long("orderNumber") }, { it.text("name") }, { it.uuidString("id") }))) {
             val cells = DOCUMENT.fromLegacy(row, drops) ?: continue
-            if (documentsById.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document id")
+            if (documentsById.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document id", table = "MyDocument")
         }
         val usedInitials = HashSet<String>()
         val documents = documentsById.values.filter { cells ->
-            (usedInitials.add((cells[3] as Txt).bytes.decodeToString())).also { if (!it) drops.add("My Document with an initials value already in use") }
+            (usedInitials.add((cells[3] as Txt).bytes.decodeToString())).also { if (!it) drops.add("My Document with an initials value already in use", table = "MyDocument") }
         }
         val documentIds = documents.map { (it[0] as ByteArray).hexKey() }.toSet()
         val documentIdByPk = data.documents.associate { it.pk to (it.values["id"] as? LegacyValue.UuidV)?.value?.let { id -> IdType.fromString(id).toByteArray() } }
@@ -111,17 +111,17 @@ class MyDocumentsMapper : CategoryMapper {
         )
         for (row in data.pages.sortedWith(pageSort)) {
             val documentId = row.toOne["document"]?.let { pk -> documentIdByPk[pk] }
-            if (documentId == null || documentId.hexKey() !in documentIds) { drops.add("My Document page without an exported document"); continue }
+            if (documentId == null || documentId.hexKey() !in documentIds) { drops.add("My Document page without an exported document", table = "MyDocumentPage"); continue }
             val rawType = row.values["contentTypeRawValue"] as? LegacyValue.TextV
             val contentType = rawType?.value?.takeIf { it in CONTENT_TYPES } ?: "MARKDOWN"
-            if (rawType != null && rawType.value !in CONTENT_TYPES) drops.add("My Document page with an unknown content type stored as MARKDOWN")
+            if (rawType != null && rawType.value !in CONTENT_TYPES) drops.add("My Document page with an unknown content type stored as MARKDOWN", table = "MyDocumentPage")
             val cells = PAGE.fromLegacy(row, drops, mapOf("documentId" to documentId, "contentType" to Txt(contentType))) ?: continue
-            if (pagesById.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document page id")
+            if (pagesById.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document page id", table = "MyDocumentPage")
         }
         val usedKeys = HashSet<String>()
         val pages = pagesById.values.filter { cells ->
             usedKeys.add((cells[1] as ByteArray).hexKey() + "\u0000" + (cells[3] as Txt).bytes.decodeToString())
-                .also { if (!it) drops.add("duplicate My Document page key") }
+                .also { if (!it) drops.add("duplicate My Document page key", table = "MyDocumentPage") }
         }
         val pageIds = pages.map { (it[0] as ByteArray).hexKey() }.toSet()
 
@@ -129,8 +129,8 @@ class MyDocumentsMapper : CategoryMapper {
         val contentsByPage = LinkedHashMap<String, List<Any?>>()
         for (row in data.contents.sortedBy { it.uuidString("pageId") }) {
             val cells = CONTENT.fromLegacy(row, drops) ?: continue
-            if ((cells[0] as ByteArray).hexKey() !in pageIds) { drops.add("My Document page content without an exported page"); continue }
-            if (contentsByPage.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document page content")
+            if ((cells[0] as ByteArray).hexKey() !in pageIds) { drops.add("My Document page content without an exported page", table = "MyDocumentPageContent"); continue }
+            if (contentsByPage.put((cells[0] as ByteArray).hexKey(), cells) != null) drops.add("duplicate My Document page content", table = "MyDocumentPageContent")
         }
 
         // Swift: cache entries sorted (page id, id); only for exported pages, the first one per page.
@@ -138,8 +138,8 @@ class MyDocumentsMapper : CategoryMapper {
         for (row in data.cacheEntries.sortedWith(compareBy<LegacyRow>({ it.uuidString("pageId") }, { it.uuidString("id") }))) {
             val cells = CACHE.fromLegacy(row, drops) ?: continue
             val key = (cells[0] as ByteArray).hexKey()
-            if (key !in pageIds) { drops.add("AI page cache entry of a page that was not exported"); continue }
-            if (key in cacheByPage) { drops.add("duplicate AI page cache entry for one page"); continue }
+            if (key !in pageIds) { drops.add("AI page cache entry of a page that was not exported", table = "AiPageCacheEntry"); continue }
+            if (key in cacheByPage) { drops.add("duplicate AI page cache entry for one page", table = "AiPageCacheEntry"); continue }
             cacheByPage[key] = cells
         }
         return Stage(documents, pages, contentsByPage.values.toList(), cacheByPage.values.toList())

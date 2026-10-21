@@ -20,5 +20,8 @@ class LegacyMigrationException(val kind: Kind, message: String, cause: Throwable
 
         /** Adopting the mapped data into the new databases failed. */
         ADOPTION_FAILED,
+
+        /** The old app's Keychain could not be read (locked device, missing entitlement); a retry may succeed. */
+        KEYCHAIN_UNAVAILABLE,
     }
 }

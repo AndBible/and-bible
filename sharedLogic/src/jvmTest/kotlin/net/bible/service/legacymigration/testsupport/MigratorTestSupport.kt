@@ -158,6 +158,12 @@ fun readText(file: File, sql: String): String {
 }
 
 /** A platform whose Keychain cannot be read (locked device, missing entitlement); its message carries a fake secret that must never be echoed. */
+/** Records every [syncFile] call (in order) and forwards the rest to [platform]. */
+class RecordingSyncPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
+    val synced = mutableListOf<okio.Path>()
+    override fun syncFile(path: okio.Path) { synced += path }
+}
+
 class ThrowingKeychainPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
     override fun legacyKeychain(service: String, account: String): String? =
         throw IllegalStateException("Legacy Keychain read failed: status -25308 secret-leak-check-4711")

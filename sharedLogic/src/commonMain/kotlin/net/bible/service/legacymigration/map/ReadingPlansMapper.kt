@@ -73,8 +73,8 @@ class ReadingPlansMapper : CategoryMapper {
 
     /** Values present but of an unexpected type, or rows and settings rejected, counted by reason during one [build]. */
     private class Drops {
-        val counts = LinkedHashMap<String, Int>()
-        fun add(reason: String) { counts[reason] = (counts[reason] ?: 0) + 1 }
+        val counts = LinkedHashMap<Pair<String, String>, Int>()
+        fun add(reason: String, table: String) { val key = reason to table; counts[key] = (counts[key] ?: 0) + 1 }
     }
 
     override suspend fun map(snapshot: LegacySnapshot, staging: StagingDatabases, report: MigrationReport) =
@@ -102,7 +102,7 @@ class ReadingPlansMapper : CategoryMapper {
         try {
             return buildStage(data, drops)
         } finally {
-            for ((what, rows) in drops.counts) if (rows > 0) report.skipped(category, what, rows)
+            for ((key, rows) in drops.counts) if (rows > 0) report.skipped(category, key.first, rows, key.second)
         }
     }
 
@@ -115,7 +115,7 @@ class ReadingPlansMapper : CategoryMapper {
         // Swift: plans sorted (planCode, id.uuidString); an id-less row cannot be exported.
         val raw = data.plans.mapNotNull { row ->
             val id = row.values.typed<LegacyValue.UuidV>("id", drops)?.value?.let { IdType.fromString(it) }
-            if (id == null) { drops.add("reading plan without id"); return@mapNotNull null }
+            if (id == null) { drops.add("reading plan without id", PLAN_TABLE); return@mapNotNull null }
             RawPlan(
                 pk = row.pk,
                 id = id,
@@ -128,25 +128,25 @@ class ReadingPlansMapper : CategoryMapper {
         }.let { rows ->
             // Swift keys plan rows by id: a later row with the same id replaces the earlier one.
             val byId = LinkedHashMap<IdType, RawPlan>()
-            for (r in rows) if (byId.put(r.id, r) != null) drops.add("duplicate reading plan id")
+            for (r in rows) if (byId.put(r.id, r) != null) drops.add("duplicate reading plan id", PLAN_TABLE)
             byId.values.sortedWith(compareBy<RawPlan>({ it.planCode }, { it.id.toString().uppercase() }))
         }
 
         val knownPlanPks = raw.map { it.pk }.toSet()
-        for (day in data.days) if (day.toOne["plan"] !in knownPlanPks) drops.add("reading plan day without plan")
+        for (day in data.days) if (day.toOne["plan"] !in knownPlanPks) drops.add("reading plan day without plan", STATUS_TABLE)
         val daysByPlanPk = data.days.groupBy { it.toOne["plan"] }
         val plans = mutableListOf<ReadingPlan>()
         val statusByKey = LinkedHashMap<String, ReadingPlanStatus>()
         val usedCodes = HashSet<String>()
         for (plan in raw) {
             val planDays = daysByPlanPk[plan.pk].orEmpty()
-            if (plan.currentDay !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("reading plan current day out of range"); repeat(planDays.size) { drops.add("reading plan day of a skipped plan") }; continue }
-            if (!usedCodes.add(plan.planCode)) { drops.add("duplicate reading plan code"); repeat(planDays.size) { drops.add("reading plan day of a skipped plan") }; continue }
+            if (plan.currentDay !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("reading plan current day out of range", PLAN_TABLE); repeat(planDays.size) { drops.add("reading plan day of a skipped plan", STATUS_TABLE) }; continue }
+            if (!usedCodes.add(plan.planCode)) { drops.add("duplicate reading plan code", PLAN_TABLE); repeat(planDays.size) { drops.add("reading plan day of a skipped plan", STATUS_TABLE) }; continue }
             val currentDay = plan.currentDay.toInt()
             plans += ReadingPlan(plan.planCode, DbDate(plan.startMillis), currentDay, plan.id)
             val days = planDays.mapNotNull { row ->
                 val number = row.values.typed<LegacyValue.IntV>("dayNumber", drops)?.value ?: 1L
-                if (number !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("reading plan day number out of range"); null } else row to number.toInt()
+                if (number !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("reading plan day number out of range", STATUS_TABLE); null } else row to number.toInt()
             }.sortedBy { it.second }
             for ((row, dayNumber) in days) {
                 val readings = row.values.typed<LegacyValue.TextV>("readings", drops)?.value ?: ""
@@ -163,7 +163,7 @@ class ReadingPlansMapper : CategoryMapper {
         }
         // Swift keys status rows by id too (a preserved remote id can repeat across days): the later row replaces the earlier.
         val statusById = LinkedHashMap<IdType, ReadingPlanStatus>()
-        for (st in statusByKey.values) if (statusById.put(st.id, st) != null) drops.add("duplicate reading plan status id")
+        for (st in statusByKey.values) if (statusById.put(st.id, st) != null) drops.add("duplicate reading plan status id", STATUS_TABLE)
         val statuses = statusById.values.sortedWith(
             compareBy<ReadingPlanStatus>({ it.planCode }, { it.planDay }, { it.id.toString().uppercase() }),
         )
@@ -184,7 +184,7 @@ class ReadingPlansMapper : CategoryMapper {
         val result = LinkedHashMap<Pair<String, Int>, StoredStatus>()
         for ((key, value) in settings.entries.filter { it.key.startsWith(STATUS_PREFIX) }.sortedBy { it.key }) {
             val decoded = decodeStatus(key, value)
-            if (decoded == null) { drops.add("malformed reading plan status setting"); continue }
+            if (decoded == null) { drops.add("malformed reading plan status setting", STATUS_TABLE); continue }
             result[decoded.first] = decoded.second
         }
         return result
@@ -243,7 +243,7 @@ class ReadingPlansMapper : CategoryMapper {
             val id = key.removePrefix(prefix)
             val millis = value.toLongOrNull()
             if (!UUID_PATTERN.matches(id) || millis == null || millis.toString() != value || result.put(id.lowercase(), millis) != null) {
-                drops.add("malformed reading plan start date setting")
+                drops.add("malformed reading plan start date setting", STATUS_TABLE)
             }
         }
         return result
@@ -295,7 +295,7 @@ class ReadingPlansMapper : CategoryMapper {
     private inline fun <reified T : LegacyValue> Map<String, LegacyValue?>.typed(key: String, drops: Drops): T? {
         val v = this[key] ?: return null
         if (v is T) return v
-        drops.add("unexpected value type ${v::class.simpleName} for $key")
+        drops.add("unexpected value type ${v::class.simpleName} for $key", if (key in PLAN_KEYS) PLAN_TABLE else STATUS_TABLE)
         return null
     }
 
@@ -307,6 +307,9 @@ class ReadingPlansMapper : CategoryMapper {
     private fun JsonElement?.plainLong(): Long? = (this as? JsonPrimitive)?.takeIf { !it.isString }?.longOrNull
 
     private companion object {
+        const val PLAN_TABLE = "ReadingPlan"
+        const val STATUS_TABLE = "ReadingPlanStatus"
+        val PLAN_KEYS = setOf("id", "planCode", "startDate", "currentDay")
         const val STATUS_PREFIX = "remote_sync.readingplans.android_status"
         const val START_PREFIX = "remote_sync.readingplans.start_date_millis"
         val UUID_PATTERN = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
