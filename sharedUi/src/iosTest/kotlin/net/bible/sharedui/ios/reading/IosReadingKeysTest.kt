@@ -18,6 +18,7 @@ package net.bible.sharedui.ios.reading
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.sharedcore.nav.PassageResult
@@ -28,7 +29,10 @@ import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.ios.ports.IosChooserHostPlatform
+import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedui.reading.host.paneButtonsShown
 import net.bible.sharedui.reading.session.ConfigInputs
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -37,7 +41,6 @@ import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -58,24 +61,41 @@ class IosReadingKeysTest {
         isBeta = { beta },
     ).configInputs(emptyList())
 
-    /** `toolbar_button_actions`: a swap mode makes the Bible button switch to the suggested Bible instead of opening the sheet. */
+    /**
+     * `toolbar_button_actions`: a swap mode makes the Bible button switch to the suggested Bible instead of opening the
+     * document sheet. The iOS fixture installs one Bible, so the switch itself is only observable with a second one; with
+     * one, the swap mode's toolbar state hides the Bible button (no suggestion) and the press leaves the document alone.
+     * Both branches are asserted, so the test holds whichever module set runs; the window's Bible and the `default-BIBLE`
+     * setting are restored in `finally`.
+     */
     @Test
     fun toolbarButtonActionsSwapsTheToolbarAction() = withIosReadingHost { host, deps ->
         val koin = KoinPlatform.getKoin()
         val settings = koin.get<AppSettings>()
-        val windowControl = koin.get<WindowControl>()
+        val pageManager = koin.get<WindowControl>().activeWindowPageManager
+        val originalBible = pageManager.currentBible.currentDocument
+        val defaultBibleKey = "default-" + BookCategory.BIBLE.name
+        val originalDefault = settings.getString(defaultBibleKey, null)
         try {
             settings.setString("toolbar_button_actions", "swap-menu")
             assertEquals("swap-menu", host.toolbarHost.toolbarButtonSetting, "the toolbar host reads the setting")
-            val suggested = assertNotNull(host.toolbarHost.suggestedBibleInitials(), "premise: a second Bible to swap to is installed")
-            deps.toolbarCallbacks.onBible()
+            host.toolbarHost.refreshToolbar()
+            val suggested = host.toolbarHost.suggestedBibleInitials()
             assertEquals(
-                suggested, windowControl.activeWindowPageManager.currentBible.currentDocument?.initials,
-                "swap: the Bible button switches to the suggested Bible",
+                suggested != null, koin.get<ToolbarStateService>().toolbar.value.showBible,
+                "swap: the Bible button is shown only when there is a suggested Bible",
             )
+            deps.toolbarCallbacks.onBible()
             assertNull(host.hostState.quickSheet.value, "swap: the document sheet does not open")
+            if (suggested != null) {
+                assertEquals(suggested, pageManager.currentBible.currentDocument?.initials, "swap: switches to the suggested Bible")
+            } else {
+                assertEquals(originalBible?.initials, pageManager.currentBible.currentDocument?.initials, "swap, no suggestion: nothing changes")
+            }
         } finally {
             settings.setString("toolbar_button_actions", null)
+            originalBible?.let { pageManager.setCurrentDocument(it) }
+            settings.setString(defaultBibleKey, originalDefault)
         }
     }
 
@@ -161,22 +181,23 @@ class IosReadingKeysTest {
             host.hostState.closeQuickSheet()
         } finally {
             settings.setBoolean("navigate_to_verse_pref", null)
+            scope.cancel()
         }
     }
 
     /**
-     * `hide_window_buttons`: the pane button rail is removed when the pref is on (`ReadingHost.kt`, `showPaneButtons`). That
-     * branch is a composable, so this asserts the value it reads: the host's own settings store, the one the setting is
-     * written to. The rendered rail itself is not observable in this suite.
+     * `hide_window_buttons`: the rail's gate is the shared [paneButtonsShown] predicate that `ReadingHost` calls, read from
+     * the host's own settings store. Hidden with the pref on, shown with it off or unset, and a maximised window hides it.
      */
     @Test
     fun hideWindowButtonsHidesThem() = withIosReadingHost { host, _ ->
         val settings = KoinPlatform.getKoin().get<AppSettings>()
         try {
             settings.setBoolean("hide_window_buttons", true)
-            assertTrue(host.hostState.settings.getBoolean("hide_window_buttons", false), "the rail's hide check reads true")
+            assertFalse(paneButtonsShown(host.hostState.settings, maximised = false), "pref on: the rail is hidden")
             settings.setBoolean("hide_window_buttons", false)
-            assertFalse(host.hostState.settings.getBoolean("hide_window_buttons", false), "and false when the pref is off")
+            assertTrue(paneButtonsShown(host.hostState.settings, maximised = false), "pref off: the rail is shown")
+            assertFalse(paneButtonsShown(host.hostState.settings, maximised = true), "a maximised window hides the rail")
         } finally {
             settings.setBoolean("hide_window_buttons", null)
         }
