@@ -99,6 +99,8 @@ notes keep the format they were created with.
 
 ### HTML Editor
 
+The HTML editor opens focused and ready for typing. Changes are saved automatically. Click **Close** to save and leave editing; this closes the editor, not the bookmark dialog. Close the bookmark dialog separately when you are finished.
+
 The HTML editor provides a toolbar with standard formatting options:
 
 - **Bold**, **Italic**, **Underline**
