@@ -96,7 +96,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.coroutines.resume
@@ -1431,29 +1430,12 @@ class ReadingCommands(
      * batch and is not unified here -- unifying it would change what the toolbar shows.
      */
     internal val pageTitleText: String
-        get() {
-            val doc = pageControl.currentPageManager.currentPage.currentDocument
-            var key = pageControl.currentPageManager.currentPage.displayKey
-            val isBible = doc?.bookCategory == BookCategory.BIBLE
-            if(isBible) {
-                key = pageControl.currentBibleVerse
-            }
-            return if(key is Verse && key.verse == 0) {
-                CommonUtils.getWholeChapter(key, false).getName()
-            } else key?.getName() ?: throw KeyIsNull()
-        }
+        get() = net.bible.android.view.activity.page.pageTitleText(pageControl) ?: throw KeyIsNull()
 
+    /**
+     * The Bible reference overlay's text. The text is built by the common `bibleOverlayText(pageControl)` (also used by
+     * iOS); a null key (no current key) keeps classic's `KeyIsNull`.
+     */
     val bibleOverlayText: String
-        get() {
-            val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-            synchronized(BookName::class.java) {
-                val oldValue = BookName.isFullBookName()
-                BookName.setFullBookName(false)
-                try {
-                    return "$bookName:${pageTitleText}"
-                } finally {
-                    BookName.setFullBookName(oldValue)
-                }
-            }
-        }
+        get() = net.bible.android.view.activity.page.bibleOverlayText(pageControl) ?: throw KeyIsNull()
 }

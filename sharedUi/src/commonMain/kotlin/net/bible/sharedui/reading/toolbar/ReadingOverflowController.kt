@@ -29,6 +29,9 @@ import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 /** What the reading view's overflow menu reads and does on the platform; the iOS implementation is `IosReadingToolbarHost`. */
 @kotlin.native.HiddenFromObjC
 interface ReadingOverflowHost {
+    /** Flips full-screen reading (Android: `SharedActivityState.toggleFullScreen`). */
+    fun toggleFullScreen()
+
     fun nightMode(): Boolean
 
     /** Whether the user may switch night mode by hand (Android: only in its manual night mode). */
@@ -69,7 +72,7 @@ interface ReadingOverflowHost {
  * Android's rendered order, the workspace-level recently used text settings, then "all text options".
  *
  * Rows Android has that iOS does not (each named, with its missing dependency, in `IosReadingToolbarHost`):
- * Toggle full screen (iOS has no full-screen reading mode yet), Auto assign labels (the label manager's workspace
+ * Auto assign labels (the label manager's workspace
  * mode needs a result path the navigator does not expose), LLM actions (no LLM configuration on iOS yet).
  *
  * A stand-in, not an omission: a recent text option that is neither a toggle nor sheet-editable (Android calls its
@@ -81,6 +84,10 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
     fun build(): List<OptionsMenuItem> {
         val s = strings()
         val items = mutableListOf<OptionsMenuItem>()
+        items += OptionsMenuItem(
+            ID_FULLSCREEN, s.toggleFullscreen, checkable = false, checked = false, enabled = true,
+            opensDialog = false, iconKey = "ic_full_screen_24",
+        )
         items += OptionsMenuItem(
             ID_NIGHT_MODE, s.nightMode, checkable = true, checked = host.nightMode(), enabled = host.nightModeSwitchable(),
             opensDialog = false, iconKey = "ic_night_mode_24",
@@ -130,6 +137,7 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
     /** Runs a clicked row; true keeps the menu open (a toggle: the host rebuilds the list to show the flipped check). */
     fun handle(id: String): Boolean {
         when (id) {
+            ID_FULLSCREEN -> host.toggleFullScreen()
             ID_NIGHT_MODE -> {
                 if (!host.nightModeSwitchable()) return true
                 host.setNightMode(!host.nightMode())
@@ -164,6 +172,7 @@ class ReadingOverflowController(private val host: ReadingOverflowHost, private v
     }
 
     companion object {
+        const val ID_FULLSCREEN = "fullscreen"
         const val ID_NIGHT_MODE = "nightMode"
         const val ID_SWITCH_TO_WORKSPACE = "switchToWorkspace"
         const val ID_TILT_TO_SCROLL = "tiltToScroll"

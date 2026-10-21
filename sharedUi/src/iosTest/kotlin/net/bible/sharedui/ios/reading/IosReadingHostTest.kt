@@ -106,6 +106,7 @@ class IosReadingHostTest {
     /** Boots the app parts the host reads (as the first test does) and runs [block]; tears everything down after. */
     private fun withReadingHost(
         openUrl: (String) -> Unit = {},
+        statusBar: (Boolean) -> Unit = {},
         block: (host: IosReadingHost, deps: net.bible.sharedui.reading.host.ReadingHostDeps) -> Unit,
     ) {
         val scope = MainScope()
@@ -127,7 +128,7 @@ class IosReadingHostTest {
             val p = ColorPainter(Color.Black)
             val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
             val host = IosReadingHost(
-                scope, IosHostShell(scope, NoNavigator), koin, FakeNight(false), openUrl = openUrl,
+                scope, IosHostShell(scope, NoNavigator), koin, FakeNight(false), openUrl = openUrl, statusBarHidden = statusBar,
             )
             try {
                 block(host, host.deps(icons))
@@ -167,6 +168,9 @@ class IosReadingHostTest {
             "toolbarCallbacks" to true,
             "toolbarIcons" to (deps.toolbarIcons !== d1.toolbarIcons),
             // toolbar, display state, overflow, drawer, panes
+            "fullScreen" to (deps.fullScreen === host.fullScreen.state),
+            "overlayText" to (deps.overlayText === host.overlayText),
+            "activeIsBibleShown" to (deps.activeIsBibleShown === host.activeIsBibleShown),
             "toolbar" to (deps.toolbar === KoinPlatform.getKoin().get<net.bible.sharedcore.reading.ToolbarStateService>().toolbar),
             "nightMode" to (deps.nightMode === host.nightState),
             "monochrome" to (deps.monochrome === host.monochromeState),
@@ -214,16 +218,11 @@ class IosReadingHostTest {
         // INERT ALLOW-LIST, each with its reason, each asserted to be still inert:
         // - generation, imeBottomPaddingPx: Android bumps/feeds them from activity events; iOS never rebuilds the pane subtree
         //   and Compose handles the keyboard inset itself.
-        // - fullScreen: iOS has no full-screen reading mode yet (named on IosReadingToolbarHost).
-        // - overlayText, activeIsBibleShown: the Bible reference overlay is not wired on iOS (a parity gap, see the R2 final-fix report).
         // - onDrawerInMotion, onDrawerIdleClosed: Android shows/hides the system bars around the drawer; iOS has no such chrome.
         // - the seven LLM fields: no agent start on iOS (the LLM dialog host is not mounted; see hooksAndSlot...).
         val inert: Map<String, Boolean> = mapOf(
             "generation" to (deps.generation.value == 0),
             "imeBottomPaddingPx" to (deps.imeBottomPaddingPx.value == 0),
-            "fullScreen" to !deps.fullScreen.value,
-            "overlayText" to (deps.overlayText.value == ""),
-            "activeIsBibleShown" to !deps.activeIsBibleShown.value,
             "onDrawerInMotion" to (deps.onDrawerInMotion === d1.onDrawerInMotion),
             "onDrawerIdleClosed" to (deps.onDrawerIdleClosed === d1.onDrawerIdleClosed),
             "llmDialog" to (deps.llmDialog.value == net.bible.sharedcore.ai.reading.ReadingLlmDialogState()),
@@ -242,6 +241,75 @@ class IosReadingHostTest {
             net.bible.sharedui.reading.host.ReadingHostDepsFields.ALL, supplied.keys + inert.keys,
             "every ReadingHostDeps field must be supplied or named inert",
         )
+    }
+
+    /** The overflow "Fullscreen" row flips full screen, hides the status bar, and closes the menu; a second tap restores. */
+    @Test
+    fun overflowToggleFullScreenHidesToolbar() {
+        val statusBar = mutableListOf<Boolean>()
+        withReadingHost(statusBar = { statusBar += it }) { host, deps ->
+            assertFalse(deps.fullScreen.value)
+            deps.toolbarCallbacks.onOverflow()
+            assertEquals("fullscreen", deps.overflowItems.value.first().id, "the row is first, as on Android")
+            deps.onOverflowItemClick("fullscreen")
+            assertTrue(deps.fullScreen.value, "full screen on: the common host drops the toolbar and tab bar")
+            assertFalse(deps.overflowExpanded.value)
+            assertEquals(listOf(true), statusBar)
+            assertTrue(host.slots.fullScreen(), "the slots read the same state")
+            deps.toolbarCallbacks.onOverflow()
+            deps.onOverflowItemClick("fullscreen")
+            assertFalse(deps.fullScreen.value, "leaving brings toolbar, tab bar and status bar back")
+            assertEquals(listOf(true, false), statusBar)
+        }
+    }
+
+    /** Opening search leaves full screen (its field lives in the toolbar full screen hides); a double-tap lock is dropped. */
+    @Test
+    fun searchLeavesFullScreen() {
+        val statusBar = mutableListOf<Boolean>()
+        withReadingHost(statusBar = { statusBar += it }) { host, deps ->
+            host.setFullScreen(true, byDoubleTap = true)
+            assertTrue(host.fullScreen.lockedByDoubleTap)
+            host.onLeaveFullScreen() // exactly what ReadingSearchController.open() calls
+            assertFalse(deps.fullScreen.value)
+            assertFalse(host.fullScreen.lockedByDoubleTap)
+            assertEquals(listOf(true, false), statusBar)
+
+            // Through the real search state: when the active document is searchable it must leave full screen too.
+            host.setFullScreen(true)
+            host.slots.searchState.controller.open()
+            if (host.slots.searchState.searchUnavailableDocName.value == null) {
+                assertFalse(deps.fullScreen.value, "search mode started, so full screen is left")
+            }
+        }
+    }
+
+    /** The overlay text and the Bible flag follow the verse and window events the host subscribes to. */
+    @Test
+    fun overlayTextFollowsVerseChanges() = withReadingHost { host, deps ->
+        val windows = KoinPlatform.getKoin().get<WindowControl>()
+        // A verse change in the active window (delivered on the main dispatcher): the text is rebuilt from the page.
+        awaitStartupOnMain { net.bible.android.control.PassageChangeMediator.onCurrentVerseChanged(windows.activeWindow) }
+        assertEquals(
+            net.bible.android.view.activity.page.bibleOverlayText(KoinPlatform.getKoin().get<net.bible.android.control.page.PageControl>()) ?: "",
+            deps.overlayText.value,
+        )
+        assertEquals(windows.activeWindow.pageManager.isBibleShown, deps.activeIsBibleShown.value)
+    }
+
+    /** Full screen lives in the host, so a rebuilt composition (rotation) still sees it; the status bar is not touched again. */
+    @Test
+    fun rotationKeepsFullScreen() {
+        val statusBar = mutableListOf<Boolean>()
+        withReadingHost(statusBar = { statusBar += it }) { host, deps ->
+            host.setFullScreen(true)
+            val p = ColorPainter(Color.Black)
+            val rebuilt = host.deps(ReadingToolbarIcons(p, p, p, p, p, p, p, p, p))
+            assertTrue(rebuilt.fullScreen.value, "a rebuilt deps (rotation recomposes) keeps full screen")
+            assertTrue(deps.fullScreen.value)
+            assertEquals(listOf(true), statusBar)
+            assertTrue(host.fullScreen.state.value)
+        }
     }
 
     /**

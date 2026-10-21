@@ -80,8 +80,6 @@ import platform.Foundation.NSBundle
  * `ReadingDrawerMenu` (common, unit tested); this class only reads and writes what they ask for.
  *
  * What is NOT here, by name:
- * - Overflow "Toggle full screen": iOS has no full-screen reading mode yet (`ReadingHostDeps.fullScreen` stays false,
- *   the status bar and toolbar do not hide); needs the full-screen state and a status-bar port.
  * - Overflow "Auto assign labels": the workspace label manager's result (applied to the workspace settings) is not
  *   exposed by [IosReadingNavigator]; needs a navigator member that awaits the manager.
  * - Overflow "LLM actions": no LLM configuration on iOS yet (the pane menu omits it for the same reason).
@@ -109,6 +107,8 @@ internal class IosReadingToolbarHost(
     private val slots: () -> ReadingHostSlots,
     private val switchToWorkspace: suspend (String) -> Unit,
     private val searchModeActive: () -> Boolean,
+    /** Flips full screen (the host's `setFullScreen`, which also hides the status bar). */
+    private val toggleFullScreen: () -> Unit,
     private val chooserRequests: ChooserRequests,
     private val externalLinks: ExternalLinks,
     private val windowStateService: () -> WindowStateServiceImpl,
@@ -296,6 +296,8 @@ internal class IosReadingToolbarHost(
     }
 
     // ----- ReadingOverflowHost -----
+
+    override fun toggleFullScreen() = toggleFullScreen.invoke()
 
     override fun nightMode(): Boolean = deviceSettings.getBoolean(NIGHT_MODE_KEY, false)
 

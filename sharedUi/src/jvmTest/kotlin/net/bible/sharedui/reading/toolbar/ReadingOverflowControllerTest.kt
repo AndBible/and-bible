@@ -56,6 +56,7 @@ class ReadingOverflowControllerTest {
         var recent: List<Pair<Types, PrefItemHandle>> = emptyList()
         var onReady: (() -> Unit)? = null
 
+        override fun toggleFullScreen() { calls += "fullscreen" }
         override fun nightMode() = night
         override fun nightModeSwitchable() = switchable
         override fun setNightMode(on: Boolean) { night = on; calls += "night:$on" }
@@ -83,10 +84,19 @@ class ReadingOverflowControllerTest {
 
     private fun ids() = menu.build().map { it.id }
 
+    @Test fun fullScreenRowIsFirstAndClosesTheMenu() {
+        val row = menu.build().first()
+        assertEquals("fullscreen", row.id)
+        assertEquals("ic_full_screen_24", row.iconKey)
+        assertFalse(row.checkable)
+        assertFalse(menu.handle("fullscreen"), "the row closes the menu")
+        assertEquals(listOf("fullscreen"), host.calls)
+    }
+
     @Test fun rowsComeInAndroidsOrderAndHideWhatTheDeviceCannotDo() {
-        assertEquals(listOf("nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "allTextOptions"), ids())
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "allTextOptions"), ids())
         host.tiltOk = false; host.multi = true
-        assertEquals(listOf("nightMode", "switchToWorkspace", "splitMode", "autoPinMode", "allTextOptions"), ids())
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "splitMode", "autoPinMode", "allTextOptions"), ids())
     }
 
     @Test fun nightModeAndPinRowsShowTheirStateAndPinIsTheInverseOfAutoPin() {
@@ -119,7 +129,7 @@ class ReadingOverflowControllerTest {
     @Test fun recentTextOptionsSitBetweenTheStaticRowsAndAllTextOptionsAndStartTheLastSection() {
         host.recent = listOf(Types.FOOTNOTES to FakeItem(true), Types.JUSTIFY to FakeItem(false, enabled = false))
         val items = menu.build()
-        assertEquals(listOf("nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "textOptionItem:0", "allTextOptions"), items.map { it.id })
+        assertEquals(listOf("fullscreen", "nightMode", "switchToWorkspace", "tiltToScroll", "autoPinMode", "textOptionItem:0", "allTextOptions"), items.map { it.id })
         assertTrue(items.first { it.id == "textOptionItem:0" }.startsNewSection)
         assertFalse(items.first { it.id == "allTextOptions" }.startsNewSection)
         // With no recent row, allTextOptions carries the divider itself.

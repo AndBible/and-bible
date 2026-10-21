@@ -10,10 +10,17 @@ struct iOSApp: App {
         #endif
     }
 
+    /// Full-screen reading hides the status bar: the Kotlin side posts this notification (see IosStatusBar.kt).
+    @State private var statusBarHidden = false
+
     var body: some Scene {
         WindowGroup {
             ComposeView()
                 .ignoresSafeArea()
+                .statusBarHidden(statusBarHidden)
+                .onReceive(NotificationCenter.default.publisher(for: Notification.Name("net.bible.andbible.statusBarHidden"))) {
+                    statusBarHidden = ($0.userInfo?["hidden"] as? Bool) ?? false
+                }
                 .onOpenURL { IosPlatformBootstrap.shared.openIncomingFile(url: $0.absoluteString) }
         }
     }

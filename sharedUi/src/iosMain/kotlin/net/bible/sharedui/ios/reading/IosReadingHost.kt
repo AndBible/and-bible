@@ -31,6 +31,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.page.PageControl
+import net.bible.android.view.activity.page.bibleOverlayText
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
@@ -95,11 +97,13 @@ import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.ios.app.IosHostShell
+import net.bible.sharedui.ios.app.iosSetStatusBarHidden
 import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
+import net.bible.sharedui.reading.host.ReadingFullScreen
 import net.bible.sharedui.reading.host.ReadingHostDeps
 import net.bible.sharedui.reading.host.ReadingHostHooks
 import net.bible.sharedui.reading.host.ReadingHostState
@@ -146,6 +150,8 @@ class IosReadingHost(
     labelResults: NavResultChannel<ManageLabelsResult> = NavResultChannel { },
     /** Applies the document, key and passage choosers' answers to the window that asked; null: answers are not applied. */
     private val readingResults: IosReadingResults? = null,
+    /** Hides or shows the system status bar (full screen hides it); the app's [iosSetStatusBarHidden] by default. */
+    private val statusBarHidden: (Boolean) -> Unit = ::iosSetStatusBarHidden,
 ) {
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
@@ -158,6 +164,36 @@ class IosReadingHost(
     internal val offsets = ReadingOffsets(
         restoreButtonsVisible = { windowControl.windowRepository.workspaceSettings.restoreButtonsVisible },
     ) { IosReadingWindows.offsetsChanged() }
+
+    /**
+     * The reading view's full-screen state, owned here so it outlives a rotation (the host is not rebuilt, only the
+     * composition is). Always change it through [setFullScreen] so the status bar follows.
+     */
+    internal val fullScreen = ReadingFullScreen()
+
+    /**
+     * Enters or leaves full screen and hides or shows the status bar with it. The toolbar, tab bar and speak bar follow
+     * `fullScreen.state` in common code; the status bar is a UIKit matter, see [iosSetStatusBarHidden].
+     */
+    internal fun setFullScreen(value: Boolean, byDoubleTap: Boolean = false) {
+        fullScreen.set(value, byDoubleTap)
+        statusBarHidden(fullScreen.state.value)
+    }
+
+    /** What opening search does to full screen: leaves it, as the search field lives in the toolbar full screen hides. */
+    internal val onLeaveFullScreen: () -> Unit = { setFullScreen(false) }
+
+    /** The Bible reference overlay's text; empty without a current key (Android's silent `KeyIsNull` catch). */
+    internal val overlayText = mutableStateOf("")
+
+    /** Whether the active window shows a Bible (the overlay is only for Bibles). */
+    internal val activeIsBibleShown = mutableStateOf(false)
+
+    /** Re-reads [overlayText] and [activeIsBibleShown]; called on the same events Android's host mirrors them from. */
+    internal fun refreshOverlay() {
+        overlayText.value = bibleOverlayText(koin.get<PageControl>()) ?: ""
+        activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+    }
 
     /** The agent log's last measured collapsed height in dp (the offsets need it while the panel is visible). */
     private var agentLogHeightDp = 0f
@@ -306,8 +342,8 @@ class IosReadingHost(
             koin.get<BibleSearchService>(), koin.get<EpubSearchService>(),
             koin.get<SearchResultsCache>(), koin.get<SearchIndexService>(),
         ),
-        // The search field lives in the toolbar, which iOS has no full-screen mode to hide yet.
-        onLeaveFullScreen = {},
+        // The search field lives in the toolbar, which full screen hides: opening search leaves full screen.
+        onLeaveFullScreen = onLeaveFullScreen,
     )
 
     /**
@@ -318,11 +354,16 @@ class IosReadingHost(
         subscriptions.add(
             PassageChangeMediator.changes.subscribeOnMain { change ->
                 if (change is PageChange.VerseChanged) searchState.controller.activeDocumentChanged()
+                // Android's overlay events (`VerseChanged`, active window); `BibleVerseChanged` too, where no `VerseChanged` follows.
+                if (change is PageChange.VerseChanged || change is PageChange.BibleVerseChanged) refreshOverlay()
             },
         )
         subscriptions.add(
             koin.get<WindowStateServiceImpl>().windowChanges.subscribeOnMain { change ->
-                if (change is WindowChange.ActiveWindowChanged) searchState.controller.activeDocumentChanged()
+                if (change is WindowChange.ActiveWindowChanged) {
+                    refreshOverlay()
+                    searchState.controller.activeDocumentChanged()
+                }
             },
         )
     }
@@ -370,7 +411,7 @@ class IosReadingHost(
         agentLog = agentLog,
         speakTransport = speakTransport,
         disableAnimations = { settings.resolveDisableAnimations(false) },
-        fullScreen = { false },
+        fullScreen = { fullScreen.state.value },
         searchState = searchState,
         textDisplaySettingsService = { koin.get<TextDisplaySettingsService>() },
         scope = scope,
@@ -413,6 +454,7 @@ class IosReadingHost(
         slots = { slots },
         switchToWorkspace = quickActions::switchToWorkspace,
         searchModeActive = { searchState.searchBar.value != null },
+        toggleFullScreen = { setFullScreen(!fullScreen.state.value) },
         chooserRequests = readingResults ?: ChooserRequests.None,
         externalLinks = koin.get<ExternalLinks>(),
         windowStateService = { koin.get<WindowStateServiceImpl>() },
@@ -452,6 +494,7 @@ class IosReadingHost(
 
     /** Ends the slots' own background work (the search index feed); call before cancelling [scope]. */
     fun dispose() {
+        if (fullScreen.state.value) setFullScreen(false) // never leave the status bar hidden behind a closed reading view
         drawerWatch.cancel()
         searchSubscriptions.cancelAll()
         slots.dispose()
@@ -459,7 +502,7 @@ class IosReadingHost(
 
     /**
      * The toolbar callbacks: all sixteen do what Android's `ReadingCommands`/`ComposeReadingViewHost` toolbar callbacks
-     * do ([ReadingToolbarCommands]); none is a logged pending. The gaps inside them (full screen, auto assign labels,
+     * do ([ReadingToolbarCommands]); none is a logged pending. The gaps inside them (auto assign labels,
      * LLM actions, some drawer rows) are named on [IosReadingToolbarHost] and `ReadingDrawerMenu.OMITTED_ROWS`.
      */
     internal fun callbacks(): ReadingToolbarCallbacks = toolbarCommands.callbacks()
@@ -479,6 +522,7 @@ class IosReadingHost(
     fun deps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons? = null): ReadingHostDeps {
         // The state service only refreshes on events; the first snapshot is taken here, once the repository exists.
         toolbarHost.refreshToolbar()
+        refreshOverlay()
         return buildDeps(icons, paneIcons)
     }
 
@@ -506,6 +550,9 @@ class IosReadingHost(
         state = hostState,
         controller = readingViewController,
         toolbar = koin.get<ToolbarStateService>().toolbar,
+        fullScreen = fullScreen.state,
+        overlayText = overlayText,
+        activeIsBibleShown = activeIsBibleShown,
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
         nightMode = nightState,
@@ -537,7 +584,7 @@ class IosReadingHost(
         speakBarVisible = {
             val speakState = speakTransport.state.collectAsState()
             val visible = remember {
-                derivedStateOf { speakBarVisible(fullScreen = false, transportVisible = speakState.value.visible) }
+                derivedStateOf { speakBarVisible(fullScreen = fullScreen.state.value, transportVisible = speakState.value.visible) }
             }
             SideEffect { offsets.setSpeakBarVisible(visible.value) }
             visible.value

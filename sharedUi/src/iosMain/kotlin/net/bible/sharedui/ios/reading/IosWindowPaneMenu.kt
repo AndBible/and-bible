@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Fullscreen
 import androidx.compose.material.icons.outlined.Workspaces
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.SwapVert
@@ -200,6 +201,7 @@ fun iosPaneMenuIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_baseline_check_circle_24" -> Icons.Outlined.CheckCircle
     "ic_baseline_star_24" -> Icons.Outlined.Star
     // overflow menu rows
+    "ic_full_screen_24" -> Icons.Outlined.Fullscreen
     "ic_night_mode_24" -> Icons.Outlined.DarkMode
     "ic_baseline_workspace_24" -> Icons.Outlined.Workspaces
     "ic_tilt_to_scroll_24dp" -> Icons.Outlined.ScreenRotation
