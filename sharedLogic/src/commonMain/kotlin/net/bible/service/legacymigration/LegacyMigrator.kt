@@ -13,6 +13,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
 import net.bible.service.legacymigration.adopt.Adopter
+import net.bible.service.legacymigration.adopt.LegacyFileAdoption
 import net.bible.service.legacymigration.extras.LegacyExtrasFile
 import net.bible.service.legacymigration.adopt.StagingValidator
 import net.bible.service.legacymigration.map.AiSettingsMapper
@@ -133,8 +134,8 @@ fun defaultMappers(platform: LegacyPlatform): List<CategoryMapper> {
  *    -> best-effort: delete the search index, `work/`, `staging/`, `replaced/`, `state.json`.
  *
  * Any [Exception] in step 5 before the commit point becomes [LegacyMigrationOutcome.Failed] after the adoption (if started) was rolled back; after `done.json` was written nothing is ever rolled back and a cleanup error is swallowed. I/O errors in the start of a launch (directory, state file, rollback of an earlier attempt) also become `Failed`, and a failing rollback counts as an attempt. The
- * source files (stores, sidecars, preserved files) are only read; the single exception is the search index, deleted
- * best-effort after the commit point (spec 6.5). A failed deletion is retried on later `AlreadyDone` launches until `done.json` records `searchIndexDeleted: true` (written best-effort, atomically, after a successful delete); a `nothingToMigrate` marker never deletes anything, and the new app keeps its own per-book indexes under `search/`. Sync settings, device-local preferences and the other extras are not applied here; they are
+ * source files (stores, sidecars, preserved files) are only read; the exceptions are the search index and the EPUB library: the index is deleted
+ * best-effort after the commit point (spec 6.5). A failed deletion is retried on later `AlreadyDone` launches until `done.json` records `searchIndexDeleted: true` (written best-effort, atomically, after a successful delete), and the EPUB library in `Documents/epub` is COPIED into `modulesDir/epub/<name>` by [LegacyFileAdoption] (the old files stay), retried the same way until `filesAdopted: true`; a `nothingToMigrate` marker never deletes anything, and the new app keeps its own per-book indexes under `search/`. Sync settings, device-local preferences and the other extras are not applied here; they are
  * returned in [LegacyMigrationOutcome.Migrated.extras].
  *
  * @param mappers run in list order; `SETTINGS` after `WORKSPACES` and `READING_PLANS` is enforced (IllegalArgumentException).
@@ -142,6 +143,7 @@ fun defaultMappers(platform: LegacyPlatform): List<CategoryMapper> {
  * @param replaceExisting import over existing databases: non-empty targets are moved to `replaced/` (and, after the commit,
  *   renamed to `before-import-<epoch ms>/`, never deleted) instead of failing the adoption.
  * @param stepHook awaited after each step's `failAt` check (tests observe the run order and can act between steps).
+ * @param modulesDir the new app's SWORD root (`Documents/sword`), the target of the file adoption.
  * @param userPlanDir where the user's own reading plan files must be; files of the old app that are not there yet are copied
  *   (by default the old app's own `Documents/jsword/readingplan`, so normally nothing needs copying).
  */
@@ -153,6 +155,7 @@ class LegacyMigrator(
     private val userPlanDir: Path = platform.documents / "jsword" / "readingplan",
     private val replaceExisting: Boolean = false,
     private val stepHook: suspend (Step) -> Unit = {},
+    private val modulesDir: Path = platform.documents / "sword",
 ) {
     init {
         val order = mappers.map { it.category }
@@ -192,6 +195,7 @@ class LegacyMigrator(
             if (fs.exists(doneFile)) {
                 // Idempotent leftover of the commit: the search index, until done.json records that it was deleted.
                 bestEffort { finishSearchIndexDeletion() }
+                bestEffort { finishFileAdoption() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.AlreadyDone
             }
@@ -297,6 +301,7 @@ class LegacyMigrator(
             committed = true
             // COMMITTED: from here on nothing may undo the adoption. Everything below is best-effort and idempotent.
             bestEffort { finishSearchIndexDeletion() }
+                bestEffort { finishFileAdoption() }
             bestEffortCleanUp()
             return LegacyMigrationOutcome.Migrated(report, extras)
         } catch (e: CancellationException) {
@@ -305,6 +310,7 @@ class LegacyMigrator(
             // done.json may exist although writeDone threw (the rename can succeed before the call fails): that is committed.
             if (committed || (finished != null && runCatching { fs.exists(doneFile) }.getOrDefault(false))) {
                 bestEffort { finishSearchIndexDeletion() }
+                bestEffort { finishFileAdoption() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.Migrated(report, finished!!)
             }
@@ -487,6 +493,21 @@ class LegacyMigrator(
         atomicWrite(doneFile, JsonObject(marker + ("searchIndexDeleted" to JsonPrimitive(true))).toString())
     }
 
+    /**
+     * Adopts the old app's EPUB library into [modulesDir] (see [LegacyFileAdoption]) and records `filesAdopted: true` in
+     * `done.json` once nothing failed on I/O, so the retry on later `AlreadyDone` launches stops. Conflicts and unadoptable
+     * entries are permanent and do not hold the flag back. Does nothing for a `nothingToMigrate` marker or a flagged one.
+     */
+    private fun finishFileAdoption() {
+        val marker = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        if ((marker["nothingToMigrate"] as? JsonPrimitive)?.content == "true") return
+        if ((marker["filesAdopted"] as? JsonPrimitive)?.content == "true") return
+        val result = LegacyFileAdoption(fs, platform.documents, modulesDir).adopt()
+        if (!result.complete) return
+        val current = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        atomicWrite(doneFile, JsonObject(current + ("filesAdopted" to JsonPrimitive(true))).toString())
+    }
+
     private fun deleteSearchIndex() {
         val index = platform.documents / "search_indexes.sqlite"
         for (suffix in listOf("", "-wal", "-shm", "-journal")) fs.delete(platform.documents / ("search_indexes.sqlite$suffix"), mustExist = false)
@@ -509,6 +530,7 @@ class LegacyMigrator(
             put("sources", JsonArray(sources.map { buildJsonObject { put("path", it.toString()); put("size", fs.metadata(it).size ?: 0L) } }))
             put("adopted", JsonArray(adopted.map { JsonPrimitive(it) }))
             put("searchIndexDeleted", false)
+            put("filesAdopted", false)
         }.toString()
         atomicWrite(doneFile, json)
     }

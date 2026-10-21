@@ -613,6 +613,60 @@ class LegacyMigratorTest {
         assertTrue(index.exists())
     }
 
+    /** One old-app EPUB in `Documents/epub` (published generation) that the file adoption must copy to `Documents/sword/epub/Book.epub`. */
+    private fun oldEpub(platform: FakeLegacyPlatform) {
+        val gen = File(platform.documents.toString(), "epub/.epub-generations/Book-1/g1")
+        File(gen, "package/OEBPS").mkdirs()
+        File(gen, "package/OEBPS/content.opf").writeText("opf")
+        val db = net.bible.service.db.openSqlite(File(gen, "index.sqlite3").path)
+        try {
+            db.prepare("CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)").use { it.step() }
+            db.prepare("INSERT INTO metadata VALUES ('source_file_name', 'Book.epub')").use { it.step() }
+        } finally { db.close() }
+        File(platform.documents.toString(), "epub/Book-1.epub-current.json")
+            .writeText("""{"schemaVersion":1,"identifier":"Book-1","generationIdentifier":"g1"}""")
+    }
+
+    @Test
+    fun theEpubLibraryIsAdoptedAfterTheCommitAndRecordedOnce() {
+        val e = env()
+        oldEpub(e.platform)
+        val adopted = File(e.platform.documents.toString(), "sword/epub/Book.epub/OEBPS/content.opf")
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals("opf", adopted.readText())
+        assertTrue(File(e.platform.documents.toString(), "epub/.epub-generations/Book-1/g1/package/OEBPS/content.opf").exists(), "the old files stay")
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+        // Flagged: a later launch does not look at the library again.
+        adopted.delete()
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertFalse(adopted.exists())
+    }
+
+    @Test
+    fun aFailedEpubAdoptionNeverFailsTheMigrationAndIsRetriedOnTheNextLaunch() {
+        val e = env()
+        oldEpub(e.platform)
+        // `sword/epub` is a regular file, so the copy cannot be placed: the adoption fails, the migration still commits.
+        val blocker = File(e.platform.documents.toString(), "sword/epub").also { it.parentFile.mkdirs(); it.writeText("in the way") }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":false"))
+        blocker.delete()
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertEquals("opf", File(e.platform.documents.toString(), "sword/epub/Book.epub/OEBPS/content.opf").readText())
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+    }
+
+    @Test
+    fun aNothingToMigrateMarkerNeverAdoptsEpubs() {
+        val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
+        oldEpub(platform)
+        assertEquals(LegacyMigrationOutcome.NothingToMigrate, run(platform))
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(platform))
+        assertFalse(File(platform.documents.toString(), "sword/epub").exists())
+    }
+
     @Test
     fun aNothingToMigrateMarkerNeverDeletesTheSearchIndex() {
         val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
