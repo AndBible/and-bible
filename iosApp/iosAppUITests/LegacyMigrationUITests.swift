@@ -82,18 +82,21 @@ final class LegacyMigrationUITests: XCTestCase {
         return false
     }
 
-    /// Dismisses an iOS alert that blocks our Compose dialogs: discrete mode changes the app icon and iOS shows
-    /// "You have changed the icon for ...". Like DiscreteUITests, looks in BOTH the app's own alerts and SpringBoard's,
-    /// since the owner differs by iOS version. Taps the first button (OK / Don't Allow). True when one was dismissed.
+    /// Dismisses the iOS "You have changed the icon for ..." alert that discrete mode triggers and that blocks our
+    /// Compose dialogs. Only SpringBoard alerts, and app-owned alerts whose text mentions the icon, are touched: a
+    /// Compose AlertDialog is exposed as an alert too and must never be tapped here (it is a notice to count).
     @discardableResult
     private func dismissSystemAlert(_ app: XCUIApplication) -> Bool {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        for owner in [app, springboard] {
-            let alert = owner.alerts.firstMatch
-            if alert.exists, alert.buttons.firstMatch.exists {
-                alert.buttons.firstMatch.tap()
-                return true
-            }
+        let spring = springboard.alerts.firstMatch
+        if spring.exists, spring.buttons.firstMatch.exists {
+            spring.buttons.firstMatch.tap()
+            return true
+        }
+        let iconAlert = app.alerts.containing(NSPredicate(format: "label CONTAINS[c] %@", "icon")).firstMatch
+        if iconAlert.exists, iconAlert.buttons.firstMatch.exists {
+            iconAlert.buttons.firstMatch.tap()
+            return true
         }
         return false
     }
@@ -120,6 +123,18 @@ final class LegacyMigrationUITests: XCTestCase {
             add(attachment)
         }
         shot(app, "dialog-missing-\(name)")
+        print("I3B-TREE dialog-missing-\(name)\n\(app.debugDescription)")
+    }
+
+    /// Failure-path diagnostics for a screen element that was not found: the xcode export keeps only PNGs, so the tree
+    /// is also printed (it lands in the xcodebuild log).
+    private func diagnoseMissing(_ app: XCUIApplication, _ name: String) {
+        shot(app, "missing-\(name)")
+        let attachment = XCTAttachment(string: app.debugDescription)
+        attachment.name = "tree-app-\(name)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        print("I3B-TREE missing-\(name)\n\(app.debugDescription)")
     }
 
     /// Taps the confirm button of the Compose message/confirm dialog currently shown. Returns false (after attaching
@@ -165,12 +180,23 @@ final class LegacyMigrationUITests: XCTestCase {
         second.terminate()
     }
 
-    private func openSettingsRow(_ app: XCUIApplication, startingWith text: String) -> XCUIElement {
-        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", text)).firstMatch
-        for _ in 0..<12 {
-            if row.exists && row.isHittable { break }
-            app.swipeUp()
+    /// Scrolls the current settings list (up, then back down) until a row whose label starts with [text] is hittable.
+    /// Polls up to [timeout] seconds, so a row that only appears after startup finished (the import row is primed at
+    /// Ready) is waited for. Matches any element type, not just buttons. Returns the element (maybe not existing).
+    private func openSettingsRow(_ app: XCUIApplication, startingWith text: String, timeout: TimeInterval = 60,
+                                  buttonsOnly: Bool = false) -> XCUIElement {
+        let query = buttonsOnly ? app.buttons : app.descendants(matching: .any)
+        let row = query.matching(NSPredicate(format: "label BEGINSWITH %@", text)).firstMatch
+        let deadline = Date().addingTimeInterval(timeout)
+        var swipes = 0
+        while Date() < deadline {
+            dismissSystemAlert(app)
+            if row.exists && row.isHittable { return row }
+            if swipes % 20 < 10 { app.swipeUp() } else { app.swipeDown() }
+            swipes += 1
+            usleep(300_000)
         }
+        diagnoseMissing(app, "row-\(text.prefix(24))")
         return row
     }
 
@@ -196,7 +222,7 @@ final class LegacyMigrationUITests: XCTestCase {
         XCTAssertTrue(waitForReady(app), "No reading view or Welcome after the PIN and the migration")
         // The window count and titles are not exposed as accessibility identifiers; the screenshot is the evidence.
         shot(app, "i3b-rich-ready")
-        let notices = dismissNotices(app, firstTimeout: 60, quietTimeout: 8)
+        let notices = dismissNotices(app, firstTimeout: 90, quietTimeout: 12)
         XCTAssertEqual(notices, 3, "Expected the iCloud, Nextcloud and unsent-patches notices")
         XCTAssertTrue(isReady(app), "The app left Ready while the notices were dismissed")
     }
@@ -208,17 +234,31 @@ final class LegacyMigrationUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label == %@", "=")).firstMatch.waitForExistence(timeout: 5),
                        "The calculator must not be shown for a non-discrete fixture")
         // -task5Settings starts on Settings; the notice dialog appears on top of whichever screen is first.
-        let notices = dismissNotices(app, firstTimeout: 120, quietTimeout: 8)
+        let notices = dismissNotices(app, firstTimeout: 120, quietTimeout: 12)
         XCTAssertGreaterThanOrEqual(notices, 1, "Expected at least the Nextcloud notice")
         shot(app, "i3b-extended-after-notices")
 
-        let sync = openSettingsRow(app, startingWith: "Device synchronization")
+        // Same path as SyncAcceptanceUITests: the "Device synchronization" row, then the backend row proves the screen.
+        let sync = openSettingsRow(app, startingWith: "Device synchronization", buttonsOnly: true)
         XCTAssertTrue(sync.exists && sync.isHittable, "Device synchronization row not reachable")
         sync.tap()
-        let server = openSettingsRow(app, startingWith: "Server URL")
-        XCTAssertTrue(server.waitForExistence(timeout: 15), "Server URL row missing")
+        let backend = openSettingsRow(app, startingWith: "Synchronization Backend", timeout: 20, buttonsOnly: true)
+        XCTAssertTrue(backend.exists, "Device synchronization screen did not open")
+        shot(app, "i3b-extended-sync-screen")
+        let server = openSettingsRow(app, startingWith: "Server URL", timeout: 30, buttonsOnly: true)
+        XCTAssertTrue(server.exists, "Server URL row missing")
+        // The URL is the generator's seeded gdrive_server_url (I3FixtureGeneratorTests.seedSettingsRows), not in sidecar.json.
         XCTAssertEqual(server.label, "Server URL, https://cloud.example.invalid/remote.php/dav/files/fixture")
-        shot(app, "i3b-extended-sync-settings") // sync-off is judged on this screenshot (no stable identifier)
+        // Sync stays off: the Bookmarks category switch (seeded on in the old app) must not be selected after migration.
+        let bookmarks = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", "Bookmarks")).firstMatch
+        for _ in 0..<10 where !(bookmarks.exists && bookmarks.isHittable) { app.swipeUp() }
+        if bookmarks.exists {
+            XCTAssertFalse(bookmarks.isSelected, "Sync must stay off after the migration")
+        } else {
+            diagnoseMissing(app, "bookmarks-sync-switch")
+            XCTFail("Bookmarks sync switch not found")
+        }
+        shot(app, "i3b-extended-sync-settings")
     }
 
     /// W9: two kills while migrating, the third launch lands on the legacy recovery screen, not on crash recovery.
