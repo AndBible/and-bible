@@ -156,14 +156,15 @@ internal object IosLegacyDebugSeed {
         fs.createDirectories(support)
         for (file in fs.list(source)) if (isLegacyStoreFile(file.name)) fs.copy(file, support / file.name)
 
-        // 3. UserDefaults with their JSON types; the keys are recorded for the cleanup.
+        // 3. UserDefaults with their JSON types; the keys are recorded BEFORE writing, so a failure midway is still cleaned up.
+        defaults.setObject(sidecar.defaults.map { it.key }, forKey = SEEDED_KEYS)
+        defaults.synchronize()
         for (entry in sidecar.defaults) when (entry) {
             is SeedDefault.Bool -> defaults.setBool(entry.value, forKey = entry.key)
             is SeedDefault.Integer -> defaults.setInteger(entry.value, forKey = entry.key)
             is SeedDefault.Real -> defaults.setDouble(entry.value, forKey = entry.key)
             is SeedDefault.Text -> defaults.setObject(entry.value, forKey = entry.key)
         }
-        defaults.setObject(sidecar.defaults.map { it.key }, forKey = SEEDED_KEYS)
 
         // 4. Keychain: the pairs are recorded BEFORE adding, so a failure midway is still cleaned up. `IosKeychainSecretStore(service)`
         // is the same plain generic password (service + account, no access group) that `IosLegacyPlatform.legacyKeychain` queries.

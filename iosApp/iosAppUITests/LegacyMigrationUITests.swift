@@ -8,7 +8,8 @@ import XCTest
 ///
 /// The debug app seeds itself from a fixture directory (`-seedLegacyFixture <dir>`, see `IosLegacyDebugSeed`): the old
 /// stores, the sidecar's UserDefaults and Keychain items, and a reset of the new app's migration state. No test passes
-/// `-resetData` or `-resetDatabases`, they would wipe the seeded state. Dialogs are found by testTag, never by label,
+/// `-resetData` or `-resetDatabases`, they would wipe the seeded state. Dialogs are found by testTag first (a label fallback covers a tag that is not exported),
+/// never by label text alone in an assertion,
 /// because the `rich` fixture is Finnish. The tests share one simulator app container, so each one seeds its own scenario
 /// on its first launch and later launches of the same test omit the seed argument.
 final class LegacyMigrationUITests: XCTestCase {
@@ -238,7 +239,7 @@ final class LegacyMigrationUITests: XCTestCase {
 
     // MARK: Tests
 
-    /// `rich` (Finnish, discrete): the disguise comes first, nothing is visible before the PIN, then the three notices.
+    /// `rich` (Finnish, discrete): the disguise comes first, nothing is visible before the PIN, then the two notices (iCloud and Nextcloud).
     func testDiscreteFixtureShowsCalculatorFirst() throws {
         let dir = try scenario("rich")
         let app = launch(seedArguments(dir))
@@ -294,7 +295,11 @@ final class LegacyMigrationUITests: XCTestCase {
         let bookmarks = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", "Bookmarks")).firstMatch
         for _ in 0..<10 where !(bookmarks.exists && bookmarks.isHittable) { app.swipeUp() }
         if bookmarks.exists {
-            XCTAssertFalse(bookmarks.isSelected, "Sync must stay off after the migration")
+            // A Switch exposes its state as value "0"/"1" (isSelected is not reliable for it). The value is logged so a run
+            // shows what was read; the other category switches give the "can be 1" reference.
+            let value = String(describing: bookmarks.value ?? "nil")
+            print("I3B-SWITCH Bookmarks value=\(value) isSelected=\(bookmarks.isSelected)")
+            XCTAssertEqual(value, "0", "Sync must stay off after the migration (Bookmarks switch value)")
         } else {
             diagnoseMissing(app, "bookmarks-sync-switch")
             XCTFail("Bookmarks sync switch not found")
@@ -346,7 +351,11 @@ final class LegacyMigrationUITests: XCTestCase {
         // `before-import-*` line, Application Support/LegacyMigration/before-import-* holds the kept databases).
         // -task6ResetCrashState: the test killed the app twice unclean (terminate) since the last settled launch, which must
         // not turn the import launch into the crash-recovery screen (that is a different feature).
-        let relaunched = launch(["-task6ResetCrashState"])
+        // The step delay keeps the progress view up: it only exists while a migration RUNS, which after a start-fresh (settled)
+        // happens only when the import request was honored, so seeing it proves the import ran.
+        let relaunched = launch(["-task6ResetCrashState", "-legacyMigrationStepDelayMs", "8000"])
+        XCTAssertTrue(element(relaunched, "legacy-progress").waitForExistence(timeout: 60),
+                      "The import launch never showed the migration progress, so the import request was not honored")
         let importReady = waitForReady(relaunched, timeout: 150)
         if !importReady {
             let states = ["legacy-progress", "legacy-recovery", "crash-recovery", "legacy-try-again", "welcome-screen", "reading-host"]
