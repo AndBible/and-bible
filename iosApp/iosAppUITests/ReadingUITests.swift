@@ -276,12 +276,32 @@ final class ReadingUITests: RealAppUITestCase {
     /// Audits what is on screen and appends one line per finding to `findings`. The handler returns true for every issue
     /// so the audit itself does not stop at the first one; the test fails on the collected list afterwards.
     ///
-    /// Issue filters: NONE yet. A finding that cannot be fixed in R3 is listed in `knownLimitations` below, each entry
-    /// with the reason, and matches narrowly (audit type plus a label or identifier fragment), never a whole category.
+    /// Issue filters (R3, each with its reason in `knownLimitations`): Bible text words inside a pane web view (hit area
+    /// only) and the visual text detection on popup / sheet windows. Chrome findings are never filtered.
     @available(iOS 17.0, *)
     private func audit(_ app: XCUIApplication, surface: String, into findings: inout [String]) throws {
+        let popupSurfaces = ["overflow menu", "pane menu", "key chooser quick sheet"]
         // (reason, matcher). Add an entry only with the controller's decision; keep it as narrow as possible.
-        let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = []
+        let webViewFrames = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+            .allElementsBoundByIndex.map { $0.frame }
+        let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = [
+            // R3 decision (T14 status): the Bible text runs. WebKit exposes every word / punctuation mark / verse number
+            // inside the pane's WKWebView as its own tiny static text; confirmed from the Mac findings (labels ',' '.'
+            // 'in' '¶' '17' ...). The text is scaled by the user's own font_size_multiplier, not by chrome, and a word
+            // of running text is not a control. Only the hit-area category, only static texts, only inside a pane web view.
+            ("Bible text word inside a pane web view (hit area of running text; scaled by font_size_multiplier)", { issue in
+                guard issue.auditType == .hitRegion, let element = issue.element, element.elementType == .staticText else { return false }
+                return webViewFrames.contains { $0.intersects(element.frame) }
+            }),
+            // R3 decision: "Potentially inaccessible text" (elementDetection) is the audit's visual text detection and it
+            // reports no element. It fired only on surfaces drawn in their own window (overflow and pane menu popups,
+            // the key chooser sheet), never on the drawer, which is the same Compose text in the main window. In the same
+            // run every row of those popups is found and tapped by its label (see tapMenuItem and the Task 9 tests), so
+            // the text IS in the accessibility tree; the detection cannot see across the separate window.
+            ("visual text detection on a Compose popup / sheet window whose rows are verified by label elsewhere", { issue in
+                issue.auditType == .elementDetection && issue.element == nil && popupSurfaces.contains(surface)
+            }),
+        ]
         var found: [String] = []
         do {
             try app.performAccessibilityAudit { issue in
@@ -659,14 +679,16 @@ final class ReadingUITests: RealAppUITestCase {
         if expectReachable(app, app.buttons["Menu"], "Menu button (drawer opener)", level) {
             app.buttons["Menu"].tap()
             for row in ["History", "Study Pads", "Backup & Restore", "Device synchronization"] {
+                // The drawer is a scrollable list: rows below the fold are in the tree without a label until they
+                // scroll into view, so scroll (up to 8 swipes) until the row exists by label AND is hittable.
                 let element = byLabel(app, row)
-                guard element.waitForExistence(timeout: 10) else {
+                var swipes = 0
+                while !(element.exists && element.isHittable) && swipes < 8 { app.swipeUp(); swipes += 1 }
+                if !element.exists {
                     attachTree(app, "\(level)-drawer-no-\(row)")
-                    XCTFail("\(level): drawer row '\(row)' does not exist")
+                    XCTFail("\(level): drawer row '\(row)' does not exist after scrolling the drawer")
                     continue
                 }
-                var swipes = 0
-                while !element.isHittable && swipes < 4 { app.swipeUp(); swipes += 1 }
                 expectReachable(app, element, "drawer row '\(row)'", level)
             }
             shot(app, "\(level)-drawer")

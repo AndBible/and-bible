@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.components
 
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
@@ -128,6 +129,7 @@ fun AbQuickSheet(
         },
         sheetState = sheetState,
         modifier = Modifier.testTag(AbQuickSheetTag),
+        dragHandleDescription = LocalStrings.current.sheetDragHandle,
     ) {
         AbQuickSheetContent(
             title = title,

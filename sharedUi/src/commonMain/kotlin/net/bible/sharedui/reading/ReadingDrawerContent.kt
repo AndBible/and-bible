@@ -175,7 +175,8 @@ private fun DrawerRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(DrawerRowHeight)
+            // R3: a minimum, not a fixed height, so a row grows with Dynamic Type instead of clipping its label.
+            .heightIn(min = DrawerRowHeight)
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = DrawerRowHorizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
@@ -184,7 +185,7 @@ private fun DrawerRow(
             Icon(painter = icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(DrawerIconSize))
             Spacer(Modifier.width(DrawerIconLabelGap))
         }
-        Text(text = label, style = MaterialTheme.typography.bodyLarge, color = contentColor, maxLines = 1)
+        Text(text = label, style = MaterialTheme.typography.bodyLarge, color = contentColor)
     }
 }
 

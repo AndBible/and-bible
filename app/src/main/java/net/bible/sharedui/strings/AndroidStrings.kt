@@ -1147,4 +1147,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val railExpandCollapse: String get() = context.getString(R.string.expand_collapse)
     override val paneWindowMenu: String get() = context.getString(R.string.window_menu_button)
     override val pasteFromClipboard: String get() = context.getString(R.string.paste_from_clipboard)
+
+    // R3 (accessibility audit)
+    override val sheetDragHandle: String get() = context.getString(R.string.sheet_drag_handle)
 }

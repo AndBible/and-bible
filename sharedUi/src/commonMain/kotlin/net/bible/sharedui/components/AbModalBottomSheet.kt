@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
@@ -38,6 +40,9 @@ fun AbModalBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
+    // R3: the screen-reader name of the drag handle (iOS audit: "Element has no description"). Null keeps the
+    // library default; callers that have `LocalStrings` pass `strings.sheetDragHandle`.
+    dragHandleDescription: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val mono = isPureMonochrome()
@@ -76,8 +81,11 @@ fun AbModalBottomSheet(
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
         dragHandle = {
-            if (mono) BottomSheetDefaults.DragHandle(color = monoInk(LocalIsDarkTheme.current))
-            else BottomSheetDefaults.DragHandle()
+            val handleModifier = if (dragHandleDescription != null) {
+                Modifier.semantics { contentDescription = dragHandleDescription }
+            } else Modifier
+            if (mono) BottomSheetDefaults.DragHandle(modifier = handleModifier, color = monoInk(LocalIsDarkTheme.current))
+            else BottomSheetDefaults.DragHandle(modifier = handleModifier)
         },
     ) {
         MirrorHostSystemBars()

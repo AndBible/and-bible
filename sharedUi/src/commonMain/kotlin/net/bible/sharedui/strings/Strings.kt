@@ -1225,6 +1225,9 @@ interface Strings {
     val railExpandCollapse: String               // R.string.expand_collapse (tab rail chevron)
     val paneWindowMenu: String                   // R.string.window_menu_button (a pane's ☰ window button, for screen readers)
     val pasteFromClipboard: String               // R.string.paste_from_clipboard
+
+    // R3 (accessibility audit)
+    val sheetDragHandle: String                  // R.string.sheet_drag_handle (bottom sheet drag handle, for screen readers)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
