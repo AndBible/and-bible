@@ -900,8 +900,17 @@ final class ReadingUITests: RealAppUITestCase {
         // looked for straight away.
         // The overlay shows the CURRENT verse (it follows the scroll position, as on Android), so any verse of John 3.
         let overlay = labelStarting(app, "KJV:Joh 3:")
-        paneMargin(app).tap()
-        let overlayShown = overlay.waitForExistence(timeout: 3)
+        // The overlay lives ~2 s after a tap and accessibility queries are slow (iPad), so: tap, then a tight poll of one
+        // element query with 0.1 s sleeps for at most 1.8 s; a miss re-taps (restarting the timer), three tries in all.
+        var overlayShown = false
+        for _ in 0..<3 where !overlayShown {
+            paneMargin(app).tap()
+            let deadline = Date().addingTimeInterval(1.8)
+            while Date() < deadline {
+                if overlay.exists { overlayShown = true; break }
+                usleep(100_000)
+            }
+        }
         shot(app, "fullscreen-overlay")
         var diagnosis = ""
         if !overlayShown {
@@ -1270,39 +1279,7 @@ final class ReadingUITests: RealAppUITestCase {
         // not reach it (the Mac run showed the two-step menu with the argument given): switch it on in the Application
         // preferences ("One-step bookmarking", `prefs_disable_two_step_bookmarking_title`), then go back to reading.
         paneMargin(app).tap()   // dismiss the edit menu and the selection
-        XCTContext.runActivity(named: "switch One-step bookmarking on") { _ in
-            guard openDrawerRow(app, "Application preferences") else { return }
-            let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'One-step bookmarking'")).firstMatch
-            var scrolls = 0
-            while !(toggle.exists && toggle.isHittable) && scrolls < 15 { app.swipeUp(); scrolls += 1; usleep(800_000) }
-            guard toggle.exists && toggle.isHittable else {
-                attachTree(app, "settings-no-one-step-switch"); XCTFail("no 'One-step bookmarking' switch in the Application preferences"); return
-            }
-            // A Compose switch is exposed as a Switch whose state is its `value` ("0"/"1"); `isSelected` did not move on the
-            // Mac run, so both are read. If the tap in the row's middle does not toggle, tap the thumb at the trailing end.
-            let state = { "\(toggle.value as? String ?? "nil")|\(toggle.isSelected)" }
-            let before = state()
-            attachTree(app, "settings-one-step-before (\(before))")
-            toggle.tap()
-            var changed = waitUntil(timeout: 4) { state() != before }
-            if !changed {
-                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
-                changed = waitUntil(timeout: 6) { state() != before }
-            }
-            if !changed { attachTree(app, "settings-one-step-unchanged (\(state()))"); shot(app, "settings-one-step-unchanged") }
-            XCTAssertTrue(changed, "the 'One-step bookmarking' switch stays '\(before)' (value|selected) after tapping it")
-            let back = app.buttons["Back"]
-            guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return }
-            back.tap()
-            XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 20), "did not return to the reading view")
-            // Back returns to the reading view with the drawer still open over it (Mac tree): close it so the page is reachable.
-            let scrim = app.buttons.matching(NSPredicate(format: "label == 'Close navigation menu'")).firstMatch
-            if scrim.waitForExistence(timeout: 5) {
-                scrim.tap()
-                XCTAssertTrue(waitUntil(timeout: 10) { !scrim.exists }, "the drawer did not close")
-            }
-            XCTAssertTrue(waitUntil(timeout: 20) { toolbarShown(app) }, "the reading toolbar is not back after the preferences")
-        }
+        _ = XCTContext.runActivity(named: "switch One-step bookmarking on") { _ in flipOneStepBookmarking(app) }
         XCTContext.runActivity(named: "one-step (disable_two_step_bookmarking)") { _ in
             guard longPressVisibleWord(app) else { return }
             let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
@@ -1313,6 +1290,48 @@ final class ReadingUITests: RealAppUITestCase {
                            "the single 'Bookmark' row is shown although two-step bookmarking is off")
             shot(app, "one-step-menu")
         }
+        // Put the setting back so it cannot leak into later tests (the settings store may survive `-resetDatabases`).
+        paneMargin(app).tap()
+        _ = XCTContext.runActivity(named: "switch One-step bookmarking off again") { _ in flipOneStepBookmarking(app) }
+    }
+
+    /// Flips "One-step bookmarking" (`disable_two_step_bookmarking`) in the Application preferences and returns to the
+    /// reading view (drawer closed). Returns false, failure recorded, when a step cannot be done.
+    @discardableResult
+    private func flipOneStepBookmarking(_ app: XCUIApplication) -> Bool {
+        guard openDrawerRow(app, "Application preferences") else { return false }
+        let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'One-step bookmarking'")).firstMatch
+        var scrolls = 0
+        while !(toggle.exists && toggle.isHittable) && scrolls < 15 { app.swipeUp(); scrolls += 1; usleep(800_000) }
+        guard toggle.exists && toggle.isHittable else {
+            attachTree(app, "settings-no-one-step-switch"); XCTFail("no 'One-step bookmarking' switch in the Application preferences"); return false
+        }
+        // A Compose switch is exposed as a Switch whose state is its `value` ("0"/"1"); `isSelected` did not move on the
+        // Mac run, so both are read. If the tap in the row's middle does not toggle, tap the thumb at the trailing end.
+        let state = { "\(toggle.value as? String ?? "nil")|\(toggle.isSelected)" }
+        let before = state()
+        attachTree(app, "settings-one-step-before (\(before))")
+        toggle.tap()
+        var changed = waitUntil(timeout: 4) { state() != before }
+        if !changed {
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+            changed = waitUntil(timeout: 6) { state() != before }
+        }
+        if !changed { attachTree(app, "settings-one-step-unchanged (\(state()))"); shot(app, "settings-one-step-unchanged") }
+        XCTAssertTrue(changed, "the 'One-step bookmarking' switch stays '\(before)' (value|selected) after tapping it")
+        let back = app.buttons["Back"]
+        guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return false }
+        back.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 20), "did not return to the reading view")
+        // Back returns to the reading view with the drawer still open over it (Mac tree): close it so the page is reachable.
+        let scrim = app.buttons.matching(NSPredicate(format: "label == 'Close navigation menu'")).firstMatch
+        if scrim.waitForExistence(timeout: 5) {
+            scrim.tap()
+            XCTAssertTrue(waitUntil(timeout: 10) { !scrim.exists }, "the drawer did not close")
+        }
+        XCTAssertTrue(waitUntil(timeout: 20) { toolbarShown(app) }, "the reading toolbar is not back after the preferences")
+
+        return true
     }
 
     // MARK: Task 11: drawer rows
