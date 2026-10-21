@@ -153,8 +153,11 @@ final class LegacyMigrationUITests: XCTestCase {
             return false
         }
         confirm.tap()
+        // The tap counts as the dismissal. Wait briefly for the fade-out, but do NOT require the dialog to disappear: the next
+        // notice is shown straight after, with the same tag, so "gone" may never happen between two notices.
         let predicate = NSPredicate { _, _ in !self.dialogConfirm(app, labels).exists }
-        return XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: app)], timeout: 10) == .completed
+        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: app)], timeout: 2.5)
+        return true
     }
 
     /// Dismisses the one-time notices one after the other; returns how many there were.
@@ -200,6 +203,39 @@ final class LegacyMigrationUITests: XCTestCase {
         return row
     }
 
+    /// Waits until [row] keeps the same frame for two samples: right after a swipe the list still scrolls, and a tap on a
+    /// moving row is cancelled (SyncAcceptanceUITests.waitForStableFrame does the same).
+    private func waitForStableFrame(_ row: XCUIElement) {
+        var last = row.frame
+        var stableSamples = 0
+        let deadline = Date().addingTimeInterval(5)
+        while Date() < deadline && stableSamples < 2 {
+            usleep(400_000)
+            let now = row.frame
+            stableSamples = (now == last && row.exists) ? stableSamples + 1 : 0
+            last = now
+        }
+    }
+
+    /// Scrolls to the settings row (see [openSettingsRow]), waits for it to stop moving and taps it. Retries the tap once
+    /// when [arrived] is still false afterwards. Returns whether [arrived] became true.
+    private func tapSettingsRow(_ app: XCUIApplication, startingWith text: String, buttonsOnly: Bool = true,
+                                arrived: () -> Bool) -> Bool {
+        for _ in 0..<2 {
+            let row = openSettingsRow(app, startingWith: text, buttonsOnly: buttonsOnly)
+            guard row.exists else { return false }
+            waitForStableFrame(row)
+            if row.isHittable { row.tap() }
+            let deadline = Date().addingTimeInterval(8)
+            while Date() < deadline {
+                dismissSystemAlert(app)
+                if arrived() { return true }
+                usleep(300_000)
+            }
+        }
+        return false
+    }
+
     // MARK: Tests
 
     /// `rich` (Finnish, discrete): the disguise comes first, nothing is visible before the PIN, then the three notices.
@@ -239,11 +275,12 @@ final class LegacyMigrationUITests: XCTestCase {
         shot(app, "i3b-extended-after-notices")
 
         // Same path as SyncAcceptanceUITests: the "Device synchronization" row, then the backend row proves the screen.
-        let sync = openSettingsRow(app, startingWith: "Device synchronization", buttonsOnly: true)
-        XCTAssertTrue(sync.exists && sync.isHittable, "Device synchronization row not reachable")
-        sync.tap()
+        let backendRow = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Synchronization Backend")).firstMatch
+        let opened = tapSettingsRow(app, startingWith: "Device synchronization") { backendRow.exists }
+        if !opened { diagnoseMissing(app, "sync-screen") }
+        XCTAssertTrue(opened, "Device synchronization screen did not open")
         let backend = openSettingsRow(app, startingWith: "Synchronization Backend", timeout: 20, buttonsOnly: true)
-        XCTAssertTrue(backend.exists, "Device synchronization screen did not open")
+        XCTAssertTrue(backend.exists, "Synchronization Backend row missing")
         shot(app, "i3b-extended-sync-screen")
         let server = openSettingsRow(app, startingWith: "Server URL", timeout: 30, buttonsOnly: true)
         XCTAssertTrue(server.exists, "Server URL row missing")
@@ -290,9 +327,13 @@ final class LegacyMigrationUITests: XCTestCase {
 
         // Settings: the import row is offered because the old stores are still there.
         let settings = launch(["-task5Settings"])
-        let row = openSettingsRow(settings, startingWith: "Import data from the previous app version")
-        XCTAssertTrue(row.waitForExistence(timeout: 60) && row.isHittable, "The import row is not offered")
-        row.tap()
+        // The row is primed at Ready and is the last of the Advanced category: scroll to it, let the list settle, tap.
+        let confirmButton = { self.dialogConfirm(settings, ["Yes", "Kyllä"]) }
+        let asked = tapSettingsRow(settings, startingWith: "Import data from the previous app version", buttonsOnly: false) {
+            confirmButton().exists
+        }
+        if !asked { diagnoseMissing(settings, "import-row") }
+        XCTAssertTrue(asked, "The import row is not offered or did not open its confirmation")
         XCTAssertTrue(confirmDialog(settings, timeout: 15, labels: ["Yes", "Kyllä"], name: "import-confirm"), "No import confirmation dialog")
         XCTAssertTrue(confirmDialog(settings, timeout: 15, name: "import-reopen"), "No 'reopen the app' message")
         settings.terminate()
