@@ -77,7 +77,9 @@ final class LegacyMigrationUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             dismissSystemAlert(app)
-            if element(app, "reading-host").exists || element(app, "welcome-screen").exists { return true }
+            // A notice dialog is modal and hides the screen behind it from the accessibility tree; notices are only shown
+            // after Ready, so its confirm button also means Ready.
+            if element(app, "reading-host").exists || element(app, "welcome-screen").exists || element(app, "dialog-confirm").exists { return true }
             usleep(300_000)
         }
         return false
@@ -280,6 +282,17 @@ final class LegacyMigrationUITests: XCTestCase {
         shot(app, "i3b-extended-after-notices")
 
         // Same path as SyncAcceptanceUITests: the "Device synchronization" row, then the backend row proves the screen.
+        // Proof that isSelected can tell on from off, on the Application preferences screen: a default-on and a default-off switch.
+        func prefSwitch(_ label: String) -> XCUIElement {
+            let sw = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch
+            for _ in 0..<15 where !sw.exists { app.swipeUp() }
+            return sw
+        }
+        let overlayOn = prefSwitch("Hide Bible reference overlay")
+        XCTAssertTrue(overlayOn.exists, "Reference switch 'Hide Bible reference overlay' not found")
+        XCTAssertTrue(overlayOn.isSelected, "A switch that is on must report isSelected (else the sync-off assertion is vacuous)")
+        let statusOff = prefSwitch("Hide status bar")
+        if statusOff.exists { XCTAssertFalse(statusOff.isSelected, "A switch that is off must not report isSelected") }
         let backendRow = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Synchronization Backend")).firstMatch
         let opened = tapSettingsRow(app, startingWith: "Device synchronization") { backendRow.exists }
         if !opened { diagnoseMissing(app, "sync-screen") }
@@ -295,11 +308,9 @@ final class LegacyMigrationUITests: XCTestCase {
         let bookmarks = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", "Bookmarks")).firstMatch
         for _ in 0..<10 where !(bookmarks.exists && bookmarks.isHittable) { app.swipeUp() }
         if bookmarks.exists {
-            // A Switch exposes its state as value "0"/"1" (isSelected is not reliable for it). The value is logged so a run
-            // shows what was read; the other category switches give the "can be 1" reference.
-            let value = String(describing: bookmarks.value ?? "nil")
-            print("I3B-SWITCH Bookmarks value=\(value) isSelected=\(bookmarks.isSelected)")
-            XCTAssertEqual(value, "0", "Sync must stay off after the migration (Bookmarks switch value)")
+            // Compose switches expose NO value; they expose the Selected trait, so isSelected is the signal. Logged for the run.
+            print("I3B-SWITCH Bookmarks isSelected=\(bookmarks.isSelected) value=\(String(describing: bookmarks.value ?? "nil"))")
+            XCTAssertFalse(bookmarks.isSelected, "Sync must stay off after the migration (Bookmarks switch)")
         } else {
             diagnoseMissing(app, "bookmarks-sync-switch")
             XCTFail("Bookmarks sync switch not found")
@@ -363,6 +374,9 @@ final class LegacyMigrationUITests: XCTestCase {
             diagnoseMissing(relaunched, "import-launch")
         }
         XCTAssertTrue(importReady, "The import launch did not reach Ready")
+        // The Nextcloud notice of the re-imported data covers the screen (it is modal); dismiss it, then Ready must be visible.
+        _ = dismissNotices(relaunched, firstTimeout: 10, quietTimeout: 6)
+        XCTAssertTrue(isReady(relaunched), "No reading view or Welcome after the import notices")
         XCTAssertFalse(element(relaunched, "legacy-recovery").exists)
         XCTAssertFalse(element(relaunched, "legacy-progress").exists)
         shot(relaunched, "i3b-after-import")
