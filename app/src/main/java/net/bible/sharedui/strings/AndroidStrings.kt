@@ -1164,11 +1164,4 @@ class AndroidStrings(private val context: Context) : Strings {
     override val legacyMigrationStartFreshConfirm: String get() = context.getString(R.string.legacy_migration_start_fresh_confirm)
     override val legacyImportTitle: String get() = context.getString(R.string.legacy_import_title)
     override val legacyImportSummary: String get() = context.getString(R.string.legacy_import_summary)
-    override val legacyImportConfirm: String get() = context.getString(R.string.legacy_import_confirm)
-    override val legacyImportReopen: String get() = context.getString(R.string.legacy_import_reopen)
-    override val legacyNoticeIcloud: String get() = context.getString(R.string.legacy_notice_icloud)
-    override val legacyNoticeNextcloud: String get() = context.getString(R.string.legacy_notice_nextcloud)
-    override val legacyNoticeNextcloudUnsent: String get() = context.getString(R.string.legacy_notice_nextcloud_unsent)
-    override fun legacyNoticeBookmarksSkipped(count: Int): String =
-        context.getString(R.string.legacy_notice_bookmarks_skipped, count)
 }

@@ -58,7 +58,7 @@ internal object IosLegacyNotices {
                 LegacyNotice.ICLOUD_SYNC_MOVED -> table.text("legacy_notice_icloud")
                 LegacyNotice.NEXTCLOUD_SYNC_OFF -> table.text("legacy_notice_nextcloud")
                 LegacyNotice.NEXTCLOUD_UNSENT -> table.text("legacy_notice_nextcloud_unsent")
-                LegacyNotice.BOOKMARKS_SKIPPED -> table.fmt("legacy_notice_bookmarks_skipped", applier.skippedBookmarks)
+                LegacyNotice.BOOKMARKS_SKIPPED -> table.pluralFormat("legacy_notice_bookmarks_skipped", applier.skippedBookmarks, applier.skippedBookmarks)
             }
             val result = dialogs.await(AppDialogRequest.Message(title = null, message = text, confirmText = table.text("okay")))
             if (result != AppDialogResult.Ok) return // dropped (cancelAll): not answered, stays pending

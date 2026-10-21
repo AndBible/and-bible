@@ -950,6 +950,19 @@ class LegacyMigratorTest {
     }
 
     @Test
+    fun adoptedDatabaseMovesAreMadeDurableByOneDirectorySyncBeforeTheDoneMarker() {
+        val e = env()
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(recording))
+        val databaseSyncs = recording.calls.withIndex().filter { it.value.path == e.platform.databasesDir }
+        assertEquals(1, databaseSyncs.size, "the databases directory is synced once after the moves: ${recording.synced}")
+        val doneSync = recording.synced.indexOfFirst { it.name == "done.json.tmp" }
+        assertTrue(doneSync > databaseSyncs.single().index, "databases directory synced before the done marker is written")
+        val children = databaseSyncs.single().value.children
+        assertTrue(children.isNotEmpty(), "the moves already happened at the sync: $children")
+    }
+
+    @Test
     fun httpCustomRepositoryKeptVerbatim() {
         // W10: a repository whose source URL is plain http is migrated as it is; it is neither upgraded nor reported as skipped.
         val e = env()

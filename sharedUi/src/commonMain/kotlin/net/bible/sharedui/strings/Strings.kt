@@ -1242,12 +1242,6 @@ interface Strings {
     val legacyMigrationStartFreshConfirm: String       // R.string.legacy_migration_start_fresh_confirm
     val legacyImportTitle: String                      // R.string.legacy_import_title
     val legacyImportSummary: String                    // R.string.legacy_import_summary
-    val legacyImportConfirm: String                    // R.string.legacy_import_confirm
-    val legacyImportReopen: String                     // R.string.legacy_import_reopen
-    val legacyNoticeIcloud: String                     // R.string.legacy_notice_icloud
-    val legacyNoticeNextcloud: String                  // R.string.legacy_notice_nextcloud
-    val legacyNoticeNextcloudUnsent: String            // R.string.legacy_notice_nextcloud_unsent
-    fun legacyNoticeBookmarksSkipped(count: Int): String // R.string.legacy_notice_bookmarks_skipped
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

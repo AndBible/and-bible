@@ -35,6 +35,12 @@ class LegacyMigrationControl(private val fs: FileSystem, applicationSupport: Pat
     /** The migration needs no further decision: it completed (or found nothing) or the user declined it. */
     fun isSettled(): Boolean = fs.exists(doneFile) || fs.exists(declinedFile)
 
+    /** The user declined the migration (`declined.json`); a later import request clears this. */
+    fun isDeclined(): Boolean = fs.exists(declinedFile)
+
+    /** The migration committed (`done.json` exists), whether or not its extras were applied yet. */
+    fun isCommitted(): Boolean = fs.exists(doneFile)
+
     fun decline(reason: DeclineReason) {
         fs.createDirectories(dir)
         val name = when (reason) { DeclineReason.START_FRESH -> "startFresh"; DeclineReason.RESTORED_BACKUP -> "restoredBackup" }

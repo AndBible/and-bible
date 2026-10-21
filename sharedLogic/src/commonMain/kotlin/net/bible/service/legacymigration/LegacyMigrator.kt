@@ -283,6 +283,8 @@ class LegacyMigrator(
             current = current.copy(phase = MigrationPhase.ADOPTING, plan = plan, moved = emptyList())
             states.write(current) // the intent is on disk before the first move
             current = adopter.move(current) { hook(Step.ADOPT_FIRST_MOVE) }
+            // One directory sync makes every adopted rename durable before the done marker can commit them.
+            if (fs.exists(platform.databasesDir)) platform.syncFile(platform.databasesDir)
             if (replaceExisting && fs.exists(replacedDir)) atomicWrite(replacedDir / IMPORT_MARKER, "import")
             hook(Step.ADOPT_DONE)
 

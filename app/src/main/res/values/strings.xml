@@ -2180,5 +2180,8 @@
     <string name="legacy_notice_icloud">Sync now uses iCloud Drive. Turn it on again in Settings → Sync. This device keeps what it had; changes from your other devices arrive once sync is set up again. To free the old iCloud data: Settings → your name → iCloud → Manage Storage → AndBible.</string>
     <string name="legacy_notice_nextcloud">Your Nextcloud connection was carried over, but sync is off. Turn it on in Settings → Sync and choose to fetch from the cloud or to create new.</string>
     <string name="legacy_notice_nextcloud_unsent">Some changes on this device had not been sent to Nextcloud yet. They were not sent and stay only on this device.</string>
-    <string name="legacy_notice_bookmarks_skipped">%1$d bookmarks could not be placed reliably and were not imported. They are kept with your old data on this device.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d bookmark could not be placed reliably and was not imported. It is kept with your old data on this device.</item>
+        <item quantity="other">%1$d bookmarks could not be placed reliably and were not imported. They are kept with your old data on this device.</item>
+    </plurals>
 </resources>

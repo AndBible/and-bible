@@ -55,9 +55,11 @@ import platform.Security.kSecReturnData
 import platform.objc.class_getName
 import platform.objc.object_getClass
 import platform.CoreFoundation.kCFBooleanFalse
+import platform.posix.F_FULLFSYNC
 import platform.posix.O_RDONLY
 import platform.posix.close
 import platform.posix.errno
+import platform.posix.fcntl
 import platform.posix.fsync
 import platform.posix.memcpy
 import platform.posix.open
@@ -127,13 +129,15 @@ class IosLegacyPlatform(override val secrets: SecretStore) : LegacyPlatform {
     }
 
     /**
-     * `open(O_RDONLY)` + `fsync` + `close`; opening read-only also works for a directory, which is how the rename of a
+     * `open(O_RDONLY)` + `fcntl(F_FULLFSYNC)` (plain `fsync` when the file system does not support it) + `close`; opening read-only also works for a directory, which is how the rename of a
      * file is made durable. Throws an [IOException] naming the failing call when the path is missing or cannot be synced.
      */
     override fun syncFile(path: Path) {
         val fd = open(path.toString(), O_RDONLY)
         if (fd < 0) throw IOException("syncFile: open failed for $path: ${strerror(errno)?.toKString()}")
         try {
+            // fsync on Apple platforms does not flush the drive cache; F_FULLFSYNC does, but not every file system supports it.
+            if (fcntl(fd, F_FULLFSYNC) != -1) return
             if (fsync(fd) != 0) throw IOException("syncFile: fsync failed for $path: ${strerror(errno)?.toKString()}")
         } finally {
             close(fd)

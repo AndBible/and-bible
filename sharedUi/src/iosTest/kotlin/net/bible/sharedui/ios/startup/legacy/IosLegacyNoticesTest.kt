@@ -61,7 +61,7 @@ class IosLegacyNoticesTest {
         tag = "en",
         text = { "T:$it" },
         format = { key, args -> "F:$key:${args.joinToString(",")}" },
-        plural = { n, _ -> n },
+        plural = { n, c -> "P:$n:$c:%1\$d" },
         array = { emptyList() },
     )
 
@@ -99,7 +99,7 @@ class IosLegacyNoticesTest {
         responder.cancelAndJoin()
 
         assertEquals(
-            listOf("T:legacy_notice_icloud", "T:legacy_notice_nextcloud", "T:legacy_notice_nextcloud_unsent", "F:legacy_notice_bookmarks_skipped:2"),
+            listOf("T:legacy_notice_icloud", "T:legacy_notice_nextcloud", "T:legacy_notice_nextcloud_unsent", "P:legacy_notice_bookmarks_skipped:2:2"),
             shown,
         )
         assertEquals("NEXT_CLOUD", settings.map["sync_adapter"])

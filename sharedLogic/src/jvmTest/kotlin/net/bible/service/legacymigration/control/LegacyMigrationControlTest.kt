@@ -38,6 +38,18 @@ class LegacyMigrationControlTest {
     private fun file(c: LegacyMigrationControl, name: String) = File(c.dir.toString(), name)
 
     @Test
+    fun declinedAndCommittedAreSeparateFromSettled() {
+        val c = control(platform())
+        assertFalse(c.isDeclined())
+        assertFalse(c.isCommitted())
+        c.decline(DeclineReason.START_FRESH)
+        assertTrue(c.isDeclined())
+        assertFalse(c.isCommitted())
+        c.requestImport()
+        assertFalse(c.isDeclined(), "an import request clears the decline")
+    }
+
+    @Test
     fun declineMakesSettled() {
         val p = platform()
         val c = control(p)
