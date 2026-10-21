@@ -38,7 +38,7 @@ import platform.WebKit.WKWebView
 import platform.darwin.NSObject
 
 /**
- * Attaches the reading gestures to one pane's WKWebView and feeds [IosReadingGestures]: a two-tap recogniser, left and
+ * Attaches the reading gestures to one pane's WKWebView and feeds [IosReadingGestures]: a two-tap recogniser, a non-cancelling tap recogniser that reports touches, left and
  * right swipe recognisers, and an observer of the scroll view's own pan recogniser for the auto-full-screen deltas.
  *
  * Nothing of WebKit is replaced (builder's call: no KVO on `contentOffset` and no scroll-delegate forwarding). The
@@ -59,6 +59,13 @@ internal class IosReadingGestureRecognisers(
         numberOfTapsRequired = 2u
         delegate = this@IosReadingGestureRecognisers
     }
+    /** Reports every tap to the host without consuming it (links, selection and WebKit's own taps still get the touch). */
+    private val touch = UITapGestureRecognizer(target = this, action = NSSelectorFromString("touched:")).apply {
+        cancelsTouchesInView = false
+        delaysTouchesBegan = false
+        delaysTouchesEnded = false
+        delegate = this@IosReadingGestureRecognisers
+    }
     private val swipeLeft = UISwipeGestureRecognizer(target = this, action = NSSelectorFromString("swipedLeft:")).apply {
         direction = UISwipeGestureRecognizerDirectionLeft
         delegate = this@IosReadingGestureRecognisers
@@ -75,6 +82,7 @@ internal class IosReadingGestureRecognisers(
         if (attached) return
         attached = true
         webView.addGestureRecognizer(doubleTap)
+        webView.addGestureRecognizer(touch)
         webView.addGestureRecognizer(swipeLeft)
         webView.addGestureRecognizer(swipeRight)
         webView.scrollView.panGestureRecognizer.addTarget(this, NSSelectorFromString("scrollPanned:"))
@@ -85,6 +93,7 @@ internal class IosReadingGestureRecognisers(
         if (!attached) return
         attached = false
         webView.removeGestureRecognizer(doubleTap)
+        webView.removeGestureRecognizer(touch)
         webView.removeGestureRecognizer(swipeLeft)
         webView.removeGestureRecognizer(swipeRight)
         webView.scrollView.panGestureRecognizer.removeTarget(this, NSSelectorFromString("scrollPanned:"))
@@ -97,6 +106,9 @@ internal class IosReadingGestureRecognisers(
 
     @ObjCAction
     fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()
+
+    @ObjCAction
+    fun touched(sender: UIGestureRecognizer) = gestures.onTouched()
 
     @ObjCAction
     fun swipedLeft(sender: UIGestureRecognizer) = gestures.onSwipe(windowId, towardsNext = true)

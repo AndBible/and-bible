@@ -275,6 +275,17 @@ class ReadingHostStateTest {
     }
 
     @Test
+    fun bibleViewTouchRestartsTheWindowButtonsTimer() {
+        val state = fixture().state
+        state.windowButtonsVisibility.onHideTimeout()
+        assertFalse(state.windowButtonsVisibility.visible.value)
+        val tick = state.windowButtonsVisibility.touchTick.value
+        state.onBibleViewTouched()
+        assertTrue(state.windowButtonsVisibility.visible.value)
+        assertTrue(state.windowButtonsVisibility.touchTick.value > tick)
+    }
+
+    @Test
     fun drawerToggleOpenClose() {
         val state = fixture().state
         state.toggleDrawer(); assertTrue(state.isDrawerOpen)

@@ -366,6 +366,9 @@ class ReadingHostState(
     val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
     val paneMenuAnchor = mutableStateOf(PaneMenuAnchor.Pane)
 
+    /** A touch on a Bible view: shows the window buttons (and the full-screen overlay) and restarts their idle timer. */
+    fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
+
     /**
      * Opens the ☰ menu for [windowId] anchored to [anchor]. Forces the pane buttons visible first
      * (classic `showPopupMenu`), so a menu opened from the rail while the floating button is

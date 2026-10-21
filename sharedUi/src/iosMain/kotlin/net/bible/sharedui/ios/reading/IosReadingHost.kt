@@ -213,6 +213,7 @@ class IosReadingHost(
             isRtl = ::iosIsRightToLeft,
             onSwipe = IosReadingWindows::performSwipe,
             setFullScreen = ::setFullScreen,
+            onPaneTouched = { hostState.onBibleViewTouched() },
         )
     }
 

@@ -53,6 +53,17 @@ class IosReadingGesturesTest {
         for (i in 0 until steps) gestures.onScroll(-stepPoints, startMillis + i * 10L)
     }
 
+    @Test fun touchesAndScrollStartsReportPaneTouched() {
+        var touched = 0
+        val g = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = { touched++ })
+        g.onTouched()
+        assertEquals(1, touched)
+        g.onScrollGestureBegan(10L)
+        assertEquals(2, touched)
+        g.onScroll(-30f, 20L)
+        assertEquals(2, touched)
+    }
+
     @Test fun doubleTapEntersAndLocks() {
         gestures.onDoubleTap()
         assertTrue(fullScreen.state.value)

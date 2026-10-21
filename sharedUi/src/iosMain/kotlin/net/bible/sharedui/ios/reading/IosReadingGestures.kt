@@ -40,6 +40,9 @@ import net.bible.sharedui.reading.host.ReadingFullScreen
  * @param setFullScreen how a full-screen change is applied. The default only changes [fullScreen]; the host passes its own
  *   function so the status bar follows too (builder's call: a trailing parameter with a default keeps the planned
  *   constructor shape).
+ * @param onPaneTouched a finger touched a pane (a tap, or the start of a scroll drag): the host restarts the window buttons
+ *   timer, as Android's `BibleGestureListener` does through `onBibleViewTouched`, so the buttons and the full-screen Bible
+ *   reference overlay come back.
  * @param onSwipe receives the window the swipe was on and the decided action (never [SwipeAction.None]).
  */
 @kotlin.native.HiddenFromObjC
@@ -48,6 +51,7 @@ class IosReadingGestures(
     private val settings: AppSettings,
     private val isRtl: () -> Boolean,
     private val onSwipe: (windowId: String, SwipeAction) -> Unit,
+    private val onPaneTouched: () -> Unit = {},
     private val setFullScreen: (value: Boolean, byDoubleTap: Boolean) -> Unit = { value, byDoubleTap -> fullScreen.set(value, byDoubleTap) },
 ) {
     private var tracking = AutoFullscreenTracking()
@@ -70,9 +74,13 @@ class IosReadingGestures(
         }
     }
 
+    /** A finger touched a pane (tap or start of a drag). Never consumes the touch. */
+    fun onTouched() = onPaneTouched()
+
     /** A finger went down on the pane's scroll view: the next [onScroll] calls belong to a new gesture (Android's `e1`). */
     fun onScrollGestureBegan(timestampMillis: Long) {
         gestureStartTime = timestampMillis
+        onPaneTouched()
     }
 
     /**
