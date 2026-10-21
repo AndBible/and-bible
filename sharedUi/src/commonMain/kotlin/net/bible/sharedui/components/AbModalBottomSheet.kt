@@ -116,11 +116,11 @@ fun AbModalBottomSheet(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AbSheetDragHandle(
+fun AbSheetDragHandle(
     description: String?,
     mono: Boolean,
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit = {},
+    onDismiss: (() -> Unit)? = null,
 ) {
     val handle: @Composable () -> Unit = {
         if (mono) BottomSheetDefaults.DragHandle(color = monoInk(LocalIsDarkTheme.current))
@@ -129,7 +129,7 @@ internal fun AbSheetDragHandle(
     if (description == null) handle()
     else Box(modifier.clearAndSetSemantics {
         contentDescription = description
-        dismiss { onDismiss(); true }
+        if (onDismiss != null) dismiss { onDismiss(); true }
     }) { handle() }
 }
 

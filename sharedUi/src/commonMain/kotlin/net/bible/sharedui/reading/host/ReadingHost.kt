@@ -107,6 +107,8 @@ import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.search.readingSheetInsetPadding
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.AbSheetDragHandle
+import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
@@ -383,6 +385,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                 searchSheetContentHeightPx + searchSheetHandleHeightPx,
             )
         }
+        val searchHandleDescription = LocalSheetDragHandleDescription.current
         BottomSheetScaffold(
             scaffoldState = searchSheetState,
             sheetPeekHeight = 0.dp,
@@ -391,12 +394,23 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
             // edge-to-edge: clear the nav bar / cutout ourselves.
             snackbarHost = { SnackbarHost(searchSnackbarHostState, Modifier.readingSheetInsetPadding()) },
-            sheetDragHandle = {
+            // R3: with a drag-handle description (iOS) the handle is ONE named node drawn as the first row of the
+            // sheet content (the scaffold's own handle wrapper is an unlabelled element; see AbSheetDragHandle).
+            sheetDragHandle = if (searchHandleDescription != null) null else ({
                 Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
                     BottomSheetDefaults.DragHandle()
                 }
-            },
+            }),
             sheetContent = {
+                if (searchHandleDescription != null) {
+                    AbSheetDragHandle(
+                        description = searchHandleDescription,
+                        mono = false,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .onSizeChanged { size -> searchSheetHandleHeightPx = size.height },
+                    )
+                }
                 // Exactly as tall as its content, but never taller than [SearchSheetMaxHeightFraction]
                 // of the window, so the reading text it was opened from stays visible above it.
                 // `BoxWithConstraints` supplies that ceiling in Dp without reaching for a platform
