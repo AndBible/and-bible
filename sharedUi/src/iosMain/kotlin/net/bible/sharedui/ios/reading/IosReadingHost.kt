@@ -170,6 +170,10 @@ class IosReadingHost(
      * (Android: `AgentForegroundService.startAgent`).
      */
     private val startAgent: ((promptId: IdType, selection: Selection, userSpecification: String?, modelOverrideId: IdType?) -> Unit)? = null,
+    /** Starts a regenerate run (same starter); null runs [IosAgentStarter.startRegenerate]. */
+    private val startRegenerate: ((pageId: IdType, targetWindowId: IdType?, instructions: String?, keepPrevious: Boolean, freshRun: Boolean, modelOverrideId: IdType?) -> Unit)? = null,
+    /** Shows the "Regenerating…" notice in a window before a regenerate run starts (Android loads an `ErrorDocument`). */
+    private val showNotice: (windowId: String, text: String) -> Unit = IosReadingWindows::showNotice,
 ) {
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
@@ -263,6 +267,7 @@ class IosReadingHost(
             paneMenuItemsFor = ::paneMenuItemsFor,
             dismissLlmSheets = ::dismissLlmSheets,
             openPromptSelector = ::openPromptSelector,
+            openRegenerate = ::openRegenerate,
     )
 
     /**
@@ -277,7 +282,10 @@ class IosReadingHost(
         )
     }
 
-    private val agentStarter: IosAgentStarter by lazy { IosAgentStarter(scope, windowRepositoryId = { windowControl.windowRepository.id }) }
+    private val agentStarter: IosAgentStarter by lazy { IosAgentStarter(scope, windowRepositoryId = ::currentWorkspaceId) }
+
+    /** The workspace an agent run starts in (read at start time). */
+    internal fun currentWorkspaceId(): IdType = windowControl.windowRepository.id
 
     /** Dismisses the two SHEET-shaped AI dialogs; the AlertDialog-shaped ones stay (a dialog over a sheet is fine). */
     private fun dismissLlmSheets() {
@@ -296,6 +304,18 @@ class IosReadingHost(
             val model = modelOverrideId?.let { IdType(it) }
             val start = startAgent ?: agentStarter::start
             start(IdType(promptId), selection, userSpecification, model)
+        }
+    }
+
+    /**
+     * Android's `ComposeReadingViewHost.showRegenerate`: the regenerate confirmation for the AI page [pageId], asked from
+     * the window [windowId] (that window shows the result and the "Regenerating…" notice, never the active one by default).
+     */
+    internal fun openRegenerate(pageId: IdType, windowId: IdType) {
+        llmDialogs.openRegenerate(pageId.toString()) { _, instructions, keepPrevious, freshRun, modelOverrideId ->
+            showNotice(windowId.toString(), strings().aiDocumentRegenerating)
+            val start = startRegenerate ?: agentStarter::startRegenerate
+            start(pageId, windowId, instructions, keepPrevious, freshRun, modelOverrideId?.let { IdType(it) })
         }
     }
 

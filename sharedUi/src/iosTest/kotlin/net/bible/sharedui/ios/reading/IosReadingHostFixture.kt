@@ -60,6 +60,8 @@ internal fun withIosReadingHost(
     llmConfigured: (() -> Boolean)? = null,
     llmService: (() -> ReadingLlmService)? = null,
     startAgent: ((IdType, Selection, String?, IdType?) -> Unit)? = null,
+    startRegenerate: ((IdType, IdType?, String?, Boolean, Boolean, IdType?) -> Unit)? = null,
+    showNotice: (windowId: String, text: String) -> Unit = { _, _ -> },
     block: (host: IosReadingHost, deps: ReadingHostDeps) -> Unit,
 ) {
     try {
@@ -85,6 +87,8 @@ internal fun withIosReadingHost(
             llmConfiguredSource = llmConfigured ?: IosReadingHost.defaultLlmConfigured(koin),
             llmService = llmService ?: { koin.get() },
             startAgent = startAgent,
+            startRegenerate = startRegenerate,
+            showNotice = showNotice,
         )
         try {
             block(host, host.deps(icons))

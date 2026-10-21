@@ -53,18 +53,23 @@ class IosAgentStarterTest {
         var expire: (() -> Unit)? = null
         var executed: List<Any?>? = null
         var stopped = mutableListOf<IdType>()
+        var regenerated: List<Any?>? = null
     }
 
     private fun starter(
         r: Recorder,
         scope: CoroutineScope,
         prompt: AgentPrompt?,
+        currentWorkspace: () -> IdType = { workspace },
         execute: suspend (AgentPrompt, Selection, String?, IdType?) -> Boolean = { p, s, u, m ->
             r.events += "execute"; r.executed = listOf(p, s, u, m); true
         },
     ) = IosAgentStarter(
         scope = scope,
-        windowRepositoryId = { workspace },
+        windowRepositoryId = currentWorkspace,
+        regenerate = { page, target, text, keep, fresh, model ->
+            r.events += "regenerate"; r.regenerated = listOf(page, target, text, keep, fresh, model); true
+        },
         promptById = { id -> r.events += "lookup"; if (id == promptId) prompt else null },
         execute = execute,
         stopAgent = { r.stopped += it; r.events += "stop" },
@@ -89,6 +94,34 @@ class IosAgentStarterTest {
         // A run that already ended has nothing left to stop when iOS later fires the expiry handler.
         r.expire!!.invoke()
         assertEquals<List<IdType>>(emptyList(), r.stopped)
+        scope.cancel()
+    }
+
+    @Test
+    fun startRegenerateRunsRegenerateInsideTheBackgroundTask() {
+        val r = Recorder()
+        val scope = unconfined()
+        val page = IdType(); val target = IdType(); val model = IdType()
+        starter(r, scope, prompt = null).startRegenerate(page, target, "shorter", true, false, model)
+        assertEquals(listOf<Any?>(page, target, "shorter", true, false, model), r.regenerated)
+        assertEquals(listOf("begin", "regenerate", "end:7"), r.events)
+        scope.cancel()
+    }
+
+    /** The workspace is read when the run starts, not when the starter was built: expiry stops the one current then. */
+    @Test
+    fun expiryStopsTheWorkspaceThatWasCurrentAtStart() {
+        val r = Recorder()
+        val scope = unconfined()
+        val first = IdType(); val second = IdType()
+        var current = first
+        val gate = CompletableDeferred<Unit>()
+        val s = starter(r, scope, AgentPrompt(id = promptId), { current }) { _, _, _, _ -> gate.await(); true }
+        current = second
+        s.start(promptId, selection, null, null)
+        current = IdType() // the user switches workspace while the run is going
+        r.expire!!.invoke()
+        assertEquals(listOf(second), r.stopped)
         scope.cancel()
     }
 
@@ -172,5 +205,57 @@ class IosAgentStarterTest {
             assertEquals(listOf(listOf<Any?>(IdType(id), selection, null, null)), started)
             assertEquals(ReadingLlmDialog.None, deps.llmDialog.value.dialog, "the dialog closes after the run was handed over")
         }
+    }
+
+    /** The regenerate control: the hook opens the confirmation, confirming shows the notice in the ASKING window and starts the run. */
+    @Test
+    fun regenerateHookConfirmsThenNoticesTheAskingWindowAndStartsTheRun() {
+        val service = FakeService(ReadingPromptVd(IdType().toString(), "Explain", "", isFavorite = false, specifyBeforeRun = false))
+        val notices = mutableListOf<Pair<String, String>>()
+        val runs = mutableListOf<List<Any?>>()
+        val page = IdType(); val asking = IdType()
+        withIosReadingHost(
+            scope = unconfined(),
+            llmService = { service },
+            startRegenerate = { p, w, i, k, f, m -> runs += listOf(p, w, i, k, f, m) },
+            showNotice = { w, t -> notices += w to t },
+        ) { host, deps ->
+            host.hooks.openRegenerate(page, asking)
+            assertEquals(ReadingLlmDialog.Regenerate(page.toString()), deps.llmDialog.value.dialog)
+            assertEquals(emptyList(), runs, "nothing runs before the confirmation")
+
+            deps.onLlmRegenerateConfirmed("more detail", true, false)
+
+            assertEquals(listOf(listOf<Any?>(page, asking, "more detail", true, false, null)), runs)
+            assertEquals(listOf(asking.toString() to net.bible.sharedui.strings.iosStrings("en").aiDocumentRegenerating), notices)
+            assertEquals(ReadingLlmDialog.None, deps.llmDialog.value.dialog)
+        }
+    }
+
+    /** The selection menu's AI action asks for VERSE_SELECTION and the category of the window the selection is in. */
+    @Test
+    fun selectionActionOpensTheSelectorForTheSelectionsWindow() {
+        val service = FakeService(ReadingPromptVd(IdType().toString(), "Explain", "", isFavorite = false, specifyBeforeRun = false))
+        withIosReadingHost(scope = unconfined(), llmService = { service }) { host, _ ->
+            val window = run {
+                org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().activeWindow
+            }
+            val book = org.crosswire.jsword.book.Books.installed().getBook("K4RawText")!!
+            window.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+            val category = window.pageManager.currentPage.documentCategory
+
+            host.openSelectionPromptSelector(window.id.toString(), selection)
+
+            assertEquals<List<Pair<String, String?>>>(listOf("VERSE_SELECTION" to category.name), service.requested)
+        }
+    }
+
+    /** The production starter reads the workspace through the host's window control. */
+    @Test
+    fun hostWorkspaceIdIsTheWindowRepositoryId() = withIosReadingHost { host, _ ->
+        assertEquals(
+            org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().windowRepository.id,
+            host.currentWorkspaceId(),
+        )
     }
 }

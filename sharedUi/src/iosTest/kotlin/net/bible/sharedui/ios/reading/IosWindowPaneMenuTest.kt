@@ -72,4 +72,35 @@ class IosWindowPaneMenuTest {
         assertNull(windowMenuSelection(null, "Gen.1.1"))
         assertNull(windowMenuSelection("KJV", null))
     }
+
+    /** The row on a window with a document: WINDOW_MENU, the whole-page selection of that window, and its category. */
+    @Test
+    fun llmActionsOpensThePromptSelectorForTheWindowsPage() {
+        val opened = mutableListOf<Triple<net.bible.android.view.activity.page.Selection, net.bible.service.llm.PromptContext, net.bible.android.control.page.DocumentCategory?>>()
+        withIosReadingHost { host, _ ->
+            val window = KoinPlatform.getKoin().get<WindowControl>().activeWindow
+            val book = org.crosswire.jsword.book.Books.installed().getBook("K4RawText")!!
+            window.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+            val page = window.pageManager.currentPage
+            val platform = IosWindowPaneMenuPlatform(
+                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+                windowControl = { KoinPlatform.getKoin().get() },
+                slots = { host.slots },
+                clipboard = KoinPlatform.getKoin().get(),
+                toast = {}, copiedMessage = { "" }, bridgeFor = { null },
+                openPromptSelector = { s, c, k -> opened += Triple(s, c, k) },
+            )
+
+            platform.llmActions(window)
+
+            assertEquals(1, opened.size)
+            val (selection, context, category) = opened.single()
+            assertEquals(net.bible.service.llm.PromptContext.WINDOW_MENU, context)
+            assertEquals("K4RawText", selection.bookInitials)
+            assertEquals(page.key!!.getOsisRef(), selection.osisRef)
+            assertEquals(-1, selection.startOrdinal)
+            assertEquals(-1, selection.endOrdinal)
+            assertEquals(page.documentCategory, category)
+        }
+    }
 }

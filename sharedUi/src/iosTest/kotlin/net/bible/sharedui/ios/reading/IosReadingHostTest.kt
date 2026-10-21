@@ -360,13 +360,11 @@ class IosReadingHostTest {
             "paneMenuItemsFor" to (h.paneMenuItemsFor !== defaults.paneMenuItemsFor),
             "dismissLlmSheets" to (h.dismissLlmSheets !== defaults.dismissLlmSheets),
             "openPromptSelector" to (h.openPromptSelector !== defaults.openPromptSelector),
+            "openRegenerate" to (h.openRegenerate !== defaults.openRegenerate),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
-        // INERT ALLOW-LIST (hooks): regenerate (the regenerate flow belongs to the AI document pages, not to Task 4's prompt
-        // selector; its dialog is driven by the same controller once a page asks), and the three optional overrides that
-        // default to the repository's own behaviour. The agent's permission prompt and question dialogs are real, in IosAgentPlatform.
+        // INERT ALLOW-LIST (hooks): the three optional overrides that default to the repository's own behaviour. The agent's permission prompt and question dialogs are real, in IosAgentPlatform.
         val inertHooks = mapOf(
-            "openRegenerate" to (h.openRegenerate === defaults.openRegenerate),
             "activeWindowId" to (h.activeWindowId == null),
             "historyItemsFor" to (h.historyItemsFor == null),
             "forVerseInitials" to (h.forVerseInitials == null),

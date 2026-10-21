@@ -26,6 +26,8 @@ import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.database.IdType
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.sword.SwordContentFacade
@@ -176,6 +178,15 @@ object IosReadingWindows {
             SwipeAction.PageDown -> a.session.emit(BibleViewEvents.scrollDown())
             SwipeAction.PageUp -> a.session.emit(BibleViewEvents.scrollUp())
             SwipeAction.None -> {}
+        }
+    }
+
+    /** Shows [text] in the window as a notice page (the "Regenerating…" placeholder while an AI page is rebuilt). */
+    fun showNotice(windowId: String, text: String) {
+        val a = assemblies[windowId] ?: return
+        val scope = binding?.scope ?: return
+        scope.launch {
+            a.loader.loadDocument(ErrorDocument(text, ErrorSeverity.NORMAL), updateLocation = false, key = null, anchorOrdinal = null, htmlId = null, windowContentGeneration = null)
         }
     }
 

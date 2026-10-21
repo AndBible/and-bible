@@ -57,6 +57,14 @@ class IosAgentStarter(
     private val execute: suspend (AgentPrompt, Selection, String?, IdType?) -> Boolean = { prompt, selection, spec, model ->
         AgentSessionManager.executePrompt(prompt, selection, userSpecification = spec, modelOverrideId = model)
     },
+    private val regenerate: suspend (IdType, IdType?, String?, Boolean, Boolean, IdType?) -> Boolean =
+        { pageId, targetWindowId, instructions, keepPrevious, freshRun, model ->
+            AgentSessionManager.regenerateAIDocument(
+                pageId, targetWindowId = targetWindowId, additionalInstructions = instructions,
+                keepPrevious = keepPrevious, freshRun = freshRun, modelOverrideId = model,
+            )
+        },
+    /** Stops the workspace's agent session; called on the main thread from the expiry handler, so it must not block (it does not: it cancels the run's job and logs). */
     private val stopAgent: (IdType) -> Unit = AgentSessionManager::stopAgent,
     private val beginBackgroundTask: (onExpire: () -> Unit) -> ULong = { onExpire ->
         UIApplication.sharedApplication.beginBackgroundTaskWithName("agent-run") { onExpire() }
@@ -69,7 +77,27 @@ class IosAgentStarter(
      * Starts the run and returns at once. A prompt that no longer exists, or a failing run, is logged and ends quietly
      * (Android's service does the same); the background task always ends.
      */
-    fun start(promptId: IdType, selection: Selection, userSpecification: String?, modelOverrideId: IdType?) {
+    fun start(promptId: IdType, selection: Selection, userSpecification: String?, modelOverrideId: IdType?) =
+        launchRun {
+            val prompt = promptById(promptId)
+            if (prompt == null) {
+                nsLog("IosAgentStarter: prompt not found: $promptId")
+            } else {
+                execute(prompt, selection, userSpecification, modelOverrideId)
+            }
+        }
+
+    /** Android's `AgentForegroundService.START_REGENERATE`: regenerates the AI page [pageId], showing the result in [targetWindowId]. */
+    fun startRegenerate(
+        pageId: IdType, targetWindowId: IdType?, additionalInstructions: String?, keepPrevious: Boolean, freshRun: Boolean,
+        modelOverrideId: IdType?,
+    ) = launchRun { regenerate(pageId, targetWindowId, additionalInstructions, keepPrevious, freshRun, modelOverrideId) }
+
+    /**
+     * Runs [body] in the background-task window. The workspace is read now: it is the one an expiry stops. A cancellation of
+     * the run by anything else needs no extra stop, `executePrompt` stops its own session when it is cancelled.
+     */
+    private fun launchRun(body: suspend () -> Unit) {
         val workspaceId = windowRepositoryId()
         val lock = NSRecursiveLock()
         var identifier: ULong? = null
@@ -104,12 +132,7 @@ class IosAgentStarter(
         // LAZY, like the Android service (F123): the job is known to the expiry handler before the run can end.
         val run = scope.launch(runContext, start = CoroutineStart.LAZY) {
             try {
-                val prompt = promptById(promptId)
-                if (prompt == null) {
-                    nsLog("IosAgentStarter: prompt not found: $promptId")
-                    return@launch
-                }
-                execute(prompt, selection, userSpecification, modelOverrideId)
+                body()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
