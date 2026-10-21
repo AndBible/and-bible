@@ -75,10 +75,24 @@ final class LegacyMigrationUITests: XCTestCase {
     private func waitForReady(_ app: XCUIApplication, timeout: TimeInterval = 120) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
+            dismissSystemAlert()
             if element(app, "reading-host").exists || element(app, "welcome-screen").exists { return true }
             usleep(300_000)
         }
         return false
+    }
+
+    /// Dismisses an iOS system alert from SpringBoard (discrete mode changes the app icon, and iOS then shows
+    /// "You have changed the icon for ..."; it blocks our Compose dialogs). Taps its first button (OK / Don't Allow).
+    /// Returns true when an alert was dismissed.
+    @discardableResult
+    private func dismissSystemAlert() -> Bool {
+        let alert = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch
+        guard alert.exists else { return false }
+        let button = alert.buttons.firstMatch
+        guard button.exists else { return false }
+        button.tap()
+        return true
     }
 
     private func isReady(_ app: XCUIApplication) -> Bool {
@@ -89,7 +103,13 @@ final class LegacyMigrationUITests: XCTestCase {
     /// Returns false when no dialog appeared within [timeout].
     private func confirmDialog(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
         let confirm = element(app, "dialog-confirm")
-        guard confirm.waitForExistence(timeout: timeout) else { return false }
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            dismissSystemAlert()
+            if confirm.exists { break }
+            usleep(300_000)
+        }
+        guard confirm.exists else { return false }
         confirm.tap()
         return gone(app, "dialog-confirm", timeout: 10)
     }
