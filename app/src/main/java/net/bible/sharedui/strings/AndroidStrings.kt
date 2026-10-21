@@ -1147,4 +1147,28 @@ class AndroidStrings(private val context: Context) : Strings {
     override val railExpandCollapse: String get() = context.getString(R.string.expand_collapse)
     override val paneWindowMenu: String get() = context.getString(R.string.window_menu_button)
     override val pasteFromClipboard: String get() = context.getString(R.string.paste_from_clipboard)
+
+    // I3b legacy migration: progress view, recovery screen, one-time notices
+    override val legacyMigrationProgress: String get() = context.getString(R.string.legacy_migration_progress)
+    override val legacyMigrationProgressNeutral: String get() = context.getString(R.string.legacy_migration_progress_neutral)
+    override val legacyMigrationFailedTitle: String get() = context.getString(R.string.legacy_migration_failed_title)
+    override val legacyMigrationFailedMessage: String get() = context.getString(R.string.legacy_migration_failed_message)
+    override val legacyMigrationFailedKeychain: String get() = context.getString(R.string.legacy_migration_failed_keychain)
+    override val legacyMigrationRollbackPending: String get() = context.getString(R.string.legacy_migration_rollback_pending)
+    override val legacyMigrationSaveOldData: String get() = context.getString(R.string.legacy_migration_save_old_data)
+    override val legacyMigrationSendReport: String get() = context.getString(R.string.legacy_migration_send_report)
+    override val legacyMigrationTryAgain: String get() = context.getString(R.string.legacy_migration_try_again)
+    override val legacyMigrationTryAgainHint: String get() = context.getString(R.string.legacy_migration_try_again_hint)
+    override val legacyMigrationRestoreBackup: String get() = context.getString(R.string.legacy_migration_restore_backup)
+    override val legacyMigrationStartFresh: String get() = context.getString(R.string.legacy_migration_start_fresh)
+    override val legacyMigrationStartFreshConfirm: String get() = context.getString(R.string.legacy_migration_start_fresh_confirm)
+    override val legacyImportTitle: String get() = context.getString(R.string.legacy_import_title)
+    override val legacyImportSummary: String get() = context.getString(R.string.legacy_import_summary)
+    override val legacyImportConfirm: String get() = context.getString(R.string.legacy_import_confirm)
+    override val legacyImportReopen: String get() = context.getString(R.string.legacy_import_reopen)
+    override val legacyNoticeIcloud: String get() = context.getString(R.string.legacy_notice_icloud)
+    override val legacyNoticeNextcloud: String get() = context.getString(R.string.legacy_notice_nextcloud)
+    override val legacyNoticeNextcloudUnsent: String get() = context.getString(R.string.legacy_notice_nextcloud_unsent)
+    override fun legacyNoticeBookmarksSkipped(count: Int): String =
+        context.getString(R.string.legacy_notice_bookmarks_skipped, count)
 }

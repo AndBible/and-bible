@@ -1225,6 +1225,29 @@ interface Strings {
     val railExpandCollapse: String               // R.string.expand_collapse (tab rail chevron)
     val paneWindowMenu: String                   // R.string.window_menu_button (a pane's ☰ window button, for screen readers)
     val pasteFromClipboard: String               // R.string.paste_from_clipboard
+
+    // I3b legacy migration: progress view, recovery screen, one-time notices
+    val legacyMigrationProgress: String                // R.string.legacy_migration_progress
+    val legacyMigrationProgressNeutral: String         // R.string.legacy_migration_progress_neutral
+    val legacyMigrationFailedTitle: String             // R.string.legacy_migration_failed_title
+    val legacyMigrationFailedMessage: String           // R.string.legacy_migration_failed_message
+    val legacyMigrationFailedKeychain: String          // R.string.legacy_migration_failed_keychain
+    val legacyMigrationRollbackPending: String         // R.string.legacy_migration_rollback_pending
+    val legacyMigrationSaveOldData: String             // R.string.legacy_migration_save_old_data
+    val legacyMigrationSendReport: String              // R.string.legacy_migration_send_report
+    val legacyMigrationTryAgain: String                // R.string.legacy_migration_try_again
+    val legacyMigrationTryAgainHint: String            // R.string.legacy_migration_try_again_hint
+    val legacyMigrationRestoreBackup: String           // R.string.legacy_migration_restore_backup
+    val legacyMigrationStartFresh: String              // R.string.legacy_migration_start_fresh
+    val legacyMigrationStartFreshConfirm: String       // R.string.legacy_migration_start_fresh_confirm
+    val legacyImportTitle: String                      // R.string.legacy_import_title
+    val legacyImportSummary: String                    // R.string.legacy_import_summary
+    val legacyImportConfirm: String                    // R.string.legacy_import_confirm
+    val legacyImportReopen: String                     // R.string.legacy_import_reopen
+    val legacyNoticeIcloud: String                     // R.string.legacy_notice_icloud
+    val legacyNoticeNextcloud: String                  // R.string.legacy_notice_nextcloud
+    val legacyNoticeNextcloudUnsent: String            // R.string.legacy_notice_nextcloud_unsent
+    fun legacyNoticeBookmarksSkipped(count: Int): String // R.string.legacy_notice_bookmarks_skipped
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

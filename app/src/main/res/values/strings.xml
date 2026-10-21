@@ -2159,4 +2159,26 @@
     <string name="window_unmaximise">Restore all windows</string>
     <string name="window_menu_button">Window menu</string>
     <string name="paste_from_clipboard">Paste</string>
+    <!-- I3b legacy migration -->
+    <string name="legacy_migration_progress">Updating your data…</string>
+    <string name="legacy_migration_progress_neutral">Updating…</string>
+    <string name="legacy_migration_failed_title">Your data could not be updated</string>
+    <string name="legacy_migration_failed_message">Your data from the previous version of the app is safe and unchanged on this device. Choose what to do next.</string>
+    <string name="legacy_migration_failed_keychain">Saved passwords from the previous version could not be read. Unlock your device, then close and reopen the app.</string>
+    <string name="legacy_migration_rollback_pending">The update was interrupted and is not fully undone yet. Close and reopen the app to finish undoing it.</string>
+    <string name="legacy_migration_save_old_data">Save old data</string>
+    <string name="legacy_migration_send_report">Send error report</string>
+    <string name="legacy_migration_try_again">Try again</string>
+    <string name="legacy_migration_try_again_hint">Close the app and open it again to try again.</string>
+    <string name="legacy_migration_restore_backup">Restore a backup</string>
+    <string name="legacy_migration_start_fresh">Start without old data</string>
+    <string name="legacy_migration_start_fresh_confirm">Your old data stays on this device. You can import it later in Settings.</string>
+    <string name="legacy_import_title">Import data from the previous app version</string>
+    <string name="legacy_import_summary">Replace the current data with the data of the previous app version</string>
+    <string name="legacy_import_confirm">This replaces your current workspaces, bookmarks and other data with the data of the previous app version. A copy of your current data is kept on this device.</string>
+    <string name="legacy_import_reopen">Close the app and open it again to import your data.</string>
+    <string name="legacy_notice_icloud">Sync now uses iCloud Drive. Turn it on again in Settings → Sync. This device keeps what it had; changes from your other devices arrive once sync is set up again. To free the old iCloud data: Settings → your name → iCloud → Manage Storage → AndBible.</string>
+    <string name="legacy_notice_nextcloud">Your Nextcloud connection was carried over, but sync is off. Turn it on in Settings → Sync and choose to fetch from the cloud or to create new.</string>
+    <string name="legacy_notice_nextcloud_unsent">Some changes on this device had not been sent to Nextcloud yet. They were not sent and stay only on this device.</string>
+    <string name="legacy_notice_bookmarks_skipped">%1$d bookmarks could not be placed reliably and were not imported. They are kept with your old data on this device.</string>
 </resources>
