@@ -101,7 +101,8 @@ class ReadingSearchState(
     internal val platform: ReadingSearchPlatform,
     private val indexJobs: SearchIndexJobs,
     services: ReadingSearchServices,
-    private val onLeaveFullScreen: () -> Unit,
+    /** The host's lambda; internal so a host test can invoke the very one the controller is given. */
+    internal val onLeaveFullScreen: () -> Unit,
     resultsScope: CoroutineScope = scope,
     private val pollPause: suspend () -> Unit = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },
 ) {

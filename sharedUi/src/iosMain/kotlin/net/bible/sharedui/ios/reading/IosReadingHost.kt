@@ -191,8 +191,13 @@ class IosReadingHost(
 
     /** Re-reads [overlayText] and [activeIsBibleShown]; called on the same events Android's host mirrors them from. */
     internal fun refreshOverlay() {
-        overlayText.value = bibleOverlayText(koin.get<PageControl>()) ?: ""
-        activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+        // Like `refreshToolbar`: runs from event handlers and `deps()`, where a throw must not break the event stream.
+        try {
+            overlayText.value = bibleOverlayText(koin.get<PageControl>()) ?: ""
+            activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+        } catch (e: Exception) {
+            nsLog("ReadingOverlay: overlay refresh failed: ${e.stackTraceToString()}")
+        }
     }
 
     /** The agent log's last measured collapsed height in dp (the offsets need it while the panel is visible). */

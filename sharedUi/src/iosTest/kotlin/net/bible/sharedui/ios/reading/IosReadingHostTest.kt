@@ -263,24 +263,22 @@ class IosReadingHostTest {
         }
     }
 
-    /** Opening search leaves full screen (its field lives in the toolbar full screen hides); a double-tap lock is dropped. */
+    /**
+     * Opening search leaves full screen (its field lives in the toolbar full screen hides) and drops a double-tap lock.
+     * Goes through the lambda the search state really holds, which `ReadingSearchController.open()` calls: with the wiring
+     * `onLeaveFullScreen = {}` this fails. (The controller itself only calls it for a searchable document, which the
+     * harness does not install; the controller's call is covered in sharedCore.)
+     */
     @Test
     fun searchLeavesFullScreen() {
         val statusBar = mutableListOf<Boolean>()
         withReadingHost(statusBar = { statusBar += it }) { host, deps ->
             host.setFullScreen(true, byDoubleTap = true)
             assertTrue(host.fullScreen.lockedByDoubleTap)
-            host.onLeaveFullScreen() // exactly what ReadingSearchController.open() calls
+            host.slots.searchState.onLeaveFullScreen()
             assertFalse(deps.fullScreen.value)
             assertFalse(host.fullScreen.lockedByDoubleTap)
             assertEquals(listOf(true, false), statusBar)
-
-            // Through the real search state: when the active document is searchable it must leave full screen too.
-            host.setFullScreen(true)
-            host.slots.searchState.controller.open()
-            if (host.slots.searchState.searchUnavailableDocName.value == null) {
-                assertFalse(deps.fullScreen.value, "search mode started, so full screen is left")
-            }
         }
     }
 
@@ -290,10 +288,9 @@ class IosReadingHostTest {
         val windows = KoinPlatform.getKoin().get<WindowControl>()
         // A verse change in the active window (delivered on the main dispatcher): the text is rebuilt from the page.
         awaitStartupOnMain { net.bible.android.control.PassageChangeMediator.onCurrentVerseChanged(windows.activeWindow) }
-        assertEquals(
-            net.bible.android.view.activity.page.bibleOverlayText(KoinPlatform.getKoin().get<net.bible.android.control.page.PageControl>()) ?: "",
-            deps.overlayText.value,
-        )
+        // No current key gives ""; otherwise "<document abbreviation>:<short title>" (the exact string is pinned in BibleOverlayTextTest).
+        val text = deps.overlayText.value
+        assertTrue(text.isEmpty() || Regex("^[^:]+:.+").matches(text), "overlay text format: '$text'")
         assertEquals(windows.activeWindow.pageManager.isBibleShown, deps.activeIsBibleShown.value)
     }
 

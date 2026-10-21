@@ -22,10 +22,6 @@ import platform.Foundation.NSNotificationCenter
 /** The notification [iosSetStatusBarHidden] posts; `userInfo["hidden"]` is a Boolean. The SwiftUI root listens to it. */
 internal const val IOS_STATUS_BAR_HIDDEN_NOTIFICATION: String = "net.bible.andbible.statusBarHidden"
 
-/** The last value given to [iosSetStatusBarHidden]; false until the first call. */
-internal var iosStatusBarHidden: Boolean = false
-    private set
-
 /**
  * Hides or shows the system status bar (full-screen reading hides it, leaving shows it again).
  *
@@ -41,7 +37,6 @@ internal var iosStatusBarHidden: Boolean = false
  */
 @kotlin.native.HiddenFromObjC
 fun iosSetStatusBarHidden(hidden: Boolean) {
-    iosStatusBarHidden = hidden
     NSNotificationCenter.defaultCenter.postNotificationName(
         IOS_STATUS_BAR_HIDDEN_NOTIFICATION,
         `object` = null,
