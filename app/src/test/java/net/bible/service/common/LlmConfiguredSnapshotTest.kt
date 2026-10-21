@@ -1,7 +1,21 @@
 package net.bible.service.common
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
+import net.bible.android.platform.AndroidLlmStrings
+import net.bible.android.view.activity.ai.PromptServiceImpl
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.test.KoinFactorySnapshot
+import org.koin.core.context.GlobalContext
+import org.koin.dsl.module
 import net.bible.service.cloudsync.CloudSync
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -27,18 +41,45 @@ import org.robolectric.annotation.Config
 class LlmConfiguredSnapshotTest {
     @After fun tearDown() { DatabaseResetter.resetDatabase() }
 
-    @Test fun readsTheSnapshotNotTheDatabase() = runBlocking {
-        val service = KoinJavaComponent.get<PromptService>(PromptService::class.java)
-        withTimeout(10_000) { service.ready.first { it } }
-        assertFalse(CommonUtils.settings.llmConfigured)
+    @Test fun readsTheSnapshotNotTheDatabase() = runTest {
+        // Startup also refreshes PromptService: finish it before installing the controlled service.
+        CommonUtils.awaitSnapshotLoadsAtEdge()
+        val koin = GlobalContext.get()
+        val saved = listOf(
+            KoinFactorySnapshot.of<AppCoroutineScope>(koin),
+            KoinFactorySnapshot.of<PromptService>(koin),
+        )
+        val owner = SupervisorJob()
+        val scope = AppCoroutineScope(owner + StandardTestDispatcher(testScheduler))
+        try {
+            koin.loadModules(listOf(module { single<AppCoroutineScope> { scope } }))
+            val service = PromptServiceImpl(AndroidLlmStrings(BibleApplication.application))
+            // StandardTestDispatcher has not run yet. The constructor registers its finite initial
+            // load before the three event collectors; ready alone does not join that sibling refresh.
+            val initialLoad = owner.children.first()
+            assertTrue("constructor load must still be queued", initialLoad.isActive && !initialLoad.isCompleted)
+            koin.loadModules(listOf(module { single<PromptService> { service } }))
+            withContext(Dispatchers.Default) { withTimeout(10_000) { initialLoad.join() } }
+            assertTrue("constructor load must finish before the database write", initialLoad.isCompleted)
+            assertTrue("constructor must publish the initial snapshot", service.ready.value)
+            assertFalse(CommonUtils.settings.llmConfigured)
 
-        // Written behind the snapshot's back: a database read would already see it.
-        DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().insert(LlmProviderConfig(providerType = "CUSTOM", displayName = "P"))
-        assertFalse("must not read the database", CommonUtils.settings.llmConfigured)
+            // Written behind the snapshot's back: a database read would already see it.
+            DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().insert(LlmProviderConfig(providerType = "CUSTOM", displayName = "P"))
+            runCurrent()
+            assertFalse("must not read the database", CommonUtils.settings.llmConfigured)
 
-        CommonUtils.aiSettings.notifyConfigChanged()
-        withTimeout(10_000) { service.configured.first { it } }
-        assertTrue(CommonUtils.settings.llmConfigured)
+            CommonUtils.aiSettings.notifyConfigChanged()
+            withContext(Dispatchers.Default) { withTimeout(10_000) { service.configured.first { it } } }
+            assertTrue(CommonUtils.settings.llmConfigured)
+        } finally {
+            owner.cancel()
+            try {
+                withContext(NonCancellable + Dispatchers.Default) { withTimeout(10_000) { owner.join() } }
+            } finally {
+                saved.asReversed().forEach { it.restore() }
+            }
+        }
     }
 
     private suspend fun readyService(): PromptService {
