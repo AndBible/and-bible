@@ -17,7 +17,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent.getKoin
@@ -44,6 +44,8 @@ class AppHostsConstructionTest {
     fun noDatabaseTouchOnConstruction() {
         resetComposeUiDispatcher()
         DatabaseContainer.ready = false
+        val original = DatabaseContainer.containerFactory
+        val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
@@ -55,8 +57,6 @@ class AppHostsConstructionTest {
             DatabaseContainer.detachInstanceForTest()
             // Witness: record who builds a container from here on, so a failure names the builder
             // (this test was red once in a full run and green alone, so the builder was a background thread).
-            originalFactory = DatabaseContainer.containerFactory
-            val original = originalFactory!!
             DatabaseContainer.containerFactory = {
                 builds += Throwable("container built on thread '${Thread.currentThread().name}'")
                 original()
@@ -71,20 +71,19 @@ class AppHostsConstructionTest {
                 graphs.myDocuments, graphs.chooser, graphs.workspace, graphs.backup, graphs.installZip, graphs.welcome,
             ).forEach { assertNotNull(it) }
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
-            assertNull(
-                "constructing the app hosts built the database container; builders: " +
-                    builds.joinToString("\n") { it.stackTraceToString().lines().take(40).joinToString("\n") },
-                DatabaseContainer.detachInstanceForTest(),
-            )
+            val leaked = DatabaseContainer.detachInstanceForTest()
+            if (leaked != null) {
+                fail(
+                    "constructing the app hosts built the database container; builders: " +
+                        builds.joinToString("\n") { it.stackTraceToString().lines().take(40).joinToString("\n") },
+                )
+            }
             shadowOf(Looper.getMainLooper()).idle()
         } finally {
-            originalFactory?.let { DatabaseContainer.containerFactory = it }
+            DatabaseContainer.containerFactory = original
             controller.close()
         }
     }
-
-    private var originalFactory: (() -> DatabaseContainer)? = null
-    private val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
 
     private fun channels() = AppResultChannels(
         readingProgress = NavResultChannel { },
