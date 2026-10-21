@@ -76,9 +76,10 @@ internal object IosLegacyMigrationRunner {
      * The decision of the process's one attempt; a waiter's cancellation does not cancel the attempt, and a finished
      * attempt (including a Recover decision) is never repeated in this process.
      *
-     * May throw: a failure while applying the extras (for example the `applied.json` write) or any unexpected error
-     * of the attempt. The caller must then never proceed to open the databases; the settled flag stays unset and the
-     * import request is kept. A failed attempt is not cached, so the next call repeats it, which is safe because the
+     * May throw: any unexpected error of the attempt, or a failure while applying the extras before the migration
+     * committed. The caller must then never proceed to open the databases; the settled flag stays unset and the
+     * import request is kept. (A failure to apply the extras after `done.json` was written does not throw: the answer is
+     * `Proceed` without the flag, and the next launch retries.) A failed attempt is not cached, so the next call repeats it, which is safe because the
      * migrator answers `AlreadyDone` and the extras applier is idempotent.
      */
     suspend fun run(): LegacyGateDecision {
@@ -94,11 +95,28 @@ internal object IosLegacyMigrationRunner {
         awaitProtectedData(hooks.protectedDataAvailable, hooks.awaitProtectedDataChange)
         val control = hooks.control
         val platform = hooks.platform
+        // The flag can be lost (app data restored, defaults cleared) while the user's decline is still on disk: restore the
+        // flag instead of asking again. A pending import request wins over a decline (requesting clears the decline anyway).
+        if (control.isDeclined() && !control.importRequested()) {
+            hooks.markSettled()
+            return LegacyGateDecision.Proceed
+        }
         val migrator = newMigrator(platform, replaceExisting = control.importRequested())
         val decision = decideGate(hooks.runMigrator(migrator))
         if (decision is LegacyGateDecision.Proceed) {
             // Order matters: a crash between the steps must leave the flag unset so the next launch re-enters the gate.
-            LegacyExtrasApplier(platform.fileSystem, control.dir, hooks.devicePrefs).applyBeforeDatabases()
+            try {
+                LegacyExtrasApplier(platform.fileSystem, control.dir, hooks.devicePrefs).applyBeforeDatabases()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The migration is committed (done.json): the data is safe, only the extras are pending. A no-exit error
+                // screen would be wrong, so this launch proceeds; the flag and the import request stay, so the next launch
+                // enters the gate, takes the AlreadyDone path and applies the extras again.
+                if (!control.isCommitted()) throw e
+                nsLog("legacy migration: applying the extras failed after the commit, retried next launch: ${e.stackTraceToString()}")
+                return decision
+            }
             control.clearImportRequest()
             hooks.markSettled()
         }

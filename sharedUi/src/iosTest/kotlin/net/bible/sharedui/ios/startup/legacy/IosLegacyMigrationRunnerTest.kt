@@ -199,6 +199,58 @@ class IosLegacyMigrationRunnerTest {
         assertTrue("settled" in events)
     }
 
+    @Test fun lostFlagWithDeclinedJsonRestoresTheFlagWithoutRunningTheMigrator() = blocking {
+        var runs = 0
+        val h = hooks { runs++; LegacyMigrationOutcome.NothingToMigrate }
+        h.control.decline(net.bible.service.legacymigration.control.DeclineReason.START_FRESH)
+        IosLegacyMigrationRunner.testHooks = h
+
+        assertEquals(LegacyGateDecision.Proceed, IosLegacyMigrationRunner.run())
+
+        assertEquals(0, runs, "a declined migration must not run again")
+        assertEquals(listOf("settled"), events)
+    }
+
+    @Test fun anImportRequestBeatsAStaleDeclineMarker() = blocking {
+        var runs = 0
+        val h = hooks { runs++; LegacyMigrationOutcome.NothingToMigrate }
+        h.control.decline(net.bible.service.legacymigration.control.DeclineReason.START_FRESH)
+        h.control.requestImport()
+        FileSystem.SYSTEM.write(h.control.dir / "declined.json") { writeUtf8("{}") } // a stale marker next to the request
+        IosLegacyMigrationRunner.testHooks = h
+
+        assertEquals(LegacyGateDecision.Proceed, IosLegacyMigrationRunner.run())
+        assertEquals(1, runs)
+    }
+
+    @Test fun applyFailureAfterTheCommitProceedsWithoutTheFlagAndKeepsTheRequest() = blocking {
+        val failing = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun sink(file: Path, mustCreate: Boolean): okio.Sink {
+                if (file.name.startsWith("applied.json")) throw okio.IOException("disk full")
+                return super.sink(file, mustCreate)
+            }
+            override fun atomicMove(source: Path, target: Path) {
+                if (target.name.startsWith("applied.json")) throw okio.IOException("disk full")
+                super.atomicMove(source, target)
+            }
+        }
+        val h = hooks(fileSystem = failing) {
+            // The real migrator has written done.json when it answers.
+            failing.createDirectories(root / "Support" / "LegacyMigration")
+            failing.write(root / "Support" / "LegacyMigration" / "done.json") { writeUtf8("""{"nothingToMigrate":true}""") }
+            LegacyMigrationOutcome.NothingToMigrate
+        }
+        failing.createDirectories(h.control.dir)
+        val extras = LegacyExtras(emptyMap(), null, false, false, emptyList(), listOf(DeviceLocalPref("some_pref", PrefType.STRING, "v")))
+        failing.write(h.control.dir / LegacyExtrasFile.NAME) { writeUtf8(LegacyExtrasFile.encode(extras, MigrationReport())) }
+        h.control.requestImport()
+        IosLegacyMigrationRunner.testHooks = h
+
+        assertEquals(LegacyGateDecision.Proceed, IosLegacyMigrationRunner.run(), "no no-exit error screen for a committed migration")
+        assertFalse("settled" in events, "the flag stays unset so the next launch retries: $events")
+        assertTrue(h.control.importRequested(), "the request stays until the extras are applied")
+    }
+
     @Test fun nextcloudSecretKeyMatchesSyncPlatform() {
         assertTrue(NEXTCLOUD_PASSWORD_SECRET in SECRET_CREDENTIAL_KEYS)
     }
