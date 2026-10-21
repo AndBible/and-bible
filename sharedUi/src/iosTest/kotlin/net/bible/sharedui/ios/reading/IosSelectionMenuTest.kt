@@ -53,8 +53,9 @@ class IosSelectionMenuTest {
         override fun copy(text: String) { calls += "copy $text" }
     }
 
-    // Keys read back as themselves, except the one format string the test reads through its placeholder.
-    private val table = StringTable("en", { if (it == "search_what") "Find \"%s\"" else it }, { k, _ -> k }, { _, _ -> "" }, { emptyList() })
+    // The real table construction: lookups answer a template (the key itself, except the one format string the test reads
+    // through its placeholder) and `fmt` fills it, so the Search row's label goes through the production formatting path.
+    private val table = StringTable.of("en", { if (it == "search_what") "Find \"%s\"" else it }, { n, _ -> n }, { emptyList() })
 
     private fun verseJson(text: String, ordinal: Int = 1) =
         """{"bookInitials":"KJV","startOrdinal":$ordinal,"startOffset":0,"endOrdinal":$ordinal,"endOffset":5,"bookmarks":[],"text":"$text"}"""
