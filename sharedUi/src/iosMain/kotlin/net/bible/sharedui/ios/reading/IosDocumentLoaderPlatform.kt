@@ -34,9 +34,10 @@ import org.koin.mp.KoinPlatform
 /**
  * iOS [DocumentLoaderPlatform] for one reading window.
  *
- * Offsets come from the real layout ([ReadingOffsets], CSS px): none at the top (the toolbar is an in-flow row), and at
- * the bottom of the bottom pane the safe-area inset plus the search sheet / agent log (Android's `BibleView.topOffset` /
- * `bottomOffset`; a pane that is not at the bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
+ * Offsets come from the real layout ([ReadingOffsets], CSS px): at the top only the top safe-area inset in full screen (the
+ * toolbar is an in-flow row otherwise), for the topmost pane of the split; at the bottom of the bottom pane the safe-area
+ * inset plus the search sheet / agent log (Android's `BibleView.topOffset` / `bottomOffset`; a pane that is not at the
+ * top / bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
  *
  * `themeColors` is `"null"` (BibleView's own palette): `themeColorsJson` lives in `:app`; moving it is Stream R/X.
  * Settings are read when `set_config` is built, never at construction.
@@ -54,8 +55,16 @@ class IosDocumentLoaderPlatform(
     private val isBeta: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isBeta },
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
-    override val topOffset: Float get() = offsets().top
+    override val topOffset: Float get() = if (isTopWindow) offsets().top else 0f
     override val bottomOffset: Float get() = if (isBottomWindow) offsets().bottom else 0f
+
+    /** The mirror of [isBottomWindow]: every pane counts as top when the split is side by side. */
+    private val isTopWindow: Boolean
+        get() {
+            val reverse = repository.workspaceSettings.enableReverseSplitMode
+            val splitVertically = if (reverse) !isPortrait() else isPortrait()
+            return !splitVertically || repository.firstVisibleWindow == window()
+        }
 
     /** Android's `BibleView.isBottomWindow`: every pane counts as bottom when the split is side by side. */
     private val isBottomWindow: Boolean

@@ -139,6 +139,23 @@ class IosReadingWindowsTest {
         assertEquals(34f, platform.bottomOffset)
     }
 
+    /** The top safe-area inset (full screen) belongs to the topmost pane of a stacked split; side by side, to every pane. */
+    @Test
+    fun topOffsetOnlyForTheTopmostStackedPane() = withWindows { _ ->
+        val koin = KoinPlatform.getKoin()
+        val windowControl = koin.get<WindowControl>()
+        val first = windowControl.windowRepository.activeWindow
+        val second = windowControl.addNewWindow(first)
+        val offsets = ReadingOffsets().also { it.setSystemTopInset(59f) }
+        fun platform(window: net.bible.android.control.page.window.Window, portrait: Boolean) = IosDocumentLoaderPlatform(
+            window = { window }, windowControl = { windowControl }, settings = { koin.get() },
+            nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { portrait },
+        )
+        assertEquals(59f, platform(first, portrait = true).topOffset)
+        assertEquals(0f, platform(second, portrait = true).topOffset, "a lower stacked pane clears nothing at the top")
+        assertEquals(59f, platform(second, portrait = false).topOffset, "side by side, every pane touches the top")
+    }
+
     /** The WebViews get the installed Bibles' languages (whatever this test's module set holds), not a constant. */
     @Test
     fun activeLanguagesFromInstalledBooks() = withWindows { _ ->

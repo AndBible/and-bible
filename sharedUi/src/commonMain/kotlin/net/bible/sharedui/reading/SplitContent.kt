@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -50,7 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.effectiveWeights
@@ -320,7 +323,17 @@ private fun PaneBody(args: PaneRenderArgs) {
             .pointerInput(w.id) { detectTapGestures { args.onWindowActivated(w.id) } },
     ) {
         pane(w.id)
-        args.paneOverlay?.invoke(this, w.id)
+        val overlay = args.paneOverlay
+        if (overlay != null) {
+            val box = this
+            val inherited = LocalReadingTopSafeInset.current
+            val paneInset = topInsetForPane(inherited, args.isHorizontal, args.index)
+            // Only a lower stacked pane differs (and only where an inset is provided, i.e. iOS full screen): no extra
+            // provider on Android, whose inset is 0.
+            if (paneInset != inherited) {
+                CompositionLocalProvider(LocalReadingTopSafeInset provides paneInset) { overlay(box, w.id) }
+            } else overlay(box, w.id)
+        }
         if (args.index > 0) DragStrip(
             windows = args.windows, weights = args.weights, index = args.index - 1,
             isHorizontalSplit = args.isHorizontal, atStartEdge = true,
@@ -494,3 +507,10 @@ private fun BoxScope.DragStrip(
             ),
     )
 }
+
+/**
+ * The top safe-area [inset] a pane's overlay must clear: only the first pane of a stacked split touches the screen's top
+ * edge (side-by-side panes all do), so a lower stacked pane gets none.
+ */
+internal fun topInsetForPane(inset: Dp, isHorizontalSplit: Boolean, index: Int): Dp =
+    if (!isHorizontalSplit && index > 0) 0.dp else inset
