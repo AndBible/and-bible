@@ -135,6 +135,11 @@ experience.
 
 ### Font and Text
 
+On iOS, the system Text Size setting scales the app interface independently of
+the document text. To change Bible text size, use the text display settings or
+the **Font size multiplier** below; increasing the system text size does not
+replace those controls.
+
 - **Font size multiplier:** A global scaling factor (10%–500%) applied to all
     document text. Useful when you synchronize workspaces across devices with
     different screen sizes – the workspace font size is synced, but the

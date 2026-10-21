@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -84,6 +85,7 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.components.AppToastHost
+import net.bible.sharedui.components.LocalBarFontScaleCap
 import net.bible.sharedui.components.FailClosedLinkRouting
 import net.bible.sharedui.ios.reading.ChooserTarget
 import net.bible.sharedui.ios.reading.IosNightModeObserver
@@ -185,18 +187,20 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
     // reading initialisation, workspace saver or return-to-reading listener is allowed on this path.
     if (recoveryStartRoute != null) {
         check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
-        CompositionLocalProvider(
-            LocalStrings provides strings,
-            LocalLiveSettingsLanguage provides true,
-            net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
-            LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
-            LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
-        ) {
-            AbTheme(darkTheme = recoveryDark) {
-                check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
-                Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
-                    IosAppContent(liveStrings, IosAppStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
-                    IosDebugFontScaleProbe()
+        IosTextScale {
+            CompositionLocalProvider(
+                LocalStrings provides strings,
+                LocalLiveSettingsLanguage provides true,
+                net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
+                LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
+                LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+            ) {
+                AbTheme(darkTheme = recoveryDark) {
+                    check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
+                    Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
+                        IosAppContent(liveStrings, IosAppStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
+                        IosDebugFontScaleProbe()
+                    }
                 }
             }
         }
@@ -231,44 +235,100 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
             NavRoutes.WELCOME
         }
     }
-    CompositionLocalProvider(
-        LocalStrings provides strings,
-        LocalLiveSettingsLanguage provides true,
-        net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
-        LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
-        LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
-    ) {
-        IosHostTheme(dark, koin, modesVersion) {
-            val route = startRoute
-            if (route == null) {
-                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                    IosDebugFontScaleProbe()
-                }
-            } else {
-                Box(Modifier.fillMaxSize()) {
-                    IosAppContent(liveStrings, table, route, nightObserver, holder)
-                    AppToastHost(Modifier.align(Alignment.BottomCenter))
-                    IosDebugFontScaleProbe()
+    IosTextScale {
+        CompositionLocalProvider(
+            LocalStrings provides strings,
+            LocalLiveSettingsLanguage provides true,
+            net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
+            LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
+            LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+        ) {
+            IosHostTheme(dark, koin, modesVersion) {
+                val route = startRoute
+                if (route == null) {
+                    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                        IosDebugFontScaleProbe()
+                    }
+                } else {
+                    Box(Modifier.fillMaxSize()) {
+                        IosAppContent(liveStrings, table, route, nightObserver, holder)
+                        AppToastHost(Modifier.align(Alignment.BottomCenter))
+                        IosDebugFontScaleProbe()
+                    }
                 }
             }
         }
     }
 }
 
-/** Reports the unmodified Compose density, including while the real app resolves its start route. */
+/** Replace Compose's stale launch scale absolutely, never multiply its built-in category mapping. */
+@Composable
+private fun IosTextScale(content: @Composable () -> Unit) {
+    val observer = remember { IosDynamicTypeObserver() }
+    DisposableEffect(observer) {
+        observer.start()
+        onDispose { observer.stop() }
+    }
+    val scale by observer.fontScale
+    val current = LocalDensity.current
+    CompositionLocalProvider(
+        LocalDensity provides Density(current.density, fontScale = scale),
+        LocalBarFontScaleCap provides IOS_BAR_FONT_SCALE_CAP,
+        content = content,
+    )
+}
+
+/** Reports effective Compose density and UIKit delivery evidence while the real app resolves its start route. */
 @Composable
 private fun IosDebugFontScaleProbe() {
     if (!kotlin.native.Platform.isDebugBinary) return
     val enabled = remember { "-debugFontScaleProbe" in platform.Foundation.NSProcessInfo.processInfo.arguments }
     if (!enabled) return
+    var systemSnapshot by remember { mutableStateOf(iosDebugTextSizeSnapshot("initial", 0)) }
+    DisposableEffect(Unit) {
+        val center = NSNotificationCenter.defaultCenter
+        var notifications = 0
+        val sizeObserver = center.addObserverForName(
+            platform.UIKit.UIContentSizeCategoryDidChangeNotification, null, NSOperationQueue.mainQueue,
+        ) {
+            notifications++
+            systemSnapshot = iosDebugTextSizeSnapshot("content-size-notification", notifications)
+        }
+        val activeObserver = center.addObserverForName(
+            UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue,
+        ) { systemSnapshot = iosDebugTextSizeSnapshot("became-active", notifications) }
+        onDispose {
+            center.removeObserver(sizeObserver)
+            center.removeObserver(activeObserver)
+        }
+    }
     val scale = LocalDensity.current.fontScale.toString()
+    Text(
+        text = systemSnapshot,
+        modifier = Modifier.requiredSize(1.dp).testTag("ab-font-scale-system").semantics {
+            stateDescription = systemSnapshot
+        },
+    )
     Text(
         text = scale,
         modifier = Modifier.requiredSize(1.dp).testTag("ab-font-scale").semantics {
             stateDescription = scale
         },
     )
+}
+
+/** Separate UIKit boundary evidence from Compose's ambient fontScale; never changes either one. */
+private fun iosDebugTextSizeSnapshot(event: String, notifications: Int): String {
+    val app = UIApplication.sharedApplication
+    val appCategory = app.preferredContentSizeCategory.orEmpty()
+    val windows = app.windows.filterIsInstance<platform.UIKit.UIWindow>()
+    val traits = windows.joinToString(";") { window ->
+        "window=${window.traitCollection.preferredContentSizeCategory},root=${window.rootViewController?.traitCollection?.preferredContentSizeCategory}"
+    }
+    val snapshot = "event=$event notifications=$notifications app=$appCategory $traits"
+    nsLog("DEBUG font-scale UIKit: $snapshot")
+    return snapshot
 }
 
 /** `SettingsStore.changes` of the open settings database (the key of every `AppSettings` write); empty before it exists. */

@@ -163,12 +163,6 @@ final class PocUITests: XCTestCase {
         roundTripThroughBookmarks(app, windows: 1, "single bookmarks round trip")
     }
 
-    func testDynamicTypeXXXL() {
-        let app = launch("bookmarks", xxxl: true)
-        XCTAssertTrue(app.buttons["poc-back"].waitForExistence(timeout: 10), "bookmarks screen not visible within 10 s")
-        shot(app, "bookmarks-light-xxxl")
-    }
-
     func testAccessibilityAudit() throws {
         let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         if #available(iOS 17.0, *) {

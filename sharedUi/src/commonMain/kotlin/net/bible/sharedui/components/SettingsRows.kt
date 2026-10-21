@@ -228,6 +228,7 @@ fun AbSettingsRow(
     trailing: @Composable (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     badge: String? = null,
+    modifier: Modifier = Modifier,
 ) {
     val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
     val disabled = LocalAbColors.current.monoDisabled
@@ -235,7 +236,7 @@ fun AbSettingsRow(
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     CompositionLocalProvider(LocalContentColor provides foreground) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .then(
                     if (onLongClick != null) {
