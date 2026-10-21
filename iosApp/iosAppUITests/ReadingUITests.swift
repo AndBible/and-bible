@@ -12,9 +12,10 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: helpers (launch, element, shot, attachTree, waitUntil, john3Shown, paneIds: RealAppUITestCase)
 
-    private func launchReading() throws -> XCUIApplication {
+    private func launchReading(extraArguments: [String] = []) throws -> XCUIApplication {
         // KJV explicitly: a fresh workspace opens the first installed Bible, which other suites' fixtures can shadow.
-        let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"]
+        // `extraArguments` (e.g. the content size category of the Dynamic Type tests) go after the fixed ones.
+        let arguments = ["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"] + extraArguments
         var app = launch(arguments)
         let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
         XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
@@ -188,25 +189,119 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertEqual(paneIds(app), before, "panes changed across the drawer and the sheet")
     }
 
-    /// iOS 17+ accessibility audit of the reading view. Findings are recorded, not failed (like the PoC test); an audit
-    /// that does not finish in time is a runner problem and skips.
+    /// iOS 17+ accessibility audit of the reading surfaces (toolbar and window buttons, overflow, drawer, pane menu, a
+    /// quick sheet, the speak bar and search-in-place; the selection menu is UIKit-owned and the full-screen overlay has
+    /// no stable opener yet, both are not audited). FAILS on any finding: every finding of every surface is collected
+    /// first, so one run lists them all, and the failure message (also attached as `a11y-findings`) gives surface,
+    /// audit type, element type / label / identifier / frame and the audit's own description. An audit that does not
+    /// finish in time is a runner problem and skips.
     func testAccessibilityAuditReading() throws {
-        let app = try launchReading()
-        addWindow(app, from: 1)
-        if #available(iOS 17.0, *) {
-            do {
-                try app.performAccessibilityAudit { issue in
-                    let a = XCTAttachment(string: issue.debugDescription); a.name = "a11y-issue"; a.lifetime = .keepAlways
-                    self.add(a)
-                    return true   // record, do not fail
-                }
-            } catch let error as NSError where error.domain == "com.apple.xcode.xctest.accessibilityAudit" && error.code == -56 {
-                throw XCTSkip("Accessibility audit did not complete in time on this runner")
-            }
-        } else {
-            throw XCTSkip("performAccessibilityAudit needs iOS 17")
-        }
+        guard #available(iOS 17.0, *) else { throw XCTSkip("performAccessibilityAudit needs iOS 17") }
+        try auditReadingSurfaces()
     }
+
+    @available(iOS 17.0, *)
+    private func auditReadingSurfaces() throws {
+        continueAfterFailure = true
+        var findings: [String] = []
+        let device = XCUIDevice.shared
+        addTeardownBlock { device.orientation = .portrait }
+
+        // Surface name, whether it needs landscape on an iPhone (the toolbar fits Find and Speak only there), opener.
+        let surfaces: [(name: String, landscape: Bool, open: (XCUIApplication) -> Bool)] = [
+            ("reading with two panes (toolbar, window buttons)", false, { app in
+                self.addWindow(app, from: 1); return true
+            }),
+            ("overflow menu", false, { app in
+                let more = self.byLabel(app, "More options")
+                guard more.waitForExistence(timeout: 10) else { return false }
+                more.tap()
+                return app.buttons["Night mode"].waitForExistence(timeout: 10)
+            }),
+            ("drawer", false, { app in
+                let menu = app.buttons["Menu"]
+                guard menu.waitForExistence(timeout: 10) else { return false }
+                menu.tap()
+                return self.byLabel(app, "History").waitForExistence(timeout: 10)
+            }),
+            ("pane menu", false, { app in
+                self.addWindow(app, from: 1)
+                guard let tab = self.windowTabs(app).first else { return false }
+                tab.press(forDuration: 1.0)
+                return app.buttons.matching(NSPredicate(format: "label == 'Maximise' OR label == 'Maximise …'"))
+                    .firstMatch.waitForExistence(timeout: 10)
+            }),
+            ("key chooser quick sheet", false, { app in
+                guard let title = self.toolbarTitle(app) else { return false }
+                title.tap()
+                return self.quickSheetShown(app, timeout: 15)
+            }),
+            ("speak bar", true, { app in
+                let speak = self.byLabel(app, "Speak")
+                guard speak.waitForExistence(timeout: 10) else { return false }
+                speak.tap()
+                return self.byLabel(app, "Next").waitForExistence(timeout: 15)
+            }),
+            ("search in place", true, { app in
+                let find = self.byLabel(app, "Find")
+                guard find.waitForExistence(timeout: 10) else { return false }
+                find.tap()
+                return self.element(app, "reading-search-field").waitForExistence(timeout: 15)
+            }),
+        ]
+
+        var app = try launchReading()
+        for (index, surface) in surfaces.enumerated() {
+            if index > 0 {
+                if !isPad { device.orientation = surface.landscape ? .landscapeLeft : .portrait }
+                app = try relaunchReading(app)
+            }
+            guard surface.open(app) else {
+                attachTree(app, "audit-\(surface.name)-not-reachable")
+                XCTFail("audit: surface '\(surface.name)' could not be opened, so it was not audited")
+                continue
+            }
+            shot(app, "audit-\(surface.name)")
+            try audit(app, surface: surface.name, into: &findings)
+        }
+
+        let note = XCTAttachment(string: "Not audited: selection menu (UIKit-owned), full-screen overlay (no stable opener)")
+        note.name = "a11y-not-audited"; note.lifetime = .keepAlways; add(note)
+        let report = "\(findings.count) accessibility finding(s):\n" + findings.joined(separator: "\n")
+        let attachment = XCTAttachment(string: report); attachment.name = "a11y-findings"; attachment.lifetime = .keepAlways
+        add(attachment)
+        XCTAssertTrue(findings.isEmpty, report)
+    }
+
+    /// Audits what is on screen and appends one line per finding to `findings`. The handler returns true for every issue
+    /// so the audit itself does not stop at the first one; the test fails on the collected list afterwards.
+    ///
+    /// Issue filters: NONE yet. A finding that cannot be fixed in R3 is listed in `knownLimitations` below, each entry
+    /// with the reason, and matches narrowly (audit type plus a label or identifier fragment), never a whole category.
+    @available(iOS 17.0, *)
+    private func audit(_ app: XCUIApplication, surface: String, into findings: inout [String]) throws {
+        // (reason, matcher). Add an entry only with the controller's decision; keep it as narrow as possible.
+        let knownLimitations: [(reason: String, matches: (XCUIAccessibilityAuditIssue) -> Bool)] = []
+        var found: [String] = []
+        do {
+            try app.performAccessibilityAudit { issue in
+                if let limitation = knownLimitations.first(where: { $0.matches(issue) }) {
+                    let a = XCTAttachment(string: "[\(surface)] filtered (\(limitation.reason)): \(issue.compactDescription)")
+                    a.name = "a11y-filtered"; a.lifetime = .keepAlways; self.add(a)
+                    return true
+                }
+                let element = issue.element.map {
+                    "elementType=\($0.elementType.rawValue) label='\($0.label)' identifier='\($0.identifier)' frame=\($0.frame)"
+                } ?? "element=none"
+                found.append("[\(surface)] auditType=\(issue.auditType.rawValue) \(element) :: \(issue.compactDescription) | \(issue.detailedDescription)")
+                return true   // collected, reported and failed after all surfaces
+            }
+        } catch let error as NSError where error.domain == "com.apple.xcode.xctest.accessibilityAudit" && error.code == -56 {
+            throw XCTSkip("Accessibility audit did not complete in time on this runner")
+        }
+        findings.append(contentsOf: found)
+    }
+
     // MARK: Task 9 helpers (labels from the Kotlin sources: see the notes on each test)
 
     /// Any element type with exactly this label. Compose icon buttons are merged `Row`s whose label is the icon's
@@ -218,9 +313,9 @@ final class ReadingUITests: RealAppUITestCase {
 
     /// A fresh process on the reading view (the previous one is terminated first), for steps that leave the toolbar in
     /// a state with no way back (the search row, the speak bar).
-    private func relaunchReading(_ app: XCUIApplication) throws -> XCUIApplication {
+    private func relaunchReading(_ app: XCUIApplication, extraArguments: [String] = []) throws -> XCUIApplication {
         app.terminate()
-        return try launchReading()
+        return try launchReading(extraArguments: extraArguments)
     }
 
     /// The open quick sheet's surface (`AbQuickSheetTag`). Not `ReadingQuickSheetTag`: that tags a zero-size box in the
@@ -499,6 +594,130 @@ final class ReadingUITests: RealAppUITestCase {
             let pane = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'")).firstMatch
             XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(pane.frame),
                           "pane \(pane.frame) outside the window after rotation")
+        }
+    }
+
+    // MARK: Task 10: Dynamic Type
+
+    /// XXXL (the largest non-accessibility size). H2's system-text-size mapping is not on this branch, so the size is set
+    /// with the launch argument; the merged close-out must re-check this with the real mapping.
+    func testReadingChromeAtXXXL() throws {
+        try checkReadingChrome(category: "UICTContentSizeCategoryXXXL", name: "XXXL")
+    }
+
+    /// AX5 (`AccessibilityXXXL`): every control must stay reachable; fixed-height bars may cap their scale.
+    func testReadingChromeAtAX5() throws {
+        try checkReadingChrome(category: "UICTContentSizeCategoryAccessibilityXXXL", name: "AX5")
+    }
+
+    /// A control that exists, is hittable (not clipped away or covered) and lies inside the window. Failures are recorded
+    /// (`continueAfterFailure` is on) so one bad control does not hide the others; returns whether the control is fine.
+    @discardableResult
+    private func expectReachable(_ app: XCUIApplication, _ control: XCUIElement, _ what: String, _ level: String) -> Bool {
+        guard control.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(level)-\(what)-missing")
+            XCTFail("\(level): \(what) does not exist")
+            return false
+        }
+        let window = app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1)
+        var ok = true
+        if !control.isHittable { XCTFail("\(level): \(what) is not hittable (clipped or covered), frame \(control.frame)"); ok = false }
+        if !window.contains(control.frame) { XCTFail("\(level): \(what) frame \(control.frame) is not inside the window \(window)"); ok = false }
+        if !ok { attachTree(app, "\(level)-\(what)-unreachable") }
+        return ok
+    }
+
+    private func checkReadingChrome(category: String, name level: String) throws {
+        continueAfterFailure = true
+        let sizeArguments = ["-UIPreferredContentSizeCategoryName", category]
+        var app = try launchReading(extraArguments: sizeArguments)
+        shot(app, "\(level)-reading")
+
+        // Toolbar: title, home (Menu) and overflow (More options) are reachable and do not overlap each other.
+        let title = toolbarTitle(app)
+        let menu = app.buttons["Menu"], more = byLabel(app, "More options")
+        var toolbarFrames: [(String, CGRect)] = []
+        if let title = title {
+            if expectReachable(app, title, "toolbar title", level) { toolbarFrames.append(("title", title.frame)) }
+        } else {
+            attachTree(app, "\(level)-no-toolbar-title")
+            XCTFail("\(level): no toolbar title found (a static text starting with 'John' in the top strip)")
+        }
+        if expectReachable(app, menu, "Menu button", level) { toolbarFrames.append(("Menu", menu.frame)) }
+        if expectReachable(app, more, "More options button", level) { toolbarFrames.append(("More options", more.frame)) }
+        for (i, a) in toolbarFrames.enumerated() {
+            for b in toolbarFrames.dropFirst(i + 1) {
+                let overlap = a.1.intersection(b.1)
+                XCTAssertTrue(overlap.isNull || overlap.width < 2 || overlap.height < 2,
+                              "\(level): toolbar \(a.0) \(a.1) overlaps \(b.0) \(b.1)")
+            }
+        }
+
+        // Drawer: the home button opens it; History, and the Task 4-6 rows (Study Pads, Backup & Restore, Device
+        // synchronization), are reachable by label, scrolling the drawer if needed.
+        app = try relaunchReading(app, extraArguments: sizeArguments)
+        if expectReachable(app, app.buttons["Menu"], "Menu button (drawer opener)", level) {
+            app.buttons["Menu"].tap()
+            for row in ["History", "Study Pads", "Backup & Restore", "Device synchronization"] {
+                let element = byLabel(app, row)
+                guard element.waitForExistence(timeout: 10) else {
+                    attachTree(app, "\(level)-drawer-no-\(row)")
+                    XCTFail("\(level): drawer row '\(row)' does not exist")
+                    continue
+                }
+                var swipes = 0
+                while !element.isHittable && swipes < 4 { app.swipeUp(); swipes += 1 }
+                expectReachable(app, element, "drawer row '\(row)'", level)
+            }
+            shot(app, "\(level)-drawer")
+        }
+
+        // Pane menu: long-press a window tab (needs two windows for Maximise to be offered).
+        app = try relaunchReading(app, extraArguments: sizeArguments)
+        addWindow(app, from: 1)
+        if let tab = windowTabs(app).first {
+            expectReachable(app, tab, "window tab", level)
+            tab.press(forDuration: 1.0)
+            let maximise = app.buttons.matching(NSPredicate(format: "label == 'Maximise' OR label == 'Maximise …'")).firstMatch
+            expectReachable(app, maximise, "pane menu row 'Maximise'", level)
+            shot(app, "\(level)-pane-menu")
+        } else {
+            attachTree(app, "\(level)-no-window-tab")
+            XCTFail("\(level): no window tab to open the pane menu from")
+        }
+
+        // One quick sheet (the key chooser, opened by the title): its surface and Close button are reachable.
+        app = try relaunchReading(app, extraArguments: sizeArguments)
+        if let sheetTitle = toolbarTitle(app) {
+            sheetTitle.tap()
+            if quickSheetShown(app, timeout: 15) {
+                expectReachable(app, quickSheet(app), "quick sheet", level)
+                expectReachable(app, app.buttons["Close"], "quick sheet Close button", level)
+                shot(app, "\(level)-quick-sheet")
+                closeQuickSheet(app, "\(level) key chooser")
+            } else {
+                attachTree(app, "\(level)-sheet-not-open")
+                XCTFail("\(level): tapping the title did not open the key chooser quick sheet")
+            }
+        } else {
+            XCTFail("\(level): no toolbar title to open a quick sheet from")
+        }
+
+        // Overflow rows added in Tasks 4-6 are recorded, not asserted: they are conditional on the host (AI Actions,
+        // Label settings), so absence is information for the controller, not a failure.
+        app = try relaunchReading(app, extraArguments: sizeArguments)
+        let overflow = byLabel(app, "More options")
+        if overflow.waitForExistence(timeout: 10) {
+            overflow.tap()
+            _ = app.buttons["Night mode"].waitForExistence(timeout: 10)
+            let present = ["AI Actions", "Label settings", "Export"].map { label -> String in
+                let found = app.descendants(matching: .any)
+                    .matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch.exists
+                return "\(label)=\(found ? "present" : "absent")"
+            }
+            let a = XCTAttachment(string: present.joined(separator: " ")); a.name = "\(level)-overflow-rows"; a.lifetime = .keepAlways
+            add(a)
+            shot(app, "\(level)-overflow")
         }
     }
 }
