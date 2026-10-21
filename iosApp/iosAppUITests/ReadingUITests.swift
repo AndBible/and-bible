@@ -808,11 +808,17 @@ final class ReadingUITests: RealAppUITestCase {
         guard row.waitForExistence(timeout: 10) else {
             attachTree(app, "drawer-no-\(label)"); XCTFail("the drawer shows no '\(label)' row"); return false
         }
+        // The drawer is still opening right after the tap on Menu; give the row time to become hittable before
+        // scrolling (a swipe that was not needed leaves the list moving, and a tap on a moving list only stops it).
+        _ = waitUntil(timeout: 4) { row.isHittable }
         var swipes = 0
-        while !row.isHittable && swipes < 8 { app.swipeUp(); swipes += 1 }
+        while !row.isHittable && swipes < 8 { app.swipeUp(); swipes += 1; usleep(1_200_000) }
         guard row.isHittable else {
             attachTree(app, "drawer-\(label)-not-hittable"); XCTFail("drawer row '\(label)' is not reachable"); return false
         }
+        // Tap only when the row has stopped moving: the same frame on two reads in a row.
+        var last = CGRect.null
+        _ = waitUntil(timeout: 5) { let f = row.frame; defer { last = f }; return f == last }
         row.tap()
         return true
     }
@@ -847,6 +853,12 @@ final class ReadingUITests: RealAppUITestCase {
         return true
     }
 
+    /// The chapter number heading the web view renders ("— 3 —", with em dashes) is on screen. Read from the web view so it
+    /// works while the toolbar is replaced (search mode) or covered.
+    private func chapterMarkerShown(_ app: XCUIApplication, _ chapter: Int) -> Bool {
+        app.webViews.staticTexts.matching(NSPredicate(format: "label == %@", "\u{2014} \(chapter) \u{2014}")).firstMatch.exists
+    }
+
     // MARK: Task 11: full screen
 
     /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar and shows the Bible reference overlay with
@@ -877,9 +889,29 @@ final class ReadingUITests: RealAppUITestCase {
             paneMargin(app).tap()
             overlayShown = overlay.waitForExistence(timeout: 10)
         }
-        if !overlayShown { attachTree(app, "fullscreen-no-overlay") }
+        if !overlayShown {
+            attachTree(app, "fullscreen-no-overlay"); shot(app, "fullscreen-no-overlay")
+            // Diagnose: is the overlay only missing because its text was read before the page was shown? Leave full
+            // screen, move one chapter (a verse change refreshes the text), enter again.
+            paneMargin(app).doubleTap()
+            if waitUntil(timeout: 10, { toolbarShown(app) }) {
+                firstPane(app).swipeLeft()
+                _ = waitUntil(timeout: 20) { chapterMarkerShown(app, 4) }
+                byLabel(app, "More options").tap()
+                app.buttons.matching(NSPredicate(format: "label == 'Fullscreen'")).firstMatch.tap()
+                _ = waitUntil(timeout: 10) { !app.buttons["Menu"].exists }
+                paneMargin(app).tap()
+                let afterMove = labelStarting(app, "KJV:Joh 4").waitForExistence(timeout: 10)
+                shot(app, "fullscreen-overlay-after-chapter-move")
+                XCTFail(afterMove
+                    ? "PRODUCT: the overlay is empty after launch and appears only after a verse change (IosReadingHost.refreshOverlay runs once in deps() and on VerseChanged only)"
+                    : "the Bible reference overlay 'KJV:Joh 3:16' is not shown in full screen, nor after a chapter change")
+            } else {
+                XCTFail("the Bible reference overlay 'KJV:Joh 3:16' is not shown in full screen")
+            }
+            return
+        }
         shot(app, "fullscreen-overlay")
-        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:16' is not shown in full screen")
 
         // Double tap leaves full screen.
         paneMargin(app).doubleTap()
@@ -973,9 +1005,9 @@ final class ReadingUITests: RealAppUITestCase {
     /// (`WorkspaceSelectorController.createNew` ends in `selectWorkspace`, as Android's `goToWorkspace`).
     private func createWorkspace(_ app: XCUIApplication, named name: String) -> Bool {
         byLabel(app, "New").tap()
-        guard app.staticTexts.matching(NSPredicate(format: "label == 'Give name for new workspace'")).firstMatch
+        guard app.staticTexts.matching(NSPredicate(format: "label == 'New workspace name'")).firstMatch
             .waitForExistence(timeout: 10) else {
-            attachTree(app, "create-\(name)-no-dialog"); XCTFail("no 'Give name for new workspace' dialog"); return false
+            attachTree(app, "create-\(name)-no-dialog"); XCTFail("no 'New workspace name' dialog"); return false
         }
         guard replaceDialogText(app, with: name, "create \(name)"), confirmDialog(app, "create \(name)") else { return false }
         let left = element(app, "reading-host").waitForExistence(timeout: 30) && !byLabel(app, "New").exists
@@ -1072,21 +1104,24 @@ final class ReadingUITests: RealAppUITestCase {
         john.tap()
 
         // The chapter grid: the lowest cell labelled "4" (the grid sits above the calendar, whose day numbers come after).
+        // The grid is below the fold; its cells are buttons (the "4" static texts above them are the read-count legend,
+        // not hittable and not cells), labelled only once scrolled into view.
         let chapter4 = { () -> XCUIElement? in
-            app.descendants(matching: .any).matching(NSPredicate(format: "label == '4'")).allElementsBoundByIndex
-                .filter { $0.frame.height > 0 && $0.isHittable }.min(by: { $0.frame.minY < $1.frame.minY })
+            app.buttons.matching(NSPredicate(format: "label == '4'")).allElementsBoundByIndex
+                .first { $0.frame.height > 0 && $0.isHittable }
         }
-        let found = waitUntil(timeout: 15) { chapter4() != nil }
-        guard found, let cell = chapter4() else {
+        var scrolls = 0
+        while chapter4() == nil && scrolls < 6 { app.swipeUp(); scrolls += 1; usleep(1_200_000) }
+        guard let cell = chapter4() else {
             attachTree(app, "progress-no-chapter-4"); XCTFail("John's chapter grid shows no hittable chapter '4'"); return
         }
         cell.tap()
         let reading = element(app, "reading-host").waitForExistence(timeout: 30)
         if !reading { attachTree(app, "progress-chapter-no-reading") }
         XCTAssertTrue(reading, "tapping chapter 4 did not return to the reading view")
-        let onFour = waitUntil(timeout: 30) { self.toolbarTitle(app)?.label.hasPrefix("John 4") == true && nicodemusInWebViews(app) == 0 }
+        let onFour = waitUntil(timeout: 30) { chapterMarkerShown(app, 4) && nicodemusInWebViews(app) == 0 }
         if !onFour { attachTree(app, "progress-chapter-not-john-4") }
-        XCTAssertTrue(onFour, "the reading view shows '\(toolbarTitle(app)?.label ?? "no title")', expected John 4")
+        XCTAssertTrue(onFour, "the reading view does not show the chapter marker of John 4")
     }
 
     // MARK: Task 11: in-place search
@@ -1138,13 +1173,12 @@ final class ReadingUITests: RealAppUITestCase {
         guard let card = target else {
             attachTree(app, "search-no-john-7-50-card"); XCTFail("no result card for John 7:50 or John 19:39 (total \(total))"); return
         }
-        let expectedChapter = card.label.contains("7:50") ? "John 7" : "John 19"
+        // The toolbar is the search bar now (no title), so the chapter is read from the web view's chapter marker.
+        let expectedChapter = card.label.contains("7:50") ? 7 : 19
         card.tap()
-        let opened = waitUntil(timeout: 30) {
-            self.toolbarTitle(app)?.label.hasPrefix(expectedChapter) == true || nicodemusInWebViews(app) == 1
-        }
+        let opened = waitUntil(timeout: 30) { chapterMarkerShown(app, expectedChapter) }
         if !opened { attachTree(app, "search-card-did-not-open"); shot(app, "search-card-did-not-open") }
-        XCTAssertTrue(opened, "tapping the card did not open \(expectedChapter) (title '\(toolbarTitle(app)?.label ?? "none")', Nicodemus x\(nicodemusInWebViews(app)))")
+        XCTAssertTrue(opened, "tapping the card did not open John \(expectedChapter) (no chapter marker, Nicodemus x\(nicodemusInWebViews(app)))")
     }
 
     // MARK: Task 11: selection menu
@@ -1181,7 +1215,7 @@ final class ReadingUITests: RealAppUITestCase {
     /// tree; if the Mac run shows the rows are not exposed, this test records the tree.
     func testTwoStepBookmarkFromSelection() throws {
         continueAfterFailure = true
-        var app = try launchReading()
+        let app = try launchReading()
         XCTContext.runActivity(named: "two-step (default)") { _ in
             guard longPressNicodemus(app) else { return }
             guard let bookmark = editMenuItem(app, "Bookmark") else {
@@ -1201,7 +1235,26 @@ final class ReadingUITests: RealAppUITestCase {
             shot(app, "two-step-second-menu")
         }
 
-        app = (try? relaunchReading(app, extraArguments: ["-disable_two_step_bookmarking", "YES"])) ?? app
+        // `disable_two_step_bookmarking` lives in the app settings store, not in NSUserDefaults, so a launch argument does
+        // not reach it (the Mac run showed the two-step menu with the argument given): switch it on in the Application
+        // preferences ("One-step bookmarking", `prefs_disable_two_step_bookmarking_title`), then go back to reading.
+        paneMargin(app).tap()   // dismiss the edit menu and the selection
+        XCTContext.runActivity(named: "switch One-step bookmarking on") { _ in
+            guard openDrawerRow(app, "Application preferences") else { return }
+            let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'One-step bookmarking'")).firstMatch
+            var scrolls = 0
+            while !(toggle.exists && toggle.isHittable) && scrolls < 15 { app.swipeUp(); scrolls += 1; usleep(800_000) }
+            guard toggle.exists && toggle.isHittable else {
+                attachTree(app, "settings-no-one-step-switch"); XCTFail("no 'One-step bookmarking' switch in the Application preferences"); return
+            }
+            let before = toggle.isSelected
+            toggle.tap()
+            XCTAssertTrue(waitUntil(timeout: 10) { toggle.isSelected != before }, "the 'One-step bookmarking' switch did not change")
+            let back = app.buttons["Back"]
+            guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return }
+            back.tap()
+            XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 20), "did not return to the reading view")
+        }
         XCTContext.runActivity(named: "one-step (disable_two_step_bookmarking)") { _ in
             guard longPressNicodemus(app) else { return }
             let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
@@ -1248,7 +1301,14 @@ final class ReadingUITests: RealAppUITestCase {
         XCTContext.runActivity(named: "Device synchronization") { _ in
             guard openDrawerRow(app, "Device synchronization") else { return }
             let backend = labelStarting(app, "Synchronization Backend")
-            let shown = backend.waitForExistence(timeout: 20)
+            var shown = backend.waitForExistence(timeout: 8)
+            if !shown {
+                // The drawer is still open: the first tap did not navigate. Record it, then tap once more.
+                attachTree(app, "sync-first-tap-no-navigation")
+                let again = byLabel(app, "Device synchronization")
+                if again.exists && again.isHittable { again.tap() }
+                shown = backend.waitForExistence(timeout: 20)
+            }
             if !shown { attachTree(app, "sync-not-shown") }
             XCTAssertTrue(shown, "Device synchronization did not open (no 'Synchronization Backend' row)")
             shot(app, "drawer-sync")
@@ -1302,7 +1362,17 @@ final class ReadingUITests: RealAppUITestCase {
 
         let window = byLabel(app2, "Window menu")
         guard window.waitForExistence(timeout: 15) else { attachTree(app2, "studypad-no-window-button"); XCTFail("no pane 'Window menu' button on the Study Pad window"); return }
+        // The pane button fades out after 2 s idle (alpha only): wake it with a touch, then open the menu; one retry,
+        // recorded, because the Mac run showed no menu after the first tap on the Study Pad window.
+        paneMargin(app2).tap()
+        usleep(500_000)
         window.tap()
+        let menuOpen = { app2.buttons.matching(NSPredicate(format: "label == 'New window' OR label == 'Maximise'")).firstMatch }
+        if !menuOpen().waitForExistence(timeout: 5) {
+            attachTree(app2, "studypad-menu-first-tap-no-menu"); shot(app2, "studypad-menu-first-tap-no-menu")
+            window.tap()
+            _ = menuOpen().waitForExistence(timeout: 5)
+        }
         for label in ["Export as HTML", "Export Study Pad", "Export Bookmarks as CSV"] {
             let row = app2.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
             let shown = row.waitForExistence(timeout: 10)
