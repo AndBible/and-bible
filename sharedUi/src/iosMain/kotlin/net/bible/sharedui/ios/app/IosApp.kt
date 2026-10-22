@@ -339,6 +339,37 @@ private fun iosSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
         kotlinx.coroutines.flow.emptyFlow()
     }
 
+/**
+ * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and, after a database restore replaced the
+ * databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
+ * `ReadingCommands.applyRestoredDatabase`): reloads the repository from the restored database (lifting the restore
+ * save freeze), stores the loaded workspace id under `current_workspace_id`, releases the old window assemblies so
+ * the panes re-assemble on the new Window objects, and forces a full reload.
+ *
+ * Skipped while reading is not ready (no repository yet, Android's `readingAppBootstrapped` gate). It never creates
+ * a host and never calls `switchToWorkspace`; a failure is logged and swallowed so it cannot break the restore.
+ * Call once per app composition; cancel the returned subscription on dispose.
+ */
+internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.sharedcore.event.Subscription {
+    val subscription = net.bible.service.db.DatabaseContainer.databaseRestored.subscribeOnMain {
+        scope.launch(Dispatchers.Main) {
+            if (!IosReadingReady.isReady) return@launch
+            try {
+                val repository = koin.get<WindowControl>().windowRepository
+                val settings = koin.get<AppSettings>()
+                net.bible.android.control.backup.reloadAfterRestore(
+                    target = net.bible.android.control.backup.restoreReloadTarget(repository),
+                    releaseWindow = { IosReadingWindows.release(it) },
+                    setCurrentWorkspaceId = { settings.setString("current_workspace_id", it) },
+                )
+            } catch (e: Exception) {
+                nsLog("IosApp: reload after restore failed: ${e.stackTraceToString()}")
+            }
+        }
+    }
+    return subscription
+}
+
 /** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
 private fun iosWorkspaceSeed(koin: Koin): Int? {
     if (!IosReadingReady.isReady) return null
@@ -452,6 +483,7 @@ private fun IosAppContent(
         )
     }
     val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels, readingResults) }
+    DisposableEffect(Unit) { val restoreReload = installRestoreReload(koin, scope); onDispose { restoreReload.cancel() } }
     val debugReadingReady = remember { androidx.compose.runtime.mutableStateOf(false) }
     val language = holder.current.tag
     val graphs = remember(navController, language) { appHosts.graphs(navController, channels) }
