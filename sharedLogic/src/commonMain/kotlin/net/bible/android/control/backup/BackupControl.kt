@@ -1020,36 +1020,59 @@ class BackupControl(
         val confFiles = ArrayList<Path>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
-        ZipReader(newSource()).use { zip ->
-            var entryNum = 0
-            while (true) {
-                val ze = zip.nextEntry() ?: break
-                val name = safeZipEntryPath(ze.name)
-                    ?: throw IOException("Unsafe ZIP entry name")
-                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
+        // Data first, conf last: data entries are written to ".part" siblings and conf entries (small) are buffered,
+        // so nothing in the live module tree changes until the whole archive was read and written successfully.
+        // An interrupted install then leaves no conf next to partial data and an installed module stays readable.
+        val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
+        val bufferedConfs = LinkedHashMap<Path, ByteArray>()
+        try {
+            ZipReader(newSource()).use { zip ->
+                var entryNum = 0
+                while (true) {
+                    val ze = zip.nextEntry() ?: break
+                    val name = safeZipEntryPath(ze.name)
+                        ?: throw IOException("Unsafe ZIP entry name")
+                    if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
-                val file = targetDirectory / moduleArchiveTargetName(name)
-                if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
-                    confFiles.add(file)
+                    val file = targetDirectory / moduleArchiveTargetName(name)
+                    val isConf = name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF)
+                    if (isConf) confFiles.add(file)
 
-                val dir = if (ze.isDirectory) file else file.parent
-                if (dir != null) fileSystem.createDirectories(dir)
+                    val dir = if (ze.isDirectory) file else file.parent
+                    if (dir != null) fileSystem.createDirectories(dir)
 
-                if (ze.isDirectory) continue
-                try {
-                    fileSystem.write(file) { writeAll(zip.entry) }
-                } catch (e: IOException) {
-                    errors.add(file.name)
-                    Log.e(TAG, "Error in writing ${file.name}", e)
+                    if (ze.isDirectory) continue
+                    try {
+                        if (isConf) {
+                            bufferedConfs[file] = zip.entry.buffer().readByteArray()
+                        } else {
+                            val part = staged.getOrPut(file) { file.parent!! / (file.name + ".part") }
+                            fileSystem.write(part) { writeAll(zip.entry) }
+                        }
+                    } catch (e: IOException) {
+                        errors.add(file.name)
+                        Log.e(TAG, "Error in writing ${file.name}", e)
+                    }
+                    entryNum++
+                    if (onProgress != null && totalEntries > 0) {
+                        onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
+                    }
                 }
-                entryNum++
-                if (onProgress != null && totalEntries > 0) {
-                    onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
+                if (errors.isNotEmpty()) {
+                    throw IOException("Could not write module files: ${errors.joinToString(", ")}")
                 }
             }
-            if (errors.isNotEmpty()) {
-                throw IOException("Could not write module files: ${errors.joinToString(", ")}")
+            // Publish: data files first, then each conf through "<conf>.tmp" + atomic move.
+            for ((file, part) in staged) fileSystem.atomicMove(part, file)
+            staged.clear()
+            for ((file, bytes) in bufferedConfs) {
+                val tmp = file.parent!! / (file.name + ".tmp")
+                fileSystem.write(tmp) { write(bytes) }
+                fileSystem.atomicMove(tmp, file)
             }
+        } finally {
+            for (part in staged.values) runCatching { fileSystem.delete(part) }
+            for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
         }
         // Load configuration files & register SWORD books
         val bookDriver = SwordBookDriver.instance()
