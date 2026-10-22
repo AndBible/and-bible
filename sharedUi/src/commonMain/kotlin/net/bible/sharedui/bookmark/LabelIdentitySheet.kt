@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import net.bible.sharedui.components.AbModalBottomSheet
+import net.bible.sharedui.components.rememberControllerText
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -125,11 +126,12 @@ fun LabelIdentitySheetContent(
 ) {
     val strings = LocalStrings.current
     var customPickerOpen by remember { mutableStateOf(false) }
+    val nameText = rememberControllerText(name)
 
     Column(modifier) {
         OutlinedTextField(
-            value = name,
-            onValueChange = onName,
+            value = nameText.text,
+            onValueChange = { nameText.edit(it, onName) },
             enabled = nameEditable,
             singleLine = true,
             label = { Text(strings.labelNameHint) },

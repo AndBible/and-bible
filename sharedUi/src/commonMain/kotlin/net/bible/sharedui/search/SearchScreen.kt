@@ -51,6 +51,7 @@ import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.components.AbSettingsSummarySheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeVerticalScroll
@@ -84,6 +85,7 @@ fun SearchScreen(
 ) {
     val strings = LocalStrings.current
     var recentMenuOpen by remember { mutableStateOf(initiallyRecentMenuOpen) }
+    val queryText = rememberControllerText(query)
 
     val settingsSummary = bibleSearchSettingsSummary(
         strings = strings,
@@ -104,8 +106,8 @@ fun SearchScreen(
         ) {
             Box {
                 AbSearchField(
-                    value = query,
-                    onValueChange = onQueryChange,
+                    value = queryText.text,
+                    onValueChange = { queryText.edit(it, onQueryChange) },
                     placeholder = strings.search,
                     onImeSearch = onSubmit,
                     onLeadingIconClick = if (recentTerms.isNotEmpty()) {
