@@ -6,7 +6,7 @@ import XCTest
 /// Preconditions are established here: the first launch passes `-standardTestFixture` (writes discrete_mode and
 /// show_calculator off, locale en) and the PIN is set to 1234 through the Settings editor. Later launches must NOT pass
 /// `-discrete_mode`, `-show_calculator`, `-calculator_pin` or `-standardTestFixture`: those would shadow or reset the
-/// very settings under test. The class restores discrete off and PIN 1234 at its end.
+/// very settings under test. A teardown block restores discrete off and PIN 1234 even after a failure.
 final class DiscreteSettingsUITests: RealAppUITestCase {
     private let english = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
 
@@ -79,7 +79,49 @@ final class DiscreteSettingsUITests: RealAppUITestCase {
         harnessRequire(!key(app, "=").exists, app, "\(step): calculator must not show")
     }
 
+    /// Best-effort restore, whatever state the app is left in (calculator gate with PIN 1234 or 4321, or normal):
+    /// discrete off and the default PIN. Never asserts: a cleanup problem is attached, not failed.
+    private func restoreNormalState() {
+        XCUIApplication().terminate()
+        let app = launchSettings(fixture: false)
+        defer { app.terminate() }
+        let root = app.staticTexts["Application preferences"].firstMatch
+        let gate = key(app, "=")
+        _ = waitUntil(timeout: 60) { root.exists || gate.exists }
+        for pin in [["1", "2", "3", "4"], ["4", "3", "2", "1"]] where gate.exists {
+            for label in ["C"] + pin + ["="] { if key(app, label).waitForExistence(timeout: 3) { key(app, label).tap() } }
+            _ = waitUntil(timeout: 10) { root.exists }
+        }
+        guard waitUntil(timeout: 30, { root.exists }) else { shot(app, "cleanup-settings-not-reached"); return }
+        func scrollTo(_ id: String) -> XCUIElement? {
+            let row = settingsRow(app, id)
+            for _ in 0..<14 where !(row.exists && row.isHittable) { app.swipeUp() }
+            for _ in 0..<14 where !(row.exists && row.isHittable) { app.swipeDown() }
+            return row.exists && row.isHittable ? row : nil
+        }
+        if let toggle = scrollTo("discrete_mode"), toggle.isSelected {
+            toggle.tap()
+            acknowledgeIconAlert(app, required: false, "teardown-disable")
+            _ = waitUntil(timeout: 15) { !toggle.isSelected }
+        }
+        if let pinRow = scrollTo("calculator_pin") {
+            pinRow.tap()
+            let field = app.textViews.firstMatch
+            if field.waitForExistence(timeout: 10) {
+                field.tap()
+                let existing = (field.value as? String) ?? ""
+                if !existing.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count + 2)) }
+                field.typeText("1234")
+                if app.buttons["Apply"].firstMatch.waitForExistence(timeout: 5) { app.buttons["Apply"].firstMatch.tap() }
+                _ = closeSettingsEditor(app)
+            } else { shot(app, "cleanup-pin-editor-missing") }
+        }
+        XCUIDevice.shared.press(.home)
+        usleep(1_000_000)
+    }
+
     func testToggleDiscreteFromSettings() {
+        addTeardownBlock { [self] in restoreNormalState() }
         // Preconditions: discrete off, PIN 1234.
         var app = launchSettings(fixture: true)
         harnessRequire(waitForSettingsRoot(app), app, "Settings root did not appear")
@@ -114,12 +156,7 @@ final class DiscreteSettingsUITests: RealAppUITestCase {
         enter(app, ["C", "4", "3", "2", "1", "="])
         harnessRequire(waitForSettingsRoot(app), app, "PIN 4321 did not reach Settings")
 
-        // Cleanup: leave discrete off and the PIN at its default so later classes start from the normal state.
-        setDiscrete(app, on: false, step: "cleanup-disable")
-        replaceSettingsText(app, rowKey: "calculator_pin", with: "1234")
-        harnessRequire(closeSettingsEditor(app), app, "PIN editor did not close (cleanup)")
-        app = relaunch(app)
-        assertSettingsDirectly(app, "after cleanup")
+        // Restoring discrete off and PIN 1234 is done by the teardown block (also after a failure).
         app.terminate()
     }
 }
