@@ -148,6 +148,29 @@ final class FeaturePathsUITests: RealAppUITestCase {
     /// Measured: the unlock input is an unlabelled TextView (not a TextField/SecureTextField) under the dialog title.
     private func unlockField(_ app: XCUIApplication) -> XCUIElement { app.textViews.firstMatch }
 
+    /// Labels of the displayed document's web view root, measured as `BibleView-<id>/bible/<initials>_ordinal_<n> (production)`
+    /// (cipher relaunch tree). It names the module the reading view is rendering, unlike a chooser row or the description.
+    private func shownDocumentLabels(_ app: XCUIApplication) -> [String] {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'BibleView-'"))
+            .allElementsBoundByIndex.map(\.label)
+    }
+
+    private func requireShownModule(_ app: XCUIApplication, _ initials: String, _ step: String) {
+        let found = waitUntil(timeout: 30) { self.shownDocumentLabels(app).contains { $0.contains("/\(initials)_") } }
+        if !found {
+            let a = XCTAttachment(string: shownDocumentLabels(app).joined(separator: "\n"))
+            a.name = "shown-document-labels-\(step)"; a.lifetime = .keepAlways; add(a)
+        }
+        require(found, app, "\(step): the displayed web view belongs to \(initials)")
+    }
+
+    /// Visible on-screen labels (static texts and buttons) of the current screen, sorted: an observable of selection state.
+    private func screenLabels(_ app: XCUIApplication) -> [String] {
+        let screen = app.frame
+        let elements = app.staticTexts.allElementsBoundByIndex + app.buttons.allElementsBoundByIndex
+        return elements.filter { $0.exists && !$0.label.isEmpty && $0.frame.intersects(screen) }.map(\.label).sorted()
+    }
+
     /// Text of John 1:1 in the web view phrase labels (WebKit splits text into phrase-level static texts).
     private func john11Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
         let texts = app.webViews.staticTexts
@@ -193,8 +216,7 @@ final class FeaturePathsUITests: RealAppUITestCase {
         unlocked.tap()
         require(element(app, "reading-host").waitForExistence(timeout: 60), app, "Reading host after choosing H2Cipher")
         require(john11Shown(app), app, "John 1:1 text from the unlocked module")
-        require(byLabel(app, containing: "H2Cipher").waitForExistence(timeout: 15), app,
-                "Reading shows the H2Cipher module (not a KJV fallback)")
+        requireShownModule(app, "H2Cipher", "cipher-after-unlock")
         sendToBackground(app)
         app.terminate()
 
@@ -212,6 +234,7 @@ final class FeaturePathsUITests: RealAppUITestCase {
         require(element(app, "reading-host").waitForExistence(timeout: 90), app, "Reading host after relaunch")
         require(john11Shown(app), app, "PRODUCT?: John 1:1 text after relaunch (key stored but not applied: page stays empty)")
         require(byLabel(app, containing: "John 1:1").exists, app, "Relaunch reads John 1:1")
+        requireShownModule(app, "H2Cipher", "cipher-after-relaunch")
     }
 
     // MARK: chooser backup
@@ -303,7 +326,7 @@ final class FeaturePathsUITests: RealAppUITestCase {
             let text = app.webViews.staticTexts.matching(NSPredicate(
                 format: "label CONTAINS 'In the beginning God created the heaven and the earth'")).firstMatch
             require(text.waitForExistence(timeout: 60), app, "\(initials) page text '/Part 1/Chapter 1'")
-            require(byLabel(app, containing: initials).exists, app, "\(initials) is the shown document")
+            requireShownModule(app, initials, "\(initials)-page")
             shot(app, "\(initials)-page")
             // Back to the chooser for the next module.
             element(app, "debug-open-chooser").tap()
@@ -361,9 +384,14 @@ final class FeaturePathsUITests: RealAppUITestCase {
         tap(app, app.buttons["More options"].firstMatch, "more-options")
         tap(app, app.buttons["All text options …"].firstMatch, "all-text-options")
         tap(app, byLabel(app, "Color settings"), "color-settings")
-        let noneBefore = app.staticTexts.matching(NSPredicate(format: "label == 'No background'")).count
+        // Observable of the prior selection: every visible label of the colour screen (the Background image row shows
+        // the chosen image name, e.g. 'No background') and, one level down, of the image chooser (tiles, None row).
+        let settingsBefore = screenLabels(app)
+        require(settingsBefore.contains { $0.contains("Background image") }, app, "HARNESS: Background image row on the colour screen")
         tap(app, app.buttons["Change"].firstMatch, "background-image-change")
         let importRow = byLabel(app, "Import from gallery…")
+        require(importRow.waitForExistence(timeout: 15), app, "Background image chooser")
+        let chooserBefore = screenLabels(app)
         tap(app, importRow, "import-from-gallery")
         let cancel = app.buttons["Cancel"].firstMatch
         require(cancel.waitForExistence(timeout: 30), app, "Real photo picker (Cancel)")
@@ -373,9 +401,11 @@ final class FeaturePathsUITests: RealAppUITestCase {
         require(waitUntil(timeout: 20) { !cancel.exists }, app, "Picker dismissed")
         require(importRow.waitForExistence(timeout: 15), app, "Back on the background chooser after cancel")
         require(!byLabel(app, "Importing…").exists, app, "Cancel starts no import")
+        require(screenLabels(app) == chooserBefore, app,
+                "Image chooser state unchanged after cancel: \(Set(screenLabels(app)).symmetricDifference(Set(chooserBefore)))")
         let up = app.buttons["Back"].firstMatch
         if up.exists && up.isHittable { up.tap() }
-        let noneAfter = app.staticTexts.matching(NSPredicate(format: "label == 'No background'")).count
-        XCTAssertEqual(noneBefore, noneAfter, "Cancelling the picker must preserve the background selection")
+        require(waitUntil(timeout: 15) { self.screenLabels(app) == settingsBefore }, app,
+                "Colour screen (Background image row value) unchanged after cancel: \(Set(screenLabels(app)).symmetricDifference(Set(settingsBefore)))")
     }
 }
