@@ -43,6 +43,16 @@ internal object IosDebugLaunchArgs {
         settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, kotlin.time.Clock.System.now().toEpochMilliseconds())
     }
 
+    /**
+     * `-installCommitDelayMs <ms>`: milliseconds the module-install commit sleeps after each extracted archive entry,
+     * so a UI test can kill the process mid-extraction. 0 (no delay) in release binaries or without the argument.
+     */
+    fun installCommitDelayMs(): Long {
+        if (!Platform.isDebugBinary) return 0L
+        val index = arguments.indexOf("-installCommitDelayMs")
+        return if (index < 0) 0L else arguments.getOrNull(index + 1)?.toLongOrNull()?.coerceIn(0L, 60_000L) ?: 0L
+    }
+
     /** X-owned debug controls, independent of the H-owned Settings implementation. */
     fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
 
