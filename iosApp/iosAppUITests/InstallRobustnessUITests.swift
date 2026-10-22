@@ -47,26 +47,37 @@ final class InstallRobustnessUITests: RealAppUITestCase {
         require(ok.isHittable && ok.isEnabled, app, "Unusable control: install OK")
         ok.tap()
 
-        // 2. Wait for the extracting progress text, let at least one entry land (delay is per entry), then kill.
-        let extracting = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS[c] 'Extracting'")).firstMatch
-        require(extracting.waitForExistence(timeout: 60), app, "extracting progress text is shown")
-        shot(app, "extracting-before-kill")
-        sleep(2)
+        // 2. Wait until the debug progress marker proves the commit is mid-way (0 < percent < 100), then kill at once.
+        //    The marker " [commit N%]" is appended to the status only with -installCommitDelayMs (debug seam); the
+        //    fixture has 5 files, so progress is 20/40/60/80/100 with 1.5 s between steps.
+        let status = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS '[commit '")).firstMatch
+        func commitPercent() -> Int? {
+            guard status.exists, let range = status.label.range(of: #"\[commit (\d+)%\]"#, options: .regularExpression) else { return nil }
+            return Int(status.label[range].filter(\.isNumber))
+        }
+        require(waitUntil(timeout: 60) { if let p = commitPercent() { return p > 0 && p < 100 }; return false },
+                app, "commit progress is strictly between 0 and 100 percent (mid-commit)")
+        let killedAt = commitPercent() ?? -1
+        shot(app, "extracting-before-kill-\(killedAt)")
         app.terminate()
 
         // 3. Relaunch without reset, fixture or delay: the store must be consistent.
         app = launch(["-standardTestFixture", "-featureScenario", "chooser", "-openDocument", "KJV", "-openRef", "Gen.1.1"])
-        if let row = chooserHasRow(app, initials: "K4RawText") {
-            row.tap()
-            let texts = app.webViews.staticTexts
-            let shown = waitUntil(timeout: 60) {
-                (0..<min(texts.count, 400)).map { texts.element(boundBy: $0).label }
-                    .joined(separator: " ").contains("In the beginning God created the heaven and the earth.")
-            }
-            require(shown, app, "K4RawText is listed, so it must open and show Genesis 1:1")
-        } else {
-            shot(app, "k4rawtext-absent-after-kill")  // absent is the other consistent outcome
-        }
+        // 'Absent' is only meaningful when the chooser really lists installed modules.
+        require(chooserHasRow(app, initials: "KJV") != nil, app, "HARNESS: the chooser lists KJV (so an absent K4RawText means absent)")
+        let listed = chooserHasRow(app, initials: "K4RawText") != nil
         app.terminate()
+        guard listed else { return } // absent: consistent
+        // Listed: both an OT and an NT verse of the fixture must read.
+        for (ref, text) in [("Gen.1.1", "In the beginning God created the heaven and the earth."),
+                            ("John.1.1", "In the beginning was the Word")] {
+            let reopened = launch(["-standardTestFixture", "-openDocument", "K4RawText", "-openRef", ref])
+            let texts = reopened.webViews.staticTexts
+            let shown = waitUntil(timeout: 60) {
+                (0..<min(texts.count, 400)).map { texts.element(boundBy: $0).label }.joined(separator: " ").contains(text)
+            }
+            require(shown, reopened, "K4RawText is listed after the kill, so \(ref) must read")
+            reopened.terminate()
+        }
     }
 }
