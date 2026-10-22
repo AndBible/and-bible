@@ -156,6 +156,16 @@ class ModuleArchiveInterruptionTest {
         override fun close() { closed = true; inner.close() }
     }
 
+    private fun strayFiles(root: File) = root.walkTopDown().filter { it.isFile && (it.name.endsWith(".part") ||
+        it.name.endsWith(".tmp") || it.name.endsWith(".old")) }.map { it.relativeTo(root).path }.toList()
+
+    /** File-level state a kill would leave: "absent", "gen1"/"gen2", or "VIOLATION" (conf next to partial or mixed data). */
+    private fun snapshot(generations: List<List<Pair<String, ByteArray>>>): String {
+        if (!File(dest, "mods.d/$INITIALS.conf").exists()) return "absent"
+        val index = generations.indexOfFirst { matches(it) }
+        return if (index < 0) "VIOLATION" else "gen${index + 1}"
+    }
+
     private fun rescan() {
         Books.installed().getBook(INITIALS)?.let { Books.installed().removeBook(it) }
         Books.installed().registerDriver(SwordBookDriver.instance())
@@ -167,6 +177,7 @@ class ModuleArchiveInterruptionTest {
 
     /** Applies the consistency rule and returns "absent", "gen1" or "gen2". */
     private fun assertConsistent(label: String, generations: List<List<Pair<String, ByteArray>>>): String {
+        assertEquals(emptyList(), strayFiles(dest), "$label: staged .part/.tmp/.old files left behind")
         rescan()
         if (!File(dest, "mods.d/$INITIALS.conf").exists()) {
             assertNull(Books.installed().getBook(INITIALS), "$label: no conf, yet the book is installed")
@@ -229,6 +240,42 @@ class ModuleArchiveInterruptionTest {
             val book = assertNotNull(Books.installed().getBook(INITIALS), "k=$k $how: installed module vanished")
             assertEquals("In the beginning God created the heaven and the earth.",
                 book.getRawText(book.getKey("Gen.1.1")).trim(), "k=$k $how: Gen 1:1 unreadable")
+        }
+    }
+
+    /**
+     * The publish phase (data renames, then conf) is not atomic as a whole. The state at every step boundary is what a
+     * kill would leave: it must be absent or one complete generation, never the old conf next to mixed data; and a
+     * handled failure at any step must leave absent or a complete generation and no staged leftovers.
+     */
+    @Test fun interruptedPublishNeverLeavesConfNextToMixedData() {
+        val old = generation(1)
+        val new = generation(2)
+        val oldZip = zip(old, "gen1.zip")
+        val newZip = zip(new, "gen2.zip")
+        fun fresh(overwrite: Boolean) {
+            dest.deleteRecursively(); dest.mkdirs()
+            if (overwrite) runBlocking { backupControl().extractAndRegisterModuleArchive({ oldZip.source() }) }
+        }
+        for (overwrite in listOf(false, true)) {
+            fresh(overwrite)
+            val control = backupControl()
+            val snapshots = mutableListOf<String>()
+            control.onPublishStep = { snapshots += snapshot(listOf(old, new)) }
+            runBlocking { control.extractAndRegisterModuleArchive({ newZip.source() }) }
+            assertEquals(new.size, snapshots.size, "one publish step per data file plus the conf")
+            assertTrue(snapshots.none { it == "VIOLATION" }, "overwrite=$overwrite: kill-state snapshots $snapshots")
+            assertEquals("gen2", assertConsistent("overwrite=$overwrite full publish", listOf(old, new)))
+            for (j in 0 until new.size) {
+                fresh(overwrite)
+                val failing = backupControl()
+                failing.onPublishStep = { step -> if (step == j) throw IOException("injected publish failure at $j") }
+                val result = runCatching { runBlocking { failing.extractAndRegisterModuleArchive({ newZip.source() }) } }
+                assertTrue(result.isFailure, "overwrite=$overwrite j=$j: the publish failure must surface")
+                val state = assertConsistent("overwrite=$overwrite j=$j", listOf(old, new))
+                println("MODULE-PUBLISH-INTERRUPTION overwrite=$overwrite j=$j -> $state")
+                if (overwrite && j == 0) assertEquals("gen1", state, "nothing replaced yet: the old module must be restored")
+            }
         }
     }
 
