@@ -14,6 +14,7 @@ import net.bible.sharedui.app.installzip.InstallZipHostPlatform
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.strings.keyed.StringTable
@@ -50,6 +51,10 @@ class IosInstallZipHostPlatform(
 
     override fun resolveDecision(jobId: JobId, proceed: Boolean) = controller().resolveDecision(jobId, proceed)
 
+    /** Debug seam: with `-installCommitDelayMs` the status also carries " [commit N%]" so a UI test can prove it is mid-commit. */
+    private fun commitMarker(percent: Int): String =
+        if (IosDebugLaunchArgs.installCommitDelayMs() > 0) " [commit $percent%]" else ""
+
     override fun mapPhase(job: InstallJobState): InstallUiState {
         val table = table()
         return when (val phase = job.phase) {
@@ -58,7 +63,7 @@ class IosInstallZipHostPlatform(
         is InstallPhase.Acquiring ->
             InstallUiState.Progress(job.displayName, table.text("checking_zip_file"), phase.percent, false)
         is InstallPhase.Committing ->
-            InstallUiState.Progress(job.displayName, table.text("extracting_zip_file"), phase.percent, false)
+            InstallUiState.Progress(job.displayName, table.text("extracting_zip_file") + commitMarker(phase.percent), phase.percent, false)
         InstallPhase.Done -> InstallUiState.Progress(job.displayName, table.text("extracting_zip_file"), 100, false)
         is InstallPhase.AwaitingDecision -> when (val request = phase.request) {
             is DecisionRequest.Overwrite -> InstallUiState.Overwrite(request.files)
