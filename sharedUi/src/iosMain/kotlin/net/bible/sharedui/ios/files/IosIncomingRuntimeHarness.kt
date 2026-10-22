@@ -53,6 +53,7 @@ internal object IosIncomingRuntimeHarness {
     )
     private var coldOffered = emptyList<String>()
     private var removeColdFixtures = false
+    private var purgeLeftovers = false
 
     fun prepareLaunch() {
         if (!Platform.isDebugBinary) return
@@ -60,6 +61,7 @@ internal object IosIncomingRuntimeHarness {
         enabled = "-incomingRuntimeTest" in args
         controlsVisible = enabled && "-incomingRuntimeControls" in args
         removeColdFixtures = enabled && "-incomingRemoveFixtures" in args
+        purgeLeftovers = enabled && "-incomingPurgeLeftovers" in args
         if (!enabled) return
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
@@ -98,6 +100,13 @@ internal object IosIncomingRuntimeHarness {
         if (failed) return false
         return try {
             withContext(Dispatchers.Default) {
+                if (purgeLeftovers) {
+                    // Debug-only: removes the SWORD and EPUB fixtures a previous incoming test left behind (never KJV),
+                    // through the production delete path, so a later class can pass the absence checks below.
+                    listOf("K4RawText", epubId).forEach { id ->
+                        Books.installed().getBook(id)?.let { SwordDocumentFacade.deleteDocument(it) }
+                    }
+                }
                 check(Books.installed().getBook("K4RawText") == null) { "SWORD fixture already registered" }
                 check(Books.installed().getBook(epubId) == null) { "EPUB fixture already registered" }
                 coldOffered.mapNotNull { h2Initials[it] }.forEach { initials ->

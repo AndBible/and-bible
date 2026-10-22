@@ -7,6 +7,13 @@ import XCTest
 /// Selectors (the "Extracting" progress text, the chooser row label) follow FeaturePathsUITests/IncomingFilesUITests;
 /// a missing selector is harness discovery (tree attached), not a product RED.
 final class InstallRobustnessUITests: RealAppUITestCase {
+    /// A fresh install has only the NASB fallback; establish KJV once per class (idempotent, see KjvProvisioning.swift).
+    private static var kjvEnsured = false
+    override func setUp() {
+        super.setUp()
+        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+    }
+
     private func require(_ condition: Bool, _ app: XCUIApplication, _ step: String,
                          file: StaticString = #filePath, line: UInt = #line) {
         if !condition { attachTree(app, step); shot(app, step) }

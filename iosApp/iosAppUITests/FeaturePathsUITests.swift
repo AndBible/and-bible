@@ -3,7 +3,7 @@ import XCTest
 /// H2 Task 6 feature paths through production routes: cipher unlock, chooser module backup share, general book
 /// and maps, Grid chapter choice and the text background picker.
 ///
-/// Prerequisites (host side): KJV installed in the simulator (see BackupUITests / seed-files-provider.sh).
+/// Prerequisites (host side): Files "H2 Fixtures" holds h2-kjv.zip (seed-files-provider.sh); setUp installs KJV when absent (KjvProvisioning.swift).
 /// Fixtures arrive through the production incoming queue: `-incomingRuntimeTest -incomingFixture <alias[,alias]>`
 /// (aliases cipher|genbook|maps|dict, see IosIncomingRuntimeHarness); `-incomingRemoveFixtures` deletes a previous
 /// run's test-owned fixture first (never KJV). Fixtures and keys:
@@ -15,6 +15,13 @@ import XCTest
 /// The AX labels of the unlock dialog, the backup selection dialog, Grid cells and the general book/map key lists
 /// were NOT measured when this was drafted: a missing selector is HARNESS discovery (tree attached), not a product RED.
 final class FeaturePathsUITests: RealAppUITestCase {
+    /// A fresh install has only the NASB fallback; establish KJV once per class (idempotent, see KjvProvisioning.swift).
+    private static var kjvEnsured = false
+    override func setUp() {
+        super.setUp()
+        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+    }
+
     private let wrongKey = "wrong-key"
     private let rightKey = "k4-Test-key"
 
