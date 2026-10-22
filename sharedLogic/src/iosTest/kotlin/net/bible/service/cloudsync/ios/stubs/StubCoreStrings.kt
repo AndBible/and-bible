@@ -79,6 +79,9 @@ internal class StubCoreStrings : CoreStrings {
     override val webDavHttpsRequired = "webDavHttpsRequired"
     override val iCloudDrive = "iCloudDrive"
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String) = "$host|$subject|$issuer|$from|$until|$fingerprint"
+    // Mirrors the English resource webdav_untrusted_certificate_message_device (KeyedStringsTest checks the resource itself).
+    override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String =
+        "The certificate of $host is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: $subject\nIssuer: $issuer\nValid: $from – $until\nSHA-256: $fingerprint"
     override val signInFailed = "signInFailed"
     override val cloudSyncTitle = "cloudSyncTitle"
     override val cloudFetchAndRestoreInitial = "cloudFetchAndRestoreInitial"

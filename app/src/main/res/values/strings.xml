@@ -2161,4 +2161,5 @@
     <string name="paste_from_clipboard">Paste</string>
     <!-- H2: platform-neutral iOS recommendation. -->
     <string name="tell_friend_message2_device">It is a powerful, yet easy to use, offline Bible study application.</string>
+    <string name="webdav_untrusted_certificate_message_device">The certificate of %1$s is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
 </resources>

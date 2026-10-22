@@ -249,6 +249,16 @@ class KeyedStringsTest {
     }
 
     @Test
+    fun deviceCertificateMessageIsNeutralAndKeepsAndroidWording() {
+        val core = KeyedCoreStrings(table)
+        val device = core.webDavUntrustedCertificateMessageDevice("h.example", "S", "I", "from", "until", "AA:BB")
+        assertTrue("not trusted by this device" in device, device)
+        assertFalse("Android" in device, device)
+        listOf("h.example", "Subject: S", "Issuer: I", "Valid: from – until", "SHA-256: AA:BB").forEach { assertTrue(it in device, device) }
+        assertTrue("not trusted by Android" in core.webDavUntrustedCertificateMessage("h", "S", "I", "f", "u", "A"))
+    }
+
+    @Test
     fun discreteDriveIntroductionHidesTheBibleAppName() {
         val core = KeyedCoreStrings(table)
         assertTrue("Simple Calculator" in core.syncDriveIntroduction(true), core.syncDriveIntroduction(true))

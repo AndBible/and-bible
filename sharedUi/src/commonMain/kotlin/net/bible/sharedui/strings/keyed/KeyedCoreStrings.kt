@@ -115,6 +115,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val webDavHttpsRequired: String get() = t.text("webdav_https_required")
     override val iCloudDrive: String get() = t.text("adapters_icloud_drive")
     override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = t.fmt("webdav_untrusted_certificate_message", host, subject, issuer, from, until, fingerprint)
+    override fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = t.fmt("webdav_untrusted_certificate_message_device", host, subject, issuer, from, until, fingerprint)
     override val signInFailed: String get() = t.text("sign_in_failed")
     override val cloudSyncTitle: String get() = t.text("cloud_sync_title")
     override val cloudFetchAndRestoreInitial: String get() = t.text("cloud_fetch_and_restore_initial")

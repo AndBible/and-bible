@@ -88,7 +88,7 @@ Typical server addresses:
 
 #### Self-signed certificates
 
-If the server's certificate is not trusted by Android (for example a
+If the server's certificate is not trusted by your device (for example a
 self-signed certificate on a home server), *AndBible* shows an
 **Untrusted server certificate** dialog with the host, subject, issuer,
 validity period, and the SHA-256 fingerprint of the certificate. Compare the

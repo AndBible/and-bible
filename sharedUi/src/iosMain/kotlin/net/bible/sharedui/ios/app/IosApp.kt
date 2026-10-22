@@ -140,8 +140,13 @@ internal suspend fun resolveIosStartRoute(bibles: () -> List<Book> = { SwordDocu
 
 /** The start route, with reading made ready first when it is READING (the Welcome flow does it on entering reading). */
 private suspend fun prepareIosStart(table: StringTable): String {
-    val route = if (kotlin.native.Platform.isDebugBinary && "-task5Settings" in platform.Foundation.NSProcessInfo.processInfo.arguments)
-        NavRoutes.SETTINGS else resolveIosStartRoute()
+    val debugArguments: List<*> = if (kotlin.native.Platform.isDebugBinary) platform.Foundation.NSProcessInfo.processInfo.arguments else emptyList<Any?>()
+    val route = when {
+        "-task5Settings" in debugArguments -> NavRoutes.SETTINGS
+        // H2: the real sync settings route, entered directly as the reading drawer's cloud-sync row will.
+        "-h2SyncSettings" in debugArguments -> NavRoutes.SYNC_SETTINGS
+        else -> resolveIosStartRoute()
+    }
     if (route == NavRoutes.READING) IosReadingReady.ensure(table)
     return route
 }
