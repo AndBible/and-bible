@@ -126,6 +126,7 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.persistCipherKey
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.startup.ReadingAppInitPlatform
@@ -798,15 +799,9 @@ object CommonUtils : CommonUtilsBase() {
         "help" to R.string.help,
     )
 
-    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
-        return documentDialogsCore(application).unlockDocument(book) { passphrase ->
-            docDao.getBook(book.initials)?.apply {
-                cipherKey = passphrase
-                docDao.update(this)
-            }
-        }
+        return documentDialogsCore(application).unlockDocument(book) { passphrase -> persistCipherKey(book, passphrase) }
     }
 
     /** about display is generic so handle it here
