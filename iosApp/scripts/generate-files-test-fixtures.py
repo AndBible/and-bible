@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate deterministic Photos, SWORD, EPUB and invalid-ZIP fixtures for iOS file tests."""
+"""Generate deterministic Photos, SWORD, EPUB, invalid-ZIP and H2 feature fixtures for iOS file tests."""
 import argparse
 import pathlib
 import struct
@@ -30,6 +30,44 @@ def incoming_fixtures(output):
         ("ch2.xhtml", '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Two</title></head><body><p>F runtime chapter two proof.</p></body></html>'),
     ])
     (output / "f-invalid.zip").write_bytes(bytes((0x50, 0x4B, 3, 4, 0)))
+    h2_fixtures(output, modules)
+
+
+def _conf(modules, name):
+    return (modules / "mods.d" / name).read_text(encoding="utf-8")
+
+
+def h2_fixtures(output, modules):
+    """H2 feature-path modules built from the K4 jsword fixtures.
+
+    h2-cipher.zip   H2Cipher  : K4Cipher bytes (enciphered with key k4-Test-key), locked (empty CipherKey).
+    h2-genbook.zip  K4GenBook : unchanged RawGenBook (keys /Part 1/Chapter 1, /Part 1/Chapter 2, /Part 2).
+    h2-maps.zip     H2Maps    : the same RawGenBook data under its own prefix, Category=Maps.
+    h2-dict.zip     K4ZLD     : unchanged zLD dictionary (AARON, ABBA, ZION).
+    """
+    cipher = _conf(modules, "K4Cipher.conf")
+    assert "[K4Cipher]\n" in cipher and "DataPath=./modules/K4Cipher\n" in cipher and "CipherKey=k4-Test-key" in cipher
+    cipher = (cipher.replace("[K4Cipher]", "[H2Cipher]")
+              .replace("DataPath=./modules/K4Cipher", "DataPath=./modules/texts/ztext/h2cipher")
+              .replace("CipherKey=k4-Test-key", "CipherKey="))
+    names = [f"{testament}.{ext}" for testament in ("ot", "nt") for ext in ("bzs", "bzv", "bzz")]
+    archive(output / "h2-cipher.zip", [("mods.d/H2Cipher.conf", cipher)] + [
+        (f"modules/texts/ztext/h2cipher/{n}", (modules / "modules/K4Cipher" / n).read_bytes()) for n in names])
+
+    gen_files = [f"K4GenBook.{ext}" for ext in ("idx", "dat", "bdt")]
+    archive(output / "h2-genbook.zip", [("mods.d/K4GenBook.conf", (modules / "mods.d/K4GenBook.conf").read_bytes())] + [
+        (f"modules/K4GenBook/{n}", (modules / "modules/K4GenBook" / n).read_bytes()) for n in gen_files])
+
+    maps = _conf(modules, "K4GenBook.conf")
+    assert "[K4GenBook]" in maps and "DataPath=./modules/K4GenBook/K4GenBook" in maps
+    maps = (maps.replace("[K4GenBook]", "[H2Maps]").replace("DataPath=./modules/K4GenBook/K4GenBook", "DataPath=./modules/H2Maps/H2Maps")
+            .rstrip("\n") + "\nCategory=Maps\n")
+    archive(output / "h2-maps.zip", [("mods.d/H2Maps.conf", maps)] + [
+        (f"modules/H2Maps/H2Maps.{n.split('.')[1]}", (modules / "modules/K4GenBook" / n).read_bytes()) for n in gen_files])
+
+    dict_files = [f"K4ZLD.{ext}" for ext in ("zdx", "zdt", "idx", "dat")]
+    archive(output / "h2-dict.zip", [("mods.d/K4ZLD.conf", (modules / "mods.d/K4ZLD.conf").read_bytes())] + [
+        (f"modules/K4ZLD/{n}", (modules / "modules/K4ZLD" / n).read_bytes()) for n in dict_files])
 
 
 def chunk(kind, data):

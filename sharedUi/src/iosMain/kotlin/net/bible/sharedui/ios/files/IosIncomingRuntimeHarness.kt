@@ -34,6 +34,24 @@ internal object IosIncomingRuntimeHarness {
     private var epubVerified by mutableStateOf(false)
     private val epubId get() = epubInitials("f-runtime.epub")
 
+    /** Cold `-incomingFixture` aliases; a comma list offers several archives to the same production queue in order. */
+    private val coldFixtures = mapOf(
+        "sword" to "f-rawtext.zip",
+        "invalid" to "f-invalid.zip",
+        "cipher" to "h2-cipher.zip",
+        "genbook" to "h2-genbook.zip",
+        "maps" to "h2-maps.zip",
+        "dict" to "h2-dict.zip",
+    )
+    private val allowedOffers = coldFixtures.values.toSet() + "f-runtime.epub"
+
+    /** Initials installed by the H2 fixtures, which must be absent before the cold offer is delivered. */
+    private val h2Initials = mapOf(
+        "h2-cipher.zip" to "H2Cipher", "h2-genbook.zip" to "K4GenBook",
+        "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD",
+    )
+    private var coldOffered = emptyList<String>()
+
     fun prepareLaunch() {
         if (!Platform.isDebugBinary) return
         val args = NSProcessInfo.processInfo.arguments.map { it.toString() }
@@ -43,12 +61,11 @@ internal object IosIncomingRuntimeHarness {
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
             try {
-                val fixture = when (args.getOrNull(index + 1)) {
-                    "sword" -> "f-rawtext.zip"
-                    "invalid" -> "f-invalid.zip"
-                    else -> error("Unknown cold incoming fixture")
+                val fixtures = (args.getOrNull(index + 1) ?: error("Missing cold incoming fixture")).split(",").map {
+                    coldFixtures[it] ?: error("Unknown cold incoming fixture")
                 }
-                offer(fixture)
+                coldOffered = fixtures
+                fixtures.forEach { offer(it) }
             } catch (error: Exception) { fail(error) }
         }
     }
@@ -60,7 +77,7 @@ internal object IosIncomingRuntimeHarness {
 
     private fun offer(name: String) {
         check(enabled && Platform.isDebugBinary)
-        require(name in setOf("f-rawtext.zip", "f-invalid.zip", "f-runtime.epub"))
+        require(name in allowedOffers)
         nsLog("IncomingFilesHarness event=fixture-offer-start basename=$name")
         val resource = NSBundle.mainBundle.resourceURL!!.URLByAppendingPathComponent("files-port-fixtures/$name")!!
         val folder = NSURL.fileURLWithPath(NSTemporaryDirectory()).URLByAppendingPathComponent("f-runtime-${NSUUID().UUIDString}", true)!!
@@ -80,6 +97,9 @@ internal object IosIncomingRuntimeHarness {
             withContext(Dispatchers.Default) {
                 check(Books.installed().getBook("K4RawText") == null) { "SWORD fixture already registered" }
                 check(Books.installed().getBook(epubId) == null) { "EPUB fixture already registered" }
+                coldOffered.mapNotNull { h2Initials[it] }.forEach { initials ->
+                    check(Books.installed().getBook(initials) == null) { "$initials fixture already registered" }
+                }
             }
             ready = true
             true
