@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.format.SaxTextPolicy
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubInitials
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.CoreStrings
@@ -51,12 +52,14 @@ internal object IosIncomingRuntimeHarness {
         "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD",
     )
     private var coldOffered = emptyList<String>()
+    private var removeColdFixtures = false
 
     fun prepareLaunch() {
         if (!Platform.isDebugBinary) return
         val args = NSProcessInfo.processInfo.arguments.map { it.toString() }
         enabled = "-incomingRuntimeTest" in args
         controlsVisible = enabled && "-incomingRuntimeControls" in args
+        removeColdFixtures = enabled && "-incomingRemoveFixtures" in args
         if (!enabled) return
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
@@ -98,6 +101,9 @@ internal object IosIncomingRuntimeHarness {
                 check(Books.installed().getBook("K4RawText") == null) { "SWORD fixture already registered" }
                 check(Books.installed().getBook(epubId) == null) { "EPUB fixture already registered" }
                 coldOffered.mapNotNull { h2Initials[it] }.forEach { initials ->
+                    // Opt-in cleanup of a previous run's test-owned fixture only (never KJV): the production
+                    // delete path, so the absence check below still proves a clean install.
+                    if (removeColdFixtures) Books.installed().getBook(initials)?.let { SwordDocumentFacade.deleteDocument(it) }
                     check(Books.installed().getBook(initials) == null) { "$initials fixture already registered" }
                 }
             }
