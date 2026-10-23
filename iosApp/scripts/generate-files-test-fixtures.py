@@ -31,6 +31,7 @@ def incoming_fixtures(output):
     ])
     (output / "f-invalid.zip").write_bytes(bytes((0x50, 0x4B, 3, 4, 0)))
     h2_fixtures(output, modules)
+    h2_bookmarks_csv(output)
 
 
 def _conf(modules, name):
@@ -68,6 +69,21 @@ def h2_fixtures(output, modules):
     dict_files = [f"K4ZLD.{ext}" for ext in ("zdx", "zdt", "idx", "dat")]
     archive(output / "h2-dict.zip", [("mods.d/K4ZLD.conf", (modules / "mods.d/K4ZLD.conf").read_bytes())] + [
         (f"modules/K4ZLD/{n}", (modules / "modules/K4ZLD" / n).read_bytes()) for n in dict_files])
+
+
+def h2_bookmarks_csv(output):
+    """h2-bookmarks.csv: the three bookmarks (with notes) that FeatureFlowsUITests imports through the real CSV import.
+
+    Creation order (createdAt) differs from Bible order on purpose: Revelation 1:1 first, Genesis 1:1 second, John 3:16
+    third. No id column: every import creates new bookmarks. Semicolon separated like BookmarkCsvUtils.
+    """
+    rows = [
+        ("Rev.1.1", "2024-01-01T10:00:00Z", "H2 note: first seeded in Revelation"),
+        ("Gen.1.1", "2024-01-02T10:00:00Z", "H2 note: second seeded in Genesis"),
+        ("John.3.16", "2024-01-03T10:00:00Z", "H2 note: third seeded in John"),
+    ]
+    text = "osisRef;createdAt;notes\n" + "".join(";".join(row) + "\n" for row in rows)
+    (output / "h2-bookmarks.csv").write_text(text, encoding="utf-8")
 
 
 def chunk(kind, data):

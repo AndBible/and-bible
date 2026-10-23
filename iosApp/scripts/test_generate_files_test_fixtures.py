@@ -66,6 +66,14 @@ class H2FixtureTest(unittest.TestCase):
             self.assertEqual(self.read("h2-dict.zip", f"modules/K4ZLD/K4ZLD.{n}"), (MODULES / f"modules/K4ZLD/K4ZLD.{n}").read_bytes())
         self.assertEqual(self.names("h2-dict.zip")[0], "mods.d/K4ZLD.conf")
 
+    def test_bookmarks_csv_creation_order_differs_from_bible_order(self):
+        lines = (self.out / "h2-bookmarks.csv").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(lines[0], "osisRef;createdAt;notes")
+        rows = [line.split(";") for line in lines[1:]]
+        self.assertEqual([r[0] for r in rows], ["Rev.1.1", "Gen.1.1", "John.3.16"])
+        self.assertEqual(sorted(r[1] for r in rows), [r[1] for r in rows])
+        self.assertEqual(len({r[2] for r in rows}), 3)
+
     def test_deterministic(self):
         with tempfile.TemporaryDirectory() as other:
             gen.incoming_fixtures(pathlib.Path(other))

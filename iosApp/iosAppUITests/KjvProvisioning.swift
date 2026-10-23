@@ -271,8 +271,11 @@ extension RealAppUITestCase {
         local(app)
         folder(app, folderName)
         if let child { folder(app, child) }
+        // Files names a cell "<name>.zip, zip" for archives but "<stem>, csv" (no dot) for CSV files (run 3 evidence).
+        let stem = (filename as NSString).deletingPathExtension, kind = (filename as NSString).pathExtension
         let file = localRoot(app).cells.matching(NSPredicate(format:
-            "label CONTAINS %@ OR identifier CONTAINS %@", filename, filename)).firstMatch
+            "label CONTAINS %@ OR identifier CONTAINS %@ OR identifier == %@ OR label == %@",
+            filename, filename, "\(stem), \(kind)", "\(stem), \(kind)")).firstMatch
         if !file.waitForExistence(timeout: 30) {
             let present = localRoot(app).cells.allElementsBoundByIndex.map { $0.identifier }.joined(separator: " | ")
             harnessRequire(false, app, "HARNESS: \(filename) is not in \(folderName)\(child.map { "/" + $0 } ?? "") "
