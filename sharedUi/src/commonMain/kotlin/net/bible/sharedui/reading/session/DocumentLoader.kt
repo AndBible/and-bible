@@ -182,8 +182,6 @@ class DocumentLoader(
         bookmarkControl.paragraphBreakLabel()
         val overrides = DatabaseContainer.instance.workspaceDb.workspaceDao().labelOverrides(workspaceId).associateBy { it.labelId }
         val labels = bookmarkControl.assignableLabels().map { it.withStyleOverrides(overrides[it.id]) }
-        // An enciphered book opened before the startup unlock finished must wait for it (suspend, not fail).
-        net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
         var docStr = withContext(Dispatchers.IO) { document.contentJson() }
         // This independent cache replays concurrent bookmark changes; populate before first config.
         refreshFavouriteLabels()
@@ -350,6 +348,8 @@ class DocumentLoader(
      */
     fun launchAnswer(callId: Long, load: suspend () -> String): Job = session.scope.launch(Dispatchers.IO) {
         val json = try {
+            // Chapter scroll-loads read the book too: wait for the startup unlock (suspends, never blocks Main).
+            net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
             load()
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e

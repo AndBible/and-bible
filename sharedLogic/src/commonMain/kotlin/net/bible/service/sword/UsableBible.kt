@@ -25,7 +25,10 @@ import org.crosswire.jsword.book.Book
  * reading view crashes: `WindowControl.defaultBibleDoc` falls back to `firstBibleDoc`, a `.first {}` over
  * the installed Bibles (finding M7).
  */
-fun hasUsableBible(bibles: List<Book> = SwordDocumentFacade.bibles): Boolean = bibles.any { !it.isLocked }
+fun hasUsableBible(bibles: List<Book> = SwordDocumentFacade.bibles): Boolean =
+    // While the stored cipher keys are still being applied in the background an enciphered Bible is only
+    // transiently locked: the readers wait for the unlock (ReadingAppInit.awaitCipherUnlock), so it counts.
+    bibles.any { !it.isLocked || (it.isEnciphered && net.bible.service.startup.ReadingAppInit.cipherUnlockPending) }
 
 /**
  * `StartupActivity.gotoMainBibleActivity`'s unlock attempt, shared by gates (a) and (b): when no Bible is

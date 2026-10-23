@@ -413,8 +413,12 @@ class Window (
         loadText(notifyLocationChange = true)
     }
 
-    private suspend fun fetchDocument(currentPage: net.bible.android.control.page.CurrentPage): Document? = withContext(Dispatchers.IO) {
+    /** The first JSword read of a window load; public only so :app tests can drive it. */
+    @androidx.annotation.VisibleForTesting
+    suspend fun fetchDocument(currentPage: net.bible.android.control.page.CurrentPage): Document? = withContext(Dispatchers.IO) {
         return@withContext try {
+            // Before the first JSword read: a locked enciphered book reads as an error or garbage, which is cached.
+            net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent()

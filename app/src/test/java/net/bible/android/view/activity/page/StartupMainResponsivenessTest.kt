@@ -85,14 +85,13 @@ class StartupMainResponsivenessTest {
             dao.insert(SwordDocumentInfo("Locked1", "Locked one", "L1", "en", "repo", cipherKey = "key-1"))
             dao.insert(SwordDocumentInfo("Locked2", "Locked two", "L2", "en", "repo", cipherKey = "key-2"))
         }
-        ReadingAppInit.hasInstalledBible = { true }
-        ReadingAppInit.unlockBook = { initials, key ->
+        ReadingAppInit.installCipherSeamsForTest(hasInstalledBible = { true }, unlockBook = { initials, key ->
             unlockThreads += Thread.currentThread()
             entered.countDown()
             // Stands in for the slow JSword decrypt. Bounded so a regression cannot hang forever.
             release.await(120, TimeUnit.SECONDS)
             unlockedBooks += initials to key
-        }
+        })
         // The stored-key read is skipped under isRunningTests; switch it off after the DB is open and seeded.
         DatabaseContainer.installHost(object : DatabaseHost by originalHost {
             override val isRunningTests: Boolean get() = false

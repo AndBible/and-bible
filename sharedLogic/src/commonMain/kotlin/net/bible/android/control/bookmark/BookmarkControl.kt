@@ -779,7 +779,13 @@ open class BookmarkControl constructor(
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
-    internal suspend fun addText(b: BaseBookmarkWithNotes) = when(b) {
+    internal suspend fun addText(b: BaseBookmarkWithNotes) = run {
+        // Bookmark text reads the book: wait for the startup cipher unlock (no-op once unlocked).
+        net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+        addTextUnlocked(b)
+    }
+
+    private suspend fun addTextUnlocked(b: BaseBookmarkWithNotes) = when(b) {
         is BibleBookmarkWithNotes -> addText(b)
         is GenericBookmarkWithNotes -> addText(b)
         else -> throw RuntimeException("Illegal type")
