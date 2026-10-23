@@ -259,7 +259,18 @@ final class FilesUITests: XCTestCase {
             // Search field first; only fall back to bounded in-grid drags.
             var foundBySearch = false
             if !(folder.exists && folder.isHittable) {
-                let search = app.searchFields.firstMatch
+                var search = app.searchFields.firstMatch
+                if !search.exists {
+                    // iPad (run 7): the picker has no inline Search field; it sits behind the toolbar magnifier button.
+                    let magnifier = localRoot(app).buttons.matching(
+                        NSPredicate(format: "label == 'Search' OR identifier == 'Search'")).firstMatch
+                    if magnifier.exists && magnifier.isHittable {
+                        magnifier.tap()
+                        _ = app.searchFields.firstMatch.waitForExistence(timeout: 10)
+                        search = app.searchFields.firstMatch
+                    }
+                }
+                evidence(app, "save-folder-search-field-\(search.exists ? "present" : "absent")")
                 if search.exists && search.isHittable {
                     search.tap()
                     search.typeText(folderName)
@@ -299,12 +310,19 @@ final class FilesUITests: XCTestCase {
                 }
                 return true
             }
+            // Hittable alone is not enough on iPad: a cell clipped under the toolbar or the "Save as" bar reports hittable
+            // but the tap lands on the overlay, so the cell must sit inside the grid's middle band.
+            func inBand() -> Bool {
+                guard folder.exists && folder.isHittable else { return false }
+                let frame = folder.frame, gridFrame = grid.frame
+                return frame.midY > gridFrame.minY + 120 && frame.maxY < gridFrame.maxY - 160
+            }
             for _ in 0..<24 {
-                if folder.exists && folder.isHittable { break }
+                if inBand() { break }
                 if !drag(up: true) { return }
             }
             for _ in 0..<12 {
-                if folder.exists && folder.isHittable { break }
+                if inBand() { break }
                 if !drag(up: false) { return }
             }
             evidence(app, "save-unique-folder-scrolled")
