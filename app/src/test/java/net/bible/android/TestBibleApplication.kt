@@ -71,6 +71,8 @@ class TestBibleApplication : BibleApplication() {
     private var aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
     private var previousAppScope: net.bible.sharedcore.platform.AppCoroutineScope? = null
     private var previousLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
+    /** The launcher Koin held before this fixture's override; singletons resolved during startup keep it. */
+    internal val startupLauncher: net.bible.sharedcore.platform.OrderedLauncher? get() = previousLauncher
     private var aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
     private var overriddenKoin: org.koin.core.Koin? = null
     private var terminated = false

@@ -113,6 +113,10 @@ object DatabaseResetter {
             if (windowRepo != null) windowControl.forgetWindowRepositoryIfCurrent(windowRepo)
             ReadingFixtureOwners.drain()
             checkpoint("producers-joined")
+            // Koin outlives the test, and singletons resolved in BibleApplication.onCreate (the BookInstallWatcher)
+            // keep the startup launcher, which no fixture scope owns: its queued writes must finish before the close.
+            (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
+                ?.startupLauncher?.let { joinEveryTail(it) }
             // The shared WindowControl outlives the test, and its repository now holds windows the fresh
             // DB lacks. A host taking ownership flushes the previous owner (CR-1 I1), which would hit
             // foreign-key errors on that stale copy, so drop it the way a new process would.
@@ -133,6 +137,19 @@ object DatabaseResetter {
         }
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
+    }
+
+    /** Joins every key's tail of [launcher], again for tails queued meanwhile, until none is left. */
+    private suspend fun joinEveryTail(launcher: net.bible.sharedcore.platform.OrderedLauncher) {
+        val tailsField = launcher.javaClass.getDeclaredField("tails").apply { isAccessible = true }
+        val lock = requireNotNull(launcher.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(launcher))
+        while (true) {
+            val tails = synchronized(lock) { (tailsField.get(launcher) as Map<*, *>).entries.map { it.key to it.value as kotlinx.coroutines.Job } }
+                .filter { !it.second.isCompleted }
+            if (tails.isEmpty()) break
+            checkpoint("startup-launcher", tails.joinToString { (key, job) -> "$key=${jobState(job)}" })
+            tails.forEach { it.second.join() }
+        }
     }
 
     /**
