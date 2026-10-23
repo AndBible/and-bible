@@ -55,5 +55,6 @@ class IosStringTableHolder(initial: StringTable) {
         { current.raw(it) },
         { key, count -> current.pluralTemplate(key, count) },
         { current.numberSymbols() },
+        { current.tag },
     )
 }

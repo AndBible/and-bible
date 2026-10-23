@@ -30,15 +30,20 @@ import kotlin.math.roundToLong
  * loudly instead of answering an empty prompt.
  */
 class StringTable(
-    val tag: String,
+    private val initialTag: String,
     val text: (key: String) -> String,
     val format: (key: String, args: Array<out Any?>) -> String,
     val plural: (name: String, count: Int) -> String,
     val array: (name: String) -> List<String>,
     val raw: (name: String) -> String = { error("Raw text resource '$it' is not available on this platform yet") },
     internal val pluralTemplate: (name: String, count: Int) -> String = plural,
-    internal val numberSymbols: () -> NumberSymbols = { numberSymbolsFor(tag) },
+    internal val numberSymbols: () -> NumberSymbols = { numberSymbolsFor(initialTag) },
+    /** A live facade answers the current language's tag here; null keeps the fixed [initialTag]. */
+    private val tagProvider: (() -> String)? = null,
 ) {
+    /** The language tag; for a live facade it follows the language the facade delegates to. */
+    val tag: String get() = tagProvider?.invoke() ?: initialTag
+
     /** [text] of [key] with its `%` placeholders filled from [args]. */
     fun fmt(key: String, vararg args: Any?): String = format(key, args)
 
