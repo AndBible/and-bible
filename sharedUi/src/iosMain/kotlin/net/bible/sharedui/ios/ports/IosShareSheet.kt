@@ -14,49 +14,79 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package net.bible.sharedui.ios.ports
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.useContents
-import platform.CoreGraphics.CGRectMake
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import net.bible.sharedcore.platform.files.IosPresenter
+import net.bible.sharedcore.platform.files.IosSheetPresentation
+import net.bible.sharedcore.platform.files.SheetAnchor
 import platform.Foundation.NSURL
 import platform.UIKit.UIActivityViewController
-import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
-import platform.UIKit.UIWindow
-import platform.UIKit.UIWindowScene
-import platform.UIKit.popoverPresentationController
-
-/** The frontmost view controller of the app's key window, or null before a window exists. */
-private fun topViewController(): UIViewController? {
-    val app = UIApplication.sharedApplication
-    val window: UIWindow? = app.keyWindow
-        ?: app.connectedScenes.filterIsInstance<UIWindowScene>().firstNotNullOfOrNull { it.windows.firstOrNull() as? UIWindow }
-    var top = window?.rootViewController ?: return null
-    while (true) top = top.presentedViewController ?: return top
-}
-
-/** Whether a share sheet can be presented now: a window exists and no share sheet is already up. */
-internal fun iosCanPresentShare(): Boolean {
-    val top = topViewController() ?: return false
-    return top !is UIActivityViewController
-}
 
 /**
- * Presents the system share sheet for [items] (strings or file [NSURL]s). On iPad the sheet needs an anchor; it points at the bottom centre of the screen.
+ * The one presenter of the system share sheet (text and files). It presents through [IosSheetPresentation], so
+ * exactly one terminal event (completion, interactive dismissal or cancellation) releases the sheet, and on iPad
+ * the popover points at the bottom centre of the presenting view.
+ *
+ * [presenter], [makeSheet] and [scope] are seams for tests; [onReleased] observes the single release and [onPresentation] hands tests the terminal owner (UIKit's delegate properties are weak).
  */
-@OptIn(ExperimentalForeignApi::class)
-internal fun iosPresentShare(items: List<Any>) {
-    val top = topViewController() ?: return
-    if (top is UIActivityViewController) return // a share sheet is already up
-    val sheet = UIActivityViewController(activityItems = items, applicationActivities = null)
-    sheet.popoverPresentationController?.let { popover ->
-        popover.sourceView = top.view
-        val (w, h) = top.view.bounds.useContents { size.width to size.height }
-        popover.sourceRect = CGRectMake(w / 2.0, h - 1.0, 1.0, 1.0)
+internal class IosSharePresenter(
+    private val presenter: () -> UIViewController? = IosPresenter::topViewController,
+    private val makeSheet: (List<Any>) -> UIViewController = { UIActivityViewController(activityItems = it, applicationActivities = null) },
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+    private val onReleased: () -> Unit = {},
+    private val onPresentation: (IosSheetPresentation<Unit>) -> Unit = {},
+) {
+    private var active = false
+
+    /** Whether a share sheet can be presented now: a presenter exists and no share sheet is already up. */
+    fun canPresent(): Boolean = !active && presenter()?.let { it !is UIActivityViewController } == true
+
+    /**
+     * Presents a share sheet for [items] (strings or file [NSURL]s). Fire and forget for callers; the returned job
+     * ends after the sheet has been released and is what tests await.
+     */
+    fun share(items: List<Any>): Job = scope.launch {
+        if (active) return@launch
+        val host = presenter() ?: return@launch
+        if (host is UIActivityViewController) return@launch // a share sheet is already up
+        active = true
+        val released = CompletableDeferred<Unit>()
+        try {
+            suspendCancellableCoroutine<Unit> { continuation ->
+                val sheet = makeSheet(items)
+                val presentation = IosSheetPresentation(sheet, continuation, Unit, SheetAnchor.BottomCenter) {
+                    onReleased()
+                    released.complete(Unit)
+                }
+                (sheet as? UIActivityViewController)?.completionWithItemsHandler = { _, _, _, _ -> presentation.finish(Unit) }
+                onPresentation(presentation)
+                presentation.present(host)
+            }
+        } finally {
+            withContext(NonCancellable) { released.await() }
+            active = false
+        }
     }
-    top.presentViewController(sheet, animated = true, completion = null)
 }
+
+private val defaultSharePresenter by lazy { IosSharePresenter() }
+
+/** Whether a share sheet can be presented now: a foreground window exists and no share sheet is already up. */
+internal fun iosCanPresentShare(): Boolean = defaultSharePresenter.canPresent()
+
+/** Presents the system share sheet for [items] (strings or file [NSURL]s). On iPad it points at the bottom centre of the screen. */
+internal fun iosPresentShare(items: List<Any>) { defaultSharePresenter.share(items) }
 
 /** Shares the file at [path]; the recipient sees the file's name. */
 internal fun iosShareFile(path: String) = iosPresentShare(listOf(NSURL.fileURLWithPath(path)))
