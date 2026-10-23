@@ -139,12 +139,21 @@ final class EndToEndUITests: RealAppUITestCase {
         harnessRequire(byLabel(app, labelName).exists, app, "the new label is named '\(labelName)' (seeded from the search)")
         shot(app, "e2e-label-editor")
         ok.tap()
+        // The editor saves and closes ("Edit label" leaves); only then is the list in front. While the editor is
+        // open its identity row is ALSO labelled "E2E" and tapping it opens the colour/name sheet.
+        harnessRequire(waitUntil(timeout: 30) { !app.staticTexts["Edit label"].firstMatch.exists }, app,
+                       "the label editor closed after 'OK'")
         // Back on the list: the new label's checkbox is named after the label; make sure it is ticked.
         // (The label also appears as a plain text row; the checkbox is the element of a control type.)
         let controlTypes: [XCUIElement.ElementType] = [.checkBox, .switch, .button, .other]
         func box() -> XCUIElement? {
-            app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", labelName))
-                .allElementsBoundByIndex.first { controlTypes.contains($0.elementType) }
+            let named = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", labelName))
+            // Real toggle types first, a generic element only when none exists.
+            for type in controlTypes {
+                let match = named.matching(type, identifier: nil).firstMatch
+                if match.exists { return match }
+            }
+            return nil
         }
         harnessRequire(waitUntil(timeout: 20) { box() != nil }, app, "the assign list has a checkbox named '\(labelName)'")
         func isOn() -> Bool { box().map { $0.isSelected || ($0.value as? String) == "1" } ?? false }
@@ -303,6 +312,9 @@ final class EndToEndUITests: RealAppUITestCase {
             harnessRequire(false, app, "the page brightness could not be sampled before the night switch (no readable screenshot)")
             return
         }
+        // The manual toggle is disabled while the preference follows the system (the fresh-install default), so the
+        // preference is set to Manual AFTER the restore (a restore must not be what enables it) and put back below.
+        setNightModePreference(app, "Manual")
         toggleNightMode(app)
         var latest: Double?
         let flipped = waitUntil(timeout: 20) {
@@ -339,6 +351,7 @@ final class EndToEndUITests: RealAppUITestCase {
         harnessRequire(waitUntil(timeout: 30) {
             abs((self.phraseWidth(app, preferring: before.label)?.width ?? 0) - before.width) < 1.5
         }, app, "'\(before.label)' returned to its original width")
+        setNightModePreference(app, "System")
         sendToBackground(app)
         app.terminate()
     }
@@ -434,7 +447,24 @@ final class EndToEndUITests: RealAppUITestCase {
         more.tap()
         let night = app.buttons["Night mode"]
         harnessRequire(night.waitForExistence(timeout: 10), app, "the overflow menu has 'Night mode'")
+        harnessRequire(night.isEnabled, app,
+                       "the overflow 'Night mode' item is enabled (it is disabled unless 'Night mode switching' is Manual)")
         night.tap()
+    }
+
+    /// Drawer -> Application preferences -> "Night mode switching" (`night_mode_pref3`) -> `choice` ("Manual",
+    /// "Automatic" or "System"), then back on the reading page.
+    private func setNightModePreference(_ app: XCUIApplication, _ choice: String) {
+        openDrawerRow(app, "Application preferences")
+        let row = revealSettingsRow(app, "night_mode_pref3")
+        row.tap()
+        let option = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", choice)).firstMatch
+        harnessRequire(option.waitForExistence(timeout: 15) && option.isHittable, app,
+                       "the night mode choices offer '\(choice)'")
+        option.tap()
+        usleep(1_500_000)   // the choice dialog closes; the row may show the value as a separate text
+        shot(app, "e2e-night-pref-\(choice)")
+        returnToReading(app)
     }
 
     /// Reading menu -> "All text options" -> Font size sheet; drags the slider by `delta` and confirms with OK.
