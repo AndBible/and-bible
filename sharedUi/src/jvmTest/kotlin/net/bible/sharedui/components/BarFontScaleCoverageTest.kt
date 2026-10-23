@@ -18,13 +18,17 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.speak.SpeakTransportVd
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.RailLeading
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.WindowTabBarModel
+import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -162,11 +166,145 @@ class BarFontScaleCoverageTest {
     }
 
     @Test
-    fun selectionBarIsCappedAndNormalBarToo() {
+    fun selectionBarIsCapped() {
         assertBarCaps("42") {
             AbSelectionScaffold(
                 title = "T", selectionMode = true, selectedCount = 42,
                 onNavigateUp = {}, onExitSelection = {},
+            ) {}
+        }
+    }
+
+    @Test
+    fun selectionScaffoldNormalBarIsCapped() {
+        assertEquals(cap, probedScale(cap) { p ->
+            AbSelectionScaffold(
+                title = "T", selectionMode = false, selectedCount = 0,
+                onNavigateUp = {}, onExitSelection = {}, actions = { p() },
+            ) {}
+        })
+    }
+
+    @Test
+    fun overflowMenuInBarActionsKeepsSystemScaleWhileBarIsCapped() {
+        var menu = Float.NaN
+        var bar = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) {
+                    Themed {
+                        AbTopAppBar(title = {}, actions = {
+                            bar = LocalDensity.current.fontScale
+                            AbOverflowMenu(initiallyExpanded = true) { menu = LocalDensity.current.fontScale }
+                        })
+                    }
+                }
+            }
+            waitForIdle()
+        }
+        assertEquals(cap, bar, "bar action stays capped")
+        assertEquals(system, menu, "menu popup must follow the system scale")
+    }
+
+    @Test
+    fun noCapMenuIsUnchanged() {
+        var menu = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = system)) {
+                    Themed {
+                        AbTopAppBar(title = {}, actions = {
+                            AbOverflowMenu(initiallyExpanded = true) { menu = LocalDensity.current.fontScale }
+                        })
+                    }
+                }
+            }
+            waitForIdle()
+        }
+        assertEquals(system, menu)
+    }
+
+    private fun assertMenuUncapped(text: String, bar: @Composable () -> Unit) {
+        val withCap = textWidth(system, cap, text, bar)
+        val noCap = textWidth(system, null, text, bar)
+        assertEquals(noCap, withCap, "menu text must measure at the system scale")
+    }
+
+    @Test
+    fun readingToolbarMenusKeepSystemScale() {
+        assertMenuUncapped("Recent term") {
+            ReadingToolbar(
+                toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                searchBar = ReadingSearchBarState(
+                    query = "", recentTerms = listOf("Recent term"), recentMenuOpen = true,
+                ),
+                searchBarCallbacks = searchCallbacks(),
+            )
+        }
+        assertMenuUncapped("Overflow item") {
+            ReadingToolbar(
+                toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                overflowItems = listOf(OptionsMenuItem("a", "Overflow item", false, false, true, false)),
+                overflowExpanded = true,
+            )
+        }
+    }
+
+    @Test
+    fun windowPaneMenuKeepsSystemScale() {
+        assertMenuUncapped("Pane item") {
+            WindowTabBar(
+                model = tabModel(), onRestore = {}, onWindowLongPress = {}, onAddWindow = {},
+                onUnMaximise = {}, onToggleCollapse = {}, windowLabel = { if (it.id == "w1") "KJV" else "ESV" },
+                menuWindowId = "w1", menuItems = listOf(WindowPaneMenuItem("p", "Pane item")),
+            )
+        }
+    }
+
+    @Test
+    fun readingToolbarSearchRowIsCapped() {
+        // The field's text layout records the density it was laid out with (the placeholder measures
+        // 0 wide in this row, so width is not a usable oracle here).
+        fun layoutFontScale(barCap: Float?): Float {
+            var seen = Float.NaN
+            runComposeUiTest {
+                setContent {
+                    CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = system)) {
+                        val provided = if (barCap == null) emptyList() else listOf(LocalBarFontScaleCap provides barCap)
+                        CompositionLocalProvider(*provided.toTypedArray()) {
+                            Themed {
+                                ReadingToolbar(
+                                    toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                                    searchBar = ReadingSearchBarState(query = "Query text"),
+                                    searchBarCallbacks = searchCallbacks(),
+                                )
+                            }
+                        }
+                    }
+                }
+                waitForIdle()
+                val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+                onNodeWithText("Query text", useUnmergedTree = true).fetchSemanticsNode().config
+                    .getOrNull(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult)
+                    ?.action?.invoke(layouts)
+                seen = layouts.first().layoutInput.density.fontScale
+            }
+            return seen
+        }
+        assertEquals(cap, layoutFontScale(cap))
+        assertEquals(system, layoutFontScale(null))
+    }
+
+    @Test
+    fun quickSheetTabRowIsCapped() {
+        assertBarCaps("Tab one") {
+            AbQuickSheetContent(
+                title = "Sheet", onClose = {},
+                tabs = listOf(AbQuickSheetTab("1", "Tab one"), AbQuickSheetTab("2", "Tab two")),
+                selectedTabId = "1",
             ) {}
         }
     }
@@ -185,6 +323,10 @@ class BarFontScaleCoverageTest {
             val texts = onNodeWithText(full, useUnmergedTree = true).fetchSemanticsNode()
                 .config.getOrNull(SemanticsProperties.Text)
             assertTrue(texts?.any { it.text == full } == true, "full title must stay in semantics")
+            val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+            onNodeWithText(full, useUnmergedTree = true).fetchSemanticsNode().config
+                .getOrNull(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts)
+            assertTrue(layouts.firstOrNull()?.hasVisualOverflow == true, "the title must actually be truncated")
         }
     }
 
@@ -219,6 +361,20 @@ class BarFontScaleCoverageTest {
             )
         }
     }
+
+    private fun tabModel(): WindowTabBarModel {
+        val w = WindowSnapshot("w1", WindowStateValue.VISIBLE, 1f, true, false, false, 0, false)
+        return WindowTabBarModel(
+            RailLeading.CollapseToggle(true), true,
+            listOf(RailEntry.WindowTab(w, true), RailEntry.WindowTab(w.copy(id = "w2"), false)),
+        )
+    }
+
+    private fun searchCallbacks() = ReadingSearchBarCallbacks(
+        onQueryChange = {}, onSubmit = {}, onRecentTermsOpen = {}, onRecentTermsDismiss = {},
+        onRecentTermSelected = {}, onOpenSettings = {}, onClose = {}, onImeRequestHandled = {},
+        onFieldFocusChanged = {}, onRebuildIndex = {}, onShowResults = {},
+    )
 
     private fun toolbarState() =
         ToolbarState("Genesis 1", "KJV", false, false, false, false, 0, false, false, true, null, false)

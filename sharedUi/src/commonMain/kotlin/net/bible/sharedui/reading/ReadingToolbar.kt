@@ -57,6 +57,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.text.BasicTextField
 import net.bible.sharedui.components.CappedBarFontScale
+import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.components.rememberControllerText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -475,14 +476,16 @@ fun ReadingToolbar(
                                     }
                                 },
                             )
-                            DropdownMenu(
-                                expanded = searchBar.recentMenuOpen,
-                                onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
-                                containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
-                                tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-                                shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-                                border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-                            ) {
+                            UncappedFontScale {
+                                DropdownMenu(
+                                    expanded = searchBar.recentMenuOpen,
+                                    onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
+                                    containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+                                    tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+                                    shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+                                    border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                                ) {
+                            }
                                 searchBar.recentTerms.forEach { term ->
                                     AbMenuItem(
                                         text = term,
@@ -507,13 +510,15 @@ fun ReadingToolbar(
                         // geometry to add a menu item.
                         Box {
                             ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
-                            DropdownMenu(
-                                expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false },
-                                containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
-                                tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-                                shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-                                border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-                            ) {
+                            UncappedFontScale {
+                                DropdownMenu(
+                                    expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false },
+                                    containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+                                    tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+                                    shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+                                    border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                                ) {
+                            }
                                 AbMenuItem(
                                     text = strings.rebuildIndex,
                                     onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },

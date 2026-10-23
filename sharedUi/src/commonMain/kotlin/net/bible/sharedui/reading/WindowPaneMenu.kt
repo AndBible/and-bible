@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -70,13 +71,15 @@ fun WindowPaneMenu(
         if (!expanded) path = emptyList()
     }
     val mono = isPureMonochrome()
-    DropdownMenu(
-        expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
-        containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
-        tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-        shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-        border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-    ) {
+    UncappedFontScale {
+        DropdownMenu(
+            expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
+            containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+        ) {
+    }
         val level = path.lastOrNull()?.submenu ?: items
         WindowPaneMenuRows(
             items = level,
