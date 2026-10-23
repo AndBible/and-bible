@@ -676,6 +676,15 @@ final class ReadingUITests: RealAppUITestCase {
         return ok
     }
 
+    /// One bounded drawer drag over about a third of the screen height, left of the DEBUG overlay: `down` reveals
+    /// content above (towards the top of the list), otherwise content below.
+    private func drawerDrag(_ app: XCUIApplication, down: Bool) {
+        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.40))
+        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.73))
+        (down ? high : low).press(forDuration: 0.1, thenDragTo: down ? low : high)
+        usleep(500_000)
+    }
+
     private func checkReadingChrome(category: String, name level: String) throws {
         continueAfterFailure = true
         let sizeArguments = ["-UIPreferredContentSizeCategoryName", category]
@@ -710,9 +719,14 @@ final class ReadingUITests: RealAppUITestCase {
             for row in ["History", "Study Pads", "Backup & Restore", "Device synchronization"] {
                 // The drawer is a scrollable list: rows below the fold are in the tree without a label until they
                 // scroll into view, so scroll (up to 8 swipes) until the row exists by label AND is hittable.
+                // Rewind to the top first (rows above an earlier hit are unreachable by scrolling down only), then scroll
+                // down in small steps (about a third of the drawer) so no AX5 row is skipped.
                 let element = byLabel(app, row)
+                let first = byLabel(app, "History")
+                var rewinds = 0
+                while !(first.exists && first.isHittable) && rewinds < 10 { drawerDrag(app, down: true); rewinds += 1 }
                 var swipes = 0
-                while !(element.exists && element.isHittable) && swipes < 8 { app.swipeUp(); swipes += 1 }
+                while !(element.exists && element.isHittable) && swipes < 12 { drawerDrag(app, down: false); swipes += 1 }
                 if !element.exists {
                     attachTree(app, "\(level)-drawer-no-\(row)")
                     XCTFail("\(level): drawer row '\(row)' does not exist after scrolling the drawer")

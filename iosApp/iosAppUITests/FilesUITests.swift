@@ -237,14 +237,58 @@ final class FilesUITests: XCTestCase {
             let folder = localRoot(app).cells.matching(identifier: "\(folderName), Folder").firstMatch
             let grid = localRoot(app).collectionViews["File View"].firstMatch
             waitForSystemControl(grid, app: app, name: "save-folder-grid", message: "Actual Files folder grid is missing")
-            // Files virtualizes offscreen cells: rewind before scanning even when the target does not exist yet.
-            for _ in 0..<12 {
-                if folder.exists && folder.isHittable { break }
-                grid.swipeDown()
+            // "On My iPhone" can hold dozens of leftover folders and a blind full-height swipeDown at the list top pulls
+            // the picker sheet down (the grid then vanishes). Find the uniquely named folder through the picker's own
+            // Search field first; only fall back to bounded in-grid drags.
+            var foundBySearch = false
+            if !(folder.exists && folder.isHittable) {
+                let search = app.searchFields.firstMatch
+                if search.exists && search.isHittable {
+                    search.tap()
+                    search.typeText(folderName)
+                    foundBySearch = folder.waitForExistence(timeout: 15)
+                    evidence(app, "save-folder-search-\(foundBySearch ? "found" : "empty")")
+                    if !foundBySearch {
+                        let cancel = app.buttons["Cancel"].firstMatch
+                        if cancel.exists && cancel.isHittable { cancel.tap() }
+                        _ = grid.waitForExistence(timeout: 10)
+                    }
+                }
+            }
+            if foundBySearch {
+                XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
+                               "Cannot uniquely identify the exact UI-created folder in the search results")
+                XCTAssertTrue(waitForStableOnScreen(app, folder, timeout: 20), "Searched folder cell did not settle")
+                evidence(app, "save-unique-folder-settled")
+                folder.tap()
+                waitForSystemControl(opened, app: app, name: "save-exact-folder-open", message: "Picker did not open the exact selected folder")
+                XCTAssertTrue(opened.isHittable, "Exact folder navigation title is not interactive")
+                return
+            }
+            // Fallback: bounded drags that start and end inside the grid, well below its top edge. Scroll down first
+            // (reveals lower items), then back up in the middle of the grid; the grid must survive every drag.
+            func drag(up: Bool) -> Bool {
+                let frame = grid.frame
+                let upper = frame.minY + frame.height * 0.45, lower = frame.minY + frame.height * 0.85
+                let x = frame.midX
+                let high = app.coordinate(withNormalizedOffset: CGVector(dx: x / app.frame.width, dy: upper / app.frame.height))
+                let low = app.coordinate(withNormalizedOffset: CGVector(dx: x / app.frame.width, dy: lower / app.frame.height))
+                (up ? low : high).press(forDuration: 0.1, thenDragTo: up ? high : low)
+                usleep(700_000)
+                if !grid.exists {
+                    evidence(app, "save-folder-grid-vanished")
+                    XCTFail("The 'File View' grid vanished after a bounded drag (the picker sheet was probably dismissed)")
+                    return false
+                }
+                return true
             }
             for _ in 0..<24 {
                 if folder.exists && folder.isHittable { break }
-                grid.swipeUp()
+                if !drag(up: true) { return }
+            }
+            for _ in 0..<12 {
+                if folder.exists && folder.isHittable { break }
+                if !drag(up: false) { return }
             }
             evidence(app, "save-unique-folder-scrolled")
             let matches = localRoot(app).cells.matching(identifier: "\(folderName), Folder")

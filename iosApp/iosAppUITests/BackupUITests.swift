@@ -518,6 +518,24 @@ final class BackupUITests: RealAppUITestCase {
         // This is not the acceptance oracle: the caller must inspect restored reading and exact note.
     }
 
+    /// The pane's floating window-button overlay (Compose, above the WKWebView) sits at the pane's top-right corner and
+    /// swallows taps there although XCUITest's isHittable does not see it. When the verse number lies in that corner
+    /// box, drag the web view down a little (earlier text scrolls in, the number moves down) until it is clear. Bounded.
+    private func clearOfWindowButtonOverlay(_ app: XCUIApplication, _ number: XCUIElement) {
+        let web = app.webViews.firstMatch
+        for _ in 0..<6 {
+            let pane = web.frame, frame = number.frame
+            let corner = CGRect(x: pane.maxX - pane.width * 0.2, y: pane.minY,
+                                width: pane.width * 0.2, height: 110)
+            guard frame.intersects(corner) else { return }
+            let from = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.40))
+            let to = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.50))
+            from.press(forDuration: 0.1, thenDragTo: to)
+            usleep(700_000)
+            _ = waitForStableOnScreen(app, number)
+        }
+    }
+
     private func createNote(_ app: XCUIApplication) {
         // VerseNumber's click bubbles to Verse.vue, selecting the verse rather than a Strong's word.
         let numbers = app.webViews.staticTexts.matching(NSPredicate(format: "label == '16'"))
@@ -526,6 +544,9 @@ final class BackupUITests: RealAppUITestCase {
         let number = numbers.firstMatch
         require(number.isHittable && waitForStableOnScreen(app, number), app,
                 "HARNESS: stable hittable verse number 16")
+        clearOfWindowButtonOverlay(app, number)
+        require(number.isHittable && waitForStableOnScreen(app, number), app,
+                "HARNESS: stable hittable verse number 16 below the window-button overlay")
         number.tap()
         attachTree(app, "h2-after-verse16-tap")
         shot(app, "h2-after-verse16-tap")
@@ -610,6 +631,9 @@ final class BackupUITests: RealAppUITestCase {
             require(numbers.count == 1 && numbers.firstMatch.isHittable
                     && waitForStableOnScreen(app, numbers.firstMatch), app,
                     "HARNESS: unique stable verse \(verse) for existing note selection")
+            clearOfWindowButtonOverlay(app, numbers.firstMatch)
+            require(numbers.firstMatch.isHittable && waitForStableOnScreen(app, numbers.firstMatch), app,
+                    "HARNESS: stable hittable verse \(verse) below the window-button overlay")
             numbers.firstMatch.tap()
             attachTree(app, "h2-existing-note-selection-preview")
             shot(app, "h2-existing-note-selection-preview")

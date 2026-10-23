@@ -349,10 +349,16 @@ final class FeatureScreensUITests: RealAppUITestCase {
         let system = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'Open system TTS settings'")).firstMatch
         for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
         var wentToBackground = false
+        let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
         for attempt in 1...3 where !wentToBackground {
+            // Reveal the row inside each attempt (a re-activated app can show the sheet scrolled elsewhere).
+            for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
             harnessRequire(waitForStableOnScreen(app, system), app, "system TTS row settled (attempt \(attempt))")
             system.tap()
-            wentToBackground = waitUntil(timeout: 12) { app.state != .runningForeground }
+            // XCTest's own idle wait after the tap can take ~12 s; the hand-off is seen when iOS Settings reaches the
+            // foreground or the app leaves it. Once either is seen, never tap again.
+            wentToBackground = settings.wait(for: .runningForeground, timeout: 20)
+                || waitUntil(timeout: 5) { app.state != .runningForeground }
         }
         if wentToBackground {
             app.activate()
