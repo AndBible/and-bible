@@ -216,9 +216,11 @@ results into `.local/mac/<container>/`; the agent-facing guide is the `ios-mac` 
 (`.claude/skills/ios-mac/SKILL.md`).
 
 ```bash
-scripts/mac-remote.sh check                  # connection, toolchain, simulators, lock
-scripts/mac-remote.sh native-tests           # the CI jsword-ios-tests job
+scripts/mac-remote.sh check                  # this container's runs, then connection, toolchain, simulators, lock
+scripts/mac-remote.sh cancel                 # stop this container's own running runs, release their Mac lock
+scripts/mac-remote.sh native-tests           # the CI jsword-ios-tests job (--force: delete old results first)
 scripts/mac-remote.sh xcode-test iphone      # the CI ios job (XCUITests + screenshots)
+scripts/mac-remote.sh batch link native-tests "xcode-test iphone" "xcode-test ipad"   # one lock, one sync, stop at first red
 scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulator
 ```
 
@@ -229,11 +231,30 @@ no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded pat
 stub repository on the Mac satisfies `:app`'s `git rev-parse` / `git describe`.
 
 Each container gets its own tree under `~/work/<container>`; `~/.gradle` and `~/.konan` on the Mac
-are shared by all of them, and the build lock lets only one heavy run go at a time. A waiter breaks
-the lock when its holder process is gone, and each run has a watchdog that stops it when its own ssh
-connection ends (remote runs use a separate, non-multiplexed connection for that reason), so a killed
-container-side job never leaves the Mac locked or busy. Watchdog events go to
-`~/work/.mac-remote-watchdog.log` (shown by `check`).
+are shared by all of them, and the build lock lets only one heavy run go at a time.
+
+How a call runs: one remote `bash -s` session per call. It first waits for the lock
+(`~/work/.build-lock`, a directory renamed into place together with its owner record: random token,
+container, pid, process start time, local pid, run id), then the tree is rsynced (so a call that waited
+behind another container runs the tree as it is when it starts; `run --no-sync` skips this), then the
+steps run, each with its own `MAC_TIMEOUT`. `batch` runs several steps in the same session, so the lock
+is taken once and nobody gets in between. A waiter breaks the lock when its holder is gone (pid missing,
+or alive with another process start time); breakers are serialised and the lock is moved aside with an
+atomic rename and its token re-checked, so only one wins. Only the owner token releases a lock. Each
+session has a watchdog that stops it (waiting or running) when its own ssh connection ends (remote runs
+use a separate, non-multiplexed connection for that reason), so a killed container-side job never leaves
+the Mac locked or busy. Watchdog events go to `~/work/.mac-remote-watchdog.log` (shown by `check`).
+
+Container side, per call: `.local/mac/<container>/runs/<run-id>/` with `meta`, `output.log`, `steps` and
+an `exit` marker (code, reason `ok|failed|timeout|signal ...|cancelled`, end time, failing step); the
+newest 20 run directories are kept. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
+screenshots) is fetched into `runs/<run-id>/xcode/step<N>-<device>/`, and `.local/mac/<container>/xcode/<name>-<device>`
+are links to the latest run. `check` summarises the runs (running / exited N / LOST, elapsed, log idle
+time), the lock holder with its age and whether it is this container, and the idle time of the remote
+logs; `cancel` stops this container's runs by pid and releases the Mac lock only when the owner token is
+theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder.
+
+Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
 
 ### UI tests that need simulator fixtures
 
