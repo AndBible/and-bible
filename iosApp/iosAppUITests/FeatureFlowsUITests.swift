@@ -496,8 +496,23 @@ final class FeatureFlowsUITests: RealAppUITestCase {
     private func settledVerse16(_ app: XCUIApplication, _ step: String) -> PhraseMetrics {
         var previous: PhraseMetrics?
         var result: PhraseMetrics?
+        var misses = 0
         _ = waitUntil(timeout: 60) {
-            guard let now = self.verse16Metrics(app) else { previous = nil; return false }
+            guard let now = self.verse16Metrics(app) else {
+                previous = nil
+                // Run 7 (iPad): after the text options close, the page is left near the end of John 2 and John 3:16 is
+                // below the viewport, so it is not in the accessibility tree. Scroll in small steps (down first, then
+                // back up past the start) until the verse is rendered; only widths/heights are compared, never positions.
+                misses += 1
+                if misses >= 2 && misses <= 17, let web = Optional(app.webViews.firstMatch), web.exists {
+                    let down = misses <= 8
+                    let from = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: down ? 0.7 : 0.3))
+                    let to = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: down ? 0.3 : 0.7))
+                    from.press(forDuration: 0.1, thenDragTo: to)
+                    usleep(600_000)
+                }
+                return false
+            }
             defer { previous = now }
             if let previous, previous.widths == now.widths, previous.heights == now.heights { result = now; return true }
             usleep(1_000_000)
