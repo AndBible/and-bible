@@ -109,3 +109,18 @@ using Foundation/UIKit needs the Mac.
   backlog item), not a setup problem.
 - Never install software or change settings on the Mac yourself; the build user is not an admin.
   Missing tool: tell the user what to install (`docs/ios-remote-mac.md`).
+
+## Long runs: how the controller waits
+
+A UI class takes 1-25 minutes, a multi-class batch can take over an hour. Waiting badly costs more than the run.
+
+- Start the run as the background command itself (`run_in_background`); the harness notifies on exit. Never
+  wrap it in a poll loop, and never `pgrep -f`/`pkill -f` a text that occurs in your own command line (the
+  waiter matches itself and hangs forever; `pkill -f` kills your own shell, exit 144).
+- `xcode-test` has a built-in wall-clock limit (`MAC_TIMEOUT`, default 2400 s). A stuck run ends by itself.
+- Prompt-cache TTL is one hour. If a wait will exceed ~55 minutes, schedule a wake-up no later than minute 55
+  (`CronCreate` / `ScheduleWakeup`) so the session never goes cold on a long wait, and use it to check
+  `check`, the log's mtime and the result.
+- Check on every long job at least every 30 minutes (log mtime with `ls -la --time-style=full-iso`,
+  `check`), even when a notification is expected: a run that has produced no output for 30 minutes is
+  suspect, not "still running".
