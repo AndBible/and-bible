@@ -20,8 +20,8 @@ Each rule: the instruction, then why. Background and measurements:
   Why: the subagent prompt cache lasts 5 min, so long waits there are paid uncached.
 - Do not run an emulator during a heavy gate.
   Why: the emulator takes about 6 GiB of the shared memory.
-- Never `./gradlew :app:install<Variant>`; use `adb -s <serial> install -r -d <apk>`.
-  Why: the SDK adb differs from the container adb and the mismatch can kill the shared adb server.
+- `./gradlew :app:install<Variant>` is safe only while the container's SDK adb (`/opt/android-sdk/platform-tools/adb version`) is the same version as the host's adb server (the user's `adb version` on the host); otherwise use `adb -s <serial> install -r -d <apk>`.
+  Why: AGP runs the SDK adb, and an adb client of another version replaces the shared host server, which cannot restart through the port forward (2026-08-28). With both at 37.0.1 (2026-10-23) the Gradle install to a phone worked and the server survived.
 - In Claude Code's Bash, plain `grep` skips binary-looking files; use `grep -a` on `/proc/*/cmdline`.
   Why: given a `/proc/<pid>/cmdline` file path directly, a plain grep treats it as binary and silently matches nothing.
 

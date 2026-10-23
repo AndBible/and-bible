@@ -37,7 +37,8 @@ stale AVD lock and a wedged `netsimd`, and warns if the emulator is older than 3
 - Run `boot` in an ordinary foreground Bash call. It detaches the emulator with `setsid`
   itself; a `run_in_background` launch is reaped with its task and looks like a crash.
 - Use `adb` only on 5038 (the script exports it). Never `adb kill-server`/`start-server` on
-  5037, and never `./gradlew install*`: both take down the shared host adb server.
+  5037: it takes down the shared host adb server. `./gradlew install*` targets the phone on
+  5037, never the emulator; for the phone see `.jailbee/AGENT-GUIDE.md` (adb versions must match).
 - The AVD lives in `$ANDROID_AVD_HOME` (container-local). Do not create AVDs in, or wipe,
   `~/.android/avd`: that directory is shared with the host and other containers.
 - After pushing files, `adb shell sync` (`push-module` does it). A crash loses unflushed writes.

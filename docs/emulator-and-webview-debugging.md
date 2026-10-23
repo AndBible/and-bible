@@ -20,8 +20,9 @@ Rules of thumb:
 
 - Do not kill or restart the 5037 server from inside the container; that takes the phone away
   from every container sharing it. An empty `adb devices` on 5037 is a fact to report.
-- Install debug builds with `adb install -r -d <apk>`, not with `./gradlew install*`: Gradle
-  uses the SDK's own adb, and a version mismatch makes it replace the running server.
+- `./gradlew install*` uses the SDK's own adb, and a client of another version replaces the
+  running server. Use it only while `/opt/android-sdk/platform-tools/adb version` matches the
+  host's adb (it did on 2026-10-23, both 37.0.1); otherwise install with `adb install -r -d <apk>`.
 
 ### `scripts/with-container-adb.sh`
 
