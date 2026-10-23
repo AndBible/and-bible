@@ -164,7 +164,7 @@ final class EndToEndUITests: RealAppUITestCase {
         option.tap()
         let filtered = app.buttons.matching(NSPredicate(format: "label == %@", "Filter by label, \(labelName)")).firstMatch
         harnessRequire(filtered.waitForExistence(timeout: 15), app, "the filter chip reads 'Filter by label, \(labelName)'")
-        harnessRequire(waitUntil(timeout: 20) { self.bookmarkRowCandidates(app).contains { $0.label.contains("3:16") } },
+        harnessRequire(waitUntil(timeout: 20) { self.bookmarkRowQuery(app).exists },
                        app, "the Bookmarks list filtered by '\(labelName)' shows John 3:16")
         shot(app, "e2e-bookmarks-filtered")
     }
@@ -298,17 +298,30 @@ final class EndToEndUITests: RealAppUITestCase {
         returnToReading(app)
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
 
-        // Night mode: the page itself must change (pixels of the pane), not only a stored setting.
-        let day = paneLuminance(app)
-        harnessRequire(day != nil, app, "the pane can be sampled")
-        let startLuminance = day ?? 0
+        // Night mode: the page itself must change (pixels of the page), not only a stored setting.
+        guard let startLuminance = sampleLuminance(app) else {
+            harnessRequire(false, app, "the page brightness could not be sampled before the night switch (no readable screenshot)")
+            return
+        }
         toggleNightMode(app)
-        let flipped = waitUntil(timeout: 20) { abs((self.paneLuminance(app) ?? startLuminance) - startLuminance) > 0.2 }
+        var latest: Double?
+        let flipped = waitUntil(timeout: 20) {
+            latest = self.pageLuminance(app)
+            guard let value = latest else { return false }
+            return abs(value - startLuminance) > 0.2
+        }
         shot(app, "e2e-restore-night-toggled")
-        harnessRequire(flipped, app, "night mode changed the page brightness (was \(startLuminance), now \(paneLuminance(app) ?? -1))")
+        harnessRequire(flipped, app, latest.map { "night mode did not change the page brightness (was \(startLuminance), last sample \($0))" }
+                       ?? "the page brightness could not be sampled after the night switch (no readable screenshot); was \(startLuminance)")
         toggleNightMode(app)
-        harnessRequire(waitUntil(timeout: 20) { abs((self.paneLuminance(app) ?? 0) - startLuminance) < 0.1 }, app,
-                       "switching night mode back restores the original page brightness")
+        var restored: Double?
+        let back = waitUntil(timeout: 20) {
+            restored = self.pageLuminance(app)
+            guard let value = restored else { return false }
+            return abs(value - startLuminance) < 0.1
+        }
+        harnessRequire(back, app, restored.map { "switching night mode back did not restore the brightness (was \(startLuminance), now \($0))" }
+                       ?? "the page brightness could not be sampled after switching night mode back")
 
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
         guard let before = phraseWidth(app, preferring: nil) else {
@@ -463,10 +476,14 @@ final class EndToEndUITests: RealAppUITestCase {
 
     // MARK: pane measurements
 
-    /// Mean brightness (0...1) of the first Bible pane, from a 16 x 16 downsample of its screenshot.
-    private func paneLuminance(_ app: XCUIApplication) -> Double? {
-        let pane = firstPane(app)
-        guard pane.exists, let cg = pane.screenshot().image.cgImage else { return nil }
+    /// Mean brightness (0...1) of the middle band of the screen (30 %...70 % of the height: page text, clear of the
+    /// toolbar, the window buttons and the bottom bar), from a 16 x 16 downsample of a fresh app screenshot. Not tied
+    /// to the pane element, which can be re-created while the night switch re-lays the page out. nil when the
+    /// screenshot cannot be read; callers must treat that as a failed sample, never as a brightness.
+    private func pageLuminance(_ app: XCUIApplication) -> Double? {
+        guard let full = app.screenshot().image.cgImage, full.width > 40, full.height > 40 else { return nil }
+        let band = CGRect(x: 0, y: Int(Double(full.height) * 0.3), width: full.width, height: Int(Double(full.height) * 0.4))
+        guard let cg = full.cropping(to: band) else { return nil }
         let side = 16
         var pixels = [UInt8](repeating: 0, count: side * side * 4)
         let drawn = pixels.withUnsafeMutableBytes { buffer -> Bool in
@@ -483,6 +500,13 @@ final class EndToEndUITests: RealAppUITestCase {
             sum += (0.299 * Double(pixels[index]) + 0.587 * Double(pixels[index + 1]) + 0.114 * Double(pixels[index + 2])) / 255
         }
         return sum / Double(side * side)
+    }
+
+    /// A reading that is valid or nil, retried briefly (a screenshot can fail during a re-layout).
+    private func sampleLuminance(_ app: XCUIApplication) -> Double? {
+        var value: Double?
+        _ = waitUntil(timeout: 6) { value = self.pageLuminance(app); return value != nil }
+        return value
     }
 
     /// Width of one phrase label of the page (`preferring` keeps the same phrase between two reads).
@@ -627,19 +651,18 @@ final class EndToEndUITests: RealAppUITestCase {
         usleep(1_000_000)
     }
 
-    /// Bookmark list rows are merged Compose columns; a row is a hittable element below the top bar and chip.
-    private func bookmarkRowCandidates(_ app: XCUIApplication) -> [XCUIElement] {
-        app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS '3:16'"))
-            .allElementsBoundByIndex.filter { $0.frame.minY > 150 && $0.frame.height > 20 && $0.exists }
+    /// The merged Compose row of OUR bookmark: its label starts "John 3:16, <date>, ...". The first-run example
+    /// bookmark "John 3:16-18, ..." does not match (the comma follows 3:16 directly). A precise predicate with
+    /// `firstMatch` only: no index access over a list that may still be changing.
+    private func bookmarkRowQuery(_ app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'John 3:16, '")).firstMatch
     }
 
     private func bookmarkRow316(_ app: XCUIApplication) -> XCUIElement {
-        harnessRequire(waitUntil(timeout: 60) { !self.bookmarkRowCandidates(app).isEmpty }, app,
-                       "the Bookmarks list shows the John 3:16 bookmark")
-        let rows = bookmarkRowCandidates(app)
-        attachText("bookmark-row-labels", rows.map(\.label).joined(separator: "\n---\n"))
-        // The outermost element (largest frame) is the clickable row, not its title or content child.
-        return rows.max { $0.frame.width * $0.frame.height < $1.frame.width * $1.frame.height } ?? rows[0]
+        let row = bookmarkRowQuery(app)
+        harnessRequire(row.waitForExistence(timeout: 60), app, "the Bookmarks list shows the John 3:16 bookmark")
+        attachText("bookmark-row-label", row.label)
+        return row
     }
 
     /// Clicks into a text view / field and types `text`, retrying with a clear when the read-back differs
