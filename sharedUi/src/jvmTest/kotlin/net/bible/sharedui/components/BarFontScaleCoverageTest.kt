@@ -1,0 +1,238 @@
+package net.bible.sharedui.components
+
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedcore.speak.SpeakTransportVd
+import net.bible.sharedcore.window.RailEntry
+import net.bible.sharedcore.window.RailLeading
+import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.WindowStateValue
+import net.bible.sharedcore.window.WindowTabBarModel
+import net.bible.sharedui.reading.ReadingToolbar
+import net.bible.sharedui.reading.ReadingToolbarCallbacks
+import net.bible.sharedui.reading.ReadingToolbarIcons
+import net.bible.sharedui.reading.SpeakTransportBar
+import net.bible.sharedui.reading.WindowTabBar
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.iosStrings
+import net.bible.sharedui.theme.AbTheme
+
+/**
+ * Every fixed-height bar must cap its text scale through [CappedBarFontScale] at its own chokepoint,
+ * so every caller gets it, while content outside the bar keeps the system scale and a host that
+ * provides no cap (Android) is unchanged.
+ */
+@OptIn(ExperimentalTestApi::class)
+class BarFontScaleCoverageTest {
+    @Composable
+    private fun Themed(content: @Composable () -> Unit) =
+        AbTheme { CompositionLocalProvider(LocalStrings provides iosStrings("en"), content = content) }
+
+    private val system = 3.1f
+    private val cap = 1.35f
+
+    /** Size (width, height) of the text node [text] when [bar] is composed at [fontScale] with [barCap]. */
+    private fun textWidth(fontScale: Float, barCap: Float?, text: String, bar: @Composable () -> Unit): Pair<Int, Int> {
+        var size = -1 to -1
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = fontScale)) {
+                    val provided = if (barCap == null) emptyList() else listOf(LocalBarFontScaleCap provides barCap)
+                    CompositionLocalProvider(*provided.toTypedArray()) { Themed { bar() } }
+                }
+            }
+            waitForIdle()
+            size = onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode().size.let { it.width to it.height }
+        }
+        return size
+    }
+
+    /** Capped text must measure like a plain 1.35 render, and differ from an uncapped 3.1 render. */
+    private fun assertBarCaps(text: String, bar: @Composable () -> Unit) {
+        val capped = textWidth(system, cap, text, bar)
+        val reference = textWidth(cap, null, text, bar)
+        val uncapped = textWidth(system, null, text, bar)
+        assertEquals(reference, capped, "bar text must measure at the capped scale")
+        assertNotEquals(uncapped, capped, "without a cap the bar text follows the system scale (Android unchanged)")
+    }
+
+    private fun probe(scaleOut: (Float) -> Unit): @Composable () -> Unit = {
+        scaleOut(LocalDensity.current.fontScale)
+        Text("probe")
+    }
+
+    private fun probedScale(barCap: Float?, bar: @Composable (@Composable () -> Unit) -> Unit): Float {
+        var seen = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = system)) {
+                    val provided = if (barCap == null) emptyList() else listOf(LocalBarFontScaleCap provides barCap)
+                    CompositionLocalProvider(*provided.toTypedArray()) { Themed { bar(probe { seen = it }) } }
+                }
+            }
+            waitForIdle()
+        }
+        return seen
+    }
+
+    @Test
+    fun abTopAppBarTitleAndActionsAreCapped() {
+        assertEquals(cap, probedScale(cap) { p -> AbTopAppBar(title = p) })
+        var action = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) { Themed { AbTopAppBar(title = {}, actions = { action = LocalDensity.current.fontScale }) } }
+            }
+            waitForIdle()
+        }
+        assertEquals(cap, action)
+    }
+
+    @Test
+    fun abTopAppBarUncappedWithoutProvider() {
+        assertEquals(system, probedScale(null) { p -> AbTopAppBar(title = p) })
+    }
+
+    @Test
+    fun abScaffoldBodyKeepsSystemScale() {
+        var body = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) { Themed { AbScaffold(title = "T") { body = LocalDensity.current.fontScale } } }
+            }
+            waitForIdle()
+        }
+        assertEquals(system, body, "the cap must not leak into screen content")
+    }
+
+    @Test
+    fun searchBarPlaceholderAndActionsAreCapped() {
+        var action = Float.NaN
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) {
+                    Themed {
+                        AbTopAppBar(
+                            title = {},
+                            search = AbTopBarSearchState(query = "", placeholder = "Find me"),
+                            searchCallbacks = AbTopBarSearchCallbacks(
+                                onQueryChange = {}, onClose = {}, onImeRequestHandled = {},
+                            ),
+                            searchActions = { action = LocalDensity.current.fontScale },
+                        )
+                    }
+                }
+            }
+            waitForIdle()
+        }
+        assertEquals(cap, action)
+        assertBarCaps("Find me") {
+            AbTopAppBar(
+                title = {},
+                search = AbTopBarSearchState(query = "", placeholder = "Find me"),
+                searchCallbacks = AbTopBarSearchCallbacks(onQueryChange = {}, onClose = {}, onImeRequestHandled = {}),
+            )
+        }
+    }
+
+    @Test
+    fun selectionBarIsCappedAndNormalBarToo() {
+        assertBarCaps("42") {
+            AbSelectionScaffold(
+                title = "T", selectionMode = true, selectedCount = 42,
+                onNavigateUp = {}, onExitSelection = {},
+            ) {}
+        }
+    }
+
+    @Test
+    fun longTitleKeepsFullTextInSemantics() {
+        val full = "A very long screen title that cannot possibly fit in one line of a narrow bar at any scale"
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) { Themed { androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.width(200.dp)) { AbTopAppBar(title = { AbTopBarTitle(full) }) } } }
+            }
+            waitForIdle()
+            val texts = onNodeWithText(full, useUnmergedTree = true).fetchSemanticsNode()
+                .config.getOrNull(SemanticsProperties.Text)
+            assertTrue(texts?.any { it.text == full } == true, "full title must stay in semantics")
+        }
+    }
+
+    @Test
+    fun readingToolbarIsCapped() {
+        assertBarCaps("Genesis 1") { ReadingToolbar(toolbarState(), toolbarIcons(), toolbarCallbacks()) }
+    }
+
+    @Test
+    fun windowTabBarIsCapped() {
+        val w = WindowSnapshot("w1", WindowStateValue.VISIBLE, 1f, true, false, false, 0, false)
+        val w2 = w.copy(id = "w2")
+        val model = WindowTabBarModel(
+            RailLeading.CollapseToggle(true), true,
+            listOf(RailEntry.WindowTab(w, true), RailEntry.WindowTab(w2, false)),
+        )
+        assertBarCaps("KJV") {
+            WindowTabBar(
+                model = model, onRestore = {}, onWindowLongPress = {}, onAddWindow = {},
+                onUnMaximise = {}, onToggleCollapse = {}, windowLabel = { if (it.id == "w1") "KJV" else "ESV" },
+            )
+        }
+    }
+
+    @Test
+    fun speakBarIsCapped() {
+        assertBarCaps("Reading John 3") {
+            SpeakTransportBar(
+                state = SpeakTransportVd(visible = true, statusText = "Reading John 3"),
+                onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {}, onPrev = {}, onNext = {},
+                onBookmark = {}, onConfig = {},
+            )
+        }
+    }
+
+    private fun toolbarState() =
+        ToolbarState("Genesis 1", "KJV", false, false, false, false, 0, false, false, true, null, false)
+
+    @Composable
+    private fun toolbarIcons(): ReadingToolbarIcons {
+        val p = ColorPainter(Color.Gray)
+        return ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
+    }
+
+    private fun toolbarCallbacks() = ReadingToolbarCallbacks(
+        onHome = {}, onTitleTap = {}, onTitleLongPress = {}, onTitleFlingVertical = {},
+        onTitleFlingHorizontal = {}, onBible = {}, onBibleLong = {}, onCommentary = {},
+        onCommentaryLong = {}, onStrongs = {}, onStrongsLong = {}, onSearch = {}, onSpeak = {},
+        onSpeakLong = {}, onWorkspace = {}, onOverflow = {},
+    )
+}

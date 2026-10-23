@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.progress.ReadingProgressModel
 import net.bible.sharedcore.progress.ReadingTab
+import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbMenuItem
@@ -107,17 +108,19 @@ fun ReadingProgressScreen(
         },
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            PrimaryTabRow(selectedTabIndex = model.tab.ordinal) {
-                Tab(
-                    selected = model.tab == ReadingTab.READING,
-                    onClick = { onSelectTab(ReadingTab.READING) },
-                    text = { Text(strings.memorizeTabReading) },
-                )
-                Tab(
-                    selected = model.tab == ReadingTab.MEMORIZE,
-                    onClick = { onSelectTab(ReadingTab.MEMORIZE) },
-                    text = { Text(strings.memorizeTabMemorization) },
-                )
+            CappedBarFontScale {
+                PrimaryTabRow(selectedTabIndex = model.tab.ordinal) {
+                    Tab(
+                        selected = model.tab == ReadingTab.READING,
+                        onClick = { onSelectTab(ReadingTab.READING) },
+                        text = { Text(strings.memorizeTabReading) },
+                    )
+                    Tab(
+                        selected = model.tab == ReadingTab.MEMORIZE,
+                        onClick = { onSelectTab(ReadingTab.MEMORIZE) },
+                        text = { Text(strings.memorizeTabMemorization) },
+                    )
+                }
             }
             if (loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

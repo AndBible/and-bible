@@ -74,29 +74,31 @@ fun AbSelectionScaffold(
                     container = TopAppBarDefaults.topAppBarColors().containerColor,
                     fillWindowBackground = true,
                 )
-                TopAppBar(
-                    windowInsets = topBarWindowInsets(),
-                    title = { Text("$selectedCount") },
-                    navigationIcon = {
-                        IconButton(onClick = onExitSelection) {
-                            Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.cancel)
-                        }
-                    },
-                    actions = selectionActions,
-                    // Same fix as AbTopAppBar's normal branch: the M3 default splits this bar's
-                    // title (onSurface) from its navigation/action icons (onSurfaceVariant).
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        titleContentColor = MaterialTheme.colorScheme.onSurface,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-                    // The Compose hosts do NOT inset their content frame -- they set
-                    // disableBaseSetupUi = true and call applyComposeHostWindowSetup(), which omits
-                    // ActivityBase's content-root padding on purpose (host-inset-ownership spec,
-                    // 2026-09-18). So this bar applies Material's real window insets. Zeroing them
-                    // here, as this line did until 2026-09-18, would put the bar under the status
-                    // bar; adding the host padding back would double it. The two go together.
-                )
+                CappedBarFontScale {
+                    TopAppBar(
+                        windowInsets = topBarWindowInsets(),
+                        title = { Text("$selectedCount") },
+                        navigationIcon = {
+                            IconButton(onClick = onExitSelection) {
+                                Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.cancel)
+                            }
+                        },
+                        actions = selectionActions,
+                        // Same fix as AbTopAppBar's normal branch: the M3 default splits this bar's
+                        // title (onSurface) from its navigation/action icons (onSurfaceVariant).
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            titleContentColor = MaterialTheme.colorScheme.onSurface,
+                            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
+                        // The Compose hosts do NOT inset their content frame -- they set
+                        // disableBaseSetupUi = true and call applyComposeHostWindowSetup(), which omits
+                        // ActivityBase's content-root padding on purpose (host-inset-ownership spec,
+                        // 2026-09-18). So this bar applies Material's real window insets. Zeroing them
+                        // here, as this line did until 2026-09-18, would put the bar under the status
+                        // bar; adding the host padding back would double it. The two go together.
+                    )
+                }
             } else {
                 AbTopAppBar(
                     title = { AbTopBarTitle(title) },

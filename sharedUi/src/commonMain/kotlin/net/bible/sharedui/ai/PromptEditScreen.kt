@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Tune
+import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.abCheckboxColors
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
@@ -328,9 +329,11 @@ fun PromptEditScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (availableTabs.size > 1) {
-                PrimaryTabRow(selectedTabIndex = availableTabs.indexOf(tab).coerceAtLeast(0)) {
-                    availableTabs.forEach { t ->
-                        Tab(selected = t == tab, onClick = { onSelectTab(t) }, text = { Text(tabLabel(t, strings)) })
+                CappedBarFontScale {
+                    PrimaryTabRow(selectedTabIndex = availableTabs.indexOf(tab).coerceAtLeast(0)) {
+                        availableTabs.forEach { t ->
+                            Tab(selected = t == tab, onClick = { onSelectTab(t) }, text = { Text(tabLabel(t, strings)) })
+                        }
                     }
                 }
             }
