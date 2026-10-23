@@ -38,6 +38,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 case "${args[${#args[@]}-1]}" in "$FAKE_HOME"/*) push=1 ;; esac
+[ -z "$push" ] && [ -n "${FAKE_RSYNC_PULL_SLEEP:-}" ] && sleep "$FAKE_RSYNC_PULL_SLEEP"
 [ -n "$push" ] && echo "rsync-push lock=$([ -d "$FAKE_HOME/work/.build-lock" ] && echo held || echo free)" >> "$EVENTS"
 exec rsync "${args[@]}"
 EOS
@@ -48,7 +49,7 @@ cat > "$T/bin/xcrun" <<'EOS'
 #!/usr/bin/env bash
 case "$*" in
     "simctl list devices available -j") echo '{"devices":{"rt":[{"name":"iPhone 16","udid":"UDID-IPHONE"},{"name":"iPad Air 11-inch (M4)","udid":"UDID-IPAD"}]}}' ;;
-    "simctl bootstatus "*) ;;
+    "simctl bootstatus "*) [ -n "${XC_BOOT_SLEEP:-}" ] && sleep "$XC_BOOT_SLEEP" ;;
     "simctl spawn "*) exec sleep 600 ;;
     "xcresulttool export attachments --path "*)
         out="${@: -1}"; mkdir -p "$out"; echo shot > "$out/a.png"
@@ -94,11 +95,11 @@ EOS
         MAC_CONTAINER=testbox MAC_SSH_CONFIG="$T/ssh-config" MAC_SSH_BIN="$T/bin/fake-ssh" \
         MAC_RSYNC_BIN="$T/bin/fake-rsync" MAC_LOCK_POLL=0.2 MAC_LOCK_MSG_EVERY=1 MAC_LOCK_WAIT=30 \
         PATH="$T/bin:$PATH"
-    unset MAC_TIMEOUT GRADLE_RC GRADLE_SLEEP XC_RC XC_SLEEP XC_MARK
+    unset MAC_TIMEOUT MAC_STEP_MARGIN MAC_IDLE_MAX MAC_KEEP_RUNS FAKE_RSYNC_PULL_SLEEP XC_BOOT_SLEEP GRADLE_RC GRADLE_SLEEP XC_RC XC_SLEEP XC_MARK
     LOCK="$FAKE_HOME/work/.build-lock"
 }
 mr() { "$SCRIPT" "$@"; }
-pstart_of() { ps -p "$1" -o lstart= | tr -s ' ' | sed 's/^ //;s/ $//'; }
+pstart_of() { LC_ALL=C TZ=UTC0 ps -p "$1" -o lstart= | tr -s ' ' | sed 's/^ //;s/ $//'; }
 dead_pid() { sleep 0 & local p=$!; wait "$p"; echo "$p"; }
 # mk_owner <container> <pid> [token] [pstart]: a lock record as the script writes it
 mk_owner() {
@@ -452,8 +453,13 @@ t_xcode_test_default_timeout_and_override() {
     [ $rc = 142 ] || fail "exit $rc, want 142: $out"
     grep -q "TIMEOUT: xcodebuild killed after 1s" <<<"$out" || fail "no timeout message: $out"
     [ "$(kv "$(last_run)/exit" reason)" = timeout ] || fail "marker: $(cat "$(last_run)/exit")"
-    # the default for xcode-test stays 2400 s, for the others 3000 s
-    out=$(mr xcode-test iphone 2>&1); grep -q "mac-remote: simulator UDID-IPHONE" <<<"$out" || fail "xcode-test did not run: $out"
+    # the defaults: 2400 s for xcode-test, 3000 s for the others (the generated step script is kept in the run dir)
+    mr xcode-test iphone >/dev/null 2>&1
+    grep -q 'tmo 2400 xcodebuild test' "$(last_run)/step-1.sh" || fail "xcode-test default is not 2400 s: $(grep -n tmo "$(last_run)/step-1.sh")"
+    mr gradle :a >/dev/null 2>&1
+    grep -q 'tmo 3000 ./gradlew' "$(last_run)/step-1.sh" || fail "gradle default is not 3000 s"
+    MAC_TIMEOUT=77 mr xcode-test iphone >/dev/null 2>&1
+    grep -q 'tmo 77 xcodebuild test' "$(last_run)/step-1.sh" || fail "MAC_TIMEOUT override ignored for xcode-test"
     out=$(mr xcode-test jphone 2>&1); [ $? != 0 ] && grep -q "device must be iphone or ipad" <<<"$out" || fail "bad device accepted: $out"
 }
 t_heartbeat_shows_in_output_log() {
@@ -470,6 +476,94 @@ t_sim_boot_goes_through_lock_and_marker() {
     [ "$(kv "$(last_run)/exit" code)" = 0 ] || fail "no marker for sim boot"
 }
 
+# ---------------------------------------------------------------- review fixes
+t_step_output_cannot_spoof_the_result() {
+    new_env spoof
+    out=$(mr batch "run echo x@@STEP-RC 0; exit 5" "run echo second" 2>&1); rc=$?
+    [ $rc = 5 ] || fail "exit $rc, want 5 (output spoofed the sentinel): $out"
+    grep -qx second <<<"$out" && fail "step 2 ran after a failed step 1: $out"
+    grep -q "step 2: .* -> not run" <<<"$out" || fail "no per-step result: $out"
+    out=$(mr run 'echo @@LOCKED; echo @@STEP-RC-nope 0; exit 4' 2>&1); rc=$?
+    [ $rc = 4 ] || fail "run exit $rc, want 4: $out"
+}
+t_bad_device_in_batch_is_rejected_before_locking() {
+    new_env batch-bad-device
+    out=$(mr batch "run echo one" "xcode-test jphone" 2>&1); rc=$?
+    [ $rc != 0 ] && grep -q "device must be iphone or ipad" <<<"$out" || fail "bad device accepted (exit $rc): $out"
+    [ ! -s "$EVENTS" ] && [ ! -e "$T/out/runs" ] || fail "a run started before validation: $(ev) $(ls "$T/out" 2>&1)"
+}
+t_idle_guard_releases_lock_when_container_side_stalls() {
+    new_env idle-guard
+    # the container side stalls in fetches after the step (a dropped network would look the same): the guard frees the lock
+    MAC_IDLE_MAX=1 FAKE_RSYNC_PULL_SLEEP=3 "$SCRIPT" native-tests jsword > /dev/null 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for '[ -f "$LOCK/owner" ]' || { fail "run did not start"; return; }
+    wait_for '[ ! -e "$LOCK" ]' || fail "lock not released while the container side idles"
+    kill -0 "$p" 2>/dev/null || fail "the local run ended before the stall was observed (test not meaningful)"
+    wait "$p"
+}
+t_timeout_kills_the_whole_process_group() {
+    new_env timeout-group
+    rm -f "$FAKE_HOME/survivor"
+    MAC_TIMEOUT=1 mr run '(sleep 3; touch $HOME/survivor) & sleep 30' >/dev/null 2>&1; rc=$?
+    [ $rc = 142 ] || fail "exit $rc, want 142"
+    sleep 3.5
+    [ ! -e "$FAKE_HOME/survivor" ] || fail "a child of the timed-out command survived the timeout"
+}
+t_step_watchdog_bounds_work_outside_the_inner_timeouts() {
+    new_env step-watchdog
+    local t0=$SECONDS
+    out=$(MAC_TIMEOUT=1 MAC_STEP_MARGIN=1 XC_BOOT_SLEEP=30 mr native-tests jsword 2>&1); rc=$?
+    [ $rc = 142 ] || fail "exit $rc, want 142 (simulator boot hang not bounded): $out"
+    [ $((SECONDS - t0)) -lt 15 ] || fail "took $((SECONDS - t0)) s"
+    [ "$(kv "$(last_run)/exit" reason)" = timeout ] || fail "marker: $(cat "$(last_run)/exit")"
+    [ ! -e "$LOCK" ] || fail "lock left behind"
+}
+t_timeouts_are_142_everywhere() {
+    new_env timeout-codes
+    MAC_TIMEOUT=1 GRADLE_SLEEP=5 mr native-tests jsword >/dev/null 2>&1; rc=$?
+    [ $rc = 142 ] || fail "native-tests timeout exit $rc, want 142"
+    MAC_TIMEOUT=1 XC_SLEEP=5 mr xcode-build iphone >/dev/null 2>&1; rc=$?
+    [ $rc = 142 ] || fail "xcode-build timeout exit $rc, want 142"
+}
+t_live_holder_is_not_broken_under_another_timezone() {
+    new_env tz-liveness
+    sleep 30 & local hp=$!; bg_pids+=("$hp")
+    mk_owner other "$hp"
+    out=$(TZ=Pacific/Auckland LC_ALL=C MAC_LOCK_WAIT=1 mr gradle :a 2>&1)
+    grep -q "breaking" <<<"$out" && fail "a live holder was judged dead under another TZ: $out"
+    [ "$(owner_field token)" = tok-other ] || fail "live lock modified"
+    kill "$hp"
+}
+t_pruning_keeps_a_live_runs_directory() {
+    new_env prune-live
+    "$SCRIPT" run 'sleep 3' >/dev/null 2>&1 & local a=$!; bg_pids+=("$a")
+    wait_for '[ -f "$LOCK/owner" ]' || { fail "run did not start"; return; }
+    local live; live=$(last_run); sleep 1.1
+    MAC_KEEP_RUNS=1 mr run 'true' >/dev/null 2>&1
+    [ -d "$live" ] || fail "the live run's directory was pruned"
+    wait "$a"
+}
+t_abandoned_breaker_mutex_is_judged_by_its_pid() {
+    new_env breaker-mutex
+    mk_owner ghost "$(dead_pid)" tok-ghost "Mon Jan  1 00:00:00 2024"
+    mkdir "$LOCK.breaking"; dead_pid > "$LOCK.breaking/pid"      # breaker died: fresh dir, dead pid
+    out=$(MAC_LOCK_WAIT=5 mr gradle :a 2>&1); rc=$?
+    [ $rc = 0 ] || fail "dead breaker's mutex blocked the next waiter (exit $rc): $out"
+    new_env breaker-live
+    mk_owner ghost "$(dead_pid)" tok-ghost "Mon Jan  1 00:00:00 2024"
+    sleep 30 & local bp=$!; bg_pids+=("$bp")
+    mkdir "$LOCK.breaking"; echo "$bp" > "$LOCK.breaking/pid"
+    MAC_LOCK_WAIT=2 mr gradle :a >/dev/null 2>&1; rc=$?
+    [ $rc = 75 ] || fail "a live breaker's mutex was removed (exit $rc)"
+    [ -d "$LOCK.breaking" ] || fail "live breaker mutex gone"
+    kill "$bp"
+}
+t_step_script_is_kept_in_run_dir() {
+    new_env step-script
+    mr gradle :zzz >/dev/null 2>&1
+    grep -q ':zzz' "$(last_run)/step-1.sh" || fail "step script not kept"
+}
+
 for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
@@ -481,7 +575,12 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_batch_stops_at_first_failing_step t_batch_holds_lock_across_steps t_batch_link_and_unknown_step t_batch_native_then_xcode_sequence \
     t_native_tests_force_deletes_results t_native_tests_boots_simulator_and_fetches t_gradle_warns_for_native_test_task \
     t_xcode_test_evidence_per_run_with_latest_links t_xcode_test_default_timeout_and_override \
-    t_heartbeat_shows_in_output_log t_sim_boot_goes_through_lock_and_marker; do run_test "$t"; done
+    t_heartbeat_shows_in_output_log t_sim_boot_goes_through_lock_and_marker \
+    t_step_output_cannot_spoof_the_result t_bad_device_in_batch_is_rejected_before_locking \
+    t_idle_guard_releases_lock_when_container_side_stalls t_timeout_kills_the_whole_process_group \
+    t_step_watchdog_bounds_work_outside_the_inner_timeouts t_timeouts_are_142_everywhere \
+    t_live_holder_is_not_broken_under_another_timezone t_pruning_keeps_a_live_runs_directory \
+    t_abandoned_breaker_mutex_is_judged_by_its_pid t_step_script_is_kept_in_run_dir; do run_test "$t"; done
 
 echo "mac-remote tests: $pass passed, $failn failed"
 [ "$failn" = 0 ] && echo "MAC-REMOTE OK"

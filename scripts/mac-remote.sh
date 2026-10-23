@@ -96,6 +96,11 @@ LOCK_POLL="${MAC_LOCK_POLL:-5}"
 LOCK_MSG_EVERY="${MAC_LOCK_MSG_EVERY:-300}"
 HEARTBEAT="${MAC_HEARTBEAT:-120}"
 KEEP_RUNS="${MAC_KEEP_RUNS:-20}"
+# The Mac frees the lock when the container side is silent this long between steps (lost network, SIGKILLed
+# script): it must cover the longest container-side sync/fetch. STEP_MARGIN: how long after a step's timeout
+# the step-level watchdog kills the whole step (npm, xcodegen, simulator boot... run outside the inner timeouts).
+IDLE_MAX="${MAC_IDLE_MAX:-1800}"
+STEP_MARGIN="${MAC_STEP_MARGIN:-600}"
 APP_ID=org.andbible.ios.dev
 APP_PROCESS=AndBibleDev
 
@@ -107,7 +112,7 @@ SSH=("$SSH_BIN" -F "$SSH_CONFIG")
 # Remote runs get their own connection, never the shared ControlMaster one: the build-lock watchdog
 # watches this run's sshd-session, which only ends with its own connection.
 SSH_RUN=("$SSH_BIN" -F "$SSH_CONFIG" -o ControlMaster=no -o ControlPath=none -o ServerAliveInterval=30 -o ServerAliveCountMax=10)
-RSYNC=("$RSYNC_BIN" -az -e "ssh -F $SSH_CONFIG" --rsync-path=/opt/homebrew/bin/rsync)
+RSYNC=("$RSYNC_BIN" -az -e "ssh -F $SSH_CONFIG -o ServerAliveInterval=30 -o ServerAliveCountMax=10" --rsync-path=/opt/homebrew/bin/rsync)
 
 # Shell-quote arguments for the remote command line.
 q() { [ $# -eq 0 ] || printf '%q ' "$@"; }
@@ -123,7 +128,10 @@ set -uo pipefail
 TREE=\$HOME/$(q "$TREE")
 cd "\$TREE" 2>/dev/null || { echo "mac-remote: no remote tree at \$TREE; run sync first" >&2; exit 1; }
 # timeout without coreutils: perl's alarm survives exec
-tmo() { perl -e 'alarm shift; exec @ARGV' "\$@"; }
+# tmo <seconds> cmd...: runs cmd in its own process group; on timeout (exit 142) or TERM the whole group is
+# stopped (TERM, then KILL after 3 s). Exit code: the command's, 128+signal if it was killed. perl (setpgrp, fork)
+# ships with macOS.
+tmo() { perl -e 'use POSIX ":sys_wait_h"; my \$t = shift; my \$pid = fork(); die "fork: \$!" unless defined \$pid; if (!\$pid) { setpgrp(0,0); exec @ARGV or exit 127 } setpgrp(\$pid,\$pid); my \$stop = sub { my \$code = shift; kill "TERM", -\$pid; for (1..30) { last if waitpid(\$pid, WNOHANG) == \$pid; select(undef,undef,undef,0.1) } kill "KILL", -\$pid; kill "KILL", \$pid; waitpid(\$pid, 0); exit \$code }; \$SIG{ALRM} = sub { \$stop->(142) }; \$SIG{TERM} = sub { \$stop->(143) }; \$SIG{HUP} = sub { \$stop->(129) }; alarm \$t; waitpid(\$pid, 0); my \$st = \$?; alarm 0; exit((\$st & 127) ? 128 + (\$st & 127) : \$st >> 8)' "\$@"; }
 sim_udid() { xcrun simctl list devices available -j | python3 -c 'import json,sys; n=sys.argv[1]; print(next((d["udid"] for rt in json.load(sys.stdin)["devices"].values() for d in rt if d["name"]==n), ""))' "\$1"; }
 # Create the simulator if missing (device type = name, newest iOS runtime), boot it, print its UDID.
 sim_boot() {
@@ -162,17 +170,24 @@ L=$HOME/work/.build-lock
 mtime() { perl -e 'print((stat $ARGV[0])[9] // 0)' "$1"; }
 rename() { perl -e 'rename($ARGV[0],$ARGV[1]) or exit 1' "$1" "$2" 2>/dev/null; }
 owner_get() { sed -n "s/^$1=//p" "$L/owner" 2>/dev/null | sed -n 1p; }
-pstart_of() { ps -p "$1" -o lstart= 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'; }
-# 0 when the holder is gone (or the dir has had no owner record for 60 s); 1 for no lock or a live holder
+pstart_of() { LC_ALL=C TZ=UTC0 ps -p "$1" -o lstart= 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'; }
+# 0 when the holder is gone (or the dir has had no owner record for 60 s); 1 for no lock or a live holder.
+# Judged from ONE read of the owner record; STALE_TOKEN is that copy's token (break_lock compares against it).
+STALE_TOKEN=
 lock_stale() {
+    STALE_TOKEN=
     [ -d "$L" ] || return 1
-    if [ -f "$L/owner" ]; then
-        local pid pstart
-        pid=$(owner_get pid); pstart=$(owner_get pstart)
+    local snap pid pstart cur
+    snap=$(cat "$L/owner" 2>/dev/null)
+    if [ -n "$snap" ]; then
+        STALE_TOKEN=$(printf '%s\n' "$snap" | sed -n 's/^token=//p' | sed -n 1p)
+        pid=$(printf '%s\n' "$snap" | sed -n 's/^pid=//p' | sed -n 1p)
+        pstart=$(printf '%s\n' "$snap" | sed -n 's/^pstart=//p' | sed -n 1p)
         if [ -n "$pid" ] && [ -n "$pstart" ]; then
-            [ "$(pstart_of "$pid")" != "$pstart" ]
+            cur=$(pstart_of "$pid")
+            if [ -z "$cur" ]; then ! kill -0 "$pid" 2>/dev/null; else [ "$cur" != "$pstart" ]; fi   # ps blind but pid alive = alive
         else
-            pid=$(sed -n '1s/.* pid \([0-9]*\) .*/\1/p' "$L/owner" 2>/dev/null)
+            pid=$(printf '%s\n' "$snap" | sed -n '1s/.* pid \([0-9]*\) .*/\1/p')
             [ -n "$pid" ] && ! ps -p "$pid" -o comm= 2>/dev/null | grep -q bash
         fi
     else
@@ -186,10 +201,10 @@ lock_release_if() {
 EOF
 }
 
-# Remote script part 1: wait for the lock, then print @@LOCKED on stdout (the caller syncs the tree next).
+# Remote script part 1: wait for the lock, then print @@LOCKED-<run token> on stdout (the caller syncs the tree next).
 lock_script() {
-    printf 'set -uo pipefail\nMYNAME=%q TOKEN=%q LPID=%q RUNID=%q LOCK_WAIT=%q POLL=%q MSG_EVERY=%q\n' \
-        "$NAME" "$TOKEN" "$$" "$RUN_ID" "$LOCK_WAIT" "$LOCK_POLL" "$LOCK_MSG_EVERY"
+    printf 'set -uo pipefail\nMYNAME=%q TOKEN=%q LPID=%q RUNID=%q LOCK_WAIT=%q POLL=%q MSG_EVERY=%q IDLE_MAX=%q\n' \
+        "$NAME" "$TOKEN" "$$" "$RUN_ID" "$LOCK_WAIT" "$LOCK_POLL" "$LOCK_MSG_EVERY" "$IDLE_MAX"
     rlib
     cat <<'EOF'
 mkdir -p "$HOME/work"
@@ -202,13 +217,17 @@ try_acquire() {
     rm -rf "$P"; return 1
 }
 break_lock() {
-    local B="$L.breaking" seen got moved
+    local B="$L.breaking" seen got moved bpid
     if ! mkdir "$B" 2>/dev/null; then
-        [ $(( $(date +%s) - $(mtime "$B") )) -gt 60 ] && rm -rf "$B"   # an abandoned breaker mutex
+        # an abandoned breaker mutex: its recorded pid is dead (no pid file: older than 60 s)
+        bpid=$(cat "$B/pid" 2>/dev/null)
+        if [ -n "$bpid" ]; then kill -0 "$bpid" 2>/dev/null || rm -rf "$B"
+        elif [ $(( $(date +%s) - $(mtime "$B") )) -gt 60 ]; then rm -rf "$B"; fi
         return 1
     fi
-    lock_stale || { rmdir "$B"; return 1; }
-    seen=$(owner_get token); moved="$L.broken.$TOKEN"
+    echo $$ > "$B/pid"
+    lock_stale || { rm -rf "$B"; return 1; }
+    seen=$STALE_TOKEN; moved="$L.broken.$TOKEN"
     if rename "$L" "$moved"; then
         got=$(sed -n 's/^token=//p' "$moved/owner" 2>/dev/null | sed -n 1p)
         if [ "$got" = "$seen" ]; then
@@ -218,7 +237,19 @@ break_lock() {
             rename "$moved" "$L" || echo "mac-remote: WARNING: moved a live lock aside and could not restore it: $moved" >&2
         fi
     fi
-    rmdir "$B" 2>/dev/null; return 0
+    rm -rf "$B"; return 0
+}
+# Idle guard: armed while the container side works (sync, fetches) and between steps. When no step starts
+# (or ends the session) within IDLE_MAX seconds the container side is lost (network down: the Mac's sshd
+# session can outlive it for hours): release the lock and stop this session. 1 s ticks so a disarm leaves no long sleep.
+__idle=
+idle_disarm() { [ -z "$__idle" ] || kill "$__idle" 2>/dev/null; __idle=; }
+idle_arm() {
+    idle_disarm
+    ( i=0; while [ "$i" -lt "$IDLE_MAX" ]; do sleep 1 >/dev/null 2>&1; i=$((i + 1)); done
+      echo "$(date '+%F %T') $MYNAME: no instruction from the container for ${IDLE_MAX}s, releasing the lock of run $RUNID" >> "$HOME/work/.mac-remote-watchdog.log"
+      lock_release_if "$TOKEN"; kill -TERM $$; sleep 2; kill -KILL $$ ) </dev/null >/dev/null 2>&1 &
+    __idle=$!
 }
 WD=
 trap 'lock_release_if "$TOKEN"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
@@ -256,7 +287,8 @@ while :; do
 done
 mem=?; command -v vm_stat >/dev/null 2>&1 && mem=$(vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{n=$3} END{printf "%.1f", (f+n)*ps/1073741824}')
 echo "mac-remote: build lock acquired after $(( SECONDS - t0 )) s; free memory $mem GiB" >&2
-echo @@LOCKED
+idle_arm
+echo "@@LOCKED-$TOKEN"
 EOF
 }
 
@@ -294,7 +326,7 @@ fetch() {
 #  steps   tab separated: <n> start <epoch> <step>   /   <n> end <epoch> <exit code>
 #  exit    key=value, written once at the end (also on timeout, failure and SIGTERM/INT/HUP):
 #          code, reason, end_epoch, failed_step.  No exit file and a dead pid = the run was killed hard.
-lpstart() { ps -p "$1" -o lstart= 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'; }
+lpstart() { LC_ALL=C TZ=UTC0 ps -p "$1" -o lstart= 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'; }
 meta_get() { sed -n "s/^$2=//p" "$1/meta" 2>/dev/null | sed -n 1p; }
 exit_get() { sed -n "s/^$2=//p" "$1/exit" 2>/dev/null | sed -n 1p; }
 run_alive() {   # the recorded local process still exists (pid and start time match)
@@ -326,7 +358,11 @@ run_begin() {   # label total-steps cmdline...
     } > "$RUNDIR/meta"
     : > "$RUNDIR/steps"
     # prune old run dirs (the newest KEEP_RUNS stay; a running run is always among them)
-    ls -1d "$OUT"/runs/*/ 2>/dev/null | sort | head -n "-$KEEP_RUNS" | while read -r old; do rm -rf "$old"; done
+    ls -1d "$OUT"/runs/*/ 2>/dev/null | sort | head -n "-$KEEP_RUNS" | while read -r old; do
+        old=${old%/}
+        [ -f "$old/exit" ] || ! run_alive "$old" || continue   # never a live run's directory
+        rm -rf "$old"
+    done
     exec > >(tee -a "$RUNDIR/output.log") 2> >(tee -a "$RUNDIR/output.log" >&2)
     trap 'RUN_SIGNAL=HUP; exit 129' HUP
     trap 'RUN_SIGNAL=INT; exit 130' INT
@@ -353,7 +389,7 @@ run_exit() {
 
 # ---------------------------------------------------------------------------------------------
 # One remote bash session per run (a coprocess): lock code first, @@LOCKED back, local sync, then one script
-# per step; the step's exit code comes back as a "@@STEP-RC n" line. The remote bash reads its script from
+# per step; the step's exit code comes back as a "@@STEP-RC-<token> n" line. The remote bash reads its script from
 # stdin as it goes, so the lock (and its watchdog) stays held across all steps.
 session_send() {   # text
     trap '' PIPE
@@ -368,8 +404,9 @@ session_read() {
     SENT=
     while IFS= read -r -u "$RS_OUT" line; do
         case "$line" in
-        *@@LOCKED) pre=${line%@@LOCKED}; [ -z "$pre" ] || printf '%s\n' "$pre"; SENT=locked; return 0 ;;
-        *"@@STEP-RC "*) pre=${line%%@@STEP-RC *}; [ -z "$pre" ] || printf '%s' "$pre"; SENT=${line##*@@STEP-RC }; return 0 ;;
+        # sentinels carry the run token: step output cannot forge them
+        *"@@LOCKED-$TOKEN") pre=${line%@@LOCKED-"$TOKEN"}; [ -z "$pre" ] || printf '%s\n' "$pre"; SENT=locked; return 0 ;;
+        *"@@STEP-RC-$TOKEN "*) pre=${line%%@@STEP-RC-"$TOKEN" *}; [ -z "$pre" ] || printf '%s' "$pre"; SENT=${line##*@@STEP-RC-"$TOKEN" }; return 0 ;;
         *) printf '%s\n' "$line" ;;
         esac
     done
@@ -385,16 +422,31 @@ session_open() {
         return "$rc"
     fi
 }
+# One step = one script file on the Mac, run by tmo in its own process group with a step-level timeout
+# (step timeout + STEP_MARGIN): everything the step starts, also outside the inner tmo calls (npm, xcodegen,
+# simulator boot), is killed together. A copy of the script is kept in $RUNDIR/step-<n>.sh.
 session_step() {   # n script  -> sets STEP_RC
-    local n=$1
-    session_send "__step_$n() {
+    local n=$1 t f eofm="__MR_STEP_END_$TOKEN" body
+    t=$(( $(step_timeout "${STEP[0]}") + STEP_MARGIN ))
+    f="\$HOME/work/.step-$TOKEN-$n.sh"
+    body="$(prologue)
+__body() {
 $2
 }
+__body
+exit \$?"
+    printf '%s\n' "$body" > "$RUNDIR/step-$n.sh"
+    session_send "idle_disarm
+cat > \"$f\" <<'$eofm'
+$body
+$eofm
 ( __i=0; while :; do sleep 1 >/dev/null 2>&1; __i=\$((__i + 1)); [ \$((__i % $HEARTBEAT)) = 0 ] || continue; echo \"mac-remote: heartbeat (step $n): newest build log: \$(f=\$(ls -t build/*.log 2>/dev/null | sed -n 1p); [ -n \"\$f\" ] && echo \"\$f idle \$(( \$(date +%s) - \$(mtime \"\$f\") )) s\" || echo none)\"; done ) </dev/null &
 __hb=\$!
-__step_$n </dev/null; __rc=\$?
-kill \$__hb 2>/dev/null
-echo \"@@STEP-RC \$__rc\"" || true
+tmo $t bash \"$f\" </dev/null; __rc=\$?
+kill \$__hb 2>/dev/null; rm -f \"$f\"
+[ \$__rc != 142 ] || echo 'mac-remote: step $n stopped by the step timeout' >&2
+idle_arm
+echo \"@@STEP-RC-$TOKEN \$__rc\"" || true
     if session_read; then STEP_RC=$SENT; else
         STEP_RC=0; wait "$RS_PID_" 2>/dev/null || STEP_RC=$?; RS_PID_=
         [ "$STEP_RC" != 0 ] || STEP_RC=255
@@ -403,7 +455,7 @@ echo \"@@STEP-RC \$__rc\"" || true
 }
 session_close() {
     [ -n "$RS_PID_" ] || return 0
-    session_send "exit 0" || true
+    session_send "idle_disarm; exit 0" || true
     eval "exec $RS_IN>&-"
     # bounded: a stray remote background process holding the channel open must not hang the run
     while IFS= read -r -t 60 -u "$RS_OUT" line; do printf '%s\n' "$line"; done
@@ -453,7 +505,7 @@ for m in $(q "${NATIVE_MODS[@]}"); do
     echo "=== :\$m:iosSimulatorArm64Test"
     tmo $t ./gradlew -Dorg.gradle.native=false :\$m:iosSimulatorArm64Test --continue; r=\$?
     [ \$r = 142 ] && { echo "mac-remote: TIMEOUT in \$m after ${t}s" >&2; ./gradlew --stop >/dev/null 2>&1; }
-    [ \$r = 0 ] || fail=1
+    [ \$r = 0 ] || { fail=1; [ \$r != 142 ] || fail=142; }
 done
 return \$fail
 EOF
@@ -472,12 +524,12 @@ step_post_native_tests() {
 
 xcode_parse() {   # [iphone|ipad] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS
     XC_WHICH="${1:-iphone}"; [ $# -gt 0 ] && shift
-    case "$XC_WHICH" in iphone) XC_SIM="$SIM_IPHONE" ;; ipad) XC_SIM="$SIM_IPAD" ;; *) die "device must be iphone or ipad" ;; esac
+    case "$XC_WHICH" in iphone) XC_SIM="$SIM_IPHONE" ;; ipad) XC_SIM="$SIM_IPAD" ;; *) echo "mac-remote: device must be iphone or ipad" >&2; return 1 ;; esac
     XC_ARGS=("$@")
 }
 step_script_xcode() {   # <kind> <n> [dev] [args...]
     local kind=$1 n=$2 t; shift 2; t=$(step_timeout "$kind")
-    xcode_parse "$@"
+    xcode_parse "$@" || return 1
     local which=$XC_WHICH
     cat <<EOF
 mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
@@ -507,7 +559,8 @@ if [ $kind = xcode-test ]; then
 else
     tmo $t xcodebuild build -project iosApp/iosApp.xcodeproj -scheme iosApp \\
         -destination "platform=iOS Simulator,id=\$UDID" -derivedDataPath build/dd-$which \\
-        > build/xcodebuild-$which.log 2>&1 || { grep -E 'error:|BUILD FAILED' build/xcodebuild-$which.log | tail -40; return 1; }
+        > build/xcodebuild-$which.log 2>&1; rc=\$?
+    [ \$rc = 0 ] || { [ \$rc != 142 ] || echo "mac-remote: TIMEOUT: xcodebuild killed after ${t}s" >&2; grep -E 'error:|BUILD FAILED' build/xcodebuild-$which.log | tail -40; [ \$rc = 142 ] && return 142; return 1; }
     APP=\$(ls -d build/dd-$which/Build/Products/Debug-iphonesimulator/$APP_PROCESS.app | sed -n 1p)
     xcrun simctl install \$UDID "\$APP" && xcrun simctl terminate \$UDID $APP_ID 2>/dev/null
     xcrun simctl launch \$UDID $APP_ID && sleep 5   # let the first render settle before a sim shot
@@ -521,7 +574,7 @@ step_script_xcode_build() { step_script_xcode xcode-build "$@"; }
 # the old paths .local/mac/<container>/xcode/<name>-<device> become links to the latest run.
 step_post_xcode() {   # <kind> <n> <rc> [dev] [args...]
     local kind=$1 n=$2 rc=$3; shift 3
-    xcode_parse "$@"
+    xcode_parse "$@" || return 0
     local which=$XC_WHICH ev="$RUNDIR/xcode/step$n-$XC_WHICH" f
     mkdir -p "$ev" "$OUT/xcode"
     for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult"; do
@@ -581,11 +634,14 @@ run_steps() {
         eval "STEP=($step)"
         [ "${STEP[0]}" != link ] || continue
         kind=${STEP[0]//-/_}
+        case "${STEP[0]}" in xcode-test|xcode-build) ( xcode_parse "${STEP[@]:1}" ) || exit 1 ;; esac
         declare -F "step_script_$kind" >/dev/null || die "unknown step '${STEP[0]}' (steps: link gradle native-tests xcode-test xcode-build run)"
     done
     run_begin "$label" "$total" "${steps[@]}"
-    session_open || { rc=$?; RUN_REASON="no lock"; exit "$rc"; }
-    if [ "$sync" = 1 ]; then sync_tree || { RUN_REASON="sync failed"; exit 1; }; fi
+    RUN_REASON="no lock"
+    session_open || exit $?
+    RUN_REASON=
+    if [ "$sync" = 1 ]; then RUN_REASON="sync failed"; sync_tree; RUN_REASON=; fi
     session_send "$(prologue)" || true
     for step in "${steps[@]}"; do
         n=$((n + 1))
@@ -679,7 +735,10 @@ for TOK in $TOKENS; do
     if [ "$(owner_get token)" = "$TOK" ]; then
         pid=$(owner_get pid)
         if [ -n "$pid" ] && [ "$(pstart_of "$pid")" = "$(owner_get pstart)" ]; then
-            pkill -TERM -P "$pid" 2>/dev/null; kill -TERM "$pid" 2>/dev/null; sleep 1
+            # the step's tmo (a direct child) stops its whole process group on TERM; then the session itself
+            pkill -TERM -P "$pid" 2>/dev/null; kill -TERM "$pid" 2>/dev/null
+            i=0; while [ "$i" -lt 50 ] && [ "$(pstart_of "$pid")" = "$(owner_get pstart)" ]; do sleep 0.2; i=$((i + 1)); done
+            if [ "$(pstart_of "$pid")" = "$(owner_get pstart)" ]; then pkill -KILL -P "$pid" 2>/dev/null; kill -KILL "$pid" 2>/dev/null; fi
         fi
         lock_release_if "$TOK" && echo "mac-remote: released the remote lock (run $(echo "$TOK" | cut -c1-8)...)"
         break
@@ -742,7 +801,7 @@ native-tests)
     run_steps native-tests 1 "$(q native-tests "$@")"
     ;;
 xcode-test|xcode-build)
-    xcode_parse "$@"   # validates the device before taking the lock
+    xcode_parse "$@" || exit 1   # validates the device before taking the lock
     run_steps "$cmd" 1 "$(q "$cmd" "$@")"
     ;;
 run)
