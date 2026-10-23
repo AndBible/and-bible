@@ -115,7 +115,7 @@ class MyDocumentsAndAiMapperTest {
     @Test
     fun everyFixtureMatchesItsMyDocumentsOracle() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         var documentRows = 0
         var pageRows = 0
         var contentRows = 0
@@ -223,6 +223,13 @@ class MyDocumentsAndAiMapperTest {
      * pins the Swift rules: only entries of an exported page, the first by id per page, the rest counted.
      */
     @Test
+    fun everyMyDocumentsSkipNamesItsTable() {
+        for (fx in allFixtures().filter { it.scenario == "rich" || it.scenario == "restored-android" }) {
+            assertEquals(emptyList(), skipped(mapDocs(fx).second).filter { it.table == null }, label(fx))
+        }
+    }
+
+    @Test
     fun aiPageCacheEntriesAreKeptForExportedPagesOnly() {
         val data = LegacyMyDocumentData(
             documents = listOf(doc(1, 1, "MyDoc_a")),
@@ -243,6 +250,7 @@ class MyDocumentsAndAiMapperTest {
         assertTrue(reasons.contains("AI page cache entry of a page that was not exported"), reasons.toString())
         assertTrue(reasons.contains("duplicate AI page cache entry for one page"), reasons.toString())
         assertEquals(2, skipped(report).first { it.reason == "AI page cache entry of a page that was not exported" }.rows)
+        assertEquals(setOf("AiPageCacheEntry"), skipped(report).filter { it.reason.contains("AI page cache") }.map { it.table }.toSet())
     }
 
     @Test
@@ -269,6 +277,18 @@ class MyDocumentsAndAiMapperTest {
         assertEquals(listOf(listOf(blob(uuid(11)))), read("SELECT id FROM MyDocumentPage", 1))
         assertEquals(listOf(listOf(blob(uuid(11)), "t:replaces the first")), read("SELECT pageId, content FROM MyDocumentPageContent", 2))
         val byReason = skipped(report).associate { it.reason to it.rows }
+        assertEquals(
+            mapOf(
+                "duplicate My Document id" to "MyDocument", "My Document with an initials value already in use" to "MyDocument",
+                "My Document value out of 32-bit range" to "MyDocument", "duplicate My Document page key" to "MyDocumentPage",
+                "My Document page without an exported document" to "MyDocumentPage",
+            ),
+            skipped(report).associate { it.reason to it.table }.filterKeys { it in setOf(
+                "duplicate My Document id", "My Document with an initials value already in use", "My Document value out of 32-bit range",
+                "duplicate My Document page key", "My Document page without an exported document",
+            ) },
+        )
+        assertEquals(emptyList(), skipped(report).filter { it.table == null }, "every skip names its table")
         assertEquals(2, byReason["duplicate My Document id"], byReason.toString())
         assertEquals(1, byReason["My Document with an initials value already in use"], byReason.toString())
         assertEquals(1, byReason["My Document value out of 32-bit range"], byReason.toString())
@@ -336,6 +356,19 @@ class MyDocumentsAndAiMapperTest {
         "LlmProviderConfig", "id=" + blob("a2000000-0000-0000-0000-0000000000aa"), RowSide.ONLY_IN_STAGED,
         "U11: the preserved Android file's own provider is added; the Swift oracle is built from the Swift rows only",
     )
+
+    @Test
+    fun everyAiSettingsSkipNamesItsTable() {
+        var checked = 0
+        for (fx in allFixtures().filter { it.scenario == "rich" || it.scenario == "restored-android" || it.scenario == "preserved-ai" }) {
+            val preserved = preservedPath(fx).takeIf { File(it.toString()).exists() }
+            val skips = skipped(mapAi(fx, preserved, setOf(androidOnlyProvider)).second)
+            checked += skips.size
+            assertEquals(emptyList(), skips.filter { it.table == null }, label(fx))
+            skips.filter { it.reason == AiSettingsMapper.supersededReason("GlobalAiSettings") }.forEach { assertEquals("GlobalAiSettings", it.table, label(fx)) }
+        }
+        assertTrue(checked > 0, "the preserved-ai fixtures produce skips, so this check is not vacuous")
+    }
 
     @Test
     fun preservedAiFixturesAreTheU11UnionWithTheSwiftRowWinningTheGlobalSettings() {

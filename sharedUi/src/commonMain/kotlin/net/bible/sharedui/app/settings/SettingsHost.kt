@@ -4,6 +4,8 @@ package net.bible.sharedui.app.settings
 
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -80,6 +82,8 @@ class SettingsHost(
     private val readingProgressSettingsServiceProvider: () -> ReadingProgressSettingsService,
     private val readingProgressServiceProvider: () -> ReadingProgressService,
     private val onReportBug: (() -> Unit)? = null,
+    /** The platform's legacy-data import, or null where there is none (Android). Resolved when the row is tapped. */
+    private val legacyDataImport: () -> LegacyDataImport? = { null },
 ) {
     /** Preference reads, resolved on first use (Welcome starts uninitialised). */
     private val appSettings: AppSettings by lazy(appSettingsProvider)
@@ -160,6 +164,19 @@ class SettingsHost(
             askBeforeOpeningLink = { links.askBeforeOpening },
             onOpenExternal = { links.open(it) },
             onReportBug = onReportBug,
+            onImportLegacyData = {
+                legacyDataImport()?.let { import ->
+                    shell.hostScope.launch {
+                        try {
+                            import.confirmAndRequest()
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e("SettingsHost", "legacy data import request failed", e)
+                        }
+                    }
+                }
+            },
         ),
         syncSettings = SyncSettingsDeps(
             controller = { syncSettingsController },

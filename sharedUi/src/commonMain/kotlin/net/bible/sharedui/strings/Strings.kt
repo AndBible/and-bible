@@ -1228,6 +1228,23 @@ interface Strings {
 
     // R3 (accessibility audit)
     val sheetDragHandle: String                  // R.string.sheet_drag_handle (bottom sheet drag handle, for screen readers)
+
+    // I3b legacy migration: progress view, recovery screen, one-time notices
+    val legacyMigrationProgress: String                // R.string.legacy_migration_progress
+    val legacyMigrationProgressNeutral: String         // R.string.legacy_migration_progress_neutral
+    val legacyMigrationFailedTitle: String             // R.string.legacy_migration_failed_title
+    val legacyMigrationFailedMessage: String           // R.string.legacy_migration_failed_message
+    val legacyMigrationFailedKeychain: String          // R.string.legacy_migration_failed_keychain
+    val legacyMigrationRollbackPending: String         // R.string.legacy_migration_rollback_pending
+    val legacyMigrationSaveOldData: String             // R.string.legacy_migration_save_old_data
+    val legacyMigrationSendReport: String              // R.string.legacy_migration_send_report
+    val legacyMigrationTryAgain: String                // R.string.legacy_migration_try_again
+    val legacyMigrationTryAgainHint: String            // R.string.legacy_migration_try_again_hint
+    val legacyMigrationRestoreBackup: String           // R.string.legacy_migration_restore_backup
+    val legacyMigrationStartFresh: String              // R.string.legacy_migration_start_fresh
+    val legacyMigrationStartFreshConfirm: String       // R.string.legacy_migration_start_fresh_confirm
+    val legacyImportTitle: String                      // R.string.legacy_import_title
+    val legacyImportSummary: String                    // R.string.legacy_import_summary
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

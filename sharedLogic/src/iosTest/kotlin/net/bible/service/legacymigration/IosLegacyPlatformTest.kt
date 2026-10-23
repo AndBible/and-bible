@@ -6,6 +6,7 @@ import platform.Foundation.NSNumber
 import platform.Foundation.NSUserDefaults
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 private object NoSecrets : net.bible.sharedcore.platform.secrets.SecretStore {
@@ -43,6 +44,22 @@ class IosLegacyPlatformTest {
             assertEquals(true, IosLegacyPlatform(NoSecrets).userDefaults()[key], diag)
         } finally {
             NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
+        }
+    }
+
+    @Test
+    fun syncFileOnFileAndDirectory() {
+        val platform = IosLegacyPlatform(NoSecrets)
+        val dir = platform.applicationSupport / "sync-file-test"
+        platform.fileSystem.createDirectories(dir)
+        val file = dir / "a.txt"
+        platform.fileSystem.write(file) { writeUtf8("x") }
+        try {
+            platform.syncFile(file)
+            platform.syncFile(dir)
+            assertFailsWith<okio.IOException> { platform.syncFile(dir / "missing") }
+        } finally {
+            platform.fileSystem.deleteRecursively(dir, mustExist = false)
         }
     }
 }

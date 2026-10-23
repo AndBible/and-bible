@@ -7,6 +7,7 @@ import net.bible.service.legacymigration.state.MigrationPhase
 import net.bible.service.legacymigration.state.MigrationState
 import net.bible.service.legacymigration.state.MigrationStateStore
 import net.bible.service.legacymigration.state.PlannedMove
+import net.bible.sharedcore.platform.secrets.SecretStore
 import okio.FileSystem
 import okio.Path
 
@@ -29,7 +30,7 @@ import okio.Path
  * 3. **Move.** For each planned name: when a file is replaced, it is first moved to `replaced/<name>` (so its bytes are
  *    kept), then `staging/<name>` is `atomicMove`d to the target. After each move the name is added to `state.moved` (a
  *    progress record for diagnosis; not used for the rollback).
- * 4. **Commit.** After the last move and the post-steps (secrets, plan files) the caller writes `done.json`
+ * 4. **Commit.** After the last move and the post-steps (secrets, `extras.json`, plan files) the caller writes `done.json`
  *    with a temporary file and `atomicMove`. That single rename is the commit point. A kill before it is rolled back, a kill
  *    after it is final (the next start sees `done.json`, only deletes leftovers and never rolls back).
  * 5. **Rollback** ([rollback], run at the start of every launch that finds phase `ADOPTING`, and in-process when adoption
@@ -51,16 +52,21 @@ internal class Adopter(
     private val stagingDir: Path,
     private val replacedDir: Path,
     private val states: MigrationStateStore,
+    private val secrets: SecretStore,
 ) {
-    /** Decides what to move and checks the targets (protocol step 1). Throws `ADOPTION_FAILED` when a target must not be replaced. */
-    fun plan(names: List<String>): List<PlannedMove> = names.map { name ->
+    /**
+     * Decides what to move and checks the targets (protocol step 1). Throws `ADOPTION_FAILED` when a target must not be
+     * replaced. With [replaceNonEmpty] (the user asked for an import over existing data) a target that holds data is
+     * replaced too; its files are kept in `replaced/` like an empty one's.
+     */
+    fun plan(names: List<String>, replaceNonEmpty: Boolean): List<PlannedMove> = names.map { name ->
         val target = databasesDir / name
         if (!fs.exists(target) && !hasSideFiles(target)) return@map PlannedMove(name, replaces = false)
         if (!fs.exists(target)) {
             // Only side files of a database that is not there: not ours to guess about.
             throw LegacyMigrationException(Kind.ADOPTION_FAILED, "$name has leftover side files in the databases directory and no main file")
         }
-        if (!isEmptyDatabase(target)) throw LegacyMigrationException(Kind.ADOPTION_FAILED, "$name already exists in the databases directory and holds data")
+        if (!replaceNonEmpty && !isEmptyDatabase(target)) throw LegacyMigrationException(Kind.ADOPTION_FAILED, "$name already exists in the databases directory and holds data")
         PlannedMove(name, replaces = true)
     }
 
@@ -68,13 +74,17 @@ internal class Adopter(
      * Protocol step 3 for [state] (whose plan has already been written). [afterFirstMove] runs once, after the first
      * move and its state record (the test hook of `Step.ADOPT_FIRST_MOVE`; it also runs when the plan is empty).
      */
-    fun move(state: MigrationState, afterFirstMove: () -> Unit): MigrationState {
+    suspend fun move(state: MigrationState, afterFirstMove: suspend () -> Unit): MigrationState {
         fs.createDirectories(databasesDir)
         var current = state
         for ((index, planned) in state.plan.withIndex()) {
             val target = databasesDir / planned.name
             if (planned.replaces) {
                 fs.createDirectories(replacedDir)
+                // Side files first: a kill between the moves leaves the main file in place, which the rollback treats as untouched.
+                for (suffix in KEPT_SIDE_SUFFIXES) {
+                    if (fs.exists(side(target, suffix))) fs.atomicMove(side(target, suffix), side(replacedDir / planned.name, suffix))
+                }
                 fs.atomicMove(target, replacedDir / planned.name)
             }
             deleteSideFiles(target) // stale -shm/.lck of a database that is not there must not meet the new file
@@ -87,8 +97,12 @@ internal class Adopter(
         return current
     }
 
-    /** Protocol step 5: undoes a (possibly partial) adoption of [plan]. Idempotent. */
-    fun rollback(plan: List<PlannedMove>) {
+    /**
+     * Protocol step 5: undoes a (possibly partial) adoption of [plan] and removes the [secretsWritten] (store keys the
+     * migration added; ones that were present before were never listed). Idempotent.
+     */
+    fun rollback(plan: List<PlannedMove>, secretsWritten: List<String>) {
+        for (key in secretsWritten) secrets.remove(key)
         for (planned in plan) {
             val target = databasesDir / planned.name
             val backup = replacedDir / planned.name
@@ -98,11 +112,21 @@ internal class Adopter(
                 deleteWithSideFiles(target)
                 fs.atomicMove(backup, target)
             }
+            if (planned.replaces) {
+                // Side files go back after the main file, so an interrupted rollback finds them still in replaced/.
+                for (suffix in KEPT_SIDE_SUFFIXES) {
+                    val kept = side(backup, suffix)
+                    if (fs.exists(kept)) {
+                        fs.delete(side(target, suffix), mustExist = false)
+                        fs.atomicMove(kept, side(target, suffix))
+                    }
+                }
+            }
         }
     }
 
     /** [MigrationPhase] guard used by the migrator: the plan is only meaningful while adopting. */
-    fun needsRollback(state: MigrationState?): Boolean = state != null && state.phase == MigrationPhase.ADOPTING && state.plan.isNotEmpty()
+    fun needsRollback(state: MigrationState?): Boolean = state != null && state.phase == MigrationPhase.ADOPTING && (state.plan.isNotEmpty() || state.secretsWritten.isNotEmpty())
 
     /**
      * True when [path] cannot hold user data: a zero-byte file, or a SQLite file in which every table (SQLite's own,
@@ -146,6 +170,8 @@ internal class Adopter(
 
     private companion object {
         val SIDE_SUFFIXES = listOf("-journal", "-wal", "-shm", ".lck")
+        /** Side files kept together with a replaced database (the `.lck` is only a lock marker and is not kept). */
+        val KEPT_SIDE_SUFFIXES = listOf("-journal", "-wal", "-shm")
         val PENDING_SUFFIXES = listOf("-journal", "-wal")
 
         /** `<path><suffix>` as a sibling path. */

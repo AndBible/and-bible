@@ -71,6 +71,7 @@ import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.sharedui.app.mydocuments.MyDocumentsHost
 import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
+import net.bible.sharedui.app.settings.LegacyDataImport
 import net.bible.sharedui.app.readingplan.ReadingPlanHost
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.app.search.SearchHost
@@ -137,6 +138,7 @@ class AppHosts(
             readingProgressSettingsServiceProvider = { koin.get() },
             readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
             onReportBug = onReportBug,
+            legacyDataImport = { koin.getOrNull<LegacyDataImport>() },
         )
     }
 

@@ -59,7 +59,11 @@ object IosPlatformBootstrap {
         iosBackgroundRefreshEntry(
             protectedDataAvailable = {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
-                    platform.UIKit.UIApplication.sharedApplication.protectedDataAvailable && !crashTracker.wouldOfferRecoveryAfterLaunch()
+                    net.bible.sharedui.ios.startup.backgroundAdmissionAllowed(
+                        platform.UIKit.UIApplication.sharedApplication.protectedDataAvailable,
+                        crashTracker.wouldOfferRecoveryAfterLaunch(),
+                        net.bible.sharedui.ios.startup.legacySettled(net.bible.sharedcore.platform.IosDeviceSettings()),
+                    )
                 }
             },
             start = { net.bible.sharedui.assembly.IosAppStartup.ensureStarted() },

@@ -60,6 +60,9 @@ data class LegacyExtras(
             "unsentSyncPatches=$unsentSyncPatches, userPlanFiles=${userPlanFiles.size} files, deviceLocalPrefs=$deviceLocalPrefs)"
 }
 
+/** The secret-store key of the Nextcloud password, the same key the Android app uses (`cloud_sync_password`). */
+const val NEXTCLOUD_PASSWORD_SECRET = "cloud_sync_password"
+
 private const val AI_SERVICE = "org.andbible.BibleCore.AICredentials"
 private const val SYNC_SERVICE = "org.andbible.remote-sync"
 private val SYNC_CATEGORIES = listOf("bookmarks", "workspaces", "readingplans", "mydocuments", "progress", "ai_settings")

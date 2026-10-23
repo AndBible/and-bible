@@ -16,6 +16,9 @@
 #   generate <app> <ios>   app = 1.0.1 | 1.0.2, ios = major version of the simulator runtime (17, 18, 26)
 #   oracle                 pinned app on an iOS 26 simulator, I3OracleExportTests over build/i3-fixtures/gen
 #   package                build/i3-fixtures/{gen,oracle} -> build/i3-fixtures/package (zips + manifest.json)
+#   install-over <app>     best effort (I3b Task 15): build the pinned Swift app with the dev bundle id, run it once, then
+#                          install the new app (last `scripts/mac-remote.sh xcode-build iphone`) over it; results in
+#                          build/i3-fixtures/install-over/<app>/ (see README, "Install-over smoke")
 # The Python test runs from its own directory: cd iosApp/legacy-fixtures && python3 -m unittest test_package_fixtures
 set -euo pipefail
 
@@ -131,6 +134,25 @@ sim_fallback() {
     if [ -n "$src" ]; then cp -R "$src"/. "$out"/; else echo "No i3-fixtures directory found"; fi
 }
 
+# Scenarios every `generate` must produce (one directory with AndBible.store each) and the XCTest case for each.
+EXPECTED_SCENARIOS="fresh rich restored-android preserved-ai extended"
+
+# Fail loudly unless every expected scenario was produced and its test case ran. Prints what was produced.
+verify_generated() {
+    local out="$1" log="$2" installed="$3" missing=0 scenario
+    echo "== generated scenarios in $out:"
+    for scenario in $EXPECTED_SCENARIOS; do
+        if [ -f "$out/$scenario/AndBible.store" ]; then echo "   ok      $scenario"; else echo "   MISSING $scenario" >&2; missing=1; fi
+    done
+    echo "== XCTest cases that ran (from $log):"
+    grep -E "Test Case .*(testScenario[A-Za-z]*) (started|passed|failed)" "$log" | sed 's/^/   /' || true
+    grep -E "error:|\*\* TEST FAILED|\*\* BUILD FAILED" "$log" | head -n 20 | sed 's/^/   LOG: /' || true
+    if [ "$missing" -ne 0 ]; then
+        echo "   installed test file defines: $(grep -c 'func testScenario' "$installed") scenarios, extended present: $(grep -c 'func testScenarioExtended' "$installed")" >&2
+        die "expected scenarios are missing in $out (see the lines above and $log)"
+    fi
+}
+
 mode_generate() {
     [ $# -eq 2 ] || die "usage: generate <app 1.0.1|1.0.2> <ios major>"
     local app="$1" ios="$2" ref dir out log bundle
@@ -146,6 +168,8 @@ mode_generate() {
     build_libsword "$dir"
     make_simulator "I3 fixtures iOS $ios" "$ios" "generate-$app-$ios"
     install_test "$dir" I3FixtureGeneratorTests.swift
+    grep -q 'func testScenarioExtended' "$dir/Sources/BibleCore/Tests/BibleCoreTests/I3FixtureGeneratorTests.swift" \
+        || die "the synced $HERE/I3FixtureGeneratorTests.swift has no testScenarioExtended (stale tree sync?)"
     bundle="$LOGS/generate-$app-$ios.xcresult"
     rm -rf "$out" "$bundle"; mkdir -p "$out"
     local rc=0
@@ -160,6 +184,7 @@ mode_generate() {
         CODE_SIGNING_ALLOWED=NO ) 2>&1 | tee "$log" || rc=$?
     sim_fallback "$out" "$SIM_UDID"
     find "$out" -type f | sort | tee "$LOGS/generated-files-$app-$ios.txt"
+    verify_generated "$out" "$log" "$dir/Sources/BibleCore/Tests/BibleCoreTests/I3FixtureGeneratorTests.swift"
     return "$rc"
 }
 
@@ -195,11 +220,110 @@ mode_package() {
     du -sh "$FIX/package"
 }
 
-[ $# -ge 1 ] || die "usage: run-on-mac.sh generate <app> <ios> | oracle | package"
+# Build the legacy app target with the dev bundle id; $1 = checkout dir, $2 = log. Returns xcodebuild's status.
+build_swift_app() {
+    local dir="$1" log="$2" scheme="${INSTALL_OVER_SCHEME:-AndBible}"
+    ( cd "$dir" && xcodebuild build \
+        -project AndBible.xcodeproj \
+        -scheme "$scheme" \
+        -configuration Debug \
+        -destination "id=$SIM_UDID" \
+        -derivedDataPath "$STATE/derived-install-over" \
+        PRODUCT_BUNDLE_IDENTIFIER=org.andbible.ios.dev \
+        CODE_SIGNING_ALLOWED=NO ) >"$log" 2>&1
+}
+
+mode_install_over() {
+    [ $# -eq 1 ] || die "usage: install-over <app 1.0.1|1.0.2>"
+    local app="$1" ref dir out dev_id=org.andbible.ios.dev attempt built_ok=0 swift_app new_app
+    local logpid="" marker data log
+    case "$app" in
+        1.0.1) ref="$LEGACY_101" ;;
+        1.0.2) ref="$LEGACY_PIN" ;;
+        *) die "unknown app version $app (1.0.1 or 1.0.2)" ;;
+    esac
+    out="$FIX/install-over/$app"
+    rm -rf "$out"; mkdir -p "$out"
+    new_app="${INSTALL_OVER_NEW_APP:-$TREE/build/dd-iphone/Build/Products/Debug-iphonesimulator/AndBibleDev.app}"
+    [ -d "$new_app" ] || die "the new app is missing at $new_app; run scripts/mac-remote.sh xcode-build iphone first"
+    record_toolchain "install-over-$app"
+
+    echo "== step 1: build the Swift app $app ($ref) with PRODUCT_BUNDLE_IDENTIFIER=$dev_id"
+    dir="$(checkout_legacy "app-$app" "$ref")"
+    build_libsword "$dir"
+    make_simulator "I3 install-over iOS 26" 26 "install-over-$app"
+    for attempt in 1 2; do
+        log="$out/swift-build-$attempt.log"
+        echo "   attempt $attempt (log: $log)"
+        if build_swift_app "$dir" "$log"; then built_ok=1; break; fi
+        grep -E "error:|\*\* BUILD FAILED" "$log" | head -n 20 | sed 's/^/   LOG: /' || true
+    done
+    [ "$built_ok" -eq 1 ] || die "install-over smoke not possible on the simulator: the Swift app does not build with $dev_id in two attempts (see $out/swift-build-*.log; scheme AndBible, override with INSTALL_OVER_SCHEME)"
+    swift_app="$(find "$STATE/derived-install-over/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' ! -name '*Tests*' | head -n1)"
+    [ -n "$swift_app" ] || die "the Swift app build produced no .app under $STATE/derived-install-over (see $out/swift-build-*.log)"
+    echo "   built: $swift_app, bundle id: $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$swift_app/Info.plist" 2>&1)"
+
+    echo "== step 2: run the Swift app once (uninstall $dev_id, install, launch, 20 s, screenshot, terminate)"
+    xcrun simctl terminate "$SIM_UDID" "$dev_id" >/dev/null 2>&1 || true
+    xcrun simctl uninstall "$SIM_UDID" "$dev_id" >/dev/null 2>&1 || true
+    xcrun simctl install "$SIM_UDID" "$swift_app" \
+        || die "install-over smoke not possible on the simulator: simctl install of the Swift app failed"
+    marker="$out/.start-marker"; touch "$marker"
+    xcrun simctl launch "$SIM_UDID" "$dev_id" \
+        || die "install-over smoke not possible on the simulator: the Swift app does not launch with $dev_id (see the simctl error above; check the CloudKit entitlement / signing)"
+    sleep 20
+    xcrun simctl io "$SIM_UDID" screenshot "$out/1-swift-app.png" >/dev/null 2>&1 || echo "   (screenshot failed)" >&2
+    xcrun simctl terminate "$SIM_UDID" "$dev_id" >/dev/null 2>&1 || true
+    data="$(xcrun simctl get_app_container "$SIM_UDID" "$dev_id" data 2>&1 || true)"
+    echo "   Swift app data container: $data"
+    { echo "$data"; find "$data" -maxdepth 5 \( -name '*.store*' -o -name '*.json' \) 2>/dev/null | sort; } >"$out/swift-data-files.txt" || true
+    if ! find "$data" -name 'AndBible.store' 2>/dev/null | grep -q .; then
+        echo "   WARNING: the Swift app wrote no AndBible.store; the new app will have nothing to migrate (see $out/1-swift-app.png)" >&2
+    fi
+
+    echo "== step 3: install the new app over it ($new_app), launch, 60 s, screenshot"
+    xcrun simctl spawn "$SIM_UDID" log stream --style compact --predicate 'process == "AndBibleDev"' >"$out/new-app-log-stream.txt" 2>&1 &
+    logpid=$!
+    sleep 2
+    xcrun simctl install "$SIM_UDID" "$new_app" || { kill "$logpid" 2>/dev/null || true; die "simctl install of the new app over the Swift app failed"; }
+    xcrun simctl launch "$SIM_UDID" "$dev_id" || { kill "$logpid" 2>/dev/null || true; die "the new app does not launch over the Swift app"; }
+    sleep 60
+    xcrun simctl io "$SIM_UDID" screenshot "$out/2-new-app.png" >/dev/null 2>&1 || echo "   (screenshot failed)" >&2
+    kill "$logpid" 2>/dev/null || true
+    grep -E "LegacyMigration|I2P2" "$out/new-app-log-stream.txt" >"$out/new-app-filtered.log" || true
+    xcrun simctl spawn "$SIM_UDID" log show --style compact --last 10m --predicate 'process == "AndBibleDev"' 2>/dev/null \
+        | grep -E "LegacyMigration|I2P2" >"$out/new-app-log-show-filtered.log" || true
+    echo "   filtered log lines: stream $(wc -l <"$out/new-app-filtered.log"), log show $(wc -l <"$out/new-app-log-show-filtered.log")"
+    head -n 40 "$out/new-app-filtered.log" | sed 's/^/   | /'
+
+    echo "== results: done.json and crashes"
+    data="$(xcrun simctl get_app_container "$SIM_UDID" "$dev_id" data 2>&1 || true)"
+    echo "   new app data container: $data"
+    find "$data" -name 'done.json' 2>/dev/null | tee "$out/done-json-path.txt" | sed 's/^/   done.json: /'
+    if [ -s "$out/done-json-path.txt" ]; then
+        cp "$(head -n1 "$out/done-json-path.txt")" "$out/done.json"
+        cat "$out/done.json"; echo
+        if grep -Eq '"nothingToMigrate"[[:space:]]*:[[:space:]]*false' "$out/done.json"; then
+            echo "   PASS: done.json exists and nothingToMigrate is false"
+        else
+            echo "   FAIL: nothingToMigrate is not false in done.json" >&2
+        fi
+    else
+        echo "   FAIL: no done.json under the new app's data container" >&2
+    fi
+    find "$data" -maxdepth 4 2>/dev/null | sort >"$out/new-data-files.txt" || true
+    find "$HOME/Library/Logs/DiagnosticReports" \( -name 'AndBible*' -o -name 'iosApp*' \) -newer "$marker" 2>/dev/null \
+        | tee "$out/crashes.txt" | sed 's/^/   crash report: /' || true
+    if [ -s "$out/crashes.txt" ]; then echo "   FAIL: crash reports since the start of the run (copy: scripts/mac-remote.sh sim crashes)" >&2; fi
+    echo "install-over: done; results in $out (fetch with scripts/mac-remote.sh fetch build/i3-fixtures/install-over)"
+}
+
+[ $# -ge 1 ] || die "usage: run-on-mac.sh generate <app> <ios> | oracle | package | install-over <app>"
 mode="$1"; shift
 case "$mode" in
     generate) mode_generate "$@" ;;
     oracle) mode_oracle "$@" ;;
     package) mode_package "$@" ;;
+    install-over) mode_install_over "$@" ;;
     *) die "unknown mode $mode" ;;
 esac

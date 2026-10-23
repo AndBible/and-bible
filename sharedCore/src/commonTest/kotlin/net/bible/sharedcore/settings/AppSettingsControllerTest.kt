@@ -30,6 +30,7 @@ class AppSettingsControllerTest {
         openLinksVisible: Boolean = false,
         debugToolsVisible: Boolean = false,
         displayColorMode: String = "normal",
+        legacyImportVisible: Boolean = false,
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -61,6 +62,7 @@ class AppSettingsControllerTest {
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
         openLinksVisible = openLinksVisible,
         debugToolsVisible = debugToolsVisible,
+        legacyImportVisible = legacyImportVisible,
     )
 
     private fun controller(s: AppSettingsService) =
@@ -149,6 +151,18 @@ class AppSettingsControllerTest {
         }
     }
 
+    @Test fun importRowHiddenByDefault() {
+        val c = controller(FakeAppSettingsService(snap()))
+        assertFalse(c.state.value.visibleItems.any { it.key == AppSettingsNav.IMPORT_LEGACY_DATA })
+    }
+
+    @Test fun importRowVisibleWhenFlagged() {
+        val c = controller(FakeAppSettingsService(snap(legacyImportVisible = true)))
+        val row = c.state.value.visibleItems.single { it.key == AppSettingsNav.IMPORT_LEGACY_DATA }
+        assertTrue(row is SettingsItem.NavigationRow)
+        assertEquals("Import data from the previous app version", row.title)
+    }
+
     @Test fun testErrorRowsSitBesideCrashApp() {
         val c = controller(FakeAppSettingsService(snap(betaFeaturesVisible = true, debugToolsVisible = true)))
         val keys = c.state.value.items.map { it.key }
@@ -197,7 +211,7 @@ class AppSettingsControllerTest {
      * key→drawable half of the parity claim is pinned separately by `SettingsIconParityTest` in `:app`.
      */
     @Test fun iconKeysMatchClassicSettingsXml() {
-        val iconless = setOf("request_sdcard_permission_pref")
+        val iconless = setOf("request_sdcard_permission_pref", "import_legacy_data") // import_legacy_data: iOS-only, absent from classic settings.xml
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
@@ -287,6 +301,7 @@ class AppSettingsControllerTest {
             "crash_app",
             "test_error_dialog",
             "test_error_dialog_queue",
+            "import_legacy_data",
         )
         val c = controller(
             FakeAppSettingsService(

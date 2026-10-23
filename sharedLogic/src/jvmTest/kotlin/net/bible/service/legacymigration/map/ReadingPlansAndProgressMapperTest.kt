@@ -64,12 +64,22 @@ class ReadingPlansAndProgressMapperTest {
 
     private fun skipped(report: MigrationReport) = report.entries.filterIsInstance<ReportEntry.Skipped>()
 
+    @Test
+    fun everySkipNamesItsTable() {
+        // Every entry the two mappers produce must name its table (an unattributed skip is credited to the whole category).
+        // The fixtures drop nothing, so this is a guard only; the hand-built tests below assert the exact table of every reason.
+        for (fx in allFixtures().filter { it.scenario == "rich" || it.scenario == "restored-android" }) {
+            val unnamed = (skipped(mapPlansAndCompare(fx).second) + skipped(mapProgressAndCompare(fx).second)).filter { it.table == null }
+            assertEquals(emptyList(), unnamed, label(fx))
+        }
+    }
+
     // ---- Oracle comparison -----------------------------------------------------------------------------------
 
     @Test
     fun everyFixtureMatchesItsOracleForReadingPlans() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         for (fx in fixtures) {
             val (result, report) = mapPlansAndCompare(fx)
             assertEquals(emptyList(), result.differences, label(fx))
@@ -88,10 +98,10 @@ class ReadingPlansAndProgressMapperTest {
 
     @Test
     fun comparisonIsNotVacuousForRichFixtures() {
-        // `rich` and `preserved-ai` hold a started plan with a completed day and progress rows; the others hold none
+        // `rich`, `preserved-ai` and `extended` hold a started plan with a completed day and progress rows; the others hold none
         // (their oracle still has the default GlobalReadingProgressSettings row, which must compare equal too).
         for (fx in allFixtures()) {
-            val rich = fx.scenario == "rich" || fx.scenario == "preserved-ai"
+            val rich = fx.scenario == "rich" || fx.scenario == "preserved-ai" || fx.scenario == "extended"
             val plans = mapPlansAndCompare(fx).first.comparedRows
             val progress = mapProgressAndCompare(fx).first.comparedRows
             if (rich) {
@@ -150,7 +160,7 @@ class ReadingPlansAndProgressMapperTest {
         withStaging { staging ->
             val report = MigrationReport()
             runBlocking { snapshot(fx).use { ProgressMapper().map(it, staging, report) } }
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "unreadable reading_progress_state_v1", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "unreadable reading_progress_state_v1", 1, table = "ChapterReadHistory")), skipped(report))
             rows(staging) { dao ->
                 assertEquals(1, dao.allMemorizedVerses().size)
                 assertEquals(1, dao.allMemorizationTargets().size)
@@ -169,7 +179,7 @@ class ReadingPlansAndProgressMapperTest {
         withStaging { staging ->
             val report = MigrationReport()
             runBlocking { snapshot(fx).use { ProgressMapper().map(it, staging, report) } }
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "unreadable memorization_progress_state_v1", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "unreadable memorization_progress_state_v1", 1, table = "MemorizedVerse")), skipped(report))
             rows(staging) { dao ->
                 assertEquals(0, dao.allMemorizedVerses().size)
                 assertEquals(0, dao.allMemorizationTargets().size)
@@ -237,8 +247,8 @@ class ReadingPlansAndProgressMapperTest {
             assertEquals(listOf(IdType.fromString(targetId), 100, 250, 888L), listOf(target.id, target.kjvOrdinalStart, target.kjvOrdinalEnd, target.createdAt))
             assertEquals(
                 listOf(
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 2),
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorization target without trusted ordinals", 1),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 2, table = "MemorizedVerse"),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorization target without trusted ordinals", 1, table = "MemorizationTarget"),
                 ),
                 skipped(report),
             )
@@ -286,10 +296,10 @@ class ReadingPlansAndProgressMapperTest {
             assertEquals(0 to "light", s.activeCycle to s.memorizeWordVisibility)
             assertEquals(
                 listOf(
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid reading history row", 3),
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "reading history value out of range", 1),
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "duplicate reading history id", 1),
-                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid reading progress settings value", 2),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid reading history row", 3, table = "ChapterReadHistory"),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "reading history value out of range", 1, table = "ChapterReadHistory"),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "duplicate reading history id", 1, table = "ChapterReadHistory"),
+                    ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid reading progress settings value", 2, table = "GlobalReadingProgressSettings"),
                 ),
                 skipped(report),
             )
@@ -430,11 +440,11 @@ class ReadingPlansAndProgressMapperTest {
             assertEquals(null, dao.getPlan("huge"))
             assertEquals(
                 setOf(
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan without id", 1),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan current day out of range", 1),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan code", 1),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan status setting", 2),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan start date setting", 1),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan without id", 1, table = "ReadingPlan"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan current day out of range", 1, table = "ReadingPlan"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan code", 1, table = "ReadingPlan"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan status setting", 2, table = "ReadingPlanStatus"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan start date setting", 1, table = "ReadingPlanStatus"),
                 ),
                 skipped(report).toSet(),
             )
@@ -451,7 +461,7 @@ class ReadingPlansAndProgressMapperTest {
         )
         runPlans(data) { staging, report ->
             assertEquals(null, staging.readingPlans.readingPlanDao().getStatus("p", 1))
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan status setting", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.READING_PLANS, "malformed reading plan status setting", 1, table = "ReadingPlanStatus")), skipped(report))
         }
     }
 
@@ -493,7 +503,7 @@ class ReadingPlansAndProgressMapperTest {
         runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
             // Trusted when the stored KJVA ordinal is the mapped one, untrusted when it is the unmapped source ordinal.
             assertEquals(listOf(kjva), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1, table = "MemorizedVerse")), skipped(report))
         }
     }
 
@@ -504,7 +514,7 @@ class ReadingPlansAndProgressMapperTest {
             ${verseJson("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", 71, "verifiedAndroid", "nativeMapping", "KJVA", 71)}]}"""
         runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
             assertEquals(listOf(70), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1, table = "MemorizedVerse")), skipped(report))
         }
     }
 
@@ -523,7 +533,7 @@ class ReadingPlansAndProgressMapperTest {
         val memorization = """{"memorizedRanges":[{"bookInitials":"","startOrdinal":0,"endOrdinal":3},{"bookInitials":"","startOrdinal":9,"endOrdinal":4},{"bookInitials":"","startOrdinal":5,"endOrdinal":5}]}"""
         runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
             assertEquals(listOf(5), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid memorized verse range", 2)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid memorized verse range", 2, table = "MemorizedVerse")), skipped(report))
         }
     }
 
@@ -538,7 +548,7 @@ class ReadingPlansAndProgressMapperTest {
             assertEquals(listOf(100, 300), targets.map { it.kjvOrdinalStart })
             val digest = MessageDigest.getInstance("SHA-256").digest("memorization-target||100|250|888".toByteArray())
             assertEquals(IdType.fromByteArray(digest.copyOf(16)), targets.first().id)
-            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "identical memorization targets without id collapsed", 1)), skipped(report))
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "identical memorization targets without id collapsed", 1, table = "MemorizationTarget")), skipped(report))
         }
     }
 
@@ -564,9 +574,9 @@ class ReadingPlansAndProgressMapperTest {
             assertEquals(IdType.fromString(remote), dao.getStatus("q", 2)!!.id)
             assertEquals(
                 setOf(
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan id", 1),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan day without plan", 1),
-                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan status id", 1),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan id", 1, table = "ReadingPlan"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan day without plan", 1, table = "ReadingPlanStatus"),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan status id", 1, table = "ReadingPlanStatus"),
                 ),
                 skipped(report).toSet(),
             )

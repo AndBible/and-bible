@@ -94,11 +94,11 @@ class ProgressMapper : CategoryMapper {
 
     /** Builds the target rows without touching any database. Skipped rows and values are noted in [report]. */
     fun build(data: LegacyProgressData, report: MigrationReport): ProgressStage {
-        val skips = LinkedHashMap<String, Long>()
-        val skip = { reason: String, rows: Long -> if (rows > 0) skips[reason] = (skips[reason] ?: 0L) + rows }
+        val skips = LinkedHashMap<Pair<String, String>, Long>()
+        val skip = { table: String, reason: String, rows: Long -> if (rows > 0) skips[reason to table] = (skips[reason to table] ?: 0L) + rows }
         val reading = readReading(data.settings[READING_KEY], skip)
         val memorization = readMemorization(data.settings[MEMORIZATION_KEY], skip)
-        for ((reason, rows) in skips) report.skipped(category, reason, rows.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+        for ((key, rows) in skips) report.skipped(category, key.first, rows.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), key.second)
         return ProgressStage(memorization.first, memorization.second, reading.history, reading.settings)
     }
 
@@ -111,7 +111,7 @@ class ProgressMapper : CategoryMapper {
 
     private class RawHistory(val id: IdType, val book: Long, val chapter: Long, val cycle: Long, val readAt: Long, val initials: String, val source: ReadingSource)
 
-    private fun readReading(text: String?, skip: (String, Long) -> Unit): Reading {
+    private fun readReading(text: String?, skip: (String, String, Long) -> Unit): Reading {
         val defaults = Reading(emptyList(), GlobalReadingProgressSettings())
         if (text == null) return defaults
         val raws: List<RawHistory>
@@ -137,7 +137,7 @@ class ProgressMapper : CategoryMapper {
             settings.requiredLong("activeCycle")
             settings.requiredString("memorizeWordVisibility")
         } catch (e: Unreadable) {
-            skip("unreadable $READING_KEY", 1)
+            skip("ChapterReadHistory", "unreadable $READING_KEY", 1)
             return defaults
         }
 
@@ -154,16 +154,16 @@ class ProgressMapper : CategoryMapper {
                 else -> history += ChapterReadHistory(r.id, r.book.toInt(), r.chapter.toInt(), r.cycle.toInt(), r.readAt, r.initials, r.source)
             }
         }
-        skip("invalid reading history row", invalid)
-        skip("reading history value out of range", outOfRange)
-        skip("duplicate reading history id", duplicates)
+        skip("ChapterReadHistory", "invalid reading history row", invalid)
+        skip("ChapterReadHistory", "reading history value out of range", outOfRange)
+        skip("ChapterReadHistory", "duplicate reading history id", duplicates)
 
         var invalidSettings = 0L
         var activeCycle = settings.requiredLong("activeCycle")
         if (activeCycle !in 0..Int.MAX_VALUE) { activeCycle = 0; invalidSettings++ }
         var visibility = settings.requiredString("memorizeWordVisibility")
         if (visibility !in WORD_VISIBILITIES) { visibility = "light"; invalidSettings++ }
-        skip("invalid reading progress settings value", invalidSettings)
+        skip("GlobalReadingProgressSettings", "invalid reading progress settings value", invalidSettings)
         return Reading(
             history,
             GlobalReadingProgressSettings(
@@ -196,7 +196,7 @@ class ProgressMapper : CategoryMapper {
 
     private class TargetRow(val id: IdType, val start: Long, val end: Long, val createdAt: Long, val trust: Trust, val idGenerated: Boolean = false)
 
-    private fun readMemorization(text: String?, skip: (String, Long) -> Unit): Pair<List<MemorizedVerse>, List<MemorizationTarget>> {
+    private fun readMemorization(text: String?, skip: (String, String, Long) -> Unit): Pair<List<MemorizedVerse>, List<MemorizationTarget>> {
         val none = emptyList<MemorizedVerse>() to emptyList<MemorizationTarget>()
         if (text == null) return none
         val verses = mutableListOf<VerseRow>()
@@ -233,11 +233,11 @@ class ProgressMapper : CategoryMapper {
                 }
             }
         } catch (e: Unreadable) {
-            skip("unreadable $MEMORIZATION_KEY", 1)
+            skip("MemorizedVerse", "unreadable $MEMORIZATION_KEY", 1)
             return none
         }
 
-        skip("invalid memorized verse range", invalidRanges)
+        skip("MemorizedVerse", "invalid memorized verse range", invalidRanges)
         // `normalizedVerses`: one trusted row per ordinal, the newest (ties: the smaller id) wins; untrusted rows are quarantined by id.
         val trustedVerses = LinkedHashMap<Long, VerseRow>()
         var untrustedVerses = legacyUntrustedVerses
@@ -251,17 +251,17 @@ class ProgressMapper : CategoryMapper {
                 trustedVerses[v.ordinal] = v
             }
         }
-        skip("memorized verse without trusted ordinals", untrustedVerses)
-        skip("duplicate memorized verse", duplicateVerses)
+        skip("MemorizedVerse", "memorized verse without trusted ordinals", untrustedVerses)
+        skip("MemorizedVerse", "duplicate memorized verse", duplicateVerses)
         val seenVerseIds = HashSet<IdType>()
         var duplicateVerseIds = 0L
         val outVerses = trustedVerses.values.sortedBy { it.ordinal }.mapNotNull {
             if (!seenVerseIds.add(it.id)) { duplicateVerseIds++; null } else MemorizedVerse(it.id, it.ordinal.toInt(), it.memorizedAt)
         }
-        skip("duplicate memorized verse id", duplicateVerseIds)
+        skip("MemorizedVerse", "duplicate memorized verse id", duplicateVerseIds)
 
         val trustedTargets = targets.filter { isTrusted(it.trust, it.start, it.end) }
-        skip("memorization target without trusted ordinals", (targets.size - trustedTargets.size).toLong())
+        skip("MemorizationTarget", "memorization target without trusted ordinals", (targets.size - trustedTargets.size).toLong())
         val seenTargetIds = HashSet<IdType>()
         var duplicateTargetIds = 0L
         var collapsedIdless = 0L
@@ -270,8 +270,8 @@ class ProgressMapper : CategoryMapper {
         ).mapNotNull {
             if (!seenTargetIds.add(it.id)) { if (it.idGenerated) collapsedIdless++ else duplicateTargetIds++; null } else MemorizationTarget(it.id, it.start.toInt(), it.end.toInt(), it.createdAt)
         }
-        skip("duplicate memorization target id", duplicateTargetIds)
-        skip("identical memorization targets without id collapsed", collapsedIdless)
+        skip("MemorizationTarget", "duplicate memorization target id", duplicateTargetIds)
+        skip("MemorizationTarget", "identical memorization targets without id collapsed", collapsedIdless)
         return outVerses to outTargets
     }
 

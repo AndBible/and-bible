@@ -61,7 +61,7 @@ class WorkspacesMapperTest {
     @Test
     fun everyFixtureMatchesItsOracle() {
         val fixtures = allFixtures()
-        assertEquals(24, fixtures.size)
+        assertEquals(26, fixtures.size)
         for (fx in fixtures) {
             val result = mapAndCompare(fx)
             assertEquals(emptyList(), result.differences, "${fx.app}/${fx.ios}/${fx.scenario}")

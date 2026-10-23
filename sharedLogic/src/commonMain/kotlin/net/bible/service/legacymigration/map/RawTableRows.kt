@@ -23,13 +23,20 @@ internal class Txt(val bytes: ByteArray) {
 
 /** Rows and values rejected, counted by reason during one build. */
 internal class Drops {
-    val counts = LinkedHashMap<String, Int>()
-    fun add(reason: String, rows: Int = 1) { counts[reason] = (counts[reason] ?: 0) + rows }
+    private data class Key(val reason: String, val table: String?)
+    private val counts = LinkedHashMap<Key, Int>()
+
+    /** Counts [rows] dropped for [reason]; [table] is the Android table they would have gone to (null: a whole-file reason). */
+    fun add(reason: String, rows: Int = 1, table: String? = null) {
+        val key = Key(reason, table)
+        counts[key] = (counts[key] ?: 0) + rows
+    }
+
     /** Adds the counts of [other] (used to keep a failed attempt's partial counts out of the report). */
-    fun merge(other: Drops) { for ((reason, rows) in other.counts) add(reason, rows) }
+    fun merge(other: Drops) { for ((key, rows) in other.counts) add(key.reason, rows, key.table) }
 
     fun flushTo(report: MigrationReport, category: LegacyCategory) {
-        for ((what, rows) in counts) if (rows > 0) report.skipped(category, what, rows)
+        for ((key, rows) in counts) if (rows > 0) report.skipped(category, key.reason, rows, key.table)
     }
 }
 
@@ -54,18 +61,18 @@ internal class TableDef(val table: String, val label: String, val columns: List<
         for (col in columns) {
             if (col.name in overrides) { cells += overrides.getValue(col.name); continue }
             val raw = col.source?.let { row.values[it] }
-            val present = raw?.takeIf { matches(col.kind, it).also { ok -> if (!ok) drops.add("unexpected value type ${raw::class.simpleName} for ${col.source}") } }
+            val present = raw?.takeIf { matches(col.kind, it).also { ok -> if (!ok) drops.add("unexpected value type ${raw::class.simpleName} for ${col.source}", table = table) } }
             val cell: Any? = when (col.kind) {
                 Kind.ID -> (present as LegacyValue.UuidV?)?.let { IdType.fromString(it.value).toByteArray() }
-                    ?: if (col.nullable) null else { drops.add("$label row without ${col.name}"); return null }
+                    ?: if (col.nullable) null else { drops.add("$label row without ${col.name}", table = table); return null }
                 Kind.TEXT -> (present as LegacyValue.TextV?)?.let { Txt(it.value) } ?: if (col.nullable) null else Txt(col.default as String? ?: "")
                 Kind.INT32 -> (present as LegacyValue.IntV?)?.value?.also {
-                    if (it !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("$label value out of 32-bit range"); return null }
+                    if (it !in Int.MIN_VALUE..Int.MAX_VALUE) { drops.add("$label value out of 32-bit range", table = table); return null }
                 } ?: if (col.nullable) null else col.default as Long? ?: 0L
                 Kind.INT64 -> (present as LegacyValue.IntV?)?.value ?: if (col.nullable) null else col.default as Long? ?: 0L
                 Kind.DATE -> (present as LegacyValue.DateV?)?.epochMillis ?: if (col.nullable) null else 0L
                 Kind.REAL -> (present as LegacyValue.RealV?)?.value?.also {
-                    if (!it.isFinite()) { drops.add("$label value is not a finite number"); return null }
+                    if (!it.isFinite()) { drops.add("$label value is not a finite number", table = table); return null }
                 } ?: if (col.nullable) null else col.default as Double? ?: 0.0
                 Kind.BOOL -> (present as LegacyValue.BoolV?)?.value ?: if (col.nullable) null else col.default as Boolean? ?: false
             }

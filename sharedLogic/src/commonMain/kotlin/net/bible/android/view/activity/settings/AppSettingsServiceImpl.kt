@@ -259,6 +259,7 @@ class AppSettingsServiceImpl(
             sdcardPermissionVisible = platform.sdcardPermissionVisible,
             openLinksVisible = platform.openLinksVisible,
             debugToolsVisible = platform.debugToolsVisible,
+            legacyImportVisible = platform.legacyImportVisible,
         )
     }
 

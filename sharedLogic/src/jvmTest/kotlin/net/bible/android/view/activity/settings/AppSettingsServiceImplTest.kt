@@ -61,6 +61,12 @@ class AppSettingsServiceImplTest {
         assertEquals(4, scans)
     }
 
+    @Test fun legacyImportVisibleIsMappedIntoTheSnapshot() {
+        assertFalse(service().snapshot.value.legacyImportVisible)
+        flags.legacyImportVisible = true
+        assertTrue(service().snapshot.value.legacyImportVisible)
+    }
+
     @Test fun flagsDefaultsChoicesAndSystemBarNotification() {
         flags.isOnyx = true
         val s = service()
@@ -114,6 +120,7 @@ class AppSettingsServiceImplTest {
         override val debugToolsVisible = false
         override val autoNightModeAvailable = false
         override var isOnyx = false
+        override var legacyImportVisible = false
         var notifications = 0
         override fun onSystemBarSettingChanged() { notifications++ }
     }

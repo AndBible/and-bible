@@ -123,6 +123,8 @@ data class AppSettingsLabels(
     val readingProgressShortcutSummary: String,
     val textDisplayShortcutTitle: String,
     val textDisplayShortcutSummary: String,
+    val importLegacyDataTitle: String,
+    val importLegacyDataSummary: String,
 ) {
     companion object {
         fun forTest() = AppSettingsLabels(
@@ -234,6 +236,8 @@ data class AppSettingsLabels(
             readingProgressShortcutSummary = "Configure reading progress tracking",
             textDisplayShortcutTitle = "Text display settings",
             textDisplayShortcutSummary = "Configure global text display settings",
+            importLegacyDataTitle = "Import data from the previous app version",
+            importLegacyDataSummary = "Bring in the data of the previous AndBible app that is still on this device",
         )
     }
 }

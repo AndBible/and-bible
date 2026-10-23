@@ -39,4 +39,11 @@ class IosBugReportTest {
     @Test fun recoveryRetainsStackAfterCrashTimeReset() {
         assertTrue("saved stack" in reportDetails(ReportDevice("id", "v", "os", "device"), 0, "saved stack", null))
     }
+    @Test fun extraAttachmentsFollowTheAppLog() {
+        val extra = Attachment("legacy_migration_report.json", "application/json", byteArrayOf(1, 2))
+        assertEquals(listOf("app_log.txt.gz"), reportAttachments(byteArrayOf(9), emptyList()).map { it.name })
+        val both = reportAttachments(byteArrayOf(9), listOf(extra))
+        assertEquals(listOf("app_log.txt.gz", "legacy_migration_report.json"), both.map { it.name })
+        assertEquals(extra, both[1])
+    }
 }

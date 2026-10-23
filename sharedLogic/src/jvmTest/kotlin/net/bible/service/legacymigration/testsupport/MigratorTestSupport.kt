@@ -49,12 +49,17 @@ class PlatformWithFileSystem(platform: LegacyPlatform, override val fileSystem: 
 /**
  * Puts the legacy app's files of [fx] where the Swift app kept them below [platform]: the two stores with sidecars in
  * `Application Support`, the preserved AI file under `AndBible/AndroidDatabaseBackup/PreservedDatabases` (only when
- * [withPreserved]).
+ * [withPreserved]), and the `sword_install` files below `Documents` when the fixture has them.
  */
 fun installLegacyApp(fx: FixtureDir, platform: FakeLegacyPlatform, withPreserved: Boolean = false) {
     val support = File(platform.applicationSupport.toString())
     for (f in File(fx.root.toString()).listFiles().orEmpty()) {
         if (f.isFile && f.name.contains(".store")) f.copyTo(File(support, f.name), overwrite = true)
+    }
+    // The `extended` scenario also carries the Swift app's custom repository files (Documents/sword_install).
+    File(fx.root.toString(), "sword_install").takeIf { it.isDirectory }?.let { source ->
+        val target = File(platform.documents.toString(), "sword_install").also { it.mkdirs() }
+        for (f in source.listFiles().orEmpty()) if (f.isFile) f.copyTo(File(target, f.name), overwrite = true)
     }
     if (withPreserved) {
         val preserved = File(fx.root.toString(), "PreservedDatabases/ai_settings.sqlite3")
@@ -158,6 +163,24 @@ fun readText(file: File, sql: String): String {
 }
 
 /** A platform whose Keychain cannot be read (locked device, missing entitlement); its message carries a fake secret that must never be echoed. */
+/**
+ * Records every [syncFile] call (in order) and forwards the rest to [platform]. [children] is the snapshot, taken at the
+ * call, of the entries in the synced directory (or, for a file, of its parent), so a test can prove the order of
+ * "write temp, sync temp, rename, sync directory". [failOn] makes a call throw (after being recorded).
+ */
+class RecordingSyncPlatform(private val platform: LegacyPlatform, private val failOn: (okio.Path) -> Boolean = { false }) : LegacyPlatform by platform {
+    class Call(val path: okio.Path, val children: Set<String>)
+
+    val calls = mutableListOf<Call>()
+    val synced: List<okio.Path> get() = calls.map { it.path }
+
+    override fun syncFile(path: okio.Path) {
+        val dir = if (platform.fileSystem.metadataOrNull(path)?.isDirectory == true) path else path.parent!!
+        calls += Call(path, platform.fileSystem.listOrNull(dir).orEmpty().map { it.name }.toSet())
+        if (failOn(path)) throw okio.IOException("injected sync failure for ${path.name}")
+    }
+}
+
 class ThrowingKeychainPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
     override fun legacyKeychain(service: String, account: String): String? =
         throw IllegalStateException("Legacy Keychain read failed: status -25308 secret-leak-check-4711")

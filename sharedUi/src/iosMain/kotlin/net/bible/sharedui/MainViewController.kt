@@ -16,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +46,13 @@ import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedui.app.settings.LegacyDataImport
+import net.bible.sharedui.ios.startup.legacy.IosLegacyDataImport
+import net.bible.sharedui.ios.startup.legacy.IosLegacyMigrationRunner
+import net.bible.sharedui.ios.startup.legacy.IosLegacyNotices
+import org.koin.mp.KoinPlatform
 import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.poc.IosPocApp
 import net.bible.sharedui.poc.PocScenario
@@ -86,9 +95,13 @@ fun MainViewController(): UIViewController {
         nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}")
         platform.posix.abort()
     }
+    // Debug only, before anything reads the settled flag or the discrete/locale preferences (see IosLegacyDebugSeed).
+    net.bible.sharedui.ios.startup.legacy.IosLegacyDebugSeed.seedOnce()
     IosDebugLaunchArgs.resetTask6CrashState(IosDeviceSettings())
     IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
-    crashTracker.onLaunch()
+    val legacySettledAtLaunch = legacySettled(IosDeviceSettings())
+    // An unsettled legacy migration may run long: crash accounting starts when its gate resolves instead.
+    recordLaunchIfSettled(legacySettledAtLaunch, crashTracker)
     IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
@@ -110,11 +123,13 @@ fun MainViewController(): UIViewController {
         val reporter = remember { IosBugReport(iosStringTable(language)) }
         var reporting by remember { mutableStateOf(false) }
         // Do not start either startup stage (or show a splash) behind the disguise.
-        // Not saveable: a recreated host must pass the gate again.
+        // Not saveable: a recreated host must pass the calculator gate again (the legacy gate is latched off once startup began).
         val gates = remember {
-            IosStartupGates(listOf(
-                StartupGate.Calculator { requiresCalculator },
-                StartupGate.CrashRecovery { crashTracker.shouldOfferRecovery() },
+            IosStartupGates(productionStartupGates(
+                calculatorRequired = { requiresCalculator },
+                // Never after startup began in this process: the migration renames Room files that may be open.
+                legacyMigrationRequired = { legacyGateRequired(legacySettled(settings), processStartupLatch.began) },
+                crashRecoveryRequired = { crashTracker.shouldOfferRecovery() },
             )).apply { advance() }
         }
         var gateRevision by remember { mutableStateOf(0) }
@@ -128,6 +143,18 @@ fun MainViewController(): UIViewController {
             is StartupGate.Calculator -> {
                 CompositionLocalProvider(LocalStrings provides strings) {
                     AbTheme(darkTheme = splashDark) { IosCalculatorGate(settings) { resolve(StartupGateResult.Continue) } }
+                }
+                return@ComposeUIViewController
+            }
+            is StartupGate.LegacyMigration -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) {
+                        LegacyMigrationGateHost(
+                            neutral = requiresCalculator,
+                            reporter = reporter,
+                            onResolve = { r -> crashTracker.onLaunch(); resolve(r) },
+                        )
+                    }
                 }
                 return@ComposeUIViewController
             }
@@ -155,9 +182,13 @@ fun MainViewController(): UIViewController {
         if (gates.result == StartupGateResult.Exit) return@ComposeUIViewController
         val recoveryBackup = gates.result == StartupGateResult.OpenBackup
         var recoveryBindingsReady by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
+        // Keyed on recoveryBackup: after a backup returns to a settled chain the effect must rerun to launch normal startup.
+        LaunchedEffect(recoveryBackup) {
             net.bible.sharedui.assembly.awaitIosUiStartup(
-                ensureStarted = { IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language)) },
+                ensureStarted = {
+                    processStartupLatch.markBegan()
+                    IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language))
+                },
                 state = startupState,
                 processScope = startupScope,
                 recoveryBackup = recoveryBackup,
@@ -199,6 +230,22 @@ fun MainViewController(): UIViewController {
             withContext(Dispatchers.Default) {
                 runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
                     .onFailure { nsLog("background sync scheduling failed: ${it.stackTraceToString()}") }
+            }
+        }
+        LaunchedEffect(Unit) {
+            // showPending logs its own failures, but the setup around it (Koin, string table, dialogs) can throw too, and
+            // an exception escaping a LaunchedEffect crashes the app: a notice failure must never take Ready down.
+            try {
+                val koin = KoinPlatform.getKoin()
+                // Fills the cache behind the settings row's visibility (off Main); the row stays hidden until then.
+                (koin.getOrNull<LegacyDataImport>() as? IosLegacyDataImport)?.prime()
+                val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
+                IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
+                IosLegacyMigrationRunner.retryPostCommit()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                nsLog("legacy notices: failed after Ready: ${e.stackTraceToString()}")
             }
         }
         if (Platform.isDebugBinary) {

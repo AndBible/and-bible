@@ -13,6 +13,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
 import net.bible.service.legacymigration.adopt.Adopter
+import net.bible.service.legacymigration.adopt.LegacyFileAdoption
+import net.bible.service.legacymigration.extras.LegacyExtrasFile
 import net.bible.service.legacymigration.adopt.StagingValidator
 import net.bible.service.legacymigration.map.AiSettingsMapper
 import net.bible.service.legacymigration.map.BookmarksMapper
@@ -32,6 +34,7 @@ import net.bible.service.legacymigration.stage.StagingDatabases
 import net.bible.service.legacymigration.state.MigrationPhase
 import net.bible.service.legacymigration.state.MigrationState
 import net.bible.service.legacymigration.state.MigrationStateStore
+import net.bible.service.legacymigration.state.PlannedMove
 import net.bible.service.legacymigration.state.atomicWriteFile
 import net.bible.service.llm.apiKeyName
 import okio.FileSystem
@@ -56,6 +59,9 @@ enum class Step {
 
     /** After every staged database was moved, before the secrets, the plan files, the search index and the marker. */
     ADOPT_DONE,
+
+    /** After the missing secrets were written (the state records their names), before `extras.json`, the plan files and the marker. */
+    SECRETS,
 }
 
 /** What [LegacyMigrator.run] decided or did. */
@@ -128,12 +134,16 @@ fun defaultMappers(platform: LegacyPlatform): List<CategoryMapper> {
  *    -> best-effort: delete the search index, `work/`, `staging/`, `replaced/`, `state.json`.
  *
  * Any [Exception] in step 5 before the commit point becomes [LegacyMigrationOutcome.Failed] after the adoption (if started) was rolled back; after `done.json` was written nothing is ever rolled back and a cleanup error is swallowed. I/O errors in the start of a launch (directory, state file, rollback of an earlier attempt) also become `Failed`, and a failing rollback counts as an attempt. The
- * source files (stores, sidecars, preserved files) are only read; the single exception is the search index, deleted
- * best-effort after the commit point (spec 6.5). A failed deletion is retried on later `AlreadyDone` launches until `done.json` records `searchIndexDeleted: true` (written best-effort, atomically, after a successful delete); a `nothingToMigrate` marker never deletes anything, and the new app keeps its own per-book indexes under `search/`. Sync settings, device-local preferences and the other extras are not applied here; they are
+ * source files (stores, sidecars, preserved files) are only read; the exceptions are the search index and the EPUB library: the index is deleted
+ * best-effort after the commit point (spec 6.5). A failed deletion is retried on later `AlreadyDone` launches until `done.json` records `searchIndexDeleted: true` (written best-effort, atomically, after a successful delete), and the EPUB library in `Documents/epub` is COPIED into `modulesDir/epub/<name>` by [LegacyFileAdoption] (the old files stay), retried the same way until `filesAdopted: true`; a `nothingToMigrate` marker never deletes anything, and the new app keeps its own per-book indexes under `search/`. Sync settings, device-local preferences and the other extras are not applied here; they are
  * returned in [LegacyMigrationOutcome.Migrated.extras].
  *
  * @param mappers run in list order; `SETTINGS` after `WORKSPACES` and `READING_PLANS` is enforced (IllegalArgumentException).
  * @param failAt test hook: the run throws a [LegacyMigrationException] right after that [Step].
+ * @param replaceExisting import over existing databases: non-empty targets are moved to `replaced/` (and, after the commit,
+ *   renamed to `before-import-<epoch ms>/`, never deleted) instead of failing the adoption.
+ * @param stepHook awaited after each step's `failAt` check (tests observe the run order and can act between steps).
+ * @param modulesDir the new app's SWORD root (`Documents/sword`), the target of the file adoption.
  * @param userPlanDir where the user's own reading plan files must be; files of the old app that are not there yet are copied
  *   (by default the old app's own `Documents/jsword/readingplan`, so normally nothing needs copying).
  */
@@ -143,6 +153,9 @@ class LegacyMigrator(
     private val mappers: List<CategoryMapper> = defaultMappers(platform),
     private val failAt: Step? = null,
     private val userPlanDir: Path = platform.documents / "jsword" / "readingplan",
+    private val replaceExisting: Boolean = false,
+    private val stepHook: suspend (Step) -> Unit = {},
+    private val modulesDir: Path = platform.documents / "sword",
 ) {
     init {
         val order = mappers.map { it.category }
@@ -162,8 +175,8 @@ class LegacyMigrator(
     private val replacedDir = dir / "replaced"
     private val doneFile = dir / "done.json"
     private val reportFile = dir / "report.json"
-    private val states = MigrationStateStore(fs, dir)
-    private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states)
+    private val states = MigrationStateStore(fs, dir, platform::syncFile)
+    private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states, platform.secrets)
 
     private val mutex = Mutex()
 
@@ -182,6 +195,7 @@ class LegacyMigrator(
             if (fs.exists(doneFile)) {
                 // Idempotent leftover of the commit: the search index, until done.json records that it was deleted.
                 bestEffort { finishSearchIndexDeletion() }
+                bestEffort { finishFileAdoption() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.AlreadyDone
             }
@@ -197,8 +211,8 @@ class LegacyMigrator(
             // A previous run died between "plan written" and "done.json": undo whatever it moved.
             val pending = state!!
             try {
-                adopter.rollback(pending.plan)
-                state = pending.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList())
+                rollbackAdoption(pending.plan, pending.secretsWritten)
+                state = pending.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList(), secretsWritten = emptyList())
                 states.write(state)
             } catch (e: CancellationException) {
                 throw e
@@ -265,20 +279,31 @@ class LegacyMigrator(
             stage = Stage.ADOPT
             current = current.copy(phase = MigrationPhase.STAGED)
             states.write(current)
-            val plan = adopter.plan(staged)
+            val plan = adopter.plan(staged, replaceExisting)
             current = current.copy(phase = MigrationPhase.ADOPTING, plan = plan, moved = emptyList())
             states.write(current) // the intent is on disk before the first move
             current = adopter.move(current) { hook(Step.ADOPT_FIRST_MOVE) }
+            // One directory sync makes every adopted rename durable before the done marker can commit them.
+            if (fs.exists(platform.databasesDir)) platform.syncFile(platform.databasesDir)
+            if (replaceExisting && fs.exists(replacedDir)) atomicWrite(replacedDir / IMPORT_MARKER, "import")
             hook(Step.ADOPT_DONE)
 
             finished = extras
-            for ((id, key) in extras.aiKeys) platform.secrets.put(apiKeyName(id), key)
+            // Secrets: only keys that are absent are written (an existing one is the user's and is kept), and their names go to
+            // state.json first, so a rollback after a kill removes exactly what this run added.
+            val toWrite = absentSecrets(extras, report)
+            current = current.copy(secretsWritten = toWrite.keys.toList())
+            states.write(current)
+            for ((name, value) in toWrite) platform.secrets.put(name, value)
+            hook(Step.SECRETS)
+            atomicWrite(dir / LegacyExtrasFile.NAME, LegacyExtrasFile.encode(extras, report))
             copyUserPlanFiles(extras)
             bestEffort { writeReport(report, "migrated", attempt, null) }
             writeDone(discoverSources(), nothingToMigrate = false, attempt = attempt, adopted = staged)
             committed = true
             // COMMITTED: from here on nothing may undo the adoption. Everything below is best-effort and idempotent.
             bestEffort { finishSearchIndexDeletion() }
+            bestEffort { finishFileAdoption() }
             bestEffortCleanUp()
             return LegacyMigrationOutcome.Migrated(report, extras)
         } catch (e: CancellationException) {
@@ -287,6 +312,7 @@ class LegacyMigrator(
             // done.json may exist although writeDone threw (the rename can succeed before the call fails): that is committed.
             if (committed || (finished != null && runCatching { fs.exists(doneFile) }.getOrDefault(false))) {
                 bestEffort { finishSearchIndexDeletion() }
+                bestEffort { finishFileAdoption() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.Migrated(report, finished!!)
             }
@@ -294,7 +320,9 @@ class LegacyMigrator(
             // Undo a started adoption before anything else; the state keeps the attempt count and the failure kind.
             var rolledBack = true
             val failed = try {
-                if (current.phase == MigrationPhase.ADOPTING) adopter.rollback(current.plan)
+                if (current.phase == MigrationPhase.ADOPTING) {
+                    rollbackAdoption(current.plan, current.secretsWritten)
+                }
                 // The rollback is complete: the copies and staged files are of no further use (the next attempt starts over).
                 for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
                 current.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList(), lastKind = kind)
@@ -319,6 +347,12 @@ class LegacyMigrator(
         }
     }
 
+    /** Undoes an adoption and removes the `extras.json` the rolled-back attempt wrote before its commit. */
+    private fun rollbackAdoption(plan: List<PlannedMove>, secretsWritten: List<String>) {
+        adopter.rollback(plan, secretsWritten)
+        fs.delete(dir / LegacyExtrasFile.NAME, mustExist = false)
+    }
+
     private fun bestEffortCleanUp() = bestEffort { cleanUp() }
 
     /**
@@ -334,7 +368,7 @@ class LegacyMigrator(
         } catch (e: LegacyMigrationException) {
             throw e
         } catch (e: Exception) {
-            throw LegacyMigrationException(Kind.CORRUPT_STORE, "Keychain unavailable: the legacy secrets could not be read (${e::class.simpleName})", e)
+            throw LegacyMigrationException(Kind.KEYCHAIN_UNAVAILABLE, "Keychain unavailable: the legacy secrets could not be read (${e::class.simpleName})", e)
         }
     }
 
@@ -350,8 +384,9 @@ class LegacyMigrator(
         return LegacySnapshot(cloud, local)
     }
 
-    private fun hook(step: Step) {
+    private suspend fun hook(step: Step) {
         if (failAt == step) throw LegacyMigrationException(step.injectedKind, "injected failure after $step")
+        stepHook(step)
     }
 
     private enum class Stage(val defaultKind: Kind) {
@@ -362,7 +397,7 @@ class LegacyMigrator(
         get() = when (this) {
             Step.COPY, Step.READ, Step.MAP -> Kind.CORRUPT_STORE
             Step.VALIDATE -> Kind.VALIDATION_FAILED
-            Step.ADOPT_FIRST_MOVE, Step.ADOPT_DONE -> Kind.ADOPTION_FAILED
+            Step.ADOPT_FIRST_MOVE, Step.ADOPT_DONE, Step.SECRETS -> Kind.ADOPTION_FAILED
         }
 
     // ---- sources ------------------------------------------------------------------------------------------------
@@ -414,6 +449,26 @@ class LegacyMigrator(
 
     // ---- adoption extras ------------------------------------------------------------------------------------------
 
+    /**
+     * The secrets of [extras] that the secret store does not hold yet, by store key (AI keys under `apiKeyName(id)`, the
+     * Nextcloud password under [NEXTCLOUD_PASSWORD_SECRET]). A key that is already present is kept and reported in [report].
+     */
+    private fun absentSecrets(extras: LegacyExtras, report: MigrationReport): Map<String, String> {
+        val wanted = LinkedHashMap<String, String>()
+        for ((id, key) in extras.aiKeys) wanted[apiKeyName(id)] = key
+        extras.sync?.password?.let { wanted[NEXTCLOUD_PASSWORD_SECRET] = it }
+        val absent = LinkedHashMap<String, String>()
+        for ((name, value) in wanted) {
+            if (platform.secrets.get(name) == null) {
+                absent[name] = value
+            } else {
+                val shown = if (name == NEXTCLOUD_PASSWORD_SECRET) name else "llm_api_key_\u2026"
+                report.skipped(LegacyCategory.SETTINGS, "secret already present: $shown", 1)
+            }
+        }
+        return absent
+    }
+
     /** Copies the user's own plan files to [userPlanDir] when they are not there yet (never overwrites). */
     private fun copyUserPlanFiles(extras: LegacyExtras) {
         for (file in extras.userPlanFiles) {
@@ -422,7 +477,9 @@ class LegacyMigrator(
             fs.createDirectories(userPlanDir)
             val temp = userPlanDir / (file.name + ".tmp")
             fs.copy(file, temp)
+            platform.syncFile(temp)
             fs.atomicMove(temp, target)
+            platform.syncFile(userPlanDir)
         }
     }
 
@@ -436,6 +493,21 @@ class LegacyMigrator(
         if ((marker["searchIndexDeleted"] as? JsonPrimitive)?.content == "true") return
         deleteSearchIndex()
         atomicWrite(doneFile, JsonObject(marker + ("searchIndexDeleted" to JsonPrimitive(true))).toString())
+    }
+
+    /**
+     * Adopts the old app's EPUB library into [modulesDir] (see [LegacyFileAdoption]) and records `filesAdopted: true` in
+     * `done.json` once nothing failed on I/O, so the retry on later `AlreadyDone` launches stops. Conflicts and unadoptable
+     * entries are permanent and do not hold the flag back. Does nothing for a `nothingToMigrate` marker or a flagged one.
+     */
+    private fun finishFileAdoption() {
+        val marker = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        if ((marker["nothingToMigrate"] as? JsonPrimitive)?.content == "true") return
+        if ((marker["filesAdopted"] as? JsonPrimitive)?.content == "true") return
+        val result = LegacyFileAdoption(fs, platform.documents, modulesDir).adopt()
+        if (!result.complete) return
+        val current = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        atomicWrite(doneFile, JsonObject(current + ("filesAdopted" to JsonPrimitive(true))).toString())
     }
 
     private fun deleteSearchIndex() {
@@ -460,6 +532,7 @@ class LegacyMigrator(
             put("sources", JsonArray(sources.map { buildJsonObject { put("path", it.toString()); put("size", fs.metadata(it).size ?: 0L) } }))
             put("adopted", JsonArray(adopted.map { JsonPrimitive(it) }))
             put("searchIndexDeleted", false)
+            put("filesAdopted", false)
         }.toString()
         atomicWrite(doneFile, json)
     }
@@ -471,18 +544,33 @@ class LegacyMigrator(
     }
 
     private fun atomicWrite(target: Path, text: String) {
-        atomicWriteFile(fs, target, text)
+        atomicWriteFile(fs, target, text, platform::syncFile)
     }
 
-    /** Deletes `work/`, `staging/`, `replaced/` and `state.json`. Only called when `done.json` exists or the run is complete. */
+    /** Deletes `work/`, `staging/`, `replaced/` and `state.json` (`extras.json`, `applied.json` and the rest stay). Only called when `done.json` exists or the run is complete. */
     private fun cleanUp() {
-        for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
+        for (leftover in listOf(workDir, stagingDir)) fs.deleteRecursively(leftover, mustExist = false)
+        keepOrDeleteReplaced()
         for (name in listOf("done.json.tmp", "report.json.tmp")) fs.delete(dir / name, mustExist = false)
         states.delete()
+    }
+
+    /**
+     * After the commit: a `replaced/` that carries the import marker (written when [replaceExisting] moved files aside)
+     * becomes `before-import-<epoch ms>/` and is never deleted; any other `replaced/` (backups of empty databases from a
+     * normal migration) is deleted. A failed rename leaves `replaced/` with its marker, and the next launch retries.
+     */
+    private fun keepOrDeleteReplaced() {
+        if (!fs.exists(replacedDir)) return
+        if (fs.exists(replacedDir / IMPORT_MARKER)) fs.atomicMove(replacedDir, dir / "before-import-${Clock.System.now().toEpochMilliseconds()}")
+        else fs.deleteRecursively(replacedDir, mustExist = false)
     }
 
     private companion object {
         /** An attempt count at which no further automatic attempt is made. */
         const val MAX_ATTEMPTS = 2
+
+        /** File inside `replaced/` that says its content belongs to a user-requested import and must be kept. */
+        const val IMPORT_MARKER = ".import"
     }
 }

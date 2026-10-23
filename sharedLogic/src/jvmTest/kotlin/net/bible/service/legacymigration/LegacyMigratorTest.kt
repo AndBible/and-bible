@@ -16,6 +16,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
+import net.bible.service.legacymigration.extras.LegacyExtrasFile
 import net.bible.service.legacymigration.map.BookmarksMapper
 import net.bible.service.legacymigration.map.CategoryMapper
 import net.bible.service.legacymigration.map.LegacyCategory
@@ -23,12 +24,15 @@ import net.bible.service.legacymigration.map.MigrationReport
 import net.bible.service.legacymigration.map.SettingsMapper
 import net.bible.service.legacymigration.map.WorkspacesMapper
 import net.bible.service.legacymigration.read.LegacySnapshot
+import net.bible.service.legacymigration.map.ReportEntry
 import net.bible.service.legacymigration.stage.StagingDatabases
+import net.bible.service.legacymigration.testsupport.compareWithOracleDetailed
 import net.bible.service.legacymigration.testsupport.CountingFileSystem
 import net.bible.service.legacymigration.testsupport.CrashingFileSystem
 import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
 import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
 import net.bible.service.legacymigration.testsupport.ThrowAfterDoneMoveFileSystem
+import net.bible.service.legacymigration.testsupport.RecordingSyncPlatform
 import net.bible.service.legacymigration.testsupport.ThrowingKeychainPlatform
 import net.bible.service.legacymigration.testsupport.execSql
 import net.bible.service.legacymigration.testsupport.makeModelUnknown
@@ -45,6 +49,7 @@ import net.bible.service.legacymigration.testsupport.installLegacyApp
 import net.bible.service.legacymigration.testsupport.writeSqlite
 import net.bible.service.llm.apiKeyName
 import okio.FileSystem
+import okio.ForwardingFileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
 
@@ -67,10 +72,22 @@ class LegacyMigratorTest {
         platform: LegacyPlatform,
         mappers: List<CategoryMapper>? = null,
         failAt: Step? = null,
-    ) = if (mappers == null) LegacyMigrator(platform, JvmLegacyDatabaseFactory(), failAt = failAt)
-    else LegacyMigrator(platform, JvmLegacyDatabaseFactory(), mappers, failAt)
+        replaceExisting: Boolean = false,
+        stepHook: suspend (Step) -> Unit = {},
+    ) = LegacyMigrator(platform, JvmLegacyDatabaseFactory(), mappers ?: defaultMappers(platform), failAt, platform.documents / "jsword" / "readingplan", replaceExisting, stepHook)
 
-    private fun run(platform: LegacyPlatform, failAt: Step? = null) = runBlocking { migrator(platform, null, failAt).run() }
+    private fun run(platform: LegacyPlatform, failAt: Step? = null, replaceExisting: Boolean = false) =
+        runBlocking { migrator(platform, null, failAt, replaceExisting).run() }
+
+    private fun countRows(file: File): Int {
+        val c = net.bible.service.db.openSqlite(file.path, readOnly = true)
+        try {
+            val s = c.prepare("SELECT COUNT(*) FROM t")
+            try { s.step(); return s.getLong(0).toInt() } finally { s.close() }
+        } finally {
+            c.close()
+        }
+    }
 
     /** The staged contents of a clean run, the reference of every "same result after a failure" assertion. */
     private val baseline: Map<String, Map<String, Int>> by lazy {
@@ -205,6 +222,89 @@ class LegacyMigratorTest {
         assertFalse(File(e.migrationDir.toString(), "done.json").exists())
     }
 
+    // ---- replace mode ---------------------------------------------------------------------------------------------
+
+    private fun beforeImportDirs(e: Env): List<File> =
+        File(e.migrationDir.toString()).listFiles { f -> f.name.startsWith("before-import-") }.orEmpty().toList()
+
+    @Test
+    fun replaceModeReplacesNonEmptyAndKeepsTheOldFiles() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform, replaceExisting = true))
+        val kept = beforeImportDirs(e).single()
+        assertEquals(3, countRows(File(kept, "bookmarks.sqlite3")))
+        assertFalse(File(e.migrationDir.toString(), "replaced").exists(), "replaced/ was renamed, not left behind")
+        assertEquals(baseline, databaseSummary(e.databases))
+    }
+
+    @Test
+    fun replaceModeKeepsTheBackupWhenARelaunchRetriesTheRename() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        var failures = 0
+        val fs = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun atomicMove(source: Path, target: Path) {
+                if (source.name == "replaced" && failures++ == 0) throw java.io.IOException("injected one-time rename failure")
+                super.atomicMove(source, target)
+            }
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator(PlatformWithFileSystem(e.platform, fs), replaceExisting = true).run() })
+        assertEquals(1, failures)
+        assertTrue(File(e.migrationDir.toString(), "replaced").isDirectory, "the failed rename left replaced/")
+        assertEquals(emptyList(), beforeImportDirs(e))
+        // A later launch (default mode) retries the rename: the marker says the backup belongs to an import.
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertFalse(File(e.migrationDir.toString(), "replaced").exists())
+        assertEquals(3, countRows(File(beforeImportDirs(e).single(), "bookmarks.sqlite3")))
+    }
+
+    @Test
+    fun replaceModeMovesSideFilesAndRollbackRestoresThem() {
+        val e = env()
+        val target = File(e.databases.toString(), "bookmarks.sqlite3")
+        writeSqlite(target, rows = 3)
+        val wal = File(e.databases.toString(), "bookmarks.sqlite3-wal")
+        wal.writeBytes(ByteArray(64) { it.toByte() })
+        val targetBytes = target.readBytes()
+        val walBytes = wal.readBytes()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(e.platform, Step.ADOPT_DONE, replaceExisting = true))
+        assertTrue(failed.rolledBack)
+        assertTrue(targetBytes.contentEquals(target.readBytes()), "the database is back byte-identical")
+        assertTrue(wal.isFile && walBytes.contentEquals(wal.readBytes()), "the -wal is back byte-identical")
+        assertEquals(emptyList(), beforeImportDirs(e))
+    }
+
+    @Test
+    fun withoutReplaceModeNonEmptyStillFails() {
+        val e = env()
+        writeSqlite(File(e.databases.toString(), "bookmarks.sqlite3"), rows = 3)
+        assertEquals(Kind.ADOPTION_FAILED, assertIs<LegacyMigrationOutcome.Failed>(run(e.platform)).kind)
+    }
+
+    @Test
+    fun stepHookRunsInStepOrder() {
+        val e = env()
+        val seen = mutableListOf<Step>()
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator(e.platform, stepHook = { seen += it }).run() })
+        assertEquals(Step.entries.toList(), seen)
+    }
+
+    @Test
+    fun extrasFileIsWrittenBeforeTheCommitMove() {
+        val e = env()
+        val extras = File(e.migrationDir.toString(), "extras.json")
+        var existedAtCommit: Boolean? = null
+        val fs = object : ForwardingFileSystem(FileSystem.SYSTEM) {
+            override fun atomicMove(source: Path, target: Path) {
+                if (target.name == "done.json") existedAtCommit = extras.isFile
+                super.atomicMove(source, target)
+            }
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(PlatformWithFileSystem(e.platform, fs)))
+        assertEquals(true, existedAtCommit, "extras.json must exist when done.json is committed")
+    }
+
     // ---- existing databases: what may be replaced ---------------------------------------------------------------
 
     @Test
@@ -212,9 +312,17 @@ class LegacyMigratorTest {
         val e = env()
         createEmptyRoomDatabase(File(e.databases.toString(), "bookmarks.sqlite3"))
         File(e.databases.toString(), "settings.sqlite3").writeBytes(ByteArray(0)) // an empty file is empty too
-        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        var replacedExistedBeforeCleanUp = false
+        val outcome = runBlocking {
+            migrator(e.platform, stepHook = { if (it == Step.ADOPT_DONE) replacedExistedBeforeCleanUp = File(e.migrationDir.toString(), "replaced").isDirectory }).run()
+        }
+        assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+        assertTrue(replacedExistedBeforeCleanUp, "the backup really existed, so its absence below is cleanUp's work")
         assertEquals(baseline, databaseSummary(e.databases))
         assertFalse(File(e.migrationDir.toString(), "replaced").exists())
+        assertEquals(emptyList(), beforeImportDirs(e), "a normal migration keeps no before-import directory")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertEquals(emptyList(), beforeImportDirs(e))
     }
 
     @Test
@@ -235,6 +343,99 @@ class LegacyMigratorTest {
         File(db.path + "-wal").writeText("pending frames")
         assertEquals(Kind.ADOPTION_FAILED, assertIs<LegacyMigrationOutcome.Failed>(run(e.platform)).kind)
         assertTrue(File(db.path + "-wal").exists())
+    }
+
+    // ---- extras and secrets before the commit -----------------------------------------------------------------
+
+    private val aiKeyValue = "test-ai-key-not-a-secret"
+    private val passwordValue = "test-gdrive-password-not-a-secret"
+
+    private fun richAiKeyNames(): List<String> {
+        val e = env()
+        return assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform)).extras.aiKeys.keys.map { apiKeyName(it) }
+    }
+
+    /** Models a kill right before the `done.json` rename (the commit point). */
+    private class KillBeforeDoneFileSystem(delegate: FileSystem) : okio.ForwardingFileSystem(delegate) {
+        override fun atomicMove(source: Path, target: Path) {
+            if (target.name == "done.json") throw SimulatedKill("killed before the done.json rename")
+            super.atomicMove(source, target)
+        }
+    }
+
+    /** Delegates to [delegate] and notes, at the first `put`, which of [watched] were present. */
+    private class ObservingSecrets(private val delegate: net.bible.sharedcore.platform.secrets.SecretStore, private val watched: List<String>) : net.bible.sharedcore.platform.secrets.SecretStore {
+        var presentAtFirstPut: List<String>? = null
+        override fun get(key: String) = delegate.get(key)
+        override fun put(key: String, value: String) {
+            if (presentAtFirstPut == null) presentAtFirstPut = watched.filter { delegate.get(it) != null }
+            delegate.put(key, value)
+        }
+        override fun remove(key: String) = delegate.remove(key)
+    }
+
+    private class PlatformWithSecrets(platform: LegacyPlatform, override val secrets: net.bible.sharedcore.platform.secrets.SecretStore) : LegacyPlatform by platform
+
+    @Test
+    fun extrasFileExistsBeforeCommitAndSurvivesCleanup() {
+        val failing = env()
+        assertIs<LegacyMigrationOutcome.Failed>(run(failing.platform, Step.ADOPT_DONE))
+        assertFalse(File(failing.migrationDir.toString(), "extras.json").exists(), "extras.json is written only after the secrets")
+
+        val e = env()
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val extrasFile = File(e.migrationDir.toString(), "extras.json")
+        val done = File(e.migrationDir.toString(), "done.json")
+        assertTrue(extrasFile.isFile && done.isFile)
+        val text = extrasFile.readText()
+        assertFalse(text.contains(aiKeyValue) || text.contains(passwordValue), "no secrets in extras.json")
+        assertTrue(LegacyExtrasFile.decode(text).sync?.hadPassword == true)
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertTrue(extrasFile.isFile, "cleanUp keeps extras.json")
+    }
+
+    @Test
+    fun nextcloudPasswordStoredUnderAndroidKey() {
+        val e = env()
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals(passwordValue, e.platform.secrets.get("cloud_sync_password"))
+    }
+
+    @Test
+    fun existingSecretIsKeptAndReported() {
+        val name = richAiKeyNames().first()
+        val e = env()
+        e.platform.secrets.put(name, "user")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals("user", e.platform.secrets.get(name))
+        assertTrue(
+            migrated.report.entries.any { it is net.bible.service.legacymigration.map.ReportEntry.Skipped && it.category == LegacyCategory.SETTINGS && it.reason == "secret already present: llm_api_key_\u2026" },
+            migrated.report.entries.toString(),
+        )
+    }
+
+    @Test
+    fun killAfterSecretsRollsBackSecrets() {
+        val names = richAiKeyNames() + "cloud_sync_password"
+        val e = env()
+        assertFailsWith<SimulatedKill> { run(PlatformWithFileSystem(e.platform, KillBeforeDoneFileSystem(FileSystem.SYSTEM))) }
+        assertEquals(aiKeyValue, e.platform.secrets.get(names.first()), "the killed run had written the secrets")
+        assertEquals(passwordValue, e.platform.secrets.get("cloud_sync_password"))
+
+        val observing = ObservingSecrets(e.platform.secrets, names)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(PlatformWithSecrets(e.platform, observing)))
+        assertEquals(emptyList(), observing.presentAtFirstPut, "the rollback removed the earlier secrets before the new ones were written")
+        for (name in names) assertNotNull(e.platform.secrets.get(name), name)
+    }
+
+    @Test
+    fun inProcessFailureAfterSecretsRemovesThem() {
+        val names = richAiKeyNames() + "cloud_sync_password"
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(e.platform, Step.SECRETS))
+        assertTrue(failed.rolledBack)
+        for (name in names) assertEquals(null, e.platform.secrets.get(name), name)
+        assertEquals(emptyList(), e.databaseFiles())
     }
 
     // ---- crash windows -----------------------------------------------------------------------------------------
@@ -414,6 +615,77 @@ class LegacyMigratorTest {
         assertTrue(index.exists())
     }
 
+    /** One old-app EPUB in `Documents/epub` (published generation) that the file adoption must copy to `Documents/sword/epub/Book.epub`. */
+    private fun oldEpub(platform: FakeLegacyPlatform) {
+        val gen = File(platform.documents.toString(), "epub/.epub-generations/Book-1/g1")
+        File(gen, "package/OEBPS").mkdirs()
+        File(gen, "package/OEBPS/content.opf").writeText("opf")
+        val db = net.bible.service.db.openSqlite(File(gen, "index.sqlite3").path)
+        try {
+            db.prepare("CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)").use { it.step() }
+            db.prepare("INSERT INTO metadata VALUES ('source_file_name', 'Book.epub')").use { it.step() }
+        } finally { db.close() }
+        File(platform.documents.toString(), "epub/Book-1.epub-current.json")
+            .writeText("""{"schemaVersion":1,"identifier":"Book-1","generationIdentifier":"g1"}""")
+    }
+
+    @Test
+    fun theEpubLibraryIsAdoptedAfterTheCommitAndRecordedOnce() {
+        val e = env()
+        oldEpub(e.platform)
+        val adopted = File(e.platform.documents.toString(), "sword/epub/Book.epub/OEBPS/content.opf")
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals("opf", adopted.readText())
+        assertTrue(File(e.platform.documents.toString(), "epub/.epub-generations/Book-1/g1/package/OEBPS/content.opf").exists(), "the old files stay")
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+        // Flagged: a later launch does not look at the library again.
+        adopted.delete()
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertFalse(adopted.exists())
+    }
+
+    @Test
+    fun aFailedEpubAdoptionNeverFailsTheMigrationAndIsRetriedOnTheNextLaunch() {
+        val e = env()
+        oldEpub(e.platform)
+        // `sword/epub` is a regular file, so the copy cannot be placed: the adoption fails, the migration still commits.
+        val blocker = File(e.platform.documents.toString(), "sword/epub").also { it.parentFile.mkdirs(); it.writeText("in the way") }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":false"))
+        blocker.delete()
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertEquals("opf", File(e.platform.documents.toString(), "sword/epub/Book.epub/OEBPS/content.opf").readText())
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+    }
+
+    @Test
+    fun aTransientIndexErrorKeepsFilesAdoptedUnflaggedAndACorruptOneFlagsIt() {
+        val e = env()
+        oldEpub(e.platform)
+        val index = File(e.platform.documents.toString(), "epub/.epub-generations/Book-1/g1/index.sqlite3")
+        val good = index.readBytes()
+        index.delete(); index.mkdirs() // cannot be opened: transient
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"filesAdopted\":false"))
+        index.deleteRecursively(); index.writeBytes("not a database at all, just text".toByteArray()) // corrupt: permanent
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertTrue(marker.readText().contains("\"filesAdopted\":true"))
+        assertFalse(File(e.platform.documents.toString(), "sword/epub/Book.epub").exists())
+        assertTrue(good.isNotEmpty())
+    }
+
+    @Test
+    fun aNothingToMigrateMarkerNeverAdoptsEpubs() {
+        val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
+        oldEpub(platform)
+        assertEquals(LegacyMigrationOutcome.NothingToMigrate, run(platform))
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(platform))
+        assertFalse(File(platform.documents.toString(), "sword/epub").exists())
+    }
+
     @Test
     fun aNothingToMigrateMarkerNeverDeletesTheSearchIndex() {
         val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
@@ -444,7 +716,7 @@ class LegacyMigratorTest {
         val e = env()
         val failed = assertIs<LegacyMigrationOutcome.Failed>(run(ThrowingKeychainPlatform(e.platform)))
         assertTrue(failed.rolledBack)
-        assertEquals(Kind.CORRUPT_STORE, failed.kind)
+        assertEquals(Kind.KEYCHAIN_UNAVAILABLE, failed.kind)
         assertEquals(emptyList(), e.databaseFiles(), "nothing adopted")
         assertFalse(File(e.migrationDir.toString(), "done.json").exists())
         val report = File(e.migrationDir.toString(), "report.json").readText()
@@ -639,5 +911,203 @@ class LegacyMigratorTest {
 
     private suspend fun net.bible.android.database.BookmarkDatabase.useWriterConnection2(sql: String) {
         useWriterConnection { c -> c.usePrepared(sql) { it.step() } }
+    }
+
+    // ---- durable writes, Keychain kind, W10, H6 ---------------------------------------------------------------
+
+    @Test
+    fun keychainFailureIsItsOwnKind() {
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(ThrowingKeychainPlatform(e.platform)))
+        assertEquals(Kind.KEYCHAIN_UNAVAILABLE, failed.kind)
+        assertEquals(1, failed.attempt)
+    }
+
+    @Test
+    fun durableWritesSyncTempAndDirectory() {
+        val e = env()
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(recording))
+        val names = recording.synced.map { if (it == e.migrationDir) "<dir>" else it.name }
+        fun followedByDirectory(temp: String) = names.withIndex().filter { it.value == temp }.map { names.getOrNull(it.index + 1) }
+        val stateWrites = followedByDirectory("state.json.tmp")
+        assertTrue(stateWrites.size >= 3, "every state write syncs its temp file: $names")
+        assertTrue(stateWrites.all { it == "<dir>" }, "the directory is synced right after each rename: $names")
+        // Ordering, from the directory listing at each call: the temp file exists when it is synced, and when the directory
+        // is synced right after, the rename is done (temp gone, target present). Syncing the parent before the rename fails this.
+        for ((i, call) in recording.calls.withIndex()) {
+            if (!call.path.name.endsWith(".tmp")) continue
+            val target = call.path.name.removeSuffix(".tmp")
+            assertTrue(call.path.name in call.children, "${call.path.name} exists when its content is synced")
+            val dirCall = recording.calls[i + 1]
+            assertEquals(e.migrationDir, dirCall.path, "the directory follows ${call.path.name}")
+            assertTrue(call.path.name !in dirCall.children && target in dirCall.children, "renamed before the directory sync of $target: ${dirCall.children}")
+        }
+        for (marker in listOf("done.json.tmp", "report.json.tmp")) {
+            val writes = followedByDirectory(marker)
+            assertTrue(writes.isNotEmpty() && writes.all { it == "<dir>" }, "$marker is synced, then the directory: $names")
+        }
+    }
+
+    @Test
+    fun adoptedDatabaseMovesAreMadeDurableByOneDirectorySyncBeforeTheDoneMarker() {
+        val e = env()
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(recording))
+        val databaseSyncs = recording.calls.withIndex().filter { it.value.path == e.platform.databasesDir }
+        assertEquals(1, databaseSyncs.size, "the databases directory is synced once after the moves: ${recording.synced}")
+        val doneSync = recording.synced.indexOfFirst { it.name == "done.json.tmp" }
+        assertTrue(doneSync > databaseSyncs.single().index, "databases directory synced before the done marker is written")
+        val children = databaseSyncs.single().value.children
+        assertTrue(children.isNotEmpty(), "the moves already happened at the sync: $children")
+    }
+
+    @Test
+    fun httpCustomRepositoryKeptVerbatim() {
+        // W10: a repository whose source URL is plain http is migrated as it is; it is neither upgraded nor reported as skipped.
+        val e = env()
+        val sword = File(e.platform.documents.toString(), "sword_install").also { it.mkdirs() }
+        File(sword, "CustomRepositories.json").writeText(
+            """{"version":1,"repositories":[{"name":"Plain Http","description":"http://example.org/sword","type":"sword-https","host":"example.org",""" +
+                """"catalogDirectory":"/sword","packageDirectory":"/sword/zip","manifestURL":"","sourceURL":"http://example.org/sword"}]}""",
+        )
+        // A sidecar record only counts for a source of InstallMgr.conf (the Swift loadSources), so the conf names it too.
+        File(sword, "InstallMgr.conf").writeText("[Sources]\nHTTPSource=Plain Http|example.org|/sword\n")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals(emptyList(), migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Skipped>()
+            .filter { it.category == LegacyCategory.REPOSITORIES })
+        val c = net.bible.service.db.openSqlite(File(e.databases.toString(), "repositories.sqlite3").path, readOnly = true)
+        try {
+            val s = c.prepare("SELECT name, description, host, catalogDirectory FROM CustomRepository")
+            try {
+                assertTrue(s.step())
+                assertEquals(listOf("Plain Http", "http://example.org/sword", "example.org", "/sword"), (0..3).map { s.getText(it) })
+                assertFalse(s.step(), "exactly one repository")
+            } finally { s.close() }
+        } finally { c.close() }
+    }
+
+    // ---- extended fixture (Task 13): fidelity rows, Boolean sentinels, custom repositories -------------------------
+
+    private val extendedCells = listOf("1.0.2" to "26", "1.0.1" to "18")
+
+    /** Migrates the `extended` cell and returns the adopted databases opened as staging (a copy), plus the report. */
+    private fun <T> withMigratedExtended(app: String, ios: String, block: (StagingDatabases, MigrationReport, FixtureDir) -> T): T {
+        val e = env(app, ios, "extended")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform), "$app/$ios")
+        val copy = java.nio.file.Files.createTempDirectory("extended-").toFile()
+        try {
+            for (name in e.databaseFiles().filter { it.endsWith(".sqlite3") }) File(e.databases.toString(), name).copyTo(File(copy, name))
+            val staging = StagingDatabases(copy.toOkioPath(), JvmLegacyDatabaseFactory())
+            // The oracle comparison reads `openedDatabase`, so open what the tests look at.
+            listOf(staging.repositories, staging.workspaces, staging.settings)
+            try { return block(staging, migrated.report, e.fx) } finally { staging.close() }
+        } finally {
+            copy.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun extendedFixtureMatchesOracle() {
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, report, fx ->
+                val label = "$app/$ios/extended"
+                val repositories = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.REPOSITORIES, staging) }
+                assertEquals(emptyList(), repositories.differences, label)
+                assertEquals(2, repositories.comparedRows["CustomRepository"], "$label: the oracle holds both custom repositories")
+                val workspaces = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.WORKSPACES, staging) }
+                assertEquals(emptyList(), workspaces.differences, label)
+                assertEquals(1, workspaces.comparedRows["GlobalTextDisplaySettings"], "$label: the global text display row is compared")
+                assertEquals(emptyList(), report.entries.filterIsInstance<ReportEntry.UnknownKey>(), label)
+            }
+        }
+    }
+
+    @Test
+    fun extendedBooleansLandAsSentinels() {
+        val keys = SettingsMapper.DEFINITIONS.filter { it.storage == SettingsMapper.Storage.SWIFT_DATA && it.type == SettingsMapper.ValueType.BOOL }
+        assertTrue(keys.size >= 26, "the ledger maps ${keys.size} Boolean settings")
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, _, _ ->
+                val stored = runBlocking { staging.settings.booleanSettingDao().all().associate { it.key to it.value } }
+                for (def in keys) {
+                    val nonDefault = def.default != "true"
+                    assertEquals(nonDefault, stored[def.key], "$app/$ios ${def.key} (default ${def.default})")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun extendedHttpRepositoryKeptVerbatim() {
+        // W10: the repository whose source is plain http is migrated as stored; the schema has no source-URL column,
+        // so what survives is name, description, host and catalog directory. Nothing is reported as skipped.
+        for ((app, ios) in extendedCells) {
+            withMigratedExtended(app, ios) { staging, report, _ ->
+                val rows = runBlocking { staging.repositories.customRepositoryDao().all() }.associateBy { it.name }
+                assertEquals(setOf("Fixture Https", "Plain Http"), rows.keys, "$app/$ios")
+                val http = rows.getValue("Plain Http")
+                assertEquals(listOf("http://example.org/sword", "example.org", "/sword"), listOf(http.description, http.host, http.catalogDirectory), "$app/$ios")
+                assertEquals("https://repo.example.org/sword", rows.getValue("Fixture Https").description)
+                assertEquals("repo.example.org", rows.getValue("Fixture Https").host)
+                assertEquals(emptyList(), report.entries.filterIsInstance<ReportEntry.Skipped>().filter { it.category == LegacyCategory.REPOSITORIES }, "$app/$ios")
+            }
+        }
+    }
+
+    @Test
+    fun userPlanFilesGoToTheGivenDir() {
+        // H6: the files of Documents/jsword/readingplan are copied to the directory the caller names; the source stays.
+        val e = env()
+        val documents = File(e.platform.documents.toString())
+        File(documents, "jsword/readingplan").mkdirs()
+        File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
+        File(documents, "jsword/readingplan/other.properties").writeText("1=Exod.1")
+        val before = hashTree(e.platform.documents)
+        val migrator = LegacyMigrator(e.platform, JvmLegacyDatabaseFactory(), userPlanDir = e.platform.documents.parent!! / "manual" / "readingplan")
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { migrator.run() })
+        val target = File(documents.parentFile, "manual/readingplan")
+        assertEquals("1=Gen.1", File(target, "mine.properties").readText())
+        assertEquals("1=Exod.1", File(target, "other.properties").readText())
+        assertEquals(listOf("mine.properties", "other.properties"), target.list().orEmpty().sorted(), "no temporary file is left")
+        assertEquals(before, hashTree(e.platform.documents), "the source directory is unchanged")
+    }
+
+    @Test
+    fun copiedUserPlanFilesAreSyncedThenTheirDirectory() {
+        val e = env()
+        val documents = File(e.platform.documents.toString())
+        File(documents, "jsword/readingplan").mkdirs()
+        File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
+        val planDir = e.platform.documents.parent!! / "manual" / "readingplan"
+        val recording = RecordingSyncPlatform(e.platform)
+        assertIs<LegacyMigrationOutcome.Migrated>(runBlocking { LegacyMigrator(recording, JvmLegacyDatabaseFactory(), userPlanDir = planDir).run() })
+        val i = recording.synced.indexOfFirst { it.name == "mine.properties.tmp" }
+        assertTrue(i >= 0, "the temp copy is synced")
+        assertTrue("mine.properties.tmp" in recording.calls[i].children, "temp exists at its sync")
+        assertEquals(planDir, recording.calls[i + 1].path)
+        assertTrue("mine.properties.tmp" !in recording.calls[i + 1].children && "mine.properties" in recording.calls[i + 1].children, "renamed before the directory sync")
+    }
+
+    @Test
+    fun aFailingSyncOfTheDoneMarkerFailsTheAttemptAndRollsBack() {
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(RecordingSyncPlatform(e.platform) { it.name == "done.json.tmp" }))
+        assertTrue(failed.rolledBack)
+        assertFalse(File(e.migrationDir.toString(), "done.json").exists(), "no commit marker")
+        assertEquals(emptyList(), e.databaseFiles(), "nothing stays adopted")
+    }
+
+    @Test
+    fun aFailingDirectorySyncAfterTheDoneRenameCountsAsCommitted() {
+        val e = env()
+        val fs = e.platform.fileSystem
+        val done = e.migrationDir / "done.json"
+        // Fails only the directory sync that follows the done.json rename (the marker exists then).
+        val platform = RecordingSyncPlatform(e.platform) { it == e.migrationDir && fs.exists(done) }
+        assertIs<LegacyMigrationOutcome.Migrated>(run(platform))
+        assertTrue(File(e.migrationDir.toString(), "done.json").exists(), "committed: the marker is there")
+        assertEquals(baseline, databaseSummary(e.databases), "the adoption stays")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform), "a later start sees the same committed state")
     }
 }

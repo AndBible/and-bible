@@ -27,14 +27,13 @@ internal class IosBugReport(
     private val send: suspend (String, String, String, List<Attachment>) -> Unit = IosMailOrShare()::send,
     private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
 ) {
-    suspend fun report(cause: Throwable? = null) = reportSafely(failure) {
+    /** [extraAttachments] are sent after the app log, e.g. the legacy migration report. */
+    suspend fun report(cause: Throwable? = null, extraAttachments: List<Attachment> = emptyList()) = reportSafely(failure) {
         if (!confirm(false)) return@reportSafely
         val (body, attachments) = withContext(Dispatchers.Default) {
             val details = details(cause)
             val log = iosRecentLogSnapshot()
-            (table.text("report_bug_line_1") + "\n\n" + details) to listOf(
-                Attachment("app_log.txt.gz", "application/gzip", RawLlmLog.gzipCompress(log)),
-            )
+            (table.text("report_bug_line_1") + "\n\n" + details) to reportAttachments(RawLlmLog.gzipCompress(log), extraAttachments)
         }
         send(RECIPIENT, "Bug Report v${device().version}", body, attachments)
     }

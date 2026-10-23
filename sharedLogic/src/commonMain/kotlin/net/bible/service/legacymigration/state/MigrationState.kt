@@ -38,7 +38,8 @@ data class PlannedMove(val name: String, val replaces: Boolean)
  * The content of `state.json`: the [phase], how many attempts were started ([attempt], counted when an attempt starts, so
  * a crashed attempt counts), when the current one started, the kind of the last failure (for `GaveUp`), and, while
  * [MigrationPhase.ADOPTING], the adoption [plan] (written before the first move) and the names already [moved] (progress
- * information; the rollback does not depend on it).
+ * information; the rollback does not depend on it). [secretsWritten] holds the secret-store key names (never values) the
+ * migration wrote after the adoption and that a rollback removes again.
  */
 data class MigrationState(
     val phase: MigrationPhase,
@@ -47,6 +48,7 @@ data class MigrationState(
     val lastKind: LegacyMigrationException.Kind? = null,
     val plan: List<PlannedMove> = emptyList(),
     val moved: List<String> = emptyList(),
+    val secretsWritten: List<String> = emptyList(),
 ) {
     fun toJson(): String = buildJsonObject {
         put("phase", phase.name)
@@ -55,6 +57,7 @@ data class MigrationState(
         lastKind?.let { put("lastKind", it.name) }
         put("plan", JsonArray(plan.map { buildJsonObject { put("name", it.name); put("replaces", it.replaces) } }))
         put("moved", JsonArray(moved.map { JsonPrimitive(it) }))
+        put("secretsWritten", JsonArray(secretsWritten.map { JsonPrimitive(it) }))
     }.toString()
 
     companion object {
@@ -70,19 +73,23 @@ data class MigrationState(
                     PlannedMove(it.jsonObject.getValue("name").jsonPrimitive.content, it.jsonObject.getValue("replaces").jsonPrimitive.booleanOrNull!!)
                 },
                 moved = o["moved"]?.jsonArray.orEmpty().map { it.jsonPrimitive.content },
+                secretsWritten = o["secretsWritten"]?.jsonArray.orEmpty().map { it.jsonPrimitive.content },
             )
         }
     }
 }
 
 /**
- * Writes [text] to [target] atomically: to `<target>.tmp` (replacing a leftover one), `flush()`ed, then `atomicMove`d over
- * [target]. On the JVM okio's `FileHandle.flush()` fsyncs, so the write is durable. On iOS okio only `fflush`es: the
- * rename is still atomic against a process kill (the case the watchdog and a crash produce) but a power loss may leave an
- * unflushed file; see [MigrationStateStore.UNREADABLE] for what a torn `state.json` means.
+ * Writes [text] to [target] atomically: to `<target>.tmp` (replacing a leftover one), `flush()`ed, [sync]ed, then
+ * `atomicMove`d over [target], and finally the parent directory is [sync]ed so the rename itself is durable. On the JVM
+ * okio's `FileHandle.flush()` already fsyncs; on iOS it only `fflush`es, so the platform's `LegacyPlatform.syncFile`
+ * (a real `fsync`) must be passed as [sync] there. The default does nothing (tests, callers without a platform).
+ * Without a real sync the rename is still atomic against a process kill but a power loss may leave an unflushed file;
+ * see [MigrationStateStore.UNREADABLE] for what a torn `state.json` means.
  */
-fun atomicWriteFile(fs: FileSystem, target: Path, text: String) {
-    val temp = target.parent!! / (target.name + ".tmp")
+fun atomicWriteFile(fs: FileSystem, target: Path, text: String, sync: (Path) -> Unit = {}) {
+    val parent = target.parent!!
+    val temp = parent / (target.name + ".tmp")
     fs.delete(temp, mustExist = false)
     val bytes = text.encodeToByteArray()
     val handle = fs.openReadWrite(temp)
@@ -92,14 +99,16 @@ fun atomicWriteFile(fs: FileSystem, target: Path, text: String) {
     } finally {
         handle.close()
     }
+    sync(temp)
     fs.atomicMove(temp, target)
+    sync(parent)
 }
 
 /**
  * Reads and writes `state.json` in [dir]. A write is atomic and fsynced ([atomicWriteFile]), so a kill leaves either the
  * old or the new complete file, never a torn one.
  */
-class MigrationStateStore(private val fs: FileSystem, private val dir: Path) {
+class MigrationStateStore(private val fs: FileSystem, private val dir: Path, private val sync: (Path) -> Unit = {}) {
     private val file = dir / "state.json"
     private val temp = dir / "state.json.tmp"
 
@@ -115,7 +124,7 @@ class MigrationStateStore(private val fs: FileSystem, private val dir: Path) {
 
     fun write(state: MigrationState) {
         fs.createDirectories(dir)
-        atomicWriteFile(fs, file, state.toJson())
+        atomicWriteFile(fs, file, state.toJson(), sync)
     }
 
     /** Removes the state file and a leftover temporary one. */
