@@ -61,4 +61,41 @@ class CoverageTest {
         assertEquals("  spaced  ", kv["x"])
         assertEquals("a\nb", kv["y"])
     }
+
+    private val resDir = File(repoRoot, "app/src/main/res")
+
+    /** The `<string name>` set of one qualifier dir read with a regex, independently of [parseStringsXml]'s DOM parsing. */
+    private fun rawStringNames(dirName: String): Set<String> {
+        val comment = Regex("<!--.*?-->", RegexOption.DOT_MATCHES_ALL)
+        val tag = Regex("""<string\s[^>]*?name\s*=\s*"([^"]+)"""")
+        return File(resDir, dirName).listFiles { f -> f.isFile && f.extension == "xml" }!!
+            .flatMap { f -> tag.findAll(f.readText().replace(comment, "")).map { it.groupValues[1] }.toList() }
+            .toSet()
+    }
+
+    /** Every `values*` locale dir (qualifier-mapped) and the emitted en table must hold exactly the strings the XML declares. */
+    @Test fun every_base_string_in_the_resources_reaches_the_emitted_table() {
+        val declared = rawStringNames("values") + rawStringNames("values-en")
+        assertTrue(declared.size > 1000, "the real resources declare well over a thousand strings, found ${declared.size}")
+
+        val parsed = LinkedHashMap<String, String>()
+        for (dirName in listOf("values", "values-en")) {
+            File(resDir, dirName).listFiles { f -> f.isFile && f.extension == "xml" }!!.sortedBy { it.name }
+                .forEach { f -> parsed.putAll(mergeLocale(parsed, parseStringsXml(f.readText()))) }
+        }
+        assertEquals(declared, parsed.keys, "the parser dropped or invented a string")
+
+        // The emitted en table, read back from the generated source text (not from the map handed to the emitter).
+        val emitted = emitStringsData(mapOf("en" to parsed))
+        val emittedKeys = Regex("""^        "([^"]+)" to """", RegexOption.MULTILINE).findAll(emitted).map { it.groupValues[1] }.toList()
+        assertEquals(declared.size, emittedKeys.size, "the emitter wrote a different number of entries than the XML declares")
+        assertEquals(declared, emittedKeys.toSet(), "the emitted en keys differ from the declared ones")
+    }
+
+    @Test fun a_removed_resource_is_detected_by_the_count_check() {
+        val declared = setOf("a", "b", "c")
+        val emitted = emitStringsData(mapOf("en" to mapOf("a" to "1", "b" to "2")))
+        val emittedKeys = Regex("""^        "([^"]+)" to """", RegexOption.MULTILINE).findAll(emitted).map { it.groupValues[1] }.toSet()
+        assertTrue(declared != emittedKeys, "a missing emitted key must make the independent comparison fail")
+    }
 }
