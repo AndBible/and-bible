@@ -144,10 +144,14 @@ fun CustomRepositoryEditorScreen(
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(end = 8.dp),
                             )
-                            Validation.Invalid, Validation.Idle -> {}
+                            Validation.Invalid, Validation.InsecureUrl, Validation.Idle -> {}
                         }
                     }
                 },
+                isError = state.validation == Validation.InsecureUrl,
+                supportingText = if (state.validation == Validation.InsecureUrl) {
+                    { Text(strings.customRepositoryHttpsRequired) }
+                } else null,
                 modifier = Modifier.fillMaxWidth(),
             )
             val resolved = state.resolved

@@ -107,6 +107,11 @@ class CustomRepositoryEditorController(
                 packageDirectory = pendingPackageDir ?: result.repository.packageDirectory,
                 canSave = true,
             )
+            ManifestResult.InsecureUrl -> _state.value = _state.value.copy(
+                validation = Validation.InsecureUrl,
+                resolved = null,
+                canSave = false,
+            )
             ManifestResult.Invalid -> _state.value = _state.value.copy(
                 validation = Validation.Invalid,
                 resolved = null,

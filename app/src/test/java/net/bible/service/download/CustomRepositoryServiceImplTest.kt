@@ -106,9 +106,10 @@ class CustomRepositoryServiceImplTest {
             override suspend fun body(url: String): String? = null
         }
         val service = CustomRepositoryServiceImpl(reachable)
-        for (x in listOf("https://", "http://x", "x/y", "")) {
+        for (x in listOf("https://", "x/y", "")) {
             assertEquals("input '$x'", ManifestResult.Invalid, service.validateManifest(x, 0))
         }
+        assertEquals(ManifestResult.InsecureUrl, service.validateManifest("http://x", 0))
         for (x in listOf("https://x.example/y ", "https://x.example/my repo/manifest.json")) {
             val valid = service.validateManifest(x, 0) as ManifestResult.Valid
             val url = java.net.URL(x)

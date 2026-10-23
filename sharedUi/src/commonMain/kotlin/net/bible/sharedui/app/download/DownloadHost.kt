@@ -974,13 +974,10 @@ class DownloadHost(
     /** Classic `showErrors` (`:878-890`). */
     private fun showDownloadErrors() {
         val session = session ?: return
-        var message = ""
-        if (session.downloadManager.failedRepos.isNotEmpty()) {
-            message += strings.failedRepositoriesMessage(session.downloadManager.failedRepos.joinToString(",\n"))
-        }
-        if (session.genericFileDownloader.errors.isNotEmpty()) {
-            message += strings.failedDownloadsMessage(session.genericFileDownloader.errors.joinToString(",\n"))
-        }
+        val message = downloadErrorsMessage(
+            strings, session.downloadManager.failedRepos, session.downloadManager.insecureRepos,
+            session.genericFileDownloader.errors,
+        )
         session.controller.showErrors(strings.downloadErrors, message)
     }
 
@@ -1001,3 +998,23 @@ class DownloadHost(
 
 /** True when [path] exists and can be opened for reading (the old `File.canRead()` semantics; false for an unreadable file). */
 internal fun canReadFile(path: Path): Boolean = runCatching { FileSystem.SYSTEM.source(path).close(); true }.getOrDefault(false)
+
+/** The download-errors dialog text: failed repositories, one https reason per insecure repository, failed downloads. */
+internal fun downloadErrorsMessage(
+    strings: Strings,
+    failedRepos: List<String>,
+    insecureRepos: List<String>,
+    downloadErrors: Collection<Any>,
+): String {
+    var message = ""
+    if (failedRepos.isNotEmpty()) {
+        message += strings.failedRepositoriesMessage(failedRepos.joinToString(",\n"))
+    }
+    for (name in insecureRepos) {
+        message += strings.customRepositoryHttpsRequiredOnRefresh(name) + "\n"
+    }
+    if (downloadErrors.isNotEmpty()) {
+        message += strings.failedDownloadsMessage(downloadErrors.joinToString(",\n"))
+    }
+    return message
+}

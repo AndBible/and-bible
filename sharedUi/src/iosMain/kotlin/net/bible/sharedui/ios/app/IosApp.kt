@@ -113,6 +113,7 @@ import net.bible.sharedui.reading.session.ReadingKeepScreenOn
 import net.bible.sharedui.reading.session.guardedChooserTarget
 import net.bible.sharedui.reading.session.watchSettingKeys
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.ProvideLanguageLayoutDirection
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.theme.AbHostTheme
@@ -198,6 +199,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
     if (recoveryStartRoute != null) {
         check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
         IosTextScale {
+          ProvideLanguageLayoutDirection(language) {
             CompositionLocalProvider(
                 LocalStrings provides strings,
                 LocalSheetDragHandleDescription provides strings.sheetDragHandle,
@@ -214,6 +216,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
                     }
                 }
             }
+          }
         }
         return
     }
@@ -248,6 +251,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
         }
     }
     IosTextScale {
+      ProvideLanguageLayoutDirection(language) {
         CompositionLocalProvider(
             LocalStrings provides strings,
             LocalSheetDragHandleDescription provides strings.sheetDragHandle,
@@ -273,6 +277,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
                 }
             }
         }
+      }
     }
 }
 
@@ -577,7 +582,7 @@ private fun IosAppContent(
                     }
                 }
             }
-            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts)
+            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts, readingResults)
             IosAppDialogOverlay(
                 // Alert dialogs may cover sheets; sheet-shaped global requests must exclude reading sheets.
                 onSheetOpening = { readingHostHolder.closeSheetsIfCreated() },

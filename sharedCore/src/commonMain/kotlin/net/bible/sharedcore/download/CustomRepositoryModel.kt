@@ -47,6 +47,9 @@ data class RepositoryResult(
 sealed interface ManifestResult {
     data class Valid(val repository: CustomRepositoryData) : ManifestResult
     data object Invalid : ManifestResult
+
+    /** The address uses plain `http://`; only https repositories are accepted. */
+    data object InsecureUrl : ManifestResult
 }
 
 /**
@@ -70,7 +73,7 @@ data class RepoRow(val id: Long, val name: String, val description: String)
 data class CustomRepoListState(val rows: List<RepoRow> = emptyList())
 
 /** Manifest-URL validation lifecycle for the editor screen. */
-enum class Validation { Idle, Validating, Valid, Invalid }
+enum class Validation { Idle, Validating, Valid, Invalid, InsecureUrl }
 
 /** View-data for the custom-repository editor screen. */
 data class EditorState(

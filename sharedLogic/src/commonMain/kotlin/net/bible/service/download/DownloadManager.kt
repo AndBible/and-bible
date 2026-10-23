@@ -17,6 +17,7 @@
 package net.bible.service.download
 
 import androidx.annotation.VisibleForTesting
+import net.bible.sharedcore.http.InsecureUrlException
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.versification.BookInstallWatcher
@@ -55,6 +56,11 @@ class DownloadManager(
     /** Failed repository names in sorted order, as the former `TreeSet<String>` iterated them. */
     val failedRepos: List<String> get() = withMonitor(failedRepoSet) { failedRepoSet.sorted() }
 
+    private val insecureRepoSet = HashSet<String>()
+
+    /** Failed repositories whose failure was a non-https address (a subset of [failedRepos]), sorted. */
+    val insecureRepos: List<String> get() = withMonitor(insecureRepoSet) { insecureRepoSet.sorted() }
+
     private lateinit var installManager: InstallManager
     suspend fun refreshInstallManager() {
         installManager = InstallManager()
@@ -75,6 +81,7 @@ class DownloadManager(
             installManager.addInstaller(r.name, installer)
         }
         withMonitor(failedRepoSet) { failedRepoSet.clear() }
+        withMonitor(insecureRepoSet) { insecureRepoSet.clear() }
         onFailedReposChange?.invoke()
     }
 
@@ -83,7 +90,15 @@ class DownloadManager(
         onFailedReposChange?.invoke()
     }
 
+    private fun markInsecure(repo: String) {
+        withMonitor(insecureRepoSet) { insecureRepoSet.add(repo) }
+    }
+
+    private fun Throwable.hasInsecureUrlCause(): Boolean =
+        generateSequence(this) { it.cause }.take(16).any { it is InsecureUrlException }
+
     private fun markSuccess(repo: String) {
+        withMonitor(insecureRepoSet) { insecureRepoSet.remove(repo) }
         withMonitor(failedRepoSet) { failedRepoSet.remove(repo) }
         onFailedReposChange?.invoke()
     }
@@ -126,6 +141,7 @@ class DownloadManager(
             // the caller gave up: not a repository failure
             throw e
         } catch (e: Exception) {
+            if (e.hasInsecureUrlCause()) markInsecure(repo)
             markFailed(repo)
             // ignore error because some minor repos are unreliable
             Log.e(TAG, "Fatal error downloading books from $repo", e)

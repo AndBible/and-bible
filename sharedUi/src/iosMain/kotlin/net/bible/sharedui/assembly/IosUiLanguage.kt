@@ -16,7 +16,9 @@
  */
 package net.bible.sharedui.assembly
 
+import androidx.compose.ui.unit.LayoutDirection
 import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.strings.layoutDirectionForLanguage
 import net.bible.sharedui.strings.StringsData
 import platform.Foundation.NSLocale
 import platform.Foundation.preferredLanguages
@@ -46,13 +48,11 @@ object IosUiLanguage {
         return FALLBACK
     }
 
-    private val rtlLanguages = setOf("ar", "he", "iw", "fa", "ur")
-
     /**
      * Whether the resolved UI [language] is written right to left. The app resolves its own UI language
      * (`locale_pref` first), so the layout direction must follow it, not the iOS system language.
      */
-    fun isRtl(language: String): Boolean = language.trim().replace('_', '-').substringBefore('-').lowercase() in rtlLanguages
+    fun isRtl(language: String): Boolean = layoutDirectionForLanguage(language) == LayoutDirection.Rtl
 }
 
 /** The one place the iOS UI language is read from the device: `locale_pref`, the device languages, the string table. */

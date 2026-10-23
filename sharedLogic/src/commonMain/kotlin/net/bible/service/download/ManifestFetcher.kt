@@ -50,6 +50,25 @@ private val KNOWN_URL_SCHEMES = setOf("http", "https", "file", "jar", "ftp")
     return authority.substringAfterLast('@').substringBefore(':')
 }
 
+/**
+ * The host as the https installer expects it: [urlHost] plus an explicit `:port`, so a repository on a
+ * non-443 port keeps it. A URL without a port gives the bare host, unchanged.
+ */
+@VisibleForTesting fun urlHostWithPort(url: String, uri: KUri): String {
+    val host = urlHost(url, uri)
+    var port = uri.getPort()
+    if (port < 0) {
+        // Registry-style authority (e.g. an underscore in the host): getPort() is -1, read the text.
+        val authority = url.substringAfter("://", "").substringBefore('/').substringBefore('?').substringBefore('#')
+            .substringAfterLast('@')
+        val tail = authority.substringAfterLast(':', "")
+        if (tail.isNotEmpty() && tail.all { it in '0'..'9' } && !authority.substringBeforeLast(':').contains(':')) {
+            port = tail.toIntOrNull() ?: -1
+        }
+    }
+    // 443 is the https default: an explicit :443 must not change the stored host or the URIs built from it.
+    return if (port >= 0 && port != 443) "$host:$port" else host
+}
 
 /** A text-field URL: [text] is what `java.net.URL` would have used (trimmed), [uri] only validates it. */
 @VisibleForTesting class LenientUrl(val text: String, val uri: KUri)

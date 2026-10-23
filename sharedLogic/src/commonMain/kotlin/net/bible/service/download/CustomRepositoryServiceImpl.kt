@@ -80,6 +80,7 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
     }
 
     override suspend fun validateManifest(url: String, existingId: Long): ManifestResult {
+        if (url.trim().startsWith("http://", ignoreCase = true)) return ManifestResult.InsecureUrl
         if (!url.startsWith("https://")) return ManifestResult.Invalid
 
         var repo = tryReadManifest(url, existingId)
@@ -102,11 +103,11 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
                 }
 
                 if (manifestOk && packagesOk && modsIndexOk) {
-                    val host = urlHost(parsedUrl.text, parsedUrl.uri)
+                    val host = urlHostWithPort(parsedUrl.text, parsedUrl.uri)
                     val path = urlPath(parsedUrl.text)
                     repo = CustomRepository(
                         id = existingId,
-                        name = "${host}-${md5Hash(url).subSequence(0, 3)}",
+                        name = "${urlHost(parsedUrl.text, parsedUrl.uri)}-${md5Hash(url).subSequence(0, 3)}",
                         description = url,
                         manifestUrl = url,
                         host = host,
