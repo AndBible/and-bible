@@ -522,9 +522,11 @@ final class BackupUITests: RealAppUITestCase {
     /// swallows taps there although XCUITest's isHittable does not see it. When the verse number lies in that corner
     /// box, drag the web view down a little (earlier text scrolls in, the number moves down) until it is clear. Bounded.
     private func clearOfWindowButtonOverlay(_ app: XCUIApplication, _ number: XCUIElement) {
-        let web = app.webViews.firstMatch
         for _ in 0..<6 {
-            let pane = web.frame, frame = number.frame
+            let frame = number.frame
+            // The pane that contains the verse number (a split reading has several web views).
+            let pane = app.webViews.allElementsBoundByIndex.first { $0.frame.contains(CGPoint(x: frame.midX, y: frame.midY)) }?.frame
+                ?? app.webViews.firstMatch.frame
             let corner = CGRect(x: pane.maxX - pane.width * 0.2, y: pane.minY,
                                 width: pane.width * 0.2, height: 110)
             guard frame.intersects(corner) else { return }
@@ -534,6 +536,9 @@ final class BackupUITests: RealAppUITestCase {
             usleep(700_000)
             _ = waitForStableOnScreen(app, number)
         }
+        attachTree(app, "h2-verse-number-still-under-window-button-overlay")
+        shot(app, "h2-verse-number-still-under-window-button-overlay")
+        XCTFail("HARNESS: verse number stayed under the window-button overlay after 6 drags, frame \(number.frame)")
     }
 
     private func createNote(_ app: XCUIApplication) {

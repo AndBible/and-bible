@@ -230,6 +230,23 @@ final class FilesUITests: XCTestCase {
         }
     }
 
+    /// The searched cell exists, is hittable, lies inside the window and keeps its frame for three consecutive reads.
+    private func searchedCellSettled(_ app: XCUIApplication, _ target: XCUIElement) -> Bool {
+        let view = app.frame
+        var previous = CGRect.null
+        var stable = 0
+        let settled = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            guard target.exists && target.isHittable, view.contains(target.frame) else {
+                stable = 0; previous = .null; return false
+            }
+            let frame = target.frame
+            stable = frame == previous ? stable + 1 : 0
+            previous = frame
+            return stable >= 3
+        }, object: nil)
+        return XCTWaiter.wait(for: [settled], timeout: 20) == .completed
+    }
+
     private func openNamedLocalFolder(_ app: XCUIApplication, folderName: String) {
         let opened = localRoot(app).navigationBars["FullDocumentManagerViewControllerNavigationBar"]
             .buttons.matching(NSPredicate(format: "label == %@", "\(folderName), Actions Menu")).firstMatch
@@ -249,8 +266,8 @@ final class FilesUITests: XCTestCase {
                     foundBySearch = folder.waitForExistence(timeout: 15)
                     evidence(app, "save-folder-search-\(foundBySearch ? "found" : "empty")")
                     if !foundBySearch {
-                        let cancel = app.buttons["Cancel"].firstMatch
-                        if cancel.exists && cancel.isHittable { cancel.tap() }
+                        // Clear only the search text (a "Cancel" button could be the picker's own and dismiss it).
+                        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: folderName.count + 2))
                         _ = grid.waitForExistence(timeout: 10)
                     }
                 }
@@ -258,7 +275,7 @@ final class FilesUITests: XCTestCase {
             if foundBySearch {
                 XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
                                "Cannot uniquely identify the exact UI-created folder in the search results")
-                XCTAssertTrue(waitForStableOnScreen(app, folder, timeout: 20), "Searched folder cell did not settle")
+                XCTAssertTrue(searchedCellSettled(app, folder), "Searched folder cell did not settle")
                 evidence(app, "save-unique-folder-settled")
                 folder.tap()
                 waitForSystemControl(opened, app: app, name: "save-exact-folder-open", message: "Picker did not open the exact selected folder")
