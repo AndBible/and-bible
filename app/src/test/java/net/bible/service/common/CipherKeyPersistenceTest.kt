@@ -16,7 +16,11 @@
  */
 package net.bible.service.common
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.SwordDocumentInfo
@@ -26,11 +30,14 @@ import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.book.Books
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.koin.java.KoinJavaComponent
 import org.robolectric.annotation.Config
+import java.util.concurrent.CountDownLatch
 
 /**
  * iOS H2 Task 6 (FeaturePathsUITests.testCipherWrongRetryRightPersists): a passphrase the user enters in the unlock dialog
@@ -41,6 +48,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CipherKeyPersistenceTest {
+    private val watcher get() = KoinJavaComponent.get<BookInstallWatcher>(BookInstallWatcher::class.java)
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     @After
@@ -53,7 +61,7 @@ class CipherKeyPersistenceTest {
         docDao.deleteByOsisId(book.initials)
         assertEquals(null, docDao.getBook(book.initials))
 
-        persistCipherKey(book, "k4-Test-key")
+        persistCipherKey(book, "k4-Test-key", watcher)
 
         val row = docDao.getBook(book.initials)
         assertNotNull("the key must create the missing row", row)
@@ -67,10 +75,33 @@ class CipherKeyPersistenceTest {
         val book = Books.installed().getBooks().first()
         docDao.insert(SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "Repo", "old"))
 
-        persistCipherKey(book, "new")
+        persistCipherKey(book, "new", watcher)
 
         val row = docDao.getBook(book.initials)!!
         assertEquals("new", row.cipherKey)
         assertEquals("Repo", row.repository)
+    }
+
+    /** The key write queues behind an install's row write and amends that row instead of racing it. */
+    @Test
+    fun `key waits for queued row write and keeps its fields`() = runBlocking {
+        val book = Books.installed().getBooks().first()
+        val latch = CountDownLatch(1)
+        watcher.launchRowUpdate(book.initials) {
+            latch.await()
+            SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "repo-R", null)
+        }
+        val persisting = async(Dispatchers.IO) { persistCipherKey(book, "k", watcher) }
+
+        try {
+            delay(300)
+            assertNotEquals("the key write must wait for the queued row write", "k", docDao.getBook(book.initials)?.cipherKey)
+        } finally {
+            latch.countDown() // also on a failed assertion, or the blocked row write would hang the test JVM
+        }
+        persisting.await()
+        val row = docDao.getBook(book.initials)!!
+        assertEquals("repo-R", row.repository)
+        assertEquals("k", row.cipherKey)
     }
 }
