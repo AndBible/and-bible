@@ -115,6 +115,8 @@ object ReadingAppInit {
     @kotlin.concurrent.Volatile private var booksInitialized = false
     @kotlin.concurrent.Volatile private var snapshotLoadJob: Job? = null
     @kotlin.concurrent.Volatile private var cipherUnlockJob: Job? = null
+    /** Initials that have a stored cipher key row; null until the rows were read once this process. */
+    @kotlin.concurrent.Volatile private var storedKeyInitials: Set<String>? = null
     private val cipherUnlockMutex = Mutex()
     private val cipherUnlockStartLock = SynchronizedObject()
 
@@ -184,15 +186,33 @@ object ReadingAppInit {
         cipherUnlockMutex.withLock {
             if (booksInitialized || !hasInstalledBible()) return
             if (!DatabaseContainer.host.isRunningTests) {
-                val rows = DatabaseContainer.aiLifetime.use {
-                    DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getUnlocked()
-                }
+                val rows = readStoredKeyRows()
                 // The JSword unlock decrypts per module: never on the caller's thread (Main on a cold start).
                 withContext(Dispatchers.Default) {
                     for (info in rows) unlockBook(info.initials, info.cipherKey)
                 }
             }
             booksInitialized = true
+        }
+    }
+
+    private suspend fun readStoredKeyRows() = DatabaseContainer.aiLifetime.use {
+        DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getUnlocked()
+    }.also { rows -> storedKeyInitials = rows.map { it.initials }.toSet() }
+
+    /**
+     * Whether a stored cipher key row exists for [initials] (the set [unlockStoredCipherKeys] iterates). Answered
+     * from the set cached by the first read; until then it reads the rows once through the first-load edge, one small
+     * DAO query and no decrypt, so the start-route gate can ask on Main. False under `isRunningTests` (no DB read).
+     */
+    fun hasStoredCipherKeyAtEdge(initials: String): Boolean {
+        storedKeyInitials?.let { return initials in it }
+        if (DatabaseContainer.host.isRunningTests) return false
+        return try {
+            KoinPlatform.getKoin().get<FirstLoadEdge>().awaitFirstLoad { readStoredKeyRows() }.any { it.initials == initials }
+        } catch (e: Exception) {
+            Log.e(TAG, "Stored cipher key rows unreadable", e)
+            false
         }
     }
 
@@ -433,6 +453,7 @@ object ReadingAppInit {
         snapshotLoadJob = null
         cipherUnlockJob?.cancel()
         cipherUnlockJob = null
+        storedKeyInitials = null
         lastRepositoryScope = null
         lastRepository = null
         loadStores = ::loadStoresFromKoin

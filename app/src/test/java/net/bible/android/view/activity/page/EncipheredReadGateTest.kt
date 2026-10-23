@@ -90,10 +90,23 @@ class EncipheredReadGateTest {
                     (field.get(manager) as MutableMap<org.crosswire.jsword.book.BookMetaData, ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>)
                         .remove(book.bookMetaData)?.forEach { it.releaseResources() }
                 }
-                Books.installed().removeBook(book)
+                withoutInstallWatcher { Books.installed().removeBook(book) }
             }
             root?.deleteRecursively()
         }
+    }
+
+    /**
+     * `Books.installed()` and the [net.bible.android.control.versification.BookInstallWatcher] listener are JVM-global:
+     * a watcher left registered by an earlier test rewrites the `SwordDocumentInfo` row of every book this test adds
+     * or removes (asynchronously, so also after the DB reset). Take it out for the call and put it back after.
+     */
+    private fun withoutInstallWatcher(block: () -> Unit) {
+        val field = net.bible.android.control.versification.BookInstallWatcher::class.java.getDeclaredField("registered")
+            .apply { isAccessible = true }
+        val listener = field.get(null) as org.crosswire.jsword.book.BooksListener?
+        listener?.let { Books.installed().removeBooksListener(it) }
+        try { block() } finally { listener?.let { Books.installed().addBooksListener(it) } }
     }
 
     private fun installLockedFixture(): Book {
@@ -108,7 +121,7 @@ class EncipheredReadGateTest {
         val metadata = requireNotNull(SwordBookMetaDataJvm.create(conf, NetUtilJvm.getURI(dir)))
         metadata.setDriver(SwordBookDriver.instance())
         val book = BookType.fromString("zText")!!.createBook(metadata)
-        Books.installed().addBook(book)
+        withoutInstallWatcher { Books.installed().addBook(book) }
         assertTrue("fixture must start locked", book.isLocked)
         fixture = book
         return book
@@ -117,17 +130,15 @@ class EncipheredReadGateTest {
     @Test fun aWindowLoadIssuedWhileTheUnlockIsHeldWaitsAndReturnsPlaintext() {
         originalHost = DatabaseContainer.host
         val book = installLockedFixture()
+        runBlocking {
+            DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+                .insert(SwordDocumentInfo(INITIALS, "E2", "E2", "en", "repo", cipherKey = KEY))
+        }
         val c = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }
         c.create().start().resume().visible()
-        // Seed the stored key and start the unlock only once the host is up: a host start may swap the database
-        // instance, which would take the row with it (seen when this runs after other host tests in one JVM).
-        runBlocking {
-            DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-                .insert(SwordDocumentInfo(INITIALS, "E2", "E2", "en", "repo", cipherKey = KEY))
-        }
         ReadingAppInit.resetForTest()
         ReadingAppInit.installCipherSeamsForTest(unlockBook = { initials, key ->
             entered.countDown()
@@ -172,6 +183,28 @@ class EncipheredReadGateTest {
         loader.join(10_000)
         assertTrue("plaintext expected after the unlock, got: ${json.take(300)}", json.contains("In the beginning was the Word"))
         assertFalse(book.isLocked)
+    }
+
+    @Test fun anEncipheredBibleWithNoStoredKeyIsNotUsableWhileTheUnlockIsPending() {
+        originalHost = DatabaseContainer.host
+        val book = installLockedFixture()
+        // Another module's stored key keeps the unlock job running; the fixture itself has NO row.
+        runBlocking {
+            DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+                .insert(SwordDocumentInfo("OtherLocked", "Other", "OT", "en", "repo", cipherKey = "x"))
+        }
+        ReadingAppInit.resetForTest()
+        ReadingAppInit.installCipherSeamsForTest(unlockBook = { _, _ ->
+            entered.countDown()
+            release.await(120, TimeUnit.SECONDS)
+        })
+        DatabaseContainer.installHost(object : DatabaseHost by originalHost {
+            override val isRunningTests: Boolean get() = false
+        })
+        ReadingAppInit.unlockStoredCipherKeysInBackground()
+        assertTrue("the unlock must be running", entered.await(30, TimeUnit.SECONDS))
+        assertTrue(ReadingAppInit.cipherUnlockPending)
+        assertFalse("no stored key: not usable, as before the change (WELCOME path)", hasUsableBible(listOf(book)))
     }
 
     companion object {

@@ -418,7 +418,15 @@ class Window (
     suspend fun fetchDocument(currentPage: net.bible.android.control.page.CurrentPage): Document? = withContext(Dispatchers.IO) {
         return@withContext try {
             // Before the first JSword read: a locked enciphered book reads as an error or garbage, which is cached.
-            net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+            try {
+                net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failing inline unlock retry takes the normal error-document path, not an uncaught load failure.
+                Log.e(TAG, "Cipher unlock failed before reading the document", e)
+                return@withContext ErrorDocument(e.message ?: e.toString(), ErrorSeverity.ERROR)
+            }
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent()

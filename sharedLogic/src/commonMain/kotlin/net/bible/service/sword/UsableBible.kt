@@ -26,9 +26,13 @@ import org.crosswire.jsword.book.Book
  * the installed Bibles (finding M7).
  */
 fun hasUsableBible(bibles: List<Book> = SwordDocumentFacade.bibles): Boolean =
-    // While the stored cipher keys are still being applied in the background an enciphered Bible is only
-    // transiently locked: the readers wait for the unlock (ReadingAppInit.awaitCipherUnlock), so it counts.
-    bibles.any { !it.isLocked || (it.isEnciphered && net.bible.service.startup.ReadingAppInit.cipherUnlockPending) }
+    // While the stored cipher keys are still being applied in the background an enciphered Bible WITH a stored key
+    // is only transiently locked: the readers wait for the unlock (ReadingAppInit.awaitCipherUnlock), so it counts.
+    // One without a stored key stays locked, as before.
+    bibles.any {
+        !it.isLocked || (it.isEnciphered && net.bible.service.startup.ReadingAppInit.cipherUnlockPending &&
+            net.bible.service.startup.ReadingAppInit.hasStoredCipherKeyAtEdge(it.initials))
+    }
 
 /**
  * `StartupActivity.gotoMainBibleActivity`'s unlock attempt, shared by gates (a) and (b): when no Bible is
