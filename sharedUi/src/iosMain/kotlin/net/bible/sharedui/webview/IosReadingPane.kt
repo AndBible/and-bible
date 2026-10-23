@@ -127,8 +127,8 @@ object IosReadingWebViews {
      * Paints the window's WKWebView and its scroll view with [argb] (Android's `BibleView.setBackgroundColor`):
      * BibleView-JS paints no page background of its own, so without this the WebView stays system white and a night
      * page shows light-on-white (NM-1). Callable from any thread (runs on the main thread); a window without a
-     * WebView entry, or one released before the dispatch runs, is ignored. `opaque` stays as WebKit has it: the
-     * colour is opaque in every default mode and shows through.
+     * WebView entry, or one released before the dispatch runs, is ignored. `opaque` is turned off so the colour
+     * set here shows through instead of WebKit's own white.
      */
     fun applyBackground(windowId: String, argb: Int) {
         if (NSThread.isMainThread) {
@@ -143,6 +143,9 @@ object IosReadingWebViews {
         if (entry.backgroundArgb == argb) return
         entry.backgroundArgb = argb
         val color = uiColorFromArgb(argb)
+        // An opaque WKWebView paints its own white behind the page, whatever backgroundColor says (Mac run 8 of NM-1).
+        entry.webView.opaque = false
+        entry.webView.underPageBackgroundColor = color
         entry.webView.backgroundColor = color
         entry.webView.scrollView.backgroundColor = color
     }

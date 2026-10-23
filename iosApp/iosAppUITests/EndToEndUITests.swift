@@ -542,10 +542,13 @@ final class EndToEndUITests: RealAppUITestCase {
     /// the toolbar, the window buttons in the top-right corner and the bottom bar), from a 16 x 16 downsample of a
     /// fresh app screenshot. nil when the pane or the screenshot cannot be read: callers must treat that as a failed
     /// sample, never as a brightness. The pane is re-resolved on every call (it can be re-created by a re-layout).
+    private var lastPaneFrame = CGRect.zero
     private func pageLuminance(_ app: XCUIApplication) -> Double? {
+        // After a night switch the open overflow popup can take the pane out of the tree although the page is still
+        // on screen: fall back to the last frame seen.
         let pane = firstPane(app)
-        guard pane.exists else { return nil }
-        let frame = pane.frame
+        if pane.exists, pane.frame.width > 40 { lastPaneFrame = pane.frame }
+        let frame = lastPaneFrame
         let window = app.frame
         guard frame.width > 40, frame.height > 80, window.width > 0,
               let full = app.screenshot().image.cgImage, full.width > 40 else { return nil }

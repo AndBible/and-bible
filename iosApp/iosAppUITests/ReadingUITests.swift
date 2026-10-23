@@ -1541,18 +1541,27 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     /// Mean brightness of the inner page area of the first pane (16 x 16 downsample of a screenshot crop), or nil.
+    // Left 35 % only: the open overflow popup covers the right half of a phone page.
     private func readingPageLuminance(_ app: XCUIApplication) -> Double? {
+        let f = readingPaneFrame(app)
+        guard f.width > 40, f.height > 80 else { return nil }
+        return screenLuminance(app, CGRect(x: f.minX + f.width * 0.05, y: f.minY + f.height * 0.25, width: f.width * 0.35, height: f.height * 0.5))
+    }
+
+    /// The pane's frame while it is in the accessibility tree, else the last one seen: after a night switch the open
+    /// overflow popup takes the pane out of the tree although the page is still on screen.
+    private var lastReadingPaneFrame = CGRect.zero
+    private func readingPaneFrame(_ app: XCUIApplication) -> CGRect {
         let pane = firstPane(app)
-        guard pane.exists, pane.frame.width > 40, pane.frame.height > 80 else { return nil }
-        let f = pane.frame
-        return screenLuminance(app, CGRect(x: f.minX + f.width * 0.05, y: f.minY + f.height * 0.25, width: f.width * 0.7, height: f.height * 0.5))
+        if pane.exists, pane.frame.width > 40, pane.frame.height > 80 { lastReadingPaneFrame = pane.frame }
+        return lastReadingPaneFrame
     }
 
     /// Mean brightness of the toolbar strip above the pane, or nil.
     private func readingChromeLuminance(_ app: XCUIApplication) -> Double? {
-        let pane = firstPane(app)
-        guard pane.exists, pane.frame.minY > 40 else { return nil }
-        return screenLuminance(app, CGRect(x: 0, y: pane.frame.minY - 30, width: app.frame.width * 0.4, height: 20))
+        let paneFrame = readingPaneFrame(app)
+        guard paneFrame.minY > 40 else { return nil }
+        return screenLuminance(app, CGRect(x: 0, y: paneFrame.minY - 30, width: app.frame.width * 0.4, height: 20))
     }
 
     private func screenLuminance(_ app: XCUIApplication, _ area: CGRect) -> Double? {
