@@ -72,6 +72,9 @@ class BibleSearchServiceImpl(
         )
 
     override suspend fun searchMulti(request: SearchRequest): MultiSearchResults = withContext(Dispatchers.IO) {
+        // Result previews read the hit books: a restored results route must not read an enciphered book locked
+        // (an empty/garbage preview, cached by readOsisFragment and by the results controller).
+        net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
         // Section-decorated query drives the Lucene search (unchanged from the classic path); the
         // section-less variant supplies the words/lemmas that are actually highlighted in previews.
         val decorated = decorate(request)

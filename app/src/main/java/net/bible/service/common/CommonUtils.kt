@@ -960,7 +960,13 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun initializeApp() {
+    /**
+     * @param blockOnCipherUnlock true (default) keeps the old guarantee for synchronous non-UI entry points (speak
+     * widget, TTS notification, media button): the stored cipher keys are applied before this returns, so the caller
+     * may read text at once. The Compose host passes false: the unlock then runs in the background and every reader
+     * awaits it ([ReadingAppInit.awaitCipherUnlock]), so Main never decrypts.
+     */
+    fun initializeApp(blockOnCipherUnlock: Boolean = true) {
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -997,7 +1003,12 @@ object CommonUtils : CommonUtilsBase() {
             ReadingAppInit.markInitialized()
         }
 
-        if (!ReadingAppInit.cipherKeysUnlocked) blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
+        if (blockOnCipherUnlock) {
+            if (!ReadingAppInit.cipherKeysUnlocked) blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous non-UI entry (widget/media-button) reads text right after
+        } else {
+            // Never on Main: readers of enciphered books await it (ReadingAppInit.awaitCipherUnlock).
+            ReadingAppInit.unlockStoredCipherKeysInBackground()
+        }
     }
 
     /**
