@@ -2325,7 +2325,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onReadingReturnWorkForTest?.let { it(requestCode); return }
         when (requestCode) {
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> onToolbarStateMayHaveChanged()
-            IntentHelper.REFRESH_DISPLAY_ON_FINISH -> readingCommands.preferenceSettingsChanged()
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH -> {
+                // In-graph Settings return never restarts the Activity to refresh this window flag.
+                refreshScreenKeepOn()
+                readingCommands.preferenceSettingsChanged()
+            }
             else -> Log.w(
                 TAG_START_ROUTE,
                 "Request code $requestCode was owed work on return to the reading view and has no " +

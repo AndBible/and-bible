@@ -209,7 +209,10 @@ object ReadingAppInit {
             runEachCatching(
                 { koin.get<GlobalTextDisplaySettingsStore>().load() },
                 { koin.get<ReadingProgressSettingsStore>().load() },
-                { koin.get<PromptService>().refresh() },
+                {
+                    koin.get<AiSettings>().ensureLoaded()
+                    koin.get<PromptService>().refresh()
+                },
             )
         }.also {
             snapshotLoadJob = it

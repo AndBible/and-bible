@@ -151,6 +151,8 @@ class PageTiltScrollControl(
 
     private fun onSample(pitch: Float) {
         if (!isTiltScrollEnabled) return
+        // A degenerate rotation vector yields NaN/infinite angles; roundToInt would throw on the sensor thread.
+        if (!pitch.isFinite()) return
         mLastNormalisedPitchValue = pitch.roundToInt()
         mSensorsTriggered = true
     }

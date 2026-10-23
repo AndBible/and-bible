@@ -133,7 +133,7 @@ class ReadingPlanControl constructor(
         setReadingPlan(plan.planCode)
 
         // tell the plan to set a start date
-        if (plan.startDate == null)
+        if (readingPlanRepo.getStartDate(plan.planCode) == null)
             readingPlanRepo.startPlan(plan.planCode)
     }
 

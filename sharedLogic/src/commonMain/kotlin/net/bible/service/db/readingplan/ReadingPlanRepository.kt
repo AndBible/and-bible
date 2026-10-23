@@ -57,6 +57,8 @@ class ReadingPlanRepository(
      * written back once; progress is untouched.
      */
     suspend fun getStartDate(planCode: String): DbDate? {
+        // A queued reset must land before deciding whether this plan is already started.
+        writes.join(WRITE_KEY)
         val plan = readingPlanDao.getPlan(planCode) ?: return null
         if (plan.planStartDate.getTime() >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
         val healed = healedStartDate(calendar, today(), plan.planCurrentDay)
@@ -82,11 +84,15 @@ class ReadingPlanRepository(
         )
     }
 
-    suspend fun startPlan(planCode: String, date: DbDate = today()) = planMutex.withLock {
-        var readPlan = readingPlanDao.getPlan(planCode)
-        readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
+    suspend fun startPlan(planCode: String, date: DbDate = today()) {
+        // Join before taking the mutex: queued current-day writes also acquire it.
+        writes.join(WRITE_KEY)
+        planMutex.withLock {
+            var readPlan = readingPlanDao.getPlan(planCode)
+            readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
-        readingPlanDao.updatePlan(readPlan)
+            readingPlanDao.updatePlan(readPlan)
+        }
     }
 
     fun resetPlan(planCode: String) = writes.launch(WRITE_KEY) {

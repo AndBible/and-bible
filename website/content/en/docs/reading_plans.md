@@ -19,7 +19,9 @@ the check marks can be useful if you’re reading in a paper Bible).
 ## Abandon Reading Plan
 
 Press the vertical 3-dot menu from the *Daily Reading* screen, and click *Reset*.
-Next time you return to the same *Reading Plan*, the progress will be reset to day 1.
+Reset clears the saved start date and completion progress. The next time you select the same
+*Reading Plan*, a regular plan starts at day 1, even if you select it again immediately after
+resetting. A date-based plan opens at today's scheduled reading.
 
 ## Switch Between Reading Plans
 

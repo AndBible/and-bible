@@ -59,6 +59,9 @@ settings hierarchy described above.
 
 - **Application language:** Choose the language for the application interface
     (dialogs, menus, settings).
+- **Keep screen on:** Prevent the screen from sleeping while using the app.
+    Changes take effect when you return from settings to the reader; no app
+    restart is needed.
 - **Night mode:** Control when the dark theme is used:
 
     - *Manual* (default) – toggle dark mode from the three-dot menu.

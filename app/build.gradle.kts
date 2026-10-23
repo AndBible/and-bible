@@ -102,6 +102,7 @@ fun getGitCommitDate(): String =
 val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
@@ -116,6 +117,7 @@ val npmUpgrade by tasks.registering(Exec::class) {
 val npmInstall by tasks.registering(Exec::class) {
     dependsOn(npmUpgrade)
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     outputs.dir("$jsDir/node_modules")
 
     workingDir = file(jsDir)
@@ -127,40 +129,66 @@ val npmInstall by tasks.registering(Exec::class) {
     }
 }
 
-val jsBuild by tasks.registering(Exec::class) {
+abstract class BibleViewJsBuild : Exec() {
+    @get:OutputDirectory
+    abstract val assetDirectory: DirectoryProperty
+}
+
+// Each build type owns its output, including when debug and release are requested together.
+val jsBuilds = listOf("debug", "release").associateWith { buildType ->
+    tasks.register<BibleViewJsBuild>("jsBuild${buildType.replaceFirstChar { it.uppercaseChar() }}") {
+        dependsOn(npmInstall)
+        inputs.file("$jsDir/package.json")
+        inputs.file("$jsDir/package-lock.json")
+        inputs.file("$jsDir/vite.config.mts")
+        inputs.file("$jsDir/index.html")
+        inputs.file("$jsDir/tsconfig.json")
+        inputs.dir("$jsDir/src")
+        assetDirectory.set(layout.buildDirectory.dir("generated/bibleview-assets/$buildType"))
+        val buildCmd = if (buildType == "debug") "build-debug" else "build-production"
+        val npm = if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+            "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd"
+        } else {
+            "node_modules/.bin/npm"
+        }
+        workingDir = file(jsDir)
+        commandLine(npm, "run", buildCmd, "--", "--outDir",
+            assetDirectory.dir("bibleview-js").get().asFile.absolutePath, "--emptyOutDir")
+    }
+}
+
+abstract class MainAssetsWithoutBibleView : Sync() {
+    @get:OutputDirectory
+    abstract val assetDirectory: DirectoryProperty
+}
+
+// Old checkouts may retain an ignored bundle here. Never let it compete with variant assets.
+val mainAssetsWithoutBibleView by tasks.registering(MainAssetsWithoutBibleView::class) {
+    from("src/main/assets") { exclude("bibleview-js/**") }
+    assetDirectory.set(layout.buildDirectory.dir("generated/main-assets"))
+    into(assetDirectory)
+}
+
+// Explicit JS consumers still prepare dist; Android variants never depend on this shared output.
+val jsBuildProductionDist by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     inputs.file("$jsDir/vite.config.mts")
     inputs.file("$jsDir/index.html")
     inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
     outputs.dir("$jsDir/dist")
-    println("Task names "+gradle.startParameter.taskNames)
-    val taskNames = gradle.startParameter.taskNames
-    println(taskNames)
-    val isDebug = taskNames.any { it.endsWith("Debug") }
-
-    val buildCmd: String = if(!isDebug) {
-        println("Building js for production")
-        "build-production"
-    } else {
-        println("Building js for debug")
-        "build-debug"
-    }
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd)
+    val npm = if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+        "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd"
+    } else {
+        "node_modules/.bin/npm"
     }
-    else {
-        commandLine("node_modules/.bin/npm", "run", buildCmd)
-    }
+    commandLine(npm, "run", "build-production", "--", "--outDir", "dist", "--emptyOutDir")
 }
-
-val buildLoaderJs by tasks.registering(Sync::class) {
-    dependsOn(jsBuild)
-    from("$jsDir/dist")
-    into("src/main/assets/bibleview-js")
-}
+val jsBuild by tasks.registering { dependsOn(jsBuildProductionDist) }
+val buildLoaderJs by tasks.registering { dependsOn(jsBuildProductionDist) }
 
 val jsTests by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
@@ -168,10 +196,10 @@ val jsTests by tasks.registering(Exec::class) {
     commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
 
-tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
+    sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     compileSdk = 36
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
@@ -399,6 +427,12 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
 }
 
 androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.apply {
+            addGeneratedSourceDirectory(mainAssetsWithoutBibleView) { it.assetDirectory }
+            addGeneratedSourceDirectory(jsBuilds.getValue(variant.buildType!!)) { it.assetDirectory }
+        }
+    }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any

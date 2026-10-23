@@ -16,6 +16,11 @@
  */
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import android.app.Activity
 import android.content.ComponentName
@@ -123,11 +128,18 @@ class ReadingHostNonStdResultTest {
 
     @Test
     fun backgroundSettingsCompletionKeepsGraphCompositionOnMain() {
+        // The fake below gates composition, not the startup job joined synchronously by host creation.
+        CommonUtils.awaitSnapshotLoadsAtEdge()
         val koin = org.koin.core.context.GlobalContext.get()
         val original = koin.get<net.bible.service.llm.AiSettings>()
         val saved = net.bible.test.KoinFactorySnapshot.of<net.bible.service.llm.AiSettings>(koin)
         val entered = java.util.concurrent.CountDownLatch(1)
         val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        // Cancel rather than complete on timeout: a misplaced bootstrap wait must fail, never pass by release.
+        val guard = CoroutineScope(Dispatchers.Default).launch {
+            delay(15_000)
+            ready.cancel(kotlinx.coroutines.CancellationException("Settings composition gate was not released"))
+        }
         koin.loadModules(listOf(org.koin.dsl.module {
             single<net.bible.service.llm.AiSettings> {
                 object : net.bible.service.llm.AiSettings by original {
@@ -145,6 +157,9 @@ class ReadingHostNonStdResultTest {
             controller.create().start().resume().visible()
             compose.waitForIdle()
             assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "The composition must be suspended at settings")
+            assertFalse(ready.isCompleted, "Host creation must return without waiting for the composition gate")
+            assertTrue(controller.get().readingCommands.composeReadingViewHost == null,
+                "The reading graph must not compose while settings are suspended")
             val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
             val worker = Thread {
                 try {
@@ -156,9 +171,11 @@ class ReadingHostNonStdResultTest {
             assertFalse(worker.isAlive)
             failure.get()?.let { throw AssertionError("Background completion failed", it) }
             net.bible.test.awaitReadingGraph(controller.get()) { compose.waitForIdle() }
+            assertFalse(ready.isCancelled, "The composition gate must be released by the background worker, not the timeout")
             assertTrue(controller.get().readingCommands.composeReadingViewHost != null)
         } finally {
             ready.complete(Unit)
+            runBlocking { guard.cancelAndJoin() }
             saved.restore()
         }
     }
