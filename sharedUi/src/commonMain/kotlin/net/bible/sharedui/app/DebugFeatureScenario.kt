@@ -2,7 +2,7 @@ package net.bible.sharedui.app
 
 /** Finite real-feature entrypoints for debug UI tests; never accepts raw navigation payloads. */
 internal enum class DebugFeatureScenario {
-    CHOOSER, PLAN_SETTINGS, LABELS, DOWNLOAD;
+    CHOOSER, PLAN_SETTINGS, LABELS, DOWNLOAD, SETTINGS, BOOKMARKS;
 
     companion object {
         fun parse(debug: Boolean, arguments: List<String>): DebugFeatureScenario? {
@@ -14,6 +14,8 @@ internal enum class DebugFeatureScenario {
                 "plan-settings" -> PLAN_SETTINGS
                 "labels" -> LABELS
                 "download" -> DOWNLOAD
+                "settings" -> SETTINGS
+                "bookmarks" -> BOOKMARKS
                 else -> null
             }
         }

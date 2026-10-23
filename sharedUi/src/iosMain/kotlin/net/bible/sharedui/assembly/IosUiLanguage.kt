@@ -45,6 +45,14 @@ object IosUiLanguage {
         }
         return FALLBACK
     }
+
+    private val rtlLanguages = setOf("ar", "he", "iw", "fa", "ur")
+
+    /**
+     * Whether the resolved UI [language] is written right to left. The app resolves its own UI language
+     * (`locale_pref` first), so the layout direction must follow it, not the iOS system language.
+     */
+    fun isRtl(language: String): Boolean = language.trim().replace('_', '-').substringBefore('-').lowercase() in rtlLanguages
 }
 
 /** The one place the iOS UI language is read from the device: `locale_pref`, the device languages, the string table. */

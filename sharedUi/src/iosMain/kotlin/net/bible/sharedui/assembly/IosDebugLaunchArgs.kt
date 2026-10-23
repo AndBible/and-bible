@@ -28,7 +28,7 @@ import kotlin.native.Platform
  * - `-resetDatabases`: [resetAppDatabases] before startup, a fresh workspace with the installed modules kept.
  * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown;
  *   with `-openDocument <initials>` it also switches that window to the installed book.
- * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
+ * - `-featureScenario <chooser|plan-settings|labels|download|settings|bookmarks>`: finite real graph entry after reading is ready.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)

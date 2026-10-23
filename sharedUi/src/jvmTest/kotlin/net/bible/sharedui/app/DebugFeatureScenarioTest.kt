@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class DebugFeatureScenarioTest {
     @Test fun releaseNeverAcceptsAnyScenarioOrFixture() {
-        for (name in listOf("chooser", "plan-settings", "labels", "download")) {
+        for (name in listOf("chooser", "plan-settings", "labels", "download", "settings", "bookmarks")) {
             assertNull(DebugFeatureScenario.parse(false, listOf("-featureScenario", name)))
         }
         assertFalse(debugStandardFixture(false, listOf("-standardTestFixture")))
@@ -16,6 +16,8 @@ class DebugFeatureScenarioTest {
 
     @Test fun onlyFiniteNamesAreAccepted() {
         assertEquals(DebugFeatureScenario.CHOOSER, DebugFeatureScenario.parse(true, listOf("-openRef", "John.3.16", "-featureScenario", "chooser")))
+        assertEquals(DebugFeatureScenario.SETTINGS, DebugFeatureScenario.parse(true, listOf("-featureScenario", "settings")))
+        assertEquals(DebugFeatureScenario.BOOKMARKS, DebugFeatureScenario.parse(true, listOf("-featureScenario", "bookmarks")))
         assertNull(DebugFeatureScenario.parse(true, listOf("-featureScenario")))
         assertNull(DebugFeatureScenario.parse(true, listOf("-featureScenario", "settings/app")))
         assertNull(DebugFeatureScenario.parse(true, listOf("-featureScenario", "-resetData")))

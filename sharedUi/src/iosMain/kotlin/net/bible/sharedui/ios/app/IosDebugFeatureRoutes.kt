@@ -40,6 +40,8 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
             DebugFeatureScenario.CHOOSER -> NavRoutes.chooseDocument("BIBLE")
             DebugFeatureScenario.PLAN_SETTINGS -> NavRoutes.dailyReading()
             DebugFeatureScenario.DOWNLOAD -> NavRoutes.download()
+            DebugFeatureScenario.SETTINGS -> NavRoutes.SETTINGS
+            DebugFeatureScenario.BOOKMARKS -> NavRoutes.bookmarks()
             DebugFeatureScenario.LABELS -> {
                 val bookmarks = koin.get<BookmarkControl>()
                 for ((name, icon) in listOf("Feature star" to "star", "Feature default" to null)) {

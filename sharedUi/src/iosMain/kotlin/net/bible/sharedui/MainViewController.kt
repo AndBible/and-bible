@@ -7,6 +7,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import net.bible.sharedui.assembly.IosUiLanguage
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -94,6 +97,7 @@ fun MainViewController(): UIViewController {
     IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
     val language = resolveDeviceUiLanguage(settings)
+    val layoutDirection = if (IosUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
@@ -168,7 +172,7 @@ fun MainViewController(): UIViewController {
             val recoveryPhase by startupState.phase.collectAsState()
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
-            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
                 IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
@@ -210,7 +214,7 @@ fun MainViewController(): UIViewController {
         }
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
-            CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+            CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
                 IosApp()
             }
             return@ComposeUIViewController
