@@ -28,6 +28,7 @@ import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundIma
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
+import net.bible.test.DatabaseResetter
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -91,7 +92,7 @@ class ModuleBackupRoundTripTest {
         File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
         // Room connections are also process-global under Robolectric — same reset as
         // PromptCsvUtilsTest, else later tests hit stale connection pointers.
-        net.bible.test.DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase()
     }
 
     /**
