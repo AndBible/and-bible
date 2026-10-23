@@ -161,14 +161,13 @@ struct SyncHarness {
         // Compose 1.11.1 omits accessibilityValue for an empty EditableText.
         func isEmpty() -> Bool { field.value == nil || (field.value as? String) == "" }
         if !isEmpty() {
-            // Select All is available for password inputs too; never use Copy/Cut or the clipboard.
-            field.press(forDuration: 1.0)
-            let selectAll = app.menuItems["Select All"].firstMatch
-            let selectionReady = selectAll.waitForExistence(timeout: 5) && selectAll.isHittable
-            require(selectionReady, app, "Settings editor Select All action missing", sensitive: sensitive)
-            guard selectionReady else { return }
-            selectAll.tap()
-            field.typeText(XCUIKeyboardKey.delete.rawValue)
+            // No dependence on the edit menu (Select All never showed on iPhone): tap the trailing edge so the caret
+            // lands at the END, then delete backwards. Bounded; never uses Copy/Cut or the clipboard.
+            field.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
+            for _ in 0..<4 where !isEmpty() {
+                let length = (field.value as? String)?.count ?? 0
+                field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: max(length, 1) + 4))
+            }
         }
         let cleared = isEmpty()
         require(cleared, app, "Settings editor was not fully cleared", sensitive: sensitive)
