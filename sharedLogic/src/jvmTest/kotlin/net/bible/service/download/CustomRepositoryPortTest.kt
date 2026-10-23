@@ -37,4 +37,20 @@ class CustomRepositoryPortTest {
         })
         assertEquals("example.org", host(service.validateManifest("https://example.org/manifest.json", 0)))
     }
+
+    @Test fun plainFallbackExplicit443HasNoPort() = runTest {
+        val service = CustomRepositoryServiceImpl(object : ManifestFetcher {
+            override suspend fun status(url: String): Int? = 200
+            override suspend fun body(url: String): String? = null
+        })
+        assertEquals("example.org", host(service.validateManifest("https://example.org:443/manifest.json", 0)))
+    }
+
+    @Test fun plainFallbackKeepsPortOfUnderscoreHost() = runTest {
+        val service = CustomRepositoryServiceImpl(object : ManifestFetcher {
+            override suspend fun status(url: String): Int? = 200
+            override suspend fun body(url: String): String? = null
+        })
+        assertEquals("my_nas:8443", host(service.validateManifest("https://my_nas:8443/manifest.json", 0)))
+    }
 }
