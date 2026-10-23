@@ -133,12 +133,13 @@ final class EndToEndUITests: RealAppUITestCase {
         let new = byLabel(app, "New")
         harnessRequire(new.waitForExistence(timeout: 10) && new.isHittable, app, "the label search bar has a 'New' action")
         new.tap()
-        let ok = byLabel(app, "OK")
-        harnessRequire(ok.waitForExistence(timeout: 20) && app.staticTexts["Edit label"].firstMatch.exists, app,
-                       "the label editor ('Edit label' with 'OK') opened")
+        harnessRequire(app.staticTexts["Edit label"].firstMatch.waitForExistence(timeout: 20), app,
+                       "the label editor ('Edit label') opened")
         harnessRequire(byLabel(app, labelName).exists, app, "the new label is named '\(labelName)' (seeded from the search)")
         shot(app, "e2e-label-editor")
-        ok.tap()
+        // The confirm is the check icon in the editor's top bar (LabelEditActions, contentDescription 'OK'). Another
+        // 'OK' text sits in the window's top-left corner (a debug overlay), so it is found by position in ONE snapshot.
+        harnessRequire(tapTopBarAction(app, "OK"), app, "the label editor's top-bar 'OK' (check icon) was tapped")
         // The editor saves and closes ("Edit label" leaves); only then is the list in front. While the editor is
         // open its identity row is ALSO labelled "E2E" and tapping it opens the colour/name sheet.
         harnessRequire(waitUntil(timeout: 30) { !app.staticTexts["Edit label"].firstMatch.exists }, app,
@@ -301,39 +302,25 @@ final class EndToEndUITests: RealAppUITestCase {
 
     func testRestoreKeepsLiveSettings() throws {
         var app = readingOnKjv()
+        // Night mode needs the Manual preference (the toggle is disabled while it follows the system).
+        setNightModePreference(app, "Manual")
+        // CONTROL, no restore yet: does night mode reach the page at all? Soft checks (recorded, the test goes on)
+        // so a red names which phase failed: "control" = night mode never darkens the page; "after restore" = only
+        // after the restore (stale settings subscription).
+        continueAfterFailure = true
+        let controlOK = nightRoundTrip(app, phase: "control (no restore)")
+        continueAfterFailure = false
+
         let savedName = backupDatabaseToFiles(app)            // own backup: the test does not depend on the chain's run
         app = relaunch(app)
         restoreFromFilesRoot(app, fileName: savedName)
         returnToReading(app)
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
-
-        // Night mode: the page itself must change (pixels of the page), not only a stored setting.
-        guard let startLuminance = sampleLuminance(app) else {
-            harnessRequire(false, app, "the page brightness could not be sampled before the night switch (no readable screenshot)")
-            return
-        }
-        // The manual toggle is disabled while the preference follows the system (the fresh-install default), so the
-        // preference is set to Manual AFTER the restore (a restore must not be what enables it) and put back below.
         setNightModePreference(app, "Manual")
-        toggleNightMode(app)
-        var latest: Double?
-        let flipped = waitUntil(timeout: 20) {
-            latest = self.pageLuminance(app)
-            guard let value = latest else { return false }
-            return abs(value - startLuminance) > 0.2
-        }
-        shot(app, "e2e-restore-night-toggled")
-        harnessRequire(flipped, app, latest.map { "night mode did not change the page brightness (was \(startLuminance), last sample \($0))" }
-                       ?? "the page brightness could not be sampled after the night switch (no readable screenshot); was \(startLuminance)")
-        toggleNightMode(app)
-        var restored: Double?
-        let back = waitUntil(timeout: 20) {
-            restored = self.pageLuminance(app)
-            guard let value = restored else { return false }
-            return abs(value - startLuminance) < 0.1
-        }
-        harnessRequire(back, app, restored.map { "switching night mode back did not restore the brightness (was \(startLuminance), now \($0))" }
-                       ?? "the page brightness could not be sampled after switching night mode back")
+        continueAfterFailure = true
+        let restoreOK = nightRoundTrip(app, phase: "after restore")
+        continueAfterFailure = false
+        attachText("night-mode-result", "control (no restore): page darkened \(controlOK ? "yes" : "NO"); after restore: \(restoreOK ? "yes" : "NO")")
 
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
         guard let before = phraseWidth(app, preferring: nil) else {
@@ -452,6 +439,29 @@ final class EndToEndUITests: RealAppUITestCase {
         night.tap()
     }
 
+    /// Taps the element labelled `label` that lies in the top bar band (below the status bar, above y = 260) in the
+    /// right half of the window; found with one accessibility snapshot, tapped by coordinate. False when absent.
+    private func tapTopBarAction(_ app: XCUIApplication, _ label: String) -> Bool {
+        let window = app.windows.firstMatch.frame
+        var target: CGRect?
+        func walk(_ node: XCUIElementSnapshot) {
+            if target == nil, node.label == label, node.frame.minY > 50, node.frame.maxY < 260,
+               node.frame.midX > window.midX, node.frame.width > 10, node.frame.height > 10 {
+                target = node.frame
+            }
+            node.children.forEach(walk)
+        }
+        _ = waitUntil(timeout: 15) {
+            target = nil
+            if let snapshot = try? app.snapshot() { walk(snapshot) }
+            return target != nil
+        }
+        guard let frame = target else { return false }
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+            .withOffset(CGVector(dx: frame.midX, dy: frame.midY)).tap()
+        return true
+    }
+
     /// Drawer -> Application preferences -> "Night mode switching" (`night_mode_pref3`) -> `choice` ("Manual",
     /// "Automatic" or "System"), then back on the reading page.
     private func setNightModePreference(_ app: XCUIApplication, _ choice: String) {
@@ -506,14 +516,23 @@ final class EndToEndUITests: RealAppUITestCase {
 
     // MARK: pane measurements
 
-    /// Mean brightness (0...1) of the middle band of the screen (30 %...70 % of the height: page text, clear of the
-    /// toolbar, the window buttons and the bottom bar), from a 16 x 16 downsample of a fresh app screenshot. Not tied
-    /// to the pane element, which can be re-created while the night switch re-lays the page out. nil when the
-    /// screenshot cannot be read; callers must treat that as a failed sample, never as a brightness.
+    /// Mean brightness (0...1) of the page area of the first Bible pane (the inner 70 % x 50 % of its frame, clear of
+    /// the toolbar, the window buttons in the top-right corner and the bottom bar), from a 16 x 16 downsample of a
+    /// fresh app screenshot. nil when the pane or the screenshot cannot be read: callers must treat that as a failed
+    /// sample, never as a brightness. The pane is re-resolved on every call (it can be re-created by a re-layout).
     private func pageLuminance(_ app: XCUIApplication) -> Double? {
-        guard let full = app.screenshot().image.cgImage, full.width > 40, full.height > 40 else { return nil }
-        let band = CGRect(x: 0, y: Int(Double(full.height) * 0.3), width: full.width, height: Int(Double(full.height) * 0.4))
-        guard let cg = full.cropping(to: band) else { return nil }
+        let pane = firstPane(app)
+        guard pane.exists else { return nil }
+        let frame = pane.frame
+        let window = app.frame
+        guard frame.width > 40, frame.height > 80, window.width > 0,
+              let full = app.screenshot().image.cgImage, full.width > 40 else { return nil }
+        let scale = CGFloat(full.width) / window.width
+        let area = CGRect(x: frame.minX + frame.width * 0.05, y: frame.minY + frame.height * 0.25,
+                          width: frame.width * 0.7, height: frame.height * 0.5)
+        let crop = CGRect(x: area.minX * scale, y: area.minY * scale, width: area.width * scale, height: area.height * scale)
+            .integral.intersection(CGRect(x: 0, y: 0, width: full.width, height: full.height))
+        guard crop.width > 8, crop.height > 8, let cg = full.cropping(to: crop) else { return nil }
         let side = 16
         var pixels = [UInt8](repeating: 0, count: side * side * 4)
         let drawn = pixels.withUnsafeMutableBytes { buffer -> Bool in
@@ -530,6 +549,49 @@ final class EndToEndUITests: RealAppUITestCase {
             sum += (0.299 * Double(pixels[index]) + 0.587 * Double(pixels[index + 1]) + 0.114 * Double(pixels[index + 2])) / 255
         }
         return sum / Double(side * side)
+    }
+
+    /// Night mode round trip on the PAGE: light -> toggle on -> the page area must get clearly darker -> toggle off ->
+    /// light again. The overflow menu is closed and the page settled before every sample. Records failures with the
+    /// phase name (and a screenshot named after it) without stopping; returns whether the page darkened and came back.
+    private func nightRoundTrip(_ app: XCUIApplication, phase: String) -> Bool {
+        guard let light = sampleLuminance(app) else {
+            XCTFail("\(phase): the page brightness could not be sampled before the night switch (no pane or screenshot)")
+            return false
+        }
+        toggleNightMode(app)
+        settleAfterMenu(app)
+        var dark: Double?
+        let darkened = waitUntil(timeout: 20) {
+            dark = self.pageLuminance(app)
+            guard let value = dark else { return false }
+            return value < light - 0.2
+        }
+        shot(app, "e2e-night-\(phase.replacingOccurrences(of: " ", with: "-"))-on")
+        if !darkened {
+            XCTFail(dark.map { "\(phase): night mode did NOT darken the page (light \(light), now \($0))" }
+                    ?? "\(phase): the page brightness could not be sampled after the night switch (light \(light))")
+        }
+        toggleNightMode(app)
+        settleAfterMenu(app)
+        var again: Double?
+        let back = waitUntil(timeout: 20) {
+            again = self.pageLuminance(app)
+            guard let value = again else { return false }
+            return abs(value - light) < 0.1
+        }
+        shot(app, "e2e-night-\(phase.replacingOccurrences(of: " ", with: "-"))-off")
+        if !back {
+            XCTFail(again.map { "\(phase): switching night mode off did not restore the page brightness (light \(light), now \($0))" }
+                    ?? "\(phase): the page brightness could not be sampled after switching night mode off")
+        }
+        return darkened && back
+    }
+
+    /// The overflow menu closed (its 'Night mode' row gone) and the page given a moment to repaint.
+    private func settleAfterMenu(_ app: XCUIApplication) {
+        _ = waitUntil(timeout: 10) { !app.buttons["Night mode"].exists }
+        usleep(2_000_000)
     }
 
     /// A reading that is valid or nil, retried briefly (a screenshot can fail during a re-layout).
