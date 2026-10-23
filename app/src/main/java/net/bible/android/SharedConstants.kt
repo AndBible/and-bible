@@ -27,7 +27,7 @@ import java.io.File
  */
 object SharedConstants {
     val LINE_SEPARATOR = System.getProperty("line.separator")
-    const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
+    const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = net.bible.android.control.download.REQUIRED_MEGS_FOR_DOWNLOADS
     const val BAD_DOCS_JSON = "bad_documents.json"
     const val RECOMMENDED_JSON = "recommended_documents_v2.json"
     const val DEFAULT_JSON = "default_documents_v2.json"

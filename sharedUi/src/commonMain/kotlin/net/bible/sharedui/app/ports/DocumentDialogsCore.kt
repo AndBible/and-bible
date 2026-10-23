@@ -11,6 +11,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.common.util.Version
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.docs.SiteLinks
+import net.bible.service.download.DownloadManager
 
 /** Platform-neutral document metadata and the classic unlock/upgrade dialog sequence. */
 @kotlin.native.HiddenFromObjC
@@ -120,7 +122,7 @@ class DocumentDialogsCore(
 
         // add id
         if (document is SwordBook) {
-            val repoName = document.getProperty("SourceRepository")
+            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
             val repoMessage = if(repoName != null) table().fmt("module_about_repository", repoName) else ""
             val osisIdMessage = table().fmt("module_about_osisId", document.initials)
             about += """
@@ -190,7 +192,7 @@ class DocumentDialogsCore(
     data class HelpItem(val title: String, val text: String, val videoLink: String? = null, val docUrl: String? = null)
 
     fun helpNotice(help: List<HelpItem>, versionMsg: String? = null, okText: String = table().text("okay"), includeSponsor: Boolean = true): AppDialogRequest.Notice {
-        val buyMessage = "<b>${table().text("buy_development2")}</b>: <a href=\"https://shop.andbible.org\">${table().text("buy_development")}</a>"
+        val buyMessage = "<b>${table().text("buy_development2")}</b>: <a href=\"${SiteLinks.SHOP_URL}\">${table().text("buy_development")}</a>"
         var htmlMessage = ""
 
         for(helpItem in help) {
