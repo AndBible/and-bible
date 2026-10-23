@@ -334,8 +334,8 @@ final class EndToEndUITests: RealAppUITestCase {
         shot(app, "e2e-restore-font-increased")
         harnessRequire(grew, app, "'\(before.label)' got wider than \(before.width) pt after the font size +4")
         // Leave the setting as found: back down by the same amount, the phrase returns to its width.
-        let (_, back) = changeFontSize(app, by: -4)
-        harnessRequire(back == old, app, "the font size went back to \(old), is \(back)")
+        let (_, restoredSize) = changeFontSize(app, by: -4)
+        harnessRequire(restoredSize == old, app, "the font size went back to \(old), is \(restoredSize)")
         harnessRequire(waitUntil(timeout: 30) {
             abs((self.phraseWidth(app, preferring: before.label)?.width ?? 0) - before.width) < 1.5
         }, app, "'\(before.label)' returned to its original width")
