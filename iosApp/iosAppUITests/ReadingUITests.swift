@@ -722,7 +722,7 @@ final class ReadingUITests: RealAppUITestCase {
                 // Rewind to the top first (rows above an earlier hit are unreachable by scrolling down only), then scroll
                 // down in small steps (about a third of the drawer) so no AX5 row is skipped.
                 let element = byLabel(app, row)
-                let first = byLabel(app, "History")
+                let first = byLabel(app, "Choose Document") // first row of the drawer (ReadingDrawerMenu)
                 var rewinds = 0
                 while !(first.exists && first.isHittable) && rewinds < 10 { drawerDrag(app, down: true); rewinds += 1 }
                 var swipes = 0
