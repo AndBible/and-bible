@@ -362,6 +362,10 @@ final class EndToEndUITests: RealAppUITestCase {
             harnessRequire(false, app, "Files lists \(backupStem)*.abdb.zip to restore")
             return
         }
+        for _ in 0..<3 where !file.isHittable {
+            let grid = localRoot(app).collectionViews["File View"].firstMatch
+            if grid.exists { grid.swipeUp(); usleep(600_000) }
+        }
         harnessRequire(file.isHittable, app, "the backup file is hittable in the picker")
         file.tap()
         let restoreRow = app.buttons.matching(NSPredicate(format: "label == %@", "Restore or Import from\u{2026}")).firstMatch
@@ -507,7 +511,14 @@ final class EndToEndUITests: RealAppUITestCase {
         let pane = firstPane(app)
         harnessRequire(pane.waitForExistence(timeout: 20), app, "a Bible pane is shown")
         let visible = app.windows.firstMatch.frame
-        for attempt in 0..<6 {
+        // A word must lie fully on screen, below the toolbar and clear of the pane's top-right window-button overlay
+        // corner (it swallows taps although isHittable does not see it; same box as BackupUITests.clearOfWindowButtonOverlay).
+        let toolbarBottom = app.buttons["Menu"].exists ? app.buttons["Menu"].frame.maxY : 120
+        for _ in 0..<6 {
+            let paneFrame = pane.frame
+            let top = max(paneFrame.minY, toolbarBottom) + 10
+            let corner = CGRect(x: paneFrame.maxX - paneFrame.width * 0.2, y: paneFrame.minY,
+                                width: paneFrame.width * 0.2, height: 110)
             var texts: [(label: String, frame: CGRect)] = []
             func walk(_ node: XCUIElementSnapshot) {
                 if node.elementType == .staticText { texts.append((node.label, node.frame)) }
@@ -522,12 +533,15 @@ final class EndToEndUITests: RealAppUITestCase {
                 let word = ((start + 1)..<end).first { index in
                     let item = texts[index]
                     return item.label.count >= 3 && item.label.allSatisfy({ $0.isLetter })
-                        && item.frame.minY > visible.minY + 200 && item.frame.maxY < visible.maxY - 160
+                        && item.frame.minY > top && item.frame.maxY < visible.maxY - 160
                         && item.frame.minX > 20 && item.frame.maxX < visible.maxX - 20 && item.frame.width > 20
+                        && !item.frame.intersects(corner)
                 }
                 if let word { return texts[word].frame }
             }
-            nudgeList(app, up: attempt % 2 == 0)
+            // One direction only: the page opens with verse 16 at the very top, so drag the content DOWN (earlier text
+            // scrolls in, verse 16 moves into the band). Bounded by the loop; re-snapshot after every move.
+            nudgeList(app, up: false)
         }
         harnessRequire(false, app, "a plain word of John 3:16 is visible in the pane")
         return .zero
@@ -654,7 +668,16 @@ final class EndToEndUITests: RealAppUITestCase {
         let base = fileName.hasSuffix(".zip") ? String(fileName.dropLast(4)) : fileName
         let cell = localRoot(app).cells.matching(NSPredicate(
             format: "label CONTAINS %@ OR identifier CONTAINS %@", base, base)).firstMatch
-        return cell.waitForExistence(timeout: 30) ? cell : nil
+        if cell.waitForExistence(timeout: 10) { return cell }
+        // The local root lists many folders (one per app) before the file: scroll the grid, bounded, until the lazily
+        // built cell exists. Swipes stay inside the grid ("File View" collection) so the sheet is not dismissed.
+        let grid = localRoot(app).collectionViews["File View"].firstMatch
+        for _ in 0..<12 where !cell.exists {
+            guard grid.exists else { break }
+            grid.swipeUp()
+            usleep(600_000)
+        }
+        return cell.waitForExistence(timeout: 5) ? cell : nil
     }
 
     /// The listed backup's name when it matches `AndBibleDatabaseBackup*.abdb.zip`; Files may show it with or
