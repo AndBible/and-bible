@@ -28,7 +28,15 @@ class CustomRepositoryEditorControllerTest {
         override suspend fun validateManifest(url: String, existingId: Long) =
             if (url == "https://ok/") ManifestResult.Valid(
                 CustomRepositoryData(id = existingId, name = "ok", description = "desc", packageDirectory = "/p", manifestUrl = url, type = "sword-https"))
+            else if (url == "http://insecure/") ManifestResult.InsecureUrl
             else ManifestResult.Invalid
+    }
+    @Test fun insecureUrlBlocksSave() = runTest {
+        val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
+        c.setUrl("http://insecure/"); testScheduler.advanceUntilIdle()
+        assertEquals(Validation.InsecureUrl, c.state.value.validation)
+        assertFalse(c.state.value.canSave)
+        assertNull(c.state.value.resolved)
     }
     @Test fun validUrlProducesValidStateAndCanSave() = runTest {
         val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())

@@ -2191,4 +2191,7 @@
     <!-- H2: platform-neutral iOS recommendation. -->
     <string name="tell_friend_message2_device">It is a powerful, yet easy to use, offline Bible study application.</string>
     <string name="webdav_untrusted_certificate_message_device">The certificate of %1$s is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
+    <!-- I2c-B -->
+    <string name="custom_repository_https_required">Custom repositories must use a secure https:// address.</string>
+    <string name="custom_repository_https_required_refresh">%1$s uses an http:// address. Only https:// repositories can be used.</string>
 </resources>

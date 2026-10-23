@@ -1245,6 +1245,10 @@ interface Strings {
     val legacyMigrationStartFreshConfirm: String       // R.string.legacy_migration_start_fresh_confirm
     val legacyImportTitle: String                      // R.string.legacy_import_title
     val legacyImportSummary: String                    // R.string.legacy_import_summary
+
+    // I2c-B
+    val customRepositoryHttpsRequired: String          // R.string.custom_repository_https_required
+    fun customRepositoryHttpsRequiredOnRefresh(name: String): String  // R.string.custom_repository_https_required_refresh
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

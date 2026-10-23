@@ -1167,4 +1167,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val legacyMigrationStartFreshConfirm: String get() = context.getString(R.string.legacy_migration_start_fresh_confirm)
     override val legacyImportTitle: String get() = context.getString(R.string.legacy_import_title)
     override val legacyImportSummary: String get() = context.getString(R.string.legacy_import_summary)
+
+    // I2c-B
+    override val customRepositoryHttpsRequired: String get() = context.getString(R.string.custom_repository_https_required)
+    override fun customRepositoryHttpsRequiredOnRefresh(name: String): String = context.getString(R.string.custom_repository_https_required_refresh, name)
 }
