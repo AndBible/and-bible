@@ -582,7 +582,7 @@ private fun IosAppContent(
                     }
                 }
             }
-            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts)
+            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts, readingResults)
             IosAppDialogOverlay(
                 // Alert dialogs may cover sheets; sheet-shaped global requests must exclude reading sheets.
                 onSheetOpening = { readingHostHolder.closeSheetsIfCreated() },

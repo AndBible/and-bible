@@ -88,6 +88,10 @@ interface ChooserRequests {
     }
 }
 
+/** Records a chooser of [kind] opened by the window that is active now (the drawer rows and the DEBUG feature route share it). */
+@kotlin.native.HiddenFromObjC
+fun ChooserRequests.askedByActiveWindow(kind: ChooserKind) = asked(kind, activeAsker())
+
 /** What a chooser answer does to the window that asked; the production one wraps that window's page manager. */
 @kotlin.native.HiddenFromObjC
 interface ChooserTarget {

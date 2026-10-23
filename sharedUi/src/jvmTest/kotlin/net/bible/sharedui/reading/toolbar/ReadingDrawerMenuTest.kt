@@ -161,6 +161,18 @@ class ReadingDrawerMenuTest {
         assertTrue(host.calls.isEmpty())
     }
 
+    /** H2's report: Find and Speak were missing on a portrait iPhone. With every iOS extra offered, both rows are present and live. */
+    @Test fun searchAndSpeakRowsAlwaysPresent() {
+        // IosReadingExtrasImpl offers exactly these rows.
+        host.offered = setOf("helpButton", "appLicence", "bugReport", "tellFriend")
+        val items = menu.build().groups.flatMap { it.items }.associateBy { it.id }
+        assertTrue(ReadingDrawerMenu.ID_SEARCH in items, "Find row present")
+        assertTrue(ReadingDrawerMenu.ID_SPEAK in items, "Speak row present")
+        assertTrue(items.getValue(ReadingDrawerMenu.ID_SEARCH).enabled && items.getValue(ReadingDrawerMenu.ID_SPEAK).enabled)
+        menu.handle(ReadingDrawerMenu.ID_SEARCH); menu.handle(ReadingDrawerMenu.ID_SPEAK)
+        assertEquals(listOf("search", "speak"), host.calls)
+    }
+
     /** Shown plus omitted rows are exactly Android's drawer table, so a row cannot disappear without being named. */
     @Test fun omittedRowsPinMatchesAndroidTable() {
         val source = File("../app/src/main/java/net/bible/android/view/activity/page/DrawerMenuStateBuilder.kt").readText()

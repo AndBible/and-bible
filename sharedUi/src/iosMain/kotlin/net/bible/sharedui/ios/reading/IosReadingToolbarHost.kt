@@ -378,7 +378,7 @@ internal class IosReadingToolbarHost(
     }
 
     override fun openBookmarks() {
-        chooserRequests.asked(ChooserKind.Bookmarks, chooserRequests.activeAsker())
+        chooserRequests.askedByActiveWindow(ChooserKind.Bookmarks)
         shell.navigate(NavRoutes.bookmarks())
     }
 

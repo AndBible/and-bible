@@ -43,4 +43,48 @@ class ReadingSearchFieldEchoTest {
         waitForIdle()
         assertEquals(listOf("a", "ab", "abc"), sent, "every key lands on the text the user saw")
     }
+
+    /** Types [text] one key at a time while the host echoes the text [lag] keystrokes behind; returns what the field shows at the end. */
+    private fun typeWithLaggingEcho(text: String, lag: Int): Pair<List<String>, String> {
+        val sent = mutableListOf<String>()
+        var shown = ""
+        runComposeUiTest {
+            var hostValue by mutableStateOf("")
+            setContent {
+                ReadingSearchField(
+                    value = hostValue, onValueChange = { sent += it }, textStyle = TextStyle.Default,
+                    cursorBrush = SolidColor(androidx.compose.ui.graphics.Color.Black),
+                    keyboardOptions = KeyboardOptions.Default, keyboardActions = KeyboardActions.Default,
+                )
+            }
+            val field = onNodeWithTag(SEARCH_FIELD_TAG)
+            for (i in text.indices) {
+                field.performTextInput(text[i].toString())
+                // the echo of the text sent `lag` keys ago arrives only now
+                val echoed = i - lag
+                if (echoed >= 0) { hostValue = text.substring(0, echoed + 1); waitForIdle() }
+            }
+            waitForIdle()
+            shown = sent.lastOrNull() ?: ""
+        }
+        return sent to shown
+    }
+
+    @Test
+    fun typedNicodemusSurvivesLaggingEcho() {
+        for (lag in 1..3) {
+            val (sent, last) = typeWithLaggingEcho("Nicodemus", lag)
+            assertEquals("Nicodemus", last, "lag $lag: the field ends with exactly the typed text, sent=$sent")
+            assertEquals("Nicodemus".indices.map { "Nicodemus".substring(0, it + 1) }, sent, "lag $lag: no key lands on stale text")
+        }
+    }
+
+    @Test
+    fun typedStrongsQuerySurvivesLaggingEcho() {
+        for (lag in 1..3) {
+            val (sent, last) = typeWithLaggingEcho("strong:g3530", lag)
+            assertEquals("strong:g3530", last, "lag $lag: sent=$sent")
+            assertEquals("strong:g3530".indices.map { "strong:g3530".substring(0, it + 1) }, sent, "lag $lag: no key lands on stale text")
+        }
+    }
 }

@@ -27,11 +27,14 @@ import net.bible.sharedui.app.DebugFeatureOnce
 import net.bible.sharedui.app.DebugFeatureScenario
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.ios.reading.ChooserKind
+import net.bible.sharedui.ios.reading.ChooserRequests
+import net.bible.sharedui.ios.reading.askedByActiveWindow
 import org.koin.core.Koin
 
 /** Real graph only: no production reading callbacks, arbitrary routes, or replacement feature UI. */
 @Composable
-internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts) {
+internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts, chooserRequests: ChooserRequests) {
     val scenario = remember { IosDebugLaunchArgs.featureScenario() } ?: return
     val once = remember { DebugFeatureOnce() }
     LaunchedEffect(ready) {
@@ -41,7 +44,11 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
             DebugFeatureScenario.PLAN_SETTINGS -> NavRoutes.dailyReading()
             DebugFeatureScenario.DOWNLOAD -> NavRoutes.download()
             DebugFeatureScenario.SETTINGS -> NavRoutes.SETTINGS
-            DebugFeatureScenario.BOOKMARKS -> NavRoutes.bookmarks()
+            DebugFeatureScenario.BOOKMARKS -> {
+                // Ask exactly as the drawer's Bookmarks row does, or the reading destination drops the answer as unasked.
+                chooserRequests.askedByActiveWindow(ChooserKind.Bookmarks)
+                NavRoutes.bookmarks()
+            }
             DebugFeatureScenario.LABELS -> {
                 val bookmarks = koin.get<BookmarkControl>()
                 for ((name, icon) in listOf("Feature star" to "star", "Feature default" to null)) {
