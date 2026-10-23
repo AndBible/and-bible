@@ -2,8 +2,11 @@ import UIKit
 import XCTest
 
 /// I2 close-out end-to-end acceptance (spec section 5.3, phase 2 U1): ONE real user journey on a fresh install,
-/// with no `-resetDatabases` / KJV provisioning shortcut and only the production routes (Welcome, drawer, reading
-/// menu), never the debug "controls" entries:
+/// with no `-resetDatabases` / KJV provisioning shortcut. Every step after the install uses production routes
+/// (drawer, reading menu, Settings); the debug "controls" entries (`incoming-*`) are never used. The install stage
+/// reuses `freshReading()` / `selectKJV()`, which launch with `-resetData -standardTestFixture -openRef` and
+/// `-featureScenario chooser` and open the document chooser through the debug `debug-open-chooser` entry, because
+/// Easy start leaves the app at that debug-reachable chooser and that is the measured way to select KJV:
 ///
 ///   Welcome -> Easy start (real KJV download) -> John 3 (Nicodemus) -> long-press verse 3:16 -> bookmark ->
 ///   label "E2E" -> Bookmarks list (filter "E2E" shows 3:16) -> search "Nicodemus" (>= 3 verses, first result opens
@@ -76,8 +79,8 @@ final class EndToEndUITests: RealAppUITestCase {
         app = relaunch(app)
         syncBookmarksOverWebDav(app, fixture)
         app = relaunch(app)
-        backupDatabaseToFiles(app)
-        verifyBackupInFilesPicker(app)
+        let savedName = backupDatabaseToFiles(app)
+        verifyBackupInFilesPicker(app, fileName: savedName)
         sendToBackground(app)
         app.terminate()
     }
@@ -246,7 +249,8 @@ final class EndToEndUITests: RealAppUITestCase {
     }
 
     /// Stage 6. Drawer -> Backup & Restore -> Database only -> Backup to... -> Phone storage -> Files root -> Save.
-    private func backupDatabaseToFiles(_ app: XCUIApplication) {
+    @discardableResult
+    private func backupDatabaseToFiles(_ app: XCUIApplication) -> String {
         openDrawerRow(app, "Backup & Restore")
         harnessRequire(labelStarting(app, "Backup to").waitForExistence(timeout: 20), app, "Backup & Restore opened")
         configure(app, restore: false, database: true)
@@ -267,15 +271,17 @@ final class EndToEndUITests: RealAppUITestCase {
                        "the exact database backup success message")
         shot(app, "e2e-backup-saved")
         harnessTapLabel(app, "OK")
+        // The picker proposes the name without the ".zip" suffix ("AndBibleDatabaseBackup.abdb").
+        return proposed.hasSuffix(".zip") ? proposed : proposed + ".zip"
     }
 
     /// Stage 7. The saved file is listed in the Files picker (opened from Restore or Import, then cancelled).
-    private func verifyBackupInFilesPicker(_ app: XCUIApplication) {
+    private func verifyBackupInFilesPicker(_ app: XCUIApplication, fileName: String) {
         configure(app, restore: true, database: true)
         harnessTapLabel(app, "Restore or Import from\u{2026}")
         harnessRequire(app.buttons["Cancel"].firstMatch.waitForExistence(timeout: 30), app, "the Files import picker opened")
         local(app)
-        let name = backupFileName(app)
+        let name = backupFileName(app, named: fileName)
         harnessRequire(name != nil, app, "Files lists a file named \(backupStem)*.abdb.zip in the app's save location")
         attachText("backup-file-name", name ?? "none")
         app.buttons["Cancel"].firstMatch.tap()
@@ -286,9 +292,9 @@ final class EndToEndUITests: RealAppUITestCase {
 
     func testRestoreKeepsLiveSettings() throws {
         var app = readingOnKjv()
-        backupDatabaseToFiles(app)            // own backup: the test does not depend on the chain's run
+        let savedName = backupDatabaseToFiles(app)            // own backup: the test does not depend on the chain's run
         app = relaunch(app)
-        restoreFromFilesRoot(app)
+        restoreFromFilesRoot(app, fileName: savedName)
         returnToReading(app)
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
 
@@ -343,16 +349,16 @@ final class EndToEndUITests: RealAppUITestCase {
         return app
     }
 
-    /// Backup & Restore -> Database restore from the newest-listed `AndBibleDatabaseBackup*.abdb.zip` in the Files
+    /// Backup & Restore -> Database restore from the backup this test just saved (`fileName`, an `AndBibleDatabaseBackup*.abdb.zip`) in the Files
     /// root; answers the section, per-category and overwrite dialogs; returns once the screen is idle again.
-    private func restoreFromFilesRoot(_ app: XCUIApplication) {
+    private func restoreFromFilesRoot(_ app: XCUIApplication, fileName: String) {
         openDrawerRow(app, "Backup & Restore")
         harnessRequire(labelStarting(app, "Restore or Import from").waitForExistence(timeout: 20), app, "Backup & Restore opened")
         configure(app, restore: true, database: true)
         harnessTapLabel(app, "Restore or Import from\u{2026}")
         harnessRequire(app.buttons["Cancel"].firstMatch.waitForExistence(timeout: 30), app, "the Files import picker opened")
         local(app)
-        guard let file = backupFileCell(app) else {
+        guard let file = backupFileCell(app, named: fileName) else {
             harnessRequire(false, app, "Files lists \(backupStem)*.abdb.zip to restore")
             return
         }
@@ -642,18 +648,17 @@ final class EndToEndUITests: RealAppUITestCase {
 
     // MARK: Files helpers
 
-    /// A cell of the Files picker for `AndBibleDatabaseBackup*.abdb.zip` (the root of the local storage is open).
-    private func backupFileCell(_ app: XCUIApplication) -> XCUIElement? {
+    /// The Files picker cell of the backup file `fileName` (the root of the local storage is open).
+    private func backupFileCell(_ app: XCUIApplication, named fileName: String) -> XCUIElement? {
         let cell = localRoot(app).cells.matching(NSPredicate(
-            format: "(label CONTAINS %@ OR identifier CONTAINS %@) AND (label CONTAINS '.abdb.zip' OR identifier CONTAINS '.abdb.zip')",
-            backupStem, backupStem)).firstMatch
+            format: "label CONTAINS %@ OR identifier CONTAINS %@", fileName, fileName)).firstMatch
         return cell.waitForExistence(timeout: 30) ? cell : nil
     }
 
     /// The listed backup's name when it matches `AndBibleDatabaseBackup*.abdb.zip`; Files may show it with or
     /// without the ".zip" suffix in the cell label, so the accessibility identifier and label are both read.
-    private func backupFileName(_ app: XCUIApplication) -> String? {
-        guard let cell = backupFileCell(app) else { return nil }
+    private func backupFileName(_ app: XCUIApplication, named fileName: String) -> String? {
+        guard let cell = backupFileCell(app, named: fileName) else { return nil }
         let pattern = "^" + backupStem + ".*\\.abdb\\.zip"
         for text in [cell.identifier, cell.label] {
             let name = text.components(separatedBy: ",").first ?? text
