@@ -26,9 +26,13 @@ new:
 # it costs another 1.5-3.5 GiB during a run. No emulator during a heavy gate
 # (about 6 GiB). Numbers: the design spec in
 # docs/superpowers/specs/2026-10-20-jailbee-agent-guide-and-container-memory-design.md.
+# 16 GiB proved too tight on 2026-10-23: a merged-HEAD gate ran at the cgroup
+# limit (thousands of memory.max events) with two 4+ GiB test forks, a 2.9 GiB
+# daemon and three Claude processes (~1.2 GiB) alive. 20 GiB = the measured
+# 16.1 GiB peak + the Claude processes + headroom.
 # Lower these for your host in the local layer if needed.
 defaults:
-  memory: 16GiB
+  memory: 20GiB
   cpu: 8
   network: strict
 
