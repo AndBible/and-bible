@@ -390,7 +390,7 @@ session_step() {   # n script  -> sets STEP_RC
     session_send "__step_$n() {
 $2
 }
-( while :; do sleep $HEARTBEAT >/dev/null 2>&1; echo \"mac-remote: heartbeat (step $n): newest build log: \$(f=\$(ls -t build/*.log 2>/dev/null | sed -n 1p); [ -n \"\$f\" ] && echo \"\$f idle \$(( \$(date +%s) - \$(mtime \"\$f\") )) s\" || echo none)\"; done ) </dev/null &
+( __i=0; while :; do sleep 1 >/dev/null 2>&1; __i=\$((__i + 1)); [ \$((__i % $HEARTBEAT)) = 0 ] || continue; echo \"mac-remote: heartbeat (step $n): newest build log: \$(f=\$(ls -t build/*.log 2>/dev/null | sed -n 1p); [ -n \"\$f\" ] && echo \"\$f idle \$(( \$(date +%s) - \$(mtime \"\$f\") )) s\" || echo none)\"; done ) </dev/null &
 __hb=\$!
 __step_$n </dev/null; __rc=\$?
 kill \$__hb 2>/dev/null
@@ -753,7 +753,9 @@ run)
 batch)
     sync=1; [ "${1:-}" != --no-sync ] || { sync=0; shift; }
     [ $# -gt 0 ] || die "usage: batch [--no-sync] <step>...   e.g. batch link native-tests \"xcode-test iphone\""
-    run_steps batch "$sync" "$@"
+    # a batch step is plain words (split on whitespace, no quoting); the steps travel shell-quoted
+    batch_steps=(); for step in "$@"; do read -ra w <<<"$step"; batch_steps+=("$(q "${w[@]}")"); done
+    run_steps batch "$sync" "${batch_steps[@]}"
     ;;
 fetch)
     [ $# -ge 1 ] || die "usage: fetch <remote-rel-path> [local-dir]"
