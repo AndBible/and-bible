@@ -127,8 +127,8 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
-import net.bible.service.sword.persistCipherKey
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.sword.persistCipherKey
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.startup.ReadingAppInitPlatform
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks

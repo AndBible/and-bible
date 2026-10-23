@@ -21,7 +21,7 @@ class IosDocumentDialogs(
     dialogs: AppDialogController,
     private val table: () -> StringTable,
     private val notifier: UserNotifier,
-    private val watcher: BookInstallWatcher,
+    private val watcher: () -> BookInstallWatcher,
 ) : DocumentDialogs {
     val core = DocumentDialogsCore(dialogs, table, live = true)
     private fun launch(action: suspend () -> Unit) { scope.launch { safely { action(); true } } }
@@ -42,6 +42,6 @@ class IosDocumentDialogs(
     suspend fun showAboutBook(book: Book) { safely { core.showAbout(book); true } }
     suspend fun confirmUpgrade(): Boolean = safely { core.confirmUpgrade() }
     suspend fun unlockBook(book: Book): Boolean = safely {
-        core.unlockDocument(book) { key -> persistCipherKey(book, key, watcher) }
+        core.unlockDocument(book) { key -> persistCipherKey(book, key, watcher()) }
     }
 }

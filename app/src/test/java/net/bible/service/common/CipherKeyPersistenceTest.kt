@@ -93,10 +93,12 @@ class CipherKeyPersistenceTest {
         }
         val persisting = async(Dispatchers.IO) { persistCipherKey(book, "k", watcher) }
 
-        delay(300)
-        assertNotEquals("the key write must wait for the queued row write", "k", docDao.getBook(book.initials)?.cipherKey)
-
-        latch.countDown()
+        try {
+            delay(300)
+            assertNotEquals("the key write must wait for the queued row write", "k", docDao.getBook(book.initials)?.cipherKey)
+        } finally {
+            latch.countDown() // also on a failed assertion, or the blocked row write would hang the test JVM
+        }
         persisting.await()
         val row = docDao.getBook(book.initials)!!
         assertEquals("repo-R", row.repository)
