@@ -29,9 +29,11 @@
 #   scripts/mac-remote.sh run [--no-sync] <shell command>
 #                                               lock, sync, then run a command in the remote tree. --no-sync keeps the
 #                                               Mac tree as it is (inspect or rerun what a previous run left there)
-#   scripts/mac-remote.sh batch [--no-sync] <step>...
+#   scripts/mac-remote.sh batch [--no-sync] [--keep-going] <step>...
 #                                               several steps under ONE lock acquisition and ONE sync, run in order,
-#                                               stopping at the first failing step. Each step is one quoted argument:
+#                                               stopping at the first failing step (--keep-going: run every step, e.g.
+#                                               one xcode-test per UI class; exit code and marker name the first
+#                                               failure). Each step is one quoted argument:
 #                                                 batch link native-tests "xcode-test iphone" "xcode-test ipad"
 #                                               steps: link (= gradle :sharedUi:linkDebugFrameworkIosSimulatorArm64),
 #                                               gradle <args>, native-tests [--force] [mod...], xcode-test [dev] [args],
@@ -628,7 +630,7 @@ step_script_sim_shutdown() { echo "xcrun simctl shutdown all"; }
 # Run one or more steps under one lock: label, sync (1/0), then one quoted step per argument.
 run_steps() {
     local label=$1 sync=$2; shift 2
-    local total=$# n=0 step kind fn rc=0 s e
+    local total=$# n=0 step kind fn rc=0 s e failed=0
     local steps=("$@")
     for step in "${steps[@]}"; do
         eval "STEP=($step)"
@@ -653,7 +655,12 @@ run_steps() {
         session_step "$n" "$("step_script_$kind" "$n" "${STEP[@]:1}")"
         ! declare -F "step_post_$kind" >/dev/null || "step_post_$kind" "$n" "$STEP_RC" "${STEP[@]:1}" || true
         printf '%s\tend\t%s\t%s\n' "$n" "$(date +%s)" "$STEP_RC" >> "$RUNDIR/steps"
-        if [ "$STEP_RC" != 0 ]; then rc=$STEP_RC; RUN_FAILED_STEP=$n; break; fi
+        if [ "$STEP_RC" != 0 ]; then
+            failed=$((failed + 1))
+            [ "$rc" != 0 ] || { rc=$STEP_RC; RUN_FAILED_STEP=$n; }
+            # a lost remote session cannot run the next step
+            [ "${KEEP_GOING:-0}" = 1 ] && [ -n "$RS_PID_" ] || break
+        fi
     done
     session_close
     if [ "$total" -gt 1 ]; then
@@ -666,6 +673,7 @@ run_steps() {
             if [ -z "$s" ]; then echo "  step $n: $step -> not run"
             else set -- $e; echo "  step $n: $step -> exit ${2:-?} ($(fmt_secs $(( ${1:-$s} - s ))))"; fi
         done
+        [ "${KEEP_GOING:-0}" != 1 ] || echo "mac-remote: $failed of $total steps failed"
     fi
     exit "$rc"
 }
@@ -810,8 +818,9 @@ run)
     run_steps run "$sync" "$(q run "$@")"
     ;;
 batch)
-    sync=1; [ "${1:-}" != --no-sync ] || { sync=0; shift; }
-    [ $# -gt 0 ] || die "usage: batch [--no-sync] <step>...   e.g. batch link native-tests \"xcode-test iphone\""
+    sync=1; KEEP_GOING=0
+    while :; do case "${1:-}" in --no-sync) sync=0; shift ;; --keep-going) KEEP_GOING=1; shift ;; *) break ;; esac; done
+    [ $# -gt 0 ] || die "usage: batch [--no-sync] [--keep-going] <step>...   e.g. batch link native-tests \"xcode-test iphone\""
     # a batch step is plain words (split on whitespace, no quoting); the steps travel shell-quoted
     batch_steps=(); for step in "$@"; do read -ra w <<<"$step"; batch_steps+=("$(q "${w[@]}")"); done
     run_steps batch "$sync" "${batch_steps[@]}"

@@ -221,6 +221,7 @@ scripts/mac-remote.sh cancel                 # stop this container's own running
 scripts/mac-remote.sh native-tests           # the CI jsword-ios-tests job (--force: delete old results first)
 scripts/mac-remote.sh xcode-test iphone      # the CI ios job (XCUITests + screenshots)
 scripts/mac-remote.sh batch link native-tests "xcode-test iphone" "xcode-test ipad"   # one lock, one sync, stop at first red
+scripts/mac-remote.sh batch --keep-going "xcode-test iphone -only-testing:iosAppUITests/AppUITests" "xcode-test iphone -only-testing:iosAppUITests/PocUITests"   # every step runs; exit = first red
 scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulator
 ```
 
