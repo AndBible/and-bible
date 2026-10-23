@@ -26,6 +26,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.android.view.activity.page.screen.readingBackgroundArgb
 import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.DocumentLoaderPlatform
 import net.bible.sharedui.reading.session.ReadingOffsets
@@ -53,6 +54,11 @@ class IosDocumentLoaderPlatform(
     private val isPortrait: () -> Boolean = ::iosIsPortrait,
     /** Android's `CommonUtils.isBeta`: the error box is a beta-only debug aid, so the setting counts only in a beta build. */
     private val isBeta: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isBeta },
+    /**
+     * Told the window's page background (ARGB) every time a `set_config` is built, so the native WebView background
+     * follows night, colour scheme and monochrome like Android's `BibleView.updateBackgroundColor`.
+     */
+    private val onPageBackground: (Int) -> Unit = {},
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
     override val topOffset: Float get() = if (isTopWindow) offsets().top else 0f
@@ -86,12 +92,15 @@ class IosDocumentLoaderPlatform(
         val w = window()
         val workspaceSettings = repository.workspaceSettings
         val colorMode = DisplayColorMode.fromValue(s.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL
+        val displaySettings = w.pageManager.actualTextDisplaySettings
+        val night = nightModeState().nightMode
+        onPageBackground(readingBackgroundArgb(displaySettings.colors, night, colorMode != DisplayColorMode.NORMAL))
         return ConfigInputs(
-            displaySettings = w.pageManager.actualTextDisplaySettings,
+            displaySettings = displaySettings,
             isActive = isActive,
             isBottomWindow = repository.lastVisibleWindow == w,
             hasActiveIndicator = hasActiveIndicator,
-            nightMode = nightModeState().nightMode,
+            nightMode = night,
             showErrorBox = isBeta() && s.getBoolean("show_errorbox", false),
             favouriteLabels = favouriteLabelIds,
             recentLabels = workspaceSettings.recentLabels.map { it.labelId },

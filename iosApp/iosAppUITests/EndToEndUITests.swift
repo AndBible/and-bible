@@ -582,10 +582,8 @@ final class EndToEndUITests: RealAppUITestCase {
             return abs(value - light) > 0.2
         }
         shot(app, "e2e-night-\(tag)-switched")
-        XCTExpectFailure("NM-1: a live night-mode switch does not reach the iOS reading page") {
-            XCTAssertTrue(changed, after.map { "\(phase): the night switch did NOT change the page (was \(light), now \($0))" }
-                          ?? "\(phase): the page could not be sampled after the night switch (was \(light))")
-        }
+        XCTAssertTrue(changed, after.map { "\(phase): the night switch did NOT change the page (was \(light), now \($0))" }
+                      ?? "\(phase): the page could not be sampled after the night switch (was \(light))")
         guard changed else { return false }
         toggleNightMode(app)
         settleAfterMenu(app)

@@ -1517,12 +1517,7 @@ final class ReadingUITests: RealAppUITestCase {
         note.name = "night-live-luminance"; note.lifetime = .keepAlways; add(note)
         // The chrome is the control: if it did not change either, the toggle itself did not happen.
         XCTAssertTrue(abs((chromeAfter ?? 0) - (chromeBefore ?? 0)) > 0.2, "the night toggle did not change the native chrome (tap missed?)")
-        // Known product defect NM-1 (close-out 2026-10-23, status snapshot): the chrome turns dark, the page stays light
-        // and half re-rendered, its web view leaves the accessibility tree and the menu stays up. Strict: once the page
-        // follows the switch, this expected failure fails and must be removed.
-        XCTExpectFailure("NM-1: a live night-mode switch does not reach the iOS reading page") {
-            XCTAssertTrue(changed, "the night toggle changed the chrome but not the page: page \(before) -> \(after.map { "\($0)" } ?? "nil")")
-        }
+        XCTAssertTrue(changed, "the night toggle changed the chrome but not the page: page \(before) -> \(after.map { "\($0)" } ?? "nil")")
         guard changed else { return }
         tapNightModeRow(app)
         let back = waitUntil(timeout: 20) { (self.readingPageLuminance(app)).map { abs($0 - before) < 0.1 } ?? false }
