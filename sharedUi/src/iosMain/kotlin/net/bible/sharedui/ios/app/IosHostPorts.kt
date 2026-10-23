@@ -68,7 +68,7 @@ fun buildIosHostPorts(
         IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
     }
     val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
-    val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get())
+    val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), koin.get())
     val download = IosDownloadHostPlatform(documents)
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()

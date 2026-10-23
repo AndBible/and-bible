@@ -93,7 +93,6 @@ import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsLevel
-import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -128,6 +127,7 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.persistCipherKey
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.startup.ReadingAppInitPlatform
@@ -800,11 +800,7 @@ object CommonUtils : CommonUtilsBase() {
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         return documentDialogsCore(application).unlockDocument(book) { passphrase ->
-            val watcher = KoinJavaComponent.get<BookInstallWatcher>(BookInstallWatcher::class.java)
-            watcher.updateRow(book.initials) { existing ->
-                existing?.copy(cipherKey = passphrase)
-                    ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", passphrase)
-            }
+            persistCipherKey(book, passphrase, KoinJavaComponent.get(BookInstallWatcher::class.java))
         }
     }
 
