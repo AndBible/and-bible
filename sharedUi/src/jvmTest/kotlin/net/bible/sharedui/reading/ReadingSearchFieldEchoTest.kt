@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
@@ -65,7 +66,14 @@ class ReadingSearchFieldEchoTest {
                 if (echoed >= 0) { hostValue = text.substring(0, echoed + 1); waitForIdle() }
             }
             waitForIdle()
-            shown = sent.lastOrNull() ?: ""
+            // the last `lag` echoes arrive after the final key, in order; none may revert the field
+            for (echoed in maxOf(0, text.length - lag) until text.length) {
+                hostValue = text.substring(0, echoed + 1); waitForIdle()
+            }
+            val sentBefore = sent.size
+            waitForIdle()
+            assertEquals(sentBefore, sent.size, "lag $lag: delivering echoes must not send anything more")
+            shown = field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text
         }
         return sent to shown
     }
@@ -74,7 +82,7 @@ class ReadingSearchFieldEchoTest {
     fun typedNicodemusSurvivesLaggingEcho() {
         for (lag in 1..3) {
             val (sent, last) = typeWithLaggingEcho("Nicodemus", lag)
-            assertEquals("Nicodemus", last, "lag $lag: the field ends with exactly the typed text, sent=$sent")
+            assertEquals("Nicodemus", last, "lag $lag: the field shows with exactly the typed text, sent=$sent")
             assertEquals("Nicodemus".indices.map { "Nicodemus".substring(0, it + 1) }, sent, "lag $lag: no key lands on stale text")
         }
     }
