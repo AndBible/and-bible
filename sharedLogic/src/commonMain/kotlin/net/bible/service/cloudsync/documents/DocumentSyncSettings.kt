@@ -45,10 +45,13 @@ class DocumentSyncSettings(
     private val dbMutex = Mutex()
     private val stateLock = SynchronizedObject()
 
+    /** Debug builds record who took [dbMutex], so a test reset stuck on it can name the holder. */
+    private fun lockOwner(): Any? = if (env.isDebugMode) Throwable("DocumentSyncSettings.dbMutex owner") else null
+
     /** Load once; publication cannot overwrite a concurrent release-mode setter's snapshot. */
     suspend fun ensureLoaded() {
         if (state.value != null) return
-        dbMutex.withLock {
+        dbMutex.withLock(lockOwner()) {
             if (state.value == null) {
                 val loaded = prefsDao().get() ?: DocumentSyncPreferences()
                 synchronized(stateLock) { if (state.value == null) state.value = loaded } // L1-common-ok: atomicfu lock
@@ -68,7 +71,7 @@ class DocumentSyncSettings(
             val snapshot = prefs().transform()
             state.value = snapshot
             launcher.launch("document-sync-settings") {
-                dbMutex.withLock { prefsDao().set(snapshot) }
+                dbMutex.withLock(lockOwner()) { prefsDao().set(snapshot) }
             }
         }
     }
@@ -78,7 +81,7 @@ class DocumentSyncSettings(
         val clear = synchronized(stateLock) { // L1-common-ok: atomicfu lock
             state.value = DocumentSyncPreferences()
             launcher.launch("document-sync-settings") {
-                dbMutex.withLock { prefsDao().clear() }
+                dbMutex.withLock(lockOwner()) { prefsDao().clear() }
             }
         }
         clear.join()

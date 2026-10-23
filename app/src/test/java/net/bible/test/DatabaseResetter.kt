@@ -139,6 +139,19 @@ object DatabaseResetter {
         //resetSingleton(DatabaseContainer::class.java, "instance")
     }
 
+    /**
+     * The stack that took [settings]' database lock, or null when it is free or its owner was not recorded (debug
+     * builds record it). A reset stuck at stage `settings-mutex` reports it, so the failure names the holder.
+     */
+    internal fun lockOwner(settings: net.bible.service.cloudsync.documents.DocumentSyncSettings): String? {
+        val mutex = settings.javaClass.getDeclaredField("dbMutex").apply { isAccessible = true }.get(settings)
+        val owner = generateSequence<Class<*>>(mutex.javaClass) { it.superclass }
+            .flatMap { it.declaredFields.asSequence() }
+            .firstOrNull { it.name.startsWith("owner") }
+            ?.apply { isAccessible = true }?.get(mutex)
+        return (owner as? Throwable)?.stackTraceToString()?.lines()?.take(30)?.joinToString(" | ")
+    }
+
     /** Joins every key's tail of [launcher], again for tails queued meanwhile, until none is left. */
     private suspend fun joinEveryTail(launcher: net.bible.sharedcore.platform.OrderedLauncher) {
         val tailsField = launcher.javaClass.getDeclaredField("tails").apply { isAccessible = true }
@@ -278,7 +291,7 @@ object DatabaseResetter {
             settingsDrainObserver?.invoke(launcher, drain)
             drain.await()
         }
-        checkpoint("settings-mutex", "mutexLocked=${mutex.isLocked}")
+        checkpoint("settings-mutex", "mutexLocked=${mutex.isLocked} owner=${lockOwner(settings)}")
         mutex.lock()
         checkpoint("settings-reset")
         try {
