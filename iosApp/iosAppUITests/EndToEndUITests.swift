@@ -310,13 +310,12 @@ final class EndToEndUITests: RealAppUITestCase {
         var app = readingOnKjv()
         // Night mode needs the Manual preference (the toggle is disabled while it follows the system).
         setNightModePreference(app, "Manual")
-        // CONTROL, no restore yet: does a live night switch reach the page at all? Known product defect NM-1 (see
-        // ReadingUITests.testNightModeLiveSwitchReachesPage): it does not, so the page assertion is a strict expected
-        // failure inside `nightRoundTrip`; the rest of the test still runs. Failures are recorded without stopping.
+        // CONTROL, no restore yet: does a live night switch reach the page at all? (NM-1 fixed: the page background follows; see
+        // ReadingUITests.testNightModeLiveSwitchReachesPage.) Failures are recorded without stopping.
         continueAfterFailure = true
         let controlOK = nightRoundTrip(app, phase: "control (no restore)")
         continueAfterFailure = false
-        // After a night switch the pane can be gone from the tree and the menu stay up (NM-1): do not rely on them.
+        // After a night switch the pane can be gone from the tree and the menu stay up: do not rely on them.
         app = relaunch(app)
         setNightModePreference(app, "System")      // night follows the system again (light page) for the backup
 
@@ -564,9 +563,7 @@ final class EndToEndUITests: RealAppUITestCase {
 
     /// Night mode switch on the PAGE: toggle, the page area must change clearly (either direction: the stored toggle
     /// may already be on), then toggle back and the original brightness must return. The overflow menu is closed and
-    /// the page settled before every sample. The "page followed" assertion is a STRICT expected failure for the known
-    /// product defect NM-1 (it fails the test once the page does follow, so the expectation must then be removed); the
-    /// phase name prefixes every message and screenshot. Returns whether the page followed the switch and came back.
+    /// the page settled before every sample. The phase name prefixes every message and screenshot. Returns whether the page followed the switch and came back.
     private func nightRoundTrip(_ app: XCUIApplication, phase: String) -> Bool {
         guard let light = sampleLuminance(app) else {
             XCTFail("\(phase): the page brightness could not be sampled before the night switch (no pane or screenshot)")
