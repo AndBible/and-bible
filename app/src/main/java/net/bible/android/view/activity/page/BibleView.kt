@@ -101,6 +101,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.page.screen.readingBackgroundArgb
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.util.UiUtils
@@ -160,13 +161,12 @@ const val black = -16777216
  *
  * Only depends on [window] (never on `this@BibleView`), so it needs no [BibleView] instance at all.
  */
-fun bibleViewBackgroundColorFor(window: Window): Int {
-    val colors = window.pageManager.actualTextDisplaySettings.colors
-    val monochromeMode = CommonUtils.settings.monochromeMode
-    val nightBackground = if (monochromeMode) black else colors?.nightBackground
-    val dayBackground = if (monochromeMode) white else colors?.dayBackground
-    return (if (ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
-}
+fun bibleViewBackgroundColorFor(window: Window): Int =
+    readingBackgroundArgb(
+        window.pageManager.actualTextDisplaySettings.colors,
+        nightMode = ScreenSettings.nightMode,
+        monochrome = CommonUtils.settings.monochromeMode,
+    )
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
