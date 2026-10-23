@@ -174,9 +174,16 @@ class ReadingCommandsHostDelegationGuardTest {
             menuCommandHandlerSource.contains("BibleApplication.application.packageName"),
             "packageName must still come from the application Context (R6c1 fix round 1)",
         )
+        // The licence read moved from `MenuCommandHandler` to `CommonUtils.showLicence` (shared with the
+        // iOS help port); it must still read resources from the application Context (R6c1 fix round 1).
         assertTrue(
-            menuCommandHandlerSource.contains("BibleApplication.application.resources"),
+            codeLinesOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/service/common/CommonUtils.kt"))
+                .contains("application.resources.openRawResource(R.raw.license)"),
             "resources must still come from the application Context (R6c1 fix round 1)",
+        )
+        assertTrue(
+            menuCommandHandlerSource.contains("CommonUtils.showLicence(hostActivity)"),
+            "the licence row must still delegate to CommonUtils.showLicence",
         )
     }
 
