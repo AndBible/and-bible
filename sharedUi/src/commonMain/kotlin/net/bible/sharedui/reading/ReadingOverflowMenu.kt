@@ -66,8 +66,8 @@ fun ReadingOverflowMenu(
             shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
-    }
-        ReadingOverflowMenuRows(items, onItemClick, icon)
+            ReadingOverflowMenuRows(items, onItemClick, icon)
+        }
     }
 }
 

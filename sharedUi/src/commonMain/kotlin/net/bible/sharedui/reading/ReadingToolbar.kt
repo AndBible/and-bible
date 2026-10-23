@@ -485,13 +485,13 @@ fun ReadingToolbar(
                                     shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
                                     border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
                                 ) {
-                            }
-                                searchBar.recentTerms.forEach { term ->
-                                    AbMenuItem(
-                                        text = term,
-                                        onClick = { searchBarCallbacks.onRecentTermSelected(term) },
-                                        icon = { Icon(Icons.Filled.History, contentDescription = null) },
-                                    )
+                                    searchBar.recentTerms.forEach { term ->
+                                        AbMenuItem(
+                                            text = term,
+                                            onClick = { searchBarCallbacks.onRecentTermSelected(term) },
+                                            icon = { Icon(Icons.Filled.History, contentDescription = null) },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -518,17 +518,17 @@ fun ReadingToolbar(
                                     shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
                                     border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
                                 ) {
-                            }
-                                AbMenuItem(
-                                    text = strings.rebuildIndex,
-                                    onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
-                                    icon = { Icon(Icons.Filled.Autorenew, contentDescription = null) },
-                                )
-                                AbMenuItem(
-                                    text = strings.help,
-                                    onClick = { searchMenuOpen = false; searchHelpOpen = true },
-                                    icon = AbHelpMenuIcon,
-                                )
+                                    AbMenuItem(
+                                        text = strings.rebuildIndex,
+                                        onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
+                                        icon = { Icon(Icons.Filled.Autorenew, contentDescription = null) },
+                                    )
+                                    AbMenuItem(
+                                        text = strings.help,
+                                        onClick = { searchMenuOpen = false; searchHelpOpen = true },
+                                        icon = AbHelpMenuIcon,
+                                    )
+                                }
                             }
                         }
                     }

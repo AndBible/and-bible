@@ -10,7 +10,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,7 @@ import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.SpeakTransportBar
+import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
@@ -207,6 +211,80 @@ class BarFontScaleCoverageTest {
         }
         assertEquals(cap, bar, "bar action stays capped")
         assertEquals(system, menu, "menu popup must follow the system scale")
+    }
+
+    /** Composes [content] and reports whether [text] is in the tree, optionally after [act]. */
+    private fun rowPresent(text: String, act: (androidx.compose.ui.test.ComposeUiTest.() -> Unit)? = null, content: @Composable () -> Unit): Boolean {
+        var present = false
+        runComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(1f, fontScale = system),
+                    LocalBarFontScaleCap provides cap,
+                ) { Themed { content() } }
+            }
+            waitForIdle()
+            act?.invoke(this)
+            waitForIdle()
+            present = onAllNodesWithText(text, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        return present
+    }
+
+    @Test
+    fun readingOverflowMenuRowsLiveInsideThePopup() {
+        fun bar(expanded: Boolean): @Composable () -> Unit = {
+            ReadingToolbar(
+                toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                overflowItems = listOf(OptionsMenuItem("a", "Overflow item", false, false, true, false)),
+                overflowExpanded = expanded,
+            )
+        }
+        assertEquals(false, rowPresent("Overflow item", content = bar(false)), "closed menu must not render rows")
+        assertEquals(true, rowPresent("Overflow item", content = bar(true)), "open menu shows rows")
+    }
+
+    @Test
+    fun windowPaneMenuRowsLiveInsideThePopup() {
+        fun menu(expanded: Boolean): @Composable () -> Unit = {
+            WindowPaneMenu(
+                items = listOf(WindowPaneMenuItem("p", "Pane item")),
+                expanded = expanded, onItemClick = {}, onDismiss = {},
+            )
+        }
+        assertEquals(false, rowPresent("Pane item", content = menu(false)), "closed menu must not render rows")
+        assertEquals(true, rowPresent("Pane item", content = menu(true)), "open menu shows rows")
+    }
+
+    @Test
+    fun recentTermsMenuRowsLiveInsideThePopup() {
+        fun bar(open: Boolean): @Composable () -> Unit = {
+            ReadingToolbar(
+                toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                searchBar = ReadingSearchBarState(query = "", recentTerms = listOf("Recent term"), recentMenuOpen = open),
+                searchBarCallbacks = searchCallbacks(),
+            )
+        }
+        assertEquals(false, rowPresent("Recent term", content = bar(false)), "closed menu must not render rows")
+        assertEquals(true, rowPresent("Recent term", content = bar(true)), "open menu shows rows")
+    }
+
+    @Test
+    fun searchOverflowMenuRowsLiveInsideThePopup() {
+        val rebuild = iosStrings("en").rebuildIndex
+        val menuLabel = iosStrings("en").menu
+        val bar: @Composable () -> Unit = {
+            ReadingToolbar(
+                toolbarState(), toolbarIcons(), toolbarCallbacks(),
+                searchBar = ReadingSearchBarState(query = ""), searchBarCallbacks = searchCallbacks(),
+            )
+        }
+        assertEquals(false, rowPresent(rebuild, content = bar), "closed menu must not render rows")
+        assertEquals(
+            true,
+            rowPresent(rebuild, act = { onNodeWithContentDescription(menuLabel).performClick() }, content = bar),
+            "open menu shows rows",
+        )
     }
 
     @Test

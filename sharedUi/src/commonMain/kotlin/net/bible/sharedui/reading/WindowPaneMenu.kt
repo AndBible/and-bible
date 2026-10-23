@@ -79,16 +79,16 @@ fun WindowPaneMenu(
             shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
-    }
-        val level = path.lastOrNull()?.submenu ?: items
-        WindowPaneMenuRows(
-            items = level,
-            showBack = path.isNotEmpty(),
-            onBack = { path = path.dropLast(1) },
-            onEnterSubmenu = { path = path + it },
-            onItemClick = onItemClick,
-            icon = icon,
-        )
+            val level = path.lastOrNull()?.submenu ?: items
+            WindowPaneMenuRows(
+                items = level,
+                showBack = path.isNotEmpty(),
+                onBack = { path = path.dropLast(1) },
+                onEnterSubmenu = { path = path + it },
+                onItemClick = onItemClick,
+                icon = icon,
+            )
+        }
     }
 }
 
