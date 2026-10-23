@@ -506,13 +506,25 @@ final class EndToEndUITests: RealAppUITestCase {
         let width = Double(slider.frame.width)
         func offset(_ value: Double) -> CGFloat { CGFloat((24 + (value - 1) / 59 * (width - 48)) / width) }
         var current = old
-        for _ in 0..<6 where current != target {
-            let start = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(current), dy: 0.5))
-            let end = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(target), dy: 0.5))
-            start.press(forDuration: 0.3, thenDragTo: end)
+        // The slider is continuous (run 7 read 19.0, 18.63) and a short drag loses the touch slop, so a 4 pt drag moved
+        // only ~1 pt and the old loop stopped on 18.63 != 16. Converge on |error| < 0.5 with feedback: aim = last aim
+        // + remaining error; the first try drags, later tries tap the track (Material sliders jump to a tapped position).
+        var aim = target
+        for attempt in 0..<8 where abs(current - target) >= 0.5 {
+            let clamped = min(max(aim, 1), 60)
+            let end = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(clamped), dy: 0.5))
+            if attempt == 0 {
+                let start = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(current), dy: 0.5))
+                start.press(forDuration: 0.3, thenDragTo: end)
+            } else {
+                end.tap()
+            }
             usleep(800_000)
-            current = sliderValue(slider) ?? current
+            let reading = sliderValue(slider) ?? current
+            aim += target - reading
+            current = reading
         }
+        harnessRequire(abs(current - target) < 0.5, app, "the font size slider reached \(target), is \(current)")
         shot(app, "e2e-font-size-sheet")
         let okButton = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
         harnessRequire(okButton.waitForExistence(timeout: 10), app, "the font size sheet has 'OK'")
@@ -521,7 +533,7 @@ final class EndToEndUITests: RealAppUITestCase {
         harnessRequire(back.waitForExistence(timeout: 15), app, "the text display screen has Back")
         back.tap()
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 30), app, "the reading host is shown after the text options")
-        return (Int(old), Int(current))
+        return (Int(old.rounded()), Int(current.rounded()))
     }
 
     // MARK: pane measurements
