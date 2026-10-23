@@ -1527,10 +1527,13 @@ final class ReadingUITests: RealAppUITestCase {
 
     /// Opens the overflow menu and taps its hittable 'Night mode' row (the tree can hold a second, off-screen copy).
     private func tapNightModeRow(_ app: XCUIApplication) {
-        let more = byLabel(app, "More options")
-        XCTAssertTrue(more.waitForExistence(timeout: 10), "no 'More options'")
-        more.tap()
         let rows = app.buttons.matching(NSPredicate(format: "label == 'Night mode'"))
+        // A night toggle leaves the overflow menu open by design (ReadingOverflowController returns true for toggles).
+        if !(rows.allElementsBoundByIndex.contains { $0.isHittable }) {
+            let more = byLabel(app, "More options")
+            XCTAssertTrue(more.waitForExistence(timeout: 10), "no 'More options'")
+            more.tap()
+        }
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10), "no 'Night mode' row")
         guard let row = rows.allElementsBoundByIndex.first(where: { $0.isHittable && $0.isEnabled }) else {
             attachTree(app, "night-row-not-hittable"); return XCTFail("no hittable, enabled 'Night mode' row")
