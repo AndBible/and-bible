@@ -80,8 +80,11 @@ means the call was killed hard (`check` calls that LOST).
 - **No dead-lock waits.** The lock records its owner (token, container, pid, process start time). A waiter
   breaks the lock by itself when the holder process is gone (killed, Mac rebooted, pid reused by
   another process); only one waiter wins the break. A holder (or waiter) whose container side
-  disappears (local job killed, session ended) is stopped on the Mac by a watchdog within ~10 s
-  (`check` shows its last lines), so it frees the lock and the RAM. Only the owner token releases a
+  disappears cleanly (ssh connection closed: local job terminated, session ended) is stopped on the Mac by a
+  watchdog within ~10 s (`check` shows its last lines). If the connection merely goes silent (network
+  down, or the local script SIGKILLed so its ssh child lingers), the Mac frees the lock by itself after
+  `MAC_IDLE_MAX` seconds (default 1800) without the next step or the end of the session, and the
+  step's own timeout covers a running step; `cancel` is the fast way for your own run. Only the owner token releases a
   lock, so a finished run never frees another run's lock. Therefore: a waiting Mac call belongs to the
   controller, in the background; a subagent never starts one (it cannot wait that long). `unlock` is
   only for a case `check` shows as stuck (a holder that is alive but wedged for another container);
@@ -91,7 +94,7 @@ means the call was killed hard (`check` calls that LOST).
   lock holder with its age and "holder is THIS container (local pid N, run R)" when it is yours, and the
   idle time of the remote `build/*.log` files. `cancel [run-id]` kills this container's running
   mac-remote process trees by pid (never `pkill -f`) and releases the Mac lock only if its owner token
-  belongs to those runs. Run `check` before starting a new Mac run when an earlier one may be alive.
+  belongs to those runs (it waits for the Mac-side session to end, then kills it). Run `check` before starting a new Mac run when an earlier one may be alive.
 - Between two separate calls another container may use the simulator (e.g. between `xcode-build`
   and `sim shot`). If a screenshot shows something unexpected, repeat the pair.
 - **Overlap the container and the Mac: they are different machines.** Mac runs do not count against
@@ -153,8 +156,14 @@ A UI class takes 1-25 minutes, a multi-class batch can take over an hour. Waitin
 - Start the run as the background command itself (`run_in_background`); the harness notifies on exit. Never
   wrap it in a poll loop, and never `pgrep -f`/`pkill -f` a text that occurs in your own command line (the
   waiter matches itself and hangs forever; `pkill -f` kills your own shell, exit 144).
+- **`run` is a bounded, synced step, not a raw shell.** `run <command>` syncs the tree with `--delete` first
+  (use `run --no-sync` to keep the Mac tree as it is), is limited by `MAC_TIMEOUT` (default 3000 s; a long
+  script such as the I3b `run-on-mac.sh generate` flow may need e.g. `MAC_TIMEOUT=7200`), and runs the
+  command with `bash -c` in the tree, so the script's helper functions (`sim_boot`, `sim_udid`) are not
+  available in it. On timeout the whole process group of the command is killed (exit 142).
 - Every remote step has a built-in wall-clock limit (`MAC_TIMEOUT`: 2400 s for `xcode-test`, 3000 s for the
-  rest, per step). A stuck step ends by itself, the exit code is 142 and the run's `exit` marker says
+  rest, per step; a step-level watchdog kills everything the step started, including npm/xcodegen/simulator
+  boot, `MAC_STEP_MARGIN` = 600 s after that). A stuck step ends by itself, the exit code is 142 and the run's `exit` marker says
   `timeout`; a `batch` then stops there. For a full UI suite pass a larger `MAC_TIMEOUT` (e.g. 9000).
 - Prompt-cache TTL is one hour. If a wait will exceed ~55 minutes, schedule a wake-up no later than minute 55
   (`CronCreate` / `ScheduleWakeup`) so the session never goes cold on a long wait, and use it to check

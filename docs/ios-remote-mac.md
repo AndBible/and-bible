@@ -242,17 +242,30 @@ is taken once and nobody gets in between. A waiter breaks the lock when its hold
 or alive with another process start time); breakers are serialised and the lock is moved aside with an
 atomic rename and its token re-checked, so only one wins. Only the owner token releases a lock. Each
 session has a watchdog that stops it (waiting or running) when its own ssh connection ends (remote runs
-use a separate, non-multiplexed connection for that reason), so a killed container-side job never leaves
-the Mac locked or busy. Watchdog events go to `~/work/.mac-remote-watchdog.log` (shown by `check`).
+use a separate, non-multiplexed connection for that reason). A connection that only goes silent (network
+down; a SIGKILLed local script whose ssh child lingers) is covered by an idle guard: the Mac releases the lock
+and ends the session when no next step arrives within `MAC_IDLE_MAX` (default 1800 s; it must exceed the
+longest container-side sync or fetch). Each step runs from a script file in its own process group under
+`MAC_TIMEOUT` plus a step-level watchdog (`MAC_STEP_MARGIN`, default 600 s), so a timeout kills every
+process the step started. ssh and rsync use `ServerAliveInterval=30`. Process start times are compared
+under `LC_ALL=C TZ=UTC0`. Watchdog events go to `~/work/.mac-remote-watchdog.log` (shown by `check`).
 
 Container side, per call: `.local/mac/<container>/runs/<run-id>/` with `meta`, `output.log`, `steps` and
-an `exit` marker (code, reason `ok|failed|timeout|signal ...|cancelled`, end time, failing step); the
+an `exit` marker (code, reason `ok|failed|timeout|signal ...|cancelled|no lock|sync failed`, end time, failing step; timeouts are always
+exit 142; `no lock` = the lock wait ran out (75) or the connection failed, `sync failed` = rsync/ssh to the Mac
+failed before any step ran; the generated script of each step is kept as `step-<n>.sh`); the
 newest 20 run directories are kept. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
 screenshots) is fetched into `runs/<run-id>/xcode/step<N>-<device>/`, and `.local/mac/<container>/xcode/<name>-<device>`
 are links to the latest run. `check` summarises the runs (running / exited N / LOST, elapsed, log idle
 time), the lock holder with its age and whether it is this container, and the idle time of the remote
 logs; `cancel` stops this container's runs by pid and releases the Mac lock only when the owner token is
 theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder.
+
+`run [--no-sync] <command>` syncs with `--delete`, is bounded by `MAC_TIMEOUT` (default 3000 s) and runs in
+`bash -c` in the tree (the script's `sim_boot` helpers are not available); raise `MAC_TIMEOUT` for long
+scripts. Update `scripts/mac-remote.sh` in every container before relying on the new lock: containers
+running the old script only partly understand the new owner record (they never break a new-style lock,
+and they do not honour the idle guard or the step process groups).
 
 Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
 
