@@ -26,8 +26,8 @@ import net.bible.sharedui.strings.lookupPlural
 
 /**
  * The generated string tables of language [tag] as a [StringTable]. Templates are filled by
- * [net.bible.sharedui.strings.keyed.formatTemplate] (the generated `fmt` only knows positional `%1$s` specs, while
- * many Android strings use plain `%s`, `%d` and `%.1f`). [raw] reads a raw text resource (the LLM system prompts);
+ * [net.bible.sharedui.strings.keyed.formatTemplate], shared with the generated holder and using the table's
+ * locale for decimal symbols. [raw] reads a raw text resource (the LLM system prompts);
  * the app supplies it from the bundle, see `IosPlatformParts`.
  */
 fun iosStringTable(
@@ -54,5 +54,7 @@ class IosStringTableHolder(initial: StringTable) {
         { current.array(it) },
         { current.raw(it) },
         { key, count -> current.pluralTemplate(key, count) },
+        { current.numberSymbols() },
+        { current.tag },
     )
 }

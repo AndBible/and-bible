@@ -19,31 +19,15 @@
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.TextShare
-import kotlinx.coroutines.*
 import net.bible.sharedcore.platform.files.IosPresenter
-import net.bible.sharedcore.platform.files.IosSheetPresentation
-import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIViewController
 
-/** iOS has no chooser title; the activity receives only the shared text. */
+/** iOS has no chooser title; the activity receives only the shared text. Presents through [IosSharePresenter]. */
 @kotlin.native.HiddenFromObjC
-class IosTextShare(
-    private val presenter: () -> UIViewController? = IosPresenter::topViewController,
-) : TextShare {
+class IosTextShare internal constructor(private val sharer: IosSharePresenter) : TextShare {
+    constructor(presenter: () -> UIViewController? = IosPresenter::topViewController) : this(IosSharePresenter(presenter))
+
     override fun shareText(text: String, chooserTitle: String) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val host = presenter() ?: return@launch
-            val dismissed = CompletableDeferred<Unit>()
-            try {
-                suspendCancellableCoroutine<Unit> { continuation ->
-                    val sheet = UIActivityViewController(activityItems = listOf(text), applicationActivities = null)
-                    val presentation = IosSheetPresentation(sheet, continuation, Unit) { dismissed.complete(Unit) }
-                    sheet.completionWithItemsHandler = { _, _, _, _ -> presentation.finish(Unit) }
-                    presentation.present(host)
-                }
-            } finally {
-                withContext(NonCancellable) { dismissed.await() }
-            }
-        }
+        sharer.share(listOf(text))
     }
 }

@@ -28,7 +28,8 @@ class IosWebDavSignInUiNativeTest {
             val formatter = NSDateFormatter().apply { dateStyle = NSDateFormatterMediumStyle; timeStyle = NSDateFormatterNoStyle }
             val from = formatter.stringFromDate(NSDate.dateWithTimeIntervalSince1970(1433415878.0))
             val until = formatter.stringFromDate(NSDate.dateWithTimeIntervalSince1970(2064567878.0))
-            assertEquals("dav.example|subject|issuer|$from|$until|AA:BB", prompt.message)
+            val shownText = net.bible.sharedcore.ui.dialog.parseHtmlRuns(assertNotNull(prompt.message)).joinToString("") { it.text }
+            assertTrue(listOf("dav.example", "subject", "issuer", from, until, "AA:BB").all { it in shownText }, shownText)
             dialogs.respond(shown.id, AppDialogResult.Ok)
             assertTrue(answer.await())
         } finally { dialogs.cancelAll(); answer.cancel() }

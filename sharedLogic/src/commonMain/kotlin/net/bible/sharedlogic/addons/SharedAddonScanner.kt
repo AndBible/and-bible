@@ -111,9 +111,15 @@ class SharedAddonCatalog(
 ) : AddonCatalog, net.bible.sharedlogic.platform.BackgroundImageCatalog {
     override val backgroundImages get() = scanner.backgroundImages()
 
+    private val clearListeners = mutableListOf<() -> Unit>()
+
+    /** Runs [listener] after every [clearCaches] (an installed module changed or was deleted): holders of derived data drop it. */
+    fun addClearListener(listener: () -> Unit) { clearListeners.add(listener) }
+
     override fun clearCaches() {
         scanner.clearCaches()
         promptPacks.notifyReloaded()
+        clearListeners.toList().forEach { it() }
     }
 
     override val readingPlans: Map<String, AddonReadingPlan> get() = scanner.readingPlans()

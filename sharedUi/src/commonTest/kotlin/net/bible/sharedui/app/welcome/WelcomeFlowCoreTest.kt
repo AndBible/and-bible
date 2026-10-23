@@ -1,6 +1,7 @@
 package net.bible.sharedui.app.welcome
 
 import kotlinx.coroutines.test.runTest
+import net.bible.android.control.download.REQUIRED_MEGS_FOR_DOWNLOADS
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.sharedcore.nav.NavRoutes
 import kotlin.test.Test
@@ -35,11 +36,12 @@ class WelcomeFlowCoreTest {
 
     @Test fun downloadRefusedWithoutSpace() = runTest {
         val f = Fixture()
-        f.space = 49
+        assertEquals(50L, REQUIRED_MEGS_FOR_DOWNLOADS, "Android's documented threshold")
+        f.space = REQUIRED_MEGS_FOR_DOWNLOADS - 1
         f.core.onDownload()
         assertEquals(listOf("storage warning"), f.events)
         f.events.clear()
-        f.space = 50
+        f.space = REQUIRED_MEGS_FOR_DOWNLOADS
         f.core.onDownload()
         assertEquals(listOf("initialise", "sync", NavRoutes.download(firstDownload = true)), f.events)
     }

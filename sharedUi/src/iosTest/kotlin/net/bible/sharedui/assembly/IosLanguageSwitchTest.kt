@@ -26,4 +26,18 @@ class IosLanguageSwitchTest {
             before.zip(after).forEach { (en, fi) -> assertNotEquals(en, fi) }
         } finally { app.close() }
     }
+
+    @Test
+    fun retainedLiveTableFollowsTheSwitchIncludingItsTag() {
+        val holder = IosStringTableHolder(iosStringTable("en"))
+        val retained = holder.live // a host keeps this facade across language switches
+        assertEquals("en", retained.tag)
+        holder.switchTo("fi")
+        assertEquals("fi", holder.current.tag)
+        assertEquals("fi", retained.tag)
+        assertEquals(lookup("fi", "studypads"), retained.text("studypads"))
+        holder.switchTo("en")
+        assertEquals("en", retained.tag)
+        assertEquals(lookup("en", "studypads"), retained.text("studypads"))
+    }
 }

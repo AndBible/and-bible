@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.app.welcome
 
+import net.bible.android.control.download.REQUIRED_MEGS_FOR_DOWNLOADS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,8 +65,8 @@ class WelcomeFlowCore(
     }
 
     suspend fun onDownload() {
-        // Keep Android's threshold (SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) and strict comparison.
-        if (megabytesFree() < 50L) {
+        // Android's threshold (the same constant) and strict comparison.
+        if (megabytesFree() < REQUIRED_MEGS_FOR_DOWNLOADS) {
             refuseDownload()
             return
         }

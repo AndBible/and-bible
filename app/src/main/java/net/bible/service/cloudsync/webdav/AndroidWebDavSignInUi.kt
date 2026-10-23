@@ -32,5 +32,6 @@ class AndroidWebDavSignInUi(private val app: Context) : WebDavSignInUi {
         WebDavMessage.NOT_A_FOLDER -> R.string.webdav_not_a_folder
         WebDavMessage.CERTIFICATE_CHANGED -> R.string.webdav_certificate_changed
         WebDavMessage.STORAGE_FULL -> R.string.webdav_storage_full
+        WebDavMessage.HTTPS_REQUIRED -> R.string.webdav_https_required
     })
 }

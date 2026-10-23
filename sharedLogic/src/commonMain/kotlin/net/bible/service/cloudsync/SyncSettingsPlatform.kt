@@ -9,6 +9,8 @@ interface SyncSettingsPlatform {
     fun credential(key: String): String
     fun setCredential(key: String, value: String)
     fun isValidUrl(value: String): Boolean
+    /** Android retains its existing HTTP support; iOS restricts Nextcloud to local hosts. */
+    fun plainHttpAllowed(url: String): Boolean = true
     fun formatFileSize(bytes: Long): String
     fun formatSyncTime(timestamp: Long): String
     /** Two decimals in the default locale (e.g. "1,50" in Finnish, "1.50" in US English). */

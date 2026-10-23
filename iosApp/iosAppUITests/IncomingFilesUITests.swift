@@ -6,7 +6,8 @@ import XCTest
 ///   actual IosIncomingFiles before graph attachment. Early staging stays in owned temp and survives
 ///   the existing later -resetData; registration/backend preflight occurs only AFTER startup reset.
 ///   Do not edit the reset parser or assume it clears UserDefaults.
-/// - -incomingRuntimeTest enables buttons incoming-offer-epub / incoming-open-backup. The former
+/// - -incomingRuntimeTest enables runtime diagnostics; -incomingRuntimeControls opts into visible
+///   buttons incoming-offer-epub / incoming-open-backup. The former
 ///   offers bundled f-runtime.epub to that SAME queue in the current process, never installs directly.
 /// - incoming-runtime-ready appears after the real graph is bound and preflight proves fixture IDs
 ///   absent from the production registry. Tests are isolated; fixture preflight must not uninstall books.
@@ -14,7 +15,7 @@ import XCTest
 ///   registration AND actual backend reads match Genesis 1:1 / both EPUB chapters respectively.
 ///   Checking fixture bytes, disk presence, or enqueue success cannot set these tags.
 /// - incoming-open-backup navigates to real NavRoutes.BACKUP, not restoreModules or installer directly.
-///   incoming-backup-route-ready is only a route witness; actions below must use production controls.
+///   Entry hides the panel for this process; the destination is proved by real Backup controls.
 /// Fixtures: K4RawText public-domain module; EPUB id f-runtime-fixed, title F Runtime Fixture,
 /// chapter text "F runtime chapter one proof." and "F runtime chapter two proof."; truncated ZIP.
 /// Debug resources are generated deterministically; the harness uses the actual incoming queue and installer.
@@ -63,7 +64,8 @@ final class IncomingFilesUITests: XCTestCase {
     private func launch(fixture: String? = nil) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
-                               "-resetData", "-incomingRuntimeTest", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+                               "-resetData", "-incomingRuntimeTest", "-incomingRuntimeControls",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         if let fixture = fixture { app.launchArguments += ["-incomingFixture", fixture] }
         app.launch()
         dismissNotificationPermissionIfPresent()
@@ -141,7 +143,18 @@ final class IncomingFilesUITests: XCTestCase {
         requireVisible(openBackup, app: app, step: "backup-destination-trigger")
         XCTAssertTrue(openBackup.isHittable)
         openBackup.tap()
-        requireVisible(element(app, "incoming-backup-route-ready"), app: app, step: "production-backup-route")
+        let hidden = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            !self.element(app, "incoming-open-backup").exists
+                && !self.element(app, "incoming-offer-epub").exists
+                && app.descendants(matching: .any).matching(
+                    NSPredicate(format: "identifier BEGINSWITH 'incoming-'")).count == 0
+        }, object: nil)
+        let hiddenResult = XCTWaiter.wait(for: [hidden], timeout: 20)
+        evidence(app, "backup-entry-panel-hidden")
+        XCTAssertEqual(hiddenResult, .completed, "Incoming panel must disappear on Backup entry")
+        let restoreActions = app.buttons.matching(NSPredicate(format: "label == 'Restore or Import from…'"))
+        requireVisible(restoreActions.firstMatch, app: app, step: "production-backup-restore-action")
+        XCTAssertEqual(restoreActions.count, 1, "Expected unique real Backup Restore action")
         // BackupRestoreScreen has two occurrences of each label, ordered Backup then Restore.
         // These production switch selectors still need actual iOS accessibility-tree validation.
         let documents = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Documents'"))

@@ -291,6 +291,15 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 text = { parts.strings.text(it) },
             )
         }
+        single<net.bible.sharedui.ios.reading.IosReadingExtras> {
+            val holder = get<IosStringTableHolder>()
+            val currentTable = { holder.current }
+            net.bible.sharedui.ios.ports.IosReadingExtrasImpl(
+                helpDialogs = net.bible.sharedui.ios.ports.IosHelpDialogs(get<AppDialogController>(), currentTable),
+                table = currentTable,
+                scope = get<AppCoroutineScope>(),
+            )
+        }
         single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }
         single<LinkPlatform> {
             val koinScope = this

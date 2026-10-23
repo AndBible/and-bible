@@ -28,7 +28,7 @@ import kotlin.native.Platform
  * - `-resetDatabases`: [resetAppDatabases] before startup, a fresh workspace with the installed modules kept.
  * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown;
  *   with `-openDocument <initials>` it also switches that window to the installed book.
- * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
+ * - `-featureScenario <chooser|plan-settings|labels|download|settings|bookmarks>`: finite real graph entry after reading is ready.
  * - `-legacyMigrationStepDelayMs <ms>`: [legacyStepDelayMs], delay after the legacy migration's MAP step.
  * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
  * - `-clearLegacySeed`: [clearLegacySeed], undoes the seed so other suites do not inherit it.
@@ -44,6 +44,16 @@ internal object IosDebugLaunchArgs {
         settings.putBoolean(net.bible.sharedcore.platform.CrashPreferences.RUNNING, false)
         settings.putInt(net.bible.sharedcore.platform.CrashPreferences.COUNT, 2)
         settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, kotlin.time.Clock.System.now().toEpochMilliseconds())
+    }
+
+    /**
+     * `-installCommitDelayMs <ms>`: milliseconds the module-install commit sleeps after each extracted archive entry,
+     * so a UI test can kill the process mid-extraction. 0 (no delay) in release binaries or without the argument.
+     */
+    fun installCommitDelayMs(): Long {
+        if (!Platform.isDebugBinary) return 0L
+        val index = arguments.indexOf("-installCommitDelayMs")
+        return if (index < 0) 0L else arguments.getOrNull(index + 1)?.toLongOrNull()?.coerceIn(0L, 60_000L) ?: 0L
     }
 
     /** X-owned debug controls, independent of the H-owned Settings implementation. */

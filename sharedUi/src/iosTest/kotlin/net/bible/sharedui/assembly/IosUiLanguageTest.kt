@@ -66,4 +66,10 @@ class IosUiLanguageTest {
         assertTrue(en.text("speak") != "speak" && en.text("speak").isNotBlank())
         assertTrue(iosStringTable("fi").text("speak") != en.text("speak"))
     }
+
+    @Test
+    fun rtlLanguagesAreDetectedFromTheResolvedTag() {
+        for (tag in listOf("he", "iw", "ar", "ur", "fa", "he-IL", "ar_EG", "HE")) assertTrue(IosUiLanguage.isRtl(tag), tag)
+        for (tag in listOf("en", "fi", "pt-BR", "zh-Hans", "sr-Latn", "")) assertTrue(!IosUiLanguage.isRtl(tag), tag)
+    }
 }

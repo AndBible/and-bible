@@ -87,6 +87,7 @@ class SyncSettingsServiceImplTest {
         documentSettings: DocumentSyncSettings = settings,
         categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
         writeScope: CoroutineScope = scope,
+        platform: net.bible.service.cloudsync.SyncSettingsPlatform = org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java),
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
@@ -94,7 +95,7 @@ class SyncSettingsServiceImplTest {
             get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
             get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
             get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
-            get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java), net.bible.test.testCoreStrings(),
+            platform, net.bible.test.testCoreStrings(),
             get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
@@ -355,6 +356,58 @@ class SyncSettingsServiceImplTest {
         val service = impl()
         assertFalse(service.setText("cloud_sync_server_url", "not a url"))
         assertNull(CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    private fun httpPolicy(allowed: Boolean): net.bible.service.cloudsync.SyncSettingsPlatform {
+        val original = org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.SyncSettingsPlatform>(net.bible.service.cloudsync.SyncSettingsPlatform::class.java)
+        return object : net.bible.service.cloudsync.SyncSettingsPlatform by original {
+            override fun plainHttpAllowed(url: String) = allowed
+        }
+    }
+
+    @Test fun nonLocalHttpNextcloudRefusedWhenPlatformForbids() {
+        CommonUtils.settings.setString("sync_adapter", "NEXT_CLOUD")
+        val service = impl(platform = httpPolicy(false))
+        assertFalse(service.setText("cloud_sync_server_url", "http://example.org/nc"))
+        assertNull(CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    @Test fun localHttpAcceptedWhenPlatformAllows() {
+        CommonUtils.settings.setString("sync_adapter", "NEXT_CLOUD")
+        val service = impl(platform = httpPolicy(true))
+        assertTrue(service.setText("cloud_sync_server_url", "  http://NAS.local/nc  "))
+        assertEquals("http://NAS.local/nc", CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    @Test fun androidDefaultKeepsHttpNextcloud() {
+        CommonUtils.settings.setString("sync_adapter", "NEXT_CLOUD")
+        assertTrue(impl().setText("cloud_sync_server_url", "http://example.org/nc"))
+        assertEquals("http://example.org/nc", CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    @Test fun platformRefusalReachesControllerWithoutMislabelingMalformedHttp() {
+        CommonUtils.settings.setString("sync_adapter", "NEXT_CLOUD")
+        val scope = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+        val service = impl(scope, platform = httpPolicy(false))
+        val labels = net.bible.sharedcore.settings.SyncSettingsLabels.forTest()
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(service, scope, labels, {})
+        controller.onTextInput("cloud_sync_server_url", "  HTTP://example.org/nc  ")
+        assertEquals(labels.httpsRequiredMessage, (controller.state.value.dialog as net.bible.sharedcore.settings.SyncDialog.UrlError).message)
+        controller.onTextInput("cloud_sync_server_url", "http://bad host")
+        assertEquals(labels.invalidUrlMessage, (controller.state.value.dialog as net.bible.sharedcore.settings.SyncDialog.UrlError).message)
+        controller.onTextInput("cloud_sync_server_url", "not a url")
+        assertEquals(labels.invalidUrlMessage, (controller.state.value.dialog as net.bible.sharedcore.settings.SyncDialog.UrlError).message)
+        assertNull(CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
+    }
+
+    @Test fun androidMalformedHttpKeepsInvalidUrlMessage() {
+        CommonUtils.settings.setString("sync_adapter", "NEXT_CLOUD")
+        val scope = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(impl(scope), scope,
+            net.bible.sharedcore.settings.SyncSettingsLabels.forTest(), {})
+        controller.onTextInput("cloud_sync_server_url", "http://bad host")
+        assertEquals(net.bible.sharedcore.settings.SyncSettingsLabels.forTest().invalidUrlMessage,
+            (controller.state.value.dialog as net.bible.sharedcore.settings.SyncDialog.UrlError).message)
     }
 
     @Test fun username_persistsToRealShared() {

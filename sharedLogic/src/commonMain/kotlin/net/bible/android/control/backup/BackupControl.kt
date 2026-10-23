@@ -443,6 +443,9 @@ class BackupControl(
     /** Test hook: called with the module files of a SWORD book after they are listed and before they are zipped. */
     @VisibleForTesting var onModuleFilesListed: (List<Path>) -> Unit = {}
 
+    /** Test hook: called before each publish move (data files, then confs) of an extracted module archive. */
+    @VisibleForTesting var onPublishStep: (Int) -> Unit = {}
+
     private val fileSystem = FileSystem.SYSTEM
 
     private fun dosTimeNow(): Long =
@@ -652,7 +655,8 @@ class BackupControl(
      */
     suspend fun makeDatabaseBackupFile(): Path? {
         if(env.isInitialized && DatabaseContainer.ready) {
-            windowControl.windowRepository.saveIntoDb()
+            // The live snapshot stops speech, whose platform cleanup must run on Main.
+            withContext(Dispatchers.Main) { windowControl.windowRepository.saveIntoDb() }
             // The save is an ordered write-through: the zip must not read the file before it lands.
             windowControl.windowRepository.persistence.awaitPersisted()
             // A setting changed just before "backup now" may still be queued in the store's writer.
@@ -1019,35 +1023,82 @@ class BackupControl(
         val confFiles = ArrayList<Path>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
-        ZipReader(newSource()).use { zip ->
-            var entryNum = 0
-            while (true) {
-                val ze = zip.nextEntry() ?: break
-                val name = safeZipEntryPath(ze.name)
-                    ?: throw IOException("Unsafe ZIP entry name")
-                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
+        // Data first, conf last: data entries are written to ".part" siblings and conf entries (small) are buffered,
+        // so nothing in the live module tree changes until the whole archive was read and written successfully.
+        // An interrupted install then leaves no conf next to partial data and an installed module stays readable.
+        val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
+        val bufferedConfs = LinkedHashMap<Path, ByteArray>()
+        val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
+        var publishStep = 0
+        var dataReplaced = false
+        try {
+            ZipReader(newSource()).use { zip ->
+                var entryNum = 0
+                while (true) {
+                    val ze = zip.nextEntry() ?: break
+                    val name = safeZipEntryPath(ze.name)
+                        ?: throw IOException("Unsafe ZIP entry name")
+                    if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
-                val file = targetDirectory / moduleArchiveTargetName(name)
-                if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
-                    confFiles.add(file)
+                    val file = targetDirectory / moduleArchiveTargetName(name)
+                    val isConf = name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF)
+                    if (isConf) confFiles.add(file)
 
-                val dir = if (ze.isDirectory) file else file.parent
-                if (dir != null) fileSystem.createDirectories(dir)
+                    val dir = if (ze.isDirectory) file else file.parent
+                    if (dir != null) fileSystem.createDirectories(dir)
 
-                if (ze.isDirectory) continue
-                try {
-                    fileSystem.write(file) { writeAll(zip.entry) }
-                } catch (e: IOException) {
-                    errors.add(file.name)
-                    Log.e(TAG, "Error in writing ${file.name}", e)
+                    if (ze.isDirectory) continue
+                    try {
+                        if (isConf) {
+                            bufferedConfs[file] = zip.entry.buffer().readByteArray()
+                        } else {
+                            val part = staged.getOrPut(file) { file.parent!! / (file.name + ".part") }
+                            fileSystem.write(part) { writeAll(zip.entry) }
+                        }
+                    } catch (e: IOException) {
+                        errors.add(file.name)
+                        Log.e(TAG, "Error in writing ${file.name}", e)
+                    }
+                    entryNum++
+                    if (onProgress != null && totalEntries > 0) {
+                        onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
+                    }
                 }
-                entryNum++
-                if (onProgress != null && totalEntries > 0) {
-                    onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
+                if (errors.isNotEmpty()) {
+                    throw IOException("Could not write module files: ${errors.joinToString(", ")}")
                 }
             }
-            if (errors.isNotEmpty()) {
-                throw IOException("Could not write module files: ${errors.joinToString(", ")}")
+            // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
+            // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
+            // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
+            for (file in bufferedConfs.keys) {
+                if (fileSystem.exists(file)) {
+                    val old = file.parent!! / (file.name + ".old")
+                    fileSystem.atomicMove(file, old)
+                    asides[file] = old
+                }
+            }
+            for ((file, part) in staged) {
+                onPublishStep(publishStep++)
+                dataReplaced = true
+                fileSystem.atomicMove(part, file)
+            }
+            staged.clear()
+            for ((file, bytes) in bufferedConfs) {
+                onPublishStep(publishStep++)
+                val tmp = file.parent!! / (file.name + ".tmp")
+                fileSystem.write(tmp) { write(bytes) }
+                fileSystem.atomicMove(tmp, file)
+            }
+            for (old in asides.values) runCatching { fileSystem.delete(old) }
+            asides.clear()
+        } finally {
+            for (part in staged.values) runCatching { fileSystem.delete(part) }
+            for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
+            // Handled failure: nothing was replaced yet -> the old module is simply restored; otherwise its data may
+            // be mixed, so the module stays absent (conf not restored) and the aside copy is dropped.
+            for ((file, old) in asides) runCatching {
+                if (!dataReplaced && !fileSystem.exists(file)) fileSystem.atomicMove(old, file) else fileSystem.delete(old)
             }
         }
         // Load configuration files & register SWORD books

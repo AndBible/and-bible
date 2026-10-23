@@ -537,6 +537,7 @@ class IosAssemblyTest {
             // iOS-only settings seam read through getOrNull by SettingsHost; not a port of the shared graph, so it is
             // deliberately not in IOS_BOUND_PORT_TYPES (`:app`'s IosPortParityTest requires every listed port on Android too).
             net.bible.sharedui.app.settings.LegacyDataImport::class,
+            net.bible.sharedui.ios.reading.IosReadingExtras::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */

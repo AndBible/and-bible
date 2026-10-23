@@ -76,4 +76,44 @@ class IosTextDisplayPlatformTest {
             IosTextDisplayPlatform({ error("not used") }, inventory, { throw CancellationException("stop") }).thumbnail("Photo")
         }
     }
+
+    private fun jpeg(): ByteArray {
+        val surface = Surface.makeRasterN32Premul(64, 64)
+        surface.canvas.clear(0xff203040.toInt())
+        return surface.makeImageSnapshot().encodeToData(EncodedImageFormat.JPEG)!!.bytes.also { surface.close() }
+    }
+
+    @Test fun thumbnailCacheIsClearedWhenModulesChangeAndOnMemoryWarning() {
+        val bytes = jpeg()
+        var inventory = mapOf<String, okio.Path>()
+        var reads = 0
+        var modulesChanged: (() -> Unit)? = null
+        var memoryWarning: (() -> Unit)? = null
+        val port = IosTextDisplayPlatform({ error("not used") }, { inventory }, { reads++; bytes },
+            { modulesChanged = it }, { memoryWarning = it })
+        // Negative entry: the module is not installed yet.
+        assertNull(port.thumbnail("Photo"))
+        inventory = mapOf("Photo" to "/module/photo.jpg".toPath())
+        assertNull(port.thumbnail("Photo"), "the miss is cached until the catalog reports a change")
+        assertEquals(0, reads)
+        // Install (or any module change) clears the negative entry.
+        assertNotNull(modulesChanged).invoke()
+        assertNotNull(port.thumbnail("Photo"))
+        assertEquals(1, reads)
+        port.thumbnail("Photo")
+        assertEquals(1, reads, "a decoded entry is served from the cache")
+        // Delete: the stale decoded entry must go and the lookup must see the missing module.
+        inventory = mapOf()
+        assertNotNull(port.thumbnail("Photo"), "still cached before the change notification")
+        assertNotNull(modulesChanged).invoke()
+        assertNull(port.thumbnail("Photo"))
+        // Low-memory warning drops decoded entries too.
+        inventory = mapOf("Photo" to "/module/photo.jpg".toPath())
+        assertNotNull(memoryWarning).invoke()
+        assertNotNull(port.thumbnail("Photo"))
+        assertEquals(2, reads)
+        assertNotNull(memoryWarning).invoke()
+        assertNotNull(port.thumbnail("Photo"))
+        assertEquals(3, reads)
+    }
 }

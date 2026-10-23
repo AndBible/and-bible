@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
@@ -278,6 +279,7 @@ private fun RenderSettingsItem(
     openTextInput: (String) -> Unit,
     openMultiSelect: (String) -> Unit,
 ) {
+    val rowModifier = Modifier.testTag("settings-row-${item.key}")
     when (item) {
         is SettingsItem.Category -> AbSettingsCategoryHeader(item.title)
 
@@ -290,6 +292,7 @@ private fun RenderSettingsItem(
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
             iconKey = item.iconKey,
             badge = badge,
+            modifier = rowModifier,
         )
 
         is SettingsItem.ListChoiceRow -> {
@@ -303,6 +306,7 @@ private fun RenderSettingsItem(
                 iconKey = item.iconKey,
                 onLongClick = onLongPress?.let { press -> { press(item.key) } },
                 badge = badge,
+                modifier = rowModifier,
             )
         }
 
@@ -321,9 +325,11 @@ private fun RenderSettingsItem(
             iconKey = item.iconKey,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
             badge = badge,
+            modifier = rowModifier,
         )
 
         is SettingsItem.SliderRow -> AbSliderRow(
+            modifier = rowModifier,
             label = item.title,
             value = item.value,
             // Persists once per drag gesture (AbSliderRow calls this on release only).
@@ -344,6 +350,7 @@ private fun RenderSettingsItem(
             iconKey = item.iconKey,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
             badge = badge,
+            modifier = rowModifier,
         )
 
         is SettingsItem.NavigationRow -> AbSettingsRow(
@@ -360,6 +367,7 @@ private fun RenderSettingsItem(
             },
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
             badge = badge,
+            modifier = rowModifier,
         )
 
         // InfoRow is non-interactive by default (no clickable, no ripple) — a plain title +
@@ -370,7 +378,7 @@ private fun RenderSettingsItem(
             val iconPainter = item.iconKey?.let { LocalSettingsIcon.current(it) }
             val onClickKey = item.onClickKey
             Row(
-                modifier = Modifier
+                modifier = rowModifier
                     .fillMaxWidth()
                     .then(
                         if (onClickKey != null) {

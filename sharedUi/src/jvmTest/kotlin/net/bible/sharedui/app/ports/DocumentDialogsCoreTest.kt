@@ -84,6 +84,9 @@ class DocumentDialogsCoreTest {
         assertContains(html, "href=\"https://manual\"")
         assertContains(html, "href=\"https://video\"")
         assertIs<AppDialogRequest.NoticeBlock.IconLine>(request.blocks[2])
+        // The sponsor link is the one shared constant, and its value is the shop Android opens.
+        assertEquals("https://shop.andbible.org", net.bible.sharedcore.docs.SiteLinks.SHOP_URL)
+        assertEquals("SourceRepository", net.bible.service.download.DownloadManager.REPOSITORY_KEY)
         assertEquals("<i>Version 1</i>", (request.blocks[3] as AppDialogRequest.NoticeBlock.Html).html)
     }
     @Test fun cancelUnlockLeavesTheBookLocked() = runTest {

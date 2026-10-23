@@ -64,6 +64,16 @@ internal suspend fun refreshReadingPlanMetadata(
 
 
 /**
+ * Re-reads the language-dependent texts of the loaded day into [controller] after a language switch. [OneDaysReadingsDto.dayDesc]
+ * and [OneDaysReadingsDto.readingDateString] are computed on every access (through the live core strings and calendar), so
+ * this is a real re-read, not a recycled snapshot. Readings, read marks and any open confirmation are not touched.
+ */
+internal fun applyLoadedDayMetadata(controller: DailyReadingController, dto: OneDaysReadingsDto, planName: String?) {
+    dto.readingPlanInfo.planName = planName ?: dto.readingPlanInfo.planName
+    controller.updateMetadata(dto.readingPlanInfo.planName.orEmpty(), dto.dayDesc, dto.readingDateString)
+}
+
+/**
  * What of the reading plan host survives `recreate()` and process death: the plans reset since they were last
  * chosen. The loaded day is not saved; it is rebuilt from the destination's route arguments.
  */
@@ -172,8 +182,7 @@ class ReadingPlanHost(
                     if (dto != null && code != null) {
                         val name = readingPlanControl.readingPlanList().firstOrNull { it.planCode == code }?.planName
                         if (readingsDto === dto && planCodeLoaded == code) {
-                            dto.readingPlanInfo.planName = name ?: dto.readingPlanInfo.planName
-                            controller.updateMetadata(dto.readingPlanInfo.planName.orEmpty(), dto.dayDesc, dto.readingDateString)
+                            applyLoadedDayMetadata(controller, dto, name)
                         }
                     }
                 } },

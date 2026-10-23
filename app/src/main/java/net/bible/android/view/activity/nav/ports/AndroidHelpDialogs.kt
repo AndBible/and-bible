@@ -30,6 +30,8 @@ class AndroidHelpDialogs(private val activity: ActivityBase) : HelpDialogs {
                 helpUrl = DocsLinks.page("ai", "getting-started"),
             )
             HelpTopic.WORKSPACES -> CommonUtils.showHelp(activity, listOf(R.string.help_workspaces_title))
+            HelpTopic.HELP_AND_TIPS -> CommonUtils.showHelp(activity, showVersion = true)
+            HelpTopic.LICENCE -> CommonUtils.showLicence(activity)
         }
     }
 }

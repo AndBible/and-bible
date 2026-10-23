@@ -72,6 +72,26 @@ class IosSyncSettingsPlatformTest {
     }
 
     @Test
+    fun plainHttpAllowedOnlyForLocalHosts() {
+        listOf("HTTP://Example.org", "http://8.8.8.8", "http://172.32.0.1", "http://localhost.example.org",
+            "http://NAS.local.example.org/", "http://example.org@8.8.8.8/", "http://[fec0::1]/").forEach {
+            assertFalse(platform.plainHttpAllowed(it), it)
+        }
+        listOf("http://[::1]:8080", "http://NAS.local/", "http://127.0.0.1:8080/nc",
+            "http://[FE80::1]/", "  http://NAS.local/  ", "https://example.org").forEach {
+            assertTrue(platform.plainHttpAllowed(it), it)
+        }
+    }
+
+    @Test
+    fun rejectsAmbiguousLeadingZeroIpv4Urls() {
+        listOf("http://010.0.0.1/", "http://0127.0.0.1/", "http://127.00.0.1/",
+            "http://10.0.00.1/", "http://192.168.1.005/").forEach {
+            assertFalse(platform.plainHttpAllowed(it), it)
+        }
+    }
+
+    @Test
     fun formatting() {
         assertTrue(Regex("""\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}""").matches(platform.formatSyncTime(0L)))
         val d = platform.formatDecimal2(1.5)

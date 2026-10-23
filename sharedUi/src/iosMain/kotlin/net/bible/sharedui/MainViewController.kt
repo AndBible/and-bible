@@ -32,12 +32,15 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAppStartupState
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
+import net.bible.sharedui.assembly.IosUiLanguage
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.launch
 import net.bible.sharedui.ios.report.IosBugReport
 import net.bible.sharedui.assembly.iosStringTable
@@ -107,6 +110,7 @@ fun MainViewController(): UIViewController {
     IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
     val language = resolveDeviceUiLanguage(settings)
+    val layoutDirection = if (IosUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
@@ -199,7 +203,7 @@ fun MainViewController(): UIViewController {
             val recoveryPhase by startupState.phase.collectAsState()
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
-            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
                 IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
@@ -257,7 +261,7 @@ fun MainViewController(): UIViewController {
         }
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
-            CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+            CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
                 IosApp()
             }
             return@ComposeUIViewController

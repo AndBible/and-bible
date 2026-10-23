@@ -58,7 +58,10 @@ settings hierarchy described above.
 ### General
 
 - **Application language:** Choose the language for the application interface
-    (dialogs, menus, settings).
+    (dialogs, menus, settings). On iOS, formatted numeric values such as module
+    sizes use the selected language's decimal separator and digits (for example,
+    `1,5 MB` in Finnish). The file-installation instructions and supported-format
+    list also follow language changes without restarting the app.
 - **Keep screen on:** Prevent the screen from sleeping while using the app.
     Changes take effect when you return from settings to the reader; no app
     restart is needed.
@@ -137,6 +140,11 @@ Color mode and Disable animations can be used together for an e-ink reading
 experience.
 
 ### Font and Text
+
+On iOS, the system Text Size setting scales the app interface independently of
+the document text. To change Bible text size, use the text display settings or
+the **Font size multiplier** below; increasing the system text size does not
+replace those controls.
 
 - **Font size multiplier:** A global scaling factor (10%–500%) applied to all
     document text. Useful when you synchronize workspaces across devices with

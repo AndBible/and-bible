@@ -26,7 +26,7 @@ class IosWebDavSignInUiTest {
             val shown = assertNotNull(dialogs.pending.value)
             val prompt = assertIs<AppDialogRequest.Confirm>(shown.request)
             val runs = net.bible.sharedcore.ui.dialog.parseHtmlRuns(assertNotNull(prompt.message))
-            val expected = strings.webDavUntrustedCertificateMessage(host, subject, issuer, "date-1", "date-2", "AA:BB")
+            val expected = strings.webDavUntrustedCertificateMessageDevice(host, subject, issuer, "date-1", "date-2", "AA:BB")
             assertEquals(expected, runs.joinToString("") { it.text }, "Trust identifiers and line breaks must survive final HTML rendering literally")
             assertTrue(runs.all { it.href == null && !it.bold && !it.italic && it.size == net.bible.sharedcore.ui.dialog.HtmlRun.Size.Normal },
                 "Certificate fields must not introduce links or styles")
@@ -42,7 +42,8 @@ class IosWebDavSignInUiTest {
             val shown = assertNotNull(dialogs.pending.value)
             val prompt = assertIs<AppDialogRequest.Confirm>(shown.request)
             assertEquals("webDavUntrustedCertificateTitle", prompt.title)
-            assertEquals("dav.example|Server CN|Real Issuer|date-1000|date-2000|AA:BB:CC", prompt.message)
+            val shownText = net.bible.sharedcore.ui.dialog.parseHtmlRuns(assertNotNull(prompt.message)).joinToString("") { it.text }
+            assertTrue(listOf("dav.example", "Server CN", "Real Issuer", "date-1000", "date-2000", "AA:BB:CC").all { it in shownText }, shownText)
             assertEquals("webDavTrustCertificate", prompt.confirmText)
             assertEquals("cancel", prompt.dismissText)
             dialogs.respond(shown.id, AppDialogResult.Ok)

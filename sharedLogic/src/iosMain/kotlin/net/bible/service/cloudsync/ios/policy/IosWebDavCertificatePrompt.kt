@@ -19,7 +19,7 @@ internal class IosWebDavCertificatePrompt(
         AppDialogRequest.Confirm(
             title = strings.webDavUntrustedCertificateTitle,
             message = net.bible.sharedcore.ui.dialog.plainTextToHtml(
-                strings.webDavUntrustedCertificateMessage(info.host, info.subject, info.issuer,
+                strings.webDavUntrustedCertificateMessageDevice(info.host, info.subject, info.issuer,
                     date(info.notBefore), date(info.notAfter), formatFingerprint(info.sha256)),
             ),
             confirmText = strings.webDavTrustCertificate,
@@ -33,5 +33,6 @@ internal class IosWebDavCertificatePrompt(
         WebDavMessage.NOT_A_FOLDER -> strings.webDavNotAFolder
         WebDavMessage.CERTIFICATE_CHANGED -> strings.webDavCertificateChanged
         WebDavMessage.STORAGE_FULL -> strings.webDavStorageFull
+        WebDavMessage.HTTPS_REQUIRED -> strings.webDavHttpsRequired
     }
 }

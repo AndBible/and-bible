@@ -30,20 +30,26 @@ import kotlin.math.roundToLong
  * loudly instead of answering an empty prompt.
  */
 class StringTable(
-    val tag: String,
+    private val initialTag: String,
     val text: (key: String) -> String,
     val format: (key: String, args: Array<out Any?>) -> String,
     val plural: (name: String, count: Int) -> String,
     val array: (name: String) -> List<String>,
     val raw: (name: String) -> String = { error("Raw text resource '$it' is not available on this platform yet") },
     internal val pluralTemplate: (name: String, count: Int) -> String = plural,
+    internal val numberSymbols: () -> NumberSymbols = { numberSymbolsFor(initialTag) },
+    /** A live facade answers the current language's tag here; null keeps the fixed [initialTag]. */
+    private val tagProvider: (() -> String)? = null,
 ) {
+    /** The language tag; for a live facade it follows the language the facade delegates to. */
+    val tag: String get() = tagProvider?.invoke() ?: initialTag
+
     /** [text] of [key] with its `%` placeholders filled from [args]. */
     fun fmt(key: String, vararg args: Any?): String = format(key, args)
 
     /** Selects the plural before formatting all arguments (including arguments beyond the count). */
     fun pluralFormat(name: String, count: Int, vararg args: Any): String =
-        formatTemplate(pluralTemplate(name, count), args)
+        formatTemplate(pluralTemplate(name, count), args, numberSymbols())
 
     companion object {
         private const val STRING_REF = "@string/"
@@ -59,7 +65,7 @@ class StringTable(
             plural: (name: String, count: Int) -> String,
             array: (name: String) -> List<String>,
             raw: (name: String) -> String = { error("Raw text resource '$it' is not available on this platform yet") },
-        ): StringTable = StringTable(tag, lookup, { key, args -> formatTemplate(lookup(key), args) }, { n, c -> formatTemplate(plural(n, c), arrayOf(c)) },
+        ): StringTable = StringTable(tag, lookup, { key, args -> formatTemplate(lookup(key), args, numberSymbolsFor(tag)) }, { n, c -> formatTemplate(plural(n, c), arrayOf(c), numberSymbolsFor(tag)) },
             { name -> array(name).map { if (it.startsWith(STRING_REF)) lookup(it.removePrefix(STRING_REF)) else it } }, raw, plural)
     }
 }
@@ -69,7 +75,7 @@ class StringTable(
  * `%x`/`%X`, optional position (`%1$d`), zero-pad width (`%02X`), `%%` and `%n`. Unsequenced specs take the
  * arguments in order. An unrecognised spec is copied unchanged; a missing argument prints as empty.
  */
-fun formatTemplate(template: String, args: Array<out Any?>): String {
+fun formatTemplate(template: String, args: Array<out Any?>, symbols: NumberSymbols = NumberSymbols.ASCII): String {
     val out = StringBuilder(template.length + 16)
     var next = 0
     var i = 0
@@ -103,7 +109,14 @@ fun formatTemplate(template: String, args: Array<out Any?>): String {
             'f' -> (arg as? Number)?.let { fixed(it.toDouble(), if (precision < 0) 6 else precision) } ?: ""
             else -> ((arg as? Number)?.toLong() ?: 0L).toString(16).let { if (conv == 'X') it.uppercase() else it }
         }
-        out.append(if (width > body.length) body.padStart(width, if (zeroPad) '0' else ' ') else body)
+        val padded = if (width > body.length) body.padStart(width, if (zeroPad) '0' else ' ') else body
+        out.append(if (conv == 'd' || conv == 'f') padded.map { digit ->
+            when {
+                digit in '0'..'9' -> symbols.zeroDigit + (digit - '0')
+                conv == 'f' && digit == '.' -> symbols.decimalSeparator
+                else -> digit
+            }
+        }.joinToString("") else padded)
         i = j + 1
     }
     return out.toString()

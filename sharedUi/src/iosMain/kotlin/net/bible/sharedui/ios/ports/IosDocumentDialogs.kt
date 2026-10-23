@@ -4,8 +4,8 @@ package net.bible.sharedui.ios.ports
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.persistCipherKey
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.app.ports.DocumentDialogs
@@ -40,9 +40,6 @@ class IosDocumentDialogs(
     suspend fun showAboutBook(book: Book) { safely { core.showAbout(book); true } }
     suspend fun confirmUpgrade(): Boolean = safely { core.confirmUpgrade() }
     suspend fun unlockBook(book: Book): Boolean = safely {
-        core.unlockDocument(book) { key ->
-            val dao = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
-            dao.getBook(book.initials)?.apply { cipherKey = key; dao.update(this) }
-        }
+        core.unlockDocument(book) { key -> persistCipherKey(book, key) }
     }
 }

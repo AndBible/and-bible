@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.format.SaxTextPolicy
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubInitials
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.CoreStrings
@@ -27,26 +28,49 @@ import kotlin.native.Platform
 /** Debug evidence boundary: the real queue and installer own every mutation of the document registry. */
 internal object IosIncomingRuntimeHarness {
     private var enabled = false
+    private var controlsVisible by mutableStateOf(false)
     private var ready by mutableStateOf(false)
     private var failed by mutableStateOf(false)
     private var swordVerified by mutableStateOf(false)
     private var epubVerified by mutableStateOf(false)
     private val epubId get() = epubInitials("f-runtime.epub")
 
+    /** Cold `-incomingFixture` aliases; a comma list offers several archives to the same production queue in order. */
+    private val coldFixtures = mapOf(
+        "sword" to "f-rawtext.zip",
+        "invalid" to "f-invalid.zip",
+        "cipher" to "h2-cipher.zip",
+        "genbook" to "h2-genbook.zip",
+        "maps" to "h2-maps.zip",
+        "dict" to "h2-dict.zip",
+    )
+    private val allowedOffers = coldFixtures.values.toSet() + "f-runtime.epub"
+
+    /** Initials installed by the H2 fixtures, which must be absent before the cold offer is delivered. */
+    private val h2Initials = mapOf(
+        "h2-cipher.zip" to "H2Cipher", "h2-genbook.zip" to "K4GenBook",
+        "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD",
+    )
+    private var coldOffered = emptyList<String>()
+    private var removeColdFixtures = false
+    private var purgeLeftovers = false
+
     fun prepareLaunch() {
         if (!Platform.isDebugBinary) return
         val args = NSProcessInfo.processInfo.arguments.map { it.toString() }
         enabled = "-incomingRuntimeTest" in args
+        controlsVisible = enabled && "-incomingRuntimeControls" in args
+        removeColdFixtures = enabled && "-incomingRemoveFixtures" in args
+        purgeLeftovers = enabled && "-incomingPurgeLeftovers" in args
         if (!enabled) return
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
             try {
-                val fixture = when (args.getOrNull(index + 1)) {
-                    "sword" -> "f-rawtext.zip"
-                    "invalid" -> "f-invalid.zip"
-                    else -> error("Unknown cold incoming fixture")
+                val fixtures = (args.getOrNull(index + 1) ?: error("Missing cold incoming fixture")).split(",").map {
+                    coldFixtures[it] ?: error("Unknown cold incoming fixture")
                 }
-                offer(fixture)
+                coldOffered = fixtures
+                fixtures.forEach { offer(it) }
             } catch (error: Exception) { fail(error) }
         }
     }
@@ -58,7 +82,7 @@ internal object IosIncomingRuntimeHarness {
 
     private fun offer(name: String) {
         check(enabled && Platform.isDebugBinary)
-        require(name in setOf("f-rawtext.zip", "f-invalid.zip", "f-runtime.epub"))
+        require(name in allowedOffers)
         nsLog("IncomingFilesHarness event=fixture-offer-start basename=$name")
         val resource = NSBundle.mainBundle.resourceURL!!.URLByAppendingPathComponent("files-port-fixtures/$name")!!
         val folder = NSURL.fileURLWithPath(NSTemporaryDirectory()).URLByAppendingPathComponent("f-runtime-${NSUUID().UUIDString}", true)!!
@@ -76,8 +100,21 @@ internal object IosIncomingRuntimeHarness {
         if (failed) return false
         return try {
             withContext(Dispatchers.Default) {
+                if (purgeLeftovers) {
+                    // Debug-only: removes the SWORD and EPUB fixtures a previous incoming test left behind (never KJV),
+                    // through the production delete path, so a later class can pass the absence checks below.
+                    listOf("K4RawText", epubId).forEach { id ->
+                        Books.installed().getBook(id)?.let { SwordDocumentFacade.deleteDocument(it) }
+                    }
+                }
                 check(Books.installed().getBook("K4RawText") == null) { "SWORD fixture already registered" }
                 check(Books.installed().getBook(epubId) == null) { "EPUB fixture already registered" }
+                coldOffered.mapNotNull { h2Initials[it] }.forEach { initials ->
+                    // Opt-in cleanup of a previous run's test-owned fixture only (never KJV): the production
+                    // delete path, so the absence check below still proves a clean install.
+                    if (removeColdFixtures) Books.installed().getBook(initials)?.let { SwordDocumentFacade.deleteDocument(it) }
+                    check(Books.installed().getBook(initials) == null) { "$initials fixture already registered" }
+                }
             }
             ready = true
             true
@@ -125,6 +162,8 @@ internal object IosIncomingRuntimeHarness {
                 delay(250)
             }
         }
+        // Backend proof remains active even when diagnostics are hidden for normal navigation.
+        if (!controlsVisible) return
         Column {
             if (ready && !failed) Text(strings.okay, Modifier.testTag("incoming-runtime-ready"))
             if (failed) Text(strings.errorOccurred, Modifier.testTag("incoming-runtime-error"))
@@ -135,7 +174,10 @@ internal object IosIncomingRuntimeHarness {
                 nsLog("IncomingFilesHarness event=offer-button-click basename=f-runtime.epub")
                 scope.launch { try { offer("f-runtime.epub") } catch (error: Exception) { fail(error) } }
             }) { Text(strings.okay) }
-            Button(enabled = ready && !failed, modifier = Modifier.testTag("incoming-open-backup"), onClick = openBackup) {
+            Button(enabled = ready && !failed, modifier = Modifier.testTag("incoming-open-backup"), onClick = {
+                controlsVisible = false
+                openBackup()
+            }) {
                 Text(strings.okay)
             }
         }

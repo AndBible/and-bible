@@ -42,6 +42,7 @@ internal fun iosSyncStrings(strings: StringTable): IosSyncStrings = IosSyncStrin
                 WebDavMessage.NOT_A_FOLDER -> "webdav_not_a_folder"
                 WebDavMessage.CERTIFICATE_CHANGED -> "webdav_certificate_changed"
                 WebDavMessage.STORAGE_FULL -> "webdav_storage_full"
+                WebDavMessage.HTTPS_REQUIRED -> "webdav_https_required"
             },
         )
     },

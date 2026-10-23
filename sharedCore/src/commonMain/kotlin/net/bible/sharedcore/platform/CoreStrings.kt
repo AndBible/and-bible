@@ -70,8 +70,11 @@ interface CoreStrings {
     val webDavNotAFolder: String
     val webDavCertificateChanged: String
     val webDavStorageFull: String
+    val webDavHttpsRequired: String
     val iCloudDrive: String
     fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
+    /** H2: device-neutral wording of [webDavUntrustedCertificateMessage] for iOS ("this device" instead of "Android"). */
+    fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     val signInFailed: String
     val cloudSyncTitle: String
     val cloudFetchAndRestoreInitial: String

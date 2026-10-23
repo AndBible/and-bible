@@ -50,6 +50,14 @@ If using Nextcloud instead of Google Drive:
 3. Optionally specify a folder path on the server.
 4. Toggle on the data categories you want to sync.
 
+On iOS, public Nextcloud servers require an `https://` address. Plain `http://`
+is allowed only for local hosts: `localhost`, names ending in `.local`, loopback
+addresses, private IPv4 addresses, and link-local IPv4 or IPv6 addresses. For
+example, `http://NAS.local:8080/` is allowed, but `http://example.org/` is not.
+This is checked both when saving the address and before signing in with a saved
+address. Android's Nextcloud HTTP support is unchanged. The separate WebDAV
+adapter still requires HTTPS, including for local servers.
+
 ### Setting Up WebDAV
 
 WebDAV lets you synchronize with your own server, a NAS, or any server that
@@ -80,7 +88,7 @@ Typical server addresses:
 
 #### Self-signed certificates
 
-If the server's certificate is not trusted by Android (for example a
+If the server's certificate is not trusted by your device (for example a
 self-signed certificate on a home server), *AndBible* shows an
 **Untrusted server certificate** dialog with the host, subject, issuer,
 validity period, and the SHA-256 fingerprint of the certificate. Compare the

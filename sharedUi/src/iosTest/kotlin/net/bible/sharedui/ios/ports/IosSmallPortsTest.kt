@@ -46,9 +46,9 @@ class IosSmallPortsTest {
         val links = IosExternalLinks(openUrl = { url, done ->
             urls.add(assertNotNull(url.absoluteString)); completion = done
         }, openingFailed = { errors++ })
-        links.open("https://andbible.org/docs/")
+        links.open(net.bible.sharedcore.docs.DocsLinks.BASE_URL)
         yield()
-        assertEquals(listOf("https://andbible.org/docs/"), urls)
+        assertEquals(listOf(net.bible.sharedcore.docs.DocsLinks.BASE_URL), urls)
         assertNotNull(completion).invoke(true)
         assertEquals(0, errors)
         assertNotNull(completion).invoke(false)

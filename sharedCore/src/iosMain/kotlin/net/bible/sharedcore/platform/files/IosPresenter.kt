@@ -99,12 +99,27 @@ class FilePresentation<T>(
     }
 }
 
-/** Narrow bridge for host-owned sheets; terminal ownership remains in [FilePresentation]. */
+/** Where a popover-style sheet (iPad) points at on the presenting view. */
+@kotlin.native.HiddenFromObjC
+enum class SheetAnchor { Center, BottomCenter }
+
+/** The popover source rectangle for [anchor] inside a view of the given size (a zero or 1pt rect: popovers only need a point). */
+@kotlin.native.HiddenFromObjC
+fun sheetAnchorRect(anchor: SheetAnchor, originX: Double, originY: Double, width: Double, height: Double): Triple<Double, Double, Double> =
+    when (anchor) {
+        SheetAnchor.Center -> Triple(originX + width / 2, originY + height / 2, 0.0)
+        SheetAnchor.BottomCenter -> Triple(originX + width / 2, originY + height - 1.0, 1.0)
+    }
+
+/** Narrow bridge for host-owned sheets; terminal ownership remains in [FilePresentation].
+ * [anchor] defaults to the view centre (pickers, reports); share sheets pass [SheetAnchor.BottomCenter].
+ */
 @kotlin.native.HiddenFromObjC
 class IosSheetPresentation<T>(
     controller: UIViewController,
     continuation: CancellableContinuation<T>,
     cancelled: T,
+    private val anchor: SheetAnchor = SheetAnchor.Center,
     release: () -> Unit,
 ) {
     private val presentation = FilePresentation(controller, continuation, cancelled, release = release)
@@ -119,7 +134,8 @@ class IosSheetPresentation<T>(
         sheet.popoverPresentationController?.apply {
             sourceView = from.view
             sourceRect = from.view.bounds.useContents {
-                platform.CoreGraphics.CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0)
+                val (x, y, side) = sheetAnchorRect(anchor, origin.x, origin.y, size.width, size.height)
+                platform.CoreGraphics.CGRectMake(x, y, side, side)
             }
         }
     }

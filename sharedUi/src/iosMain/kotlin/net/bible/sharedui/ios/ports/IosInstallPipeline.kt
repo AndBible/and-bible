@@ -9,7 +9,9 @@ import platform.Foundation.NSTemporaryDirectory
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.startup.ReadingAppInit
+import net.bible.service.installzip.InstallCommitter
 import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.addressOf
@@ -66,6 +68,21 @@ internal class IosInstallTerminalFeedback(
     }
 }
 
+/**
+ * Debug seam (`-installCommitDelayMs`): sleeps after each extracted archive entry of a SWORD zip commit, so a UI test can
+ * kill the app mid-extraction. Only constructed when the launch argument is set in a debug binary.
+ */
+private class EntryDelayingCommitter(
+    private val inner: InstallCommitter,
+    private val delayMs: Long,
+) : InstallCommitter by inner {
+    override suspend fun commitSwordZip(localFile: okio.Path, totalEntries: Int, onProgress: (Int) -> Unit) =
+        inner.commitSwordZip(localFile, totalEntries) { percent ->
+            onProgress(percent)
+            platform.posix.usleep((delayMs * 1000).toUInt())
+        }
+}
+
 /** One headless queue for the process; its scope is not owned/cancelled by a screen or a Koin test container. */
 internal object IosInstallPipeline {
     val scope = AppCoroutineScope()
@@ -81,10 +98,13 @@ internal object IosInstallPipeline {
             initialise = { ensureInitialized() },
             runnerFactory = {
                 val koin = KoinPlatform.getKoin()
-                InstallJobRunner(InstallInspector(::determineLocalFileType), DefaultInstallCommitter(
+                val committer = DefaultInstallCommitter(
                     koin.get<BackupControl>(), koin.get<CoreStrings>(), koin.get<AppEnvironment>(),
                     clearAddonCaches = { koin.get<AddonCatalog>().clearCaches() },
-                ))
+                )
+                val delayMs = IosDebugLaunchArgs.installCommitDelayMs()
+                InstallJobRunner(InstallInspector(::determineLocalFileType),
+                    if (delayMs > 0) EntryDelayingCommitter(committer, delayMs) else committer)
             },
             newJobId = { NSUUID().UUIDString },
             onTerminal = { _, phase -> feedback.handle(phase) },

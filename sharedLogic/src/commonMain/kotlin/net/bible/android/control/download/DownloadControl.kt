@@ -33,8 +33,8 @@ import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
-/** Same value as `SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS`, which stays with the files owner. */
-private const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
+/** Free storage (MB) a download needs; the one definition, used by Android's `SharedConstants` and the welcome flow too. */
+const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
 
 /** Support the download screen
  *
