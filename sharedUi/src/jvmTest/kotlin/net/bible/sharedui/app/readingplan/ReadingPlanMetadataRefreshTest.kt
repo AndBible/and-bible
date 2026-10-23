@@ -10,6 +10,11 @@ import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import net.bible.service.readingplan.OneDaysReadingsDto
+import net.bible.service.readingplan.ReadingPlanInfoDto
+import net.bible.sharedlogic.platform.LocalCalendar
+import net.bible.sharedui.strings.keyed.KeyedCoreStrings
+import net.bible.sharedui.strings.keyed.StringTable
 
 class ReadingPlanMetadataRefreshTest {
     private fun daily() = DailyReadingController(
@@ -60,5 +65,39 @@ class ReadingPlanMetadataRefreshTest {
             }
             assertEquals(emptyList(), errors)
         }
+    }
+
+    private fun table(tag: String, dayTemplate: String) = StringTable.of(
+        tag, { if (it == "rdg_plan_day") dayTemplate else it }, { n, _ -> n }, { emptyList() },
+    )
+
+    @Test
+    fun loadedDayDescriptionIsReReadAfterALanguageSwitchKeepingReadStateAndConfirmation() = runTest {
+        var current = table("en", "Day %s")
+        val calendar = java.lang.reflect.Proxy.newProxyInstance(
+            LocalCalendar::class.java.classLoader, arrayOf(LocalCalendar::class.java),
+        ) { _, method, _ -> error("unexpected calendar call ${method.name}") } as LocalCalendar
+        // One loaded DTO for the whole test: nothing re-creates it on the language switch.
+        val dto = OneDaysReadingsDto(3, null, ReadingPlanInfoDto("p1").apply { planName = "Plan" }, KeyedCoreStrings { current }, calendar)
+        val controller = daily()
+        controller.setUi(DailyReadingUi("Plan", dto.dayDesc, "", listOf(ReadingItem(1, "John 3", true)), false, true, false))
+        controller.requestReset()
+        val confirm = controller.confirm.value
+        assertEquals("Day 3", controller.ui.value.dayDesc)
+
+        current = table("fi", "Päivä %s")
+        applyLoadedDayMetadata(controller, dto, "Suunnitelma")
+
+        assertEquals("Päivä 3", controller.ui.value.dayDesc)
+        assertEquals("Suunnitelma", controller.ui.value.planName)
+        assertEquals(listOf(ReadingItem(1, "John 3", true)), controller.ui.value.readings)
+        assertEquals(true, controller.ui.value.allRead)
+        assertEquals(confirm, controller.confirm.value)
+
+        // A missing plan name keeps the loaded one; the description still follows the language.
+        current = table("en", "Day %s")
+        applyLoadedDayMetadata(controller, dto, null)
+        assertEquals("Day 3", controller.ui.value.dayDesc)
+        assertEquals("Suunnitelma", controller.ui.value.planName)
     }
 }
