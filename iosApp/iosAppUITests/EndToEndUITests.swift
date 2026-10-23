@@ -650,8 +650,10 @@ final class EndToEndUITests: RealAppUITestCase {
 
     /// The Files picker cell of the backup file `fileName` (the root of the local storage is open).
     private func backupFileCell(_ app: XCUIApplication, named fileName: String) -> XCUIElement? {
+        // Files may hide the ".zip" suffix in the cell label: match the exact saved base name without it.
+        let base = fileName.hasSuffix(".zip") ? String(fileName.dropLast(4)) : fileName
         let cell = localRoot(app).cells.matching(NSPredicate(
-            format: "label CONTAINS %@ OR identifier CONTAINS %@", fileName, fileName)).firstMatch
+            format: "label CONTAINS %@ OR identifier CONTAINS %@", base, base)).firstMatch
         return cell.waitForExistence(timeout: 30) ? cell : nil
     }
 
@@ -659,7 +661,7 @@ final class EndToEndUITests: RealAppUITestCase {
     /// without the ".zip" suffix in the cell label, so the accessibility identifier and label are both read.
     private func backupFileName(_ app: XCUIApplication, named fileName: String) -> String? {
         guard let cell = backupFileCell(app, named: fileName) else { return nil }
-        let pattern = "^" + backupStem + ".*\\.abdb\\.zip"
+        let pattern = "^" + backupStem + ".*\\.abdb(\\.zip)?"
         for text in [cell.identifier, cell.label] {
             let name = text.components(separatedBy: ",").first ?? text
             if name.range(of: pattern, options: .regularExpression) != nil { return name }
