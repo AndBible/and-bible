@@ -41,7 +41,7 @@
 #   MAC_WORKDIR      remote directory under ~ (default work/<container hostname>)
 #   MAC_SIM_IPHONE   iPhone simulator name (default "iPhone 16", as in CI; created if missing)
 #   MAC_SIM_IPAD     iPad simulator name (default "iPad Air 11-inch (M4)"; created if missing)
-#   MAC_TIMEOUT      seconds before a remote Gradle/xcodebuild step is killed (default 3000)
+#   MAC_TIMEOUT      seconds before a remote Gradle/xcodebuild step is killed (default 3000; 2400 for xcode-test)
 #   MAC_LOCK_WAIT    seconds to wait for another container's build lock (default 5400; a dead holder's
 #                    lock is broken automatically, so this only bounds waiting behind live runs)
 #   TEST_RUNNER_*    forwarded to `xcode-test`; xcodebuild hands them to the UI tests without the prefix
@@ -57,7 +57,10 @@ TREE="$WORKDIR/and-bible"
 OUT="$repo/.local/mac/$NAME"
 SIM_IPHONE="${MAC_SIM_IPHONE:-iPhone 16}"
 SIM_IPAD="${MAC_SIM_IPAD:-iPad Air 11-inch (M4)}"
-TIMEOUT="${MAC_TIMEOUT:-3000}"
+# One XCUITest class takes at most ~25 min (BackupUITests is the longest); a stuck xcodebuild must end in minutes, not hours (see the
+# ios-mac-runs-must-be-bounded-and-observable memory). Gradle/native steps keep the long default.
+case "${1:-}" in xcode-test) _default_timeout=2400 ;; *) _default_timeout=3000 ;; esac
+TIMEOUT="${MAC_TIMEOUT:-$_default_timeout}"
 LOCK_WAIT="${MAC_LOCK_WAIT:-5400}"
 APP_ID=org.andbible.ios.dev
 APP_PROCESS=AndBibleDev
