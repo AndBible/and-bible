@@ -58,7 +58,7 @@ class IosLegacyNoticesTest {
     }
 
     private val table = StringTable(
-        tag = "en",
+        initialTag = "en",
         text = { "T:$it" },
         format = { key, args -> "F:$key:${args.joinToString(",")}" },
         plural = { n, c -> "P:$n:$c:%1\$d" },

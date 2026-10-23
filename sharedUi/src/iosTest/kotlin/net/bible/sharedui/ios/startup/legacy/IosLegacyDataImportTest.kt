@@ -35,7 +35,7 @@ class IosLegacyDataImportTest {
     }
 
     private val table = StringTable(
-        tag = "en",
+        initialTag = "en",
         text = { "T:$it" },
         format = { key, args -> "F:$key:${args.joinToString(",")}" },
         plural = { n, _ -> n },
