@@ -18,10 +18,14 @@
 package net.bible.service.startup
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.defaultBible
 import net.bible.android.control.page.defaultVerse
@@ -109,6 +113,9 @@ object ReadingAppInit {
 
     @kotlin.concurrent.Volatile private var booksInitialized = false
     @kotlin.concurrent.Volatile private var snapshotLoadJob: Job? = null
+    @kotlin.concurrent.Volatile private var cipherUnlockJob: Job? = null
+    private val cipherUnlockMutex = Mutex()
+    private val cipherUnlockStartLock = SynchronizedObject()
 
     private var lastRepositoryScope: CoroutineScope? = null
     private var lastRepository: WindowRepository? = null
@@ -119,10 +126,10 @@ object ReadingAppInit {
         KoinPlatform.getKoin().get<DocumentSyncSettings>().ensureLoaded()
     }
     @VisibleForTesting internal var installManualBooks: suspend () -> Unit = ::installManualBooksFromKoin
-    @VisibleForTesting internal var hasInstalledBible: () -> Boolean = {
+    @VisibleForTesting var hasInstalledBible: () -> Boolean = {
         Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()
     }
-    @VisibleForTesting internal var unlockBook: (initials: String, cipherKey: String?) -> Unit = { initials, key ->
+    @VisibleForTesting var unlockBook: (initials: String, cipherKey: String?) -> Unit = { initials, key ->
         Books.installed().getBook(initials)?.unlock(key)
     }
 
@@ -156,15 +163,52 @@ object ReadingAppInit {
     /** True once [unlockStoredCipherKeys] has run to completion this process (callers may then skip it). */
     val cipherKeysUnlocked: Boolean get() = booksInitialized
 
-    /** Unlocks installed books that have a stored cipher key; once per process, and only when a Bible is installed. */
+    /**
+     * Unlocks installed books that have a stored cipher key; once per process, and only when a Bible is installed.
+     * Serialised by a mutex: a background start ([unlockStoredCipherKeysInBackground]) and [initialise] may overlap,
+     * and the loser finds [booksInitialized] set and returns, so every enciphered book is unlocked once.
+     */
     suspend fun unlockStoredCipherKeys() {
-        if (booksInitialized || !hasInstalledBible()) return
-        if (!DatabaseContainer.host.isRunningTests) {
-            for (info in DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getUnlocked()) {
-                unlockBook(info.initials, info.cipherKey)
+        if (booksInitialized) return
+        cipherUnlockMutex.withLock {
+            if (booksInitialized || !hasInstalledBible()) return
+            if (!DatabaseContainer.host.isRunningTests) {
+                for (info in DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getUnlocked()) {
+                    unlockBook(info.initials, info.cipherKey)
+                }
+            }
+            booksInitialized = true
+        }
+    }
+
+    /**
+     * Starts [unlockStoredCipherKeys] without blocking the caller (synchronous entry points run on Main; the unlock
+     * is a DB read plus a JSword decrypt per enciphered module). Returns the running job, or null when the keys are
+     * already unlocked. A second call while the job is active returns that same job. The job is owned by
+     * [DatabaseContainer.aiLifetime], like [loadSnapshotStoresInBackground]: a database reset cancels and joins it
+     * first. A cancelled unlock leaves [cipherKeysUnlocked] false; a later [initialise] retries it.
+     * Readers of enciphered books call [awaitCipherUnlock].
+     */
+    fun unlockStoredCipherKeysInBackground(): Job? {
+        if (booksInitialized) return null
+        synchronized(cipherUnlockStartLock) { // L1-common-ok: atomicfu lock
+            cipherUnlockJob?.let { if (it.isActive) return it }
+            val scope = KoinPlatform.getKoin().get<AppCoroutineScope>()
+            return scope.launch(start = CoroutineStart.LAZY) { unlockStoredCipherKeys() }.also {
+                cipherUnlockJob = it
+                DatabaseContainer.aiLifetime.ownUntilReplace(it)
+                it.start()
             }
         }
-        booksInitialized = true
+    }
+
+    /**
+     * Suspends until a background unlock started by [unlockStoredCipherKeysInBackground] has finished, so a reader
+     * of an enciphered book does not see it locked. Returns at once when no unlock is running (or it was cancelled).
+     */
+    suspend fun awaitCipherUnlock() {
+        if (booksInitialized) return
+        cipherUnlockJob?.join()
     }
 
     private suspend fun loadStoresFromKoin() {
@@ -363,6 +407,7 @@ object ReadingAppInit {
         initialized = false
         booksInitialized = false
         snapshotLoadJob = null
+        cipherUnlockJob = null
         lastRepositoryScope = null
         lastRepository = null
         loadStores = ::loadStoresFromKoin

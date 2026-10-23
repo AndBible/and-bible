@@ -1001,7 +1001,8 @@ object CommonUtils : CommonUtilsBase() {
             ReadingAppInit.markInitialized()
         }
 
-        if (!ReadingAppInit.cipherKeysUnlocked) blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
+        // Never on Main: readers of enciphered books await it (ReadingAppInit.awaitCipherUnlock).
+        ReadingAppInit.unlockStoredCipherKeysInBackground()
     }
 
     /**
