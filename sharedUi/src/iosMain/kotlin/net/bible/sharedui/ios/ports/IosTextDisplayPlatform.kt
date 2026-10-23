@@ -39,6 +39,7 @@ import platform.CoreFoundation.*
 import platform.CoreGraphics.CGImageRelease
 import platform.Foundation.*
 import platform.ImageIO.*
+import platform.UIKit.UIApplicationDidReceiveMemoryWarningNotification
 import platform.UIKit.UIImage
 import platform.UIKit.UIImagePNGRepresentation
 import platform.posix.memcpy
@@ -52,8 +53,32 @@ class IosTextDisplayPlatform(
             .backgroundImages.mapValues { it.value.path }
     },
     private val readBytes: (Path) -> ByteArray = { path -> FileSystem.SYSTEM.read(path) { readByteArray() } },
+    /** Registers the callback that runs when installed modules change (install or delete). */
+    private val onModulesChanged: (() -> Unit) -> Unit = { callback ->
+        (org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.BackgroundImageCatalog>()
+            as? net.bible.sharedlogic.addons.SharedAddonCatalog)?.addClearListener(callback)
+    },
+    /** Registers the callback that runs on the system low-memory warning. */
+    private val onMemoryWarning: (() -> Unit) -> Unit = { callback ->
+        NSNotificationCenter.defaultCenter.addObserverForName(
+            UIApplicationDidReceiveMemoryWarningNotification, null, NSOperationQueue.mainQueue,
+        ) { callback() }
+    },
 ) : TextDisplayPlatform {
+    // Successes and misses (null) are both cached; a miss must not outlive the install that fixes it.
     private val thumbnails = mutableMapOf<String, ImageBitmap?>()
+    private var hooked = false
+
+    /** Drops every cached thumbnail, decoded and negative alike; the next lookup re-reads the inventory. */
+    internal fun clearThumbnails() { thumbnails.clear() }
+
+    private fun hookInvalidation() {
+        if (hooked) return
+        hooked = true
+        // Without a running Koin graph (detached bundles) there is no catalog to follow; the cache then lives as long as the port.
+        runCatching { onModulesChanged(::clearThumbnails) }
+        runCatching { onMemoryWarning(::clearThumbnails) }
+    }
 
     override fun entryFor(args: TextDisplaySettingsArgs): TextDisplayEntry {
         val entry = TextDisplaySettingsRouteEntry(args, sharedService())
@@ -69,6 +94,7 @@ class IosTextDisplayPlatform(
     }
 
     override fun thumbnail(token: String): ImageBitmap? {
+        hookInvalidation()
         if (thumbnails.containsKey(token)) return thumbnails[token]
         val image = try {
             inventory()[token]?.let { decodeThumbnail(readBytes(it)) }
