@@ -22,6 +22,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.search.BibleOption
+import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowPaneMenuItem
@@ -211,6 +213,29 @@ class BarFontScaleCoverageTest {
         }
         assertEquals(cap, bar, "bar action stays capped")
         assertEquals(system, menu, "menu popup must follow the system scale")
+    }
+
+    @Test
+    fun dialogOpenedFromBarActionsKeepsSystemScaleWhileBarIsCapped() {
+        val title = iosStrings("en").chooseTranslations
+        val bar: @Composable () -> Unit = {
+            AbTopAppBar(title = {}, actions = {
+                BibleResultsActions(
+                    candidates = listOf(BibleOption("KJV", "KJV", false)),
+                    selectedIds = listOf("KJV"),
+                    selectedAbbreviations = "KJV",
+                    scriptureToggleVisible = false,
+                    scriptureShown = true,
+                    onToggleScripture = {},
+                    onOpenInWindow = {},
+                    onSelectTranslations = {},
+                    initiallyChooserOpen = true,
+                )
+            })
+        }
+        val underCap = textWidth(system, cap, title, bar)
+        val noCap = textWidth(system, null, title, bar)
+        assertEquals(noCap, underCap, "the translation chooser dialog must follow the system scale even though the bar is capped")
     }
 
     /** Composes [content] and reports whether [text] is in the tree, optionally after [act]. */
