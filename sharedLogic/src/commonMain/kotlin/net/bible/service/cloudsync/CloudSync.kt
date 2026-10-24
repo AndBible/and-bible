@@ -217,6 +217,25 @@ class CloudSync(
     /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */
     internal val namespace: String get() = syncNamespace ?: SyncNamespace.forAppId(env.packageName)
 
+    /**
+     * The name this install uses for its device folder and its [SyncStatus] rows.
+     *
+     * [AppEnvironment.deviceIdentifier] is per (signing key, user, device) on Android 8+, so builds signed with
+     * the same key (GitHub standard, GitHub discrete, Accrescent) report the same value when installed side by
+     * side. Now that they share one sync folder ([SyncNamespace]) they would also share one device folder and
+     * number their patches independently, so two installs could upload the same patch number and overwrite
+     * each other. A package that [SyncNamespace] maps to the shared namespace therefore appends a short hash of
+     * its package id. The hash (not a readable tag) keeps the discrete build's disguise: no package name shows
+     * up in cloud folder names.
+     *
+     * The raw identifier is kept when the package is its own namespace (standard, suffixed and unknown ids), so
+     * existing users' device folders do not change. Non-standard builds reset their category state and join
+     * afresh on their first sync with the shared folder, so no migration of the old name is needed.
+     */
+    @VisibleForTesting val syncDeviceName: String get() =
+        if (SyncNamespace.forAppId(env.packageName) == env.packageName) env.deviceIdentifier
+        else "${env.deviceIdentifier}-${shortStableHash(env.packageName)}"
+
     @VisibleForTesting fun syncFolderName(category: String): String = "$namespace-sync-$category"
 
     /**
@@ -311,10 +330,10 @@ class CloudSync(
         }
 
         suspend fun createNewDeviceSyncFolder() {
-            val deviceIdentifier = env.deviceIdentifier
-            Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
+            val deviceName = syncDeviceName
+            Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceName")
             adapter.createNewFolder(
-                name = deviceIdentifier,
+                name = deviceName,
                 parentId = syncFolderId,
             )
                 .id.also {
@@ -356,7 +375,7 @@ class CloudSync(
             file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
-        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, 0, result.size, result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(syncDeviceName, 0, result.size, result.createdTime))
         FileSystem.SYSTEM.delete(gzippedTmpFile)
     }
 
@@ -394,7 +413,7 @@ class CloudSync(
                 createTriggers(dbDef)
                 dbDef.dao.addStatus(
                     SyncStatus(
-                        env.deviceIdentifier,
+                        syncDeviceName,
                         0,
                         initialFile.size,
                         initialFile.createdTime
@@ -574,7 +593,7 @@ class CloudSync(
         val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
-        Log.i(TAG, "This device ${env.deviceIdentifier} (id: ${deviceSyncFolder})")
+        Log.i(TAG, "This device $syncDeviceName (id: ${deviceSyncFolder})")
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, Clock.System.now().toEpochMilliseconds())
 
@@ -656,7 +675,7 @@ class CloudSync(
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
         val file = createPatchForDatabase(dbDef, env, false)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
-        val count = (dbDef.dao.lastPatchNum(env.deviceIdentifier)?: 0) + 1
+        val count = (dbDef.dao.lastPatchNum(syncDeviceName)?: 0) + 1
         val fileName = "$count.${dbDef.version()}.sqlite3.gz"
         val lastWritten = Clock.System.now().toEpochMilliseconds();
 
@@ -669,7 +688,7 @@ class CloudSync(
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.size()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
-        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.size(), result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(syncDeviceName, count, file.size(), result.createdTime))
         runCatching { FileSystem.SYSTEM.delete(file) }
     }
 
@@ -689,3 +708,12 @@ class CloudSync(
 
 /** Size in bytes; 0 when the file is absent (as `File.length()`). */
 private fun Path.size(): Long = FileSystem.SYSTEM.metadataOrNull(this)?.size ?: 0L
+
+/** 8 hex chars of the 32-bit FNV-1a hash of the UTF-8 bytes of [text]: identical on every platform. */
+internal fun shortStableHash(text: String): String {
+    var h = 0x811c9dc5.toInt()
+    for (b in text.encodeToByteArray()) {
+        h = (h xor (b.toInt() and 0xff)) * 0x01000193
+    }
+    return h.toUInt().toString(16).padStart(8, '0')
+}

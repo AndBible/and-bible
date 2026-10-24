@@ -16,8 +16,8 @@
  */
 package net.bible.service.cloudsync
 
+import android.os.Looper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -52,7 +52,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
-import android.os.Looper
 
 /**
  * Release distributions share one sync folder per category ([SyncNamespace]); `initializeSync` resets a
@@ -152,21 +151,26 @@ class CloudSyncNamespaceTest {
         val job: kotlinx.coroutines.Deferred<Unit> = kotlinx.coroutines.CoroutineScope(Dispatchers.Default).async {
             try { block() } catch (e: CancelStartedSync) { /* cancelled first join */ }
         }
-        withTimeout(15_000) {
-            while (!job.isCompleted) {
-                shadowOf(Looper.getMainLooper()).idle()
-                dialogs.pending.value?.let { p ->
-                    seen += p.request
-                    val r = p.request
-                    dialogs.respond(p.id, when {
-                        r is AppDialogRequest.Options && firstAnswer != null -> AppDialogResult.Selected(r.options[firstAnswer].value)
-                        r is AppDialogRequest.Options -> AppDialogResult.Cancel
-                        else -> AppDialogResult.Ok
-                    })
+        try {
+            withTimeout(15_000) {
+                while (!job.isCompleted) {
+                    shadowOf(Looper.getMainLooper()).idle()
+                    dialogs.pending.value?.let { p ->
+                        seen += p.request
+                        val r = p.request
+                        dialogs.respond(p.id, when {
+                            r is AppDialogRequest.Options && firstAnswer != null -> AppDialogResult.Selected(r.options[firstAnswer].value)
+                            r is AppDialogRequest.Options -> AppDialogResult.Cancel
+                            else -> AppDialogResult.Ok
+                        })
+                    }
+                    Thread.sleep(20)
                 }
-                Thread.sleep(20)
+                job.await()
             }
-            job.await()
+        } finally {
+            // A timeout must not leave the job touching DatabaseContainer after teardown.
+            job.cancel()
         }
         return seen
     }
@@ -206,11 +210,11 @@ class CloudSyncNamespaceTest {
     @Test fun discreteWithOldFolderIsReset() = run {
         val adapter = FakeAdapter()
         val db = accessor().apply { seed() }
-        sync("com.app.calculator", adapter).initializeSync(db)
+        val cloudSync = sync("com.app.calculator", adapter).also { it.initializeSync(db) }
         assertEquals(listOf<String?>("net.bible.android.activity-sync-bookmarks"), adapter.listedNames)
         // Nothing existed under the shared name, so a new folder was created and the old ids are gone.
         assertEquals(
-            listOf("net.bible.android.activity-sync-bookmarks", get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier),
+            listOf("net.bible.android.activity-sync-bookmarks", cloudSync.syncDeviceName),
             adapter.createdFolders,
         )
         assertEquals("id-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
@@ -266,6 +270,41 @@ class CloudSyncNamespaceTest {
         assertTrue("fetch question expected, saw $seen", seen.any { it is AppDialogRequest.Options })
         assertEquals("existing-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
+    }
+
+    @Test fun discreteGetsItsOwnDeviceFolderName() = run {
+        val raw = get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier
+        val standardAdapter = FakeAdapter()
+        val discreteAdapter = FakeAdapter()
+        sync("net.bible.android.activity", standardAdapter).initializeSync(accessor())
+        sync("com.app.calculator", discreteAdapter).initializeSync(accessor())
+        val standardDevice = standardAdapter.createdFolders.last()
+        val discreteDevice = discreteAdapter.createdFolders.last()
+        assertEquals(raw, standardDevice)
+        assertTrue("discrete device folder must differ: $discreteDevice", discreteDevice != standardDevice)
+        assertTrue(discreteDevice.startsWith("$raw-"))
+    }
+
+    @Test fun discreteDeviceNameHidesThePackage() = run {
+        val name = sync("com.app.calculator", FakeAdapter()).syncDeviceName
+        assertFalse(name, name.contains("calculator", ignoreCase = true))
+        assertEquals(name, sync("com.app.calculator", FakeAdapter()).syncDeviceName)
+    }
+
+    @Test fun suffixedAndUnknownIdsKeepTheRawDeviceName() = run {
+        val raw = get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier
+        for (pkg in listOf("net.bible.android.activity.debug", "org.example.other")) {
+            assertEquals(pkg, raw, sync(pkg, FakeAdapter()).syncDeviceName)
+        }
+    }
+
+    @Test fun createNewWritesTheStatusRowUnderTheDeviceName() = run {
+        val db = accessor().apply { seed() }
+        val cloudSync = sync("com.app.calculator", FakeAdapter())
+        cloudSync.initializeSync(db)
+        val statuses = db.dao.allSyncStatus()
+        assertEquals(listOf(cloudSync.syncDeviceName), statuses.map { it.sourceDevice })
+        assertTrue(cloudSync.syncDeviceName != get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier)
     }
 
     @Test fun suffixedBuildStaysSeparate() = run {
