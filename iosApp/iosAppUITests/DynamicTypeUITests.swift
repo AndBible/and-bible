@@ -68,6 +68,121 @@ final class DynamicTypeUITests: RealAppUITestCase {
         assertSettingsReachable(at: "UICTContentSizeCategoryAccessibilityXXXL")
     }
 
+    // MARK: AX5 walk of the screens not covered above (Review Focus 4)
+
+    private let ax5Category = "UICTContentSizeCategoryAccessibilityXXXL"
+
+    /// A control that exists, is hittable and lies inside the window. A failure is recorded with the tree and a screenshot
+    /// (`continueAfterFailure` is on in the walk) so one bad control does not hide the others; returns whether it is fine.
+    @discardableResult
+    private func expectUsable(_ app: XCUIApplication, _ control: XCUIElement, _ what: String, screen: String,
+                              timeout: TimeInterval = 15) -> Bool {
+        guard control.waitForExistence(timeout: timeout) else {
+            attachTree(app, "ax5-\(screen)-\(what)-missing"); shot(app, "ax5-\(screen)-\(what)-missing")
+            XCTFail("AX5 \(screen): \(what) does not exist")
+            return false
+        }
+        let window = app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1)
+        var ok = true
+        if !control.isHittable { XCTFail("AX5 \(screen): \(what) is not hittable, frame \(control.frame)"); ok = false }
+        if !window.contains(control.frame) { XCTFail("AX5 \(screen): \(what) frame \(control.frame) is outside the window \(window)"); ok = false }
+        if !ok { attachTree(app, "ax5-\(screen)-\(what)-unusable"); shot(app, "ax5-\(screen)-\(what)-unusable") }
+        return ok
+    }
+
+    private func anyLabel(_ app: XCUIApplication, _ text: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", text)).firstMatch
+    }
+
+    private func upButton(_ app: XCUIApplication) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up'}")).firstMatch
+    }
+
+    /// Opens a real feature route (`-featureScenario`) at AX5 on a fresh workspace with KJV (the other walks' launch).
+    private func launchScenarioAtAX5(_ scenario: String) -> XCUIApplication {
+        let app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16",
+                          "-featureScenario", scenario, "-UIPreferredContentSizeCategoryName", ax5Category])
+        if scenario == "download" {
+            // The persecuted-country consent dialog hides the ready marker; its exact 'Yes' button (not 'Yes, do not ask again').
+            let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
+            _ = waitUntil(timeout: 90) { yes.exists || self.element(app, "debug-feature-ready").exists }
+            if yes.exists { shot(app, "ax5-download-consent"); yes.tap() }
+        }
+        harnessRequire(element(app, "debug-feature-ready").waitForExistence(timeout: 90), app, "ax5-\(scenario)-not-ready")
+        return app
+    }
+
+    /// Every screen is opened through its real route (the DEBUG feature scenarios used by the RTL and H2 walks, or the
+    /// Settings row for the text display screen), then its primary controls must be hittable and inside the window.
+    /// The legacy-migration progress view is NOT walked: its only debug route (`-seedLegacyFixture <dir>`, IosLegacyDebugSeed)
+    /// needs the unpacked legacy fixtures (opt-in `I3B_FIXTURE_DIR`, see LegacyMigrationUITests), so it has no standalone route here.
+    func testAccessibilitySizeKeepsControlsReachable() {
+        continueAfterFailure = true
+
+        // Download: title, Back, the language filter and the first catalogue row.
+        var app = launchScenarioAtAX5("download")
+        expectUsable(app, anyLabel(app, "Download Documents"), "title", screen: "download")
+        expectUsable(app, upButton(app), "Back", screen: "download")
+        let filter = app.staticTexts.matching(NSPredicate(format: "label == 'All'")).firstMatch
+        if expectUsable(app, filter, "language filter 'All'", screen: "download", timeout: 60) {
+            // First row below the filter bar: the catalogue arrives from the network, so allow it time.
+            let firstRow = { () -> XCUIElement? in
+                app.buttons.allElementsBoundByIndex.first {
+                    $0.exists && !$0.label.isEmpty && !$0.frame.isEmpty && $0.frame.minY > filter.frame.maxY
+                }
+            }
+            let loaded = waitUntil(timeout: 60) { firstRow() != nil }
+            if loaded, let row = firstRow() {
+                expectUsable(app, row, "first catalogue row", screen: "download")
+            } else {
+                attachTree(app, "ax5-download-no-row"); shot(app, "ax5-download-no-row")
+                XCTFail("AX5 download: no catalogue row below the language filter within 60 s")
+            }
+        }
+        shot(app, "ax5-download"); attachTree(app, "ax5-download")
+        app.terminate()
+
+        // Bookmarks: title, Back, Manage Labels, the sort toggle, and the first row or the empty-list text.
+        app = launchScenarioAtAX5("bookmarks")
+        expectUsable(app, anyLabel(app, "Bookmarks"), "title", screen: "bookmarks")
+        expectUsable(app, upButton(app), "Back", screen: "bookmarks")
+        let manageLabels = anyLabel(app, "Manage Labels")
+        expectUsable(app, manageLabels, "Manage Labels action", screen: "bookmarks")
+        expectUsable(app, app.descendants(matching: .any).matching(
+            NSPredicate(format: "label IN {'Date order','Biblical order'}")).firstMatch, "sort toggle", screen: "bookmarks")
+        let firstBookmark = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'John 3:16'")).firstMatch
+        let emptyList = anyLabel(app, "No items to display")
+        _ = waitUntil(timeout: 20) { firstBookmark.exists || emptyList.exists }
+        expectUsable(app, firstBookmark.exists ? firstBookmark : emptyList, "first row or empty-list text", screen: "bookmarks", timeout: 5)
+        shot(app, "ax5-bookmarks"); attachTree(app, "ax5-bookmarks")
+
+        // The first screen reachable from Bookmarks: Manage Labels. Its Back and its content must be usable too.
+        if manageLabels.exists && manageLabels.isHittable {
+            manageLabels.tap()
+            let closedBookmarks = waitUntil(timeout: 20) { !manageLabels.exists }
+            if closedBookmarks {
+                expectUsable(app, upButton(app), "Back", screen: "manage-labels")
+                shot(app, "ax5-manage-labels"); attachTree(app, "ax5-manage-labels")
+            } else {
+                attachTree(app, "ax5-manage-labels-not-opened"); XCTFail("AX5 bookmarks: Manage Labels did not open")
+            }
+        }
+        app.terminate()
+
+        // Text display settings (font size and the other display options), opened from the real Settings row.
+        app = launch(["-standardTestFixture", "-task5Settings", "-UIPreferredContentSizeCategoryName", ax5Category])
+        harnessRequire(waitForSettingsRoot(app), app, "ax5-settings-root-missing")
+        let row = revealSettingsRow(app, "global_text_display_settings")
+        row.tap()
+        let displayTitle = anyLabel(app, "Text display settings")
+        if expectUsable(app, displayTitle, "title", screen: "text-display") {
+            let leave = app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up','Close'}")).firstMatch
+            expectUsable(app, leave, "Back or Close", screen: "text-display")
+        }
+        shot(app, "ax5-text-display"); attachTree(app, "ax5-text-display")
+        app.terminate()
+    }
+
     /// Controller sets the simulator to Large first, then changes it to AX5 after the ready marker.
     /// No category launch override: this exercises the running app's actual system-trait updates.
     func testFontScaleFollowsLiveSystemTextSizeChange() throws {
