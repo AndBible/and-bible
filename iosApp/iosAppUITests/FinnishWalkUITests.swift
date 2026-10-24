@@ -84,6 +84,12 @@ final class FinnishWalkUITests: RealAppUITestCase {
         }
         _ = comma.waitForExistence(timeout: 20)
         shot(app, "fi-download-loaded"); attachTree(app, "fi-download-loaded")
+        // iOS formats numbers by the device REGION, not the app language (NSByteCountFormatter): on the en_US simulator a Finnish
+        // app shows "4.2 MB". The comma is only expected when the device region itself uses one.
+        guard Locale.current.decimalSeparator == "," else {
+            attachText("fi-download-sizes-limit", "Device region \(Locale.current.identifier) uses '\(Locale.current.decimalSeparator ?? "?")': iOS formats sizes by region, so the decimal comma is NOT asserted. Visible size: \(point.firstMatch.exists ? point.firstMatch.label : comma.firstMatch.label)")
+            return
+        }
         XCTAssertTrue(point.count == 0, "fi download: a size label uses a decimal point: \(point.firstMatch.label)")
         if !comma.exists {
             attachText("fi-download-sizes-limit", "The catalogue loaded but no visible label has a '<n>,<n> <unit>' size; decimal comma NOT verified (visible rows may show whole-number sizes only).")

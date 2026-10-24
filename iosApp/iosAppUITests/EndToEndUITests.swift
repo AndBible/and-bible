@@ -317,6 +317,7 @@ final class EndToEndUITests: RealAppUITestCase {
         // CONTROL, no restore yet: does a live night switch reach the page at all? (NM-1 fixed: the page background follows; see
         // ReadingUITests.testNightModeLiveSwitchReachesPage.) Failures are recorded without stopping.
         continueAfterFailure = true
+        ensureDayPage(app, phase: "control (no restore)")
         let controlOK = nightRoundTrip(app, phase: "control (no restore)")
         continueAfterFailure = false
         // After a night switch the pane can be gone from the tree and the menu stay up: do not rely on them.
@@ -330,6 +331,7 @@ final class EndToEndUITests: RealAppUITestCase {
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
         setNightModePreference(app, "Manual")
         continueAfterFailure = true
+        ensureDayPage(app, phase: "after restore")
         let restoreOK = nightRoundTrip(app, phase: "after restore")
         continueAfterFailure = false
         attachText("night-mode-result", "control (no restore): page followed the night switch \(controlOK ? "yes" : "NO"); after restore: \(restoreOK ? "yes" : "NO")")
@@ -455,6 +457,17 @@ final class EndToEndUITests: RealAppUITestCase {
     }
 
     /// Reading menu -> "Night mode" (a checkable overflow row).
+    /// The round trip returns to where it started, so it must start from a day page: the stored night toggle can already be on
+    /// (an earlier run, or the restored data), and a round trip from night would end dark.
+    private func ensureDayPage(_ app: XCUIApplication, phase: String) {
+        guard let now = sampleLuminance(app), now < 0.4 else { return }
+        toggleNightMode(app)
+        settleAfterMenu(app)
+        var after: Double?
+        _ = waitUntil(timeout: 20) { after = self.pageLuminance(app); return after.map { $0 > 0.6 } ?? false }
+        harnessRequire(after.map { $0 > 0.6 } ?? false, app, "\(phase): the page is a day page before the night round trip (was \(now), now \(after.map { "\($0)" } ?? "unreadable"))")
+    }
+
     private func toggleNightMode(_ app: XCUIApplication) {
         // A night toggle leaves the overflow menu open by design (ReadingOverflowController returns true for toggles) and the
         // open menu covers 'More options': reuse it when it is still up (run 9: the second toggle of the control round trip).
