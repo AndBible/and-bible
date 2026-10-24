@@ -222,10 +222,10 @@ final class EndToEndUITests: RealAppUITestCase {
         let backend = syncUI.rowButton(app, "Synchronization Backend")
         harnessRequire(backend.waitForExistence(timeout: 30), app, "the Device synchronization screen opened")
         backend.tap()
-        // The WebDAV backend is HTTPS-only (spec 2026-10-09); the plain-http local fixture goes through the Next Cloud
+        // The WebDAV backend is HTTPS-only (spec 2026-10-09); the plain-http local fixture goes through the NextCloud
         // backend, which allows http to local hosts and derives the user's DAV root from the server address.
         let plainHttp = URL(string: fixture.url)?.scheme == "http"
-        let backendLabel = plainHttp ? "Next Cloud" : "WebDAV"
+        let backendLabel = plainHttp ? "NextCloud" : "WebDAV"
         let webDav = syncUI.label(app, backendLabel)
         harnessRequire(webDav.waitForExistence(timeout: 10), app, "the backend choice lists '\(backendLabel)'")
         webDav.tap()
