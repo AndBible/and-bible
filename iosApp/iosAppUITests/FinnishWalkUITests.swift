@@ -38,6 +38,12 @@ final class FinnishWalkUITests: RealAppUITestCase {
         _ = waitUntil(timeout: 30) { self.anyLabel(app, probe.finnish).exists }
         shot(app, "fi-\(screen)")
         attachTree(app, "fi-\(screen)")
+        let leftovers = englishLeftovers(app)
+        if !leftovers.isEmpty {
+            let note = XCTAttachment(string: leftovers.joined(separator: "\n")); note.name = "fi-\(screen)-english-leftovers"
+            note.lifetime = .keepAlways; add(note)
+        }
+        XCTAssertTrue(leftovers.isEmpty, "fi \(screen): English labels that have a Finnish translation: \(leftovers.prefix(15))")
         for item in chrome {
             if !anyLabel(app, item.finnish).exists {
                 XCTFail("fi \(screen): Finnish '\(item.finnish)' (\(item.key)) is not an accessibility label")
@@ -46,6 +52,46 @@ final class FinnishWalkUITests: RealAppUITestCase {
                 XCTFail("fi \(screen): English '\(item.english)' (\(item.key)) is still an accessibility label")
             }
         }
+    }
+
+    /// Every button and static-text label of the screen (web view content excluded: it is Bible text, not chrome) that
+    /// equals the English value of a string that HAS a different Finnish translation (`FinnishEnglishValues.swift`, generated
+    /// from values/ and values-fi/). Keys missing from values-fi are not in that set, so legitimate English fallbacks pass.
+    private func englishLeftovers(_ app: XCUIApplication) -> [String] {
+        var found = Set<String>()
+        func walk(_ node: XCUIElementSnapshot) {
+            if node.elementType == .webView { return }
+            if node.elementType == .button || node.elementType == .staticText, finnishEnglishValues.contains(node.label) {
+                found.insert(node.label)
+            }
+            node.children.forEach(walk)
+        }
+        if let snapshot = try? app.snapshot() { walk(snapshot) }
+        return found.sorted()
+    }
+
+    /// Decimal comma in module sizes (Review Focus 3). Sizes only exist once the catalogue has loaded (network): the count
+    /// label turns from "0 teosta" to "N teosta". If it never does, the limit is recorded instead of inventing an assertion.
+    /// Otherwise at least one visible size label must use a decimal comma and none a decimal point.
+    private func checkFinnishSizes(_ app: XCUIApplication) {
+        let loaded = app.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES '[1-9][0-9]* teo.*'")).firstMatch
+        let units = "(B|kB|KB|MB|GB|kt|Mt|Gt|tavua)"
+        let comma = app.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]+,[0-9]+\\s?\(units)\\b.*")).firstMatch
+        let point = app.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]+\\.[0-9]+\\s?\(units)\\b.*"))
+        guard loaded.waitForExistence(timeout: 90) else {
+            attachText("fi-download-sizes-limit", "The catalogue did not load within 90 s (count label stayed at 0), so no module size label was reachable; decimal comma NOT checked.")
+            return
+        }
+        _ = comma.waitForExistence(timeout: 20)
+        shot(app, "fi-download-loaded"); attachTree(app, "fi-download-loaded")
+        XCTAssertTrue(point.count == 0, "fi download: a size label uses a decimal point: \(point.firstMatch.label)")
+        if !comma.exists {
+            attachText("fi-download-sizes-limit", "The catalogue loaded but no visible label has a '<n>,<n> <unit>' size; decimal comma NOT verified (visible rows may show whole-number sizes only).")
+        }
+    }
+
+    private func attachText(_ name: String, _ text: String) {
+        let a = XCTAttachment(string: text); a.name = name; a.lifetime = .keepAlways; add(a)
     }
 
     /// Reading view in the persisted language (no -standardTestFixture, which would reset `locale_pref` to en).
@@ -135,6 +181,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
         }
         harnessRequire(element(app, "debug-feature-ready").waitForExistence(timeout: 90), app, "fi-download-not-ready")
         check(app, "download", [download, all])
+        checkFinnishSizes(app)
         app.terminate()
 
         app = launch(["-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16", "-featureScenario", "bookmarks"])
