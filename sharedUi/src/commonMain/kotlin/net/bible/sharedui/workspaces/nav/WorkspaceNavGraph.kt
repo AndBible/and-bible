@@ -625,6 +625,7 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
         val query by controller.query.collectAsState()
         val filtering by controller.filtering.collectAsState()
         val canDelete by controller.canDelete.collectAsState()
+        val canCopySettings by controller.canCopySettingsToWorkspaces.collectAsState()
         val copy by controller.copySettingsState.collectAsState()
         val pending by controller.pendingSelectId.collectAsState()
         val searchModeActive by controller.searchModeActive.collectAsState()
@@ -641,7 +642,7 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
 
         WorkspaceSelectorScreen(
             title = d.title,
-            workspaces = workspaces, dirty = dirty, canDelete = canDelete,
+            workspaces = workspaces, dirty = dirty, canDelete = canDelete, canCopySettings = canCopySettings,
             filtering = filtering, query = query, searchModeActive = searchModeActive,
             copySettingsState = copy, pendingSelectId = pending,
             onQueryChange = controller::setQuery,
