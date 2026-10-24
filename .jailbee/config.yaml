@@ -84,6 +84,29 @@ optional_mounts:
     readonly: true
     description: "SSH key + config for the iOS build Mac (ssh -F ~/.ssh-mac/config andbible-mac)"
 
+  # Release secrets for a release container only (spec specs/2026-10-24-i4-release-design.md §5.3):
+  # the GPG-encrypted App Store Connect API key, the Play service-account JSON, asc-api.env (key id,
+  # issuer id, team id), the host's public GPG key and review_information.local.yml. Decrypted
+  # material lives only in RAM inside the container. Attach for the release, detach after:
+  #   jailbee mount release-secrets <container> --for 2h
+  #   jailbee unmount release-secrets <container>
+  release-secrets:
+    host: ~/.config/andbible-release
+    container: /home/dev/.release-secrets
+    readonly: true
+    description: "AndBible store release secrets (encrypted keys, ids); attach only for a release"
+
+  # The host gpg-agent's restricted extra socket, so a release script in the container can decrypt
+  # with the maintainer's YubiKey (touch/PIN on the host). The host's gpg-agent.conf points
+  # `extra-socket` into this dedicated directory, so the agent's full socket is not exposed.
+  # Read-write: a socket cannot be connected to through a read-only mount.
+  #   jailbee mount gpg-agent <container> --for 2h
+  gpg-agent:
+    host: ~/.config/andbible-gpg-extra
+    container: /home/dev/.gpg-extra
+    readonly: false
+    description: "Host gpg-agent extra socket (YubiKey decrypt for release scripts)"
+
 # adb: one host-side adb server serves both host and container clients. The
 # container reaches it over this TCP forward (container 127.0.0.1:5037 ->
 # host 127.0.0.1:5037), which lands on adb's default endpoint, so the container
