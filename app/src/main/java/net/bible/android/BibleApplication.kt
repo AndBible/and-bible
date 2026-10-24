@@ -368,6 +368,8 @@ open class BibleApplication : Application() {
             editor.putString("night_mode_pref3", pref3value).apply()
         }
 
+        keepNightModeOnUpgrade(prefs, newInstall)
+
         Log.i(TAG, "Finished all Upgrading")
         editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
