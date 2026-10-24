@@ -230,21 +230,127 @@ final class FilesUITests: XCTestCase {
         }
     }
 
+    /// The searched cell exists, is hittable, lies inside the window and keeps its frame for three consecutive reads.
+    private func searchedCellSettled(_ app: XCUIApplication, _ target: XCUIElement) -> Bool {
+        let view = app.frame
+        var previous = CGRect.null
+        var stable = 0
+        let settled = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            guard target.exists && target.isHittable, view.contains(target.frame) else {
+                stable = 0; previous = .null; return false
+            }
+            let frame = target.frame
+            stable = frame == previous ? stable + 1 : 0
+            previous = frame
+            return stable >= 3
+        }, object: nil)
+        return XCTWaiter.wait(for: [settled], timeout: 20) == .completed
+    }
+
     private func openNamedLocalFolder(_ app: XCUIApplication, folderName: String) {
-        let opened = localRoot(app).navigationBars["FullDocumentManagerViewControllerNavigationBar"]
+        // iPad (run 9): the "DOC.browsingRoot ..." Other element is absent while the picker shows search results, so the
+        // navigation bar and the search-result cell are resolved from the app, not through localRoot.
+        let opened = app.navigationBars["FullDocumentManagerViewControllerNavigationBar"]
             .buttons.matching(NSPredicate(format: "label == %@", "\(folderName), Actions Menu")).firstMatch
         if !opened.exists {
             let folder = localRoot(app).cells.matching(identifier: "\(folderName), Folder").firstMatch
             let grid = localRoot(app).collectionViews["File View"].firstMatch
             waitForSystemControl(grid, app: app, name: "save-folder-grid", message: "Actual Files folder grid is missing")
-            // Files virtualizes offscreen cells: rewind before scanning even when the target does not exist yet.
-            for _ in 0..<12 {
-                if folder.exists && folder.isHittable { break }
-                grid.swipeDown()
+            // "On My iPhone" can hold dozens of leftover folders and a blind full-height swipeDown at the list top pulls
+            // the picker sheet down (the grid then vanishes). Find the uniquely named folder through the picker's own
+            // Search field first; only fall back to bounded in-grid drags.
+            var foundBySearch = false
+            var searchHit = folder
+            if !(folder.exists && folder.isHittable) {
+                var search = app.searchFields.firstMatch
+                if !search.exists {
+                    // iPad (run 7): the picker has no inline Search field; it sits behind the toolbar magnifier button.
+                    let magnifier = localRoot(app).buttons.matching(
+                        NSPredicate(format: "label == 'Search' OR identifier == 'Search'")).firstMatch
+                    if magnifier.exists && magnifier.isHittable {
+                        magnifier.tap()
+                        _ = app.searchFields.firstMatch.waitForExistence(timeout: 10)
+                        search = app.searchFields.firstMatch
+                    }
+                }
+                evidence(app, "save-folder-search-field-\(search.exists ? "present" : "absent")")
+                if search.exists && search.isHittable {
+                    search.tap()
+                    search.typeText(folderName)
+                    // iPad (run 8): typing opens a "Name Contains ..." suggestion popup over the results; commit the query with
+                    // the keyboard's Search key so the real result cell is listed, and accept the folder by identifier or by
+                    // a label that starts with its name (search-mode cells are not guaranteed to carry the ", Folder" identifier).
+                    // iPad (run 9): the keyboard's blue Search key is a Key, not a Button (the old Button query waited 3 s for nothing),
+                    // and while the "Name Contains" popup is up the result cell is not in the accessibility tree at all. Commit with the
+                    // Search key (a Key query), falling back to typing a return character.
+                    let keyboardSearch = app.keyboards.keys.matching(NSPredicate(format: "label IN {'Search','search','Return','return'}")).firstMatch
+                    if keyboardSearch.waitForExistence(timeout: 3) && keyboardSearch.isHittable { keyboardSearch.tap() } else { search.typeText("\n") }
+                    sleep(1)
+                    let named = app.descendants(matching: .any).matching(NSPredicate(
+                        format: "(identifier == %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH 'Name Contains'",
+                        "\(folderName), Folder", folderName)).firstMatch
+                    foundBySearch = named.waitForExistence(timeout: 10) || folder.waitForExistence(timeout: 2)
+                    if foundBySearch && !folder.exists { searchHit = named }
+                    evidence(app, "save-folder-search-\(foundBySearch ? "found" : "empty")")
+                    if !foundBySearch {
+                        // Clear only the search text, and only when the field can still be resolved (run 8: it had vanished).
+                        let again = app.searchFields.firstMatch
+                        if again.exists && again.isHittable {
+                            again.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: folderName.count + 2))
+                        }
+                        _ = grid.waitForExistence(timeout: 10)
+                        if !grid.exists {
+                            // The picker has no "File View" grid in search mode: the drag fallback cannot run. Fail with evidence.
+                            evidence(app, "save-folder-search-no-result-no-grid")
+                            XCTFail("Folder '\(folderName)' not found in the picker search results and no 'File View' grid to scroll")
+                            return
+                        }
+                    }
+                }
+            }
+            if foundBySearch {
+                if folder.exists {
+                    XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
+                                   "Cannot uniquely identify the exact UI-created folder in the search results")
+                    XCTAssertTrue(searchedCellSettled(app, folder), "Searched folder cell did not settle")
+                }
+                evidence(app, "save-unique-folder-settled")
+                searchHit.tap()
+                waitForSystemControl(opened, app: app, name: "save-exact-folder-open", message: "Picker did not open the exact selected folder")
+                XCTAssertTrue(opened.isHittable, "Exact folder navigation title is not interactive")
+                return
+            }
+            // Fallback: bounded drags that start and end inside the grid, well below its top edge. Scroll down first
+            // (reveals lower items), then back up in the middle of the grid; the grid must survive every drag.
+            func drag(up: Bool) -> Bool {
+                let frame = grid.frame
+                let upper = frame.minY + frame.height * 0.45, lower = frame.minY + frame.height * 0.85
+                let x = frame.midX
+                let high = app.coordinate(withNormalizedOffset: CGVector(dx: x / app.frame.width, dy: upper / app.frame.height))
+                let low = app.coordinate(withNormalizedOffset: CGVector(dx: x / app.frame.width, dy: lower / app.frame.height))
+                (up ? low : high).press(forDuration: 0.1, thenDragTo: up ? high : low)
+                usleep(700_000)
+                if !grid.exists {
+                    evidence(app, "save-folder-grid-vanished")
+                    XCTFail("The 'File View' grid vanished after a bounded drag (the picker sheet was probably dismissed)")
+                    return false
+                }
+                return true
+            }
+            // Hittable alone is not enough on iPad: a cell clipped under the toolbar or the "Save as" bar reports hittable
+            // but the tap lands on the overlay, so the cell must sit inside the grid's middle band.
+            func inBand() -> Bool {
+                guard folder.exists && folder.isHittable else { return false }
+                let frame = folder.frame, gridFrame = grid.frame
+                return frame.midY > gridFrame.minY + 120 && frame.maxY < gridFrame.maxY - 160
             }
             for _ in 0..<24 {
-                if folder.exists && folder.isHittable { break }
-                grid.swipeUp()
+                if inBand() { break }
+                if !drag(up: true) { return }
+            }
+            for _ in 0..<12 {
+                if inBand() { break }
+                if !drag(up: false) { return }
             }
             evidence(app, "save-unique-folder-scrolled")
             let matches = localRoot(app).cells.matching(identifier: "\(folderName), Folder")

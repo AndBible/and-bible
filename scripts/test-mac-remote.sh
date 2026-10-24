@@ -360,6 +360,35 @@ t_batch_stops_at_first_failing_step() {
     [ "$(ls "$T/out/runs" | wc -l)" = 1 ] || fail "batch wrote several run dirs"
     [ ! -e "$LOCK" ] || fail "lock left behind"
 }
+t_batch_keep_going_runs_every_step() {
+    new_env batch-keep
+    out=$(mr batch --keep-going "run echo step-one; exit 4" "run echo step-two" "run echo step-three; exit 6" 2>&1); rc=$?
+    [ $rc = 4 ] || fail "exit $rc, want the first failing step's 4: $out"
+    grep -q '^step-two' <<<"$out" && grep -q '^step-three' <<<"$out" || fail "steps after a failure did not run: $out"
+    grep -q "step 1: .* -> exit 4" <<<"$out" && grep -q "step 2: .* -> exit 0" <<<"$out" && grep -q "step 3: .* -> exit 6" <<<"$out" || fail "per-step results: $out"
+    grep -q "2 of 3 steps failed" <<<"$out" || fail "no failure count: $out"
+    [ "$(grep -c 'build lock acquired' <<<"$out")" = 1 ] || fail "lock taken more than once: $out"
+    local d; d=$(last_run)
+    [ "$(kv "$d/exit" code)" = 4 ] && [ "$(kv "$d/exit" failed_step)" = 1 ] || fail "exit marker should name the first failure: $(cat "$d/exit")"
+    [ ! -e "$LOCK" ] || fail "lock left behind"
+}
+t_batch_keep_going_stops_after_a_failed_build_step() {
+    new_env batch-keep-build
+    # a failed link/gradle step must not let later test steps run (and pass) against the previous build
+    out=$(GRADLE_RC=3 mr batch --keep-going "gradle :x:y" "run echo after-build" 2>&1); rc=$?
+    [ $rc != 0 ] && grep -q "step 2: .* -> not run" <<<"$out" && ! grep -q '^after-build' <<<"$out" || fail "a failed build step should stop the batch, exit $rc: $out"
+}
+t_batch_keep_going_with_no_sync() {
+    new_env batch-keep-nosync
+    # no remote tree yet: the session is lost at step 1, so --keep-going must not try step 2
+    out=$(mr batch --no-sync --keep-going "run exit 2" "run echo after" 2>&1); rc=$?
+    [ $rc != 0 ] && grep -q "step 2: .* -> not run" <<<"$out" || fail "a lost session should stop the batch, exit $rc: $out"
+    mr sync >/dev/null 2>&1 || fail "sync failed"
+    local pushes; pushes=$(grep -c '^rsync-push' "$EVENTS")
+    out=$(mr batch --keep-going --no-sync "run exit 2" "run echo after" 2>&1); rc=$?
+    [ $rc = 2 ] && grep -q '^after' <<<"$out" || fail "exit $rc: $out"
+    [ "$(grep -c '^rsync-push' "$EVENTS")" = "$pushes" ] || fail "synced despite --no-sync: $(ev)"
+}
 t_batch_holds_lock_across_steps() {
     new_env batch-lock
     "$SCRIPT" batch 'run echo a1 >> $HOME/o.log; sleep 1' 'run echo a2 >> $HOME/o.log; sleep 1' > "$T/a.out" 2>&1 & local a=$!; bg_pids+=("$a")
@@ -572,7 +601,7 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_marker_written_on_success t_marker_records_failure_code t_marker_records_timeout t_marker_records_killed_run \
     t_check_shows_running_run_and_own_lock t_check_other_holder_and_timeout_and_lost \
     t_cancel_kills_only_own_pids_and_releases_matching_lock t_cancel_releases_lock_of_a_lost_run_and_stops_its_holder t_cancel_leaves_foreign_lock_alone t_cancel_with_nothing_to_cancel \
-    t_batch_stops_at_first_failing_step t_batch_holds_lock_across_steps t_batch_link_and_unknown_step t_batch_native_then_xcode_sequence \
+    t_batch_stops_at_first_failing_step t_batch_keep_going_runs_every_step t_batch_keep_going_stops_after_a_failed_build_step t_batch_keep_going_with_no_sync t_batch_holds_lock_across_steps t_batch_link_and_unknown_step t_batch_native_then_xcode_sequence \
     t_native_tests_force_deletes_results t_native_tests_boots_simulator_and_fetches t_gradle_warns_for_native_test_task \
     t_xcode_test_evidence_per_run_with_latest_links t_xcode_test_default_timeout_and_override \
     t_heartbeat_shows_in_output_log t_sim_boot_goes_through_lock_and_marker \

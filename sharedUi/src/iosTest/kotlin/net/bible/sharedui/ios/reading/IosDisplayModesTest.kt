@@ -58,6 +58,9 @@ import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.Foundation.NSRunLoop
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.Foundation.runUntilDate
+import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
+import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
+import net.bible.sharedui.webview.uiColorFromArgb
 
 /** Night, colour mode and animation switches reach shown documents as `set_config`, never as a page reload. */
 class IosDisplayModesTest {
@@ -134,6 +137,44 @@ class IosDisplayModesTest {
             assertEquals(1, loads, "no second loadBibleBundle: no reload flash, no lost scroll position")
             assertSame(webView, IosReadingWebViews.entry(id).webView)
         }
+    }
+
+    /**
+     * NM-1: BibleView-JS paints no page background, so the WKWebView and its scroll view carry the colour (Android's
+     * `BibleView.setBackgroundColor`). It follows the first `set_config` and every night switch, in both directions.
+     */
+    @Test
+    fun nightSwitchPaintsTheWebViewAndScrollViewBackground() {
+        val night = FakeNight(false)
+        withWindows(night) { id ->
+            IosReadingWebViews.bundleLoader = { _, _, _ -> }
+            attachReadingPane(id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+            val webView = IosReadingWebViews.entry(id).webView
+            IosReadingWindows.nightModeChanged()
+            assertBackground(webView, READING_BACKGROUND_DAY, "day")
+
+            night.dark = true
+            IosReadingWindows.nightModeChanged()
+            assertBackground(webView, READING_BACKGROUND_NIGHT, "night")
+
+            night.dark = false
+            IosReadingWindows.nightModeChanged()
+            assertBackground(webView, READING_BACKGROUND_DAY, "back to day")
+        }
+    }
+
+    private fun assertBackground(webView: platform.WebKit.WKWebView, argb: Int, label: String) {
+        val expected = uiColorFromArgb(argb)
+        assertTrue(webView.backgroundColor?.isEqual(expected) == true, "$label: WKWebView background ${webView.backgroundColor}")
+        assertTrue(webView.scrollView.backgroundColor?.isEqual(expected) == true, "$label: scroll view background ${webView.scrollView.backgroundColor}")
+    }
+
+    /** ARGB ints become opaque black / white and keep their alpha (so a colour with no alpha byte is as transparent as on Android). */
+    @Test
+    fun argbIntsConvertToUiColours() {
+        assertTrue(uiColorFromArgb(READING_BACKGROUND_NIGHT).isEqual(platform.UIKit.UIColor.colorWithRed(0.0, 0.0, 0.0, 1.0)))
+        assertTrue(uiColorFromArgb(READING_BACKGROUND_DAY).isEqual(platform.UIKit.UIColor.colorWithRed(1.0, 1.0, 1.0, 1.0)))
+        assertTrue(uiColorFromArgb(0x00112233).isEqual(platform.UIKit.UIColor.colorWithRed(0x11 / 255.0, 0x22 / 255.0, 0x33 / 255.0, 0.0)))
     }
 
     private class MemoryBackend : SettingsBackend {

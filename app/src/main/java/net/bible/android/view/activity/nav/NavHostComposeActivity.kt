@@ -2665,6 +2665,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private var initRoute: String? = null
 
+    override val blockOnCipherUnlockAtStart: Boolean get() = false
+
     /** Slice 8 §3.1 rule 2 -- see [routeStartsUninitialised]. A getter, so it is right before `onCreate` too. */
     override val doNotInitializeApp: Boolean
         get() = !initialisedAfterStart && routeStartsUninitialised(initRoute ?: intent?.getStringExtra(EXTRA_ROUTE))
@@ -2689,7 +2691,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     internal fun initialiseIfStartedUninitialised() {
         if (!doNotInitializeApp) return
-        CommonUtils.initializeApp()
+        CommonUtils.initializeApp(blockOnCipherUnlock = false)
         applyInitialisedWindowState()
         initialisedAfterStart = true
     }

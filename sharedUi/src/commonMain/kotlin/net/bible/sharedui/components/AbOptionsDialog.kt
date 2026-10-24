@@ -18,6 +18,8 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,7 +47,9 @@ fun AbOptionsDialog(
         properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),
         title = if (title != null) { { Text(title) } } else null,
         text = {
-            Column {
+            // The message and the answers scroll together: at an accessibility font size a long message otherwise pushes
+            // the answers out of the dialog, unreachable.
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (message != null) AbHtmlText(message)
                 options.forEach { option ->
                     TextButton(onClick = { onSelect(option.value) }, modifier = Modifier.fillMaxWidth()) {

@@ -482,22 +482,66 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         }
         walk(root)
         let labels = texts.map(\.label)
-        guard let start = labels.firstIndex(of: "16"), let end = labels[(start + 1)...].firstIndex(of: "17") else { return nil }
-        // Run 1 evidence: the KJV with Strong's emits a "¶" element before "For" and wraps lines, so the pilcrow is skipped.
-        let segment = (start + 1..<end).filter { labels[$0] != "¶" }
-        guard segment.count >= 5, segment.prefix(5).map({ labels[$0] }) == ["For", "God", "so", "loved", "the world"] else { return nil }
+        // Run 9 (iPad): the whole chapter stack (John 1, 2, 3) is in the tree, so the FIRST "16" is John 1:16 and the old
+        // first-match guard never found John 3:16. Every "16" is tried; the one followed by the KJV phrase split wins.
+        var segment: [Int] = []
+        for start in labels.indices where labels[start] == "16" {
+            guard let end = labels[(start + 1)...].firstIndex(of: "17") else { continue }
+            // Run 1 evidence: the KJV with Strong's emits a "\u{00B6}" element before "For" and wraps lines, so the pilcrow is skipped.
+            let candidate = (start + 1..<end).filter { labels[$0] != "\u{00B6}" }
+            if candidate.count >= 5, candidate.prefix(5).map({ labels[$0] }) == ["For", "God", "so", "loved", "the world"] {
+                segment = candidate
+                break
+            }
+        }
+        guard !segment.isEmpty else { return nil }
         // Single-word elements only: "the world" can be stretched by justification, a word cannot.
         let frames = segment.prefix(4).map { texts[$0].frame }
         guard frames.allSatisfy({ !$0.isEmpty }) else { return nil }
         return PhraseMetrics(widths: frames.map(\.width), heights: frames.map(\.height), top: frames[0].minY)
     }
 
+    /// The toolbar title as (chapter, verse) when it reads "John C:V" (top strip only, so web view headings are not hit).
+    private func readingTitlePosition(_ app: XCUIApplication) -> (chapter: Int, verse: Int)? {
+        let titles = app.staticTexts.matching(NSPredicate(format: "label MATCHES 'John [0-9]+:[0-9]+'")).allElementsBoundByIndex
+        guard let title = titles.first(where: { $0.frame.minY < 160 && $0.frame.height > 0 }) else { return nil }
+        let parts = title.label.dropFirst(5).split(separator: ":").compactMap { Int($0) }
+        return parts.count == 2 ? (parts[0], parts[1]) : nil
+    }
+
     /// Settled: two reads 1 s apart with identical widths/heights.
     private func settledVerse16(_ app: XCUIApplication, _ step: String) -> PhraseMetrics {
         var previous: PhraseMetrics?
         var result: PhraseMetrics?
+        var misses = 0
         _ = waitUntil(timeout: 60) {
-            guard let now = self.verse16Metrics(app) else { previous = nil; return false }
+            guard let now = self.verse16Metrics(app) else {
+                previous = nil
+                // Run 7 (iPad): after the text options close, the page is left away from John 3:16 and the verse is not in
+                // the accessibility tree. Run 8: the blind "down first" scroll overshot to John 3:22 / chapter 4. Each bounded
+                // drag therefore first reads the toolbar title ("John 3:N") and scrolls TOWARD verse 16 (back when past it,
+                // forward when before it); only without a readable title the old alternating nudge is used. Only
+                // widths/heights are compared afterwards, never positions.
+                misses += 1
+                if misses >= 2 && misses <= 30, let web = Optional(app.webViews.firstMatch), web.exists {
+                    let forward: Bool  // true: reveal later text (finger moves up)
+                    if let position = self.readingTitlePosition(app) {
+                        if position.chapter == 3 && position.verse == 16 {
+                            forward = misses % 2 == 0   // title says 3:16 but the words are off-tree: nudge both ways
+                        } else {
+                            forward = position.chapter < 3 || (position.chapter == 3 && position.verse < 16)
+                        }
+                        self.attach("verse16-scroll-\(misses)", "title=John \(position.chapter):\(position.verse) forward=\(forward)")
+                    } else {
+                        forward = misses <= 8
+                    }
+                    let from = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: forward ? 0.6 : 0.4))
+                    let to = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: forward ? 0.4 : 0.6))
+                    from.press(forDuration: 0.1, thenDragTo: to)
+                    usleep(600_000)
+                }
+                return false
+            }
             defer { previous = now }
             if let previous, previous.widths == now.widths, previous.heights == now.heights { result = now; return true }
             usleep(1_000_000)

@@ -529,10 +529,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     /**
      * Rebuilds this repository from the given (or first) workspace: the read phase off the main
      * thread, the apply phase on it. Not re-entrant — see [loadingFromDb].
+     *
+     * [beforeApply] runs on Main in the same step as the apply, immediately before the outgoing owners are
+     * discarded, and only when this load's apply is actually claimed. A workspace switch uses it to destroy the
+     * outgoing views there instead of before the read, so the old panes stay on screen while the read runs.
      */
-    suspend fun loadFromDb(workspaceId: IdType?) = loadFromDb(workspaceId, false)
+    suspend fun loadFromDb(workspaceId: IdType?, beforeApply: () -> Unit = {}) = loadFromDb(workspaceId, false, beforeApply)
 
-    private suspend fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean) = loadMutex.withLock {
+    private suspend fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean, beforeApply: () -> Unit = {}) = loadMutex.withLock {
         val startEpoch = DatabaseContainer.replaceEpoch
         val pending = PendingLoad(startEpoch)
         pendingLoad = pending
@@ -550,7 +554,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                     throw e
                 }
             }
-            withContext(Dispatchers.Main.immediate) { if (pending.claim()) applyLoaded(loaded, startEpoch) }
+            withContext(Dispatchers.Main.immediate) { if (pending.claim()) { beforeApply(); applyLoaded(loaded, startEpoch) } }
         } finally {
             if (pendingLoad === pending) pendingLoad = null
             loadingFromDb = false

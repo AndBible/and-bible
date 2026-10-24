@@ -44,10 +44,12 @@ extension RealAppUITestCase {
         let field = app.textViews.firstMatch
         harnessRequire(field.waitForExistence(timeout: 10) && app.textViews.count == 1, app, "Editor text field missing: \(rowKey)")
         guard field.exists else { return false }
-        field.tap()
+        // Tap the trailing edge so the caret lands at the END: a plain tap lands mid-text and the deletes then only
+        // remove the text before the caret.
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
         let existing = (field.value as? String) ?? ""
         if !existing.isEmpty {
-            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count + 2))
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count + 4))
         }
         if !value.isEmpty { field.typeText(value) }
         harnessRequire((field.value as? String ?? "") == value, app, "Editor did not hold the typed value for \(rowKey)")

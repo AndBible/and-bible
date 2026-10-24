@@ -32,3 +32,19 @@ fun paneBackgroundArgb(colors: WorkspaceEntities.Colors?, nightMode: Boolean, mo
     val day = if (monochrome) TextDisplaySettings.white else colors?.dayBackground
     return if (nightMode) night else day
 }
+
+/** The default page background at night (Android `R.color.bible_background_night`): black. */
+const val READING_BACKGROUND_NIGHT: Int = -16777216 // 0xFF000000
+
+/** The default page background by day (Android `R.color.bible_background_day`): white. */
+const val READING_BACKGROUND_DAY: Int = -1 // 0xFFFFFFFF
+
+/**
+ * The page background of a window as an ARGB int, with the platform defaults: [paneBackgroundArgb], and where it names
+ * no colour [READING_BACKGROUND_NIGHT] / [READING_BACKGROUND_DAY]. The single rule behind Android's
+ * `bibleViewBackgroundColorFor` and the iOS WKWebView background (BibleView-JS does not paint the page itself).
+ */
+@kotlin.native.HiddenFromObjC
+fun readingBackgroundArgb(colors: WorkspaceEntities.Colors?, nightMode: Boolean, monochrome: Boolean): Int =
+    paneBackgroundArgb(colors, nightMode, monochrome)
+        ?: if (nightMode) READING_BACKGROUND_NIGHT else READING_BACKGROUND_DAY

@@ -180,13 +180,15 @@ fun AbQuickSheetContent(
             // An unknown or null id falls back to the first tab, so a caller restoring a tab that
             // is not visible this time lands somewhere sane instead of on nothing.
             val selectedIndex = tabs.indexOfFirst { it.id == selectedTabId }.coerceAtLeast(0)
-            TabRow(selectedTabIndex = selectedIndex) {
-                tabs.forEachIndexed { index, tab ->
-                    Tab(
-                        selected = index == selectedIndex,
-                        onClick = { onTabSelected(tab.id) },
-                        text = { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    )
+            CappedBarFontScale {
+                TabRow(selectedTabIndex = selectedIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = index == selectedIndex,
+                            onClick = { onTabSelected(tab.id) },
+                            text = { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        )
+                    }
                 }
             }
         }

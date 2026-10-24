@@ -44,6 +44,7 @@ import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
+import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.strings.LocalStrings
 
@@ -109,17 +110,20 @@ fun BibleResultsActions(
     }
 
     if (chooserOpen) {
-        AbMultiSelectDialog(
-            title = strings.chooseTranslations,
-            options = candidates,
-            selectedIds = selectedIds,
-            idOf = { it.id },
-            labelOf = { it.abbreviation },
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            onConfirm = { ids -> chooserOpen = false; onSelectTranslations(ids) },
-            onDismiss = { chooserOpen = false },
-        )
+        // Declared inside the top bar's actions, so it would inherit the bar's capped font scale: a dialog keeps the system scale.
+        UncappedFontScale {
+            AbMultiSelectDialog(
+                title = strings.chooseTranslations,
+                options = candidates,
+                selectedIds = selectedIds,
+                idOf = { it.id },
+                labelOf = { it.abbreviation },
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = { ids -> chooserOpen = false; onSelectTranslations(ids) },
+                onDismiss = { chooserOpen = false },
+            )
+        }
     }
 }
 

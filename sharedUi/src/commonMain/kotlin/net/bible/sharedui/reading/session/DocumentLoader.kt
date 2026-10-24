@@ -348,6 +348,8 @@ class DocumentLoader(
      */
     fun launchAnswer(callId: Long, load: suspend () -> String): Job = session.scope.launch(Dispatchers.IO) {
         val json = try {
+            // Chapter scroll-loads read the book too: wait for the startup unlock (suspends, never blocks Main).
+            net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
             load()
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportVd
+import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.strings.LocalStrings
@@ -102,54 +103,56 @@ fun SpeakTransportBar(
         // The nav-bar inset goes on the INNER Column, not the Surface: the tinted surface and its
         // corners then bleed into the nav-bar strip while the content clears it. Only the bottom
         // edge: side nav bars belong to the split.
-        Column(
-            Modifier.readingRailInsetPadding(applyNavBarInset)
-        ) {
-            if (mono) HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
-            // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
-            // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder
-            // android:text="test") so it ALWAYS occupies exactly one line and the widget's height never
-            // changes with playback state. Gating this Text would make the bar's height jump whenever
-            // speech starts/stops (A/B batch 2 F4 fix wave). An empty string still reserves its line
-            // height, so the bar stays a constant height either way.
-            Text(
-                state.statusText,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 1, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-            )
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
+        CappedBarFontScale {
+            Column(
+                Modifier.readingRailInsetPadding(applyNavBarInset)
             ) {
-                if (state.bookmarkButtonVisible) {
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        AbActionIcon(Icons.Filled.Bookmark, strings.bookmarks, onBookmark)
+                if (mono) HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
+                // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
+                // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder
+                // android:text="test") so it ALWAYS occupies exactly one line and the widget's height never
+                // changes with playback state. Gating this Text would make the bar's height jump whenever
+                // speech starts/stops (A/B batch 2 F4 fix wave). An empty string still reserves its line
+                // height, so the bar stays a constant height either way.
+                Text(
+                    state.statusText,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                )
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (state.bookmarkButtonVisible) {
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            AbActionIcon(Icons.Filled.Bookmark, strings.bookmarks, onBookmark)
+                        }
                     }
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.FastRewind, strings.rewind, onRewind)
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.SkipPrevious, strings.speakPrevious, onPrev)
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.Stop, strings.stop, onStop)
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(
-                        if (state.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                        strings.speak, onPlayPause,
-                    )
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.SkipNext, strings.speakNext, onNext)
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.FastForward, strings.forward, onForward)
-                }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.FastRewind, strings.rewind, onRewind)
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.SkipPrevious, strings.speakPrevious, onPrev)
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.Stop, strings.stop, onStop)
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(
+                            if (state.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            strings.speak, onPlayPause,
+                        )
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.SkipNext, strings.speakNext, onNext)
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.FastForward, strings.forward, onForward)
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+                    }
                 }
             }
         }

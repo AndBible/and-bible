@@ -31,6 +31,9 @@ import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
+import platform.UIKit.UIColor
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.WebKit.WKWebView
 import platform.WebKit.WKWebViewConfiguration
 import kotlinx.cinterop.ObjCObjectBase.OverrideInit
@@ -84,7 +87,18 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
 
     /** The pane's gesture recognisers once attached (see [attachReadingGestures]); detached when the window is released. */
     var gestureRecognisers: IosReadingGestureRecognisers? = null
+
+    /** The page background last applied to the WebView (ARGB), or null before the first `set_config`. */
+    var backgroundArgb: Int? = null
 }
+
+/** The [UIColor] for an ARGB int (alpha in the top byte, as Android's `Color` ints and `TextDisplaySettings.Colors` hold it). */
+internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
+    red = ((argb shr 16) and 0xFF) / 255.0,
+    green = ((argb shr 8) and 0xFF) / 255.0,
+    blue = (argb and 0xFF) / 255.0,
+    alpha = ((argb shr 24) and 0xFF) / 255.0,
+)
 
 /**
  * Process-wide WKWebView cache for real reading windows, keyed by window id (same rules as the PoC's
@@ -108,6 +122,33 @@ object IosReadingWebViews {
 
     /** The window's WKWebView, created (without bridge handler, not yet loaded) on first use. */
     fun webViewFor(windowId: String): WKWebView = entry(windowId).webView
+
+    /**
+     * Paints the window's WKWebView and its scroll view with [argb] (Android's `BibleView.setBackgroundColor`):
+     * BibleView-JS paints no page background of its own, so without this the WebView stays system white and a night
+     * page shows light-on-white (NM-1). Callable from any thread (runs on the main thread); a window without a
+     * WebView entry, or one released before the dispatch runs, is ignored. `opaque` is turned off so the colour
+     * set here shows through instead of WebKit's own white.
+     */
+    fun applyBackground(windowId: String, argb: Int) {
+        if (NSThread.isMainThread) {
+            applyBackgroundNow(windowId, argb)
+        } else {
+            dispatch_async(dispatch_get_main_queue()) { applyBackgroundNow(windowId, argb) }
+        }
+    }
+
+    private fun applyBackgroundNow(windowId: String, argb: Int) {
+        val entry = entries[windowId] ?: return
+        if (entry.backgroundArgb == argb) return
+        entry.backgroundArgb = argb
+        val color = uiColorFromArgb(argb)
+        // An opaque WKWebView paints its own white behind the page, whatever backgroundColor says (Mac run 8 of NM-1).
+        entry.webView.opaque = false
+        entry.webView.underPageBackgroundColor = color
+        entry.webView.backgroundColor = color
+        entry.webView.scrollView.backgroundColor = color
+    }
 
     /** Number of `"bridge"` handlers registered on the window's WebView (0 once released). */
     internal fun bridgeHandlerCount(windowId: String): Int = entries[windowId]?.handlerCount ?: 0

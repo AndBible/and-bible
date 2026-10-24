@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 /// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app on KJV: the tests launch with the
@@ -676,6 +677,15 @@ final class ReadingUITests: RealAppUITestCase {
         return ok
     }
 
+    /// One bounded drawer drag over about a third of the screen height, left of the DEBUG overlay: `down` reveals
+    /// content above (towards the top of the list), otherwise content below.
+    private func drawerDrag(_ app: XCUIApplication, down: Bool) {
+        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.40))
+        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.73))
+        (down ? high : low).press(forDuration: 0.1, thenDragTo: down ? low : high)
+        usleep(500_000)
+    }
+
     private func checkReadingChrome(category: String, name level: String) throws {
         continueAfterFailure = true
         let sizeArguments = ["-UIPreferredContentSizeCategoryName", category]
@@ -710,9 +720,14 @@ final class ReadingUITests: RealAppUITestCase {
             for row in ["History", "Study Pads", "Backup & Restore", "Device synchronization"] {
                 // The drawer is a scrollable list: rows below the fold are in the tree without a label until they
                 // scroll into view, so scroll (up to 8 swipes) until the row exists by label AND is hittable.
+                // Rewind to the top first (rows above an earlier hit are unreachable by scrolling down only), then scroll
+                // down in small steps (about a third of the drawer) so no AX5 row is skipped.
                 let element = byLabel(app, row)
+                let first = byLabel(app, "Choose Document") // first row of the drawer (ReadingDrawerMenu)
+                var rewinds = 0
+                while !(first.exists && first.isHittable) && rewinds < 10 { drawerDrag(app, down: true); rewinds += 1 }
                 var swipes = 0
-                while !(element.exists && element.isHittable) && swipes < 8 { app.swipeUp(); swipes += 1 }
+                while !(element.exists && element.isHittable) && swipes < 12 { drawerDrag(app, down: false); swipes += 1 }
                 if !element.exists {
                     attachTree(app, "\(level)-drawer-no-\(row)")
                     XCTFail("\(level): drawer row '\(row)' does not exist after scrolling the drawer")
@@ -1479,5 +1494,100 @@ final class ReadingUITests: RealAppUITestCase {
             XCTAssertTrue(shown, "the Study Pad window's pane menu has no '\(label)' row")
         }
         shot(app2, "pane-menu-studypad")
+    }
+
+    // MARK: Night mode live switch (close-out Review Focus 2 probe)
+
+    /// With the night preference on manual, the overflow 'Night mode' toggle must darken the PAGE (the WebView), not
+    /// only the native chrome, and switching back must make it light again. No restore is involved: this separates
+    /// "a live night switch never reaches the iOS page" from "the page goes stale after a database restore".
+    func testNightModeLiveSwitchReachesPage() throws {
+        let app = try launchReading(extraArguments: ["-night_mode_pref3", "manual"])
+        guard let before = readingPageLuminance(app) else { return XCTFail("the page could not be sampled before the switch") }
+        let chromeBefore = readingChromeLuminance(app)
+        tapNightModeRow(app)
+        var after: Double?
+        let changed = waitUntil(timeout: 20) {
+            after = self.readingPageLuminance(app)
+            return after.map { abs($0 - before) > 0.2 } ?? false
+        }
+        let chromeAfter = readingChromeLuminance(app)
+        shot(app, "night-live-switched")
+        let note = XCTAttachment(string: "page \(before) -> \(after.map { "\($0)" } ?? "nil"); chrome \(chromeBefore.map { "\($0)" } ?? "nil") -> \(chromeAfter.map { "\($0)" } ?? "nil")")
+        note.name = "night-live-luminance"; note.lifetime = .keepAlways; add(note)
+        // The chrome is the control: if it did not change either, the toggle itself did not happen.
+        XCTAssertTrue(abs((chromeAfter ?? 0) - (chromeBefore ?? 0)) > 0.2, "the night toggle did not change the native chrome (tap missed?)")
+        XCTAssertTrue(changed, "the night toggle changed the chrome but not the page: page \(before) -> \(after.map { "\($0)" } ?? "nil")")
+        guard changed else { return }
+        tapNightModeRow(app)
+        let back = waitUntil(timeout: 20) { (self.readingPageLuminance(app)).map { abs($0 - before) < 0.1 } ?? false }
+        shot(app, "night-live-switched-back")
+        XCTAssertTrue(back, "switching night mode back did not restore the page brightness \(before)")
+    }
+
+    /// Opens the overflow menu and taps its hittable 'Night mode' row (the tree can hold a second, off-screen copy).
+    private func tapNightModeRow(_ app: XCUIApplication) {
+        let rows = app.buttons.matching(NSPredicate(format: "label == 'Night mode'"))
+        // A night toggle leaves the overflow menu open by design (ReadingOverflowController returns true for toggles).
+        if !(rows.allElementsBoundByIndex.contains { $0.isHittable }) {
+            let more = byLabel(app, "More options")
+            XCTAssertTrue(more.waitForExistence(timeout: 10), "no 'More options'")
+            more.tap()
+        }
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10), "no 'Night mode' row")
+        guard let row = rows.allElementsBoundByIndex.first(where: { $0.isHittable && $0.isEnabled }) else {
+            attachTree(app, "night-row-not-hittable"); return XCTFail("no hittable, enabled 'Night mode' row")
+        }
+        row.tap()
+        _ = waitUntil(timeout: 10) { !rows.firstMatch.exists }
+        usleep(2_000_000)
+    }
+
+    /// Mean brightness of the inner page area of the first pane (16 x 16 downsample of a screenshot crop), or nil.
+    // Left 35 % only: the open overflow popup covers the right half of a phone page.
+    private func readingPageLuminance(_ app: XCUIApplication) -> Double? {
+        let f = readingPaneFrame(app)
+        guard f.width > 40, f.height > 80 else { return nil }
+        return screenLuminance(app, CGRect(x: f.minX + f.width * 0.05, y: f.minY + f.height * 0.25, width: f.width * 0.35, height: f.height * 0.5))
+    }
+
+    /// The pane's frame while it is in the accessibility tree, else the last one seen: after a night switch the open
+    /// overflow popup takes the pane out of the tree although the page is still on screen.
+    private var lastReadingPaneFrame = CGRect.zero
+    private func readingPaneFrame(_ app: XCUIApplication) -> CGRect {
+        let pane = firstPane(app)
+        if pane.exists, pane.frame.width > 40, pane.frame.height > 80 { lastReadingPaneFrame = pane.frame }
+        return lastReadingPaneFrame
+    }
+
+    /// Mean brightness of the toolbar strip above the pane, or nil.
+    private func readingChromeLuminance(_ app: XCUIApplication) -> Double? {
+        let paneFrame = readingPaneFrame(app)
+        guard paneFrame.minY > 40 else { return nil }
+        return screenLuminance(app, CGRect(x: 0, y: paneFrame.minY - 30, width: app.frame.width * 0.4, height: 20))
+    }
+
+    private func screenLuminance(_ app: XCUIApplication, _ area: CGRect) -> Double? {
+        let window = app.frame
+        guard window.width > 0, let full = app.screenshot().image.cgImage, full.width > 40 else { return nil }
+        let scale = CGFloat(full.width) / window.width
+        let crop = CGRect(x: area.minX * scale, y: area.minY * scale, width: area.width * scale, height: area.height * scale)
+            .integral.intersection(CGRect(x: 0, y: 0, width: full.width, height: full.height))
+        guard crop.width > 8, crop.height > 8, let cg = full.cropping(to: crop) else { return nil }
+        let side = 16
+        var pixels = [UInt8](repeating: 0, count: side * side * 4)
+        let drawn = pixels.withUnsafeMutableBytes { buffer -> Bool in
+            guard let context = CGContext(data: buffer.baseAddress, width: side, height: side, bitsPerComponent: 8,
+                                          bytesPerRow: side * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            context.draw(cg, in: CGRect(x: 0, y: 0, width: side, height: side))
+            return true
+        }
+        guard drawn else { return nil }
+        var sum = 0.0
+        for i in stride(from: 0, to: pixels.count, by: 4) {
+            sum += (0.299 * Double(pixels[i]) + 0.587 * Double(pixels[i + 1]) + 0.114 * Double(pixels[i + 2])) / 255
+        }
+        return sum / Double(side * side)
     }
 }

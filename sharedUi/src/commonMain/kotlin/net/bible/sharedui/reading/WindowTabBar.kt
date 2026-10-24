@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.RailLeading
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
@@ -139,75 +140,77 @@ fun WindowTabBar(
     menuIcon: @Composable (iconKey: String) -> Painter? = { null },
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .wrapContentWidth()
-            .padding(start = RailPaddingStart, top = RailPaddingTop, end = 0.dp, bottom = 0.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RailLeadingControl(
-            leading = model.leading,
-            onAddWindow = onAddWindow,
-            onUnMaximise = onUnMaximise,
-            onToggleCollapse = onToggleCollapse,
-        )
+    CappedBarFontScale {
+        Row(
+            modifier = modifier
+                .wrapContentWidth()
+                .padding(start = RailPaddingStart, top = RailPaddingTop, end = 0.dp, bottom = 0.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RailLeadingControl(
+                leading = model.leading,
+                onAddWindow = onAddWindow,
+                onUnMaximise = onUnMaximise,
+                onToggleCollapse = onToggleCollapse,
+            )
 
-        AnimatedVisibility(visible = model.showButtons, modifier = Modifier.weight(1f, fill = false)) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                itemsIndexed(
-                    items = model.entries,
-                    key = { index, entry ->
-                        when (entry) {
-                            is RailEntry.WindowTab -> entry.window.id
-                            RailEntry.GroupSeparator -> "sep-$index"
-                        }
-                    },
-                ) { _, entry ->
-                    when (entry) {
-                        is RailEntry.WindowTab -> {
-                            val window = entry.window
-                            Box {
-                                WindowButton(
-                                    label = windowLabel(window),
-                                    isActive = entry.isActive,
-                                    isMinimised = window.state == WindowStateValue.MINIMISED,
-                                    // Raw `isPinMode`, on purpose for classic parity: the rail draws no
-                                    // pin glyph; `isPinned` only picks railTabShape's top corner radius.
-                                    // Classic also used raw isPinMode, so auto-pin gives every tab the
-                                    // same pinned shape, not a false "this one is pinned" glyph signal.
-                                    // shouldShowPinIndicator remains a Pane-glyph concern.
-                                    isPinned = window.isPinMode,
-                                    isLinks = window.isLinksWindow,
-                                    // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;
-                                    // WindowButton requires the 1-based value it displays (classic
-                                    // parity — see WindowButton's kdoc), same as the sibling pane
-                                    // caller (ComposeReadingViewHost.kt's PaneWindowButtonOverlay).
-                                    syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
-                                    mode = WindowButtonMode.Rail,
-                                    onClick = { onRestore(window.id) },
-                                    onLongPress = { onWindowLongPress(window.id) },
-                                    leadingIcon = windowIcon(window),
-                                    topLabel = windowTopLabel(window),
-                                )
-                                // A/B batch 3 F5: a rail long-press must open the menu HERE, at the
-                                // tab that was pressed, not at that window's floating pane ☰ button
-                                // (which may be in a different pane, or hidden entirely). The host
-                                // decides which anchor is live by setting menuWindowId only for the
-                                // Rail anchor — see ComposeReadingViewHost's PaneMenuAnchor.
-                                WindowPaneMenu(
-                                    items = if (menuWindowId == window.id) menuItems else emptyList(),
-                                    expanded = menuWindowId == window.id,
-                                    onItemClick = { id -> onMenuItemClick(window.id, id) },
-                                    onDismiss = onMenuDismiss,
-                                    icon = menuIcon,
-                                )
+            AnimatedVisibility(visible = model.showButtons, modifier = Modifier.weight(1f, fill = false)) {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    itemsIndexed(
+                        items = model.entries,
+                        key = { index, entry ->
+                            when (entry) {
+                                is RailEntry.WindowTab -> entry.window.id
+                                RailEntry.GroupSeparator -> "sep-$index"
                             }
+                        },
+                    ) { _, entry ->
+                        when (entry) {
+                            is RailEntry.WindowTab -> {
+                                val window = entry.window
+                                Box {
+                                    WindowButton(
+                                        label = windowLabel(window),
+                                        isActive = entry.isActive,
+                                        isMinimised = window.state == WindowStateValue.MINIMISED,
+                                        // Raw `isPinMode`, on purpose for classic parity: the rail draws no
+                                        // pin glyph; `isPinned` only picks railTabShape's top corner radius.
+                                        // Classic also used raw isPinMode, so auto-pin gives every tab the
+                                        // same pinned shape, not a false "this one is pinned" glyph signal.
+                                        // shouldShowPinIndicator remains a Pane-glyph concern.
+                                        isPinned = window.isPinMode,
+                                        isLinks = window.isLinksWindow,
+                                        // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;
+                                        // WindowButton requires the 1-based value it displays (classic
+                                        // parity — see WindowButton's kdoc), same as the sibling pane
+                                        // caller (ComposeReadingViewHost.kt's PaneWindowButtonOverlay).
+                                        syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
+                                        mode = WindowButtonMode.Rail,
+                                        onClick = { onRestore(window.id) },
+                                        onLongPress = { onWindowLongPress(window.id) },
+                                        leadingIcon = windowIcon(window),
+                                        topLabel = windowTopLabel(window),
+                                    )
+                                    // A/B batch 3 F5: a rail long-press must open the menu HERE, at the
+                                    // tab that was pressed, not at that window's floating pane ☰ button
+                                    // (which may be in a different pane, or hidden entirely). The host
+                                    // decides which anchor is live by setting menuWindowId only for the
+                                    // Rail anchor — see ComposeReadingViewHost's PaneMenuAnchor.
+                                    WindowPaneMenu(
+                                        items = if (menuWindowId == window.id) menuItems else emptyList(),
+                                        expanded = menuWindowId == window.id,
+                                        onItemClick = { id -> onMenuItemClick(window.id, id) },
+                                        onDismiss = onMenuDismiss,
+                                        icon = menuIcon,
+                                    )
+                                }
+                            }
+                            RailEntry.GroupSeparator -> GroupSeparatorDivider()
                         }
-                        RailEntry.GroupSeparator -> GroupSeparatorDivider()
                     }
                 }
             }
