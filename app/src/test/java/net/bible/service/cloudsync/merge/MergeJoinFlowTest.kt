@@ -214,8 +214,10 @@ class MergeJoinFlowTest {
     }
 
     /** Whether the key is stored at all, whatever its value type (the long keys are invisible to `getString`). */
-    /** Merge temp copies (pristine, snapshot) still in the temp dir. */
-    private fun mergeTempFiles() = File(env.tmpDir).listFiles { f -> f.name.startsWith("andbible-merge-") }!!.map { it.name }
+    /** Merge copies still around: the snapshot in the temp dir and the durable pristine copy next to the database. */
+    private fun mergeTempFiles(): List<String> =
+        File(env.tmpDir).listFiles { f -> f.name.startsWith("andbible-merge-") }!!.map { it.name } +
+            File(b.localDbPath).parentFile!!.listFiles { f -> f.name.startsWith(File(b.localDbPath).name + ".merge-original") }!!.map { it.name }
 
     private suspend fun config(key: String) = b.dao.getConfig(key)?.let { it.stringValue ?: it.longValue ?: it.booleanValue }
 
@@ -346,5 +348,80 @@ class MergeJoinFlowTest {
         val folder = adapterA.listFiles(name = folderName).single().id
         assertEquals("the initial file was uploaded", 1, adapterA.listFiles(parentsIds = listOf(folder), name = INITIAL_BACKUP_FILENAME).size)
         assertTrue(category.isSyncEnabled(settings))
+    }
+
+    /** Puts the device's database into the state a process death leaves after the swap-in: cloud rows, folder keys, enabled. */
+    private suspend fun simulateCloudStateAfterSwap() {
+        b.localDb.useWriterConnectionMarked { it.exec("DELETE FROM Label WHERE name = 't-from-b'") }
+        b.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "AndBible/stale")
+        b.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "AndBible/stale/dev")
+        b.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 123L)
+        b.dao.setConfig("webDavSecretFile", "device-known-stale")
+        bDao.insert(BookmarkEntities.Label(name = "t-cloud"))
+        category.setSyncEnabled(settings, true)
+    }
+
+    @Test fun recoversTheDeviceDataWhenTheProcessDiedAfterTheSwapIn() = runTest(testDispatcher, timeout = 120.seconds) {
+        signedInAdapters()
+        bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
+        val before = dump(b)
+        // What the merge leaves behind when the process dies: the durable pristine copy, and the cloud database in place.
+        b.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
+        File(b.localDbPath).copyTo(File(b.localDbPath + ".merge-original"), overwrite = true)
+        simulateCloudStateAfterSwap()
+        assertTrue(labelNames().contains("t-cloud"))
+
+        syncAnswering(choiceIndex = 0)
+
+        assertEquals(before, dump(b))
+        assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(config(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertNull(config(LAST_PATCH_WRITTEN_KEY))
+        assertNull(config("webDavSecretFile"))
+        assertFalse(category.isSyncEnabled(settings))
+        assertEquals(emptyList<String>(), mergeTempFiles())
+    }
+
+    @Test fun aLonePartialCopyIsDeletedAndTheLiveDbIsLeftAlone() = runTest(testDispatcher, timeout = 120.seconds) {
+        signedInAdapters()
+        bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
+        val before = dump(b)
+        File(b.localDbPath + ".merge-original.partial").writeBytes(byteArrayOf(1, 2, 3))
+        b.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "AndBible/stale")
+        b.dao.setConfig("webDavSecretFile", "device-known-stale")
+        category.setSyncEnabled(settings, true)
+
+        syncAnswering(choiceIndex = 0)
+
+        assertEquals(before, dump(b))
+        assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(config("webDavSecretFile"))
+        assertFalse(category.isSyncEnabled(settings))
+        assertEquals(emptyList<String>(), mergeTempFiles())
+        assertEquals(setOf("t-from-b"), labelNames())
+    }
+
+    /** M4: the fetch swap itself fails (the downloaded file cannot be migrated): the device is restored exactly. */
+    @Test fun anUnmigratableCloudInitialFileRestoresTheDevice() = runTest(testDispatcher, timeout = 120.seconds) {
+        val (_, adapterA) = signedInAdapters()
+        val folder = adapterA.createNewFolder(folderName).id
+        adapterA.createNewFolder("device-A", parentId = folder)
+        val raw = File.createTempFile("bad-initial-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        openSqlite(raw.absolutePath).use { it.exec("PRAGMA user_version = 3"); it.exec("CREATE TABLE Unrelated (a)") }
+        val gz = File.createTempFile("bad-initial-", ".sqlite3.gz", CommonUtils.tmpDir).also { files += it }
+        ArchiveUtils.gzipFile(raw.toOkioPath(), gz.toOkioPath())
+        adapterA.upload(INITIAL_BACKUP_FILENAME, gz.toOkioPath(), folder)
+        bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
+        val before = dump(b)
+
+        syncAnswering(choiceIndex = 0)
+
+        assertEquals(before, dump(b))
+        assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(config(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertNull(config(LAST_PATCH_WRITTEN_KEY))
+        assertFalse(category.isSyncEnabled(settings))
+        assertEquals(setOf("t-from-b"), labelNames())
+        assertEquals(emptyList<String>(), mergeTempFiles())
     }
 }

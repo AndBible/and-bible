@@ -225,6 +225,7 @@ class CloudSync(
         var initialOperation: InitialOperation?= null
         val syncFolderName = syncFolderName(dbDef.categoryName)
 
+        recoverInterruptedMerge(dbDef)
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
@@ -417,16 +418,18 @@ class CloudSync(
      * The "Merge data" join: the fetch flow with the device's own data kept and replayed on top of the cloud's
      * (spec 2026-10-24-sync-merge-data-design, section 4.1).
      *
-     * Everything runs inside one [DatabaseContainer.replacingDatabases] block, so there are no concurrent writers
-     * (the re-stamp of [mergeSnapshotIntoLocal] is a separate transaction from its apply) and no other replace can
-     * interleave. Inside the block:
-     * 1. a pristine copy of the local database and a merge snapshot (every row logged) are written to the temp dir;
+     * Everything runs inside one [DatabaseContainer.replacingDatabases] block, so no other replace can interleave and
+     * workspace saves are frozen. Concurrent writers are NOT excluded for bookmark and reading-plan DAO writes (see the
+     * trade-off below and [mergeSnapshotIntoLocal]): an own edit during the merge may be counted as a winner and
+     * uploaded, which is harmless. Inside the block:
+     * 1. a pristine copy of the local database is written next to it (`<db>.merge-original`, durable, see
+     *    [recoverInterruptedMerge]) and the merge snapshot (every row logged) to the temp dir;
      * 2. [createDeviceFolder] and the fetch swap-in of the cloud's initial file ([fetchAndRestoreInitial]);
      * 3. every cloud patch is applied ([downloadAndApplyNewPatches]);
      * 4. [mergeSnapshotIntoLocal] with a merge time that is strictly above `LAST_PATCH_WRITTEN_KEY` (the fetch stored
      *    "now"; the larger of now and that value plus one is used, so a fast merge in the same millisecond still
      *    sits above it and the next patch carries the device's winning rows).
-     * Both temp copies are deleted at the end, also on failure.
+     * The snapshot is deleted at the end, also on failure; the durable copy after success and after every restore.
      *
      * **Trade-off (accepted).** The single replace is held through the network I/O (the initial file and the patches
      * are applied to the swapped-in database, so they cannot be fetched outside it). Meanwhile workspace saves are
@@ -451,22 +454,27 @@ class CloudSync(
      * exceptions propagate to [synchronize]'s own handling.
      */
     private suspend fun mergeIntoCloudFolder(dbDef: SyncableDatabaseAccessor<*>, createDeviceFolder: suspend () -> Unit) {
-        val pristine = createTempFile(env.tmpDir.toPath(), "andbible-merge-original-", ".tmp")
+        // The pristine copy is DURABLE, next to the database (the temp dir is wiped at every app start, and a process
+        // death after the swap-in would otherwise lose the device's data). It is written as `.partial` and renamed
+        // once complete, so `.merge-original` exists only if it is whole; see [recoverInterruptedMerge].
+        val original = mergeOriginalPath(dbDef)
+        val partial = "$original.partial".toPath()
         val snapshot = createTempFile(env.tmpDir.toPath(), "andbible-merge-snapshot-", ".tmp")
+        var restoreFailed = false
         try {
             DatabaseContainer.replacingDatabases { token ->
-                // `createTempFile` leaves an EMPTY file: until the copy below has completed and its size matches the
-                // source, `pristine` must never be swapped in (it would replace the live database with nothing).
                 var pristineReady = false
                 try {
                     mergeStageHookForTest?.invoke("beforePristine")
                     dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
                     mergeStageHookForTest?.invoke("afterVacuum")
-                    FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), pristine)
-                    check(pristine.size() == dbDef.localDbPath.toPath().size()) { "The pristine copy of ${dbDef.categoryName} is incomplete" }
+                    FileSystem.SYSTEM.delete(partial, mustExist = false)
+                    FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), partial)
+                    check(partial.size() == dbDef.localDbPath.toPath().size()) { "The pristine copy of ${dbDef.categoryName} is incomplete" }
+                    FileSystem.SYSTEM.atomicMove(partial, original)
                     pristineReady = true
                     mergeStageHookForTest?.invoke("afterPristine")
-                    prepareMergeSnapshot(dbDef, snapshot)
+                    prepareMergeSnapshot(dbDef, snapshot, source = original)
                     createDeviceFolder()
                     fetchAndRestoreInitial(dbDef, token, failWithoutMessage = true)
                     try {
@@ -483,18 +491,13 @@ class CloudSync(
                     mergeStageHookForTest?.invoke("afterMerge")
                 } catch (t: Throwable) {
                     Log.e(TAG, "Merge failed for ${dbDef.categoryName}, restoring the device's database", t)
-                    suspend fun removeSyncState() {
-                        for (key in listOf(SYNC_FOLDER_FILE_ID_KEY, SYNC_DEVICE_FOLDER_FILE_ID_KEY, LAST_SYNCHRONIZED_KEY, LAST_PATCH_WRITTEN_KEY)) {
-                            dbDef.dao.removeConfig(key)
-                        }
-                        adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
-                    }
                     try {
                         withContext(NonCancellable) {
-                            if (pristineReady) swapInInitialDb(dbDef, pristine, token) { removeSyncState() }
-                            else removeSyncState() // the live database was never touched: only forget the keys initializeSync wrote
+                            if (pristineReady) swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) }
+                            else removeSyncState(dbDef) // the live database was never touched: only forget the keys initializeSync wrote
                         }
                     } catch (restoreFailure: Throwable) {
+                        restoreFailed = true // keep the durable copy: the next start's recovery retries
                         t.addSuppressed(restoreFailure)
                     }
                     dbDef.category.setSyncEnabled(settings, false)
@@ -509,10 +512,55 @@ class CloudSync(
             UserMessages.errorNotification(strings.syncError)
             throw CancelStartedSync()
         } finally {
-            runCatching { FileSystem.SYSTEM.delete(pristine) }
+            // On success, and after every restore, the durable copy is no longer needed.
+            runCatching { FileSystem.SYSTEM.delete(partial, mustExist = false) }
+            if (!restoreFailed) runCatching { FileSystem.SYSTEM.delete(original, mustExist = false) }
             runCatching { FileSystem.SYSTEM.delete(snapshot) }
             if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
         }
+    }
+
+    private fun mergeOriginalPath(dbDef: SyncableDatabaseAccessor<*>): Path = "${dbDef.localDbPath}.merge-original".toPath()
+
+    /** Removes every sync key a join writes (folder ids, watermarks, the adapter's keys); exact because a join runs only when no folder is known. */
+    private suspend fun removeSyncState(dbDef: SyncableDatabaseAccessor<*>) {
+        for (key in listOf(SYNC_FOLDER_FILE_ID_KEY, SYNC_DEVICE_FOLDER_FILE_ID_KEY, LAST_SYNCHRONIZED_KEY, LAST_PATCH_WRITTEN_KEY)) {
+            dbDef.dao.removeConfig(key)
+        }
+        adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+    }
+
+    /**
+     * Finishes a merge that a process death (or a failed restore) interrupted, before anything else touches the
+     * category. `<db>.merge-original` exists only once the pristine copy is whole: the live database may then be the
+     * cloud's data with stored folder ids, so the copy is swapped back in, the sync state removed, category sync
+     * switched off and the sync error shown; the device has exactly its earlier data. A lone `.partial` means the
+     * live database was never touched: it is deleted and only the stale sync state removed. Both end in
+     * [CancelStartedSync]; the user can enable sync again. Runs inside [initializeSync], so a signed-in adapter is
+     * needed first: until then the database stays as the interrupted merge left it.
+     */
+    private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>) {
+        val original = mergeOriginalPath(dbDef)
+        val partial = "$original.partial".toPath()
+        val hasOriginal = FileSystem.SYSTEM.exists(original)
+        if (!hasOriginal && !FileSystem.SYSTEM.exists(partial)) return
+        Log.e(TAG, "Recovering an interrupted merge of ${dbDef.categoryName} (original copy present: $hasOriginal)")
+        try {
+            if (hasOriginal) {
+                try {
+                    DatabaseContainer.replacingDatabases { token -> swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) } }
+                } finally {
+                    if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+                }
+            } else {
+                removeSyncState(dbDef)
+            }
+        } finally {
+            runCatching { FileSystem.SYSTEM.delete(partial, mustExist = false) }
+        }
+        dbDef.category.setSyncEnabled(settings, false)
+        UserMessages.errorNotification(strings.syncError)
+        throw CancelStartedSync()
     }
 
     private val syncMutex = Mutex()

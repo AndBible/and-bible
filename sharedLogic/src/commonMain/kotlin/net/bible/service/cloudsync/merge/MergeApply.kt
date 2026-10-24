@@ -53,8 +53,10 @@ import okio.Path.Companion.toPath
  *
  * The re-stamp is a separate transaction from the apply (`applyPatchesForDatabase` stays unchanged): a crash between
  * them leaves the winners un-uploaded, so the caller must not persist folder or sync state until this returns, so
- * that the failure restore covers the gap. Precondition: no concurrent writers during the call (a user edit between
- * the before and after log reads would be counted as a winner); callers hold the `replacingDatabases` block.
+ * that the failure restore covers the gap. Concurrent writers are NOT excluded: `replacingDatabases` freezes workspace
+ * saves and queues other replaces, but bookmark and reading-plan DAO writes still run. An own edit made between the
+ * before and after log reads would be counted as a winner and re-stamped and uploaded, which is harmless (it is the
+ * device's own newest data). Callers hold the `replacingDatabases` block for the swap, not for this guarantee.
  */
 suspend fun mergeSnapshotIntoLocal(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, snapshot: Path, mergeTime: Long) {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: 0L
@@ -63,7 +65,12 @@ suspend fun mergeSnapshotIntoLocal(dbDef: SyncableDatabaseAccessor<*>, env: AppE
     }
 
     val before = readLog(dbDef).map { it.signature }.toHashSet()
-    openSqlite(dbDef.localDbPath, readOnly = true).use { rekeyNaturalKeys(dbDef.category, snapshot, it) }
+    // A second raw read-only connection: Room's Transactor is not a SQLiteConnection, which rekeyNaturalKeys takes. It
+    // waits for a concurrent DAO write instead of failing with "database is locked".
+    openSqlite(dbDef.localDbPath, readOnly = true).use {
+        it.exec("PRAGMA busy_timeout = 10000")
+        rekeyNaturalKeys(dbDef.category, snapshot, it)
+    }
 
     val gz = createTempFile(env.tmpDir.toPath(), "merge-snapshot-${dbDef.categoryName}-", ".sqlite3.gz")
     try {

@@ -40,10 +40,17 @@ fun mergeTimestampColumn(table: String, columns: List<String>): String? =
  * and gives every synced row of the copy that has no `LogEntry` an `UPSERT` entry from this device, dated by
  * [mergeTimestampColumn] (0 when the table has none). Existing entries, `DELETE`s included, are kept.
  * The local database itself is not modified apart from the `VACUUM` that makes the file copy consistent.
+ *
+ * With [source] (an already consistent copy of the database, e.g. the merge's pristine copy) no `VACUUM` is run and
+ * the copy is made from that file instead of the live database.
  */
-suspend fun prepareMergeSnapshot(dbDef: SyncableDatabaseAccessor<*>, target: Path) {
-    dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
-    FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), target)
+suspend fun prepareMergeSnapshot(dbDef: SyncableDatabaseAccessor<*>, target: Path, source: Path? = null) {
+    if (source == null) {
+        dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
+        FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), target)
+    } else {
+        FileSystem.SYSTEM.copy(source, target)
+    }
     openSqlite(target.toString()).use { conn ->
         conn.exec("BEGIN")
         try {
