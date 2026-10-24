@@ -3,7 +3,7 @@ import XCTest
 /// Review Focus 3 of the I2 close-out: the in-app language switch to Finnish, then the screens that different streams
 /// added (R3 reading chrome, H2 feature screens, M/X Backup and synchronization). Known English chrome strings must be
 /// ABSENT as accessibility labels and their Finnish values present. Keys that `values-fi/strings.xml` lacks (Back,
-/// Menu, More options, Close in the settings editor ...) legitimately stay English and are never asserted.
+/// More options, Filter by label, Window menu, Close in the settings editor ...) legitimately stay English and are never asserted.
 final class FinnishWalkUITests: RealAppUITestCase {
     /// English chrome string -> Finnish value, both read from `app/src/main/res/values{,-fi}/strings.xml`.
     private struct Chrome {
@@ -15,7 +15,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
     private let settings = Chrome(key: "settings", english: "Application preferences", finnish: "Sovelluksen asetukset")
     private let download = Chrome(key: "download", english: "Download Documents", finnish: "Lataa teoksia")
     private let all = Chrome(key: "all", english: "All", finnish: "Kaikki")
-    private let bookmarks = Chrome(key: "bookmarks", english: "Bookmarks", finnish: "Kirjanmerkit")
+    private let bookmarks = Chrome(key: "bookmarks_and_mynotes_title", english: "Bookmarks & My Notes", finnish: "Kirjanmerkit & Omat Merkinnät")
     private let manageLabels = Chrome(key: "manage_labels", english: "Manage Labels", finnish: "Hallitse kirjanmerkkiryhmiä")
     private let backup = Chrome(key: "backup_and_restore", english: "Backup & Restore", finnish: "Varmuuskopioi & palauta")
     private let cloudSync = Chrome(key: "cloud_sync_title", english: "Device synchronization", finnish: "Laitteiden synkronointi")
@@ -23,6 +23,9 @@ final class FinnishWalkUITests: RealAppUITestCase {
     private let history = Chrome(key: "history", english: "History", finnish: "Historia")
     private let studyPads = Chrome(key: "studypads", english: "Study Pads", finnish: "Opintoalustat")
     private let chooseDocument = Chrome(key: "chooce_document", english: "Choose Document", finnish: "Valitse teos")
+
+    /// `menu` is translated (values-fi "Valikko"); the reading toolbar's home button carries that label.
+    private let menuLabel = "Valikko"
 
     private func anyLabel(_ app: XCUIApplication, _ text: String) -> XCUIElement {
         app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", text)).firstMatch
@@ -63,9 +66,9 @@ final class FinnishWalkUITests: RealAppUITestCase {
     /// Opens the drawer and scrolls (bounded) until the row with this exact label is hittable; nil with evidence otherwise.
     private func revealDrawerRow(_ app: XCUIApplication, _ label: String, opened: Bool) -> XCUIElement? {
         if !opened {
-            let menu = app.buttons["Menu"]
+            let menu = app.buttons[menuLabel]
             guard menu.waitForExistence(timeout: 20), menu.isHittable else {
-                attachTree(app, "fi-drawer-no-menu"); XCTFail("fi drawer: Menu button not usable"); return nil
+                attachTree(app, "fi-drawer-no-menu"); XCTFail("fi drawer: Valikko (menu) button not usable"); return nil
             }
             menu.tap()
         }
@@ -152,7 +155,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
 
         // 4. Drawer rows (R3/H2/M), then Backup & Restore and Device synchronization through their drawer rows.
         app = launchReadingKeepingLanguage()
-        let menu = app.buttons["Menu"]
+        let menu = app.buttons[menuLabel]
         if menu.waitForExistence(timeout: 20) && menu.isHittable {
             menu.tap()
             // The drawer is a lazy list: each row is evidenced where it is reachable, then the evidence is taken.
@@ -162,7 +165,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
             }
             shot(app, "fi-drawer"); attachTree(app, "fi-drawer")
         } else {
-            attachTree(app, "fi-drawer-no-menu"); XCTFail("fi drawer: Menu button not usable")
+            attachTree(app, "fi-drawer-no-menu"); XCTFail("fi drawer: Valikko (menu) button not usable")
         }
         app.terminate()
 
