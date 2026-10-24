@@ -793,9 +793,11 @@ class ReadingDestinationInGraphTest {
         val activity = buildHost()
         val prefs = CommonUtils.realSharedPreferences
         val hadNightMode = prefs.getBoolean("night_mode_pref", false)
+        val hadNightModeMode = prefs.getString("night_mode_pref3", null)
         val previousDefault = AppCompatDelegate.getDefaultNightMode()
         try {
-            prefs.edit().putBoolean("night_mode_pref", true).commit()
+            // An absent night_mode_pref3 means "follow the system" (not night under Robolectric).
+            prefs.edit().putString("night_mode_pref3", "manual").putBoolean("night_mode_pref", true).commit()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
             invokeProtected(activity, "readingViewScreenTurnedOn")
@@ -806,7 +808,9 @@ class ReadingDestinationInGraphTest {
                 "the screen came on with night mode set — classic re-applied the theme here",
             )
         } finally {
-            prefs.edit().putBoolean("night_mode_pref", hadNightMode).commit()
+            prefs.edit().putBoolean("night_mode_pref", hadNightMode).apply {
+                if (hadNightModeMode == null) remove("night_mode_pref3") else putString("night_mode_pref3", hadNightModeMode)
+            }.commit()
             AppCompatDelegate.setDefaultNightMode(previousDefault)
             // Drain theme-triggered recreation while the owning ActivityController is still alive.
             shadowOf(Looper.getMainLooper()).idle()
