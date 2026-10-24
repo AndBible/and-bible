@@ -29,8 +29,13 @@ When enabling sync for the first time:
 - If **no sync data exists** in the cloud yet, your local data will be uploaded
     automatically.
 - If **sync data already exists** (e.g. from another device), a dialog will
-    appear with three options:
+    appear with four options:
 
+    - **Merge data** — keeps both the data on this device and the data in the
+        cloud. Where the same item was changed on both sides, the newer change
+        is kept. This device’s data is also sent to your other devices. If
+        anything goes wrong, this device’s data is restored as it was and sync
+        stays off for that category.
     - **Copy from Cloud to this device** — downloads the cloud data and replaces
         your local data with it.
     - **Copy from this device to Cloud** — replaces the cloud data with this

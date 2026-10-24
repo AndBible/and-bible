@@ -70,7 +70,7 @@ class CloudSyncAskInitialSyncOperationTest {
         Robolectric.buildActivity(CalculatorComposeActivity::class.java).also { controllers += it }.setup().get()
 
     @Test
-    fun raisesAnUncancellableThreeWayOptionsWithTheDatabaseDescription() = runTest {
+    fun raisesAnUncancellableFourWayOptionsWithTheDatabaseDescription() = runTest {
         val activity = activity()
         val answer = async {
             org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
@@ -80,9 +80,10 @@ class CloudSyncAskInitialSyncOperationTest {
         assertEquals(activity.getString(R.string.cloud_sync_title), head.title)
         assertFalse(head.asActionSheet)
         assertFalse(head.cancellable)
-        assertEquals(3, head.options.size)
+        assertEquals(4, head.options.size)
         assertEquals(
             listOf(
+                activity.getString(R.string.cloud_merge_data),
                 activity.getString(R.string.cloud_fetch_and_restore_initial),
                 activity.getString(R.string.cloud_create_new),
                 activity.getString(R.string.cloud_disable_sync),
@@ -102,7 +103,7 @@ class CloudSyncAskInitialSyncOperationTest {
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
@@ -124,7 +125,7 @@ class CloudSyncAskInitialSyncOperationTest {
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
         advanceUntilIdle()
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         assertNull(answer.await())
@@ -138,7 +139,7 @@ class CloudSyncAskInitialSyncOperationTest {
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[2].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
@@ -160,7 +161,42 @@ class CloudSyncAskInitialSyncOperationTest {
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[2].value))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[3].value))
+        assertNull(answer.await())
+    }
+
+    @Test
+    fun mergeThenConfirmedReturnsMergeAndExplainsBothSidesAreKept() = runTest {
+        val activity = activity()
+        val answer = async {
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
+        }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        advanceUntilIdle()
+        val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
+        assertEquals(
+            activity.getString(R.string.are_you_sure_merge, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
+            confirm.message,
+        )
+        assertTrue(confirm.message!!.contains("will be kept"))
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        assertEquals(CloudSync.InitialOperation.MERGE, answer.await())
+    }
+
+    @Test
+    fun mergeThenDeclinedConfirmationReturnsNull() = runTest {
+        val activity = activity()
+        val answer = async {
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
+        }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        advanceUntilIdle()
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         assertNull(answer.await())
     }
 }

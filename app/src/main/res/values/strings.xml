@@ -1369,6 +1369,7 @@
     <string name="reading_progress_previous_cycle">Previous cycle</string>
     <string name="reading_progress_next_cycle">Next cycle</string>
 
+    <string name="cloud_merge_data">Merge data</string>
     <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
     <string name="cloud_create_new">Copy from this device to Cloud</string>
     <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
@@ -1404,6 +1405,7 @@
     <string name="sync_general_settings">Info &amp; general settings</string>
     <string name="sync_introduction">Introduction</string>
     <string name="are_you_sure">Are you sure?</string>
+    <string name="are_you_sure_merge">Both the data on this device and the %s in the cloud will be kept. Where the same item was changed on both, the newer change is kept. This device\'s data will be sent to your other devices.</string>
     <string name="are_you_sure_reset_local">This will reset your local database for %s with the content that is currently stored in cloud service.</string>
     <string name="are_you_sure_reset_cloud">This will reset your cloud database for %s with the content that you have in this device.</string>
     <string name="sync_cant_fetch">The version of database or patch file stored in Cloud is higher than the one supported by this app. </string>

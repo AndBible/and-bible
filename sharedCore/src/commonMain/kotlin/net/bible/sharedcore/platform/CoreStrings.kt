@@ -77,6 +77,7 @@ interface CoreStrings {
     fun webDavUntrustedCertificateMessageDevice(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     val signInFailed: String
     val cloudSyncTitle: String
+    val cloudMergeData: String
     val cloudFetchAndRestoreInitial: String
     val cloudCreateNew: String
     val cloudDisableSync: String
@@ -87,6 +88,7 @@ interface CoreStrings {
     val cancel: String
     val areYouSure: String
     fun overrideBackup(contents: String): String
+    fun areYouSureMerge(contents: String): String
     fun areYouSureResetLocal(what: String): String
     fun areYouSureResetCloud(what: String): String
     fun syncDisabling(what: String): String
