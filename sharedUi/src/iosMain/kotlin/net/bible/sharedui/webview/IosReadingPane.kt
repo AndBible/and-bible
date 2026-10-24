@@ -49,9 +49,10 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     var onAttached: (() -> Unit)? = null
 
     init {
-        // The iPad status-bar tap would animate the page to the top of the loaded window; infinite scroll
-        // then prepends chapters and the position notifier saves the chapter top (John 1:1) as the reading
-        // position. Android has no equivalent gesture.
+        // UIKit's scroll-to-top (normally a status-bar tap) animated the reading page to the top of the loaded
+        // window with no input reaching the page (seen on the iPad simulator); infinite scroll then kept
+        // prepending chapters and the position notifier saved John 1:1 as the reading position. Off on every
+        // device: the reading position moves only by the user's own scroll. Android has no such gesture.
         scrollView.scrollsToTop = false
     }
 

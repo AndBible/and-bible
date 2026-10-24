@@ -527,7 +527,7 @@ final class FeatureFlowsUITests: RealAppUITestCase {
             let title = readingTitlePosition(app).map { "John \($0.chapter):\($0.verse)" } ?? "unreadable"
             attach("verse16-missing", "toolbar title after \(step): \(title)")
         }
-        harnessRequire(result != nil, app, "John 3:16 not in view after \(step) (saved position lost)")
+        harnessRequire(result != nil, app, "John 3:16 not in view after \(step)")
         return result ?? PhraseMetrics(widths: [], heights: [], top: 0)
     }
 
