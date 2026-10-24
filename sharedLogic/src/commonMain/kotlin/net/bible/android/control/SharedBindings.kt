@@ -108,6 +108,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
+import org.koin.dsl.onClose
 import org.koin.dsl.module
 
 /**
@@ -269,7 +270,7 @@ fun buildSharedBindings() = module {
             override val value: TextToSpeechServiceManager get() = koin.get()
             override fun isInitialized() = true
         }, get(), get(), get(), get(), get(), get(), get(), get(), get())
-    }
+    } onClose { it?.release() }
     singleOf(::DocumentBibleBooksFactory)
     single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, get()) }
 

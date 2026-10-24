@@ -233,6 +233,47 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
     }
 
+    /**
+     * Removes [toRemove] through the real installed-books path (the one the module delete UI ends in) and lets
+     * the Main-posted listener work run. The book is put back afterwards so later tests still find it.
+     */
+    private fun removeInstalled(toRemove: org.crosswire.jsword.book.Book, block: () -> Unit) {
+        try {
+            Books.installed().removeBook(toRemove)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            block()
+        } finally {
+            Books.installed().addBook(toRemove)
+        }
+    }
+
+    @Test
+    fun removingTheSpokenBookStops() {
+        speakControl.speakBible(book, getVerse("Rom.1.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        assertThat(speakControl.isSpeaking, equalTo(true))
+        removeInstalled(book) { assertThat(speakControl.isStopped, equalTo(true)) }
+    }
+
+    @Test
+    fun removingTheSpokenBookWhilePausedStops() {
+        speakControl.speakBible(book, getVerse("Rom.1.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        speakControl.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        assertThat(speakControl.isPaused, equalTo(true))
+        removeInstalled(book) { assertThat(speakControl.isStopped, equalTo(true)) }
+    }
+
+    @Test
+    fun removingAnotherBookKeepsSpeaking() {
+        val other = Books.installed().getBooks().first { it.initials != book.initials }
+        speakControl.speakBible(book, getVerse("Rom.1.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        assertThat(speakControl.isSpeaking, equalTo(true))
+        removeInstalled(other) { assertThat(speakControl.isSpeaking, equalTo(true)) }
+    }
+
     private fun changeSpeed(speed: Int) {
         speakSettingsService.setSpeed(speed)
     }

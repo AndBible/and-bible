@@ -66,6 +66,7 @@ class ReadingSpeakerAdapterTest {
             override fun showError(message: String, cause: Throwable?) { error(message) }
         }
         val scope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler) + CoroutineExceptionHandler { _, _ -> })
+        var created: SpeakControl? = null
         try {
             val settings = testAppSettings()
             val control = SpeakControl(
@@ -74,12 +75,14 @@ class ReadingSpeakerAdapterTest {
                 FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), notifier, strings, settings,
                 scope, AdvancedSpeakSettings(settings), OrderedLauncher(scope), FakeBookFactory(strings),
             )
+            created = control
             ReflectionHelpers.callInstanceMethod<Unit>(
                 control, "enableSleepTimer", ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, 1))
             assertTrue("sanity: the sleep timer is running", control.sleepTimerActive())
             toasts.clear()
             block(control, toasts)
         } finally {
+            created?.release()
             scope.cancel()
             SpeakChanges.resetSubscribersForTest()
             SpeakSettingsChanges.resetSubscribersForTest()

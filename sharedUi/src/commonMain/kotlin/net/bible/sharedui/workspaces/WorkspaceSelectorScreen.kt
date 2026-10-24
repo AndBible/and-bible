@@ -94,6 +94,7 @@ fun WorkspaceSelectorScreen(
     workspaces: List<WorkspaceRowVd>,
     dirty: Boolean,
     canDelete: Boolean,
+    canCopySettings: Boolean = true,
     filtering: Boolean,
     query: String,
     searchModeActive: Boolean,
@@ -205,6 +206,7 @@ fun WorkspaceSelectorScreen(
                         }
                         RowOverflow(
                             canDelete = canDelete,
+                            canCopySettings = canCopySettings,
                             onEditSettings = { onEditSettings(item.id) },
                             onRename = { renameFor = item },
                             onClone = { cloneFor = item },
@@ -297,6 +299,7 @@ private data class IndexedLabel(val index: Int, val label: String)
 @Composable
 private fun RowOverflow(
     canDelete: Boolean,
+    canCopySettings: Boolean,
     onEditSettings: () -> Unit, onRename: () -> Unit, onClone: () -> Unit, onDelete: () -> Unit,
     onCopySettings: () -> Unit, onCopySettingsToGlobal: () -> Unit,
 ) {
@@ -310,6 +313,7 @@ private fun RowOverflow(
         AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             WorkspaceRowMenuRows(
                 canDelete = canDelete,
+                canCopySettings = canCopySettings,
                 submenuOpen = submenuOpen,
                 onEnterSubmenu = { submenuOpen = true },
                 onBack = { submenuOpen = false },
@@ -338,6 +342,7 @@ private fun RowOverflow(
 @Composable
 fun WorkspaceRowMenuRows(
     canDelete: Boolean,
+    canCopySettings: Boolean = true,
     submenuOpen: Boolean,
     onEnterSubmenu: () -> Unit,
     onBack: () -> Unit,
@@ -355,6 +360,7 @@ fun WorkspaceRowMenuRows(
             text = s.copySettingsToWorkspaces,
             onClick = onCopySettings,
             icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+            enabled = canCopySettings,
         )
         AbMenuItem(
             text = s.copySettingsToGlobalDefaults,

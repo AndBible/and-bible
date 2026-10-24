@@ -276,6 +276,22 @@ class WorkspaceSelectorControllerTest {
         assertTrue(svc.appliedChanged!!.containsAll(setOf("2", "3")))  // fix-forward: targets persisted
     }
 
+    @Test fun copySettings_targets_exclude_source() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1"), vd("2"), vd("3"))))
+        c.beginCopySettings("1")
+        c.chooseCopyTypes(listOf(0))
+        val s = c.copySettingsState.value as CopySettingsState.ChooseTargets
+        assertEquals(listOf("2", "3"), s.targets.map { it.id })
+    }
+
+    @Test fun copySettings_unavailable_with_one_workspace() = runTest(UnconfinedTestDispatcher()) {
+        assertFalse(controller(FakeService(listOf(vd("1")))).canCopySettingsToWorkspaces.value)
+        val c = controller(FakeService(listOf(vd("1", "Alpha"), vd("2", "Beta"))))
+        assertTrue(c.canCopySettingsToWorkspaces.value)
+        c.setQuery("bet")   // the query hides one row; the unfiltered list still has two
+        assertTrue(c.canCopySettingsToWorkspaces.value)
+    }
+
     @Test fun copySettings_empty_type_selection_cancels() = runTest(UnconfinedTestDispatcher()) {
         val c = controller(FakeService(listOf(vd("1"), vd("2"))))
         c.beginCopySettings("1"); c.chooseCopyTypes(emptyList())

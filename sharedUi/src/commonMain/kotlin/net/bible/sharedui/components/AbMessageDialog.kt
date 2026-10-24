@@ -35,7 +35,8 @@ import androidx.compose.ui.window.DialogProperties
  * dismiss, optional neutral — in the platform dialog's order (neutral at the start).
  *
  * [cancellable] = false is `setCancelable(false)`: back and scrim do nothing and [onDismissRequest]
- * is never called.
+ * is never called. With [onBack] also set, a non-cancellable dialog still ignores the scrim but Back
+ * calls [onBack] (e.g. Back = Cancel on a confirmation); [onBack] is ignored while [cancellable].
  */
 @Composable
 fun AbMessageDialog(
@@ -49,10 +50,15 @@ fun AbMessageDialog(
     neutralText: String? = null,
     onNeutral: () -> Unit = {},
     cancellable: Boolean = true,
+    onBack: (() -> Unit)? = null,
 ) {
     AbAlertDialog(
-        onDismissRequest = { if (cancellable) onDismissRequest() },
-        properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),
+        // With dismissOnClickOutside = false only Back reaches onDismissRequest.
+        onDismissRequest = { if (cancellable) onDismissRequest() else onBack?.invoke() },
+        properties = DialogProperties(
+            dismissOnBackPress = cancellable || onBack != null,
+            dismissOnClickOutside = cancellable,
+        ),
         title = if (title != null) { { Text(title) } } else null,
         text = if (html != null) {
             { AbHtmlText(html, Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) }

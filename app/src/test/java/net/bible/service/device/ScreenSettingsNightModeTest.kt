@@ -48,11 +48,11 @@ class ScreenSettingsNightModeTest {
     }
 
     @Test
-    fun absentModeIsManualOnAndroid() {
+    fun absentModeFollowsTheSystem() {
         set(null, true, systemDark = false)
-        assertEquals(true, ScreenSettings.nightMode)
-        set(null, false, systemDark = true)
         assertEquals(false, ScreenSettings.nightMode)
+        set(null, false, systemDark = true)
+        assertEquals(true, ScreenSettings.nightMode)
     }
 
     @Test

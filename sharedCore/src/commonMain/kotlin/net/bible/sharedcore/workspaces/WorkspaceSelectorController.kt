@@ -51,6 +51,11 @@ class WorkspaceSelectorController(
     private val _pendingSelect = MutableStateFlow<String?>(null); val pendingSelectId: StateFlow<String?> = _pendingSelect.asStateFlow()
     private val _canDelete = MutableStateFlow(false); val canDelete: StateFlow<Boolean> = _canDelete.asStateFlow()
 
+    private val _canCopy = MutableStateFlow(false)
+
+    /** True when another workspace exists to copy settings to; independent of the search query. */
+    val canCopySettingsToWorkspaces: StateFlow<Boolean> = _canCopy.asStateFlow()
+
     private var loadJob: Job? = null
 
     /** Serialises the service's writes (clone/create/apply/delete) so they reach the database in call order. */
@@ -98,6 +103,7 @@ class WorkspaceSelectorController(
                 it.name.contains(q, ignoreCase = true) || (it.summary?.contains(q, ignoreCase = true) == true)
             }
         _canDelete.value = working.size > 1
+        _canCopy.value = working.size > 1
     }
 
     fun setQuery(q: String) { _query.value = q; publish() }
@@ -166,7 +172,7 @@ class WorkspaceSelectorController(
         if (typeIndices.isEmpty()) { _copy.value = null; return }
         when (state) {
             is CopySettingsState.ChooseTypes ->
-                _copy.value = CopySettingsState.ChooseTargets(state.sourceId, typeIndices, working.toList())
+                _copy.value = CopySettingsState.ChooseTargets(state.sourceId, typeIndices, working.filter { it.id != state.sourceId })
             is CopySettingsState.ToGlobal -> {
                 service.copySettingsToGlobal(state.sourceId, typeIndices); _copy.value = null
             }

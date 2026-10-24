@@ -210,8 +210,9 @@ fun DocumentSelectionScreen(
 
     when (dialog) {
         // manageDownload's confirm-before-download question (NH row 7954): classic's dialog was
-        // `setCancelable(false)` -- back/scrim do nothing -- but its Cancel BUTTON is a genuine no-op,
-        // which is exactly [onDismissDialog] here (state clears, nothing else runs).
+        // `setCancelable(false)` -- the scrim does nothing and classic ignored Back -- but its Cancel
+        // BUTTON is a genuine no-op, which is exactly [onDismissDialog] here (state clears, nothing
+        // else runs). The user ruled Back = Cancel (2026-10-24), so Back also runs [onDismissDialog].
         is DocumentSelectionDialog.ConfirmDownload -> AbMessageDialog(
             title = null,
             html = dialog.message,
@@ -221,6 +222,7 @@ fun DocumentSelectionScreen(
             dismissText = strings.cancel,
             onDismiss = onDismissDialog,
             cancellable = false,
+            onBack = onDismissDialog,
         )
         // The bulk-delete question (NH rows 8004/9306); classic's own Yes/No wording.
         is DocumentSelectionDialog.ConfirmDelete -> AbConfirmDialog(

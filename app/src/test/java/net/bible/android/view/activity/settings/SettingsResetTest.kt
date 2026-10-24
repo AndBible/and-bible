@@ -16,16 +16,35 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
+import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
+import net.bible.test.DatabaseResetter
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
 /**
  * The reset key list is a hardcoded contract shared by the classic and Compose settings screens.
  * These assertions exist so moving it out of `SettingsActivity`'s companion cannot quietly drop or
  * duplicate an entry — the failure mode would be a "Reset" that silently stops clearing a setting.
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SettingsResetTest {
+    @After fun tearDown() {
+        CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
+        RuntimeEnvironment.setQualifiers("+notnight")
+        DatabaseResetter.resetDatabase()
+    }
+
     @Test fun theKeyListHasNoDuplicates() {
         assertEquals(SettingsReset.RESET_KEYS.size, SettingsReset.RESET_KEYS.toSet().size)
     }
@@ -38,5 +57,20 @@ class SettingsResetTest {
 
     @Test fun theKeyListIsNotEmpty() {
         assertTrue(SettingsReset.RESET_KEYS.size > 10)
+    }
+
+    @Test fun resetReturnsTheReaderToSystemNightMode() {
+        val prefs = CommonUtils.realSharedPreferences
+        prefs.edit().putString("night_mode_pref3", "manual").putBoolean("night_mode_pref", true).commit()
+        RuntimeEnvironment.setQualifiers("+notnight")
+        assertTrue(ScreenSettings.nightMode)
+
+        // The same call the Compose settings screen makes (AndroidSettingsPlatform.resetAllSettings).
+        SettingsReset.performReset()
+
+        assertFalse(prefs.contains("night_mode_pref3"))
+        assertFalse(ScreenSettings.nightMode)
+        RuntimeEnvironment.setQualifiers("+night")
+        assertTrue(ScreenSettings.nightMode)
     }
 }

@@ -395,6 +395,12 @@ class DatabaseContainer private constructor() {
          * that window writes into a closed or replaced file.
          */
         private val replaceDepth = atomic(0)
+
+        /**
+         * Held closed by every replace after its workspace drain, so install-row writes of `BookInstallWatcher`
+         * neither run under a restore nor are lost to it; writes submitted meanwhile run after it ends.
+         */
+        val writeGate = DatabaseWriteGate()
         /** Backs [replaceEpoch]; atomic because CloudSync categories replace concurrently. */
         private val replaceEpochCounter = atomic(0L)
 
@@ -436,11 +442,15 @@ class DatabaseContainer private constructor() {
             replaceDepth.incrementAndGet()
             replaceEpochCounter.incrementAndGet()
             var completed = false
+            var gateClosed = false
             try {
                 // No new workspace write passes its guard from here on; one that already did may still be
                 // mid-DAO-call, so let it finish before the files are touched. The restore never runs inside
                 // the "workspace" key (queued blocks are plain DAO calls), so this cannot wait on itself.
                 drainWorkspaceWrites()
+                // Install-row writes already running finish first; later ones wait at the gate until the finally below.
+                writeGate.closeAndDrain()
+                gateClosed = true
                 return block(token).also { completed = true }
             } finally {
                 // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
@@ -448,14 +458,14 @@ class DatabaseContainer private constructor() {
                 try {
                     if (!completed) kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dropInstanceWithoutOpeningOwned(token) }
                 } finally {
-                    replaceDepth.decrementAndGet()
+                    try { if (gateClosed) writeGate.open() } finally { replaceDepth.decrementAndGet() }
                 }
             }
         }
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
+        fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; writeGate.resetForTest(); replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting

@@ -36,6 +36,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.BooksEvent
+import org.crosswire.jsword.book.BooksListener
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -43,6 +45,7 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -135,6 +138,19 @@ class SpeakControl constructor(
     private val currentlyPlayingKey: Key?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingKey
 
+    /**
+     * Stops speech when the module being spoken is deleted. The listener can fire on any thread, so the work is
+     * posted to Main. The reader's active document is deliberately not consulted: only the spoken module counts.
+     */
+    private val booksListener = object : BooksListener {
+        override fun bookAdded(ev: BooksEvent) {}
+
+        override fun bookRemoved(ev: BooksEvent) {
+            val removed = ev.book ?: return
+            appScope.launch(Dispatchers.Main) { onBookRemoved(removed) }
+        }
+    }
+
     init {
         // Singleton lifetime: never cancelled.
         SpeakChanges.changes.subscribeOnMain { change ->
@@ -169,6 +185,20 @@ class SpeakControl constructor(
             }
         }
         platform.attachMediaControls(this)
+        Books.installed().addBooksListener(booksListener)
+    }
+
+    internal fun onBookRemoved(removed: Book) {
+        // currentlyPlayingBook first: it is null until TTS was used, so deleting a module never builds the TTS manager.
+        if (currentlyPlayingBook?.initials == removed.initials && !isStopped) {
+            Log.i(TAG, "Spoken module ${removed.initials} removed, stopping speech")
+            stop()
+        }
+    }
+
+    /** Unregisters the global installed-books listener; called when the owning Koin container closes. */
+    fun release() {
+        Books.installed().removeBooksListener(booksListener)
     }
 
     protected fun finalize() {

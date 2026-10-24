@@ -74,7 +74,12 @@ suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, 
     )
 }
 
-suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
+/**
+ * The key after this one, and whether reaching it wrapped past the end of a general book (EPUB, MyDocument,
+ * GenBook, dictionary). Verses never wrap here.
+ */
+private suspend fun BookAndKey.nextKeyOrWrap(traverser: BibleTraverser): Pair<Key, Boolean> {
+    var wrapped = false
     val nextKey: Key = when(this.key) {
         is VerseRange -> {
             traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
@@ -101,6 +106,7 @@ suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, 
                         backend.get(idx + 1)!!
                     } catch (e: IndexOutOfBoundsException) {
                         // wraps to the first key; an empty document (all pages deleted) has none, so stay put
+                        wrapped = true
                         backend.firstOrNull() ?: this.key
                     }
                 }
@@ -111,6 +117,7 @@ suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, 
                     try {
                         keyList[idx + 1]
                     } catch (e: IndexOutOfBoundsException) {
+                        wrapped = true
                         keyList.first()
                     }
                 }
@@ -119,12 +126,25 @@ suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, 
 
         }
     }
-    return BookAndKey(
-        nextKey,
-        this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).first)
-    )
+    return nextKey to wrapped
 }
+
+private suspend fun BookAndKey.startOf(key: Key, strings: net.bible.sharedcore.platform.CoreStrings) =
+    BookAndKey(key, this.document, OrdinalRange(this.document!!.ordinalRangeFor(key, strings).first))
+
+/**
+ * Like [next], but null where [next] would wrap from the end of a general book back to its first key
+ * (the `IndexOutOfBoundsException` branches of [AbstractKeyBackend] and [GenBookBackend]). Verses never
+ * give null. Speech uses this to stop at the end of a document instead of looping.
+ */
+suspend fun BookAndKey.nextOrNull(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey? {
+    val (key, wrapped) = nextKeyOrWrap(traverser)
+    return if (wrapped) null else startOf(key, strings)
+}
+
+/** The next key; wraps from the end of a general book to its first key (navigation). See [nextOrNull]. */
+suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey =
+    startOf(nextKeyOrWrap(traverser).first, strings)
 
 suspend fun Book.ordinalRangeFor(key: Key, strings: net.bible.sharedcore.platform.CoreStrings): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings)
 

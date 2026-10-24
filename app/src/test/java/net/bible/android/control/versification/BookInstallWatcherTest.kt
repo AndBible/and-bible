@@ -23,6 +23,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import java.util.concurrent.atomic.AtomicBoolean
+import net.bible.service.cloudsync.DocumentSyncProvider
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.android.database.RepoDatabase
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.koin.java.KoinJavaComponent
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.SwordDocumentInfo
@@ -167,6 +174,59 @@ class BookInstallWatcherTest {
             installing.remove(book.initials)
             release.complete(Unit)
             scope.coroutineContext[Job]!!.cancel()
+        }
+    }
+
+    /** A8/A7: a restore must not close the databases under a row write that is already running. */
+    @Test
+    fun `replace waits for a held row write`() = runBlocking {
+        val appScope = AppCoroutineScope()
+        val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, KoinJavaComponent.get(DocumentSyncProvider::class.java), KoinJavaComponent.get(DocumentSyncSettings::class.java), catalog)
+        val held = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        watcher.beforeWrite = { held.complete(Unit); release.await() }
+        val book = Books.installed().getBooks().first()
+        val replaceStarted = AtomicBoolean(false)
+        try {
+            watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
+            withTimeout(30_000) { held.await() }
+            val replace = async(Dispatchers.Default) { DatabaseContainer.replacingDatabases { replaceStarted.set(true) } }
+            delay(500)
+            assertFalse("the replace block must wait for the held row write", replaceStarted.get())
+            release.complete(Unit)
+            withTimeout(30_000) { replace.await() }
+            assertTrue(replaceStarted.get())
+        } finally {
+            release.complete(Unit)
+            appScope.coroutineContext[Job]!!.cancel()
+        }
+    }
+
+    /** A7: a write submitted inside a restore must not deadlock it, and lands after it. */
+    @Test
+    fun `row write during replace lands after it`() = runBlocking {
+        val appScope = AppCoroutineScope()
+        val launcher = OrderedLauncher(appScope)
+        val watcher = BookInstallWatcher(launcher, starter, KoinJavaComponent.get(DocumentSyncProvider::class.java), KoinJavaComponent.get(DocumentSyncSettings::class.java), catalog)
+        val book = Books.installed().getBooks().first()
+        docDao.deleteByOsisId(book.initials)
+        var presentInsideReplace: SwordDocumentInfo? = null
+        try {
+            withTimeout(30_000) {
+                DatabaseContainer.replacingDatabases { token ->
+                    // Close and reopen the repo database, as a restore does: the write must land on the reopened one.
+                    DatabaseContainer.instance.closeForReplaceOwned(RepoDatabase.dbFileName, token)
+                    DatabaseContainer.resetOwned(token)
+                    watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
+                    delay(300) // ample time for an ungated write to land
+                    presentInsideReplace = docDao.getBook(book.initials)
+                }
+            }
+            assertNull("the write must wait until the replace has ended", presentInsideReplace)
+            withTimeout(30_000) { launcher.join("book-install") }
+            assertNotNull(docDao.getBook(book.initials))
+        } finally {
+            appScope.coroutineContext[Job]!!.cancel()
         }
     }
 

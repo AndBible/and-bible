@@ -11,6 +11,7 @@ import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.test.testCoreStrings
 import org.junit.Assert.*
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
@@ -113,6 +114,16 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         speakControl = GlobalContext.get().run {
             SpeakControl(lazy { get<TextToSpeechServiceManager>() }, windowControl, platform, notifier, get(), get(), get(), get(), get(), get())
         }
+        freshControls += speakControl
+    }
+
+    /** Controls built outside Koin register a process-wide Books listener; release each so none outlives its test. */
+    private val freshControls = mutableListOf<SpeakControl>()
+
+    @After
+    fun releaseFreshControls() {
+        freshControls.forEach { it.release() }
+        freshControls.clear()
     }
 
     @Test
