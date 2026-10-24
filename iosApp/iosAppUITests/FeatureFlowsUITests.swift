@@ -513,33 +513,9 @@ final class FeatureFlowsUITests: RealAppUITestCase {
     private func settledVerse16(_ app: XCUIApplication, _ step: String) -> PhraseMetrics {
         var previous: PhraseMetrics?
         var result: PhraseMetrics?
-        var misses = 0
         _ = waitUntil(timeout: 60) {
             guard let now = self.verse16Metrics(app) else {
                 previous = nil
-                // Run 7 (iPad): after the text options close, the page is left away from John 3:16 and the verse is not in
-                // the accessibility tree. Run 8: the blind "down first" scroll overshot to John 3:22 / chapter 4. Each bounded
-                // drag therefore first reads the toolbar title ("John 3:N") and scrolls TOWARD verse 16 (back when past it,
-                // forward when before it); only without a readable title the old alternating nudge is used. Only
-                // widths/heights are compared afterwards, never positions.
-                misses += 1
-                if misses >= 2 && misses <= 30, let web = Optional(app.webViews.firstMatch), web.exists {
-                    let forward: Bool  // true: reveal later text (finger moves up)
-                    if let position = self.readingTitlePosition(app) {
-                        if position.chapter == 3 && position.verse == 16 {
-                            forward = misses % 2 == 0   // title says 3:16 but the words are off-tree: nudge both ways
-                        } else {
-                            forward = position.chapter < 3 || (position.chapter == 3 && position.verse < 16)
-                        }
-                        self.attach("verse16-scroll-\(misses)", "title=John \(position.chapter):\(position.verse) forward=\(forward)")
-                    } else {
-                        forward = misses <= 8
-                    }
-                    let from = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: forward ? 0.6 : 0.4))
-                    let to = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: forward ? 0.4 : 0.6))
-                    from.press(forDuration: 0.1, thenDragTo: to)
-                    usleep(600_000)
-                }
                 return false
             }
             defer { previous = now }
@@ -547,7 +523,11 @@ final class FeatureFlowsUITests: RealAppUITestCase {
             usleep(1_000_000)
             return false
         }
-        harnessRequire(result != nil, app, "\(step): John 3:16 words For/God/so/loved measurable and settled")
+        if result == nil {
+            let title = readingTitlePosition(app).map { "John \($0.chapter):\($0.verse)" } ?? "unreadable"
+            attach("verse16-missing", "toolbar title after \(step): \(title)")
+        }
+        harnessRequire(result != nil, app, "John 3:16 not in view after \(step) (saved position lost)")
         return result ?? PhraseMetrics(widths: [], heights: [], top: 0)
     }
 
