@@ -85,16 +85,16 @@ optional_mounts:
     description: "SSH key + config for the iOS build Mac (ssh -F ~/.ssh-mac/config andbible-mac)"
 
   # Release secrets for a release container only (spec specs/2026-10-24-i4-release-design.md §5.3):
-  # the GPG-encrypted App Store Connect API key, the Play service-account JSON, asc-api.env (key id,
-  # issuer id, team id), the host's public GPG key and review_information.local.yml. Decrypted
-  # material lives only in RAM inside the container. Attach for the release, detach after:
+  # the GPG-encrypted App Store Connect API key and Play service-account JSON, asc-api.env (key id,
+  # issuer id), the Android keystore (.p12; its passwords stay in the repo's keystore.properties.gpg)
+  # and review_information.local.yml. Decrypted material lives only in RAM inside the container. Attach for the release, detach after:
   #   jailbee mount release-secrets <container> --for 2h
   #   jailbee unmount release-secrets <container>
   release-secrets:
     host: ~/.config/andbible-release
     container: /home/dev/.release-secrets
     readonly: true
-    description: "AndBible store release secrets (encrypted keys, ids); attach only for a release"
+    description: "AndBible store release secrets (encrypted store keys, ids, Android keystore); attach only for a release"
 
 # adb: one host-side adb server serves both host and container clients. The
 # container reaches it over this TCP forward (container 127.0.0.1:5037 ->
@@ -181,6 +181,9 @@ egress_allow:
   # Playwright browser download (website browser checks, .jailbee/install.d/97-playwright.sh)
   - cdn.playwright.dev:443
   - playwright.download.prss.microsoft.com:443
+  # RubyGems: fastlane for the store release pipeline (.jailbee/install.d/93-fastlane.sh)
+  - rubygems.org:443
+  - index.rubygems.org:443
   # Ubuntu apt
   - archive.ubuntu.com:443
   - security.ubuntu.com:443
@@ -282,6 +285,10 @@ golden:
     - gdb                 # backtraces of a crashing emulator (sudo gdb -p <qemu pid>)
     - unzip               # Sword test modules (`unzip -o -d ~/.sword testmods.zip`), module zips
     - rsync               # working-tree sync to the iOS build Mac (docs/ios-remote-mac.md)
+    # Ruby for fastlane (.jailbee/install.d/93-fastlane.sh): ruby-dev + build-essential build its native gems
+    - ruby
+    - ruby-dev
+    - build-essential
     # Local Nextcloud for cloud-sync emulator checks (`php -S` + the tarball kit in
     # .local/emu-verify/nextcloud; no web server or database server needed: SQLite).
     - php-cli
