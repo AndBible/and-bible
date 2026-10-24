@@ -79,8 +79,8 @@ object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
  *
  * Defaults reproduce `settings.xml` / `SettingsFragment.onCreatePreferences` runtime overrides
  * exactly, including two non-obvious ones:
- *  - `night_mode_pref3` defaults to `"system"` (NOT the XML `defaultValue="manual"`) because
- *    `onCreatePreferences` unconditionally calls `nightModePref.setDefaultValue("system")` in
+ *  - `night_mode_pref3` defaults to `"system"`, matching the XML `defaultValue="system"` and the
+ *    `onCreatePreferences` override `nightModePref.setDefaultValue("system")` in
  *    BOTH the `autoModeAvailable` and non-`autoModeAvailable` branches.
  *  - `full_screen_hide_buttons_pref` defaults to `false` (NOT `true`, despite the visible intent
  *    in `settings.xml`): the `<SwitchPreferenceCompat .../>` tag self-closes one line early

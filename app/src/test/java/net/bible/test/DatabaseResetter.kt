@@ -113,6 +113,8 @@ object DatabaseResetter {
             if (windowRepo != null) windowControl.forgetWindowRepositoryIfCurrent(windowRepo)
             ReadingFixtureOwners.drain()
             checkpoint("producers-joined")
+            // Open the write gate first: a test that ended with it closed would otherwise hang the join below.
+            DatabaseContainer.forgetReplacesForTest()
             // Koin outlives the test, and singletons resolved in BibleApplication.onCreate (the BookInstallWatcher)
             // keep the startup launcher, which no fixture scope owns: its queued writes must finish before the close.
             (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
