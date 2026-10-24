@@ -333,17 +333,17 @@ final class EndToEndUITests: RealAppUITestCase {
         let restoreOK = nightRoundTrip(app, phase: "after restore")
         continueAfterFailure = false
         attachText("night-mode-result", "control (no restore): page followed the night switch \(controlOK ? "yes" : "NO"); after restore: \(restoreOK ? "yes" : "NO")")
-        // Fresh process on the restored data, night off again (preference System), so the text size check sees a sane page.
-        app = relaunch(app)
-        setNightModePreference(app, "System")
-        do {
-            // Night must be off before the font step (run 9: the page was still black there): the day page is bright. An
-            // absolute threshold, because the stored night toggle can already be on when the test starts.
+        // Review Focus 2 (R2's stale settings subscription after a restore): the text size step runs in the SAME process as
+        // the restore and the post-restore night round trip, so a subscription the restore left stale cannot pass by being
+        // rebuilt in a fresh process. Night must be off first (run 9: the page was still black): the day page is bright. An
+        // absolute threshold, because the stored night toggle can already be on when the test starts.
+        func requireBrightPage(_ step: String) {
             var now: Double?
             _ = waitUntil(timeout: 20) { now = self.pageLuminance(app); return now.map { $0 > 0.6 } ?? false }
             harnessRequire(now.map { $0 > 0.6 } ?? false, app,
-                           "night mode is off before the font step (page brightness \(now.map { "\($0)" } ?? "unreadable"), expected a bright day page)")
+                           "night mode is off \(step) (page brightness \(now.map { "\($0)" } ?? "unreadable"), expected a bright day page)")
         }
+        requireBrightPage("after the post-restore night round trip")
 
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
         guard let before = phraseWidth(app, preferring: nil) else {
@@ -354,13 +354,18 @@ final class EndToEndUITests: RealAppUITestCase {
         harnessRequire(new == old + 4, app, "the font size editor moved from \(old) to \(new), expected +4")
         let grew = waitUntil(timeout: 30) { (self.phraseWidth(app, preferring: before.label)?.width ?? 0) > before.width * 1.05 }
         shot(app, "e2e-restore-font-increased")
-        harnessRequire(grew, app, "'\(before.label)' got wider than \(before.width) pt after the font size +4")
+        harnessRequire(grew, app, "'\(before.label)' got wider than \(before.width) pt after the font size +4 (same process as the restore)")
         // Leave the setting as found: back down by the same amount, the phrase returns to its width.
         let (_, restoredSize) = changeFontSize(app, by: -4)
         harnessRequire(restoredSize == old, app, "the font size went back to \(old), is \(restoredSize)")
         harnessRequire(waitUntil(timeout: 30) {
             abs((self.phraseWidth(app, preferring: before.label)?.width ?? 0) - before.width) < 1.5
         }, app, "'\(before.label)' returned to its original width")
+
+        // Final fresh process on the restored data: night follows the system again (preference System), page is a day page.
+        app = relaunch(app)
+        setNightModePreference(app, "System")
+        requireBrightPage("in the fresh process after the restore")
         sendToBackground(app)
         app.terminate()
     }
