@@ -120,7 +120,19 @@ final class FinnishWalkUITests: RealAppUITestCase {
         app = launch(["-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16", "-featureScenario", "download"])
         let yes = app.buttons.matching(NSPredicate(format: "label == 'Kyllä'")).firstMatch
         _ = waitUntil(timeout: 90) { yes.exists || self.element(app, "debug-feature-ready").exists }
-        if yes.exists { shot(app, "fi-download-consent"); yes.tap() }
+        if yes.exists {
+            shot(app, "fi-download-consent")
+            // Bounded drags inside the dialog if its answer is not yet hittable (it fits at the default size).
+            var drags = 0
+            while !yes.isHittable && drags < 8 {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
+                    .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.40)))
+                usleep(400_000)
+                drags += 1
+            }
+            harnessRequire(yes.isHittable, app, "fi-download-consent-Kyllä-not-hittable")
+            yes.tap()
+        }
         harnessRequire(element(app, "debug-feature-ready").waitForExistence(timeout: 90), app, "fi-download-not-ready")
         check(app, "download", [download, all])
         app.terminate()
@@ -172,7 +184,15 @@ final class FinnishWalkUITests: RealAppUITestCase {
         for (screen, item) in [("backup", backup), ("device-sync", cloudSync)] {
             app = launchReadingKeepingLanguage()
             if let row = revealDrawerRow(app, item.finnish, opened: false) {
+                // Tap only once the row has stopped moving (a tap during the drawer's settling was lost in the evidence run:
+                // the drawer was still open 30 s later). If the screen still does not open, ONE recorded retap.
+                var last = CGRect.null
+                _ = waitUntil(timeout: 5) { let frame = row.frame; defer { last = frame }; return frame == last }
                 row.tap()
+                if !upButton(app).waitForExistence(timeout: 10), row.exists {
+                    shot(app, "fi-\(screen)-first-tap-lost"); attachTree(app, "fi-\(screen)-first-tap-lost")
+                    row.tap()
+                }
                 // The screen is open when the reading toolbar's Menu button is gone and an Up control is there.
                 let opened = upButton(app).waitForExistence(timeout: 30)
                 if !opened { attachTree(app, "fi-\(screen)-not-opened"); XCTFail("fi \(screen): screen did not open") }
