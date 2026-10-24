@@ -180,20 +180,22 @@ Each device is identified separately. When multiple devices are synced:
 
 ## Sharing Data Between Android and iOS
 
-All release versions of *AndBible* use the same synced data on your NextCloud
-or WebDAV server: the Android app from the Play Store, F-Droid, GitHub, and the
-other stores, the discrete (calculator) version, the Accrescent version, and the
-iOS app. Signing them into the same server and folder lets them share the same
-bookmarks, workspaces, and other synced categories.
+All release versions of *AndBible* use the same synced data: the Android app
+from the Play Store, F-Droid, GitHub, and the other stores, the discrete
+(calculator) version, the Accrescent version, and the iOS app. The shared
+folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
+Google Drive is currently available only on Android, so on Google Drive the
+sharing is between the Android versions (standard, discrete, and Accrescent).
 
-If you already use sync on **Android** (the standard version), nothing changes
+If you already use sync on the **standard Android** version, nothing changes
 when you update: sync keeps working as before.
 
-If you use the **discrete**, **Accrescent**, or **iOS** version, sync needs to be
-set up again once after you update:
+If you use the **discrete**, **Accrescent**, or **iOS** version, sync moves to
+the shared folder once after you update:
 
-1. After updating, each data category that is turned on joins the shared folder
-    the next time sync runs. Its old folder on the server is no longer used.
+1. Your enabled data categories stay on. The next time sync runs, each of them
+    moves to the shared folder automatically. You do not need to enable them
+    again, unless you cancel the question in step 2.
 2. If the shared folder already contains data, for example from your Android
     device, the app asks what to do, as described in
     [Setting Up Sync](#setting-up-sync): **Copy from Cloud to this device**,
@@ -203,7 +205,14 @@ set up again once after you update:
 
 The old folders on the server are left as they are. *AndBible* does not delete
 them, but it no longer reads or writes them, so you can remove them yourself
-when you no longer need them.
+when you no longer need them. Their names start with the app id of the version
+that used them:
+
+- Discrete: `com.app.calculator-sync-…`
+- Accrescent: `org.andbible.andbible-sync-…`
+- iOS: `org.andbible.ios-sync-…`
+
+The shared folders are named `net.bible.android.activity-sync-…`.
 
 !!! note
 
