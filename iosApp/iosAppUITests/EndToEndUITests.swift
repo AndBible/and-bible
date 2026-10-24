@@ -222,14 +222,18 @@ final class EndToEndUITests: RealAppUITestCase {
         let backend = syncUI.rowButton(app, "Synchronization Backend")
         harnessRequire(backend.waitForExistence(timeout: 30), app, "the Device synchronization screen opened")
         backend.tap()
-        let webDav = syncUI.label(app, "WebDAV")
-        harnessRequire(webDav.waitForExistence(timeout: 10), app, "the backend choice lists 'WebDAV'")
+        // The WebDAV backend is HTTPS-only (spec 2026-10-09); the plain-http local fixture goes through the Next Cloud
+        // backend, which allows http to local hosts and derives the user's DAV root from the server address.
+        let plainHttp = URL(string: fixture.url)?.scheme == "http"
+        let backendLabel = plainHttp ? "Next Cloud" : "WebDAV"
+        let webDav = syncUI.label(app, backendLabel)
+        harnessRequire(webDav.waitForExistence(timeout: 10), app, "the backend choice lists '\(backendLabel)'")
         webDav.tap()
         // Credentials first, with the category still off (switching it on starts the real sign-in).
         let bookmarks = syncUI.reveal(app, "Bookmarks", toggle: true)
         harnessRequire(bookmarks.isEnabled && !bookmarks.isSelected, app, "the Bookmarks sync category starts off")
         app.swipeDown(); app.swipeDown(); app.swipeDown()
-        syncUI.edit(app, "Server URL", fixture.url)
+        syncUI.edit(app, "Server URL", plainHttp ? (URL(string: fixture.url).flatMap { u in u.host.map { "http://\($0)" + (u.port.map { ":\($0)" } ?? "") } } ?? fixture.url) : fixture.url)
         syncUI.edit(app, "User name", fixture.user)
         syncUI.edit(app, "Password", fixture.password, sensitive: true)
         _ = syncUI.reveal(app, "Bookmarks", toggle: true)
