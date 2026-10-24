@@ -308,6 +308,7 @@ final class EndToEndUITests: RealAppUITestCase {
 
     func testRestoreKeepsLiveSettings() throws {
         var app = readingOnKjv()
+        let lightLuminance = sampleLuminance(app)
         // Night mode needs the Manual preference (the toggle is disabled while it follows the system).
         setNightModePreference(app, "Manual")
         // CONTROL, no restore yet: does a live night switch reach the page at all? (NM-1 fixed: the page background follows; see
@@ -332,6 +333,13 @@ final class EndToEndUITests: RealAppUITestCase {
         // Fresh process on the restored data, night off again (preference System), so the text size check sees a sane page.
         app = relaunch(app)
         setNightModePreference(app, "System")
+        if let lightLuminance {
+            // Night must be off before the font step (run 9: the page was still black there).
+            var now: Double?
+            _ = waitUntil(timeout: 20) { now = self.pageLuminance(app); return now.map { abs($0 - lightLuminance) < 0.2 } ?? false }
+            harnessRequire(now.map { abs($0 - lightLuminance) < 0.2 } ?? false, app,
+                           "night mode is off before the font step (light \(lightLuminance), now \(now.map { "\($0)" } ?? "unreadable"))")
+        }
 
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
         guard let before = phraseWidth(app, preferring: nil) else {
@@ -439,9 +447,13 @@ final class EndToEndUITests: RealAppUITestCase {
 
     /// Reading menu -> "Night mode" (a checkable overflow row).
     private func toggleNightMode(_ app: XCUIApplication) {
-        let more = byLabel(app, "More options")
-        harnessRequire(more.waitForExistence(timeout: 15), app, "the reading toolbar has 'More options'")
-        more.tap()
+        // A night toggle leaves the overflow menu open by design (ReadingOverflowController returns true for toggles) and the
+        // open menu covers 'More options': reuse it when it is still up (run 9: the second toggle of the control round trip).
+        if !app.buttons["Night mode"].exists {
+            let more = byLabel(app, "More options")
+            harnessRequire(more.waitForExistence(timeout: 15), app, "the reading toolbar has 'More options'")
+            more.tap()
+        }
         let night = app.buttons["Night mode"]
         harnessRequire(night.waitForExistence(timeout: 10), app, "the overflow menu has 'Night mode'")
         harnessRequire(night.isEnabled, app,
@@ -490,6 +502,7 @@ final class EndToEndUITests: RealAppUITestCase {
     /// Reading menu -> "All text options" -> Font size sheet; drags the slider by `delta` and confirms with OK.
     /// Returns (old, new) values read from the slider. Back on the reading page afterwards.
     private func changeFontSize(_ app: XCUIApplication, by delta: Int) -> (Int, Int) {
+        settleAfterMenu(app)   // close an overflow menu a night toggle left open (no-op when it is closed)
         let more = byLabel(app, "More options")
         harnessRequire(more.waitForExistence(timeout: 15), app, "the reading toolbar has 'More options'")
         more.tap()
@@ -613,6 +626,10 @@ final class EndToEndUITests: RealAppUITestCase {
 
     /// The overflow menu closed (its 'Night mode' row gone) and the page given a moment to repaint.
     private func settleAfterMenu(_ app: XCUIApplication) {
+        // The menu stays open after a toggle: dismiss it by tapping the empty bottom-left of the screen (outside the popup).
+        if app.buttons["Night mode"].exists {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
+        }
         _ = waitUntil(timeout: 10) { !app.buttons["Night mode"].exists }
         usleep(2_000_000)
     }
