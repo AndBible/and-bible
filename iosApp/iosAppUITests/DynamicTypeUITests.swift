@@ -2,6 +2,14 @@ import XCTest
 
 /// Real-app Dynamic Type mapping, live updates and Settings reachability.
 final class DynamicTypeUITests: RealAppUITestCase {
+    private static var kjvEnsured = false
+    /// The walks open real screens that need an installed KJV; an earlier `-resetData` class can leave the app on the
+    /// Welcome screen, so the precondition is established here (once per run) instead of assumed.
+    override func setUp() {
+        super.setUp()
+        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+    }
+
     func testMeasureFontScaleAtXXXL() {
         let app = launch([
             "-standardTestFixture",

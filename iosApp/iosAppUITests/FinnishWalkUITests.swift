@@ -5,6 +5,14 @@ import XCTest
 /// ABSENT as accessibility labels and their Finnish values present. Keys that `values-fi/strings.xml` lacks (Back,
 /// More options, Filter by label, Window menu, Close in the settings editor ...) legitimately stay English and are never asserted.
 final class FinnishWalkUITests: RealAppUITestCase {
+    private static var kjvEnsured = false
+    /// The walks open real screens that need an installed KJV; an earlier `-resetData` class can leave the app on the
+    /// Welcome screen, so the precondition is established here (once per run) instead of assumed.
+    override func setUp() {
+        super.setUp()
+        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+    }
+
     /// English chrome string -> Finnish value, both read from `app/src/main/res/values{,-fi}/strings.xml`.
     private struct Chrome {
         let key: String
