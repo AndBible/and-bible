@@ -42,6 +42,8 @@ import net.bible.android.database.SyncStatus
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.asyncMap
 import net.bible.service.common.createTempFile
+import net.bible.service.cloudsync.merge.mergeSnapshotIntoLocal
+import net.bible.service.cloudsync.merge.prepareMergeSnapshot
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
@@ -102,6 +104,7 @@ class CloudSync(
 
 
     // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
+    private val MERGE_VALUE = "merge"
     private val FETCH_VALUE = "fetch"
     private val CREATE_VALUE = "create"
     private val DISABLE_VALUE = "disable"
@@ -168,11 +171,11 @@ class CloudSync(
         }
     }
 
-    enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
+    enum class InitialOperation {MERGE, FETCH_INITIAL, CREATE_NEW}
     private val uiMutex = Mutex()
 
     /**
-     * `initializeSync`'s "fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
+     * `initializeSync`'s "merge, fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
      * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
      * followed by its existing confirmation through the same dialog controller. Declining
      * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
@@ -186,6 +189,7 @@ class CloudSync(
                 title = strings.cloudSyncTitle,
                 message = strings.overrideBackup(containsStr),
                 options = listOf(
+                    SettingsItem.Choice(MERGE_VALUE, strings.cloudMergeData),
                     SettingsItem.Choice(FETCH_VALUE, strings.cloudFetchAndRestoreInitial),
                     SettingsItem.Choice(CREATE_VALUE, strings.cloudCreateNew),
                     SettingsItem.Choice(DISABLE_VALUE, strings.cloudDisableSync),
@@ -196,12 +200,14 @@ class CloudSync(
             ),
         )
         val q1 = when ((dialogResult as? AppDialogResult.Selected)?.value) {
+            MERGE_VALUE -> InitialOperation.MERGE
             FETCH_VALUE -> InitialOperation.FETCH_INITIAL
             CREATE_VALUE -> InitialOperation.CREATE_NEW
             else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
         }
         if (q1 != null) {
             val msgString = when (q1) {
+                InitialOperation.MERGE -> strings.areYouSureMerge(containsStr)
                 InitialOperation.FETCH_INITIAL -> strings.areYouSureResetLocal(containsStr)
                 InitialOperation.CREATE_NEW -> strings.areYouSureResetCloud(containsStr)
             }
@@ -298,6 +304,7 @@ class CloudSync(
                 createNewDeviceSyncFolder()
                 fetchAndRestoreInitial(dbDef)
             }
+            InitialOperation.MERGE -> mergeIntoCloudFolder(dbDef, ::createNewDeviceSyncFolder)
             null -> {}
         }
     }
@@ -322,7 +329,11 @@ class CloudSync(
         FileSystem.SYSTEM.delete(gzippedTmpFile)
     }
 
-    private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseAccessor<*>) {
+    private suspend fun fetchAndRestoreInitial(
+        dbDef: SyncableDatabaseAccessor<*>,
+        replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,
+        failWithoutMessage: Boolean = false,
+    ) {
         val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val adapterConfigs = adapter.getConfigs(dbDef)
@@ -342,12 +353,14 @@ class CloudSync(
         val localVersion = dbDef.version()
         if(initialDbVersion > localVersion) {
             runCatching { FileSystem.SYSTEM.delete(tmpFile) }
+            // A merge holds the database replace: it shows the message itself once the replace has ended.
+            if (failWithoutMessage) throw IncompatiblePatchVersion()
             dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
             dbDef.category.setSyncEnabled(settings, false)
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
             throw CancelStartedSync()
         } else {
-            swapInInitialDb(dbDef, tmpFile) {
+            swapInInitialDb(dbDef, tmpFile, replacement) {
                 dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
                 dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
                 dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, Clock.System.now().toEpochMilliseconds())
@@ -390,6 +403,90 @@ class CloudSync(
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
+            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+        }
+    }
+
+    /** Test seam: called with "afterPatches" and "afterMerge" during a merge; a throw there is a failed merge. */
+    @VisibleForTesting
+    var mergeStageHookForTest: (suspend (stage: String) -> Unit)? = null
+
+    /**
+     * The "Merge data" join: the fetch flow with the device's own data kept and replayed on top of the cloud's
+     * (spec 2026-10-24-sync-merge-data-design, section 4.1).
+     *
+     * Everything runs inside one [DatabaseContainer.replacingDatabases] block, so there are no concurrent writers
+     * (the re-stamp of [mergeSnapshotIntoLocal] is a separate transaction from its apply) and no other replace can
+     * interleave. Inside the block:
+     * 1. a pristine copy of the local database and a merge snapshot (every row logged) are written to the temp dir;
+     * 2. [createDeviceFolder] and the fetch swap-in of the cloud's initial file ([fetchAndRestoreInitial]);
+     * 3. every cloud patch is applied ([downloadAndApplyNewPatches]);
+     * 4. [mergeSnapshotIntoLocal] with a merge time that is strictly above `LAST_PATCH_WRITTEN_KEY` (the fetch stored
+     *    "now"; the larger of now and that value plus one is used, so a fast merge in the same millisecond still
+     *    sits above it and the next patch carries the device's winning rows).
+     * Both temp copies are deleted at the end, also on failure.
+     *
+     * **Failure** (any [Throwable] in steps 1-4, [CancelStartedSync] and cancellation included): the pristine copy is
+     * swapped back in through [swapInInitialDb], and in the same reset the stored folder ids, `LAST_SYNCHRONIZED_KEY`,
+     * `LAST_PATCH_WRITTEN_KEY` and the adapter's own keys (`adapter.getConfigs`) are removed, so no sync state survives
+     * and the device keeps exactly its earlier rows, change log and configuration. Category sync is switched off. The
+     * device folder created on the server may remain (an empty folder, or with the secret file); it is harmless and
+     * is reused or ignored by the next join. After the replace has ended the failure is reported: a newer schema
+     * (the cloud's initial file or a cloud patch) shows the "update the app" message and ends in
+     * [CancelStartedSync]; a network failure shows the sync error and ends in [CancelStartedSync]; other
+     * exceptions propagate to [synchronize]'s own handling.
+     */
+    private suspend fun mergeIntoCloudFolder(dbDef: SyncableDatabaseAccessor<*>, createDeviceFolder: suspend () -> Unit) {
+        val pristine = createTempFile(env.tmpDir.toPath(), "andbible-merge-original-", ".tmp")
+        val snapshot = createTempFile(env.tmpDir.toPath(), "andbible-merge-snapshot-", ".tmp")
+        try {
+            DatabaseContainer.replacingDatabases { token ->
+                try {
+                    dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
+                    FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), pristine)
+                    prepareMergeSnapshot(dbDef, snapshot)
+                    createDeviceFolder()
+                    fetchAndRestoreInitial(dbDef, token, failWithoutMessage = true)
+                    try {
+                        downloadAndApplyNewPatches(dbDef)
+                    } catch (e: PatchFilesSkipped) {
+                        Log.i(TAG, "Patch files skipped during merge! Retrying download and apply!")
+                        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
+                        downloadAndApplyNewPatches(dbDef)
+                    }
+                    mergeStageHookForTest?.invoke("afterPatches")
+                    val watermark = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: 0L
+                    val mergeTime = maxOf(Clock.System.now().toEpochMilliseconds(), watermark + 1)
+                    mergeSnapshotIntoLocal(dbDef, env, snapshot, mergeTime)
+                    mergeStageHookForTest?.invoke("afterMerge")
+                } catch (t: Throwable) {
+                    Log.e(TAG, "Merge failed for ${dbDef.categoryName}, restoring the device's database", t)
+                    try {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                            swapInInitialDb(dbDef, pristine, token) {
+                                for (key in listOf(SYNC_FOLDER_FILE_ID_KEY, SYNC_DEVICE_FOLDER_FILE_ID_KEY, LAST_SYNCHRONIZED_KEY, LAST_PATCH_WRITTEN_KEY)) {
+                                    dbDef.dao.removeConfig(key)
+                                }
+                                adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+                            }
+                        }
+                    } catch (restoreFailure: Throwable) {
+                        t.addSuppressed(restoreFailure)
+                    }
+                    dbDef.category.setSyncEnabled(settings, false)
+                    throw t
+                }
+            }
+        } catch (e: IncompatiblePatchVersion) {
+            dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
+            throw CancelStartedSync()
+        } catch (e: IOException) {
+            Log.e(TAG, "Merge failed (probably network down)", e)
+            UserMessages.errorNotification(strings.syncError)
+            throw CancelStartedSync()
+        } finally {
+            runCatching { FileSystem.SYSTEM.delete(pristine) }
+            runCatching { FileSystem.SYSTEM.delete(snapshot) }
             if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
         }
     }
