@@ -52,7 +52,9 @@ if ! [[ "$STEP" =~ ^[1-9][0-9]*$ ]]; then
 fi
 
 # Configuration
-ANDROID_MANIFEST_PATH="app/src/main/AndroidManifest.xml"
+# shellcheck source=lib-version.sh
+. "$(dirname "$0")/lib-version.sh"
+VERSION_FILE_REL="version.properties"
 CHANGELOG_DIR="fastlane/metadata/android/en-US/changelogs"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
@@ -65,8 +67,8 @@ else
 fi
 
 # Check if we're in the right directory
-if [[ ! -f "$ANDROID_MANIFEST_PATH" ]]; then
-    echo -e "${RED}Error: AndroidManifest.xml not found at $ANDROID_MANIFEST_PATH${NC}"
+if [[ ! -f "$VERSION_FILE_REL" ]]; then
+    echo -e "${RED}Error: $VERSION_FILE_REL not found${NC}"
     echo "Please run this script from the repository root directory."
     exit 1
 fi
@@ -79,28 +81,20 @@ if [[ -n $(git status --porcelain) ]]; then
 fi
 
 # Extract current version information
-echo "Reading current version from AndroidManifest.xml..."
-CURRENT_VERSION_CODE=$(grep -o 'android:versionCode="[0-9]*"' "$ANDROID_MANIFEST_PATH" | grep -o '[0-9]*')
-CURRENT_VERSION_NAME=$(grep -o 'android:versionName="[^"]*"' "$ANDROID_MANIFEST_PATH" | grep -o '[^"]*' | tail -1)
+echo "Reading current version from $VERSION_FILE_REL..."
+CURRENT_VERSION_CODE=$(version_code)
+CURRENT_VERSION_NAME=$(version_name)
 
 if [[ -z "$CURRENT_VERSION_CODE" ]] || [[ -z "$CURRENT_VERSION_NAME" ]]; then
-    echo -e "${RED}Error: Could not extract version information from AndroidManifest.xml${NC}"
+    echo -e "${RED}Error: Could not extract version information from $VERSION_FILE_REL${NC}"
     exit 1
 fi
 
 echo "Current version: $CURRENT_VERSION_NAME (code: $CURRENT_VERSION_CODE)"
 
-# Split off optional suffix (e.g. -beta). The suffix identifies beta builds in
-# the app and must be preserved when incrementing.
-VERSION_SUFFIX=$(echo "$CURRENT_VERSION_NAME" | grep -oE -- '-[a-zA-Z][a-zA-Z0-9]*$' || true)
-BASE_VERSION_NAME="${CURRENT_VERSION_NAME%"$VERSION_SUFFIX"}"
-
-# Calculate new version
+# versionNameSuffix (e.g. -beta) stays in the file and is not touched by an increment.
 NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + STEP))
-# Extract major.minor from base version name and append new version code
-VERSION_PREFIX=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
-NEW_BASE_VERSION_NAME="${VERSION_PREFIX}.${NEW_VERSION_CODE}"
-NEW_VERSION_NAME="${NEW_BASE_VERSION_NAME}${VERSION_SUFFIX}"
+NEW_VERSION_NAME="$(version_major_minor).${NEW_VERSION_CODE}$(_version_get versionNameSuffix)"
 
 echo "New version: $NEW_VERSION_NAME (code: $NEW_VERSION_CODE)"
 
@@ -114,27 +108,19 @@ if [[ ! -f "$CURRENT_CHANGELOG" ]]; then
     exit 1
 fi
 
-# Update AndroidManifest.xml
-echo "Updating AndroidManifest.xml..."
-sed -i.bak "s/android:versionCode=\"$CURRENT_VERSION_CODE\"/android:versionCode=\"$NEW_VERSION_CODE\"/" "$ANDROID_MANIFEST_PATH"
-sed -i.bak2 "s/android:versionName=\"$CURRENT_VERSION_NAME\"/android:versionName=\"$NEW_VERSION_NAME\"/" "$ANDROID_MANIFEST_PATH"
-
-# Remove backup files
-rm -f "${ANDROID_MANIFEST_PATH}.bak" "${ANDROID_MANIFEST_PATH}.bak2"
+# Update version.properties
+echo "Updating $VERSION_FILE_REL..."
+version_set_code "$NEW_VERSION_CODE" || { echo -e "${RED}Error: Version update failed in $VERSION_FILE_REL${NC}"; exit 1; }
 
 # Verify the changes
-echo "Verifying AndroidManifest.xml changes..."
-NEW_VERSION_CODE_CHECK=$(grep -o 'android:versionCode="[0-9]*"' "$ANDROID_MANIFEST_PATH" | grep -o '[0-9]*')
-NEW_VERSION_NAME_CHECK=$(grep -o 'android:versionName="[^"]*"' "$ANDROID_MANIFEST_PATH" | grep -o '[^"]*' | tail -1)
-
-if [[ "$NEW_VERSION_CODE_CHECK" != "$NEW_VERSION_CODE" ]] || [[ "$NEW_VERSION_NAME_CHECK" != "$NEW_VERSION_NAME" ]]; then
-    echo -e "${RED}Error: Version update failed in AndroidManifest.xml${NC}"
+if [[ "$(version_code)" != "$NEW_VERSION_CODE" ]] || [[ "$(version_name)" != "$NEW_VERSION_NAME" ]]; then
+    echo -e "${RED}Error: Version update failed in $VERSION_FILE_REL${NC}"
     echo "Expected: $NEW_VERSION_NAME (code: $NEW_VERSION_CODE)"
-    echo "Found: $NEW_VERSION_NAME_CHECK (code: $NEW_VERSION_CODE_CHECK)"
+    echo "Found: $(version_name) (code: $(version_code))"
     exit 1
 fi
 
-echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
+echo -e "${GREEN}✓ $VERSION_FILE_REL updated successfully${NC}"
 
 # Generate changelog with auto-summarized release notes
 # For production builds, diff against the latest production-* tag
@@ -220,14 +206,14 @@ if [[ "$response" =~ ^[Ee]$ ]]; then
 fi
 if [[ ! "$response" =~ ^[Yy]$ ]]; then
     echo "Aborted by user. Reverting changes..."
-    git checkout -- "$ANDROID_MANIFEST_PATH"
+    git checkout -- "$VERSION_FILE_REL"
     rm -f "$NEW_CHANGELOG"
     exit 1
 fi
 
 # Add files to git
 echo "Adding files to git..."
-git add "$ANDROID_MANIFEST_PATH" "$NEW_CHANGELOG"
+git add "$VERSION_FILE_REL" "$NEW_CHANGELOG"
 
 # Commit changes
 COMMIT_MESSAGE="Increment version to $NEW_VERSION_NAME"
