@@ -27,27 +27,29 @@
 			<!--
 			  E174.1: IosDownloadHostPlatform and IosAppEnvironment.megabytesFree check free
 			  space before a module download is written (DownloadControl refuses when low).
-			  85F4.1: PlatformProbeScreen shows the free space to the user.
+			  No free-space figure is shown to the user in Release (PlatformProbeScreen is
+			  debug-binary only), so 85F4.1 is not declared.
 			-->
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
-				<string>85F4.1</string>
 				<string>E174.1</string>
 			</array>
 		</dict>
 		<dict>
 			<!--
 			  C617.1: IosBugReport reads the modification time of the log file, and the
-			  bundled SQLite and the file layers stat databases and modules. All of
-			  these files are inside the app container.
+			  bundled SQLite and the file layers stat databases and modules inside the app
+			  container. 3B52.1: IosMyDocumentFiles reads attributesOfItemAtPath on a file
+			  or folder the user picked, i.e. one the user granted the app access to.
 			-->
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
 				<string>C617.1</string>
+				<string>3B52.1</string>
 			</array>
 		</dict>
 		<dict>

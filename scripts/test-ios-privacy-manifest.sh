@@ -15,8 +15,8 @@ project = (root / 'iosApp/project.yml').read_text()
 
 EXPECTED = {
     'NSPrivacyAccessedAPICategoryUserDefaults': {'CA92.1'},
-    'NSPrivacyAccessedAPICategoryDiskSpace': {'85F4.1', 'E174.1'},
-    'NSPrivacyAccessedAPICategoryFileTimestamp': {'C617.1'},
+    'NSPrivacyAccessedAPICategoryDiskSpace': {'E174.1'},
+    'NSPrivacyAccessedAPICategoryFileTimestamp': {'C617.1', '3B52.1'},
     'NSPrivacyAccessedAPICategorySystemBootTime': {'35F9.1'},
 }
 
