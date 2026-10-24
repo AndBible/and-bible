@@ -202,8 +202,24 @@ android {
     sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     compileSdk = 36
 
-    /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
+    // version.properties (repo root) is the one version source for Android and iOS.
+    val versionProps = Properties().apply {
+        val f = rootProject.file("version.properties")
+        if (!f.exists()) throw GradleException("version.properties is missing at ${f.absolutePath}")
+        f.inputStream().use { load(it) }
+    }
+    fun requiredVersionProp(key: String): String =
+        versionProps.getProperty(key)?.trim()
+            ?: throw GradleException("version.properties has no '$key' key")
+    val appVersionCode = requiredVersionProp("versionCode").toIntOrNull()
+        ?: throw GradleException("version.properties: versionCode must be an integer")
+    val appVersionNameSuffix = (project.findProperty("versionNameSuffix") as String?)
+        ?: requiredVersionProp("versionNameSuffix")
+
+    /** these config values override those in AndroidManifest.xml (which no longer declares a version) */
     defaultConfig {
+        versionCode = appVersionCode
+        versionName = "${requiredVersionProp("versionMajorMinor")}.$appVersionCode$appVersionNameSuffix"
         applicationId = applicationIdStandard
         minSdk = 23
         targetSdk = 36
