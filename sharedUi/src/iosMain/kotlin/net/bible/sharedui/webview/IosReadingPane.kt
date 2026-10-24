@@ -77,6 +77,7 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     override fun didMoveToWindow() {
         super.didMoveToWindow()
         nsLog("POSTRACE attach windowId=$posTraceWindowId frame=${frame.useContents { "${size.width}x${size.height}" }} hasWindow=${window != null}") // POSTRACE
+        scrollView.scrollsToTop = false // POSTRACE experiment: does the iPad scroll-to-top come from UIScrollView.scrollsToTop?
         if (window != null) {
             try {
                 onAttached?.invoke()
