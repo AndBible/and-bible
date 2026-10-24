@@ -312,7 +312,6 @@ final class EndToEndUITests: RealAppUITestCase {
 
     func testRestoreKeepsLiveSettings() throws {
         var app = readingOnKjv()
-        let lightLuminance = sampleLuminance(app)
         // Night mode needs the Manual preference (the toggle is disabled while it follows the system).
         setNightModePreference(app, "Manual")
         // CONTROL, no restore yet: does a live night switch reach the page at all? (NM-1 fixed: the page background follows; see
@@ -337,12 +336,13 @@ final class EndToEndUITests: RealAppUITestCase {
         // Fresh process on the restored data, night off again (preference System), so the text size check sees a sane page.
         app = relaunch(app)
         setNightModePreference(app, "System")
-        if let lightLuminance {
-            // Night must be off before the font step (run 9: the page was still black there).
+        do {
+            // Night must be off before the font step (run 9: the page was still black there): the day page is bright. An
+            // absolute threshold, because the stored night toggle can already be on when the test starts.
             var now: Double?
-            _ = waitUntil(timeout: 20) { now = self.pageLuminance(app); return now.map { abs($0 - lightLuminance) < 0.2 } ?? false }
-            harnessRequire(now.map { abs($0 - lightLuminance) < 0.2 } ?? false, app,
-                           "night mode is off before the font step (light \(lightLuminance), now \(now.map { "\($0)" } ?? "unreadable"))")
+            _ = waitUntil(timeout: 20) { now = self.pageLuminance(app); return now.map { $0 > 0.6 } ?? false }
+            harnessRequire(now.map { $0 > 0.6 } ?? false, app,
+                           "night mode is off before the font step (page brightness \(now.map { "\($0)" } ?? "unreadable"), expected a bright day page)")
         }
 
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
