@@ -59,6 +59,8 @@ class WebDavCloudAdapter(
     override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) { signInLoop() }
 
     private suspend fun signInLoop(): Boolean {
+        // A blank URL would make ktor resolve requests against http://localhost/ (port 80).
+        if (config.serverUrl.isBlank()) throw Exception(ui.message(WebDavMessage.HTTPS_REQUIRED))
         var trustedNow = false
         while (true) {
             val c = clientFactory(config, state)
