@@ -37,9 +37,25 @@ ls "$T" | grep -q 'version.properties.' && fail "temp file left behind"
 
 # Lower, equal, non-numeric and empty values fail and leave the file unchanged.
 cp "$VERSION_FILE" "$T/before"
-for bad in 5 1300 abc 1x -3 ""; do
+for bad in 5 1300 abc 1x -3 "" 01301 0 ""; do
     if version_set_code "$bad" 2>/dev/null; then fail "version_set_code '$bad' succeeded"; fi
     cmp -s "$VERSION_FILE" "$T/before" || fail "file changed after version_set_code '$bad'"
 done
+
+# Non-canonical files: CRLF line endings and a trailing space in the suffix read like Gradle's trimmed values.
+printf 'versionMajorMinor=6.0\r\nversionCode=1227\r\nversionNameSuffix=-beta \r\n' > "$VERSION_FILE"
+eq "CRLF code" 1227 "$(version_code)"
+eq "CRLF major.minor" 6.0 "$(version_major_minor)"
+eq "CRLF + trailing-space suffix" 6.0.1227-beta "$(version_name)"
+# A leading-zero code is rejected instead of giving another name than Gradle's integer parse.
+printf 'versionMajorMinor=6.0\nversionCode=01228\nversionNameSuffix=\n' > "$VERSION_FILE"
+if version_code 2>/dev/null; then fail "leading-zero versionCode accepted"; fi
+if version_name 2>/dev/null; then fail "version_name accepted a leading-zero code"; fi
+cp "$T/orig" "$VERSION_FILE"
+
+# CI pins: the alpha step feeds the suffix to Gradle and the VNAME file; the build step passes the args.
+WF="$HERE/../.github/workflows/build-apk.yml"
+grep -q 'echo "GRADLE_VERSION_ARGS=-PversionNameSuffix=-alpha" >> \$GITHUB_ENV' "$WF" || fail "alpha step does not write -PversionNameSuffix=-alpha to GITHUB_ENV"
+grep -Eq '\./gradlew .*\$GRADLE_VERSION_ARGS .*assembleStandardGithubRelease' "$WF" || fail "Gradle build step does not pass \$GRADLE_VERSION_ARGS"
 
 [ "$failn" -eq 0 ] && echo "all version tests passed" || { echo "$failn failure(s)"; exit 1; }

@@ -5,14 +5,25 @@
 
 : "${VERSION_FILE:=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/version.properties}"
 
-# Prints the value of a key; fails if the key is missing.
+# Prints the value of a key, trimmed of leading/trailing whitespace and CR like Gradle's Properties + trim();
+# fails if the key is missing.
 _version_get() {
-    local key="$1" line
+    local key="$1" line val
     line=$(grep -m1 "^${key}=" "$VERSION_FILE") || { echo "version: no $key in $VERSION_FILE" >&2; return 1; }
-    printf '%s\n' "${line#*=}"
+    val="${line#*=}"
+    val="${val#"${val%%[![:space:]]*}"}"
+    val="${val%"${val##*[![:space:]]}"}"
+    printf '%s\n' "$val"
 }
 
-version_code() { _version_get versionCode; }
+# Prints the code; fails unless it is a canonical positive integer (no sign, no leading zero), so shell and
+# Gradle cannot disagree about the name or tag.
+version_code() {
+    local code
+    code=$(_version_get versionCode) || return 1
+    [[ "$code" =~ ^[1-9][0-9]*$ ]] || { echo "version: versionCode '$code' is not a canonical positive integer" >&2; return 1; }
+    printf '%s\n' "$code"
+}
 version_major_minor() { _version_get versionMajorMinor; }
 
 # version_name [suffix]: an explicit suffix (even an empty one) replaces the file's versionNameSuffix.
@@ -26,15 +37,15 @@ version_name() {
 # version_set_code <n>: n must be an integer larger than the current code. Rewrites only that line.
 version_set_code() {
     local new="${1:-}" cur tmp
-    [[ "$new" =~ ^[0-9]+$ ]] || { echo "version: '$new' is not a non-negative integer" >&2; return 1; }
+    [[ "$new" =~ ^[1-9][0-9]*$ ]] || { echo "version: '$new' is not a canonical positive integer" >&2; return 1; }
     cur=$(version_code) || return 1
-    if [ $((10#$new)) -le $((10#$cur)) ]; then
+    if [ $new -le $cur ]; then
         echo "version: new code $new must be larger than current $cur" >&2
         return 1
     fi
     tmp=$(mktemp "${VERSION_FILE}.XXXXXX") || return 1
     chmod 644 "$tmp"   # mktemp makes it 0600; keep the file readable like a normal checkout
-    if sed "s/^versionCode=.*/versionCode=$((10#$new))/" "$VERSION_FILE" > "$tmp"; then
+    if sed "s/^versionCode=.*/versionCode=$new/" "$VERSION_FILE" > "$tmp"; then
         mv "$tmp" "$VERSION_FILE"
     else
         rm -f "$tmp"; return 1
