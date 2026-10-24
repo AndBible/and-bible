@@ -313,21 +313,35 @@ final class EndToEndUITests: RealAppUITestCase {
     func testRestoreKeepsLiveSettings() throws {
         var app = readingOnKjv()
         // Night mode needs the Manual preference (the toggle is disabled while it follows the system).
+        posMark("POSTRACE before setNightModePreference") // POSTRACE
         setNightModePreference(app, "Manual")
+        posMark("POSTRACE after setNightModePreference") // POSTRACE
         // CONTROL, no restore yet: does a live night switch reach the page at all? (NM-1 fixed: the page background follows; see
         // ReadingUITests.testNightModeLiveSwitchReachesPage.) Failures are recorded without stopping.
         continueAfterFailure = true
+        posMark("POSTRACE before ensureDayPage") // POSTRACE
         ensureDayPage(app, phase: "control (no restore)")
+        posMark("POSTRACE after ensureDayPage") // POSTRACE
+        posMark("POSTRACE before nightRoundTrip") // POSTRACE
         let controlOK = nightRoundTrip(app, phase: "control (no restore)")
+        posMark("POSTRACE after nightRoundTrip") // POSTRACE
         continueAfterFailure = false
         // After a night switch the pane can be gone from the tree and the menu stay up: do not rely on them.
         app = relaunch(app)
+        posMark("POSTRACE before setNightModePreference") // POSTRACE
         setNightModePreference(app, "System")      // night follows the system again (light page) for the backup
+        posMark("POSTRACE after setNightModePreference") // POSTRACE
 
+        posMark("POSTRACE before backupDatabaseToFiles") // POSTRACE
         let savedName = backupDatabaseToFiles(app)            // own backup: the test does not depend on the chain's run
+        posMark("POSTRACE after backupDatabaseToFiles") // POSTRACE
         app = relaunch(app)
+        posMark("POSTRACE before restoreFromFilesRoot") // POSTRACE
         restoreFromFilesRoot(app, fileName: savedName)
+        posMark("POSTRACE after restoreFromFilesRoot") // POSTRACE
+        posMark("POSTRACE before returnToReading") // POSTRACE
         returnToReading(app)
+        posMark("POSTRACE after returnToReading") // POSTRACE
         // The iPad reopens at the top of the loaded window (John 1:1) instead of the saved verse (observed after a relaunch and
         // after a restore, 2026-10-24: reading position follow-up): record it and scroll to John 3, as `relaunch` does.
         if !john3Shown(app, timeout: 60) {
@@ -335,10 +349,16 @@ final class EndToEndUITests: RealAppUITestCase {
             _ = scrollToJohn3(app)
         }
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
+        posMark("POSTRACE before setNightModePreference") // POSTRACE
         setNightModePreference(app, "Manual")
+        posMark("POSTRACE after setNightModePreference") // POSTRACE
         continueAfterFailure = true
+        posMark("POSTRACE before ensureDayPage") // POSTRACE
         ensureDayPage(app, phase: "after restore")
+        posMark("POSTRACE after ensureDayPage") // POSTRACE
+        posMark("POSTRACE before nightRoundTrip") // POSTRACE
         let restoreOK = nightRoundTrip(app, phase: "after restore")
+        posMark("POSTRACE after nightRoundTrip") // POSTRACE
         continueAfterFailure = false
         attachText("night-mode-result", "control (no restore): page followed the night switch \(controlOK ? "yes" : "NO"); after restore: \(restoreOK ? "yes" : "NO")")
         // Review Focus 2 (R2's stale settings subscription after a restore): the text size step runs in the SAME process as
@@ -372,7 +392,9 @@ final class EndToEndUITests: RealAppUITestCase {
 
         // Final fresh process on the restored data: night follows the system again (preference System), page is a day page.
         app = relaunch(app)
+        posMark("POSTRACE before setNightModePreference") // POSTRACE
         setNightModePreference(app, "System")
+        posMark("POSTRACE after setNightModePreference") // POSTRACE
         requireBrightPage("in the fresh process after the restore")
         sendToBackground(app)
         app.terminate()
@@ -765,6 +787,8 @@ final class EndToEndUITests: RealAppUITestCase {
         app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch
     }
 
+    private func posMark(_ text: String) { attachText("POSTRACE-mark", text) } // POSTRACE
+
     private func attachText(_ name: String, _ text: String) {
         let attachment = XCTAttachment(string: text)
         attachment.name = name
@@ -775,6 +799,7 @@ final class EndToEndUITests: RealAppUITestCase {
     /// Persists and restarts the app on its saved workspace (no reset, no document or reference override); returns
     /// once John 3 is rendered again. A fresh process also leaves toolbar states that have no way back (search).
     private func relaunch(_ app: XCUIApplication) -> XCUIApplication {
+        posMark("POSTRACE relaunch start") // POSTRACE
         sendToBackground(app)
         app.terminate()
         let next = launch(["-standardTestFixture"])
@@ -789,6 +814,7 @@ final class EndToEndUITests: RealAppUITestCase {
             shot(next, "relaunch-position-drift")
             harnessRequire(scrollToJohn3(next), next, "John 3 is shown after a relaunch (also after bounded scrolling toward it)")
         }
+        posMark("POSTRACE relaunch end") // POSTRACE
         return next
     }
 
@@ -828,11 +854,15 @@ final class EndToEndUITests: RealAppUITestCase {
         let row = byLabel(app, label)
         var found = row.waitForExistence(timeout: 10)
         var swipes = 0
+        posMark("POSTRACE drawer swipe loop 1 start") // POSTRACE
         while !found && swipes < 6 { app.swipeUp(); swipes += 1; usleep(1_200_000); found = row.exists }
         harnessRequire(found, app, "the drawer shows a '\(label)' row")
+        posMark("POSTRACE drawer swipe loop 1 end") // POSTRACE
         _ = waitUntil(timeout: 4) { row.isHittable }
         swipes = 0
+        posMark("POSTRACE drawer swipe loop 2 start") // POSTRACE
         while !row.isHittable && swipes < 8 { app.swipeUp(); swipes += 1; usleep(1_200_000) }
+        posMark("POSTRACE drawer swipe loop 2 end") // POSTRACE
         harnessRequire(row.isHittable, app, "the drawer row '\(label)' is reachable")
         var last = CGRect.null
         _ = waitUntil(timeout: 5) { let frame = row.frame; defer { last = frame }; return frame == last }
