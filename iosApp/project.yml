@@ -43,6 +43,7 @@ targets:
           APP_DISPLAY_NAME: AndBible
           ICLOUD_CONTAINER: iCloud.org.andbible.ios
       base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: iosApp/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
