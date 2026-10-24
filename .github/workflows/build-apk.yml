@@ -47,31 +47,36 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
         restore-keys: ${{ runner.os }}-gradle-
 
+    # The suffix is a Gradle property (-PversionNameSuffix), see version.properties and app/build.gradle.kts.
+    # GRADLE_VERSION_ARGS reaches the build step, VERSION_SUFFIX the VNAME file below.
     - name: Check/set alpha version suffix
       if: contains(github.ref, 'refs/tags/alpha-')
       run: |
-        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-alpha/' ./app/src/main/AndroidManifest.xml
+        echo "VERSION_SUFFIX=-alpha" >> $GITHUB_ENV
+        echo "GRADLE_VERSION_ARGS=-PversionNameSuffix=-alpha" >> $GITHUB_ENV
 
 #    - name: Check/set beta version suffix
 #      if: contains(github.ref, 'refs/tags/beta-')
 #      run: |
-#        sed -i 's/\(android:versionName="[0-9]*.[0-9]*.[0-9]*\)/\1-beta/' ./app/src/main/AndroidManifest.xml
+#        echo "VERSION_SUFFIX=-beta" >> $GITHUB_ENV
+#        echo "GRADLE_VERSION_ARGS=-PversionNameSuffix=-beta" >> $GITHUB_ENV
 
     - name: Get variables
       id: tag_name
       run: |
+        . scripts/lib-version.sh
         echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
-        grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
+        if [[ -n "$VERSION_SUFFIX" ]]; then version_name "$VERSION_SUFFIX" > VNAME; else version_name > VNAME; fi
         echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
         echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ test- ]]; then echo "Test release $(cat VNAME)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
         # Changelog filenames use the versionCode (fastlane/F-Droid convention),
         # e.g. 1099.txt, not the versionName 5.1.1099.txt.
-        VCODE=$(grep versionCode ./app/src/main/AndroidManifest.xml | grep -o '[0-9]*')
+        VCODE=$(version_code)
         echo "./fastlane/metadata/android/en-US/changelogs/${VCODE}.txt" > CLPATH
         if [[ -f $(cat CLPATH) ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
     - name: Build with Gradle
-      run: ./gradlew --console plain assembleStandardGithubRelease assembleDiscreteGithubRelease
+      run: ./gradlew --console plain $GRADLE_VERSION_ARGS assembleStandardGithubRelease assembleDiscreteGithubRelease
 
     - name: Sign apks
       if: contains(github.ref, 'refs/tags/')

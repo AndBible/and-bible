@@ -7,18 +7,49 @@ options:
 settings:
   base:
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+  configs:
+    # Product name of the app per configuration, for the unit-test TEST_HOST (PRODUCT_NAME there would be
+    # the test bundle's own name).
+    Debug:
+      APP_PRODUCT_NAME: AndBibleDev
+    Release:
+      APP_PRODUCT_NAME: AndBible
 targets:
   iosApp:
     type: application
     platform: iOS
     deploymentTarget: "16.0"
     sources:
+      # The privacy manifest is routed explicitly into Copy Bundle Resources (and excluded from the generic
+      # entry so it is not listed twice).
       - path: iosApp
+        excludes:
+          - PrivacyInfo.xcprivacy
+      - path: iosApp/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    # MARKETING_VERSION / CURRENT_PROJECT_VERSION / DEVELOPMENT_TEAM come from this xcconfig (it includes the
+    # generated Version.xcconfig and the untracked Secrets.xcconfig.local). Do not set them in project.yml:
+    # project.yml settings override xcconfig values.
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
     settings:
+      # Identity per configuration (spec docs/superpowers/specs/2026-10-24-i4-release-design.md 5.7):
+      # Debug keeps the dev identity (I2: org.andbible.ios.dev, own iCloud container) so it installs beside
+      # the store app; Release is the store identity (org.andbible.ios).
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
+          PRODUCT_NAME: AndBibleDev
+          APP_DISPLAY_NAME: AndBible Dev
+          ICLOUD_CONTAINER: iCloud.org.andbible.ios.dev
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios
+          PRODUCT_NAME: AndBible
+          APP_DISPLAY_NAME: AndBible
+          ICLOUD_CONTAINER: iCloud.org.andbible.ios
       base:
-        # Dev ids (I2); never the store id org.andbible.ios.
-        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
-        PRODUCT_NAME: AndBibleDev
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: iosApp/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -49,6 +80,14 @@ targets:
         "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
         "DEVELOPMENT_TEAM[sdk=iphonesimulator*]": ""
     preBuildScripts:
+      - name: "Require a generated version for Release"
+        basedOnDependencyAnalysis: false
+        script: |
+          # Base.xcconfig falls back to MARKETING_VERSION = 0.0.0 when Version.xcconfig is missing.
+          if [ "$CONFIGURATION" = "Release" ] && [ "$MARKETING_VERSION" = "0.0.0" ]; then
+            echo "error: MARKETING_VERSION is the 0.0.0 fallback; run scripts/ios-version-xcconfig.sh before xcodegen generate"
+            exit 1
+          fi
       - name: "Generate debug files-port asset"
         basedOnDependencyAnalysis: false
         script: |
@@ -64,7 +103,14 @@ targets:
         script: |
           if [ -z "$JAVA_HOME" ]; then export JAVA_HOME="$(/usr/libexec/java_home -v 17)"; fi
           cd "$SRCROOT/.."
-          ./gradlew -Dorg.gradle.native=false :sharedUi:embedAndSignAppleFrameworkForXcode
+          # Release links run out of the shared daemon's 4g heap (OutOfMemoryError in
+          # linkReleaseFrameworkIosSimulatorArm64). Run the K/N compiler in its own process with a larger heap
+          # for Release only; the daemon's jvmargs stay unchanged.
+          EXTRA=""
+          if [ "$CONFIGURATION" = "Release" ]; then
+            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx6g"
+          fi
+          ./gradlew -Dorg.gradle.native=false $EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode
       - name: "Copy app resources"
         basedOnDependencyAnalysis: false
         script: |
@@ -110,7 +156,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.unittests
         # Hosted by the app: Kotlin symbols come from the app binary, never a second copy of SharedUi.
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBibleDev.app/AndBibleDev
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/$(APP_PRODUCT_NAME).app/$(APP_PRODUCT_NAME)
         BUNDLE_LOADER: $(TEST_HOST)
         FRAMEWORK_SEARCH_PATHS:
           - $(inherited)
@@ -129,3 +175,7 @@ schemes:
     test:
       config: Debug
       targets: [iosAppUITests, iosAppUnitTests]
+    profile:
+      config: Release
+    archive:
+      config: Release

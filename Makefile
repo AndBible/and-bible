@@ -64,7 +64,8 @@ install-prod:
 	@echo "✓ Installed"
 
 fdroid-release:
-	@VERSION_NAME=$$(grep -o 'android:versionName="[^"]*"' app/src/main/AndroidManifest.xml | grep -o '"[^"]*"' | tr -d '"'); \
+	@VERSION_NAME=$$(bash -c '. scripts/lib-version.sh; version_name'); \
+	if [ -z "$$VERSION_NAME" ]; then echo "fdroid-release: could not read the version from version.properties" >&2; exit 1; fi; \
 	TAG="v$$VERSION_NAME-fdroid"; \
 	echo "Creating F-Droid tag: $$TAG"; \
 	git tag -s "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
