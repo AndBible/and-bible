@@ -48,6 +48,14 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     WKWebView(frame, configuration) {
     var onAttached: (() -> Unit)? = null
 
+    init {
+        // UIKit's scroll-to-top (normally a status-bar tap) animated the reading page to the top of the loaded
+        // window with no input reaching the page (seen on the iPad simulator); infinite scroll then kept
+        // prepending chapters and the position notifier saved John 1:1 as the reading position. Off on every
+        // device: the reading position moves only by the user's own scroll. Android has no such gesture.
+        scrollView.scrollsToTop = false
+    }
+
     /** Adds the AndBible rows to the system edit menu (see [insertSelectionMenu]); null leaves the menu as WebKit builds it. */
     var onBuildMenu: ((UIMenuBuilderProtocol) -> Unit)? = null
 
