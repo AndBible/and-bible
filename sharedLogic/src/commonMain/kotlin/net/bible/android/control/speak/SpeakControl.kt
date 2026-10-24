@@ -189,7 +189,8 @@ class SpeakControl constructor(
     }
 
     internal fun onBookRemoved(removed: Book) {
-        if (!isStopped && currentlyPlayingBook?.initials == removed.initials) {
+        // currentlyPlayingBook first: it is null until TTS was used, so deleting a module never builds the TTS manager.
+        if (currentlyPlayingBook?.initials == removed.initials && !isStopped) {
             Log.i(TAG, "Spoken module ${removed.initials} removed, stopping speech")
             stop()
         }

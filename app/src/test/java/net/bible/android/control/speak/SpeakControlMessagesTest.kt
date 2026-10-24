@@ -53,6 +53,7 @@ class SpeakControlMessagesTest {
         `when`(book.bookCategory).thenReturn(BookCategory.BIBLE)
         `when`(page.isSpeakable).thenReturn(false)
         val scope = AppCoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        var created: SpeakControl? = null
         try {
             val settings = testAppSettings()
             val control = SpeakControl(
@@ -60,9 +61,11 @@ class SpeakControlMessagesTest {
                 FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), notifier, strings, settings,
                 scope, AdvancedSpeakSettings(settings), OrderedLauncher(scope), net.bible.service.download.FakeBookFactory(strings),
             )
+            created = control
             control.speakAny()
             assertEquals(listOf(strings.speakNoBooksAvailable), infos)
         } finally {
+            created?.release()
             scope.cancel()
             SpeakChanges.resetSubscribersForTest()
             SpeakSettingsChanges.resetSubscribersForTest()
@@ -77,6 +80,7 @@ class SpeakControlMessagesTest {
         }
         val scope = AppCoroutineScope(SupervisorJob() + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler) +
             kotlinx.coroutines.CoroutineExceptionHandler { _, _ -> })
+        var created: SpeakControl? = null
         try {
             val settings = testAppSettings()
             // TextToSpeechServiceManager is final and cannot be mocked (Mockito 3, no inline maker). pause() reaches the
@@ -88,6 +92,7 @@ class SpeakControlMessagesTest {
                 FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), notifier, strings, settings,
                 scope, AdvancedSpeakSettings(settings), OrderedLauncher(scope), net.bible.service.download.FakeBookFactory(strings),
             )
+            created = control
             org.junit.Assert.assertNull(control.sleepTimerActivationTime)
             val before = System.currentTimeMillis()
             org.robolectric.util.ReflectionHelpers.callInstanceMethod<Unit>(
@@ -107,6 +112,7 @@ class SpeakControlMessagesTest {
             assertEquals(false, control.sleepTimerActive())
             org.junit.Assert.assertNull(control.sleepTimerActivationTime)
         } finally {
+            created?.release()
             scope.cancel()
             SpeakChanges.resetSubscribersForTest()
             SpeakSettingsChanges.resetSubscribersForTest()
