@@ -144,7 +144,8 @@ drafting an area.
 
 - `done`: name the commit and the first release tag containing it. Check with
   `git merge-base --is-ancestor <sha> origin/current-stable` and
-  `git tag --contains <sha> | grep ^v | head -1`. Examples:
+  `git tag --contains <sha> | grep ^v | sort -V | head -1` (needs `sort -V`: neither the default
+  name order nor `--sort=creatordate` gives the earliest version). Examples:
   - #657: restore asks what to restore (`f6f4dd1dd`, 5.0.740), and per-database reset (`d00534fad`,
     5.1.1098).
   - #2634: sync on network restore (`d816a834f`, 5.0.840).
