@@ -15,7 +15,7 @@ read-only archive, closed after the new board is verified and configured. Design
 
 ## Hard rules
 
-- The container never writes to GitHub. Every change is a batch file under `triage/batches/`, committed for the maintainer to review and apply on the host. The host dry-runs with `python3 docs/superpowers/tools/triage/apply.py docs/superpowers/triage/batches/<file>.json`, then may apply with the same command plus `--apply`, then commits `triage/applied/` and pulls it back. These commands do not authorize running them in the container.
+- The container never writes to GitHub. Every change is a batch file under `triage/batches/`, committed for the maintainer to review and apply on the host. The host dry-runs with `python3 docs/superpowers/tools/triage/apply.py docs/superpowers/triage/batches/<file>.json` (several files run in order; `--apply` stops at the first batch with skipped or failed ops), then may apply with the same command plus `--apply`, then commits `triage/applied/` and pulls it back. These commands do not authorize running them in the container.
 - Never write hour estimates. Suggest `Sponsor me!` + `Estimate needed`; the maintainer estimates.
 - Priority lives only on the board (Priority field). Never add `Prio:` labels.
 - Labels must be in `triage/taxonomy.yaml`. Never delete a label named by any file under `.github/`.
