@@ -109,6 +109,10 @@ class MergeApplyTest {
     private suspend fun bookmarks(copyOf: File? = null, deviceId: String = UUID.randomUUID().toString()) =
         accessor(BookmarkDatabase::class.java, SyncableDatabaseDefinition.BOOKMARKS, bookmarkMigrations, copyOf, deviceId)
 
+    /** Production-like watermark: `afterReset` stores NOW, so every pre-merge entry sits below it. */
+    private fun now() = System.currentTimeMillis()
+    private fun later() = now() + 10_000L
+
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(60_000) { block() } }
 
     /** The cloud's initial file: A's database with an empty log, as `createAndUploadInitial` leaves it. */
@@ -134,11 +138,11 @@ class MergeApplyTest {
     private suspend fun swapIn(initial: File, cloud: SyncableDatabaseAccessor<BookmarkDatabase>, b: SyncableDatabaseAccessor<BookmarkDatabase>): SyncableDatabaseAccessor<BookmarkDatabase> {
         val m = bookmarks(initial, b.deviceId)
         createPatchForDatabase(cloud, env)?.let { applyPatchesForDatabase(m, env, it) }
-        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 1_000L)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, now())
         return m
     }
 
-    private suspend fun merge(m: SyncableDatabaseAccessor<BookmarkDatabase>, b: SyncableDatabaseAccessor<BookmarkDatabase>, mergeTime: Long = 10_000L) {
+    private suspend fun merge(m: SyncableDatabaseAccessor<BookmarkDatabase>, b: SyncableDatabaseAccessor<BookmarkDatabase>, mergeTime: Long = later()) {
         val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         prepareMergeSnapshot(b, snapshot.toOkioPath())
         mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), mergeTime)
@@ -190,11 +194,11 @@ class MergeApplyTest {
         val b = plans()
         b.sql("INSERT INTO ReadingPlan (planCode, planStartDate, planCurrentDay, id) VALUES ('device-plan', 0, 1, randomblob(16))")
         val m = accessor(ReadingPlanDatabase::class.java, SyncableDatabaseDefinition.READINGPLANS, readingPlanMigrations, initial, b.deviceId)
-        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 1_000L)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, now())
         val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         prepareMergeSnapshot(b, snapshot.toOkioPath())
 
-        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), 10_000L)
+        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), later())
 
         assertEquals(listOf("cloud-plan", "device-plan"), column(m, "SELECT planCode FROM ReadingPlan ORDER BY planCode"))
     }
@@ -296,10 +300,10 @@ class MergeApplyTest {
         if (cloudEditTime != null) a.setFontSize(20, cloudEditTime)
         val m = workspaces(initial, b.deviceId)
         createPatchForDatabase(a, env)?.let { applyPatchesForDatabase(m, env, it) }
-        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 1_000L)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, now())
         val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         prepareMergeSnapshot(b, snapshot.toOkioPath())
-        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), 10_000L)
+        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), later())
         return m.fontSize()
     }
 
@@ -372,9 +376,10 @@ class MergeApplyTest {
         val cloudPatch = createPatchForDatabase(a, env)!!
         val m = bookmarks(initial, b.deviceId)
         applyPatchesForDatabase(m, env, cloudPatch)
-        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 1_000L)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, now())
 
-        merge(m, b)
+        val mergeTime = later()
+        merge(m, b, mergeTime)
 
         assertEquals(setOf("t-b-new", "t-b-won", "t-a-newer"), m.names())
         val patch = createPatchForDatabase(m, env)!!
@@ -382,11 +387,14 @@ class MergeApplyTest {
         applyPatchesForDatabase(c, env, cloudPatch)
         applyPatchesForDatabase(c, env, patch)
         assertEquals(setOf("t-b-new", "t-b-won", "t-a-newer"), c.names())
+        // C holds the winners' re-stamped entries (without the re-stamp no patch would carry them).
+        assertEquals("$mergeTime|${b.deviceId}", column(c,
+            "SELECT lastUpdated || '|' || sourceDevice FROM LogEntry WHERE tableName = 'Label' AND entityId1 = X'${won.id.toString().replace("-", "")}'").single())
         // Only the winners are uploaded: the lost row's entry is still the cloud's, not re-stamped.
         fun entry(l: BookmarkEntities.Label) = column(m,
             "SELECT lastUpdated || '|' || sourceDevice FROM LogEntry WHERE tableName = 'Label' AND entityId1 = X'${l.id.toString().replace("-", "")}'").single()
         assertEquals("2000|${a.deviceId}", entry(lost))
-        assertEquals("10000|${b.deviceId}", entry(won))
+        assertEquals("$mergeTime|${b.deviceId}", entry(won))
     }
 
     @Test fun lastPatchWrittenNotBelowMergeTimeThrows() = run {

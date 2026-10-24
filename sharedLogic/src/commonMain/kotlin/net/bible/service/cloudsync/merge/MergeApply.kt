@@ -50,6 +50,11 @@ import okio.Path.Companion.toPath
  * The next `createPatchForDatabase` then carries exactly the winners (their stamp is above
  * `LAST_PATCH_WRITTEN_KEY`). Throws [IllegalStateException] before touching anything when `LAST_PATCH_WRITTEN_KEY`
  * is not below [mergeTime], since the winners would never be uploaded.
+ *
+ * The re-stamp is a separate transaction from the apply (`applyPatchesForDatabase` stays unchanged): a crash between
+ * them leaves the winners un-uploaded, so the caller must not persist folder or sync state until this returns, so
+ * that the failure restore covers the gap. Precondition: no concurrent writers during the call (a user edit between
+ * the before and after log reads would be counted as a winner); callers hold the `replacingDatabases` block.
  */
 suspend fun mergeSnapshotIntoLocal(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, snapshot: Path, mergeTime: Long) {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: 0L
