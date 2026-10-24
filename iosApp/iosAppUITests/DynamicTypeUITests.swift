@@ -94,6 +94,13 @@ final class DynamicTypeUITests: RealAppUITestCase {
         app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", text)).firstMatch
     }
 
+    /// The iOS "You have changed the icon for ..." SpringBoard alert that the discrete-mode launch argument can trigger sits
+    /// over the app and hides its tree (run evidence: the Download launch saw only that alert). Only SpringBoard alerts are touched.
+    private func dismissSpringBoardAlert() {
+        let alert = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch
+        if alert.exists, alert.buttons.firstMatch.exists { alert.buttons.firstMatch.tap() }
+    }
+
     private func upButton(_ app: XCUIApplication) -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up'}")).firstMatch
     }
@@ -105,10 +112,11 @@ final class DynamicTypeUITests: RealAppUITestCase {
         if scenario == "download" {
             // The persecuted-country consent dialog hides the ready marker; its exact 'Yes' button (not 'Yes, do not ask again').
             let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
-            _ = waitUntil(timeout: 90) { yes.exists || self.element(app, "debug-feature-ready").exists }
+            _ = waitUntil(timeout: 90) { self.dismissSpringBoardAlert(); return yes.exists || self.element(app, "debug-feature-ready").exists }
             if yes.exists { shot(app, "ax5-download-consent"); yes.tap() }
         }
-        harnessRequire(element(app, "debug-feature-ready").waitForExistence(timeout: 90), app, "ax5-\(scenario)-not-ready")
+        let ready = element(app, "debug-feature-ready")
+        harnessRequire(waitUntil(timeout: 90) { self.dismissSpringBoardAlert(); return ready.exists }, app, "ax5-\(scenario)-not-ready")
         return app
     }
 
@@ -144,16 +152,28 @@ final class DynamicTypeUITests: RealAppUITestCase {
 
         // Bookmarks: title, Back, Manage Labels, the sort toggle, and the first row or the empty-list text.
         app = launchScenarioAtAX5("bookmarks")
-        expectUsable(app, anyLabel(app, "Bookmarks"), "title", screen: "bookmarks")
+        expectUsable(app, anyLabel(app, "Bookmarks & My Notes"), "title", screen: "bookmarks")
         expectUsable(app, upButton(app), "Back", screen: "bookmarks")
         let manageLabels = anyLabel(app, "Manage Labels")
         expectUsable(app, manageLabels, "Manage Labels action", screen: "bookmarks")
         expectUsable(app, app.descendants(matching: .any).matching(
             NSPredicate(format: "label IN {'Date order','Biblical order'}")).firstMatch, "sort toggle", screen: "bookmarks")
-        let firstBookmark = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'John 3:16'")).firstMatch
+        // Rows are Buttons labelled "<date>, <text>" (or "<reference>, <date>, <text>") below the 'Filter by label, ...' button;
+        // the per-row 'Show full text' buttons are not rows. An empty list shows its text instead.
+        let filterBar = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Filter by label'")).firstMatch
         let emptyList = anyLabel(app, "No items to display")
-        _ = waitUntil(timeout: 20) { firstBookmark.exists || emptyList.exists }
-        expectUsable(app, firstBookmark.exists ? firstBookmark : emptyList, "first row or empty-list text", screen: "bookmarks", timeout: 5)
+        let firstBookmarkRow = { () -> XCUIElement? in
+            guard filterBar.exists else { return nil }
+            return app.buttons.allElementsBoundByIndex.first {
+                $0.exists && !$0.label.isEmpty && $0.label != "Show full text" && $0.frame.minY > filterBar.frame.maxY - 1
+            }
+        }
+        _ = waitUntil(timeout: 20) { firstBookmarkRow() != nil || emptyList.exists }
+        if let row = firstBookmarkRow() {
+            expectUsable(app, row, "first bookmark row", screen: "bookmarks", timeout: 5)
+        } else {
+            expectUsable(app, emptyList, "empty-list text", screen: "bookmarks", timeout: 5)
+        }
         shot(app, "ax5-bookmarks"); attachTree(app, "ax5-bookmarks")
 
         // The first screen reachable from Bookmarks: Manage Labels. Its Back and its content must be usable too.
@@ -174,7 +194,7 @@ final class DynamicTypeUITests: RealAppUITestCase {
         harnessRequire(waitForSettingsRoot(app), app, "ax5-settings-root-missing")
         let row = revealSettingsRow(app, "global_text_display_settings")
         row.tap()
-        let displayTitle = anyLabel(app, "Text display settings")
+        let displayTitle = anyLabel(app, "Global text options")
         if expectUsable(app, displayTitle, "title", screen: "text-display") {
             let leave = app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up','Close'}")).firstMatch
             expectUsable(app, leave, "Back or Close", screen: "text-display")
