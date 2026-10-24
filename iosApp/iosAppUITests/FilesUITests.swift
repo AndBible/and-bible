@@ -280,12 +280,16 @@ final class FilesUITests: XCTestCase {
                     // iPad (run 8): typing opens a "Name Contains ..." suggestion popup over the results; commit the query with
                     // the keyboard's Search key so the real result cell is listed, and accept the folder by identifier or by
                     // a label that starts with its name (search-mode cells are not guaranteed to carry the ", Folder" identifier).
-                    let keyboardSearch = app.keyboards.buttons.matching(NSPredicate(format: "label IN {'Search','search','Return','return'}")).firstMatch
-                    if keyboardSearch.waitForExistence(timeout: 3) && keyboardSearch.isHittable { keyboardSearch.tap() }
+                    // iPad (run 9): the keyboard's blue Search key is a Key, not a Button (the old Button query waited 3 s for nothing),
+                    // and while the "Name Contains" popup is up the result cell is not in the accessibility tree at all. Commit with the
+                    // Search key (a Key query), falling back to typing a return character.
+                    let keyboardSearch = app.keyboards.keys.matching(NSPredicate(format: "label IN {'Search','search','Return','return'}")).firstMatch
+                    if keyboardSearch.waitForExistence(timeout: 3) && keyboardSearch.isHittable { keyboardSearch.tap() } else { search.typeText("\n") }
+                    sleep(1)
                     let named = app.descendants(matching: .any).matching(NSPredicate(
                         format: "(identifier == %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH 'Name Contains'",
                         "\(folderName), Folder", folderName)).firstMatch
-                    foundBySearch = folder.waitForExistence(timeout: 10) || named.waitForExistence(timeout: 5)
+                    foundBySearch = named.waitForExistence(timeout: 10) || folder.waitForExistence(timeout: 2)
                     if foundBySearch && !folder.exists { searchHit = named }
                     evidence(app, "save-folder-search-\(foundBySearch ? "found" : "empty")")
                     if !foundBySearch {
@@ -295,6 +299,12 @@ final class FilesUITests: XCTestCase {
                             again.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: folderName.count + 2))
                         }
                         _ = grid.waitForExistence(timeout: 10)
+                        if !grid.exists {
+                            // The picker has no "File View" grid in search mode: the drag fallback cannot run. Fail with evidence.
+                            evidence(app, "save-folder-search-no-result-no-grid")
+                            XCTFail("Folder '\(folderName)' not found in the picker search results and no 'File View' grid to scroll")
+                            return
+                        }
                     }
                 }
             }
