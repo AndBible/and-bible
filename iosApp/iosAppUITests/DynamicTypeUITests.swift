@@ -105,15 +105,38 @@ final class DynamicTypeUITests: RealAppUITestCase {
         app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up'}")).firstMatch
     }
 
+    /// The download consent dialog at AX5 (a real defect was found here: its answers sat outside the dialog). Accessibility
+    /// check: Cancel is hittable, and "Yes" (exact, not "Yes, do not ask again") becomes hittable by scrolling INSIDE the
+    /// dialog with bounded drags; then "Yes" is tapped. Does nothing when no dialog appears (consent already persisted).
+    private func confirmDownloadConsentAtAX5(_ app: XCUIApplication) {
+        let cancel = app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch
+        let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
+        _ = waitUntil(timeout: 90) { self.dismissSpringBoardAlert(); return cancel.exists || self.element(app, "debug-feature-ready").exists }
+        guard cancel.exists else { return }
+        shot(app, "ax5-download-consent"); attachTree(app, "ax5-download-consent")
+        expectUsable(app, cancel, "consent Cancel", screen: "download-consent")
+        // Drags start and end in the middle of the screen, where the dialog is; a drag over the scrim would not scroll it.
+        var drags = 0
+        while !(yes.exists && yes.isHittable) && drags < 12 {
+            let from = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62))
+            let to = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.40))
+            from.press(forDuration: 0.1, thenDragTo: to)
+            usleep(400_000)
+            drags += 1
+        }
+        shot(app, "ax5-download-consent-scrolled"); attachTree(app, "ax5-download-consent-scrolled")
+        if expectUsable(app, yes, "consent 'Yes' (after \(drags) scroll drags inside the dialog)", screen: "download-consent", timeout: 5) {
+            yes.tap()
+        }
+    }
+
     /// Opens a real feature route (`-featureScenario`) at AX5 on a fresh workspace with KJV (the other walks' launch).
     private func launchScenarioAtAX5(_ scenario: String) -> XCUIApplication {
         let app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16",
                           "-featureScenario", scenario, "-UIPreferredContentSizeCategoryName", ax5Category])
         if scenario == "download" {
             // The persecuted-country consent dialog hides the ready marker; its exact 'Yes' button (not 'Yes, do not ask again').
-            let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
-            _ = waitUntil(timeout: 90) { self.dismissSpringBoardAlert(); return yes.exists || self.element(app, "debug-feature-ready").exists }
-            if yes.exists { shot(app, "ax5-download-consent"); yes.tap() }
+            confirmDownloadConsentAtAX5(app)
         }
         let ready = element(app, "debug-feature-ready")
         harnessRequire(waitUntil(timeout: 90) { self.dismissSpringBoardAlert(); return ready.exists }, app, "ax5-\(scenario)-not-ready")
