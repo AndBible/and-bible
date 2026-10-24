@@ -17,6 +17,8 @@
 
 package net.bible.android.view.compose
 
+import android.os.SystemClock
+import android.view.MotionEvent
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -32,12 +34,14 @@ import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 /**
  * Task 16 (run-2 plan, appendix rows 7954/8004/8034/8234/9306/9333): `manageDownload`/
@@ -137,6 +141,33 @@ class DocumentSelectionScreenDialogTest {
         compose.onNodeWithText("Cancel").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
+    }
+
+    @Test fun confirmDownloadBackCancels() {
+        show(DocumentSelectionDialog.ConfirmDownload("Download King James Version"))
+        compose.waitForIdle()
+        val dialog = ShadowDialog.getLatestDialog() as androidx.activity.ComponentDialog
+        compose.runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
+        compose.waitForIdle()
+        assertEquals("Back is Cancel", 1, dismissCalls)
+        assertEquals(0, confirmCalls)
+    }
+
+    @Test fun confirmDownloadScrimTapDoesNothing() {
+        show(DocumentSelectionDialog.ConfirmDownload("Download King James Version"))
+        compose.waitForIdle()
+        val dialog = ShadowDialog.getLatestDialog() as androidx.activity.ComponentDialog
+        val now = SystemClock.uptimeMillis()
+        compose.runOnUiThread {
+            // A touch far outside the dialog window is what a scrim tap delivers to Dialog.onTouchEvent.
+            dialog.onTouchEvent(MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, -1000f, -1000f, 0))
+            dialog.onTouchEvent(MotionEvent.obtain(now, now, MotionEvent.ACTION_UP, -1000f, -1000f, 0))
+        }
+        compose.waitForIdle()
+        assertEquals(0, dismissCalls)
+        assertEquals(0, confirmCalls)
+        assertTrue("dialog still showing", dialog.isShowing)
+        compose.onNodeWithText("Download King James Version").assertExists()
     }
 
     @Test fun confirmDelete_showsTheMessage_yesAnswersConfirm() {
