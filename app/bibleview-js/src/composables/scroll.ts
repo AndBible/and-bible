@@ -24,49 +24,6 @@ import {Nullable} from "@/types/common";
 
 export type UseScroll = ReturnType<typeof useScroll>;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */ // POSTRACE
-// POSTRACE: temporary scroll-source trace (idempotent install, log only).
-const posTraceState = {installed: false, touching: false, scrollEvents: 0, evts: 0}; // POSTRACE
-function posTraceReset() { posTraceState.scrollEvents = 0; posTraceState.evts = 0; } // POSTRACE
-function posTraceInstall() { // POSTRACE
-    if (posTraceState.installed) return; // POSTRACE
-    posTraceState.installed = true; // POSTRACE
-    const st = posTraceState; // POSTRACE
-    const wrap = (obj: any, name: string) => { // POSTRACE
-        const orig = obj[name]; // POSTRACE
-        if (typeof orig !== "function") return; // POSTRACE
-        obj[name] = function (this: any, ...args: any[]) { // POSTRACE
-            let a = ""; try { a = JSON.stringify(args); } catch (e) { a = "unserializable"; } // POSTRACE
-            const stack = (new Error().stack || "").split("\n").slice(1, 5).join("|"); // POSTRACE
-            console.log(`POSTRACE js-scroll-call fn=${name} args=${a} scrollY=${window.scrollY} stack=${stack}`); // POSTRACE
-            return orig.apply(this, args); // POSTRACE
-        }; // POSTRACE
-    }; // POSTRACE
-    for (const n of ["scrollTo", "scrollBy", "scroll"]) wrap(window, n); // POSTRACE
-    wrap(Element.prototype, "scrollIntoView"); // POSTRACE
-    wrap(Element.prototype, "scrollTo"); // POSTRACE
-    const touch = (v: boolean) => () => { st.touching = v; }; // POSTRACE
-    window.addEventListener("touchstart", touch(true), true); // POSTRACE
-    window.addEventListener("touchend", touch(false), true); // POSTRACE
-    window.addEventListener("touchcancel", touch(false), true); // POSTRACE
-    window.addEventListener("scroll", () => { // POSTRACE
-        if (st.scrollEvents >= 40) return; // POSTRACE
-        st.scrollEvents++; // POSTRACE
-        console.log(`POSTRACE scroll-event scrollY=${window.scrollY} t=${Math.round(performance.now())} touching=${st.touching}`); // POSTRACE
-    }, true); // POSTRACE
-    const evtTypes = ["pointerdown", "pointerup", "pointercancel", "touchstart", "touchend", "mousedown", "wheel", "keydown", "focus", "blur", "visibilitychange", "resize"]; // POSTRACE
-    for (const t of evtTypes) { // POSTRACE
-        const target: any = t === "visibilitychange" ? document : window; // POSTRACE
-        target.addEventListener(t, (e: any) => { // POSTRACE
-            if (st.evts >= 60) return; // POSTRACE
-            st.evts++; // POSTRACE
-            const pt = e.pointerType ? ` pointerType=${e.pointerType}` : ""; // POSTRACE
-            console.log(`POSTRACE evt type=${t} trusted=${e.isTrusted} scrollY=${window.scrollY}${pt}`); // POSTRACE
-        }, true); // POSTRACE
-    } // POSTRACE
-    if ("onscrollend" in window) window.addEventListener("scrollend", () => console.log(`POSTRACE scrollend scrollY=${window.scrollY}`), true); // POSTRACE
-} // POSTRACE
-
 export function useScroll(
     config: Config,
     appSettings: AppSettings,
@@ -245,7 +202,6 @@ export function useScroll(
         }, true); // POSTRACE
     } // POSTRACE
     setupWindowEventListener('scroll', () => scrollY.value = window.scrollY);
-    posTraceInstall(); // POSTRACE
 
     async function setupContent(
         {
@@ -280,7 +236,6 @@ export function useScroll(
 
         console.log(`POSTRACE setup-start jumpToOrdinal=${jumpToOrdinal} innerHeight=${window.innerHeight} innerWidth=${window.innerWidth} scrollY=${window.scrollY} docHeight=${document.documentElement.scrollHeight}`); // POSTRACE
         posTraceUserInputLogged = false; // POSTRACE
-        posTraceReset(); // POSTRACE
 
         if (jumpToOrdinal != null) {
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
