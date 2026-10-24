@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Apple's required-reason API declarations. Every category listed here is one
+	  the app binary (the statically linked Kotlin/Native SharedUi framework
+	  included) actually reaches. The scan and the reasoning are in
+	  docs/superpowers/status/2026-10-24-i4b-required-reason-scan.md;
+	  scripts/test-ios-privacy-manifest.sh pins the exact category and reason set.
+	-->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<!--
+			  CA92.1: app-private settings and state (IosDevicePrefs, IosNightModeState,
+			  IosOsRoutingReceipt, legacy migration). Nothing is shared with other apps.
+			-->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<!--
+			  E174.1: IosDownloadHostPlatform and IosAppEnvironment.megabytesFree check free
+			  space before a module download is written (DownloadControl refuses when low).
+			  85F4.1: PlatformProbeScreen shows the free space to the user.
+			-->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>85F4.1</string>
+				<string>E174.1</string>
+			</array>
+		</dict>
+		<dict>
+			<!--
+			  C617.1: IosBugReport reads the modification time of the log file, and the
+			  bundled SQLite and the file layers stat databases and modules. All of
+			  these files are inside the app container.
+			-->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+		<dict>
+			<!--
+			  35F9.1: IosReadingGestureRecognisers times touch gestures with
+			  NSProcessInfo.systemUptime, i.e. elapsed time between events inside the app.
+			  The value never leaves the app.
+			-->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+	</array>
+
+	<!--
+	  AndBible collects nothing. Bookmarks, notes and reading progress sync to
+	  storage the user owns (iCloud or their own NextCloud/WebDAV server); the AI
+	  study agent is off by default and talks to a third-party provider under the
+	  user's own API key. In neither case does this project receive or retain any
+	  of it, so there is no collected data type to declare and no tracking.
+	-->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+</dict>
+</plist>

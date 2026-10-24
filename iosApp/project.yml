@@ -20,7 +20,13 @@ targets:
     platform: iOS
     deploymentTarget: "16.0"
     sources:
+      # The privacy manifest is routed explicitly into Copy Bundle Resources (and excluded from the generic
+      # entry so it is not listed twice).
       - path: iosApp
+        excludes:
+          - PrivacyInfo.xcprivacy
+      - path: iosApp/PrivacyInfo.xcprivacy
+        buildPhase: resources
     # MARKETING_VERSION / CURRENT_PROJECT_VERSION / DEVELOPMENT_TEAM come from this xcconfig (it includes the
     # generated Version.xcconfig and the untracked Secrets.xcconfig.local). Do not set them in project.yml:
     # project.yml settings override xcconfig values.
