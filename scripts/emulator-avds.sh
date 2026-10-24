@@ -5,6 +5,8 @@
 #
 # Named profiles (system image google_apis x86_64, device, extras):
 #   screenshot_phone   API 36, pixel_6_pro (default; also used for any unknown name)
+#   t9_api23           API 23, pixel_3  - below API 26 (no java.nio.file); old-API module install check
+#   t9_api25           API 25, pixel_3  - same purpose, fallback when API 23 does not boot
 #   t9_api28           API 28, pixel_3  - stock WebView 69 (below the app's 83 floor: the
 #                      "old WebView" box). Sideload WebView 91 for a working BibleView, see
 #                      docs/emulator-and-webview-debugging.md.
@@ -22,6 +24,8 @@ set -euo pipefail
 # name -> "api|device|lcd density (empty = device default)"
 declare -A PROFILES=(
     [screenshot_phone]="36|pixel_6_pro|"
+    [t9_api23]="23|pixel_3|"
+    [t9_api25]="25|pixel_3|"
     [t9_api28]="28|pixel_3|"
     [t9_api29]="29|pixel_3|"
     [t9_api30]="30|pixel_4|"
