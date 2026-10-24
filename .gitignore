@@ -56,3 +56,7 @@ refs
 # Website build outputs
 /website/_site/
 /website/_build/
+
+# iOS local build config
+iosApp/Config/Secrets.xcconfig.local
+iosApp/Config/Version.xcconfig

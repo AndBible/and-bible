@@ -7,6 +7,13 @@ options:
 settings:
   base:
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+  configs:
+    # Product name of the app per configuration, for the unit-test TEST_HOST (PRODUCT_NAME there would be
+    # the test bundle's own name).
+    Debug:
+      APP_PRODUCT_NAME: AndBibleDev
+    Release:
+      APP_PRODUCT_NAME: AndBible
 targets:
   iosApp:
     type: application
@@ -14,11 +21,28 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: iosApp
+    # MARKETING_VERSION / CURRENT_PROJECT_VERSION / DEVELOPMENT_TEAM come from this xcconfig (it includes the
+    # generated Version.xcconfig and the untracked Secrets.xcconfig.local). Do not set them in project.yml:
+    # project.yml settings override xcconfig values.
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
     settings:
+      # Identity per configuration (spec docs/superpowers/specs/2026-10-24-i4-release-design.md 5.7):
+      # Debug keeps the dev identity (I2: org.andbible.ios.dev, own iCloud container) so it installs beside
+      # the store app; Release is the store identity (org.andbible.ios).
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
+          PRODUCT_NAME: AndBibleDev
+          APP_DISPLAY_NAME: AndBible Dev
+          ICLOUD_CONTAINER: iCloud.org.andbible.ios.dev
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios
+          PRODUCT_NAME: AndBible
+          APP_DISPLAY_NAME: AndBible
+          ICLOUD_CONTAINER: iCloud.org.andbible.ios
       base:
-        # Dev ids (I2); never the store id org.andbible.ios.
-        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
-        PRODUCT_NAME: AndBibleDev
         INFOPLIST_FILE: iosApp/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -110,7 +134,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.unittests
         # Hosted by the app: Kotlin symbols come from the app binary, never a second copy of SharedUi.
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBibleDev.app/AndBibleDev
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/$(APP_PRODUCT_NAME).app/$(APP_PRODUCT_NAME)
         BUNDLE_LOADER: $(TEST_HOST)
         FRAMEWORK_SEARCH_PATHS:
           - $(inherited)
@@ -129,3 +153,7 @@ schemes:
     test:
       config: Debug
       targets: [iosAppUITests, iosAppUnitTests]
+    profile:
+      config: Release
+    archive:
+      config: Release
