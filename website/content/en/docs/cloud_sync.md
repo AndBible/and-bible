@@ -184,8 +184,7 @@ All release versions of *AndBible* use the same synced data: the Android app
 from the Play Store, F-Droid, GitHub, and the other stores, the discrete
 (calculator) version, the Accrescent version, and the iOS app. The shared
 folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
-Google Drive is currently available only on Android, so on Google Drive the
-sharing is between the Android versions (standard, discrete, and Accrescent).
+Google Drive is currently available only on Android.
 
 If you already use sync on the **standard Android** version, nothing changes
 when you update: sync keeps working as before.
@@ -200,6 +199,9 @@ the shared folder once after you update:
     device, the app asks what to do, as described in
     [Setting Up Sync](#setting-up-sync): **Copy from Cloud to this device**,
     **Copy from this device to Cloud**, or **Cancel & disable synchronization**.
+    Be careful with **Copy from this device to Cloud**: it replaces the data in
+    the shared folder, including the data your other devices (for example the
+    standard Android app) have synced there.
 3. If the shared folder is empty, a new one is created from the data on this
     device.
 
