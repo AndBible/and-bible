@@ -111,7 +111,7 @@ class CloudSyncTask7Test {
         } finally { attempt.cancel() }
     }
     @Test fun backgroundRestoresExistingCredentialsAndDocumentsUseSelectedNamespace() = runTest {
-        for ((namespace, expected) in listOf(null to "org.andbible.ios.dev-sync-documents", "net.bible.android.activity.debug" to "net.bible.android.activity.debug-sync-documents")) {
+        for ((namespace, expected) in listOf(null to "net.bible.android.activity.dev-sync-documents", "net.bible.android.activity.debug" to "net.bible.android.activity.debug-sync-documents")) {
             val adapter = Adapter()
             val sync = rig(this, adapter, namespace)
             assertTrue(sync.signIn(background = true) == true)

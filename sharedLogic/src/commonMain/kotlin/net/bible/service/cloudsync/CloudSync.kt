@@ -59,6 +59,9 @@ const val GZIP_MIMETYPE = "application/gzip"
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
 const val LAST_PATCH_WRITTEN_KEY = "lastPatchWritten"
+
+/** Per-category config: the [SyncNamespace] this category's stored sync folder was settled under. */
+const val SYNC_NAMESPACE_KEY = "syncNamespace"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
@@ -211,11 +214,43 @@ class CloudSync(
         return q1
     }
 
-    internal fun syncFolderName(category: String): String = "${syncNamespace ?: env.packageName}-sync-$category"
+    /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */
+    internal val namespace: String get() = syncNamespace ?: SyncNamespace.forAppId(env.packageName)
 
-    internal suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
+    @VisibleForTesting fun syncFolderName(category: String): String = "$namespace-sync-$category"
+
+    /**
+     * Makes the category's stored sync state agree with the current [namespace].
+     *
+     * The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that predates the key,
+     * the name the old code derived from the raw app id. If it differs from the current namespace the stored
+     * folder ids, the sync position and the adapter's "folder known" marker belong to a folder this build no
+     * longer uses, so they are dropped and the category joins the current folder afresh (first-join question
+     * included). A standard build's old name equals its namespace, so an upgrade keeps all state.
+     *
+     * Returns `true` when the key must still be stored once the folder is settled.
+     */
+    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>): Boolean {
+        val stored = dbDef.dao.getString(SYNC_NAMESPACE_KEY)
+        if (stored == namespace) return false
+        val previous = stored ?: (syncNamespace ?: env.packageName)
+        if (previous != namespace) {
+            Log.i(TAG, "Sync namespace of ${dbDef.categoryName} changed $previous -> $namespace, starting a fresh join")
+            // The adapter knows which configs prove a folder known (its secret marker); removing them via
+            // getConfigs keeps adapter-specific keys out of this common code.
+            adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+            dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
+            dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+        }
+        return true
+    }
+
+    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = syncFolderName(dbDef.categoryName)
+        val storeNamespace = resetIfNamespaceChanged(dbDef)
 
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
@@ -300,6 +335,8 @@ class CloudSync(
             }
             null -> {}
         }
+        // Only now: a cancelled first join leaves the key unset, so the next attempt re-runs the reset harmlessly.
+        if (storeNamespace) dbDef.dao.setConfig(SYNC_NAMESPACE_KEY, namespace)
     }
 
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
