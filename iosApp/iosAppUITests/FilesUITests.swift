@@ -258,6 +258,7 @@ final class FilesUITests: XCTestCase {
             // the picker sheet down (the grid then vanishes). Find the uniquely named folder through the picker's own
             // Search field first; only fall back to bounded in-grid drags.
             var foundBySearch = false
+            var searchHit = folder
             if !(folder.exists && folder.isHittable) {
                 var search = app.searchFields.firstMatch
                 if !search.exists {
@@ -274,21 +275,35 @@ final class FilesUITests: XCTestCase {
                 if search.exists && search.isHittable {
                     search.tap()
                     search.typeText(folderName)
-                    foundBySearch = folder.waitForExistence(timeout: 15)
+                    // iPad (run 8): typing opens a "Name Contains ..." suggestion popup over the results; commit the query with
+                    // the keyboard's Search key so the real result cell is listed, and accept the folder by identifier or by
+                    // a label that starts with its name (search-mode cells are not guaranteed to carry the ", Folder" identifier).
+                    let keyboardSearch = app.keyboards.buttons.matching(NSPredicate(format: "label IN {'Search','search','Return','return'}")).firstMatch
+                    if keyboardSearch.waitForExistence(timeout: 3) && keyboardSearch.isHittable { keyboardSearch.tap() }
+                    let named = localRoot(app).descendants(matching: .any).matching(NSPredicate(
+                        format: "(identifier == %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH 'Name Contains'",
+                        "\(folderName), Folder", folderName)).firstMatch
+                    foundBySearch = folder.waitForExistence(timeout: 10) || named.waitForExistence(timeout: 5)
+                    if foundBySearch && !folder.exists { searchHit = named }
                     evidence(app, "save-folder-search-\(foundBySearch ? "found" : "empty")")
                     if !foundBySearch {
-                        // Clear only the search text (a "Cancel" button could be the picker's own and dismiss it).
-                        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: folderName.count + 2))
+                        // Clear only the search text, and only when the field can still be resolved (run 8: it had vanished).
+                        let again = app.searchFields.firstMatch
+                        if again.exists && again.isHittable {
+                            again.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: folderName.count + 2))
+                        }
                         _ = grid.waitForExistence(timeout: 10)
                     }
                 }
             }
             if foundBySearch {
-                XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
-                               "Cannot uniquely identify the exact UI-created folder in the search results")
-                XCTAssertTrue(searchedCellSettled(app, folder), "Searched folder cell did not settle")
+                if folder.exists {
+                    XCTAssertEqual(localRoot(app).cells.matching(identifier: "\(folderName), Folder").count, 1,
+                                   "Cannot uniquely identify the exact UI-created folder in the search results")
+                    XCTAssertTrue(searchedCellSettled(app, folder), "Searched folder cell did not settle")
+                }
                 evidence(app, "save-unique-folder-settled")
-                folder.tap()
+                searchHit.tap()
                 waitForSystemControl(opened, app: app, name: "save-exact-folder-open", message: "Picker did not open the exact selected folder")
                 XCTAssertTrue(opened.isHittable, "Exact folder navigation title is not interactive")
                 return
