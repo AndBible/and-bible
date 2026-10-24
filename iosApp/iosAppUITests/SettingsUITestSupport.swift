@@ -12,11 +12,15 @@ extension RealAppUITestCase {
         let row = settingsRow(app, key)
         for _ in 0..<14 {
             if row.exists && row.isHittable { break }
+            let m1 = XCTAttachment(string: "POSTRACE revealSettingsRow swipeUp"); m1.name = "POSTRACE-mark"; m1.lifetime = .keepAlways; add(m1) // POSTRACE
             app.swipeUp()
         }
         if !(row.exists && row.isHittable) {
             // The row may be above the viewport after an earlier scroll.
-            for _ in 0..<14 where !(row.exists && row.isHittable) { app.swipeDown() }
+            for _ in 0..<14 where !(row.exists && row.isHittable) {
+                let m2 = XCTAttachment(string: "POSTRACE revealSettingsRow swipeDown"); m2.name = "POSTRACE-mark"; m2.lifetime = .keepAlways; add(m2) // POSTRACE
+                app.swipeDown()
+            }
         }
         harnessRequire(row.exists && row.isHittable, app, "Settings row not reachable: \(key)", file: file, line: line)
         var previous = CGRect.null
