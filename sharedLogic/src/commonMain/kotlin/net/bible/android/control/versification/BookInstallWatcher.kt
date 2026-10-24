@@ -84,7 +84,7 @@ class BookInstallWatcher(
             val book = ev.book!!
             Activator.deactivate(book)
             initialiseRequiredMapping(book)
-            launcher.launch(DB_KEY) { addBookToDb(book) }
+            launcher.launch(DB_KEY) { DatabaseContainer.writeGate.pass { addBookToDb(book) } }
             // Suppress the echo: a module installed *by* a sync download must not immediately
             // be auto-pushed back to the cloud it just came from.
             //
@@ -96,17 +96,19 @@ class BookInstallWatcher(
             // the guard may be removed before the deferred preferences load completes.
             val installedFromSync = book.isSyncableDocument && documentSync.get().isInstallingFromSync(book.initials)
             launcher.launch("book-install-auto-upload") {
-                documentSettings.ensureLoaded()
-                if (book.isSyncableDocument
-                    && !installedFromSync
-                    && shouldAutoUpload(
-                        documentSettings.enabled,
-                        documentSettings.autoUpload,
-                        documentSettings.blockList.isBlocked(book.initials),
-                        documentSettings.isAutoTransferAllowed,
-                    )
-                ) {
-                    syncStarter.pushDocuments(listOf(book.initials))
+                DatabaseContainer.writeGate.pass {
+                    documentSettings.ensureLoaded()
+                    if (book.isSyncableDocument
+                        && !installedFromSync
+                        && shouldAutoUpload(
+                            documentSettings.enabled,
+                            documentSettings.autoUpload,
+                            documentSettings.blockList.isBlocked(book.initials),
+                            documentSettings.isAutoTransferAllowed,
+                        )
+                    ) {
+                        syncStarter.pushDocuments(listOf(book.initials))
+                    }
                 }
             }
             addonCatalog.clearCaches()
@@ -118,7 +120,7 @@ class BookInstallWatcher(
             // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
             addonCatalog.clearCaches()
             val book = ev.book!!
-            launcher.launch(DB_KEY) { removeBookFromDb(book) }
+            launcher.launch(DB_KEY) { DatabaseContainer.writeGate.pass { removeBookFromDb(book) } }
             SwordContentFacade.clearCaches()
         }
     }
@@ -211,8 +213,10 @@ class BookInstallWatcher(
      */
     fun launchRowUpdate(initials: String, update: (SwordDocumentInfo?) -> SwordDocumentInfo?): Job =
         launcher.launch(DB_KEY) {
-            val updated = update(docDao.getBook(initials)) ?: return@launch
-            docDao.insert(updated) // REPLACE: updates an existing row, inserts a missing one
+            DatabaseContainer.writeGate.pass {
+                val updated = update(docDao.getBook(initials)) ?: return@pass
+                docDao.insert(updated) // REPLACE: updates an existing row, inserts a missing one
+            }
         }
 
     /** [launchRowUpdate], suspending until the row write has run. */
