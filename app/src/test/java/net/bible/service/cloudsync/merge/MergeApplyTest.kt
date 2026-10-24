@@ -43,8 +43,6 @@ import net.bible.service.cloudsync.createPatchForDatabase
 import net.bible.service.cloudsync.createTriggers
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.exec
-import net.bible.service.db.openSqlite
-import net.bible.service.db.queryRows
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.test.DatabaseResetter
@@ -183,8 +181,11 @@ class MergeApplyTest {
         assertNotNull(m.localDb.bookmarkDao().bibleBookmarkById(bb.id))
     }
 
-    private fun column(db: SyncableDatabaseAccessor<*>, sql: String): List<String> =
-        openSqlite(db.localDbPath, readOnly = true).use { c -> c.queryRows(sql) { it.getText(0) } }
+    /** Read through Room's own connection: a second raw connection can hit "database is locked" in TRUNCATE mode. */
+    private suspend fun column(db: SyncableDatabaseAccessor<*>, sql: String): List<String> =
+        db.localDb.useWriterConnectionMarked { c ->
+            c.usePrepared(sql) { st -> buildList { while (st.step()) add(st.getText(0)) } }
+        }
 
     @Test fun unionOfReadingPlans() = run {
         suspend fun plans() = accessor(ReadingPlanDatabase::class.java, SyncableDatabaseDefinition.READINGPLANS, readingPlanMigrations)
@@ -391,7 +392,7 @@ class MergeApplyTest {
         assertEquals("$mergeTime|${b.deviceId}", column(c,
             "SELECT lastUpdated || '|' || sourceDevice FROM LogEntry WHERE tableName = 'Label' AND entityId1 = X'${won.id.toString().replace("-", "")}'").single())
         // Only the winners are uploaded: the lost row's entry is still the cloud's, not re-stamped.
-        fun entry(l: BookmarkEntities.Label) = column(m,
+        suspend fun entry(l: BookmarkEntities.Label) = column(m,
             "SELECT lastUpdated || '|' || sourceDevice FROM LogEntry WHERE tableName = 'Label' AND entityId1 = X'${l.id.toString().replace("-", "")}'").single()
         assertEquals("2000|${a.deviceId}", entry(lost))
         assertEquals("$mergeTime|${b.deviceId}", entry(won))
