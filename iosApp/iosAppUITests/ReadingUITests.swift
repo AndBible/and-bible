@@ -1525,6 +1525,46 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(back, "switching night mode back did not restore the page brightness \(before)")
     }
 
+    /// Plan A (I2d): "Night mode switching" (`night_mode_pref3`) is a device-local key, so the Application preferences
+    /// Reset returns it to 'System' (the default), also after a relaunch. The preference is set to Manual through the UI,
+    /// not a `-night_mode_pref3` launch argument: an argument-domain value would shadow the reset in the same process.
+    func testSettingsResetReturnsNightModeToSystem() throws {
+        var app = try launchReading()
+        func nightRowSummary(_ app: XCUIApplication) -> String {
+            revealSettingsRow(app, "night_mode_pref3").label
+        }
+        guard openDrawerRow(app, "Application preferences") else { return }
+        let row = revealSettingsRow(app, "night_mode_pref3")
+        row.tap()
+        let manual = byLabel(app, "Manual")
+        XCTAssertTrue(manual.waitForExistence(timeout: 15) && manual.isHittable, "the night mode choices offer 'Manual'")
+        manual.tap()
+        XCTAssertTrue(waitUntil(timeout: 15) { nightRowSummary(app).contains("Manual") },
+                      "the night mode row shows 'Manual' after choosing it: \(nightRowSummary(app))")
+        shot(app, "night-reset-manual")
+
+        let reset = byLabel(app, "Reset")
+        XCTAssertTrue(reset.waitForExistence(timeout: 10), "the Application preferences have a 'Reset' action")
+        reset.tap()
+        let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
+        XCTAssertTrue(yes.waitForExistence(timeout: 10), "the reset confirmation offers 'Yes'")
+        yes.tap()
+        XCTAssertTrue(waitUntil(timeout: 20) { !yes.exists }, "the reset confirmation did not close")
+        XCTAssertTrue(waitUntil(timeout: 20) { nightRowSummary(app).contains("System") },
+                      "the night mode row did not return to 'System' after the reset: \(nightRowSummary(app))")
+        shot(app, "night-reset-system")
+
+        // A fresh process on the saved state (no -resetDatabases, no night argument): still 'System'.
+        sendToBackground(app)
+        app.terminate()
+        app = launch(["-standardTestFixture"])
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 90), "the reading host is shown after a relaunch")
+        guard openDrawerRow(app, "Application preferences") else { return }
+        XCTAssertTrue(waitUntil(timeout: 20) { nightRowSummary(app).contains("System") },
+                      "the night mode row is not 'System' after a relaunch: \(nightRowSummary(app))")
+        shot(app, "night-reset-system-relaunched")
+    }
+
     /// Opens the overflow menu and taps its hittable 'Night mode' row (the tree can hold a second, off-screen copy).
     private func tapNightModeRow(_ app: XCUIApplication) {
         let rows = app.buttons.matching(NSPredicate(format: "label == 'Night mode'"))
