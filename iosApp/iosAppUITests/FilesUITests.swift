@@ -248,7 +248,9 @@ final class FilesUITests: XCTestCase {
     }
 
     private func openNamedLocalFolder(_ app: XCUIApplication, folderName: String) {
-        let opened = localRoot(app).navigationBars["FullDocumentManagerViewControllerNavigationBar"]
+        // iPad (run 9): the "DOC.browsingRoot ..." Other element is absent while the picker shows search results, so the
+        // navigation bar and the search-result cell are resolved from the app, not through localRoot.
+        let opened = app.navigationBars["FullDocumentManagerViewControllerNavigationBar"]
             .buttons.matching(NSPredicate(format: "label == %@", "\(folderName), Actions Menu")).firstMatch
         if !opened.exists {
             let folder = localRoot(app).cells.matching(identifier: "\(folderName), Folder").firstMatch
@@ -280,7 +282,7 @@ final class FilesUITests: XCTestCase {
                     // a label that starts with its name (search-mode cells are not guaranteed to carry the ", Folder" identifier).
                     let keyboardSearch = app.keyboards.buttons.matching(NSPredicate(format: "label IN {'Search','search','Return','return'}")).firstMatch
                     if keyboardSearch.waitForExistence(timeout: 3) && keyboardSearch.isHittable { keyboardSearch.tap() }
-                    let named = localRoot(app).descendants(matching: .any).matching(NSPredicate(
+                    let named = app.descendants(matching: .any).matching(NSPredicate(
                         format: "(identifier == %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH 'Name Contains'",
                         "\(folderName), Folder", folderName)).firstMatch
                     foundBySearch = folder.waitForExistence(timeout: 10) || named.waitForExistence(timeout: 5)
