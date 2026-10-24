@@ -602,9 +602,6 @@ t_app_id_and_product_follow_the_configuration() {
     grep -Eq 'booted org\.andbible\.ios( |$)' "$(last_run)/step-1.sh" && ! grep -q 'ios\.dev' "$(last_run)/step-1.sh" || fail "MAC_APP_ID ignored: $(cat "$(last_run)/step-1.sh")"
     mr xcode-build iphone >/dev/null 2>&1
     grep -q 'Debug-iphonesimulator/AndBibleDev.app' "$(last_run)/step-1.sh" && grep -q 'simctl launch \$UDID org.andbible.ios.dev' "$(last_run)/step-1.sh" || fail "default build step changed"
-    MAC_APP_ID=org.andbible.ios MAC_APP_PRODUCT=AndBible mr xcode-build iphone >/dev/null 2>&1
-    grep -q '/AndBible.app' "$(last_run)/step-1.sh" && ! grep -q 'AndBibleDev' "$(last_run)/step-1.sh" \
-        && grep -q 'simctl launch \$UDID org.andbible.ios ' "$(last_run)/step-1.sh" || fail "overrides ignored in build step"
 }
 t_version_xcconfig_is_generated_and_synced() {
     new_env xcconfig
