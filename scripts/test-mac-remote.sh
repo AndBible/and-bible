@@ -593,6 +593,26 @@ t_step_script_is_kept_in_run_dir() {
     grep -q ':zzz' "$(last_run)/step-1.sh" || fail "step script not kept"
 }
 
+t_app_id_and_product_follow_the_configuration() {
+    new_env app-id
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible"
+    mr sim launch >/dev/null 2>&1
+    grep -q 'org.andbible.ios.dev' "$(last_run)/step-1.sh" || fail "default app id changed: $(cat "$(last_run)/step-1.sh")"
+    MAC_APP_ID=org.andbible.ios MAC_APP_PRODUCT=AndBible mr sim launch >/dev/null 2>&1
+    grep -Eq 'booted org\.andbible\.ios( |$)' "$(last_run)/step-1.sh" && ! grep -q 'ios\.dev' "$(last_run)/step-1.sh" || fail "MAC_APP_ID ignored: $(cat "$(last_run)/step-1.sh")"
+    mr xcode-build iphone >/dev/null 2>&1
+    grep -q 'Debug-iphonesimulator/AndBibleDev.app' "$(last_run)/step-1.sh" && grep -q 'simctl launch \$UDID org.andbible.ios.dev' "$(last_run)/step-1.sh" || fail "default build step changed"
+    MAC_APP_ID=org.andbible.ios MAC_APP_PRODUCT=AndBible mr xcode-build iphone >/dev/null 2>&1
+    grep -q '/AndBible.app' "$(last_run)/step-1.sh" && ! grep -q 'AndBibleDev' "$(last_run)/step-1.sh" \
+        && grep -q 'simctl launch \$UDID org.andbible.ios ' "$(last_run)/step-1.sh" || fail "overrides ignored in build step"
+}
+t_version_xcconfig_is_generated_and_synced() {
+    new_env xcconfig
+    rm -f "$T/repo/iosApp/Config/Version.xcconfig"
+    mr gradle :zzz >/dev/null 2>&1
+    grep -q '^MARKETING_VERSION = ' "$FAKE_HOME/work/testbox/and-bible/iosApp/Config/Version.xcconfig" || fail "Version.xcconfig missing from the synced tree"
+}
+
 for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
@@ -609,7 +629,8 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_idle_guard_releases_lock_when_container_side_stalls t_timeout_kills_the_whole_process_group \
     t_step_watchdog_bounds_work_outside_the_inner_timeouts t_timeouts_are_142_everywhere \
     t_live_holder_is_not_broken_under_another_timezone t_pruning_keeps_a_live_runs_directory \
-    t_abandoned_breaker_mutex_is_judged_by_its_pid t_step_script_is_kept_in_run_dir; do run_test "$t"; done
+    t_abandoned_breaker_mutex_is_judged_by_its_pid t_step_script_is_kept_in_run_dir \
+    t_app_id_and_product_follow_the_configuration t_version_xcconfig_is_generated_and_synced; do run_test "$t"; done
 
 echo "mac-remote tests: $pass passed, $failn failed"
 [ "$failn" = 0 ] && echo "MAC-REMOTE OK"

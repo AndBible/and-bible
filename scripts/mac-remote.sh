@@ -49,7 +49,7 @@
 #       sim boot [iphone|ipad]                    create the device if missing, boot it, print its UDID
 #       sim shot <name>                           screenshot -> .local/mac/<container>/shots/<name>.png
 #       sim log [minutes] [predicate]             app unified log of the last N minutes (default 5)
-#       sim launch [bundle-id]                    (re)launch the app (default org.andbible.ios.dev)
+#       sim launch [bundle-id]                    (re)launch the app (default org.andbible.ios.dev, or $MAC_APP_ID)
 #       sim sample [process]                      5 s stack sample of the app (hangs, busy loops)
 #       sim crashes                               fetch the app's crash reports (~/Library/Logs/DiagnosticReports)
 #       sim shutdown                              shut down all simulators
@@ -103,8 +103,9 @@ KEEP_RUNS="${MAC_KEEP_RUNS:-20}"
 # the step-level watchdog kills the whole step (npm, xcodegen, simulator boot... run outside the inner timeouts).
 IDLE_MAX="${MAC_IDLE_MAX:-1800}"
 STEP_MARGIN="${MAC_STEP_MARGIN:-600}"
-APP_ID=org.andbible.ios.dev
-APP_PROCESS=AndBibleDev
+# Debug identity by default; MAC_APP_ID / MAC_APP_PRODUCT select another configuration (Release: org.andbible.ios / AndBible).
+APP_ID="${MAC_APP_ID:-org.andbible.ios.dev}"
+APP_PROCESS="${MAC_APP_PRODUCT:-AndBibleDev}"
 
 die() { echo "mac-remote: $*" >&2; exit 1; }
 
@@ -298,6 +299,10 @@ sync_tree() {
     "${SSH[@]}" "$HOST" "mkdir -p $(q "$TREE")" || die "cannot reach $HOST"
     command -v "$RSYNC_BIN" >/dev/null || die "rsync is not installed in this container (old golden image?)"
     local t0=$SECONDS stats
+    # Version.xcconfig is gitignored but generated locally, so it travels with the tree (rsync here
+    # does not use .gitignore filters); xcodegen on the Mac then reads it through Base.xcconfig.
+    VERSION_XCCONFIG="$repo/iosApp/Config/Version.xcconfig" "$(dirname "${BASH_SOURCE[0]}")/ios-version-xcconfig.sh" \
+        || die "cannot generate iosApp/Config/Version.xcconfig"
     # Not synced: .git (the container's objects live in an alternate on the host), container-only data,
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
     stats=$("${RSYNC[@]}" --delete --stats \

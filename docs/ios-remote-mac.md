@@ -270,6 +270,10 @@ and they do not honour the idle guard or the step process groups).
 
 Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
 
+### Debug and Release builds
+
+By default the script builds and launches the Debug identity (`org.andbible.ios.dev`, product `AndBibleDev`). The Release configuration (`org.andbible.ios`, product `AndBible`) is built with `scripts/mac-remote.sh run 'cd iosApp && xcodegen generate && xcodebuild ... -configuration Release ... build'`; set `MAC_APP_ID` and `MAC_APP_PRODUCT` (for example `MAC_APP_ID=org.andbible.ios MAC_APP_PRODUCT=AndBible`) so `sim launch`, `sim log`, `sim sample`, `sim crashes` and the `xcode-build` app lookup follow it. Every sync first generates the gitignored `iosApp/Config/Version.xcconfig` (`MARKETING_VERSION`, from `version.properties`) locally with `scripts/ios-version-xcconfig.sh`, so it travels with the tree and `xcodegen` on the Mac picks it up through `Base.xcconfig`.
+
 ### UI tests that need simulator fixtures
 
 - `FilesUITests.testImageSelectionCopiesExpectedProviderAsset` picks one known photo in the real PHPicker.
