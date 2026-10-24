@@ -81,7 +81,7 @@ class WindowControlPageChangeTest {
         windowControl.windowRepository = repo
         originalRepo = CommonUtils.windowControl.windowRepository
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
     }
 
     @After fun tearDown() {
@@ -126,7 +126,7 @@ class WindowControlPageChangeTest {
         assertEquals(BibleBook.JOHN, b.pageManager.currentBible.singleKey.book)
     }
 
-    @Test fun contentLoaderEmitsForItsOwnWindowBeforeReturning() {
+    @Test fun contentLoaderEmitsForItsOwnWindowBeforeReturning() = kotlinx.coroutines.test.runTest {
         val (_, window) = twoSyncedWindows()
         val page = window.pageManager.currentGeneralBook
         val book = Books.installed().getBook("KJV")!!
@@ -175,19 +175,19 @@ class WindowControlPageChangeTest {
             set(view, PageTiltScroller(
                 view, PageTiltScrollControl()))
         }
-        view.firstDocument = OsisDocument(OsisFragment(SwordContentFacade.readOsisFragment(book, oldKey), oldKey, book), book, oldKey)
+        view.firstDocument = OsisDocument(OsisFragment(SwordContentFacade.readOsisFragment(book, oldKey, strings = net.bible.test.testCoreStrings()), oldKey, book), book, oldKey)
         val bridge = BibleJavascriptInterface(view)
         val changes = mutableListOf<PageChange>()
         val subscription = PassageChangeMediator.changes.subscribe {
             if (it is PageChange.VerseChanged) changes.add(it)
         }
         try {
-            bridge.scrolledToOrdinal(oldKey.osisRef, 5)
+            bridge.scrolledToOrdinal(oldKey.getOsisRef(), 5)
             assertTrue(changes.isEmpty())
-            bridge.scrolledToOrdinal(nextKey.osisRef, 9)
+            bridge.scrolledToOrdinal(nextKey.getOsisRef(), 9)
             assertEquals(listOf<PageChange>(PageChange.VerseChanged(window)), changes)
-            assertEquals(nextKey.osisRef, page.key.osisRef)
-            bridge.scrolledToOrdinal(nextKey.osisRef, 10)
+            assertEquals(nextKey.getOsisRef(), page.key.getOsisRef())
+            bridge.scrolledToOrdinal(nextKey.getOsisRef(), 10)
             assertEquals(listOf<PageChange>(PageChange.VerseChanged(window)), changes)
         } finally {
             subscription.cancel()
@@ -197,7 +197,7 @@ class WindowControlPageChangeTest {
 
     @Test fun ignoresAWindowOfAnotherRepository() {
         val (a, b) = twoSyncedWindows()
-        val otherRepo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val otherRepo = net.bible.test.testWindowRepository()
         val foreign = Window(WorkspaceEntities.Window(workspaceId = IdType(), isSynchronized = true,
             isPinMode = false, isLinksWindow = false,
             windowLayout = WorkspaceEntities.WindowLayout(WindowState.VISIBLE.toString()), id = IdType()),

@@ -189,9 +189,9 @@ fun AiProvidersScreen(
 }
 
 /**
- * The FORM-step add/edit dialog. All field values are driven by [state] (single source of truth,
- * owned by the controller) — this composable holds only the local "is the delete confirmation
- * open" flag, reset whenever the edited provider changes ([state]'s `id`).
+ * The FORM-step add/edit dialog. The controller ([state]) stays the source of truth for validation and saving and
+ * receives every change; the three text fields keep their own typed text per edit session (see the comment below),
+ * plus the local "is the delete confirmation open" flag, reset whenever the edited provider changes ([state]'s `id`).
  */
 @Composable
 private fun ProviderFormDialog(
@@ -204,6 +204,15 @@ private fun ProviderFormDialog(
     val strings = LocalStrings.current
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(state.id) { mutableStateOf(false) }
+    // The controller echoes a keystroke back only after a coroutine hop (collectAsState). A field that displays the echoed
+    // value is redrawn with stale text in between, which discarded the first key typed after a focus switch on iOS. Each
+    // field therefore owns the text being typed (updated at once) and still forwards every change to the controller. The
+    // values are seeded per edit session (provider id and type) and never copied back from the controller, so a late
+    // echo cannot overwrite newer input; switching provider or type starts a new session with the controller's values.
+    val session = state.id to state.typeId
+    var displayName by remember(session) { mutableStateOf(state.displayName) }
+    var apiKey by remember(session) { mutableStateOf(state.apiKey) }
+    var endpoint by remember(session) { mutableStateOf(state.endpoint) }
 
     AbAlertDialog(
         onDismissRequest = onDismiss,
@@ -211,8 +220,8 @@ private fun ProviderFormDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
-                    value = state.displayName,
-                    onValueChange = { onField(AiProvidersController.Field.NAME, it) },
+                    value = displayName,
+                    onValueChange = { displayName = it; onField(AiProvidersController.Field.NAME, it) },
                     enabled = state.isCustom,
                     singleLine = true,
                     label = { Text(strings.providerNameLabel) },
@@ -221,8 +230,8 @@ private fun ProviderFormDialog(
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = state.apiKey,
-                    onValueChange = { onField(AiProvidersController.Field.API_KEY, it) },
+                    value = apiKey,
+                    onValueChange = { apiKey = it; onField(AiProvidersController.Field.API_KEY, it) },
                     singleLine = true,
                     label = { Text(strings.providerApiKeyLabel) },
                     modifier = Modifier.fillMaxWidth(),
@@ -239,8 +248,8 @@ private fun ProviderFormDialog(
                 if (state.isCustom) {
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = state.endpoint,
-                        onValueChange = { onField(AiProvidersController.Field.ENDPOINT, it) },
+                        value = endpoint,
+                        onValueChange = { endpoint = it; onField(AiProvidersController.Field.ENDPOINT, it) },
                         singleLine = true,
                         label = { Text(strings.providerEndpointLabel) },
                         placeholder = { Text(strings.providerEndpointHint) },

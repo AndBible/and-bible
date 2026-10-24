@@ -111,6 +111,7 @@ class ThemeStyleRowExplanationTest {
         betaFeaturesVisible = true,
         sdcardPermissionVisible = true,
         openLinksVisible = true,
+        debugToolsVisible = false,
     )
 
     private fun show(mode: DisplayColorMode) {

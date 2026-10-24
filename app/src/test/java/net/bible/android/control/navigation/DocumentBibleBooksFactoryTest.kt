@@ -53,7 +53,7 @@ class DocumentBibleBooksFactoryTest {
         Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(0))
         documentBibleBooksFactory!!.getBooksFor(esv!!)
         Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(1))
-        Books.installed().removeBook(esv)
+        Books.installed().removeBook(esv!!)
         Assert.assertThat(documentBibleBooksFactory!!.size, CoreMatchers.equalTo(0))
     }
 

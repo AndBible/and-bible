@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import "@/bridge/native-bridge";
+
 console.log("main.ts begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface

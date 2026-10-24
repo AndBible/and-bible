@@ -71,8 +71,15 @@ class StartupWelcomeHeaderWiringGuardTest {
         private const val HOST_FILE =
             "src/main/java/net/bible/android/view/activity/WelcomeFlow.kt"
         private const val WELCOME_CALL_START = "WelcomeNavDeps("
-        private val APP_NAME_CALL_SITE = Regex("""appName\s*=\s*host\.getString\(startupWelcomeAppNameRes\(\)\)""")
-        private val LOGO_CALL_SITE = Regex("""logo\s*=\s*\{\s*painterResource\(startupWelcomeLogoRes\(\)\)\s*\}""")
+        private const val HOST_COMMON_FILE =
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/welcome/WelcomeHost.kt"
+        private const val PLATFORM_START = "override val appName"
+        private const val PLATFORM_END = "override fun onOpenHomepage"
+        // I2-A Task 3: the choice now lives in WelcomeFlow's WelcomeHostPlatform members; WelcomeHost
+        // (common) only forwards them.
+        private val APP_NAME_CALL_SITE = Regex("""override val appName:\s*String\s*get\(\)\s*=\s*host\.getString\(startupWelcomeAppNameRes\(\)\)""")
+        private val LOGO_CALL_SITE = Regex("""override val logo:[^=]*=\s*\{\s*painterResource\(startupWelcomeLogoRes\(\)\)\s*\}""")
+        private val COMMON_FORWARDS = listOf("appName = platform.appName", "logo = platform.logo")
 
         // Fix round 1 (review): the header is discrete-aware, but loadInfo() -- the SAME screen's
         // body text -- independently spelled the real app name, so discrete mode's
@@ -98,19 +105,27 @@ class StartupWelcomeHeaderWiringGuardTest {
     private val CLOSING_PAREN_LINE = Regex("""\n\s*\)""")
 
     private fun welcomeCallBody(): String {
-        val startAt = source.indexOf(WELCOME_CALL_START)
-        assertThat("$HOST_FILE must still call WelcomeNavDeps(...)", startAt >= 0, equalTo(true))
-        val bodyStart = startAt + WELCOME_CALL_START.length
-        val closingMatch = CLOSING_PAREN_LINE.find(source, bodyStart)
-        assertThat("WelcomeNavDeps(...)'s closing ) must be found", closingMatch != null, equalTo(true))
-        return source.substring(bodyStart, closingMatch!!.range.first)
+        val startAt = source.indexOf(PLATFORM_START)
+        assertThat("$HOST_FILE must still declare the platform's appName", startAt >= 0, equalTo(true))
+        val endAt = source.indexOf(PLATFORM_END, startAt)
+        assertThat("$HOST_FILE's platform members must end with onOpenHomepage", endAt > startAt, equalTo(true))
+        return source.substring(startAt, endAt)
+    }
+
+    @Test
+    fun theCommonHostForwardsThePlatformsAppNameAndLogo() {
+        val common = stripComments(java.io.File(HOST_COMMON_FILE).readText())
+        COMMON_FORWARDS.forEach {
+            assertThat("WelcomeHost.kt must forward `$it` -- it must not pick its own app name or logo", common.contains(it), equalTo(true))
+        }
+        assertThat("WelcomeHost.kt (common) must not spell the raw resources", common.contains("app_name_long"), equalTo(false))
     }
 
     @Test
     fun theWelcomeCallSiteUsesTheDiscreteModeAppNameHelper() {
         val body = welcomeCallBody()
         assertThat(
-            "WelcomeNavDeps(...)'s `appName` argument must call startupWelcomeAppNameRes() " +
+            "WelcomeFlow's `appName` member must call startupWelcomeAppNameRes() " +
                 "(F62) -- reverting it to a raw getString(R.string.app_name_long) leaves discrete " +
                 "mode's welcome header un-swapped, and StartupWelcomeDiscreteChromeTest, which calls " +
                 "startupWelcomeAppNameRes() directly, would not notice",
@@ -122,7 +137,7 @@ class StartupWelcomeHeaderWiringGuardTest {
     fun theWelcomeCallSiteUsesTheDiscreteModeLogoHelper() {
         val body = welcomeCallBody()
         assertThat(
-            "WelcomeNavDeps(...)'s `logo` argument must call startupWelcomeLogoRes() (F62) -- " +
+            "WelcomeFlow's `logo` member must call startupWelcomeLogoRes() (F62) -- " +
                 "reverting it to a raw painterResource(R.drawable.ic_logo) leaves discrete mode's " +
                 "welcome header logo un-swapped, and StartupWelcomeDiscreteChromeTest, which calls " +
                 "startupWelcomeLogoRes() directly, would not notice",
@@ -134,13 +149,13 @@ class StartupWelcomeHeaderWiringGuardTest {
     fun noRawAppNameOrLogoLiteralRemainsInTheWelcomeCallSite() {
         val body = welcomeCallBody()
         assertThat(
-            "WelcomeNavDeps(...)'s argument list must not spell R.string.app_name_long " +
+            "WelcomeFlow's appName/logo members must not spell R.string.app_name_long " +
                 "directly -- that literal belongs only inside startupWelcomeAppNameRes()'s own " +
                 "non-discrete branch",
             body.contains("R.string.app_name_long"), equalTo(false),
         )
         assertThat(
-            "WelcomeNavDeps(...)'s argument list must not spell R.drawable.ic_logo directly " +
+            "WelcomeFlow's appName/logo members must not spell R.drawable.ic_logo directly " +
                 "-- that literal belongs only inside startupWelcomeLogoRes()'s own non-discrete branch",
             body.contains("R.drawable.ic_logo"), equalTo(false),
         )

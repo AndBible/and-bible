@@ -17,6 +17,8 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -73,17 +75,16 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingDocumentRefreshOnReturnTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
-    fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
-    }
+    fun tearDown() = closeHostsAndReset()
+
+    private fun closeHostsAndReset(afterClose: () -> Unit = {}, reset: () -> Unit = { DatabaseResetter.resetDatabase() }) =
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose, reset)
 
     /**
      * A host on the reading route, composed: `.visible()` is what composes the destination and is
@@ -100,7 +101,195 @@ class ReadingDocumentRefreshOnReturnTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create().start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create().start().resume().visible()
+            net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+        }
+    }
+
+    @Test
+    fun teardownJoinsAnActualWindowReaderBeforeReset() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val armed = java.util.concurrent.atomic.AtomicBoolean(false)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val source = object : net.bible.android.control.page.GlobalTextDisplaySettingsSource {
+            override val current: net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+                get() {
+                    if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
+                        // Like the real source, this synchronous bridge does not inherit the Window job.
+                        net.bible.service.db.blockingAtEdge {
+                            entered.countDown()
+                            release.await()
+                        }
+                    }
+                    return original.current
+                }
+        }
+        var owner: kotlinx.coroutines.Job? = null
+        try {
+            koin.loadModules(listOf(org.koin.dsl.module {
+                single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
+            }))
+            val activity = composedHost().get()
+            val scope = activity.hostWindowRepository.scope
+            val job = requireNotNull(scope.coroutineContext[kotlinx.coroutines.Job])
+            owner = job
+            armed.set(true)
+            activity.hostWindowRepository.activeWindow.loadText()
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "actual Window settings read must enter the held source")
+            println("WINDOW_OWNER beforeClose=${net.bible.test.DatabaseResetter.jobState(job)}")
+            closeHostsAndReset(afterClose = {
+                println("WINDOW_OWNER afterClose=${net.bible.test.DatabaseResetter.jobState(job)}")
+                assertFalse(job.isCompleted, "the held actual reader must still own cancellation work")
+                android.os.Handler(Looper.getMainLooper()).post { release.complete(Unit) }
+            }, reset = {
+                println("WINDOW_OWNER resetBoundary=${net.bible.test.DatabaseResetter.jobState(job)}")
+                assertTrue(job.isCompleted, "fixture must join the real Window owner before database reset")
+                DatabaseResetter.resetDatabase()
+            })
+        } finally {
+            release.complete(Unit)
+            try {
+                owner?.let { job -> DatabaseResetter.runResetBlocking { job.cancel(); job.join() } }
+            } finally {
+                tdsSnapshot.restore()
+            }
+        }
+    }
+
+    @Test
+    fun cleanupPumpFailureRestoresReadingGlobalsWithoutReset() {
+        val activity = composedHost().get()
+        val owner = activity.hostWindowRepository.scope
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val tail = owner.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            try { kotlinx.coroutines.awaitCancellation() }
+            finally { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() } }
+        }
+        val database = net.bible.service.db.DatabaseContainer.instance
+        val token = Any()
+        val failure = IllegalArgumentException("cleanup Main callback failed")
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeHostsAndReset(afterClose = {
+                    ReadingHostPresence.setForeground(token)
+                    ReadingViewVisibility.setVisible(true)
+                    android.os.Handler(Looper.getMainLooper()).post { throw failure }
+                })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse(ReadingHostPresence.isForeground(token), "failure must retract global foreground")
+            assertFalse(ReadingViewVisibility.isVisible, "failure must retract global visibility")
+            org.junit.Assert.assertSame("failed join must not reset the database", database, net.bible.service.db.DatabaseContainer.instance)
+        } finally {
+            release.complete(Unit)
+            DatabaseResetter.runResetBlocking { tail.join(); owner.coroutineContext[kotlinx.coroutines.Job]?.join() }
+            ReadingHostPresence.setForeground(null)
+            ReadingViewVisibility.setVisible(false)
+        }
+    }
+
+    @Test fun failedPauseRetainsControllerDestructionBeforeResetAndRestart() {
+        val controller = composedHost()
+        val activity = controller.get()
+        val bootstrap = activity.readingAppBootstrap
+        val repositoryField = bootstrap.javaClass.getDeclaredField("windowRepository").apply { isAccessible = true }
+        val repository = repositoryField.get(bootstrap)
+        val networkField = bootstrap.javaClass.getDeclaredField("networkCallbackRegistered").apply { isAccessible = true }
+        val lifecycle = activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job]!!
+        var restored = false
+        var reset = false
+        var primary: Throwable? = null
+        val afterCloseFailure = IllegalArgumentException("secondary close cleanup failure")
+        try {
+            assertTrue(networkField.getBoolean(bootstrap), "real host registered its callback")
+            // Actual onPause saves via the bootstrap repository before onDestroy can unregister.
+            repositoryField.set(bootstrap, null)
+            val failure = runCatching {
+                net.bible.test.closeReadingHostsBeforeReset(controllers,
+                    afterClose = { throw afterCloseFailure },
+                    restoreBeforeReset = { restored = true }, reset = { reset = true })
+            }.exceptionOrNull()
+            assertTrue(failure is UninitializedPropertyAccessException)
+            assertTrue(failure!!.stackTrace.any { it.methodName == "onPause" })
+            assertTrue(failure.suppressed.any { it === afterCloseFailure }, "primary close error retains secondary cleanup failure")
+            assertTrue(networkField.getBoolean(bootstrap), "failed pause did not reach callback disposal")
+            assertTrue(lifecycle.isCompleted, "completed Jobs cannot substitute for destruction")
+            assertFalse(restored, "pending controller must block graph restoration")
+            assertFalse(reset)
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+            val app = net.bible.android.BibleApplication.application as TestBibleApplication
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { app.onCreate() }
+            var nativeResetReached = false
+            org.junit.Assert.assertThrows(UninitializedPropertyAccessException::class.java) {
+                DatabaseResetter.runResetBlocking {
+                    net.bible.test.ReadingFixtureOwners.drain()
+                    commitReset { nativeResetReached = true }
+                }
+            }
+            assertFalse(nativeResetReached, "safe oracle: no close admission before controller retry")
+            assertFalse(restored)
+            repositoryField.set(bootstrap, repository)
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertFalse(networkField.getBoolean(bootstrap), "retry reaches real callback disposal")
+            assertTrue(activity.isDestroyed)
+            assertTrue(controllers.isEmpty(), "central retry retires the exact caller registration")
+            assertTrue(restored)
+            net.bible.test.ReadingFixtureOwners.requireEmpty()
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            repositoryField.set(bootstrap, repository)
+            try { closeHostsAndReset(reset = {}) }
+            catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
+    }
+
+    @Test fun successfulDrainRetainsFailedImmediateRestorationUntilRetry() {
+        val activity = composedHost().get()
+        val lifecycle = activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job]!!
+        // Anonymous sentinel cannot be copied by coroutine stack-trace recovery.
+        val failure = object : IllegalArgumentException("immediate restoration failed") {}
+        var fail = true
+        var attempts = 0
+        var restored = false
+        var reset = false
+        var primary: Throwable? = null
+        try {
+            val thrown = runCatching {
+                net.bible.test.closeReadingHostsBeforeReset(controllers,
+                    restoreBeforeReset = { attempts++; if (fail) throw failure; restored = true },
+                    reset = { reset = true })
+            }.exceptionOrNull()
+            org.junit.Assert.assertSame(failure, thrown)
+            assertTrue(lifecycle.isCompleted)
+            assertTrue(activity.isDestroyed)
+            assertFalse(reset)
+            assertFalse(restored)
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+            val app = net.bible.android.BibleApplication.application as TestBibleApplication
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { app.onCreate() }
+            var nativeResetReached = false
+            org.junit.Assert.assertSame(failure, runCatching {
+                DatabaseResetter.runResetBlocking {
+                    net.bible.test.ReadingFixtureOwners.drain()
+                    commitReset { nativeResetReached = true }
+                }
+            }.exceptionOrNull())
+            assertFalse(nativeResetReached)
+            fail = false
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertTrue(restored)
+            assertTrue(attempts >= 3, "initial attempt, rejected retry and successful retry")
+            net.bible.test.ReadingFixtureOwners.requireEmpty()
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            fail = false
+            try { DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() } }
+            catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
     }
 
     /** `Window.loadText()` assigns this synchronously; see the class kdoc. */
@@ -185,6 +374,7 @@ class ReadingDocumentRefreshOnReturnTest {
 
         // Away from reading -- the same singleTop self-launch onNewIntent path production uses.
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.download()) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         clearDisplayedKey(window)
@@ -196,6 +386,7 @@ class ReadingDocumentRefreshOnReturnTest {
 
         // Back to reading -- through the REAL listener, with no onResume anywhere in this path.
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         assertNotNull(
@@ -210,8 +401,10 @@ class ReadingDocumentRefreshOnReturnTest {
         // reload nothing.
         clearDisplayedKey(window)
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.download()) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         assertNull(

@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -52,15 +53,14 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AwaitIntentOffMainThreadTest {
+    @get:org.junit.Rule
+    val compose = createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     /** `firstTime` pinned false: see DailyReadingPassageStaysInHostTest.host. */
@@ -78,6 +78,7 @@ class AwaitIntentOffMainThreadTest {
     fun anAwaitIntentFromAnIoCoroutineNavigatesOnTheMainThreadInsteadOfCrashing() {
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         idleMain()
         val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.ASSIGN).toJSON()
         val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data))

@@ -59,7 +59,7 @@ import org.robolectric.annotation.Config
  *
  * **Why this counts construction SITES rather than asserting that a repository exists.** §2.3's
  * failure mode is silent. `WindowControl.kt`'s `windowRepository` getter falls back to
- * `WindowRepository(CoroutineScope(Dispatchers.Main))` — an *uninitialised* repository on a scope
+ * `net.bible.test.testWindowRepository()` — an *uninitialised* repository on a scope
  * nobody owns — instead of throwing, so "a repository exists" is true even when the bootstrap never
  * ran, and equally true when TWO of them ran and the second quietly replaced the first. The visible
  * symptom is not a crash: it is an empty workspace on a screen that looks fully loaded.
@@ -111,7 +111,7 @@ class ReadingAppBootstrapTest {
     @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     /**
-     * Every non-test Kotlin source directory of `:app`. `src/main/java` alone would miss
+     * Every non-test Kotlin source directory of `:app`, plus the `:sharedLogic` commonMain root. `src/main/java` alone would miss
      * `src/debug/java` (`DebugApp.kt`) and any future flavour source set — a construction there is
      * production code on at least one variant.
      */
@@ -120,16 +120,19 @@ class ReadingAppBootstrapTest {
             .filter { it.isDirectory && it.name != "test" && it.name != "androidTest" }
             .map { File(it, "java") }
             .filter { it.isDirectory }
-            .sortedBy { it.path }
+            .sortedBy { it.path } +
+            // Domain code that moved to :sharedLogic commonMain (same FQNs) is production code too.
+            net.bible.test.ProductionSources.roots.drop(1).filter { it.isDirectory }
 
     /** The only two places production code may construct a [net.bible.android.control.page.window.WindowRepository]. */
     private val allowedConstructionSites = setOf(
         "net/bible/android/control/page/window/WindowControl.kt",
-        "net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
+        // ReadingAppBootstrap.createWindowRepository delegates to the shared ReadingAppInit (the one construction).
+        "net/bible/service/startup/ReadingAppInit.kt",
     )
 
     private val navHostActivity =
-        File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
 
     /** Source lines with comment-only lines dropped, so a mention in a KDoc is not a call site. */
     private fun codeLinesOf(file: File): List<String> =
@@ -286,15 +289,31 @@ class ReadingAppBootstrapTest {
      * ordering argument applies verbatim to `ReadingHostPresence.setForeground(this)`: a
      * registration by a host that is not in front is not visible, so a presence declared after the
      * deep link is the same wrong `IntentHistoryItem`.
+     *
+     * Task 15 routes the producer through the synchronous `applyBootstrapUiIfForeground` helper.
+     * Pin the setters before that call AND the actual guarded, one-shot producer inside the helper;
+     * comparing whole-file positions would mistake declaration order for execution order. Paused
+     * dispatch waits for resume; the real old-verse `KeyHistoryItem` tests in
+     * `MyDocumentBookManagerTest` and `ReadingHostBridgeRearmTest` cover that lifecycle path.
      */
     @Test
     fun theReadingBootstrapSetsTheVisibilityFlagBeforeDispatchingADeepLink() {
-        val body = codeLinesOf(navHostActivity)
+        val lines = codeLinesOf(navHostActivity)
+        val end = lines.indexOfFirst { it.trim().startsWith("override val hostContext:") }
+        assertTrue("the bootstrap body boundary must survive the comment filter", end >= 0)
+        val body = lines.take(end)
             .dropWhile { !it.contains("private fun bootstrapIfNeeded()") }
-            .takeWhile { !it.trim().startsWith("/** [ReadingHostActivity.hostContext]") }
         val visible = body.indexOfFirst { it.contains("ReadingViewVisibility.setActivityVisible(this, true)") }
         val presence = body.indexOfFirst { it.contains("ReadingHostPresence.setForeground(this)") }
-        val deepLink = body.indexOfFirst { it.contains("readingAppBootstrap.openDeepLink(") }
+        val dispatch = body.indexOfFirst { it.trim() == "applyBootstrapUiIfForeground()" }
+        val helper = codeLinesOf(navHostActivity)
+            .dropWhile { !it.contains("private fun applyBootstrapUiIfForeground()") }
+            .takeWhile { !it.contains("private fun bootstrapIfNeeded()") }
+        val deepLink = helper.indexOfFirst { it.contains("readingAppBootstrap.openDeepLink(") }
+        val guard = helper.indexOfFirst {
+            it.trim() == "if (!bootstrapUiOwed || paused || !ReadingHostPresence.isForeground(this)) return"
+        }
+        val consume = helper.indexOfFirst { it.trim() == "bootstrapUiOwed = false" }
         assertTrue(
             "bootstrapIfNeeded() must call ReadingViewVisibility.setActivityVisible(this, true) — " +
                 "without it the deep link below records a wrong IntentHistoryItem, silently",
@@ -305,13 +324,18 @@ class ReadingAppBootstrapTest {
                 "visible at all (R7b)",
             presence >= 0,
         )
-        assertTrue("bootstrapIfNeeded() must dispatch the openLink deep link", deepLink >= 0)
+        assertTrue("bootstrapIfNeeded() must call the guarded synchronous UI dispatch", dispatch >= 0)
         assertTrue(
-            "the visibility flag must be set BEFORE the deep-link dispatch, not after: the " +
+            "the visibility flag must be set BEFORE the guarded deep-link dispatch, not after: the " +
                 "history item the dispatch records is handled synchronously",
-            visible < deepLink,
+            visible < dispatch,
         )
-        assertTrue("…and so must the host's presence, for the same reason", presence < deepLink)
+        assertTrue("…and so must the host's presence, for the same reason", presence < dispatch)
+        assertTrue("the guarded helper must contain the actual deep-link producer", deepLink >= 0)
+        val openLink = helper.indexOfFirst { it.trim() == "if (intent.hasExtra(\"openLink\")) {" }
+        assertTrue("the actual deep link must be dispatched from the openLink branch", openLink >= 0 && openLink < deepLink)
+        assertTrue("the helper must reject paused, nonforeground or unowed UI before dispatch", guard >= 0 && guard < deepLink)
+        assertTrue("the helper must consume its one-shot debt after the guard and before dispatch", consume > guard && consume < deepLink)
     }
 
     /**

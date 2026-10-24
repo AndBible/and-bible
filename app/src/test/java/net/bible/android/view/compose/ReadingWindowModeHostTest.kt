@@ -54,6 +54,7 @@ class ReadingWindowModeHostTest {
     @Config(sdk = [30])
     @Test fun readingIsEdgeToEdgeAndARoundTripRestoresIt() {
         val a = host(NavRoutes.READING)
+        net.bible.test.awaitReadingGraph(a)
         assertEquals("reading start", edgeToEdgeReading, a.lastAppliedWindowMode)
 
         a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()
@@ -75,6 +76,7 @@ class ReadingWindowModeHostTest {
     @Config(sdk = [28])
     @Test fun belowApi30NothingIsApplied() {
         val a = host(NavRoutes.READING)
+        net.bible.test.awaitReadingGraph(a)
         assertEquals(null, a.lastAppliedWindowMode)
     }
 }

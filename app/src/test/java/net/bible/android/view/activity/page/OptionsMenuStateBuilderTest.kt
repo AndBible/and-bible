@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.page
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -34,6 +37,7 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -45,6 +49,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.java.KoinJavaComponent
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -83,9 +88,9 @@ class OptionsMenuStateBuilderTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -197,8 +202,16 @@ class OptionsMenuStateBuilderTest {
     fun staticOverflowRowsCarryClassicsIcons() {
         // llmActionsSubMenu is hidden unless an LlmProviderConfig exists (see
         // llmActionsSubMenuIsAbsentWhenLlmIsNotConfigured) -- seed one so the row is present.
-        DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-            .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+        runBlocking {
+            val service = KoinJavaComponent.get<PromptService>(PromptService::class.java)
+            withTimeout(10_000) { service.ready.first { it } }
+            assertFalse(CommonUtils.settings.llmConfigured, "sanity: initial provider snapshot is unconfigured")
+            DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+                .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+            // Direct DAO writes bypass configChanged; publish the snapshot before building the menu.
+            withTimeout(10_000) { service.refresh() }
+            assertTrue(CommonUtils.settings.llmConfigured, "seeded provider is visible in the snapshot")
+        }
 
         assertEquals("ic_full_screen_24", itemById("fullscreen").iconKey)
         assertEquals("ic_night_mode_24", itemById("nightMode").iconKey)
@@ -293,7 +306,7 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun aSheetEditableTextOptionGoesToTheHost() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         val pref = FontSizePreference(workspaceSettingsBundle())
 
@@ -368,7 +381,7 @@ class OptionsMenuStateBuilderTest {
      */
     @Test
     fun hideLabelsStillLaunchesManageLabelsEvenWithAHostInstalled() {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
 
         val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
@@ -391,7 +404,7 @@ class OptionsMenuStateBuilderTest {
      */
     @Test
     fun windowPaneSheetEditableTextOptionGoesToTheHost() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
@@ -445,7 +458,7 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun strongsLongPressOpensTheTextSettingsSheetNotAPlatformDialog() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeStrongsLong()

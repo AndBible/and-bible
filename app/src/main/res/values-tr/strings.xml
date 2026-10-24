@@ -751,7 +751,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi</string>
   <string name="help_fts5">FTS5 Tam Metin Sorgu Sözdizimi</string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_workspaces_text">

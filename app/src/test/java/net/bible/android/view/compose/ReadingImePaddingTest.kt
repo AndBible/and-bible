@@ -323,6 +323,7 @@ class ReadingImePaddingTest {
     fun theModeFollowsTheCurrentDestinationNotJustTheStartRoute() {
         val controller = hostController()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         fun mode() = activity.window.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
 
         assertEquals(
@@ -332,6 +333,7 @@ class ReadingImePaddingTest {
         )
 
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.download())
         shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(
@@ -343,6 +345,7 @@ class ReadingImePaddingTest {
         )
 
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(

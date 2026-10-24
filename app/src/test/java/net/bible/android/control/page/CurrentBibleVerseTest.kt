@@ -29,8 +29,8 @@ import java.lang.Exception
 
 class CurrentBibleVerseTest {
     private var currentBibleVerse: CurrentBibleVerse? = null
-    private val synodalV11n = Versifications.instance().getVersification("Synodal")
-    private val kjvV11n = Versifications.instance().getVersification("KJV")
+    private val synodalV11n = Versifications.instance().getVersification("Synodal")!!
+    private val kjvV11n = Versifications.instance().getVersification("KJV")!!
     private val synodalPs9v22 = Verse(synodalV11n, BibleBook.PS, 9, 22)
     private val kjvPs10v1 = Verse(kjvV11n, BibleBook.PS, 10, 1)
     @Before

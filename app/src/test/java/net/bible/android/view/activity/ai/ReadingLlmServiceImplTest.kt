@@ -21,7 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentPage
-import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
@@ -52,10 +52,10 @@ class ReadingLlmServiceImplTest {
 
     @Before
     fun setUp() {
-        service = ReadingLlmServiceImpl()
+        service = ReadingLlmServiceImpl(net.bible.android.platform.AndroidLlmStrings(net.bible.android.BibleApplication.application))
         // Hide every built-in prompt so promptGroupsFor tests only see the prompts each test sets
         // up itself (built-ins would otherwise pollute VERSE_SELECTION/etc. groups).
-        AiSettings.hiddenBuiltInPrompts = BuiltInPrompts.allBuiltInPrompts().map { it.id }.toSet()
+        CommonUtils.aiSettings.hiddenBuiltInPrompts = BuiltInPrompts.allBuiltInPrompts().map { it.id }.toSet()
     }
 
     @After
@@ -92,9 +92,9 @@ class ReadingLlmServiceImplTest {
 
     @Test
     fun askModelBeforeRun_reflectsAiSettings() {
-        AiSettings.askModelBeforeRun = false
+        CommonUtils.aiSettings.askModelBeforeRun = false
         assertFalse(service.askModelBeforeRun())
-        AiSettings.askModelBeforeRun = true
+        CommonUtils.aiSettings.askModelBeforeRun = true
         assertTrue(service.askModelBeforeRun())
     }
 
@@ -223,7 +223,7 @@ class ReadingLlmServiceImplTest {
         val supportedModel = LlmConfiguredModel(providerConfigId = provider.id, modelId = "gemini-2.5-flash")
         modelDao.insert(unsupportedModel)
         modelDao.insert(supportedModel)
-        AiSettings.defaultModelId = supportedModel.id
+        CommonUtils.aiSettings.defaultModelId = supportedModel.id
 
         val result = service.configuredModels()
 
@@ -290,10 +290,10 @@ class ReadingLlmServiceImplTest {
         val prompt = AgentPrompt(name = "P", promptTemplate = "x")
         PromptRepository.insertPrompt(prompt)
 
-        AiSettings.askModelBeforeRun = false
+        CommonUtils.aiSettings.askModelBeforeRun = false
         assertFalse(service.promptRequiresModelChoice(prompt.id.toString()))
 
-        AiSettings.askModelBeforeRun = true
+        CommonUtils.aiSettings.askModelBeforeRun = true
         assertTrue(service.promptRequiresModelChoice(prompt.id.toString()))
 
         service.setPromptModelDefault(prompt.id.toString(), model.id.toString())
@@ -325,13 +325,13 @@ class ReadingLlmServiceImplTest {
         )
         myDocumentDao.insertPageWithContent(page, "content")
 
-        AiSettings.askModelBeforeRun = true
+        CommonUtils.aiSettings.askModelBeforeRun = true
         assertTrue(service.regenerateRequiresModelChoice(page.id.toString()))
 
         service.setPromptModelDefault(sourcePrompt.id.toString(), model.id.toString())
         assertFalse(service.regenerateRequiresModelChoice(page.id.toString()))
 
-        AiSettings.askModelBeforeRun = false
+        CommonUtils.aiSettings.askModelBeforeRun = false
         assertFalse(service.regenerateRequiresModelChoice(page.id.toString()))
     }
 
@@ -339,13 +339,13 @@ class ReadingLlmServiceImplTest {
     fun regenerateRequiresModelChoice_unknownPage_stillTrueWhenAskEnabled() = runBlocking {
         // Classic `startRegenerateWithModelCheck`: an unresolvable page/prompt has no override
         // either, so `prompt?.configuredModelId != null` is false -> the model picker is shown.
-        AiSettings.askModelBeforeRun = true
+        CommonUtils.aiSettings.askModelBeforeRun = true
         assertTrue(service.regenerateRequiresModelChoice(IdType().toString()))
     }
 
     @Test
     fun regenerateRequiresModelChoice_unknownPage_falseWhenAskDisabled() = runBlocking {
-        AiSettings.askModelBeforeRun = false
+        CommonUtils.aiSettings.askModelBeforeRun = false
         assertFalse(service.regenerateRequiresModelChoice(IdType().toString()))
     }
 }

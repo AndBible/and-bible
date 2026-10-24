@@ -28,6 +28,8 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun setDocumentSyncToggle(key: String, value: Boolean) { calls += "docToggle:$key=$value" }
     override fun setText(key: String, value: String): Boolean { calls += "text:$key=$value"; return textResult }
     var textResult = true
+    var refusedPlainHttp = false
+    override fun plainHttpRefused(url: String): Boolean = refusedPlainHttp
     override fun forgetCertificate() { calls += "forgetCert" }
     override fun setAdapter(value: String) { calls += "adapter=$value" }
     override suspend fun resetSync() { calls += "reset" }
@@ -73,6 +75,14 @@ fun syncSnap(
 class SyncSettingsControllerTest {
     private fun controller(svc: SyncSettingsService, onOpen: () -> Unit = {}) =
         SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), onOpen)
+
+    @Test fun retainedResetDialogRelocalizesWithoutClosing() {
+        val c = controller(FakeSyncSettingsService(syncSnap()))
+        c.onNavigate("cloud_sync_reset")
+        c.updateLabels(SyncSettingsLabels.forTest().copy(screenTitle = "Synkronointi", resetConfirmMessage = "Palautetaanko?"))
+        assertEquals("Synkronointi", c.state.value.screen.title)
+        assertEquals(SyncDialog.ResetConfirm("Palautetaanko?"), c.state.value.dialog)
+    }
 
     @Test fun buildsGeneralRowsInOrder_credsVisible() {
         val keys = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.visibleItems.map { it.key }
@@ -124,6 +134,26 @@ class SyncSettingsControllerTest {
         val c = controller(svc)
         c.onTextInput("cloud_sync_server_url", "nope")
         assertEquals(SyncSettingsLabels.forTest().invalidUrlMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+    }
+
+    @Test fun refusedPlainHttpShowsHttpsRequiredMessage() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { textResult = false; refusedPlainHttp = true }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_server_url", "  HTTP://example.org/nc  ")
+        assertEquals(SyncSettingsLabels.forTest().httpsRequiredMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+        val translated = SyncSettingsLabels.forTest().copy(httpsRequiredMessage = "Translated HTTPS requirement")
+        c.updateLabels(translated)
+        assertEquals(translated.httpsRequiredMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+    }
+
+    @Test fun malformedHttpWithoutPlatformRefusalKeepsInvalidUrlMessage() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { textResult = false }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_server_url", "http://bad host")
+        assertEquals(SyncSettingsLabels.forTest().invalidUrlMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+        val translated = SyncSettingsLabels.forTest().copy(invalidUrlMessage = "Translated invalid URL")
+        c.updateLabels(translated)
+        assertEquals(translated.invalidUrlMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
     }
 
     @Test fun serverUrlHint_shownOnlyWhenUrlBlank() {

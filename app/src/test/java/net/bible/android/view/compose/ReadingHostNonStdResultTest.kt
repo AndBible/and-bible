@@ -16,6 +16,12 @@
  */
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
@@ -78,6 +84,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostNonStdResultTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var resyncBaseline = 0
@@ -101,6 +109,7 @@ class ReadingHostNonStdResultTest {
      */
     @Before
     fun theLauncherAliasAlreadyMatchesTheDiscreteModeSetting() {
+        net.bible.android.view.activity.base.firstTime = false
         val pm = ApplicationProvider.getApplicationContext<android.content.Context>().packageManager
         pm.setComponentEnabledSetting(
             ComponentName(BuildConfig.APPLICATION_ID, "net.bible.android.activity.StartupActivity"),
@@ -114,19 +123,73 @@ class ReadingHostNonStdResultTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
+    }
+
+    @Test
+    fun backgroundSettingsCompletionKeepsGraphCompositionOnMain() {
+        // The fake below gates composition, not the startup job joined synchronously by host creation.
+        CommonUtils.awaitSnapshotLoadsAtEdge()
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.service.llm.AiSettings>()
+        val saved = net.bible.test.KoinFactorySnapshot.of<net.bible.service.llm.AiSettings>(koin)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        // Cancel rather than complete on timeout: a misplaced bootstrap wait must fail, never pass by release.
+        val guard = CoroutineScope(Dispatchers.Default).launch {
+            delay(15_000)
+            ready.cancel(kotlinx.coroutines.CancellationException("Settings composition gate was not released"))
+        }
+        koin.loadModules(listOf(org.koin.dsl.module {
+            single<net.bible.service.llm.AiSettings> {
+                object : net.bible.service.llm.AiSettings by original {
+                    override suspend fun ensureLoaded() {
+                        entered.countDown()
+                        ready.await()
+                    }
+                }
+            }
+        }))
+        try {
+            val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java,
+                NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING))
+                .also { controllers += it }
+            controller.create().start().resume().visible()
+            compose.waitForIdle()
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "The composition must be suspended at settings")
+            assertFalse(ready.isCompleted, "Host creation must return without waiting for the composition gate")
+            assertTrue(controller.get().readingCommands.composeReadingViewHost == null,
+                "The reading graph must not compose while settings are suspended")
+            val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+            val worker = Thread {
+                try {
+                    ready.complete(Unit)
+                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+                } catch (error: Throwable) { failure.set(error) }
+            }.apply { start() }
+            worker.join(5_000)
+            assertFalse(worker.isAlive)
+            failure.get()?.let { throw AssertionError("Background completion failed", it) }
+            net.bible.test.awaitReadingGraph(controller.get()) { compose.waitForIdle() }
+            assertFalse(ready.isCancelled, "The composition gate must be released by the background worker, not the timeout")
+            assertTrue(controller.get().readingCommands.composeReadingViewHost != null)
+        } finally {
+            ready.complete(Unit)
+            runBlocking { guard.cancelAndJoin() }
+            saved.restore()
+        }
     }
 
     /** A host on the reading route, composed: `.visible()` is what composes the destination. */
-    private fun composedHost(state: Bundle? = null): ActivityController<NavHostComposeActivity> =
+    private fun composedHost(state: Bundle? = null, expectedRoute: String = NavRoutes.READING): ActivityController<NavHostComposeActivity> =
         Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create(state).start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create(state).start().resume().visible()
+            if (expectedRoute == NavRoutes.READING) net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+            else net.bible.test.awaitHostRoute(get(), expectedRoute) { compose.waitForIdle() }
+        }
 
     private fun countSynchronizeWindows() {
         resyncBaseline = CommonUtils.windowControl.forceResyncCountForTest
@@ -134,7 +197,7 @@ class ReadingHostNonStdResultTest {
 
     private fun aSecondWorkspace(): WorkspaceEntities.Workspace =
         WorkspaceEntities.Workspace(name = "T8d target workspace").also {
-            DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it)
+            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it) }
         }
 
     private fun workspaceResult(workspaceId: String?, changed: Boolean) = Intent().apply {
@@ -171,6 +234,8 @@ class ReadingHostNonStdResultTest {
         )
 
         controller.resume()
+
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(
             target.id, activity.hostWindowRepository.id,
             "…and applied once this host has resumed. Before T8d the result hit the " +
@@ -194,7 +259,7 @@ class ReadingHostNonStdResultTest {
             workspaceResult(target.id.toString(), changed = true),
         )
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(before, activity.hostWindowRepository.id)
     }
 
@@ -285,7 +350,7 @@ class ReadingHostNonStdResultTest {
 
     /**
      * **The privacy feature, and the reason the debt has to survive a `recreate()`.** Writing
-     * `discrete_mode` in Settings is one of `RECREATE_ON_CHANGE_KEYS`, so the host is recreated —
+     * `discrete_mode` in Settings is one of `SettingsHost`'s `RECREATE_ON_CHANGE_KEYS`, so the host is recreated —
      * and `recreate()` does not swap the launcher alias. `CommonUtils.changeAppIconAndName()`, whose
      * only production caller is this body, is what does; a debt lost across the recreate is the app
      * icon and name staying visible after the user asked for them to be hidden.
@@ -305,7 +370,7 @@ class ReadingHostNonStdResultTest {
         )
 
         countSynchronizeWindows()
-        val recreated = composedHost(state).get()
+        val recreated = composedHost(state, expectedRoute = NavRoutes.SETTINGS).get()
         recreated.applyReadingReturnDebts(NavRoutes.READING)
 
         assertEquals(
@@ -351,6 +416,8 @@ class ReadingHostNonStdResultTest {
         assertEquals(0, synchronizeWindows, "held until onResume, like every other Activity result")
 
         controller.resume()
+
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(1, synchronizeWindows)
     }
 

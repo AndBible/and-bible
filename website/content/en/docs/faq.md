@@ -158,6 +158,10 @@ for distribution. They come from these sources:
 5. Go to `Choose Document` in the main menu. You will see the module with
     a red lock icon. Tap on it and enter the unlock code from your email.
 
+After a successful unlock, AndBible saves the code on your device so it can
+unlock the installed module again after you restart the app. Keep the email
+with your code in case you need it when setting up another device.
+
 ## Is there a way I can support the project?
 
 Yes! You can contribute with your skills (code, translations, documentation)

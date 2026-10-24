@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.UncappedFontScale
 
 /**
  * The reading-view toolbar's overflow ("3-dot") options menu: a Material3 [DropdownMenu] listing
@@ -57,14 +58,16 @@ fun ReadingOverflowMenu(
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     val mono = isPureMonochrome()
-    DropdownMenu(
-        expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
-        containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
-        tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-        shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-        border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-    ) {
-        ReadingOverflowMenuRows(items, onItemClick, icon)
+    UncappedFontScale {
+        DropdownMenu(
+            expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
+            containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+        ) {
+            ReadingOverflowMenuRows(items, onItemClick, icon)
+        }
     }
 }
 

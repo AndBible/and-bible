@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,14 +78,20 @@ class AiModelsController(
     private var modelsJob: Job? = null
 
     init {
-        scope.launch { service.models.collect { _models.value = sortDefaultFirst(it) } }
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.models.collect { _models.value = sortDefaultFirst(it) } }
     }
 
+    private var editGeneration = 0L
+
     fun startAdd() {
+        val generation = ++editGeneration
+        scope.launch {
+        val choices = service.providersForPicker()
+        if (generation != editGeneration) return@launch
         _dialog.value = ModelEditState(
             id = null,
             step = ModelEditState.Step.PICK_PROVIDER,
-            providerChoices = service.providersForPicker(),
+            providerChoices = choices,
             providerId = "",
             availableModels = emptyList(),
             loadingModels = false,
@@ -98,7 +105,7 @@ class AiModelsController(
             showPriceFields = false,
             canSave = false,
         )
-    }
+    } }
 
     /**
      * Opens the edit dialog scoped to an existing model, prefilled from its [ModelVd] — provider
@@ -109,6 +116,7 @@ class AiModelsController(
      * see [ModelEditState] doc.
      */
     fun startEdit(id: String) {
+        editGeneration++
         val m = models.value.firstOrNull { it.id == id } ?: return
         publish(
             ModelEditState(
@@ -143,10 +151,13 @@ class AiModelsController(
             )
         )
         // CR-8: a fetch for an earlier pick must never publish into a later one. Cancel it, and
-        // check the provider on resume as well, because a non-cancellable fetch can still return.
+        // check the generation and provider on resume as well, because a non-cancellable fetch
+        // can still return.
+        val generation = ++editGeneration
         modelsJob?.cancel()
         modelsJob = scope.launch {
             val available = service.availableModelsFor(providerId)
+            if (generation != editGeneration) return@launch
             val cur = _dialog.value?.takeIf { it.providerId == providerId } ?: return@launch
             publish(cur.copy(availableModels = available, loadingModels = false))
         }
@@ -196,11 +207,12 @@ class AiModelsController(
         }
     }
 
-    fun delete(id: String) = service.deleteModel(id)
+    fun delete(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteModel(id) } }
 
-    fun setDefault(id: String) = service.setDefault(id)
+    fun setDefault(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setDefault(id) } }
 
     fun dismissDialog() {
+        editGeneration++
         modelsJob?.cancel()
         modelsJob = null
         _dialog.value = null

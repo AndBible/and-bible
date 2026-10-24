@@ -1,10 +1,11 @@
 package net.bible.service.cloudsync.webdav
 
+import okio.Path.Companion.toOkioPath
+import okio.sink
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.cloudsync.CloudFile
+import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import org.junit.After
 import org.junit.Assert.*
@@ -34,7 +35,6 @@ class WebDavIntegrationTest {
 
     private val state = memoryState()
     private val ui = CountingUi()
-    private val activity = lazy { mock<ActivityBase>() }
     private var main: WebDavCloudAdapter? = null
     private val tmpFiles = mutableListOf<File>()
 
@@ -59,27 +59,27 @@ class WebDavIntegrationTest {
     }
 
     private fun newAdapter(s: WebDavStateStore = state, u: WebDavSignInUi = ui) =
-        WebDavCloudAdapter(WebDavConfig(url!!, user, password, base), s, u)
+        WebDavCloudAdapter(WebDavConfig(url!!, user, password, base), s, u, "integration-device", ::createWebDavClient)
 
     private suspend fun signedIn(): WebDavCloudAdapter {
         val a = newAdapter()
         main = a
-        assertTrue(a.signIn(activity.value))
+        assertTrue(a.signIn())
         return a
     }
 
-    private fun tmp(bytes: ByteArray): File = File.createTempFile("webdav-it", ".gz").also { it.writeBytes(bytes); tmpFiles += it }
+    private fun tmp(bytes: ByteArray): okio.Path = File.createTempFile("webdav-it", ".gz").also { it.writeBytes(bytes); tmpFiles += it }.toOkioPath()
 
-    private suspend fun WebDavCloudAdapter.bytesOf(f: CloudFile) = ByteArrayOutputStream().also { download(f.id, it) }.toByteArray()
+    private suspend fun WebDavCloudAdapter.bytesOf(f: CloudFile) = ByteArrayOutputStream().also { download(f.id, it.sink()) }.toByteArray()
 
     /** Requires a server with a self-signed certificate (rclone via the script, or Nextcloud behind tls-proxy.py). */
     @Test fun signIn_trustsSelfSignedOnce() = runBlocking {
         val a = newAdapter()
         main = a
-        assertTrue(a.signIn(activity.value))
+        assertTrue(a.signIn())
         assertEquals(1, ui.asked)
         val second = CountingUi()
-        assertTrue(newAdapter(state, second).signIn(activity.value))
+        assertTrue(newAdapter(state, second).signIn())
         assertEquals(0, second.asked)
     }
 

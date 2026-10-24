@@ -25,6 +25,7 @@ data class AiSettingsSnapshot(
 )
 
 interface AiSettingsService {
+    val ready: StateFlow<Boolean>
     val snapshot: StateFlow<AiSettingsSnapshot>
     fun setAgentPermissionMode(value: String)
     fun setAiLanguage(value: String)
@@ -44,5 +45,5 @@ interface AiSettingsService {
     // prompt, since the editor is prefilled with that same current value).
     fun builtInAgentSystemPromptText(): String
     fun builtInTextTransformationSystemPromptText(): String
-    fun refresh()                                           // re-read (host calls on resume)
+    suspend fun refresh()                                           // re-read (host calls on resume)
 }

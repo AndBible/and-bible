@@ -17,7 +17,7 @@
 package net.bible.android.view.activity.backup
 
 import kotlinx.coroutines.test.runTest
-import net.bible.android.control.backup.SaveOrShare
+import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.control.backup.resolveDestination
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

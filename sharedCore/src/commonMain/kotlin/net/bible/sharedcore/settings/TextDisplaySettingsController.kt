@@ -84,7 +84,7 @@ const val KEY_OPEN_GLOBAL_SETTINGS = "open_global_settings"
 class TextDisplaySettingsController(
     private val service: TextDisplaySettingsService,
     private val settingsScope: SettingsScope,
-    private val labels: TextDisplaySettingsLabels,
+    private var labels: TextDisplaySettingsLabels,
     private val onNavigateCallback: (String) -> Unit,
 ) {
     private val _state = MutableStateFlow(build(service.loadText(settingsScope)))
@@ -92,6 +92,12 @@ class TextDisplaySettingsController(
 
     /** Re-pull the snapshot from the service and rebuild the screen state. */
     fun refresh() { _state.value = build(service.loadText(settingsScope)) }
+
+    /** Relocalizes this retained controller without replacing its editing session. */
+    fun updateLabels(labels: TextDisplaySettingsLabels) {
+        this.labels = labels
+        _state.value = build(service.loadText(settingsScope))
+    }
 
     private fun build(snapshot: TextSettingsSnapshot): TextDisplaySettingsScreenState {
         fun rowsFor(types: List<TextSettingType>): List<SettingsItem> =

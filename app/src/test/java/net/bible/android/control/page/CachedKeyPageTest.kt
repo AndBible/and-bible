@@ -97,13 +97,60 @@ class CachedKeyPageTest {
         `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
-            `when`(globalKeyList).thenReturn(DefaultKeyList()) // non-null, empty
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList()) // non-null, empty
         }
         page.onlySetCurrentDocument(book)
 
         val currentKey = DefaultLeafKeyList("some entry", "some-entry")
         assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as Key))
     }
+    @Test
+    fun failedKeyRetrievalNotifiesWithOriginalCauseAndKeepsCurrentKey() = kotlinx.coroutines.test.runTest {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val originalNotifier = koin.get<net.bible.sharedcore.platform.UserNotifier>()
+        val originalStrings = koin.get<net.bible.sharedcore.platform.CoreStrings>()
+        val calls = mutableListOf<Pair<String, Throwable?>>()
+        val recording = object : net.bible.sharedcore.platform.UserNotifier {
+            override fun showError(message: String, cause: Throwable?) { calls.add(message to cause) }
+            override fun showInfo(message: String, long: Boolean) = Unit
+        }
+        val strings = object : net.bible.sharedcore.platform.CoreStrings by originalStrings {
+            override val errorOccurred = "portable key lookup error"
+        }
+        val manager = createPageManager()
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.UserNotifier> { recording }
+            single<net.bible.sharedcore.platform.CoreStrings> { strings }
+        })
+        try {
+            val cause = IllegalStateException("document deactivated")
+            val meta = mock(BookMetaData::class.java)
+            `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+            val book = mock(Book::class.java).apply {
+                `when`(bookMetaData).thenReturn(meta)
+                `when`(getGlobalKeyList()).thenThrow(cause)
+            }
+            val page = manager.currentGeneralBook
+            page.onlySetCurrentDocument(book)
+            val current = DefaultLeafKeyList("current entry")
+            org.junit.Assert.assertSame(current, page.getKeyPlus(current, 1))
+            org.junit.Assert.assertEquals(1, calls.size)
+            org.junit.Assert.assertEquals("portable key lookup error", calls.single().first)
+            org.junit.Assert.assertSame(cause, calls.single().second)
+            page.onlySetCurrentDocument(null)
+            org.junit.Assert.assertEquals(
+                "`portable key lookup error`",
+                (page.currentPageContent() as ErrorDocument).asHashMap["errorMessage"]
+            )
+        } finally {
+            manager.destroy()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.sharedcore.platform.UserNotifier> { originalNotifier }
+                single<net.bible.sharedcore.platform.CoreStrings> { originalStrings }
+            })
+        }
+    }
+
     private fun myDocumentBook(initials: String): Book {
         val meta = mock(BookMetaData::class.java)
         `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
@@ -111,7 +158,7 @@ class CachedKeyPageTest {
         return mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(this.initials).thenReturn(initials)
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }

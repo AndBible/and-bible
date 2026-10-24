@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
  * Do NOT replace this with `org.jetbrains.compose.ui:ui-backhandler`: it is on the classpath with
  * iOS variants and looks like a drop-in, but it does not resolve on the Android target at CMP
  * 1.11.1 (AndroidMidiRecorder hit exactly this and wrote the same seam).
+ * (The iOS actual does delegate to that common `BackHandler`; only the shared seam must stay.)
  */
 @Composable
 expect fun PlatformBackHandler(enabled: Boolean, onBack: () -> Unit)

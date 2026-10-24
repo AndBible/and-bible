@@ -43,10 +43,10 @@ class WindowCommandsImplTest {
 
     @Before
     fun setUp() {
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         windowControl = WindowControl()
         windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.workspaceSettings.autoPin = true
         commands = WindowCommandsImpl(windowControl)
     }

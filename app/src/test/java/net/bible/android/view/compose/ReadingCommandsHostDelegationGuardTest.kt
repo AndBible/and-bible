@@ -61,9 +61,9 @@ import org.junit.Test
  */
 class ReadingCommandsHostDelegationGuardTest {
     private val readingCommandsFile =
-        File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
     private val menuCommandHandlerFile =
-        File("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
 
     /** Non-prose lines only, same idiom as [SpeakEntryPointGuardTest.codeLinesOf]: this file's own
      *  kdoc quotes the very strings these scans look for (e.g. this test's production counterpart
@@ -174,9 +174,16 @@ class ReadingCommandsHostDelegationGuardTest {
             menuCommandHandlerSource.contains("BibleApplication.application.packageName"),
             "packageName must still come from the application Context (R6c1 fix round 1)",
         )
+        // The licence read moved from `MenuCommandHandler` to `CommonUtils.showLicence` (shared with the
+        // iOS help port); it must still read resources from the application Context (R6c1 fix round 1).
         assertTrue(
-            menuCommandHandlerSource.contains("BibleApplication.application.resources"),
+            codeLinesOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/service/common/CommonUtils.kt"))
+                .contains("application.resources.openRawResource(R.raw.license)"),
             "resources must still come from the application Context (R6c1 fix round 1)",
+        )
+        assertTrue(
+            menuCommandHandlerSource.contains("CommonUtils.showLicence(hostActivity)"),
+            "the licence row must still delegate to CommonUtils.showLicence",
         )
     }
 
@@ -227,27 +234,30 @@ class ReadingCommandsHostDelegationGuardTest {
             "the owning-host windowRepository supplier is gone or renamed",
         )
         assertTrue(
-            File("src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt")
+            net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt")
                 .readText().contains("val windowRepository: () -> WindowRepository,"),
             "the bundle must declare the owning host's repository as a SUPPLIER, not a value",
         )
         // Slice 8 F3: the binding half now reads the nav host, the one host left
         // (`MainBibleActivity.kt`, which bound `{ windowRepository }`, is deleted in F4).
         assertTrue(
-            File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+            net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
                 .readText().contains("windowRepository = { hostWindowRepository },"),
             "the nav host binds its OWN repository into the bundle -- not windowControl's, which is " +
                 "whichever host most recently resumed",
         )
         val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
         assertEquals(
-            27, supplierCallSites,
-            "expected every call site (R6c1's 15, the ten R6c2 added when it moved " +
-                "dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
-                "currentWorkspaceId here, T8c's `hostActiveWindowPageManager` -- the ONE page " +
-                "manager the three activity-result arms it brought over read -- and slice 8's " +
-                "restore/sync port's `applyWorkspacesUpdatedViaSync` window lookup) to route through the " +
-                "windowRepository() supplier",
+            24, supplierCallSites,
+            "expected 24 call sites of the windowRepository() supplier in ReadingCommands. History: R6c1's 15, plus " +
+                "the ten R6c2 added when it moved dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
+                "currentWorkspaceId here, plus T8c's `hostActiveWindowPageManager` (the ONE page manager the three " +
+                "activity-result arms it brought over read), plus slice 8's `applyWorkspacesUpdatedViaSync` window " +
+                "lookup = 27. Task 4b then moved the pane menu dispatch to the common WindowPaneMenuDispatcher: the uses in the old dispatch and " +
+                "text option bundle went away and it receives the supplier once, as `windowRepository = { windowRepository() }`, " +
+                "with one more in the Android all-text-options platform row; the net change is -3, so 27 - 3 = 24. "  +
+                "Every remaining site must still go through the " +
+                "supplier, never windowControl.windowRepository",
         )
     }
 
@@ -280,7 +290,7 @@ class ReadingCommandsHostDelegationGuardTest {
      * rebuilding the view or refreshing the restore rail would be a silent no-op arrived at from
      * the other direction.
      *
-     * Scanned inside the SETTER's own braces, not the whole file: `loadFromDb` and `buildView`
+     * Scanned inside `switchWorkspace`'s own braces, not the whole file: `loadFromDb` and `buildView`
      * appear nowhere else in it today, but a file-wide `contains` would start passing on an
      * unrelated future call and could never fail again.
      */
@@ -288,7 +298,7 @@ class ReadingCommandsHostDelegationGuardTest {
     fun theWorkspaceSwitchStillPerformsEveryStep() {
         val setter = currentWorkspaceIdSetterBody()
         listOf(
-            "windowRepository().loadFromDb(value)" to
+            "windowRepository().loadFromDb(id)" to
                 "without it the switch changes nothing at all",
             "hostCallbacks.documentViewManager().buildView(forceUpdate = true)" to
                 "without it the panes keep rendering the outgoing workspace's windows",
@@ -304,13 +314,12 @@ class ReadingCommandsHostDelegationGuardTest {
         }
     }
 
-    /** The body of `ReadingCommands.currentWorkspaceId`'s setter, by brace matching from `set(value) {`. */
+    /** The body of `ReadingCommands.switchWorkspace`, by brace matching from its opening `{`. */
     private fun currentWorkspaceIdSetterBody(): String {
         val src = readingCommandsFile.readText()
-        val declaration = src.indexOf("internal var currentWorkspaceId: IdType")
-        assertTrue(declaration >= 0, "currentWorkspaceId is gone or renamed — this scan would be vacuous")
-        val open = src.indexOf("set(value) {", declaration)
-        assertTrue(open >= 0, "currentWorkspaceId has no setter body — this scan would be vacuous")
+        val declaration = src.indexOf("internal suspend fun switchWorkspace(id: IdType)")
+        assertTrue(declaration >= 0, "switchWorkspace is gone or renamed — this scan would be vacuous")
+        val open = declaration
         var i = src.indexOf('{', open)
         var depth = 0
         val start = i
@@ -321,6 +330,6 @@ class ReadingCommandsHostDelegationGuardTest {
             }
             i++
         }
-        throw AssertionError("unbalanced braces in currentWorkspaceId's setter")
+        throw AssertionError("unbalanced braces in switchWorkspace")
     }
 }

@@ -84,6 +84,11 @@ class DailyReadingController(
     private val _startDatePick = MutableStateFlow<StartDatePick?>(null)
     val startDatePick: StateFlow<StartDatePick?> = _startDatePick.asStateFlow()
 
+    /** Only localized metadata changes; progress, playback and pending UI actions remain untouched. */
+    fun updateMetadata(planName: String, dayDesc: String, dateString: String) {
+        _ui.value = _ui.value.copy(planName = planName, dayDesc = dayDesc, dateString = dateString)
+    }
+
     fun setUi(ui: DailyReadingUi) { _ui.value = ui }
     fun pushSpeakState(state: SpeakState) { _speakState.value = state }
 

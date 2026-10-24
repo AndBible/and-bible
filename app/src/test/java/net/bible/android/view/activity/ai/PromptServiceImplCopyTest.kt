@@ -16,7 +16,10 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.runBlocking
+import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
+import net.bible.android.platform.AndroidLlmStrings
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.test.DatabaseResetter
@@ -38,7 +41,7 @@ class PromptServiceImplCopyTest {
     fun tearDown() = DatabaseResetter.resetDatabase()
 
     @Test
-    fun copyingAPromptThatDoesNotExistReturnsNull() {
-        assertNull(PromptServiceImpl().copyPrompt(IdType().toString()))
+    fun copyingAPromptThatDoesNotExistReturnsNull() = runBlocking {
+        assertNull(PromptServiceImpl(AndroidLlmStrings(BibleApplication.application)).copyPrompt(IdType().toString()))
     }
 }

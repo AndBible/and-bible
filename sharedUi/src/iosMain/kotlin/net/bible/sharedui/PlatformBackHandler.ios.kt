@@ -1,13 +1,16 @@
 package net.bible.sharedui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.backhandler.BackHandler
 
 /**
- * iOS has no system Back button, so interception is a no-op. A later phase can wire a swipe-back or
- * nav-bar gesture; inventing an iOS back semantic here would be guessing at a host that does not
- * exist yet.
+ * iOS back: delegates to Compose's common `BackHandler` (ui-backhandler), which is driven by the
+ * edge-swipe back gesture (built into `ComposeUIViewController` in CMP 1.11, no flag).
  */
+@Suppress("DEPRECATION") // the replacement (NavigationEventHandler) is not used by shared screens yet
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun PlatformBackHandler(enabled: Boolean, onBack: () -> Unit) {
-    // no-op on iOS
+    BackHandler(enabled = enabled, onBack = onBack)
 }

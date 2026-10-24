@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Teks carian boleh merangkumi aksara khas seperti *, AND, OR, NOT</string>
   <string name="help_search_details">Sila lihat %s untuk maklumat lanjut.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaks Parser Pertanyaan</string>
   <string name="help_fts5">Sintaks Pertanyaan Teks Penuh FTS5</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <string name="help_workspaces_text">Ruang kerja membolehkan mempunyai pelbagai persekitaran kerja bergantung konteks. Fungsi ruang kerja boleh diakses melalui item Ruang Kerja dalam menu opsyen (sudut kanan atas). Cara pantas untuk mengakses ruang kerja adalah dengan isyarat leret bawah dari bar alat. Anda juga boleh menggunakan isyarat leret-kiri dan leret-kanan di atas bar alat untuk beralih ke ruang kerja sebelumnya / berikutnya.</string>

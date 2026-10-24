@@ -117,6 +117,8 @@
     <string name="search_options">Search settings</string>
     <string name="search_submit">Search</string>
     <string name="search_clear">Clear search text</string>
+    <string name="search_engine_changed_reindex">The search engine has been updated. The search index needs to be created again; this may take a while.</string>
+    <string name="search_unsupported_syntax">This search uses syntax that is not supported: %s</string>
     <!-- F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place. -->
@@ -128,6 +130,7 @@
     <!-- Same message when the document has no name to show — reachable when the reading view has no
          current document at all (e.g. an error page), which is itself one of the unsearchable cases. -->
     <string name="search_not_available">This document cannot be searched</string>
+    <string name="search_indexing_notification_title">Creating search index</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>
@@ -840,6 +843,7 @@
     <string name="verse_not_found">Verse not found</string>
 
     <!-- Errors -->
+    <string name="crash_recovery_continue">Continue</string>
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
     <string name="error_occurred_crash_last_time">Last time when you used the application, it crashed. To help us with fixing the bug, we would appreciate if you send us a bug report. </string>
@@ -850,6 +854,8 @@
     <string name="error_key_not_in_document2">%1$s was not found in document %2$s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
+    <string name="debug_test_error">Test error (debug build)</string>
+    <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
 
@@ -942,7 +948,7 @@
     <string name="help_search_bible">Choose how the words are matched: All words finds verses containing every word, Any word finds verses containing at least one, and Phrase finds the words next to each other in that order.\n\nWithin a search you can also use * and ? as wildcards (for example bless* matches blessed and blessing), combine terms with AND, OR and NOT, and search Strong\'s numbers directly (for example strong:h0430).</string>
     <string name="help_search_epub">Choose how the words are matched: All words finds passages containing every word, Any word finds passages containing at least one, and Phrase finds the words next to each other in that order.\n\nRaw query syntax passes your text to the search engine unchanged, so you can write your own query: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" for an exact phrase, bless* to match any word starting with bless, and grace NEAR faith to find them close together.</string>
     <string name="help_search_details">Please see %s for more details.</string>
-    <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+    <string name="help_search_syntax">Search syntax</string>
     <string name="help_fts5">FTS5 Full-text Query Syntax</string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
@@ -1381,6 +1387,7 @@
     <string name="webdav_https_required">WebDAV sync requires a secure https:// address.</string>
     <string name="webdav_certificate_title">Server certificate</string>
     <string name="webdav_forget_certificate_message">Forget the trusted server certificate? You will be asked to confirm the certificate again on the next connection.</string>
+    <string name="adapters_icloud_drive">iCloud Drive</string>
     <string name="webdav_untrusted_certificate_title">Untrusted server certificate</string>
     <string name="webdav_untrusted_certificate_message">The certificate of %1$s is not trusted by Android. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
     <string name="webdav_trust_certificate">Trust this certificate</string>
@@ -2150,5 +2157,41 @@
     <string name="prompt_favorite_add">Add to favourites</string>
     <string name="prompt_favorite_remove">Remove from favourites</string>
     <string name="window_unmaximise">Restore all windows</string>
+    <string name="window_menu_button">Window menu</string>
     <string name="paste_from_clipboard">Paste</string>
+    <!-- R3 (accessibility audit) -->
+    <string name="sheet_drag_handle">Drag handle</string>
+
+    <!-- I3b legacy migration -->
+    <string name="legacy_migration_progress">Updating your data…</string>
+    <string name="legacy_migration_progress_neutral">Updating…</string>
+    <string name="legacy_migration_failed_title">Your data could not be updated</string>
+    <string name="legacy_migration_failed_message">Your data from the previous version of the app is safe and unchanged on this device. Choose what to do next.</string>
+    <string name="legacy_migration_failed_keychain">Saved passwords from the previous version could not be read. Unlock your device, then close and reopen the app.</string>
+    <string name="legacy_migration_rollback_pending">The update was interrupted and is not fully undone yet. Close and reopen the app to finish undoing it.</string>
+    <string name="legacy_migration_save_old_data">Save old data</string>
+    <string name="legacy_migration_send_report">Send error report</string>
+    <string name="legacy_migration_try_again">Try again</string>
+    <string name="legacy_migration_try_again_hint">Close the app and open it again to try again.</string>
+    <string name="legacy_migration_restore_backup">Restore a backup</string>
+    <string name="legacy_migration_start_fresh">Start without old data</string>
+    <string name="legacy_migration_start_fresh_confirm">Your old data stays on this device. You can import it later in Settings.</string>
+    <string name="legacy_import_title">Import data from the previous app version</string>
+    <string name="legacy_import_summary">Replace the current data with the data of the previous app version</string>
+    <string name="legacy_import_confirm">This replaces your current workspaces, bookmarks and other data with the data of the previous app version. A copy of your current data is kept on this device.</string>
+    <string name="legacy_import_reopen">Close the app and open it again to import your data.</string>
+    <string name="legacy_notice_icloud">Sync now uses iCloud Drive. Turn it on again in Settings → Sync. This device keeps what it had; changes from your other devices arrive once sync is set up again. To free the old iCloud data: Settings → your name → iCloud → Manage Storage → AndBible.</string>
+    <string name="legacy_notice_nextcloud">Your Nextcloud connection was carried over, but sync is off. Turn it on in Settings → Sync and choose to fetch from the cloud or to create new.</string>
+    <string name="legacy_notice_nextcloud_unsent">Some changes on this device had not been sent to Nextcloud yet. They were not sent and stay only on this device.</string>
+    <plurals name="legacy_notice_bookmarks_skipped">
+        <item quantity="one">%1$d bookmark could not be placed reliably and was not imported. It is kept with your old data on this device.</item>
+        <item quantity="other">%1$d bookmarks could not be placed reliably and were not imported. They are kept with your old data on this device.</item>
+    </plurals>
+
+    <!-- H2: platform-neutral iOS recommendation. -->
+    <string name="tell_friend_message2_device">It is a powerful, yet easy to use, offline Bible study application.</string>
+    <string name="webdav_untrusted_certificate_message_device">The certificate of %1$s is not trusted by this device. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
+    <!-- I2c-B -->
+    <string name="custom_repository_https_required">Custom repositories must use a secure https:// address.</string>
+    <string name="custom_repository_https_required_refresh">%1$s uses an http:// address. Only https:// repositories can be used.</string>
 </resources>

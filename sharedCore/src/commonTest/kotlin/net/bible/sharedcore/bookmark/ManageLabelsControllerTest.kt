@@ -1,5 +1,6 @@
 package net.bible.sharedcore.bookmark
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,10 +35,10 @@ class ManageLabelsControllerTest {
         private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
         var styleTags: Boolean = true,
     ) : ManageLabelsService {
-        override fun assignableLabels() = labels
-        override fun unlabeledLabel() = unlabeled
+        override suspend fun assignableLabels() = labels
+        override suspend fun unlabeledLabel() = unlabeled
         override fun recentLabelIds() = recent
-        override fun overriddenLabelStyles() = overridden
+        override suspend fun overriddenLabelStyles() = overridden
         override fun randomColorArgb() = 0x11223344
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
         override fun styleTagsVisible() = styleTags
@@ -845,5 +846,64 @@ class ManageLabelsControllerTest {
 
         assertEquals(0, resetCalls)
         assertEquals(ManageLabelsDialog.None, c.dialog.value)
+    }
+
+    /** A service whose label list waits for [gate] and whose overrides a test can change. */
+    private class GatedService(
+        val gate: CompletableDeferred<List<LabelItem>>,
+        var overrides: Map<String, BookmarkDisplayStyle> = emptyMap(),
+    ) : ManageLabelsService {
+        var assignableCalls = 0
+        override suspend fun assignableLabels(): List<LabelItem> { assignableCalls++; return gate.await() }
+        override suspend fun unlabeledLabel() = LabelItem("UNL", "Unlabeled", 0, false, true, true, null)
+        override fun recentLabelIds() = emptyList<String>()
+        override suspend fun overriddenLabelStyles() = overrides
+        override fun randomColorArgb() = 0
+        override suspend fun searchStudyPadsByContent(text: String) = emptyList<ManageLabelsRow.SearchResult>()
+        override fun styleTagsVisible() = true
+        override fun setStyleTagsVisible(visible: Boolean) {}
+    }
+
+    /** L1a: the label list is a suspending service call; rows appear once it lands, built as before. */
+    @Test fun rows_appear_once_the_suspending_label_load_lands() {
+        val service = GatedService(CompletableDeferred())
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, service = service)
+        assertEquals(emptyList(), c.rows.value)
+
+        service.gate.complete(listOf(B, A))
+
+        assertEquals(listOf("A", "B"), describe(c.rows.value))
+    }
+
+    /** A label edited (or created) before the first load landed must not be lost or duplicated by it. */
+    @Test fun a_label_change_applied_before_the_load_landed_wins_over_the_loaded_copy() {
+        val service = GatedService(CompletableDeferred())
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, service = service)
+        val renamedA = A.copy(name = "Avocado")
+        val newG = label("G", "Grape")
+        c.applyLabelChanged(renamedA, selectedFlag = false, autoAssignFlag = false, bookmarkPrimaryFlag = false, autoAssignPrimaryFlag = false)
+        c.applyLabelChanged(newG, selectedFlag = false, autoAssignFlag = false, bookmarkPrimaryFlag = false, autoAssignPrimaryFlag = false)
+
+        service.gate.complete(listOf(A, B))
+
+        assertEquals(listOf("A", "B", "G"), describe(c.rows.value))
+        assertEquals("Avocado", c.currentLabelItems().single { it.id == "A" }.name)
+    }
+
+    /** refresh() re-reads the workspace overrides (the host calls it after writing one); the label
+     *  list itself is read only once. */
+    @Test fun refresh_rereads_the_overrides_but_not_the_label_list() {
+        val service = GatedService(CompletableDeferred(listOf(A, B)))
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, service = service)
+        fun styleOf(id: String) = c.rows.value.filterIsInstance<ManageLabelsRow.Item>().single { it.label.id == id }.label.overrideStyle
+        assertNull(styleOf("A"))
+
+        service.overrides = mapOf("A" to BookmarkDisplayStyle.MARKER)
+        c.reOrder()
+        assertNull(styleOf("A")) // a plain rebuild uses the cached overrides
+        c.refresh()
+
+        assertEquals(BookmarkDisplayStyle.MARKER, styleOf("A"))
+        assertEquals(1, service.assignableCalls)
     }
 }

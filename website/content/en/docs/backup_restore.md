@@ -8,6 +8,17 @@ case of device failure. It is recommended to backup your database file
 often. The database contains your notes, bookmarks, application settings,
 reading plans, and other information.
 
+## Recovery after repeated crashes on iOS
+
+If AndBible detects repeated crashes within an hour, it offers a recovery screen
+before opening its databases. If calculator protection is enabled, unlock it first.
+Choose **Backup & Restore** to access recovery tools without starting the reading
+workspace, or **Continue** to try normal startup again. The back button in recovery
+Backup & Restore returns to the recovery screen.
+
+Backgrounding the app does not count as a crash. The recovery screen itself is not
+counted as another failed startup if the system closes the app while it is shown.
+
 ## How to backup your data
 
 1. From the main menu tap *Backup & Restore*.

@@ -46,8 +46,7 @@ interface Events<out T : Any> {
     fun asFlow(): Flow<T>
 }
 
-// Lazy, so code that only uses subscribe() never touches Dispatchers.Main (absent on a plain JVM).
-private val mainScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
+private val mainScope = CoroutineScope(SupervisorJob())
 
 /**
  * A typed, per-owner event stream with these delivery semantics:
@@ -67,7 +66,8 @@ class EventSource<T : Any> : Events<T> {
         val snapshot = synchronized(lock) { handlers }
         for (handler in snapshot) {
             if (handler.onMain) {
-                mainScope.launch { invoke(handler, event) }
+                // Resolve Main for each emission; its immediate dispatcher can change with the host lifecycle.
+                mainScope.launch(Dispatchers.Main.immediate) { invoke(handler, event) }
             } else {
                 invoke(handler, event)
             }

@@ -1,0 +1,131 @@
+name: iosApp
+options:
+  bundleIdPrefix: org.andbible
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: iosApp
+    settings:
+      base:
+        # Dev ids (I2); never the store id org.andbible.ios.
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
+        PRODUCT_NAME: AndBibleDev
+        INFOPLIST_FILE: iosApp/Info.plist
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # Only the arm64 simulator is a KMP target (no iosX64()), so exclude x86_64 on the
+        # simulator SDK, else embedAndSignAppleFrameworkForXcode fails on "Unknown arch x86_64".
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        # The Kotlin framework is produced here by embedAndSignAppleFrameworkForXcode,
+        # keyed on the active configuration + sdk.
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -framework
+          - SharedUi
+        # Xcode 26 sandboxes run-script phases by default; gradle needs to write outside DerivedData.
+        ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+        CODE_SIGN_STYLE: Automatic
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]": iosApp/iosApp.entitlements
+        # Simulator builds are signed ad hoc ("Sign to Run Locally", identity "-", no team): an unsigned simulator
+        # app has no keychain entitlement and every Keychain call fails with -34018 (errSecMissingEntitlement), which
+        # the startup reads (device_identifier). The simulator entitlements file only carries keychain-access-groups;
+        # with no team, $(AppIdentifierPrefix) expands to nothing and the group is the bundle id. If the app still
+        # gets -34018, look for the "CodeSign" / "Entitlements" lines of the xcodebuild log.
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": iosApp/iosApp-simulator.entitlements
+        "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "YES"
+        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+        "DEVELOPMENT_TEAM[sdk=iphonesimulator*]": ""
+    preBuildScripts:
+      - name: "Generate debug files-port asset"
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          DEST="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/files-port-fixtures"
+          if [ "$CONFIGURATION" = "Debug" ]; then
+            python3 -I "$SRCROOT/scripts/generate-files-test-fixtures.py" --output-dir "$DEST"
+          else
+            rm -rf "$DEST"
+          fi
+      - name: "Compile & embed SharedUi Kotlin framework"
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ -z "$JAVA_HOME" ]; then export JAVA_HOME="$(/usr/libexec/java_home -v 17)"; fi
+          cd "$SRCROOT/.."
+          ./gradlew -Dorg.gradle.native=false :sharedUi:embedAndSignAppleFrameworkForXcode
+      - name: "Copy app resources"
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          RES="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+          RAW="$SRCROOT/../app/src/main/res/raw"
+          # repositories.txt: IosAppStartup reads it from the bundle root.
+          cp "$RAW/repositories.txt" "$RES/repositories.txt"
+          cp "$RAW/license.html" "$RES/license.html"
+          # The two LLM system prompts (KeyedLlmStrings, IosPlatformParts.bundleRawResource).
+          cp "$RAW/llm_agent_system_prompt.md" "$RAW/llm_text_transformation_system_prompt.md" "$RES/"
+          # Reading plans: IosReadingPlanSource reads <bundle>/readingplan/*.properties.
+          mkdir -p "$RES/readingplan"
+          cp "$SRCROOT"/../app/src/main/assets/readingplan/*.properties "$RES/readingplan/"
+      - name: "Copy earcons"
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          DEST="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/earcons"
+          mkdir -p "$DEST"
+          for name in short_pling short_pling_reverse pageflip medium_pling long_pling; do
+            cp "$SRCROOT/../app/src/main/res/raw/$name.wav" "$DEST/$name.wav"
+          done
+      - name: "Copy bibleview-js bundle"
+        basedOnDependencyAnalysis: false
+        script: '"$SRCROOT/scripts/copy-bibleview.sh"'
+  iosAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [iosAppUITests]
+    dependencies: [{target: iosApp}]
+    settings:
+      base:
+        TEST_TARGET_NAME: iosApp
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.uitests
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+  iosAppUnitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [iosAppUnitTests]
+    dependencies: [{target: iosApp}]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.unittests
+        # Hosted by the app: Kotlin symbols come from the app binary, never a second copy of SharedUi.
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBibleDev.app/AndBibleDev
+        BUNDLE_LOADER: $(TEST_HOST)
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        # Unsigned (the bundle has no Info.plist, so it cannot be signed): the tests run inside the signed host app's
+        # process and use ITS keychain entitlement.
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+schemes:
+  iosApp:
+    build:
+      targets:
+        iosApp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [iosAppUITests, iosAppUnitTests]

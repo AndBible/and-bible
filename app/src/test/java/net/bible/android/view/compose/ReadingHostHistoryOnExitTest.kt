@@ -45,16 +45,14 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostHistoryOnExitTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun composedReadingHost(): NavHostComposeActivity {
@@ -62,7 +60,7 @@ class ReadingHostHistoryOnExitTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.create().start().resume().visible().get()
+        ).also { controllers += it }.create().start().resume().visible().get().also { net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() } }
     }
 
     private fun historyManager(): HistoryManager = GlobalContext.get().get()
@@ -94,7 +92,7 @@ class ReadingHostHistoryOnExitTest {
         val history = historyManager().getHistory(CommonUtils.windowControl.activeWindow.id)
         assertEquals("exactly one item for the exit (M3)", before + 1, history.size)
         val top = history.first() as KeyHistoryItem
-        assertEquals("the item names the verse the user left from", "Ps.23.1", top.key.osisID)
+        assertEquals("the item names the verse the user left from", "Ps.23.1", top.key.getOsisID())
     }
 
     /**

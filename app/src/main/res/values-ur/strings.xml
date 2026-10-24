@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">تلاش متن میں خصوصی کردار جیسے *, AND, OR, NOT شامل ہو سکتے ہیں</string>
   <string name="help_search_details">مزید تفصیل کے لیے %s دیکھیں۔</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">ورک اسپیسز</string>
   <string name="help_workspaces_text">ورک اسپیسز متعدد سیاق و سباق پر منحصر کام کرنے کے ماحول رکھنے کی اجازت دیتی ہیں۔ ورک اسپیس افعال آپشنز مینو (اوپری دائیں کونے) میں ورک اسپیسز آئٹم کے ذریعے رسائی کیے جا سکتے ہیں۔ ورک اسپیسز تک فوری رسائی ٹول بار سے نیچے سوائپ کر کے ہو سکتی ہے۔ آپ ٹول بار پر بائیں اور دائیں سوائپ جیسچر بھی استعمال کر کے پچھلی/اگلی ورک اسپیس پر جا سکتے ہیں۔</string>

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /** What the host must do when the editor closes. */
 sealed interface LabelEditResult {
@@ -21,11 +22,15 @@ sealed interface DeletePrompt {
 class LabelEditController(
     initial: LabelEditState,
     private val service: LabelEditService,
-    @Suppress("unused") private val scope: CoroutineScope,
+    private val scope: CoroutineScope,
+    restoredDraft: LabelEditState?,
     private val onFinish: (LabelEditResult) -> Unit,
 ) {
+    constructor(initial: LabelEditState, service: LabelEditService, scope: CoroutineScope, onFinish: (LabelEditResult) -> Unit) :
+        this(initial, service, scope, null, onFinish)
+
     private val initialState = initial
-    private val _state = MutableStateFlow(initial)
+    private val _state = MutableStateFlow(restoredDraft ?: initial)
     val state: StateFlow<LabelEditState> = _state.asStateFlow()
 
     private val _deletePrompt = MutableStateFlow<DeletePrompt?>(null)
@@ -76,8 +81,11 @@ class LabelEditController(
     fun dismissDiscardPrompt() { _discardPrompt.value = false }
 
     fun requestDelete() {
-        val count = service.orphanedBookmarkCount(_state.value.labelId)
-        _deletePrompt.value = if (count > 0) DeletePrompt.Orphaned(count) else DeletePrompt.Confirm
+        val labelId = _state.value.labelId
+        scope.launch {
+            val count = service.orphanedBookmarkCount(labelId)
+            _deletePrompt.value = if (count > 0) DeletePrompt.Orphaned(count) else DeletePrompt.Confirm
+        }
     }
     fun dismissDeletePrompt() { _deletePrompt.value = null }
     fun confirmDelete(deleteOrphaned: Boolean) {

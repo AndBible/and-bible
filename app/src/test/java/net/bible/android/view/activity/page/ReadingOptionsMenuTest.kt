@@ -84,9 +84,9 @@ class ReadingOptionsMenuTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         // Built WITHOUT `.create()`, for the reasons OptionsMenuStateBuilderTest's kdoc gives.
         activity = Robolectric.buildActivity(
@@ -204,7 +204,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun openOverflowMenuBuildsTheItemsAndExpandsTheComposeMenu() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         assertFalse(host.overflowExpandedForTest, "sanity: starts closed")
 
         host.openOverflowMenu()
@@ -230,7 +230,7 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun openOverflowMenuLeavesFullscreenSoThereIsAToolbarToAnchorTheMenuOn() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.fullScreen = true
         assertTrue(activity.fullScreen, "sanity: the fixture really is in fullscreen")
 
@@ -253,7 +253,7 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun openOverflowMenuDoesNothingWhileTheToolbarIsInSearchMode() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         host.searchController.open()
         assertTrue(host.searchController.searchModeActive.value, "sanity: search mode is active")
 
@@ -269,17 +269,24 @@ class ReadingOptionsMenuTest {
         )
     }
 
+    /**
+     * Since I2 Stream B Task 4 the key shortcuts live in the shared `ReadingBridge.onKeyDown`
+     * (`:sharedUi`), which reaches the host through `ReadingKeyActions.openOverflowMenu()`.
+     * `BibleJavascriptInterface` no longer handles keys, but it is still scanned for a revived
+     * native popup call.
+     */
     @Test
     fun altKeyOGoesToTheComposeOverflowMenuNotTheNativePopup() {
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
-        val line = src.lineSequence().firstOrNull { it.contains("\"AltKeyO\"") }
-        assertTrue(line != null, "the AltKeyO shortcut must still exist")
+        val bridgeSrc = codeOf(File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ReadingBridge.kt"))
+        val line = bridgeSrc.lineSequence().firstOrNull { it.contains("\"AltKeyO\"") }
+        assertTrue(line != null, "the AltKeyO shortcut must still exist in ReadingBridge.onKeyDown")
         assertTrue(
             line.contains("openOverflowMenu"),
             "AltKeyO must open the Compose overflow menu; got: $line",
         )
+        val jsiSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
         assertFalse(
-            src.contains("showOptionsMenu"),
+            bridgeSrc.contains("showOptionsMenu") || jsiSrc.contains("showOptionsMenu"),
             "no CALL of the deleted native options popup may remain",
         )
     }
@@ -298,7 +305,7 @@ class ReadingOptionsMenuTest {
             "sanity: the test Sword modules must offer more than the 2 that QuickDocPicker would " +
                 "switch between directly; found ${documentControl.biblesForVerse.size}",
         )
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeBibleLongClick()
@@ -346,7 +353,7 @@ class ReadingOptionsMenuTest {
                 "switch-directly threshold of 2, or this test cannot see the regression; got " +
                 "${commentaries.map { it.initials }} + ${extras.map { it.initials }}",
         )
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         val before = documentControl.currentDocument?.initials
 
@@ -380,7 +387,7 @@ class ReadingOptionsMenuTest {
         // `MainBibleActivity` into `ReadingCommands`, so the collaborator is where the needles below
         // live. (The behavioural tests above drive `ReadingCommands` on the reading-route nav host
         // since slice 8 F2.)
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
+        val src = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val bibleBody = bodyOf(src, "internal fun composeBibleLongClick")
         val commentaryBody = bodyOf(src, "internal fun composeCommentaryLongClick")
 
@@ -412,7 +419,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun bibleShortPressOpensTheBibleSheetEvenWhileReadingAnotherCategory() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         // Review Focus 4: the current document is outside the scope.
         activity.readingCommands.setCurrentDocument(SwordDocumentFacade.getBooks(BookCategory.DICTIONARY).first())
@@ -425,7 +432,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun commentaryShortPressOpensTheCommentarySheet() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeCommentaryClick()
@@ -435,7 +442,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun aScopeWithNoDocumentsOpensTheTypedChooserInsteadOfNothing() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.openScopedDocumentSheet(DocumentSheetScope.COMMENTARY, emptyList())
@@ -473,8 +480,8 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun theReadingHostHasNoNativeOptionsPopupLeft() {
-        val hostSrc = codeOf(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"))
-        val commandsSrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
+        val hostSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"))
+        val commandsSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val src = hostSrc + "\n" + commandsSrc
 
         assertTrue(hostSrc.length > 1000, "NavHostComposeActivity.kt is empty or missing")

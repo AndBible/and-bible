@@ -1,0 +1,376 @@
+/*
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.android.control.page
+
+import net.bible.sharedlogic.sync.withMonitor
+import net.bible.sharedcore.log.Log
+import net.bible.android.control.PassageChangeMediator
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.misc.OsisFragment
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import org.koin.mp.KoinPlatform
+import net.bible.service.common.RecentDocumentsStore
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
+import net.bible.service.download.isRemoved
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.isEpubInstallPending
+import net.bible.service.history.HistoryManager
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.DocumentNotFound
+import net.bible.service.sword.OsisError
+import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.PromptRepository
+import org.crosswire.common.activate.Activator
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.VerseRange
+import fi.sykero.kdom.Element
+
+/** Common functionality for different document page types
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+abstract class CurrentPageBase protected constructor(
+	shareKeyBetweenDocs: Boolean,
+    override val pageManager: CurrentPageManager
+) : CurrentPage {
+
+    protected val strings: CoreStrings by lazy { KoinPlatform.getKoin().get<CoreStrings>() }
+    protected val notifier: UserNotifier by lazy { KoinPlatform.getKoin().get<UserNotifier>() }
+    private val settings: AppSettings by lazy { KoinPlatform.getKoin().get<AppSettings>() }
+    private val recentDocuments: RecentDocumentsStore by lazy { KoinPlatform.getKoin().get<RecentDocumentsStore>() }
+
+    override var isInhibitChangeNotifications: Boolean = false
+
+    override var _key: Key? = null
+
+    // just pretend we are at the top of the page if error occurs
+    // if key has changed then offsetRatio must be reset because user has changed page
+
+    var _anchorOrdinal: OrdinalRange? = OrdinalRange(0)
+    override var htmlId: String? = null
+
+    /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
+     */
+    override var anchorOrdinal: OrdinalRange?
+        get() {
+            try { // if key has changed then offsetRatio must be reset because user has changed page
+                if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
+                    return OrdinalRange(0)
+                }
+            } catch (e: Exception) {
+                // cope with occasional NPE thrown by above if statement
+                // just pretend we are at the top of the page if error occurs
+                Log.w(TAG, "NPE getting currentYOffsetRatio")
+                return OrdinalRange(0)
+            }
+            return _anchorOrdinal
+        }
+        set(newValue) {
+            key ?: return
+            docWhenAnchorOrdinalSet = currentDocument
+            keyWhenAnchorOrdinalSet = key
+            _anchorOrdinal = newValue
+        }
+
+    private var keyWhenAnchorOrdinalSet: Key? = null
+    private var docWhenAnchorOrdinalSet: Book? = null
+
+    // all bibles and commentaries share the same key
+    override var isShareKeyBetweenDocs: Boolean = shareKeyBetweenDocs
+
+    /** notify mediator that page has changed and a lot of things need to update themselves
+     */
+    private fun pageChange() {
+        if (!isInhibitChangeNotifications) {
+            PassageChangeMediator.onCurrentPageChanged(pageManager.window)
+        }
+    }
+
+    override val singleKey: Key? get() = key
+
+    override fun setKey(key: Key, addHistoryItem: Boolean) {
+        if(addHistoryItem) {
+            HistoryManager.recordIfCreated(pageManager.window)
+        }
+        doSetKey(key)
+        pageChange()
+    }
+
+    override fun isAtSameLocationAs(key: Key): Boolean = key == this.key
+
+    override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
+        if(key?.getOsisRef() == osisRef) return false
+        val newKey = try {
+            currentDocument?.getKey(osisRef)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not resolve scrolled osisRef $osisRef", e)
+            null
+        } ?: return false
+        // The osisRef the client reports is the displayed document's, which for a commentary is the
+        // entry's whole annotateRef range (e.g. Heb.11.5-Heb.11.8) while the page key is a single
+        // verse of it. Asking the page whether that is where it already is - rather than comparing
+        // osisRefs above - is what keeps scrolling inside one entry from counting as a move.
+        if(isAtSameLocationAs(newKey)) return false
+        doSetKey(newKey)
+        return true
+    }
+
+    override suspend fun next() {}
+    override suspend fun previous() {}
+
+    /** add or subtract a number of pages from the current position and return Page
+     * default is one key per page - all except bible use this default
+     */
+    override fun getPagePlus(num: Int): Key { // If 1 key per page then same as getKeyPlus
+        return getKeyPlus(num)
+    }
+
+    override val isSingleKey: Boolean = false
+
+    override suspend fun currentPageContent(): Document {
+        val key = key
+        if(currentDocument?.doesNotExist == true) {
+            val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
+            val errorXml = strings.documentNotInstalled(link)
+            return ErrorDocument(errorXml, ErrorSeverity.NORMAL)
+        }
+        return if(key == null) {
+            Log.e(TAG, "Key was null, giving ErrorDocument")
+            ErrorDocument(strings.errorOccurred, ErrorSeverity.WARNING)
+        } else getPageContent(key)
+    }
+
+    var annotateKey: VerseRange? = null
+
+    override val displayKey get() = annotateKey ?: key
+
+    /** Subclasses (commentary) may supply a verse-range descriptor shown by the Vue side. */
+    protected open fun commentaryRangeFor(key: Key): CommentaryRangeInfo? = null
+
+    override suspend fun getPageContent(key: Key): Document = try {
+        val currentDocument = currentDocument!!
+
+        val frag = withMonitor(currentDocument) {
+            val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
+            OsisFragment(xml, key, currentDocument)
+        }
+
+        annotateKey = frag.annotateRef
+        PassageChangeMediator.onCurrentVerseChanged(pageManager.window)
+
+        // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
+        val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val myDocumentPage = if (currentDocument.isMyDocument) {
+            val documentId = currentDocument.myDocumentId
+            val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
+            if (documentId != null) {
+                myDocumentDao.pageByKey(documentId, pageKey)
+            } else null
+        } else null
+
+        // Fetch AI generation metadata (prompt name + model) for footer display
+        val promptId = myDocumentPage?.sourcePromptId
+        val cacheEntry = if (promptId != null) {
+            myDocumentDao.getCacheEntry(myDocumentPage.id)
+        } else null
+        val promptName = if (promptId != null) {
+            PromptRepository.promptById(promptId)?.name ?: strings.aiUnknownPrompt
+        } else null
+
+        val effectiveKey = annotateKey ?: key
+        val aiDocMarkers = myDocumentDao.aiDocMarkersForPage(currentDocument.initials, effectiveKey.getOsisRef())
+
+        OsisDocument(
+            book = currentDocument,
+            key = key,
+            osisFragment = frag,
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true),
+            myDocumentPageId = myDocumentPage?.id?.toString(),
+            sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
+            sourcePromptName = promptName,
+            sourceModelName = cacheEntry?.sourceModelName,
+            aiDocMarkers = aiDocMarkers,
+            commentaryRange = commentaryRangeFor(key),
+        )
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.e(TAG, "Error getting bible text", e)
+        when (e) {
+            is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
+            is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
+            else -> ErrorDocument(strings.errorOccurred, ErrorSeverity.ERROR)
+        }
+    }
+
+    override fun checkCurrentDocumenInstalled(): Boolean {
+        if(_currentDocument?.doesNotExist == true) {
+            val doc = SwordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
+            if(doc != null)
+                _currentDocument = doc
+        }
+        if (_currentDocument == null) {
+            Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
+            _currentDocument =  fakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
+        }
+        return _currentDocument != null && !_currentDocument!!.doesNotExist
+    }
+
+    private var _currentDocument: Book? = null
+
+    override val currentDocument: Book?
+        get() {
+            if (_currentDocument == null) {
+                _currentDocument = getDefaultBook()
+            }
+            if(_currentDocument?.doesNotExist == true) {
+                val pseudo = _currentDocument!!
+                val real = Books.installed().getBook(pseudo.initials)
+                if(real != null) {
+                    _currentDocument = real
+                }
+            }
+            _currentDocument?.takeIf { it.isEpub }?.let { previous ->
+                Books.installed().getBook(previous.initials)?.let { installed ->
+                    if (installed !== previous) _currentDocument = installed
+                }
+            }
+            // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.
+            if (_currentDocument?.isRemoved == true) {
+                val removed = _currentDocument!!
+                // Re-check the registry after the pending test: the replacement may register between the two reads.
+                val pending = removed.isEpub && isEpubInstallPending(removed.initials)
+                val replacement = if (removed.isEpub) Books.installed().getBook(removed.initials) else null
+                when {
+                    replacement != null && replacement !== removed -> _currentDocument = replacement
+                    !pending -> _currentDocument = getDefaultBook()
+                }
+            }
+            return _currentDocument
+        }
+
+    private fun getDefaultBook(): Book? {
+        // The document-selection host stores this category-specific default.
+        val savedDefaultBook = SwordDocumentFacade.getDocumentByInitials(
+            settings.getString("default-${documentCategory.bookCategory.name}", ""))
+
+        return savedDefaultBook ?: {
+            val books = SwordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
+            if (books.isNotEmpty()) books[0] else null
+        }()
+    }
+
+    override fun setCurrentDocument(doc: Book?) {
+        Log.i(TAG, "Set current doc to $doc")
+        // Round 15b: the ONE leaf every document switch funnels through — CurrentPageManager's
+        // setCurrentDocument (:162, both branches) and setCurrentDocumentAndKey (:208) both land
+        // here. Feeds the document quick sheet's Recent tab (spec §4.5).
+        recentDocuments.record(doc?.initials)
+        val prevDoc = _currentDocument
+        if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
+            doSetKey(null)
+        }
+        localSetCurrentDocument(doc)
+        // try to clear memory to prevent OutOfMemory errors
+        if (_currentDocument != prevDoc) {
+            Activator.deactivate(prevDoc)
+        }
+    }
+
+    val isCurrentDocumentSet: Boolean get() = _currentDocument != null
+
+
+    /* Set new doc and if possible show new doc
+	 * @see net.bible.android.control.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
+	 */
+    override fun setCurrentDocumentAndKey(doc: Book, key: Key) {
+        doSetKey(key)
+        localSetCurrentDocument(doc)
+    }
+
+    protected open fun localSetCurrentDocument(doc: Book?) {
+        _currentDocument = doc
+    }
+
+    fun onlySetCurrentDocument(doc: Book?) {
+        _currentDocument = doc
+    }
+
+    protected open fun localSetCurrentDocument(doc: Book?, isMyNote: Boolean = false) {
+        localSetCurrentDocument(doc)
+    }
+
+    val pageEntity: WorkspaceEntities.Page get() {
+            return WorkspaceEntities.Page(
+                currentDocument?.initials,
+                key?.getOsisRef(),
+                anchorOrdinal?.start
+            )
+        }
+
+    open fun restoreFrom(entity: WorkspaceEntities.Page?) {
+        if(entity == null) return
+        val document = entity.document
+        Log.i(TAG, "State document:$document")
+        val book = SwordDocumentFacade.getDocumentByInitials(document)
+            ?: if(document != null) fakeBookFactory.giveDoesNotExist(document, BookCategory.GENERAL_BOOK) else null
+        if (book != null) {
+            Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            val keyName = entity.key
+            if(!keyName.isNullOrEmpty()) {
+                try {
+                    doSetKey(book.getKey(keyName))
+                } catch (e: Exception) {
+                    doSetKey(DefaultLeafKeyList(keyName))
+                    Log.e(TAG, "Key $keyName not be loaded from $document", e)
+                    if(e !is NoSuchKeyException) {
+                        notifier.showError(strings.errorOccurred, e)
+                    }
+                }
+            }
+        }
+        val ord = entity.anchorOrdinal
+        anchorOrdinal = if(ord != null) OrdinalRange(ord) else null
+    }
+
+    /** can we enable the main menu Speak button
+     */
+    override val isSpeakable: Boolean = true
+
+    /** Can we sync between windows
+     */
+    override val isSyncable: Boolean = true
+    protected val fakeBookFactory: FakeBookFactory get() = KoinPlatform.getKoin().get<FakeBookFactory>()
+
+    companion object {
+        private const val TAG = "CurrentPage"
+    }
+}

@@ -30,10 +30,10 @@ import org.junit.Test
  */
 class SourceEncodingGuardTest {
     @Test fun noSourceFileContainsANulByte() {
-        val root = File("src/main/java")
+        val roots = net.bible.test.ProductionSources.roots
         // Anti-vacuity: if the walk sees no source at all, the assertion below proves nothing.
-        assertTrue("src/main/java is not a directory — the scan would pass vacuously", root.isDirectory)
-        val sources = root.walkTopDown()
+        assertTrue("src/main/java and the :sharedLogic root must be directories — the scan would pass vacuously", roots.all { it.isDirectory })
+        val sources = roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             .toList()
         assertTrue("the walk found no Kotlin/Java sources", sources.isNotEmpty())

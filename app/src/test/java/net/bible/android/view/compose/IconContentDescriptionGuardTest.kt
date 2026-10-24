@@ -11,7 +11,7 @@ import org.junit.Test
  * `src/test/resources/icon-cd-allowlist.txt` as `path:line # reason`.
  */
 class IconContentDescriptionGuardTest {
-    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("../sharedCore/src"), File("src/main/java"))
+    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("../sharedCore/src")) + net.bible.test.ProductionSources.roots
     private val allow = File("src/test/resources/icon-cd-allowlist.txt").readLines()
         .map { it.substringBefore('#').trim() }.filter { it.isNotEmpty() }.toSet()
 

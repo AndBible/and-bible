@@ -185,7 +185,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     }
 
     /**
-     * A debt has to survive `recreate()`. `discrete_mode` is one of `RECREATE_ON_CHANGE_KEYS`, and
+     * A debt has to survive `recreate()`. `discrete_mode` is one of `RECREATE_ON_CHANGE_KEYS` (in `SettingsHost`), and
      * the launcher-alias swap that recreate does NOT perform is precisely what the debt is owed for.
      */
     @Test fun aDebtIsCarriedAcrossARecreate() {
@@ -211,7 +211,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     @Test fun theArmsAreSharedRatherThanRetyped() {
         for (applier in listOf("applyWorkspaceChangedResult", "preferenceSettingsChanged")) {
             assertTrue(
-                Regex("""internal fun $applier""").containsMatchIn(readingCommandsSrc) ||
+                Regex("""internal (suspend )?fun $applier""").containsMatchIn(readingCommandsSrc) ||
                     Regex("""    internal fun $applier""").containsMatchIn(readingCommandsSrc),
                 "$applier is no longer implemented in ReadingCommands",
             )
@@ -236,7 +236,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
      * it actually moves a component's enabled state, so a unit test that let it do its job would
      * take the test JVM with it. What can be checked is that it is still IN the shared body and
      * still has exactly one production caller: `discrete_mode` is in
-     * `NavHostComposeActivity.RECREATE_ON_CHANGE_KEYS`, and `recreate()` does NOT swap the launcher
+     * `RECREATE_ON_CHANGE_KEYS` in `SettingsHost`, and `recreate()` does NOT swap the launcher
      * alias — so if this call ever leaves `preferenceSettingsChanged`, turning on discrete mode
      * stops hiding the app's icon and name and nothing else in the tree notices.
      */
@@ -246,7 +246,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
             body.contains("CommonUtils.changeAppIconAndName()"),
             "the launcher-alias swap is gone from the settings-return body. Body was:\n$body",
         )
-        val callers = File("src/main/java").walkTopDown()
+        val callers = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && it.extension == "kt" }
             .flatMap { file ->
                 file.readLines()
@@ -338,7 +338,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         val launchLine = Regex("""startActivityForResult\(|requestCode\s*=[^=]""")
         var occurrences = 0
         val selfLaunched = mutableSetOf<String>()
-        for (file in File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }) {
+        for (file in net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }) {
             val lines = file.readLines()
             lines.forEachIndexed { i, line ->
                 if (!launchLine.containsMatchIn(line)) return@forEachIndexed
@@ -379,7 +379,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
 
     /** The `Screen.X` keys `ScreenLauncher.MIGRATED` resolves into this host's graph. */
     private fun migratedScreens(): Set<String> {
-        val src = File("src/main/java/net/bible/android/view/ScreenLauncher.kt").readText()
+        val src = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/ScreenLauncher.kt").readText()
         val marker = "val MIGRATED: Map<Screen, String> = mapOf("
         val at = src.indexOf(marker)
         assertTrue(at >= 0, "ScreenLauncher.MIGRATED was renamed; this guard must follow it")

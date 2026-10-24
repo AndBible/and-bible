@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.base
 
+import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
@@ -129,7 +130,7 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
  */
 @Composable
 fun FailClosedLinkRouting(content: @Composable () -> Unit) =
-    AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }, content = content)
+    net.bible.sharedui.components.FailClosedLinkRouting(AndroidExternalLinks(), content)
 
 /**
  * For the two hosts with no Compose content of their own — the View-based `StartupActivity` and the

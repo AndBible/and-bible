@@ -746,7 +746,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Текст претраге може садржати специјалне знакове попут *, И, ИЛИ, НЕ</string>
   <string name="help_search_details">Погледајте %s за више детаља.</string>
-  <string name="help_apache_lucene">Apache Lucene — Синтакса парсера упита</string>
   <string name="help_fts5">FTS5 синтакса потпуног текстуалног упита</string>
   <string name="help_workspaces_title">Радне површи</string>
   <string name="help_workspaces_text">

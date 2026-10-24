@@ -17,11 +17,15 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
-import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -35,6 +39,11 @@ import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL
+import androidx.room3.useWriterConnection
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.service.db.exec
 import net.bible.android.database.migrations.deduplicateSpecialLabels
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
@@ -67,28 +76,28 @@ class BookmarkControlTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
     }
 
     @After
     fun tearDown() {
-        val bookmarks = bookmarkControl!!.allBibleBookmarks
+        val bookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         for (dto in bookmarks) {
-            bookmarkControl!!.deleteBookmark(dto)
+            runBlocking { bookmarkControl!!.deleteBookmark(dto) }
         }
-        val labels = bookmarkControl!!.allLabels
+        val labels = runBlocking { bookmarkControl!!.allLabels() }
         for (dto in labels) {
-            bookmarkControl!!.deleteLabel(dto)
+            runBlocking { bookmarkControl!!.deleteLabel(dto) }
         }
         bookmarkControl = null
         resetDatabase()
     }
 
     @Test
-    fun testAddBookmark() {
+    fun testAddBookmark() = runTest {
         try {
             val newDto = addTestVerse()
-            Assert.assertEquals("New Bookmark key incorrect.  Test:" + currentTestVerse + " was:" + newDto!!.verseRange.name, newDto.verseRange.name, currentTestVerse)
+            Assert.assertEquals("New Bookmark key incorrect.  Test:" + currentTestVerse + " was:" + newDto!!.verseRange.getName(), newDto.verseRange.getName(), currentTestVerse)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail("Exception:" + e.message)
@@ -96,12 +105,12 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testGetAllBookmarks() {
+    fun testGetAllBookmarks() = runTest {
         try {
             addTestVerse()
             addTestVerse()
             addTestVerse()
-            val bookmarks = bookmarkControl!!.allBibleBookmarks
+            val bookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
             Assert.assertTrue(bookmarks.size == 3)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -110,19 +119,19 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testDeleteBookmark() {
+    fun testDeleteBookmark() = runTest {
         addTestVerse()
-        var bookmarks = bookmarkControl!!.allBibleBookmarks
+        var bookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         val toDelete = bookmarks[0]
         bookmarkControl!!.deleteBookmark(toDelete)
-        bookmarks = bookmarkControl!!.allBibleBookmarks
+        bookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         for (bookmark in bookmarks) {
             Assert.assertFalse("delete failed", bookmark.id == toDelete.id)
         }
     }
 
     @Test
-    fun testAddLabel() {
+    fun testAddLabel() = runTest {
         try {
             val newDto = addTestLabel()
             Assert.assertEquals("New Label name incorrect.  Test:" + currentTestLabel + " was:" + newDto.name, newDto.name, currentTestLabel)
@@ -133,7 +142,7 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testSetBookmarkLabels() {
+    fun testSetBookmarkLabels() = runTest {
         val bookmark = addTestVerse()
         val label1 = addTestLabel()
         val label2 = addTestLabel()
@@ -161,7 +170,7 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testGetBookmarksWithLabel() {
+    fun testGetBookmarksWithLabel() = runTest {
         val bookmark = addTestVerse()
         val label1 = addTestLabel()
         val labelList: MutableList<Label> = ArrayList()
@@ -175,7 +184,7 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testDeleteLabelsWithOrphanedBookmarks() {
+    fun testDeleteLabelsWithOrphanedBookmarks() = runTest {
         // Test that when deleting a StudyPad label, bookmarks that only have that label are NOT deleted by default
         // but can be deleted if explicitly requested
         
@@ -197,7 +206,7 @@ class BookmarkControlTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark3!!, listOf(keepLabel))
         
         // Verify initial state
-        Assert.assertEquals(3, bookmarkControl!!.allBibleBookmarks.size)
+        Assert.assertEquals(3, runBlocking { bookmarkControl!!.allBibleBookmarks() }.size)
         Assert.assertEquals(2, bookmarkControl!!.getBibleBookmarksWithLabel(studyPadLabel).size)
         Assert.assertEquals(2, bookmarkControl!!.getBibleBookmarksWithLabel(keepLabel).size)
         
@@ -205,7 +214,7 @@ class BookmarkControlTest {
         bookmarkControl!!.deleteLabels(listOf(studyPadLabel.id), deleteOrphanedBookmarks = false)
         
         // Verify results - all bookmarks should remain
-        val remainingBookmarks = bookmarkControl!!.allBibleBookmarks
+        val remainingBookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         Assert.assertEquals("Expected all 3 bookmarks to remain", 3, remainingBookmarks.size)
         
         // bookmark1 should remain but have no labels (orphaned)
@@ -228,11 +237,11 @@ class BookmarkControlTest {
             remainingBookmarks.any { it.id == bookmark3.id })
         
         // Reset for second test - clean up database first
-        val existingBookmarks = bookmarkControl!!.allBibleBookmarks
+        val existingBookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         for (bookmark in existingBookmarks) {
             bookmarkControl!!.deleteBookmark(bookmark)
         }
-        val existingLabels = bookmarkControl!!.allLabels
+        val existingLabels = runBlocking { bookmarkControl!!.allLabels() }
         for (label in existingLabels) {
             bookmarkControl!!.deleteLabel(label)
         }
@@ -253,7 +262,7 @@ class BookmarkControlTest {
         // Delete labels WITH deleting orphaned bookmarks
         bookmarkControl!!.deleteLabels(listOf(studyPadLabelB.id), deleteOrphanedBookmarks = true)
         
-        val remainingBookmarks2 = bookmarkControl!!.allBibleBookmarks
+        val remainingBookmarks2 = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         Assert.assertEquals("Expected 2 bookmarks to remain when deleting orphaned", 2, remainingBookmarks2.size)
         
         // bookmark1b should be deleted (it only had studyPadLabelB)
@@ -268,7 +277,7 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testVerseRange() {
+    fun testVerseRange() = runTest {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
         val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         val newDto = bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
@@ -277,7 +286,7 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testIsBookmarkForAnyVerseRangeWithSameStart() {
+    fun testIsBookmarkForAnyVerseRangeWithSameStart() = runTest {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
         val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
@@ -290,19 +299,19 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testSpecialLabelsCreatedWithCanonicalIds() {
-        val speak = bookmarkControl!!.speakLabel
+    fun testSpecialLabelsCreatedWithCanonicalIds() = runTest {
+        val speak = runBlocking { bookmarkControl!!.speakLabel() }
         Assert.assertEquals(SPEAK_LABEL_ID, speak.id)
 
-        val unlabeled = bookmarkControl!!.labelUnlabelled
+        val unlabeled = runBlocking { bookmarkControl!!.labelUnlabelled() }
         Assert.assertEquals(UNLABELED_LABEL_ID, unlabeled.id)
 
-        val paragraphBreak = bookmarkControl!!.paragraphBreakLabel
+        val paragraphBreak = runBlocking { bookmarkControl!!.paragraphBreakLabel() }
         Assert.assertEquals(PARAGRAPH_BREAK_LABEL_ID, paragraphBreak.id)
     }
 
     @Test
-    fun testSpecialLabelIdHexRoundtrip() {
+    fun testSpecialLabelIdHexRoundtrip() = runTest {
         // Migration uses IdType.toHex() for SQL X'...' literals.
         // Verify that toHex() roundtrips back to the same IdType.
         for (id in listOf(SPEAK_LABEL_ID, UNLABELED_LABEL_ID, PARAGRAPH_BREAK_LABEL_ID)) {
@@ -314,66 +323,89 @@ class BookmarkControlTest {
     }
 
     /**
+     * `deduplicateSpecialLabels` takes a driver `SQLiteConnection`, which Room 3 does not hand out
+     * outside migrations (its connections are `PooledConnection`s). Run it on a second (bundled-driver)
+     * connection to the container's bookmark database file, with foreign keys on like the Room connection
+     * the old test used. Room's own connection has already committed everything (TRUNCATE journal), so the
+     * two do not conflict.
+     */
+    private fun runDeduplicateSpecialLabels() {
+        val path = application.getDatabasePath(net.bible.android.database.BookmarkDatabase.dbFileName).path
+        BundledSQLiteDriver().open(path).use { connection ->
+            // Room may still be reading this file (its invalidation tracker refreshes asynchronously after the
+            // writer-connection ALTERs above); without a busy timeout a write here fails at once with
+            // "database is locked" instead of waiting for that read to finish.
+            connection.execSQL("PRAGMA busy_timeout=10000")
+            connection.execSQL("PRAGMA foreign_keys=ON")
+            deduplicateSpecialLabels(connection)
+        }
+    }
+
+    /**
      * `deduplicateSpecialLabels` belongs to the 11->12 migration, so its INSERT names the six style
      * booleans that migration 12->13 replaced with `displayStyle`/`displayStyleWholeVerse`; in the
      * app it only ever sees a v11-shaped `Label`. These tests run it against the CURRENT (v13)
      * database, so put the legacy columns back first. What is under test is the reference remapping,
      * not the style columns the dedup copies along.
      */
-    private fun addLegacyLabelStyleColumns(db: SupportSQLiteDatabase) {
-        for (column in listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
-                              "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse")) {
-            db.execSQL("ALTER TABLE Label ADD COLUMN $column INTEGER NOT NULL DEFAULT 0")
+    private fun addLegacyLabelStyleColumns(db: net.bible.android.database.BookmarkDatabase) = runBlocking {
+        db.useWriterConnection { c ->
+            for (column in listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
+                                  "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse")) {
+                c.exec("ALTER TABLE Label ADD COLUMN $column INTEGER NOT NULL DEFAULT 0")
+            }
         }
     }
 
     @Test
-    fun testDeduplicateRemapsAllEntities() {
+    fun testDeduplicateRemapsAllEntities() = runTest {
         val bookmarkDb = DatabaseContainer.instance.bookmarkDb
         val dao = bookmarkDb.bookmarkDao()
 
         // Insert an old-style speak label with a random ID
         val oldId = IdType()
-        dao.insert(Label(id = oldId, name = SPEAK_LABEL_NAME, color = 0xFF0000))
+        runBlocking { dao.insert(Label(id = oldId, name = SPEAK_LABEL_NAME, color = 0xFF0000)) }
 
         // 1. BibleBookmarkToLabel
         val bibleBookmark = addTestVerse()!!
-        dao.insert(BibleBookmarkToLabel(bibleBookmark.id, oldId))
+        runBlocking { dao.insert(BibleBookmarkToLabel(bibleBookmark.id, oldId)) }
 
         // 2. BibleBookmark.primaryLabelId (set via raw SQL since there's no DAO method for this)
         val bibleBookmark2 = addTestVerse()!!
-        bookmarkDb.openHelper.writableDatabase.execSQL(
-            "UPDATE BibleBookmark SET primaryLabelId = ? WHERE id = ?",
-            arrayOf(oldId.toByteArray(), bibleBookmark2.id.toByteArray())
-        )
+        runBlocking {
+            bookmarkDb.useWriterConnection {
+                it.exec("UPDATE BibleBookmark SET primaryLabelId = ? WHERE id = ?",
+                    oldId.toByteArray(), bibleBookmark2.id.toByteArray())
+            }
+        }
 
         // 3. GenericBookmarkToLabel
         val genericBookmark = GenericBookmark(
             key = "test-key", bookInitials = "KJV",
             ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null, customIcon = null
         )
-        dao.insert(genericBookmark)
-        dao.insertGenericBookmarkToLabels(listOf(GenericBookmarkToLabel(genericBookmark.id, oldId)))
+        runBlocking { dao.insert(genericBookmark) }
+        runBlocking { dao.insertGenericBookmarkToLabels(listOf(GenericBookmarkToLabel(genericBookmark.id, oldId))) }
 
         // 4. GenericBookmark.primaryLabelId
         val genericBookmark2 = GenericBookmark(
             key = "test-key-2", bookInitials = "KJV", primaryLabelId = oldId,
             ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null, customIcon = null
         )
-        dao.insert(genericBookmark2)
+        runBlocking { dao.insert(genericBookmark2) }
 
         // 5. StudyPadTextEntry.labelId
         val studyPadEntry = StudyPadTextEntry(labelId = oldId, orderNumber = 0)
-        dao.insert(studyPadEntry)
-        dao.insert(StudyPadTextEntryText(studyPadTextEntryId = studyPadEntry.id, text = "test"))
+        runBlocking { dao.insert(studyPadEntry) }
+        runBlocking { dao.insert(StudyPadTextEntryText(studyPadTextEntryId = studyPadEntry.id, text = "test")) }
 
         // Run migration dedup logic
-        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
+        addLegacyLabelStyleColumns(bookmarkDb)
+        runDeduplicateSpecialLabels()
 
         // Old label gone, canonical exists with inherited properties
-        Assert.assertNull("Old label should be deleted", dao.labelById(oldId))
-        val canonicalLabel = dao.labelById(SPEAK_LABEL_ID)!!
+        Assert.assertNull("Old label should be deleted", runBlocking { dao.labelById(oldId) })
+        val canonicalLabel = runBlocking { dao.labelById(SPEAK_LABEL_ID) }!!
         Assert.assertEquals("Canonical label should inherit color", 0xFF0000, canonicalLabel.color)
 
         // 1. BibleBookmarkToLabel remapped
@@ -382,53 +414,53 @@ class BookmarkControlTest {
             bibleLabels.any { it.id == SPEAK_LABEL_ID })
 
         // 2. BibleBookmark.primaryLabelId remapped
-        val updatedBibleBookmark2 = dao.bibleBookmarkById(bibleBookmark2.id)!!
+        val updatedBibleBookmark2 = runBlocking { dao.bibleBookmarkById(bibleBookmark2.id) }!!
         Assert.assertEquals("BibleBookmark.primaryLabelId should be remapped",
             SPEAK_LABEL_ID, updatedBibleBookmark2.primaryLabelId)
 
         // 3. GenericBookmarkToLabel remapped
-        val genericLabels = bookmarkControl!!.labelsForBookmark(dao.genericBookmarkById(genericBookmark.id)!!)
+        val genericLabels = bookmarkControl!!.labelsForBookmark(runBlocking { dao.genericBookmarkById(genericBookmark.id) }!!)
         Assert.assertTrue("GenericBookmarkToLabel should reference canonical label",
             genericLabels.any { it.id == SPEAK_LABEL_ID })
 
         // 4. GenericBookmark.primaryLabelId remapped
-        val updatedGeneric2 = dao.genericBookmarkById(genericBookmark2.id)!!
+        val updatedGeneric2 = runBlocking { dao.genericBookmarkById(genericBookmark2.id) }!!
         Assert.assertEquals("GenericBookmark.primaryLabelId should be remapped",
             SPEAK_LABEL_ID, updatedGeneric2.primaryLabelId)
 
         // 5. StudyPadTextEntry.labelId remapped
-        val updatedEntry = dao.studyPadTextEntryById(studyPadEntry.id)!!
+        val updatedEntry = runBlocking { dao.studyPadTextEntryById(studyPadEntry.id) }!!
         Assert.assertEquals("StudyPadTextEntry.labelId should be remapped",
             SPEAK_LABEL_ID, updatedEntry.labelId)
     }
 
     @Test
-    fun testDeduplicateMergesMultipleDuplicates() {
+    fun testDeduplicateMergesMultipleDuplicates() = runTest {
         val bookmarkDb = DatabaseContainer.instance.bookmarkDb
         val dao = bookmarkDb.bookmarkDao()
 
         // Insert multiple old-style speak labels with different random IDs
         val oldId1 = IdType()
         val oldId2 = IdType()
-        dao.insert(Label(id = oldId1, name = SPEAK_LABEL_NAME, color = 0xFF0000))
-        dao.insert(Label(id = oldId2, name = SPEAK_LABEL_NAME, color = 0x00FF00))
+        runBlocking { dao.insert(Label(id = oldId1, name = SPEAK_LABEL_NAME, color = 0xFF0000)) }
+        runBlocking { dao.insert(Label(id = oldId2, name = SPEAK_LABEL_NAME, color = 0x00FF00)) }
 
         // Create bookmarks associated with different old labels
         val bookmark1 = addTestVerse()!!
         val bookmark2 = addTestVerse()!!
-        dao.insert(BibleBookmarkToLabel(bookmark1.id, oldId1))
-        dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2))
+        runBlocking { dao.insert(BibleBookmarkToLabel(bookmark1.id, oldId1)) }
+        runBlocking { dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2)) }
 
         // Run migration dedup logic
-        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
+        addLegacyLabelStyleColumns(bookmarkDb)
+        runDeduplicateSpecialLabels()
 
         // Both old labels should be gone
-        Assert.assertNull("Old label 1 should be deleted", dao.labelById(oldId1))
-        Assert.assertNull("Old label 2 should be deleted", dao.labelById(oldId2))
+        Assert.assertNull("Old label 1 should be deleted", runBlocking { dao.labelById(oldId1) })
+        Assert.assertNull("Old label 2 should be deleted", runBlocking { dao.labelById(oldId2) })
 
         // Canonical label should exist with properties from one of the duplicates
-        val canonicalLabel = dao.labelById(SPEAK_LABEL_ID)!!
+        val canonicalLabel = runBlocking { dao.labelById(SPEAK_LABEL_ID) }!!
         Assert.assertTrue("Canonical label should inherit color from a duplicate",
             canonicalLabel.color == 0xFF0000 || canonicalLabel.color == 0x00FF00)
 
@@ -455,14 +487,14 @@ class BookmarkControlTest {
     private fun addBookmark(verse: String?): BibleBookmarkWithNotes {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
         val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
-        return bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null)
+        return runBlocking { bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null) }
     }
 
     private fun addTestLabel(): Label {
         currentTestLabel = nextTestLabel
         val label = Label(new = true)
         label.name = currentTestLabel!!
-        return bookmarkControl!!.insertOrUpdateLabel(label)
+        return runBlocking { bookmarkControl!!.insertOrUpdateLabel(label) }
     }
 
     private val nextTestVerse: String

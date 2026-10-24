@@ -16,6 +16,11 @@
  */
 package net.bible.android.view.compose
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -60,9 +65,16 @@ class StartupWelcomeScreenTest {
         progressText = progress,
     )
 
-    private fun show(s: StartupWelcomeState) = compose.setContent {
+    private var scheme: ColorScheme? = null
+
+    private fun show(
+        s: StartupWelcomeState,
+        dark: Boolean = false,
+        mode: DisplayColorMode = DisplayColorMode.NORMAL,
+    ) = compose.setContent {
         ProvideAppLocals {
-            AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+            AbTheme(darkTheme = dark, colorMode = mode, disableAnimations = true) {
+                scheme = MaterialTheme.colorScheme
                 StartupWelcomeScreen(
                     state = s, appName = "AndBible", logo = null,
                     onSelectTab = { calls += "tab:$it" },
@@ -124,4 +136,28 @@ class StartupWelcomeScreenTest {
         show(state(tab = StartupWelcomeTab.ADVANCED, progress = "Installing document 1 of 3…"))
         compose.onNodeWithText("Installing document 1 of 3…").assertIsDisplayed()
     }
+
+    private fun textColor(text: String): androidx.compose.ui.graphics.Color {
+        val node = compose.onNodeWithText(text).fetchSemanticsNode()
+        val results = mutableListOf<TextLayoutResult>()
+        node.config.getOrNull(SemanticsActions.GetTextLayoutResult)!!.action!!(results)
+        return results.single().layoutInput.style.color
+    }
+
+    private fun assertProgressAndVersionUseThemeColour(dark: Boolean, mode: DisplayColorMode) {
+        show(state(tab = StartupWelcomeTab.ADVANCED, progress = "Extracting Zip file now…"), dark, mode)
+        val expected = scheme!!.onSurfaceVariant
+        assertEquals("progress", expected, textColor("Extracting Zip file now…"))
+        assertEquals("version", expected, textColor("Version: 5.1"))
+    }
+
+    /** Regression (E6 F-2): progress and version text set no colour and rendered dark-on-dark. */
+    @Test fun progress_and_version_text_use_theme_colour_dark() =
+        assertProgressAndVersionUseThemeColour(true, DisplayColorMode.NORMAL)
+
+    @Test fun progress_and_version_text_use_theme_colour_light() =
+        assertProgressAndVersionUseThemeColour(false, DisplayColorMode.NORMAL)
+
+    @Test fun progress_and_version_text_use_theme_colour_monochrome() =
+        assertProgressAndVersionUseThemeColour(true, DisplayColorMode.MONOCHROME)
 }

@@ -16,11 +16,18 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
+import org.junit.Before
 import android.os.Looper
 import net.bible.android.database.IdType
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.agent.AgentLogEntry
@@ -54,48 +61,112 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AgentSessionServiceImplTest {
 
+    @Before fun installMain() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
+
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
+        Dispatchers.resetMain()
+    }
+
+    @Test fun constructorRegistersTerminalEventsBeforeQueuedOwnerRuns() = kotlinx.coroutines.test.runTest {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val job = kotlinx.coroutines.SupervisorJob()
+        val queued = net.bible.sharedcore.platform.AppCoroutineScope(job + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.platform.AppCoroutineScope> { queued } })
+        try {
+            val service = AgentSessionServiceImpl()
+            val ws = CommonUtils.windowControl.windowRepository.id
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.ERROR))
+            testScheduler.runCurrent()
+            assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+            job.cancel()
+            testScheduler.runCurrent()
+            job.join()
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
+            testScheduler.runCurrent()
+            assertEquals("cancelled owner cannot publish events", AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+        } finally {
+            job.cancel()
+            testScheduler.runCurrent()
+            job.join()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.platform.AppCoroutineScope> { original } })
+        }
+    }
+
+    @Test fun eventWorkspaceAccessRunsOnMainEvenWhenOwnerIsDefault(): Unit = runBlocking {
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable -> Thread(runnable, "task7-main") }
+        val main = executor.asCoroutineDispatcher()
+        Dispatchers.setMain(main)
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.android.control.page.window.WindowControl>()
+        val repo = original.windowRepository
+        val accessed = kotlinx.coroutines.CompletableDeferred<String>()
+        val tracking = object : net.bible.android.control.page.window.WindowControl() {
+            override var windowRepository: net.bible.android.control.page.window.WindowRepository
+                get() { accessed.complete(Thread.currentThread().name); return repo }
+                set(value) { }
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.android.control.page.window.WindowControl> { tracking } })
+        try {
+            val service = AgentSessionServiceImpl()
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(repo.id, false, AgentStopReason.ERROR))
+            assertTrue(kotlinx.coroutines.withTimeout(5000) { accessed.await() }.startsWith("task7-main"))
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
+        } finally {
+            DatabaseResetter.resetDatabase()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.android.control.page.window.WindowControl> { original } })
+            Dispatchers.setMain(UnconfinedTestDispatcher())
+            main.close()
+        }
     }
 
     // --- AgentSessionManager.changes ------------------------------------------------------------
 
     @Test
-    fun aStopForTheCurrentWorkspaceSetsTheStopReason() {
+    fun aStopForTheCurrentWorkspaceSetsTheStopReason() = runBlocking {
         val service = AgentSessionServiceImpl()
         val ws = CommonUtils.windowControl.windowRepository.id
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, isRunning = false, stopReason = AgentStopReason.ERROR))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
         assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         assertFalse(service.snapshot.value.running)
     }
 
     @Test
-    fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() {
-        val ws = CommonUtils.windowControl.windowRepository.id
-        // Do not overwrite a session left by another test; restore this absent state in finally.
+    fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() = runBlocking {
+        // A new service resolves the current Koin binding, unlike CommonUtils's memoized one.
+        val repo = org.koin.core.context.GlobalContext.get()
+            .get<net.bible.android.control.page.window.WindowControl>().windowRepository
+        val original = repo.id
+        val ws = IdType()
         assertNull(AgentSessionManager.getSession(ws))
-        val service = AgentSessionServiceImpl()
-        val session = AgentSessionManager.getOrCreateSession(ws)
         try {
+            repo.id = ws
+            val service = AgentSessionServiceImpl()
+            val session = AgentSessionManager.getOrCreateSession(ws)
             assertTrue(session.tryStart(AgentContext(promptId = IdType())))
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.running } }
             assertTrue(service.snapshot.value.running)
             assertNull(service.snapshot.value.lastStopReason)
 
             session.stop(reason = AgentStopReason.ERROR)
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { !it.running && it.lastStopReason == AgentStopReasonVd.ERROR } }
             assertFalse(service.snapshot.value.running)
             assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         } finally {
+            repo.id = original
             AgentSessionManager.clearSession(ws)
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
 
     @Test
-    fun anotherWorkspacesStopIsIgnored() {
+    fun anotherWorkspacesStopIsIgnored() = runBlocking {
         val service = AgentSessionServiceImpl()
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(IdType(), isRunning = false, stopReason = AgentStopReason.ERROR))
         shadowOf(Looper.getMainLooper()).idle()
@@ -103,22 +174,25 @@ class AgentSessionServiceImplTest {
     }
 
     @Test
-    fun aStartClearsTheStopReason() {
+    fun aStartClearsTheStopReason() = runBlocking {
         val service = AgentSessionServiceImpl()
         val ws = CommonUtils.windowControl.windowRepository.id
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.COMPLETED } }
         assertEquals(AgentStopReasonVd.COMPLETED, service.snapshot.value.lastStopReason)
 
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, true))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == null } }
         assertNull(service.snapshot.value.lastStopReason)
     }
 
     /** F127: a stop reason belongs to its workspace; a switch must not show another workspace's reason. */
     @Test
-    fun theStopReasonFollowsTheWorkspaceAcrossASwitch() {
-        val repo = CommonUtils.windowControl.windowRepository
+    fun theStopReasonFollowsTheWorkspaceAcrossASwitch() = runBlocking {
+        val repo = org.koin.core.context.GlobalContext.get()
+            .get<net.bible.android.control.page.window.WindowControl>().windowRepository
         val original = repo.id
         val a = IdType()
         val b = IdType()
@@ -127,6 +201,7 @@ class AgentSessionServiceImplTest {
             val service = AgentSessionServiceImpl()
             AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(a, isRunning = false, stopReason = AgentStopReason.ERROR))
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
             assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
 
             repo.id = b
@@ -279,10 +354,10 @@ class AgentSessionServiceImplTest {
     @Test
     fun autoHideEnabled_reflectsAiSettings() {
         val service = AgentSessionServiceImpl()
-        AiSettings.autoHideAgentLogOnCompletion = false
+        CommonUtils.aiSettings.autoHideAgentLogOnCompletion = false
         assertFalse(service.autoHideEnabled())
 
-        AiSettings.autoHideAgentLogOnCompletion = true
+        CommonUtils.aiSettings.autoHideAgentLogOnCompletion = true
         assertTrue(service.autoHideEnabled())
     }
 }

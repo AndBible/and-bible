@@ -38,6 +38,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class VolumeScrollHostTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @Before
@@ -48,11 +50,7 @@ class VolumeScrollHostTest {
     @After
     fun tearDown() {
         CommonUtils.settings.removeBoolean("volume_keys_scroll")
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun idleMain() {
@@ -72,8 +70,9 @@ class VolumeScrollHostTest {
         ).also { controllers += it }
         controller.create().start().resume().visible()
         val activity = controller.get()
-        idleMain()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         activity.navigateInGraph(route)
+        net.bible.test.awaitHostRoute(activity, route) { compose.waitForIdle() }
         idleMain()
         val nc = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
             .get(activity) as androidx.navigation.NavHostController?

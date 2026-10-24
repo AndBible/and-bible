@@ -1,0 +1,149 @@
+/*
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.misc
+
+import kotlinx.serialization.serializer
+import net.bible.android.database.bookmarks.BookmarkOsisFragment
+import net.bible.android.database.json
+import net.bible.sharedlogic.text.HtmlEntities
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
+import fi.sykero.kdom.output.support.AbstractXMLOutputProcessor
+import fi.sykero.kdom.output.support.FormatStack
+
+
+val sanitizeRegex = Regex("""[^\p{L}\d]""")
+fun sanitizeId(s: String): String = s.replace(sanitizeRegex, "_")
+
+// Unique identifier that can be used as ID in DOM
+val Key.uniqueId: String get() {
+    return if (this is VerseRange) {
+        "ordinal-${start.ordinal}-${end.ordinal}"
+    } else {
+        sanitizeId(this.getOsisID())
+    }
+}
+
+/**
+ * Wraps arbitrary content as a JavaScript template literal for injection into the WebView.
+ *
+ * Everything the content could otherwise do to the literal must be escaped: `${...}` would be
+ * evaluated as a substitution (throwing ReferenceError and aborting the whole injected script),
+ * a backslash would start an escape sequence, and a backtick would close the literal early.
+ */
+fun wrapString(str_: String?): String =
+    if(str_ == null) "null"
+    else {
+        val str = str_
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("$", "\\$")
+        "`$str`"
+    }
+
+fun elementToString(e: Element): String {
+    val format = Format.getRawFormat()
+    val processor = object: AbstractXMLOutputProcessor() {
+        override fun printText(out: Appendable, fstack: FormatStack, text: Text) {
+            // We might have html-encoded characters in OSIS text.
+            // Let's un-encode them first, lest we will end up with double-encoded strings
+            // such as &amp;quot;
+            text.text = HtmlEntities.unescapeHtml4(text.text)
+            super.printText(out, fstack, text)
+        }
+    }
+    return XMLOutputter(format, processor).outputString(e)
+}
+
+
+class OsisFragment(
+    val xml: Element,
+    val key: Key,
+    private val book: Book
+) : BookmarkOsisFragment {
+    val xmlStr = elementToString(xml)
+    private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
+
+    val hasChapter: Boolean get() = xml.getChild("div")?.getChild("chapter") != null
+
+    private val features: Map<String, String> get () {
+        val hasHebrew = book.hasFeature(FeatureType.HEBREW_DEFINITIONS)
+        val hasGreek = book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
+        val type = when {
+            hasHebrew && hasGreek -> "hebrew-and-greek"
+            hasHebrew -> "hebrew"
+            hasGreek -> "greek"
+            else -> null
+        }
+        return if (type != null) {
+            hashMapOf(
+                "type" to type,
+                "keyName" to key.getName()
+            )
+        } else emptyMap()
+    }
+
+    val isStrongsDictionary: Boolean get() =
+        book.hasFeature(FeatureType.HEBREW_DEFINITIONS) ||
+        book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
+    val isMorphDictionary: Boolean get() =
+        book.hasFeature(FeatureType.GREEK_PARSE)
+
+    val annotateRef: VerseRange? get() {
+        val annotateRef = xml.getChild("div")?.getAttribute("annotateRef")?.value ?: return null
+        if(book !is SwordBook) return null
+        return try {VerseRangeFactory.fromString(book.versification, annotateRef) } catch (e: NoSuchVerseException) { null }
+    }
+
+    override val toHashMap: Map<String, String> get() {
+        val ordinalRangeStr = json.encodeToString(
+            serializer(),
+            if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
+        )
+        val isNewTestament = key is VerseRange && key.start.book.ordinal >= BibleBook.MATT.ordinal
+
+        return mapOf(
+            "xml" to wrapString(xmlStr),
+            "key" to wrapString(keyStr),
+            "keyName" to wrapString(key.getName()),
+            "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
+            "bookCategory" to wrapString(book.bookCategory.name),
+            "bookInitials" to wrapString(book.initials),
+            "bookAbbreviation" to wrapString(book.abbreviation),
+            "osisRef" to wrapString(key.getOsisRef()),
+            "isNewTestament" to json.encodeToString(serializer(), isNewTestament),
+            "features" to json.encodeToString(serializer(), features),
+            "ordinalRange" to ordinalRangeStr,
+            "language" to wrapString(book.language.code),
+            "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
+            "hasStrongs" to json.encodeToString(serializer(), book.hasFeature(FeatureType.STRONGS_NUMBERS)),
+        )
+    }
+}

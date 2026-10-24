@@ -742,7 +742,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--TODO: to be removed-->
   <string name="help_search_text2">Vyhledávací dotaz může obsahovat speciální znaky a slova jako *, ?, ~, AND, OR, NOT</string>
   <string name="help_search_details">Pro více detailů viz. %s .</string>
-  <string name="help_apache_lucene">Apache Lucene - formát vyhledávacího dotazu</string>
   <string name="help_fts5">FTS5 Syntaxe fulltextového dotazu</string>
   <string name="help_workspaces_title">Pracovní plochy</string>
   <string name="help_workspaces_text">

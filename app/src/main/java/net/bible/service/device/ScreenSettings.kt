@@ -26,6 +26,7 @@ import android.os.PowerManager
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
+import net.bible.sharedlogic.platform.resolveNightMode
 
 /** Manage screen related functions
  *
@@ -91,17 +92,20 @@ object ScreenSettings {
 
     private var lastNightMode: Boolean = refreshNightMode()
 
-	val nightMode: Boolean get() =
-        when {
-            autoNightMode -> lastNightMode
-            systemMode -> when(config.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                Configuration.UI_MODE_NIGHT_YES -> true
-                Configuration.UI_MODE_NIGHT_NO -> false
-                else -> false
-            }
-            else // manual mode
-            -> preferences.getBoolean("night_mode_pref", false)
+	val nightMode: Boolean get() {
+        // "automatic" only counts with a light sensor; without one the stored value falls through to the manual branch.
+        val mode = when {
+            autoNightMode -> "automatic"
+            systemMode -> "system"
+            else -> "manual"
         }
+        return resolveNightMode(
+            mode,
+            manualNight = if(mode == "manual") preferences.getBoolean("night_mode_pref", false) else false,
+            systemDark = if(mode == "system") (config.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES else false,
+            autoReading = if(mode == "automatic") lastNightMode else null,
+        )
+    }
 
     fun setLastNightMode(value: Boolean) {
         if(autoNightMode)

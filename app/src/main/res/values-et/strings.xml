@@ -714,7 +714,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <!--TODO: to be removed-->
   <string name="help_search_text2">Otsingutekstis võib olla ka erimärke nagu *, AND, OR, NOT</string>
   <string name="help_search_details">Vaata lisainfoks %s.</string>
-  <string name="help_apache_lucene">Apache Lucene - päringu parseri süntaks</string>
   <string name="help_fts5">FTS5 täistekst päringu süntaks</string>
   <string name="help_workspaces_title">Tööalad</string>
   <string name="help_workspaces_text">Tööalad võimaldavad omada mitut kontekstist sõltuvat töökeskkonda. Tööala funktsioonidele pääseb ligi valikumenüü (üleval paremal nurgas) tööalade kaudu. Kiire viis tööaladele ligipääsemiseks on libistada alla tööriistaribalt. Samuti võid kasutada vasakule ja paremale libistamist tööriistariba kohal, et lülituda eelmisele/järgmisele tööalale.</string>

@@ -1,0 +1,62 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.control.speak
+
+import net.bible.sharedcore.log.Log
+import androidx.annotation.VisibleForTesting
+import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
+import net.bible.android.database.bookmarks.TAG
+
+const val PERSIST_SETTINGS = "SpeakSettings"
+
+/** A saved change emitted by [SpeakSettingsChanges]. */
+data class SpeakSettingsChange(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
+
+/** Synchronous change stream owned by the persisted global speak settings. */
+object SpeakSettingsChanges {
+    private var source = EventSource<SpeakSettingsChange>()
+
+    val changes: Events<SpeakSettingsChange> get() = source
+
+    internal fun emit(change: SpeakSettingsChange) = source.emit(change)
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { source = EventSource() }
+}
+
+fun SpeakSettings.save(updateBookmark: Boolean = false) {
+    if(SpeakSettings.Companion.currentSettings?.equals(this) != true) {
+        SpeakSettings.store.save(toJson())
+        Log.i(TAG, "SpeakSettings saved! $this")
+        val oldSettings = SpeakSettings.Companion.currentSettings
+        SpeakSettings.Companion.currentSettings = this.makeCopy()
+        val updateBookmarkNow = updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true
+        val sleepTimerChanged = oldSettings?.sleepTimer != this.sleepTimer
+        SpeakSettingsChanges.emit(SpeakSettingsChange(this, updateBookmarkNow, sleepTimerChanged))
+    }
+}
+
+fun SpeakSettings.Companion.load(): SpeakSettings {
+    val rv = currentSettings?.makeCopy()?: run {
+        fromJson(store.load() ?: "")
+    }
+    Log.i(TAG, "SpeakSettings loaded! $rv")
+    return rv
+}

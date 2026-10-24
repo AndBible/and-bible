@@ -1,12 +1,12 @@
 package net.bible.service.cloudsync.webdav
 
+import okio.Path.Companion.toOkioPath
 import androidx.test.core.app.ApplicationProvider
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.sharedcore.webdav.*
 import org.junit.After
@@ -43,13 +43,13 @@ class WebDavBackgroundFailureTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter() = WebDavCloudAdapter(
-        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui,
+        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui, deviceId = "test-device",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
         nowMs = { server.nowServer },
     )
 
-    private suspend fun signedIn() = adapter().also { assertTrue(it.signIn(mock<ActivityBase>())) }
-    private fun tmp() = File.createTempFile("webdav-bg", ".gz").also { it.writeBytes(byteArrayOf(1)); it.deleteOnExit() }
+    private suspend fun signedIn() = adapter().also { assertTrue(it.signIn()) }
+    private fun tmp() = File.createTempFile("webdav-bg", ".gz").also { it.writeBytes(byteArrayOf(1)); it.deleteOnExit() }.toOkioPath()
 
     @Test fun certificateChangedDuringSync_isUserFacingReconnect() = runBlocking {
         val a = signedIn()
@@ -75,11 +75,11 @@ class WebDavBackgroundFailureTest {
     @Test fun authFailureDuringSync_isUserFacingReconnect() = runBlocking {
         // The fake server's auth mode (a real challenge) with an adapter whose password is wrong.
         val a = WebDavCloudAdapter(
-            WebDavConfig("https://h/dav/", "me", "wrong", "AndBible"), state, ui,
+            WebDavConfig("https://h/dav/", "me", "wrong", "AndBible"), state, ui, deviceId = "test-device",
             clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
             nowMs = { server.nowServer },
         )
-        assertTrue(a.signIn(mock<ActivityBase>()))
+        assertTrue(a.signIn())
         server.authRequired = true
         val e = runCatching { a.listFiles(null, null, null, null) }.exceptionOrNull()
         assertTrue("was $e", e is CloudSyncUserFacingException)

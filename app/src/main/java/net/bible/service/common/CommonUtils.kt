@@ -17,6 +17,9 @@
 
 package net.bible.service.common
 
+import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.Path.Companion.toOkioPath
+import okio.source
 import android.Manifest
 import android.app.Activity
 import android.app.Application
@@ -35,7 +38,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -51,7 +53,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.URLSpan
 import android.util.LayoutDirection
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -68,7 +70,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
@@ -82,12 +83,13 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
-import net.bible.android.control.backup.BackupControl
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsLevel
@@ -102,6 +104,13 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.platform.AppJson
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.getEnumSet
+import net.bible.sharedcore.platform.setEnumSet
+import net.bible.sharedcore.platform.resolveDisableAnimations
+import net.bible.sharedcore.platform.resolveDisplayColorMode
+import net.bible.sharedcore.platform.resolveThemePaletteStyle
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -111,12 +120,17 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.sword.persistCipherKey
+import net.bible.service.startup.ReadingAppInit
+import net.bible.service.startup.ReadingAppInitPlatform
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.epub.isEpub
@@ -151,8 +165,7 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import org.jdom2.input.SAXBuilder
-import org.jdom2.xpath.XPathFactory
+import fi.sykero.kdom.input.build
 import org.spongycastle.util.io.pem.PemReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -162,16 +175,11 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.IndexOutOfBoundsException
-import java.math.BigInteger
 import java.security.KeyFactory
-import java.security.MessageDigest
 import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -211,7 +219,6 @@ const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?
 
 const val windowsAndWorkspacesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ" // 4.0 (Window's and workspaces playlist)
 const val labelsAndBookmarksPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks playlist)
-const val bookmarksMyNotesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
 const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
 const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
 
@@ -222,17 +229,8 @@ const val workspacesVideo = windowsAndWorkspacesPlaylist
 const val betaIntroVideo = "https://youtu.be/EKnyBIti9Fk" //promoAndNewFeaturesPlaylistAutostart
 const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new in 5.1
 
-const val speakHelpVideo = speakPlayList
-const val automaticSpeakBookmarkingVideo = speakPlayList
-
-val BookmarkEntities.Label.displayName get() =
-    when {
-        isSpeakLabel -> application.getString(R.string.speak)
-        isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
-        isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
-        isAiLabel -> application.getString(R.string.ai_label)
-        else -> name
-    }
+const val speakHelpVideo = net.bible.sharedcore.docs.HelpVideos.SPEAK
+const val automaticSpeakBookmarkingVideo = net.bible.sharedcore.docs.HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING
 
 
 open class CommonUtilsBase : KoinComponent {
@@ -241,46 +239,11 @@ open class CommonUtilsBase : KoinComponent {
     val bibleTraverser: BibleTraverser by inject()
 }
 
-enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
-
 class Ref<T>(var value: T? = null)
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-object AdvancedSpeakSettings {
-    var autoBookmark: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_autoBookmark", value)
-        }
-
-    var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_synchronize", value)
-        }
-
-    var replaceDivineName: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
-        }
-
-    var restoreSettingsFromBookmarks: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
-        }
-
-    fun reset() {
-        autoBookmark = false
-        synchronize = true
-        replaceDivineName = false
-        restoreSettingsFromBookmarks = false
-    }
-}
 
 /**
  * Fix batch 1 2.5b: the explicit state [CommonUtils.changeAppIconAndName] must write for one launcher
@@ -301,14 +264,10 @@ internal fun componentStateToWrite(current: Int, manifestEnabled: Boolean, wantE
 
 object CommonUtils : CommonUtilsBase() {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
-    private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
 
-	val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+	val json get() = AppJson
 
     private const val TAG = "CommonUtils"
     var isAndroid = true
@@ -394,18 +353,15 @@ object CommonUtils : CommonUtilsBase() {
             return megAvailable
         }
 
-    val booleanSettings get() = DatabaseContainer.instance.settingsDb.booleanSettingDao()
-    val longSettings get() = DatabaseContainer.instance.settingsDb.longSettingDao()
-    val stringSettings get() = DatabaseContainer.instance.settingsDb.stringSettingDao()
-    val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
+    private val store get() = DatabaseContainer.instance.settingsStore
 
-    class AndBibleSettings {
-        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { stringSettings.get(key, default) }
-        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { longSettings.get(key, default) }
-        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { longSettings.get(key, default.toLong()).toInt() }
-        fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
-        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default) }
-        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default.toDouble()).toFloat() }
+    class AndBibleSettings : AppSettings {
+        override fun getString(key: String, default: String?) = orDefaultIfDbNotReady(default) { store.getString(key, default) }
+        override fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { store.getLong(key, default) }
+        override fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { store.getLong(key, default.toLong()).toInt() }
+        override fun getBoolean(key: String, default: Boolean) = if(initialized) store.getBoolean(key, default) else default
+        override fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { store.getDouble(key, default) }
+        override fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { store.getDouble(key, default.toDouble()).toFloat() }
 
         /**
          * Nav-graph slice 8 C3 (Review Focus #1): a read before the database exists answers [default]
@@ -426,48 +382,24 @@ object CommonUtils : CommonUtilsBase() {
         private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
             try { read() } catch (e: DataBaseNotReady) { default }
 
-        fun setString(key: String, value: String?) = stringSettings.set(key, value)
-        fun setLong(key: String, value: Long?) = longSettings.set(key, value)
-        fun setInt(key: String, value: Int?) = longSettings.set(key, value?.toLong())
-        fun setBoolean(key: String, value: Boolean?) = booleanSettings.set(key, value)
-        fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
-        fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
+        override fun setString(key: String, value: String?) = store.setString(key, value)
+        override fun setLong(key: String, value: Long?) = store.setLong(key, value)
+        override fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
+        override fun setBoolean(key: String, value: Boolean?) = store.setBoolean(key, value)
+        override fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
+        override fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
 
-        fun getStringSet(key: String, defValues: Set<String> = emptySet()): Set<String> {
-            val s = getString(key, null) ?: return defValues
-            return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
-        }
-
-        fun setStringSet(key: String, values: Set<String>?) {
-            if(values == null) removeString(key)
-            else setString(key, json.encodeToString(serializer(), values))
-        }
-
-        inline fun <reified T> getEnumSet(key: String, defValues: Set<T> = emptySet()): Set<T> {
-            val s = getString(key, null) ?: return defValues
-            return try { json.decodeFromString(s) } catch (e: SerializationException) { defValues }
-        }
-
-        inline fun <reified T> setEnumSet(key: String, values: Set<T>) {
-            setString(key, json.encodeToString(values))
-        }
-
-        fun removeString(key: String) = setString(key, null)
-        fun removeDouble(key: String) = setDouble(key, null)
-        fun removeLong(key: String) = setLong(key, null)
-        fun removeBoolean(key: String) = setBoolean(key, null)
-
-        val displayColorMode: DisplayColorMode get() =
-            DisplayColorMode.fromValue(getString("display_color_mode", null))
-                ?: DisplayColorMode.defaultFor(isOnyxDevice)
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisplayColorMode]. */
+        val displayColorMode: DisplayColorMode get() = resolveDisplayColorMode(isOnyxDevice)
         val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
         val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
-        val themePaletteStyle: ThemePaletteStyle get() =
-            ThemePaletteStyle.fromValue(getString(THEME_PALETTE_STYLE_KEY, null)) ?: ThemePaletteStyle.DEFAULT
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveThemePaletteStyle]. */
+        val themePaletteStyle: ThemePaletteStyle get() = resolveThemePaletteStyle()
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
-        val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisableAnimations]. */
+        val disableAnimations: Boolean get() = resolveDisableAnimations(isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
         val hideStatusBar: Boolean get() = getBoolean("hide_status_bar", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"
@@ -482,11 +414,13 @@ object CommonUtils : CommonUtilsBase() {
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
 
 
-        /** Check if any LlmProviderConfig exists in the database. */
+        /**
+         * True when any LlmProviderConfig exists. Read on the UI thread, so it reads the app-wide
+         * [net.bible.sharedcore.ai.PromptService.configured] snapshot (refreshed when the AI configuration changes)
+         * instead of the database; [initializeAppCoroutine] awaits its first refresh.
+         */
         val llmConfigured: Boolean
-            get() = try {
-                DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
-            } catch (_: Exception) { false }
+            get() = promptService.configured.value
 
     }
 
@@ -501,15 +435,48 @@ object CommonUtils : CommonUtilsBase() {
      * Global AI settings stored in the syncable AiSettingsDatabase.
      * Use this for agent permissions, excluded documents, commentary token limit, etc.
      */
-    val aiSettings: AiSettings get() = AiSettings
+    val aiSettings: net.bible.service.llm.AiSettings get() = org.koin.java.KoinJavaComponent.get(net.bible.service.llm.AiSettings::class.java)
 
-    var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = DatabaseContainer.instance.workspaceDb
-            .globalTextDisplaySettingsDao().get()?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
-        set(value) {
-            DatabaseContainer.instance.workspaceDb
-                .globalTextDisplaySettingsDao().set(GlobalTextDisplaySettings(textDisplaySettings = value))
+    private val promptService: net.bible.sharedcore.ai.PromptService
+        get() = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.ai.PromptService::class.java)
+
+    private val llmConfiguredSource = net.bible.sharedcore.event.EventSource<Unit>()
+    private var llmBridgeJob: kotlinx.coroutines.Job? = null
+    private var llmBridgeFor: net.bible.sharedcore.ai.PromptService? = null
+
+    /**
+     * Fires after [net.bible.sharedcore.ai.PromptService.configured] changed value, so a listener reading
+     * [AndBibleSettings.llmConfigured] sees the new value (unlike `aiSettings.configChanged`, which fires before the
+     * asynchronous refresh). Reading it starts the bridge; it restarts when the service or its scope was replaced.
+     */
+    val llmConfiguredChanges: net.bible.sharedcore.event.Events<Unit> get() {
+        val service = promptService
+        synchronized(llmConfiguredSource) {
+            if (llmBridgeJob?.isActive != true || llmBridgeFor !== service) {
+                llmBridgeJob?.cancel()
+                llmBridgeFor = service
+                var last = service.configured.value
+                val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
+                llmBridgeJob = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    service.configured.collect { if (it != last) { last = it; llmConfiguredSource.emit(Unit) } }
+                }
+            }
         }
+        return llmConfiguredSource
+    }
+
+    internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) = ReadingAppInit.runEachCatching(*steps)
+
+    private val readingProgressSettingsStore: ReadingProgressSettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
+
+    /** The snapshot held by [GlobalTextDisplaySettingsStore]; loaded in [initializeAppCoroutine]. */
+    var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+        get() = globalTextDisplaySettingsStore.current
+        set(value) = globalTextDisplaySettingsStore.set(value)
+
+    private val globalTextDisplaySettingsStore: GlobalTextDisplaySettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(GlobalTextDisplaySettingsStore::class.java)
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -533,15 +500,6 @@ object CommonUtils : CommonUtilsBase() {
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
-    val truncatedDate: Date
-        get() = Calendar.getInstance().let { date ->
-            date.set(Calendar.HOUR_OF_DAY, 0)
-            date.set(Calendar.MINUTE, 0)
-            date.set(Calendar.SECOND, 0)
-            date.set(Calendar.MILLISECOND, 0)
-            date.time
-        }
-
     val deviceIdentifier: String get() =
         Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
             ?: realSharedPreferences.getString("android_id", null).let {
@@ -563,21 +521,6 @@ object CommonUtils : CommonUtilsBase() {
 
         println("isAndroid:$isAndroid")
     }
-
-    fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
-        selection,
-        showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
-        advertiseApp = settings.getBoolean("share_show_add", true),
-        abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
-        showNotes = settings.getBoolean("show_notes", true),
-        showVersion = settings.getBoolean("share_show_version", true),
-        showReference = settings.getBoolean("share_show_reference", true),
-        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
-        showSelectionOnly = settings.getBoolean("show_selection_only", true),
-        showEllipsis = settings.getBoolean("show_ellipsis", true),
-        showQuotes = settings.getBoolean("share_show_quotes", false),
-        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false)
-    )
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
@@ -774,80 +717,21 @@ object CommonUtils : CommonUtilsBase() {
      * @param secs duration
      * @return h:m:s
      */
-    fun getHoursMinsSecs(secs: Long): String {
-        val h = (secs / 3600).toInt()
-        val m = (secs / 60 % 60).toInt()
-        val s = (secs % 60).toInt()
+    fun getHoursMinsSecs(secs: Long): String = net.bible.sharedcore.util.formatHoursMinsSecs(secs)
 
-        val hms = StringBuilder()
-        if (h > 0) {
-            hms.append(h).append(COLON)
-        }
+    fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 
-        // add padding for 1 digit mins
-        if (m < 10) {
-            hms.append(0)
-        }
-        hms.append(m).append(COLON)
+    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange = net.bible.android.control.versification.wholeChapter(currentVerse, showIntros)
 
-        // add padding for 1 digit secs
-        if (s < 10) {
-            hms.append(0)
-        }
-        hms.append(s)
-        return hms.toString()
-    }
-
-    fun getKeyDescription(key: Key): String {
-        var name: String
-        try {
-            name = key.name
-
-            // do not show verse 0
-            if (key is Verse) {
-                if (key.verse == 0 && name.endsWith("0")) {
-                    val verse0 = "[\\W]0$"
-                    name = name.replace(verse0.toRegex(), "")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting key name - could that Versification does not contain book")
-            // but this normally works
-            name = key.osisRef.replace('.', ' ')
-        }
-
-        return name
-    }
-
-    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
-        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID}")
-        val versification = currentVerse.versification
-        val book = currentVerse.book
-        val chapter = currentVerse.chapter
-
-        val startChapter = if(showIntros && chapter == 1) 0 else chapter
-        val endChapter = if(showIntros && chapter == 0) 1 else chapter
-
-        val targetChapterFirstVerse = Verse(versification, book, startChapter, 0)
-        val targetChapterLastVerse = Verse(versification, book, endChapter, versification.getLastVerse(book, endChapter))
-
-        // convert to full chapter before returning because bible view is for a full chapter
-        return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
-    }
-
-    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
-        val targetChapterFirstVerse = Verse(v11n, book, chapter1, 0)
-        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.getLastVerse(book, chapter2))
-
-        return VerseRange(v11n, targetChapterFirstVerse, targetChapterLastVerse)
-    }
+    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange = net.bible.android.control.versification.wholeChapters(v11n, book, chapter1, chapter2)
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
     private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")
         scope.launch {
-            CloudSync.waitUntilFinished()
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).waitUntilFinished()
+            DatabaseContainer.flushSettingsBeforeExit()
             exitProcess(2)
         }
     }
@@ -877,161 +761,53 @@ object CommonUtils : CommonUtilsBase() {
         settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
-    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+    private fun documentDialogsCore(context: Context) = net.bible.sharedui.app.ports.DocumentDialogsCore(
+        dialogs,
+        { net.bible.sharedui.strings.keyed.StringTable(
+            "android", { key -> context.getString(documentDialogStringIds.getValue(key)) },
+            { key, args -> context.getString(documentDialogStringIds.getValue(key), *args) },
+            { _, _ -> error("No plurals") }, { emptyList() },
+        ) },
+    )
+    private val documentDialogStringIds = mapOf(
+        "okay" to R.string.okay,
+        "cancel" to R.string.cancel,
+        "yes" to R.string.yes,
+        "no" to R.string.no,
+        "give_passphrase_for_module" to R.string.give_passphrase_for_module,
+        "show_unlock_info" to R.string.show_unlock_info,
+        "try_again_passphrase" to R.string.try_again_passphrase,
+        "warn_bad_document" to R.string.warn_bad_document,
+        "module_about_copyright" to R.string.module_about_copyright,
+        "unlock_info" to R.string.unlock_info,
+        "module_about_installed_version" to R.string.module_about_installed_version,
+        "module_about_latest_version" to R.string.module_about_latest_version,
+        "about_version_history" to R.string.about_version_history,
+        "module_about_versification" to R.string.module_about_versification,
+        "module_about_repository" to R.string.module_about_repository,
+        "module_about_osisId" to R.string.module_about_osisId,
+        "help_read_more_link" to R.string.help_read_more_link,
+        "bookmark_warning" to R.string.bookmark_warning,
+        "bookmark_warning2" to R.string.bookmark_warning2,
+        "bookmark_warning3" to R.string.bookmark_warning3,
+        "bookmark_warning4" to R.string.bookmark_warning4,
+        "buy_development" to R.string.buy_development,
+        "buy_development2" to R.string.buy_development2,
+        "watch_tutorial_video" to R.string.watch_tutorial_video,
+        "help_full_documentation_link" to R.string.help_full_documentation_link,
+        "help" to R.string.help,
+    )
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
-        var repeat = true
-        while (repeat) {
-            val answer = dialogs.await(
-                AppDialogRequest.TextInput(
-                    title = application.getString(R.string.give_passphrase_for_module, book.initials),
-                    message = null,
-                    initial = book.unlockKey ?: "",
-                    confirmText = application.getString(R.string.okay),
-                    dismissText = application.getString(R.string.cancel),
-                    neutralText = application.getString(R.string.show_unlock_info),
-                    cancellable = false,
-                    draftKey = "unlock:${book.initials}",
-                ),
-            )
-            val passphrase: String? = when (answer) {
-                is AppDialogResult.Text -> answer.value
-                AppDialogResult.Neutral -> {
-                    showAbout(context, book)
-                    continue
-                }
-                else -> null
-            }
-            if (passphrase != null) {
-                val success = book.unlock(passphrase)
-                if (success) {
-                    docDao.getBook(book.initials)?.apply {
-                        cipherKey = passphrase
-                        docDao.update(this)
-                    }
-                    return true
-                }
-            }
-            repeat = dialogs.await(
-                AppDialogRequest.Confirm(
-                    title = application.getString(R.string.try_again_passphrase),
-                    message = null,
-                    confirmText = application.getString(R.string.yes),
-                    dismissText = application.getString(R.string.no),
-                    cancellable = false,
-                ),
-            ) == AppDialogResult.Ok
+        return documentDialogsCore(application).unlockDocument(book) { passphrase ->
+            persistCipherKey(book, passphrase, KoinJavaComponent.get(BookInstallWatcher::class.java))
         }
-        return false
     }
 
     /** about display is generic so handle it here
      */
     suspend fun showAbout(context: Context, document: Book) {
-        var about = "<b>${document.name}</b>\n\n"
-        val badDocument = document.bookMetaData.getProperty("BadDocument")
-        if(badDocument != null) {
-            about += "<b>${application.getString(R.string.warn_bad_document)}</b>\n\n"
-        }
-        about += document.bookMetaData.getProperty("About") ?: ""
-        // either process the odd formatting chars in about
-        about = about.replace("\\pard", "")
-        about = about.replace("\\par", "\n")
-
-        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
-
-        if(shortPromo != null) {
-            about += "\n\n${shortPromo}"
-        }
-
-        // Copyright and distribution information
-        val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
-        val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
-        val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
-        val unlockInfo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_UNLOCK_INFO)
-        var copyrightMerged = ""
-        if (StringUtils.isNotBlank(shortCopyright)) {
-            copyrightMerged += shortCopyright
-        } else if (StringUtils.isNotBlank(copyright)) {
-            copyrightMerged += "\n\n" + copyright
-        }
-        if (StringUtils.isNotBlank(distributionLicense)) {
-            copyrightMerged += "\n\n" +distributionLicense
-        }
-        if (StringUtils.isNotBlank(copyrightMerged)) {
-            val copyrightMsg = application.getString(R.string.module_about_copyright, copyrightMerged)
-            about += "\n\n" + copyrightMsg
-        }
-        if(unlockInfo != null) {
-            about += "\n\n<b>${application.getString(R.string.unlock_info)}</b>\n\n$unlockInfo"
-        }
-
-        // add version
-        val existingDocument = Books.installed().getBook(document.initials)
-        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
-        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
-
-        val versionLatest = document.bookMetaData.getProperty("Version")
-        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
-
-        val versionMessageInstalled = if(existingVersion != null)
-            application.getString(R.string.module_about_installed_version,
-                try {
-                    Version(existingVersion).toString()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error parsing version $existingVersion", e)
-                    existingVersion
-                }, existingVersionDate)
-        else null
-
-        val versionMessageLatest = if(versionLatest != null)
-            application.getString((
-                if (existingDocument != null)
-                    R.string.module_about_latest_version
-                else
-                    R.string.module_about_installed_version),
-                try {Version(versionLatest).toString()} catch(e: Exception) {versionLatest}, versionLatestDate)
-        else null
-
-        if(versionMessageLatest != null) {
-            about += "\n\n" + versionMessageLatest
-        }
-
-        val history = document.bookMetaData.getValues("History")
-        if(history != null) {
-            about += "\n\n" + application.getString(R.string.about_version_history, "\n" +
-                history.reversed().joinToString("\n"))
-        }
-
-        // add versification
-        if (document is SwordBook) {
-            val versification = document.versification
-            val versificationMsg = application.getString(R.string.module_about_versification, versification.name)
-            about += "\n\n" + versificationMsg
-        }
-
-        // add id
-        if (document is SwordBook) {
-            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
-            val repoMessage = if(repoName != null) application.getString(R.string.module_about_repository, repoName) else ""
-            val osisIdMessage = application.getString(R.string.module_about_osisId, document.initials)
-            about += """
-
-
-                $osisIdMessage
-                
-                $repoMessage
-                """.trimIndent()
-        }
-        about = about.replace("\n", "<br>")
-        dialogs.await(
-            AppDialogRequest.Message(
-                title = null,
-                message = about,
-                confirmText = application.getString(R.string.okay),
-                cancellable = false,
-            ),
-        )
+        documentDialogsCore(application).showAbout(document)
     }
 
     /**
@@ -1062,43 +838,21 @@ object CommonUtils : CommonUtilsBase() {
             } else this
         }
 
-        val buy = app.getString(R.string.buy_development)
-        val support = app.getString(R.string.buy_development2)
-        val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
+        dialogs.post(documentDialogsCore(app).helpNotice(
+            help.map { net.bible.sharedui.app.ports.DocumentDialogsCore.HelpItem(app.getString(it.title), app.getString(it.text), it.videoLink, it.docUrl) },
+            versionMsg = if (showVersion) versionMsg else null,
+            okText = app.getString(android.R.string.ok),
+        ))
+    }
 
-        var htmlMessage = ""
-
-        for(helpItem in help) {
-            val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-
-            val links = mutableListOf<String>()
-            if(helpItem.videoLink != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
-            }
-            if(helpItem.docUrl != null) {
-                links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${app.getString(R.string.help_read_more_link)}</a></i>")
-            }
-            val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
-
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$helpText<br>$linksHtml<br>"
-        }
-
-        val fullDocsLink = app.getString(R.string.help_full_documentation_link)
-        val fullDocsMessage = "<a href=\"${DocsLinks.BASE_URL}\">$fullDocsLink</a>"
-
-        dialogs.post(
-            AppDialogRequest.Notice(
-                title = app.getString(R.string.help),
-                showTitleLogo = true,
-                blocks = listOfNotNull(
-                    AppDialogRequest.NoticeBlock.Html(htmlMessage),
-                    AppDialogRequest.NoticeBlock.Html(fullDocsMessage),
-                    AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage"),
-                    if (showVersion) AppDialogRequest.NoticeBlock.Html("<i>$versionMsg</i>") else null,
-                ),
-                confirmText = app.getString(android.R.string.ok),
-            ),
-        )
+    fun showLicence(activity: ActivityBase) {
+        val html = application.resources.openRawResource(R.raw.license).use { it.readBytes().decodeToString() }
+        dialogs.post(AppDialogRequest.Message(
+            title = activity.getString(R.string.app_licence_title),
+            message = html,
+            confirmText = activity.getString(android.R.string.ok),
+            cancellable = true,
+        ))
     }
 
     /**
@@ -1117,17 +871,7 @@ object CommonUtils : CommonUtilsBase() {
         messageResId: Int,
         helpUrl: String,
     ) {
-        val readMore = activity.getString(R.string.help_read_more_link)
-        val messageHtml = activity.getString(messageResId) +
-            "<br><br><i><a href=\"$helpUrl\">$readMore</a></i>"
-        dialogs.post(
-            AppDialogRequest.Message(
-                title = activity.getString(titleResId),
-                message = messageHtml,
-                confirmText = activity.getString(R.string.okay),
-                cancellable = true,
-            ),
-        )
+        dialogs.post(documentDialogsCore(activity).helpDialog(activity.getString(titleResId), activity.getString(messageResId), helpUrl))
     }
 
     /**
@@ -1196,11 +940,33 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
-    var initialized = false
-    private var booksInitialized = false
+    internal var myDocumentRegistration: kotlinx.coroutines.Job? = null
+        private set
+
+    /** Owned by [ReadingAppInit]; kept here so every existing reader and test double keeps working. */
+    var initialized: Boolean
+        get() = ReadingAppInit.initialized
+        set(value) { if (value) ReadingAppInit.markInitialized() else ReadingAppInit.reset() }
+    private val readingAppInitPlatform: ReadingAppInitPlatform by lazy { net.bible.android.platform.AndroidReadingAppInitPlatform() }
     val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
 
-    fun initializeApp() {
+    /** Creates the TTS notification manager and the speak widget manager once; call on the main thread. */
+    internal fun startPlatformServices() {
+        if (ttsNotificationManager == null) {
+            ttsNotificationManager = TextToSpeechNotificationManager()
+        }
+        if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
+            ttsWidgetManager = SpeakWidgetManager()
+        }
+    }
+
+    /**
+     * @param blockOnCipherUnlock true (default) keeps the old guarantee for synchronous non-UI entry points (speak
+     * widget, TTS notification, media button): the stored cipher keys are applied before this returns, so the caller
+     * may read text at once. The Compose host passes false: the unlock then runs in the background and every reader
+     * awaits it ([ReadingAppInit.awaitCipherUnlock]), so Main never decrypts.
+     */
+    fun initializeApp(blockOnCipherUnlock: Boolean = true) {
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -1211,75 +977,21 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            if (ttsNotificationManager == null) {
-                ttsNotificationManager = TextToSpeechNotificationManager()
-            }
-            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
-                ttsWidgetManager = SpeakWidgetManager()
-            }
+            loadSnapshotStoresInBackground()
+            startPlatformServices()
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledESwordBooks()
-            addManuallyInstalledEpubBooks()
+            addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
             addManuallyInstalledTtfBooks()
             addManuallyInstalledCsvPromptBooks()
-            MyDocumentBookManager.registerAllDocuments()
-
-            // IN practice we don't need to restore this data, because it is stored by JSword in book
-            // metadata (persisted by JSWORD to files) too.
-            //docDao.getAll().forEach {
-            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
-            //}
-
-            initialized = true
-        }
-
-        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
-            if(!application.isRunningTests) {
-                for (it in docDao.getUnlocked()) {
-                    val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
-                }
-            }
-            booksInitialized = true
-        }
-    }
-
-    suspend fun initializeAppCoroutine() {
-        if(!initialized) {
-            try {
-                val pid = android.os.Process.myPid()
-                Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
-            } catch (e: Exception) {
-                Log.w(TAG, "Logcat could not be run")
-            }
-
-            DatabaseContainer.ready = true
-            DatabaseContainer.instance
-            withContext(Dispatchers.Main) {
-                if (ttsNotificationManager == null) {
-                    ttsNotificationManager = TextToSpeechNotificationManager()
-                }
-                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
-                    ttsWidgetManager = SpeakWidgetManager()
-                }
-            }
-            withContext(Dispatchers.IO) {
-                addManuallyInstalledMyBibleBooks()
-                addManuallyInstalledMySwordBooks()
-                addManuallyInstalledESwordBooks()
-                addManuallyInstalledEpubBooks()
-                addManuallyInstalledTtfBooks()
-                addManuallyInstalledCsvPromptBooks()
-            }
-            // Must run on the main thread — SwordGenBook and JSword's Activator
-            // are not thread-safe. Running registerAllDocuments() on a background
-            // thread races with workspace restore and can leave the new
-            // SwordGenBook's internal key map null. See MyDocumentBookManager
-            // class kdoc and commit 9d63d1e7c (sync handler fix).
-            withContext(Dispatchers.Main) {
+            // Synchronous framework entry points cannot block Main on registration.
+            // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.
+            myDocumentRegistration = MyDocumentBookManager.launcher.launch("mydocument-sync") {
                 MyDocumentBookManager.registerAllDocuments()
+                // every book is registered now: safe to sweep legacy search indexes of uninstalled books
+                SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground()
             }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
@@ -1288,18 +1000,36 @@ object CommonUtils : CommonUtilsBase() {
             //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             //}
 
-            initialized = true
+            ReadingAppInit.markInitialized()
         }
 
-        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
-            if(!application.isRunningTests) {
-                for (it in docDao.getUnlocked()) {
-                    Books.installed().getBook(it.initials)?.unlock(it.cipherKey)
-                }
-            }
-            booksInitialized = true
+        if (blockOnCipherUnlock) {
+            if (!ReadingAppInit.cipherKeysUnlocked) blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous non-UI entry (widget/media-button) reads text right after
+        } else {
+            // Never on Main: readers of enciphered books await it (ReadingAppInit.awaitCipherUnlock).
+            ReadingAppInit.unlockStoredCipherKeysInBackground()
         }
     }
+
+    /**
+     * A host recreated directly (process death) only runs [initializeApp], never [initializeAppCoroutine]. Start the
+     * snapshot loads here without blocking; writes that arrive before they finish are applied to the loaded rows.
+     * The job is owned by [DatabaseContainer.aiLifetime]: every database reset, close or restore cancels and joins it
+     * before closing (a Room 3 close under its in-flight read is a native crash). A cancelled load leaves the store
+     * unloaded (factory defaults) until a later [initializeAppCoroutine] loads it; the host bootstrap joins this job
+     * through [awaitSnapshotLoadsAtEdge].
+     */
+    @androidx.annotation.VisibleForTesting
+    internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job = ReadingAppInit.loadSnapshotStoresInBackground()
+
+    /**
+     * The cold-start barrier for the snapshot stores: the process-death path never runs [initializeAppCoroutine], so
+     * the host bootstrap joins the background load here before anything reads a store. See
+     * [ReadingAppInit.awaitSnapshotLoadsAtEdge].
+     */
+    internal fun awaitSnapshotLoadsAtEdge() = ReadingAppInit.awaitSnapshotLoadsAtEdge()
+
+    suspend fun initializeAppCoroutine() = ReadingAppInit.initialise(readingAppInitPlatform)
 
     fun prepareForDestruction() {
         if(!initialized) return
@@ -1311,126 +1041,17 @@ object CommonUtils : CommonUtilsBase() {
         ttsWidgetManager?.destroy()
         ttsNotificationManager = null
         ttsWidgetManager = null
-        initialized = false
+        ReadingAppInit.reset()
     }
 
     fun prepareData() {
-        val dataVersionNow = 1L
-        val dataVersion = settings.getLong("data-version", 0)
-        if(dataVersion < 1) {
-            prepareExampleBookmarksAndWorkspaces()
-        }
-        if(dataVersion != dataVersionNow) {
-            settings.setLong("data-version", dataVersionNow)
-        }
+        blockingAtEdge { ReadingAppInit.prepareData(readingAppInitPlatform) } // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
     }
 
-    const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    const val lorem = ReadingAppInit.LOREM
 
-    val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
-    val defaultVerse: VerseRange get() {
-        val (otVerse, ntVerse, psVerse) =
-            listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3")
-                .map {
-                    VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification)
-                }
-        return when {
-            defaultBible.contains(ntVerse.start) -> ntVerse
-            defaultBible.contains(otVerse.start) -> otVerse
-            else -> psVerse
-        }
-    }
-
-    private fun prepareExampleBookmarksAndWorkspaces() {
-        val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
-
-        val migratedNotesName = application.getString(R.string.migrated_my_notes)
-        var highlightLabels = emptyList<BookmarkEntities.Label>()
-
-        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), displayStyleWholeVerse = null, favourite = true)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), displayStyleWholeVerse = null, favourite = true)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), displayStyleWholeVerse = null, favourite = true)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), displayStyle = BookmarkDisplayStyle.UNDERLINE, displayStyleWholeVerse = null, favourite = true)
-
-            highlightLabels = listOf(
-                redLabel,
-                greenLabel,
-                underlineLabel,
-                blueLabel,
-            )
-
-            val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
-            bookmarkDao.insertLabels(highlightLabels)
-
-            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BibleBookmarkWithNotes {
-                val v1 = verseRange.toVerseArray()[start.toInt()]
-                val v2 = verseRange.toVerseArray()[end.toInt()]
-                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
-                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
-                val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
-                val v = VerseRange(v1.versification, v1, v2)
-
-                return BookmarkEntities.BibleBookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
-            }
-
-            if(!hasExistingBookmarks) {
-                bookmarkDao.insert(salvationLabel)
-
-                // first bookmark, full verses, with underline
-                var b = BookmarkEntities.BibleBookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, underlineLabel.id))
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, salvationLabel.id))
-
-                // second bookmark, red
-                b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, redLabel.id))
-
-                // third bookmark, green
-                b = getBookmark(defaultVerse, 1.2, 1.4).apply {
-                    primaryLabelId = greenLabel.id
-                    notes = lorem
-                }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(b.noteEntity!!)
-
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, greenLabel.id))
-
-                val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
-                    .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
-                        Log.e("CommonUtils", "NoSuchVerseException for ${it}??!", e)
-                        null 
-                    }}
-
-                salvationVerses
-                    .map {
-                        BookmarkEntities.BibleBookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
-                    }.forEach {
-                        bookmarkDao.insert(it.bookmarkEntity)
-                        bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(it.id, salvationLabel.id))
-                    }
-            }
-        }
-        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val ws = workspaceDao.allWorkspaces()
-        if(ws.isNotEmpty()) {
-            workspaceDao.updateWorkspaces(ws)
-            settings.setBoolean("first-time", false)
-        } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
-            val workspaceIds = listOf(
-                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
-                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
-            ).map {
-                workspaceDao.insertWorkspace(it)
-                it.id
-            }
-            settings.setString("current_workspace_id", workspaceIds[0].toString())
-        }
-    }
+    val defaultBible get() = net.bible.android.control.page.defaultBible()
+    val defaultVerse: VerseRange get() = net.bible.android.control.page.defaultVerse()
 
     fun makeLarger(icon: Drawable, sizeMultiplier: Float = 1.0f): Drawable = LayerDrawable(arrayOf(icon)).apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1674,7 +1295,7 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
+        else SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(CommonUtils.settings) }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
@@ -1685,12 +1306,10 @@ object CommonUtils : CommonUtilsBase() {
      */
     fun migrateOldSettingsKeys() {
         val sharedPrefs = realSharedPreferences
-        val settingsDb = settings
-        // Use DAOs directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
+        // Use the SettingsStore directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
         // This function runs during DatabaseContainer.init(), before `initialized` is set to true,
         // so AndBibleSettings.getBoolean would always return the default value, losing the old data.
-        val boolDao = booleanSettings
-        val longDao = longSettings
+        val st = store
 
         val secretMigrations = mapOf(
             "gdrive_password" to "cloud_sync_password",
@@ -1700,11 +1319,11 @@ object CommonUtils : CommonUtilsBase() {
         )
         for ((oldKey, newKey) in secretMigrations) {
             if (sharedPrefs.getString(newKey, null) != null) continue
-            val value = settingsDb.getString(oldKey) ?: sharedPrefs.getString(oldKey, null)
+            val value = st.getString(oldKey, null) ?: sharedPrefs.getString(oldKey, null)
             if (value != null) {
                 Log.i(TAG, "Migrating setting '$oldKey' → '$newKey'")
                 sharedPrefs.edit().putString(newKey, value).apply()
-                settingsDb.removeString(oldKey)
+                st.setString(oldKey, null)
                 sharedPrefs.edit().remove(oldKey).apply()
             }
         }
@@ -1726,71 +1345,44 @@ object CommonUtils : CommonUtilsBase() {
             "gdrive_llmprocessing" to "sync_enable_ai_settings",
         )
         for ((oldKey, newKey) in boolRenames) {
-            val value = boolDao.get(oldKey, false)
+            val value = st.getBoolean(oldKey, false)
             if (value) {
                 Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
-                boolDao.set(newKey, true)
+                st.setBoolean(newKey, true)
             }
-            boolDao.set(oldKey, null)
+            st.setBoolean(oldKey, null)
         }
 
-        val oldInterval = longDao.get("gdrive_sync_interval", Long.MIN_VALUE)
+        val oldInterval = st.getLong("gdrive_sync_interval", Long.MIN_VALUE)
         if (oldInterval != Long.MIN_VALUE) {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
-            longDao.set("cloud_sync_interval", oldInterval)
-            longDao.set("gdrive_sync_interval", null)
+            st.setLong("cloud_sync_interval", oldInterval)
+            st.setLong("gdrive_sync_interval", null)
         }
 
         // Migrate boolean monochrome_mode → tri-state display_color_mode
-        val strDao = stringSettings
-        if (strDao.byKey("display_color_mode") == null) {
-            val oldMono = boolDao.byKey("monochrome_mode")
-            if (oldMono != null) {
-                val newValue = if (oldMono.value) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
-                Log.i(TAG, "Migrating 'monochrome_mode'=${oldMono.value} → 'display_color_mode'=$newValue")
-                strDao.set("display_color_mode", newValue)
-                boolDao.set("monochrome_mode", null)
+        if (st.getString("display_color_mode", null) == null) {
+            // The store has no "contains": a key is absent iff both defaults come back.
+            val monoPresent = st.getBoolean("monochrome_mode", false) || !st.getBoolean("monochrome_mode", true)
+            if (monoPresent) {
+                val oldMono = st.getBoolean("monochrome_mode", false)
+                val newValue = if (oldMono) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
+                Log.i(TAG, "Migrating 'monochrome_mode'=$oldMono → 'display_color_mode'=$newValue")
+                st.setString("display_color_mode", newValue)
+                st.setBoolean("monochrome_mode", null)
             }
         }
     }
 
-    fun md5Hash(str: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
-        return String.format("%032x", bigInt)
-    }
+    fun md5Hash(str: String): String = ArchiveUtils.md5Hash(str)
 
-    fun appendUrl(u: String, filename: String): String =
-        if(u.endsWith("/"))
-            "$u$filename"
-        else
-            "$u/$filename"
+    fun appendUrl(u: String, filename: String): String = ArchiveUtils.appendUrl(u, filename)
 
     fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
-        unzipInputStream(zipFile.inputStream(), destinationDir, filePrefix)
+        ArchiveUtils.unzip(zipFile.toOkioPath(), destinationDir.toOkioPath(), filePrefix)
 
-    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") {
-        val buffer = ByteArray(8192)
-        ZipInputStream(inputStream).use { zIn ->
-            var zipEntry = zIn.nextEntry
-            while (zipEntry != null) {
-                if (!zipEntry.isDirectory) {
-                    val filePath = zipEntry.name.replace('\\', '/')
-                    val file = File(destinationDir, filePrefix + filePath)
-                    Log.i(TAG, "Writing $file")
-                    file.parentFile?.mkdirs()
-                    FileOutputStream(file).use { fOut ->
-                        var count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
-                }
-                zipEntry = zIn.nextEntry
-            }
-        }
-    }
+    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") =
+        ArchiveUtils.unzip(inputStream.source(), destinationDir.toOkioPath(), filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
@@ -1802,42 +1394,9 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) {
-        destinationFile.outputStream().use {
-            GZIPOutputStream(it).use {
-                sourceFile.inputStream().use { input ->
-                    input.copyTo(it)
-                }
-            }
-        }
-    }
-
-    fun gunzipFile(sourceFile: File, destinationFile: File) {
-        sourceFile.inputStream().use {
-            GZIPInputStream(it).use {
-                destinationFile.outputStream().use { output ->
-                    it.copyTo(output)
-                }
-            }
-        }
-    }
-
-    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        try {
-            application.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val header = ByteArray(16)
-                inputStream.read(header)
-                val headerString = String(header)
-                if (headerString == "SQLite format 3\u0000")
-                    BackupControl.AbDbFileType.SQLITE3
-                else if (headerString.startsWith("PK\u0003\u0004")) {
-                    BackupControl.AbDbFileType.ZIP
-                } else
-                    BackupControl.AbDbFileType.UNKNOWN
-            } ?: BackupControl.AbDbFileType.UNKNOWN
-        } catch (e: Exception) {
-            Log.e(TAG, "Unexpected exception when determining file type", e)
-            BackupControl.AbDbFileType.UNKNOWN
+    suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
+        BackupFileSniffer.sniff {
+            application.contentResolver.openInputStream(uri)?.source() ?: throw okio.IOException("no stream")
         }
     }
 
@@ -1846,23 +1405,7 @@ object CommonUtils : CommonUtilsBase() {
         docInitials: String? = null,
         v11n: String? = null,
         ordinal: Int? = null
-    ): String {
-        var url = "https://read.andbible.org/$keyStr"
-        val queryParameters = mutableListOf<String>()
-        if(docInitials != null) {
-            queryParameters.add("document=$docInitials")
-        }
-        if(v11n != null) {
-            queryParameters.add("v11n=$v11n")
-        }
-        if(ordinal != null) {
-            queryParameters.add("ordinal=${ordinal}")
-        }
-        if(queryParameters.isNotEmpty()) {
-            url += "?${queryParameters.joinToString("&")}"
-        }
-        return url
-    }
+    ): String = andBibleUrl(keyStr, docInitials, v11n, ordinal)
 
     fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
         val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -1881,20 +1424,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun documentUpgradeConfirmation(context: Activity): Boolean = context.run {
-        val warningTitle = getString(R.string.bookmark_warning)
-        val warningMessage = getString(R.string.bookmark_warning2)
-        val warningRecommendation = getString(R.string.bookmark_warning4)
-        val warningQuestion = getString(R.string.bookmark_warning3)
-        val warningMsg = "$warningMessage<br><br>$warningRecommendation<br><br>$warningQuestion"
-        dialogs.await(
-            AppDialogRequest.Confirm(
-                title = warningTitle,
-                message = warningMsg,
-                confirmText = getString(R.string.yes),
-                dismissText = getString(R.string.cancel),
-                cancellable = false,
-            ),
-        ) == AppDialogResult.Ok
+        documentDialogsCore(this).confirmUpgrade()
     }
     fun prependDictionaryKeyWithZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length
@@ -1956,241 +1486,6 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
     companion object {
         fun fromJson(jsonString: String): LastTypesSerializer {
             return json.decodeFromString(serializer(), jsonString)
-        }
-    }
-}
-
-val firstBibleDoc get() = Books.installed().books.first { it.bookCategory == BookCategory.BIBLE } as SwordBook
-
-fun <T> Cursor.map(f: (c: Cursor) -> T): Collection<T> = use {
-    val result = mutableListOf<T>()
-    if(!moveToFirst()) return@use result
-    do {
-        result.add(f.invoke(this))
-    } while(moveToNext())
-    result
-}
-
-fun <T> Cursor.forEach(f: (c: Cursor) -> T) = use {
-    if(!moveToFirst()) return
-    do {
-        f.invoke(this)
-    } while(moveToNext())
-}
-
-fun <T> Cursor.getFirst(f: (c: Cursor) -> T): T = use {
-    if(!moveToFirst()) throw RuntimeException("First item not found")
-    f.invoke(this)
-}
-
-fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
-    if(!moveToFirst()) return@use null
-    f?.invoke(this)
-}
-
-suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-     map { async { action(it) }}.awaitAll()
-}
-
-suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    val semaphore = Semaphore(maxThreads)
-    map {async {semaphore.withPermit { action(it) } } }.awaitAll()
-}
-
-private val builders = ArrayBlockingQueue<SAXBuilder>(32)
-
-fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder().also {
-        it.setFeature("http://xml.org/sax/features/external-general-entities", false)
-    }
-    val rv = block(builder)
-    builders.offer(builder)
-    return rv
-}
-
-private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
-fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val xPath = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(xPath)
-    xPathInstances.offer(xPath)
-    return rv
-}
-
-fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
-    val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
-    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
-}
-
-val BookAndKey.prev: BookAndKey get() {
-    val nextKey: Key = when(this.key) {
-        is VerseRange -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
-
-        }
-        is Verse -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
-        }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> book.backend as AbstractKeyBackend
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            val idx = backend.indexOf(this.key)
-            try {
-                backend.get(idx - 1)
-            } catch (e: IndexOutOfBoundsException) {
-                backend.last()
-            }
-        }
-    }
-    return BookAndKey(
-        nextKey,
-        this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).last)
-    )
-}
-
-val BookAndKey.next: BookAndKey get() {
-    val nextKey: Key = when(this.key) {
-        is VerseRange -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
-        }
-        is Verse -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key)
-        }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> {
-                    if(book.isEpub || book.isMyDocument) {
-                        book.backend as AbstractKeyBackend
-                    } else {
-                        book.backend as GenBookBackend
-                    }
-                }
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            when (backend) {
-                is AbstractKeyBackend -> {
-                    val idx = backend.indexOf(this.key)
-                    try {
-                        backend.get(idx + 1)
-                    } catch (e: IndexOutOfBoundsException) {
-                        backend.first()
-                    }
-                }
-
-                is GenBookBackend -> {
-                    val keyList = backend.readIndex().flatten().toList()
-                    val idx = keyList.indexOf(this.key)
-                    try {
-                        keyList[idx + 1]
-                    } catch (e: IndexOutOfBoundsException) {
-                        keyList.first()
-                    }
-                }
-                else -> throw RuntimeException("Unsupported")
-            }
-
-        }
-    }
-    return BookAndKey(
-        nextKey,
-        this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).first)
-    )
-}
-
-fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)
-
-val Key.tinyName: String get() =
-    if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
-            val prevTruncateLength = BookName.getTruncateShortName()
-            try {
-                var length = 5
-                var name: String
-                do {
-                    BookName.setTruncateShortName(length--)
-                    name = this.name
-                } while(length > 0 && name.length > 7)
-                name
-            } finally {
-                BookName.setTruncateShortName(prevTruncateLength)
-            }
-        }
-    else name
-
-
-val Key.shortName: String get() =
-    if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
-            val oldValue = BookName.isFullBookName()
-            BookName.setFullBookName(false)
-            try {
-                return name
-            } finally {
-                BookName.setFullBookName(oldValue)
-            }
-        }
-    else name
-
-enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
-}
-enum class BackupType {
-    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
-    STUDYPAD_EXPORT,
-    DB_BACKUP,
-    MODULE_BACKUP
-}
-
-const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
-@Serializable
-data class AndBibleBackupManifest(
-    val backupType: BackupType,
-    val contains: Set<DbType>? = null,
-    val manifestVersion: Int = 1,
-    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
-) {
-    fun toJson(): String {
-        return CommonUtils.json.encodeToString(serializer(), this)
-    }
-
-    fun saveToZip(zipStream: ZipOutputStream) {
-        val content = ByteArrayInputStream(toJson().toByteArray())
-        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
-        zipStream.putNextEntry(entry)
-        content.copyTo(zipStream)
-    }
-    companion object {
-        private const val TAG = "ABBackupManifest"
-        fun fromJson(jsonString: String): AndBibleBackupManifest {
-            return CommonUtils.json.decodeFromString(serializer(), jsonString)
-        }
-
-        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
-            try {
-                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
-                val manifest = ZipInputStream(inputStream).use {
-                    val entry = it.nextEntry
-                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                        val out = ByteArrayOutputStream()
-                        val buffer = ByteArray(1024)
-                        var len: Int
-                        while (it.read(buffer).also { len = it } > 0) {
-                            out.write(buffer, 0, len)
-                        }
-                        val outString = out.toString()
-                        fromJson(outString)
-                    } else null
-                }
-                return@withContext manifest
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading backup manifest from URI", e)
-                return@withContext null
-            }
         }
     }
 }

@@ -147,6 +147,10 @@
             android:name="net.bible.service.installzip.DocumentInstallService"
             android:foregroundServiceType="dataSync" />
 
+        <service
+            android:name="net.bible.service.sword.index.SearchIndexingService"
+            android:foregroundServiceType="dataSync" />
+
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="true" />

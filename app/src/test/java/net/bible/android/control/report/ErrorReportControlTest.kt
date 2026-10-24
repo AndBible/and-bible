@@ -18,15 +18,13 @@ package net.bible.android.control.report
 
 import net.bible.android.AppDialogControllerResetRule
 import android.app.Activity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -66,6 +64,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ErrorReportControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
@@ -121,26 +120,42 @@ class ErrorReportControlTest {
     }
 
     @Test
+    fun aProgressObserverCapturesPublicationBeforeAnImmediateDismissal() = runOnTestMain {
+        val observer = async(
+            context = UnconfinedTestDispatcher(testDispatcher.scheduler),
+            start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED,
+        ) {
+            dialogs.progress.first { it != null }
+        }
+        val id = dialogs.show(AppDialogRequest.Progress(title = null, message = "transient"))
+        dialogs.dismiss(id)
+
+        assertEquals("transient", observer.await()?.request?.let { (it as AppDialogRequest.Progress).message })
+    }
+
+    @Test
     fun selectingReportStartsBugReportReportBug() = runOnTestMain {
         val activity = activity()
-        val answer = async { ErrorReportControl.showErrorDialog(activity, "boom") }
-        try {
-            advanceUntilIdle()
-            val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
-            // useSaved skips the IO work, so Progress may disappear before the test observes it.
-            // The email confirmation remains pending and proves the REPORT branch reached reportBug.
-            // Bound the wait in real time: IO is not driven by runTest's virtual clock.
-            val confirmation = withContext(Dispatchers.Default) {
-                withTimeout(5.seconds) {
-                    dialogs.pending.filterNotNull().first { it.request is AppDialogRequest.Confirm }
-                }
-            }.request as AppDialogRequest.Confirm
-            assertEquals(activity.getString(R.string.bug_report_email_text), confirmation.message)
-        } finally {
-            // Finish cancellation while Main is still bound to the test scheduler, even on failure.
-            answer.cancelAndJoin()
+        val progressPublished = async(
+            context = UnconfinedTestDispatcher(testDispatcher.scheduler),
+            start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED,
+        ) {
+            dialogs.progress.first { it != null }
         }
+        val answer = async { ErrorReportControl.showErrorDialog(activity, "boom") }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        // Observe the transient progress publication rather than sampling after IO may dismiss it.
+        val shown = requireNotNull(progressPublished.await())
+        val progress = shown.request as AppDialogRequest.Progress
+        assertEquals(activity.getString(R.string.please_wait), progress.message)
+        // cancelAndJoin (not bare cancel()): the test body itself must observe the cancelled child
+        // fully finish -- including its withContext(Dispatchers.Main) cancellation-completion hop --
+        // rather than relying on runTest's implicit structured-concurrency wait-for-children, which
+        // is what deadlocked before Main stopped being reset mid-test (see testDispatcher above).
+        answer.cancelAndJoin()
+        progressPublished.cancelAndJoin()
     }
 
     /**
@@ -170,7 +185,7 @@ class ErrorReportControlTest {
         val firstHead = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(firstHead.options[1].value))
         advanceUntilIdle()
-        // BackupControl.backupPopup(activity) -- not a NavHostComposeActivity here, so it opens
+        // BackupNavigation.backupPopup(activity) -- not a NavHostComposeActivity here, so it opens
         // Backup via activity.awaitIntent(...) (BackupControl.awaitBackupFromAnotherActivity).
         // Simulate the user leaving that screen (first awaitIntent on a fresh activity -> request
         // code ASYNC_REQUEST_CODE_START + 0), so the loop's askAgain = true re-shows the sheet.

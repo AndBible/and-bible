@@ -1,0 +1,473 @@
+/*
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.sword.mybible
+
+import net.bible.sharedcore.log.Log
+import androidx.annotation.VisibleForTesting
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteException
+import androidx.sqlite.SQLiteStatement
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.service.db.queryFirst
+import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
+import net.bible.service.sword.SqliteSwordDriver
+import net.bible.service.sword.isRtlLanguage
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.KeyType
+import org.crosswire.jsword.book.basic.AbstractBook
+import org.crosswire.jsword.book.sword.AbstractKeyBackend
+import org.crosswire.jsword.book.sword.Backend
+import org.crosswire.jsword.book.sword.BookType
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordDictionary
+import org.crosswire.jsword.book.sword.state.OpenFileState
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyUtil
+import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
+import net.bible.sharedlogic.sync.withMonitor
+import okio.IOException
+import net.bible.service.sword.epub.child
+import okio.Path
+import okio.Path.Companion.toPath
+import org.crosswire.common.util.KFiles
+import okio.FileSystem
+import org.koin.mp.KoinPlatform
+
+fun getConfig(
+    initials: String,
+    abbreviation: String,
+    description: String,
+    language: String,
+    category: String,
+    hasStrongsDef: Boolean = false,
+    hasStrongs: Boolean = false,
+    hasWordsOfChrist: Boolean = false,
+    moduleFileName: String,
+    downloadUrl: String = "",
+): String {
+    var conf = """
+[$initials]
+Description=$description
+Abbreviation=$abbreviation
+Category=$category
+AndBibleMyBibleModule=1
+AndBibleDbFile=$moduleFileName
+AndBibleDownloadUrl=$downloadUrl
+Lang=$language
+Version=0.0
+Encoding=UTF-8
+LCSH=Bible
+SourceType=OSIS
+ModDrv=zText
+BlockType=BOOK
+Versification=KJVA"""
+    if(isRtlLanguage(language)) {
+        conf += "\nDirection=RtoL"
+    }
+    if(hasStrongsDef) {
+        conf += "\nFeature=GreekDef"
+        conf += "\nFeature=HebrewDef"
+    }
+    if(hasStrongs) {
+        conf += "\nGlobalOptionFilter = OSISStrongs"
+    }
+    if(hasWordsOfChrist) {
+        conf += "\nFeature=WordsOfChrist"
+    }
+    return conf
+}
+
+const val TAG = "MyBibleBook"
+
+private val re = Regex("[^a-zA-z0-9]")
+fun sanitizeModuleName(name: String): String = name.replace(re, "_")
+private fun parseMyBibleBoolean(value: String?): Boolean =
+    value.equals("true", ignoreCase = true) || value == "1"
+
+class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
+    constructor(sqliteFile: Path, metadata: SwordBookMetaData): this(sqliteFile) {
+        this.metadata = metadata
+    }
+
+    private var _sqlDb: SQLiteConnection? = null
+
+    val sqlDb: SQLiteConnection get() = withMonitor(this) {
+        _sqlDb ?: run {
+            Log.i(TAG, "initDatabase ${sqliteFile.name}")
+            val db = KoinPlatform.getKoin().get<ReadOnlyModuleDbOpener>().open(sqliteFile)
+            _sqlDb = db
+            db
+        }
+    }
+
+    /**
+     * Runs [sql] on the shared read-only connection and maps every row. A bundled-driver connection is
+     * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
+     */
+    fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
+        withMonitor(this) { sqlDb.queryRows(sql, *args, row = row) }
+
+    /** Like [rows], but maps only the first row, or returns null when there is none. */
+    fun <T> firstRow(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
+        withMonitor(this) { sqlDb.queryFirst(sql, *args, row = row) }
+
+    override fun close() {
+        withMonitor(this) {
+            Log.i(TAG, "close database ${sqliteFile.name}")
+            _sqlDb?.close()
+            _sqlDb = null
+        }
+    }
+
+    var hasStories: Boolean = false
+
+    private var metadata: SwordBookMetaData? = null
+
+    override fun getBookMetaData(): SwordBookMetaData {
+        return metadata?: withMonitor(this) {
+            val dbPath = sqliteFile.toString()
+            val initials = "MyBible-" + sanitizeModuleName(sqliteFile.name.substringBeforeLast('.'))
+            val abbreviation = sqliteFile.name.substringBeforeLast('.').split(".", limit = 2)[0]
+            fun info(name: String): String? =
+                firstRow("select value from info where name = ?", name) { it.textOrNull(0) }
+            val description = info("description") ?: ""
+            val language = info("language") ?: "en"
+            val hasStrongsDef = info("is_strong") == "true"
+            val hasStrongs = info("strong_numbers") == "true"
+
+            val tables = rows("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'") {
+                it.getText(0)
+            }
+            val isCommentary = tables.contains("commentaries")
+            val isBible = tables.contains("verses")
+            val isDictionary = tables.contains("dictionary")
+            hasStories = tables.contains("stories")
+            val hasWordsOfChrist = if (isBible) {
+                try {
+                    val hasInfoFlag = rows(
+                        "select value from info where name in ('is_words_of_christ', 'words_of_christ', 'is_red_letter', 'red_letter')"
+                    ) { parseMyBibleBoolean(it.textOrNull(0)) }.any { it }
+                    hasInfoFlag || firstRow(
+                        "select 1 from verses where instr(lower(text), '<j>') > 0 limit 1"
+                    ) { true } ?: false
+                } catch (e: SQLiteException) {
+                    Log.w(TAG, "Failed to detect WordsOfChrist support for $dbPath", e)
+                    false
+                }
+            } else {
+                false
+            }
+
+            val category = when {
+                isBible -> "Biblical Texts"
+                isCommentary -> "Commentaries"
+                isDictionary -> "Lexicons / Dictionaries"
+                else -> "Illegal"
+            }
+
+            val conf = getConfig(
+                initials = initials,
+                abbreviation = abbreviation,
+                description = description,
+                language = language,
+                category = category,
+                hasStrongsDef = hasStrongsDef,
+                hasStrongs = hasStrongs,
+                hasWordsOfChrist = hasWordsOfChrist,
+                moduleFileName = dbPath,
+            )
+            Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
+            val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
+
+            metadata.setDriver(SqliteSwordDriver())
+            this.metadata = metadata
+            return@withMonitor metadata
+        }
+    }
+
+    override fun releaseResources() {
+        close()
+    }
+
+    private var _lastAccess: Long  = 0L
+    override fun getLastAccess(): Long = _lastAccess
+    override fun setLastAccess(lastAccess: Long) {
+        _lastAccess = lastAccess
+    }
+}
+
+class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
+    override fun initState(): SqliteVerseBackendState {
+        Log.i(TAG, "initState")
+        state.sqlDb
+        return state
+    }
+
+    override fun getCardinality(): Int {
+        val table = when(bookMetaData.bookCategory) {
+            BookCategory.DICTIONARY -> "dictionary"
+            BookCategory.BIBLE -> "verses"
+            BookCategory.COMMENTARY -> "commentaries"
+            else -> throw RuntimeException("Illegal book category")
+        }
+        try {
+            return state.firstRow("select count(*) as count from $table") { it.getInt(0) } ?: 0
+        } catch (e: SQLiteException) {
+            Log.e(TAG, "Error getting cardinality", e)
+            return 0
+        }
+    }
+
+    // The Cursor-based iterator held a statement open between next() calls. A bundled-driver statement
+    // is tied to its connection (closed with the state, shared by every query), so the topics are read
+    // up front instead, like EpubBackend.iterator does.
+    override fun iterator(): MutableIterator<Key> =
+        when(bookMetaData.bookCategory) {
+            BookCategory.DICTIONARY ->
+                state.rows("select topic from dictionary") { DefaultLeafKeyList(it.getText(0)) as Key }
+                    .toMutableList().iterator()
+            else -> super.iterator()
+        }
+
+    override fun get(index: Int): Key {
+        when(bookMetaData.bookCategory) {
+            BookCategory.DICTIONARY -> {
+                try {
+                    val topic = state.firstRow("select topic from dictionary WHERE _rowid_ = ?", index) { it.getText(0) }
+                        ?: throw IndexOutOfBoundsException()
+                    return DefaultLeafKeyList(topic)
+                } catch (e: SQLiteException) {
+                    Log.e(TAG, "Error getting key", e)
+                    throw IndexOutOfBoundsException()
+                }
+            }
+            else -> throw RuntimeException("Per-index lookup unsupported")
+        }
+    }
+
+    private fun indexOfBible(that: Key): Int {
+        val verse = KeyUtil.getVerse(that)
+        return state.firstRow("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}") { it.getInt(0) } ?: -1
+    }
+
+    private fun indexOfDictionary(that: Key): Int {
+        if(that !is DefaultLeafKeyList) return -1;
+        val keyName = that.getName()
+        return state.firstRow("select _rowid_ from dictionary WHERE topic = ?", keyName) { it.getInt(0) } ?: -1
+    }
+
+    private fun indexOfCommentary(that: Key): Int {
+        val verse = KeyUtil.getVerse(that)
+        return state.firstRow(
+            """select _rowid_ from commentaries WHERE book_number = ? AND 
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))
+                            """,
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}") { it.getInt(0) } ?: -1
+    }
+
+    override fun indexOf(that: Key?): Int = try {
+        when (bookMetaData.bookCategory) {
+            BookCategory.BIBLE -> indexOfBible(that!!)
+            BookCategory.COMMENTARY -> indexOfCommentary(that!!)
+            BookCategory.DICTIONARY -> indexOfDictionary(that!!)
+            else -> -1
+        }
+    } catch (e: SQLiteException) {
+        Log.e(TAG, "Error in indexOf", e)
+        -1
+    }
+
+    private fun readBible(state: SqliteVerseBackendState, key: Key): String {
+        val verse = KeyUtil.getVerse(key)
+        var text: String? = state.firstRow(
+            "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}"
+        ) { it.textOrNull(0) ?: "" } ?: throw IOException("Can't read $key")
+
+        val stories = if(state.hasStories) {
+            state.rows(
+                "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
+                "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}"
+            ) { it.getText(0) }
+        } else {
+            arrayListOf()
+        }
+
+        for(story in stories) {
+            text = if(story.startsWith("<")) {
+                "$text$story"
+            } else {
+                "<title canonical=\"false\">$story</title>$text"
+            }
+        }
+        return text ?: ""
+    }
+    private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
+        if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
+        val keyName = key.getName()
+        return state.firstRow("select definition from dictionary WHERE topic = ?", keyName) { it.getText(0) }
+            ?: throw IOException("Can't read $key")
+    }
+
+    /**
+     * (Trying out Github CoPilot, so writing a detailed comment)
+     * Read commentary from sqlite database for key (book_number, chapter, verse) that has table commentaries with columns:
+     * book_number, chapter_number_from, verse_number_from, chapter_number_to, verse_number_to, text
+     * such that all verses in range (chapter_number_from, verse_number_from) - (chapter_number_to, verse_number_to)
+     * are returned in order of increasing chapter_number_from, verse_number_from. Results are joined to a string
+     * that puts each result within their own <div> tag.
+     */
+    private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
+        val verse = KeyUtil.getVerse(key)
+
+        val (fromChap: Int, fromVerse: Int) = if(verse.chapter == 1 && verse.verse == 1) {
+            Pair(0, 0)
+        } else {
+            Pair(verse.chapter, verse.verse)
+        }
+
+        val toChap = verse.chapter
+        val toVerse = verse.verse
+
+        return state.rows(
+            """select text from commentaries WHERE book_number = ? AND 
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))
+                            ORDER BY chapter_number_from, verse_number_from
+                            """,
+            "${bibleBookToMyBibleInt[verse.book]}", "$toChap", "$toVerse", "$fromChap", "$fromVerse", "$toChap", "$toVerse"
+        ) { it.getText(0) }.joinToString {"<div>$it</div>"}
+    }
+
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
+        try {
+            when (bookMetaData.bookCategory) {
+                BookCategory.BIBLE -> readBible(state, key!!)
+                BookCategory.COMMENTARY -> readCommentary(state, key!!)
+                BookCategory.DICTIONARY -> readDictionary(state, key!!)
+                else -> ""
+            }
+        } catch (e: SQLiteException) {
+            Log.e(TAG, "Error in readRawContent", e)
+            throw IOException("Error in readRawContent", e)
+        }
+}
+
+val myBibleBible = object: BookType("MyBibleBible", BookCategory.BIBLE, KeyType.VERSE) {
+    override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
+        return SwordBook(sbmd, backend)
+    }
+
+    override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.SQLite3")
+        val state = SqliteVerseBackendState(file, sbmd)
+        return SqliteBackend(state, sbmd)
+    }
+}
+
+val myBibleCommentary = object: BookType("MyBibleCommentary", BookCategory.COMMENTARY, KeyType.VERSE) {
+    override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
+        return SwordBook(sbmd, backend)
+    }
+
+    override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.SQLite3")
+        val state = SqliteVerseBackendState(file, sbmd)
+        return SqliteBackend(state, sbmd)
+    }
+}
+
+val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTIONARY, KeyType.LIST) {
+    override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
+        return SwordDictionary(sbmd, backend)
+    }
+
+    override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.SQLite3")
+        val state = SqliteVerseBackendState(file, sbmd)
+        return SqliteBackend(state, sbmd)
+    }
+}
+
+fun addMyBibleBook(file: Path) {
+    if(!KFiles.isFile(file)) return
+    val state = SqliteVerseBackendState(file)
+    val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
+        Log.e(TAG, "Failed to load MyBible module $file", err)
+        return
+    }
+    if(Books.installed().getBook(metadata.initials) != null) return
+    val backend = SqliteBackend(state, metadata)
+    val book =
+        if (metadata.bookCategory == BookCategory.DICTIONARY)
+            SwordDictionary(metadata, backend)
+        else
+            SwordBook(metadata, backend)
+
+    if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
+        metadata.indexStatus = IndexStatus.DONE
+    } else {
+        metadata.indexStatus = IndexStatus.UNDONE
+    }
+
+    Books.installed().addBook(book)
+}
+
+/** The `mybible` module folder, resolved through the [AppDirectories] port at call time. */
+@VisibleForTesting fun myBibleModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mybible"
+
+fun addManuallyInstalledMyBibleBooks() {
+    val dir = myBibleModulesDir()
+    if(!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
+
+    for(f in FileSystem.SYSTEM.listRecursively(dir)) {
+        if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".sqlite3")) {
+            addMyBibleBook(f)
+        }
+    }
+}
+
+val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
+val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")!!

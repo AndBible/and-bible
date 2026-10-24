@@ -68,7 +68,7 @@ class SpeakTransportServiceImplTest {
         )
 
         val abbr = bookmark.book?.abbreviation
-        val keyName = bookmark.bookKey?.name
+        val keyName = bookmark.bookKey?.getName()
         assertEquals("KJV", abbr) // kjv.conf sets no Abbreviation key -> falls back to initials "KJV"
         assertNotNull(keyName)
         assertTrue(keyName!!.isNotBlank())
@@ -84,7 +84,7 @@ class SpeakTransportServiceImplTest {
         val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         bookmark.playbackSettings = PlaybackSettings(bookId = "ESV")
 
-        assertEquals("${verseRange.start.name} (ESV)", labelOf(bookmark))
+        assertEquals("${verseRange.start.getName()} (ESV)", labelOf(bookmark))
     }
 
     @Test
@@ -93,7 +93,7 @@ class SpeakTransportServiceImplTest {
         val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         // Simplified test constructor always leaves playbackSettings null.
 
-        assertEquals("${verseRange.start.name} (?)", labelOf(bookmark))
+        assertEquals("${verseRange.start.getName()} (?)", labelOf(bookmark))
     }
 
     companion object {

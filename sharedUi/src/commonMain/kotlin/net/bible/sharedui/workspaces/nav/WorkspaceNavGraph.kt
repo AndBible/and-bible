@@ -17,6 +17,9 @@
 
 package net.bible.sharedui.workspaces.nav
 
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.app.workspace.buildTextDisplayControllerLabels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -807,6 +810,12 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
         } else {
             val scope = nav.navStack.last()
             val controller = nav.controllerFor(scope)
+            val languageStrings = LocalStrings.current
+            if (LocalLiveSettingsLanguage.current) {
+                LaunchedEffect(languageStrings, controller) {
+                    controller.updateLabels(languageStrings.buildTextDisplayControllerLabels())
+                }
+            }
             val state by controller.state.collectAsState()
             val query by nav.searchQuery.collectAsState()
             val searchModeActive by nav.searchMode.active.collectAsState()

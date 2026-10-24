@@ -15,8 +15,11 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.components
 
+import net.bible.sharedui.app.ports.ExternalLinks
 import androidx.compose.foundation.Image
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -172,3 +175,15 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
         )
     }
 }
+
+/**
+ * [AbLinkRouting] driven by an [ExternalLinks] port: provided once at every Compose host root, so a
+ * dialog/sheet that forgets its own [AbLinkRouting] wrap still asks before leaving the app when
+ * [ExternalLinks.askBeforeOpening] (discrete mode) says so -- fail CLOSED -- instead of falling
+ * through to the platform's bare `LocalUriHandler` (see [LocalAbLinkOpener]). A dialog that wraps
+ * itself simply re-provides the opener one level deeper, which is harmless.
+ */
+@Composable
+@kotlin.native.HiddenFromObjC
+fun FailClosedLinkRouting(externalLinks: ExternalLinks, content: @Composable () -> Unit) =
+    AbLinkRouting(askFirst = externalLinks.askBeforeOpening, onOpenExternal = externalLinks::open, content = content)

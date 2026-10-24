@@ -44,12 +44,12 @@ class HistoryDirectCallTest {
         ReadingViewVisibility.setVisible(false)
         ReadingHostPresence.setForeground(null)
         originalRepository = CommonUtils.windowControl.windowRepository
-        repository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
-        repository.initialize()
+        repository.initializeAtEdge()
         HistoryManager.resetInstanceForTest()
         window.pageManager.setCurrentDocumentAndKey(kjv, verse(BibleBook.GEN, 1, 1), false)
-        history = HistoryManager(CommonUtils.windowControl)
+        history = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         ReadingViewVisibility.setVisible(true)
     }
 
@@ -69,7 +69,7 @@ class HistoryDirectCallTest {
     fun recordBeforeAnyManagerExistsDoesNothing() {
         HistoryManager.resetInstanceForTest()
         HistoryManager.recordIfCreated(null)
-        val created = HistoryManager(CommonUtils.windowControl)
+        val created = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         assertTrue(created.getHistory(window.id).isEmpty())
     }
 
@@ -77,8 +77,8 @@ class HistoryDirectCallTest {
     fun setKeyRecordsTheOldPositionBeforeTheKeyChanges() {
         window.pageManager.currentBible.setKey(verse(BibleBook.JOHN, 3, 16), true)
         val item = history.getHistory(window.id).single() as KeyHistoryItem
-        assertEquals("Gen.1.1", item.key.osisID)
-        assertEquals("John.3.16", window.pageManager.currentBible.singleKey.osisID)
+        assertEquals("Gen.1.1", item.key.getOsisID())
+        assertEquals("John.3.16", window.pageManager.currentBible.singleKey.getOsisID())
     }
 
     @Test
@@ -91,12 +91,12 @@ class HistoryDirectCallTest {
     @Test
     fun traversalRecordsOnlyWhenIntegratedAndUsesTheLiveManager() {
         val traversal = HistoryTraversal(history, false)
-        val live = HistoryManager(CommonUtils.windowControl)
+        val live = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         traversal.beforeStartActivity()
         assertTrue(live.getHistory(window.id).isEmpty())
         traversal.isIntegrateWithHistoryManager = true
         traversal.beforeStartActivity()
-        assertEquals("Gen.1.1", (live.getHistory(window.id).single() as KeyHistoryItem).key.osisID)
+        assertEquals("Gen.1.1", (live.getHistory(window.id).single() as KeyHistoryItem).key.getOsisID())
         assertTrue(history.getHistory(window.id).isEmpty())
     }
 
@@ -107,7 +107,7 @@ class HistoryDirectCallTest {
                 get() = throw IllegalStateException("boom")
                 set(_) {}
         }
-        val manager = HistoryManager(broken)
+        val manager = HistoryManager(broken, net.bible.android.platform.AndroidHistoryPlatform())
         assertFailsWith<IllegalStateException> { manager.addHistoryItem(null) }
         HistoryManager.recordIfCreated(null)
     }
@@ -121,7 +121,7 @@ class HistoryDirectCallTest {
             org.robolectric.util.ReflectionHelpers.setField(pm, "currentPage", object : CurrentPage by page {
                 override val singleKey: Key
                     get() {
-                        if (pm.currentBible.singleKey.osisID == "Gen.1.1") {
+                        if (pm.currentBible.singleKey.getOsisID() == "Gen.1.1") {
                             throw IllegalStateException("history key failed")
                         }
                         return page.singleKey!!
@@ -129,7 +129,7 @@ class HistoryDirectCallTest {
             })
             assertFailsWith<IllegalStateException> { history.addHistoryItem(window) }
             pm.currentBible.setKey(verse(BibleBook.JOHN, 3, 16), true)
-            assertEquals("John.3.16", pm.currentBible.singleKey.osisID)
+            assertEquals("John.3.16", pm.currentBible.singleKey.getOsisID())
             assertTrue(history.getHistory(window.id).isEmpty())
         } finally {
             org.robolectric.util.ReflectionHelpers.setField(pm, "currentPage", page)
@@ -137,7 +137,7 @@ class HistoryDirectCallTest {
     }
 
     @Test
-    fun readingPlanRecordsBeforeResolvingTheNavigationWindow() {
+    fun readingPlanRecordsBeforeResolvingTheNavigationWindow() = kotlinx.coroutines.runBlocking {
         val navigationSnapshots = mutableListOf<List<HistoryItem>>()
         val navigationControl = object : WindowControl() {
             override var windowRepository: WindowRepository
@@ -148,7 +148,7 @@ class HistoryDirectCallTest {
                 set(_) {}
         }
         val koin = GlobalContext.get()
-        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get())
+        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get(), koin.get(), koin.get(), koin.get())
         val originalPlan = control.currentPlanCode
         try {
             control.setReadingPlan("y1ntpspr")
@@ -158,8 +158,8 @@ class HistoryDirectCallTest {
             // later setKey recording cannot hide a missing ReadingPlanControl.read recording.
             control.read(1, 0, verse(BibleBook.JOHN, 3, 16))
             val recorded = navigationSnapshots.first()
-            assertEquals("Gen.1.1", (recorded.single() as KeyHistoryItem).key.osisID)
-            assertEquals("John.3.16", window.pageManager.currentBible.singleKey.osisID)
+            assertEquals("Gen.1.1", (recorded.single() as KeyHistoryItem).key.getOsisID())
+            assertEquals("John.3.16", window.pageManager.currentBible.singleKey.getOsisID())
             assertTrue(control.getReadingStatus(1).isRead(0))
         } finally {
             control.setReadingPlan(originalPlan)

@@ -730,7 +730,6 @@ Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.
   <!--TODO: to be removed-->
   <string name="help_search_text2">Soek teks kan spesiale karakters insluit soos *, AND, OR, NOT</string>
   <string name="help_search_details">Sien asseblief %s vir meer besonderhede.</string>
-  <string name="help_apache_lucene">Apache Lucene - Navraag Parser Sintaks</string>
   <string name="help_fts5">FTS5 Vol teks Navraag Sintaks</string>
   <string name="help_workspaces_title">Werkruimtes</string>
   <string name="help_workspaces_text">

@@ -22,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.routeStartsUninitialised
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

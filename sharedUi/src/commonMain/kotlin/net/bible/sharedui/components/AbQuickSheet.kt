@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -79,6 +80,12 @@ import kotlinx.coroutines.launch
  * ROBORAZZI: never capture this composable — an open `ModalBottomSheet` hangs the capture and takes
  * the whole `:app` suite with it. Capture [AbQuickSheetContent] instead.
  */
+/**
+ * Test tag on the open sheet's surface. The sheet draws in its own window, so a tag on a wrapper composed around the
+ * sheet (`ReadingQuickSheetTag`) has no size there and is invisible to XCUITest; this one carries the sheet's frame.
+ */
+const val AbQuickSheetTag = "ab-quick-sheet"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AbQuickSheet(
@@ -120,6 +127,7 @@ fun AbQuickSheet(
             }
         },
         sheetState = sheetState,
+        modifier = Modifier.testTag(AbQuickSheetTag),
     ) {
         AbQuickSheetContent(
             title = title,
@@ -172,13 +180,15 @@ fun AbQuickSheetContent(
             // An unknown or null id falls back to the first tab, so a caller restoring a tab that
             // is not visible this time lands somewhere sane instead of on nothing.
             val selectedIndex = tabs.indexOfFirst { it.id == selectedTabId }.coerceAtLeast(0)
-            TabRow(selectedTabIndex = selectedIndex) {
-                tabs.forEachIndexed { index, tab ->
-                    Tab(
-                        selected = index == selectedIndex,
-                        onClick = { onTabSelected(tab.id) },
-                        text = { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    )
+            CappedBarFontScale {
+                TabRow(selectedTabIndex = selectedIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = index == selectedIndex,
+                            onClick = { onTabSelected(tab.id) },
+                            text = { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        )
+                    }
                 }
             }
         }

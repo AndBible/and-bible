@@ -13,6 +13,21 @@ import net.bible.sharedcore.search.SearchModeController
  *  see [ManageLabelsController.reset]; the screen uses it to pick the right question. */
 enum class ManageLabelsResetKind { WORKSPACE, HIDE_LABELS }
 
+data class ManageLabelsSnapshot(
+    val selected: Set<String>,
+    val autoAssign: Set<String>,
+    val changed: Set<String>,
+    val deleted: Set<String>,
+    val deletedWithOrphaned: Set<String>,
+    val autoAssignPrimary: String?,
+    val bookmarkPrimary: String?,
+    val labels: List<LabelItem>,
+    val search: String,
+    val searchMode: SearchMode,
+    val filters: Set<LabelFilter>,
+    val searchOpen: Boolean,
+)
+
 /** Which modal the ManageLabels list is currently showing (screen-local, driven by the controller). */
 sealed interface ManageLabelsDialog {
     data object None : ManageLabelsDialog
@@ -42,6 +57,7 @@ class ManageLabelsController(
     private val onSelectStudyPad: (labelId: String, firstMatchEntryId: String?) -> Unit,
     private val onSave: () -> Unit,
     private val onReset: () -> Unit,
+    private val restored: ManageLabelsSnapshot? = null,
 ) {
     private val selected = initialSelected.toMutableSet()
     private val autoAssign = initialAutoAssign.toMutableSet()
@@ -50,7 +66,12 @@ class ManageLabelsController(
     private val deletedWithOrphaned = mutableSetOf<String>()
     private var autoAssignPrimary = initialAutoAssignPrimary
     private var bookmarkPrimary = initialBookmarkPrimary
-    private var labels = service.assignableLabels().toMutableList()
+    /** Empty until the initial [load] has read them (the service calls are `suspend`). */
+    private var labels = mutableListOf<LabelItem>()
+    private var labelsLoaded = false
+    /** Cached service values [rebuild] reads; refreshed by [load] (initially and on [refresh]). */
+    private var unlabeled: LabelItem? = null
+    private var overrides: Map<String, BookmarkDisplayStyle> = emptyMap()
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
@@ -92,7 +113,54 @@ class ManageLabelsController(
     // label had vanished into another section.
     private var lastOrder: List<String>? = null
 
-    init { rebuild(reorder = true) }
+    // Rows stay empty until the first load lands (one frame on device); the rows are then built
+    // exactly as a synchronous constructor built them.
+    init {
+        restored?.let {
+            selected.clear(); selected.addAll(it.selected)
+            autoAssign.clear(); autoAssign.addAll(it.autoAssign)
+            changed.addAll(it.changed); deleted.addAll(it.deleted); deletedWithOrphaned.addAll(it.deletedWithOrphaned)
+            autoAssignPrimary = it.autoAssignPrimary; bookmarkPrimary = it.bookmarkPrimary
+            labels.addAll(it.labels)
+            _searchText.value = it.search
+            _searchMode.value = it.searchMode
+            _filters.value = it.filters
+            if (it.searchOpen) searchBarMode.open()
+        }
+        scope.launch {
+            load(); rebuild(reorder = restored == null)
+            // A restored StudyPad CONTENT query shows content hits, not the name-filter fallback.
+            if (restored != null && mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT &&
+                _searchText.value.length >= 3) dispatchSearchOrRebuild()
+        }
+    }
+
+    /** Value-only working set; services, callbacks and jobs always belong to the new host. */
+    fun snapshot() = ManageLabelsSnapshot(
+        selected.toSet(), autoAssign.toSet(), changed.toSet(), deleted.toSet(), deletedWithOrphaned.toSet(),
+        autoAssignPrimary, bookmarkPrimary, labels.filter { it.id in changed }, _searchText.value, _searchMode.value,
+        _filters.value, searchModeActive.value,
+    )
+
+    /**
+     * Reads the service's label data. The label list itself is read only once (later changes come
+     * through [applyLabelChanged]/[applyLabelDeleted], as before); a change applied before this first
+     * read landed wins over the loaded copy, and a label deleted meanwhile stays deleted. The
+     * Unlabeled label and the workspace overrides are re-read on every call.
+     */
+    private suspend fun load() {
+        val loadedLabels = if (labelsLoaded) null else service.assignableLabels()
+        val loadedUnlabeled = service.unlabeledLabel()
+        val loadedOverrides = service.overriddenLabelStyles()
+        if (loadedLabels != null && !labelsLoaded) {
+            labelsLoaded = true
+            val applied = labels.associateBy { it.id }
+            val merged = loadedLabels.filterNot { deleted.contains(it.id) }.map { applied[it.id] ?: it }
+            labels = (merged + labels.filter { l -> merged.none { it.id == l.id } }).toMutableList()
+        }
+        unlabeled = loadedUnlabeled
+        overrides = loadedOverrides
+    }
 
     private fun dispatchSearchOrRebuild() {
         contentSearchJob?.cancel()
@@ -181,13 +249,12 @@ class ManageLabelsController(
 
     private fun rebuild(reorder: Boolean = false) {
         val recent = service.recentLabelIds().toSet()
-        val overrides = service.overriddenLabelStyles()
         val ctx = contextSelected()
         // relink override style onto labels
         val shown = labels.filter { matches(it) }
             .map { it.copy(overrideStyle = overrides[it.id]) }.toMutableList<Any>()
-        if (mode.showUnassigned) {
-            val unl = service.unlabeledLabel()
+        val unl = unlabeled
+        if (mode.showUnassigned && unl != null) {
             // Same relink as every real label above (:148-149) -- classic's adapter marks the ⚙
             // override tag for ANY overridden id, Unlabeled included (ManageLabelItemAdapter.kt:236).
             if (matches(unl) && !changed.contains(unl.id)) shown.add(unl.copy(overrideStyle = overrides[unl.id]))
@@ -267,6 +334,14 @@ class ManageLabelsController(
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
+
+    private var searchModeSeeded = restored != null
+    fun seedSearchMode(initialMode: () -> SearchMode) {
+        if (searchModeSeeded) return
+        searchModeSeeded = true
+        val mode = initialMode()
+        if (_searchMode.value != mode) setSearchMode(mode)
+    }
     /** The search-options sheet's filter toggles. A filter changes the row-key SET, so this always
      *  re-sorts: `stickyOrder` would refuse to reuse the old sequence anyway, and saying so here is
      *  clearer than relying on that. */
@@ -384,7 +459,8 @@ class ManageLabelsController(
         ensureNotAutoAssignPrimary(id)
         rebuild(reorder = true)
     }
-    fun refresh() = rebuild(reorder = true)
+    /** Re-reads the Unlabeled label and the workspace overrides, then re-sorts (on [scope]). */
+    fun refresh() { scope.launch { load(); rebuild(reorder = true) } }
 
     // ---- current in-memory label items (host save-time favourite sourcing) ----
     // The list's quick favourite-toggle (toggleFavourite) only flips this controller's own LabelItem

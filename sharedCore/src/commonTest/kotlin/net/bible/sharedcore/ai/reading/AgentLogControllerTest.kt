@@ -30,7 +30,7 @@ class AgentLogControllerTest {
         override fun logVisiblePref() = visiblePrefStore
         override fun setLogVisiblePref(v: Boolean) { visiblePrefStore = v; lastSetVisible = v; setVisibleCallCount++ }
         override fun currentWorkspaceId() = "ws1"
-        override fun refresh() {}
+        override suspend fun refresh() {}
     }
 
     private class HostCalls { var toast = 0; var rawLog = 0 }

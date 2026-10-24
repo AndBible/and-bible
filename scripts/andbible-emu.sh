@@ -6,9 +6,11 @@
 # Usage:
 #
 #   scripts/andbible-emu.sh boot [avd]          boot detached (default AVD screenshot_phone, created
-#                                               if missing), wait for sys.boot_completed
+#                                               if missing), wait for sys.boot_completed; refuses
+#                                               while any qemu runs (one emulator per container)
 #   scripts/andbible-emu.sh kill                stop the running emulator, verify qemu is gone
-#   scripts/andbible-emu.sh health              emulator version, GPU mode, qemu threads/RSS, exit code
+#   scripts/andbible-emu.sh health              emulator version, GPU mode, AVD, qemu threads/RSS,
+#                                               GPU buffers, exit code
 #   scripts/andbible-emu.sh install <apk>       adb install -r -d (never gradle install*)
 #   scripts/andbible-emu.sh wipe [pkg]          pm clear (data + granted state) -> true first run
 #   scripts/andbible-emu.sh push-module <zip> [pkg]
@@ -24,11 +26,21 @@
 #   scripts/andbible-emu.sh shot <name>         screenshot -> .local/emu-verify/shots/<name>.png
 #   scripts/andbible-emu.sh crashes [pkg]       FATAL/ANR lines from logcat since last `logmark`
 #   scripts/andbible-emu.sh logmark             clear logcat (start of a box)
+#   scripts/andbible-emu.sh place-widget <desc-regex> [nth]
+#                                               drag a widget from the launcher picker to the home screen;
+#                                               prints the new appwidget id
+#   scripts/andbible-emu.sh key <KEY_ names>   press the named Linux keys in order, release in reverse, via
+#                                               sendevent on the guest's AT keyboard (adb root needed); e.g. key KEY_A,
+#                                               key KEY_LEFTALT KEY_O. Prove delivery with a letter first.
+#                                               NOTE: leaves adbd running as root; `adb unroot` undoes it.
+#   scripts/andbible-emu.sh emushot <name>      emulator-side screenshot (adb emu screenrecord screenshot),
+#                                               stored as .local/emu-verify/shots/<name>.png; for FLAG_SECURE screens
 #
 # Package defaults to the standard debug build, net.bible.android.activity.debug.
 # The discrete debug build is com.app.calculator.debug.
 #
 # boot environment:
+#   ANDBIBLE_EMU_WRITABLE_SYSTEM  1 adds -writable-system (disposable AVD CA testing only).
 #   ANDBIBLE_EMU_GPU   auto (default) | host | swiftshader_indirect | <any -gpu mode>.
 #                      auto = host when a GPU render node, weston and Xwayland are available
 #                      (hardware GL through a headless weston + Xwayland display), else
@@ -61,6 +73,48 @@ avd_home="${ANDROID_AVD_HOME:-$HOME/.android/avd}"
 mkdir -p "$avd_home"
 # qemu's process name, truncated by the kernel to 15 characters (pgrep -x needs it exactly).
 QEMU=qemu-system-x86
+
+# boot's refusal when an emulator already runs: what, why, and what to do.
+refuse_second_emulator() {
+    cat >&2 <<EOM
+andbible-emu: not booting: an emulator is already running in this container ($1).
+  Why: one emulator per container. Each holds about 6 GB of the machine's shared RAM (qemu plus
+  GPU buffers), and emulators left running in several containers have nearly filled the host.
+  Do:
+  - To keep using it, skip boot: the other subcommands already talk to it ('$0 health').
+  - To switch AVD or Android version, or if it is yours and no longer needed:
+    '$0 kill', then boot again.
+  - If it may belong to another session in this container, ask before killing it.
+EOM
+    exit 1
+}
+
+# "AVD <name>, up <elapsed>" for a qemu pid.
+qemu_desc() {
+    local avd
+    avd="$(tr '\0' '\n' < "/proc/$1/cmdline" 2>/dev/null | sed -n '/^-avd$/{n;p;q}')"
+    echo "AVD ${avd:-unknown}, up $(ps -o etime= -p "$1" | tr -d ' ')"
+}
+
+# GPU (i915/xe GEM) memory a qemu holds through its render-node descriptors. On an integrated GPU
+# this is ordinary RAM, yet it is not part of qemu's RSS. Descriptors of one DRM client report the
+# same totals, so count each drm-client-id once.
+gpu_buffers() {
+    local fd
+    for fd in /proc/$1/fd/*; do
+        case "$(readlink "$fd" 2>/dev/null)" in
+            /dev/dri/*) cat "/proc/$1/fdinfo/${fd##*/}" 2>/dev/null ;;
+        esac
+    done | awk '
+        /^drm-client-id:/ { id = $2 }
+        /^drm-total-system0:/ { total[id] = $2 }
+        /^drm-resident-system0:/ { res[id] = $2 }
+        END {
+            for (i in total) { n++; t += total[i]; r += res[i] }
+            if (!n) { print "GPU buffers: not reported (no render node with DRM fdinfo open)"; exit }
+            printf "GPU buffers %d MB (%d MB resident; %d DRM client%s)\n", t / 1024, r / 1024, n, n == 1 ? "" : "s"
+        }'
+}
 
 emulator_version() { sed -n 's/^Pkg.Revision=//p' "$sdk/emulator/source.properties" 2>/dev/null; }
 
@@ -135,8 +189,14 @@ esac
 case "$cmd" in
 boot)
     avd="${1:-screenshot_phone}"
+    # One emulator per container: each holds ~4.5 GB RSS plus GPU buffers, and forgotten ones add
+    # up across containers. adb alone misses one that is booting, offline or started without this
+    # script, so look for qemu itself.
+    if q="$(pgrep -x "$QEMU" | head -1)"; then
+        refuse_second_emulator "$(qemu_desc "$q")"
+    fi
     if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
-        die "an emulator is already running — run '$0 kill' first (one at a time)"
+        refuse_second_emulator "adb lists a device"
     fi
     [ -x "$sdk/emulator/emulator" ] || die "$sdk/emulator/emulator missing (ANDROID_HOME=$sdk)"
     check_emulator_version
@@ -163,6 +223,7 @@ boot)
             display="$(ensure_gpu_display)" || { echo "andbible-emu: no headless GPU display (see /tmp/andbible-emu-weston.log)" >&2; return 1; }
         fi
         local args=(-avd "$avd" -no-window -no-snapshot-save -no-boot-anim -no-audio -partition-size 2048 -gpu "$gpu")
+        if [ "${ANDBIBLE_EMU_WRITABLE_SYSTEM:-0}" = 1 ]; then args+=(-writable-system); fi
         echo "andbible-emu: emulator $(emulator_version), -gpu $gpu${display:+ (DISPLAY $display)}${proxy:+, proxy $proxy}"
         # setsid, NOT the Bash tool's run_in_background: a background task's process tree is
         # reaped later and takes the emulator with it (looks like an emulator crash).
@@ -214,7 +275,7 @@ boot)
     ;;
 health)
     echo "emulator $(emulator_version) in $sdk; AVD home $avd_home"
-    log="$(ls -t /tmp/emulator-*.log 2>/dev/null | head -1)"
+    log="$(ls -t /tmp/emulator-*.log 2>/dev/null | head -1 || true)"
     if [ -n "$log" ]; then
         echo "$log: $(grep -m1 -o 'gles_mode_selected:[a-z_]*' "$log") $(grep -m1 -o 'Graphics Adapter Android Emulator OpenGL ES Translator.*' "$log" | sed 's/.*Translator //') $(grep '^EMULATOR-EXIT=' "$log" || echo running)"
     fi
@@ -226,7 +287,8 @@ health)
         esac
     fi
     if q="$(pgrep -x "$QEMU" | head -1)"; then
-        echo "qemu pid $q: $(ls /proc/$q/task | wc -l) threads ($(cat /proc/$q/task/*/comm 2>/dev/null | grep -c RenderThread) RenderThread), RSS $(( $(awk '/VmRSS/{print $2}' /proc/$q/status) / 1024 )) MB"
+        echo "qemu pid $q ($(qemu_desc "$q")): $(ls /proc/$q/task | wc -l) threads ($(cat /proc/$q/task/*/comm 2>/dev/null | grep -c RenderThread || true) RenderThread), RSS $(( $(awk '/VmRSS/{print $2}' /proc/$q/status) / 1024 )) MB"
+        gpu_buffers "$q"
     else
         echo "no qemu running"
     fi
@@ -343,7 +405,88 @@ crashes)
     { timeout 20 adb logcat -d -b crash; timeout 20 adb logcat -d -b main,system | grep -E 'ANR in|DataBaseNotReady'; } \
         | tr -d '\r' | grep -v '^---------' | head -60 || true
     ;;
+place-widget)
+    # place-widget <content-desc-regex> [nth] : drag a widget from the launcher's picker to the home
+    # screen. Matches the picker entries' content-desc (e.g. '2 wide by 2 high'); [nth] picks the
+    # n-th match (default 1). ANDBIBLE_WIDGET_APP (default 'Bible Study') is the picker section to
+    # expand. Prints the new appwidget id, exit 0 only if one appeared for the package.
+    pat="${1:?content-desc regex}"; nth="${2:-1}"
+    wapp="${ANDBIBLE_WIDGET_APP:-Bible Study}"; wpkg="${ANDBIBLE_WIDGET_PKG:-$PKG_DEFAULT}"
+    wids() { adb shell dumpsys appwidget | tr -d '\r' | awk -v p="$wpkg" '
+        /^Widgets:/ {w=1; next} /^[A-Za-z]/ {w=0}
+        w && /^  \[[0-9]+\] id=/ {sub(/.*id=/, ""); id=$1}
+        w && /provider=/ && index($0, p "/") {print id}' | LC_ALL=C sort; }
+    pick() { "$0" texts | python3 -c '
+import re, sys
+pat, nth = re.compile(sys.argv[1]), int(sys.argv[2])
+m = [l for l in sys.stdin if pat.search(l.split(" | ")[1])]
+if len(m) < nth: sys.exit(1)
+x1, y1, x2, y2 = map(int, re.findall(r"\d+", re.findall(r"\[\d+,\d+\]\[\d+,\d+\]", m[nth-1])[-1]))
+print((x1 + x2) // 2, (y1 + min(y2, 3000)) // 2)' "$pat" "$nth"; }
+    before="$(wids)"
+    adb shell input keyevent KEYCODE_HOME; sleep 2
+    opened=
+    for xy in "720 1500" "720 2100" "300 1700" "1100 1700"; do
+        adb shell input swipe $xy $xy 1200; sleep 2
+        if "$0" tap-text '^Widgets$' >/dev/null 2>&1; then opened=1; break; fi
+        adb shell input keyevent KEYCODE_HOME; sleep 1
+    done
+    [ -n "$opened" ] || die "could not open the launcher's Widgets picker"
+    sleep 2
+    src="$(pick || true)"
+    if [ -z "$src" ]; then
+        "$0" tap-text "^$wapp" >/dev/null 2>&1 || die "no picker section /$wapp/"
+        sleep 2
+        for _ in 1 2 3 4; do
+            src="$(pick || true)"; [ -n "$src" ] && break
+            adb shell input swipe 720 2400 720 1200 500; sleep 1
+        done
+    fi
+    [ -n "$src" ] || die "no picker entry matches /$pat/ (#$nth)"
+    drop="${ANDBIBLE_WIDGET_DROP_XY:-720 1200}"
+    adb shell input draganddrop $src $drop 1500; sleep 3
+    "$0" tap-text '^(Create|Allow|Add)$' >/dev/null 2>&1 || true
+    sleep 2
+    after="$(wids)"
+    new="$(comm --nocheck-order -13 <(echo "$before") <(echo "$after") | head -1)"
+    [ -n "$new" ] || die "no new widget id for $wpkg after the drop"
+    echo "$new"
+    ;;
+key)
+    # `adb emu event send EV_KEY:...` does not reach the guest on emulator 37.3.4 (verified by E4a G2), so
+    # the events are injected with sendevent on the guest's AT keyboard; needs a userdebug image (adb root).
+    [ $# -ge 1 ] || die "usage: key <KEY_NAME>..."
+    codes=()
+    for k in "$@"; do
+        hdr=/usr/include/linux/input-event-codes.h
+        c="$(grep -E "^#define[[:space:]]+$k[[:space:]]" "$hdr" | awk '{print $3}' | head -1 || true)"
+        # A `#define KEY_X KEY_Y` alias yields a name: resolve one level.
+        case "$c" in KEY_*|BTN_*) c="$(grep -E "^#define[[:space:]]+$c[[:space:]]" "$hdr" | awk '{print $3}' | head -1 || true)" ;; esac
+        case "$c" in ''|*[!0-9xXa-fA-F]*) c="" ;; esac
+        [ -n "$c" ] || die "unknown key name $k (or an alias that does not resolve to a number; see /usr/include/linux/input-event-codes.h)"
+        codes+=("$c")
+    done
+    adb root >/dev/null 2>&1 || true; adb wait-for-device
+    devlist="$(adb shell getevent -il </dev/null | tr -d '\r' || true)"
+    dev="$(printf '%s\n' "$devlist" | awk '/^add device/ {d=$4} /AT Translated Set 2 keyboard/ && !found {print d; found=1}')"
+    [ -n "$dev" ] || die "no AT keyboard input device in the guest"
+    cmd=""
+    for c in "${codes[@]}"; do cmd="$cmd sendevent $dev 1 $c 1; sendevent $dev 0 0 0;"; done
+    for ((i = ${#codes[@]} - 1; i >= 0; i--)); do cmd="$cmd sendevent $dev 1 ${codes[i]} 0; sendevent $dev 0 0 0;"; done
+    adb shell "$cmd"
+    echo "sent $* via $dev"
+    ;;
+emushot)
+    name="${1:?name}"; mkdir -p "$kit/shots"
+    tmp="$(mktemp -d)"
+    adb emu screenrecord screenshot "$tmp" >/dev/null
+    sleep 2
+    f="$(ls -t "$tmp"/*.png 2>/dev/null | head -1 || true)"
+    [ -n "$f" ] || die "emulator produced no screenshot in $tmp"
+    mv "$f" "$kit/shots/$name.png"; rmdir "$tmp" 2>/dev/null || true
+    echo "$kit/shots/$name.png"
+    ;;
 *)
-    sed -n '2,41p' "$0"; exit 2
+    sed -n '2,52p' "$0"; exit 2
     ;;
 esac

@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.nav
 
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.navHostStartRoute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

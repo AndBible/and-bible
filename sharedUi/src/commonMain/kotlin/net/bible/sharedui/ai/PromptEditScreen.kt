@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Tune
+import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.components.abCheckboxColors
 import net.bible.sharedui.components.abFilterChipBorder
 import net.bible.sharedui.components.abFilterChipColors
@@ -107,6 +108,7 @@ import net.bible.sharedui.settings.GenericSettingsEditorSheet
 import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
@@ -277,9 +279,10 @@ fun PromptEditScreen(
      *  an Android resource `:sharedUi` cannot read; see [MaxIterationsSheetContent]. */
     globalMaxIterationsLabel: String,
     initiallyHelpDialogOpen: Boolean = false,
+    mutating: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    val editable = !isReadOnly
+    val editable = !isReadOnly && !mutating
     var showDiscardConfirm by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
@@ -295,13 +298,14 @@ fun PromptEditScreen(
         title = title,
         onNavigateUp = requestBack,
         actions = {
-            IconButton(onClick = onSave, enabled = canSave) {
+            IconButton(onClick = onSave, enabled = canSave && !mutating) {
                 Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 if (!isReadOnly && !isNew) {
                     AbMenuItem(
                         text = strings.deleteLabel,
+                        enabled = !mutating,
                         onClick = { close(); showDeleteConfirm = true },
                         icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                     )
@@ -309,6 +313,7 @@ fun PromptEditScreen(
                 if (isReadOnly || !isNew) {
                     AbMenuItem(
                         text = strings.copyToCustomizeLabel,
+                        enabled = !mutating,
                         onClick = { close(); onCopyToCustomize() },
                         icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
                     )
@@ -324,9 +329,11 @@ fun PromptEditScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (availableTabs.size > 1) {
-                PrimaryTabRow(selectedTabIndex = availableTabs.indexOf(tab).coerceAtLeast(0)) {
-                    availableTabs.forEach { t ->
-                        Tab(selected = t == tab, onClick = { onSelectTab(t) }, text = { Text(tabLabel(t, strings)) })
+                CappedBarFontScale {
+                    PrimaryTabRow(selectedTabIndex = availableTabs.indexOf(tab).coerceAtLeast(0)) {
+                        availableTabs.forEach { t ->
+                            Tab(selected = t == tab, onClick = { onSelectTab(t) }, text = { Text(tabLabel(t, strings)) })
+                        }
                     }
                 }
             }
@@ -363,6 +370,7 @@ fun PromptEditScreen(
                         hiddenAdvancedKeys = hiddenAdvancedKeys,
                         isReadOnly = isReadOnly,
                         isBuiltIn = isBuiltIn,
+                        mutating = mutating,
                         modelChoices = modelChoices,
                         globalMaxIterationsLabel = globalMaxIterationsLabel,
                         onSetModelOverride = onSetModelOverride,
@@ -427,6 +435,13 @@ private fun PromptTabContent(
     onSetTextTransformation: (Boolean) -> Unit,
     strings: Strings,
 ) {
+    // The controller echoes a keystroke back a dispatch later (collectAsState), so each text field keeps its typed text
+    // locally. What re-seeds it is the key: the prompt id (load() changes it from null, and a new prompt gets its id on
+    // save). No controller write to these fields under the same id exists today; if one is added, the helper adopts a
+    // value this field never sent.
+    val nameText = rememberControllerText(state.name, state.id)
+    val descriptionText = rememberControllerText(state.description, state.id)
+    val templateText = rememberControllerText(state.template, state.id)
     Column(
         Modifier
             .fillMaxSize()
@@ -434,8 +449,8 @@ private fun PromptTabContent(
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         OutlinedTextField(
-            value = state.name,
-            onValueChange = onSetName,
+            value = nameText.text,
+            onValueChange = { nameText.edit(it, onSetName) },
             label = { Text(strings.promptNameLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),
@@ -444,8 +459,8 @@ private fun PromptTabContent(
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = state.description,
-            onValueChange = onSetDescription,
+            value = descriptionText.text,
+            onValueChange = { descriptionText.edit(it, onSetDescription) },
             label = { Text(strings.promptDescriptionLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),
@@ -454,8 +469,8 @@ private fun PromptTabContent(
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = state.template,
-            onValueChange = onSetTemplate,
+            value = templateText.text,
+            onValueChange = { templateText.edit(it, onSetTemplate) },
             label = { Text(strings.promptTemplateLabel) },
             enabled = editable,
             colors = abOutlinedTextFieldColors(),
@@ -723,6 +738,7 @@ private fun AdvancedTabContent(
     hiddenAdvancedKeys: Set<String>,
     isReadOnly: Boolean,
     isBuiltIn: Boolean,
+    mutating: Boolean,
     modelChoices: List<SettingsItem.Choice>,
     globalMaxIterationsLabel: String,
     onSetModelOverride: (String?) -> Unit,
@@ -730,8 +746,8 @@ private fun AdvancedTabContent(
     onSetSwitch: (String, Boolean) -> Unit,
 ) {
     val strings = LocalStrings.current
-    val modelEnabled = !isReadOnly || isBuiltIn
-    val otherEnabled = !isReadOnly
+    val modelEnabled = (!isReadOnly || isBuiltIn) && !mutating
+    val otherEnabled = !isReadOnly && !mutating
     var maxIterationsSheetOpen by remember { mutableStateOf(false) }
 
     // 17f: states the EFFECTIVE value, never the old "leave empty" instruction — a NavigationRow's

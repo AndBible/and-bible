@@ -17,6 +17,7 @@
 package net.bible.service.history
 
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -112,6 +113,64 @@ class ReadingHistoryAnchorTest {
         )
     }
 
+    private fun closeReadingHost(controller: ActivityController<NavHostComposeActivity>, afterClose: () -> Unit = {}) {
+        net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), afterClose = afterClose, reset = {})
+        // @After separately drains the @Before repository before the actual database reset.
+    }
+
+    @Test
+    fun closingTheHistoryHostJoinsItsActualWindowOwnerBeforeFixtureReset() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val armed = java.util.concurrent.atomic.AtomicBoolean(false)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val source = object : net.bible.android.control.page.GlobalTextDisplaySettingsSource {
+            override val current: WorkspaceEntities.TextDisplaySettings
+                get() {
+                    if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
+                        net.bible.service.db.blockingAtEdge {
+                            entered.countDown()
+                            release.await()
+                        }
+                    }
+                    return original.current
+                }
+        }
+        val controller = readingHost()
+        var owner: kotlinx.coroutines.Job? = null
+        var closed = false
+        try {
+            koin.loadModules(listOf(org.koin.dsl.module {
+                single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
+            }))
+            val activity = controller.create().get()
+            val scope = activity.hostWindowRepository.scope
+            org.junit.Assert.assertSame("bootstrap must use host lifecycle, not the @Before repository", activity.lifecycleScope, scope)
+            org.junit.Assert.assertNotSame(windowRepository.scope, scope)
+            val job = requireNotNull(scope.coroutineContext[kotlinx.coroutines.Job])
+            owner = job
+            armed.set(true)
+            activity.hostWindowRepository.activeWindow.loadText()
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "actual history-host Window reader must enter the held source")
+            closeReadingHost(controller, afterClose = {
+                closed = true
+                assertFalse(job.isCompleted, "close alone must still leave the held reader outstanding")
+                android.os.Handler(android.os.Looper.getMainLooper()).post { release.complete(Unit) }
+            })
+            assertTrue(job.isCompleted, "history fixture must join its actual host owner before resetting the distinct @Before repository")
+        } finally {
+            release.complete(Unit)
+            try {
+                if (!closed) controller.close()
+                owner?.let { job -> DatabaseResetter.runResetBlocking { job.cancel(); job.join() } }
+            } finally {
+                tdsSnapshot.restore()
+            }
+        }
+    }
+
     private fun historyManagerWithOneWindow(): HistoryManager {
         val kjv = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
         window.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
@@ -123,10 +182,10 @@ class ReadingHistoryAnchorTest {
     fun setUp() {
         resetReadingSeams()
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
-        historyManager = HistoryManager(windowControl)
+        windowRepository.initializeAtEdge()
+        historyManager = HistoryManager(windowControl, net.bible.android.platform.AndroidHistoryPlatform())
     }
 
     @After
@@ -204,7 +263,7 @@ class ReadingHistoryAnchorTest {
         manager.restoreFrom(window, entities)
         val restored = manager.getHistory(window.id)
         assertEquals(1, restored.size)
-        assertEquals(verse.osisID, (restored.single() as KeyHistoryItem).key.osisID)
+        assertEquals(verse.getOsisID(), (restored.single() as KeyHistoryItem).key.getOsisID())
     }
 
     // ------------------------------------------------------------------ the production wiring
@@ -269,7 +328,7 @@ class ReadingHistoryAnchorTest {
                     "HistoryManager.recordIfCreated inside that window",
             )
         } finally {
-            controller.close()
+            closeReadingHost(controller)
         }
     }
 
@@ -294,7 +353,7 @@ class ReadingHistoryAnchorTest {
                     "the onResume setter is deleted",
             )
         } finally {
-            controller.close()
+            closeReadingHost(controller)
         }
     }
 
@@ -350,7 +409,7 @@ class ReadingHistoryAnchorTest {
             ReadingViewVisibility.exit(navHost)
             assertFalse(ReadingViewVisibility.isVisible, "…and with nothing registered it is false")
         } finally {
-            controller.close()
+            closeReadingHost(controller)
         }
     }
 
@@ -405,7 +464,7 @@ class ReadingHistoryAnchorTest {
                     "setForeground(null)",
             )
         } finally {
-            controller.close()
+            closeReadingHost(controller)
         }
     }
 
@@ -456,9 +515,9 @@ class ReadingHistoryAnchorTest {
         val psalm23 = Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 23, 1)
 
         val restored = listOf(
-            WorkspaceEntities.HistoryItem(window.id, Date(1_000), "KJV", verse.osisID, 7),
-            WorkspaceEntities.HistoryItem(window.id, Date(2_000), "KJV", verse.osisID, 9),
-            WorkspaceEntities.HistoryItem(window.id, Date(3_000), "KJV", psalm23.osisID, null),
+            WorkspaceEntities.HistoryItem(window.id, Date(1_000), "KJV", verse.getOsisID(), 7),
+            WorkspaceEntities.HistoryItem(window.id, Date(2_000), "KJV", verse.getOsisID(), 9),
+            WorkspaceEntities.HistoryItem(window.id, Date(3_000), "KJV", psalm23.getOsisID(), null),
         )
         manager.restoreFrom(window, restored)
 
@@ -468,7 +527,7 @@ class ReadingHistoryAnchorTest {
         assertEquals(3, items.size, "restoreFrom pushes every entity, duplicates included")
         assertEquals(
             listOf(7, 9),
-            items.filter { it.key.osisID == verse.osisID }.map { it.anchorOrdinal?.start },
+            items.filter { it.key.getOsisID() == verse.getOsisID() }.map { it.anchorOrdinal?.start },
             "each restored anchorOrdinal must become an OrdinalRange with the same start",
         )
         assertEquals(
@@ -483,7 +542,7 @@ class ReadingHistoryAnchorTest {
                 entities.map { "${it.document}/${it.key}@${it.anchorOrdinal}" },
         )
         assertEquals(
-            listOf(verse.osisID, psalm23.osisID), entities.map { it.key },
+            listOf(verse.getOsisID(), psalm23.getOsisID()), entities.map { it.key },
             "the FIRST of the duplicate pair is the one kept",
         )
         assertEquals(

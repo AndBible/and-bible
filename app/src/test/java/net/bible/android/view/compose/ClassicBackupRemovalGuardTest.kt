@@ -96,10 +96,9 @@ class ClassicBackupRemovalGuardTest {
             code.contains("class BackupActivity"),
         )
         listOf(
-            "object BackupControl",
-            "enum class SaveOrShare",
+            "class BackupControl",
+            "import net.bible.sharedcore.platform.files.SaveOrShare",
             "fun resolveDestination",
-            "val databaseTitleResIds",
             "const val DATABASE_BACKUP_SUFFIX",
         ).forEach { survivor ->
             assertTrue(

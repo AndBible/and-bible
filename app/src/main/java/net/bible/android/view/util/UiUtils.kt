@@ -23,6 +23,8 @@ import androidx.appcompat.app.ActionBar
 import android.util.TypedValue
 
 import net.bible.android.activity.R
+import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
+import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -33,8 +35,8 @@ object UiUtils {
     private val ACTIONBAR_BACKGROUND_NIGHT get() = CommonUtils.getResourceColor(R.color.actionbar_background_night)
     private val ACTIONBAR_BACKGROUND_DAY get() = CommonUtils.getResourceColor(R.color.actionbar_background_day)
 
-    private val BIBLEVIEW_BACKGROUND_NIGHT get() = CommonUtils.getResourceColor(R.color.bible_background_night)
-    private val BIBLEVIEW_BACKGROUND_DAY get() = CommonUtils.getResourceColor(R.color.bible_background_day)
+    private val BIBLEVIEW_BACKGROUND_NIGHT get() = READING_BACKGROUND_NIGHT
+    private val BIBLEVIEW_BACKGROUND_DAY get() = READING_BACKGROUND_DAY
 
     // taken from css
     private val BIBLEVIEW_TEXT_NIGHT get() = CommonUtils.getResourceColor(R.color.bible_text_night)

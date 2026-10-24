@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.sharedcore.search.SearchModeController
 
+data class MyDocumentsSearchSnapshot(val query: String, val searchOpen: Boolean, val selectedInitials: Set<String>)
+
 /** Framework-free view-data for one user document (see the classic MyDocument entity). */
 data class MyDocItem(
     val id: Long,
@@ -64,13 +66,20 @@ class MyDocumentsController(
     private val _selection = MutableStateFlow<Set<Long>>(emptySet())
     val selection: StateFlow<Set<Long>> = _selection.asStateFlow()
 
-    fun setDocuments(items: List<MyDocItem>) {
+    /** Selection uses persistent document initials, never the host's positional row tokens. */
+    fun searchSnapshot() = MyDocumentsSearchSnapshot(
+        _query.value, searchModeActive.value,
+        working.filter { it.id in _selection.value }.map { it.initials }.toSet(),
+    )
+
+    fun setDocuments(items: List<MyDocItem>, restored: MyDocumentsSearchSnapshot? = null) {
         working.clear(); working.addAll(items)
         changed.clear(); toDelete.clear()
         _dirty.value = false
-        _query.value = ""
+        _query.value = restored?.query.orEmpty()
         searchMode.reset()
-        _selection.value = emptySet()
+        if (restored?.searchOpen == true) searchMode.open()
+        _selection.value = items.filter { it.initials in restored?.selectedInitials.orEmpty() }.map { it.id }.toSet()
         publish()
     }
 

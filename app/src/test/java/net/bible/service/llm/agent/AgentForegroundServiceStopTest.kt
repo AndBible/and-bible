@@ -72,6 +72,30 @@ class AgentForegroundServiceStopTest {
         runBlocking { withTimeout(10_000) { scope.coroutineContext.job.children.toList().forEach { it.join() } } }
     }
 
+    @Test fun notificationIconTracksLiveDiscreteEnvironment() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.sharedcore.platform.AppEnvironment>()
+        var discrete = false
+        val environment = object : net.bible.sharedcore.platform.AppEnvironment by original {
+            override val isDiscrete: Boolean get() = discrete
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.AppEnvironment> { environment }
+        })
+        val controller = Robolectric.buildService(AgentForegroundService::class.java).create()
+        try {
+            val icon = AgentForegroundService::class.java.getDeclaredMethod("notificationIcon").apply { isAccessible = true }
+            org.junit.Assert.assertEquals(net.bible.android.activity.R.drawable.ic_ichtys, icon.invoke(controller.get()))
+            discrete = true
+            org.junit.Assert.assertEquals(net.bible.android.activity.R.drawable.ic_calc_24, icon.invoke(controller.get()))
+        } finally {
+            controller.destroy()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.sharedcore.platform.AppEnvironment> { original }
+            })
+        }
+    }
+
     @Test fun aSessionStoppingDoesNotStopTheServiceWhileAnotherRunIsLive() {
         val intent = startIntent()
         val controller = Robolectric.buildService(AgentForegroundService::class.java, intent).create()

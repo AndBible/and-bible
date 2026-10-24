@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import android.os.Looper
 import android.view.WindowManager
@@ -56,14 +57,40 @@ class UsableBibleGateTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
-    fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
-        comingFromStartupActivity = false
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+    fun tearDown() = closeFixture()
+
+    private fun closeFixture(afterClose: () -> Unit = {}) {
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose = afterClose, restoreBeforeReset = {
+            try {
+                CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
+            } finally {
+                comingFromStartupActivity = false
+            }
+        })
+    }
+
+    @Test
+    fun cleanupFailureStillRestoresCalculatorAndStartupState() {
+        val activity = welcomeHost()
+        val failure = IllegalArgumentException("after-close failed")
+        val database = net.bible.service.db.DatabaseContainer.instance
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
+        comingFromStartupActivity = true
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeFixture(afterClose = { throw failure })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse("close failure must restore startup state", comingFromStartupActivity)
+            assertFalse(CommonUtils.realSharedPreferences.contains("show_calculator"))
+            org.junit.Assert.assertSame("failed close must not reset the database", database, net.bible.service.db.DatabaseContainer.instance)
+        } finally {
+            controllers.clear()
+            val owner = activity.lifecycleScope
+            DatabaseResetter.runResetBlocking { owner.coroutineContext[kotlinx.coroutines.Job]?.let { it.cancel(); it.join() } }
+            CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
+            comingFromStartupActivity = false
+        }
     }
 
     private fun welcomeIntent() =
@@ -86,8 +113,22 @@ class UsableBibleGateTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
-    private fun nav(a: NavHostComposeActivity): NavHostController =
-        NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }.get(a) as NavHostController
+    private fun openLinksKeys(): List<String?> = CommonUtils.windowControl.windowRepository.windowList
+        .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.getOsisRef() }
+
+    /** Wait (bounded, real time, looper pumped) for a launched gate (b) coroutine to finish, so negative assertions are not vacuous. */
+    private fun awaitJob(job: kotlinx.coroutines.Job) =
+        net.bible.test.awaitHostUntil("welcomeAfterFlow must finish") { job.isCompleted }
+
+    private fun nav(a: NavHostComposeActivity): NavHostController {
+        val field = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
+        val deadline = System.nanoTime() + 10_000_000_000L
+        while (field.get(a) == null && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).runOneTask()
+            Thread.sleep(10)
+        }
+        return field.get(a) as NavHostController
+    }
 
     private fun bootstrapped(a: NavHostComposeActivity): Boolean =
         NavHostComposeActivity::class.java.getDeclaredField("readingAppBootstrapped").apply { isAccessible = true }.getBoolean(a)
@@ -98,7 +139,7 @@ class UsableBibleGateTest {
         assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
 
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
 
         assertEquals(NavRoutes.READING, nav(activity).currentDestination?.route)
         assertNull("WELCOME is popped inclusive: back from reading exits", nav(activity).previousBackStackEntry)
@@ -108,7 +149,7 @@ class UsableBibleGateTest {
     @Test
     fun withoutAUsableBibleTheWelcomeStays() {
         val activity = welcomeHost(usable = false)
-        activity.welcomeAfterFlow()
+        awaitJob(activity.welcomeAfterFlow())
         idle()
         assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
         assertFalse(bootstrapped(activity))
@@ -121,13 +162,45 @@ class UsableBibleGateTest {
         val activity = welcomeHost()
         assertFalse("sanity: an uninitialised WELCOME start applies no FLAG_SECURE", flagSecure(activity))
 
-        activity.welcomeFlow.navDeps().onImport()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.WELCOME)
+        assertEquals("Welcome graph must exist before Import", NavRoutes.WELCOME, activity.currentRouteForTest())
+        val graph = org.koin.core.context.GlobalContext.get()
+        val oldSettings = graph.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val reachedLoad = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val realDao = db.documentSyncPreferencesDao()
+        val heldDao = object : net.bible.android.database.DocumentSyncPreferencesDao by realDao {
+            override suspend fun get(): net.bible.android.database.DocumentSyncPreferences? {
+                reachedLoad.complete(Unit)
+                release.await()
+                return realDao.get()
+            }
+        }
+        val settings = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { heldDao }, { db.cloudListingStateDao() }, { db.cloudDocumentSyncTimestampDao() }, graph.get(), graph.get(),
+        )
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.service.cloudsync.documents.DocumentSyncSettings> { settings }
+        })
+        try {
+            activity.welcomeFlow.onImport()
+            idle()
+            assertTrue("actual Import DAO load boundary reached", reachedLoad.isCompleted)
+            assertEquals("virtual idle cannot complete held real load", NavRoutes.WELCOME, route(activity))
+            release.complete(Unit)
+            net.bible.test.awaitHostRoute(activity, NavRoutes.INSTALL_ZIP_PATTERN)
+        } finally {
+            release.complete(Unit)
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.service.cloudsync.documents.DocumentSyncSettings> { oldSettings }
+            })
+        }
         assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, route(activity))
         assertTrue("leaving Welcome initialises the app and its window (Correction 6)", flagSecure(activity))
 
         nav(activity).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
         assertEquals("the listener's re-check ran gate (b)", NavRoutes.READING, route(activity))
     }
 
@@ -137,7 +210,11 @@ class UsableBibleGateTest {
      */
     private fun leaveWelcomeLikeAFlow(activity: NavHostComposeActivity) {
         activity.welcomeFlow.leaveFor(NavRoutes.AI_TOOL_INFO)
-        idle()
+        val deadline = System.nanoTime() + 10_000_000_000L
+        while (route(activity) != NavRoutes.AI_TOOL_INFO && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).runOneTask()
+            Thread.sleep(10)
+        }
         assertEquals(NavRoutes.AI_TOOL_INFO, route(activity))
         assertTrue("sanity: the listener armed the re-check", activity.welcomeFlow.awaitingReturn)
     }
@@ -160,7 +237,7 @@ class UsableBibleGateTest {
         assertTrue("the recreated host is still an initialised one: FLAG_SECURE (Correction 6)", flagSecure(recreated))
 
         nav(recreated).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(recreated, NavRoutes.READING)
         assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(recreated))
     }
 
@@ -185,7 +262,7 @@ class UsableBibleGateTest {
         assertTrue("the restored host initialised itself: FLAG_SECURE (Correction 6)", flagSecure(restored))
 
         nav(restored).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(restored, NavRoutes.READING)
         assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(restored))
     }
 
@@ -193,8 +270,10 @@ class UsableBibleGateTest {
     @Test
     fun overlappingReChecksTransitionOnce() {
         val activity = welcomeHost()
-        activity.welcomeAfterFlow()
-        activity.welcomeAfterFlow()
+        val first = activity.welcomeAfterFlow()
+        val second = activity.welcomeAfterFlow()
+        awaitJob(first)
+        awaitJob(second)
         idle()
         assertEquals(NavRoutes.READING, route(activity))
         assertNull("exactly one READING entry, nothing beneath it", nav(activity).previousBackStackEntry)
@@ -209,12 +288,12 @@ class UsableBibleGateTest {
         val activity = welcomeHost(
             intent = welcomeIntent().putExtra("openLink", "https://read.andbible.org/Rev.22.21"),
         )
-        activity.welcomeAfterFlow()
+        awaitJob(activity.welcomeAfterFlow())
         idle()
         assertEquals(NavRoutes.READING, route(activity))
         // showLink opens it in the links window (WindowControl.showLink); that window's page is the chapter.
-        val linksKeys = CommonUtils.windowControl.windowRepository.windowList
-            .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.osisRef }
+        net.bible.test.awaitHostUntil("deep link opened in the links window") { openLinksKeys().any { it == "Rev.22" } }
+        val linksKeys = openLinksKeys()
         assertTrue("the deep link's passage is open in the links window: $linksKeys", linksKeys.any { it == "Rev.22" })
     }
 
@@ -237,7 +316,7 @@ class UsableBibleGateTest {
             0, activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE,
         )
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
         assertTrue(
             "the reading view must not show in Recents in discrete mode",
             activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0,
@@ -249,8 +328,8 @@ class UsableBibleGateTest {
     fun theTransitionDoesNotArmTheStartupFlag() {
         comingFromStartupActivity = false
         val activity = welcomeHost()
-        activity.welcomeAfterFlow()
-        idle()
+        awaitJob(activity.welcomeAfterFlow())
+        assertEquals("the transition actually happened", NavRoutes.READING, route(activity))
         assertFalse(comingFromStartupActivity)
     }
 
@@ -271,6 +350,7 @@ class UsableBibleGateTest {
 
     @Test
     fun aReadingRouteDeliveredLaterWithoutAUsableBibleDoesNotBootstrap() {
+        resetComposeUiDispatcher()
         firstTime = false
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -300,7 +380,7 @@ class UsableBibleGateTest {
         ).also { controllers += it }
         controller.get().usableBibleGate = { usable }
         val activity = controller.create().start().resume().visible().get()
-        idle()
+        net.bible.test.awaitReadingGraph(activity)
         assertEquals(NavRoutes.READING, route(activity))
 
         usable = false
@@ -310,7 +390,7 @@ class UsableBibleGateTest {
 
         usable = true
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
 
         assertEquals(NavRoutes.READING, route(activity))
         val readingEntries = nav(activity).currentBackStack.value.count { it.destination.route == NavRoutes.READING }

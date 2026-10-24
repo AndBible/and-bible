@@ -73,7 +73,7 @@ class BackupControlSelectDatabaseSectionsTest {
             net.bible.android.database.BookmarkDatabase.dbFileName,
             net.bible.android.database.ReadingPlanDatabase.dbFileName,
         )
-        val result = async { BackupControl.selectDatabaseSections(context, available) }
+        val result = async { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).selectDatabaseSections(available) }
         yield()
 
         val request = dialogs.pending.value!!.request as AppDialogRequest.MultiChoice
@@ -91,7 +91,7 @@ class BackupControlSelectDatabaseSectionsTest {
     fun cancelReturnsAnEmptyList() = runTest(timeout = 30.seconds) {
         val context = RuntimeEnvironment.getApplication()
         val available = listOf(net.bible.android.database.BookmarkDatabase.dbFileName)
-        val result = async { BackupControl.selectDatabaseSections(context, available) }
+        val result = async { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).selectDatabaseSections(available) }
         yield()
 
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
@@ -105,7 +105,7 @@ class BackupControlSelectDatabaseSectionsTest {
             net.bible.android.database.BookmarkDatabase.dbFileName,
             net.bible.android.database.ReadingPlanDatabase.dbFileName,
         )
-        val result = async { BackupControl.selectDatabaseSections(context, available) }
+        val result = async { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).selectDatabaseSections(available) }
         yield()
 
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.SelectedMany(listOf("1")))

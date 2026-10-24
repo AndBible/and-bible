@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Văn bản tìm kiếm có thể bao gồm các ký tự đặc biệt như *, AND, OR, NOT</string>
   <string name="help_search_details">Vui lòng xem %s để biết thêm chi tiết.</string>
-  <string name="help_apache_lucene">Apache Lucene - Cú pháp trình phân tích cú pháp truy vấn</string>
   <string name="help_fts5">Cú pháp truy vấn toàn văn bản FTS5</string>
   <string name="help_workspaces_title">Không gian làm việc</string>
   <string name="help_workspaces_text">Không gian làm việc cho phép có nhiều môi trường làm việc phụ thuộc vào ngữ cảnh. Các chức năng không gian làm việc có thể được truy cập qua mục Không gian làm việc trong menu tùy chọn (góc trên bên phải). Cách nhanh để truy cập không gian làm việc là vuốt xuống từ thanh công cụ. Bạn cũng có thể sử dụng thao tác vuốt trái và vuốt phải trên thanh công cụ để chuyển sang không gian làm việc trước / tiếp theo.</string>

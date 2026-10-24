@@ -1,5 +1,7 @@
 package net.bible.service.cloudsync.webdav
 
+import okio.Path.Companion.toOkioPath
+import okio.sink
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.mock
@@ -13,7 +15,6 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.database.SyncDao
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.documents.isTransientNetworkError
 import net.bible.service.cloudsync.nextcloud.FOLDER_MIMETYPE
@@ -56,17 +57,17 @@ class WebDavCloudAdapterTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter(folder: String = "AndBible", url: String = "https://h/dav/", password: String = "pw") = WebDavCloudAdapter(
-        WebDavConfig(url, "me", password, folder), state, ui,
+        WebDavConfig(url, "me", password, folder), state, ui, deviceId = "dev-42",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { deviceNow }) },
         nowMs = { deviceNow },
     )
-    private suspend fun signedIn(folder: String = "AndBible") = adapter(folder).also { assertTrue(it.signIn(mock<ActivityBase>())) }
-    private fun tmp(bytes: ByteArray) = File.createTempFile("webdav-test", ".gz").also { it.writeBytes(bytes); it.deleteOnExit() }
+    private suspend fun signedIn(folder: String = "AndBible") = adapter(folder).also { assertTrue(it.signIn()) }
+    private fun tmp(bytes: ByteArray) = File.createTempFile("webdav-test", ".gz").also { it.writeBytes(bytes); it.deleteOnExit() }.toOkioPath()
 
     @Test fun signIn_createsBaseFolder_andIsSignedIn() = runBlocking {
         val a = adapter()
         assertFalse(a.signedIn)
-        assertTrue(a.signIn(mock<ActivityBase>()))
+        assertTrue(a.signIn())
         assertNotNull(server.mtime("AndBible"))
         assertTrue(a.signedIn)
     }
@@ -79,7 +80,7 @@ class WebDavCloudAdapterTest {
     @Test fun signIn_wrongCredentials_throwsLocalizedMessage() = runBlocking {
         server.authRequired = true
         val a = adapter(password = "bad")
-        val e = runCatching { a.signIn(mock<ActivityBase>()) }.exceptionOrNull()
+        val e = runCatching { a.signIn() }.exceptionOrNull()
         assertEquals("WRONG_CREDENTIALS", e?.message)
         assertFalse(a.signedIn)
     }
@@ -87,7 +88,7 @@ class WebDavCloudAdapterTest {
     @Test fun signIn_notACollection() = runBlocking {
         server.put("file.txt", byteArrayOf(1))
         val a = adapter(folder = "", url = "https://h/dav/file.txt")
-        val e = runCatching { a.signIn(mock<ActivityBase>()) }.exceptionOrNull()
+        val e = runCatching { a.signIn() }.exceptionOrNull()
         assertEquals("NOT_A_FOLDER", e?.message)
         assertFalse(a.signedIn)
     }
@@ -105,7 +106,7 @@ class WebDavCloudAdapterTest {
         val up = a.upload("f.gz", tmp(bytes), folder.id)
         assertEquals("AndBible/x/f.gz", up.id)
         val out = ByteArrayOutputStream(); var last = -1L
-        a.download(up.id, out) { last = it }
+        a.download(up.id, out.sink()) { last = it }
         assertArrayEquals(bytes, out.toByteArray())
         assertEquals(bytes.size.toLong(), last)
     }
@@ -138,7 +139,7 @@ class WebDavCloudAdapterTest {
         assertEquals(listOf("Käännös +1"), a.getFolders("AndBible").map { it.name })
         val file = a.listFiles(listOf(folder.id)).single()
         assertEquals("A B+C.abmd.zip", file.name)
-        val out = ByteArrayOutputStream(); a.download(file.id, out)
+        val out = ByteArrayOutputStream(); a.download(file.id, out.sink())
         assertArrayEquals(byteArrayOf(7, 8, 9), out.toByteArray())
     }
 
@@ -157,13 +158,13 @@ class WebDavCloudAdapterTest {
         val x = a.createNewFolder("x")
         val configs = mutableMapOf<String, String>()
         val dao = mock<SyncDao> {
-            on { getString(any()) } doAnswer { configs[it.arguments[0] as String] }
-            on { setConfig(any<String>(), any<String>()) } doAnswer { configs[it.arguments[0] as String] = it.arguments[1] as String; Unit }
-            on { removeConfig(any()) } doAnswer { configs.remove(it.arguments[0] as String); Unit }
-            on { getConfig(any()) } doAnswer { k -> configs[k.arguments[0] as String]?.let { SyncConfiguration(k.arguments[0] as String, stringValue = it) } }
+            onBlocking { getString(any()) } doAnswer { configs[it.arguments[0] as String] }
+            onBlocking { setConfig(any<String>(), any<String>()) } doAnswer { configs[it.arguments[0] as String] = it.arguments[1] as String; Unit }
+            onBlocking { removeConfig(any()) } doAnswer { configs.remove(it.arguments[0] as String); Unit }
+            onBlocking { getConfig(any()) } doAnswer { k -> configs[k.arguments[0] as String]?.let { SyncConfiguration(k.arguments[0] as String, stringValue = it) } }
         }
         val db = mock<SyncableRoomDatabase> { on { syncDao() } doAnswer { dao } }
-        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, File("unused"), SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
+        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, "unused", SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
 
         assertFalse(a.isSyncFolderKnown(dbDef, "n", x.id))
         a.makeSyncFolderKnown(dbDef, "n", x.id)
@@ -174,6 +175,18 @@ class WebDavCloudAdapterTest {
         a.delete("${x.id}/$secret")
         assertFalse(a.isSyncFolderKnown(dbDef, "n", x.id))
         assertTrue(configs.isEmpty())
+    }
+
+    @Test fun secretFileNameUsesDeviceIdAndUuidShape() = runBlocking {
+        val a = signedIn()
+        val x = a.createNewFolder("x")
+        val configs = mutableMapOf<String, String>()
+        val dao = mock<SyncDao> { onBlocking { setConfig(any<String>(), any<String>()) } doAnswer { configs[it.arguments[0] as String] = it.arguments[1] as String; Unit } }
+        val db = mock<SyncableRoomDatabase> { on { syncDao() } doAnswer { dao } }
+        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, "unused", SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
+        a.makeSyncFolderKnown(dbDef, "n", x.id)
+        assertTrue(configs.getValue(WEBDAV_SECRET_FILE_NAME_KEY).matches(
+            Regex("^device-known-dev-42-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")))
     }
 
     @Test fun transientServerError_isIOException() = runBlocking {

@@ -1,0 +1,5 @@
+osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon
+Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;87b04806-d7f8-c900-6fc2-64e322d9ff73;4;4;2022-01-01T00:00:00Z;2022-01-01T00:00:05Z;;;"Plain;Työ ""tärkeä""";"Note; with semicolon, ""quotes""
+and a newline";
+Exod.20.3;Exodus 20:3;ESV2011;Exod;20;3;20;3;65498482-7e50-fcd9-f47d-66071ba2f306;2128;2128;2023-11-14T22:13:20Z;2023-11-14T22:13:25Z;;;Plain;Ääkköset ja 日本語 ✝;
+John.3.16;John 3:16;ESV2011;John;3;16;3;16;3f580918-3603-7280-3bac-ce8764eb9963;33095;33095;2020-12-31T23:59:59Z;2021-01-01T00:00:04Z;;;;;

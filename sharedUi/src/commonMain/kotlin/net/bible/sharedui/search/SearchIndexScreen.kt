@@ -28,11 +28,15 @@ fun SearchIndexScreen(
     onCancel: () -> Unit,
     onCreate: () -> Unit,
     onNavigateUp: () -> Unit,
+    engineChanged: Boolean = false,
 ) {
     val strings = LocalStrings.current
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            Text(if (isRebuild) strings.rebuildIndexFor(documentName) else strings.createIndexFor(documentName))
+            Text(
+                (if (isRebuild) strings.rebuildIndexFor(documentName) else strings.createIndexFor(documentName)) +
+                    if (engineChanged) "\n\n" + strings.searchEngineChangedReindex else "",
+            )
             Spacer(Modifier.height(16.dp))
             Row {
                 TextButton(onClick = onCancel) { Text(strings.cancel) }

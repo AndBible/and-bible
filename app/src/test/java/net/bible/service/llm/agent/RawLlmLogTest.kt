@@ -54,13 +54,20 @@ class RawLlmLogTest {
         assertTrue(formatted.contains("=== USER ==="))
         assertTrue(formatted.contains("User message"))
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 1) ==="))
-        assertTrue(formatted.contains("""{"choices":[]}"""))
+        assertTrue(formatted.contains("{\n  \"choices\": []\n}"))
         assertTrue(formatted.contains("=== TOOL_CALL: searchVerses [call_1] ==="))
-        assertTrue(formatted.contains("""{"query":"love"}"""))
+        assertTrue(formatted.contains("{\n  \"query\": \"love\"\n}"))
         assertTrue(formatted.contains("=== TOOL_RESULT [call_1] ==="))
-        assertTrue(formatted.contains("""{"result":"found"}"""))
+        assertTrue(formatted.contains("{\n  \"result\": \"found\"\n}"))
         assertTrue(formatted.contains("=== ASSISTANT ==="))
         assertTrue(formatted.contains("Final response"))
+    }
+
+    @Test
+    fun `format preserves malformed JSON instead of dropping the entry`() {
+        val log = RawLlmLog()
+        log.addRawApiResponse(1, "{broken JSON")
+        assertTrue(log.format().contains("{broken JSON"))
     }
 
     @Test
@@ -98,5 +105,31 @@ class RawLlmLogTest {
         val formatted = log.format()
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 1) ==="))
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 2) ==="))
+    }
+
+    private fun oldReleaseGzip(text: String): ByteArray {
+        val bos = java.io.ByteArrayOutputStream()
+        java.util.zip.GZIPOutputStream(bos).use { it.write(text.toByteArray(Charsets.UTF_8)) }
+        return bos.toByteArray()
+    }
+
+    @Test
+    fun readsLogsGzippedByOldReleases() {
+        val ascii = """{"model":"gpt","content":"hello world"}"""
+        val nonAscii = """{"model":"gpt","content":"Ääkköset ja 日本語 ✝ \uD83D\uDE00 😀"}"""
+        val big = """{"content":"${"Selitä jae. ".repeat(20_000)}"}"""
+        for (text in listOf(ascii, nonAscii, big, "")) {
+            assertEquals(text, RawLlmLog.gzipDecompress(oldReleaseGzip(text)))
+        }
+    }
+
+    @Test
+    fun newLogsReadableByGzipInputStream() {
+        for (text in listOf("""{"a":"b"}""", """{"content":"Ääkköset ja 日本語 ✝ 😀"}""", "", "x".repeat(300_000))) {
+            val bytes = RawLlmLog.gzipCompress(text)
+            val read = java.util.zip.GZIPInputStream(java.io.ByteArrayInputStream(bytes)).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            assertEquals(text, read)
+            assertEquals(text, RawLlmLog.gzipDecompress(bytes))
+        }
     }
 }

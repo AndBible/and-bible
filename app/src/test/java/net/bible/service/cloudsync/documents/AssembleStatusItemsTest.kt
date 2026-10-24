@@ -28,6 +28,8 @@ class AssembleStatusItemsTest {
         deleted = deleted,
     )
 
+    private fun metaFor(initials: String) = meta().copy(initials = initials, name = initials)
+
     private fun local(version: String = "1.0") = LocalDoc(
         name = "KJV", version = version, category = BookCategory.BIBLE,
         type = DocumentType.SWORD, canDelete = true, installSizeBytes = null,
@@ -70,5 +72,15 @@ class AssembleStatusItemsTest {
         val row = assembleStatusItems(listOf(meta()), emptyMap(), emptySet(), includeDeleted = true).single()
         assertEquals(false, row.cloudDeleted)
         assertEquals(true, row.cloudOnly)
+    }
+
+    @Test fun rowsAreInAscendingInitialsOrderAcrossCloudAndLocal() {
+        val items = assembleStatusItems(
+            cloudMetas = listOf(metaFor("C"), metaFor("B")),
+            localDocs = mapOf("B" to local(), "A" to local()),
+            blocked = emptySet(),
+            includeDeleted = false,
+        )
+        assertEquals(listOf("A", "B", "C"), items.map { it.initials })
     }
 }

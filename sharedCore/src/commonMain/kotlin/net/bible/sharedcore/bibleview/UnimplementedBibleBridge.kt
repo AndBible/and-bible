@@ -1,0 +1,108 @@
+package net.bible.sharedcore.bibleview
+
+/**
+ * [BibleBridge] whose every method logs "not implemented" and, for deferred methods, answers
+ * `null` so the JS promise settles. iOS extends it and overrides what it supports; tests override
+ * [unimplemented]/[unimplementedDeferred] to record calls. Never throws.
+ */
+open class UnimplementedBibleBridge(
+    private val log: (String) -> Unit,
+    private val respondNull: (callId: Long) -> Unit,
+) : BibleBridge {
+    protected open fun unimplemented(method: String, args: List<Any?>) {
+        runCatching { log("bridge: $method is not implemented on this platform") }
+    }
+
+    protected open fun unimplementedDeferred(method: String, callId: Long, args: List<Any?>) {
+        unimplemented(method, args)
+        runCatching { respondNull(callId) }
+    }
+
+    override fun scrolledToOrdinal(keyStr: String, ordinal: Int) = unimplemented("scrolledToOrdinal", listOf(keyStr, ordinal))
+    override fun setClientReady() = unimplemented("setClientReady", listOf())
+    override fun setLimitAmbiguousModalSize(value: Boolean) = unimplemented("setLimitAmbiguousModalSize", listOf(value))
+    override fun requestMoreToBeginning(callId: Long) = unimplementedDeferred("requestMoreToBeginning", callId, listOf(callId))
+    override fun requestMoreToEnd(callId: Long) = unimplementedDeferred("requestMoreToEnd", callId, listOf(callId))
+    override fun goToNextChapter() = unimplemented("goToNextChapter", listOf())
+    override fun goToPreviousChapter() = unimplemented("goToPreviousChapter", listOf())
+    override fun parseRef(callId: Long, s: String) = unimplementedDeferred("parseRef", callId, listOf(callId, s))
+    override fun refChooserDialog(callId: Long) = unimplementedDeferred("refChooserDialog", callId, listOf(callId))
+    override fun saveBookmarkNote(bookmarkId: String, note: String?) = unimplemented("saveBookmarkNote", listOf(bookmarkId, note))
+    override fun saveGenericBookmarkNote(bookmarkId: String, note: String?) = unimplemented("saveGenericBookmarkNote", listOf(bookmarkId, note))
+    override fun removeBookmark(bookmarkId: String) = unimplemented("removeBookmark", listOf(bookmarkId))
+    override fun removeGenericBookmark(bookmarkId: String) = unimplemented("removeGenericBookmark", listOf(bookmarkId))
+    override fun assignLabels(bookmarkId: String) = unimplemented("assignLabels", listOf(bookmarkId))
+    override fun genericAssignLabels(bookmarkId: String) = unimplemented("genericAssignLabels", listOf(bookmarkId))
+    override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) = unimplemented("setBookmarkEditAction", listOf(bookmarkId, valueStr))
+    override fun console(loggerName: String, message: String) = unimplemented("console", listOf(loggerName, message))
+    override fun selectionCleared() = unimplemented("selectionCleared", listOf())
+    override fun reportInputFocus(newValue: Boolean) = unimplemented("reportInputFocus", listOf(newValue))
+    override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) = unimplemented("openEpubLink", listOf(bookInitials, toKeyStr, toId))
+    override fun openExternalLink(link: String) = unimplemented("openExternalLink", listOf(link))
+    override fun openDownloads() = unimplemented("openDownloads", listOf())
+    override fun setEditing(enabled: Boolean) = unimplemented("setEditing", listOf(enabled))
+    override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) = unimplemented("createNewStudyPadEntry", listOf(labelId, entryType, afterEntryId))
+    override fun deleteStudyPadEntry(studyPadId: String) = unimplemented("deleteStudyPadEntry", listOf(studyPadId))
+    override fun removeBookmarkLabel(bookmarkId: String, labelId: String) = unimplemented("removeBookmarkLabel", listOf(bookmarkId, labelId))
+    override fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) = unimplemented("removeGenericBookmarkLabel", listOf(bookmarkId, labelId))
+    override fun updateOrderNumber(labelId: String, data: String) = unimplemented("updateOrderNumber", listOf(labelId, data))
+    override fun setStudyPadCursor(labelId: String, orderNumber: Int) = unimplemented("setStudyPadCursor", listOf(labelId, orderNumber))
+    override fun toast(text: String) = unimplemented("toast", listOf(text))
+    override fun updateStudyPadTextEntry(data: String) = unimplemented("updateStudyPadTextEntry", listOf(data))
+    override fun updateStudyPadTextEntryText(id: String, text: String) = unimplemented("updateStudyPadTextEntryText", listOf(id, text))
+    override fun updateBookmarkToLabel(data: String) = unimplemented("updateBookmarkToLabel", listOf(data))
+    override fun updateGenericBookmarkToLabel(data: String) = unimplemented("updateGenericBookmarkToLabel", listOf(data))
+    override fun shareBookmarkVerse(bookmarkId: String) = unimplemented("shareBookmarkVerse", listOf(bookmarkId))
+    override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("shareVerse", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("copyVerse", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = unimplemented("addBookmark", listOf(bookInitials, startOrdinal, endOrdinal, addNote))
+    override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = unimplemented("addGenericBookmark", listOf(bookInitials, osisRef, startOrdinal, endOrdinal, addNote))
+    override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("addParagraphBreakBookmark", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("addGenericParagraphBreakBookmark", listOf(bookInitials, osisRef, startOrdinal, endOrdinal))
+    override fun createWholePageBookmark(bookInitials: String, bookKey: String) = unimplemented("createWholePageBookmark", listOf(bookInitials, bookKey))
+    override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) = unimplemented("compare", listOf(bookInitials, verseOrdinal, endOrdinal))
+    override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) = unimplemented("memorize", listOf(bookInitials, verseOrdinal, endOrdinal))
+    override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("markAsMemorized", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("addMemorizationTarget", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("unmarkMemorized", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = unimplemented("removeMemorizationTarget", listOf(bookInitials, startOrdinal, endOrdinal))
+    override fun setReadingProgressSettings(json: String) = unimplemented("setReadingProgressSettings", listOf(json))
+    override fun openReadingProgress(tab: Int) = unimplemented("openReadingProgress", listOf(tab))
+    override fun openReadingProgressSettings() = unimplemented("openReadingProgressSettings", listOf())
+    override fun showHelpDialog(scopeKey: String) = unimplemented("showHelpDialog", listOf(scopeKey))
+    override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) = unimplemented("recordChapterRead", listOf(bookInitials, startOrdinal, chapter, source))
+    override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) = unimplemented("openChapterReadHistory", listOf(bookInitials, startOrdinal, chapter))
+    override fun saveState(newState: String) = unimplemented("saveState", listOf(newState))
+    override fun openStudyPad(labelId: String, bookmarkId: String) = unimplemented("openStudyPad", listOf(labelId, bookmarkId))
+    override fun openMyNotes(v11n: String, ordinal: Int) = unimplemented("openMyNotes", listOf(v11n, ordinal))
+    override fun openAiDocPage(documentInitials: String, pageKey: String) = unimplemented("openAiDocPage", listOf(documentInitials, pageKey))
+    override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) = unimplemented("speak", listOf(bookInitials, v11nName, ordinal, endOrdinal))
+    override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) = unimplemented("speakMemorizationLoop", listOf(bookInitials, v11nName, ordinal, endOrdinal))
+    override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) = unimplemented("speakGeneric", listOf(bookInitials, osisRef, ordinal, endOrdinal))
+    override fun setAsPrimaryLabel(bookmarkId: String, labelId: String) = unimplemented("setAsPrimaryLabel", listOf(bookmarkId, labelId))
+    override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) = unimplemented("setAsPrimaryLabelGeneric", listOf(bookmarkId, labelId))
+    override fun toggleBookmarkLabel(bookmarkId: String, labelId: String) = unimplemented("toggleBookmarkLabel", listOf(bookmarkId, labelId))
+    override fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) = unimplemented("toggleGenericBookmarkLabel", listOf(bookmarkId, labelId))
+    override fun setBookmarkCustomIcon(bookmarkId: String, value: String?) = unimplemented("setBookmarkCustomIcon", listOf(bookmarkId, value))
+    override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) = unimplemented("setGenericBookmarkCustomIcon", listOf(bookmarkId, value))
+    override fun reportModalState(value: Boolean) = unimplemented("reportModalState", listOf(value))
+    override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) = unimplemented("setBookmarkWholeVerse", listOf(bookmarkId, value))
+    override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) = unimplemented("setGenericBookmarkWholeVerse", listOf(bookmarkId, value))
+    override fun toggleCompareDocument(documentId: String) = unimplemented("toggleCompareDocument", listOf(documentId))
+    override fun helpDialog(content: String, title: String?) = unimplemented("helpDialog", listOf(content, title))
+    override fun helpBookmarks() = unimplemented("helpBookmarks", listOf())
+    override fun shareHtml(html: String) = unimplemented("shareHtml", listOf(html))
+    override fun onKeyDown(key: String) = unimplemented("onKeyDown", listOf(key))
+    override fun crash() = unimplemented("crash", listOf())
+    override fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) = unimplemented("llmAction", listOf(bookInitials, startOrdinal, endOrdinal, text))
+    override fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) = unimplemented("llmActionGeneric", listOf(bookInitials, osisRef, startOrdinal, endOrdinal, text))
+    override fun noteEditorLlmAction(contextJson: String) = unimplemented("noteEditorLlmAction", listOf(contextJson))
+    override fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) = unimplementedDeferred("getMyDocumentPageRawContent", callId, listOf(callId, bookInitials, pageKey))
+    override fun shareMyDocumentContent(bookInitials: String, pageKey: String) = unimplemented("shareMyDocumentContent", listOf(bookInitials, pageKey))
+    override fun copyMyDocumentContent(bookInitials: String, pageKey: String) = unimplemented("copyMyDocumentContent", listOf(bookInitials, pageKey))
+    override fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) = unimplemented("saveMyDocumentPageContent", listOf(bookInitials, pageId, content, title))
+    override fun reloadMyDocumentPage(bookInitials: String) = unimplemented("reloadMyDocumentPage", listOf(bookInitials))
+    override fun regenerateMyDocumentPage(pageId: String) = unimplemented("regenerateMyDocumentPage", listOf(pageId))
+    override fun deleteMyDocumentPage(pageId: String) = unimplemented("deleteMyDocumentPage", listOf(pageId))
+    override fun openPromptEditor(promptId: String) = unimplemented("openPromptEditor", listOf(promptId))
+}

@@ -1,9 +1,9 @@
 package net.bible.service.cloudsync.webdav
 
+import okio.Path.Companion.toOkioPath
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.nextcloud.FOLDER_MIMETYPE
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import net.bible.sharedcore.webdav.WebDavClient
@@ -28,12 +28,12 @@ class WebDavChangeDetectionTest {
     private var deviceNow = server.nowServer
 
     private fun adapter() = WebDavCloudAdapter(
-        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui,
+        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui, deviceId = "test-device",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { deviceNow }) },
         nowMs = { deviceNow },
     )
-    private suspend fun signedIn() = adapter().also { assertTrue(it.signIn(mock<ActivityBase>())) }
-    private fun tmp() = File.createTempFile("webdav-test", ".gz").also { it.writeBytes(byteArrayOf(1, 2, 3)); it.deleteOnExit() }
+    private suspend fun signedIn() = adapter().also { assertTrue(it.signIn()) }
+    private fun tmp() = File.createTempFile("webdav-test", ".gz").also { it.writeBytes(byteArrayOf(1, 2, 3)); it.deleteOnExit() }.toOkioPath()
     private fun bytes() = byteArrayOf(1)
 
     /** Both clocks tick together; the server's offset from the device stays constant. */

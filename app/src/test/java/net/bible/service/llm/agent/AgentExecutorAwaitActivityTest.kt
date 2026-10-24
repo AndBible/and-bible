@@ -26,8 +26,6 @@ import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.sharedcore.event.Subscription
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -48,23 +46,18 @@ class AgentExecutorAwaitActivityTest {
     private val ws = IdType()
     private val seen = mutableListOf<AgentSessionChange.PermissionWaiting>()
     private var sub: Subscription? = null
-    private lateinit var savedActivities: ArrayList<ActivityBase>
-
-    @Suppress("UNCHECKED_CAST")
-    private fun holderActivities(): ArrayList<ActivityBase> =
-        CurrentActivityHolder::class.java.getDeclaredField("activities").apply { isAccessible = true }
-            .get(CurrentActivityHolder) as ArrayList<ActivityBase>
+    private val platform = FakeAgentPlatform().apply { hasForegroundUi = false }
+    private lateinit var original: AgentPlatform
 
     @Before fun setUp() {
-        savedActivities = ArrayList(holderActivities())
-        holderActivities().clear() // no current Activity: awaitActivity has to wait
+        original = org.koin.core.context.GlobalContext.get().get()
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AgentPlatform> { platform } })
         sub = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.PermissionWaiting) seen += it }
     }
 
     @After fun tearDown() {
         sub?.cancel()
-        holderActivities().clear()
-        holderActivities().addAll(savedActivities)
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AgentPlatform> { original } })
     }
 
     @Test fun cancellingTheWaitAnnouncesItsEnd() = runTest {

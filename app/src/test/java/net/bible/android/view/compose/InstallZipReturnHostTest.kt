@@ -71,6 +71,7 @@ class InstallZipReturnHostTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.BACKUP),
         ).also { controllers += it }.create().start().resume().visible().get()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.BACKUP)
         val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
             .apply { isAccessible = true }.get(activity) as NavHostController
         return activity to nav

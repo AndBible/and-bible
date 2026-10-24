@@ -17,7 +17,7 @@
 
 package net.bible.service.installzip
 
-import android.net.Uri
+import kotlinx.coroutines.async
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -26,8 +26,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupControl
+import net.bible.sharedcore.platform.files.BackupFileType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -36,6 +35,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.source
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -57,10 +59,10 @@ class InstallServiceControllerTest {
         return { "job-${n.getAndIncrement()}" }
     }
 
-    private fun src(name: String) = InstallSource(Uri.parse("content://x/$name"), null, name, null)
+    private fun src(name: String) = InstallSource("content://x/$name", null, name, null)
 
     private fun deps() = InstallServiceController.JobDeps(
-        acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-test"),
+        acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-test").toOkioPath(),
         openStream = { error("unused: runOne is faked in these tests") },
         isStudyPadExport = { false },
         studyPadStats = { error("unused") },
@@ -68,12 +70,27 @@ class InstallServiceControllerTest {
         epubUpgradeCheck = { false },
     )
 
-    private fun controller(onTerminal: (JobId, InstallPhase) -> Unit = { _, _ -> }) =
+    private fun kotlinx.coroutines.test.TestScope.controller(onTerminal: (JobId, InstallPhase) -> Unit = { _, _ -> }) =
         InstallServiceController(
             runnerFactory = { error("unused: runOne is faked in these tests") },
             newJobId = idGen(),
             onTerminal = onTerminal,
+            scope = backgroundScope,
         )
+
+    @Test fun injectedScopeControlsWhenWorkerRuns() = runTest {
+        var started = false
+        val c = InstallServiceController(
+            runnerFactory = { error("unused") }, newJobId = idGen(),
+            onTerminal = { _, _ -> }, scope = backgroundScope,
+        )
+        c.runOne = { _, _, _, _, _ -> started = true; InstallPhase.Done }
+        val result = async { c.enqueue(listOf(src("a")), deps()) }
+        testScheduler.runCurrent()
+        assertTrue(started)
+        assertEquals(InstallOutcome.Ok, result.await())
+        assertTrue(c.jobs.value.isEmpty())
+    }
 
     @Test fun `two sources run sequentially and jobs are removed on terminal`() = runTest {
         val log = mutableListOf<String>()
@@ -158,10 +175,10 @@ class InstallServiceControllerTest {
         val outcome = c.enqueue(listOf(src("a")), deps())
 
         assertTrue(outcome is InstallOutcome.Error)
-        assertEquals(R.string.error_occurred, (outcome as InstallOutcome.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (outcome as InstallOutcome.Error).kind)
         assertTrue(terminalJobId != null)
         assertTrue(terminalPhase is InstallPhase.Error)
-        assertEquals(R.string.error_occurred, (terminalPhase as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (terminalPhase as InstallPhase.Error).kind)
         assertTrue("no job may linger after an unhandled throwable", c.jobs.value.isEmpty())
     }
 
@@ -190,14 +207,14 @@ class InstallServiceControllerTest {
     @Test fun `aggregate outcome is Error when any job errors even if another succeeds`() = runTest {
         val c = controller()
         c.runOne = { _, source, _, _, _ ->
-            if (source.displayName == "bad") InstallPhase.Error(R.string.error_occurred, "bad")
+            if (source.displayName == "bad") InstallPhase.Error(InstallError.GENERIC, "bad")
             else InstallPhase.Done
         }
 
         val outcome = c.enqueue(listOf(src("good"), src("bad")), deps())
 
         assertTrue(outcome is InstallOutcome.Error)
-        assertEquals(R.string.error_occurred, (outcome as InstallOutcome.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (outcome as InstallOutcome.Error).kind)
         assertEquals("bad", outcome.arg)
     }
 
@@ -248,25 +265,26 @@ class InstallServiceControllerTest {
         val acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-real-${System.nanoTime()}")
         val committer = object : InstallCommitter {
             var swordCalls = 0
-            override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
+            override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) {
                 swordCalls++; onProgress(100)
             }
-            override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean) = true
-            override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {}
-            override suspend fun commitTtf(localFile: File, displayName: String) {}
-            override suspend fun commitCsv(localFile: File, displayName: String) {}
-            override suspend fun commitBackgroundImage(localFile: File, fileName: String) {}
-            override suspend fun commitStudyPad(unzipFolder: File) {}
+            override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean) = true
+            override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {}
+            override suspend fun commitTtf(localFile: Path, displayName: String) {}
+            override suspend fun commitCsv(localFile: Path, displayName: String) {}
+            override suspend fun commitBackgroundImage(localFile: Path, fileName: String) {}
+            override suspend fun commitStudyPad(unzipFolder: Path) {}
         }
-        val runner = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.ZIP }, committer)
+        val runner = InstallJobRunner(InstallInspector { BackupFileType.ZIP }, committer)
         val c = InstallServiceController(
             runnerFactory = { runner },
             newJobId = idGen(),
             onTerminal = { _, _ -> },
+            scope = backgroundScope,
         )
         val realDeps = InstallServiceController.JobDeps(
-            acquireDir = acquireDir,
-            openStream = { "data".byteInputStream() },
+            acquireDir = acquireDir.toOkioPath(),
+            openStream = { InstallStream("data".byteInputStream().source(), 4L) },
             isStudyPadExport = { false },
             studyPadStats = { error("unused") },
             swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 3, isEpub = false, invalid = false) },

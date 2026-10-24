@@ -43,13 +43,13 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
  * **Why there is a [content] slot instead of the reading view's own ~70 parameters.** Every other
  * destination in these graphs calls a `*Screen` composable that lives in `:sharedUi` and takes
  * host-supplied lambdas. The reading view cannot: the composition it needs is
- * `ComposeReadingViewHost.ReadingViewContent` (`:app`, extracted from `mountComposeView` by this
- * same task), and that body reads `CommonUtils.settings` directly, hosts each pane's `BibleView`
+ * `ComposeReadingViewHost.ReadingView` (`:app`; it renders the common `ReadingHost`, and was extracted
+ * from `mountComposeView` by this same task), whose Android wiring reads `CommonUtils.settings` directly, hosts each pane's `BibleView`
  * WebView through `AndroidView`, and resolves `R.drawable` painters. None of that can cross into
  * `commonMain`, and moving it would mean restructuring `mountComposeView`, which the plan's Global
  * Constraints and design §10 put out of scope for this batch. A pre-built `@Composable` slot is the
- * established shape for exactly this situation in this codebase — `mountComposeView`'s own
- * `agentLogSlot`/`speakBarSlot`/`quickSheetSlot`, and `ChooseDocumentDeps.topBarActions` — so this
+ * established shape for exactly this situation in this codebase — `ReadingHostDeps`'
+ * `agentLogSlot`/`speakBarSlot`/`quickSheetContent`, and `ChooseDocumentDeps.topBarActions` — so this
  * destination is one slot rather than seventy.
  *
  * **What this destination is, at HEAD.** Its [content] renders the real reading view on BOTH

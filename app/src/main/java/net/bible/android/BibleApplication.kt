@@ -33,15 +33,18 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import io.requery.android.database.sqlite.SQLiteDatabase
+import net.bible.service.db.AndroidDatabaseHost
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryRows
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.sharedcore.event.Subscription
 import net.bible.android.control.report.BugReport
+import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.util.locale.LocaleHelper
@@ -54,42 +57,33 @@ import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
-import net.bible.service.sword.epub.epubBookType
-import net.bible.service.sword.esword.eSwordBible
-import net.bible.service.sword.mybible.myBibleBible
-import net.bible.service.sword.mybible.myBibleCommentary
-import net.bible.service.sword.mybible.myBibleDictionary
-import net.bible.service.sword.mysword.mySwordBible
-import net.bible.service.sword.mysword.mySwordCommentary
-import net.bible.service.sword.mysword.mySwordDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
-import org.crosswire.jsword.book.install.InstallManager
-import org.crosswire.jsword.book.sword.BookType
-import org.crosswire.jsword.bridge.BookIndexer
+import org.crosswire.jsword.index.BookIndexer
+import org.crosswire.common.util.KLocale
+import org.crosswire.common.util.toKLocale
 import org.crosswire.jsword.internationalisation.LocaleProvider
-import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext
-import org.koin.core.context.startKoin
+import net.bible.sharedlogic.startup.SharedAppStartup
+import net.bible.sharedlogic.startup.StartupHooks
 import java.util.Locale
 
-object MyLocaleProvider: LocaleProvider {
+object MyLocaleProvider: net.bible.service.sword.OverridableLocaleProvider {
     /**
      * Allow hardcoding exceptions for JSword locales, as
      * it does not support all Android locale variants.
      */
-    override fun getUserLocale(): Locale {
-        this.override?.run {return this}
+    override fun getUserLocale(): KLocale {
+        this.override?.run { return this }
         val default = Locale.getDefault()
         if(default.language == "sr" && default.script == "Latn") {
-            return Locale.forLanguageTag("sr-LT")
+            return KLocale("sr", "LT")
         }
-        return default
+        return default.toKLocale()
     }
 
-    var override: Locale? = null
+    override var override: KLocale? = null
 }
 
 private const val ERROR_NOTIFICATION_CHANNEL = "generic-notifications"
@@ -115,10 +109,10 @@ open class BibleApplication : Application() {
 
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
+        DatabaseContainer.installHost(AndroidDatabaseHost(this))
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         CommonUtils.tmpDir.deleteRecursively()
-        BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             val crashTime = System.currentTimeMillis()
@@ -134,6 +128,8 @@ open class BibleApplication : Application() {
             if(numCrashed == 0) {
                 CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
             }
+            // Settings writes still queued in the store would die with the process. Bounded: never hang a dying app.
+            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 2_000)
             defaultExceptionHandler.uncaughtException(t, e)
         }
         userMessagesSubscription = UserMessages.messages.subscribeOnMain { message ->
@@ -142,39 +138,25 @@ open class BibleApplication : Application() {
                 is UserMessage.ErrorNotification -> showErrorNotification(message)
             }
         }
-        InstallManager.installSiteMap(
+        SharedAppStartup.installEnvironment(
             PropertyMap().apply {
-                resources.openRawResource(R.raw.repositories).use { load(it) }
-            })
-        BookType.addSupportedBookType(myBibleBible)
-        BookType.addSupportedBookType(myBibleCommentary)
-        BookType.addSupportedBookType(myBibleDictionary)
-        BookType.addSupportedBookType(mySwordBible)
-        BookType.addSupportedBookType(mySwordCommentary)
-        BookType.addSupportedBookType(mySwordDictionary)
-        BookType.addSupportedBookType(epubBookType)
-        BookType.addSupportedBookType(eSwordBible)
-
-        LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
+                resources.openRawResource(R.raw.repositories).use { org.crosswire.common.util.PropertyMapJvm.load(this, it) }
+            },
+            MyLocaleProvider,
+        )
 
         logSqliteVersion()
 
-        // This must be done before accessing JSword to prevent default folders being used
-        SwordEnvironmentInitialisation.initialiseJSwordFolders()
-
-        // Initialize the Koin container. Koin is the sole DI framework.
-        // Guard against a double-start: Robolectric reuses one JVM across test
-        // classes, so onCreate (hence startKoin) runs many times in the same
-        // process — start only if no Koin context exists yet.
-        if (GlobalContext.getOrNull() == null) {
-            startKoin {
-                androidContext(this@BibleApplication)
-                modules(net.bible.android.control.coreModule)
-            }
-        }
-
-        // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
-        SwordEnvironmentInitialisation.installJSwordErrorReportListener()
+        SharedAppStartup.start(
+            StartupHooks(
+                // This must be done before accessing JSword to prevent default folders being used
+                initialiseJSwordFolders = SwordEnvironmentInitialisation::initialiseJSwordFolders,
+                koinModules = { listOf(net.bible.android.control.coreModule) },
+                koinAppDeclaration = { androidContext(this@BibleApplication) },
+                reportJSwordError = SwordEnvironmentInitialisation::reportJSwordError,
+                isSwordLoaded = { SwordEnvironmentInitialisation.isLoaded },
+            )
+        )
 
         // some changes may be required for different versions
         upgradeSharedPreferences()
@@ -200,7 +182,8 @@ open class BibleApplication : Application() {
 
     private fun showToast(message: UserMessage.Toast) {
         val duration = if (message.long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-        val text = if (message.textId != null) getString(message.textId) else message.text ?: ""
+        val textId = message.textId
+        val text = if (textId != null) getString(textId) else message.text ?: ""
         val context = CurrentActivityHolder.currentActivity ?: return
         if ((context as? Activity)?.isFinishing == true) return
         try {
@@ -254,13 +237,10 @@ open class BibleApplication : Application() {
 
     private fun logSqliteVersion() {
         try {
-            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
-            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
-            while (cursor.moveToNext()) {
-                sqliteVersion += cursor.getString(0)
+            // The bundled SQLite: what openSqlite uses, and (from D1 Task 17) Room too.
+            openSqlite(":memory:").use { db ->
+                db.queryRows("select sqlite_version() AS sqlite_version") { it.getText(0) }.forEach { sqliteVersion += it }
             }
-            cursor.close()
-            db.close()
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }
@@ -316,6 +296,8 @@ open class BibleApplication : Application() {
             // re-draw what is showing.
             SpeakWidgetManager.instance?.refreshTexts()
             TextToSpeechNotificationManager.refreshInstanceForLocale()
+            // The in-app transport bar caches its (localized) status text; rebuild it.
+            SpeakTransportServiceImpl.instance?.refreshForLocale()
         }
     }
 

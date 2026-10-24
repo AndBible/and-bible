@@ -42,6 +42,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import net.bible.sharedui.app.bookmark.BookmarkHost
 
 /**
  * CR-5 fix round 1. The bookmark list and the text-display-settings arm share `manageLabelsResults`,
@@ -53,7 +54,7 @@ import org.robolectric.annotation.Config
  *
  * The claim therefore has to be made by whoever asked, from a composition that outlives every
  * destination. This drives the REAL host's collector the way `InstallZipReturnHostTest` drives
- * `InstallZipReturnCollector`: a focused test of the collector itself rather than two real arms in one
+ * `InstallZipHost.Overlays`: a focused test of the collector itself rather than two real arms in one
  * host, because putting the settings arm on the stack needs a workspace, a window and a settings
  * bundle that have nothing to do with who consumes the channel.
  *
@@ -112,18 +113,18 @@ class BookmarksManageLabelsCollectorTest {
 
     /** The real `bookmarksControllerFor`, which is what opening the list does to seed the session. */
     private fun seedBookmarksSession(activity: NavHostComposeActivity) {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = BookmarkHost::class.java.declaredMethods
             .single { it.name == "bookmarksControllerFor" }
         method.isAccessible = true
-        method.invoke(activity, 0, { _: Any? -> }, { _: String -> })
+        method.invoke(activity.appHosts.bookmark, 0, { _: Any? -> }, { _: String -> })
     }
 
     private fun bookmarksSession(activity: NavHostComposeActivity): Any {
         // `by mutableStateOf`, so the value is reached through the property's getter, not a field.
-        val pair = NavHostComposeActivity::class.java.declaredMethods
+        val pair = BookmarkHost::class.java.declaredMethods
             .single { it.name == "getBookmarksSession" }
             .apply { isAccessible = true }
-            .invoke(activity) as Pair<*, *>?
+            .invoke(activity.appHosts.bookmark) as Pair<*, *>?
         return requireNotNull(pair?.second) { "bookmarksControllerFor did not seed bookmarksSession" }
     }
 
@@ -174,10 +175,10 @@ class BookmarksManageLabelsCollectorTest {
         activity: NavHostComposeActivity,
         navigated: MutableList<String>,
     ): net.bible.sharedcore.bookmark.BookmarksController {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = BookmarkHost::class.java.declaredMethods
             .single { it.name == "bookmarksControllerFor" }
         method.isAccessible = true
-        return method.invoke(activity, 0, { _: Any? -> }, { payload: String -> navigated += payload })
+        return method.invoke(activity.appHosts.bookmark, 0, { _: Any? -> }, { payload: String -> navigated += payload })
             as net.bible.sharedcore.bookmark.BookmarksController
     }
 
@@ -226,7 +227,7 @@ class BookmarksManageLabelsCollectorTest {
         val activity = host()
         idle()
         val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
-        val bookmark = control.addOrUpdateBibleBookmark(
+        val bookmark = kotlinx.coroutines.runBlocking { control.addOrUpdateBibleBookmark(
             net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
                 org.crosswire.jsword.passage.VerseRangeFactory.fromString(
                     org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"),
@@ -235,10 +236,10 @@ class BookmarksManageLabelsCollectorTest {
                 null, true, null,
             ),
             null,
-        )
-        val label = control.insertOrUpdateLabel(
+        ) }
+        val label = kotlinx.coroutines.runBlocking { control.insertOrUpdateLabel(
             net.bible.android.database.bookmarks.BookmarkEntities.Label(new = true).apply { name = "X" },
-        )
+        ) }
         // `bookmarksByIds` resolves against what the list's `loadRows` loaded, as in production.
         val service: net.bible.android.view.activity.bookmark.BookmarksServiceImpl = GlobalContext.get().get()
         kotlinx.coroutines.runBlocking {
@@ -266,7 +267,7 @@ class BookmarksManageLabelsCollectorTest {
         assertEquals(null, channel(activity).pending.value)
         // applyBookmarksManageLabelsResult writes on Dispatchers.IO.
         idleUntil("the assigned label to reach the bookmark") {
-            control.labelsForBookmark(bookmark).map { it.id } == listOf(label.id)
+            kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.id } == listOf(label.id)
         }
     }
 
@@ -298,6 +299,41 @@ class BookmarksManageLabelsCollectorTest {
         idle()
         assertEquals("a recomposition must not re-apply a consumed answer", setOf(marker), autoAssignLabels())
         assertEquals(null, channel(activity).pending.value)
+    }
+
+    /**
+     * A WORKSPACE-mode label manager has no business with the active window. It read it anyway (for a
+     * STUDYPAD-only highlight), so composing it while the window repository could not answer
+     * `activeWindow` (here: mid-load, the state behind this class's order-dependent full-suite failures)
+     * threw in composition: the collector never ran and the answer stayed pending.
+     */
+    @Test
+    fun aWorkspaceAnswerIsAppliedWhileTheWindowRepositoryCannotNameAnActiveWindow() {
+        val activity = host()
+        idle()
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        val previous = windowControl.windowRepository
+        val midLoad = net.bible.android.control.page.window.WindowRepository(
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        )
+        net.bible.android.control.page.window.WindowRepository::class.java.getDeclaredField("loadingFromDb")
+            .apply { isAccessible = true }.setBoolean(midLoad, true)
+        windowControl.windowRepository = midLoad
+        try {
+            seedBookmarksSession(activity)
+            setAwaiting(bookmarksSession(activity), true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+
+            assertEquals("the claimed answer must leave the channel", null, channel(activity).pending.value)
+            assertEquals(setOf(marker), midLoad.workspaceSettings.autoAssignLabels)
+        } finally {
+            windowControl.windowRepository = previous
+        }
     }
 
     /**

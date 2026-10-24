@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Søgeteksten kan indeholde specialtegn som *, AND, OR, NOT</string>
   <string name="help_search_details">Se venligst %s for flere detaljer.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 fuldtekst-søgesyntaks</string>
   <string name="help_workspaces_title">Arbejdsområder</string>
   <string name="help_workspaces_text">Arbejdsområder giver mulighed for at have flere kontekstafhængige arbejdsmiljøer. Arbejdsområdefunktioner kan tilgås via punktet Arbejdsområder i indstillingsmenuen (øverste højre hjørne). En hurtig måde at tilgå arbejdsområder er ved at swipe ned fra værktøjslinjen. Du kan også bruge swipe-venstre og swipe-højre gestus over værktøjslinjen for at skifte til forrige/næste arbejdsområde.</string>

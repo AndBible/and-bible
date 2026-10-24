@@ -60,7 +60,7 @@
       <BookmarkButtons
           :bookmark="bookmark"
           in-bookmark-modal
-          @close-bookmark="showBookmark = false"
+          @close-bookmark="cancelPendingOpen(); showBookmark = false"
       />
       <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
@@ -104,7 +104,7 @@
 <script lang="ts" setup>
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupEventBusListener} from "@/eventbus";
-import {computed, inject, nextTick, provide, ref} from "vue";
+import {computed, inject, nextTick, onBeforeUnmount, provide, ref, shallowRef, watch} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText.vue";
@@ -148,38 +148,66 @@ const customIcon = computed(() => {
     return resolveIcon(bookmark.value, primaryLabel.value);
 });
 
-const bookmarkNotes = computed(() => bookmark.value!.notes);
+const bookmarkNotes = computed(() => bookmark.value?.notes ?? null);
 let originalNotes: string | null = null;
 
-setupEventBusListener("bookmark_clicked",
-    async (
-        bookmarkId_: IdType,
-        {
-            locateTop: _locateTop = false,
-            openLabels = false,
-            openInfo = false,
-            openNotes = false
-        } = {}) => {
-        // AI doc markers open the document directly instead of showing bookmark modal
-        const bm = bookmarkMap.get(bookmarkId_);
-        if (bm && isAiDocMarker(bm)) {
-            window.android.openAiDocPage(bm.documentInitials, bm.pageKey);
-            return;
-        }
-        bookmarkId.value = bookmarkId_;
-        originalNotes = bookmarkNotes.value;
-        infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
-        editDirectly.value = !infoShown.value && !bookmarkNotes.value;
-        locateTop.value = _locateTop;
-        showBookmark.value = true;
-        if (openLabels && !openNotes) {
-            await nextTick();
-            labelList.value!.openActions();
-        }
+type BookmarkOpenIntent = {
+    id: IdType;
+    locateTop: boolean;
+    openLabels: boolean;
+    openInfo: boolean;
+    openNotes: boolean;
+};
+
+// Native creation can publish the click before the bookmark. Keep only the latest intent.
+const pendingOpen = shallowRef<BookmarkOpenIntent | null>(null);
+let openGeneration = 0;
+
+function cancelPendingOpen() {
+    pendingOpen.value = null;
+    openGeneration++;
+}
+
+function openPendingBookmark() {
+    const intent = pendingOpen.value;
+    if (!intent) return;
+    const bm = bookmarkMap.get(intent.id);
+    if (!bm) return;
+    pendingOpen.value = null;
+    if (isAiDocMarker(bm)) {
+        window.android.openAiDocPage(bm.documentInitials, bm.pageKey);
+        return;
     }
-);
+    bookmarkId.value = intent.id;
+    originalNotes = bm.notes;
+    infoShown.value = !intent.openNotes && (intent.openInfo || !bm.notes);
+    editDirectly.value = !infoShown.value && !bm.notes;
+    locateTop.value = intent.locateTop;
+    showBookmark.value = true;
+    if (intent.openLabels && !intent.openNotes) {
+        const generation = openGeneration;
+        void nextTick(() => {
+            if (generation === openGeneration && showBookmark.value) {
+                labelList.value?.openActions();
+            }
+        });
+    }
+}
+
+watch(() => pendingOpen.value && bookmarkMap.get(pendingOpen.value.id), openPendingBookmark);
+onBeforeUnmount(cancelPendingOpen);
+setupEventBusListener("close_modals", cancelPendingOpen);
+setupEventBusListener("bookmark_clicked", (
+    id: IdType,
+    {locateTop = false, openLabels = false, openInfo = false, openNotes = false} = {}
+) => {
+    cancelPendingOpen();
+    pendingOpen.value = {id, locateTop, openLabels, openInfo, openNotes};
+    openPendingBookmark();
+});
 
 function closeBookmark() {
+    cancelPendingOpen();
     showBookmark.value = false;
     if (originalNotes !== bookmarkNotes.value) {
         android.saveBookmarkNote(bookmark.value!, bookmarkNotes.value);

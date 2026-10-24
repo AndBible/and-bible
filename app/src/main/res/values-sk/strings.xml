@@ -747,7 +747,6 @@ Režim opakovania bol vypnutý, pretože
   <!--TODO: to be removed-->
   <string name="help_search_text2">Hľadaný text môže obsahovať špeciálne znaky ako *, AND, OR, NOT</string>
   <string name="help_search_details">Ďalšie podrobnosti nájdete v%s.</string>
-  <string name="help_apache_lucene">Syntax analyzátora dopytov – Apache Lucene</string>
   <string name="help_fts5">Syntax celotextového dopytu FTS5</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
   <string name="help_workspaces_text">

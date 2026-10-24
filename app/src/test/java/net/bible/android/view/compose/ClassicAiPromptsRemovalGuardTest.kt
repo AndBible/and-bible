@@ -47,6 +47,7 @@ class ClassicAiPromptsRemovalGuardTest {
         "net.bible.android.view.activity.ai.RawLlmLogActivity",
         "net.bible.android.view.activity.ai.RawLlmLogAdapter",
         "net.bible.android.view.activity.ai.ToolPermissionListBuilder",
+        "net.bible.android.view.activity.ai.AgentLogAdapter",
     )
 
     private val doomedPaths = listOf(
@@ -73,6 +74,9 @@ class ClassicAiPromptsRemovalGuardTest {
         // "gone". Nothing else inflates them (grep confirmed).
         "src/main/res/layout/manage_prompts_category_header.xml",
         "src/main/res/layout/prompt_selector_item.xml",
+        // L1a.6 Task 8: the Compose log panel replaced the last classic adapter consumer.
+        "src/main/java/net/bible/android/view/activity/ai/AgentLogAdapter.kt",
+        "src/main/res/layout/agent_log_item.xml",
     )
 
     @Test fun theClassicPromptAndRawLogFilesAndResourcesAreGone() {
@@ -115,12 +119,9 @@ class ClassicAiPromptsRemovalGuardTest {
         ClassicRemovalScan.assertPathsPresent(
             listOf(
                 "src/main/res/xml/prompt_advanced_settings.xml",
-                "src/main/java/net/bible/android/view/activity/ai/AgentLogAdapter.kt",
-                "src/main/res/layout/agent_log_item.xml",
             ),
             "one of S10's deliberate survivors was deleted. prompt_advanced_settings.xml is " +
-                "SettingsIconParityTest's live fixture; AgentLogAdapter + agent_log_item belong to " +
-                "the §2.4-protected AgentLogWidget, not to any AI screen. " +
+                "SettingsIconParityTest's live fixture. " +
                 "manage_prompts_category_header.xml/prompt_selector_item.xml used to be here too " +
                 "(inflated by LlmDialogHelper) -- platform-dialog removal Task 10 moved them to " +
                 "doomedPaths once LlmDialogHelper was deleted.",

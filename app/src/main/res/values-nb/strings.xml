@@ -700,7 +700,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--TODO: to be removed-->
   <string name="help_search_text2">Søketekst kan inneholde spesialtegn som *, OG, ELLER, IKKE</string>
   <string name="help_search_details">Se %s for mer informasjon.</string>
-  <string name="help_apache_lucene">Apache Lucene - Spørringsparsersyntaks</string>
   <string name="help_fts5">FTS5 fulltekstspørringssyntaks</string>
   <string name="help_workspaces_title">Arbeidsområder</string>
   <string name="help_workspaces_text">Arbeidsområder gjør det mulig å ha flere kontekstavhengige arbeidsmiljøer. Arbeidsområdefunksjoner kan nås via Arbeidsområder i alternativmenyen (øverst til høyre). En rask måte å åpne arbeidsområder er å sveipe ned fra verktøylinjen. Du kan også bruke sveip til venstre og høyre over verktøylinjen for å bytte til forrige/neste arbeidsområde.</string>

@@ -28,12 +28,14 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.OffsetsChange
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
@@ -52,6 +54,18 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [35])
 class HostInsetOwnershipTest {
+
+    private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+
+    /**
+     * Closes every nav host built here before the next database reset. An open host keeps its start-up
+     * `DocumentSyncSettings.ensureLoaded()` holding the settings mutex (see [NavHostFixtureClosureGuardTest]).
+     */
+    @After
+    fun closeHosts() = net.bible.test.closeReadingHostsBeforeReset(controllers)
+
+    private fun navHost(): NavHostComposeActivity =
+        Robolectric.buildActivity(NavHostComposeActivity::class.java).also { controllers += it }.setup().get()
 
     /** A host that takes `ActivityBase`'s default: `setupUi()` runs, including the padding. */
     class BasePaddedProbeActivity : ActivityBase() {
@@ -175,7 +189,7 @@ class HostInsetOwnershipTest {
      */
     @Test
     fun theNavHostFeedsItsReadingInsetsLedger() {
-        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        val activity = navHost()
         val root = contentRootOf(activity)
         val before = activity.readingInsets.bottomOffsetForWebView
         dispatchSystemBars(root)
@@ -192,7 +206,7 @@ class HostInsetOwnershipTest {
 
     @Test
     fun theNavHostReportsSystemInsetChanges() {
-        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        val activity = navHost()
         val seen = mutableListOf<OffsetsChange>()
         val subscription = activity.readingInsets.offsetsChanged.subscribe { seen += it }
         try {
@@ -218,7 +232,7 @@ class HostInsetOwnershipTest {
      */
     @Test
     fun theNavHostForwardsImeInsetsToTheLedger() {
-        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        val activity = navHost()
         val root = contentRootOf(activity)
         dispatchSystemBarsAndIme(root, imeBottom = 300)
         assertEquals(

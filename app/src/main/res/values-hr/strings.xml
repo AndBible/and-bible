@@ -730,7 +730,6 @@ Pored straničnika, moguće je i unijeti tekst po želji u radnoj bilježnici.</
   <!--TODO: to be removed-->
   <string name="help_search_text2">Tekst za pretraživanje može sadržavati posebne znakove kao *, AND, OR, NOT</string>
   <string name="help_search_details">Molimo pogledajte %s za više detalja.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Radne površine</string>
   <string name="help_workspaces_text">

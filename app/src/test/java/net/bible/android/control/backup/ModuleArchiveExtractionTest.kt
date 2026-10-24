@@ -23,17 +23,20 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
-import org.crosswire.jsword.book.sword.SwordBookPath
+import net.bible.service.installzip.myBibleBytes
+import org.crosswire.jsword.book.Books
+import okio.source
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -49,11 +52,20 @@ import java.util.zip.ZipOutputStream
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ModuleArchiveExtractionTest {
     private lateinit var downloadDir: File
+    private var booksBefore: Set<org.crosswire.jsword.book.Book> = emptySet()
+
+    /** Books registered by a test (MyBible modules are auto-registered on extraction) must not leak into the one-JVM suite. */
+    @After
+    fun tearDown() {
+        Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
+        File(downloadDir, "mybible").deleteRecursively()
+    }
 
     @Before
     fun setUp() {
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
-        downloadDir = SwordBookPath.getSwordDownloadDir()
+        booksBefore = Books.installed().getBooks().toSet()
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
+        downloadDir = SwordBookPathJvm.getSwordDownloadDir()
     }
 
     /** Build a zip in [CommonUtils.tmpDir] with the given entries, in order. */
@@ -81,7 +93,7 @@ class ModuleArchiveExtractionTest {
             "modules/texts/data.dat" to byteArrayOf(1, 2, 3),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
 
         assertFalse(
             "Manifest must not be written into the module directory",
@@ -102,7 +114,7 @@ class ModuleArchiveExtractionTest {
             "modules\\texts\\win\\path.dat" to byteArrayOf(9),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
 
         assertTrue(File(downloadDir, "modules/texts/win/path.dat").exists())
         assertFalse(File(downloadDir, "modules\\texts\\win\\path.dat").exists())
@@ -115,7 +127,7 @@ class ModuleArchiveExtractionTest {
             "modules/a/b/c/d/deep.dat" to byteArrayOf(42),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
 
         assertTrue(File(downloadDir, "modules/a/b/c/d/deep.dat").exists())
     }
@@ -130,8 +142,75 @@ class ModuleArchiveExtractionTest {
             "modules/texts/only-data.dat" to byteArrayOf(7),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
 
         assertTrue(File(downloadDir, "modules/texts/only-data.dat").exists())
+    }
+
+    /** DL-15: a MyBible module at the archive root belongs in `mybible/`, auxiliary files alongside. */
+    @Test
+    fun rootLevelMyBibleModuleInstallsUnderMyBibleDirWithAuxiliaryFiles() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        val bytes = myBibleBytes()
+        val zip = buildZip("root-mybible.zip", listOf(
+            "KJV.SQLite3" to bytes,
+            "KJV.commentaries.SQLite3" to bytes,
+        ))
+
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
+
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV.SQLite3").readBytes())
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV.commentaries.SQLite3").readBytes())
+        assertFalse(File(downloadDir, "KJV.SQLite3").exists())
+    }
+
+    /** Control: the existing `mybible/`-prefixed layout is unchanged. */
+    @Test
+    fun prefixedMyBibleModuleStillInstallsUnderMyBibleDir() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        val bytes = myBibleBytes()
+        val zip = buildZip("prefixed-mybible.zip", listOf("mybible/KJV2.SQLite3" to bytes))
+
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ zip.source() })
+
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV2.SQLite3").readBytes())
+    }
+
+    /** Zip-slip: an entry escaping the module directory fails the whole archive and writes nothing outside it. */
+    @Test
+    fun traversalEntryFailsTheArchiveAndWritesNothingOutside() = runBlocking {
+        val zip = buildZip("traversal.zip", listOf(
+            "modules/texts/ok.dat" to byteArrayOf(1),
+            "../../evil.conf" to byteArrayOf(2),
+        ))
+        val escaped = File(downloadDir, "../../evil.conf").canonicalFile
+        escaped.delete()
+
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        try {
+            backup.extractAndRegisterModuleArchive({ zip.source() })
+            org.junit.Assert.fail("expected IOException")
+        } catch (e: java.io.IOException) {
+            // expected
+        }
+        assertFalse("Traversal entry must not be written", escaped.exists())
+    }
+
+    /** The same through backslashes and an absolute name: both fail the archive, nothing lands outside. */
+    @Test
+    fun backslashAndAbsoluteTraversalEntriesFailTheArchive() = runBlocking {
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val escaped = File(downloadDir, "../evil-backslash.dat").canonicalFile.also { it.delete() }
+        for ((name, entry) in listOf("backslash-traversal.zip" to "..\\evil-backslash.dat", "absolute.zip" to "/tmp/evil-absolute.dat")) {
+            val zip = buildZip(name, listOf("modules/texts/ok.dat" to byteArrayOf(1), entry to byteArrayOf(2)))
+            try {
+                backup.extractAndRegisterModuleArchive({ zip.source() })
+                org.junit.Assert.fail("expected IOException for $entry")
+            } catch (e: java.io.IOException) {
+                // expected
+            }
+        }
+        assertFalse("Traversal entry must not be written", escaped.exists())
+        assertFalse(File("/tmp/evil-absolute.dat").exists())
     }
 }

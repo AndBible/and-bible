@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.db.readingplan
+
+import net.bible.sharedcore.log.Log
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.bible.android.database.readingplan.ReadingPlanDao
+import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
+import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.platform.LocalCalendar
+import net.bible.service.readingplan.ReadingPlanInfoDto
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.OrderedLauncher
+import kotlin.math.max
+
+/**
+ * The fire-and-forget writes ([deleteOldStatuses], [setReadingStatus], [resetPlan], [setCurrentDay]) run in the
+ * application scope (they outlive the screen; a failure is logged, not a crash) and land in call order: a status
+ * write queued before a reset cannot resurrect a status after it, and two quick ticks cannot land out of order.
+ */
+class ReadingPlanRepository(
+    private val daoProvider: () -> ReadingPlanDao,
+    appScope: AppCoroutineScope,
+    private val calendar: LocalCalendar,
+    private val today: () -> DbDate = { DbDate(calendar.startOfToday()) },
+) {
+    private val readingPlanDao: ReadingPlanDao get() = daoProvider()
+    private val writes = OrderedLauncher(appScope)
+
+    /** Serialises the read-modify-write of a plan row (start date, current day). */
+    private val planMutex = Mutex()
+
+    suspend fun getReadingStatus(planCode: String, planDay: Int): String? =
+        readingPlanDao.getStatus(planCode, planDay)?.readingStatus
+
+    /**
+     * The plan's start date, healing a row the pre-fix INSERT corrupted (it stored the day number
+     * as the start date: see ReadingPlanDao.updatePlan). Healed to "today is the day you are on",
+     * written back once; progress is untouched.
+     */
+    suspend fun getStartDate(planCode: String): DbDate? {
+        // A queued reset must land before deciding whether this plan is already started.
+        writes.join(WRITE_KEY)
+        val plan = readingPlanDao.getPlan(planCode) ?: return null
+        if (plan.planStartDate.getTime() >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
+        val healed = healedStartDate(calendar, today(), plan.planCurrentDay)
+        Log.i(TAG, "Healing corrupt start date ${plan.planStartDate.getTime()} of plan $planCode -> $healed")
+        plan.planStartDate = healed
+        readingPlanDao.updatePlan(plan)
+        return healed
+    }
+
+    /**
+     * All reading statuses will be deleted that are before the [day] parameter given.
+     * Date-based plan statuses are never deleted
+     * @param day The current day, all day statuses before this day will be deleted
+     */
+    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) = writes.launch(WRITE_KEY) {
+        if (!planInfo.isDateBasedPlan)
+            readingPlanDao.deleteStatusesBeforeDay(planInfo.planCode, day)
+    }
+
+    fun setReadingStatus(planCode: String, dayNo: Int, status: String) = writes.launch(WRITE_KEY) {
+        readingPlanDao.addPlanStatus(
+            ReadingPlanStatus(planCode, dayNo, status)
+        )
+    }
+
+    suspend fun startPlan(planCode: String, date: DbDate = today()) {
+        // Join before taking the mutex: queued current-day writes also acquire it.
+        writes.join(WRITE_KEY)
+        planMutex.withLock {
+            var readPlan = readingPlanDao.getPlan(planCode)
+            readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
+
+            readingPlanDao.updatePlan(readPlan)
+        }
+    }
+
+    fun resetPlan(planCode: String) = writes.launch(WRITE_KEY) {
+        Log.i(TAG, "Now resetting plan $planCode in database. Removing start date, current day, and read statuses")
+        readingPlanDao.deleteStatusesForPlan(planCode)
+        readingPlanDao.deletePlanInfo(planCode)
+    }
+
+    suspend fun getCurrentDay(planCode: String): Int =
+        max(readingPlanDao.getPlan(planCode)?.planCurrentDay ?: 0,1)
+
+    /** The write is launched; a caller that reads the day back afterwards must join the returned [Job]. */
+    fun setCurrentDay(planCode: String, dayNo: Int): Job = writes.launch(WRITE_KEY) {
+        planMutex.withLock {
+            var readPlan = readingPlanDao.getPlan(planCode)
+            readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
+                ReadingPlan(planCode, today(), dayNo)
+
+            readingPlanDao.updatePlan(readPlan)
+        }
+    }
+
+    companion object {
+        private val TAG = ReadingPlanRepository::class.simpleName ?: "ReadingPlanRepository"
+        private const val WRITE_KEY = "reading-plan-writes"
+
+        /** No real start date is before 2 Jan 1970; the corrupt rows hold a day number (ms). */
+        const val CORRUPT_START_DATE_LIMIT_MS = 100_000_000L
+
+        internal fun healedStartDate(calendar: LocalCalendar, today: DbDate, currentDay: Int): DbDate =
+            DbDate(calendar.addDays(today.getTime(), -(max(currentDay, 1) - 1)))
+    }
+}

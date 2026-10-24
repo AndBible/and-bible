@@ -729,7 +729,6 @@ Os Estudos são projetados para tornar mais fácil escrever notas de sermões, p
   <!--TODO: to be removed-->
   <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, E, OU, NÃO</string>
   <string name="help_search_details">Para mais detalhes, ver %s.</string>
-  <string name="help_apache_lucene">Sintaxe de consulta simples - Apache Lucene</string>
   <string name="help_fts5">Sintaxe de consulta de texto completo FTS5</string>
   <string name="help_workspaces_title">Áreas de trabalho</string>
   <string name="help_workspaces_text">

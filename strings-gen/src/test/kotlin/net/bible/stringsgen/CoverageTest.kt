@@ -9,12 +9,11 @@ class CoverageTest {
     private val repoRoot = File(System.getProperty("repoRoot"))
     private val baseXml = File(repoRoot, "app/src/main/res/values/strings.xml")
 
-    @Test fun base_strings_parse_and_have_expected_volume() {
+    @Test fun base_strings_include_platform_and_settings_resources() {
         val kv = parseStringsXml(baseXml.readText())
-        // Verified 2026-07-09: 1507 <string> entries in the base file.
-        assertTrue(kv.size in 1400..1600, "expected ~1507 base strings, got ${kv.size}")
-        // Spot-check a known pilot string exists.
-        assertTrue("calc_division_by_zero" in kv, "calc_division_by_zero missing")
+        setOf("calc_division_by_zero", "settings", "reset_settings", "plan_name_y1ntpspr").forEach {
+            assertTrue(kv[it]?.isNotBlank() == true, "Missing or empty base resource: $it")
+        }
     }
 
     @Test fun known_qualifier_mapping() {
@@ -42,10 +41,13 @@ class CoverageTest {
         assertEquals(mapOf("A" to "base-A"), mergeLocale(null, base))
     }
 
-    @Test fun real_base_has_the_five_plurals() {
+    @Test fun real_base_has_the_expected_plurals() {
         val p = parsePluralsXml(baseXml.readText())
-        assertEquals(5, p.size, "expected 5 plurals, got ${p.keys}")
-        assertTrue("cloud_doc_sync_now_count" in p)
+        assertEquals(setOf(
+            "cloud_doc_sync_now_count", "cloud_doc_sync_now_count_size", "cloud_doc_bulk_remove_all_confirm",
+            "cloud_doc_bulk_remove_cloud_confirm", "cloud_doc_bulk_purge_confirm", "cloud_doc_bulk_block_confirm",
+            "legacy_notice_bookmarks_skipped",
+        ), p.keys)
         assertTrue(p.values.all { "one" in it && "other" in it }, "each plural must have one+other")
     }
 
@@ -59,5 +61,42 @@ class CoverageTest {
         val kv = parseStringsXml("""<resources><string name="x">"  spaced  "</string><string name="y">a\nb</string></resources>""")
         assertEquals("  spaced  ", kv["x"])
         assertEquals("a\nb", kv["y"])
+    }
+
+    private val resDir = File(repoRoot, "app/src/main/res")
+
+    /** The `<string name>` set of one qualifier dir read with a regex, independently of [parseStringsXml]'s DOM parsing. */
+    private fun rawStringNames(dirName: String): Set<String> {
+        val comment = Regex("<!--.*?-->", RegexOption.DOT_MATCHES_ALL)
+        val tag = Regex("""<string\s[^>]*?name\s*=\s*"([^"]+)"""")
+        return File(resDir, dirName).listFiles { f -> f.isFile && f.extension == "xml" }!!
+            .flatMap { f -> tag.findAll(f.readText().replace(comment, "")).map { it.groupValues[1] }.toList() }
+            .toSet()
+    }
+
+    /** Every `values*` locale dir (qualifier-mapped) and the emitted en table must hold exactly the strings the XML declares. */
+    @Test fun every_base_string_in_the_resources_reaches_the_emitted_table() {
+        val declared = rawStringNames("values") + rawStringNames("values-en")
+        assertTrue(declared.size > 1000, "the real resources declare well over a thousand strings, found ${declared.size}")
+
+        val parsed = LinkedHashMap<String, String>()
+        for (dirName in listOf("values", "values-en")) {
+            File(resDir, dirName).listFiles { f -> f.isFile && f.extension == "xml" }!!.sortedBy { it.name }
+                .forEach { f -> parsed.putAll(mergeLocale(parsed, parseStringsXml(f.readText()))) }
+        }
+        assertEquals(declared, parsed.keys, "the parser dropped or invented a string")
+
+        // The emitted en table, read back from the generated source text (not from the map handed to the emitter).
+        val emitted = emitStringsData(mapOf("en" to parsed))
+        val emittedKeys = Regex("""^        "([^"]+)" to """", RegexOption.MULTILINE).findAll(emitted).map { it.groupValues[1] }.toList()
+        assertEquals(declared.size, emittedKeys.size, "the emitter wrote a different number of entries than the XML declares")
+        assertEquals(declared, emittedKeys.toSet(), "the emitted en keys differ from the declared ones")
+    }
+
+    @Test fun a_removed_resource_is_detected_by_the_count_check() {
+        val declared = setOf("a", "b", "c")
+        val emitted = emitStringsData(mapOf("en" to mapOf("a" to "1", "b" to "2")))
+        val emittedKeys = Regex("""^        "([^"]+)" to """", RegexOption.MULTILINE).findAll(emitted).map { it.groupValues[1] }.toSet()
+        assertTrue(declared != emittedKeys, "a missing emitted key must make the independent comparison fail")
     }
 }

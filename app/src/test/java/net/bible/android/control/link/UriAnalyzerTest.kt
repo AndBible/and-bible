@@ -93,4 +93,12 @@ class UriAnalyzerTest {
         assertEquals("Rom.8.28-30", analyzer.key)
         assertEquals("o12", analyzer.fragment)
     }
+
+    @Test
+    fun decodesPercentAndPlusLikeUrlDecoder() {
+        val analyzer = UriAnalyzer()
+        assertTrue(analyzer.analyze("sword:UZV/Mat%201%3A1+x"))
+        assertEquals("UZV", analyzer.book)
+        assertEquals("Mat 1:1 x", analyzer.key)
+    }
 }

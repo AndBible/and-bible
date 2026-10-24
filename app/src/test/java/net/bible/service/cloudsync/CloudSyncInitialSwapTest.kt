@@ -1,13 +1,16 @@
 package net.bible.service.cloudsync
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exec
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -36,11 +39,12 @@ class CloudSyncInitialSwapTest {
         // db handle works but whose file is not at this test's getDatabasePath. Start from no instance.
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -50,38 +54,42 @@ class CloudSyncInitialSwapTest {
 
     /** The "download": the current workspaces DB with the workspace renamed [name], checkpointed and copied out. */
     private fun downloadNamed(name: String): File {
-        dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name))
-        workspaces.writableDb.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
+        runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name)) }
+        runBlocking { workspaces.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(FULL)") } }
         val f = File.createTempFile("initial", ".sqlite3")
         workspaces.localDbFile.copyTo(f, overwrite = true)
-        dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = "A"))
+        runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = "A")) }
         return f
     }
 
     @Test fun aSaveAfterTheSwapDoesNotOverwriteTheDownload() {
         val downloaded = downloadNamed("C")
-        runBlocking { CloudSync.swapInInitialDb(workspaces, downloaded) { } }
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded.toOkioPath()) { } }
         repo.name = "B" // pre-download in-memory state, not yet reloaded
         repo.saveIntoDb(false)
-        assertEquals("C", dao.workspace(repo.id)!!.name)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun saveWorksAgainAfterTheReload() {
-        runBlocking { CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { } }
-        repo.loadFromDb(repo.id)
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath()) { } }
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     /** Review Focus 2: one release when the last overlapping swap ends, not one per category. */
     @Test fun theRefreshIsPostedOnlyWhenTheLastSwapEnds() {
         val streamed = mutableListOf<Unit>()
-        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
+        val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
             runBlocking {
-                DatabaseContainer.replacingDatabases {
-                    CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { }
+                DatabaseContainer.replacingDatabases { token ->
+                    kotlinx.coroutines.withTimeout(2_000) {
+                        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath(), token) { }
+                    }
                     assertEquals("still inside an outer replace (stream)", 0, streamed.size)
                 }
             }
@@ -92,9 +100,9 @@ class CloudSyncInitialSwapTest {
     /** The post is what triggers `loadFromDb` and ends the save freeze: a lone swap must release exactly once. */
     @Test fun aLoneSwapPostsTheRefreshExactlyOnce() {
         val streamed = mutableListOf<Unit>()
-        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
+        val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
-            runBlocking { CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { } }
+            runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath()) { } }
             assertEquals(1, streamed.size)
         } finally { streamSub.cancel() }
     }

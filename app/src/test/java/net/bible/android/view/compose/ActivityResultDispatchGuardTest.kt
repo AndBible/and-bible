@@ -30,7 +30,7 @@ import org.junit.Test
  * own Compose twin. This guard makes the class-name channel impossible to reintroduce.
  */
 class ActivityResultDispatchGuardTest {
-    private val sources = File("src/main/java").walkTopDown()
+    private val sources = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
         .filter { it.isFile && it.extension == "kt" }
         .toList()
 

@@ -1,0 +1,837 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlin.experimental.ExperimentalNativeApi::class)
+
+package net.bible.sharedui.ios.app
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.ui.unit.dp
+import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowLayout
+import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.service.startup.ReadingAppInit
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.hasUsableBible
+import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.app.AppRoot
+import net.bible.sharedui.app.gatedReadingRoute
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.resolveDeviceUiLanguage
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.strings.iosStrings
+import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
+import net.bible.sharedui.components.AppToastHost
+import net.bible.sharedui.components.LocalBarFontScaleCap
+import net.bible.sharedui.components.FailClosedLinkRouting
+import net.bible.sharedui.components.LocalSheetDragHandleDescription
+import net.bible.sharedui.ios.reading.ChooserTarget
+import net.bible.sharedui.ios.reading.IosNightModeObserver
+import net.bible.sharedui.ios.reading.IosReadingHost
+import net.bible.sharedui.ios.reading.IosReadingResults
+import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.ios.reading.IosTiltScroll
+import net.bible.sharedui.ios.reading.iosChooserTarget
+import net.bible.sharedui.ios.reading.iosReadingNavDeps
+import net.bible.sharedui.ios.reading.rememberIosPaneIcons
+import net.bible.sharedui.ios.reading.rememberIosReadingIcons
+import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.navigation.LocalCategoryIcon
+import net.bible.sharedui.reading.LocalDrawerRowsGrowWithText
+import net.bible.sharedui.reading.LocalPinIcon
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
+import net.bible.sharedui.reading.host.LocalReadingPane
+import net.bible.sharedui.reading.host.ReadingHost
+import net.bible.sharedui.reading.nav.readingNavGraph
+import net.bible.sharedui.reading.session.ReadingKeepScreenOn
+import net.bible.sharedui.reading.session.guardedChooserTarget
+import net.bible.sharedui.reading.session.watchSettingKeys
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.ProvideLanguageLayoutDirection
+import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.strings.keyed.StringTable
+import net.bible.sharedui.theme.AbHostTheme
+import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.webview.iosReadingPaneFactory
+import org.crosswire.jsword.book.Book
+import org.koin.core.Koin
+import org.koin.mp.KoinPlatform
+import platform.Foundation.NSNotification
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
+import platform.UIKit.UIApplicationDidEnterBackgroundNotification
+import platform.UIKit.UIApplicationWillResignActiveNotification
+import platform.UIKit.UIBackgroundTaskInvalid
+
+/**
+ * The start route of a cold launch: READING when a usable (unlocked) Bible is installed, else WELCOME, decided by the
+ * shared [gatedReadingRoute] gate. Runs off the main thread. It only asks whether a usable Bible exists; it never
+ * resolves a default Bible, so a workspace whose Bible was deleted cannot fail here. Nothing is remembered between
+ * launches: a process killed during the first download starts at WELCOME again.
+ *
+ * [bibles] is the seam for tests; the default reads the installed Bibles.
+ */
+internal suspend fun resolveIosStartRoute(bibles: () -> List<Book> = { SwordDocumentFacade.bibles }): String =
+    withContext(Dispatchers.Default) {
+        gatedReadingRoute(NavRoutes.READING, { hasUsableBible(bibles()) }) { nsLog("IosApp: $it") }
+    }
+
+/** The start route, with reading made ready first when it is READING (the Welcome flow does it on entering reading). */
+private suspend fun prepareIosStart(table: StringTable): String {
+    val debugArguments: List<*> = if (kotlin.native.Platform.isDebugBinary) platform.Foundation.NSProcessInfo.processInfo.arguments else emptyList<Any?>()
+    val route = when {
+        "-task5Settings" in debugArguments -> NavRoutes.SETTINGS
+        // H2: the real sync settings route, entered directly as the reading drawer's cloud-sync row will.
+        "-h2SyncSettings" in debugArguments -> NavRoutes.SYNC_SETTINGS
+        else -> resolveIosStartRoute()
+    }
+    if (route == NavRoutes.READING) IosReadingReady.ensure(table)
+    return route
+}
+
+/**
+ * Leaving Welcome for [route] (Android `WelcomeFlow.leaveFor`): initialise the app off the main thread, then navigate
+ * in-graph. A second tap while it runs is ignored; a failure is logged and leaves Welcome usable.
+ */
+internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: StringTable): (String) -> Unit {
+    var leaving = false // main thread only
+    return { route ->
+        if (!leaving) {
+            leaving = true
+            scope.launch {
+                try {
+                    withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
+                    shell.navigate(route)
+                } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    nsLog("IosApp: leaving Welcome failed: ${e.stackTraceToString()}")
+                } finally {
+                    leaving = false
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The production iOS app root, shown once startup is Ready: resolves the start route behind a splash, then composes
+ * the shared [AppRoot] with every feature graph and the reading destination (the iOS reading host).
+ */
+@Composable
+@kotlin.native.HiddenFromObjC
+fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, onRecoveryBack: () -> Unit = {}) {
+    val koin = remember { KoinPlatform.getKoin() }
+    val holder = remember { koin.get<IosStringTableHolder>() }
+    val language = holder.current.tag
+    val strings = remember(language) { iosStrings(language) }
+    val liveStrings = remember { iosStrings { holder.current.tag } }
+    // Recovery deliberately stops after Koin-only startup. No night observer, usable-Bible query,
+    // reading initialisation, workspace saver or return-to-reading listener is allowed on this path.
+    if (recoveryStartRoute != null) {
+        check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
+        IosTextScale {
+          ProvideLanguageLayoutDirection(language) {
+            CompositionLocalProvider(
+                LocalStrings provides strings,
+                LocalSheetDragHandleDescription provides strings.sheetDragHandle,
+                LocalLiveSettingsLanguage provides true,
+                net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
+                LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
+                LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+            ) {
+                AbTheme(darkTheme = recoveryDark) {
+                    check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
+                    Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
+                        IosAppContent(liveStrings, IosAppStartup.stringTable, recoveryStartRoute, null, holder, onRecoveryBack)
+                        IosDebugFontScaleProbe()
+                    }
+                }
+            }
+          }
+        }
+        return
+    }
+    val table = remember { IosAppStartup.stringTable }
+    // Colour mode and the animation setting reach the Compose theme through [modesVersion] and every WebView through
+    // set_config; a night switch does the same (no reload of the page). Colour mode and animations live in the
+    // database-backed settings, whose SettingsStore.changes flow announces writes (no UserDefaults notification).
+    val modesVersion = remember { mutableIntStateOf(0) }
+    val settingsChanges = remember { iosSettingsChanges() }
+    val nightObserver = remember {
+        IosNightModeObserver(koin.get<NightModeState>(), koin.get<AppSettings>(), settingsChanges) {
+            modesVersion.intValue++
+            IosReadingWindows.nightModeChanged()
+        }
+    }
+    val appScope = rememberCoroutineScope()
+    DisposableEffect(nightObserver) {
+        nightObserver.start(appScope)
+        nightObserver.refresh()
+        onDispose { nightObserver.stop() }
+    }
+    ReportSystemAppearance(nightObserver)
+    val dark by nightObserver.dark
+    val startRoute by produceState<String?>(null) {
+        value = try {
+            prepareIosStart(table)
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("IosApp: start failed, falling back to Welcome: ${e.stackTraceToString()}")
+            NavRoutes.WELCOME
+        }
+    }
+    IosTextScale {
+      ProvideLanguageLayoutDirection(language) {
+        CompositionLocalProvider(
+            LocalStrings provides strings,
+            LocalSheetDragHandleDescription provides strings.sheetDragHandle,
+            LocalDrawerRowsGrowWithText provides true,
+            LocalLiveSettingsLanguage provides true,
+            net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
+            LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
+            LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+        ) {
+            IosHostTheme(dark, koin, modesVersion) {
+                val route = startRoute
+                if (route == null) {
+                    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                        IosDebugFontScaleProbe()
+                    }
+                } else {
+                    Box(Modifier.fillMaxSize()) {
+                        IosAppContent(liveStrings, table, route, nightObserver, holder)
+                        AppToastHost(Modifier.align(Alignment.BottomCenter))
+                        IosDebugFontScaleProbe()
+                    }
+                }
+            }
+        }
+      }
+    }
+}
+
+/** Replace Compose's stale launch scale absolutely, never multiply its built-in category mapping. */
+@Composable
+private fun IosTextScale(content: @Composable () -> Unit) {
+    val observer = remember { IosDynamicTypeObserver() }
+    DisposableEffect(observer) {
+        observer.start()
+        onDispose { observer.stop() }
+    }
+    val scale by observer.fontScale
+    val current = LocalDensity.current
+    CompositionLocalProvider(
+        LocalDensity provides Density(current.density, fontScale = scale),
+        LocalBarFontScaleCap provides IOS_BAR_FONT_SCALE_CAP,
+        content = content,
+    )
+}
+
+/** Reports effective Compose density and UIKit delivery evidence while the real app resolves its start route. */
+@Composable
+private fun IosDebugFontScaleProbe() {
+    if (!kotlin.native.Platform.isDebugBinary) return
+    val enabled = remember { "-debugFontScaleProbe" in platform.Foundation.NSProcessInfo.processInfo.arguments }
+    if (!enabled) return
+    var systemSnapshot by remember { mutableStateOf(iosDebugTextSizeSnapshot("initial", 0)) }
+    DisposableEffect(Unit) {
+        val center = NSNotificationCenter.defaultCenter
+        var notifications = 0
+        val sizeObserver = center.addObserverForName(
+            platform.UIKit.UIContentSizeCategoryDidChangeNotification, null, NSOperationQueue.mainQueue,
+        ) {
+            notifications++
+            systemSnapshot = iosDebugTextSizeSnapshot("content-size-notification", notifications)
+        }
+        val activeObserver = center.addObserverForName(
+            UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue,
+        ) { systemSnapshot = iosDebugTextSizeSnapshot("became-active", notifications) }
+        onDispose {
+            center.removeObserver(sizeObserver)
+            center.removeObserver(activeObserver)
+        }
+    }
+    val scale = LocalDensity.current.fontScale.toString()
+    Text(
+        text = systemSnapshot,
+        modifier = Modifier.requiredSize(1.dp).testTag("ab-font-scale-system").semantics {
+            stateDescription = systemSnapshot
+        },
+    )
+    Text(
+        text = scale,
+        modifier = Modifier.requiredSize(1.dp).testTag("ab-font-scale").semantics {
+            stateDescription = scale
+        },
+    )
+}
+
+/** Separate UIKit boundary evidence from Compose's ambient fontScale; never changes either one. */
+private fun iosDebugTextSizeSnapshot(event: String, notifications: Int): String {
+    val app = UIApplication.sharedApplication
+    val appCategory = app.preferredContentSizeCategory.orEmpty()
+    val windows = app.windows.filterIsInstance<platform.UIKit.UIWindow>()
+    val traits = windows.joinToString(";") { window ->
+        "window=${window.traitCollection.preferredContentSizeCategory},root=${window.rootViewController?.traitCollection?.preferredContentSizeCategory}"
+    }
+    val snapshot = "event=$event notifications=$notifications app=$appCategory $traits"
+    nsLog("DEBUG font-scale UIKit: $snapshot")
+    return snapshot
+}
+
+/** `SettingsStore.changes` of the open settings database (the key of every `AppSettings` write); empty before it exists. */
+private fun iosSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
+    try {
+        net.bible.service.db.DatabaseContainer.instance.settingsStore.changes
+    } catch (e: Exception) {
+        kotlinx.coroutines.flow.emptyFlow()
+    }
+
+/**
+ * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and, after a database restore replaced the
+ * databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
+ * `ReadingCommands.applyRestoredDatabase`): reloads the repository from the restored database (lifting the restore
+ * save freeze), stores the loaded workspace id under `current_workspace_id`, releases the old window assemblies so
+ * the panes re-assemble on the new Window objects, and forces a full reload.
+ *
+ * Skipped while reading is not ready (no repository yet, Android's `readingAppBootstrapped` gate). It never creates
+ * a host and never calls `switchToWorkspace`; a failure is logged and swallowed so it cannot break the restore.
+ * Call once per app composition; cancel the returned subscription on dispose.
+ */
+internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.sharedcore.event.Subscription {
+    val subscription = net.bible.service.db.DatabaseContainer.databaseRestored.subscribeOnMain {
+        scope.launch(Dispatchers.Main) {
+            if (!IosReadingReady.isReady) return@launch
+            try {
+                val repository = koin.get<WindowControl>().windowRepository
+                val settings = koin.get<AppSettings>()
+                net.bible.android.control.backup.reloadAfterRestore(
+                    target = net.bible.android.control.backup.restoreReloadTarget(repository),
+                    releaseWindow = { IosReadingWindows.release(it) },
+                    setCurrentWorkspaceId = { settings.setString("current_workspace_id", it) },
+                )
+            } catch (e: Exception) {
+                nsLog("IosApp: reload after restore failed: ${e.stackTraceToString()}")
+            }
+        }
+    }
+    return subscription
+}
+
+/** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
+private fun iosWorkspaceSeed(koin: Koin): Int? {
+    if (!IosReadingReady.isReady) return null
+    return try {
+        koin.get<WindowControl>().windowRepository.workspaceSettings.workspaceColor
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/**
+ * The common host theme ([AbHostTheme]: colour mode, animations, palette style from the app settings, the workspace
+ * colour as seed) around the whole app, as Android's `AbAppTheme` does. The seed follows workspace switches and colour
+ * edits ([WorkspaceChanges]) and is read once more when reading becomes ready (the first load emits no change that
+ * this subscription could have seen).
+ */
+@Composable
+private fun IosHostTheme(dark: Boolean, koin: Koin, modesVersion: androidx.compose.runtime.IntState, content: @Composable () -> Unit) {
+    var seed by remember { mutableStateOf(iosWorkspaceSeed(koin)) }
+    DisposableEffect(Unit) {
+        val subscription = WorkspaceChanges.changes.subscribeOnMain { seed = iosWorkspaceSeed(koin) }
+        onDispose { subscription.cancel() }
+    }
+    LaunchedEffect(Unit) {
+        IosReadingReady.readyFlow.first { it }
+        seed = iosWorkspaceSeed(koin)
+    }
+    val settings = remember { koin.get<AppSettings>() }
+    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, // workspaceSeed runs in composition: reading modesVersion there makes a mode change recompose the theme, which re-reads the settings.
+    workspaceSeed = { modesVersion.intValue; seed }, content = content)
+}
+
+@Composable
+private fun IosAppContent(
+    strings: Strings,
+    table: StringTable,
+    route: String,
+    nightObserver: IosNightModeObserver?,
+    holder: IosStringTableHolder,
+    onRecoveryBack: (() -> Unit)? = null,
+) {
+    val koin = remember { KoinPlatform.getKoin() }
+    val navController = rememberNavController()
+    val scope = rememberCoroutineScope()
+    // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
+    if (nightObserver != null) SaveWorkspaceOnBackground(koin)
+    val shell = remember {
+        IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) {
+            holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
+        }.also { if (nightObserver != null) IosRootLinks.attachShell(it) }
+    }
+    DisposableEffect(shell) {
+        net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = { shell.navigate(NavRoutes.BACKUP) }
+        net.bible.service.cloudsync.ios.IosErrorReportHooks.report = { cause -> net.bible.sharedui.ios.report.IosBugReport(table).report(cause) }
+        onDispose {
+            net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = null
+            net.bible.service.cloudsync.ios.IosErrorReportHooks.report = null
+        }
+    }
+    val windowSize = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
+    val liveWindowSize = androidx.compose.runtime.rememberUpdatedState(windowSize)
+    val ports = remember {
+        buildIosHostPorts(shell, koin, table,
+            initialiseWelcome = {
+                withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
+            },
+            isPortrait = { liveWindowSize.value.let { it.width <= it.height } },
+        )
+    }
+    val appHosts = remember { AppHosts(koin, shell, ports, strings, onReportBug = {
+        scope.launch { net.bible.sharedui.ios.report.IosBugReport(table).report() }
+    }) }
+    DisposableEffect(appHosts) {
+        val backup = ports.backupHost as net.bible.service.cloudsync.ios.IosBackupHost
+        val restore: () -> Unit = { appHosts.installZip.open() }
+        backup.onRestoreModules = restore
+        onDispose {
+            if (backup.onRestoreModules === restore) backup.onRestoreModules = {}
+        }
+    }
+    LaunchedEffect(shell) {
+        if (kotlin.native.Platform.isDebugBinary && "-task5Error" in platform.Foundation.NSProcessInfo.processInfo.arguments) {
+            koin.get<net.bible.android.control.backup.BackupHost>().showErrorReport(strings.errorOccurred, IllegalStateException("Task 5 simulator error"))
+        }
+    }
+    val welcome = remember { ports.welcomePlatform() as net.bible.sharedui.ios.ports.IosWelcomeHostPlatform }
+    SideEffect {
+        welcome.openImport = { appHosts.installZip.open() }
+        welcome.refreshTextIfCreated()
+    }
+    val channels = remember { iosResultChannels({ navController }, shell::openReading) }
+    val readingToken = remember { Any() }
+    val readingResults = remember {
+        IosReadingResults(
+            keyChooser = channels.keyChooser,
+            passage = channels.passage,
+            document = channels.document,
+            myDocumentPages = channels.myDocumentPages,
+            myDocuments = channels.myDocuments,
+            bookmark = channels.bookmark,
+            readingProgress = channels.readingProgress,
+            workspace = channels.workspace,
+            // A window closed while its chooser was open is gone: the answer is dropped, never applied to its page manager.
+            targetFor = guardedChooserTarget(
+                isOpen = { asker ->
+                    koin.get<WindowControl>().windowRepository.sortedWindows
+                        .any { it.pageManager === asker && it.windowState != WindowLayout.WindowState.CLOSED }
+                },
+            ) { asker -> (asker as? CurrentPageManager)?.let { iosChooserTarget(koin, table, it, scope) } },
+            activeAskerProvider = { koin.get<WindowControl>().activeWindowPageManager },
+        )
+    }
+    val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels, readingResults) }
+    DisposableEffect(Unit) { val restoreReload = installRestoreReload(koin, scope); onDispose { restoreReload.cancel() } }
+    val debugReadingReady = remember { androidx.compose.runtime.mutableStateOf(false) }
+    val language = holder.current.tag
+    val graphs = remember(navController, language) { appHosts.graphs(navController, channels) }
+    if (nightObserver != null) DisposableEffect(navController) {
+        val gate = IosWelcomeReturnGate(
+            scope = scope,
+            usableBible = { withContext(Dispatchers.Default) { hasUsableBible(SwordDocumentFacade.bibles) } },
+            unlockIfNeeded = {
+                net.bible.service.sword.unlockLockedBiblesIfNoneUsable(
+                    object : net.bible.service.sword.BookUnlocker {
+                        override suspend fun unlock(book: Book): Boolean = ports.documentDialogs.awaitUnlock(book.initials)
+                    },
+                )
+            },
+            ensureReading = { IosReadingReady.ensure(table) },
+            currentRoute = { navController.currentDestination?.route },
+            openReading = { shell.openReading() },
+            refreshWelcome = {
+                nsLog("IosApp: no usable Bible after the flow, staying on Welcome")
+                welcome.controller.setProgress(null)
+                scope.launch { welcome.refreshInfo() }
+            },
+            log = { nsLog("IosApp: $it") },
+        )
+        welcome.afterRestore = gate::afterExternalFlow
+        val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
+            shell.routeChanged(destination.route)
+            // A chooser left without an answer (Android's cancel arm); an answer published before the pop is still pending.
+            if (destination.route?.substringBefore('?') == NavRoutes.READING) readingResults.readingReached()
+            gate.onDestination(
+                destination.route,
+                controller.currentBackStack.value.any { it.destination.route?.substringBefore('?') == NavRoutes.WELCOME },
+            )
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
+    AppRoot(
+        navController = navController,
+        startRoute = route,
+        graphs = graphs,
+        readingGraph = {
+            readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table, readingResults.collectors()) {
+                if (nightObserver != null) IosReadingDestination(shell, table, strings, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
+            })
+        },
+        overlays = {
+            appHosts.Overlays()
+            net.bible.sharedui.ios.files.IosFilesRuntimeHarness.Overlay(strings) {
+                navController.currentBackStackEntryFlow.first()
+            }
+            val incomingEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+            net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.Overlay(
+                strings,
+                backupRoute = incomingEntry?.destination?.route == NavRoutes.BACKUP,
+                openBackup = { shell.navigate(NavRoutes.BACKUP) },
+            )
+            net.bible.sharedui.ios.files.IosFilesFeatureHarness.Overlay(
+                strings, incomingEntry?.destination?.route,
+                awaitGraph = { navController.currentBackStackEntryFlow.first() },
+                navigate = { shell.navigate(it) },
+            )
+            if (IosDebugLaunchArgs.task6Controls()) {
+                val debug = remember { koin.get<net.bible.sharedui.app.ports.DebugActions>() }
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                    androidx.compose.material3.Surface {
+                        androidx.compose.foundation.layout.Column {
+                            androidx.compose.material3.TextButton(
+                                onClick = { debug.crashAppDelayed() },
+                                modifier = Modifier.testTag("task6-crash"),
+                            ) { androidx.compose.material3.Text(strings.crashApp) }
+                            androidx.compose.material3.TextButton(
+                                onClick = { debug.showTestError("") },
+                                modifier = Modifier.testTag("task6-error"),
+                            ) { androidx.compose.material3.Text(strings.testErrorDialog) }
+                        }
+                    }
+                }
+            }
+            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts, readingResults)
+            IosAppDialogOverlay(
+                // Alert dialogs may cover sheets; sheet-shaped global requests must exclude reading sheets.
+                onSheetOpening = { readingHostHolder.closeSheetsIfCreated() },
+            )
+        },
+    )
+    LaunchedEffect(appHosts, navController) {
+        // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
+        navController.currentBackStackEntryFlow.first()
+        if (!net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.preflightBeforeBind()) return@LaunchedEffect
+        val owner = net.bible.sharedui.ios.files.IosIncomingFiles.bind(
+            open = { refs, complete ->
+                appHosts.installZip.open(
+                    action = net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW,
+                    uris = refs,
+                    onResult = { complete() },
+                )
+            },
+            onFailure = {
+                koin.get<net.bible.sharedcore.platform.UserNotifier>()
+                    .showError(koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred)
+            },
+        )
+        try { kotlinx.coroutines.awaitCancellation() }
+        finally { net.bible.sharedui.ios.files.IosIncomingFiles.detach(owner) }
+    }
+}
+
+/** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
+private class ReadingHostHolder(
+    private val labelResults: NavResultChannel<ManageLabelsResult>,
+    private val readingResults: IosReadingResults,
+) {
+    private var host: IosReadingHost? = null
+
+    /** The app's current strings: the host reads them per use, so a language change shows without rebuilding the host. */
+    private var currentStrings: Strings? = null
+
+    fun updateStrings(strings: Strings) {
+        currentStrings = strings
+    }
+
+    fun closeSheetsIfCreated() { host?.hostState?.closeModalOverlays() }
+
+    fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
+        host ?: IosReadingHost(
+            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome,
+            { currentStrings ?: strings },
+            labelResults = labelResults,
+            readingResults = readingResults,
+        ).also {
+            host = it
+            IosRootLinks.attachReading(it.navigator, it::openSearchStrongs)
+            IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())
+        }
+}
+
+/**
+ * The reading destination's content: a spinner until [IosReadingReady] has run (the Welcome path gets here before
+ * it), then the shared [ReadingHost] with the iOS pane factory. A failure is logged and leaves the spinner (nothing
+ * to retry from here).
+ */
+@Composable
+private fun IosReadingDestination(
+    shell: IosHostShell,
+    table: StringTable,
+    strings: Strings,
+    koin: Koin,
+    nightObserver: IosNightModeObserver,
+    holder: ReadingHostHolder,
+    onDebugReady: () -> Unit,
+) {
+    val ready by produceState<Boolean?>(null) {
+        value = try {
+            IosReadingReady.ensure(table)
+            true
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("IosApp: reading not ready: ${e.stackTraceToString()}")
+            false
+        }
+    }
+    if (ready == false) {
+        // Reading cannot start: leave to Welcome (honest and recoverable) instead of an endless spinner.
+        LaunchedEffect(Unit) { shell.showWelcome() }
+    }
+    if (ready != true) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
+    // lifecycle tests launch with it and assert John 3 before saving and relaunching their own workspace.
+    LaunchedEffect(Unit) {
+        IosDebugLaunchArgs.openRefOnce()
+        onDebugReady()
+    }
+    holder.updateStrings(strings)
+    val host = remember { holder.get(shell, koin, nightObserver, strings) }
+    val icons = rememberIosReadingIcons()
+    val paneIcons = rememberIosPaneIcons()
+    val deps = remember(host) { host.deps(icons, paneIcons) }
+    val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
+    // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
+    MeasureReadingOffsets(host)
+    HideStatusBarInFullScreen(host)
+    KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() })
+    TiltScrollWhileReading(koin)
+    FailClosedLinkRouting(koin.get<ExternalLinks>()) {
+        val density = LocalDensity.current
+        val topInset = if (host.fullScreen.state.value) with(density) { WindowInsets.safeDrawing.getTop(density).toDp() } else 0.dp
+        CompositionLocalProvider(LocalReadingPane provides paneFactory, LocalReadingTopSafeInset provides topInset) {
+            ReadingHost(deps, Modifier.testTag("reading-host"))
+        }
+    }
+}
+
+/**
+ * Feeds the real layout into the document offsets: the bottom safe-area inset (home indicator) in dp = CSS px, read from
+ * the same `WindowInsets.navigationBars` the reading rail pads itself with. The other terms (search sheet, agent log,
+ * speak bar) are reported by the host's own slots; the host pushes `set_offsets` to every window when the sum changes,
+ * and when the container size changes (rotation: the bottom window can change while the inset stays the same).
+ */
+@Composable
+private fun MeasureReadingOffsets(host: IosReadingHost) {
+    val density = LocalDensity.current
+    val bottomPx = WindowInsets.navigationBars.getBottom(density)
+    val containerSize = LocalWindowInfo.current.containerSize
+    // Full screen removes the toolbar that pads the top; the notch / island safe area stays (see ReadingOffsets.top).
+    val topPx = if (host.fullScreen.state.value) WindowInsets.safeDrawing.getTop(density) else 0
+    SideEffect {
+        host.offsets.setSystemTopInset(topPx / density.density)
+        host.offsets.setSystemBottomInset(bottomPx / density.density)
+        host.offsets.setContainerSize(containerSize.width, containerSize.height)
+    }
+}
+
+/**
+ * The status bar follows full screen only while the reading route is composed: other screens reached from full screen
+ * (settings, search results) get it back, and returning to reading hides it again if full screen is still on.
+ */
+@Composable
+private fun HideStatusBarInFullScreen(host: IosReadingHost) {
+    val fullScreen = host.fullScreen.state.value
+    DisposableEffect(fullScreen) {
+        iosSetStatusBarHidden(fullScreen)
+        onDispose { iosSetStatusBarHidden(false) }
+    }
+}
+
+/**
+ * Keep-screen-on (`screen_keep_on_pref`) only while the reading route is composed and the app is active:
+ * `idleTimerDisabled` is set from [ReadingKeepScreenOn] and reset on leaving reading and when backgrounding.
+ */
+@Composable
+private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.coroutines.flow.Flow<String>) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(Unit) {
+        val settings = koin.get<AppSettings>()
+        val keepOn = ReadingKeepScreenOn(
+            read = { settings.getBoolean("screen_keep_on_pref", false) },
+            apply = { UIApplication.sharedApplication.idleTimerDisabled = it },
+        )
+        val center = NSNotificationCenter.defaultCenter
+        val observers = listOf(
+            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(true) },
+            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(false) },
+        )
+        // screen_keep_on_pref lives in the database-backed settings: its writes arrive through SettingsStore.changes.
+        val watch = watchSettingKeys(settingsChanges, setOf("screen_keep_on_pref"), scope) { keepOn.refresh() }
+        keepOn.setReading(true)
+        onDispose {
+            observers.forEach { center.removeObserver(it) }
+            watch.cancel()
+            keepOn.setReading(false)
+        }
+    }
+}
+
+/**
+ * Tilt scroll (`enableTiltToScroll`) only while the reading route is composed and the app is active: the motion
+ * updates stop when the app resigns active / backgrounds and restart (with a fresh neutral pose) on becoming active.
+ */
+@Composable
+private fun TiltScrollWhileReading(koin: Koin) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(Unit) {
+        val tilt = IosTiltScroll(koin)
+        val center = NSNotificationCenter.defaultCenter
+        val observers = listOf(
+            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(true) },
+            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
+            center.addObserverForName(UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
+        )
+        tilt.start(scope)
+        onDispose {
+            observers.forEach { center.removeObserver(it) }
+            tilt.stop()
+        }
+    }
+}
+
+/**
+ * Android saves the workspace in `onPause`; iOS may kill a backgrounded app, so the same save runs when the app
+ * resigns active / enters the background, inside a background task so the writes finish before suspension.
+ */
+@Composable
+private fun SaveWorkspaceOnBackground(koin: Koin) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(Unit) {
+        val center = NSNotificationCenter.defaultCenter
+        val save: (NSNotification?) -> Unit = {
+            val app = UIApplication.sharedApplication
+            var task = UIBackgroundTaskInvalid
+            fun endTask() {
+                if (task != UIBackgroundTaskInvalid) {
+                    val id = task
+                    task = UIBackgroundTaskInvalid
+                    app.endBackgroundTask(id)
+                }
+            }
+            task = app.beginBackgroundTaskWithExpirationHandler { endTask() }
+            scope.launch {
+                try {
+                    IosWorkspaceSaver.saveNow(koin)
+                } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    nsLog("IosApp: saving the workspace failed: ${e.stackTraceToString()}")
+                } finally {
+                    endTask()
+                }
+            }
+        }
+        val observers = listOf(UIApplicationWillResignActiveNotification, UIApplicationDidEnterBackgroundNotification)
+            .map { center.addObserverForName(it, null, NSOperationQueue.mainQueue, save) }
+        onDispose { observers.forEach { center.removeObserver(it) } }
+    }
+}
+
+/**
+ * Reports a system appearance change to [observer] while the app is in the foreground (a change while backgrounded is
+ * picked up by the observer's own become-active refresh). The observer decides whether anything changed and, if so,
+ * re-sends the page config without a reload.
+ */
+@Composable
+private fun ReportSystemAppearance(observer: IosNightModeObserver) {
+    val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    LaunchedEffect(systemDark) { observer.refresh() }
+}

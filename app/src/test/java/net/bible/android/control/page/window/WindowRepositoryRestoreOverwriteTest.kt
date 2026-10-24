@@ -31,11 +31,12 @@ class WindowRepositoryRestoreOverwriteTest {
     @Before fun setUp() {
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -45,9 +46,9 @@ class WindowRepositoryRestoreOverwriteTest {
 
     /** What BackupControl does: the restored file holds "C", then the container is reset. */
     private fun restoreWorkspaceNamed(name: String) = runBlocking {
-        DatabaseContainer.replacingDatabases {
+        DatabaseContainer.replacingDatabases { token ->
             dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name))
-            DatabaseContainer.reset()
+            DatabaseContainer.resetOwned(token)
         }
     }
 
@@ -55,7 +56,8 @@ class WindowRepositoryRestoreOverwriteTest {
         restoreWorkspaceNamed("C")
         repo.name = "B" // pre-restore in-memory state, not yet reloaded
         repo.saveIntoDb(false)
-        assertEquals("C", dao.workspace(repo.id)!!.name)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun nothingIsWrittenWhileReplacing() = runBlocking {
@@ -63,15 +65,17 @@ class WindowRepositoryRestoreOverwriteTest {
             repo.name = "B"
             repo.saveIntoDb(false)
         }
+        repo.persistence.awaitPersisted() // ordered write-through since L1a.8; the frozen save must not land
         assertEquals("A", dao.workspace(repo.id)!!.name)
     }
 
     @Test fun saveWorksAgainAfterTheReload() {
         restoreWorkspaceNamed("C")
-        repo.loadFromDb(repo.id)
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun aThrowingReplaceLeavesReplacingFalse() {
@@ -79,10 +83,10 @@ class WindowRepositoryRestoreOverwriteTest {
         assertFalse(DatabaseContainer.replacing)
     }
 
-    /** Review Focus 2: CloudSync categories replace in parallel; a restore waits for CloudSync inside its own replace. */
+    /** An explicitly nested swap leaves its outer owner's save freeze active. */
     @Test fun anInnerReplaceExitDoesNotClearReplacing() = runBlocking {
-        DatabaseContainer.replacingDatabases {
-            DatabaseContainer.replacingDatabases { }
+        DatabaseContainer.replacingDatabases { token ->
+            kotlinx.coroutines.withTimeout(2_000) { DatabaseContainer.replacingDatabases(token) { } }
             assertTrue("the outer replace is still running", DatabaseContainer.replacing)
         }
         assertFalse(DatabaseContainer.replacing)

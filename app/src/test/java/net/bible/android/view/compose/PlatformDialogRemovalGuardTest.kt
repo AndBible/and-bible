@@ -115,11 +115,11 @@ class PlatformDialogRemovalGuardTest {
          *
          * Run 3 Task 26 shrinks it to 4: `ShareWidget.kt` is deleted outright — its `AlertDialog`
          * (three-button verse-share prompt) is replaced by `ReadingQuickSheet.Share` /
-         * `ShareVersesSheet`, a quick sheet rendered by `ComposeReadingViewHost.QuickSheetSlot`.
+         * `ShareVersesSheet`, a quick sheet rendered by `ComposeReadingViewHost.QuickSheetContent`.
          *
          * Run 3 Task 27 shrinks it to 3: `ReadHistoryDialog.kt` is deleted outright — its
          * `showForChapter` `AlertDialog` is replaced by `ReadingQuickSheet.ReadHistory` /
-         * `AbReadHistorySheet`, the same `QuickSheetSlot` mount point Task 26 used;
+         * `AbReadHistorySheet`, the same `QuickSheetContent` mount point Task 26 used;
          * `showForBook`/`showForDay` already had no callers.
          *
          * Run 3 Task 28 shrinks it to 1: `ReadingAppBootstrap.kt`'s `showStableNotice`/
@@ -259,5 +259,5 @@ class PlatformDialogRemovalGuardTest {
     }
 
     @Test fun theScanSeesTheSourceTree() =
-        assertTrue("run from app/ — the scan would pass vacuously", File("src/main/java").isDirectory)
+        assertTrue("run from app/ — the scan would pass vacuously", net.bible.test.ProductionSources.roots.all { it.isDirectory })
 }

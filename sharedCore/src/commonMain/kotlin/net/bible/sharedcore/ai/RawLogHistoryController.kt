@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,13 +43,16 @@ class RawLogHistoryController(
 
     /** Deletes the currently selected records and exits selection mode. */
     fun deleteSelected() {
-        service.deleteByIds(_selection.value)
-        clearSelection()
+        val selected = _selection.value
+        scope.launch {
+            service.deleteByIds(selected)
+            clearSelection()
+        }
     }
 
-    fun deleteOlderThan(days: Int) = service.deleteOlderThan(days)
+    fun deleteOlderThan(days: Int) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteOlderThan(days) } }
 
-    fun deleteAll() = service.deleteAll()
+    fun deleteAll() { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteAll() } }
 
     /** Navigate to the detail screen for [id] (host maps this to `RawLlmLogActivity`). */
     fun openLog(id: String) = onOpenLog(id)

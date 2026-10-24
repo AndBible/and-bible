@@ -1,9 +1,11 @@
 package net.bible.android.control.backup
 
+import net.bible.service.db.reset
 import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -22,6 +24,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
+import okio.source
 import java.io.File
 import java.security.MessageDigest
 
@@ -32,37 +37,31 @@ import java.security.MessageDigest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class OldMonolithicRestoreRollbackTest {
+    private val backup by lazy { net.bible.test.testBackupControl() }
     private lateinit var repo: WindowRepository
     private val app get() = BibleApplication.application
     private val dbDir: File get() = app.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parentFile!!
     private val rollbackParent: File get() = dbDir.parentFile!!
     private val rollbackDir: File get() = File(rollbackParent, "db-restore-rollback")
-    private val realCopy = BackupControl.copyStagedDatabase
-    private val realReadVersion = BackupControl.readDatabaseVersion
+    private val realCopy = backup.copyStagedDatabase
     private var wasReady = false
 
     @Before fun setUp() {
-        // FileManager.copyFile refuses under Robolectric (StatFs reports 0 free bytes); copy plainly instead.
-        BackupControl.copyStagedDatabase = { from, to -> from.copyTo(to, overwrite = true); true }
-        // requery's SQLite is not on the unit-test classpath; read the fixture's version with the framework's.
-        BackupControl.readDatabaseVersion = { f ->
-            SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
-        }
         DatabaseResetter.resetDatabase()
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the restore opens and migrates only when the DB is ready
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "Before restore"
         repo.saveIntoDb(false)
+        runBlocking { repo.persistence.awaitPersisted() } // the save is an ordered write-through since L1a.8
         DatabaseContainer.reset() // close + flush, so the files can be fingerprinted
     }
 
     @After fun tearDown() {
-        BackupControl.copyStagedDatabase = realCopy
-        BackupControl.readDatabaseVersion = realReadVersion
+        backup.copyStagedDatabase = realCopy
         DatabaseResetter.resetDatabase()
         DatabaseContainer.ready = wasReady
         repo.clear()
@@ -82,16 +81,17 @@ class OldMonolithicRestoreRollbackTest {
         f.name to MessageDigest.getInstance("SHA-256").digest(f.readBytes()).joinToString("") { "%02x".format(it) }
     }
 
-    private fun restore(f: File = fixture()) = runBlocking { BackupControl.restoreOldMonolithicDatabase(f.inputStream()) }
+    private fun restore(f: File = fixture()) = runBlocking { backup.restoreOldMonolithicDatabase(f.inputStream().source()) }
+    private fun restoreBytes(bytes: ByteArray) = runBlocking { backup.restoreOldMonolithicDatabase(bytes.inputStream().source()) }
 
     @Test fun aFailedCopyLeavesThePreRestoreDatabasesAsTheyWere() {
         val before = fingerprint()
         assertTrue("the setup must have written databases", before.isNotEmpty())
-        BackupControl.copyStagedDatabase = { _, _ -> false }
+        backup.copyStagedDatabase = { _, _ -> false }
         assertFalse(restore())
         assertEquals(before, fingerprint())
         assertFalse(rollbackDir.exists())
-        assertEquals("Before restore", DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id)?.name)
+        assertEquals("Before restore", runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) }?.name)
     }
 
     @Test fun aMigrationThatThrowsRollsBackToo() {
@@ -118,7 +118,7 @@ class OldMonolithicRestoreRollbackTest {
             DatabaseContainer.containerFactory = {
                 File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).delete() // stands in for DatabaseSplitMigrations
                 val container = real()
-                container.closeAll() // Room reopens, and so migrates or fails, on the next access
+                container.bookmarkDb.close() // First access fails on this real closed Room database.
                 File(dbDir, BookmarkDatabase.dbFileName).writeText("this is not a database")
                 container
             }
@@ -127,7 +127,7 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse(ok)
         assertEquals(before, fingerprint())
         assertFalse(rollbackDir.exists())
-        assertEquals("Before restore", DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id)?.name)
+        assertEquals("Before restore", runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) }?.name)
     }
 
     /** C1: the containerFactory stands in for DatabaseSplitMigrations, which consumes the old file. */
@@ -148,17 +148,142 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse(rollbackDir.exists())
     }
 
+    private fun gzFixtureBytes() =
+        javaClass.classLoader!!.getResourceAsStream("l1b-g2/old-monolithic.db.gz")!!.use { it.readBytes() }
+
+    /** Task 1 fixture, written by `GZIPOutputStream`: 12288 bytes of SQLite, user_version 69. */
+    @Test fun oldMonolithicGzFixtureIsAccepted() {
+        var seenSize = -1L
+        val real = DatabaseContainer.containerFactory
+        try {
+            DatabaseContainer.containerFactory = {
+                val mono = File(dbDir, OLD_MONOLITHIC_DATABASE_NAME)
+                if (mono.exists()) { seenSize = mono.length(); mono.delete() }
+                real()
+            }
+            assertTrue(restoreBytes(gzFixtureBytes()))
+        } finally { DatabaseContainer.containerFactory = real }
+        assertEquals(12288L, seenSize)
+        assertFalse(File(dbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging").exists())
+        assertFalse(rollbackDir.exists())
+    }
+
+    @Test fun aFileThatIsNotSqliteIsRejectedAndLeavesTheDatabases() {
+        val before = fingerprint()
+        assertFalse(restoreBytes(ByteArray(300) { (it * 7).toByte() }))
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertFalse(File(backup.internalDbBackupDir.toString(), OLD_MONOLITHIC_DATABASE_NAME).exists())
+    }
+
+    @Test fun aTruncatedGzipIsNotRestoredAndLeavesTheDatabases() {
+        val before = fingerprint()
+        val gz = gzFixtureBytes()
+        val outcome = runCatching { restoreBytes(gz.copyOf(gz.size / 2)) }
+        assertTrue("restored a truncated gzip", outcome.isFailure || outcome.getOrNull() == false)
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertFalse(File(backup.internalDbBackupDir.toString(), OLD_MONOLITHIC_DATABASE_NAME).exists())
+    }
+
+    /** The seam answers false (what the default does on an `IOException`): the databases are untouched. */
+    @Test fun copyStagedDatabaseFailureRollsBack() {
+        val before = fingerprint()
+        var calls = 0
+        backup.copyStagedDatabase = { _, _ -> calls++; false }
+        assertFalse(restore())
+        assertEquals(1, calls)
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertFalse(File(dbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging").exists())
+        assertEquals("Before restore", runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) }?.name)
+    }
+
+    @Test fun theDefaultCopyCopiesAndReturnsFalseOnAnIoError() {
+        val from = fixture()
+        val to = File(app.cacheDir, "default-copy-target.db").apply { delete() }
+        assertTrue(realCopy(from.toOkioPath(), to.toOkioPath()))
+        assertEquals(from.length(), to.length())
+        assertFalse("missing source", realCopy(File(app.cacheDir, "no-such-source.db").toOkioPath(), to.toOkioPath()))
+        assertFalse("missing target directory", realCopy(from.toOkioPath(), File(app.cacheDir, "no-such-dir/x.db").toOkioPath()))
+    }
+
+    /**
+     * F120 double failure: moving the databases aside fails after the first file, and putting that file back
+     * fails too. The user's database must stay in the snapshot directory, not be deleted with it.
+     */
+    @Test fun aFailedMoveAsideWhosePutBackAlsoFailsKeepsTheUsersDatabase() {
+        val before = fingerprint()
+        assertTrue("needs at least two database files", before.size >= 2)
+        val realMove = backup.atomicMove
+        var movesIntoSnapshot = 0
+        backup.atomicMove = { from, to ->
+            if (to.parent == rollbackDir.toOkioPath()) {
+                if (movesIntoSnapshot++ >= 1) throw okio.IOException("second move fails")
+                realMove(from, to)
+            } else if (from.parent == rollbackDir.toOkioPath()) {
+                throw okio.IOException("put-back fails")
+            } else realMove(from, to)
+        }
+        try {
+            assertFalse(restore())
+        } finally { backup.atomicMove = realMove }
+        val kept = rollbackDir.listFiles().orEmpty().filter { it.isFile }
+        assertEquals("exactly the first moved database is kept", 1, kept.size)
+        assertEquals(before[kept.single().name], MessageDigest.getInstance("SHA-256").digest(kept.single().readBytes()).joinToString("") { "%02x".format(it) })
+    }
+
     /** Review Focus 1. */
     @Test fun aLeftoverRollbackFromAnEarlierCrashIsKeptAside() {
         val before = fingerprint()
         rollbackDir.mkdirs(); File(rollbackDir, "workspaces.sqlite3").writeText("old")
-        BackupControl.copyStagedDatabase = { _, _ -> false }
+        backup.copyStagedDatabase = { _, _ -> false }
         restore()
         val kept = rollbackParent.listFiles()!!.filter { it.name.startsWith("db-restore-rollback-") }
         assertEquals(1, kept.size)
         assertEquals("old", File(kept.single(), "workspaces.sqlite3").readText())
         assertEquals("the pre-restore databases are back", before, fingerprint())
         assertFalse(rollbackDir.exists())
+    }
+
+    @Test fun syncCanAcquireReplacementWhileLegacyRestoreWaitsForIt() = runBlocking {
+        val cloud = org.koin.core.context.GlobalContext.get().get<net.bible.service.cloudsync.CloudSync>()
+        val adapterField = cloud.javaClass.getDeclaredField("_adapter").apply { isAccessible = true }
+        val startedField = cloud.javaClass.getDeclaredField("syncStarted").apply { isAccessible = true }
+        val originalAdapter = adapterField.get(cloud)
+        val originalStarted = startedField.get(cloud)
+        val syncFinished = kotlinx.coroutines.CompletableDeferred<Boolean>()
+        val waiting = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val adapter = java.lang.reflect.Proxy.newProxyInstance(
+            net.bible.service.cloudsync.CloudAdapter::class.java.classLoader,
+            arrayOf(net.bible.service.cloudsync.CloudAdapter::class.java),
+        ) { _, method, _ ->
+            if (method.name == "getSignedIn") { waiting.complete(Unit); true }
+            else error("Unexpected adapter operation: ${method.name}")
+        }
+        val source = fixture()
+        backup.copyStagedDatabase = { _, _ -> false }
+        var restore: kotlinx.coroutines.Deferred<Boolean>? = null
+        try {
+            adapterField.set(cloud, adapter)
+            startedField.set(cloud, syncFinished)
+            // The real beforeRestore suspends in CloudSync.waitUntilFinished.
+            restore = async(kotlinx.coroutines.Dispatchers.IO) {
+                backup.restoreOldMonolithicDatabase(source.inputStream().source())
+            }
+            kotlinx.coroutines.withTimeout(2_000) { waiting.await() }
+            kotlinx.coroutines.withTimeout(2_000) {
+                DatabaseContainer.replacingDatabases { syncFinished.complete(true) }
+                assertFalse(restore.await())
+            }
+        } finally {
+            syncFinished.complete(true)
+            restore?.cancel()
+            restore?.join()
+            adapterField.set(cloud, originalAdapter)
+            startedField.set(cloud, originalStarted)
+        }
+        Unit
     }
 
     /** Review Focus 2. */

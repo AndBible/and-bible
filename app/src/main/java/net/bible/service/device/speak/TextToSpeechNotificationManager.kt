@@ -30,7 +30,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import net.bible.android.BibleApplication
@@ -206,6 +206,7 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
+                SpeakChange.Status -> if (serviceRunning) buildNotification(speakControl.isSpeaking)
                 is SpeakChange.State -> {
                     val ev = change
                     Log.i(TAG, "Speak state ${ev.speakState}")
@@ -224,15 +225,16 @@ class TextToSpeechNotificationManager : KoinComponent {
                 }
                 is SpeakChange.Progress -> {
                     val ev = change
-                    if(ev.speakCommand is TextCommand) {
-                        if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                            currentTitle = ev.speakCommand.text
+                    val speakCommand = ev.speakCommand
+                    if(speakCommand is TextCommand) {
+                        if(speakCommand.type == TextCommand.TextType.TITLE) {
+                            currentTitle = speakCommand.text
                             if(currentTitle.isNullOrEmpty()) {
                                 currentTitle = null
                             }
                         }
                         else {
-                            currentText = ev.speakCommand.text
+                            currentText = speakCommand.text
                         }
                     }
                     buildNotification(speakControl.isSpeaking)
@@ -301,7 +303,7 @@ class TextToSpeechNotificationManager : KoinComponent {
             .setShowActionsInCompactView(2)
 
         if(!CommonUtils.isDiscrete) {
-            MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
+            net.bible.android.platform.AndroidMediaSession.current?.ms?.sessionToken?.apply { style.setMediaSession(this) }
         }
 
         val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SPEAK_NOTIFICATIONS_CHANNEL)
@@ -333,7 +335,7 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         val sleepTime = speakControl.sleepTimerActivationTime
         if(sleepTime!=null) {
-            val minutes = (sleepTime.time - Calendar.getInstance().timeInMillis) / 60000
+            val minutes = (sleepTime - Calendar.getInstance().timeInMillis) / 60000
             builder.setContentText(app.getString(R.string.sleep_timer_active_at, minutes.toString()))
         }
         else if(!CommonUtils.isDiscrete) {

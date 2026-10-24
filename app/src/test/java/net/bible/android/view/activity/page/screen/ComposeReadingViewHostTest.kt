@@ -2,12 +2,14 @@ package net.bible.android.view.activity.page.screen
 
 import android.os.Looper
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import org.crosswire.jsword.book.Books
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,8 @@ import org.crosswire.jsword.versification.BibleBook
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.compose.ReadingHostTestDeps
+import net.bible.sharedui.reading.host.ReadingHostHooks
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
@@ -36,8 +40,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.reading.ReadingQuickSheet
-import net.bible.sharedcore.reading.ShareVersesEntry
-import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.speak.SpeakSheetPage
@@ -59,8 +61,6 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -158,13 +158,10 @@ class ComposeReadingViewHostTest {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
         // ComposeReadingViewHost.mountComposeView is a static/companion helper taking the
         // collaborators explicitly so it can be unit-tested without a full activity.
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-        )
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
     }
 
@@ -183,14 +180,12 @@ class ComposeReadingViewHostTest {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
         val nightModeState = mutableStateOf(false)
         val fullScreenState = mutableStateOf(false)
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = nightModeState,
-            fullScreenState = fullScreenState,
-            pane = { },
-        )
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+            nightMode = nightModeState,
+            fullScreen = fullScreenState,
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
 
         // Flipping the externally-owned states after mount must not throw, and the states
@@ -202,51 +197,34 @@ class ComposeReadingViewHostTest {
     }
 
     /**
-     * Batch 12b follow-on Plan B Task 5: the ☰-button auto-hide + per-window-menu `State`s are
-     * externally owned (by the real host's [WindowButtonsVisibility] + `paneMenuWindowId`/
-     * `paneMenuItems` fields), exactly like `nightModeState`/`fullScreenState` above — mounting
-     * must accept them and leave them independently mutable, without a `ComposeTestRule` deeper
-     * interaction assertion (same boundary as `installAcceptsMutableNightModeAndFullScreenState`).
+     * Batch 12b follow-on Plan B Task 5: the ☰-button auto-hide + per-window-menu state is owned by
+     * the host's common `ReadingHostState` (`windowButtonsVisibility`, `paneMenuWindowId`,
+     * `paneMenuItems`), which the mounted reading view reads. Mounting must leave that state
+     * independently drivable, without a `ComposeTestRule` deeper interaction assertion (composition
+     * itself is covered by `ReadingHostCompositionTest` in `:sharedUi`).
      */
     @Test fun installAcceptsWindowButtonsAndPaneMenuState() {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
-        val windowButtonsVisibleState = mutableStateOf(true)
-        val touchTickState = mutableIntStateOf(0)
-        val paneMenuWindowIdState = mutableStateOf<String?>(null)
-        val paneMenuItemsState = mutableStateOf(emptyList<WindowPaneMenuItem>())
-        var hideTimeoutCalls = 0
-        var openedPaneMenuFor: String? = null
-        var openedPaneMenuAnchor: PaneMenuAnchor? = null
-
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-            windowButtonsVisibleState = windowButtonsVisibleState,
-            touchTickState = touchTickState,
-            onWindowButtonsHideTimeout = { hideTimeoutCalls++ },
-            paneMenuWindowIdState = paneMenuWindowIdState,
-            paneMenuItemsState = paneMenuItemsState,
-            onOpenPaneMenu = { id, anchor -> openedPaneMenuFor = id; openedPaneMenuAnchor = anchor },
+        val state = ReadingHostTestDeps.state(
+            ReadingHostHooks(paneMenuItemsFor = { id -> listOf(WindowPaneMenuItem(id = "pin", label = "Pin $id")) }),
         )
+
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = state,
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
 
-        windowButtonsVisibleState.value = false
-        touchTickState.intValue++
-        paneMenuWindowIdState.value = "w1"
-        assertFalse(windowButtonsVisibleState.value)
-        assertEquals(1, touchTickState.intValue)
-        assertEquals("w1", paneMenuWindowIdState.value)
-        // The callbacks themselves are simple pass-throughs owned by the caller (real wiring is
-        // `ComposeReadingViewHost.install`'s `onOpenPaneMenu = ::openPaneMenu`/
-        // `onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout`); confirm the
-        // defaults compile/mount without them ever having been invoked by `mountComposeView`
-        // itself (composition never runs without an attached window — see `pane = {}` note above).
-        assertEquals(0, hideTimeoutCalls)
-        assertEquals(null, openedPaneMenuFor)
-        assertEquals(null, openedPaneMenuAnchor)
+        state.windowButtonsVisibility.onHideTimeout()
+        assertFalse(state.windowButtonsVisibility.visible.value)
+        // Opening a menu forces the buttons visible again (classic `showPopupMenu`) and anchors it.
+        state.openPaneMenu("w1", PaneMenuAnchor.Rail)
+        assertTrue(state.windowButtonsVisibility.visible.value)
+        assertEquals("w1", state.paneMenuWindowId.value)
+        assertEquals(PaneMenuAnchor.Rail, state.paneMenuAnchor.value)
+        assertEquals(listOf("Pin w1"), state.paneMenuItems.value.map { it.label })
+        state.closePaneMenu()
+        assertNull(state.paneMenuWindowId.value)
     }
 
     /**
@@ -459,9 +437,9 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -476,11 +454,131 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
+    @Test fun standalonePrivateOwnersCompleteBeforeResetEvenWithoutActivation() {
+        val first = host()
+        val second = host()
+        val owners = listOf(first, second).map { view ->
+            view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }
+                .get(view) as CoroutineScope
+        }
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val children = owners.map { scope ->
+            scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() }
+            }
+        }
+        var observed = false
+        val previous = DatabaseResetter.drainObserver
+        DatabaseResetter.drainObserver = { jobs, drain ->
+            // Also covers multiple hosts not published in activity.composeReadingViewHost.
+            assertTrue(owners.all { scope -> jobs.any { it === scope.coroutineContext[Job] } })
+            assertFalse(drain.isCompleted)
+            observed = true
+            release.complete(Unit)
+        }
+        try {
+            DatabaseResetter.resetDatabase(windowRepository.scope)
+            assertTrue(observed, "reset must reach the exact private-owner join")
+            assertTrue(children.all { it.isCompleted })
+            assertTrue(owners.all { it.coroutineContext[Job]!!.isCompleted })
+        } finally {
+            release.complete(Unit)
+            DatabaseResetter.drainObserver = previous
+            DatabaseResetter.runResetBlocking { children.forEach { it.join() } }
+            owners.forEach { it.coroutineContext[Job]!!.cancel() }
+            DatabaseResetter.runResetBlocking { owners.forEach { it.coroutineContext[Job]!!.join() } }
+        }
+    }
+
+    @Test fun failedMainPumpRetainsPrivateHostAndBlocksRestartUntilRetry() {
+        val view = host()
+        val scope = view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }.get(view) as CoroutineScope
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val child = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() }
+        }
+        val app = net.bible.android.BibleApplication.application as TestBibleApplication
+        val old = net.bible.service.db.DatabaseContainer.instance
+        val field = net.bible.service.db.DatabaseContainer::class.java.getDeclaredField("_instance").apply { isAccessible = true }
+        val sentinel = IllegalArgumentException("private host pump failure")
+        android.os.Handler(android.os.Looper.getMainLooper()).post { throw sentinel }
+        var primary: Throwable? = null
+        try {
+            org.junit.Assert.assertSame(sentinel, runCatching { app.onTerminate() }.exceptionOrNull())
+            assertFalse(child.isCompleted)
+            org.junit.Assert.assertSame("no detach while private owner incomplete", old, field.get(null))
+            assertTrue(runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
+            release.complete(Unit)
+            app.onTerminate()
+            assertTrue(scope.coroutineContext[Job]!!.isCompleted)
+            assertTrue(child.isCompleted)
+            app.onCreate()
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            release.complete(Unit)
+            try {
+                DatabaseResetter.runResetBlocking {
+                    child.join()
+                    scope.coroutineContext[Job]!!.cancel()
+                    scope.coroutineContext[Job]!!.join()
+                    net.bible.test.ReadingFixtureOwners.drain()
+                }
+                app.onTerminate()
+                app.onCreate()
+            } catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
+    }
+
+    @Test fun closeHelperRetainsRestoreObligationAfterPrivateOwnerPumpFailure() {
+        val view = host()
+        val scope = view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }
+            .get(view) as CoroutineScope
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val child = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() }
+        }
+        val sentinel = IllegalArgumentException("close helper pump failure")
+        var restored = false
+        var reset = false
+        var primary: Throwable? = null
+        try {
+            val failure = runCatching {
+                net.bible.test.closeReadingHostsBeforeReset(mutableListOf(),
+                    afterClose = { android.os.Handler(android.os.Looper.getMainLooper()).post { throw sentinel } },
+                    restoreBeforeReset = { restored = true }, reset = { reset = true })
+            }.exceptionOrNull()
+            org.junit.Assert.assertSame(sentinel, failure)
+            assertFalse(restored, "failed pump cannot restore while private job remains held")
+            assertFalse(reset)
+            assertFalse(child.isCompleted)
+            release.complete(Unit)
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertTrue(restored, "retained restoration runs only after actual completion on retry")
+            assertTrue(child.isCompleted)
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            release.complete(Unit)
+            try { DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() } }
+            catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
+    }
+
+    @Test fun restoringTheToolbarAllowsARealHostAfterRepeatedOverrides() {
+        repeat(2) {
+            withRecordingToolbar { fake ->
+                assertTrue(GlobalContext.get().get<ToolbarStateService>() === fake)
+                host()
+            }
+            assertIs<ToolbarStateServiceImpl>(GlobalContext.get().get<ToolbarStateService>())
+            host()
+        }
+    }
+
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed — see the class kdoc). */
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     @Test fun onBibleViewTouchedReShowsTheWindowButtons() {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val host = activity.composeReadingViewHost!!
         host.windowButtonsVisibilityForTest.onHideTimeout()
         assertFalse(host.windowButtonsVisibilityForTest.visible.value, "sanity: hidden before the touch")
@@ -489,7 +587,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     @Test fun nightModeFlipUpdatesTheHostState() {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val host = activity.composeReadingViewHost!!
         assertFalse(host.monochromeForTest.value, "sanity: not monochrome before the flip")
         CommonUtils.settings.setString("display_color_mode", "bw")
@@ -621,7 +719,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         windowRepository.addNewWindow(w1)
         assertTrue(windowControl.isWindowMinimizable(w1), "sanity")
 
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
 
         val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
 
@@ -731,7 +829,16 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
                 )
             }
         } finally {
-            CurrentActivityHolder.deactivate(activity)
+            val lifecycleJob = activity.lifecycleScope.coroutineContext[Job]!!
+            try {
+                // This fixture never creates/destroys its activity. Own its queued picker work explicitly.
+                val children = lifecycleJob.children.toList()
+                children.forEach { it.cancel() }
+                DatabaseResetter.runResetBlocking { children.forEach { it.join() } }
+                assertTrue(lifecycleJob.children.none { !it.isCompleted }, "fixture must finish picker work before releasing its activity")
+            } finally {
+                CurrentActivityHolder.deactivate(activity)
+            }
         }
     }
 
@@ -773,7 +880,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * that: the fake only counts calls, it never reads `WindowRepository`/`pageManager` state.)
      */
     @Test fun bibleVerseChangedTriggersARefresh() = withRecordingToolbar { fakeToolbar ->
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
 
         PassageChangeMediator.onBibleVerseSelected()
@@ -783,7 +890,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
     /** Spec §2.2: a scroll used to refresh the toolbar from the host AND from the service. */
     @Test fun aScrollDoesNotRefreshTheToolbarThroughTheHost() = withRecordingToolbar { fake ->
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val window = windowRepository.activeWindow
         val page = window.pageManager.currentBible
         val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
@@ -795,7 +902,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     @Test fun inhibitedScrollStillNotifiesTheHost() = withRecordingToolbar { fake ->
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val window = windowRepository.activeWindow
         val page = window.pageManager.currentBible
         val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
@@ -808,7 +915,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     @Test fun doSetKeyStillRefreshesThroughTheHost() = withRecordingToolbar { fake ->
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         windowRepository.activeWindow.pageManager.currentBible.doSetKey(Verse(KJVA, BibleBook.JOHN, 3, 16))
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(1, fake.refreshCount)
@@ -821,7 +928,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * recomposes) when a window's verse changes — for ANY window, not just the active one.
      */
     private fun assertEmittingInvalidatesLabelReads(emit: () -> Unit, name: String) {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val host = activity.composeReadingViewHost!!
         val reads = mutableSetOf<Any>()
         val snapshot = win(windowRepository.activeWindow.id.toString())
@@ -849,7 +956,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * posts an event by hand.
      */
     @Test fun railLabelsFollowARealDocumentChange() {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val host = activity.composeReadingViewHost!!
         val window = windowRepository.activeWindow
         val snapshot = win(window.id.toString())
@@ -892,7 +999,12 @@ private fun withRecordingToolbar(block: (RecordingToolbarStateService) -> Unit) 
     } finally {
         // `unloadKoinModules` removes the override but does not restore the replaced CoreModule binding.
         unloadKoinModules(overrideModule)
-        loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
+        loadKoinModules(module {
+            single<ToolbarStateService> {
+                ToolbarStateServiceImpl(get(), get(), get(), get(), get(),
+                    get<net.bible.service.cloudsync.CloudSync>().runningChanged)
+            }
+        })
         assertTrue(
             GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
             "must not leak the fake ToolbarStateService binding into later tests",
@@ -926,9 +1038,9 @@ class ReadingDialogHostTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -943,7 +1055,7 @@ class ReadingDialogHostTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     /** `BibleJavascriptInterface.helpBookmarks`/`.helpDialog`'s entry point. */
     @Test fun showHelpSetsTheHelpDialogState() {
@@ -1019,53 +1131,6 @@ class ReadingDialogHostTest {
 
         assertNotNull(host.speakHelp.value)
         assertEquals(SpeakSheetPage.Settings, host.speakSheet.current, "the help dialog must not close the sheet underneath it")
-    }
-
-    private val shareInput = ShareVersesInput(
-        verses = listOf(ShareVersesEntry(1, "In the beginning God created the heaven and the earth.")),
-        startOffset = 0,
-        endOffset = null,
-        referenceAbbreviated = "Gen 1:1",
-        referenceFull = "Genesis 1:1",
-        versionAbbreviation = "KJV",
-        notesText = null,
-        advertiseText = "Shared from AndBible Bible Study (https://andbible.github.io)",
-        hasRange = false,
-    )
-
-    /**
-     * I3 (run 3 final review): the classic `ShareWidget` `AlertDialog`'s Share/Copy buttons
-     * dismissed the dialog on click; `ReadingQuickSheet.Share`'s equivalents must too, unlike the
-     * port's regression where the sheet stayed open after either action. Exercises
-     * `shareVersesTextAndCloseSheet`/`copyVersesTextAndCloseSheet` directly (the same functions
-     * `QuickSheetSlot`'s `is ReadingQuickSheet.Share ->` arm wires `onShare`/`onCopy` to) rather
-     * than rendering the sheet -- an open `ModalBottomSheet` must never be idled in a Robolectric
-     * test (this run's "Hang protection" rule).
-     */
-    @Test fun shareClosesTheQuickSheetAfterFiringTheShareChooser() {
-        val host = host()
-        host.showShareSheet(shareInput)
-        assertIs<ReadingQuickSheet.Share>(host.quickSheet.value, "sanity: the share sheet is open")
-
-        host.shareVersesTextAndCloseSheet("Gen 1:1 KJV In the beginning...")
-
-        assertNull(host.quickSheet.value, "Share must close the sheet, like the old dialog's Share button did")
-        val started = shadowOf(activity).nextStartedActivity
-        assertNotNull(started, "the share chooser must still fire")
-        assertEquals(android.content.Intent.ACTION_CHOOSER, started.action)
-    }
-
-    @Test fun copyClosesTheQuickSheetAfterCopyingToTheClipboard() {
-        val host = host()
-        host.showShareSheet(shareInput)
-        assertIs<ReadingQuickSheet.Share>(host.quickSheet.value, "sanity: the share sheet is open")
-
-        host.copyVersesTextAndCloseSheet("Gen 1:1 KJV In the beginning...", shareInput.referenceFull)
-
-        assertNull(host.quickSheet.value, "Copy must close the sheet, like the old dialog's Copy button did")
-        val clipboard = ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getSystemService(android.content.ClipboardManager::class.java)
-        assertEquals("Gen 1:1 KJV In the beginning...", clipboard.primaryClip?.getItemAt(0)?.text)
     }
 }
 
@@ -1162,7 +1227,7 @@ class MenuWindowIdForTest {
 
 /**
  * Task 27 (platform-dialog removal, run 3) fix round 1: [chapterReadHistoryRow] is the load/format
- * step the review named as untested — `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->`
+ * step the review named as untested — `QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory ->`
  * branch's `LaunchedEffect` maps every loaded [ReadHistoryEntry] through it. Extracted the same way
  * [SpeakBarVisibilityTest]/[MenuWindowIdForTest] above extract their gates, so the mapping itself —
  * not just the pre-existing `ReadingProgressServiceImpl.readHistoryForChapter`/
@@ -1200,7 +1265,7 @@ class ChapterReadHistoryRowTest {
  * `onApplyDeletes` callback assembly review round 2 named as still untested after round 1 — round
  * 1's `AbReadHistorySheetContentTest` could only REPRODUCE the `ids.isNotEmpty()` guard in its own
  * test harness, not exercise the real one, and nothing verified the `cycle` `LaunchedEffect` loads
- * actually reaches `deleteReadHistoryEntries`. `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory
+ * actually reaches `deleteReadHistoryEntries`. `QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory
  * ->` branch now calls this function VERBATIM (`onApplyDeletes = readHistoryApplyDeletes(activity
  * .lifecycleScope, readingProgressService, cycle)`) instead of inlining the lambda, so this test
  * exercises the actual production glue.
@@ -1217,10 +1282,10 @@ class ReadHistoryApplyDeletesTest {
     private class RecordingReadingProgressService : ReadingProgressService {
         val deleteCalls = mutableListOf<Pair<List<String>, Int>>()
 
-        override fun currentCycle() = 0
-        override fun latestCycle() = 0
-        override fun setActiveCycle(cycle: Int) {}
-        override fun startNewCycle() = 0
+        override suspend fun currentCycle() = 0
+        override suspend fun latestCycle() = 0
+        override suspend fun setActiveCycle(cycle: Int) {}
+        override suspend fun startNewCycle() = 0
         override suspend fun readingSummary(cycle: Int) = error("not needed")
         override suspend fun bookReadProgress(cycle: Int) = error("not needed")
         override suspend fun chapterReadCounts(bookId: String, cycle: Int) = error("not needed")

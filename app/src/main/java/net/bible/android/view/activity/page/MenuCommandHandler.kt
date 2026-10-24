@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.view.activity.search.searchIntent
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -57,7 +58,7 @@ const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-co
 const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
 const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
-const val buyDevelopmentLink = "https://shop.andbible.org"
+const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
 
 /** Handle requests from the main menu
@@ -177,7 +178,7 @@ class MenuCommandHandler(
                 }
                 R.id.backupMainMenu -> {
                     hostActivity.lifecycleScope.launch(Dispatchers.Main) {
-                        BackupControl.backupPopup(hostActivity)
+                        net.bible.android.view.activity.backup.BackupNavigation.backupPopup(hostActivity)
                     }
                     isHandled = true
                 }
@@ -194,7 +195,7 @@ class MenuCommandHandler(
                         if (composeSearchIfHosted()) {
                             isHandled = true
                         } else {
-                            handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, hostActivity)
+                            handlerIntent = searchIntent(currentPage.currentDocument, hostActivity)
                         }
                     }
                 }
@@ -283,16 +284,7 @@ class MenuCommandHandler(
                     isHandled = true
                 }
                 R.id.appLicence -> {
-                    val messageHtml = BibleApplication.application.resources.openRawResource(R.raw.license).readBytes().decodeToString()
-
-                    appDialogs.post(
-                        AppDialogRequest.Message(
-                            title = hostActivity.getString(R.string.app_licence_title),
-                            message = messageHtml,
-                            confirmText = hostActivity.getString(android.R.string.ok),
-                            cancellable = true,
-                        ),
-                    )
+                    CommonUtils.showLicence(hostActivity)
                     isHandled = true
                 }
                 R.id.bugReport -> {

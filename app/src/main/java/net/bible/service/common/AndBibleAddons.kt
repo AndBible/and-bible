@@ -46,7 +46,7 @@ object AndBibleAddons {
     private var _addons: List<Book>? = null
     private val addons: List<Book> get() {
         return _addons ?:
-            Books.installed().getBooks(AndBibleAddonFilter()).apply {
+            Books.installed().getBooks(AndBibleAddonFilter { net.bible.android.platform.AndroidAppEnvironment(net.bible.android.BibleApplication.application).versionNumber }).apply {
                 _addons = this
             }
     }

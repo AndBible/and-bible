@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.runBlocking
 import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
@@ -53,17 +54,15 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostSaveOnPauseTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
-    private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")
-    private val gen21 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Gen.2.1")
+    private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")!!
+    private val gen21 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Gen.2.1")!!
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun host(route: String = NavRoutes.READING) = Robolectric.buildActivity(
@@ -99,8 +98,14 @@ class ReadingHostSaveOnPauseTest {
 
     private fun savedBiblePage(activity: NavHostComposeActivity) =
         assertNotNull(
-            DatabaseContainer.instance.workspaceDb.workspaceDao()
-                .pageManager(activity.hostWindowRepository.activeWindow.id),
+            runBlocking {
+                // The save is an ordered write-through (Task 10): wait for it before reading the row.
+                org.koin.java.KoinJavaComponent.get<net.bible.android.control.page.window.WorkspacePersistence>(
+                    net.bible.android.control.page.window.WorkspacePersistence::class.java,
+                ).awaitPersisted()
+                DatabaseContainer.instance.workspaceDb.workspaceDao()
+                    .pageManager(activity.hostWindowRepository.activeWindow.id)
+            },
         ).biblePage
 
     @Test
@@ -117,17 +122,19 @@ class ReadingHostSaveOnPauseTest {
 
         // ...and a repository reloaded from the DB (what a new host / process death does) sees it --
         // built exactly as ReadingAppBootstrap.createWindowRepository() builds one.
-        val reloaded = WindowRepository(activity.lifecycleScope).apply { initialize() }
+        val reloaded = WindowRepository(activity.lifecycleScope).apply { initializeAtEdge() }
         assertEquals("KJV", reloaded.activeWindow.pageManager.currentBible.currentDocument?.initials)
     }
 
     @Test
     fun aHostPausedOnAnotherDestinationStillSavesItsRepository() {
-        val controller = host().apply { create().start().resume() }
+        val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
         navigateActiveWindowToKjvRomans8(activity)
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         activity.navigateInGraph(NavRoutes.SETTINGS)
-        shadowOf(android.os.Looper.getMainLooper()).idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.SETTINGS) { compose.waitForIdle() }
+        assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest()?.substringBefore('?'))
 
         controller.pause()
 

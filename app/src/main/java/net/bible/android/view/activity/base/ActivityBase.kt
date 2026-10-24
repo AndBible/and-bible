@@ -81,6 +81,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     open val doNotInitializeApp = false
 
+    /** False on the Compose reading host: its readers await the stored-cipher-key unlock instead of Main blocking on it. */
+    open val blockOnCipherUnlockAtStart = true
+
     private var doNotMarkPaused = false
     private var wasPaused = false
     private var returningFromCalculator = false
@@ -92,7 +95,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
-            CommonUtils.initializeApp()
+            CommonUtils.initializeApp(blockOnCipherUnlock = blockOnCipherUnlockAtStart)
         }
 
         if (allowThemeChange) {
@@ -470,7 +473,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
 
-    private fun refreshScreenKeepOn() {
+    protected fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
         if (keepOn) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

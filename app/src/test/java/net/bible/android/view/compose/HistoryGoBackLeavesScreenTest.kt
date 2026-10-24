@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Looper
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import java.time.Duration
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -45,15 +46,14 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class HistoryGoBackLeavesScreenTest {
 
+    @get:org.junit.Rule
+    val compose = createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     @Test
@@ -63,6 +63,7 @@ class HistoryGoBackLeavesScreenTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
             .apply { isAccessible = true }.get(activity) as NavHostController
 

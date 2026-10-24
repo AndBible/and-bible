@@ -20,8 +20,9 @@ Rules of thumb:
 
 - Do not kill or restart the 5037 server from inside the container; that takes the phone away
   from every container sharing it. An empty `adb devices` on 5037 is a fact to report.
-- Install debug builds with `adb install -r -d <apk>`, not with `./gradlew install*`: Gradle
-  uses the SDK's own adb, and a version mismatch makes it replace the running server.
+- `./gradlew install*` uses the SDK's own adb, and a client of another version replaces the
+  running server. Use it only while `/opt/android-sdk/platform-tools/adb version` matches the
+  host's adb (it did on 2026-10-23, both 37.0.1); otherwise install with `adb install -r -d <apk>`.
 
 ### `scripts/with-container-adb.sh`
 
@@ -68,15 +69,46 @@ Two more boot failures that `boot` now prevents: a killed emulator leaves its AV
 left half shut down by an earlier emulator makes the next one hang until its watchdog exits 139
 ("detected a hanging thread 'QEMU2 main loop'"). When no qemu is running, `boot` removes both.
 
-Check a running emulator with `scripts/andbible-emu.sh health` (version, GPU, qemu threads and
-RSS, exit code). A thread count or RSS that grows with every app restart means the leak is back.
+Check a running emulator with `scripts/andbible-emu.sh health` (version, GPU, AVD and uptime, qemu
+threads and RSS, GPU buffers, exit code). A thread count or RSS that grows with every app restart
+means the leak is back.
+
+**Memory.** One emulator costs about 6 GB of host RAM: qemu's RSS (about 4.5 GB for a 4 GB guest)
+plus its GPU buffers. With `-gpu host` on the integrated Intel GPU those buffers are ordinary RAM
+but not part of qemu's RSS (`health` reads them from the render node's DRM fdinfo: 1.8 GB after 14
+hours of verification on 2026-10-17). Containers share the machine's RAM, so emulators left
+running add up: on 2026-10-16 four containers with emulators nearly filled the host. Hence `boot`
+refuses while any qemu runs in the container (not only when adb lists a device), and an emulator
+is stopped with `kill` as soon as its work is done.
 
 ## Creating the AVD: `scripts/emulator-avds.sh`
 
 Creates an AVD, default `screenshot_phone` (Pixel 6 Pro, API 36, `google_apis` x86_64, 6 GB
 userdata), in `$ANDROID_AVD_HOME`. Idempotent; `andbible-emu.sh boot` calls it when the AVD is
-missing. It needs `$ANDROID_HOME` with cmdline-tools and the system image
-`system-images;android-36;google_apis;x86_64`, which the golden image has.
+missing. It needs `$ANDROID_HOME` with cmdline-tools and the profile's system image; the golden
+image has the `google_apis` x86_64 images for API 36, 28, 29, 30 and 34.
+
+Other names are profiles (`scripts/emulator-avds.sh --list`; an unknown name gets the default
+profile):
+
+| AVD | API | Device | Use |
+|---|---|---|---|
+| `screenshot_phone` | 36 | Pixel 6 Pro | default |
+| `t9_api28` | 28 | Pixel 3 | stock WebView 69, below the app's floor of 83 (old-WebView notice) |
+| `t9_api29` | 29 | Pixel 3 | stock WebView 74 |
+| `t9_api30`, `t9_api34` | 30, 34 | Pixel 4, Pixel 6 | the API 30-34 inset and cutout path |
+| `emu_api30_tablet` | 30 | 10.1in WXGA, 1280x800 @213 | tablet; `wm size 800x1280` + `wm density 300` for a phone-shaped display |
+| `tablet_api36` | 36 | Pixel Tablet | tablet on the current API |
+
+For a working BibleView on API 28/29, sideload the AOSP WebView 91 (`android12-release`; 128 crashes
+on API 29). The `google_apis` images are `userdebug`, so the unsigned provider is accepted:
+
+```bash
+curl -fsSL 'https://android.googlesource.com/platform/external/chromium-webview/+/refs/heads/android12-release/prebuilt/x86_64/webview.apk?format=TEXT' | base64 -d > webview-91.apk
+adb install -r -d webview-91.apk
+adb shell cmd webviewupdate set-webview-implementation com.android.webview
+adb shell dumpsys webviewupdate | grep 'Current WebView'
+```
 
 In jailbee `ANDROID_AVD_HOME` is container-local (`~/.local/share/android-avd`), so every container
 starts from a fresh AVD. AVDs used to live in the shared `~/.android`, where containers collided
@@ -88,8 +120,8 @@ Small helpers, all against the 5038 server:
 
 | Subcommand | Purpose |
 |------------|---------|
-| `boot [avd]` / `kill` | boot detached (GPU mode and proxy as above) and wait for `sys.boot_completed` / stop it and verify qemu is gone |
-| `health` | emulator version, GPU mode, qemu threads and RSS, last exit code |
+| `boot [avd]` / `kill` | boot detached (GPU mode and proxy as above) and wait for `sys.boot_completed`; refuses while any qemu runs / stop it and verify qemu is gone |
+| `health` | emulator version, GPU mode, AVD and uptime, qemu threads and RSS, GPU buffers, last exit code |
 | `install <apk>` | `adb install -r -d` |
 | `wipe [pkg]` | `pm clear`, for a true first run |
 | `push-module <zip> [pkg]` | push a Sword module zip (`mods.d/` + `modules/`) into the app's module dir |
@@ -103,6 +135,21 @@ vanishes mid-session, `health` shows the exit code; boot it again and redo the c
 re-check pushed files (`push-module` runs `adb shell sync`, but a crash loses unflushed writes).
 Note that `start` force-stops the app, so any in-app position is lost.
 
+**Home-screen widgets: `place-widget`.** `scripts/andbible-emu.sh place-widget <content-desc-regex> [nth]`
+long-presses an empty home-screen spot, opens the launcher's "Widgets" picker, expands the app's
+section (`ANDBIBLE_WIDGET_APP`, default "Bible Study"), drags the `nth` entry whose content-description
+matches to the home screen with `input draganddrop` and confirms a bind dialog. All five AndBible
+entries share one label, so tell them apart by size: `'2 wide by 2 high'` entry 2 is the bookmark
+widget, entry 1 the speak-text widget. It prints the new appwidget id and exits 0 only if
+`dumpsys appwidget` lists a new id for the package. To clear all placed widgets:
+`adb shell pm clear com.google.android.apps.nexuslauncher`.
+
+**Local Nextcloud: `scripts/nextcloud-local.sh`.** `install|start|stop|status|selftest` for a throwaway
+Nextcloud 35 (PHP built-in server, SQLite) from the pre-provisioned tarball in
+`.local/emu-verify/nextcloud/`; admin `admin` / `andbible-test-pw`, data in `~/nextcloud-emu/`. The guest
+reaches it at `http://10.0.2.2:8080`. `selftest` needs `"installed":true` from `status.php` and a 207 from
+a DAV PROPFIND. Stop it and restore the guest `http_proxy` when you are done.
+
 **Network.** In strict egress the guest reaches the network only through the container's proxy.
 `boot` sets the guest's global proxy (`settings put global http_proxy`) to `$HTTPS_PROXY`
 (`ANDBIBLE_EMU_PROXY` overrides it; empty disables) and checks that a tunnel works; `health` repeats
@@ -113,6 +160,22 @@ emulator with every `*_proxy` variable unset: the guest's default network is the
 `netsimd` (started by the emulator) takes an ambient `http_proxy` as its own `--http-proxy`. With it
 set, every guest TCP connection over WiFi ends in "Connection refused", even to `10.0.2.2`, while the
 cellular `eth0` path still works (verified on a fresh strict container, 2026-10-16).
+
+## Hardware keys and secure screens: `key` and `emushot`
+
+`scripts/andbible-emu.sh key <KEY_ names>` presses the named Linux input keys in order and releases
+them in reverse with `sendevent` on the guest's "AT Translated Set 2 keyboard" device (needs `adb root`,
+i.e. a userdebug image), so the app sees a real keyboard: `key KEY_A`, `key KEY_BACK`, `key KEY_SEARCH`,
+`key KEY_LEFTALT KEY_O`. `adb emu event send EV_KEY:...` was tried first and does not reach the guest on
+emulator 37.3.4 (E4a G2). Unlike `adb shell input keyevent` it goes through a real keyboard device.
+Before classifying app behaviour, prove delivery with a harmless key (a letter into a focused search
+field, read back). `key` leaves adbd running as root (it runs `adb root`); `adb unroot` undoes that.
+
+`scripts/andbible-emu.sh emushot <name>` takes the screenshot on the emulator side
+(`adb emu screenrecord screenshot`) and stores it like `shot`. It is meant for FLAG_SECURE (discrete)
+screens, where `screencap` is black. It DOES bypass FLAG_SECURE on this emulator: its images show the
+discrete content while `screencap` stays black. An `emushot` image is therefore not evidence that a
+secure screen does not leak; it only shows what the app drew.
 
 ## Seeding a debuggable BibleView: `scripts/seed-emulator-webview-debug.sh`
 

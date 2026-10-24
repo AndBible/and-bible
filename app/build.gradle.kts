@@ -24,7 +24,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.accrescent.bundletool)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.roborazzi)
@@ -103,6 +102,7 @@ fun getGitCommitDate(): String =
 val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
@@ -117,6 +117,7 @@ val npmUpgrade by tasks.registering(Exec::class) {
 val npmInstall by tasks.registering(Exec::class) {
     dependsOn(npmUpgrade)
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     outputs.dir("$jsDir/node_modules")
 
     workingDir = file(jsDir)
@@ -128,40 +129,66 @@ val npmInstall by tasks.registering(Exec::class) {
     }
 }
 
-val jsBuild by tasks.registering(Exec::class) {
+abstract class BibleViewJsBuild : Exec() {
+    @get:OutputDirectory
+    abstract val assetDirectory: DirectoryProperty
+}
+
+// Each build type owns its output, including when debug and release are requested together.
+val jsBuilds = listOf("debug", "release").associateWith { buildType ->
+    tasks.register<BibleViewJsBuild>("jsBuild${buildType.replaceFirstChar { it.uppercaseChar() }}") {
+        dependsOn(npmInstall)
+        inputs.file("$jsDir/package.json")
+        inputs.file("$jsDir/package-lock.json")
+        inputs.file("$jsDir/vite.config.mts")
+        inputs.file("$jsDir/index.html")
+        inputs.file("$jsDir/tsconfig.json")
+        inputs.dir("$jsDir/src")
+        assetDirectory.set(layout.buildDirectory.dir("generated/bibleview-assets/$buildType"))
+        val buildCmd = if (buildType == "debug") "build-debug" else "build-production"
+        val npm = if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+            "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd"
+        } else {
+            "node_modules/.bin/npm"
+        }
+        workingDir = file(jsDir)
+        commandLine(npm, "run", buildCmd, "--", "--outDir",
+            assetDirectory.dir("bibleview-js").get().asFile.absolutePath, "--emptyOutDir")
+    }
+}
+
+abstract class MainAssetsWithoutBibleView : Sync() {
+    @get:OutputDirectory
+    abstract val assetDirectory: DirectoryProperty
+}
+
+// Old checkouts may retain an ignored bundle here. Never let it compete with variant assets.
+val mainAssetsWithoutBibleView by tasks.registering(MainAssetsWithoutBibleView::class) {
+    from("src/main/assets") { exclude("bibleview-js/**") }
+    assetDirectory.set(layout.buildDirectory.dir("generated/main-assets"))
+    into(assetDirectory)
+}
+
+// Explicit JS consumers still prepare dist; Android variants never depend on this shared output.
+val jsBuildProductionDist by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
+    inputs.file("$jsDir/package-lock.json")
     inputs.file("$jsDir/vite.config.mts")
     inputs.file("$jsDir/index.html")
     inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
     outputs.dir("$jsDir/dist")
-    println("Task names "+gradle.startParameter.taskNames)
-    val taskNames = gradle.startParameter.taskNames
-    println(taskNames)
-    val isDebug = taskNames.any { it.endsWith("Debug") }
-
-    val buildCmd: String = if(!isDebug) {
-        println("Building js for production")
-        "build-production"
-    } else {
-        println("Building js for debug")
-        "build-debug"
-    }
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
-        commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd)
+    val npm = if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+        "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd"
+    } else {
+        "node_modules/.bin/npm"
     }
-    else {
-        commandLine("node_modules/.bin/npm", "run", buildCmd)
-    }
+    commandLine(npm, "run", "build-production", "--", "--outDir", "dist", "--emptyOutDir")
 }
-
-val buildLoaderJs by tasks.registering(Sync::class) {
-    dependsOn(jsBuild)
-    from("$jsDir/dist")
-    into("src/main/assets/bibleview-js")
-}
+val jsBuild by tasks.registering { dependsOn(jsBuildProductionDist) }
+val buildLoaderJs by tasks.registering { dependsOn(jsBuildProductionDist) }
 
 val jsTests by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
@@ -169,10 +196,10 @@ val jsTests by tasks.registering(Exec::class) {
     commandLine("node_modules/.bin/npm", "run", "test:unit")
 }
 
-tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
+    sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
     compileSdk = 36
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
@@ -186,9 +213,6 @@ android {
         buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
     }
 
     signingConfigs {
@@ -324,11 +348,21 @@ android {
             all {
                 test ->
                   // The forked unit-test JVM has no explicit heap by default (independent of the
-                  // Gradle daemon's -Xmx4g and of container RAM). Running the whole Roborazzi golden
+                  // Gradle daemon's -Xmx and of container RAM). Running the whole Roborazzi golden
                   // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
-                  // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
-                  test.maxHeapSize = "4g"
+                  // in one fork can OOM near the edge. The default heap is 4g; -PtestHeap=<size> (e.g. 2g)
+                  // overrides it. A fork's RSS is about heap + 2.7 GiB (metaspace, JVM overhead, native;
+                  // spec "Where the memory goes").
+                  test.maxHeapSize = (findProperty("testHeap") as String?) ?: "4g"
+                  // The suite runs in N JVMs: -PtestForks=N, default min(4, cores / 2) (each fork gets the heap above).
+                  // -PtestForks=1 restores the old single-JVM run, e.g. to tell a global-state leak from a race.
+                  test.maxParallelForks = (findProperty("testForks") as String?)?.toInt()?.coerceAtLeast(1)
+                      ?: (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
                   test.systemProperty("mono.audit.report", System.getProperty("mono.audit.report") ?: "")
+                  test.systemProperty("k5.project.root", rootProject.projectDir.absolutePath)
+                  for (flag in listOf("k5.oracle.write", "k5.oracle.check", "k5.timing.out", "k5.timing.label")) {
+                      System.getProperty(flag)?.let { test.systemProperty(flag, it) }
+                  }
                   test.testLogging {
                     events("passed", "skipped", "failed")
                     setExceptionFormat("full")
@@ -393,6 +427,12 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
 }
 
 androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.apply {
+            addGeneratedSourceDirectory(mainAssetsWithoutBibleView) { it.assetDirectory }
+            addGeneratedSourceDirectory(jsBuilds.getValue(variant.buildType!!)) { it.assetDirectory }
+        }
+    }
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
@@ -426,10 +466,8 @@ androidComponents {
 
 
 dependencies {
-    ksp(libs.androidx.room.compiler)
-
+    // Room 3 is processed (KSP, schema export) only in :sharedData; :app uses its generated databases.
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.core.ktx)
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
@@ -445,8 +483,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("com.github.requery:sqlite-android:3.49.0")
-    implementation("org.yaml:snakeyaml:2.2")
+    implementation(libs.kaml)
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Google Drive API
@@ -464,11 +501,13 @@ dependencies {
 
     implementation("com.google.android.material:material:1.12.0")
 
-    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.sqlite.bundled)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.atomicfu)
+    implementation(libs.ktor.client.okhttp)
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
@@ -486,6 +525,8 @@ dependencies {
     }
 
     implementation(project(":sharedCore"))
+    implementation(project(":sharedData"))
+    implementation(project(":sharedLogic"))
 
     implementation(project(":sharedUi"))
     implementation(platform(libs.androidx.compose.bom))
@@ -497,8 +538,9 @@ dependencies {
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
-    implementation("org.jdom:jdom2:2.0.6.1")
-    implementation("jaxen:jaxen:2.0.0")
+    testImplementation(libs.snakeyaml) // oracle for YamlToJsonParityTest
+    testImplementation("org.jdom:jdom2:2.0.6.1")
+    testImplementation("jaxen:jaxen:2.0.0")
 
     implementation("org.commonmark:commonmark:0.24.0")
     implementation("org.commonmark:commonmark-ext-gfm-tables:0.24.0")
@@ -509,9 +551,6 @@ dependencies {
     }
     implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
     implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5") // Make sure this is same version as in NextCloud lib
-
-    // WebDAV sync (spec 2026-10-09-webdav-sync-design)
-    implementation(libs.ktor.client.okhttp)
 
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
@@ -592,9 +631,6 @@ bundletool {
     }
 }
 
-configurations {
-    testImplementation {
-        exclude(group = "com.github.requery", module = "sqlite-android")
-    }
-}
-
+// Unit tests (Robolectric, on the JVM) need the bundled SQLite's JVM natives instead of the Android ones.
+configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach { exclude(group = "androidx.sqlite", module = "sqlite-bundled-android") }
+dependencies { testImplementation(libs.androidx.sqlite.bundled.jvm) }

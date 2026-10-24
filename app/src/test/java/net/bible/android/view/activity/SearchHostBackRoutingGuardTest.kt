@@ -138,6 +138,16 @@ class SearchHostBackRoutingGuardTest {
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/workspaces/nav/WorkspaceNavGraph.kt",
         )
 
+        /**
+         * The common search HOST (deps builder and baggage, I2 Stream A Task 5). It draws no search bar, so it
+         * must not route hardware back at all: the toolbar search's back routing belongs to the graph arm
+         * ([SEARCH_HOST_GRAPH_FILES]'s style), and a back handler growing in the host would be a second,
+         * unreviewed writer. Scanned for the back entry shapes below and for presence (anti-vacuity).
+         */
+        private val SEARCH_HOST_LOGIC_FILES = listOf(
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/search/SearchHost.kt",
+        )
+
         // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside
         // `super.onBackPressed()`, and a bare "BackHandler" also matches the import statement
         // `import androidx.activity.compose.BackHandler` -- neither proves a real entry point
@@ -195,7 +205,7 @@ class SearchHostBackRoutingGuardTest {
         // a message naming the path, rather than as a FileNotFoundException from a later loop --
         // or, once a list has drained to zero, as no failure at all.
         assertThat("SEARCH_HOST_GRAPH_FILES is empty -- the graph loop would pass vacuously", SEARCH_HOST_GRAPH_FILES.isNotEmpty(), equalTo(true))
-        val missing = (SEARCH_HOST_FILES + SEARCH_HOST_GRAPH_FILES).filterNot { java.io.File(it).isFile }
+        val missing = (SEARCH_HOST_FILES + SEARCH_HOST_GRAPH_FILES + SEARCH_HOST_LOGIC_FILES).filterNot { java.io.File(it).isFile }
         assertThat(
             "these scanned search-host paths do not exist -- a host that MOVES (Activity -> nav " +
                 "graph) must move its entry between the two lists in the same commit, not lose it",
@@ -227,6 +237,23 @@ class SearchHostBackRoutingGuardTest {
                 "$path's back routing must reference the search-mode state " +
                     "(`searchModeActive` or `searchMode.active`), found neither",
                 referencesSearchState, equalTo(true),
+            )
+        }
+    }
+
+    /**
+     * The search host moved out of the activity into `SearchHost.kt`; it owns no search bar, so none of the
+     * three back entry shapes may appear in it (they live in the graph arms above).
+     */
+    @Test
+    fun theSearchHostOwnsNoBackRouting() {
+        assertThat("SEARCH_HOST_LOGIC_FILES is empty -- this loop would pass vacuously", SEARCH_HOST_LOGIC_FILES.isNotEmpty(), equalTo(true))
+        for (path in SEARCH_HOST_LOGIC_FILES) {
+            val source = strippedSourceOf(path)
+            val shapes = listOf(BACK_ENTRY_ON_BACK_PRESSED, BACK_ENTRY_BACK_HANDLER, BACK_ENTRY_PLATFORM_BACK_HANDLER)
+            assertThat(
+                "$path must not route hardware back: the search bar's back belongs to the graph arm",
+                shapes.filter { it.containsMatchIn(source) }.map { it.pattern }, equalTo(emptyList<String>()),
             )
         }
     }

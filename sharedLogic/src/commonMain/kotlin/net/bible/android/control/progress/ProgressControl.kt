@@ -1,0 +1,575 @@
+/*
+ * Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.control.progress
+
+import net.bible.sharedlogic.util.currentTimeMillis
+import net.bible.android.common.toV11n
+import net.bible.android.control.versification.Scripture
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.common.ReadingProgressSettings
+import net.bible.android.database.progress.ChapterReadHistory
+import net.bible.android.database.progress.DailyReadingCount
+import net.bible.android.database.progress.MemorizationTarget
+import net.bible.android.database.progress.MemorizedVerse
+import net.bible.android.database.progress.ReadingSource
+import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
+import net.bible.sharedlogic.platform.LocalCalendar
+import org.koin.mp.KoinPlatform
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.Versification
+
+data class RangeDifferenceResult(
+    val remaining: List<Pair<Int, Int>>,
+    val removed: List<Int>,
+)
+
+/**
+ * Computes the set difference of target ranges minus a removal range.
+ * Returns remaining sub-ranges and the actually removed ordinals.
+ */
+fun computeRangeDifference(
+    targets: List<Pair<Int, Int>>,
+    removeStart: Int,
+    removeEnd: Int,
+): RangeDifferenceResult {
+    val remaining = mutableListOf<Pair<Int, Int>>()
+    val removed = mutableListOf<Int>()
+
+    for ((tStart, tEnd) in targets) {
+        val intStart = maxOf(tStart, removeStart)
+        val intEnd = minOf(tEnd, removeEnd)
+        if (intStart > intEnd) continue // no overlap
+
+        removed.addAll(intStart..intEnd)
+
+        if (tStart < removeStart) {
+            remaining.add(tStart to removeStart - 1)
+        }
+        if (tEnd > removeEnd) {
+            remaining.add(removeEnd + 1 to tEnd)
+        }
+    }
+    return RangeDifferenceResult(remaining, removed)
+}
+
+data class MemorizedVerseRangeWithTimestamp(
+    val verseRange: VerseRange,
+    val latestMemorizedAt: Long,
+)
+
+/** A reading-progress change every open BibleView must apply. Emitted by [ProgressControl.changes]. */
+sealed interface ProgressChange {
+    data class ChapterReadStatus(val kjvBookOrdinal: Int, val chapter: Int, val count: Int) : ProgressChange
+    data class ActiveCycle(val cycle: Int) : ProgressChange
+    data class Memorization(
+        val addedMemorized: List<Int> = emptyList(),
+        val removedMemorized: List<Int> = emptyList(),
+        val addedTargets: List<Int> = emptyList(),
+        val removedTargets: List<Int> = emptyList(),
+    ) : ProgressChange
+}
+
+object ProgressControl {
+    private val calendar: LocalCalendar get() = KoinPlatform.getKoin().get()
+
+    private val _changes = EventSource<ProgressChange>()
+    /** Every read-status, active-cycle and memorization change, in the order it happened (replaces three bus events). */
+    val changes: Events<ProgressChange> get() = _changes
+
+    private val dao get() = DatabaseContainer.instance.progressDb.progressDao()
+
+    var autoMarkMemorized: Boolean
+        get() = ReadingProgressSettings.autoMarkMemorized
+        set(value) { ReadingProgressSettings.autoMarkMemorized = value }
+
+    suspend fun markVerseMemorized(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val added = mutableListOf<Int>()
+        for (ordinal in kjvRange.start.ordinal..kjvRange.end.ordinal) {
+            if (!dao.isVerseMemorized(ordinal)) {
+                dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = ordinal))
+                added.add(ordinal)
+            }
+        }
+        if (added.isNotEmpty()) {
+            _changes.emit(ProgressChange.Memorization(addedMemorized = added))
+        }
+    }
+
+    suspend fun unmarkVerseMemorized(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val removed = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
+        dao.deleteMemorizedVersesInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        _changes.emit(ProgressChange.Memorization(removedMemorized = removed))
+    }
+
+    suspend fun isVerseMemorized(v11n: Versification, book: BibleBook, chapter: Int, verse: Int): Boolean {
+        val kjvVerse = Verse(v11n, book, chapter, verse).toV11n(KJVA)
+        return dao.isVerseMemorized(kjvVerse.ordinal)
+    }
+
+    suspend fun getMemorizationProgress(v11n: Versification, book: BibleBook): Float {
+        val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
+        val lastChapter = KJVA.getLastChapter(book)
+        val lastVerse = KJVA.getLastVerse(book, lastChapter)
+        val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
+        val totalVerses = endOrdinal - startOrdinal + 1
+        if (totalVerses <= 0) return 0f
+        val memorized = dao.countMemorizedVersesInRange(startOrdinal, endOrdinal)
+        return memorized.toFloat() / totalVerses
+    }
+
+    suspend fun getMemorizationProgress(v11n: Versification, book: BibleBook, chapter: Int): Float {
+        val startOrdinal = Verse(KJVA, book, chapter, 1).ordinal
+        val lastVerse = KJVA.getLastVerse(book, chapter)
+        val endOrdinal = Verse(KJVA, book, chapter, lastVerse).ordinal
+        val totalVerses = endOrdinal - startOrdinal + 1
+        if (totalVerses <= 0) return 0f
+        val memorized = dao.countMemorizedVersesInRange(startOrdinal, endOrdinal)
+        return memorized.toFloat() / totalVerses
+    }
+
+    /**
+     * Records a new read-history row. Each call adds one row regardless of existing reads.
+     *
+     * Idempotency for the auto-track-while-scrolling source is enforced JS-side via the
+     * `autoTrackDone` flag in `reading-tracker.ts`: an `IntersectionObserver` cleans up after
+     * firing, so this method can be called at most once per mount cycle for an auto-track event.
+     * Manual taps always increment.
+     */
+    suspend fun recordChapterRead(
+        v11n: Versification,
+        book: BibleBook,
+        chapter: Int,
+        bookInitials: String = "",
+        source: ReadingSource = ReadingSource.MANUAL,
+    ) {
+        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val cycle = getCurrentCycle()
+        dao.insertChapterReadHistory(
+            ChapterReadHistory(
+                kjvBookOrdinal = kjvBook.ordinal,
+                chapter = chapter,
+                cycle = cycle,
+                readAt = currentTimeMillis(),
+                bookInitials = bookInitials,
+                source = source,
+            )
+        )
+        val newCount = dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle)
+        _changes.emit(ProgressChange.ChapterReadStatus(kjvBook.ordinal, chapter, newCount))
+    }
+
+    suspend fun isChapterRead(v11n: Versification, book: BibleBook, chapter: Int): Boolean {
+        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val cycle = getCurrentCycle()
+        return dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) > 0
+    }
+
+    suspend fun getReadingProgress(v11n: Versification, book: BibleBook): Float {
+        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val totalChapters = KJVA.getLastChapter(kjvBook)
+        if (totalChapters <= 0) return 0f
+        val cycle = getCurrentCycle()
+        val readChapters = dao.getDistinctReadChaptersCountForBook(kjvBook.ordinal, cycle)
+        return readChapters.toFloat() / totalChapters
+    }
+
+    /** Display model for a single read-history entry shown in the history dialog. */
+    data class ChapterReadEntry(
+        val id: IdType,
+        val kjvBookOrdinal: Int,
+        val chapter: Int,
+        val readAt: Long,
+        /** SWORD book initials of the version used; empty string if unknown. */
+        val bookInitials: String,
+    )
+
+    private fun ChapterReadHistory.toEntry() =
+        ChapterReadEntry(id, kjvBookOrdinal, chapter, readAt, bookInitials)
+
+    /** Returns all history entries for a book, newest first. */
+    suspend fun getReadHistoryForBook(book: BibleBook, cycle: Int? = null): List<ChapterReadEntry> =
+        dao.getHistoryForBook(book.ordinal, cycle ?: getCurrentCycle()).map { it.toEntry() }
+
+    /**
+     * Returns all history entries for a calendar day, newest first.
+     *
+     * [dayTimestamp] is the local-midnight timestamp of the target day (in UTC ms), as produced
+     * by [bucketByLocalDay] / [CalendarHeatmapView]. The end of the window is computed via
+     * [LocalCalendar.plusLocalDays] so DST transitions (23h or 25h "days") are handled correctly.
+     */
+    suspend fun getReadHistoryForDay(dayTimestamp: Long, cycle: Int? = null): List<ChapterReadEntry> {
+        val nextDayMs = calendar.plusLocalDays(dayTimestamp, 1)
+        return dao.getHistoryForDay(dayTimestamp, nextDayMs, cycle ?: getCurrentCycle()).map { it.toEntry() }
+    }
+
+    /** Returns all history entries for a single chapter, newest first. */
+    suspend fun getReadHistoryForChapter(book: BibleBook, chapter: Int, cycle: Int? = null): List<ChapterReadEntry> =
+        dao.getChapterReadHistory(book.ordinal, chapter, cycle ?: getCurrentCycle()).map { it.toEntry() }
+
+    /** Deletes a single history entry by ID and refreshes the final read state for that chapter. */
+    suspend fun deleteReadHistoryEntry(entry: ChapterReadEntry, cycle: Int? = null) {
+        deleteReadHistoryEntries(listOf(entry), cycle)
+    }
+
+    /** Deletes multiple history entries and refreshes the final read state for each affected chapter. */
+    suspend fun deleteReadHistoryEntries(entries: List<ChapterReadEntry>, cycle: Int? = null) {
+        if (entries.isEmpty()) return
+        val c = cycle ?: getCurrentCycle()
+        entries.forEach { dao.deleteChapterReadHistoryById(it.id) }
+        entries.distinctBy { it.kjvBookOrdinal to it.chapter }.forEach { entry ->
+            val newCount = dao.getChapterReadCount(entry.kjvBookOrdinal, entry.chapter, c)
+            _changes.emit(ProgressChange.ChapterReadStatus(entry.kjvBookOrdinal, entry.chapter, newCount))
+        }
+    }
+
+    /** Get total read count for a chapter. */
+    suspend fun getChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int {
+        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val cycle = getCurrentCycle()
+        return dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle)
+    }
+
+    suspend fun getCurrentCycle(): Int {
+        val stored = ReadingProgressSettings.activeCycle
+        return if (stored > 0) stored else dao.getLatestCycle()
+    }
+
+    suspend fun getLatestCycle(): Int = dao.getLatestCycle()
+
+    fun setActiveCycle(cycle: Int) {
+        ReadingProgressSettings.activeCycle = cycle
+        _changes.emit(ProgressChange.ActiveCycle(cycle))
+    }
+
+    suspend fun startNewCycle(): Int {
+        val newCycle = getLatestCycle() + 1
+        setActiveCycle(newCycle)
+        return newCycle
+    }
+
+    // Statistics methods for ReadingProgressActivity
+
+    /** Distinct chapters read at least once in the cycle. */
+    suspend fun getTotalReadChapters(cycle: Int? = null): Int = dao.countDistinctChaptersRead(cycle ?: getCurrentCycle())
+
+    /**
+     * Distinct *local* calendar days on which any chapter was tapped (or auto-marked) in the cycle.
+     * Bucketing must happen in Kotlin because SQLite cannot resolve the device timezone — see
+     * [bucketByLocalDay] for the rationale.
+     */
+    suspend fun getDistinctReadDays(cycle: Int? = null): Int {
+        return dao.getAllReadingTimestampsForCycle(cycle ?: getCurrentCycle())
+            .mapTo(HashSet()) { localDayStart(it) }
+            .size
+    }
+
+    suspend fun getTotalMemorizedVerses(): Int = dao.countTotalMemorizedVerses()
+
+    val totalBibleChapters: Int by lazy {
+        var total = 0
+        for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            total += KJVA.getLastChapter(book)
+        }
+        total
+    }
+
+    suspend fun getReadChaptersForBook(book: BibleBook, cycle: Int? = null): List<Int> {
+        return dao.getReadChaptersForBook(book.ordinal, cycle ?: getCurrentCycle())
+    }
+
+    suspend fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int? = null): List<DailyReadingCount> {
+        return bucketByLocalDay(dao.getReadingTimestamps(startMs, endMs, cycle ?: getCurrentCycle()))
+    }
+
+    suspend fun getBookReadingProgress(cycle: Int? = null): Map<BibleBook, Float> {
+        val c = cycle ?: getCurrentCycle()
+        val result = mutableMapOf<BibleBook, Float>()
+        for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            val totalChapters = KJVA.getLastChapter(book)
+            if (totalChapters <= 0) continue
+            val readChapters = dao.getDistinctReadChaptersCountForBook(book.ordinal, c)
+            if (readChapters > 0) {
+                result[book] = readChapters.toFloat() / totalChapters
+            }
+        }
+        return result
+    }
+
+    /** Returns map of chapter number → read count for a book. */
+    suspend fun getChapterReadCountsForBook(book: BibleBook, cycle: Int? = null): Map<Int, Int> =
+        dao.getChapterReadCountsForBook(book.ordinal, cycle ?: getCurrentCycle()).associate { it.chapter to it.count }
+
+    /** Returns the number of distinct chapters read at least once in history for a book. */
+    suspend fun getDistinctReadChaptersCountForBook(book: BibleBook, cycle: Int? = null): Int =
+        dao.getDistinctReadChaptersCountForBook(book.ordinal, cycle ?: getCurrentCycle())
+
+    /**
+     * Data for a book's count-mode heat map.
+     * [readPercent] = totalReads / totalChapters (1.0 = 100%, 2.0 = 200%, etc.)
+     */
+    data class BookCountProgress(val readPercent: Float)
+
+    suspend fun getBookCountProgress(cycle: Int? = null): Map<BibleBook, BookCountProgress> {
+        val c = cycle ?: getCurrentCycle()
+        val result = mutableMapOf<BibleBook, BookCountProgress>()
+        for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            val totalChapters = KJVA.getLastChapter(book)
+            if (totalChapters <= 0) continue
+            val totalReads = dao.getTotalReadCountForBook(book.ordinal, c)
+            if (totalReads > 0) {
+                result[book] = BookCountProgress(readPercent = totalReads.toFloat() / totalChapters)
+            }
+        }
+        return result
+    }
+
+    suspend fun getMemorizationCalendar(startMs: Long, endMs: Long): List<DailyReadingCount> {
+        return bucketByLocalDay(dao.getMemorizationTimestamps(startMs, endMs))
+    }
+
+    /**
+     * Returns the local-midnight (in UTC ms) of the day containing [timestamp].
+     */
+    private fun localDayStart(timestamp: Long): Long = calendar.startOfLocalDay(timestamp)
+
+    /**
+     * Buckets timestamps into local calendar days and returns counts per day, sorted by day.
+     *
+     * Bucketing happens here (not in SQL) because SQLite has no notion of the device timezone:
+     * an expression like `(readAt / 86400000) * 86400000` always groups by *UTC* days, which
+     * misaligns the heatmap for users not on UTC — see issue AndBible/and-bible#3800.
+     * [LocalCalendar] also handles DST transitions correctly.
+     */
+    private fun bucketByLocalDay(timestamps: List<Long>): List<DailyReadingCount> {
+        if (timestamps.isEmpty()) return emptyList()
+        val counts = HashMap<Long, Int>()
+        for (ts in timestamps) {
+            val key = localDayStart(ts)
+            counts[key] = (counts[key] ?: 0) + 1
+        }
+        return counts.entries.sortedBy { it.key }.map { DailyReadingCount(it.key, it.value) }
+    }
+
+    /**
+     * Returns the set of Bible books that have at least one memorization target overlapping them.
+     */
+    suspend fun getBooksWithMemorizationTargets(): Set<BibleBook> {
+        val targets = dao.allMemorizationTargets()
+        if (targets.isEmpty()) return emptySet()
+        val result = mutableSetOf<BibleBook>()
+        for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
+            val lastChapter = KJVA.getLastChapter(book)
+            val lastVerse = KJVA.getLastVerse(book, lastChapter)
+            val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
+            if (targets.any { it.kjvOrdinalStart <= endOrdinal && it.kjvOrdinalEnd >= startOrdinal }) {
+                result.add(book)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Returns chapters of a book that have at least one memorization target overlapping them.
+     */
+    suspend fun getChaptersWithMemorizationTargets(book: BibleBook): Set<Int> {
+        val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
+        val lastChapter = KJVA.getLastChapter(book)
+        val lastVerse = KJVA.getLastVerse(book, lastChapter)
+        val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
+        val targets = dao.memorizationTargetsOverlapping(startOrdinal, endOrdinal)
+        if (targets.isEmpty()) return emptySet()
+
+        val result = mutableSetOf<Int>()
+        for (ch in 1..lastChapter) {
+            val chStart = Verse(KJVA, book, ch, 1).ordinal
+            val chLastVerse = KJVA.getLastVerse(book, ch)
+            val chEnd = Verse(KJVA, book, ch, chLastVerse).ordinal
+            if (targets.any { it.kjvOrdinalStart <= chEnd && it.kjvOrdinalEnd >= chStart }) {
+                result.add(ch)
+            }
+        }
+        return result
+    }
+
+    // Memorization target methods
+
+    suspend fun addMemorizationTarget(verseRange: VerseRange): MemorizationTarget {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val target = MemorizationTarget(
+            kjvOrdinalStart = kjvRange.start.ordinal,
+            kjvOrdinalEnd = kjvRange.end.ordinal,
+        )
+        dao.insertMemorizationTarget(target)
+        val added = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
+        _changes.emit(ProgressChange.Memorization(addedTargets = added))
+        return target
+    }
+
+    /** Adds a memorization target only if the exact range is not already a target. */
+    suspend fun addMemorizationTargetIfNeeded(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        if (dao.findMemorizationTarget(kjvRange.start.ordinal, kjvRange.end.ordinal) != null) return
+        addMemorizationTarget(verseRange)
+    }
+
+    suspend fun removeMemorizationTarget(id: IdType) {
+        val target = dao.allMemorizationTargets().find { it.id == id }
+        dao.deleteMemorizationTarget(id)
+        if (target != null) {
+            val removed = (target.kjvOrdinalStart..target.kjvOrdinalEnd).toList()
+            _changes.emit(ProgressChange.Memorization(removedTargets = removed))
+        }
+    }
+
+    /**
+     * Removes the intersection of the given range from overlapping targets (set difference).
+     * Targets fully covered are deleted. Partially covered targets are split into remaining parts.
+     */
+    suspend fun removeMemorizationTargetByRange(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val overlapping = dao.memorizationTargetsOverlapping(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        if (overlapping.isEmpty()) return
+
+        val result = computeRangeDifference(
+            overlapping.map { it.kjvOrdinalStart to it.kjvOrdinalEnd },
+            kjvRange.start.ordinal,
+            kjvRange.end.ordinal,
+        )
+
+        for (target in overlapping) {
+            dao.deleteMemorizationTarget(target.id)
+        }
+        for ((start, end) in result.remaining) {
+            dao.insertMemorizationTarget(MemorizationTarget(kjvOrdinalStart = start, kjvOrdinalEnd = end))
+        }
+        if (result.removed.isNotEmpty()) {
+            _changes.emit(ProgressChange.Memorization(removedTargets = result.removed))
+        }
+    }
+
+    suspend fun getAllMemorizationTargets(): List<MemorizationTarget> = dao.allMemorizationTargets()
+
+    /** Total number of verses across all memorization targets. */
+    suspend fun getTargetTotalVerses(): Int =
+        dao.allMemorizationTargets().sumOf { it.verseCount }
+
+    /**
+     * Returns memorization target progress: (memorized verses in targets, total target verses).
+     */
+    suspend fun getMemorizationTargetProgress(): Pair<Int, Int> {
+        val targets = dao.allMemorizationTargets()
+        if (targets.isEmpty()) return 0 to 0
+        val totalTarget = targets.sumOf { it.verseCount }
+        val memorizedInTargets = targets.sumOf { target -> dao.countMemorizedVersesInRange(target.kjvOrdinalStart, target.kjvOrdinalEnd) }
+        return memorizedInTargets to totalTarget
+    }
+
+    /**
+     * Groups consecutive memorized verses into VerseRange objects for display.
+     */
+    suspend fun getMemorizedVerseRanges(): List<VerseRange> {
+        return getMemorizedVerseRangesWithTimestamps().map { it.verseRange }
+    }
+
+    /**
+     * Groups consecutive memorized verses into VerseRange objects with the latest memorizedAt timestamp per range.
+     * Returns sorted by latestMemorizedAt descending (newest first).
+     */
+    suspend fun getMemorizedVerseRangesWithTimestamps(): List<MemorizedVerseRangeWithTimestamp> {
+        val allVerses = dao.allMemorizedVerses().sortedBy { it.kjvOrdinal }
+        if (allVerses.isEmpty()) return emptyList()
+
+        val ranges = mutableListOf<MemorizedVerseRangeWithTimestamp>()
+        var rangeStart = allVerses.first().kjvOrdinal
+        var rangeEnd = rangeStart
+        var maxTimestamp = allVerses.first().memorizedAt
+
+        for (i in 1 until allVerses.size) {
+            val verse = allVerses[i]
+            if (verse.kjvOrdinal == rangeEnd + 1) {
+                rangeEnd = verse.kjvOrdinal
+                if (verse.memorizedAt > maxTimestamp) maxTimestamp = verse.memorizedAt
+            } else {
+                ranges.add(MemorizedVerseRangeWithTimestamp(
+                    VerseRange(KJVA, Verse(KJVA, rangeStart), Verse(KJVA, rangeEnd)),
+                    maxTimestamp,
+                ))
+                rangeStart = verse.kjvOrdinal
+                rangeEnd = verse.kjvOrdinal
+                maxTimestamp = verse.memorizedAt
+            }
+        }
+        ranges.add(MemorizedVerseRangeWithTimestamp(
+            VerseRange(KJVA, Verse(KJVA, rangeStart), Verse(KJVA, rangeEnd)),
+            maxTimestamp,
+        ))
+        return ranges.sortedByDescending { it.latestMemorizedAt }
+    }
+
+    /**
+     * Returns memorization progress per Bible book as a map.
+     * Mirrors [getBookReadingProgress] but for memorization.
+     */
+    suspend fun getBookMemorizationProgress(): Map<BibleBook, Float> {
+        val result = mutableMapOf<BibleBook, Float>()
+        for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
+            val lastChapter = KJVA.getLastChapter(book)
+            val lastVerse = KJVA.getLastVerse(book, lastChapter)
+            val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
+            val totalVerses = endOrdinal - startOrdinal + 1
+            if (totalVerses <= 0) continue
+            val memorized = dao.countMemorizedVersesInRange(startOrdinal, endOrdinal)
+            if (memorized > 0) {
+                result[book] = memorized.toFloat() / totalVerses
+            }
+        }
+        return result
+    }
+
+    /** Returns memorized KJV ordinals within the given range (for BibleView indicators). */
+    suspend fun getMemorizedOrdinalsInRange(startOrdinal: Int, endOrdinal: Int): List<Int> =
+        dao.memorizedOrdinalsInRange(startOrdinal, endOrdinal)
+
+    /** Returns target KJV ordinals within the given range (for BibleView indicators). */
+    suspend fun getTargetOrdinalsInRange(startOrdinal: Int, endOrdinal: Int): List<Int> {
+        val targets = dao.memorizationTargetsOverlapping(startOrdinal, endOrdinal)
+        val ordinals = mutableListOf<Int>()
+        for (target in targets) {
+            val start = maxOf(target.kjvOrdinalStart, startOrdinal)
+            val end = minOf(target.kjvOrdinalEnd, endOrdinal)
+            for (ordinal in start..end) {
+                ordinals.add(ordinal)
+            }
+        }
+        return ordinals
+    }
+}

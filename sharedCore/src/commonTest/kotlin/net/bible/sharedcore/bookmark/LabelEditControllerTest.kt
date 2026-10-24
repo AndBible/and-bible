@@ -19,7 +19,7 @@ class LabelEditControllerTest {
         isSpecialLabel = false, isSpeakLabel = false,
     )
     private fun controller(s: LabelEditState = state(), orphans: Int = 0, onFinish: (LabelEditResult) -> Unit = {}) =
-        LabelEditController(s, object : LabelEditService { override fun orphanedBookmarkCount(labelId: String) = orphans },
+        LabelEditController(s, object : LabelEditService { override suspend fun orphanedBookmarkCount(labelId: String) = orphans },
             CoroutineScope(Dispatchers.Unconfined), onFinish)
 
     @Test fun clearing_selection_clears_primary() {

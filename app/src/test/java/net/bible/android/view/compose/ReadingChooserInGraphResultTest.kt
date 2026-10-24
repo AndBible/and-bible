@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.runBlocking
 import android.app.Activity
 import android.content.Intent
 import android.os.Looper
@@ -50,6 +51,8 @@ import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.test.DatabaseResetter
+import net.bible.test.awaitHostCondition
+import net.bible.test.settleWorkspaceSwitches
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -87,11 +90,7 @@ class ReadingChooserInGraphResultTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun composedReadingHost(): NavHostComposeActivity {
@@ -104,11 +103,13 @@ class ReadingChooserInGraphResultTest {
         // Label.id`. Which one wins is thread timing, so it failed only in some full-suite orders.
         // The race itself is production code's (reported, not changed here); this test is about the
         // chooser answer, not about first-run label creation.
-        GlobalContext.get().get<BookmarkControl>().apply { labelUnlabelled; speakLabel; paragraphBreakLabel }
+        GlobalContext.get().get<BookmarkControl>().apply { runBlocking { labelUnlabelled(); speakLabel(); paragraphBreakLabel() } }
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.create().start().resume().visible().get()
+        ).also { controllers += it }.create().start().resume().visible().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     /**
@@ -185,7 +186,7 @@ class ReadingChooserInGraphResultTest {
 
         assertEquals(
             "Ps.23.1",
-            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).osisID,
+            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID(),
         )
     }
 
@@ -193,7 +194,7 @@ class ReadingChooserInGraphResultTest {
     fun aWorkspacePickedInGraphIsSwitchedToWithoutWaitingForOnResume() {
         val activity = composedReadingHost()
         val target = WorkspaceEntities.Workspace(name = "slice 8 target").also {
-            DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it)
+            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it) }
         }
         activity.startActivityForResult(
             NavHostComposeActivity.intentFor(activity, NavRoutes.WORKSPACE_SELECTOR),
@@ -205,6 +206,14 @@ class ReadingChooserInGraphResultTest {
         channel<WorkspaceResult>(activity, "workspaceResults")
             .deliver(nav, WorkspaceResult(workspaceId = target.id.toString(), changed = false))
         idle()
+        // The switch runs in lifecycleScope: it reads the target workspace on a real IO thread and applies it
+        // on the main looper, which idle() (simulated time) does not wait for. Wait on the in-flight counter,
+        // which covers the whole switch.
+        settleWorkspaceSwitches()
+        // settle returns at once if the switch has not started counting yet; wait for its visible effect too.
+        awaitHostCondition("the in-graph workspace answer must switch the host's window repository") {
+            activity.hostWindowRepository.id == target.id
+        }
 
         assertEquals(
             "an in-graph pop produces no onResume, so the WORKSPACE_CHANGED answer must be applied at once",
@@ -324,7 +333,7 @@ class ReadingChooserInGraphResultTest {
     }
 
     private fun activeOsisRef(): String? =
-        (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as? Verse)?.osisID
+        (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as? Verse)?.getOsisID()
 
     @Test
     fun anAbandonedAwaitedChooserGoesBackToThePriorHistoryItemAndStaysOnReading() {

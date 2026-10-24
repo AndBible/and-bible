@@ -105,6 +105,49 @@ class WebDavClientTest {
         assertTrue(bodies.last().contentEquals(payload))
     }
 
+    private val digestChallenge = "Digest realm=\"dav\", nonce=\"abc\", qop=\"auth\", algorithm=MD5, opaque=\"op\""
+
+    @Test fun digestRetry_signsMethodAndRequestUri() = runTest {
+        val c = client { req ->
+            if (req.headers[HttpHeaders.Authorization] == null)
+                respond("", HttpStatusCode.Unauthorized, headersOf(HttpHeaders.WWWAuthenticate, digestChallenge))
+            else respond("", HttpStatusCode.Created)
+        }
+        c.put("a/b c.gz", 1, "application/gzip") { ch -> ch.writeFully(byteArrayOf(1)) }
+        assertEquals(2, requests.size)
+        val sent = requests.last().headers[HttpHeaders.Authorization]!!
+        val cnonce = Regex("cnonce=\"([^\"]+)\"").find(sent)!!.groupValues[1]
+        assertEquals(DigestChallenge.parse(listOf(digestChallenge))!!.authorization("me", "pw", "PUT", "/dav/a/b%20c.gz", 1, cnonce), sent)
+    }
+
+    @Test fun digestIsPreferredOverBasic() = runTest {
+        val c = client { req ->
+            if (req.headers[HttpHeaders.Authorization] == null)
+                respond("", HttpStatusCode.Unauthorized, headersOf(HttpHeaders.WWWAuthenticate to listOf("Basic realm=\"dav\"", digestChallenge)))
+            else multistatus(MultistatusFixtures.APACHE)
+        }
+        c.propfind("sync", 0)
+        assertTrue(requests.last().headers[HttpHeaders.Authorization]!!.startsWith("Digest "))
+    }
+
+    @Test fun rejectedDigest_isAuthExceptionAfterOneRetry() = runTest {
+        val c = client { respond("", HttpStatusCode.Unauthorized, headersOf(HttpHeaders.WWWAuthenticate, digestChallenge)) }
+        assertEquals(401, assertFailsWith<DavAuthException> { c.propfind("sync", 0) }.status)
+        assertEquals(2, requests.size)
+    }
+
+    @Test fun get_answersDigestChallenge() = runTest {
+        val c = client { req ->
+            if (req.headers[HttpHeaders.Authorization] == null)
+                respond("", HttpStatusCode.Unauthorized, headersOf(HttpHeaders.WWWAuthenticate, digestChallenge))
+            else respond("hello", HttpStatusCode.OK)
+        }
+        val received = StringBuilder()
+        c.get("f.txt") { buf, n -> received.append(buf.decodeToString(0, n)) }
+        assertEquals("hello", received.toString())
+        assertTrue(requests.last().headers[HttpHeaders.Authorization]!!.startsWith("Digest "))
+    }
+
     @Test fun statusMapping() = runTest {
         suspend fun statusOf(code: Int): Throwable {
             val c = client { respond("", HttpStatusCode.fromValue(code)) }

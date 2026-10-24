@@ -75,6 +75,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostResumeReconciliationTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var toasts = 0
@@ -83,11 +85,7 @@ class ReadingHostResumeReconciliationTest {
     @After
     fun tearDown() {
         toastSubscription?.cancel()
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     /**
@@ -99,7 +97,10 @@ class ReadingHostResumeReconciliationTest {
         Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create().start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create().start().resume().visible()
+            net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+        }
 
     /** `Window.loadText()` assigns this synchronously; see the class kdoc. */
     private fun displayedKeyOf(window: Window): Any? =
@@ -148,7 +149,7 @@ class ReadingHostResumeReconciliationTest {
         controller.pause()
         DocumentChanges.notifyInstalledChanged()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(window),
             "a document update that arrived while this host was away must be consumed on resume — " +
@@ -171,7 +172,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNull(
             displayedKeyOf(window),
             "an ordinary resume must not reload every window — the refresh is gated on a pending " +
@@ -194,7 +195,7 @@ class ReadingHostResumeReconciliationTest {
         controller.pause()
         CommonUtils.windowControl.windowRepository = foreign
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertSame(
             activity.hostWindowRepository, CommonUtils.windowControl.windowRepository,
             "a resumed reading host must publish ITS OWN repository — every collaborator that " +
@@ -231,7 +232,7 @@ class ReadingHostResumeReconciliationTest {
         DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertTrue(
             toasts > 0,
             "the needRefresh arm must run the full workspace reload (whose setter posts a " +
@@ -244,7 +245,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(window),
             "the pending document update must SURVIVE the workspace arm and be consumed by the " +
@@ -265,7 +266,7 @@ class ReadingHostResumeReconciliationTest {
         DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(activity.hostWindowRepository.activeWindow),
             "sanity: this is the document-refresh arm",

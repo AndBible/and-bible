@@ -76,7 +76,7 @@ class ToolbarStateServiceImplTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
 
         val koin = GlobalContext.get()
@@ -87,6 +87,7 @@ class ToolbarStateServiceImplTest {
             pageControl = pageControl,
             speakControl = koin.get<SpeakControl>(),
             windowStateService = koin.get(),
+            syncRunning = koin.get<CloudSync>().runningChanged,
         )
     }
 
@@ -99,6 +100,31 @@ class ToolbarStateServiceImplTest {
     /** Seeds the active window's Bible page WITHOUT posting any event (CurrentPage-level overload). */
     private fun seedActivePageSilently(book: org.crosswire.jsword.book.Book, key: Verse) {
         windowControl.activeWindowPageManager.currentBible.setCurrentDocumentAndKey(book, key)
+    }
+
+    @Test
+    fun toolbarReadsPortableExperimentalSettingsOnEachRefresh() {
+        val original = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+        var features = setOf(net.bible.sharedui.TOOLBAR_LITERAL_COLOR_FEATURE)
+        val fake = object : net.bible.sharedcore.platform.AppSettings by original {
+            override fun getStringSet(key: String, defValues: Set<String>): Set<String> =
+                if (key == "experimental_features") features else original.getStringSet(key, defValues)
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.AppSettings> { fake }
+        })
+        try {
+            seedActivePageSilently(kjv, gen11)
+            service.refresh()
+            assertThat(service.toolbar.value.deriveToolbarFromTheme, equalTo(false))
+            features = emptySet()
+            service.refresh()
+            assertThat(service.toolbar.value.deriveToolbarFromTheme, equalTo(true))
+        } finally {
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.sharedcore.platform.AppSettings> { original }
+            })
+        }
     }
 
     @Test
@@ -115,7 +141,7 @@ class ToolbarStateServiceImplTest {
         val state = service.toolbar.value
         val pageManager = windowControl.activeWindowPageManager
         assertThat(state.documentTitle, equalTo(PassageTestData.ESV.name))
-        assertThat(state.pageTitle, equalTo(pageControl.currentBibleVerse.name))
+        assertThat(state.pageTitle, equalTo(pageControl.currentBibleVerse.getName()))
         assertThat(state.showBible, equalTo(true)) // at least one bible (ESV/KJV) is installed
         assertThat(state.showStrongs, equalTo(pageManager.hasStrongs))
         assertThat(state.searchable, equalTo(true))
@@ -130,13 +156,13 @@ class ToolbarStateServiceImplTest {
         val before = service.toolbar.value
         assertThat(before.syncRunning, equalTo(false))
 
-        CloudSync.notifySyncRunning(true)
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifySyncRunning(true)
         val duringSync = service.toolbar.value
         assertThat(duringSync.syncRunning, equalTo(true))
         // every other field is untouched
         assertThat(duringSync.copy(syncRunning = false), equalTo(before))
 
-        CloudSync.notifySyncRunning(false)
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifySyncRunning(false)
         assertThat(service.toolbar.value, equalTo(before))
     }
 
@@ -157,9 +183,9 @@ class ToolbarStateServiceImplTest {
 
     @Test
     fun activeWindowChange_inASwappedInRepository_stillRefreshes() {
-        val swapped = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val swapped = net.bible.test.testWindowRepository()
         windowControl.windowRepository = swapped
-        swapped.initialize()
+        swapped.initializeAtEdge()
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val second = swapped.addNewWindow()
@@ -293,8 +319,7 @@ class ToolbarStateServiceImplTest {
         // thousand files, plain line-regex, no parsing) and self-updating as files are added/moved/
         // renamed. Sorted so a failure message is stable/reproducible across runs (walkTopDown's
         // order is filesystem-dependent, not guaranteed).
-        val root = java.io.File("src/main/java")
-        val sourceFiles = root.walkTopDown()
+        val sourceFiles = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             .sortedBy { it.path }
             .toList()

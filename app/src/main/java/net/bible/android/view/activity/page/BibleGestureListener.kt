@@ -23,7 +23,6 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.AutoFullscreenTracking
 import net.bible.sharedcore.reading.FullscreenAction
@@ -130,22 +129,12 @@ class BibleGestureListener(
             return false
         } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
             // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
-            var goNext = flingEv.x > e2.x
-            if(CommonUtils.isRtl)
-                goNext = !goNext
-
-            if (goNext) {
-                when(CommonUtils.settings.bibleViewSwipeMode) {
-                    BibleViewSwipeMode.CHAPTER -> onNext()
-                    BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
-                    BibleViewSwipeMode.NONE -> {}
-                }
-            } else {
-                when(CommonUtils.settings.bibleViewSwipeMode) {
-                    BibleViewSwipeMode.CHAPTER -> onPrevious()
-                    BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
-                    BibleViewSwipeMode.NONE -> {}
-                }
+            when (swipeAction(flingEv.x > e2.x, CommonUtils.isRtl, CommonUtils.settings.bibleViewSwipeMode)) {
+                SwipeAction.NextChapter -> onNext()
+                SwipeAction.PreviousChapter -> onPrevious()
+                SwipeAction.PageDown -> bibleView.volumeDownPressed()
+                SwipeAction.PageUp -> bibleView.volumeUpPressed()
+                SwipeAction.None -> {}
             }
             return true
         }

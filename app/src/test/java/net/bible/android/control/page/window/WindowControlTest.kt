@@ -59,8 +59,8 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
+        windowRepository.initializeAtEdge()
         windowRepository.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }
@@ -108,7 +108,7 @@ class WindowControlTest {
         // documents should be defaulted from active window
         val biblePage = newWindow.pageManager.currentBible
         assertThat(biblePage.currentDocument, equalTo(PassageTestData.ESV))
-        assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
+        assertThat(biblePage.singleKey.getName(), equalTo(PassageTestData.PS_139_2.getName()))
     }
 
     @Test

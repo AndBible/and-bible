@@ -18,6 +18,7 @@
 package net.bible.android.activity
 
 import android.app.PendingIntent
+import net.bible.service.db.blockingAtEdge
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -42,7 +43,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
@@ -79,6 +80,7 @@ class SpeakWidgetManager : KoinComponent {
         const val TAG = "SpeakWidget"
     }
 
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     val speakControl: SpeakControl by inject()
     val bookmarkControl: BookmarkControl by inject()
     private var bookmarkChanges: Subscription? = null
@@ -110,16 +112,18 @@ class SpeakWidgetManager : KoinComponent {
         }
         subscriptions.add(SpeakChanges.changes.subscribe { change ->
             when (change) {
+                SpeakChange.Status -> updateWidgetTexts()
                 is SpeakChange.Progress -> {
                     val ev = change
-                    if (ev.speakCommand is TextCommand) {
-                        if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                            currentTitle = ev.speakCommand.text
+                    val speakCommand = ev.speakCommand
+                    if (speakCommand is TextCommand) {
+                        if (speakCommand.type == TextCommand.TextType.TITLE) {
+                            currentTitle = speakCommand.text
                             if (currentTitle.isNullOrEmpty()) {
                                 currentTitle = null
                             }
                         } else {
-                            currentText = ev.speakCommand.text
+                            currentText = speakCommand.text
                         }
 
                         updateWidgetTexts()
@@ -220,19 +224,19 @@ class SpeakWidgetManager : KoinComponent {
             bookmarksAdded = true
         }
 
-        val label = bookmarkControl.speakLabel
+        val label = blockingAtEdge { bookmarkControl.speakLabel() } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
 
-        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
-        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        val bibleBookmarks = blockingAtEdge { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
+        val genBookmarks = blockingAtEdge { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
         val speakBookmarks = bibleBookmarks + genBookmarks
-        if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
+        if(!advancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
         for (b in speakBookmarks){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton(when(b) {
-                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
-                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.name} $repeatSymbol"
+                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.getName()} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
+                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.getName()} $repeatSymbol"
                 else -> throw RuntimeException("Illegal type")
             }, b)
             Log.i(TAG, "Added button for $b")
@@ -382,8 +386,8 @@ class SpeakWidgetManager : KoinComponent {
                 val bookmarkId = path.slice(1 until path.length)
                 Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
                 val dto = when(bookmarkType) {
-                    "bible" -> bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
-                    "generic" -> bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+                    "bible" -> blockingAtEdge { bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))) }.first() // L1-edge: AppWidgetProvider callback
+                    "generic" -> blockingAtEdge { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-edge: AppWidgetProvider callback
                     else -> throw RuntimeException("Illegal type")
                 }
                 speakControl.speakFromBookmark(dto)

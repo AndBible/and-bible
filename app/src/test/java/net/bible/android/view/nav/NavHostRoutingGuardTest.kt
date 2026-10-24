@@ -851,7 +851,7 @@ class NavHostRoutingGuardTest {
      */
     @Test
     fun everyAllowlistedExtraIsReallyReadByTheNavHost() {
-        val host = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue(host.exists(), "the nav host source moved; this scan is watching nothing")
         val code = ClassicRemovalScan.codeLinesOf(host.path)
         val unread = EXTRAS_THE_NAV_HOST_READS.filterNot { name ->

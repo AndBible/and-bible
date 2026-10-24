@@ -54,7 +54,7 @@ class EventSourceTest {
         assertEquals(listOf("a1", "b1", "a2"), seen)
     }
 
-    @Test fun `re-entrant emit from a handler is delivered depth-first, like the bus`() {
+    @Test fun `re-entrant emit from a handler is delivered depth-first like the bus`() {
         val source = EventSource<Int>()
         val seen = mutableListOf<String>()
         source.subscribe { seen += "a$it"; if (it == 1) source.emit(2) }

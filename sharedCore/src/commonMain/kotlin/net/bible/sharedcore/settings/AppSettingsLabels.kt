@@ -109,6 +109,10 @@ data class AppSettingsLabels(
     val openLinksSummary: String,
     val crashAppTitle: String,
     val crashAppSummary: String,
+    val testErrorDialogTitle: String,
+    val testErrorDialogSummary: String,
+    val testErrorDialogQueueTitle: String,
+    val testErrorDialogQueueSummary: String,
 
     // Nav-shortcut labels (rows that navigate to another settings screen)
     val syncShortcutTitle: String,
@@ -119,6 +123,8 @@ data class AppSettingsLabels(
     val readingProgressShortcutSummary: String,
     val textDisplayShortcutTitle: String,
     val textDisplayShortcutSummary: String,
+    val importLegacyDataTitle: String,
+    val importLegacyDataSummary: String,
 ) {
     companion object {
         fun forTest() = AppSettingsLabels(
@@ -217,6 +223,10 @@ data class AppSettingsLabels(
             openLinksSummary = "Choose how external links are opened",
             crashAppTitle = "Crash app",
             crashAppSummary = "Trigger a test crash",
+            testErrorDialogTitle = "Test error dialog",
+            testErrorDialogSummary = "Show an error with a Report error button",
+            testErrorDialogQueueTitle = "Test error dialog queue",
+            testErrorDialogQueueSummary = "Show two errors one after the other",
 
             syncShortcutTitle = "Cloud sync",
             syncShortcutSummary = "Configure cloud synchronization",
@@ -226,6 +236,8 @@ data class AppSettingsLabels(
             readingProgressShortcutSummary = "Configure reading progress tracking",
             textDisplayShortcutTitle = "Text display settings",
             textDisplayShortcutSummary = "Configure global text display settings",
+            importLegacyDataTitle = "Import data from the previous app version",
+            importLegacyDataSummary = "Bring in the data of the previous AndBible app that is still on this device",
         )
     }
 }

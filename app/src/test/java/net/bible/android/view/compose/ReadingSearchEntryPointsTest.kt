@@ -17,10 +17,17 @@
 package net.bible.android.view.compose
 
 import android.view.KeyEvent
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import kotlin.test.assertFailsWith
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.sharedcore.search.BibleSearchService
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -66,10 +73,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import net.bible.android.control.search.SearchIndexServiceImpl
 import net.bible.sharedcore.search.SearchIndexService
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -118,6 +122,8 @@ import kotlin.test.assertTrue
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingSearchEntryPointsTest {
+    @get:org.junit.Rule val compose = createEmptyComposeRule()
+
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
@@ -132,9 +138,9 @@ class ReadingSearchEntryPointsTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -158,7 +164,7 @@ class ReadingSearchEntryPointsTest {
 
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed —
      *  see the class kdoc's precedent). */
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     /**
      * KJV ships `Feature=StrongsNumbers` (verified against this environment's `~/.sword` fixture),
@@ -201,13 +207,13 @@ class ReadingSearchEntryPointsTest {
      * Books`/`ModDrv=RawGenBook`, `AndBibleEpubModule=1`). `currentPage`'s setter is private, so the
      * documented way to switch pages is `setCurrentDocumentAndKey` on the `CurrentPageManager` itself
      * — exactly the pattern `menuSearchButtonDoesNothingOnANonSearchablePageEvenWhenHosted` above uses
-     * for `FakeBookFactory.myNotesDocument`: `getBookPage` maps the book's category (here GENERAL_BOOK)
+     * for `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument`: `getBookPage` maps the book's category (here GENERAL_BOOK)
      * to `currentGeneralBook`. The key is a plain `Verse`, same as every other fixture in this class —
      * nothing under test reads it, only `documentControl.currentDocument`.
      *
      * The book must be registered with `Books.installed()` (same as [indexedFakeBible]'s callers do):
      * `CurrentPageBase.currentDocument`'s getter treats any book NOT found there as removed
-     * (`Book.isRemoved`, `FakeBookFactory.kt:215`) and silently falls back to the category default —
+     * (`Book.isRemoved`, `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).kt:215`) and silently falls back to the category default —
      * which for a never-installed `GENERAL_BOOK` is `null`, making `documentControl.currentDocument`
      * null and every assertion below fail for a reason that has nothing to do with the fix under test.
      * The caller MUST remove it again (`Books.installed().removeBook(...)`, in a `finally`) — this
@@ -336,6 +342,29 @@ class ReadingSearchEntryPointsTest {
 
         assertTrue(handled, "a non-EPUB document must open the Strong's search")
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+    }
+
+    /**
+     * E2 EP-11 (device FAIL): "Find all occurrences" in the links window did NOTHING once the
+     * Strong's Bible was indexed. Tapping the link makes the links window active
+     * (`BibleView.onTouchEvent`), so the reading-view search resolved the Strong's DICTIONARY as its
+     * document — `SearchKind.Unavailable` — and opened nothing, yet reported the request handled, so
+     * `LinkControl.showAllOccurrences` returned without its classic search route. Exercised through
+     * [net.bible.android.platform.AndroidLinkPlatform], the exact seam `LinkControl` calls.
+     */
+    @Test fun strongsFindAllFromADictionaryWindowFallsBackToTheClassicSearch() {
+        activity.composeReadingViewHost = host()
+        val dictionary = Books.installed().getBook("StrongsGreek")
+        assertNotNull(dictionary, "test Sword modules must include StrongsGreek")
+        windowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(dictionary, dictionary.getKey("02316"))
+
+        val handled = net.bible.android.platform.AndroidLinkPlatform()
+            .searchStrongsInReadingView("g02316", listOf("KJV"))
+
+        assertFalse(handled, "a search the reading view cannot run must fall back to the caller's route")
+        val host = activity.composeReadingViewHost!!
+        assertFalse(host.searchController.searchModeActive.value)
+        assertNull(host.searchUnavailableDocName.value, "no 'cannot be searched' message for a Bible search")
     }
 
     // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
@@ -643,10 +672,10 @@ class ReadingSearchEntryPointsTest {
         ).create()
         try {
             val offRoute = controller.get()
-            offRoute.composeReadingViewHost = ComposeReadingViewHost(offRoute)
+            offRoute.composeReadingViewHost = net.bible.test.fixtureReadingHost(offRoute)
             block(offRoute)
         } finally {
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
         }
     }
 
@@ -692,10 +721,10 @@ class ReadingSearchEntryPointsTest {
         val pageManager = windowRepository.activeWindow.pageManager
         // `currentPage`'s setter is private; the documented way to switch pages is
         // `setCurrentDocumentAndKey` with a book `getBookPage` maps to the target page —
-        // `FakeBookFactory.myNotesDocument`'s osisID ("Commentaries.MyNote") maps to
+        // `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument`'s osisID ("Commentaries.MyNote") maps to
         // `currentMyNotePage` (`CurrentPageManager.kt:244-245`).
         val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-        pageManager.setCurrentDocumentAndKey(FakeBookFactory.myNotesDocument, verse)
+        pageManager.setCurrentDocumentAndKey(org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument, verse)
         assertFalse(pageManager.currentPage.isSearchable, "sanity")
 
         val handled = menuCommandHandler().handleMenuRequest(R.id.searchButton)
@@ -734,32 +763,153 @@ class ReadingSearchEntryPointsTest {
             readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
             block(readingHost)
         } finally {
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
             ReadingViewVisibility.setVisible(false)
             ReadingHostPresence.setForeground(null)
         }
     }
 
-    @Test fun searchKeyOpensHostSearchWhenHosted() = onASetUpReadingHost { readingHost ->
-        if (readingHost.composeReadingViewHost == null) readingHost.composeReadingViewHost = ComposeReadingViewHost(readingHost)
+    @Test fun searchKeyOpensHostSearchWhenHosted() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
+            }
 
-        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+            val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
-        assertTrue(handled)
-        assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
-        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+            assertTrue(handled)
+            assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
-    @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() = onASetUpReadingHost { readingHost ->
-        readingHost.composeReadingViewHost = null
+    /**
+     * E4a RV-8: once the BibleView (a WebView) holds key focus it consumes SEARCH's key-up before the
+     * Activity's `onKeyUp`, so the key did nothing. The stand-in focused view consumes every key like
+     * the WebView does; the key must still reach the host's search through `dispatchKeyEvent`.
+     */
+    @Test fun searchKeyOpensHostSearchWhileAKeyConsumingViewHasFocus() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
+            }
+            val consumed = mutableListOf<Int>()
+            val focused = android.view.View(readingHost).apply {
+                isFocusable = true
+                setOnKeyListener { _, _, event -> consumed += event.action; true }
+            }
+            readingHost.addContentView(focused, android.view.ViewGroup.LayoutParams(10, 10))
+            assertTrue(focused.requestFocus(), "sanity: stand-in holds focus")
 
-        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+            assertSame(focused, readingHost.window.decorView.findFocus(), "focus owner")
+            // Key dispatch only descends into laid-out (bounded) views.
+            readingHost.window.decorView.apply {
+                measure(
+                    android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
+                    android.view.View.MeasureSpec.makeMeasureSpec(1920, android.view.View.MeasureSpec.EXACTLY),
+                )
+                layout(0, 0, 1080, 1920)
+            }
+            assertTrue(readingHost.window.decorView.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A)), "decor dispatch")
+            assertTrue(consumed.isNotEmpty(), "sanity: the focused view receives dispatched keys, as the WebView does")
+            readingHost.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SEARCH))
+            val handled = readingHost.dispatchKeyEvent(searchKeyEvent())
 
-        assertTrue(handled)
-        // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
-        // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
-        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
-        assertEquals("search/index", readingHost.currentRouteForTest()?.substringBefore('?'))
+            assertTrue(handled)
+            assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    /** E4a review: a CANCELED SEARCH key-up (the gesture was aborted) must not open Search. */
+    @Test fun cancelledSearchKeyUpDoesNotOpenSearch() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
+            }
+            val cancelled = KeyEvent(0L, 0L, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SEARCH, 0, 0, 0, 0, KeyEvent.FLAG_CANCELED)
+            assertTrue(cancelled.isCanceled, "sanity: the event is cancelled")
+
+            readingHost.dispatchKeyEvent(cancelled)
+
+            assertFalse(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        var originalReadingViewHost: ComposeReadingViewHost? = null
+        var readingHost: NavHostComposeActivity? = null
+        var readingViewHostOverridden = false
+        try {
+            val activeReadingHost = controller.create().start().resume().visible().get()
+            readingHost = activeReadingHost
+            net.bible.test.awaitReadingGraph(activeReadingHost) { compose.waitForIdle() }
+            val kjv = Books.installed().getBook("KJV") as SwordBook
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            activeReadingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+            originalReadingViewHost = assertNotNull(activeReadingHost.composeReadingViewHost, "awaited Reading host exists")
+            activeReadingHost.composeReadingViewHost = null
+            readingViewHostOverridden = true
+
+            val handled = activeReadingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+
+            assertTrue(handled)
+            // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
+            // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
+            assertNull(shadowOf(activeReadingHost).nextStartedActivityForResult)
+            assertEquals("search/index", activeReadingHost.currentRouteForTest()?.substringBefore('?'))
+        } finally {
+            // Restore only after overriding the field; setup failures leave Activity ownership untouched.
+            if (readingViewHostOverridden && readingHost != null) {
+                readingHost.composeReadingViewHost = originalReadingViewHost
+                assertSame(originalReadingViewHost, readingHost.composeReadingViewHost, "restore the host Activity owns")
+            }
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
     // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
@@ -809,11 +959,11 @@ class ReadingSearchEntryPointsTest {
 
         val kjv = Books.installed().getBook("KJV") as SwordBook
         assertEquals(
-            kjv.getKey("Gen.1.5").osisRef,
+            kjv.getKey("Gen.1.5").getOsisRef(),
             // `currentBible.key` (non-single) reports the whole DISPLAYED unit (e.g. a whole
             // chapter) rather than the exact verse last navigated to; `singleKey` is the precise
             // verse `setCurrentDocumentAndKey` was actually called with.
-            windowRepository.activeWindow.pageManager.currentBible.singleKey.osisRef,
+            windowRepository.activeWindow.pageManager.currentBible.singleKey.getOsisRef(),
         )
         assertFalse(host.searchController.sheetVisible.value, "the sheet closes")
         assertTrue(host.searchController.searchModeActive.value, "search mode itself stays open")
@@ -889,51 +1039,120 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    /** Runs [block] with a [SearchIndexService] that records `createIndex` instead of building a real index. */
-    private fun withRecordingIndexService(block: () -> Unit) {
-        val fake = object : SearchIndexService {
-            override fun hasIndex(docId: String) = false
-            override fun createIndex(docId: String) {}
-        }
-        val overrideModule = module { single<SearchIndexService> { fake } }
-        loadKoinModules(overrideModule)
-        try {
-            block()
-        } finally {
-            // Same hand re-install as `ReadingSearchHostTest`'s EpubSearchService override.
-            unloadKoinModules(overrideModule)
-            loadKoinModules(module { singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() } })
-        }
-    }
-
     /**
      * Review I1: after the F100 index prompt the automatic search must cover exactly what the submit it
      * replaced would have — the selection PLUS the active (indexed) document (F44/B4) — not just the
      * translation the prompt built. Selection [KJV] (unindexed), active FAKE (indexed).
      */
     @Test fun theAutoRunAfterTheSelectionIndexPromptStillSearchesTheActiveDocument() {
+        val koin = GlobalContext.get()
+        val productionSearch = koin.get<BibleSearchService>()
+        val productionIndex = koin.get<SearchIndexService>()
+        val productionCache = koin.get<SearchResultsCache>()
+        val received = CompletableDeferred<SearchRequest>()
+        // FAKE is deliberately indexed only in metadata: never send its NullBackend to Lucene.
+        val recordingSearch = object : BibleSearchService by productionSearch {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                received.complete(request)
+                return MultiSearchResults.EMPTY
+            }
+        }
+        val recordingIndex = object : SearchIndexService {
+            override fun hasIndex(docId: String) = false
+            override fun createIndex(docId: String) {}
+        }
+        val listeners = org.crosswire.common.progress.JobManager::class.java
+            .getDeclaredField("listeners").apply { isAccessible = true }.get(null) as List<*>
+        var fixtureHost: ComposeReadingViewHost? = null
+        var indexListener: Any? = null
+        var hostJob: Job? = null
+        val fixtureModule = module {
+            single<BibleSearchService> { recordingSearch }
+            single<SearchIndexService> { recordingIndex }
+            // The actual service invocation, not a process-global cache hit, is the assertion target.
+            single { SearchResultsCache() }
+        }
         val fakeBook = indexedFakeBible("FAKE")
         Books.installed().addBook(fakeBook)
         try {
-            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
-            CommonUtils.settings.setString("search_selected_translations", "KJV")
-            withRecordingIndexService {
-                val host = host()
+            loadKoinModules(fixtureModule)
+            try {
+                val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+                windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+                CommonUtils.settings.setString("search_selected_translations", "KJV")
+                val host = host().also { fixtureHost = it }
+                val ownedScope = ComposeReadingViewHost::class.java.getDeclaredField("hostScope")
+                    .apply { isAccessible = true }.get(host) as CoroutineScope
+                hostJob = assertNotNull(ownedScope.coroutineContext[Job])
+                assertTrue(hostJob!!.isActive, "sanity: the real host owns a live scope")
                 host.openSearch()
                 host.searchController.queries.setQuery("lord")
                 host.searchController.submit()
                 assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
 
+                val listenersBefore = listeners.toList()
                 host.searchController.acceptIndexing()
+                // The feed's subscription is private to the search state now; its one new entry in
+                // the process-wide JobManager list is this host's actual global listener.
+                indexListener = assertNotNull(
+                    listeners.singleOrNull { added -> listenersBefore.none { it === added } },
+                    "sanity: accepting the index registers exactly one new global listener",
+                )
                 host.searchController.onIndexingFinished(true)
 
+                var dispatched: SearchRequest? = null
+                DatabaseResetter.runResetBlocking(timeoutMs = 10_000) {
+                    dispatched = withTimeoutOrNull(5_000) { received.await() }
+                }
+                val actual = assertNotNull(dispatched, "auto-run never dispatched to BibleSearchService within 5 seconds")
+                assertEquals(listOf("KJV", "FAKE"), actual.translationIds, "the actual auto-run must search the active document too")
+                assertEquals("lord", actual.query)
                 val ids = assertNotNull(host.lastSearchRequestForTest, "the build finishing must run the waiting search").translationIds
                 assertEquals(listOf("KJV", "FAKE"), ids, "I1: the active document is searched too, as the submit would have")
+            } finally {
+                try {
+                    fixtureHost?.dispose()
+                    indexListener?.let { listener ->
+                        assertFalse(listeners.any { it === listener }, "dispose must detach this host's global index listener")
+                    }
+                    hostJob?.let { job ->
+                        assertTrue(job.isCancelled, "dispose must cancel the separate host scope")
+                        DatabaseResetter.runResetBlocking { job.join() }
+                    }
+                } finally {
+                    try {
+                        // Keep mutation/assertion failures from leaking the host or its lifecycle work.
+                        try {
+                            fixtureHost?.dispose()
+                        } finally {
+                            try {
+                                DatabaseResetter.runResetBlocking { hostJob?.join() }
+                            } finally {
+                                DatabaseResetter.runResetBlocking {
+                                    activity.lifecycleScope.coroutineContext[Job]?.cancelAndJoin()
+                                }
+                            }
+                        }
+                    } finally {
+                        received.cancel()
+                        unloadKoinModules(fixtureModule)
+                        loadKoinModules(module {
+                            single<BibleSearchService> { productionSearch }
+                            single<SearchIndexService> { productionIndex }
+                            single { productionCache }
+                        })
+                        assertSame(productionSearch, koin.get<BibleSearchService>())
+                        assertSame(productionIndex, koin.get<SearchIndexService>())
+                        assertSame(productionCache, koin.get<SearchResultsCache>())
+                    }
+                }
             }
         } finally {
-            CommonUtils.settings.removeString("search_selected_translations")
-            Books.installed().removeBook(fakeBook)
+            try {
+                CommonUtils.settings.removeString("search_selected_translations")
+            } finally {
+                Books.installed().removeBook(fakeBook)
+            }
         }
     }
 

@@ -14,10 +14,10 @@ class RawLlmLogControllerTest {
     private class Fake : RawLogService {
         val flow = MutableStateFlow<List<RawLogSummaryVd>>(emptyList())
         override val summaries: StateFlow<List<RawLogSummaryVd>> = flow
-        override fun refresh() {}
-        override fun deleteByIds(ids: Set<String>) {}
-        override fun deleteOlderThan(days: Int) {}
-        override fun deleteAll() {}
+        override suspend fun refresh() {}
+        override suspend fun deleteByIds(ids: Set<String>) {}
+        override suspend fun deleteOlderThan(days: Int) {}
+        override suspend fun deleteAll() {}
 
         var recordTextAnswers: Map<String, String?> = emptyMap()
         var sessionEntriesAnswers: Map<String, List<RawLogEntryVd>> = emptyMap()
@@ -34,7 +34,7 @@ class RawLlmLogControllerTest {
             lastSessionEntriesRequest = workspaceId
             return sessionEntriesAnswers[workspaceId] ?: emptyList()
         }
-        override fun canReportBug(recordId: String?): Boolean {
+        override suspend fun canReportBug(recordId: String?): Boolean {
             lastCanReportBugRequest = recordId
             return canReportBugForRecordId[recordId] ?: false
         }

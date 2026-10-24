@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import kotlinx.coroutines.runBlocking
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -72,11 +73,7 @@ class StdSelfLaunchInGraphTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     /** See `ReadingChooserInGraphResultTest.compose`: makes the host's setContent recompose under Robolectric. */
@@ -94,8 +91,10 @@ class StdSelfLaunchInGraphTest {
 
     private fun composedReadingHost(): NavHostComposeActivity {
         // Pre-create the special labels (see ReadingChooserInGraphResultTest.composedReadingHost).
-        GlobalContext.get().get<BookmarkControl>().apply { labelUnlabelled; speakLabel; paragraphBreakLabel }
-        return host().create().start().resume().visible().get()
+        GlobalContext.get().get<BookmarkControl>().apply { runBlocking { labelUnlabelled(); speakLabel(); paragraphBreakLabel() } }
+        return host().create().start().resume().visible().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     private fun nav(activity: NavHostComposeActivity): NavHostController =
@@ -144,7 +143,7 @@ class StdSelfLaunchInGraphTest {
         assertNull(shadowOf(activity).nextStartedActivity)
         channel<PassageResult>(activity, "passageResults").deliver(nav(activity), PassageResult("Ps.23.1"))
         idle()
-        assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).osisID)
+        assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID())
     }
 
     /** Review Focus 1: no graph yet (first frame) -- the launch must still reach the platform. */

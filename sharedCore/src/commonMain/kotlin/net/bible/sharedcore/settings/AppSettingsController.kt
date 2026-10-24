@@ -21,6 +21,9 @@ object AppSettingsNav {
     const val DISCRETE_HELP = "discrete_help"
     const val OPEN_LINKS = "open_links"
     const val CRASH_APP = "crash_app"
+    const val TEST_ERROR_DIALOG = "test_error_dialog"
+    const val TEST_ERROR_DIALOG_QUEUE = "test_error_dialog_queue"
+    const val IMPORT_LEGACY_DATA = "import_legacy_data"
 }
 
 /** Which modal the main app settings screen is currently showing (screen-local, driven by the
@@ -46,7 +49,7 @@ sealed interface AppSettingsDialog {
 class AppSettingsController(
     private val service: AppSettingsService,
     private val scope: CoroutineScope,
-    private val labels: AppSettingsLabels,
+    private var labels: AppSettingsLabels,
     private val onNavigate: (String) -> Unit,
     /** Classic's `resetSettings()` (Task 15): still a host callback (`SettingsReset.performReset()`,
      *  `service.refresh()`, `recreate()` all need Android), only the confirmation QUESTION moved
@@ -61,6 +64,20 @@ class AppSettingsController(
 
     init {
         scope.launch { service.snapshot.collect { _state.value = build(it) } }
+    }
+
+    /** Refreshes translated state without replacing the controller or dismissing its open dialog. */
+    fun updateLabels(labels: AppSettingsLabels, discreteHelpHtml: (() -> String)? = null) {
+        this.labels = labels
+        _state.value = build(service.snapshot.value)
+        _dialog.value = when (val dialog = _dialog.value) {
+            is AppSettingsDialog.ConfirmReset -> AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage)
+            is AppSettingsDialog.DiscreteHelp -> dialog.copy(
+                title = labels.persecutionCat,
+                html = discreteHelpHtml?.invoke() ?: dialog.html,
+            )
+            AppSettingsDialog.None -> dialog
+        }
     }
 
     /** Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`). */
@@ -461,6 +478,28 @@ class AppSettingsController(
                 summary = labels.crashAppSummary,
                 visible = s.betaFeaturesVisible,
                 iconKey = AppSettingsNav.CRASH_APP,
+            ),
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.TEST_ERROR_DIALOG,
+                title = labels.testErrorDialogTitle,
+                summary = labels.testErrorDialogSummary,
+                visible = s.debugToolsVisible,
+                iconKey = AppSettingsNav.TEST_ERROR_DIALOG,
+            ),
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.TEST_ERROR_DIALOG_QUEUE,
+                title = labels.testErrorDialogQueueTitle,
+                summary = labels.testErrorDialogQueueSummary,
+                visible = s.debugToolsVisible,
+                iconKey = AppSettingsNav.TEST_ERROR_DIALOG_QUEUE,
+            ),
+            // Last category (Advanced) holds the backup-like rows; the app has no dedicated backup category.
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.IMPORT_LEGACY_DATA,
+                title = labels.importLegacyDataTitle,
+                summary = labels.importLegacyDataSummary,
+                // No iconKey: the Android parity test pins every icon row to the classic settings.xml, which has no such row.
+                visible = s.legacyImportVisible,
             ),
         )
         return SettingsScreenState(title = labels.screenTitle, items = items)

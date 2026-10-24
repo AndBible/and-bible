@@ -36,6 +36,7 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.lazy.rememberLazyListState
 import net.bible.sharedui.components.volumeScrollTarget
@@ -55,9 +56,14 @@ fun ChooseDictionaryWordScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val queryText = rememberControllerText(query)
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbSearchField(value = query, onValueChange = onQueryChange, placeholder = hint)
+            AbSearchField(
+                value = queryText.text,
+                onValueChange = { queryText.edit(it, onQueryChange) },
+                placeholder = hint,
+            )
             if (loading) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }

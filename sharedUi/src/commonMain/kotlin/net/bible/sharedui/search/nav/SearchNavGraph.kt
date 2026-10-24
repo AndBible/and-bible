@@ -227,6 +227,8 @@ data class IndexTarget(
     val documentName: String,
     /** `SearchIndexService.hasIndex(documentId)` — an existing index makes this a REBUILD prompt. */
     val isRebuild: Boolean,
+    /** `SearchIndexService.hasLegacyIndex(documentId)`: the previous search engine's index is still on disk. */
+    val engineChanged: Boolean = false,
 )
 
 /**
@@ -717,6 +719,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 title = d.title,
                 documentName = target.documentName,
                 isRebuild = target.isRebuild,
+                engineChanged = target.engineChanged,
                 onCancel = { navController.popOrExit(deps.exitHost) },
                 onCreate = {
                     d.createIndex(target.documentId)

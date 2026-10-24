@@ -144,6 +144,8 @@ class AiConnectionSettingsController(
      *  reset-usage need no change. */
     private val onResetUsageConfirm: () -> Unit = {},
 ) {
+    val ready: StateFlow<Boolean> = service.ready
+
     private val _state = MutableStateFlow(build(service.snapshot.value))
     val state: StateFlow<SettingsScreenState> = _state.asStateFlow()
 

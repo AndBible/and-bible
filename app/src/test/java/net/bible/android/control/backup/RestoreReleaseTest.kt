@@ -33,11 +33,12 @@ class RestoreReleaseTest {
     @Before fun setUp() {
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -51,7 +52,7 @@ class RestoreReleaseTest {
             error("copy failed")
         } } }
         // The next access must reopen, not hit the closed Room instance.
-        assertNotNull(DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id))
+        assertNotNull(runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) })
     }
 
     /** The old monolithic restore: reset, delete, reopen (migrate) -- and the migration throws. */
@@ -59,8 +60,8 @@ class RestoreReleaseTest {
         val epoch = DatabaseContainer.replaceEpoch
         val realFactory = DatabaseContainer.containerFactory
         try {
-            runCatching { runBlocking { DatabaseContainer.replacingDatabases {
-                DatabaseContainer.reset()
+            runCatching { runBlocking { DatabaseContainer.replacingDatabases { token ->
+                DatabaseContainer.resetOwned(token)
                 DatabaseContainer.containerFactory = { error("migration failed") }
                 DatabaseContainer.instance
             } } }
@@ -78,20 +79,21 @@ class RestoreReleaseTest {
 
     @Test fun aReplaceThatThrowsStillPostsTheReload() {
         val n = countReloads {
-            runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
+            runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
         }
         assertEquals(1, n)
     }
 
     /** Review Focus 3. */
     @Test fun noReplaceMeansNoReloadIsPosted() {
-        assertEquals(0, countReloads { runBlocking { BackupControl.reloadingAfterReplace { /* user cancelled */ } } })
+        assertEquals(0, countReloads { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { /* user cancelled */ } } })
     }
 
     @Test fun afterAThrowingRestoreAndItsReloadSavingWorksAgain() {
-        runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
-        repo.loadFromDb(repo.id) // what databaseRestored triggers on the host
+        runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) } // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 }

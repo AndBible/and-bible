@@ -23,7 +23,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
@@ -66,7 +66,6 @@ import java.util.Locale
 const val ONE_HOUR = 1000L * 60L * 60L
 
 // Crash data file constants
-const val LAST_CRASH_STACKTRACE_FILE = "last_crash_stacktrace.txt"
 const val LAST_CRASH_LOGCAT_FILE = "last_crash_logcat.txt.gz"
 const val LAST_CRASH_SCREENSHOT_FILE = "last_crash_screenshot.webp"
 const val STACKTRACE_FILE = "stacktrace.txt"
@@ -125,7 +124,7 @@ object ErrorReportControl {
                     ErrorDialogResult.REPORT -> BugReport.reportBug(context, exception=exception, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
-                        BackupControl.backupPopup(context)
+                        net.bible.android.view.activity.backup.BackupNavigation.backupPopup(context)
                         askAgain = true
                     }
                 }

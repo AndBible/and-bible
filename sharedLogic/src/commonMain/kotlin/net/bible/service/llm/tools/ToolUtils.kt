@@ -1,0 +1,140 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.llm.tools
+
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.mydocument.MyDocument
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.llmJson
+import org.crosswire.jsword.passage.PassageKeyFactory
+import kotlinx.serialization.json.*
+
+/** Decode tool arguments from JsonObject to a typed @Serializable data class. */
+inline fun <reified T> JsonObject.decodeArgs(): T =
+    llmJson.decodeFromString<T>(frameworkJson())
+
+/**
+ * Strip markdown formatting from a title string.
+ * Converts `[text](url)` links to just `text`, removes bold/italic markers, etc.
+ * LLMs sometimes put markdown links in titles despite being told not to.
+ */
+private val markdownLinkRegex = Regex("""\[([^\]]*)\]\([^)]*\)""")
+fun stripMarkdownFromTitle(title: String): String = title
+    .replace(markdownLinkRegex, "$1")
+    .replace("**", "")
+    .replace("__", "")
+    .replace("*", "")
+    .replace("_", "")
+    .replace("`", "")
+    .replace("#", "")
+    .trim()
+
+/**
+ * Normalize text content from LLM output.
+ *
+ * Some LLM providers return literal "\n" (backslash + n) in their JSON tool call
+ * arguments instead of actual newline characters. This happens due to double-escaping
+ * in the JSON arguments string. This function converts those literal escape sequences
+ * back to actual characters.
+ */
+fun normalizeLlmText(text: String): String = text
+    .replace("\\n", "\n")
+    .replace("\\t", "\t")
+
+/**
+ * Generic fallback formatter for JSON strings in the agent log.
+ * Parses as JsonObject and outputs key: value pairs.
+ * Unwraps the ToolResult `{"status":"...","data":{...}}` wrapper automatically.
+ * Truncates long values to keep the log readable.
+ */
+fun formatJsonForLog(json: String): String = try {
+    val obj = Json.parseToJsonElement(json).jsonObject
+    // Unwrap ToolResult wrapper: format "data" contents directly
+    val target = if (obj.has("status") && obj.has("data")) {
+        when (val data = obj["data"]) {
+            is JsonObject -> data
+            is JsonArray -> return "${data.size} items"
+            else -> return obj.optString("data", json)
+        }
+    } else {
+        obj
+    }
+    formatJsonObjectForLog(target)
+} catch (_: Exception) {
+    json
+}
+
+private fun formatJsonObjectForLog(obj: JsonObject): String =
+    obj.keys.asSequence()
+        .filter { it != "status" }
+        .map { key ->
+            val value = obj[key]
+            val str = when (value) {
+                is JsonObject -> "{...}"
+                is JsonArray -> "${value.size} items"
+                else -> obj.optString(key, "null")
+            }
+            val truncated = if (str.length > 80) str.take(80) + "..." else str
+            "$key: $truncated"
+        }
+        .joinToString(", ")
+
+/**
+ * Localize an OSIS verse reference to a human-readable name using JSword.
+ * Falls back to the original reference on any error.
+ */
+fun localizeVerseRef(osisRef: String): String = try {
+    PassageKeyFactory.instance().getKey(KJVA, osisRef).getName()
+} catch (_: Exception) {
+    osisRef
+}
+
+/**
+ * Shorten a UUID string for display (first 8 chars).
+ */
+fun shortId(id: String): String = if (id.length > 8) id.take(8) + "..." else id
+
+/**
+ * Generate a unique label name by appending a numeric suffix if the name already exists.
+ * E.g. "Study" → "Study (2)" → "Study (3)" etc.
+ */
+fun uniqueLabelName(baseName: String, existingNames: List<String>): String {
+    val nameSet = existingNames.map { it.lowercase() }.toSet()
+    if (baseName.lowercase() !in nameSet) return baseName
+    var suffix = 2
+    while ("$baseName ($suffix)".lowercase() in nameSet) suffix++
+    return "$baseName ($suffix)"
+}
+
+/**
+ * Resolve a MyDocument by ID or initials.
+ * Tries documentId first, then falls back to initials lookup.
+ *
+ * @return The resolved MyDocument, or null if neither identifier matches
+ */
+suspend fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
+    val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+    if (documentId != null && !documentId.isEmpty) {
+        return dao.documentById(documentId)
+    }
+    if (!initials.isNullOrBlank()) {
+        return dao.documentByInitials(initials)
+    }
+    return null
+}

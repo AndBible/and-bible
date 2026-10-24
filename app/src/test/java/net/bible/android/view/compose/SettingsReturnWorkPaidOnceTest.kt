@@ -54,6 +54,8 @@ import kotlin.test.assertNull
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SettingsReturnWorkPaidOnceTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     /** `firstTime` is a file-level var Robolectric does not reset; true makes fixNightMode recreate() and null navController. */
@@ -64,11 +66,7 @@ class SettingsReturnWorkPaidOnceTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun host() = Robolectric.buildActivity(
@@ -82,6 +80,7 @@ class SettingsReturnWorkPaidOnceTest {
     fun theSyntheticCancelOfASettingsSelfLaunchPaysNothingOnEntry() {
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         val paid = mutableListOf<Int>()
         activity.onReadingReturnWorkForTest = { paid += it }
 
@@ -104,6 +103,7 @@ class SettingsReturnWorkPaidOnceTest {
     fun aSecondSettingsRoundTripPaysExactlyOnceAgain() {
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         val paid = mutableListOf<Int>()
         activity.onReadingReturnWorkForTest = { paid += it }
         repeat(2) {
@@ -124,6 +124,7 @@ class SettingsReturnWorkPaidOnceTest {
     fun aSettingsSelfLaunchNavigatesTheLiveGraphInsteadOfLaunching() {
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         val paid = mutableListOf<Int>()
         activity.onReadingReturnWorkForTest = { paid += it }
 

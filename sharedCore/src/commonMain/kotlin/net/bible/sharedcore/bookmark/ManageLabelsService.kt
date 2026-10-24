@@ -3,12 +3,12 @@ package net.bible.sharedcore.bookmark
 /** Host-provided data + recent/override lookups for the ManageLabels list. Pure values only, plus
  *  the one persisted display preference below. */
 interface ManageLabelsService {
-    fun assignableLabels(): List<LabelItem>          // excludes the Unlabeled special (classic: filter !isUnlabeledLabel)
-    fun unlabeledLabel(): LabelItem                  // bookmarkControl.labelUnlabelled as a LabelItem
+    suspend fun assignableLabels(): List<LabelItem>         // excludes the Unlabeled special (classic: filter !isUnlabeledLabel)
+    suspend fun unlabeledLabel(): LabelItem                 // bookmarkControl.labelUnlabelled as a LabelItem
     fun recentLabelIds(): List<String>               // workspaceSettings.recentLabels ids, in order
     /** The style each workspace-overridden label is forced to, keyed by label id. Empty when the
      *  workspace overrides nothing. */
-    fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle>
+    suspend fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle>
     fun randomColorArgb(): Int                       // for a new label (host: Color.argb(255,rnd,rnd,rnd))
 
     /**

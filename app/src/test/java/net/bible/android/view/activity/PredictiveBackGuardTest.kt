@@ -7,7 +7,7 @@ import java.io.File
 
 /** Spec 2026-10-08 API 36 §5: with predictive back on, these entry points are never called by the platform. */
 class PredictiveBackGuardTest {
-    private val mainSources = File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+    private val mainSources = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }.toList()
 
     private fun stripComments(text: String): String {
         val noBlockComments = Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL).replace(text, "")

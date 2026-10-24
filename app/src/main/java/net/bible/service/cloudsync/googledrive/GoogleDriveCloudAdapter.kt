@@ -21,7 +21,7 @@ import android.accounts.Account
 import android.app.Activity
 import android.os.Parcel
 import android.util.Base64
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -47,16 +47,17 @@ import net.bible.android.BibleApplication
 import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
-import net.bible.service.cloudsync.CloudFile
-import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.sharedcore.platform.cloud.CloudFile
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
 import net.bible.service.common.CommonUtils
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.OutputStream
+import okio.Path
+import okio.Sink
+import okio.buffer
 import java.util.Collections
 import kotlin.coroutines.resumeWithException
 
@@ -167,7 +168,8 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             }
         }
 
-    override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
+        val activity = net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity ?: return@withContext false
         Log.i(TAG, "Starting")
         try {
             account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }
@@ -301,26 +303,28 @@ class GoogleDriveCloudAdapter: CloudAdapter {
     // For Google Drive implementation, we don't need to do anything
     {}
 
-    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
+    override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
 
-    override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?): Unit =
+    override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?): Unit =
         withContext(Dispatchers.IO) {
-            val get = service.files().get(id)
-            if (onProgress != null) {
-                // Capture the context here (suspend scope); the progress callback below runs on the
-                // blocking download thread and can't itself suspend.
-                val ctx = coroutineContext
-                get.mediaHttpDownloader?.apply {
-                    setChunkSize(DOWNLOAD_CHUNK_SIZE)
-                    setProgressListener { dl ->
-                        // Cooperatively abort at this chunk boundary if the sync coroutine was
-                        // cancelled (sign-out / service stop), instead of blocking to the read timeout.
-                        ctx.ensureActive()
-                        onProgress(dl.numBytesDownloaded)
+            sink.buffer().outputStream().use { outputStream ->
+                val get = service.files().get(id)
+                if (onProgress != null) {
+                    // Capture the context here (suspend scope); the progress callback below runs on the
+                    // blocking download thread and can't itself suspend.
+                    val ctx = coroutineContext
+                    get.mediaHttpDownloader?.apply {
+                        setChunkSize(DOWNLOAD_CHUNK_SIZE)
+                        setProgressListener { dl ->
+                            // Cooperatively abort at this chunk boundary if the sync coroutine was
+                            // cancelled (sign-out / service stop), instead of blocking to the read timeout.
+                            ctx.ensureActive()
+                            onProgress(dl.numBytesDownloaded)
+                        }
                     }
                 }
+                get.executeMediaAndDownloadTo(outputStream)
             }
-            get.executeMediaAndDownloadTo(outputStream)
         }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile =
@@ -334,17 +338,19 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .execute()
             .toSyncFile()
 
-    override suspend fun upload(name: String, file: File, parentId: String): CloudFile =
-        service.files().create(
+    override suspend fun upload(name: String, file: Path, parentId: String): CloudFile {
+        val f = file.toFile()
+        return service.files().create(
             DriveFile().apply {
                 this.name = name
                 parents = listOf(parentId)
             },
-            FileContent(GZIP_MIMETYPE, file)
+            FileContent(GZIP_MIMETYPE, f)
         )
             .setFields(FIELDS)
             .execute()
             .toSyncFile()
+    }
 
     override suspend fun signOut() {
         oneTapClient.signOut().await()

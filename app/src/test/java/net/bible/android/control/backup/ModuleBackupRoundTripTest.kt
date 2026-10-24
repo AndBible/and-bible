@@ -29,13 +29,16 @@ import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
+import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -62,7 +65,7 @@ import java.util.zip.ZipInputStream
  * between three callers — the sideload `InstallZip` flow, the "Backup modules" feature,
  * and cloud document-sync — so a change to one path can't silently break the others.
  *
- * The extraction target ([SwordBookPath.getSwordDownloadDir]) is pinned to
+ * The extraction target ([SwordBookPathJvm.getSwordDownloadDir]) is pinned to
  * [SharedConstants.modulesDir] in [setUp] so that restored files land where the
  * manually-installed rescans (TTF/MyBible/EPUB) look for them; on a real device the JSword
  * home is configured to the same directory, but the download dir is otherwise computed once
@@ -73,7 +76,7 @@ import java.util.zip.ZipInputStream
 class ModuleBackupRoundTripTest {
     @Before
     fun setUp() {
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
     @After
@@ -85,7 +88,7 @@ class ModuleBackupRoundTripTest {
         }
         File(SharedConstants.modulesDir, "ttf").deleteRecursively()
         File(SharedConstants.modulesDir, "mods.d/FontPack.conf").delete()
-        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+        for (b in Books.installed().getBooks().filter { it.isBackgroundImageModule }) {
             Books.installed().removeBook(b)
         }
         File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
@@ -95,7 +98,7 @@ class ModuleBackupRoundTripTest {
      * A TTF font is a real (non-pseudo) [org.crosswire.jsword.book.Book] backed by
      * byte-array-constructed metadata, so it reaches [BackupControl.createSingleModuleZip].
      * Regression guard for the NPE that occurred when such books fell into the generic SWORD
-     * branch (whose `bmd.configFile` is null for byte-array metadata). Packaging must instead
+     * branch (whose `SwordBookMetaDataJvm.getConfigFile(bmd)` is null for byte-array metadata). Packaging must instead
      * archive the underlying `.ttf` file, and restore must re-register it.
      */
     @Test
@@ -109,7 +112,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "ttf-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book!!, zipFile.toOkioPath())
 
         ZipFile(zipFile).use { zf ->
             assertNotNull(
@@ -120,10 +123,10 @@ class ModuleBackupRoundTripTest {
 
         // Simulate restoring onto a device that doesn't have the font yet.
         ttfDir.deleteRecursively()
-        Books.installed().removeBook(book)
+        Books.installed().removeBook(book!!)
         assertNull(Books.installed().getBook("TTF_TestFont"))
 
-        val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
     }
@@ -142,12 +145,12 @@ class ModuleBackupRoundTripTest {
         File(imgDir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
 
         addManuallyInstalledBackgroundImageBooks()
-        val book = Books.installed().books.first { it.isBackgroundImageModule }
+        val book = Books.installed().getBooks().first { it.isBackgroundImageModule }
         val initials = book.initials
 
         val zipFile = File(CommonUtils.tmpDir, "bgimg-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile.toOkioPath())
 
         ZipFile(zipFile).use { zf ->
             assertNotNull(
@@ -160,7 +163,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook(initials))
 
-        val installed = BackupControl.installModuleArchive(zipFile, initials)
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), initials)
         assertTrue("background image should reinstall from the archive", installed)
         assertNotNull(Books.installed().getBook(initials))
     }
@@ -179,7 +182,7 @@ class ModuleBackupRoundTripTest {
      */
     @Test
     fun fontPackAddonPackagesViaSwordBranchNotTtfFile() = runBlocking {
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
 
         // Font files live under the DataPath dir (./ttf/), in an `and-bible/` subdir as real
         // FontPack modules ship them. One font exists; a second is referenced by the conf's
@@ -203,7 +206,7 @@ class ModuleBackupRoundTripTest {
         }
 
         // File-based metadata → configFile != null, the distinguisher from a manual TTF.
-        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         val book: Book = SwordBook(bmd, NullBackend())
 
         assertFalse(
@@ -213,7 +216,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "fontpack-pkg.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile.toOkioPath())
 
         ZipFile(zipFile).use { zf ->
             val entries = zf.entries().toList().map { it.name }.toSet()
@@ -246,7 +249,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "rawld-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile.toOkioPath())
 
         ZipInputStream(FileInputStream(zipFile)).use { zis ->
             assertEquals(
@@ -261,19 +264,19 @@ class ModuleBackupRoundTripTest {
         }
 
         // Wipe the on-disk module + registration, then restore purely from the archive.
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         File(downloadDir, "mods.d/testdict.conf").delete()
         File(downloadDir, "modules/lexdict/rawld/testdict").deleteRecursively()
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook("TestDict"))
 
-        val installed = BackupControl.installModuleArchive(zipFile, "TestDict")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), "TestDict")
         assertTrue("Dictionary should reinstall from the backup archive", installed)
         val restored = Books.installed().getBook("TestDict")
         assertNotNull(restored)
         assertTrue(
             "Restored module content must be intact",
-            restored.getRawText(restored.getKey("strong")).contains("The test definition body.")
+            restored!!.getRawText(restored!!.getKey("strong")).contains("The test definition body.")
         )
     }
 
@@ -286,7 +289,7 @@ class ModuleBackupRoundTripTest {
      * uint32-LE offset + uint16-LE length, both little-endian.
      */
     private fun registerMinimalRawLdDictionary(): Book {
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         val conf = """
             [TestDict]
             DataPath=./modules/lexdict/rawld/testdict/test
@@ -309,9 +312,9 @@ class ModuleBackupRoundTripTest {
             .putInt(0).putShort(datBytes.size.toShort()).array()
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
-        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
-        bmd.driver = SwordBookDriver.instance()
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
+        bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
-        return Books.installed().getBook("TestDict")
+        return Books.installed().getBook("TestDict")!!
     }
 }

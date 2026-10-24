@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
+import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -44,8 +45,8 @@ import java.util.zip.ZipFile
  *
  * These tests stop at packaging: they don't drive the full restore round-trip, because
  * [BackupControl.extractAndRegisterModuleArchive] always finishes by rescanning the
- * manually-installed module dirs, and for MyBible that means opening the sqlite via the
- * requery driver (excluded from the unit-test classpath, see app/build.gradle.kts) while for
+ * manually-installed module dirs, and for MyBible that means opening and registering a real
+ * SQLite module (not built by these byte-array fixtures) while for
  * EPUB the rescan parses and then deletes any dir that isn't a fully-optimized epub. Full
  * register-on-restore for these types is covered by on-device/instrumented testing. The
  * packaging path — the part the backup refactor restructured — is fully covered here.
@@ -64,7 +65,7 @@ class ModuleBackupPackagingTest {
     private suspend fun entriesOf(book: Book, zipName: String): Set<String> {
         val zipFile = File(CommonUtils.tmpDir, zipName)
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile.toOkioPath())
         return ZipFile(zipFile).use { zf -> zf.entries().toList().map { it.name }.toSet() }
     }
 

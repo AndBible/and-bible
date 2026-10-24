@@ -124,6 +124,8 @@ class ChooserInGraphResultTest {
     private var mapController: ChooseMapKeyController? = null
     private var dictionaryController: ChooseDictionaryWordController? = null
     private var gridController: GridChoosePassageController? = null
+    private var gridGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+    private var gridCanceled = false
     private var gridIsScripture: Boolean? = null
     private var documentController: DocumentSelectionController? = null
     private var documentTypeFilter: DocTypeFilter? = null
@@ -152,6 +154,7 @@ class ChooserInGraphResultTest {
     private fun deps(
         generalBookKeys: List<String> = listOf("Chapter 1", "Chapter 2"),
         mapKeys: List<String> = listOf("Map 1"),
+        generalBookGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null,
         dictionaryDocument: Boolean = true,
         dictionaryRows: List<DictRow>? = listOf(DictRow("0", "aaron")),
     ): ChooserNavDeps {
@@ -167,6 +170,7 @@ class ChooserInGraphResultTest {
             chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
                 title = "General book",
                 controllerFor = { onResult ->
+                    generalBookGate?.await()
                     if (generalBookKeys.isEmpty()) {
                         null
                     } else {
@@ -227,9 +231,9 @@ class ChooserInGraphResultTest {
             ),
             gridChoosePassage = GridChoosePassageDeps(
                 windowTitle = "AndBible",
-                controllerFor = { isScripture, onResult ->
+                controllerFor = { scope, isScripture, onResult ->
                     gridIsScripture = isScripture
-                    gridPassageController(onResult).also { gridController = it }
+                    gridPassageController(scope, onResult).also { gridController = it }
                 },
             ),
             chooseDocument = ChooseDocumentDeps(
@@ -267,7 +271,8 @@ class ChooserInGraphResultTest {
      * walk Book -> Chapter -> Verse by clicking the screen rather than by calling the arm's own
      * `onResult` back to it.
      */
-    private fun gridPassageController(onResult: (PassageResult) -> Unit) = GridChoosePassageController(
+    private fun gridPassageController(scope: kotlinx.coroutines.CoroutineScope, onResult: (PassageResult) -> Unit) = GridChoosePassageController(
+        scope = scope,
         initialOptions = GridOptions(
             showScripture = true,
             alphabetical = false,
@@ -277,6 +282,10 @@ class ChooserInGraphResultTest {
             showProgress = false,
         ),
         buildStep = { step, opts ->
+            try { gridGate?.await() } catch (e: kotlinx.coroutines.CancellationException) {
+                gridCanceled = true
+                throw e
+            }
             GridUi(
                 step = step,
                 title = "Step ${step.name}",
@@ -327,6 +336,19 @@ class ChooserInGraphResultTest {
         compose.waitForIdle()
     }
 
+    @Test fun pending_grid_read_is_cancelled_when_destination_leaves() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        gridGate = gate
+        try {
+            setGraph(deps())
+            navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
+            assertNotNull(gridController)
+            compose.runOnIdle { navController.popBackStack() }
+            compose.waitForIdle()
+            assertEquals(true, gridCanceled, "destination disposal must cancel the held grid read")
+        } finally { gate.cancel(); gridGate = null }
+    }
+
     /** A real system back press, so the arm's `PlatformBackHandler` is what decides. */
     private fun pressBack() {
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
@@ -343,6 +365,42 @@ class ChooserInGraphResultTest {
      * channel-delivering `onResult`, and any regression in deliver-then-pop. Also pins that the
      * window title is set EXACTLY once, on the value the deps carried.
      */
+    @Test
+    fun aPendingGeneralBookChooserDoesNotDeliverAnEmptyFallback() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        try {
+            setGraph(deps(generalBookGate = gate))
+            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+            assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, currentRoute)
+            assertEquals(0, generalBookEmptyResults)
+            compose.runOnIdle { gate.complete(Unit) }
+            compose.waitForIdle()
+            assertNotNull(generalBookController)
+            assertEquals(0, generalBookEmptyResults)
+        } finally {
+            gate.cancel()
+        }
+    }
+
+    @Test
+    fun aPoppedPendingGeneralBookChooserCannotPublishRowsOrFallback() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        try {
+            setGraph(deps(generalBookGate = gate))
+            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+            compose.runOnIdle { navController.popBackStack() }
+            compose.waitForIdle()
+            compose.runOnIdle { gate.complete(Unit) }
+            compose.waitForIdle()
+            assertEquals(NavRoutes.READING, currentRoute)
+            assertEquals(null, generalBookController)
+            assertEquals(0, generalBookEmptyResults)
+            assertEquals(null, keyChooserResults.consume())
+        } finally {
+            gate.cancel()
+        }
+    }
+
     @Test
     fun aGeneralBookKeyChosenInTheGraphReachesTheParentAndPops() {
         setGraph(deps())

@@ -20,7 +20,7 @@ import android.content.Context
 import android.os.Build
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication.Companion.application
 
 const val TAG = "PhoneCallMonitor"

@@ -18,15 +18,16 @@
 package net.bible.service.llm.tools
 
 import net.bible.service.sword.OsisToPlainText
-import org.jdom2.input.SAXBuilder
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.StringReader
 
 class OsisToPlainTextTest {
 
-    private fun parse(xml: String): org.jdom2.Element {
-        return SAXBuilder().build(StringReader(xml)).rootElement
+    private fun parse(xml: String): fi.sykero.kdom.Element {
+        return KdomBuilder().build(StringReader(xml)).rootElement
     }
 
     @Test
@@ -123,6 +124,19 @@ class OsisToPlainTextTest {
     fun referenceModuleWithSpacesEncoded() {
         val xml = """<div><reference osisRef="My Commentary:Matt.5.3">Matt 5:3</reference></div>"""
         assertEquals("[Matt 5:3](sword://My%20Commentary/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun referenceModuleNonAsciiBytesEncodedAsUtf8Percent() {
+        val xml = """<div><reference osisRef="A&#x20AC;&#x2603;:Matt.5.3">x</reference></div>"""
+        assertEquals("[x](sword://A%E2%82%AC%E2%98%83/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    /** Each UTF-16 half of a pair is encoded alone, and `String.toByteArray` turns a lone surrogate into `?`. */
+    @Test
+    fun referenceModuleSupplementaryCharEncodedAsQuestionMarks() {
+        val xml = """<div><reference osisRef="A&#x1F600;:Matt.5.3">x</reference></div>"""
+        assertEquals("[x](sword://A%3F%3F/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
     }
 
     @Test

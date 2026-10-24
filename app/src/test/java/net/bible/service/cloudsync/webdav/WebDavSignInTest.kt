@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.sharedcore.webdav.*
@@ -44,7 +43,7 @@ class WebDavSignInTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter() = WebDavCloudAdapter(
-        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui,
+        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui, deviceId = "test-device",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
         nowMs = { server.nowServer },
     )
@@ -55,7 +54,7 @@ class WebDavSignInTest {
 
     @Test fun untrustedCertificate_trusted_pinsAndConnects() = runBlocking {
         untrustedUntilPinned()
-        assertTrue(adapter().signIn(mock<ActivityBase>()))
+        assertTrue(adapter().signIn())
         assertEquals(1, ui.asked)
         assertEquals(CertPin(info.host, info.sha256), state.certPin)
     }
@@ -63,21 +62,21 @@ class WebDavSignInTest {
     @Test fun untrustedCertificate_declined_throwsUserCancelled_noPin() = runBlocking {
         untrustedUntilPinned()
         ui.trust = false
-        assertThrows(CloudSyncUserCancelledException::class.java) { runBlocking { adapter().signIn(mock<ActivityBase>()) } }
+        assertThrows(CloudSyncUserCancelledException::class.java) { runBlocking { adapter().signIn() } }
         assertEquals(1, ui.asked)
         assertNull(state.certPin)
     }
 
     @Test fun stillUntrustedAfterPin_asksOnlyOnce() = runBlocking {
         server.failWith = { IOException("handshake", DavUntrustedCertificateException(info)) }
-        assertFalse(adapter().signIn(mock<ActivityBase>()))
+        assertFalse(adapter().signIn())
         assertEquals(1, ui.asked)
     }
 
     @Test fun notAWebDavEndpoint_surfacesAsNotAFolderMessage() {
         for (status in listOf(405, 200)) {
             server.statusOverride = { status }
-            val e = assertThrows(Exception::class.java) { runBlocking { adapter().signIn(mock<ActivityBase>()) } }
+            val e = assertThrows(Exception::class.java) { runBlocking { adapter().signIn() } }
             assertEquals("status $status", WebDavMessage.NOT_A_FOLDER.name, e.message)
         }
     }

@@ -16,6 +16,12 @@
  */
 package net.bible.sharedcore.readingplan
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +38,8 @@ enum class ReadingPlanError { FAILED }
  * seams (start the plan + finish / reset the plan). No Android/JSword types here.
  */
 class ReadingPlanSelectorController(
-    private val loadPlans: () -> List<PlanEntry>,
+    private val scope: CoroutineScope,
+    private val loadPlans: suspend () -> List<PlanEntry>,
     private val hasDuplicates: () -> Boolean,
     private val onSelect: (String) -> Unit,
     private val onReset: (String) -> Unit,
@@ -46,16 +53,33 @@ class ReadingPlanSelectorController(
     private val _error = MutableStateFlow<ReadingPlanError?>(null)
     val error: StateFlow<ReadingPlanError?> = _error.asStateFlow()
 
+    private var loadJob: Job? = null
+    private var loadGeneration = 0L
+
     init { load() }
 
     fun load() {
+        val generation = ++loadGeneration
+        loadJob?.cancel()
         _error.value = null
-        try {
-            _plans.value = loadPlans()
-            _duplicateWarning.value = hasDuplicates()
-        } catch (e: Exception) {
-            _error.value = ReadingPlanError.FAILED
+        loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                val plans = loadPlans()
+                if (generation == loadGeneration && isActive) {
+                    _plans.value = plans
+                    _duplicateWarning.value = hasDuplicates()
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (generation == loadGeneration && isActive) _error.value = ReadingPlanError.FAILED
+            }
         }
+    }
+
+    /** Relabels loaded entries without reloading plans or re-opening dismissed warnings. */
+    fun updateMetadata(transform: (PlanEntry) -> PlanEntry) {
+        _plans.value = _plans.value.map(transform)
     }
 
     fun select(planCode: String) = onSelect(planCode)
@@ -64,6 +88,8 @@ class ReadingPlanSelectorController(
         try {
             onReset(planCode)
             load()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             _error.value = ReadingPlanError.FAILED
         }

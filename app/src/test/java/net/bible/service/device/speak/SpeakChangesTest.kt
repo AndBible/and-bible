@@ -21,6 +21,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.VerseRange
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -38,26 +39,29 @@ import org.robolectric.RobolectricTestRunner
 /** Spec section 2.1-2.2: events emitted through the real (mocked-TTS) SpeakControl. */
 @RunWith(RobolectricTestRunner::class)
 class SpeakChangesTest : SpeakIntegrationTestBase() {
-    private val seen = mutableListOf<SpeakChange>()
-    private val settingsSeen = mutableListOf<SpeakSettingsChange>()
-    private val subs = mutableListOf<Subscription>()
+    // Events are delivered from the thread that saves settings or speaks; readers take toList() snapshots.
+    private val seen = CopyOnWriteArrayList<SpeakChange>()
+    private val settingsSeen = CopyOnWriteArrayList<SpeakSettingsChange>()
+    private val subs = CopyOnWriteArrayList<Subscription>()
 
     private fun watch() {
         subs += SpeakChanges.changes.subscribe { seen += it }
         subs += SpeakSettingsChanges.changes.subscribe { settingsSeen += it }
     }
 
-    @After fun cancel() { subs.forEach { it.cancel() } }
+    @After fun cancel() { subs.toList().forEach { it.cancel() } }
 
     private fun verse(ref: String) = (book.getKey(ref) as RangedPassage).getVerseAt(0)
-    private fun states() = seen.filterIsInstance<SpeakChange.State>().map { it.speakState }
+    private fun states() = seen.toList().filterIsInstance<SpeakChange.State>().map { it.speakState }
 
     @Test
     fun speakPauseContinueStopEmitTheStatesInOrder() {
         watch()
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.pause()
         speakControl.continueAfterPause()
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.stop()
         assertEquals(
             listOf(SpeakPlaybackState.SPEAKING, SpeakPlaybackState.PAUSED, SpeakPlaybackState.SPEAKING, SpeakPlaybackState.SILENT),
@@ -68,7 +72,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     private fun nextText(provider: SpeakTextProvider, prefix: String): Pair<String, TextCommand> {
         repeat(20) { index ->
             val id = "$prefix-$index"
-            val command = provider.getNextSpeakCommand(id)
+            val command = kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand(id) }
             if (command is TextCommand) return id to command
         }
         error("No text command in the first 20 commands")
@@ -76,7 +80,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
 
     @Test
     fun bibleStartUtteranceEmitsTitleAndTextWithTheirVerseRanges() {
-        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book)
+        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get(), swordContentFacade = net.bible.test.testSwordContentFacade())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true))
         provider.setupReading(book, verse("Rom.1.1"))
         watch()
@@ -86,11 +90,11 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
             assertTrue(command.text.isNotBlank())
             seen.clear()
             provider.startUtterance(id)
-            val progress = seen.filterIsInstance<SpeakChange.Progress>().single()
+            val progress = seen.toList().filterIsInstance<SpeakChange.Progress>().single()
             assertSame(book, progress.book)
             assertSame(command, progress.speakCommand)
             assertTrue(progress.key is VerseRange)
-            assertEquals("Rom.1.1-Rom.1.3", progress.key.osisRef)
+            assertEquals("Rom.1.1-Rom.1.3", progress.key.getOsisRef())
             assertFalse(progress.forceFollow)
         }
     }
@@ -100,34 +104,35 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         // The general provider also reads dictionaries; use real OSIS/ordinal extraction.
         val dictionary = requireNotNull(Books.installed().getBook("StrongsGreek"))
         val key = dictionary.getKey("00001")
-        val ordinal = SwordContentFacade.ordinalRangeFor(dictionary, key).first
-        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary)
+        val ordinal = kotlinx.coroutines.runBlocking { SwordContentFacade.ordinalRangeFor(dictionary, key, strings = net.bible.test.testCoreStrings()) }.first
+        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get(), GlobalContext.get().get(), swordContentFacade = net.bible.test.testSwordContentFacade(), strings = net.bible.test.testCoreStrings(), traverser = BibleTraverser(DocumentBibleBooksFactory()))
         provider.setupReading(BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal)))
         val (id, command) = nextText(provider, "general")
         assertEquals(TextCommand.TextType.NORMAL, command.type)
         assertTrue("Real dictionary text must be queued", command.text.isNotBlank())
         watch()
         provider.startUtterance(id)
-        val progress = seen.filterIsInstance<SpeakChange.Progress>().single()
+        val progress = seen.toList().filterIsInstance<SpeakChange.Progress>().single()
         assertSame(dictionary, progress.book)
         assertSame(command, progress.speakCommand)
         val emittedKey = progress.key as BookAndKey
         assertSame(dictionary, emittedKey.document)
-        assertEquals(key.osisRef, emittedKey.key.osisRef)
-        assertEquals(ordinal, emittedKey.ordinal!!.start)
-        assertEquals(ordinal, emittedKey.ordinal.end)
+        assertEquals(key.getOsisRef(), emittedKey.key.getOsisRef())
+        val emittedOrdinal = emittedKey.ordinal!!
+        assertEquals(ordinal, emittedOrdinal.start)
+        assertEquals(ordinal, emittedOrdinal.end)
         assertTrue(progress.forceFollow)
     }
 
     @Test
     fun legacyStartUtteranceEmitsCurrentTextThenBookTitleForTheSelectedKey() {
         val key = book.getKey("Rom.1.1")
-        val provider = LegacySpeakTextProvider()
+        val provider = LegacySpeakTextProvider(net.bible.test.testAppSettings(), net.bible.test.testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy())
         provider.setupReading(book, listOf(key))
         val (id, command) = nextText(provider, "legacy")
         watch()
         provider.startUtterance(id)
-        val progress = seen.filterIsInstance<SpeakChange.Progress>()
+        val progress = seen.toList().filterIsInstance<SpeakChange.Progress>()
         assertEquals(2, progress.size)
         progress.forEach {
             assertSame(book, it.book)
@@ -145,6 +150,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun shutdownWithContinueEmitsTemporaryStop() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         speakControl.stop(willContinueAfter = true)
         assertEquals(listOf(SpeakPlaybackState.TEMPORARY_STOP), states())
@@ -156,7 +162,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val s = SpeakSettings.load()
         s.sleepTimer = s.sleepTimer + 5
         s.save()
-        val change = settingsSeen.single()
+        val change = settingsSeen.toList().single()
         assertEquals(s.sleepTimer, change.speakSettings.sleepTimer)
         assertEquals(true, change.sleepTimerChanged)
         assertEquals(false, change.updateBookmark)
@@ -167,11 +173,12 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         SpeakSettings.load().save() // make currentSettings equal to what we save next
         watch()
         SpeakSettings.load().save()
-        assertEquals(emptyList<SpeakSettingsChange>(), settingsSeen)
+        assertEquals(emptyList<SpeakSettingsChange>(), settingsSeen.toList())
     }
     @Test
     fun settingsChangeWhileSpeakingPausesAndContinuesInsideSave() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = s.playbackSettings.speed + 10)
@@ -183,6 +190,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun settingsChangeFromWorkerPausesAndContinuesBeforeSaveReturns() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = s.playbackSettings.speed + 10)

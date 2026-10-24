@@ -1,10 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlinMultiplatformLibrary)
     alias(libs.plugins.compose)          // org.jetbrains.compose (CMP runtime/resources)
     alias(libs.plugins.kotlin.compose)   // org.jetbrains.kotlin.plugin.compose (compiler)
+    alias(libs.plugins.kotlin.serialization)  // Selection (page package) is @Serializable
 }
 
 // Build-time generator output: the pure-Kotlin iOS Strings holder emitted from the Android
@@ -12,6 +14,10 @@ plugins {
 // iosMain source root (below), so the iOS compile type-checks the generated holder against the real
 // interface for all locales. Declared before `kotlin { }` because the iosMain srcDir references it.
 val iosStringsOutDir = layout.buildDirectory.dir("generated/iosStrings")
+
+compose.resources {
+    packageOfResClass = "net.bible.sharedui.generated.resources"
+}
 
 kotlin {
     jvmToolchain(17)
@@ -30,6 +36,10 @@ kotlin {
         withHostTest {}
     }
 
+    // jvm() exists ONLY for fast Linux shared-tests (./gradlew :sharedUi:jvmTest), as in :sharedCore:
+    // headless desktop Compose with real Skia, so iOS-host logic is tested without a Mac (I0 spec §2).
+    jvm()
+
     // iOS targets: configure + compile-check on Linux; the framework LINK tasks run only
     // on a Mac. The static framework (baseName "SharedUi") is what the iOS host embeds.
     listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
@@ -42,7 +52,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":sharedCore"))
+            // I2 step 0: the shared app root and reading host (I2 streams A/B) call controllers in :sharedLogic.
+            implementation(project(":sharedLogic"))
             implementation(compose.runtime)
+            implementation(compose.components.resources)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
@@ -56,6 +69,8 @@ kotlin {
             // `implementation`: only AiNavGraph.kt's LifecycleEventEffect uses it, never exposed
             // through :app's compile classpath the way NavHostController is.
             implementation(libs.jetbrains.lifecycle.runtime.compose)
+            // JsonElement parsing for the BibleView bridge (no plugin needed):
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
@@ -65,11 +80,32 @@ kotlin {
             implementation(libs.androidx.core.ktx)
         }
         commonTest.dependencies {
-            // :sharedUi's first test source set (Task 3 fix round 1); kotlin("test") is enough —
-            // the covered logic (popOrExitOnFailedPop) touches no Android/Compose API.
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
+        iosTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        jvmTest {
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/report/logic")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/startup/logic")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/startup/logic")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
+            // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.
+            kotlin.srcDir(iosStringsOutDir)
+            dependencies {
+                implementation(project(":strings-gen")) // Test-only access to the real resource/API mapping parsers.
+                implementation(compose.desktop.currentOs)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.uiTest)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
 }
 
@@ -87,5 +123,29 @@ val generateIosStrings by tasks.registering(JavaExec::class) {
     outputs.dir(iosStringsOutDir)
 }
 
-listOf("compileKotlinIosArm64", "compileKotlinIosSimulatorArm64", "compileIosMainKotlinMetadata")
+listOf("compileKotlinIosArm64", "compileKotlinIosSimulatorArm64", "compileIosMainKotlinMetadata",
+    "compileTestKotlinJvm")
     .forEach { name -> tasks.matching { it.name == name }.configureEach { dependsOn(generateIosStrings) } }
+
+// The startup fixture (a real SWORD module as bytes) is generated by :sharedLogic; its tests and these share it.
+evaluationDependsOn(":sharedLogic")
+kotlin.sourceSets.configureEach {
+    if (name == "iosTest" || name == "jvmTest") {
+        kotlin.srcDir(files(project(":sharedLogic").layout.buildDirectory.dir("generated/startupFixture/kotlin"))
+            .builtBy(project(":sharedLogic").tasks.named("generateStartupFixture")))
+    }
+}
+
+// Like sharedCore, UIKit/provider tests need a booted simulator's system daemons, not standalone spawn.
+providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
+    tasks.withType<KotlinNativeSimulatorTest>().matching { it.name == "iosSimulatorArm64Test" }.configureEach {
+        device.set(simulator)
+        standalone.set(false)
+    }
+}
+
+// Headless desktop Compose (no X server in the container / CI).
+tasks.matching { it.name == "jvmTest" }.configureEach {
+    (this as Test).systemProperty("java.awt.headless", "true")
+    systemProperty("repoRoot", rootProject.projectDir.absolutePath)
+}

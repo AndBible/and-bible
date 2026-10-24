@@ -192,10 +192,21 @@ class ReadingHostChromeTest {
     fun theNavHostReImplementsNoBodyR6dHoisted() {
         val readingCommands = sourceOf("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
         val activityBase = sourceOf("src/main/java/net/bible/android/view/activity/base/ActivityBase.kt")
+        // R3 Task 1 lifted the page-title body into the common `pageTitleText(pageControl)` (sharedLogic, shared with iOS);
+        // `ReadingCommands.pageTitleText` now only delegates. The body is that one function, and the delegate must stay.
+        val commonTitle = sourceOf("../sharedLogic/src/commonMain/kotlin/net/bible/android/view/activity/page/BibleOverlayText.kt")
+        assertEquals(
+            "the common pageTitleText is the ONE page-title body; if it is gone or duplicated, the assertions below " +
+                "are watching nothing",
+            1, Regex("wholeChapter\\(key, false\\)\\.getName\\(\\)").findAll(commonTitle).count(),
+        )
         assertTrue(
-            "ReadingCommands.pageTitleText is the ONE page-title body; if it is gone, the two " +
-                "assertions below are watching nothing",
-            readingCommands.contains("CommonUtils.getWholeChapter(key, false).name"),
+            "ReadingCommands.pageTitleText must delegate to the common page-title body",
+            readingCommands.contains("net.bible.android.view.activity.page.pageTitleText(pageControl)"),
+        )
+        assertEquals(
+            "ReadingCommands re-implements the page-title body — it delegates to the common pageTitleText",
+            0, Regex("CommonUtils\\.getWholeChapter\\(").findAll(readingCommands).count(),
         )
         assertTrue(
             "Activity.themePixelSize is the ONE theme-dimension body; same reason",

@@ -742,7 +742,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--TODO: to be removed-->
   <string name="help_search_text2">खोज टेक्स्ट में विशेष वर्ण जैसे *, AND, OR, NOT शामिल हो सकते हैं</string>
   <string name="help_search_details">अधिक जानकारी के लिए कृपया %s देखें।</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title"> कार्यस्थानों</string>
   <string name="help_workspaces_text">

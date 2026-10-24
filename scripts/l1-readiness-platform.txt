@@ -1,0 +1,40 @@
+service/history/IntentHistoryItem.kt	Android Activity-stack history item (holds an Intent); iOS gets its own HistoryPlatform
+android/control/report/ErrorReportControl.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting
+android/control/report/AiBugReport.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting
+service/device/speak/AndBibleMediaButtonReceiver.kt	Android manifest-registered headset button BroadcastReceiver (MediaButtonHandler itself moved to sharedLogic)
+service/device/speak/TextToSpeechNotificationManager.kt	Android speech notification host
+service/installzip/DocumentInstallService.kt	Android foreground Service: Intents, ClipData URI grants, ContentResolver, notifications; iOS gets its own install host
+service/cloudsync/SyncService.kt	Android foreground Service, wakelock and notification host
+service/cloudsync/documents/DocumentSyncService.kt	Android foreground Service, wakelock, notification and Intent extras; drain loop remains platform-owned for a follow-up
+service/cloudsync/googledrive/GoogleDriveCloudAdapter.kt	Play Services one-tap sign-in, Android Account/Parcel and Google API client
+service/cloudsync/nextcloud/NextCloudAdapter.kt	Nextcloud Android SDK credentials/sign-in and commons-httpclient/jackrabbit transport
+service/cloudsync/nextcloud/GenericRemoteOperation.kt	Nextcloud Android library operation over JVM commons-httpclient (deliberately classified even without scanner violations)
+service/cloudsync/nextcloud/NextCloudSearchMethod.kt	Nextcloud JVM commons-httpclient and jackrabbit search method (deliberately classified even without scanner violations)
+
+service/sword/SwordEnvironmentInitialisation.kt	Android process bootstrap: storage permission, JSword home dir, error dialog; iOS has its own engine init
+android/control/page/AndroidTiltSensor.kt	Android sensor host: SensorManager, Display rotation, WindowManager; iOS has IosTiltSensor (CoreMotion)
+android/control/search/SearchHighlighter.kt	Android Spanned/StyleSpan text styling behind SearchTextHighlighter
+android/control/event/phonecall/PhoneCallMonitor.kt	Android TelephonyManager/PhoneStateListener host
+service/llm/agent/AgentForegroundService.kt	Android foreground service host for agent runs (notification, wakelock, Intent); run logic is in AgentSessionManager
+service/common/CommonUtils.kt	Android implementation behind the seams (Context, preferences, files, widgets, notifications); sync bootstrap bridges are marked L1-edge
+service/common/BuildVariantProps.kt	BuildConfig flavor/distribution properties
+service/common/AndBibleAddons.kt	Android add-on discovery (BuildConfig, packages and assets)
+service/common/FileManager.kt	Android file/storage host (Environment, storage volumes, JSword file paths)
+service/common/RecyclerViewSearchHelper.kt	Android RecyclerView UI helper
+service/common/Logger.kt	Android Log facade for legacy callers (FileManager, DocumentBibleBooksFactory)
+service/common/TestUtils.kt	Test/Android runtime detection helper used by Logger
+service/db/oldmigrations/OldMigrations.kt	Legacy Android SQLite migrations run on the original database files
+service/db/oldmigrations/DEPRECATED_ReadingPlanDatabaseDefinition.kt	Legacy Android SQLite schema kept for the old migrations
+service/db/BlockingDb.kt	Holds blockingAtEdge only (marked Room wrappers moved to :sharedLogic)
+service/device/LightSensor.kt	Android SensorManager host
+service/device/ProgressNotificationManager.kt	Android notification host
+service/device/ScreenSettings.kt	Android screen brightness/orientation settings host
+service/sword/index/SearchIndexingService.kt	Android foreground Service host for search-index builds: notification, Intent, startForeground; the queue is IndexingQueue
+service/db/ReadOnlyModuleOpen.kt	Android read-only WAL snapshot host (File permissions, cacheDir, copyTo, SHA-1); sword reaches it through ReadOnlyModuleDbOpener
+service/sword/mydocument/MarkdownToXhtml.kt	Android implementation of the MarkdownRenderer port (commonmark); iOS supplies its own
+android/platform/AndroidEpubStoreEdge.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+android/platform/AndroidMyDocumentStoreEdge.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+service/cloudsync/webdav/PinnedTrust.kt	JVM TLS trust manager, hostname verifier and OkHttp engine; iOS evaluates server trust in its own engine
+service/cloudsync/webdav/AndroidWebDavPrefs.kt	SharedPreferences-backed WebDAV config and state
+service/cloudsync/webdav/AndroidWebDavSignInUi.kt	Android dialogs, resources and date format
+android/platform/AndroidFirstLoadEdge.kt	Synchronous first-load edge for activeWindow (blockingAtEdge, L1-edge); iOS decides in I2

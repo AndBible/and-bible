@@ -48,8 +48,8 @@ class WindowRepositoryTest {
     @Throws(Exception::class)
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
+        windowRepository.initializeAtEdge()
     }
 
     @After

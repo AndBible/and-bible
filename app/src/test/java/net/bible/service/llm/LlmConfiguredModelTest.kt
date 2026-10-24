@@ -21,7 +21,7 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.junit.After
@@ -53,7 +53,7 @@ class LlmConfiguredModelTest {
             providerType = "GEMINI",
             displayName = "Test Gemini",
         )
-        providerDao.insert(testProvider)
+        runBlocking { providerDao.insert(testProvider) }
 
         testModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
@@ -62,13 +62,13 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 0.15,
             outputPricePerMillion = 0.60,
         )
-        modelDao.insert(testModel)
-        AiSettings.defaultModelId = testModel.id
+        runBlocking { modelDao.insert(testModel) }
+        CommonUtils.aiSettings.defaultModelId = testModel.id
     }
 
     @After
     fun tearDown() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         resetDatabase()
     }
 
@@ -77,7 +77,7 @@ class LlmConfiguredModelTest {
     @Test
     fun resolveConfiguredModel_withExplicitId_returnsSpecificModel() {
         val config = LlmModelConfig(configuredModelId = testModel.id)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
     }
@@ -85,7 +85,7 @@ class LlmConfiguredModelTest {
     @Test
     fun resolveConfiguredModel_withNull_returnsGlobalDefault() {
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
     }
@@ -94,7 +94,7 @@ class LlmConfiguredModelTest {
     fun resolveConfiguredModel_withDeletedModelId_fallsBackToDefault() {
         val deletedId = IdType()
         val config = LlmModelConfig(configuredModelId = deletedId)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         // Should fall back to global default since the specified model doesn't exist
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
@@ -102,24 +102,24 @@ class LlmConfiguredModelTest {
 
     @Test
     fun resolveConfiguredModel_noDefaultSet_returnsNull() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
     }
 
     @Test
     fun resolveConfiguredModel_defaultPointsToDeletedModel_returnsNull() {
-        AiSettings.defaultModelId = IdType() // Points to non-existent model
+        CommonUtils.aiSettings.defaultModelId = IdType() // Points to non-existent model
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
     }
 
     @Test
     fun resolveProviderConfig_returnsProviderViaModel() {
         val config = LlmModelConfig(configuredModelId = testModel.id)
-        val provider = config.resolveProviderConfig()
+        val provider = runBlocking { config.resolveProviderConfig() }
         assertNotNull(provider)
         assertEquals(testProvider.id, provider!!.id)
         assertEquals("GEMINI", provider.providerType)
@@ -127,9 +127,9 @@ class LlmConfiguredModelTest {
 
     @Test
     fun resolveProviderConfig_noModel_returnsNull() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
-        val provider = config.resolveProviderConfig()
+        val provider = runBlocking { config.resolveProviderConfig() }
         assertNull(provider)
     }
 
@@ -166,10 +166,10 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 1.25,
             outputPricePerMillion = 10.0,
         )
-        modelDao.insert(secondModel)
+        runBlocking { modelDao.insert(secondModel) }
 
         val config = LlmModelConfig(configuredModelId = secondModel.id)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals("gemini-2.5-pro", resolved!!.modelId)
     }
@@ -177,7 +177,7 @@ class LlmConfiguredModelTest {
     // --- Pricing resolution ---
 
     @Test
-    fun pricing_configuredModelPricing_takePriorityOverEnum() {
+    fun pricing_configuredModelPricing_takePriorityOverEnum() = runBlocking {
         // Create model with custom pricing different from enum
         val customPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
@@ -186,7 +186,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 99.0,
             outputPricePerMillion = 199.0,
         )
-        modelDao.insert(customPricedModel)
+        runBlocking { modelDao.insert(customPricedModel) }
 
         val pricing = LlmPricing.getPricing("custom-gemini-flash", customPricedModel.id)
         assertNotNull(pricing)
@@ -195,7 +195,7 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() {
+    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() = runBlocking {
         val zeroPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
             modelId = "zero-priced-flash",
@@ -203,7 +203,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 0.0,
             outputPricePerMillion = 0.0,
         )
-        modelDao.insert(zeroPricedModel)
+        runBlocking { modelDao.insert(zeroPricedModel) }
 
         // getPricing with configuredModelId that has 0 pricing should fall back to enum
         val pricing = LlmPricing.getPricing("gemini-2.5-flash", zeroPricedModel.id)
@@ -214,14 +214,14 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_withoutConfiguredModelId_usesEnumPricing() {
+    fun pricing_withoutConfiguredModelId_usesEnumPricing() = runBlocking {
         val pricing = LlmPricing.getPricing("gemini-2.5-flash", null)
         assertNotNull(pricing)
         assertEquals(0.15, pricing!!.inputPerMillion, 0.001)
     }
 
     @Test
-    fun pricing_unknownModelWithoutConfiguredId_returnsNull() {
+    fun pricing_unknownModelWithoutConfiguredId_returnsNull() = runBlocking {
         val pricing = LlmPricing.getPricing("totally-unknown-model-xyz", null)
         assertNull(pricing)
     }
@@ -296,29 +296,29 @@ class LlmConfiguredModelTest {
             providerType = "OPENAI",
             displayName = "Test OpenAI",
         )
-        providerDao.insert(secondProvider)
+        runBlocking { providerDao.insert(secondProvider) }
 
         val openaiModel = LlmConfiguredModel(
             providerConfigId = secondProvider.id,
             modelId = "gpt-4o-mini",
 
         )
-        modelDao.insert(openaiModel)
+        runBlocking { modelDao.insert(openaiModel) }
 
-        val geminiModels = modelDao.getByProvider(testProvider.id)
+        val geminiModels = runBlocking { modelDao.getByProvider(testProvider.id) }
         assertEquals(1, geminiModels.size)
         assertEquals("gemini-2.5-flash", geminiModels[0].modelId)
 
-        val openaiModels = modelDao.getByProvider(secondProvider.id)
+        val openaiModels = runBlocking { modelDao.getByProvider(secondProvider.id) }
         assertEquals(1, openaiModels.size)
         assertEquals("gpt-4o-mini", openaiModels[0].modelId)
     }
 
     @Test
     fun modelDao_cascadeDelete_removesModelsWhenProviderDeleted() {
-        assertEquals(1, modelDao.all().size)
-        providerDao.delete(testProvider)
-        assertEquals(0, modelDao.all().size)
+        assertEquals(1, runBlocking { modelDao.all() }.size)
+        runBlocking { providerDao.delete(testProvider) }
+        assertEquals(0, runBlocking { modelDao.all() }.size)
     }
 
     @Test
@@ -327,14 +327,14 @@ class LlmConfiguredModelTest {
             providerType = "OPENAI",
             displayName = "Test OpenAI",
         )
-        providerDao.insert(secondProvider)
-        modelDao.insert(LlmConfiguredModel(
+        runBlocking { providerDao.insert(secondProvider) }
+        runBlocking { modelDao.insert(LlmConfiguredModel(
             providerConfigId = secondProvider.id,
             modelId = "gpt-4o-mini",
 
-        ))
+        )) }
 
-        val all = modelDao.all()
+        val all = runBlocking { modelDao.all() }
         assertEquals(2, all.size)
     }
 }

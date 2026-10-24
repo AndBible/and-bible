@@ -16,6 +16,7 @@
  */
 package net.bible.service.common
 
+import net.bible.service.db.reset
 import net.bible.android.AppDialogControllerResetRule
 import android.Manifest
 import android.os.Looper
@@ -46,7 +47,8 @@ import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.basic.DefaultBookMetaData
 import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
 import org.crosswire.jsword.passage.Key
-import org.jdom2.Content
+import fi.sykero.kdom.Content
+import net.bible.service.db.DatabaseContainer
 import org.junit.After
 import org.junit.Rule
 import org.junit.Before
@@ -153,6 +155,9 @@ class CommonUtilsDialogsTest {
             .edit().remove("locale_pref").commit()
         CommonUtils.settings.removeString("poor-translations-dismissed")
         CommonUtils.settings.removeString("poor-translations-dismissed-version")
+        // The settings calls above build a DatabaseContainer in THIS test's Robolectric data dir; left in
+        // place it outlives that dir and the next class (SettingsStoreIntegrationTest) wrote into the dead one.
+        DatabaseContainer.reset()
         Dispatchers.resetMain()
     }
 

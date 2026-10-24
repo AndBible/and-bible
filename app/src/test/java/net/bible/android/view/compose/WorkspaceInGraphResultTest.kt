@@ -163,17 +163,17 @@ class WorkspaceInGraphResultTest {
 
         override fun currentWorkspaceId() = "ws-1"
         override fun saveCurrentIntoDb() = Unit
-        override fun loadAll() = rows.toList()
-        override fun createWorkspace(name: String) = WorkspaceRowVd("new", name, null, 0x444444, false)
-        override fun cloneWorkspace(sourceId: String, name: String) =
+        override suspend fun loadAll() = rows.toList()
+        override suspend fun createWorkspace(name: String) = WorkspaceRowVd("new", name, null, 0x444444, false)
+        override suspend fun cloneWorkspace(sourceId: String, name: String) =
             WorkspaceRowVd("clone", name, null, 0x444444, false)
-        override fun applyChanges(
+        override suspend fun applyChanges(
             orderedIds: List<String>,
             deletedIds: List<String>,
             renamed: Map<String, String>,
             changedIds: Set<String>,
         ) = Unit
-        override fun deleteCreated(ids: List<String>) = Unit
+        override suspend fun deleteCreated(ids: List<String>) = Unit
         override fun settingTypeLabels(sourceId: String) = listOf("Font")
         override fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>) = emptyList<WorkspaceRowVd>()
         override fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>) = Unit

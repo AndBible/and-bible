@@ -7,168 +7,26 @@ package net.bible.stringsgen
  * here; the holder takes the locale tag as a constructor parameter.
  *
  *  - [emitStringsData] → `StringsData.kt`: the `localeTag → (key → value)` map literal + `lookup` /
- *    `fmt` helpers (top-level fns in the package, so the holder calls them unqualified).
+ *    lookup helpers (formatting lives in sharedUi).
  *  - [emitGeneratedStrings] → `GeneratedStrings.kt`: `internal class GeneratedStrings(tag) : Strings`
  *    implementing every interface member, + the `iosStrings(localeTag)` factory.
  *
  * JVM-only BUILD-TIME code (it just assembles strings); its OUTPUT is what crosses into commonMain.
  */
 
+/** Entries per generated chunk function; keeps each method well under the JVM 64KB limit. */
+private const val DATA_CHUNK_SIZE = 100
+
 private const val PACKAGE = "net.bible.sharedui.strings"
 
 /** Minimal CLDR quantity selection: 'one' for count==1 else 'other'.
- *  (AndBible's 5 plurals declare only one/other; full CLDR rules are future work.) */
+ *  (AndBible's 6 plurals declare only one/other; full CLDR rules are future work.) */
 fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
 
-/** Verbatim source of [selectQuantity], emitted into `StringsData.kt` (mirrors the `fmt` twin pattern). */
+/** Verbatim source of [selectQuantity], emitted into `StringsData.kt` . */
 const val SELECT_QUANTITY_SOURCE: String = """
 fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
 """
-
-/**
- * The hand-rolled `fmt` substitution logic, as a REAL JVM-callable reference function so a
- * `:strings-gen` unit test can execute it directly (the emitter prints [FMT_FUNCTION_SOURCE]
- * verbatim into `StringsData.kt`, whose body is kept byte-identical to this). Handles:
- *   - `%%` → `%`
- *   - `%n$s` / `%n$d` → arg `n` (1-based) as its string
- *   - `%n$[0]?<width>?[Xx]` → arg `n` formatted as hex (`X`=upper, `x`=lower), zero-padded to
- *     `width` (e.g. `0x%1${'$'}02X` with `0xF8` → `0xF8`, with `0x09` → `0x09`)
- * NO `String.format` (JVM-only) — a hand-rolled scan, so the emitted copy is iOS-safe.
- *
- * The body between the FMT-BODY-START/END markers is the SINGLE source of truth: [FMT_FUNCTION_SOURCE]
- * is kept byte-identical to it (modulo the `${'$'}` escapes a Kotlin string literal needs).
- */
-// FMT-BODY-START
-internal fun fmt(template: String, vararg args: Any?): String {
-    val out = StringBuilder(template.length)
-    var i = 0
-    val n = template.length
-    while (i < n) {
-        val c = template[i]
-        if (c != '%') {
-            out.append(c)
-            i++
-            continue
-        }
-        // c == '%'
-        if (i + 1 < n && template[i + 1] == '%') {
-            out.append('%')
-            i += 2
-            continue
-        }
-        // Parse %<index>$<spec> — index is 1-based; spec is s/d, or [0]?<width>?[Xx] (hex).
-        var j = i + 1
-        var idx = 0
-        var sawDigit = false
-        while (j < n && template[j] in '0'..'9') {
-            idx = idx * 10 + (template[j] - '0')
-            sawDigit = true
-            j++
-        }
-        if (sawDigit && j < n && template[j] == '$') {
-            var k = j + 1
-            // Optional leading '0' flag + width digits (e.g. "02" in "%1$02X").
-            var width = 0
-            var sawWidth = false
-            while (k < n && template[k] in '0'..'9') {
-                width = width * 10 + (template[k] - '0')
-                sawWidth = true
-                k++
-            }
-            if (k < n && (template[k] == 's' || template[k] == 'd')) {
-                val arg = if (idx >= 1 && idx <= args.size) args[idx - 1] else null
-                out.append(arg?.toString() ?: "")
-                i = k + 1
-            } else if (k < n && (template[k] == 'X' || template[k] == 'x')) {
-                val arg = if (idx >= 1 && idx <= args.size) args[idx - 1] else null
-                var hex = ((arg as? Int) ?: 0).toString(16)
-                if (template[k] == 'X') hex = hex.uppercase()
-                if (sawWidth) hex = hex.padStart(width, '0')
-                out.append(hex)
-                i = k + 1
-            } else {
-                // Not a recognized spec — emit the '%' verbatim and advance one char.
-                out.append('%')
-                i++
-            }
-        } else {
-            // Not a recognized spec — emit the '%' verbatim and advance one char.
-            out.append('%')
-            i++
-        }
-    }
-    return out.toString()
-}
-// FMT-BODY-END
-
-/**
- * The verbatim Kotlin source of the [fmt] reference function above, emitted into `StringsData.kt`.
- * Keep byte-identical to [fmt]'s body (between the FMT-BODY-START/END markers) so the unit-tested
- * JVM logic equals the iOS-shipped logic.
- */
-internal val FMT_FUNCTION_SOURCE: String =
-    """
-    |fun fmt(template: String, vararg args: Any?): String {
-    |    val out = StringBuilder(template.length)
-    |    var i = 0
-    |    val n = template.length
-    |    while (i < n) {
-    |        val c = template[i]
-    |        if (c != '%') {
-    |            out.append(c)
-    |            i++
-    |            continue
-    |        }
-    |        // c == '%'
-    |        if (i + 1 < n && template[i + 1] == '%') {
-    |            out.append('%')
-    |            i += 2
-    |            continue
-    |        }
-    |        // Parse %<index>${'$'}<spec> — index is 1-based; spec is s/d, or [0]?<width>?[Xx] (hex).
-    |        var j = i + 1
-    |        var idx = 0
-    |        var sawDigit = false
-    |        while (j < n && template[j] in '0'..'9') {
-    |            idx = idx * 10 + (template[j] - '0')
-    |            sawDigit = true
-    |            j++
-    |        }
-    |        if (sawDigit && j < n && template[j] == '${'$'}') {
-    |            var k = j + 1
-    |            // Optional leading '0' flag + width digits (e.g. "02" in "%1${'$'}02X").
-    |            var width = 0
-    |            var sawWidth = false
-    |            while (k < n && template[k] in '0'..'9') {
-    |                width = width * 10 + (template[k] - '0')
-    |                sawWidth = true
-    |                k++
-    |            }
-    |            if (k < n && (template[k] == 's' || template[k] == 'd')) {
-    |                val arg = if (idx >= 1 && idx <= args.size) args[idx - 1] else null
-    |                out.append(arg?.toString() ?: "")
-    |                i = k + 1
-    |            } else if (k < n && (template[k] == 'X' || template[k] == 'x')) {
-    |                val arg = if (idx >= 1 && idx <= args.size) args[idx - 1] else null
-    |                var hex = ((arg as? Int) ?: 0).toString(16)
-    |                if (template[k] == 'X') hex = hex.uppercase()
-    |                if (sawWidth) hex = hex.padStart(width, '0')
-    |                out.append(hex)
-    |                i = k + 1
-    |            } else {
-    |                // Not a recognized spec — emit the '%' verbatim and advance one char.
-    |                out.append('%')
-    |                i++
-    |            }
-    |        } else {
-    |            // Not a recognized spec — emit the '%' verbatim and advance one char.
-    |            out.append('%')
-    |            i++
-    |        }
-    |    }
-    |    return out.toString()
-    |}
-    """.trimMargin()
 
 /**
  * Escapes [s] for safe inclusion inside a Kotlin `"..."` string literal. The order matters: `\` first
@@ -200,9 +58,6 @@ private fun entryLiteral(key: String, value: String): String =
  *  - `internal object StringsData` holding the `localeTag → (key → value)` map literal.
  *  - top-level `fun lookup(tag, key)`: exact tag → language-only prefix (e.g. `pt-BR`→`pt`) →
  *    `"en"` → the key itself, as fallbacks.
- *  - top-level `fun fmt(template, vararg args)`: positional `%n$conv` (conv ∈ s/d) substitution, plus
- *    hex `%n$[0]?<width>?[Xx]` (e.g. `0x%1${'$'}02X`), `%%`→`%`, NO `String.format` (JVM-only) — a
- *    hand-rolled scan. Emitted verbatim from the JVM-callable reference [fmt] (unit-tested).
  */
 fun emitStringsData(
     localeToKeyValues: Map<String, Map<String, String>>,
@@ -213,14 +68,31 @@ fun emitStringsData(
     sb.append("package ").append(PACKAGE).append("\n\n")
     sb.append("// GENERATED by :strings-gen (IosStringsEmitter). DO NOT EDIT.\n\n")
 
+    // The key/value data is split into one object per locale, each with chunked private functions:
+    // one giant mapOf(...) overflows the JVM's 64KB-per-method limit and a single class overflows the
+    // 65535-entry constant pool, both hit by the test-only jvm() target (Kotlin/Native has neither
+    // limit). The resulting map content is identical.
+    val localeObjects = LinkedHashMap<String, String>()
+    for ((tag, kv) in localeToKeyValues) {
+        val objName = "StringsLocale${localeObjects.size}"
+        localeObjects[tag] = objName
+        sb.append("internal object ").append(objName).append(" {\n")
+        val fns = kv.entries.chunked(DATA_CHUNK_SIZE).mapIndexed { i, chunk ->
+            sb.append("    private fun c").append(i).append("(): Map<String, String> = mapOf(\n")
+            for ((key, value) in chunk) {
+                sb.append("        ").append(entryLiteral(key, value)).append(",\n")
+            }
+            sb.append("    )\n\n")
+            "c$i()"
+        }
+        sb.append("    val map: Map<String, String> = ")
+            .append(if (fns.isEmpty()) "emptyMap()" else fns.joinToString(" + ")).append("\n}\n\n")
+    }
+
     sb.append("internal object StringsData {\n")
     sb.append("    val data: Map<String, Map<String, String>> = mapOf(\n")
-    for ((tag, kv) in localeToKeyValues) {
-        sb.append("        \"").append(kotlinStringLiteral(tag)).append("\" to mapOf(\n")
-        for ((key, value) in kv) {
-            sb.append("            ").append(entryLiteral(key, value)).append(",\n")
-        }
-        sb.append("        ),\n")
+    for ((tag, objName) in localeObjects) {
+        sb.append("        \"").append(kotlinStringLiteral(tag)).append("\" to ").append(objName).append(".map,\n")
     }
     sb.append("    )\n\n")
 
@@ -270,18 +142,13 @@ fun emitStringsData(
     )
     sb.append("\n")
 
-    // fmt: hand-rolled %n$conv scan (NO String.format — JVM-only). conv ∈ s/d; hex %n$[0]?<width>?[Xx];
-    // %% → %. Emitted verbatim from the JVM-callable reference [fmt] (kept byte-identical, unit-tested).
-    sb.append(FMT_FUNCTION_SOURCE)
-    sb.append("\n")
-
     // selectQuantity: minimal CLDR (one for count==1 else other). Emitted verbatim from [selectQuantity].
     sb.append(SELECT_QUANTITY_SOURCE)
     sb.append("\n")
 
     // lookupPlural: quantity-selected plural template with the same tag → lang → "en" fallback as
     // `lookup` (falls back to "other" within a locale if the selected quantity is absent). The CALLER
-    // (generated override) `fmt`s the returned template with the plural's format args.
+    // (generated override) formats the returned template with the plural's format args.
     sb.append(
         """
         |fun lookupPlural(tag: String, name: String, count: Int): String {
@@ -325,7 +192,7 @@ private fun paramName(decl: String): String = decl.substringBefore(':').trim()
  * Emits the `GeneratedStrings.kt` text: `internal class GeneratedStrings(private val tag: String) :
  * Strings` implementing EVERY interface member by name, plus the `iosStrings(localeTag)` factory.
  *  - VAL → `override val NAME: String get() = lookup(tag, "KEY")`
- *  - FORMAT_FUN → `override <signature> = fmt(lookup(tag, "KEY"), p1, p2…)`
+ *  - FORMAT_FUN → `override <signature> = formatTemplate(lookup(tag, "KEY"), p1, p2…)`
  *
  * Throws if any interface member has NO entry in [mappingByName] (coverage failure surfaces here, at
  * generation, not at iOS compile time).
@@ -337,7 +204,10 @@ fun emitGeneratedStrings(
     val sb = StringBuilder()
     sb.append("package ").append(PACKAGE).append("\n\n")
     sb.append("// GENERATED by :strings-gen (IosStringsEmitter). DO NOT EDIT.\n\n")
-    sb.append("internal class GeneratedStrings(private val tag: String) : Strings {\n")
+    sb.append("import net.bible.sharedui.strings.keyed.formatTemplate\n")
+    sb.append("import net.bible.sharedui.strings.keyed.numberSymbolsFor\n\n")
+    sb.append("internal class GeneratedStrings(private val localeTag: () -> String) : Strings {\n")
+    sb.append("    private val tag: String get() = localeTag()\n")
 
     for (member in interfaceMembers) {
         val mapping = mappingByName[member.name]
@@ -356,15 +226,15 @@ fun emitGeneratedStrings(
 
             MemberKind.FORMAT_FUN -> {
                 val argList = mapping.params.joinToString(", ") { paramName(it) }
-                val args = if (argList.isEmpty()) "" else ", $argList"
+                val args = ", arrayOf<Any?>($argList), numberSymbolsFor(localeTag())"
                 sb.append("    override ").append(member.signature)
-                    .append(" = fmt(lookup(tag, \"")
+                    .append(" = formatTemplate(lookup(tag, \"")
                     .append(kotlinStringLiteral(mapping.key)).append("\")").append(args).append(")\n")
             }
 
             MemberKind.PLURAL_FUN -> {
                 val argList = mapping.pluralFmtArgs.joinToString(", ")
-                val fmtCall = if (argList.isEmpty()) "fmt(it)" else "fmt(it, $argList)"
+                val fmtCall = "formatTemplate(it, arrayOf<Any?>($argList), numberSymbolsFor(localeTag()))"
                 sb.append("    override ").append(member.signature)
                     .append(" = lookupPlural(tag, \"")
                     .append(kotlinStringLiteral(mapping.key)).append("\", ")
@@ -380,6 +250,7 @@ fun emitGeneratedStrings(
     }
 
     sb.append("}\n\n")
-    sb.append("fun iosStrings(localeTag: String): Strings = GeneratedStrings(localeTag)\n")
+    sb.append("fun iosStrings(localeTag: String): Strings = GeneratedStrings { localeTag }\n")
+    sb.append("fun iosStrings(localeTag: () -> String): Strings = GeneratedStrings(localeTag)\n")
     return sb.toString()
 }

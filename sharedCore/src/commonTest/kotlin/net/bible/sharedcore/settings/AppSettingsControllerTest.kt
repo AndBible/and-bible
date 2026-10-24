@@ -28,7 +28,9 @@ class AppSettingsControllerTest {
         betaFeaturesVisible: Boolean = false,
         sdcardPermissionVisible: Boolean = false,
         openLinksVisible: Boolean = false,
+        debugToolsVisible: Boolean = false,
         displayColorMode: String = "normal",
+        legacyImportVisible: Boolean = false,
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -59,6 +61,8 @@ class AppSettingsControllerTest {
         discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
         openLinksVisible = openLinksVisible,
+        debugToolsVisible = debugToolsVisible,
+        legacyImportVisible = legacyImportVisible,
     )
 
     private fun controller(s: AppSettingsService) =
@@ -67,6 +71,22 @@ class AppSettingsControllerTest {
 
     private fun themeRow(c: AppSettingsController) =
         c.state.value.items.single { it.key == "theme_palette_style" } as SettingsItem.ListChoiceRow
+
+    @Test
+    fun retainedControllerRelocalizesOpenResetWithoutChangingSelection() {
+        val service = FakeAppSettingsService(snap())
+        val c = controller(service)
+        c.requestReset()
+        c.updateLabels(AppSettingsLabels.forTest().copy(
+            screenTitle = "Asetukset",
+            resetConfirmMessage = "Palautetaanko asetukset?",
+            themePaletteStyleTitle = "Teema",
+        ))
+        assertEquals("Asetukset", c.state.value.title)
+        assertEquals("Teema", themeRow(c).title)
+        assertEquals("tonal_spot_grey", themeRow(c).selectedValue)
+        assertEquals(AppSettingsDialog.ConfirmReset("Palautetaanko asetukset?"), c.dialog.value)
+    }
 
     @Test
     fun themeStyleRowShowsTheStoredValueAndChoices() {
@@ -118,6 +138,40 @@ class AppSettingsControllerTest {
         assertTrue(keys.contains("calculator_pin"))
     }
 
+    @Test fun testErrorRowsAreVisibleOnlyInDebugBuilds() {
+        val keys = listOf(AppSettingsNav.TEST_ERROR_DIALOG, AppSettingsNav.TEST_ERROR_DIALOG_QUEUE)
+        val debug = controller(FakeAppSettingsService(snap(debugToolsVisible = true)))
+        keys.forEach { k -> assertTrue(debug.state.value.visibleItems.any { it.key == k }, k) }
+        // Beta alone must not expose them: they are gated on the debug flag, not on betaFeaturesVisible.
+        val beta = controller(FakeAppSettingsService(snap(betaFeaturesVisible = true, debugToolsVisible = false)))
+        keys.forEach { k ->
+            val row = beta.state.value.items.single { it.key == k }
+            assertFalse(row.visible, k)
+            assertFalse(beta.state.value.visibleItems.any { it.key == k }, k)
+        }
+    }
+
+    @Test fun importRowHiddenByDefault() {
+        val c = controller(FakeAppSettingsService(snap()))
+        assertFalse(c.state.value.visibleItems.any { it.key == AppSettingsNav.IMPORT_LEGACY_DATA })
+    }
+
+    @Test fun importRowVisibleWhenFlagged() {
+        val c = controller(FakeAppSettingsService(snap(legacyImportVisible = true)))
+        val row = c.state.value.visibleItems.single { it.key == AppSettingsNav.IMPORT_LEGACY_DATA }
+        assertTrue(row is SettingsItem.NavigationRow)
+        assertEquals("Import data from the previous app version", row.title)
+    }
+
+    @Test fun testErrorRowsSitBesideCrashApp() {
+        val c = controller(FakeAppSettingsService(snap(betaFeaturesVisible = true, debugToolsVisible = true)))
+        val keys = c.state.value.items.map { it.key }
+        val i = keys.indexOf(AppSettingsNav.CRASH_APP)
+        assertTrue(i >= 0)
+        assertEquals(AppSettingsNav.TEST_ERROR_DIALOG, keys[i + 1])
+        assertEquals(AppSettingsNav.TEST_ERROR_DIALOG_QUEUE, keys[i + 2])
+    }
+
     @Test fun betaAndSdcardAndOpenLinksGating() {
         val c = controller(FakeAppSettingsService(snap()))  // all beta/sdcard/openlinks false
         val keys = c.state.value.visibleItems.map { it.key }
@@ -157,7 +211,7 @@ class AppSettingsControllerTest {
      * key→drawable half of the parity claim is pinned separately by `SettingsIconParityTest` in `:app`.
      */
     @Test fun iconKeysMatchClassicSettingsXml() {
-        val iconless = setOf("request_sdcard_permission_pref")
+        val iconless = setOf("request_sdcard_permission_pref", "import_legacy_data") // import_legacy_data: iOS-only, absent from classic settings.xml
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
@@ -174,13 +228,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyTwoRowsCarryAnIconKey() {
+    @Test fun fortyFourRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(42, items.count { it.iconKeyOrNull() != null })
+        assertEquals(44, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -245,6 +299,9 @@ class AppSettingsControllerTest {
             "show_errorbox",
             "open_links",
             "crash_app",
+            "test_error_dialog",
+            "test_error_dialog_queue",
+            "import_legacy_data",
         )
         val c = controller(
             FakeAppSettingsService(

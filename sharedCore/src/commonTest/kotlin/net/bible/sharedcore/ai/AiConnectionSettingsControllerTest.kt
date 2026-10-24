@@ -24,6 +24,7 @@ class AiConnectionSettingsControllerTest {
         allowedToolCount = 3, deniedToolCount = 1, usageSummary = "no usage", disclaimerAccepted = true,
     )
     private class Fake(initial: AiSettingsSnapshot) : AiSettingsService {
+        override val ready: StateFlow<Boolean> = MutableStateFlow(true)
         val flow = MutableStateFlow(initial)
         override val snapshot: StateFlow<AiSettingsSnapshot> = flow
         var lastMode: String? = null; var lastAsk: Boolean? = null; var lastIters: Int? = null
@@ -41,7 +42,7 @@ class AiConnectionSettingsControllerTest {
         override fun customTextTransformationSystemPromptText() = ""
         override fun builtInAgentSystemPromptText() = ""
         override fun builtInTextTransformationSystemPromptText() = ""
-        override fun refresh() {}
+        override suspend fun refresh() {}
     }
     private fun controller(fake: Fake, onResetUsageConfirm: () -> Unit = {}, nav: (String) -> Unit = {}) =
         AiConnectionSettingsController(

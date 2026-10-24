@@ -27,13 +27,13 @@ class RawLogHistoryControllerTest {
         var sessionEntriesAnswer: List<RawLogEntryVd> = emptyList()
         var canReportBugAnswer = false
 
-        override fun refresh() { refreshCount++ }
-        override fun deleteByIds(ids: Set<String>) { lastDeletedIds = ids }
-        override fun deleteOlderThan(days: Int) { lastDeleteOlderThanDays = days }
-        override fun deleteAll() { deleteAllCount++ }
+        override suspend fun refresh() { refreshCount++ }
+        override suspend fun deleteByIds(ids: Set<String>) { lastDeletedIds = ids }
+        override suspend fun deleteOlderThan(days: Int) { lastDeleteOlderThanDays = days }
+        override suspend fun deleteAll() { deleteAllCount++ }
         override suspend fun recordText(recordId: String): String? = recordTextAnswer
         override suspend fun sessionEntries(workspaceId: String): List<RawLogEntryVd> = sessionEntriesAnswer
-        override fun canReportBug(recordId: String?): Boolean = canReportBugAnswer
+        override suspend fun canReportBug(recordId: String?): Boolean = canReportBugAnswer
     }
 
     private fun controller(fake: Fake, onOpenLog: (String) -> Unit = {}) =

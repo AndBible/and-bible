@@ -148,37 +148,39 @@ fun AbTopAppBar(
         return
     }
 
-    TopAppBar(
-        windowInsets = topBarWindowInsets(),
-        title = title,
-        navigationIcon = {
-            if (onNavigateUp != null) {
-                IconButton(onClick = onNavigateUp) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = LocalStrings.current.settingsEditorBack,
-                        modifier = Modifier.size(AbActionIconSize),
-                    )
+    CappedBarFontScale {
+        TopAppBar(
+            windowInsets = topBarWindowInsets(),
+            title = title,
+            navigationIcon = {
+                if (onNavigateUp != null) {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = LocalStrings.current.settingsEditorBack,
+                            modifier = Modifier.size(AbActionIconSize),
+                        )
+                    }
                 }
-            }
-        },
-        actions = actions,
-        // The M3 default gives the title `onSurface` but the action and navigation icons
-        // `onSurfaceVariant`, so one bar drew its own contents in two colours. The search branch
-        // already overrides this deliberately (see AbSearchTopAppBar); this is the same fix for the
-        // normal branch. The CONTAINER colour is left at the M3 default, which `container` above
-        // already reads for SyncSystemBars.
-        colors = TopAppBarDefaults.topAppBarColors(
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-        // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi = true
-        // and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root padding on
-        // purpose (host-inset-ownership spec, 2026-09-18). So this bar applies Material's real
-        // window insets. Zeroing them here, as this line did until 2026-09-18, would put the bar
-        // under the status bar; adding the host padding back would double it. The two go together.
-    )
+            },
+            actions = actions,
+            // The M3 default gives the title `onSurface` but the action and navigation icons
+            // `onSurfaceVariant`, so one bar drew its own contents in two colours. The search branch
+            // already overrides this deliberately (see AbSearchTopAppBar); this is the same fix for the
+            // normal branch. The CONTAINER colour is left at the M3 default, which `container` above
+            // already reads for SyncSystemBars.
+            colors = TopAppBarDefaults.topAppBarColors(
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi = true
+            // and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root padding on
+            // purpose (host-inset-ownership spec, 2026-09-18). So this bar applies Material's real
+            // window insets. Zeroing them here, as this line did until 2026-09-18, would put the bar
+            // under the status bar; adding the host padding back would double it. The two go together.
+        )
+    }
 }
 
 /**
@@ -237,73 +239,75 @@ private fun AbSearchTopAppBar(
     }
 
     CompositionLocalProvider(LocalContentColor provides onContainer) {
-        TopAppBar(
-            windowInsets = topBarWindowInsets(),
-            title = {
-                BasicTextField(
-                    value = fieldValue,
-                    onValueChange = {
-                        fieldValue = it
-                        callbacks.onQueryChange(it.text)
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
-                    cursorBrush = SolidColor(onContainer),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                    decorationBox = { innerTextField ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.weight(1f)) {
-                                if (search.query.isEmpty()) {
-                                    Text(
-                                        search.placeholder ?: s.searchHint,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = onContainer.copy(alpha = 0.6f),
-                                    )
+        CappedBarFontScale {
+            TopAppBar(
+                windowInsets = topBarWindowInsets(),
+                title = {
+                    BasicTextField(
+                        value = fieldValue,
+                        onValueChange = {
+                            fieldValue = it
+                            callbacks.onQueryChange(it.text)
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
+                        cursorBrush = SolidColor(onContainer),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+                        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                        decorationBox = { innerTextField ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.weight(1f)) {
+                                    if (search.query.isEmpty()) {
+                                        Text(
+                                            search.placeholder ?: s.searchHint,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = onContainer.copy(alpha = 0.6f),
+                                        )
+                                    }
+                                    innerTextField()
                                 }
-                                innerTextField()
                             }
-                        }
-                    },
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = callbacks.onClose) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = s.searchClose,
-                        modifier = Modifier.size(AbActionIconSize),
+                        },
                     )
-                }
-            },
-            actions = {
-                // Caller-supplied actions first, so the built-in Clear stays the edge-most action
-                // whether or not the caller contributes any (Round 9a Plan A Task 1).
-                searchActions()
-                if (search.query.isNotEmpty()) {
-                    AbActionIcon(Icons.Filled.Clear, s.searchClear) { callbacks.onQueryChange("") }
-                }
-            },
-            // M3's TopAppBar re-provides content colour per slot from its own `colors`, so the outer
-            // CompositionLocalProvider above does NOT reach navigationIcon/actions (it only colours
-            // the placeholder text drawn directly in the title slot). Left at the default,
-            // actionIconContentColor resolves to onSurfaceVariant while navigationIconContentColor/
-            // titleContentColor resolve to onSurface — a different token, so the Clear icon would
-            // render in a visibly different shade from the back arrow and field text. Pass all three
-            // explicitly so every visible colour in this bar derives from the same onContainer.
-            colors = TopAppBarDefaults.topAppBarColors(
-                navigationIconContentColor = onContainer,
-                titleContentColor = onContainer,
-                actionIconContentColor = onContainer,
-            ),
-            // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi =
-            // true and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root
-            // padding on purpose (host-inset-ownership spec, 2026-09-18). So this bar applies
-            // Material's real window insets. Zeroing them here, as this line did until 2026-09-18,
-            // would put the bar under the status bar; adding the host padding back would double it.
-            // The two go together.
-        )
+                },
+                navigationIcon = {
+                    IconButton(onClick = callbacks.onClose) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = s.searchClose,
+                            modifier = Modifier.size(AbActionIconSize),
+                        )
+                    }
+                },
+                actions = {
+                    // Caller-supplied actions first, so the built-in Clear stays the edge-most action
+                    // whether or not the caller contributes any (Round 9a Plan A Task 1).
+                    searchActions()
+                    if (search.query.isNotEmpty()) {
+                        AbActionIcon(Icons.Filled.Clear, s.searchClear) { callbacks.onQueryChange("") }
+                    }
+                },
+                // M3's TopAppBar re-provides content colour per slot from its own `colors`, so the outer
+                // CompositionLocalProvider above does NOT reach navigationIcon/actions (it only colours
+                // the placeholder text drawn directly in the title slot). Left at the default,
+                // actionIconContentColor resolves to onSurfaceVariant while navigationIconContentColor/
+                // titleContentColor resolve to onSurface — a different token, so the Clear icon would
+                // render in a visibly different shade from the back arrow and field text. Pass all three
+                // explicitly so every visible colour in this bar derives from the same onContainer.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    navigationIconContentColor = onContainer,
+                    titleContentColor = onContainer,
+                    actionIconContentColor = onContainer,
+                ),
+                // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi =
+                // true and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root
+                // padding on purpose (host-inset-ownership spec, 2026-09-18). So this bar applies
+                // Material's real window insets. Zeroing them here, as this line did until 2026-09-18,
+                // would put the bar under the status bar; adding the host padding back would double it.
+                // The two go together.
+            )
+        }
     }
 }
 

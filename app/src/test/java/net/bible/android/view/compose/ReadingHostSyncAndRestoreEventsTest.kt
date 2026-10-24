@@ -16,7 +16,13 @@
  */
 package net.bible.android.view.compose
 
+import net.bible.service.cloudsync.localDbFile
+import okio.Path.Companion.toOkioPath
+import androidx.room3.useWriterConnection
+import net.bible.service.db.exec
+
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.Job
@@ -45,6 +51,7 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -94,18 +101,59 @@ class ReadingHostSyncAndRestoreEventsTest {
     private var toasts = 0
     private var toastSubscription: Subscription? = null
 
+    /**
+     * `firstTime` is a file-level var Robolectric does not reset. While it is true, the first host's
+     * `fixNightMode` schedules `recreate()` 250 ms (virtual) later; the settle loops advance that clock
+     * faster than a real-thread workspace read can post its apply, so the recreate cancels the switch
+     * under test. Whichever class ran first in a JVM paid it, which made this class pass or fail by run order.
+     */
+    @Before
+    fun pinFirstTimeFalse() { net.bible.android.view.activity.base.firstTime = false }
+
     @After
-    fun tearDown() {
+    fun tearDown() = closeFixture()
+
+    private fun closeFixture(afterClose: () -> Unit = {}) {
         toastSubscription?.cancel()
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
-        controllers.forEach { it.close() }
-        controllers.clear()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = false
-        CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose = afterClose, restoreBeforeReset = {
+            try {
+                SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
+            } finally {
+                CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        })
+    }
+
+    @Test
+    fun cleanupFailureStillRestoresSyncAndNightSettings() {
+        net.bible.android.view.activity.base.firstTime = false
+        val activity = nonReadingHost().get()
+        val database = DatabaseContainer.instance
+        val failure = IllegalArgumentException("after-close failed")
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
+        CommonUtils.realSharedPreferences.edit().putString("night_mode_pref", "dark").putString("night_mode_pref3", "dark").commit()
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeFixture(afterClose = {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    throw failure
+                })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse(SyncableDatabaseDefinition.BOOKMARKS.isSyncEnabled(CommonUtils.settings), "cleanup failure must restore sync setting")
+            assertFalse(CommonUtils.realSharedPreferences.contains("night_mode_pref"))
+            assertFalse(CommonUtils.realSharedPreferences.contains("night_mode_pref3"))
+            assertEquals(AppCompatDelegate.MODE_NIGHT_NO, AppCompatDelegate.getDefaultNightMode())
+            org.junit.Assert.assertSame("failed cleanup must not reset DB", database, DatabaseContainer.instance)
+        } finally {
+            val owner = activity.lifecycleScope
+            DatabaseResetter.runResetBlocking { owner.coroutineContext[Job]?.let { it.cancel(); it.join() } }
+            SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
+            CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 
     private fun host(route: String): ActivityController<NavHostComposeActivity> {
@@ -133,7 +181,10 @@ class ReadingHostSyncAndRestoreEventsTest {
      * Bounded, never `idle()`: with the Compose dispatcher reset the composed reading host keeps
      * scheduling frames, and an unbounded idle spins on them forever.
      */
-    private fun idleMain() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
+    private fun idleMain() {
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
+        net.bible.test.settleWorkspaceSwitches() // a switch reads off the main thread
+    }
 
     private var lastSynchronized: Long
         get() = CommonUtils.settings.getLong("globalLastSynchronized", 0L)
@@ -187,10 +238,27 @@ class ReadingHostSyncAndRestoreEventsTest {
     // ——— CloudSync.workspaceRefreshRequired / DatabaseContainer.workspacesSynced ———————————————————————————————
 
     @Test
+    fun anInitialAiDatabaseSwapReloadsTheHostExactlyOnce() {
+        readingHost()
+        val target = DatabaseContainer.databaseAccessorsByCategory.getValue(SyncableDatabaseDefinition.AI_SETTINGS)
+        val downloaded = java.io.File.createTempFile("ai-host-swap", ".sqlite3")
+        kotlinx.coroutines.runBlocking {
+            target.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(TRUNCATE)") }
+            target.localDbFile.copyTo(downloaded, overwrite = true)
+        }
+        countToasts()
+        kotlinx.coroutines.runBlocking {
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(target, downloaded.toOkioPath()) { }
+        }
+        idleMain()
+        assertEquals(1, toasts, "one initial swap must reload once, not once per replacement event")
+    }
+
+    @Test
     fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
         readingHost()
         countToasts()
-        CloudSync.notifyWorkspaceRefreshRequired()
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
         idleMain()
         assertTrue(toasts > 0, "workspaceRefreshRequired must switch to the first workspace, as classic's did")
     }
@@ -249,7 +317,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     @Test
     fun returningToForegroundStartsSync() {
         val activity = readingHost().get()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
 
         CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
@@ -297,7 +365,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     @Test
     fun aHostWithoutAReadingBootstrapIgnoresTheReadingEvents() {
         val activity = nonReadingHost().get()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         lastSynchronized = 0L
         val windowSync = CommonUtils.windowControl.windowSync
         lastForceSyncAllField.setLong(windowSync, 0L)
@@ -305,7 +373,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
         val errors = listOf<() -> Unit>(
             { DatabaseContainer.notifyDatabaseRestored() },
-            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired() },
             { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },
@@ -329,7 +397,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         val controller = readingHost()
         val activity = controller.get()
         idleMain()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         controller.pause().stop().destroy()
         controllers.remove(controller)
         lastSynchronized = 0L
@@ -337,7 +405,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
         val errors = listOf<() -> Unit>(
             { DatabaseContainer.notifyDatabaseRestored() },
-            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired() },
             { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },

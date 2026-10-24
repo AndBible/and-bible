@@ -47,6 +47,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import net.bible.sharedui.app.bookmark.BookmarkHost
 
 /**
  * F54. Labels assigned from the BOOKMARKS LIST are written to the database but never announced, so an
@@ -102,18 +103,18 @@ class BookmarksLabelResultEventTest {
      *  (a Koin singleton -- see `ReadingHostBackChainTest.historyManager()` for the same reasoning). */
     private fun twoBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
         val control = bookmarkControl()
-        val one = control.addOrUpdateBibleBookmark(
+        val one = runBlocking { control.addOrUpdateBibleBookmark(
             BookmarkEntities.BibleBookmarkWithNotes(
                 VerseRangeFactory.fromString(kjv, "Psalms 119:1"), null, true, null,
             ),
             null,
-        )
-        val two = control.addOrUpdateBibleBookmark(
+        ) }
+        val two = runBlocking { control.addOrUpdateBibleBookmark(
             BookmarkEntities.BibleBookmarkWithNotes(
                 VerseRangeFactory.fromString(kjv, "Psalms 119:2"), null, true, null,
             ),
             null,
-        )
+        ) }
         return listOf(one, two)
     }
 
@@ -137,12 +138,12 @@ class BookmarksLabelResultEventTest {
 
     /** `private fun bookmarksControllerFor(initialFilterIndex: Int, onSelectBookmark: ..., navigateToManageLabels: ...): BookmarksController`. */
     private fun seedBookmarksSession(activity: NavHostComposeActivity) {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = BookmarkHost::class.java.declaredMethods
             .single { it.name == "bookmarksControllerFor" }
         method.isAccessible = true
         val onSelectBookmark: (Any?) -> Unit = {}
         val navigateToManageLabels: (String) -> Unit = {}
-        method.invoke(activity, 0, onSelectBookmark, navigateToManageLabels)
+        method.invoke(activity.appHosts.bookmark, 0, onSelectBookmark, navigateToManageLabels)
     }
 
     /** The `BookmarksSession` [seedBookmarksSession] just built -- `private class BookmarksSession`,
@@ -151,9 +152,9 @@ class BookmarksLabelResultEventTest {
     private fun currentBookmarksSession(activity: NavHostComposeActivity): Any {
         // `bookmarksSession` is a Compose delegated property (`by mutableStateOf`), so the JVM field
         // is the delegate state object, not the Pair. Read it the way the property does.
-        val field = NavHostComposeActivity::class.java.getDeclaredField("bookmarksSession\$delegate")
+        val field = BookmarkHost::class.java.getDeclaredField("bookmarksSession\$delegate")
         field.isAccessible = true
-        val pair = (field.get(activity) as androidx.compose.runtime.MutableState<*>).value as Pair<*, *>?
+        val pair = (field.get(activity.appHosts.bookmark) as androidx.compose.runtime.MutableState<*>).value as Pair<*, *>?
         return requireNotNull(pair?.second) { "bookmarksControllerFor did not seed bookmarksSession" }
     }
 
@@ -167,10 +168,10 @@ class BookmarksLabelResultEventTest {
 
     /** `private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult)`. */
     private fun applyManageLabelsResult(activity: NavHostComposeActivity, result: ManageLabelsResult) {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = BookmarkHost::class.java.declaredMethods
             .single { it.name == "applyBookmarksManageLabelsResult" }
         method.isAccessible = true
-        method.invoke(activity, result)
+        method.invoke(activity.appHosts.bookmark, result)
     }
 
     /**
@@ -187,7 +188,7 @@ class BookmarksLabelResultEventTest {
         val session = currentBookmarksSession(activity)
         setPendingAssign(session, bookmarks)
 
-        val label = bookmarkControl().insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Grace" })
+        val label = runBlocking { bookmarkControl().insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Grace" }) }
         val payload = ManageLabelsContract.ManageLabelsData(
             mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = mutableSetOf(label.id),

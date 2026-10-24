@@ -40,6 +40,13 @@ class ReadingProgressSettingsControllerTest {
             ReadingProgressSettingsLabels.forTest(),
         )
 
+    @Test fun retainedControllerRelocalizesAndKeepsSelectedValue() {
+        val c = controller(FakeReadingProgressSettingsService(snap(memorizeWordVisibility = "light")))
+        c.updateLabels(ReadingProgressSettingsLabels.forTest().copy(screenTitle = "Edistyminen"))
+        assertEquals("Edistyminen", c.state.value.title)
+        assertEquals("light", c.state.value.items.filterIsInstance<SettingsItem.ListChoiceRow>().single().selectedValue)
+    }
+
     @Test fun buildsSixRowsInOrder() {
         val keys = controller(FakeReadingProgressSettingsService(snap())).state.value.visibleItems.map { it.key }
         assertEquals(

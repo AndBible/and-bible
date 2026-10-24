@@ -20,6 +20,14 @@ sealed interface BookmarksDialog {
  * [BookmarksService] seam to (re)load the rows on [scope] — the actual Room/JSword work, and pref
  * persistence, live in the seam / host, keeping this class portable to iOS.
  */
+data class BookmarksSnapshot(
+    val filter: Int,
+    val query: String,
+    val searchOpen: Boolean,
+    val selection: Set<String>,
+    val expanded: Set<String>,
+)
+
 class BookmarksController(
     private val service: BookmarksService,
     private val scope: CoroutineScope,
@@ -30,13 +38,14 @@ class BookmarksController(
     private val onExportCsv: () -> Unit,
     private val onImportCsv: () -> Unit,
     private val onManageLabels: () -> Unit,
+    restored: BookmarksSnapshot? = null,
 ) {
-    private val _filterLabels = MutableStateFlow(service.filterLabels())
+    /** Empty until the initial load in `init` has read them (the service call is `suspend`). */
+    private val _filterLabels = MutableStateFlow<List<BookmarkFilterLabel>>(emptyList())
     val filterLabels: StateFlow<List<BookmarkFilterLabel>> = _filterLabels.asStateFlow()
 
-    private val _selectedFilterIndex = MutableStateFlow(
-        initialFilterIndex.coerceIn(0, (_filterLabels.value.size - 1).coerceAtLeast(0))
-    )
+    /** Holds the raw [initialFilterIndex] until the labels are loaded; the initial load clamps it. */
+    private val _selectedFilterIndex = MutableStateFlow(initialFilterIndex)
     val selectedFilterIndex: StateFlow<Int> = _selectedFilterIndex.asStateFlow()
 
     private val _sortMode = MutableStateFlow(service.loadSortMode())
@@ -66,18 +75,47 @@ class BookmarksController(
     private val _dialog = MutableStateFlow<BookmarksDialog>(BookmarksDialog.None)
     val dialog: StateFlow<BookmarksDialog> = _dialog.asStateFlow()
 
-    init { reload() }
+    // The filter labels are read first, then the selected index is clamped against them and the
+    // rows load, all on [scope] (the service calls are `suspend`). Rows were already loaded
+    // asynchronously, so the screen shows its loading state for the same first frames as before.
+    init {
+        restored?.let {
+            _selectedFilterIndex.value = it.filter
+            _searchText.value = it.query
+            _selection.value = it.selection
+            _expandedIds.value = it.expanded
+            if (it.searchOpen) searchMode.open()
+        }
+        _loading.value = true
+        scope.launch {
+            val labels = service.filterLabels()
+            _filterLabels.value = labels
+            _selectedFilterIndex.value = _selectedFilterIndex.value.coerceIn(0, (labels.size - 1).coerceAtLeast(0))
+            reload()
+        }
+    }
 
+    fun snapshot() = BookmarksSnapshot(
+        selectedFilterIndex.value, searchText.value, searchModeActive.value, selection.value, expandedIds.value,
+    )
+
+    private var loadGeneration = 0L
     private fun reload() {
+        val generation = ++loadGeneration
         _loading.value = true
         val filterIndex = _selectedFilterIndex.value
         val sort = _sortMode.value
         val search = _searchText.value.ifBlank { null }
         val showNotes = _showNotes.value
         scope.launch {
-            val r = service.loadRows(filterIndex, sort, search, showNotes)
-            _rows.value = r
-            _loading.value = false
+            try {
+                val r = service.loadRows(filterIndex, sort, search, showNotes)
+                if (generation != loadGeneration) return@launch
+                _rows.value = r
+            } finally {
+                // A throwing (or cancelled) load must not leave the spinner up; a superseded load leaves it to the newer one.
+                if (generation == loadGeneration) _loading.value = false
+            }
         }
     }
 
@@ -161,8 +199,10 @@ class BookmarksController(
 
     /** Host calls this after assign/delete/import round-trips. */
     fun refresh() {
-        _filterLabels.value = service.filterLabels()
-        reload()
         clearSelection()
+        scope.launch {
+            _filterLabels.value = service.filterLabels()
+            reload()
+        }
     }
 }

@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Ang teksto ng paghahanap ay maaaring magsama ng mga espesyal na karakter tulad ng *, AND, OR, NOT</string>
   <string name="help_search_details">Pakitingnan ang %s para sa higit pang detalye.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Mga Workspace</string>
   <string name="help_workspaces_text">Ang mga workspace ay nagbibigay-daan sa pagkakaroon ng maraming context-dependent na kapaligiran sa pagtatrabaho. Ang mga function ng workspace ay maa-access sa pamamagitan ng item na Mga Workspace sa options menu (kanang sulok sa itaas). Mabilis na paraan para ma-access ang mga workspace ay ang pag-swipe-down na kilos mula sa toolbar. Maaari ka ring gumamit ng mga kilos na swipe-left at swipe-right sa toolbar para lumipat sa nakaraan / susunod na workspace.</string>

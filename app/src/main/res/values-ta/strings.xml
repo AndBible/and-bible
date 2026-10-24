@@ -747,7 +747,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">தேடல் உரையில் *, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளை சேர்க்கலாம்</string>
   <string name="help_search_details">மேலும் விவரங்களுக்கு %s பார்க்கவும்.</string>
-  <string name="help_apache_lucene">Apache Lucene - வினவல் தொடரியல்</string>
   <string name="help_fts5">FTS5 முழு-உரை வினவல் தொடரியல்</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
   <string name="help_workspaces_text">

@@ -64,6 +64,50 @@ class BookmarksServiceImplTest {
         assertTrue(result.runs.none { it.bold })
     }
 
+    /**
+     * The list's reload is event-driven, and an event can arrive while the window repository is
+     * reloading a workspace (`clear()` has run, no active window yet; re-entering the load is
+     * guarded). Reading the active window's versification then threw NPE in the controller's
+     * coroutine. Mid-load the rows fall back to each bookmark's own versification; the switch's
+     * own notification reloads them with the real window afterwards.
+     */
+    @Test
+    fun `loadRows during a workspace load uses the bookmark's own versification`() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val windowControl: net.bible.android.control.page.window.WindowControl = koin.get()
+        val control: net.bible.android.control.bookmark.BookmarkControl = koin.get()
+        val previous = windowControl.windowRepository
+        val midLoad = net.bible.android.control.page.window.WindowRepository(
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        )
+        net.bible.android.control.page.window.WindowRepository::class.java.getDeclaredField("loadingFromDb")
+            .apply { isAccessible = true }.setBoolean(midLoad, true)
+        try {
+            kotlinx.coroutines.runBlocking {
+                control.addOrUpdateBibleBookmark(
+                    net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
+                        org.crosswire.jsword.passage.VerseRangeFactory.fromString(
+                            org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"),
+                            "Psalms 119:1",
+                        ),
+                        null, true, null,
+                    ),
+                    null,
+                )
+            }
+            windowControl.windowRepository = midLoad
+            val service: BookmarksServiceImpl = koin.get()
+            val rows = kotlinx.coroutines.runBlocking {
+                service.loadRows(filterIndex = 0, sort = BookmarkSortMode.BIBLE_ORDER, search = null, showNotes = false)
+            }
+            assertEquals(1, rows.size)
+            assertTrue(rows.single().title, rows.single().title.contains("119:1"))
+        } finally {
+            windowControl.windowRepository = previous
+            net.bible.test.DatabaseResetter.resetDatabase()
+        }
+    }
+
     @Test
     fun `sort mode round-trips through the classic BookmarkSortOrder pref`() {
         for (mode in BookmarkSortMode.entries) {

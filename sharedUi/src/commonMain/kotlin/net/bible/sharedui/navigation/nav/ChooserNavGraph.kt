@@ -17,6 +17,10 @@
 
 package net.bible.sharedui.navigation.nav
 
+import kotlinx.coroutines.flow.first
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +54,17 @@ import net.bible.sharedui.navigation.ChooseMapKeyScreen
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.navigation.GridChoosePassageScreen
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.strings.Strings
+
+/** iOS can change language in-place; Android retains its Activity recreation lifecycle. */
+@Composable
+internal fun RefreshGridLanguage(controller: GridChoosePassageController) {
+    val strings = LocalStrings.current
+    if (LocalLiveSettingsLanguage.current) {
+        LaunchedEffect(controller, strings) { controller.refresh() }
+    }
+}
 
 /**
  * [ChooseGeneralBookKeyScreen]'s platform-supplied slots, ported from
@@ -76,7 +90,7 @@ import net.bible.sharedui.strings.Strings
  */
 class ChooseGeneralBookKeyDeps(
     val title: String,
-    val controllerFor: (onResult: (KeyChooserResult) -> Unit) -> ChooseGeneralBookKeyController?,
+    val controllerFor: suspend (onResult: (KeyChooserResult) -> Unit) -> ChooseGeneralBookKeyController?,
     val emptyResult: () -> KeyChooserResult,
 )
 
@@ -154,6 +168,7 @@ class ChooseDictionaryWordDeps(
 class GridChoosePassageDeps(
     val windowTitle: String,
     val controllerFor: (
+        scope: kotlinx.coroutines.CoroutineScope,
         isScripture: Boolean,
         onResult: (PassageResult) -> Unit,
     ) -> GridChoosePassageController,
@@ -321,19 +336,29 @@ private fun chooserTypeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, 
  */
 fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: ChooserNavDeps) {
     // ——— CHOOSE GENERAL BOOK KEY ———
-    composable(route = NavRoutes.CHOOSE_GENERAL_BOOK_KEY) {
+    composable(route = NavRoutes.CHOOSE_GENERAL_BOOK_KEY) { entry ->
         val d = deps.chooseGeneralBookKey
 
-        val controller = remember {
-            d.controllerFor { result -> deps.keyChooserResults.deliver(navController, result) }
+        var resolvedController by remember { mutableStateOf<ChooseGeneralBookKeyController?>(null) }
+        var loaded by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            resolvedController = d.controllerFor { result ->
+                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, result)
+            }
+            loaded = true
         }
+        if (!loaded) return@composable
+        val controller = resolvedController
 
         // Classic's `keys.isEmpty()` early exit (`:79-83`): deliver the FALLBACK selection and leave
         // without ever showing a list. Deliberately BEFORE the window-title effect -- a destination
         // that pops in the same frame it composed should not leave its title on the window, since
         // the parent's own `LaunchedEffect(title)` will not re-run to put it back.
         if (controller == null) {
-            LaunchedEffect(Unit) { deps.keyChooserResults.deliver(navController, d.emptyResult()) }
+            LaunchedEffect(Unit) {
+                entry.lifecycle.currentStateFlow.first { it == androidx.lifecycle.Lifecycle.State.RESUMED }
+                if (navController.currentBackStackEntry === entry) deps.keyChooserResults.deliver(navController, d.emptyResult())
+            }
             return@composable
         }
 
@@ -455,10 +480,12 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             getStringOrNull(NavRoutes.ARG_IS_SCRIPTURE)
         } == "true"
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember(isScripture) {
-            d.controllerFor(isScripture) { result -> deps.passageResults.deliver(navController, result) }
+            d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, result) }
         }
 
+        RefreshGridLanguage(controller)
         LaunchedEffect(d.windowTitle) { deps.setWindowTitle(d.windowTitle) }
 
         val ui by controller.ui.collectAsState()
@@ -473,10 +500,11 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             if (!controller.back()) navController.popOrExit(deps.exitHost)
         }
 
+        val rendered = ui
         GridChoosePassageScreen(
-            ui = ui,
+            ui = rendered,
             options = options,
-            onPick = controller::pick,
+            onPick = { id -> rendered?.let { controller.pick(id, it) } },
             onToggle = controller::toggle,
             // Classic's `onNavigateUp` (`:95`) is the same branch as its back callback: the up-arrow
             // walks the step stack too.

@@ -49,7 +49,7 @@ class TextDisplaySettingsServiceImplColorsTest {
 
     @Before fun setUp() {
         windowControl = CommonUtils.windowControl
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         windowControl.windowRepository = repo
         windowControl.activeWindow    // auto-creates window 1 + workspace
     }

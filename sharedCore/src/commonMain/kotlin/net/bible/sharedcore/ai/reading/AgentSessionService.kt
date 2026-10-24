@@ -17,5 +17,5 @@ interface AgentSessionService {
     /** Active workspace id (for the "view raw" intent the host builds). */
     fun currentWorkspaceId(): String
     /** Force a rebuild (host calls on workspace switch). */
-    fun refresh()
+    suspend fun refresh()
 }

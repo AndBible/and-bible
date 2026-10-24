@@ -1,0 +1,6 @@
+name;description;promptTemplate;showIn;orderNumber;strictContextMatching;permissionMode;allowedTools;deniedTools;configuredModelId;id;createdAt;bibleOnly;category
+"Translate; ""quoted""";"Multi-line
+description; with semicolon";"Translate {{text}} to Finnish;
+then ""explain"" it";VERSE_SELECTION,TEXT_SELECTION;5;false;ASK_ONCE_PER_RUN;CREATE_BOOKMARK,SEARCH_BIBLE;CREATE_LABEL;;87b04806-d7f8-c900-6fc2-64e322d9ff73;2022-01-01T00:00:00Z;false;
+Ääkköset ja 日本語 ✝;;Selitä {{text}};VERSE_SELECTION;0;true;;;;;65498482-7e50-fcd9-f47d-66071ba2f306;2023-11-14T22:13:19Z;true;
+Plain;;Hello;;-3;true;;;;;3f580918-3603-7280-3bac-ce8764eb9963;2020-12-31T23:59:59Z;false;

@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.readingplan.nav
 
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -141,12 +143,13 @@ enum class DailyReadingLoad {
  */
 class DailyReadingDeps(
     val controllerFor: (onChangePlan: () -> Unit, onChangeDay: () -> Unit) -> DailyReadingController,
-    val loadDay: (plan: String?, day: Int?) -> DailyReadingLoad,
+    val loadDay: suspend (plan: String?, day: Int?) -> DailyReadingLoad,
     val loaded: StateFlow<LoadedReadingDay?>,
     val subscribeEvents: () -> () -> Unit,
     val onImportPlan: () -> Unit,
     val onPlanMissing: () -> Boolean,
     val title: String,
+    val refreshMetadata: suspend (DailyReadingController) -> Unit = {},
 )
 
 /**
@@ -160,7 +163,7 @@ class DailyReadingDeps(
  * `getString(R.string.rdg_plan_title)` plus the identical `android:label`).
  */
 class DayListDeps(
-    val controllerFor: (onSelect: (day: Int) -> Unit) -> DailyReadingListController,
+    val controllerFor: (scope: kotlinx.coroutines.CoroutineScope, onSelect: (day: Int) -> Unit) -> DailyReadingListController,
     val subscribeEvents: (onReadingPlansChanged: () -> Unit) -> () -> Unit,
     val title: String,
 )
@@ -172,9 +175,10 @@ class DayListDeps(
  * graph's lambda with the code. [title] is `R.string.rdg_plan_selector_title`, screen and window.
  */
 class SelectorDeps(
-    val controllerFor: (onSelect: (planCode: String) -> Unit) -> ReadingPlanSelectorController,
+    val controllerFor: (scope: kotlinx.coroutines.CoroutineScope, onSelect: (planCode: String) -> Unit) -> ReadingPlanSelectorController,
     val subscribeEvents: (onReadingPlansChanged: () -> Unit) -> () -> Unit,
     val title: String,
+    val refreshMetadata: suspend (ReadingPlanSelectorController) -> Unit = {},
 )
 
 /**
@@ -312,6 +316,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         }
 
         val loaded by d.loaded.collectAsState()
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings, loaded) { d.refreshMetadata(controller) }
+        }
 
         // THE HISTORY SEAM. HistoryManager stores `intentForHistoryList` at the moment the user
         // navigates away (HistoryManager.kt:172-175) and later re-launches it, so the stored route
@@ -421,8 +429,9 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val d = deps.dayList
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember {
-            d.controllerFor { day ->
+            d.controllerFor(scope) { day ->
                 // Classic set the day as the result Intent's ACTION and finished; the parent
                 // destination reads this instead — see ReadingPlanSelection.
                 deps.pendingSelection.value = ReadingPlanSelection.Day(day)
@@ -450,8 +459,9 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val d = deps.selector
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember {
-            d.controllerFor { planCode ->
+            d.controllerFor(scope) { planCode ->
                 // The host has already started the plan by the time this runs (classic's
                 // startReadingPlan, kept there because it needs ReadingPlanControl) — see
                 // SelectorDeps' kdoc.
@@ -465,6 +475,10 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         }
 
         val plans by controller.plans.collectAsState()
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings, controller, plans.map { it.planCode }) { d.refreshMetadata(controller) }
+        }
         val duplicateWarning by controller.duplicateWarning.collectAsState()
         val error by controller.error.collectAsState()
 

@@ -46,7 +46,13 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class AppDialogController {
 
-    private class Entry(val id: Long, val request: AppDialogRequest, val onResult: ((AppDialogResult) -> Unit)?)
+    private class Entry(
+        val id: Long,
+        val request: AppDialogRequest,
+        val onResult: ((AppDialogResult) -> Unit)?,
+        val draftKey: String?,
+        val keepDraftOnWithdrawal: Boolean,
+    )
 
     private val lock = SynchronizedObject()
     private val queue = ArrayList<Entry>()
@@ -70,8 +76,7 @@ class AppDialogController {
      */
     private val drafts = HashMap<String, String>()
 
-    private fun draftKeyOf(entry: Entry): String? =
-        (entry.request as? AppDialogRequest.TextInput)?.let { it.draftKey ?: "id:${entry.id}" }
+    private fun draftKeyOf(entry: Entry): String? = entry.draftKey
 
     /** The half-typed text saved for the queued request [id], or null. */
     fun draft(id: Long): String? = synchronized(lock) {
@@ -132,19 +137,25 @@ class AppDialogController {
         dropped.forEach { it.onResult?.invoke(AppDialogResult.Cancel) }
     }
 
-    private fun enqueue(request: AppDialogRequest, onResult: ((AppDialogResult) -> Unit)?): Long =
-        synchronized(lock) {
+    private fun enqueue(request: AppDialogRequest, onResult: ((AppDialogResult) -> Unit)?): Long {
+        // Capture identity once, before locking or changing the queue. Localization must never run
+        // inside response/withdrawal bookkeeping: a failed refresh cannot strand an awaiting caller.
+        val initial = (request as? AppDialogRequest.Localized)?.resolve() ?: request
+        val input = initial as? AppDialogRequest.TextInput
+        return synchronized(lock) {
             val id = nextId++
-            queue.add(Entry(id, request, onResult))
+            val draftKey = input?.let { it.draftKey ?: "id:$id" }
+            queue.add(Entry(id, request, onResult, draftKey, input?.draftKey != null))
             publish()
             id
         }
+    }
 
     private fun remove(id: Long) {
         synchronized(lock) {
             // A withdrawal keeps a keyed draft for the re-raised request; a key-less one is unreachable.
             queue.firstOrNull { it.id == id }?.let { e ->
-                if ((e.request as? AppDialogRequest.TextInput)?.draftKey == null) drafts.remove("id:$id")
+                if (!e.keepDraftOnWithdrawal) e.draftKey?.let(drafts::remove)
             }
             if (queue.removeAll { it.id == id }) publish()
         }

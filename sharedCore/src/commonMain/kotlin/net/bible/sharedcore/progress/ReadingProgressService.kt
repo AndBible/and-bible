@@ -19,10 +19,10 @@ package net.bible.sharedcore.progress
 
 interface ReadingProgressService {
     // --- cycles ---
-    fun currentCycle(): Int
-    fun latestCycle(): Int
-    fun setActiveCycle(cycle: Int)
-    fun startNewCycle(): Int
+    suspend fun currentCycle(): Int
+    suspend fun latestCycle(): Int
+    suspend fun setActiveCycle(cycle: Int)
+    suspend fun startNewCycle(): Int
 
     // --- reading data (loaded off the main thread by the impl) ---
     suspend fun readingSummary(cycle: Int): ReadingSummary

@@ -52,6 +52,7 @@ import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeVerticalScroll
 
@@ -84,6 +85,10 @@ fun CustomRepositoryEditorScreen(
     var showHelp by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showDiscardConfirm by remember { mutableStateOf(false) }
+    // The controller echoes a keystroke back a dispatch later; the fields keep their typed text locally and take over
+    // the controller's value only for its own writes (paste, the package directory a validated manifest resolves).
+    val urlText = rememberControllerText(state.url)
+    val packageDirText = rememberControllerText(state.packageDirectory)
     // Mirrors classic `cancelOrConfirmDiscard()`: only prompt when there are unsaved changes.
     val requestUp: () -> Unit = { if (state.isDirty) showDiscardConfirm = true else onUp() }
 
@@ -118,8 +123,8 @@ fun CustomRepositoryEditorScreen(
                 .padding(16.dp),
         ) {
             OutlinedTextField(
-                value = state.url,
-                onValueChange = onUrlChange,
+                value = urlText.text,
+                onValueChange = { urlText.edit(it, onUrlChange) },
                 singleLine = true,
                 label = { Text(strings.repositorySpecification) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -139,10 +144,14 @@ fun CustomRepositoryEditorScreen(
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(end = 8.dp),
                             )
-                            Validation.Invalid, Validation.Idle -> {}
+                            Validation.Invalid, Validation.InsecureUrl, Validation.Idle -> {}
                         }
                     }
                 },
+                isError = state.validation == Validation.InsecureUrl,
+                supportingText = if (state.validation == Validation.InsecureUrl) {
+                    { Text(strings.customRepositoryHttpsRequired) }
+                } else null,
                 modifier = Modifier.fillMaxWidth(),
             )
             val resolved = state.resolved
@@ -155,8 +164,8 @@ fun CustomRepositoryEditorScreen(
             }
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
-                value = state.packageDirectory,
-                onValueChange = onPackageDirChange,
+                value = packageDirText.text,
+                onValueChange = { packageDirText.edit(it, onPackageDirChange) },
                 singleLine = true,
                 label = { Text(strings.packagesDir) },
                 modifier = Modifier.fillMaxWidth(),

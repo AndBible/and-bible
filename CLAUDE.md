@@ -4,6 +4,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## JailBee container
+
+If `$JAILBEE_BRANCH` is set or `/etc/jailbee` exists, you are in a JailBee container: read and follow
+[.jailbee/AGENT-GUIDE.md](.jailbee/AGENT-GUIDE.md) before running builds, tests, adb or git operations.
+
 ## Project Overview
 
 AndBible is a powerful offline Bible study app for Android built with Kotlin, featuring a hybrid architecture with Vue.js for Bible text rendering and JSword library for Bible data handling.
@@ -22,8 +27,8 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 - **Database Architecture**: Multiple Room databases (`WorkspaceDatabase`, `BookmarkDatabase`, etc.) managed by `DatabaseContainer.kt` singleton
 
 ### Android ↔ Vue.js Communication
-- Android → Vue.js: `evaluateJavascriptOnUiThread("bibleView.emit('event', data)")`
-- Vue.js → Android: `window.android.*` methods via `BibleJavascriptInterface.kt`
+- Android → Vue.js: typed `BibleViewEvents` (`:sharedCore`, `net.bible.sharedcore.bibleview`) sent through `BibleView.emit(...)`
+- Vue.js → Android/iOS: `window.android.*`, a Proxy installed by `app/bibleview-js/src/bridge/native-bridge.ts`, routed by the common `BridgeDispatcher` to `BibleBridge` (Android implementation: `BibleJavascriptInterface.kt`). See [docs/bibleview-bridge.md](docs/bibleview-bridge.md).
 - Data serialization: Kotlin `asHashMap` properties → TypeScript interfaces in `documents.ts` and `client-objects.ts`
 
 ## Build System
@@ -109,7 +114,7 @@ Only run Android builds when testing Android-specific integration.
 ### Core Application
 - `app/src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt`: Central activity managing windows and navigation
 - `app/src/main/java/net/bible/android/control/page/window/WindowRepository.kt`: Core workspace and window state management
-- `app/src/main/java/net/bible/android/database/WorkspaceEntities.kt`: Database schema definitions
+- `sharedData/src/commonMain/kotlin/net/bible/android/database/WorkspaceEntities.kt`: Database schema definitions
 - `app/src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt`: WebView bridge with @JavascriptInterface methods
 - `app/src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt`: Manages bookmarks, labels, StudyPads, and MyNotes
 - `app/src/main/java/net/bible/service/db/DatabaseContainer.kt`: Singleton managing multiple Room databases
@@ -137,6 +142,7 @@ Only run Android builds when testing Android-specific integration.
 ## Kotlin Multiplatform / Compose structure
 
 - `:sharedCore` holds the shared logic and models.
+- `:sharedLogic` holds the service/controller logic (and `DatabaseContainer`) moved out of `:app` in L1b phase 2; layering, port/Koin/test-visibility conventions and the file-ownership table are in [docs/sharedlogic-migration.md](docs/sharedlogic-migration.md).
 - `:sharedUi` holds the Compose Multiplatform screens; they read user-facing text through the `Strings` interface (`LocalStrings`).
 - `:strings-gen` does not write that interface. `Strings.kt` (`:sharedUi`) and `AndroidStrings.kt` (`:app`) are hand-maintained; `:strings-gen` (task `generateIosStrings`, wired into `:sharedUi`) only derives the iOS string holder from them and the resources. A new string is therefore: the resource in `strings.xml`, a member in `Strings.kt`, and the override in `AndroidStrings.kt`. Check the generator's "N interface members, N mapped overrides" line to see both sides agree.
 - Debug builds get an `applicationIdSuffix` so they install beside a release build: `.debug` by default, overridable with `APP_SUFFIX` in `local.properties` (see `app/build.gradle.kts`).
@@ -145,12 +151,17 @@ Only run Android builds when testing Android-specific integration.
 ## Test infrastructure traps
 
 - `TEST_SDK` (`app/src/test/java/net/bible/android/TestBibleApplication.kt`) is 33, so code behind API 35+ checks is not exercised by default. A test for such a branch needs `@Config(sdk = [35])`, and should be seen failing before the fix.
-- The `:app` unit suite runs in a single JVM (no `maxParallelForks`). A green `--tests` run can miss global-state pollution (Koin overrides, library globals); only the full suite catches it. Restore any global you swap, in `finally`.
-- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret.
+- The `:app` unit suite runs in parallel JVM forks (`maxParallelForks` = `min(4, cores / 2)`, override `-PtestForks=N`; `-PtestForks=1` is the old single-JVM run, ~2.5x slower). Which classes share a JVM changes from run to run, so a global-state leak (Koin overrides, library globals, a singleton holding a past test's Application) shows up as a flake, not a stable red. A green `--tests` run can still miss global-state pollution; only the full suite catches it. Restore any global you swap, in `finally`. To localise a leak, pair the suspect with the victim under `-PtestForks=1`.
+- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret. Check the set is exact with `scripts/check-test-sword-modules.sh` (add `--fix` to remove extra modules); run it before any `:app` test run.
 
 ## Emulator and WebView debugging
 
 See `docs/emulator-and-webview-debugging.md` (adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
+
+## Remote Mac for iOS builds
+
+A real Mac reachable over SSH (optional mount `mac-ssh`, host alias `andbible-mac`) runs Xcode and
+simulator steps without a CI round trip; setup and use in `docs/ios-remote-mac.md`.
 
 ## Golden screenshots and process docs (submodules)
 
@@ -256,6 +267,8 @@ import {faEdit} from "@fortawesome/free-solid-svg-icons";
 ```
 
 ### Android ↔ Vue.js Communication
+New bridge method or event: follow [docs/bibleview-bridge.md](docs/bibleview-bridge.md).
+
 ```typescript
 // Vue.js → Android calls
 window.android.scrolledToOrdinal(key, ordinal)
@@ -300,19 +313,24 @@ All entities use `IdType` (UUID-based) for primary keys.
 4. Build APK: `./gradlew assembleStandardGithubDebug`
 
 ### Adding Database Migrations
-1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt`
+1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt` (module `:sharedData`,
+   `sharedData/src/commonMain/kotlin/net/bible/android/database/`)
 2. Increment database version constant (e.g., `WORKSPACE_DATABASE_VERSION`)
-3. Create migration class in `app/src/main/java/net/bible/android/database/migrations/`
+3. Create migration class in `sharedData/src/commonMain/kotlin/net/bible/android/database/migrations/`
 4. Add the migration to its database's own migrations array (e.g. `bookmarkMigrations` in
    `BookmarkMigrations.kt`, `workspacesMigrations` in `WorkspacesMigrations.kt`) — that array
    is the actual registration point; `DatabaseContainer.kt` just spreads it
    (`.addMigrations(*bookmarkMigrations)`) and needs no edit of its own.
-5. Commit the KSP-generated schema export it produces at `app/schemas/<Database class>/<new
-   version>.json` (e.g. `app/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
-   generated on build (`room.schemaLocation`, `app/build.gradle.kts`) but is not auto-staged by git —
+5. Commit the KSP-generated schema export it produces at `sharedData/schemas/<Database class>/<new
+   version>.json` (e.g. `sharedData/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
+   generated on build of `:sharedData` (`room.schemaLocation`, `sharedData/build.gradle.kts`) but is not auto-staged by git —
    forgetting it leaves the new version's schema unfrozen, and any test that reads a schema export by
    path (the migration-test pattern below) or a future migration test spanning this version will not
    find it.
+   Then run `./gradlew :sharedData:jvmTest` (`MigrationChainCommonTest` opens every exported version of
+   every current database through its migrations). A **new database** also needs `@ConstructedBy`, an
+   `expect object <Db>Constructor` in `:sharedData`, and an entry in `CURRENT_DB_SPECS`
+   (`sharedData/src/commonTest/.../fixtures/ExportFixtures.kt`).
 6. Check whether the table you're changing is **pinned somewhere that names its columns
    explicitly**, not just referenced generically:
    - An **older migration with an explicit column list** — e.g. `deduplicateSpecialLabels` in

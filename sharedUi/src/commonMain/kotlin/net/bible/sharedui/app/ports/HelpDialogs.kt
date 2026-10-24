@@ -1,0 +1,30 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
+package net.bible.sharedui.app.ports
+
+@kotlin.native.HiddenFromObjC
+interface HelpDialogs {
+    fun show(topic: HelpTopic)
+}
+
+/** The help topics lifted call sites use; each lifting task adds its constants. */
+@kotlin.native.HiddenFromObjC
+enum class HelpTopic {
+    /** The reading-progress screen's overflow help. */
+    READING_PROGRESS,
+
+    /** The workspace selector's help (`help_workspaces_title`). */
+    WORKSPACES,
+
+    /** The cloud documents screen's overflow help (`help_document_sync_text`). */
+    DOCUMENT_SYNC,
+
+    /** The AI connection settings overflow help (`help_ai_connection_text`). */
+    AI_CONNECTION,
+
+    /** The drawer's "Help & tips": all help items and the version line. */
+    HELP_AND_TIPS,
+
+    /** The drawer's licence dialog (license.html). */
+    LICENCE,
+}

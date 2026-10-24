@@ -23,10 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -162,7 +159,7 @@ class LabelEditDeps(
  *   (`Dispatchers.IO`) -- hence a callback rather than a return value.
  *
  *   Everything else classic's controller was built with stays inside this factory, host-side and
- *   invisible here: the CSV export/import (`bookmarkControl.exportBookmarksToCSV` wants an
+ *   invisible here: the CSV export/import (`BookmarkCsvFlow.exportBookmarksToCSV` wants an
  *   `Activity`), the delete confirmation (an `android.app.AlertDialog`; converting platform dialogs
  *   is a separate, queued port goal) and the `bookmarks-last-used` setting classic wrote in
  *   `onCreate`. Each of them ends by refreshing the controller it was built around, which only the
@@ -217,10 +214,9 @@ class BookmarksDeps(
  *   end in it, and all three of those stay host-side for the same Room reasons.
  *
  * - [titleFor] is the WINDOW title, and it is a lambda rather than a `String` because classic read it
- *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`). `titleId` is not a stored
- *   field on the payload: it is a computed getter on `ManageLabelsContract.ManageLabelsData`
- *   (`ManageLabelsContract.kt:90`) that maps the payload's `mode` onto one of four Android string
- *   RESOURCE IDS -- and neither the `:app` mode enum nor an Android resource id can be resolved from
+ *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`). That `titleId` (a getter on the
+ *   old `ManageLabelsContract` payload, since removed) mapped the payload's `mode` onto one of four
+ *   Android string RESOURCE IDS -- and neither the `:app` mode enum nor an Android resource id can be resolved from
  *   `commonMain`, which is why the whole two-step is a host lambda over the raw payload string. It is
  *   also the title [ManageLabelsScreen] draws in its own top bar, exactly as classic passed the same
  *   string to both.
@@ -560,7 +556,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             )
         }
 
-        // remember(data), not a bare call: titleFor parses the payload to reach its `titleId`, and
+        // remember(data), not a bare call: titleFor parses the payload to reach its mode-specific title, and
         // this arm recomposes on every keystroke in the search field.
         val title = remember(data) { d.titleFor(data) }
         LaunchedEffect(title) { deps.setWindowTitle(title) }
@@ -585,26 +581,12 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // selection included, routes through `controller.save()`, so there is no path for an
         // exit-time write to miss and no reason for the arm to write at all.
         //
-        // rememberSaveable, NOT remember: this arm's composition is DISPOSED while the label editor
-        // sits on top of it (the reason SettingsNavGraph's search filter is saveable too), so a
-        // plain remember would re-seed the controller on every return from the editor.
-        //
-        // The flag is "have we seeded AT ALL", not "do we know the seed VALUE", and that distinction
-        // is the whole of it. Remembering the value only stops the SETTING being re-READ; the effect
-        // still re-ran on every return and re-APPLIED the original seed over a mode the user had
-        // changed since -- four taps in STUDYPAD mode (open StudyPads, switch to CONTENT, open the
-        // editor from the search bar's +, come back) and the mode silently flipped to NAME_START,
-        // taking the visible result set with it. The controller is the live owner of the mode once
-        // it has been seeded; this effect's whole job is the FIRST application, so it must run at
-        // most once per destination.
-        var seeded by rememberSaveable { mutableStateOf(false) }
+        // The controller owns the one-shot alongside the actual mode value. A restored working
+        // snapshot already has that value; an entry-local saved boolean could outlive a lost host.
         LaunchedEffect(controller) {
-            if (!isStudyPad || seeded) return@LaunchedEffect
-            seeded = true
-            val mode = SearchMode.entries.getOrElse(d.initialSearchMode()) { SearchMode.NAME_START }
-            // Guarded because setSearchMode re-dispatches the search; classic could seed
-            // unconditionally only because it ran once, before the first collection.
-            if (controller.searchMode.value != mode) controller.setSearchMode(mode)
+            if (isStudyPad) controller.seedSearchMode {
+                SearchMode.entries.getOrElse(d.initialSearchMode()) { SearchMode.NAME_START }
+            }
         }
 
         // ——— the channel's IN-GRAPH branch, consumed ———

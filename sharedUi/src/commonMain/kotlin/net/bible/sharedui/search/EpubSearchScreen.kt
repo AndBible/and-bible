@@ -38,6 +38,7 @@ import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.rememberControllerText
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeVerticalScroll
 
@@ -77,6 +78,7 @@ fun EpubSearchScreen(
     onOpenExternal: (String) -> Unit = {},
 ) {
     val strings = LocalStrings.current
+    val queryText = rememberControllerText(query)
 
     if (helpOpen) {
         AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
@@ -113,8 +115,8 @@ fun EpubSearchScreen(
                 .padding(vertical = 8.dp),
         ) {
             AbSearchField(
-                value = query,
-                onValueChange = onQueryChange,
+                value = queryText.text,
+                onValueChange = { queryText.edit(it, onQueryChange) },
                 placeholder = strings.search,
                 onImeSearch = onSubmit,
             )

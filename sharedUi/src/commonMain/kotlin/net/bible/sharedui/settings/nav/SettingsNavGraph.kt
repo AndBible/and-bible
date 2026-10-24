@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings.nav
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,10 +57,16 @@ import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.progress.ReadingProgressScreen
+import net.bible.sharedui.app.settings.syncSettingsLabels
+import net.bible.sharedui.app.settings.readingProgressSettingsLabels
+import net.bible.sharedui.app.settings.appSettingsLabels
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.settings.SyncSettingsScreen
 import net.bible.sharedui.strings.LocalStrings
+
+/** Android recreates its host; iOS opts into retaining and relocalizing the current settings controller. */
+internal val LocalLiveSettingsLanguage = staticCompositionLocalOf { false }
 
 /**
  * [AppSettingsScreen]'s platform-supplied slots, ported from classic `SettingsComposeActivity`.
@@ -132,10 +139,15 @@ class AppSettingsDeps(
     val onOpenTextDisplaySettings: () -> Unit,
     val onOpenLinksSettings: () -> Unit,
     val onCrashApp: () -> Unit,
+    val onTestErrorDialog: () -> Unit,
+    val onTestErrorDialogQueue: () -> Unit,
     val resetContentDescription: String,
     val onResume: () -> Unit,
     val askBeforeOpeningLink: () -> Boolean,
     val onOpenExternal: (String) -> Unit,
+    val onReportBug: (() -> Unit)? = null,
+    /** Asks for the legacy-data import (iOS); the default does nothing because the row is hidden elsewhere. */
+    val onImportLegacyData: () -> Unit = {},
 )
 
 /**
@@ -368,6 +380,13 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         // were assembled, so another cluster's destination never pays for building it. See
         // AppSettingsDeps.controller.
         val controller = remember { d.controller() }
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings) {
+                d.onResume()
+                controller.updateLabels(languageStrings.appSettingsLabels(), d.discreteHelpHtml)
+            }
+        }
         val state by controller.state.collectAsState()
         val dialog by controller.dialog.collectAsState()
 
@@ -435,10 +454,13 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                     AppSettingsNav.DISCRETE_HELP -> controller.showDiscreteHelp(d.discreteHelpHtml())
                     AppSettingsNav.OPEN_LINKS -> d.onOpenLinksSettings()
                     AppSettingsNav.CRASH_APP -> d.onCrashApp()
+                    AppSettingsNav.TEST_ERROR_DIALOG -> d.onTestErrorDialog()
+                    AppSettingsNav.TEST_ERROR_DIALOG_QUEUE -> d.onTestErrorDialogQueue()
+                    AppSettingsNav.IMPORT_LEGACY_DATA -> d.onImportLegacyData()
                 }
             },
             onReset = controller::requestReset,
-            resetContentDescription = d.resetContentDescription,
+            resetContentDescription = if (LocalLiveSettingsLanguage.current) languageStrings.resetSettings else d.resetContentDescription,
             searchQuery = searchQuery,
             searchModeActive = searchModeActive,
             onSearchQueryChange = { searchQuery = it },
@@ -449,6 +471,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onDismissDialog = controller::dismissDialog,
             askBeforeOpeningLink = d.askBeforeOpeningLink(),
             onOpenExternal = d.onOpenExternal,
+            onReportBug = d.onReportBug,
         )
     }
 
@@ -456,6 +479,10 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     composable(NavRoutes.SYNC_SETTINGS) {
         val d = deps.syncSettings
         val controller = remember { d.controller() }
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings) { controller.updateLabels(languageStrings.syncSettingsLabels()) }
+        }
         val uiState by controller.state.collectAsState()
 
         // As above: the screen draws uiState.screen.title, and the classic host's manifest label
@@ -627,6 +654,10 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     composable(NavRoutes.READING_PROGRESS_SETTINGS) {
         val d = deps.readingProgressSettings
         val controller = remember { d.controller() }
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings) { controller.updateLabels(languageStrings.readingProgressSettingsLabels()) }
+        }
         val state by controller.state.collectAsState()
 
         // Same convention as the two Task 7 arms: the screen draws state.title, and that string

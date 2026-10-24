@@ -404,11 +404,14 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
         // run `applyChanges` a second time -- the controller never clears `dirty` inside `save()`
         // itself, which is what makes the latch genuinely mandatory rather than a nicety.
         val finished = remember { mutableStateOf(false) }
+        val live = remember { mutableStateOf(true) }
 
         val controller = remember(documentId, documentInitials) {
             d.controllerFor(documentId, documentInitials) { result ->
-                finished.value = true
-                deps.myDocumentPagesResults.deliver(navController, result)
+                if (live.value && !finished.value && navController.currentBackStackEntry === backStackEntry) {
+                    finished.value = true
+                    deps.myDocumentPagesResults.deliver(navController, result)
+                }
             }
         }
 
@@ -428,7 +431,10 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
         // Classic's `onDetachedFromWindow` autosave (`:356-359`) with its `finished` latch. A window
         // callback has no analogue here -- the arm's disposal is the equivalent moment.
         DisposableEffect(controller) {
-            onDispose { if (!finished.value && controller.dirty.value) controller.save() }
+            onDispose {
+                live.value = false
+                if (!finished.value && controller.dirty.value) controller.save()
+            }
         }
 
         // Classic's `onBackPressed` override (`:347-353`): back dismisses what is visually on top --

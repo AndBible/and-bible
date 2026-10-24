@@ -115,7 +115,7 @@ fun TextSettingRowEditorSheet(
                 // not a click-time snapshot, so a shape mismatch surfaces mid-compose, not on a button
                 // press.
                 val numeric = pageRow.value as? TextSettingRowValue.Numeric ?: return@SettingsEditorSheet
-                var current by remember(numeric) { mutableIntStateOf(numeric.value) }
+                var current by remember(numeric.value, numeric.min, numeric.max) { mutableIntStateOf(numeric.value) }
                 NumericSliderContent(numeric = numeric, onValueChange = { current = it })
                 SheetResetConfirmRow(
                     resetLabel = dialogLabels.resetToInheritedLabel,

@@ -18,6 +18,15 @@ class DailyReadingControllerTest {
     private val ui = DailyReadingUi("Plan", "Day 1", "1 Jan",
         listOf(ReadingItem(1, "Gen 1", false), ReadingItem(2, "Matt 1", true)), true, false, false)
 
+    @Test fun metadataRefreshPreservesReadingsAndOpenConfirmation() {
+        val c = controller()
+        c.requestReset()
+        val before = c.ui.value
+        c.updateMetadata("Suunnitelma", "Paiva", "Date")
+        assertEquals(before.copy(planName = "Suunnitelma", dayDesc = "Paiva", dateString = "Date"), c.ui.value)
+        assertEquals(ConfirmKind.RESET, c.confirm.value)
+    }
+
     @Test fun setUi_updates_snapshot() {
         val c = controller()
         c.setUi(ui)

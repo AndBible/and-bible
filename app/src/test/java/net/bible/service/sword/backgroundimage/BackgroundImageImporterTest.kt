@@ -16,14 +16,15 @@
  */
 package net.bible.service.sword.backgroundimage
 
-import android.net.Uri
+import net.bible.service.sword.ContentSource
+import org.junit.Assert.assertEquals
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -36,6 +37,11 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Buffer
+import okio.ForwardingSource
+import okio.Source
+import okio.source
+import org.junit.Assert.assertNull
 
 /**
  * A tiny placeholder byte array standing in for a 1x1 PNG. `copyAndRegister` never decodes the
@@ -51,47 +57,93 @@ class BackgroundImageImporterTest {
     private val app get() = RuntimeEnvironment.getApplication()
     private val dir get() = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
     private lateinit var tmp: File
+    private var previousVersion = 0L
+    private var previousDownloadDir: File? = null
+    private lateinit var previousBooks: List<org.crosswire.jsword.book.Book>
     private val impl = TextDisplaySettingsServiceImpl()
 
     @Before
     fun setUp() {
         // Background-image modules declare AndBibleMinimumVersion=1112, so AndBibleAddonFilter only
         // exposes them on apps whose version is >= 1112 (mirrors BackgroundImageBookTest).
+        previousVersion = app.packageManager.getPackageInfo(app.packageName, 0).longVersionCode
+        previousDownloadDir = SwordBookPathJvm.getDownloadDir()
+        previousBooks = Books.installed().getBooks().toList()
         shadowOf(app.packageManager)
             .getInternalMutablePackageInfo(app.packageName)
             .longVersionCode = 100000L
 
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         dir.mkdirs()
         tmp = File(SharedConstants.modulesDir, "importer-test-src").apply { mkdirs() }
     }
 
     @After
     fun tearDown() {
-        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+        for (b in Books.installed().getBooks().filter { it.isBackgroundImageModule && it !in previousBooks }) {
             Books.installed().removeBook(b)
         }
+        shadowOf(app.packageManager).getInternalMutablePackageInfo(app.packageName).longVersionCode = previousVersion
+        previousDownloadDir?.let { SwordBookPathJvm.setDownloadDir(it) }
         AndBibleAddons.clearCaches()
         dir.deleteRecursively()
         tmp.deleteRecursively()
     }
 
+    private fun source(file: File) = object : ContentSource {
+        override fun openSource(uri: String) = file.source()
+        override fun displayName(uri: String) = "bg.png"
+        override fun mimeType(uri: String) = "image/png"
+    }
+
     @Test fun copyAndRegisterAddsModule() {
         val src = File(tmp, "hills.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(app, Uri.fromFile(src))
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")?.toFile()
         assertNotNull(out)
+        assertEquals("bg.png", out!!.name)
+        assertTrue(src.readBytes().contentEquals(out.readBytes()))
         assertTrue(out!!.parentFile!!.name == BACKGROUND_IMAGE_DIR)
         AndBibleAddons.clearCaches()
-        assertTrue(Books.installed().books.any { it.isBackgroundImageModule && it.backgroundImageFile == out })
+        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out })
     }
 
     @Test fun deleteRemovesModuleAndFile() {
         val src = File(tmp, "sky.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(app, Uri.fromFile(src))!!
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!.toFile()
         AndBibleAddons.clearCaches()
-        val initials = Books.installed().books.first { it.isBackgroundImageModule && it.backgroundImageFile == out }.initials
+        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out }.initials
         impl.deleteBackgroundImage(initials)
         assertFalse(out.exists())
         assertFalse(AndBibleAddons.providedBackgroundImages.containsKey(initials))
     }
+    @Test fun missingExtensionUsesMimeAndDuplicateNamesDoNotOverwrite() {
+        val bytes = onePixelPng()
+        var closed = 0
+        val source = object : ContentSource {
+            override fun openSource(uri: String) = object : ForwardingSource(Buffer().write(bytes)) {
+                override fun close() { closed++; super.close() }
+            }
+            override fun displayName(uri: String) = "bg"
+            override fun mimeType(uri: String) = "image/png"
+        }
+        val first = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
+        val second = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
+        assertEquals("bg.png", first.name)
+        assertEquals("bg_2.png", second.name)
+        assertEquals(2, closed)
+        assertTrue(bytes.contentEquals(first.readBytes()))
+        assertTrue(bytes.contentEquals(second.readBytes()))
+    }
+
+    @Test fun absentInputDoesNotRegisterOrCreateAFile() {
+        val before = dir.listFiles()!!.toSet()
+        val source = object : ContentSource {
+            override fun openSource(uri: String): Source? = null
+            override fun displayName(uri: String) = "missing.png"
+            override fun mimeType(uri: String) = "image/png"
+        }
+        assertNull(BackgroundImageImporter.copyAndRegister(source, "content://test/missing"))
+        assertEquals(before, dir.listFiles()!!.toSet())
+    }
+
 }

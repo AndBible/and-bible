@@ -87,10 +87,12 @@ fun AbOverflowMenu(
 @Composable
 fun AbDropdownMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val mono = isPureMonochrome()
-    DropdownMenu(
-        expanded = expanded, onDismissRequest = onDismissRequest,
-        tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-        shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-        border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-    ) { content() }
+    UncappedFontScale {
+        DropdownMenu(
+            expanded = expanded, onDismissRequest = onDismissRequest,
+            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+        ) { content() }
+    }
 }

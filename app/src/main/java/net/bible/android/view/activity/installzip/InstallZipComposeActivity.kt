@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.installzip
 
+import net.bible.service.installzip.InstallError
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -156,29 +157,7 @@ internal fun installZipRedirectIntent(original: Intent?, context: Context, decis
         .putExtra(NavHostComposeActivity.EXTRA_ROUTE, NavRoutes.installZip(routeArgs.first, routeArgs.second.map(Uri::toString)))
 }
 
-/**
- * Picks the job the host should currently render out of [jobs]: a job paused on
- * [InstallPhase.AwaitingDecision] takes priority over any other (mirrors
- * `DocumentInstallService.onJobsChanged`'s own notification-picking logic -- a pending ask-back
- * must never be starved by a later-queued job's progress), otherwise the first job in the queue.
- */
-internal fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
-    jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision } ?: jobs.firstOrNull()
-
-/**
- * Whether the jobs-drained-to-empty watcher in [InstallZipComposeActivity.Content] should finish
- * the host with `RESULT_OK`. Gated on [enqueuedHere] -- whether THIS host instance actually
- * enqueued a job itself (see [InstallZipComposeActivity.enqueue]) -- rather than merely on having
- * observed the shared, app-scoped `DocumentInstallService.controller.jobs` queue become non-empty
- * at some point: the design allows backing out of a running install (the service keeps running in
- * the background), so a SECOND host can open while a PRIOR host's install still runs. That
- * foreign job draining to empty must NOT finish *this* host with `RESULT_OK` if it never enqueued
- * anything itself -- e.g. it is still sitting at its `ConfirmInstall`/`FormatInfo` prelude, having
- * enqueued nothing. Extracted as a pure predicate so this precise "RESULT_OK iff >=1 source
- * enqueued by THIS prelude" contract is directly unit-testable (see Task B3 finding I1).
- */
-internal fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean =
-    enqueuedHere && jobsEmpty
+// pickActiveJob / shouldFinishOnDrain moved to :sharedUi (InstallZipFlow.kt, same FQN, I2-A Task 12).
 
 /**
  * Maps a job's [InstallPhase] (+ its [displayName]) to the commonMain-local [InstallUiState] that
@@ -220,9 +199,9 @@ internal fun mapPhaseToUiState(context: Context, phase: InstallPhase, displayNam
         InstallPhase.Cancelled -> InstallUiState.Error(context.getString(R.string.install_zip_canceled))
     }
 
-/** Resolves [InstallPhase.Error]'s `R.string` id (+ optional format arg) to final text. */
+/** Resolves [InstallPhase.Error]'s kind (+ optional format arg) to final text. */
 internal fun resolveErrorMessage(context: Context, error: InstallPhase.Error): String =
-    if (error.arg != null) context.getString(error.messageKey, error.arg) else context.getString(error.messageKey)
+    if (error.arg != null) context.getString(error.kind.messageResource, error.arg) else context.getString(error.kind.messageResource)
 
 /**
  * The app's EXPORTED entry for module files (slice 8 §3.2): a file manager's "open with", the Share sheet or any
@@ -250,4 +229,10 @@ class InstallZipComposeActivity : ComponentActivity() {
             finish()
         }
     }
+}
+
+/** Android-only mapping keeps resource IDs out of install models. */
+private val InstallError.messageResource: Int get() = when (this) {
+    InstallError.GENERIC -> R.string.error_occurred
+    InstallError.INVALID_FILE -> R.string.sqlite_invalid_file
 }

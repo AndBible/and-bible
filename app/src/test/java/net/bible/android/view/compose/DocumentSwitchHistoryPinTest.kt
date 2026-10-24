@@ -59,17 +59,13 @@ class DocumentSwitchHistoryPinTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
     private fun verse(osis: String) =
-        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)
+        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)!!
 
     @Test
     fun backAfterADocumentSwitchWalksKjvGen24ThenKjvGen11ThenFinRkGen11() {
@@ -80,13 +76,13 @@ class DocumentSwitchHistoryPinTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
-        idle()
+        net.bible.test.awaitReadingGraph(activity)
         val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
         val finRk = assertNotNull(SwordDocumentFacade.getDocumentByInitials("FinRK"), "FinRK test module missing (~/.sword)")
         // A fresh manager becomes the live instance on construction. The Koin singleton is not
         // live after TestBibleApplication.onTerminate resets the holder; constructing a manager
         // here re-arms history recording, as ReadingHistoryAnchorTest does too.
-        val history = HistoryManager(CommonUtils.windowControl)
+        val history = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         val window = CommonUtils.windowControl.activeWindow
         val pm = window.pageManager
 
@@ -101,7 +97,7 @@ class DocumentSwitchHistoryPinTest {
         pm.currentBible.setKey(verse("Exod.2.10"), true)
         idle()
 
-        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.osisID
+        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.getOsisID()
         val seen = mutableListOf<Pair<String?, String?>>()
         repeat(3) {
             history.goBack()

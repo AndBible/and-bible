@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.toArgb
  *  the ARGB<->Color bridge, used by five screens, and fixture data for four golden tests.
  *
  *  The palette mirrors `BookmarkStyle`'s colours in
- *  `app/src/main/java/net/bible/android/database/bookmarks/BookmarkEntities.kt` (each built via
+ *  `sharedData/src/commonMain/kotlin/net/bible/android/database/bookmarks/BookmarkEntities.kt` (each built via
  *  `Color.argb(255, r, g, b)`), minus `SPEAK` (that entry is a hard-coded internal style for Speak
  *  bookmarks, explicitly excluded from user-facing style lists) and with the `YELLOW_STAR`/
  *  `YELLOW_HIGHLIGHT` duplicate collapsed to one swatch. `BLUE_HIGHLIGHT` (== `defaultLabelColor`)

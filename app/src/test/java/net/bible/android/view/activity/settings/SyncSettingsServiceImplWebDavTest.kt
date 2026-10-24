@@ -1,11 +1,15 @@
 package net.bible.android.view.activity.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.test.DatabaseResetter
-import net.bible.service.cloudsync.CloudAdapters
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.PrefsWebDavStateStore
@@ -32,44 +36,69 @@ import org.robolectric.annotation.Config
 class SyncSettingsServiceImplWebDavTest {
     private val prefs get() = CommonUtils.realSharedPreferences
     private var savedAdapter: String? = null
+    private val scopes = mutableListOf<CoroutineScope>()
+    private fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
+    private val cloudSync get() = get(CloudSync::class.java)
+
+    /** The selected provider; `sync_adapter` is global state in a single-JVM suite. */
+    private var current: String
+        get() = cloudSync.adapterId
+        set(value) { cloudSync.adapterId = value }
 
     @Before fun setUp() {
         savedAdapter = CommonUtils.settings.getString("sync_adapter")
         prefs.edit().clear().commit()
     }
 
-    /** `CloudAdapters.current` is global state in a single-JVM suite: put it back. */
     @After fun tearDown() {
+        scopes.forEach { it.cancel() }
         val s = savedAdapter
         if (s == null) CommonUtils.settings.removeString("sync_adapter") else CommonUtils.settings.setString("sync_adapter", s)
         prefs.edit().clear().commit()
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(*scopes.toTypedArray())
     }
 
-    private fun impl() = SyncSettingsServiceImpl(CoroutineScope(Job()), { error("activity not needed") })
+    private fun impl(): SyncSettingsServiceImpl {
+        val scope = CoroutineScope(Job() + Dispatchers.Unconfined).also { scopes.add(it) }
+        return SyncSettingsServiceImpl(
+            scope, scope, get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java), cloudSync,
+            get(net.bible.service.cloudsync.CloudAdapterFactory::class.java),
+            net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
+            get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
+            get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java), net.bible.test.testCoreStrings(),
+            get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
+        )
+    }
+
+    /** [SyncSettingsServiceImpl.refresh] builds the snapshot asynchronously; wait for it. */
+    private fun SyncSettingsServiceImpl.refreshAndWait() {
+        refresh()
+        runBlocking { scopes.flatMap { it.coroutineContext[Job]!!.children.toList() }.joinAll() }
+    }
 
     @Test fun webDavSelected_readsAndWritesWebDavKeys() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
         assertTrue(service.setText("cloud_sync_username", "w"))
         assertEquals("w", prefs.getString("webdav_sync_username", null))
         assertNull(prefs.getString("cloud_sync_username", null))
-        service.refresh()
+        service.refreshAndWait()
         assertEquals("w", service.snapshot.value.username)
     }
 
     @Test fun nextCloudSelected_keepsCloudSyncKeys() {
-        CloudAdapters.current = CloudAdapters.NEXT_CLOUD
+        current = "NEXT_CLOUD"
         val service = impl()
         assertTrue(service.setText("cloud_sync_username", "n"))
         assertEquals("n", prefs.getString("cloud_sync_username", null))
         assertNull(prefs.getString("webdav_sync_username", null))
-        service.refresh()
+        service.refreshAndWait()
         assertEquals("n", service.snapshot.value.username)
     }
 
     @Test fun webDav_httpRejected_httpsAccepted() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
         assertFalse(service.setText("cloud_sync_server_url", "http://nas/"))
         assertNull(prefs.getString("webdav_sync_server_url", null))
@@ -79,7 +108,7 @@ class SyncSettingsServiceImplWebDavTest {
     }
 
     @Test fun webDav_url_isTrimmedBeforeValidationAndStorage() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
         assertTrue(service.setText("cloud_sync_server_url", " https://nas/dav/ \n"))
         assertEquals("https://nas/dav/", prefs.getString("webdav_sync_server_url", null))
@@ -88,7 +117,7 @@ class SyncSettingsServiceImplWebDavTest {
     }
 
     @Test fun webDav_urlOrFolderChange_resetsPropagation() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
         for ((key, value) in listOf("cloud_sync_folder_path" to "x", "cloud_sync_server_url" to "https://nas/dav/")) {
             PrefsWebDavStateStore(prefs).propagation = Propagation.YES
@@ -102,7 +131,7 @@ class SyncSettingsServiceImplWebDavTest {
     }
 
     @Test fun webDav_hostChange_clearsCertPin_pathChangeKeepsIt() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
         assertTrue(service.setText("cloud_sync_server_url", "https://nas/dav/"))
         PrefsWebDavStateStore(prefs).certPin = CertPin("nas", "ABCDEF0123456789ABCDEF0123456789")
@@ -115,35 +144,35 @@ class SyncSettingsServiceImplWebDavTest {
     }
 
     @Test fun nextCloud_urlChange_doesNotTouchPropagation() {
-        CloudAdapters.current = CloudAdapters.NEXT_CLOUD
+        current = "NEXT_CLOUD"
         PrefsWebDavStateStore(prefs).propagation = Propagation.YES
         impl().setText("cloud_sync_folder_path", "x")
         assertEquals(Propagation.YES, PrefsWebDavStateStore(prefs).propagation)
     }
 
     @Test fun webDav_certificateRowFields() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
-        val service = impl()
+        current = "WEBDAV"
+        val service = impl().apply { refreshAndWait() }
         assertFalse(service.snapshot.value.certificateVisible)
         PrefsWebDavStateStore(prefs).certPin = CertPin("nas", "ABCDEF0123456789ABCDEF0123456789")
-        service.refresh()
+        service.refreshAndWait()
         val snap = service.snapshot.value
         assertTrue(snap.certificateVisible)
         assertTrue(snap.certificateSummary, snap.certificateSummary.startsWith("AB:CD"))
         service.forgetCertificate()
         assertNull(PrefsWebDavStateStore(prefs).certPin)
-        service.refresh()
+        service.refreshAndWait()
         assertFalse(service.snapshot.value.certificateVisible)
     }
 
     @Test fun webDav_hintAndHttpsOnly() {
-        CloudAdapters.current = CloudAdapters.WEBDAV
+        current = "WEBDAV"
         val service = impl()
-        service.refresh()
+        service.refreshAndWait()
         assertNotNull(service.snapshot.value.serverUrlHint)
         assertTrue(service.snapshot.value.httpsOnly)
-        CloudAdapters.current = CloudAdapters.NEXT_CLOUD
-        service.refresh()
+        current = "NEXT_CLOUD"
+        service.refreshAndWait()
         assertNull(service.snapshot.value.serverUrlHint)
         assertFalse(service.snapshot.value.httpsOnly)
     }

@@ -38,7 +38,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Task 14, Step 2/3: the AI prompt manager's CSV import-mode choice (classic's
  * `.setItems(editable, add-on)` chooser) and post-import error summary moved off the host
- * (`NavHostComposeActivity.importPrompts`/`importCsvAsEditable`) into `AiPromptsController.dialog`
+ * (`AiHost.importPrompts`/`importCsvAsEditable`) into `AiPromptsController.dialog`
  * and are now rendered by [AiPromptsScreen] itself from an `AiPromptsDialog` state -- this proves
  * the screen renders the right options/text and answers the right callback.
  */

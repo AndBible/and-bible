@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface LlmModelService {
     val models: StateFlow<List<ModelVd>>
-    fun providersForPicker(): List<ProviderVd>
+    suspend fun providersForPicker(): List<ProviderVd>
     suspend fun availableModelsFor(providerId: String): List<AvailableModelVd>
     suspend fun saveModel(id: String?, providerId: String, modelId: String, priceInput: String?, priceOutput: String?, setDefault: Boolean)  // id null = create
-    fun deleteModel(id: String)
-    fun setDefault(id: String)
-    fun refresh()
+    suspend fun deleteModel(id: String)
+    suspend fun setDefault(id: String)
+    suspend fun refresh()
 }

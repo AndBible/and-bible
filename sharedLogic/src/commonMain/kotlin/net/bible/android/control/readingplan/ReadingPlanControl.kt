@@ -1,0 +1,340 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.control.readingplan
+
+import net.bible.sharedcore.log.Log
+
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.service.history.HistoryManager
+import net.bible.service.readingplan.OneDaysReadingsDto
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.service.readingplan.ReadingPlanInfoDto
+
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.platform.LocalCalendar
+import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.VersificationConverter
+
+
+import kotlin.math.roundToLong
+
+
+/** Control status of reading plans
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+class ReadingPlanControl constructor(
+		private val speakControl: SpeakControl,
+		private val windowControl: WindowControl,
+        private val readingPlanRepo: ReadingPlanRepository,
+        private val readingPlanTextDao: ReadingPlanTextFileDao,
+        private val settings: AppSettings,
+        internal val calendar: LocalCalendar)
+{
+
+    private var readingStatus: ReadingStatus? = null
+
+    /** allow front end to determine if a plan needs has been selected
+     */
+    val isReadingPlanSelected: Boolean
+        get() = !currentPlanCode.isNullOrEmpty()
+
+    /** get a list of plans so the user can choose one
+     */
+    suspend fun readingPlanList(): List<ReadingPlanInfoDto> = readingPlanTextDao.readingPlanList()
+
+    /**
+     * Check if any user plans in jsword/readingplan have same file
+     * name as one of the default plans
+     */
+    val readingPlanUserDuplicates: Boolean
+    get() {
+        val userPlanList = readingPlanTextDao.userPlanCodes(false) ?: return false
+        val internalPlanList = readingPlanTextDao.internalPlanCodes
+        for (userPlan in userPlanList) {
+            if (internalPlanList.find { internalPlan -> internalPlan == userPlan } != null)
+                return true
+        }
+        return false
+    }
+
+    /** get list of days and readings for a plan so user can see the plan in advance
+     */
+    suspend fun currentPlansReadingList(): List<OneDaysReadingsDto> = readingPlanTextDao.getReadingList(currentPlanCode)
+
+    suspend fun currentPlanExists(planCode: String = currentPlanCode): Boolean = try {
+        readingPlanTextDao.getReading(planCode, 1)
+        true
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { false }
+
+    /** The day the user is on: for a date-based plan today's day, else the stored current day. */
+    suspend fun currentPlanDay(planCode: String = currentPlanCode): Int {
+            return if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) {
+                val todayStart = calendar.startOfToday()
+                readingPlanTextDao.getReadingList(planCode).find {
+                    it.readingDate?.getTime() == todayStart
+                }?.day ?: 1
+            } else {
+                readingPlanRepo.getCurrentDay(planCode)
+            }
+    }
+
+    /** Stores the current day (not for date-based plans) and returns once the write has landed, so a read after it sees it. */
+    private suspend fun setCurrentPlanDay(day: Int) {
+        val planCode = currentPlanCode
+        if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) return
+        readingPlanRepo.setCurrentDay(planCode, day).join()
+    }
+
+    val shortTitle: String
+        get() = currentPlanCode.take(8)
+
+    suspend fun currentDayDescription(): String =
+        if (isReadingPlanSelected) {
+            getDaysReading(currentPlanDay()).dayDesc
+        } else {
+            ""
+        }
+
+    /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
+     */
+    val currentPlanCode: String
+        get() {
+            return settings.getString(READING_PLAN, "") as String
+        }
+
+    val currentPageManager: CurrentPageManager get() = windowControl.activeWindowPageManager
+
+    /** User has chosen to start a plan
+     */
+    suspend fun startReadingPlan(plan: ReadingPlanInfoDto) {
+        // set default plan
+        setReadingPlan(plan.planCode)
+
+        // tell the plan to set a start date
+        if (readingPlanRepo.getStartDate(plan.planCode) == null)
+            readingPlanRepo.startPlan(plan.planCode)
+    }
+
+    /** Adjust the plan start date
+     */
+    suspend fun setStartDate(plan: ReadingPlanInfoDto, startDate: DbDate) {
+        // tell the plan to set a start date
+        readingPlanRepo.startPlan(plan.planCode, startDate)
+    }
+
+    /** change default plan
+     */
+    fun setReadingPlan(planCode: String) {
+        // set default plan to this
+        settings.setString(READING_PLAN, planCode)
+    }
+
+    /** get read status of this days readings
+     */
+    suspend fun getReadingStatus(day: Int, planCode: String = currentPlanCode): ReadingStatus {
+        var readingStatus = readingStatus
+        if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
+            val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
+            // if Historic then return historic status that returns read=true for all passages
+            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay(planCode)) {
+                HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
+            } else {
+                ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
+            }
+            this.readingStatus = readingStatus.apply { reloadStatus() }
+        }
+        return readingStatus
+    }
+
+    private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
+        val today = calendar.startOfToday()
+        val startDate = planInfo.startDate ?: return 0
+        // on final day, after done the startDate will be null
+
+        // should not need to round as we use truncated dates, but safety first
+        // later found that rounding is necessary (due to DST I think) because
+        // when the clocks went forward the difference became 88.95833 but should have been 89
+        val diffInDays = (today - startDate.getTime()) / (1000.0 * 60.0 * 60.0 * 24.0)
+        val diffInWholeDays = diffInDays.roundToLong()
+        Log.i(TAG, "Days diff between today and start:$diffInWholeDays")
+
+        // if diff is zero then we are on day 1 so add 1
+        return diffInWholeDays + 1
+    }
+
+    /** mark this day as complete unless it is in the future
+     * if last day then reset plan
+     */
+    suspend fun done(planInfo: ReadingPlanInfoDto, day: Int, force: Boolean): Int {
+        // which day to show next -1 means the user is up to date and can close Reading Plan
+        var nextDayToShow = -1
+
+        // force Done to work for whatever day is passed in, otherwise Done only works for current plan day and ignores other days
+        if (force) {
+            // for Done to work for non plan day
+            setCurrentPlanDay(day)
+
+            // normal reading status update is circumvented so mark all as read here
+            getReadingStatus(day).setAllRead()
+        }
+
+        // was this the next reading plan day due whether on schedule or not
+        if (currentPlanDay() == day) {
+            // do not leave prefs for historic days - we show all historic readings as 'read'
+            getReadingStatus(day).delete(planInfo)
+
+            // was this the last day in the plan
+            if (readingPlanTextDao.getNumberOfPlanDays(currentPlanCode) == day) {
+                // last plan day is just Done so clear all plan status
+                reset(planInfo.planCode)
+                nextDayToShow = -1
+            } else {
+                // move to next plan day
+                var nextDay = incrementCurrentPlanDay()
+
+                // if there are no readings scheduled for the next day then mark it as Done and carry on to next next day
+                val nextReadings = getDaysReading(nextDay)
+                if (nextReadings.numReadings == 0) {
+                    nextDay = done(planInfo, nextDay, force)
+                }
+
+                nextDayToShow = nextDay
+            }
+        } else {
+            if (planInfo.numberOfPlanDays > day) {
+                nextDayToShow = day + 1
+            }
+        }
+
+        //if user is not behind then do not show Daily Reading screen
+        if (!isDueToBeRead(planInfo, nextDayToShow)) {
+            nextDayToShow = -1
+        }
+
+
+        return nextDayToShow
+    }
+
+
+    private fun isDueToBeRead(planInfo: ReadingPlanInfoDto, day: Int): Boolean {
+        return getDueDay(planInfo) >= day
+    }
+
+    /** increment current day
+     */
+	private suspend fun incrementCurrentPlanDay(): Int {
+        val nextDay = currentPlanDay() + 1
+        setCurrentPlanDay(nextDay)
+
+        return nextDay
+    }
+
+    /** get readings due for current plan on specified day
+     */
+    suspend fun getDaysReading(day: Int, planCode: String = currentPlanCode): OneDaysReadingsDto {
+        return readingPlanTextDao.getReading(planCode, day)
+    }
+
+    /** User wants to read a passage from the daily reading
+     * Also mark passage as read
+     */
+    suspend fun read(day: Int, readingNo: Int, readingKey: Key?) {
+        if (readingKey != null) {
+            // mark reading as 'read'
+            getReadingStatus(day).setRead(readingNo)
+
+            HistoryManager.recordIfCreated(null)
+
+            // show the current bible
+            val currentPageManager = currentPageManager
+            val bible = currentPageManager.currentBible.currentPassageBook
+
+            // convert the verse to the v11n of the current bible
+            val keyList = convertReadingVersification(readingKey, bible)
+            val firstKey = keyList[0]
+
+            // go to correct passage
+            currentPageManager.setCurrentDocumentAndKey(bible, firstKey)
+        }
+    }
+
+    /**
+     * Speak 1 reading and mark as read.  Also convert from ReadingPlan v11n type to v11n type of current Bible.
+     */
+    suspend fun speak(day: Int, readingNo: Int, readingKey: Key) {
+        val bible = currentPageManager.currentBible.currentPassageBook
+        val keyList = convertReadingVersification(readingKey, bible)
+
+        speakControl.speakKeyListLegacy(bible, keyList, true)
+
+        getReadingStatus(day).setRead(readingNo)
+    }
+
+    /** User wants all passages from the daily reading spoken using TTS
+     * Also mark passages as read
+     */
+    suspend fun speak(day: Int, allReadings: List<Key>) {
+        val bible = currentPageManager.currentBible.currentPassageBook
+        val allReadingsWithCorrectV11n = ArrayList<Key>()
+        for (key in allReadings) {
+            val keyList = convertReadingVersification(key, bible)
+            allReadingsWithCorrectV11n.addAll(keyList)
+        }
+        speakControl.speakKeyListLegacy(bible, allReadingsWithCorrectV11n, true)
+
+        // mark all readings as read
+        for (i in allReadings.indices) {
+            getReadingStatus(day).setRead(i)
+        }
+    }
+
+    fun reset(planCode: String) {
+        // if resetting default plan then remove default
+        if (planCode == currentPlanCode) {
+            settings.removeString(READING_PLAN)
+        }
+
+        readingPlanRepo.resetPlan(planCode)
+    }
+
+    private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {
+        val documentV11n = bibleToBeUsed.versification
+
+        val v11nConverter = VersificationConverter()
+        val convertedPassage = v11nConverter.convert(readingKey, documentV11n)
+
+        val keyList = ArrayList<Key>()
+        keyList.add(convertedPassage)
+        return keyList
+    }
+
+    companion object {
+
+        private const val READING_PLAN = "reading_plan"
+
+        private const val TAG = "ReadingPlanControl"
+    }
+
+}

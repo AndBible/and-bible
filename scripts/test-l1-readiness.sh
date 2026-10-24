@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# Proves l1-readiness.sh sees each kind of violation (memory: a-check-that-cannot-see-its-subject).
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
+mkdir -p "$T/scripts" "$T/app/src/main/java/net/bible/android/control/demo"
+printf 'demo\tandroid/control/demo\n' > "$T/scripts/l1-readiness-domains.txt"
+: > "$T/scripts/l1-readiness-platform.txt"
+echo demo > "$T/scripts/l1-readiness-done.txt"
+cat > "$T/app/src/main/java/net/bible/android/control/demo/Demo.kt" <<'EOS'
+package net.bible.android.control.demo
+import android.util.Log
+import androidx.room3.RoomDatabase
+import org.json.JSONObject
+import java.io.File
+import net.bible.android.view.activity.base.Dialogs
+fun a() = blockingDb { 1 }
+fun b() = blockingDb { 2 } // L1-edge: binder thread
+fun c() = runBlocking { 3 }
+private fun <T> blocking(core: suspend () -> T): T = TODO()
+fun d() = blocking { 4 }
+fun e() = CommonUtils.settings
+fun f() = R.string.okay
+fun g() = blockingDb { 5 } // L1-pending(demo)
+EOS
+out=$("$HERE/l1-readiness.sh" --root "$T" --domain demo --check 2>/dev/null) && { echo "FAIL: --check passed on a dirty done domain"; exit 1; }
+row=$(echo "$out" | awk -F'\t' '$1=="demo"')
+expect=$'demo\t3\t1\t1\t1\t3\t1\t1'
+[ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
+
+# A done domain that is clean except for a caller still bridged with L1-pending(<itself>) must fail
+# --check (callers of a done domain are converted, not bridged); the same domain without it passes.
+T2="$(mktemp -d)"; trap 'rm -rf "$T" "$T2"' EXIT
+mkdir -p "$T2/scripts" "$T2/app/src/main/java/net/bible/android/control/clean" "$T2/app/src/main/java/net/bible/android/view/other"
+printf 'clean\tandroid/control/clean\n' > "$T2/scripts/l1-readiness-domains.txt"
+: > "$T2/scripts/l1-readiness-platform.txt"
+echo clean > "$T2/scripts/l1-readiness-done.txt"
+cat > "$T2/app/src/main/java/net/bible/android/control/clean/Clean.kt" <<'EOS'
+package net.bible.android.control.clean
+suspend fun clean() = 1
+EOS
+"$HERE/l1-readiness.sh" --root "$T2" --domain clean --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed on a clean done domain"; exit 1; }
+cat > "$T2/app/src/main/java/net/bible/android/view/other/Caller.kt" <<'EOS'
+package net.bible.android.view.other
+fun caller() = blockingDb { clean() } // L1-pending(clean)
+EOS
+out=$("$HERE/l1-readiness.sh" --root "$T2" --domain clean --check 2>/dev/null) \
+  && { echo "FAIL: --check passed on a done domain with a pending caller"; exit 1; }
+row=$(echo "$out" | awk -F'\t' '$1=="clean"')
+expect=$'clean\t0\t0\t1\t0\t0\t0\t0'
+[ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
+# Longest-prefix ownership: a file under a nested mapped dir belongs to the nested domain only.
+T3="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3"' EXIT
+mkdir -p "$T3/scripts" "$T3/app/src/main/java/net/bible/android/control/outer/inner"
+printf 'outer\tandroid/control/outer\ninner\tandroid/control/outer/inner\n' > "$T3/scripts/l1-readiness-domains.txt"
+: > "$T3/scripts/l1-readiness-platform.txt"; : > "$T3/scripts/l1-readiness-done.txt"
+echo 'fun x() = blockingDb { 1 }' > "$T3/app/src/main/java/net/bible/android/control/outer/inner/In.kt"
+echo 'fun y() = 2' > "$T3/app/src/main/java/net/bible/android/control/outer/Out.kt"
+out=$("$HERE/l1-readiness.sh" --root "$T3")
+[ "$(echo "$out" | awk -F'\t' '$1=="outer"{print $2}')" = 0 ] || { echo "FAIL: outer counted inner's bridge"; exit 1; }
+[ "$(echo "$out" | awk -F'\t' '$1=="inner"{print $2}')" = 1 ] || { echo "FAIL: inner lost its bridge"; exit 1; }
+
+# @no-pending: any L1-pending anywhere (here an unmapped "view") fails --check; without it, passes.
+mkdir -p "$T3/app/src/main/java/net/bible/android/view/x"
+echo 'fun z() = blockingDb { 3 } // L1-pending(view)' > "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 || { echo "FAIL: --check failed without @no-pending"; exit 1; }
+echo '@no-pending' >> "$T3/scripts/l1-readiness-done.txt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 && { echo "FAIL: @no-pending missed an unmapped pending marker"; exit 1; }
+echo 'fun z() = 3 // L1-pending: unknown-domain' > "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 && { echo "FAIL: @no-pending missed alternate marker formatting"; exit 1; }
+rm "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 || { echo "FAIL: @no-pending failed with no markers"; exit 1; }
+
+# @no-unmarked-bridges: an unmarked blockingAtEdge in an unmapped file fails --check; a marked one passes.
+# The check stays off until the sentinel is present, and BlockingDb.kt (the definitions) is excluded by path.
+T4="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4"' EXIT
+mkdir -p "$T4/scripts" "$T4/app/src/main/java/net/bible/android/view/x" "$T4/app/src/main/java/net/bible/service/db"
+: > "$T4/scripts/l1-readiness-domains.txt"; : > "$T4/scripts/l1-readiness-platform.txt"; : > "$T4/scripts/l1-readiness-done.txt"
+echo 'fun unmarked() = blockingAtEdge { 1 }' > "$T4/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed on an unmarked bridge before @no-unmarked-bridges"; exit 1; }
+echo '@no-unmarked-bridges' >> "$T4/scripts/l1-readiness-done.txt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  && { echo "FAIL: @no-unmarked-bridges missed an unmarked blockingAtEdge"; exit 1; }
+echo 'fun marked() = blockingAtEdge { 1 } // L1-edge: framework callback' > "$T4/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-unmarked-bridges failed on a marked blockingAtEdge"; exit 1; }
+echo 'fun <T> blockingAtEdge(block: suspend () -> T): T = TODO()
+fun <T> blockingDb(block: suspend () -> T): T = TODO()' > "$T4/app/src/main/java/net/bible/service/db/BlockingDb.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-unmarked-bridges counted BlockingDb.kt's own definitions"; exit 1; }
+# @no-common-blocking: a code-line runBlocking/blockingAtEdge in commonMain/iosMain of any module fails --check;
+# jvmMain/androidMain/commonTest, KDoc lines and trailing // comments are allowed.
+T5="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4" "$T5"' EXIT
+mkdir -p "$T5/scripts" "$T5/app/src/main/java/net/bible"
+for sd in commonMain iosMain jvmMain androidMain commonTest; do mkdir -p "$T5/mod/src/$sd/kotlin"; done
+: > "$T5/scripts/l1-readiness-domains.txt"; : > "$T5/scripts/l1-readiness-platform.txt"; : > "$T5/scripts/l1-readiness-done.txt"
+echo 'fun a() = runBlocking { 1 }' > "$T5/mod/src/commonMain/kotlin/A.kt"
+echo 'fun b() = blockingAtEdge { 2 }' > "$T5/mod/src/iosMain/kotlin/B.kt"
+echo 'fun c() = runBlocking { 3 }' > "$T5/mod/src/jvmMain/kotlin/C.kt"
+echo 'fun d() = runBlocking { 4 }' > "$T5/mod/src/androidMain/kotlin/D.kt"
+echo 'fun e() = runBlocking { 5 }' > "$T5/mod/src/commonTest/kotlin/E.kt"
+printf '/**\n * so [blockingAtEdge] refuses\n */\nfun f() = 1 // not runBlocking\n' > "$T5/mod/src/commonMain/kotlin/F.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed before @no-common-blocking"; exit 1; }
+echo '@no-common-blocking' >> "$T5/scripts/l1-readiness-done.txt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: @no-common-blocking exit $rc, expected 1"; exit 1; }
+[ "$(echo "$err" | grep -c -E '(A|B)\.kt:')" = 2 ] && [ "$(echo "$err" | grep -c -E '[C-F]\.kt:')" = 0 ] \
+  || { echo "FAIL: @no-common-blocking named the wrong files: $err"; exit 1; }
+rm "$T5/mod/src/commonMain/kotlin/A.kt" "$T5/mod/src/iosMain/kotlin/B.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-common-blocking failed on allowed uses"; exit 1; }
+# The edge-file exemption is per LINE: a marked runBlocking in IosDatabaseHost.kt passes, an unmarked one fails.
+EDGE="$T5/sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios"; mkdir -p "$EDGE"
+printf 'import kotlinx.coroutines.runBlocking\nfun h() = runBlocking { 1 } // L1-edge: test reason\n' > "$EDGE/IosDatabaseHost.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: a marked runBlocking in an edge file was flagged"; exit 1; }
+printf 'fun x() = runBlocking { 2 }\n' >> "$EDGE/IosDatabaseHost.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] && echo "$err" | grep -q 'IosDatabaseHost.kt:3:' \
+  || { echo "FAIL: an unmarked runBlocking in an edge file was not caught: $err"; exit 1; }
+rm "$EDGE/IosDatabaseHost.kt"
+# Two roots: a domain whose files live only under :sharedLogic commonMain is still seen (a planted
+# runBlocking counts as a bridge and fails a done domain); a mapped domain with no files in either
+# root fails --check as "maps to no files" (a check that cannot see its subject must not pass).
+T6="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4" "$T5" "$T6"' EXIT
+mkdir -p "$T6/scripts" "$T6/app/src/main/java/net/bible" "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved"
+printf 'moved\tandroid/control/moved\n' > "$T6/scripts/l1-readiness-domains.txt"
+: > "$T6/scripts/l1-readiness-platform.txt"; echo moved > "$T6/scripts/l1-readiness-done.txt"
+echo 'fun m() = runBlocking { 1 }' > "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved/M.kt"
+set +e; out=$("$HERE/l1-readiness.sh" --root "$T6" --check 2>/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: two-root: --check exit $rc on a bridge under sharedLogic, expected 1"; exit 1; }
+[ "$(echo "$out" | awk -F'\t' '$1=="moved"{print $2}')" = 1 ] || { echo "FAIL: two-root: row did not show bridges 1"; exit 1; }
+printf 'moved\tandroid/control/moved\nghost\tandroid/control/ghost\n' > "$T6/scripts/l1-readiness-domains.txt"
+echo 'fun m() = 1' > "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved/M.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T6" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: --check exit $rc on a domain mapping to no files, expected 1"; exit 1; }
+echo "$err" | grep -qF "REGRESSION: domain 'ghost' maps to no files" || { echo "FAIL: missing 'maps to no files' message: $err"; exit 1; }
+echo "l1-readiness self-test OK"

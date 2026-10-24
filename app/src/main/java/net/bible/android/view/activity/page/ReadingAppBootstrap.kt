@@ -152,6 +152,8 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * `ReadingAppBootstrapTest.destroyingOneHostLeavesTheOtherLiveHostsCallbackRegistered` measures it.
  */
 class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : ActivityBase, T : ReadingHostActivity {
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
+
     private val windowControl: WindowControl by inject()
     private val appDialogs: AppDialogController by inject()
     private val preferences get() = CommonUtils.settings
@@ -212,10 +214,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      */
     fun createWindowRepository(): WindowRepository {
         if (this::windowRepository.isInitialized) return windowRepository
-        windowRepository = WindowRepository(host.lifecycleScope)
-        // Flushes the previous owner first, so initialize() reads a DB that has its last edit (CR-1 I1).
-        windowControl.takeWindowRepository(windowRepository)
-        windowRepository.initialize()
+        // Assigned before the load: it posts workspace events synchronously and their subscribers read hostWindowRepository.
+        net.bible.service.startup.ReadingAppInit.createWindowRepository(host.lifecycleScope) { windowRepository = it }
         return windowRepository
     }
 
@@ -230,7 +230,10 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if(!initialized) {
             requestSdcardPermission()
             ErrorReportControl.checkCrash(host)
-            if(!CommonUtils.checkPoorTranslations(host)) exitProcess(2)
+            if(!CommonUtils.checkPoorTranslations(host)) {
+                DatabaseContainer.flushSettingsBeforeExit()
+                exitProcess(2)
+            }
             showBetaNotice()
             showStableNotice()
             showNewSyncTargetsNotice()
@@ -249,7 +252,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      * Backup database is used to allow user to quickly reinstall all
      * available books if moving to a new device.
      */
-    private fun checkDocBackupDBInSync() {
+    private suspend fun checkDocBackupDBInSync() {
         val docs = SwordDocumentFacade.documents
         val knownInstalled = docDao.getKnownInstalled()
         if (knownInstalled.isEmpty()) {
@@ -454,7 +457,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
                 val doc = if (docStr != null) Books.installed().getBook(docStr) else null
                 val defV11n = if (doc is SwordBook) doc.versification else KJVA
 
-                val key = VerseFactory.fromString(defV11n, "$book.$chapter")
+                val key = VerseFactory.fromString(defV11n, "$book.$chapter")!!
                 windowControl.showLink(doc, key)
             }
         }
@@ -583,7 +586,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     private val lastTouched: Long get() {
-        return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
+        return lastTouchedOf(windowRepository.windowList.mapNotNull { it.androidBibleView?.lastTouched })
     }
 
     private val syncInterval get() =
@@ -597,13 +600,15 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if (DatabaseContainer.replacing) return
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
-            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
+            // The save is queued; cloud sync must not apply remote rows before it has landed.
+            windowRepository.persistence.awaitPersisted()
+            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && cloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
-                if(!CloudSync.signedIn) {
-                    CloudSync.signIn(host)
+                if(!cloudSync.signedIn) {
+                    cloudSync.signIn()
                 }
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
+                cloudSync.start()
+                cloudSync.waitUntilFinished()
             }
         }
     }
@@ -639,3 +644,9 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  * never shown when [discrete] (the maintainer's decision, spec §0).
  */
 internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean = isBeta && !discrete
+
+/**
+ * Most recent touch time among the attached BibleViews. With none attached (e.g. the sync settings
+ * screen is in front) nothing was touched, so 0 lets the sync interval fall back to the last sync time.
+ */
+internal fun lastTouchedOf(touched: List<Long>): Long = touched.maxOrNull() ?: 0L

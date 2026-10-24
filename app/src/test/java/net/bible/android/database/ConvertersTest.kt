@@ -180,4 +180,14 @@ class ConvertersTest {
         Assert.assertEquals("large2 should serialize/deserialize correctly", Int.MIN_VALUE, deserialized[large2])
         Assert.assertEquals("zero should serialize/deserialize correctly", 0, deserialized[zero])
     }
+
+    @Test
+    fun emptyIdBlobIsTheEmptyIdFromEitherReader() {
+        // '' read through an Android CursorWindow (one NUL byte) and through an androidx.sqlite driver (no bytes).
+        Assert.assertEquals(IdType.empty(), converters.blobToIdType(ByteArray(1)))
+        Assert.assertEquals(IdType.empty(), converters.blobToIdType(ByteArray(0)))
+        val id = IdType(MyUUID.randomUUID())
+        Assert.assertEquals(id, converters.blobToIdType(converters.idTypeToBlob(id)))
+        Assert.assertThrows(RuntimeException::class.java) { converters.blobToIdType(ByteArray(5)) }
+    }
 }

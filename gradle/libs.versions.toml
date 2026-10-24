@@ -1,24 +1,28 @@
 [versions]
 # Toolchain — reference-matched (do not diverge)
 agp = "9.2.1"
-kotlin = "2.3.21"
-ksp = "2.3.9"
+kotlin = "2.4.21"
+ksp = "2.3.12"
 gradle = "9.5.1"                 # informational; the wrapper is the source of truth
 # AndBible libraries — current values, moved verbatim into the catalog
-room = "2.8.4"                   # bumped from 2.7.2 to a KSP-2.3.9-compatible Room
+room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3) with the bundled SQLite driver
 coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
 kotlinxSerialization = "1.8.1"
+# L1b.5: YAML parser for the LLM tool schemas (KMP: jvm + iosArm64/iosSimulatorArm64); snakeyaml stays as test oracle
+kaml = "0.104.0"
+snakeyaml = "2.2"
+# L1a.6: first ktor; OkHttp engine on Android, Darwin engine wired in I1
+ktor = "3.5.2"
 atomicfu = "0.33.0"
 coreKtx = "1.16.0"
 jdom = "2.0.6.1"
 commonsText = "1.9"
-sqliteAndroid = "3.49.0"
+androidxSqlite = "2.7.1"
 appcompat = "1.7.1"
 lifecycle = "2.9.1"
 material = "1.12.0"
 koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if a newer 4.x resolves)
-ktor = "3.3.3"                   # WebDAV sync client (spec 2026-10-09-webdav-sync-design)
-xmlutil = "0.91.1"               # KMP XML reader for WebDAV multistatus
+xmlutil = "1.0.2.1"              # KMP XML reader for WebDAV multistatus; same version as :kdom
 accrescentBundletool = "0.2.4"
 composeBom = "2026.06.00"        # added in Task 6 (:app Compose host BOM)
 activityCompose = "1.13.0"
@@ -40,12 +44,21 @@ navigationCompose = "2.9.2"
 lifecycleRuntimeCompose = "2.9.6"
 
 [libraries]
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+# I2 stream C: Markdown rendering on iOS (iosMain of :sharedLogic)
+jetbrains-markdown = { module = "org.jetbrains:markdown", version = "0.7.18" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidxSqlite" }
+androidx-sqlite-bundled-jvm = { module = "androidx.sqlite:sqlite-bundled-jvm", version.ref = "androidxSqlite" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -72,11 +85,7 @@ materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "ma
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
-# WebDAV sync client (sharedCore) — Task 1
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
-ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+# WebDAV sync client (sharedCore)
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 
 [plugins]
@@ -89,5 +98,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version = "1.11.1" }
 android-kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-androidx-room = { id = "androidx.room", version.ref = "room" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

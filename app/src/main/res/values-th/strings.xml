@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, AND, OR, NOT</string>
   <string name="help_search_details">กรุณาดู %s สำหรับรายละเอียดเพิ่มเติม</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">พื้นที่ทำงาน</string>
   <string name="help_workspaces_text">พื้นที่ทำงานช่วยให้มีสภาพแวดล้อมการทำงานหลายอย่างที่ขึ้นอยู่กับบริบท ฟังก์ชันพื้นที่ทำงาน สามารถเข้าถึงได้ผ่านรายการพื้นที่ทำงานในเมนูตัวเลือก (มุมขวาบน) วิธีลัดในการเข้าถึงพื้นที่ทำงานคือ การปัดลงจากแถบเครื่องมือ คุณยังสามารถใช้การปัดซ้ายและปัดขวาบนแถบเครื่องมือเพื่อ สลับไปยังพื้นที่ทำงานก่อนหน้า / ถัดไป</string>

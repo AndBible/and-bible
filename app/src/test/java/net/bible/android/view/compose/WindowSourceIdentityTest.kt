@@ -59,13 +59,13 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class WindowSourceIdentityTest : KoinComponent {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @Before fun pin() { firstTime = false }
     @After fun tearDown() {
-        controllers.forEach { it.close() }; controllers.clear()
-        ReadingHostPresence.setForeground(null); ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun host() = Robolectric.buildActivity(
@@ -91,7 +91,7 @@ class WindowSourceIdentityTest : KoinComponent {
         c.pause()
 
         // Another source (e.g., settings activity) takes the shared windowControl
-        val foreignRepo = WindowRepository(kotlinx.coroutines.CoroutineScope(Dispatchers.Main))
+        val foreignRepo = net.bible.test.testWindowRepository()
         wc.windowRepository = foreignRepo
         assertNotSame(hostRepo, wc.windowRepository, "precondition: repository swap must happen")
         println("afterPauseAndResumeTheyAreStillOne: another source took the repository")
@@ -132,6 +132,7 @@ class WindowSourceIdentityTest : KoinComponent {
 
     @Test fun backReplaysTheVisibleWindowsHistory() {
         val a = host().create().start().resume().visible().get()
+        net.bible.test.awaitReadingGraph(a) { compose.waitForIdle() }
         val window = a.hostWindowRepository.activeWindow
 
         val before = window.pageManager.currentPage.singleKey
@@ -161,7 +162,7 @@ class WindowSourceIdentityTest : KoinComponent {
 
         // Verify we're back at the original key
         val after = a.hostWindowRepository.activeWindow.pageManager.currentPage.singleKey
-        assertEquals(before.osisRef, after?.osisRef, "back navigation must restore the original key")
+        assertEquals(before.getOsisRef(), after?.getOsisRef(), "back navigation must restore the original key")
         println("backReplaysTheVisibleWindowsHistory: back navigation restored original key")
     }
 }

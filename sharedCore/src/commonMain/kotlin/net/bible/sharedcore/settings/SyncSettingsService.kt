@@ -89,6 +89,8 @@ interface SyncSettingsService {
     fun disableDocuments()                                   // sync_enable_documents OFF
     fun setDocumentSyncToggle(key: String, value: Boolean)  // sync_documents_auto_* / wifi_only
     fun setText(key: String, value: String): Boolean        // cloud_sync_* (false = URL invalid, not persisted)
+    /** True only for a syntactically valid URL rejected by the platform HTTP policy. */
+    fun plainHttpRefused(url: String): Boolean = false
     fun setAdapter(value: String)                           // sync_adapter
     fun forgetCertificate()                                  // webdav_sync_cert → clear the TOFU pin
     suspend fun resetSync()                                 // cloud_sync_reset → CloudSync.signOut()
@@ -174,7 +176,7 @@ sealed interface SyncDialog {
     data object None : SyncDialog
     data class EnableDocuments(val summary: DocSyncSummaryData, val message: String, val title: String) : SyncDialog
     data class ResetConfirm(val message: String) : SyncDialog
-    data class UrlError(val message: String) : SyncDialog
+    data class UrlError(val message: String, val httpsRequired: Boolean = false) : SyncDialog
     data class ForgetCertificate(val message: String) : SyncDialog
 }
 

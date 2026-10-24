@@ -71,11 +71,7 @@ class ReadingHostActivityResultTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun readingHost(): ActivityController<NavHostComposeActivity> =
@@ -92,7 +88,7 @@ class ReadingHostActivityResultTest {
         .putExtra("verse", osisRef)
 
     private val NavHostComposeActivity.activeKey: String?
-        get() = hostWindowRepository.activeWindow.pageManager.currentPage.key?.osisRef
+        get() = hostWindowRepository.activeWindow.pageManager.currentPage.key?.getOsisRef()
 
     @Test
     fun aChooserResultIsHeldUntilTheHostHasResumedAndIsThenApplied() {

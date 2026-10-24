@@ -41,10 +41,22 @@ class ReadingOverlayExclusionWiringGuardTest {
     private val enumSource =
         File("../sharedCore/src/commonMain/kotlin/net/bible/sharedcore/reading/ReadingOverlayExclusion.kt")
     private val hostSource =
-        File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+
+    /** The QuickSheet application site (`showQuickSheet`) moved to common code with `ReadingHostState` (Task 11). */
+    private val hostStateSource =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/ReadingHostState.kt")
+
+    /** The text-settings editor's application site (`showTextSettingEditor`) moved to common code (R1 Task 5). */
+    private val textSettingsSlotSource =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/TextSettingsSlot.kt")
+
+    /** The Speak sheet's application site (`show`) moved to common code (R1 Task 6). */
+    private val speakSettingsSlotSource =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/SpeakSettingsSlot.kt")
 
     @Test fun bothScannedSourcesExist() {
-        listOf(enumSource, hostSource).forEach {
+        listOf(enumSource, hostSource, hostStateSource, textSettingsSlotSource, speakSettingsSlotSource).forEach {
             assertTrue("${it.path} no longer exists — this guard would pass vacuously", it.isFile)
         }
     }
@@ -69,12 +81,13 @@ class ReadingOverlayExclusionWiringGuardTest {
     }
 
     /**
-     * Every overlay must have an application site in the host: opening it closes the others. A
+     * Every overlay must have an application site in the host (or its common `ReadingHostState` / text-settings and Speak settings slots): opening it closes the others. A
      * missing one is the completeness gap the 14a status entry recorded, and it is invisible at
      * runtime today only because a modal scrim happens to cover every route to a second sheet.
      */
     @Test fun everyOverlayHasAnExclusionApplicationSiteInTheHost() {
-        val code = codeLinesOf(hostSource)
+        val code = codeLinesOf(hostSource) + "\n" + codeLinesOf(hostStateSource) + "\n" + codeLinesOf(textSettingsSlotSource) +
+            "\n" + codeLinesOf(speakSettingsSlotSource)
         val unwired = overlayNames()
             .filterNot { code.contains("ReadingOverlayExclusion.closedBy(ReadingOverlay.$it)") }
         assertEquals(

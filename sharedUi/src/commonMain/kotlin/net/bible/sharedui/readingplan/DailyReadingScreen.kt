@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -52,6 +53,9 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
+
+/** iOS exports clickable Text as an unlabeled AX Button unless its label is explicit. */
+internal val LocalExplicitReadingPlanTitle = staticCompositionLocalOf { false }
 
 @Composable
 fun DailyReadingScreen(
@@ -81,6 +85,7 @@ fun DailyReadingScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val explicitTitle = LocalExplicitReadingPlanTitle.current
 
     AbScaffold(
         topBar = {
@@ -92,7 +97,9 @@ fun DailyReadingScreen(
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.clickable(onClick = onChangePlan),
+                            modifier = Modifier.clickable(onClick = onChangePlan).then(
+                                if (explicitTitle) Modifier.semantics { contentDescription = ui.planName } else Modifier
+                            ),
                         )
                         Text(
                             ui.dayDesc,

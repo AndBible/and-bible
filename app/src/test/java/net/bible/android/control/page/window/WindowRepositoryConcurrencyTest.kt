@@ -55,8 +55,8 @@ class WindowRepositoryConcurrencyTest {
         // Bible module (CI-only). This test only exercises the windowList collection.
         CommonUtils.settings.setBoolean("first-time", false)
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
+        windowRepository.initializeAtEdge()
     }
 
     @After

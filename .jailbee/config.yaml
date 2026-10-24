@@ -19,11 +19,20 @@ new:
 # Resources
 # ---------------------------------------------------------------------------
 
-# Android Gradle builds are memory-hungry: JVM + Gradle daemon + Kotlin
-# compiler easily take 8-12 GiB on a full build, and an in-container emulator
-# needs the rest. Lower these for your host in the local layer if needed.
+# Android Gradle builds are memory-hungry. Measured peaks with the GRADLE_OPTS
+# below: warm verify 14.7 GiB, cold compile + verify 16.1 GiB (in a scope
+# without the Claude processes), measured with /tmp on tmpfs. /tmp is on disk
+# (JailBee's default), which gives that RAM back: do NOT opt into the tmpfs /tmp,
+# it costs another 1.5-3.5 GiB during a run. No emulator during a heavy gate
+# (about 6 GiB). Numbers: the design spec in
+# docs/superpowers/specs/2026-10-20-jailbee-agent-guide-and-container-memory-design.md.
+# 16 GiB proved too tight on 2026-10-23: a merged-HEAD gate ran at the cgroup
+# limit (thousands of memory.max events) with two 4+ GiB test forks, a 2.9 GiB
+# daemon and three Claude processes (~1.2 GiB) alive. 20 GiB = the measured
+# 16.1 GiB peak + the Claude processes + headroom.
+# Lower these for your host in the local layer if needed.
 defaults:
-  memory: 32GiB
+  memory: 20GiB
   cpu: 8
   network: strict
 
@@ -64,6 +73,17 @@ optional_mounts:
     readonly: true
     description: "support.andbible.org credentials for ostickethelper (maintainer only)"
 
+  # SSH access to a real Mac for iOS builds (Xcode, simulator tests): the private key, an
+  # ssh config (Host andbible-mac) and the pinned known_hosts. The Mac's address is allowed
+  # through the host_ports forward `mac-ssh` (127.0.0.1:2224, see below). See docs/ios-remote-mac.md.
+  #   jailbee mount mac-ssh <container>     # before an iOS build session
+  #   jailbee unmount mac-ssh <container>   # after it
+  mac-ssh:
+    host: ~/.config/andbible-mac
+    container: /home/dev/.ssh-mac
+    readonly: true
+    description: "SSH key + config for the iOS build Mac (ssh -F ~/.ssh-mac/config andbible-mac)"
+
 # adb: one host-side adb server serves both host and container clients. The
 # container reaches it over this TCP forward (container 127.0.0.1:5037 ->
 # host 127.0.0.1:5037), which lands on adb's default endpoint, so the container
@@ -77,8 +97,15 @@ optional_mounts:
 # An emulator INSIDE the container must use its own adb server on port 5038
 # (the proxy device occupies 5037 in the container); scripts/with-container-adb.sh
 # does that. See docs/emulator-and-webview-debugging.md.
+#
+# mac-ssh: route to the iOS build Mac (container 127.0.0.1:2224 -> host 127.0.0.1:2224). The host
+# and the Mac may be on different networks, so the Mac is reached through a relay the host keeps
+# up (host `LocalForward 2224 localhost:2224`, Mac `RemoteForward 2224 localhost:22`); the ssh
+# config in the mac-ssh mount uses `HostName 127.0.0.1` / `Port 2224`. No egress entry is needed
+# (egress only filters outbound network traffic, not this loopback forward). See docs/ios-remote-mac.md.
 host_ports:
   - { name: adb, port: 5037 }
+  - { name: mac-ssh, port: 2224 }
 
 # Host KVM for a hardware-accelerated in-container emulator, so instrumented
 # tests and debugging do not depend on a host-side emulator.
@@ -184,14 +211,25 @@ egress_allow:
 # ---------------------------------------------------------------------------
 
 # Injected via the Incus base profile, so visible in every process (shell,
-# tmux, autostart steps, the IDE). There is deliberately no ADB_SERVER_SOCKET
+# tmux, autostart steps). An IDE-run Gradle (Android Studio) does not read GRADLE_OPTS
+# and uses the project defaults (4 forks x 4g). There is deliberately no ADB_SERVER_SOCKET
 # here; see `host_ports`. ANDROID_AVD_HOME is container-local on purpose (see
 # `shared_caches`): scripts/andbible-emu.sh creates the AVD on first boot.
+#
+# GRADLE_OPTS is container-only tuning (the host keeps Gradle defaults), see
+# the design spec "Experiment results" and "Design" 4 for the numbers:
+#   testForks=2: 2 unit-test JVM forks are as fast as 4 on this 8-core box.
+#   testHeap=2g: measured fork RSS barely moves with the heap (spec E1/E2).
+#   compiler strategy in-process: the idle Kotlin daemon held about 3.5 GiB.
+#   G1PeriodicGCInterval/MinHeapFreeRatio/MaxHeapFreeRatio: the daemon returns
+#     heap after compiling instead of keeping the peak.
+#   -Xmx4g: the Gradle daemon heap; HeapDumpOnOutOfMemoryError for post-mortems.
 container:
   env:
     ANDROID_HOME: /opt/android-sdk
     ANDROID_SDK_ROOT: /opt/android-sdk
     ANDROID_AVD_HOME: /home/dev/.local/share/android-avd
+    GRADLE_OPTS: '-Dorg.gradle.project.testForks=2 -Dorg.gradle.project.testHeap=2g -Dorg.gradle.project.kotlin.compiler.execution.strategy=in-process -Dorg.gradle.jvmargs=-Xmx4g\ -XX:+HeapDumpOnOutOfMemoryError\ -Dfile.encoding=UTF-8\ -XX:G1PeriodicGCInterval=15000\ -XX:MinHeapFreeRatio=10\ -XX:MaxHeapFreeRatio=20'
 
 # ---------------------------------------------------------------------------
 # Golden image
@@ -230,6 +268,18 @@ golden:
     - libegl-mesa0
     - mesa-vulkan-drivers
     - gdb                 # backtraces of a crashing emulator (sudo gdb -p <qemu pid>)
+    - unzip               # Sword test modules (`unzip -o -d ~/.sword testmods.zip`), module zips
+    - rsync               # working-tree sync to the iOS build Mac (docs/ios-remote-mac.md)
+    # Local Nextcloud for cloud-sync emulator checks (`php -S` + the tarball kit in
+    # .local/emu-verify/nextcloud; no web server or database server needed: SQLite).
+    - php-cli
+    - php-sqlite3
+    - php-xml
+    - php-mbstring
+    - php-gd
+    - php-zip
+    - php-curl
+    - php-intl
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
     - libasound2t64
     - libatk-bridge2.0-0t64

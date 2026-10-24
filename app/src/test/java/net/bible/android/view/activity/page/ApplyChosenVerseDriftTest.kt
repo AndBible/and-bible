@@ -27,9 +27,9 @@ import org.junit.Test
  */
 class ApplyChosenVerseDriftTest {
     private val hostSrc =
-        File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText()
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText()
     private val commandsSrc =
-        File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt").readText()
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt").readText()
     private val bothSrc = hostSrc + "\n" + commandsSrc
 
     @Test fun bothScannedFilesExistAndAreNonEmpty() {

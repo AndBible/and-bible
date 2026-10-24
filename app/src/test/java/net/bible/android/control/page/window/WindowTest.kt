@@ -17,12 +17,17 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.MyDocumentChange
@@ -66,13 +71,13 @@ class WindowTest {
     fun setUp() {
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
         mockCurrentPageManagerProvider = {
             CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
+        windowRepository.initializeAtEdge()
     }
 
     @After
@@ -119,7 +124,7 @@ class WindowTest {
         //pageManager = window.pageManager
         biblePage = pageManager.currentBible
         assertThat<Book>(biblePage.currentDocument, equalTo<Book>(PassageTestData.ESV))
-        assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
+        assertThat(biblePage.singleKey.getName(), equalTo(PassageTestData.PS_139_2.getName()))
     }
     @Test
     fun switchingWorkspaceReleasesOutgoingWindowsAndPagesButKeepsReplacementLive() {
@@ -135,7 +140,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_Switch")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }
@@ -150,13 +155,13 @@ class WindowTest {
         }
         try {
             windowControl!!.windowRepository = repository
-            repository.initialize()
+            repository.initializeAtEdge()
             outgoing += repository.sortedWindows
             outgoing.forEach(::prime)
             val workspace = WorkspaceEntities.Workspace("replacement")
-            net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace)
+            runBlocking { net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace) }
 
-            repository.loadFromDb(workspace.id)
+            kotlinx.coroutines.runBlocking { repository.loadFromDb(workspace.id) }
             assertThat(repository.id, equalTo(workspace.id))
             val replacement = repository.activeWindow
             prime(replacement)
@@ -200,7 +205,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_A")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }

@@ -17,14 +17,17 @@
 
 package net.bible.service.db.oldmigrations
 
-import android.content.ContentValues
-import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import net.bible.service.db.insertOr
 import net.bible.android.control.readingplan.ReadingStatus
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanTextFileDao
+import org.koin.core.context.GlobalContext
 import java.lang.Exception
 import kotlin.collections.ArrayList
 import kotlin.math.max
@@ -90,7 +93,7 @@ class ReadingPlanDatabaseOperations {
         """
     }
 
-    fun onCreate(db: SupportSQLiteDatabase) {
+    fun onCreate(db: SQLiteConnection) {
 
         try {
             Log.i(TAG, "Creating table ${ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME}")
@@ -107,12 +110,12 @@ class ReadingPlanDatabaseOperations {
         }
     }
 
-    fun migratePrefsToDatabase(db: SupportSQLiteDatabase) {
+    fun migratePrefsToDatabase(db: SQLiteConnection) {
         Log.i(TAG, "Now importing reading plan preferences from shared preferences to database")
         try {
             val DAY_EXT = "_day"
             val START_EXT = "_start"
-            val readingPlanDao = ReadingPlanTextFileDao()
+            val readingPlanDao = GlobalContext.get().get<ReadingPlanTextFileDao>()
 
             val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
             val userPlans = readingPlanDao.userPlanCodes()
@@ -123,14 +126,14 @@ class ReadingPlanDatabaseOperations {
                 Log.i(TAG, "Importing status for plan $planCode")
                 val start = prefs.getLong(planCode + START_EXT, 0)
                 var day = prefs.getInt(planCode + DAY_EXT, 0)
-                val values = ContentValues().apply { put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CODE, planCode) }
+                val values = mutableListOf<Pair<String, Any?>>(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CODE to planCode)
                 if (start > 0L) {
-                    values.put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_START_DATE, start)
+                    values.add(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_START_DATE to start)
                     day = max(day, 1)
                 }
-                if (day > 0) values.put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CURRENT_DAY, day)
+                if (day > 0) values.add(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CURRENT_DAY to day)
 
-                if ((start > 0L || day > 0) && db.insert(ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME, CONFLICT_FAIL, values) < 0)
+                if ((start > 0L || day > 0) && db.insertOr("FAIL", ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME, *values.toTypedArray()) < 0)
                     Log.e(TAG, "Error inserting start date and current day to db for plan $planCode")
 
                 val prefKey = "${planCode}_$day"
@@ -165,19 +168,25 @@ class ReadingPlanDatabaseOperations {
         }
     }
 
-    private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SupportSQLiteDatabase) {
-        val status = ReadingStatus(planCode, day, prefDayStatus.length)
+    private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SQLiteConnection) {
+        // only used to serialise the status (saveStatus=false below): the repository is never touched, and the
+        // old database is not the live one, so it must not be bound to it
+        // (its never-used scope launches nothing, so it starts no threads)
+        val unusedRepo = ReadingPlanRepository(
+            daoProvider = { error("migration serialises only; no repository access") },
+            appScope = AppCoroutineScope(),
+            calendar = net.bible.android.platform.AndroidLocalCalendar(), // never used: the repository is only a serialiser here
+        )
+        val status = ReadingStatus(planCode, day, prefDayStatus.length, unusedRepo)
         for (i in prefDayStatus.indices) {
             val isRead = prefDayStatus[i].toString().toInt().toBoolean()
             status.setStatus(i+1, isRead,false
             )
         }
-        val statusValues = ContentValues().apply {
-            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_READING_STATUS, status.toString())
-            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_DAY, day)
-            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_CODE, planCode)
-        }
-        if (db.insert(ReadingPlanDatabaseDefinition.ReadingPlanStatus.TABLE_NAME, CONFLICT_FAIL, statusValues) < 0)
+        if (db.insertOr("FAIL", ReadingPlanDatabaseDefinition.ReadingPlanStatus.TABLE_NAME,
+                ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_READING_STATUS to status.toString(),
+                ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_DAY to day,
+                ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_CODE to planCode) < 0)
             Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
     }
 

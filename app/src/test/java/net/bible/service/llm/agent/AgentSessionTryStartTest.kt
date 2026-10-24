@@ -88,7 +88,7 @@ class AgentSessionTryStartTest {
 
     /** Review Focus 4 (C2): a cached result opens even while a run is going, so the cache check stays first. */
     @Test fun aCachedResultStillOpensWhileARunIsGoing() {
-        val src = File("src/main/java/net/bible/service/llm/agent/AgentSessionManager.kt").readText()
+        val src = net.bible.test.ProductionSources.resolve("net/bible/service/llm/agent/AgentSessionManager.kt").readText()
         val body = src.substringAfter("suspend fun executePrompt(").substringBefore("fun findCachedPage")
         val cache = body.indexOf("findCachedPage(prompt")
         val start = body.indexOf("session.tryStart(")

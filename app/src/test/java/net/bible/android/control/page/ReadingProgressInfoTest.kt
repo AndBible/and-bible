@@ -26,7 +26,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
 class ReadingProgressInfoTest {
-    private val kjv = Versifications.instance().getVersification("KJV")
+    private val kjv = Versifications.instance().getVersification("KJV")!!
 
     @Test
     fun forVerseKey_genesisStart_spansWholeBook() {

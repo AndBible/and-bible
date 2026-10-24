@@ -70,7 +70,7 @@ object ClassicRemovalScan {
      * and passes vacuously.
      */
     fun codeLinesOf(path: String, keepImports: Boolean = false): String =
-        File(path).readLines().filterNot { line ->
+        net.bible.test.ProductionSources.resolve(path).readLines().filterNot { line ->
             val trimmed = line.trimStart()
             (!keepImports && trimmed.startsWith("import ")) || trimmed.startsWith("//") ||
                 trimmed.startsWith("*") || trimmed.startsWith("/*")
@@ -115,6 +115,19 @@ object ClassicRemovalScan {
             .flatMap { sourceSet ->
                 sourceSet.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             }
+            // Domain code now in :sharedLogic commonMain (same FQNs) is production code too.
+            .plus(net.bible.test.ProductionSources.roots.drop(1).flatMap { root ->
+                root.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList()
+            })
+            // The shared app root's feature hosts (`:sharedUi` `net.bible.sharedui.app`) took code that used to sit
+            // in NavHostComposeActivity, so a scan that skipped them would go blind to it.
+            .plus(sharedAppRootSources())
+
+    /** The `:sharedUi` app-root sources; fails when none are found, so the scan cannot go blind silently. */
+    private fun sharedAppRootSources(): List<File> =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app").walkTopDown()
+            .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList()
+            .also { check(it.isNotEmpty()) { "no :sharedUi app-root sources found; the removal scans would go blind" } }
 
     /**
      * Every resource XML under every SHIPPING source set's `res/` tree (`src/main/res`,
@@ -129,12 +142,14 @@ object ClassicRemovalScan {
      * continuation lines in this repo): a commented-out `<net.bible.…>` tag is still a dangling
      * reference to a deleted class, and flagging it is the safe direction.
      */
-    fun appResourceXml(): List<File> =
-        File("src").listFiles { f -> f.isDirectory && f.name != "test" && f.name != "androidTest" }
-            .orEmpty()
-            .map { File(it, "res") }
-            .filter { it.isDirectory }
-            .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
+    fun appResourceXml(srcRoots: List<File> = listOf(File("src"))): List<File> =
+        srcRoots.flatMap { srcRoot ->
+            srcRoot.listFiles { f -> f.isDirectory && f.name != "test" && f.name != "androidTest" }
+                .orEmpty()
+                .map { File(it, "res") }
+                .filter { it.isDirectory }
+                .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
+        }
 
     /**
      * The five assertions every slice removal guard now makes, extracted in batch S4+S5+S7+S8 for
@@ -161,7 +176,7 @@ object ClassicRemovalScan {
             "cwd is not the :app module dir — this assertion would pass vacuously",
             File("src/main").isDirectory,
         )
-        assertEquals(hint, emptyList<String>(), paths.filter { File(it).exists() }.sorted())
+        assertEquals(hint, emptyList<String>(), paths.filter { net.bible.test.ProductionSources.resolve(it).exists() }.sorted())
     }
 
     /**
@@ -176,7 +191,7 @@ object ClassicRemovalScan {
             "cwd is not the :app module dir — this assertion would report every path as missing",
             File("src/main").isDirectory,
         )
-        assertEquals(hint, emptyList<String>(), paths.filterNot { File(it).exists() }.sorted())
+        assertEquals(hint, emptyList<String>(), paths.filterNot { net.bible.test.ProductionSources.resolve(it).exists() }.sorted())
     }
 
     /**
@@ -215,15 +230,21 @@ object ClassicRemovalScan {
      * carries its own vacuity precondition: a single combined count would let a broken source walk
      * hide behind ~470 resource files.
      *
+     * `extraResourceSrcRoots` is for a test that must drive the resource arm with a synthetic
+     * fixture: each root is laid out like `src/` (`<sourceSet>/res/...`) and scanned IN ADDITION to
+     * the real `src`. The fixture must live OUTSIDE `src/` (a JUnit temp dir): a folder created
+     * under the real `src/` is visible to every concurrent scan in the same JVM and vanishes
+     * mid-walk (`FileNotFoundException` in the guards). The scan of `src` itself is unchanged.
+     *
      * Callers MUST pass fully-qualified names. A bare class name against resource XML is not merely
      * loose, it is unusable: `Search` matches ~140 lines of `strings.xml` under `values` locale
      * directories in this repo alone. See [refsFor] for why the boundary is trailing-only.
      */
-    fun assertNoSourceNames(fqNames: List<String>, hint: String) {
+    fun assertNoSourceNames(fqNames: List<String>, hint: String, extraResourceSrcRoots: List<File> = emptyList()) {
         val refs = refsFor(fqNames)
         val sources = appSources()
         assertTrue("the source-set walk found no Kotlin/Java source at all", sources.size > 100)
-        val resources = appResourceXml()
+        val resources = appResourceXml(listOf(File("src")) + extraResourceSrcRoots)
         assertTrue("the res/ walk found no resource XML at all", resources.size > 100)
         val sourceOffenders = sources
             .filter { file ->

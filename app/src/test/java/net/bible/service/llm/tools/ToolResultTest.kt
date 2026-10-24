@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import org.json.JSONArray
@@ -37,7 +40,7 @@ class ToolResultTest {
 
     @Test
     fun successWithJsonObject() {
-        val data = JSONObject().apply {
+        val data = buildJsonObject {
             put("key", "value")
             put("count", 42)
         }
@@ -51,9 +54,9 @@ class ToolResultTest {
 
     @Test
     fun successWithJsonArray() {
-        val data = JSONArray().apply {
-            put("item1")
-            put("item2")
+        val data = buildJsonArray {
+            add("item1")
+            add("item2")
         }
         val result = ToolResult.success(data)
         val json = JSONObject(result.toJson())

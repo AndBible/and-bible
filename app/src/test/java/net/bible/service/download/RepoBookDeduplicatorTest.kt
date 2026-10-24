@@ -17,7 +17,7 @@
 
 package net.bible.service.download
 
-import net.bible.service.download.FakeBookFactory.createFakeRepoBook
+import net.bible.service.download.FakeBookFactory
 import org.crosswire.jsword.book.Book
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
@@ -43,7 +43,7 @@ class RepoBookDeduplicatorTest {
     @Test
     @Throws(Exception::class)
     fun testAdd1() {
-        val svBook = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
+        val svBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
         val books = Arrays.asList(svBook)
         repoBookDeduplicator!!.addAll(books)
         Assert.assertThat<List<Book>>(repoBookDeduplicator!!.books, Matchers.contains(svBook))
@@ -52,10 +52,10 @@ class RepoBookDeduplicatorTest {
     @Test
     @Throws(Exception::class)
     fun testAddNewer() {
-        val svBook = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
+        val svBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
         val books1 = Arrays.asList(svBook)
         repoBookDeduplicator!!.addAll(books1)
-        val svBookNewer = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
+        val svBookNewer = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
         val books2 = Arrays.asList(svBookNewer)
         repoBookDeduplicator!!.addAll(books2)
         Assert.assertThat<List<Book>>(repoBookDeduplicator!!.books, Matchers.contains(svBookNewer))
@@ -65,10 +65,10 @@ class RepoBookDeduplicatorTest {
     @Test
     @Throws(Exception::class)
     fun testAddOlder() {
-        val svBook = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
+        val svBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
         val books1 = Arrays.asList(svBook)
         repoBookDeduplicator!!.addAll(books1)
-        val svBookOlder = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
+        val svBookOlder = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
         val books2 = Arrays.asList(svBookOlder)
         repoBookDeduplicator!!.addAll(books2)
         Assert.assertThat<List<Book>>(repoBookDeduplicator!!.books, Matchers.contains(svBook))
@@ -78,7 +78,7 @@ class RepoBookDeduplicatorTest {
     @Test
     @Throws(Exception::class)
     fun testAddIfNotExists() {
-        val svBook = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
+        val svBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
         val books1 = Arrays.asList(svBook)
         repoBookDeduplicator!!.addAll(books1)
         repoBookDeduplicator!!.addIfNotExists(books1)
@@ -89,10 +89,10 @@ class RepoBookDeduplicatorTest {
     @Test
     @Throws(Exception::class)
     fun testAddIfNotExistsNewer() {
-        val svBook = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
+        val svBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null)
         val books1 = Arrays.asList(svBook)
         repoBookDeduplicator!!.addAll(books1)
-        val svBookNewer = createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
+        val svBookNewer = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null)
         val books2 = Arrays.asList(svBookNewer)
         repoBookDeduplicator!!.addIfNotExists(books2)
         Assert.assertThat<List<Book>>(repoBookDeduplicator!!.books, Matchers.contains(svBook))

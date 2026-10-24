@@ -20,7 +20,7 @@ package net.bible.android.view.compose
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import net.bible.android.view.activity.nav.subscribeToDocumentSyncRunning
+import net.bible.sharedui.app.download.subscribeToDocumentSyncRunning
 import net.bible.sharedcore.event.EventSource
 import org.junit.Assert.assertEquals
 import org.junit.Test

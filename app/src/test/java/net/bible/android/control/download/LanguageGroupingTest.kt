@@ -24,8 +24,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LanguageGroupingTest {
+    private val locales = net.bible.android.platform.AndroidPlatformLocales()
 
-    private fun grouping(vararg specs: String) = LanguageGrouping(specs.map { Language(it) })
+    private fun grouping(vararg specs: String) = LanguageGrouping(specs.map { Language(it) }, locales)
 
     @Test
     fun `redundant default script is merged with the bare code`() {
@@ -84,7 +85,7 @@ class LanguageGroupingTest {
         val cyrl = Language("gag-Cyrl")
         // precondition: JSword renders both with the same name
         assertEquals(latn.name, cyrl.name)
-        val g = LanguageGrouping(listOf(latn, cyrl))
+        val g = LanguageGrouping(listOf(latn, cyrl), locales)
         assertEquals(g.key(latn), g.key(cyrl))
         assertEquals(1, g.representatives.size)
     }

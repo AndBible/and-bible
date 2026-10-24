@@ -50,6 +50,20 @@ class ReadingProgressSettingsServiceImplTest {
         assertEquals(setOf("light", "dim", "hidden"), s.memorizeWordVisibilityChoices.map { it.value }.toSet())
     }
 
+    @Test fun visibilityChoices_equalTheResourceArrays() {
+        val s = ReadingProgressSettingsServiceImpl().snapshot.value
+        val res = net.bible.android.BibleApplication.application.resources
+
+        assertEquals(
+            res.getStringArray(net.bible.android.activity.R.array.memorize_word_visibility_values).toList(),
+            s.memorizeWordVisibilityChoices.map { it.value },
+        )
+        assertEquals(
+            res.getStringArray(net.bible.android.activity.R.array.memorize_word_visibility_entries).toList(),
+            s.memorizeWordVisibilityChoices.map { it.label },
+        )
+    }
+
     // --- bool round trip + persistence via the ReadingProgressSettings singleton (not CommonUtils.settings) ---
 
     @Test fun setBool_autoMarkMemorized_updatesSnapshotAndUnderlyingStore() {

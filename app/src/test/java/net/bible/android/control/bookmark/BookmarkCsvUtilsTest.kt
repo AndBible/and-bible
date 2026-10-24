@@ -17,10 +17,17 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.activity.R
+import net.bible.android.view.activity.bookmark.AndroidCsvColumnTitles
+import org.robolectric.RuntimeEnvironment
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
@@ -39,6 +46,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import okio.sink
+import okio.source
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -53,20 +62,19 @@ class BookmarkCsvUtilsTest {
     fun setUp() {
         // Create a real BookmarkControl instance for testing
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        val mockedResourceProvider = Mockito.mock(AndroidResourceProvider::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, mockedResourceProvider)
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
     }
 
     @After
     fun tearDown() {
         // Clean up any created bookmarks/labels
-        val bookmarks = bookmarkControl.allBibleBookmarks
+        val bookmarks = runBlocking { bookmarkControl.allBibleBookmarks() }
         for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
+            runBlocking { bookmarkControl.deleteBookmark(bookmark) }
         }
-        val labels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val labels = runBlocking { bookmarkControl.allLabels() }.filter { !it.isSpecialLabel }
         for (label in labels) {
-            bookmarkControl.deleteLabel(label)
+            runBlocking { bookmarkControl.deleteLabel(label) }
         }
         resetDatabase()
     }
@@ -112,7 +120,7 @@ class BookmarkCsvUtilsTest {
         val outputStream = ByteArrayOutputStream()
 
         // When
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
 
         // Then
         val csvOutput = outputStream.toString("UTF-8")
@@ -134,6 +142,57 @@ class BookmarkCsvUtilsTest {
         assertTrue("Data should contain labels", dataLine.contains("Label 1") || dataLine.contains("Label;2"))
     }
 
+    /**
+     * The header row carries the column KEYS (machine-readable, what import matches on), in
+     * [BookmarkCsvUtils.availableColumns] order whatever order the selection came in, never the
+     * translated titles the column-selection dialog shows.
+     */
+    @Test
+    fun exportHeaderRow_isTheSelectedColumnKeysInColumnOrder_notTheirTitles(): Unit = runBlocking {
+        val bookmark = bookmarkControl.addOrUpdateBibleBookmark(BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1"), textRange = null, wholeVerse = true, book = null,
+        ).apply { notes = "n"; new = true })
+        val out = ByteArrayOutputStream()
+
+        BookmarkCsvUtils.exportBookmarksToCsv(out.sink(), listOf(bookmark), bookmarkControl, selectedColumns = listOf("notes", "osisRef"))
+
+        val lines = out.toString("UTF-8").split("\n")
+        assertEquals("osisRef;notes", lines[0])
+        assertEquals("Gen.1.1;n", lines[1])
+    }
+
+    /** Every column's dialog title comes from [CsvColumnTitles]; the Android one keeps each column's resource. */
+    @Test
+    fun columnTitles_comeFromCsvColumnTitles_eachColumnItsOwnResource() {
+        val context = RuntimeEnvironment.getApplication()
+        val expected = linkedMapOf(
+            "osisRef" to R.string.osis_reference,
+            "bibleRef" to R.string.bible_reference,
+            "document" to R.string.document,
+            "book" to R.string.book,
+            "chapterStart" to R.string.chapter_start,
+            "verseStart" to R.string.verse_start,
+            "chapterEnd" to R.string.chapter_end,
+            "verseEnd" to R.string.verse_end,
+            "id" to R.string.id,
+            "ordinalStart" to R.string.ordinal_start,
+            "ordinalEnd" to R.string.ordinal_end,
+            "createdAt" to R.string.created_at,
+            "lastUpdatedOn" to R.string.last_updated_at,
+            "startOffset" to R.string.start_offset,
+            "endOffset" to R.string.end_offset,
+            "labels" to R.string.labels,
+            "notes" to R.string.bookmark_notes,
+            "customIcon" to R.string.custom_icon,
+        )
+        assertEquals(expected.keys.toList(), BookmarkCsvUtils.availableColumns.map { it.key })
+
+        val titles: CsvColumnTitles = AndroidCsvColumnTitles(context)
+        for (column in BookmarkCsvUtils.availableColumns) {
+            assertEquals(column.key, context.getString(expected.getValue(column.key)), titles.title(column))
+        }
+    }
+
     @Test
     fun testImportBookmarksFromCsv_Success(): Unit = runBlocking {
         // Given
@@ -143,7 +202,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
@@ -151,7 +210,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         assertThat(result.errors, equalTo(0))
         
         // Verify bookmark was created
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Bookmark should be created", allBookmarks.isNotEmpty())
         
         val importedBookmark = allBookmarks.find { it.notes == "Test note" }
@@ -168,20 +227,20 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         
         // Verify bookmark was created with the label
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Bookmark should be created", allBookmarks.isNotEmpty())
         
         val importedBookmark = allBookmarks.find { it.notes == "Test note" }
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         // Check if the label was created (may or may not be, depending on implementation)
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasNewLabel = labels.any { it.name == "NewTestLabel" }
         // We don't assert this must be true since the implementation might handle labels differently
         // This is more of an informational test
@@ -195,7 +254,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
 
         // When & Then
         try {
-            BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+            BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
             fail("Should have thrown IOException for empty file")
         } catch (e: Exception) {
             assertTrue("Should be IOException", e.message?.contains("Empty CSV file") == true)
@@ -211,7 +270,7 @@ NotAValidOsisRef;Invalid Reference;InvalidBook;InvalidBook;abc;def;ghi;jkl;test-
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then - The implementation might handle malformed data gracefully or create errors
         // We just verify that if there are errors, they are tracked properly
@@ -239,7 +298,7 @@ NotAValidOsisRef;Invalid Reference;InvalidBook;InvalidBook;abc;def;ghi;jkl;test-
         val outputStream = ByteArrayOutputStream()
 
         // When
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
 
         // Then
         val csvOutput = outputStream.toString("UTF-8")
@@ -262,12 +321,12 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         val importedBookmark = allBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Start offset should be set", 10, importedBookmark?.startOffset)
@@ -301,7 +360,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val outputStream = ByteArrayOutputStream()
 
         // When
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         
         // Then
         val csvOutput = outputStream.toString("UTF-8")
@@ -336,7 +395,7 @@ Like that one above."""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -344,17 +403,17 @@ Like that one above."""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Multi-line notes should be preserved exactly", multiLineNote, importedBookmark?.notes)
         assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -368,13 +427,13 @@ With various ""quotes"" and; semicolons.";star"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         val expectedNote = """This is a multi-line note.
@@ -395,13 +454,13 @@ With various ""quotes"" and; semicolons.";star"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         val expectedNote = """This is a multi-line note.
@@ -424,13 +483,13 @@ Gen.1.3;Another single line;bookmark"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        val allBookmarks = bookmarkControl.allBibleBookmarks().sortedBy { it.verseRange.start.verse }
         assertEquals("Should import 3 bookmarks", 3, allBookmarks.size)
         
         // Check first bookmark (single line)
@@ -475,7 +534,7 @@ Final line"""
         val outputStream = ByteArrayOutputStream()
 
         // When
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         
         // Then
         val csvOutput = outputStream.toString("UTF-8")
@@ -490,18 +549,18 @@ Final line"""
         val inputStream = ByteArrayInputStream(csvOutput.toByteArray(Charsets.UTF_8))
         bookmarkControl.deleteBookmark(savedBookmark)
         
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
         
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Round-trip imported bookmark should exist", importedBookmark)
         assertEquals("Round-trip should preserve exact multi-line content", complexNote, importedBookmark?.notes)
     }
 
     @Test
-    fun testImportResult() {
+    fun testImportResult() = runTest {
         // Test ImportResult data class
         val result = BookmarkCsvUtils.ImportResult(
             created = 5,
@@ -538,11 +597,11 @@ Final line"""
         // Record the original KJVA ordinals and verse reference
         val originalKjvOrdinalStart = savedBookmark.kjvOrdinalStart
         val originalKjvOrdinalEnd = savedBookmark.kjvOrdinalEnd
-        val originalOsisRef = savedBookmark.verseRange.osisRef
+        val originalOsisRef = savedBookmark.verseRange.getOsisRef()
         
         // When - Export and then reimport
         val outputStream = ByteArrayOutputStream()
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Verify CSV contains KJVA ordinals (not document-specific ones)
@@ -554,19 +613,19 @@ Final line"""
         
         // Import the CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
         
         // Then - The bookmark should maintain the same verse reference
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be reimported", importedBookmark)
         
         // The key assertion: KJVA ordinals should match after round-trip
         assertEquals("KJVA ordinal start should be preserved", originalKjvOrdinalStart, importedBookmark?.kjvOrdinalStart)
         assertEquals("KJVA ordinal end should be preserved", originalKjvOrdinalEnd, importedBookmark?.kjvOrdinalEnd)
-        assertEquals("OSIS reference should be preserved", originalOsisRef, importedBookmark?.verseRange?.osisRef)
+        assertEquals("OSIS reference should be preserved", originalOsisRef, importedBookmark?.verseRange?.getOsisRef())
         assertEquals("Notes should be preserved", "Test bookmark for Acts 8:14-17", importedBookmark?.notes)
     }
     
@@ -591,7 +650,7 @@ Final line"""
         
         // When - Export to CSV
         val outputStream = ByteArrayOutputStream()
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Then - CSV should contain KJVA ordinals
@@ -625,16 +684,16 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from osisRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -646,16 +705,16 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from bibleRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -667,16 +726,16 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -688,16 +747,16 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
 
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
 
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -709,16 +768,16 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from ordinals only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -730,13 +789,13 @@ Gen.1.1;;;;;;;;;;;;;;;;My note;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Notes should be preserved", "My note", importedBookmark?.notes)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
@@ -751,18 +810,18 @@ Gen.1.1;;;;;;;;;;;;;;;MinimalLabel;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         
         // Check if label was processed (implementation may vary)
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasMinimalLabel = labels.any { it.name == "MinimalLabel" }
         println("MinimalLabel created: $hasMinimalLabel")
     }
@@ -776,13 +835,13 @@ Gen.1.1;;;;;;;;;;;;;;;;;heart"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
@@ -797,13 +856,13 @@ Gen.1.1;;;;;;;;;;;;;;;;;heart"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with document specified", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
     }
@@ -817,13 +876,13 @@ Gen.1.1;;;;;;;;;;2022-01-01T10:30:00Z;2022-01-01T10:30:00Z;;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with timestamps", importedBookmark)
         assertNotNull("Created date should be set", importedBookmark?.createdAt)
         assertNotNull("Last updated date should be set", importedBookmark?.lastUpdatedOn)
@@ -842,13 +901,13 @@ Gen.1.1;;;;;;;;;;;;;;;;;
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertEquals("Should create multiple bookmarks", result.created, 4)
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertEquals("Should have multiple bookmarks", allBookmarks.size, 4)
         
         // All should be whole verse bookmarks
@@ -866,13 +925,13 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;5;15;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with text selection", importedBookmark!!)
         assertEquals("Start offset should be set", 5, importedBookmark.startOffset)
         assertEquals("End offset should be set", 15, importedBookmark.endOffset)
@@ -888,7 +947,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;5;15;;;;"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         assertThat(result.created, equalTo(0))
         assertThat(result.updated, equalTo(0))
@@ -908,13 +967,13 @@ Gen.1.2;Another note"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val bookmark1 = allBookmarks.find { it.notes == "My simple note" }
@@ -924,8 +983,8 @@ Gen.1.2;Another note"""
         assertNotNull("Second bookmark should exist", bookmark2)
         assertTrue("Should be whole verse bookmarks", bookmark1?.wholeVerse == true)
         assertTrue("Should be whole verse bookmarks", bookmark2?.wholeVerse == true)
-        assertEquals("First bookmark osisRef", "Gen.1.1", bookmark1?.verseRange?.osisRef)
-        assertEquals("Second bookmark osisRef", "Gen.1.2", bookmark2?.verseRange?.osisRef)
+        assertEquals("First bookmark osisRef", "Gen.1.1", bookmark1?.verseRange?.getOsisRef())
+        assertEquals("Second bookmark osisRef", "Gen.1.2", bookmark2?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -938,16 +997,16 @@ Genesis 1:2;StudyNote"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasImportantVerse = labels.any { it.name == "ImportantVerse" }
         val hasStudyNote = labels.any { it.name == "StudyNote" }
         assertTrue("ImportantVerse label should be created", hasImportantVerse)
@@ -965,13 +1024,13 @@ Matt;5;3;Blessed are the poor"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val bookmark1 = allBookmarks.find { it.notes == "First verse" }
@@ -994,12 +1053,12 @@ Matt;5;3;Blessed are the poor"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then - May create bookmarks or errors depending on implementation
         assertTrue("Should process ordinal-only CSV", (result.created + result.errors) > 0)
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Should create some bookmarks", allBookmarks.isNotEmpty())
             
         // Check if custom icons are preserved
@@ -1019,13 +1078,13 @@ Gen.1.2;2022-01-02T11:30:00Z;2022-01-02T11:30:00Z"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         allBookmarks.forEach { bookmark ->
@@ -1044,13 +1103,13 @@ Gen.1.2;5;20;Selected text in second verse"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val bookmark1 = allBookmarks.find { it.notes == "Selected text in first verse" }
@@ -1076,13 +1135,13 @@ John;3;16;3;16;For God so loved the world"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val creationBookmark = allBookmarks.find { it.notes == "Creation story beginning" }
@@ -1109,13 +1168,13 @@ Gen.1.1;KJV;KJV translation note"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val esvBookmark = allBookmarks.find { it.notes == "ESV translation note" && it.book?.initials == "ESV2011" }
@@ -1136,13 +1195,13 @@ Gen.1.3;Important;heart"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val starBookmark = allBookmarks.find { it.customIcon == "star" }
@@ -1154,7 +1213,7 @@ Gen.1.3;Important;heart"""
         assertNotNull("Heart bookmark should exist", heartBookmark)
 
         // Check that labels are created
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         assertTrue("Favorite label should exist", labels.any { it.name == "Favorite" })
         assertTrue("Study label should exist", labels.any { it.name == "Study" })
         assertTrue("Important label should exist", labels.any { it.name == "Important" })
@@ -1182,13 +1241,13 @@ My second note;heart;Gen.1.2"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val firstBookmark = allBookmarks.find { it.notes == "My first note" }
@@ -1213,13 +1272,13 @@ John.3.16"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(4))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 4 bookmarks", allBookmarks.size, equalTo(4))
         
         // All should be whole verse bookmarks with no additional data
@@ -1240,7 +1299,7 @@ Another note;heart"""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then - Should handle missing location data gracefully
         assertThat(result.created, equalTo(0))
@@ -1277,7 +1336,7 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1285,13 +1344,13 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML basic formatting should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1326,7 +1385,7 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1334,13 +1393,13 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML lists should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1369,7 +1428,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1377,13 +1436,13 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML links should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1425,7 +1484,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1433,13 +1492,13 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML tables should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1470,7 +1529,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1478,13 +1537,13 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML images should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1530,7 +1589,7 @@ function processVerse(verse) {
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1538,13 +1597,13 @@ function processVerse(verse) {
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML block elements should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1602,7 +1661,7 @@ function processVerse(verse) {
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1610,13 +1669,13 @@ function processVerse(verse) {
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Complex nested HTML should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1666,7 +1725,7 @@ function processVerse(verse) {
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1674,13 +1733,13 @@ function processVerse(verse) {
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML with attributes should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1722,7 +1781,7 @@ and	tabs	preserved
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1730,13 +1789,13 @@ and	tabs	preserved
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML with special characters should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1791,7 +1850,7 @@ Final line of mixed content."""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1799,13 +1858,13 @@ Final line of mixed content."""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Mixed HTML and plain text content should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1853,7 +1912,7 @@ Final line of mixed content."""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1861,13 +1920,13 @@ Final line of mixed content."""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Malformed HTML should be preserved exactly as-is", htmlNote, importedBookmark?.notes)
     }
@@ -1892,13 +1951,13 @@ Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
         // When
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Direct HTML import should work correctly", htmlNote, importedBookmark?.notes)
     }
@@ -1931,7 +1990,7 @@ Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
         val outputStream = ByteArrayOutputStream()
 
         // When - Export all bookmarks
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, savedBookmarks, bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), savedBookmarks, bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Clean up for import test
@@ -1939,13 +1998,13 @@ Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(5))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        val importedBookmarks = bookmarkControl.allBibleBookmarks().sortedBy { it.verseRange.start.verse }
         assertEquals("Should import all bookmarks", 5, importedBookmarks.size)
         
         // Verify each bookmark's HTML content is preserved
@@ -1990,7 +2049,7 @@ newlines
         val outputStream = ByteArrayOutputStream()
 
         // When - Export
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Verify that the CSV content properly escapes the HTML
@@ -2002,13 +2061,13 @@ newlines
         
         // When - Import the exported CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Complex HTML with CSV edge cases should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -2046,7 +2105,7 @@ newlines
 
         // When - Export and then reimport
         val outputStream = ByteArrayOutputStream()
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Verify CSV contains semicolon-separated labels
@@ -2060,13 +2119,13 @@ newlines
         
         // Import the CSV
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Then - The bookmark should have both labels, not a single "LabelA;LabelB" label
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be reimported", importedBookmark)
         
         val importedLabels = bookmarkControl.labelsForBookmark(importedBookmark!!)
@@ -2079,7 +2138,7 @@ newlines
         assertTrue("Should have LabelB", labelNames.contains("LabelB"))
         
         // Verify the labels are stored correctly in the database
-        val allLabels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val allLabels = bookmarkControl.allLabels().filter { !it.isSpecialLabel }
         val labelAExists = allLabels.any { it.name == "LabelA" }
         val labelBExists = allLabels.any { it.name == "LabelB" }
         val combinedLabelExists = allLabels.any { it.name == "LabelA;LabelB" }
@@ -2135,25 +2194,25 @@ newlines
 
         // Step 3: Export bookmarks as CSV
         val outputStream = ByteArrayOutputStream()
-        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), listOf(savedBookmark), bookmarkControl)
         val csvContent = outputStream.toString("UTF-8")
         
         // Step 4: Delete the bookmark (but keep labels for this test)
         bookmarkControl.deleteBookmark(savedBookmark)
         
         // Verify bookmark is deleted
-        val bookmarksAfterDelete = bookmarkControl.allBibleBookmarks
+        val bookmarksAfterDelete = bookmarkControl.allBibleBookmarks()
         assertEquals("Bookmark should be deleted", 0, bookmarksAfterDelete.size)
 
         // Step 5: Import the CSV file
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
-        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
         // Expected behavior: The bookmark should retain its labels after import
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be recreated", importedBookmark)
         
         val importedLabels = bookmarkControl.labelsForBookmark(importedBookmark!!)
@@ -2168,12 +2227,130 @@ newlines
         assertFalse("Bookmark should not be unlabeled", importedLabels.isEmpty())
         
         // Verify there is NO label with combined name "A;B"
-        val allLabels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val allLabels = bookmarkControl.allLabels().filter { !it.isSpecialLabel }
         val hasCombinedLabel = allLabels.any { it.name == "A;B" }
         assertFalse("Should NOT have a combined 'A;B' label", hasCombinedLabel)
         
         // Verify labels A and B exist as separate labels
         assertTrue("Label A should exist", allLabels.any { it.name == "A" })
         assertTrue("Label B should exist", allLabels.any { it.name == "B" })
+    }
+
+    private fun headExport(): String =
+        javaClass.getResourceAsStream("/csv/bookmarks-head-export.csv")!!.use { String(it.readBytes(), Charsets.UTF_8) }
+
+    /** The record splitter of the pre-okio implementation (java.io.BufferedReader based), copied as a test oracle. */
+    private fun oldReadRecords(text: String): List<List<String>> {
+        val reader = java.io.BufferedReader(java.io.InputStreamReader(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)), "UTF-8"))
+        val records = mutableListOf<List<String>>()
+        while (true) {
+            val result = mutableListOf<String>()
+            var current = StringBuilder()
+            var inQuotes = false
+            while (true) {
+                val line = reader.readLine() ?: break
+                var i = 0
+                while (i < line.length) {
+                    val char = line[i]
+                    when {
+                        char == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> { current.append('"'); i += 2; continue }
+                        char == '"' -> inQuotes = !inQuotes
+                        char == ';' && !inQuotes -> { result.add(current.toString()); current = StringBuilder() }
+                        else -> current.append(char)
+                    }
+                    i++
+                }
+                if (inQuotes) current.append('\n') else break
+            }
+            if (result.isEmpty() && current.isEmpty()) return records
+            result.add(current.toString())
+            records.add(result)
+        }
+    }
+
+    private suspend fun importSnapshot(text: String): List<String> {
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)).source(), bookmarkControl)
+        assertEquals(result.errorMessages.toString(), 0, result.errors)
+        val snapshot = bookmarkControl.allBibleBookmarks().map { b ->
+            val labels = bookmarkControl.labelsForBookmark(b).map { it.name }.sorted()
+            "${b.id}|${b.notes}|$labels|${b.createdAt.time}|${b.lastUpdatedOn.time}"
+        }.sorted()
+        bookmarkControl.allBibleBookmarks().forEach { bookmarkControl.deleteBookmark(it) }
+        return snapshot
+    }
+
+    @Test
+    fun importsHeadExportUnchanged(): Unit = runBlocking {
+        val fixture = headExport()
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(ByteArrayInputStream(fixture.toByteArray(Charsets.UTF_8)).source(), bookmarkControl)
+        assertEquals(result.errorMessages.toString(), 0, result.errors)
+        assertEquals(3, result.created)
+
+        val ids = Regex("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})").findAll(fixture).map { it.value }.toList()
+        val imported = bookmarkControl.allBibleBookmarks().sortedBy { ids.indexOf(it.id.toString()) }
+        val out = ByteArrayOutputStream()
+        BookmarkCsvUtils.exportBookmarksToCsv(out.sink(), imported, bookmarkControl)
+        val exported = out.toString("UTF-8")
+        // The labels of one bookmark come from an ORDER BY-less join over random label UUIDs, so their order in the
+        // cell is unspecified (production behaviour is deliberately unchanged). Compare each label cell as a set.
+        val labelsColumn = oldReadRecords(fixture)[0].indexOf("labels")
+        fun normalised(text: String) = oldReadRecords(text).map { rec ->
+            rec.mapIndexed { i, cell -> if (i == labelsColumn) cell.split(';').sorted().joinToString(";") else cell }
+        }
+        assertEquals(normalised(fixture), normalised(exported))
+        // Everything except the labels cell order must be byte-identical.
+        val labelCells = Regex("\"(Plain;Työ \"\"tärkeä\"\"|Työ \"\"tärkeä\"\";Plain)\"")
+        assertEquals(fixture, labelCells.replace(exported, "\"Plain;Työ \"\"tärkeä\"\"\""))
+    }
+
+    @Test
+    fun importHandlesCrLfLoneCrAndBom(): Unit = runBlocking {
+        val fixture = headExport()
+        val lf = oldReadRecords(fixture)
+        assertEquals(4, lf.size)
+        val baseline = importSnapshot(fixture)
+        assertEquals(3, baseline.size)
+
+        val variants = mapOf(
+            "crlf" to fixture.replace("\n", "\r\n"),
+            "lone cr" to fixture.replace("\n", "\r"),
+            "mixed with trailing lone cr" to fixture.replace("\n", "\r\n").trimEnd('\n', '\r') + "\r",
+            "bom" to "\uFEFF" + fixture,
+        )
+        for ((name, text) in variants) {
+            // The old BufferedReader parser is the oracle for what the records are.
+            val oracle = oldReadRecords(text)
+            assertEquals(name, lf.size, oracle.size)
+            if (name == "bom") assertEquals("\uFEFFosisRef", oracle[0][0]) else assertEquals(name, lf, oracle)
+            assertEquals(name, baseline, importSnapshot(text))
+        }
+    }
+
+    @Test
+    fun unparseableDateIsReportedPerRecord(): Unit = runBlocking {
+        val csv = "osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon\n" +
+            "Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;id-a;1;1;x;2022-01-01T00:00:00Z;;;;n1;\n" +
+            "Gen.1.2;Genesis 1:2;ESV2011;Gen;1;2;1;2;id-b;2;2;2022-01-01T00:00:00Z;2022-01-01T00:00:00Z;;;;n2;\n"
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8)).source(), bookmarkControl)
+        assertEquals(1, result.created)
+        // The date failure is swallowed by parseCsvRowToBookmark, as before: the record is reported as invalid.
+        assertEquals(listOf("Record 2: Invalid bookmark data"), result.errorMessages)
+        assertEquals(listOf("n2"), bookmarkControl.allBibleBookmarks().map { it.notes })
+    }
+
+    @Test
+    fun labelSortIgnoresCaseLikeDefaultLocale(): Unit = runBlocking {
+        val saved = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"))
+            val names = listOf("Işık", "ilk", "İnce")
+            names.forEach { bookmarkControl.insertOrUpdateLabel(BookmarkEntities.Label(name = it, color = defaultLabelColor).apply { new = true }) }
+            val sorted = bookmarkControl.allLabels().map { it.name }.filter { it in names }
+            assertEquals(names.sortedBy { it.lowercase(Locale.getDefault()) }, sorted)
+            // Under tr-TR "I" lowercases to dotless i, so the order differs from the root locale's.
+            assertEquals(listOf("ilk", "İnce", "Işık"), sorted)
+        } finally {
+            Locale.setDefault(saved)
+        }
     }
 }

@@ -50,14 +50,11 @@ import net.bible.sharedcore.nav.WorkspaceResult
  * that builds the destination. As of slice 2, Task 6 there is no such placeholder left: all four
  * result types below have a live destination.
  *
- * [readingProgressService] is a fresh, stateless instance (as
- * `ReadingProgressServiceImplTest` builds its own) rather than the host's Koin-injected one:
- * `osisIdForChapter` reads no instance state — it re-resolves the KJVA versification on every call
- * — so this object needs no DI wiring to reuse the exact same conversion the host used.
+ * It uses `ReadingProgressServiceImpl.osisIdForChapter` (the companion form): that reads no instance
+ * state — it re-resolves the KJVA versification on every call — so this object needs no DI wiring
+ * to reuse the exact same conversion the host used.
  */
 object NavResultIntents {
-    private val readingProgressService = ReadingProgressServiceImpl()
-
     /**
      * `MainBibleActivity.kt:2930-2957` reads exactly these extras — same keys, same order, same
      * [ActivityResultKind.EXTRA] tag — and is not touched by this move.
@@ -65,7 +62,7 @@ object NavResultIntents {
     fun forReadingProgress(result: ReadingProgressResult): Intent = when (result) {
         is ReadingProgressResult.Chapter ->
             Intent()
-                .putExtra("verse", readingProgressService.osisIdForChapter(result.bookId, result.chapter))
+                .putExtra("verse", ReadingProgressServiceImpl.osisIdForChapter(result.bookId, result.chapter))
                 .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
 
         is ReadingProgressResult.Memorize ->
@@ -138,15 +135,15 @@ object NavResultIntents {
      * cancel result at all, its Back press just `finish()`ed with the default `RESULT_CANCELED` and
      * no Intent, which is not something a [BookmarkResult] can even express.
      *
-     * **The returned object's IDENTITY is load-bearing**, which is why this is a function that
-     * returns one Intent rather than something a caller might call twice. Classic passes the SAME
-     * instance to `historyTraversal.historyManager.addHistoryItem(null, intent)` and then to
-     * `setResult` (`:188-189`), and `HistoryManager.createHistoryItem` (`:153-155`) keeps the object
-     * it is handed inside an `IntentHistoryItem`. Two structurally-equal Intents would behave
-     * identically today, but the stored one carries NO component — `IntentHistoryItem.revertTo`
-     * (`:55-63`) replays extras — so anything that later mutated the result Intent on its way out
-     * would have to mutate the stored one too, exactly as it does now. See the `bookmarkResults`
-     * channel in `NavHostComposeActivity`, which is the one caller.
+     * This is a function that returns one Intent rather than something a caller might call twice.
+     * Classic passed the SAME instance to `historyTraversal.historyManager.addHistoryItem(null, intent)`
+     * and then to `setResult`, so the stored history entry WAS the result intent. That no longer
+     * holds here: the result intent carries no component, so storing it would make
+     * `IntentHistoryItem.revertTo` throw `ActivityNotFoundException`. The history entry for a
+     * bookmark pick is a SEPARATE nav-host intent (the bookmarks list route, same label filter)
+     * built in `AndroidHistoryPlatform.routeIntentFor` (commit 55a3a11be3); the result intent
+     * itself is left untouched and is still delivered to the reading view. See the
+     * `bookmarkResults` channel in `NavHostComposeActivity`, which is the one caller.
      *
      * The two row shapes mirror classic's `when (bookmark)`: a Bible bookmark carries `"verse"`
      * alone, a generic one carries `"key"`/`"book"`/`"ordinal"` and no `"verse"` — and the ABSENCE
