@@ -124,10 +124,6 @@ After a device restart, background refresh waits until protected data becomes
 available after the first unlock. A skipped or failed refresh requests another
 opportunity, but iOS decides when background work can actually run.
 
-Ordinary Android and iOS installations currently use different remote sync
-folder namespaces. Signing both into the same server alone does not make them
-share their bookmarks or other databases.
-
 ## What Gets Synced
 
 Each category has its own toggle in Sync settings and can be turned on or off
@@ -181,6 +177,50 @@ Each device is identified separately. When multiple devices are synced:
 - If the same bookmark or workspace is modified on two devices between syncs,
     the last change (by timestamp) takes precedence.
 - There is no manual conflict resolution — the process is fully automatic.
+
+## Sharing Data Between Android and iOS
+
+All release versions of *AndBible* use the same synced data: the Android app
+from the Play Store, F-Droid, GitHub, and the other stores, the discrete
+(calculator) version, the Accrescent version, and the iOS app. The shared
+folder applies to every sync backend: NextCloud, WebDAV, and Google Drive.
+Google Drive is currently available only on Android.
+
+If you already use sync on the **standard Android** version, nothing changes
+when you update: sync keeps working as before.
+
+If you use the **discrete**, **Accrescent**, or **iOS** version, sync moves to
+the shared folder once after you update:
+
+1. Your enabled data categories stay on. The next time sync runs, each of them
+    moves to the shared folder automatically. You do not need to enable them
+    again, unless you cancel the question in step 2.
+2. If the shared folder already contains data, for example from your Android
+    device, the app asks what to do, as described in
+    [Setting Up Sync](#setting-up-sync): **Copy from Cloud to this device**,
+    **Copy from this device to Cloud**, or **Cancel & disable synchronization**.
+    Be careful with **Copy from this device to Cloud**: it replaces the data in
+    the shared folder, including the data your other devices (for example the
+    standard Android app) have synced there.
+3. If the shared folder is empty, a new one is created from the data on this
+    device.
+
+The old folders on the server are left as they are. *AndBible* does not delete
+them, but it no longer reads or writes them, so you can remove them yourself
+when you no longer need them. Their names start with the app id of the version
+that used them:
+
+- Discrete: `com.app.calculator-sync-…`
+- Accrescent: `org.andbible.andbible-sync-…`
+- iOS: `org.andbible.ios-sync-…`
+
+The shared folders are named `net.bible.android.activity-sync-…`.
+
+!!! note
+
+    Test builds with a suffixed application id (for example, a debug build)
+    sync to their own separate folder and do not share data with the regular
+    release versions.
 
 ## Resetting Sync
 

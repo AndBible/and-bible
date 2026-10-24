@@ -59,6 +59,9 @@ const val GZIP_MIMETYPE = "application/gzip"
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
 const val LAST_PATCH_WRITTEN_KEY = "lastPatchWritten"
+
+/** Per-category config: the [SyncNamespace] this category's stored sync folder was settled under. */
+const val SYNC_NAMESPACE_KEY = "syncNamespace"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
@@ -211,11 +214,62 @@ class CloudSync(
         return q1
     }
 
-    internal fun syncFolderName(category: String): String = "${syncNamespace ?: env.packageName}-sync-$category"
+    /** The folder-name prefix: the debug override, or the app id mapped through [SyncNamespace] so release distributions share folders. */
+    internal val namespace: String get() = syncNamespace ?: SyncNamespace.forAppId(env.packageName)
 
-    internal suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
+    /**
+     * The name this install uses for its device folder and its [SyncStatus] rows.
+     *
+     * [AppEnvironment.deviceIdentifier] is per (signing key, user, device) on Android 8+, so builds signed with
+     * the same key (GitHub standard, GitHub discrete, Accrescent) report the same value when installed side by
+     * side. Now that they share one sync folder ([SyncNamespace]) they would also share one device folder and
+     * number their patches independently, so two installs could upload the same patch number and overwrite
+     * each other. A package that [SyncNamespace] maps to the shared namespace therefore appends a short hash of
+     * its package id. The hash (not a readable tag) keeps the discrete build's disguise: no package name shows
+     * up in cloud folder names.
+     *
+     * The raw identifier is kept when the package is its own namespace (standard, suffixed and unknown ids), so
+     * existing users' device folders do not change. Non-standard builds reset their category state and join
+     * afresh on their first sync with the shared folder, so no migration of the old name is needed.
+     */
+    @VisibleForTesting val syncDeviceName: String get() =
+        if (SyncNamespace.forAppId(env.packageName) == env.packageName) env.deviceIdentifier
+        else "${env.deviceIdentifier}-${shortStableHash(env.packageName)}"
+
+    @VisibleForTesting fun syncFolderName(category: String): String = "$namespace-sync-$category"
+
+    /**
+     * Makes the category's stored sync state agree with the current [namespace].
+     *
+     * The namespace of the stored state is the [SYNC_NAMESPACE_KEY] config, or, for state that predates the key,
+     * the name the old code derived from the raw app id. If it differs from the current namespace the stored
+     * folder ids, the sync position and the adapter's "folder known" marker belong to a folder this build no
+     * longer uses, so they are dropped and the category joins the current folder afresh (first-join question
+     * included). A standard build's old name equals its namespace, so an upgrade keeps all state.
+     *
+     * The key itself is stored by [initializeSync] once the folder is settled, every time: a first-join fetch
+     * swaps the whole database file, config table included, and the uploader's file may lack the key.
+     */
+    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>) {
+        val stored = dbDef.dao.getString(SYNC_NAMESPACE_KEY)
+        if (stored == namespace) return
+        val previous = stored ?: (syncNamespace ?: env.packageName)
+        if (previous != namespace) {
+            Log.i(TAG, "Sync namespace of ${dbDef.categoryName} changed $previous -> $namespace, starting a fresh join")
+            // The adapter knows which configs prove a folder known (its secret marker); removing them via
+            // getConfigs keeps adapter-specific keys out of this common code.
+            adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+            dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
+            dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
+        }
+    }
+
+    @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = syncFolderName(dbDef.categoryName)
+        resetIfNamespaceChanged(dbDef)
 
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
@@ -276,10 +330,10 @@ class CloudSync(
         }
 
         suspend fun createNewDeviceSyncFolder() {
-            val deviceIdentifier = env.deviceIdentifier
-            Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
+            val deviceName = syncDeviceName
+            Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceName")
             adapter.createNewFolder(
-                name = deviceIdentifier,
+                name = deviceName,
                 parentId = syncFolderId,
             )
                 .id.also {
@@ -300,6 +354,9 @@ class CloudSync(
             }
             null -> {}
         }
+        // Only now, and always (a fetch swap may have dropped it): a cancelled first join leaves the key unset,
+        // so the next attempt re-runs the reset harmlessly.
+        dbDef.dao.setConfig(SYNC_NAMESPACE_KEY, namespace)
     }
 
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
@@ -318,7 +375,7 @@ class CloudSync(
             file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
-        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, 0, result.size, result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(syncDeviceName, 0, result.size, result.createdTime))
         FileSystem.SYSTEM.delete(gzippedTmpFile)
     }
 
@@ -356,7 +413,7 @@ class CloudSync(
                 createTriggers(dbDef)
                 dbDef.dao.addStatus(
                     SyncStatus(
-                        env.deviceIdentifier,
+                        syncDeviceName,
                         0,
                         initialFile.size,
                         initialFile.createdTime
@@ -536,7 +593,7 @@ class CloudSync(
         val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
-        Log.i(TAG, "This device ${env.deviceIdentifier} (id: ${deviceSyncFolder})")
+        Log.i(TAG, "This device $syncDeviceName (id: ${deviceSyncFolder})")
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, Clock.System.now().toEpochMilliseconds())
 
@@ -618,7 +675,7 @@ class CloudSync(
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
         val file = createPatchForDatabase(dbDef, env, false)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
-        val count = (dbDef.dao.lastPatchNum(env.deviceIdentifier)?: 0) + 1
+        val count = (dbDef.dao.lastPatchNum(syncDeviceName)?: 0) + 1
         val fileName = "$count.${dbDef.version()}.sqlite3.gz"
         val lastWritten = Clock.System.now().toEpochMilliseconds();
 
@@ -631,7 +688,7 @@ class CloudSync(
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.size()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
-        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.size(), result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(syncDeviceName, count, file.size(), result.createdTime))
         runCatching { FileSystem.SYSTEM.delete(file) }
     }
 
@@ -651,3 +708,12 @@ class CloudSync(
 
 /** Size in bytes; 0 when the file is absent (as `File.length()`). */
 private fun Path.size(): Long = FileSystem.SYSTEM.metadataOrNull(this)?.size ?: 0L
+
+/** 8 hex chars of the 32-bit FNV-1a hash of the UTF-8 bytes of [text]: identical on every platform. */
+internal fun shortStableHash(text: String): String {
+    var h = 0x811c9dc5.toInt()
+    for (b in text.encodeToByteArray()) {
+        h = (h xor (b.toInt() and 0xff)) * 0x01000193
+    }
+    return h.toUInt().toString(16).padStart(8, '0')
+}
