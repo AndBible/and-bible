@@ -28,6 +28,7 @@ import platform.Foundation.currentLocale
 import platform.Foundation.languageCode
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.CValue
+import kotlinx.cinterop.useContents // POSTRACE
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
@@ -60,8 +61,22 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
         }
     }
 
+    /** POSTRACE (temporary): window id for the position trace. */
+    var posTraceWindowId: String = "?" // POSTRACE
+    private var posTraceLastLayout: String? = null // POSTRACE
+
+    override fun layoutSubviews() { // POSTRACE
+        super.layoutSubviews() // POSTRACE
+        val desc = frame.useContents { "${size.width}x${size.height}" } // POSTRACE
+        if (desc != posTraceLastLayout) { // POSTRACE
+            posTraceLastLayout = desc // POSTRACE
+            nsLog("POSTRACE layout windowId=$posTraceWindowId frame=$desc") // POSTRACE
+        } // POSTRACE
+    } // POSTRACE
+
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+        nsLog("POSTRACE attach windowId=$posTraceWindowId frame=${frame.useContents { "${size.width}x${size.height}" }} hasWindow=${window != null}") // POSTRACE
         if (window != null) {
             try {
                 onAttached?.invoke()
@@ -195,6 +210,7 @@ object IosReadingWebViews {
             val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {
                 ReadingWkWebView(CGRectMake(0.0, 0.0, 0.0, 0.0), it)
             } as ReadingWkWebView
+            webView.posTraceWindowId = windowId // POSTRACE
             ReadingEntry(webView, navDelegate)
         }
     }

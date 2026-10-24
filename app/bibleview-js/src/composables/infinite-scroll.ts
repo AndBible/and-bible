@@ -250,6 +250,7 @@ export function useInfiniteScroll(
         if (scrollingDown && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN) {
             addMoreAtEnd();
         } else if (scrollingUp && currentPos < UP_MARGIN) {
+            console.log(`POSTRACE scroll-top-load previousPos=${previousPos} currentPos=${currentPos} innerHeight=${window.innerHeight}`); // POSTRACE
             addMoreAtTop();
         }
         currentPos = scrollPosition();

@@ -192,6 +192,15 @@ export function useScroll(
     }
 
     const scrollY = ref<number>(0);
+    let posTraceUserInputLogged = true; // POSTRACE
+    setupWindowEventListener('resize', () => console.log(`POSTRACE resize innerHeight=${window.innerHeight} innerWidth=${window.innerWidth} scrollY=${window.scrollY}`)); // POSTRACE
+    for (const posTraceType of ['touchstart', 'wheel', 'keydown']) { // POSTRACE
+        setupWindowEventListener(posTraceType, () => { // POSTRACE
+            if (posTraceUserInputLogged) return; // POSTRACE
+            posTraceUserInputLogged = true; // POSTRACE
+            console.log(`POSTRACE user-input type=${posTraceType} scrollY=${window.scrollY}`); // POSTRACE
+        }, true); // POSTRACE
+    } // POSTRACE
     setupWindowEventListener('scroll', () => scrollY.value = window.scrollY);
 
     async function setupContent(
@@ -225,6 +234,9 @@ export function useScroll(
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
+        console.log(`POSTRACE setup-start jumpToOrdinal=${jumpToOrdinal} innerHeight=${window.innerHeight} innerWidth=${window.innerWidth} scrollY=${window.scrollY} docHeight=${document.documentElement.scrollHeight}`); // POSTRACE
+        posTraceUserInputLogged = false; // POSTRACE
+
         if (jumpToOrdinal != null) {
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
         } else if (jumpToAnchor !== null) {
@@ -235,6 +247,11 @@ export function useScroll(
             console.log("scrolling to beginning of document (now)");
             scrollToId(null, {now: true, force: true});
         }
+
+        {  // POSTRACE
+            const posTraceTarget = jumpToOrdinal != null ? document.getElementById(`o-${jumpToOrdinal}`) : null; // POSTRACE
+            console.log(`POSTRACE setup-jumped scrollY=${window.scrollY} offsetTop=${posTraceTarget ? posTraceTarget.offsetTop : "missing"}`); // POSTRACE
+        }  // POSTRACE
 
         console.log("Content is set ready!");
     }
