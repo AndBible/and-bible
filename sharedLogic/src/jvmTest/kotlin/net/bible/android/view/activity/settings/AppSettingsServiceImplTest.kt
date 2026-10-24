@@ -100,7 +100,7 @@ class AppSettingsServiceImplTest {
             db.setLong(key, 2L)
             db.setDouble(key, 3.0)
         }
-        for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) local.setString(key, "stored")
+        for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3", "night_mode_pref")) local.setString(key, "stored")
         SettingsReset.performReset(db, local)
         assertEquals(cleared, SettingsReset.RESET_KEYS)
         for (key in cleared) {
@@ -109,8 +109,9 @@ class AppSettingsServiceImplTest {
             assertEquals(0L, db.getLong(key, 0L), key)
             assertEquals(0.0, db.getDouble(key, 0.0), key)
         }
-        for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode")) assertNull(local.getString(key, null), key)
-        assertEquals("stored", local.getString("night_mode_pref3", null))
+        for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) assertNull(local.getString(key, null), key)
+        // The manual night boolean is only consulted in Manual mode, so it is left alone.
+        assertEquals("stored", local.getString("night_mode_pref", null))
         for (key in preserved) assertEquals("stored", db.getString(key), key)
     }
 

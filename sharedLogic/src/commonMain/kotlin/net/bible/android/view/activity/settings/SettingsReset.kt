@@ -20,9 +20,12 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import org.koin.mp.KoinPlatform
 
-/** Shared Android/iOS reset contract. Device-local night mode is intentionally retained. */
+/**
+ * Shared Android/iOS reset contract. Night mode returns to its default (System): the device-local
+ * `night_mode_pref3` is removed, while the manual `night_mode_pref` boolean stays because it is only read in Manual mode.
+ */
 object SettingsReset {
-    val DEVICE_LOCAL_RESET_KEYS = listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode")
+    val DEVICE_LOCAL_RESET_KEYS = listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")
 
     val RESET_KEYS = listOf(
         "strongs_greek_dictionary",
