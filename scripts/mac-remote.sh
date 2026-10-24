@@ -648,6 +648,7 @@ run_steps() {
     for step in "${steps[@]}"; do
         n=$((n + 1))
         eval "STEP=($step)"
+        builds=0; case "${STEP[0]}" in link|gradle) builds=1 ;; esac
         [ "${STEP[0]}" != link ] || STEP=(gradle :sharedUi:linkDebugFrameworkIosSimulatorArm64)
         kind=${STEP[0]//-/_}
         printf '%s\tstart\t%s\t%s\n' "$n" "$(date +%s)" "${STEP[*]}" >> "$RUNDIR/steps"
@@ -658,8 +659,9 @@ run_steps() {
         if [ "$STEP_RC" != 0 ]; then
             failed=$((failed + 1))
             [ "$rc" != 0 ] || { rc=$STEP_RC; RUN_FAILED_STEP=$n; }
-            # a lost remote session cannot run the next step
-            [ "${KEEP_GOING:-0}" = 1 ] && [ -n "$RS_PID_" ] || break
+            # a lost remote session cannot run the next step, and a failed build step would make the later test steps
+            # run (and pass) against the previous build
+            [ "${KEEP_GOING:-0}" = 1 ] && [ -n "$RS_PID_" ] && [ "$builds" = 0 ] || break
         fi
     done
     session_close
