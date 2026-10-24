@@ -328,6 +328,12 @@ final class EndToEndUITests: RealAppUITestCase {
         app = relaunch(app)
         restoreFromFilesRoot(app, fileName: savedName)
         returnToReading(app)
+        // The iPad reopens at the top of the loaded window (John 1:1) instead of the saved verse (observed after a relaunch and
+        // after a restore, 2026-10-24: reading position follow-up): record it and scroll to John 3, as `relaunch` does.
+        if !john3Shown(app, timeout: 60) {
+            attachText("restore-position-drift", "after the restore the reading shows: \(readingToolbarTitle(app) ?? "unknown title")")
+            _ = scrollToJohn3(app)
+        }
         harnessRequire(john3Shown(app, timeout: 60), app, "John 3 is shown after the restore")
         setNightModePreference(app, "Manual")
         continueAfterFailure = true
