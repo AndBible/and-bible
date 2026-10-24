@@ -51,6 +51,8 @@ import net.bible.service.cloudsync.webdav.*
 import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.openSqlite
+import net.bible.service.db.exec
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
@@ -157,13 +159,14 @@ class MergeJoinFlowTest {
     private val folderName get() = "${env.packageName}-sync-${category.name.lowercase()}"
 
     /** A creates the sync folder as `CREATE_NEW` does: folder, device folder, initial file made from its database with an empty log. */
-    private suspend fun publishFromA(a: SyncableDatabaseAccessor<BookmarkDatabase>, adapterA: WebDavCloudAdapter): String {
+    private suspend fun publishFromA(a: SyncableDatabaseAccessor<BookmarkDatabase>, adapterA: WebDavCloudAdapter, userVersion: Int? = null): String {
         val folder = adapterA.createNewFolder(folderName).id
         adapterA.createNewFolder("device-A", parentId = folder)
         a.dao.clearLog()
         val raw = File.createTempFile("initial-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         val gz = File.createTempFile("initial-", ".sqlite3.gz", CommonUtils.tmpDir).also { files += it }
         File(a.localDbPath).copyTo(raw, overwrite = true)
+        if (userVersion != null) openSqlite(raw.absolutePath).use { it.exec("PRAGMA user_version = $userVersion") }
         ArchiveUtils.gzipFile(raw.toOkioPath(), gz.toOkioPath())
         adapterA.upload(INITIAL_BACKUP_FILENAME, gz.toOkioPath(), folder)
         return folder
@@ -211,6 +214,9 @@ class MergeJoinFlowTest {
     }
 
     /** Whether the key is stored at all, whatever its value type (the long keys are invisible to `getString`). */
+    /** Merge temp copies (pristine, snapshot) still in the temp dir. */
+    private fun mergeTempFiles() = File(env.tmpDir).listFiles { f -> f.name.startsWith("andbible-merge-") }!!.map { it.name }
+
     private suspend fun config(key: String) = b.dao.getConfig(key)?.let { it.stringValue ?: it.longValue ?: it.booleanValue }
 
     private suspend fun labelNames(): Set<String> =
@@ -233,6 +239,7 @@ class MergeJoinFlowTest {
         assertNotNull(config(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
         assertTrue(category.isSyncEnabled(settings))
         assertNotNull(config(LAST_PATCH_WRITTEN_KEY))
+        assertEquals("no merge temp file is left", emptyList<String>(), mergeTempFiles())
 
         // B's device folder holds a patch with B's rows; A applies it and sees them.
         val bFolder = mine.getFolders(folder).single { it.name == env.deviceIdentifier }
@@ -266,6 +273,36 @@ class MergeJoinFlowTest {
         assertFalse("category sync is off", category.isSyncEnabled(settings))
         assertEquals(setOf("t-from-b"), labelNames())
         assertTrue("the failure was reached", seenDialogs.any { it is AppDialogRequest.Options })
+        assertEquals("no merge temp file is left", emptyList<String>(), mergeTempFiles())
+    }
+
+    /** The pristine copy is a 0-byte file until copied: a failure before it is complete must leave the live database alone. */
+    @Test fun failureBeforeThePristineCopyLeavesLiveDbUntouched() = runTest(testDispatcher, timeout = 120.seconds) { failingMergeRestoresDevice("beforePristine") }
+
+    @Test fun failureAfterVacuumBeforeTheCopyLeavesLiveDbUntouched() = runTest(testDispatcher, timeout = 120.seconds) { failingMergeRestoresDevice("afterVacuum") }
+
+    /** The snapshot step comes after the pristine copy is ready, so a failure there restores the pristine copy. */
+    @Test fun failureRightAfterThePristineCopyRestoresIt() = runTest(testDispatcher, timeout = 120.seconds) { failingMergeRestoresDevice("afterPristine") }
+
+    @Test fun newerSchemaInitialFileDuringMergeLeavesDeviceUntouchedAndAsksForUpdate() = runTest(testDispatcher, timeout = 120.seconds) {
+        val a = deviceA()
+        a.addLabel("t-from-a")
+        val (_, adapterA) = signedInAdapters()
+        publishFromA(a, adapterA, userVersion = 9999)
+        bDao.insert(BookmarkEntities.Label(name = "t-from-b"))
+        val before = dump(b)
+
+        syncAnswering(choiceIndex = 0)
+
+        assertEquals(before, dump(b))
+        assertNull(config(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(config(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertNull(config(LAST_PATCH_WRITTEN_KEY))
+        assertFalse(category.isSyncEnabled(settings))
+        val messages = seenDialogs.filterIsInstance<AppDialogRequest.Message>()
+        assertEquals("exactly one 'update the app' message", 1, messages.size)
+        assertTrue(messages.single().message.contains(net.bible.test.testCoreStrings().syncUpdateApp))
+        assertEquals(emptyList<String>(), mergeTempFiles())
     }
 
     @Test fun failureAfterPatchesRestoresDevice() = runTest(testDispatcher, timeout = 120.seconds) { failingMergeRestoresDevice("afterPatches") }
@@ -306,6 +343,8 @@ class MergeJoinFlowTest {
         assertEquals(setOf("t-from-b"), labelNames())
         assertNotNull(config(SYNC_FOLDER_FILE_ID_KEY))
         assertEquals(1, adapterA.listFiles(name = folderName).size)
+        val folder = adapterA.listFiles(name = folderName).single().id
+        assertEquals("the initial file was uploaded", 1, adapterA.listFiles(parentsIds = listOf(folder), name = INITIAL_BACKUP_FILENAME).size)
         assertTrue(category.isSyncEnabled(settings))
     }
 }

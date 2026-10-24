@@ -34,6 +34,7 @@ import net.bible.sharedcore.platform.sync.SyncScheduler
 import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -45,6 +46,7 @@ import net.bible.service.common.createTempFile
 import net.bible.service.cloudsync.merge.mergeSnapshotIntoLocal
 import net.bible.service.cloudsync.merge.prepareMergeSnapshot
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AiDatabaseLifetime
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
@@ -331,7 +333,7 @@ class CloudSync(
 
     private suspend fun fetchAndRestoreInitial(
         dbDef: SyncableDatabaseAccessor<*>,
-        replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,
+        replacement: AiDatabaseLifetime.Replacement? = null,
         failWithoutMessage: Boolean = false,
     ) {
         val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
@@ -383,7 +385,7 @@ class CloudSync(
     @VisibleForTesting suspend fun swapInInitialDb(
         dbDef: SyncableDatabaseAccessor<*>,
         downloaded: Path,
-        replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,
+        replacement: AiDatabaseLifetime.Replacement? = null,
         afterReset: suspend () -> Unit,
     ) {
         try {
@@ -426,6 +428,18 @@ class CloudSync(
      *    sits above it and the next patch carries the device's winning rows).
      * Both temp copies are deleted at the end, also on failure.
      *
+     * **Trade-off (accepted).** The single replace is held through the network I/O (the initial file and the patches
+     * are applied to the swapped-in database, so they cannot be fetched outside it). Meanwhile workspace saves are
+     * frozen and edits made in that time are discarded by the reload; other database work (the AI store, other
+     * categories' swaps, backups) waits; non-AI DAO writes (bookmarks, reading plans) are not blocked and are lost,
+     * as in FETCH. The spec (step 10) accepted blocking for the swap only; this is a longer window. Possible
+     * follow-up: download first, hold the replace only for swap and merge.
+     *
+     * **Before the pristine copy is complete** (VACUUM or the copy failed or was cancelled; its size must equal the
+     * source's) the live database is untouched and is NOT replaced: only the sync state written so far is removed.
+     * The adapter-config removal deletes all of the adapter's keys for the category, which is exact because this path
+     * only runs when no sync folder was known.
+     *
      * **Failure** (any [Throwable] in steps 1-4, [CancelStartedSync] and cancellation included): the pristine copy is
      * swapped back in through [swapInInitialDb], and in the same reset the stored folder ids, `LAST_SYNCHRONIZED_KEY`,
      * `LAST_PATCH_WRITTEN_KEY` and the adapter's own keys (`adapter.getConfigs`) are removed, so no sync state survives
@@ -441,9 +455,17 @@ class CloudSync(
         val snapshot = createTempFile(env.tmpDir.toPath(), "andbible-merge-snapshot-", ".tmp")
         try {
             DatabaseContainer.replacingDatabases { token ->
+                // `createTempFile` leaves an EMPTY file: until the copy below has completed and its size matches the
+                // source, `pristine` must never be swapped in (it would replace the live database with nothing).
+                var pristineReady = false
                 try {
+                    mergeStageHookForTest?.invoke("beforePristine")
                     dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
+                    mergeStageHookForTest?.invoke("afterVacuum")
                     FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), pristine)
+                    check(pristine.size() == dbDef.localDbPath.toPath().size()) { "The pristine copy of ${dbDef.categoryName} is incomplete" }
+                    pristineReady = true
+                    mergeStageHookForTest?.invoke("afterPristine")
                     prepareMergeSnapshot(dbDef, snapshot)
                     createDeviceFolder()
                     fetchAndRestoreInitial(dbDef, token, failWithoutMessage = true)
@@ -461,14 +483,16 @@ class CloudSync(
                     mergeStageHookForTest?.invoke("afterMerge")
                 } catch (t: Throwable) {
                     Log.e(TAG, "Merge failed for ${dbDef.categoryName}, restoring the device's database", t)
+                    suspend fun removeSyncState() {
+                        for (key in listOf(SYNC_FOLDER_FILE_ID_KEY, SYNC_DEVICE_FOLDER_FILE_ID_KEY, LAST_SYNCHRONIZED_KEY, LAST_PATCH_WRITTEN_KEY)) {
+                            dbDef.dao.removeConfig(key)
+                        }
+                        adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
+                    }
                     try {
-                        kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
-                            swapInInitialDb(dbDef, pristine, token) {
-                                for (key in listOf(SYNC_FOLDER_FILE_ID_KEY, SYNC_DEVICE_FOLDER_FILE_ID_KEY, LAST_SYNCHRONIZED_KEY, LAST_PATCH_WRITTEN_KEY)) {
-                                    dbDef.dao.removeConfig(key)
-                                }
-                                adapter.getConfigs(dbDef).forEach { dbDef.dao.removeConfig(it.keyName) }
-                            }
+                        withContext(NonCancellable) {
+                            if (pristineReady) swapInInitialDb(dbDef, pristine, token) { removeSyncState() }
+                            else removeSyncState() // the live database was never touched: only forget the keys initializeSync wrote
                         }
                     } catch (restoreFailure: Throwable) {
                         t.addSuppressed(restoreFailure)
