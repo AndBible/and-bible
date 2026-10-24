@@ -86,8 +86,10 @@ jobs:
         working-directory: app/bibleview-js
         run: npm ci && npm run build-production
       - name: Generate Xcode project
-        working-directory: iosApp
-        run: xcodegen generate
+        run: |
+          scripts/ios-version-xcconfig.sh
+          cd iosApp
+          xcodegen generate
       - name: List available simulators (diagnostic)
         if: always()
         run: xcrun simctl list devices available

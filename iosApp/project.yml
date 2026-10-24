@@ -80,6 +80,14 @@ targets:
         "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
         "DEVELOPMENT_TEAM[sdk=iphonesimulator*]": ""
     preBuildScripts:
+      - name: "Require a generated version for Release"
+        basedOnDependencyAnalysis: false
+        script: |
+          # Base.xcconfig falls back to MARKETING_VERSION = 0.0.0 when Version.xcconfig is missing.
+          if [ "$CONFIGURATION" = "Release" ] && [ "$MARKETING_VERSION" = "0.0.0" ]; then
+            echo "error: MARKETING_VERSION is the 0.0.0 fallback; run scripts/ios-version-xcconfig.sh before xcodegen generate"
+            exit 1
+          fi
       - name: "Generate debug files-port asset"
         basedOnDependencyAnalysis: false
         script: |
@@ -95,7 +103,14 @@ targets:
         script: |
           if [ -z "$JAVA_HOME" ]; then export JAVA_HOME="$(/usr/libexec/java_home -v 17)"; fi
           cd "$SRCROOT/.."
-          ./gradlew -Dorg.gradle.native=false :sharedUi:embedAndSignAppleFrameworkForXcode
+          # Release links run out of the shared daemon's 4g heap (OutOfMemoryError in
+          # linkReleaseFrameworkIosSimulatorArm64). Run the K/N compiler in its own process with a larger heap
+          # for Release only; the daemon's jvmargs stay unchanged.
+          EXTRA=""
+          if [ "$CONFIGURATION" = "Release" ]; then
+            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx6g"
+          fi
+          ./gradlew -Dorg.gradle.native=false $EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode
       - name: "Copy app resources"
         basedOnDependencyAnalysis: false
         script: |

@@ -61,6 +61,16 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertIn('iosApp/Config/Secrets.xcconfig.local', text)
         self.assertIn('iosApp/Config/Version.xcconfig', text)
 
+    def test_release_native_link_gets_larger_heap(self):
+        self.assertIn('if [ "$CONFIGURATION" = "Release" ]; then\n            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx6g"', project)
+        self.assertIn('$EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode', project)
+
+    def test_release_requires_generated_version(self):
+        self.assertIn('[ "$CONFIGURATION" = "Release" ] && [ "$MARKETING_VERSION" = "0.0.0" ]', project)
+        workflow = (root / '.github/workflows/ios.yml').read_text()
+        gen = workflow.index('scripts/ios-version-xcconfig.sh')
+        self.assertLess(gen, workflow.index('xcodegen generate'))
+
     def run_script(self, props):
         with tempfile.TemporaryDirectory() as tmp:
             version_file = pathlib.Path(tmp) / 'version.properties'
