@@ -33,10 +33,7 @@ export function useVerseNotifier(
     // Watch both values - for GenBooks/MyDocuments, the key (osisRef) changes even when ordinal stays 0
     watch(
         [() => currentVerse.value, () => currentKey.value],
-        ([verse, key]) => {
-            console.log(`POSTRACE notify verse=${verse} key=${key} scrollY=${window.scrollY} innerHeight=${window.innerHeight} isScrolling=${isScrolling.value}`); // POSTRACE
-            scrolledToOrdinal(key, verse);
-        }
+        ([verse, key]) => scrolledToOrdinal(key, verse)
     );
 
     let lastDirection = "ltr";

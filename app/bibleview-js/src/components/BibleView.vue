@@ -304,9 +304,7 @@ function addDocuments(...docs: AnyDocument[]) {
 setupEventBusListener("config_changed", async (deferred: Deferred) => {
     const verseBeforeConfigChange = currentVerse.value;
     await deferred.wait();
-    console.log(`POSTRACE config-changed verseBeforeConfigChange=${verseBeforeConfigChange} scrollYBefore=${window.scrollY}`); // POSTRACE
     scrollToId(`o-${verseBeforeConfigChange}`, {now: true})
-    console.log(`POSTRACE config-changed-after scrollYAfter=${window.scrollY}`); // POSTRACE
 })
 
 setupEventBusListener("clear_document", function clearDocument() {
