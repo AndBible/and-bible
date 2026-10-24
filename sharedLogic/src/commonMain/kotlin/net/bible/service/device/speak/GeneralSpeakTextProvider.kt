@@ -37,6 +37,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.common.next
+import net.bible.service.common.nextOrNull
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.common.prev
 import net.bible.service.common.shortName
@@ -73,6 +74,8 @@ class GeneralSpeakTextProvider(
         val endKey: BookAndKey,
         val currentKey: BookAndKey,
         val command: SpeakCommand? = null,
+        /** The last key of the document has been queued; nothing follows it. */
+        val ended: Boolean = false,
     )
 
     companion object {
@@ -88,6 +91,8 @@ class GeneralSpeakTextProvider(
     private lateinit var startKey: BookAndKey
     private lateinit var endKey: BookAndKey
     private var stopOrdinal: Int? = null
+    /** True once the last key of a general book has been queued: speech ends instead of wrapping to the first key. */
+    private var ended = false
     
     private var bookmark : GenericBookmarkWithNotes? = null
     private lateinit var currentKey: BookAndKey
@@ -183,7 +188,7 @@ class GeneralSpeakTextProvider(
         val (expected, cursor, pending, remaining, readingSettings, readingPhrases, stop) = lock.withLock {
             CursorSnapshot(
                 revision,
-                State(book, startKey, endKey, currentKey),
+                State(book, startKey, endKey, currentKey, ended = ended),
                 currentCommands.copy(),
                 readList.copy(),
                 settings.copy(playbackSettings = settings.playbackSettings.copy()),
@@ -204,6 +209,7 @@ class GeneralSpeakTextProvider(
             startKey = calculated.startKey
             endKey = calculated.endKey
             currentKey = calculated.currentKey
+            ended = calculated.ended
             readList = remaining
             currentCommands.clear()
             currentCommands.addAll(pending)
@@ -227,17 +233,28 @@ class GeneralSpeakTextProvider(
 
     private suspend fun getMoreSpeakCommands(cursor: State, remaining: SpeakCommandArray, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases, stop: Int?): Pair<State, SpeakCommandArray> {
         val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
+        if (cursor.ended) {
+            // Nothing follows the last key. Not reached while the provider reports no more text.
+            cmds.add(SilenceCommand())
+            return cursor to cmds
+        }
+        var ended = false
         var key = limitToRange(cursor.currentKey)
         val start = key
         if (remaining.isNotEmpty()) {
             cmds.addAll(remaining)
             remaining.clear()
-            key = getNextKey(key)
+            val advanced = getNextKeyOrNull(key)
+            if (advanced == null) ended = true else key = advanced
         }
-        cmds.addAll(getCommandsForKey(cursor.endKey, key, readingSettings, readingPhrases))
+        if (!ended) cmds.addAll(getCommandsForKey(cursor.endKey, key, readingSettings, readingPhrases))
         val rest = SpeakCommandArray(platform.maxSpeechInputLength)
-        while (!cmds.endsSentence) {
-            val nextKey = getNextKey(key)
+        while (!ended && !cmds.endsSentence) {
+            val nextKey = getNextKeyOrNull(key)
+            if (nextKey == null) {
+                ended = true
+                break
+            }
             if ((stop != null && nextKey.ordinal!! > stop) || nextKey.ordinal!! < key.ordinal!!) break
             cmds.addUntilSentenceBreak(getCommandsForKey(key, nextKey, readingSettings, readingPhrases), rest)
             key = nextKey
@@ -245,8 +262,9 @@ class GeneralSpeakTextProvider(
         val next = if (rest.isNotEmpty()) {
             remaining.addAll(rest)
             key
-        } else getNextKey(key)
-        return State(cursor.book, start, key, next) to cmds
+        } else if (ended) key
+        else getNextKeyOrNull(key) ?: run { ended = true; key }
+        return State(cursor.book, start, key, next, ended = ended) to cmds
     }
 
     override suspend fun getStatusText(showFlag: Int): String = getStatusTexts().getValue(showFlag and 3)
@@ -394,7 +412,16 @@ class GeneralSpeakTextProvider(
         return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
     }
 
-    private suspend fun getNextKey(key: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(key))
+    /** Like [getNextOrdinal], but null past the last ordinal of the last key of a general book instead of wrapping. */
+    private suspend fun getNextOrdinalOrNull(key: BookAndKey): BookAndKey? {
+        val nextOrdinal = key.ordinal!!.start + 1
+        if(nextOrdinal > key.document!!.ordinalRangeFor(key.key, strings).last) {
+            return key.nextOrNull(strings, traverser)
+        }
+        return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
+    }
+
+    private suspend fun getNextKeyOrNull(key: BookAndKey): BookAndKey? = getNextOrdinalOrNull(key)?.let { limitToRange(it) }
     override suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) = rewind(amount, false, isValid)
 
     suspend fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean, isValid: () -> Boolean = { true }) {
@@ -488,6 +515,7 @@ class GeneralSpeakTextProvider(
                 book = state.book
             }
             lastVerseWithTitle = null
+            ended = false
             if(this::startKey.isInitialized) {
                 endKey = startKey
             }
@@ -539,7 +567,7 @@ class GeneralSpeakTextProvider(
 
     override fun getTotalChars(): Long = 0
     override fun getSpokenChars(): Long = 0
-    override fun isMoreTextToSpeak(): Boolean = !needToStop(currentKey)
+    override fun isMoreTextToSpeak(): Boolean = !needToStop(currentKey) && !(ended && currentCommands.isEmpty())
 }
 
 private const val PERSIST_BOOK = "SpeakGenBook"
