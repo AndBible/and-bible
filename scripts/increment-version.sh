@@ -143,7 +143,7 @@ fi
 # major.minor version, in either of the two conventions used over time:
 #   - a line that is exactly "<major.minor>"            (e.g. "5.1")
 #   - a line beginning with "AndBible <major.minor>"    (e.g. "AndBible 5.1 stable release!")
-MAJOR_MINOR=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
+MAJOR_MINOR=$(version_major_minor)
 MAJOR_MINOR_RE=$(echo "$MAJOR_MINOR" | sed 's/\./\\./g')
 CHANGELOG_FOOTER=$(sed -n "/^\(AndBible \)\?${MAJOR_MINOR_RE}\([^0-9]\|$\)/,\$p" "$CURRENT_CHANGELOG")
 
