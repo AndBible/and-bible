@@ -36,6 +36,8 @@ data class NaturalKey(
     val keyColumns: List<String>,
     val idColumn: String = "id",
     val children: List<Pair<String, String>> = emptyList(),
+    /** For a child with a unique index over its foreign key column plus these columns: child table -> the other columns. */
+    val childUnique: Map<String, List<String>> = emptyMap(),
 )
 
 /**
@@ -68,6 +70,7 @@ val NATURAL_KEYS: Map<SyncableDatabaseDefinition, List<NaturalKey>> = mapOf(
                 // No foreign key, but the row belongs to the model.
                 "LlmUsageRecord" to "configuredModelId",
             ),
+            childUnique = mapOf("LlmUsageRecord" to listOf("deviceId")),
         ),
         // Extra unique index (configuredModelId, deviceId): one row per device per model. It only collides with
         // the snapshot of the same device, e.g. one that synced before, but then it would break the apply.
@@ -79,8 +82,9 @@ val NATURAL_KEYS: Map<SyncableDatabaseDefinition, List<NaturalKey>> = mapOf(
  * Rewrites the ids in the [snapshot] file (made by [prepareMergeSnapshot]) so that every row whose natural key
  * exists in [local] (the freshly fetched cloud database) under another id gets the local id. The row's children
  * and the `LogEntry` rows of the snapshot follow, chained re-keys included (`MyDocument` -> `MyDocumentPage` ->
- * content and cache rows). Rows whose key is absent locally are left unchanged, and so is a row whose local id is
- * already taken by another snapshot row (a re-key would break the primary key). [local] is only read.
+ * content and cache rows). Rows whose key is absent locally are left unchanged, Renames run in two phases per
+ * table, so swaps and chains work. If a local id is held by a snapshot row that is not re-keyed itself, it throws
+ * (the transaction is rolled back, the snapshot stays as it was). [local] is only read.
  */
 @Suppress("RedundantSuspendModifier")
 suspend fun rekeyNaturalKeys(category: SyncableDatabaseDefinition, snapshot: Path, local: SQLiteConnection) {
@@ -108,6 +112,11 @@ private fun SQLiteConnection.hasTable(name: String): Boolean =
     queryRows("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", name) { 1 }.isNotEmpty()
 
 /**
+ * Renames the rows of [key] in two phases so that swaps and chains (A: X->Y while B holds Y and goes to Z) cannot
+ * collide on the primary key or on a unique index: first every re-keyed row (with its children and log entries)
+ * gets a temporary id, then its final id. A target id held by a snapshot row that is not itself re-keyed cannot
+ * be resolved here, and applying the snapshot with it would overwrite the cloud row, so it throws.
+ *
  * All values below are SQL literals produced by SQLite's own `quote()` (blobs as `X'..'`, text escaped), so they
  * compare across the two files whatever the column type is and can be spliced back into a statement safely.
  */
@@ -123,20 +132,42 @@ private fun rekeyTable(
     }
     val localIds = local.queryRows(select, row = readRow).associate { (id, k) -> k to id }
     val snapshotRows = snap.queryRows(select, row = readRow)
-    val taken = snapshotRows.mapTo(HashSet()) { it.first }
+    val mapping = LinkedHashMap<String, String>() // old id -> new id
     for ((oldId, naturalKey) in snapshotRows) {
         val newId = localIds[naturalKey] ?: continue
-        if (newId == oldId || newId in taken) continue
-        taken.remove(oldId)
-        taken.add(newId)
-        snap.exec("UPDATE ${key.table} SET ${key.idColumn} = $newId WHERE ${key.idColumn} = $oldId")
-        snap.followLog(tableDefs[key.table], key.table, key.idColumn, oldId, newId)
+        if (newId != oldId) mapping[oldId] = newId
+    }
+    if (mapping.isEmpty()) return
+    val blocked = snapshotRows.map { it.first }.filter { it !in mapping && it in mapping.values }
+    check(blocked.isEmpty()) {
+        "Cannot re-key ${key.table}: id ${blocked.first()} of the cloud row is used by a snapshot row with another natural key"
+    }
+    val temporary = mapping.keys.associateWith { snap.queryRows("SELECT quote(randomblob(16))") { it.getText(0) }.single() }
+    fun move(from: String, to: String, last: Boolean) {
+        snap.exec("UPDATE ${key.table} SET ${key.idColumn} = $to WHERE ${key.idColumn} = $from")
+        snap.followLog(tableDefs[key.table], key.table, key.idColumn, from, to)
         for ((child, column) in key.children) {
             if (!snap.hasTable(child)) continue
-            snap.exec("UPDATE $child SET $column = $newId WHERE $column = $oldId")
-            snap.followLog(tableDefs[child], child, column, oldId, newId)
+            if (last) snap.dropStaleSiblings(child, column, from, to, key.childUnique[child])
+            snap.exec("UPDATE $child SET $column = $to WHERE $column = $from")
+            snap.followLog(tableDefs[child], child, column, from, to)
         }
     }
+    for ((oldId, _) in mapping) move(oldId, temporary.getValue(oldId), last = false)
+    for ((oldId, newId) in mapping) move(temporary.getValue(oldId), newId, last = true)
+}
+
+/**
+ * Before [child] rows of [from] move to [to]: a row already at [to] (it belongs to a model the snapshot no longer
+ * has) that shares the [uniqueColumns] values with a moving row would break the child's unique index. It is
+ * stale next to the moving row, so it and its log entries are dropped.
+ */
+private fun SQLiteConnection.dropStaleSiblings(child: String, column: String, from: String, to: String, uniqueColumns: List<String>?) {
+    if (uniqueColumns == null) return
+    val same = uniqueColumns.joinToString(" AND ") { "m.$it = s.$it" }
+    val stale = "SELECT s.rowid FROM $child s WHERE s.$column = $to AND EXISTS (SELECT 1 FROM $child m WHERE m.$column = $from AND $same)"
+    exec("DELETE FROM LogEntry WHERE tableName = ? AND entityId1 IN (SELECT s.id FROM $child s WHERE s.rowid IN ($stale))", child)
+    exec("DELETE FROM $child WHERE rowid IN ($stale)")
 }
 
 /** Moves the `LogEntry` rows of [table] that name the old id through [column] (its id field 1 and/or 2). */

@@ -25,6 +25,7 @@ import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.SyncableRoomDatabase
@@ -101,7 +102,9 @@ class NaturalKeysTest {
 
         rekey(SyncableDatabaseDefinition.READINGPLANS, snapshot, cloud)
 
-        assertEquals(listOf("bible1y|true", "other|false"), query(snapshot, "SELECT planCode || '|' || (id = ${id('c', 1)}) FROM ReadingPlan ORDER BY planCode").map { it.replace("|1", "|true").replace("|0", "|false") })
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM ReadingPlan WHERE planCode = 'bible1y' AND id = ${id('c', 1)}"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('c', 1)}"))
+        assertEquals(listOf("0"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 1)}"))
         // The row that is new to the cloud keeps its id, and its log entry.
         assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 2)}"))
     }
@@ -144,12 +147,12 @@ class NaturalKeysTest {
 
         rekey(SyncableDatabaseDefinition.MYDOCUMENTS, snapshot, cloud)
 
-        assertEquals(listOf("mine|true", "same|true").map { it.substringBefore('|') }, query(snapshot, "SELECT pageKey FROM MyDocumentPage ORDER BY pageKey"))
+        assertEquals(listOf("mine", "same"), query(snapshot, "SELECT pageKey FROM MyDocumentPage ORDER BY pageKey"))
         assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM MyDocumentPage WHERE id = ${id('c', 11)} AND pageKey = 'same' AND documentId = ${id('c', 1)}"))
         assertEquals(listOf("device"), query(snapshot, "SELECT content FROM MyDocumentPageContent WHERE pageId = ${id('c', 11)}"))
         assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM AiPageCacheEntry WHERE pageId = ${id('c', 11)}"))
         // Content and cache log entries (keyed by pageId) follow the chained re-key.
-        assertEquals(listOf("MyDocumentPageContent", "AiPageCacheEntry").sorted(), query(snapshot, "SELECT tableName FROM LogEntry WHERE entityId1 = ${id('c', 11)} ORDER BY tableName"))
+        assertEquals(listOf("AiPageCacheEntry", "MyDocumentPageContent"), query(snapshot, "SELECT tableName FROM LogEntry WHERE entityId1 = ${id('c', 11)} ORDER BY tableName"))
         // The page the cloud does not have keeps its id but sits under the cloud's document.
         assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM MyDocumentPage WHERE id = ${id('s', 12)} AND documentId = ${id('c', 1)}"))
     }
@@ -181,14 +184,90 @@ class NaturalKeysTest {
         assertEquals(listOf("MyDoc_mine"), query(snapshot, "SELECT initials FROM MyDocument"))
     }
 
-    @Test fun localIdAlreadyTakenInSnapshotIsLeftAlone() {
-        // The device holds a row under the cloud's id for another key: a re-key would break the primary key.
-        val snapshot = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 1), "x"); plan(it, id('s', 1), "y") }
-        val cloud = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 1), "y") }
+    private fun planIds(file: File) = query(file, "SELECT planCode || '=' || hex(id) FROM ReadingPlan ORDER BY planCode")
+    private fun hex(literal: String) = literal.removePrefix("X'").removeSuffix("'").uppercase()
+
+    @Test fun swappedIdsAreExchanged() {
+        val snapshot = create(ReadingPlanDatabase::class.java) {
+            plan(it, id('c', 1), "a"); plan(it, id('c', 2), "b"); log(it, "ReadingPlan", id('c', 1)); log(it, "ReadingPlan", id('c', 2))
+        }
+        val cloud = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 2), "a"); plan(it, id('c', 1), "b") }
 
         rekey(SyncableDatabaseDefinition.READINGPLANS, snapshot, cloud)
 
-        assertEquals(listOf("2"), query(snapshot, "SELECT count(*) FROM ReadingPlan"))
-        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM ReadingPlan WHERE planCode = 'y' AND id = ${id('s', 1)}"))
+        assertEquals(listOf("a=${hex(id('c', 2))}", "b=${hex(id('c', 1))}"), planIds(snapshot))
+        assertEquals(listOf("2"), query(snapshot, "SELECT count(*) FROM LogEntry"))
+        assertEquals(listOf("a"), query(snapshot, "SELECT p.planCode FROM LogEntry l JOIN ReadingPlan p ON p.id = l.entityId1 WHERE l.entityId1 = ${id('c', 2)}"))
+    }
+
+    @Test fun chainIsRenamedWhicheverRowComesFirst() {
+        // A (id c1) goes to c2, which B holds; B goes to c3.
+        val snapshot = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 1), "a"); plan(it, id('c', 2), "b") }
+        val cloud = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 2), "a"); plan(it, id('c', 3), "b") }
+
+        rekey(SyncableDatabaseDefinition.READINGPLANS, snapshot, cloud)
+
+        assertEquals(listOf("a=${hex(id('c', 2))}", "b=${hex(id('c', 3))}"), planIds(snapshot))
+    }
+
+    @Test fun targetIdHeldByANonRekeyedRowThrowsAndLeavesTheSnapshotUntouched() {
+        // The device holds a row under the cloud's id for another key; a re-key would break the primary key.
+        val snapshot = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 1), "x"); plan(it, id('s', 1), "y"); log(it, "ReadingPlan", id('s', 1)) }
+        val cloud = create(ReadingPlanDatabase::class.java) { plan(it, id('c', 1), "y") }
+        val before = planIds(snapshot)
+
+        val failure = runCatching { rekey(SyncableDatabaseDefinition.READINGPLANS, snapshot, cloud) }.exceptionOrNull()
+
+        assertEquals(true, failure is IllegalStateException)
+        assertEquals(before, planIds(snapshot))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 1)}"))
+    }
+
+    private fun usage(c: androidx.sqlite.SQLiteConnection, id: String, model: String, device: String, tokens: Int) = c.exec(
+        "INSERT INTO LlmUsageRecord (id, configuredModelId, deviceId, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, estimatedCostUsd) " +
+            "VALUES ($id, $model, ?, $tokens, 0, 0, 0, 0.0)", device)
+
+    private fun aiSettings(c: androidx.sqlite.SQLiteConnection, side: Char, model: Int) {
+        c.exec("INSERT INTO LlmProviderConfig (id, providerType, displayName, endpoint, apiFormat, orderNumber) VALUES (${id('p', 1)}, 'T', 'P', NULL, NULL, 0)")
+        c.exec("INSERT INTO LlmConfiguredModel (id, providerConfigId, modelId, orderNumber, inputPricePerMillion, outputPricePerMillion, cacheCreationPricePerMillion, cacheReadPricePerMillion) VALUES (${id(side, model)}, ${id('p', 1)}, 'gpt', 0, 0, 0, 0, 0)")
+    }
+
+    @Test fun aiSettingsModelChildrenFollowTheReKey() {
+        val snapshot = create(AiSettingsDatabase::class.java) {
+            aiSettings(it, 's', 1)
+            it.exec("INSERT INTO AgentPrompt (id, name, promptTemplate, showIn, configuredModelId) VALUES (${id('s', 5)}, 'n', 't', 'ALL', ${id('s', 1)})")
+            it.exec("INSERT INTO BuiltinPromptOverride (id, configuredModelId) VALUES (${id('s', 6)}, ${id('s', 1)})")
+            it.exec("INSERT INTO GlobalAiSettings (id, aiExcludedDocuments, hiddenBuiltInPrompts, hiddenBuiltInCategories, favoritePrompts, commentaryDeselected, defaultModelId) VALUES (${id('s', 7)}, '', '', '', '', '', ${id('s', 1)})")
+            usage(it, id('s', 8), id('s', 1), "dev", 10)
+            log(it, "LlmConfiguredModel", id('s', 1))
+        }
+        val cloud = create(AiSettingsDatabase::class.java) { aiSettings(it, 'c', 1) }
+
+        rekey(SyncableDatabaseDefinition.AI_SETTINGS, snapshot, cloud)
+
+        val model = id('c', 1)
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LlmConfiguredModel WHERE id = $model"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM AgentPrompt WHERE configuredModelId = $model"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM BuiltinPromptOverride WHERE configuredModelId = $model"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM GlobalAiSettings WHERE defaultModelId = $model"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LlmUsageRecord WHERE configuredModelId = $model"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE tableName = 'LlmConfiguredModel' AND entityId1 = $model"))
+    }
+
+    @Test fun staleUsageRowForTheCloudModelIsDroppedNotACollision() {
+        val snapshot = create(AiSettingsDatabase::class.java) {
+            aiSettings(it, 's', 1)
+            usage(it, id('s', 8), id('s', 1), "dev", 10)
+            // Stale: the snapshot still holds a usage row for the cloud's model id, for the same device.
+            usage(it, id('s', 9), id('c', 1), "dev", 99)
+            log(it, "LlmUsageRecord", id('s', 8)); log(it, "LlmUsageRecord", id('s', 9))
+        }
+        val cloud = create(AiSettingsDatabase::class.java) { aiSettings(it, 'c', 1) }
+
+        rekey(SyncableDatabaseDefinition.AI_SETTINGS, snapshot, cloud)
+
+        assertEquals(listOf("10"), query(snapshot, "SELECT inputTokens FROM LlmUsageRecord WHERE configuredModelId = ${id('c', 1)}"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LlmUsageRecord"))
+        assertEquals(listOf("0"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 9)}"))
     }
 }
