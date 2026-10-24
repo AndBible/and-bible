@@ -482,10 +482,19 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         }
         walk(root)
         let labels = texts.map(\.label)
-        guard let start = labels.firstIndex(of: "16"), let end = labels[(start + 1)...].firstIndex(of: "17") else { return nil }
-        // Run 1 evidence: the KJV with Strong's emits a "¶" element before "For" and wraps lines, so the pilcrow is skipped.
-        let segment = (start + 1..<end).filter { labels[$0] != "¶" }
-        guard segment.count >= 5, segment.prefix(5).map({ labels[$0] }) == ["For", "God", "so", "loved", "the world"] else { return nil }
+        // Run 9 (iPad): the whole chapter stack (John 1, 2, 3) is in the tree, so the FIRST "16" is John 1:16 and the old
+        // first-match guard never found John 3:16. Every "16" is tried; the one followed by the KJV phrase split wins.
+        var segment: [Int] = []
+        for start in labels.indices where labels[start] == "16" {
+            guard let end = labels[(start + 1)...].firstIndex(of: "17") else { continue }
+            // Run 1 evidence: the KJV with Strong's emits a "\u{00B6}" element before "For" and wraps lines, so the pilcrow is skipped.
+            let candidate = (start + 1..<end).filter { labels[$0] != "\u{00B6}" }
+            if candidate.count >= 5, candidate.prefix(5).map({ labels[$0] }) == ["For", "God", "so", "loved", "the world"] {
+                segment = candidate
+                break
+            }
+        }
+        guard !segment.isEmpty else { return nil }
         // Single-word elements only: "the world" can be stretched by justification, a word cannot.
         let frames = segment.prefix(4).map { texts[$0].frame }
         guard frames.allSatisfy({ !$0.isEmpty }) else { return nil }
