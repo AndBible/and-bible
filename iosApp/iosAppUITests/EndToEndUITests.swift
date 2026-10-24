@@ -471,7 +471,7 @@ final class EndToEndUITests: RealAppUITestCase {
         let window = app.windows.firstMatch.frame
         var target: CGRect?
         func walk(_ node: XCUIElementSnapshot) {
-            if target == nil, node.label == label, node.frame.minY > 50, node.frame.maxY < 260,
+            if target == nil, node.label == label, node.frame.minY > 24, node.frame.maxY < 260,
                node.frame.midX > window.midX, node.frame.width > 10, node.frame.height > 10 {
                 target = node.frame
             }
