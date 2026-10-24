@@ -31,16 +31,18 @@ import kotlinx.coroutines.withContext
  * Closes nest: the gate reopens when every [closeAndDrain] has been matched by an [open].
  */
 class DatabaseWriteGate {
-    private data class State(val closeDepth: Int = 0, val inFlight: Int = 0)
+    private data class State(val closeDepth: Int = 0, val inFlight: Int = 0, val generation: Int = 0)
 
     private val state = MutableStateFlow(State())
 
     /** Waits while the gate is closed, then runs [block] counted as in flight, so a [closeAndDrain] waits for it. */
     suspend fun <T> pass(block: suspend () -> T): T {
+        var generation = 0
         while (true) {
             var entered = false
             state.update {
                 entered = it.closeDepth == 0
+                generation = it.generation
                 if (entered) it.copy(inFlight = it.inFlight + 1) else it
             }
             if (entered) break
@@ -49,7 +51,8 @@ class DatabaseWriteGate {
         try {
             return block()
         } finally {
-            state.update { it.copy(inFlight = it.inFlight - 1) }
+            // A pass that began before resetForTest was forgotten by the reset: it must not lower the new count.
+            state.update { if (it.generation == generation) it.copy(inFlight = it.inFlight - 1) else it }
         }
     }
 
@@ -72,8 +75,11 @@ class DatabaseWriteGate {
         state.update { it.copy(closeDepth = (it.closeDepth - 1).coerceAtLeast(0)) }
     }
 
-    /** Opens the gate whatever its depth and forgets in-flight counts (tests share one JVM). */
+    /**
+     * Opens the gate whatever its depth and forgets the in-flight passes (tests share one JVM). Passes that started
+     * before the reset belong to an older generation and no longer count, however late they end.
+     */
     fun resetForTest() {
-        state.value = State()
+        state.update { State(generation = it.generation + 1) }
     }
 }

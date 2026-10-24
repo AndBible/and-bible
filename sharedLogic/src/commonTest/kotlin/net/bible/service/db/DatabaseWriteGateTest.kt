@@ -88,4 +88,19 @@ class DatabaseWriteGateTest {
         gate.resetForTest()
         assertEquals(1, withTimeout(1_000) { gate.pass { 1 } })
     }
+
+    @Test
+    fun resetWhileAPassIsHeldDoesNotBreakLaterDrains() = runTest {
+        val gate = DatabaseWriteGate()
+        val hold = CompletableDeferred<Unit>()
+        val entered = CompletableDeferred<Unit>()
+        launch { gate.pass { entered.complete(Unit); hold.await() } }
+        entered.await()
+        gate.resetForTest()
+        hold.complete(Unit)
+        runCurrent()
+        withTimeout(1_000) { gate.closeAndDrain() }
+        gate.open()
+        assertEquals(1, withTimeout(1_000) { gate.pass { 1 } })
+    }
 }
