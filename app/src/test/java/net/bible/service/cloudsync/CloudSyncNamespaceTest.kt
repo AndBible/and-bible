@@ -16,6 +16,9 @@
  */
 package net.bible.service.cloudsync
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
@@ -27,23 +30,29 @@ import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.sharedcore.platform.sync.SyncScheduler
 import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
 import net.bible.test.testAppSettings
 import net.bible.test.testCoreStrings
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import okio.Sink
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent.get
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
+import android.os.Looper
 
 /**
  * Release distributions share one sync folder per category ([SyncNamespace]); `initializeSync` resets a
@@ -68,11 +77,16 @@ class CloudSyncNamespaceTest {
         val listedNames = mutableListOf<String?>()
         val createdFolders = mutableListOf<String>()
         var folderKnown = true
-        var secretKey: String? = null
+        /** Bytes served by [download] (a gzipped database), for the FETCH_INITIAL path. */
+        var initialFileBytes: ByteArray? = null
         override val signedIn = true
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
             listedNames += name
-            return if (name != null && name in existing) listOf(CloudFile("existing-$name", name, 0, 0, "")) else emptyList()
+            return when {
+                name != null && name in existing -> listOf(CloudFile("existing-$name", name, 0, 0, ""))
+                name == INITIAL_BACKUP_FILENAME && initialFileBytes != null -> listOf(CloudFile("initial-id", name, 1, 1, ""))
+                else -> emptyList()
+            }
         }
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
             createdFolders += name
@@ -87,15 +101,19 @@ class CloudSyncNamespaceTest {
         override suspend fun signOut() {}
         override suspend fun get(id: String): CloudFile = error("unused")
         override suspend fun getFolders(parentId: String): List<CloudFile> = emptyList()
-        override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = error("unused")
+        override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
+            sink.write(okio.Buffer().write(initialFileBytes!!), initialFileBytes!!.size.toLong())
+            sink.flush(); sink.close()
+        }
         override suspend fun delete(id: String) {}
     }
 
-    private fun sync(packageName: String, adapter: CloudAdapter, namespace: String? = null): CloudSync {
+    /** Builds a CloudSync whose factory hands out [adapter]; [signedIn] sync goes through the real `signIn()`. */
+    private suspend fun sync(packageName: String, adapter: CloudAdapter, namespace: String? = null, dialogs: AppDialogController = AppDialogController()): CloudSync {
         val realEnv = get<AppEnvironment>(AppEnvironment::class.java)
         val env = object : AppEnvironment by realEnv { override val packageName = packageName }
         return CloudSync(
-            AppDialogController(), testCoreStrings(), env, testAppSettings(),
+            dialogs, testCoreStrings(), env, testAppSettings(),
             object : CloudAdapterFactory {
                 override val available = listOf("NEXT_CLOUD")
                 override fun displayName(id: String) = id
@@ -103,18 +121,54 @@ class CloudSyncNamespaceTest {
             }, SyncScheduler { error("not scheduled") }, get(DocumentSyncStarter::class.java),
             DocumentSyncProvider { error("No document operations in this test") },
             get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java), namespace,
-        ).also {
-            val field = CloudSync::class.java.getDeclaredField("_adapter")
-            field.isAccessible = true
-            field.set(it, adapter)
-        }
+        ).also { assertEquals(true, it.signIn()) }
     }
 
     private fun accessor(): SyncableDatabaseAccessor<net.bible.android.database.BookmarkDatabase> {
         val file = File.createTempFile("bookmarks-ns-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
-        val db = DatabaseContainer.instance.getBookmarkDb(file.absolutePath).also { dbs += it }
-        return SyncableDatabaseAccessor(db, { DatabaseContainer.instance.getBookmarkDb(it) }, { db }, file.path,
+        var db = DatabaseContainer.instance.getBookmarkDb(file.absolutePath).also { dbs += it }
+        // The reset lambda reopens the file: the FETCH path swaps the database file and needs a live db afterwards.
+        return SyncableDatabaseAccessor(db, { DatabaseContainer.instance.getBookmarkDb(it) },
+            { db = DatabaseContainer.instance.getBookmarkDb(file.absolutePath).also { dbs += it }; db }, file.path,
             SyncableDatabaseDefinition.BOOKMARKS, deviceId = "ns-device")
+    }
+
+    /** A gzipped bookmarks database with an empty config table: what another device uploads as `initial.sqlite3.gz`. */
+    private fun gzippedEmptyDb(): ByteArray {
+        val src = File.createTempFile("bookmarks-src-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        DatabaseContainer.instance.getBookmarkDb(src.absolutePath).close()
+        val gz = File.createTempFile("bookmarks-src-", ".gz", CommonUtils.tmpDir).also { files += it }
+        net.bible.service.common.ArchiveUtils.gzipFile(src.toOkioPath(), gz.toOkioPath())
+        return gz.readBytes()
+    }
+
+    /**
+     * Runs [block] off the test thread while answering the first-join dialogs: [firstAnswer] picks an option
+     * (0 = fetch, 1 = create, 2 = disable) or cancels (null); a confirmation, if any, is accepted.
+     * Returns the requests seen.
+     */
+    private suspend fun answeringDialogs(dialogs: AppDialogController, firstAnswer: Int?, block: suspend () -> Unit): List<AppDialogRequest> {
+        val seen = mutableListOf<AppDialogRequest>()
+        val job: kotlinx.coroutines.Deferred<Unit> = kotlinx.coroutines.CoroutineScope(Dispatchers.Default).async {
+            try { block() } catch (e: CancelStartedSync) { /* cancelled first join */ }
+        }
+        withTimeout(15_000) {
+            while (!job.isCompleted) {
+                shadowOf(Looper.getMainLooper()).idle()
+                dialogs.pending.value?.let { p ->
+                    seen += p.request
+                    val r = p.request
+                    dialogs.respond(p.id, when {
+                        r is AppDialogRequest.Options && firstAnswer != null -> AppDialogResult.Selected(r.options[firstAnswer].value)
+                        r is AppDialogRequest.Options -> AppDialogResult.Cancel
+                        else -> AppDialogResult.Ok
+                    })
+                }
+                Thread.sleep(20)
+            }
+            job.await()
+        }
+        return seen
     }
 
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(20_000) { block() } }
@@ -141,6 +195,14 @@ class CloudSyncNamespaceTest {
         assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
     }
 
+    private suspend fun assertResetKeysGone(db: SyncableDatabaseAccessor<*>) {
+        assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertNull(db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertNull(db.dao.getLong(LAST_SYNCHRONIZED_KEY))
+        assertNull(db.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        assertNull(db.dao.getString("fakeSecret"))
+    }
+
     @Test fun discreteWithOldFolderIsReset() = run {
         val adapter = FakeAdapter()
         val db = accessor().apply { seed() }
@@ -153,8 +215,21 @@ class CloudSyncNamespaceTest {
         )
         assertEquals("id-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertNull(db.dao.getString("fakeSecret"))
-        assertEquals(0L, db.dao.getLong(LAST_SYNCHRONIZED_KEY) ?: 0L)
+        assertNull(db.dao.getLong(LAST_SYNCHRONIZED_KEY))
         assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
+    }
+
+    @Test fun discreteWithOldFolderAndExistingSharedFolderAsksTheFirstJoinQuestion() = run {
+        val adapter = FakeAdapter(existing = setOf("net.bible.android.activity-sync-bookmarks"))
+        val dialogs = AppDialogController()
+        val db = accessor().apply { seed() }
+        val cloudSync = sync("com.app.calculator", adapter, dialogs = dialogs)
+        val seen = answeringDialogs(dialogs, firstAnswer = null) { cloudSync.initializeSync(db) }
+        assertTrue("first-join question expected, saw $seen", seen.any { it is AppDialogRequest.Options })
+        assertEquals(listOf<String?>("net.bible.android.activity-sync-bookmarks"), adapter.listedNames)
+        assertTrue(adapter.createdFolders.isEmpty())
+        assertResetKeysGone(db)
+        assertNull(db.dao.getString(SYNC_NAMESPACE_KEY))
     }
 
     @Test fun storedNamespaceMatchesNoReset() = run {
@@ -174,6 +249,25 @@ class CloudSyncNamespaceTest {
         assertEquals("ns-x", db.dao.getString(SYNC_NAMESPACE_KEY))
     }
 
+    /**
+     * The FETCH swap replaces the whole database file, config table included, with the uploader's initial file,
+     * which can lack the namespace key. The key must be written again afterwards, or the next sync of a
+     * non-standard package would reset and ask the first-join question a second time.
+     */
+    @Test fun namespaceKeySurvivesAFetchInitialSwap() = run {
+        val adapter = FakeAdapter(existing = setOf("net.bible.android.activity-sync-bookmarks")).apply {
+            folderKnown = false
+            initialFileBytes = gzippedEmptyDb()
+        }
+        val dialogs = AppDialogController()
+        val db = accessor().apply { seed(ns = "net.bible.android.activity") }
+        val cloudSync = sync("com.app.calculator", adapter, dialogs = dialogs)
+        val seen = answeringDialogs(dialogs, firstAnswer = 0) { cloudSync.initializeSync(db) }
+        assertTrue("fetch question expected, saw $seen", seen.any { it is AppDialogRequest.Options })
+        assertEquals("existing-net.bible.android.activity-sync-bookmarks", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertEquals("net.bible.android.activity", db.dao.getString(SYNC_NAMESPACE_KEY))
+    }
+
     @Test fun suffixedBuildStaysSeparate() = run {
         val adapter = FakeAdapter()
         val db = accessor().apply { seed() }
@@ -190,15 +284,15 @@ class CloudSyncNamespaceTest {
         try {
             sync("com.app.calculator", adapter).initializeSync(db, allowInteraction = false)
         } catch (e: CancelStartedSync) { /* expected */ }
-        assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertResetKeysGone(db)
         assertNull(db.dao.getString(SYNC_NAMESPACE_KEY))
     }
 
-    @Test fun iosReleaseUsesSharedName() {
+    @Test fun iosReleaseUsesSharedName() = run {
         assertEquals("net.bible.android.activity-sync-bookmarks", sync("org.andbible.ios", FakeAdapter()).syncFolderName("bookmarks"))
     }
 
-    @Test fun debugOverrideWins() {
+    @Test fun debugOverrideWins() = run {
         assertEquals("ns-x-sync-bookmarks", sync("com.app.calculator", FakeAdapter(), "ns-x").syncFolderName("bookmarks"))
     }
 
@@ -209,15 +303,30 @@ class CloudSyncNamespaceTest {
         assertEquals(listOf("net.bible.android.activity-sync-documents"), adapter.createdFolders)
     }
 
+    /** The real bookmarks accessor, after the container has opened its database. */
+    private fun containerAccessor(): SyncableDatabaseAccessor<*> {
+        DatabaseContainer.instance.bookmarkDb // make sure the container database is open before taking its accessor
+        return SyncableDatabaseDefinition.BOOKMARKS.accessor
+    }
+
     @Test fun disabledCategoryUntouched() = run {
         val adapter = FakeAdapter()
-        val db = DatabaseContainer.instance.bookmarkDb.let { SyncableDatabaseDefinition.BOOKMARKS.accessor }
-        db.seed()
+        val db = containerAccessor().also { it.seed() }
         testAppSettings().setBoolean("sync_enable_bookmarks", false)
         sync("com.app.calculator", adapter).synchronize()
         assertTrue(adapter.listedNames.isEmpty())
         assertEquals("old-sync", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
         assertEquals("secret", db.dao.getString("fakeSecret"))
         assertNull(db.dao.getString(SYNC_NAMESPACE_KEY))
+    }
+
+    /** Positive control for [disabledCategoryUntouched]: the same setup with the category on does reach the adapter. */
+    @Test fun enabledCategoryIsReset() = run {
+        val adapter = FakeAdapter()
+        val db = containerAccessor().also { it.seed() }
+        testAppSettings().setBoolean("sync_enable_bookmarks", true)
+        sync("com.app.calculator", adapter).synchronize()
+        assertTrue(adapter.listedNames.contains("net.bible.android.activity-sync-bookmarks"))
+        assertFalse(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY) == "old-sync")
     }
 }

@@ -228,11 +228,12 @@ class CloudSync(
      * longer uses, so they are dropped and the category joins the current folder afresh (first-join question
      * included). A standard build's old name equals its namespace, so an upgrade keeps all state.
      *
-     * Returns `true` when the key must still be stored once the folder is settled.
+     * The key itself is stored by [initializeSync] once the folder is settled, every time: a first-join fetch
+     * swaps the whole database file, config table included, and the uploader's file may lack the key.
      */
-    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>): Boolean {
+    private suspend fun resetIfNamespaceChanged(dbDef: SyncableDatabaseAccessor<*>) {
         val stored = dbDef.dao.getString(SYNC_NAMESPACE_KEY)
-        if (stored == namespace) return false
+        if (stored == namespace) return
         val previous = stored ?: (syncNamespace ?: env.packageName)
         if (previous != namespace) {
             Log.i(TAG, "Sync namespace of ${dbDef.categoryName} changed $previous -> $namespace, starting a fresh join")
@@ -244,13 +245,12 @@ class CloudSync(
             dbDef.dao.removeConfig(LAST_SYNCHRONIZED_KEY)
             dbDef.dao.removeConfig(LAST_PATCH_WRITTEN_KEY)
         }
-        return true
     }
 
     @VisibleForTesting suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = syncFolderName(dbDef.categoryName)
-        val storeNamespace = resetIfNamespaceChanged(dbDef)
+        resetIfNamespaceChanged(dbDef)
 
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
@@ -335,8 +335,9 @@ class CloudSync(
             }
             null -> {}
         }
-        // Only now: a cancelled first join leaves the key unset, so the next attempt re-runs the reset harmlessly.
-        if (storeNamespace) dbDef.dao.setConfig(SYNC_NAMESPACE_KEY, namespace)
+        // Only now, and always (a fetch swap may have dropped it): a cancelled first join leaves the key unset,
+        // so the next attempt re-runs the reset harmlessly.
+        dbDef.dao.setConfig(SYNC_NAMESPACE_KEY, namespace)
     }
 
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
