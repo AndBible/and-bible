@@ -27,6 +27,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.ReadingPlanDatabase
+import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -269,5 +270,43 @@ class NaturalKeysTest {
         assertEquals(listOf("10"), query(snapshot, "SELECT inputTokens FROM LlmUsageRecord WHERE configuredModelId = ${id('c', 1)}"))
         assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LlmUsageRecord"))
         assertEquals(listOf("0"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 9)}"))
+    }
+
+    private fun status(c: androidx.sqlite.SQLiteConnection, id: String, code: String, day: Int, text: String) = c.exec(
+        "INSERT INTO ReadingPlanStatus (planCode, planDay, readingStatus, id) VALUES (?, ?, ?, $id)", code, day.toLong(), text)
+
+    @Test fun readingPlanStatusSameCodeAndDayTakesTheCloudId() {
+        val snapshot = create(ReadingPlanDatabase::class.java) {
+            status(it, id('s', 1), "p", 1, "S1"); status(it, id('s', 2), "p", 2, "S2")
+            log(it, "ReadingPlanStatus", id('s', 1)); log(it, "ReadingPlanStatus", id('s', 2))
+        }
+        val cloud = create(ReadingPlanDatabase::class.java) { status(it, id('c', 1), "p", 1, "C1") }
+
+        rekey(SyncableDatabaseDefinition.READINGPLANS, snapshot, cloud)
+
+        assertEquals(listOf("p|1|S1|1"), query(snapshot, "SELECT planCode || '|' || planDay || '|' || readingStatus || '|' || (id = ${id('c', 1)}) FROM ReadingPlanStatus WHERE planDay = 1"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE tableName = 'ReadingPlanStatus' AND entityId1 = ${id('c', 1)}"))
+        assertEquals(listOf("0"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 1)}"))
+        // Day 2 is new to the cloud: unchanged, with its log entry.
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM ReadingPlanStatus WHERE id = ${id('s', 2)}"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 2)}"))
+    }
+
+    private fun memorized(c: androidx.sqlite.SQLiteConnection, id: String, ordinal: Int) = c.exec(
+        "INSERT INTO MemorizedVerse (id, kjvOrdinal, memorizedAt) VALUES ($id, ?, 5)", ordinal.toLong())
+
+    @Test fun memorizedVerseSameOrdinalTakesTheCloudId() {
+        val snapshot = create(ProgressDatabase::class.java) {
+            memorized(it, id('s', 1), 100); memorized(it, id('s', 2), 200)
+            log(it, "MemorizedVerse", id('s', 1)); log(it, "MemorizedVerse", id('s', 2))
+        }
+        val cloud = create(ProgressDatabase::class.java) { memorized(it, id('c', 1), 100) }
+
+        rekey(SyncableDatabaseDefinition.PROGRESS, snapshot, cloud)
+
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM MemorizedVerse WHERE kjvOrdinal = 100 AND id = ${id('c', 1)}"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE tableName = 'MemorizedVerse' AND entityId1 = ${id('c', 1)}"))
+        assertEquals(listOf("0"), query(snapshot, "SELECT count(*) FROM LogEntry WHERE entityId1 = ${id('s', 1)}"))
+        assertEquals(listOf("1"), query(snapshot, "SELECT count(*) FROM MemorizedVerse WHERE kjvOrdinal = 200 AND id = ${id('s', 2)}"))
     }
 }

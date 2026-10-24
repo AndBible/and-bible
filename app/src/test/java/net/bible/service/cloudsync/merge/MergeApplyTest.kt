@@ -412,4 +412,41 @@ class MergeApplyTest {
         assertTrue("got $e", e is IllegalStateException)
         assertEquals(setOf("t-a"), m.names())
     }
+
+    /**
+     * Review Focus 3 end to end: both sides hold the same plan code and statuses under different ids. After the merge there
+     * is one row per natural key (the cloud's id), the newer progress wins, and no log entry names the device's old id.
+     */
+    @Test fun sameReadingPlanOnBothSidesMergesToOneRowPerNaturalKey() = run {
+        suspend fun plans(copyOf: File? = null, deviceId: String = UUID.randomUUID().toString()) =
+            accessor(ReadingPlanDatabase::class.java, SyncableDatabaseDefinition.READINGPLANS, readingPlanMigrations, copyOf, deviceId)
+        val a = plans()
+        a.sql("INSERT INTO ReadingPlan (planCode, planStartDate, planCurrentDay, id) VALUES ('shared', 0, 1, X'AA000000000000000000000000000001')")
+        a.sql("INSERT INTO ReadingPlanStatus (planCode, planDay, readingStatus, id) VALUES ('shared', 1, 'cloud-day1', X'AA000000000000000000000000000011')")
+        a.sql("INSERT INTO ReadingPlanStatus (planCode, planDay, readingStatus, id) VALUES ('shared', 2, 'cloud-day2', X'AA000000000000000000000000000012')")
+        val initial = initialOf(a)
+        val b = plans()
+        b.sql("INSERT INTO ReadingPlan (planCode, planStartDate, planCurrentDay, id) VALUES ('shared', 0, 5, X'BB000000000000000000000000000001')")
+        b.sql("INSERT INTO ReadingPlanStatus (planCode, planDay, readingStatus, id) VALUES ('shared', 1, 'device-day1', X'BB000000000000000000000000000011')")
+        b.sql("INSERT INTO ReadingPlanStatus (planCode, planDay, readingStatus, id) VALUES ('shared', 3, 'device-day3', X'BB000000000000000000000000000013')")
+        b.sql("UPDATE LogEntry SET lastUpdated = 3000") // the device's progress is newer than the cloud's base rows (no entry)
+        val m = accessor(ReadingPlanDatabase::class.java, SyncableDatabaseDefinition.READINGPLANS, readingPlanMigrations, initial, b.deviceId)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, now())
+        val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        prepareMergeSnapshot(b, snapshot.toOkioPath())
+
+        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), later())
+
+        assertEquals(listOf("shared=AA000000000000000000000000000001"), column(m, "SELECT planCode || '=' || hex(id) FROM ReadingPlan"))
+        assertEquals("the device's newer progress won on the cloud's id", listOf("5"), column(m, "SELECT planCurrentDay FROM ReadingPlan"))
+        assertEquals(
+            listOf("1|device-day1|AA000000000000000000000000000011", "2|cloud-day2|AA000000000000000000000000000012", "3|device-day3|BB000000000000000000000000000013"),
+            column(m, "SELECT planDay || '|' || readingStatus || '|' || hex(id) FROM ReadingPlanStatus ORDER BY planDay"),
+        )
+        assertEquals("no log entry names a device id that was re-keyed", listOf("0"), column(m,
+            "SELECT count(*) FROM LogEntry WHERE hex(entityId1) IN ('BB000000000000000000000000000001', 'BB000000000000000000000000000011')"))
+        assertEquals("every log entry names an existing row", listOf("0"), column(m,
+            "SELECT count(*) FROM LogEntry l WHERE (l.tableName = 'ReadingPlan' AND l.entityId1 NOT IN (SELECT id FROM ReadingPlan)) " +
+                "OR (l.tableName = 'ReadingPlanStatus' AND l.entityId1 NOT IN (SELECT id FROM ReadingPlanStatus))"))
+    }
 }
