@@ -160,3 +160,8 @@
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
+
+# Koin keys definitions by KClass. R8 vertical class merging folds a single-implementer interface into its
+# implementation, so an interface key and its implementation (or two interfaces of one class) become the same
+# key and an alias definition like `single<Port> { get<Impl>() }` resolves itself (StackOverflowError at startup).
+-keep,allowshrinking,allowobfuscation interface net.bible.**

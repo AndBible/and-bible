@@ -28,6 +28,7 @@ import net.bible.service.history.HistoryPlatform
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 /**
@@ -55,10 +56,13 @@ fun buildPlatformBindings() = module {
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
-    single<net.bible.sharedlogic.platform.AddonCatalog> { net.bible.android.platform.AndroidAddonCatalog() }
-    single<net.bible.sharedlogic.platform.BackgroundImageCatalog> {
-        get<net.bible.sharedlogic.platform.AddonCatalog>() as net.bible.android.platform.AndroidAddonCatalog
-    }
+    // One definition for both ports, not an alias `single<BackgroundImageCatalog> { get<AddonCatalog>() }`: R8 merges
+    // both single-implementer interfaces into AndroidAddonCatalog in release builds, so the alias resolved itself
+    // (StackOverflowError in BibleApplication.onCreate).
+    single { net.bible.android.platform.AndroidAddonCatalog() } binds arrayOf(
+        net.bible.sharedlogic.platform.AddonCatalog::class,
+        net.bible.sharedlogic.platform.BackgroundImageCatalog::class,
+    )
     single<net.bible.sharedlogic.platform.PlatformLocales> { net.bible.android.platform.AndroidPlatformLocales() }
     single<net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener> { net.bible.android.platform.AndroidReadOnlyModuleDbOpener() }
     single<net.bible.sharedlogic.platform.SearchIndexScheduler> { net.bible.android.platform.AndroidSearchIndexScheduler(androidContext()) }
