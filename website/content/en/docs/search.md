@@ -27,7 +27,8 @@ strong:G11
 Commentaries can also be searched using the same search dialog. To search a commentary,
 select the commentary as the active document in the current window, then open the search
 dialog from the burger menu. The search will be performed against the text of the
-commentary entries.
+commentary entries, even if you previously selected several Bible translations to search.
+Your saved Bible selection is kept for the next Bible search.
 
 ## Advanced Search
 
