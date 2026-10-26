@@ -332,7 +332,18 @@ class TextToSpeechServiceManager constructor(
         }
 
         override fun onUtteranceError(utteranceId: String) {
-            Log.i(TAG, "onError $utteranceId")
+            lock.withLock {
+                Log.i(TAG, "onError $utteranceId")
+                if (!isSpeaking || isPaused || !acceptedUtterances.contains(utteranceId)) return
+                // Synthesis can fail ahead of playback. Preserve the earliest unfinished item,
+                // including delayed errors, before synchronously stopping the native queue.
+                val interrupted = acceptedUtterances.minBy { it.removePrefix(UTTERANCE_PREFIX).toLong() }
+                mSpeakTextProvider.startUtterance(interrupted)
+                pause(willContinueAfterThis = false, fractionCompleted = 0.0)
+                notifier.showError(strings.errorOccurred)
+                val pausedRequest = request()
+                launchRequest(pausedRequest) { refreshStatus(pausedRequest) }
+            }
         }
     }
 
@@ -578,7 +589,9 @@ class TextToSpeechServiceManager constructor(
         }
     }
 
-    fun pause(willContinueAfterThis: Boolean) {
+    fun pause(willContinueAfterThis: Boolean) = pause(willContinueAfterThis, fractionCompleted = null)
+
+    private fun pause(willContinueAfterThis: Boolean, fractionCompleted: Double?) {
         lock.withLock {
             val activeMovement = movement?.let { it.wasSpeaking && valid(it.request) } == true
             startGeneration.incrementAndGet()
@@ -589,7 +602,7 @@ class TextToSpeechServiceManager constructor(
                 isPaused = true
                 isSpeaking = false
 
-                mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
+                mSpeakTextProvider.savePosition(fractionCompleted ?: mSpeakTiming.fractionCompleted)
                 mSpeakTextProvider.pause()
                 persistPauseState()
 

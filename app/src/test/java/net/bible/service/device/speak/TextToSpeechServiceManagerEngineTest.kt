@@ -127,6 +127,127 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     }
 
     @Test
+    fun utteranceErrorPausesBeforeLaterQueuedCallbacksAndCanResume() {
+        start(supportedFinnish())
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val listener = platform.listener!!
+        val failed = engine.utteranceIds.first()
+        val later = engine.utteranceIds.last()
+        val queued = engine.utteranceIds.size
+        val firstText = engine.calls.first { it.startsWith("speak:") }
+        val firstVerse = "Rom.1.1"
+
+        // An engine can fail synthesis without ever reporting onStart for that item.
+        listener.onUtteranceError(failed)
+        assertTrue("Failure must stop the native queue before returning to the engine", engine.calls.contains("stop"))
+        listener.onUtteranceStart(later)
+        listener.onUtteranceDone(later)
+        joinSpeech()
+        assertTrue("A failed chunk must not be silently skipped", manager.isPaused)
+        assertFalse(manager.isSpeaking)
+        assertEquals(firstVerse, manager.currentlyPlayingKey!!.getOsisRef())
+        assertEquals(queued, engine.utteranceIds.size)
+        assertEquals(listOf(testCoreStrings().errorOccurred), notifier.errors)
+
+        speakControl.continueAfterPause()
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        assertTrue(manager.isSpeaking)
+        assertTrue(engine.utteranceIds.size > queued)
+        assertEquals("Resume must retry the interrupted text", firstText,
+            engine.calls.filter { it.startsWith("speak:") }[queued])
+        platform.listener!!.onUtteranceStart(engine.utteranceIds[queued])
+        joinSpeech()
+        val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
+        assertEquals("Resume must retry the interrupted verse", firstVerse, provider.verseRange.start.getOsisRef())
+        // Errors belonging to the stopped engine must not pause the resumed session.
+        listener.onUtteranceError(failed)
+        joinSpeech()
+        assertTrue(manager.isSpeaking)
+        assertEquals(1, notifier.errors.size)
+    }
+
+    @Test
+    fun futureUtteranceErrorBeforeAnyStartRetainsUnheardVerse() = futureUtteranceError(startFirst = false)
+
+    @Test
+    fun futureUtteranceErrorWhileEarlierVersePlaysRetainsUnheardVerse() = futureUtteranceError(startFirst = true)
+
+    private fun futureUtteranceError(startFirst: Boolean) {
+        start(supportedFinnish())
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val listener = platform.listener!!
+        val ids = org.robolectric.util.ReflectionHelpers.getField<Set<String>>(manager, "acceptedUtterances").toList()
+        if (startFirst) {
+            listener.onUtteranceStart(ids.first())
+            joinSpeech()
+        }
+        listener.onUtteranceError(ids.last())
+        joinSpeech()
+        assertTrue(speakControl.isPaused)
+        assertEquals("Future synthesis failure must not skip unheard earlier verses", "Rom.1.1",
+            manager.currentlyPlayingKey!!.getOsisRef())
+        speakControl.continueAfterPause()
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        platform.listener!!.onUtteranceStart(engine.utteranceIds.first { it !in ids })
+        joinSpeech()
+        val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
+        assertEquals("Rom.1.1", provider.verseRange.start.getOsisRef())
+    }
+
+    @Test
+    fun failedLegacyChunkBeforeStartIsRetriedWithoutSkippingText() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.1.1")), true)
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        val failedText = engine.calls.single { it.startsWith("speak:") }
+        platform.listener!!.onUtteranceError(engine.utteranceIds.single())
+        joinSpeech()
+        assertTrue(speakControl.isPaused)
+        speakControl.continueAfterPause()
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        assertEquals("A failed chunk must not be treated as fully spoken", failedText, engine.calls.last { it.startsWith("speak:") })
+    }
+
+    @Test
+    fun completedAndUnknownUtteranceErrorsDoNotInterruptPlayback() {
+        start(supportedFinnish())
+        val first = engine.utteranceIds.first()
+        platform.listener!!.onUtteranceDone(first)
+        joinSpeech()
+        platform.listener!!.onUtteranceError(first)
+        platform.listener!!.onUtteranceError("unknown")
+        joinSpeech()
+        assertTrue(speakControl.isSpeaking)
+        assertFalse(engine.calls.contains("stop"))
+        assertTrue(notifier.errors.isEmpty())
+    }
+
+    @Test
+    fun delayedUtteranceErrorRestoresFailedVerseRatherThanLaterStartedVerse() {
+        start(supportedFinnish())
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val listener = platform.listener!!
+        val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
+        val ids = org.robolectric.util.ReflectionHelpers.getField<Set<String>>(manager, "acceptedUtterances").toList()
+        val first = ids.first()
+        listener.onUtteranceStart(first)
+        joinSpeech()
+        val firstVerse = provider.verseRange.start.getOsisRef()
+        listener.onUtteranceStart(ids.last())
+        joinSpeech()
+        assertNotEquals("Fixture must span more than one verse", firstVerse, provider.verseRange.start.getOsisRef())
+        listener.onUtteranceError(first)
+        joinSpeech()
+        assertTrue(manager.isPaused)
+        assertEquals("A delayed error must not lose the failed verse", firstVerse, manager.currentlyPlayingKey!!.getOsisRef())
+    }
+
+    @Test
     fun queuedReadingPlanPassageDoesNotReplaceCurrentUtterance() {
         engine.languages = supportedFinnish()
         configureFreshControl()
