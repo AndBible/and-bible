@@ -6,6 +6,7 @@
 - [Please add module X to AndBible!](#please-add-module-x-to-andbible)
 - [I found a text issue in a Bible / Commentary module](#i-found-a-text-issue-in-a-bible-commentary-module)
 - [I have an older phone. Can I use AndBible?](#i-have-an-older-phone-can-i-use-andbible)
+- [What happens if the reading pane's WebView renderer crashes?](#what-happens-if-the-reading-panes-webview-renderer-crashes)
 - [How do I change the voice of the speech synthesis?](#how-do-i-change-the-voice-of-the-speech-synthesis)
 - [Is there a version for iOS (iPhone / iPad)?](#is-there-a-version-for-ios-iphone-ipad)
 - [How do I download more Bibles, commentaries, etc.?](#how-do-i-download-more-bibles-commentaries-etc)
@@ -72,6 +73,13 @@ If you have an older device, you can download older versions:
 | 4.4 (KitKat)+ | 3.2.343 (unsupported) | [Download](https://github.com/AndBible/and-bible/releases/tag/v3.2.343) |
 | 5.0 (Lollipop)+ | 4.0.687 | [Download](https://github.com/AndBible/and-bible/releases/tag/production-687) |
 | 6.0 (Marshmallow)+ | Latest | [Download](https://github.com/AndBible/and-bible/releases/latest) |
+
+## What happens if the reading pane's WebView renderer crashes?
+
+On Android, the reading pane uses a WebView to display document text. If its
+renderer crashes or Android stops it to free memory, AndBible recreates the
+affected WebView and reloads the window's current document and reading position.
+You do not need to restart the app.
 
 ## How do I change the voice of the speech synthesis?
 

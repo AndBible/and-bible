@@ -39,6 +39,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.ValueCallback
 import android.webkit.JsResult
@@ -1121,16 +1122,13 @@ class BibleView(
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
-            // Renderer-crash RECOVERY is RETIRED, not ported: this used to cast `view.parent` to
-            // classic `BibleFrame` and call `bf.recreate()`, which rebuilt the frame -- and with it
-            // this BibleView -- after the WebView renderer process died. On the Compose path the
-            // parent is the `AndroidView` container, so the cast has been null and the recovery a
-            // silent no-op ever since the host was introduced; the frame it reached for is deleted
-            // in Batch Z-late's epilogue (spec 10.3). What is no longer recovered: after a renderer
-            // death the pane is left showing a blank WebView until something else rebuilds it
-            // (a window/workspace change, or the user reopening the app). Returning `true` still
-            // keeps the crash from taking the whole process down, exactly as before.
-            Log.w(TAG, "WebView renderer gone; no recreate on the compose path")
+            // A dead renderer's WebView cannot be reused. Dispose it (also evicting the factory
+            // cache) before Compose remounts its AndroidViews; a rebuild alone would reuse it.
+            (view.parent as? ViewGroup)?.removeView(view)
+            doDestroy()
+            hostCallbacks.composeReadingViewHost()?.rebuild()
+            // loadText waits for the replacement view if recomposition has not mounted it yet.
+            window.loadText()
             return true
         }
     }
