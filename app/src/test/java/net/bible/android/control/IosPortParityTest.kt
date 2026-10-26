@@ -23,7 +23,8 @@ class IosPortParityTest {
         "net.bible.android.common.resource.AndroidResourceProvider",
         "net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton",
         "net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton",
-        // concrete helpers behind a bound port (the ports are SyncScheduler, LlmHttpTransport / DownloadHttp)
+        // Concrete helpers behind bound ports, not additional cross-platform ports.
+        "net.bible.android.platform.AndroidAddonCatalog",
         "net.bible.android.platform.AndroidSyncScheduler",
         "net.bible.android.platform.AndroidHttpClients",
     )

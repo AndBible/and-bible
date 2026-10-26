@@ -35,6 +35,7 @@ net.bible.android.control.speak.SpeakSettingsStore::_root_
 net.bible.android.control.speak.SpeakTransportServiceImpl::_root_
 net.bible.android.control.versification.BibleTraverser::_root_
 net.bible.android.control.versification.BookInstallWatcher::_root_
+net.bible.android.platform.AndroidAddonCatalog::_root_
 net.bible.android.platform.AndroidHttpClients::_root_
 net.bible.android.platform.AndroidSyncScheduler::_root_
 net.bible.android.view.activity.ai.AgentSessionServiceImpl::_root_
