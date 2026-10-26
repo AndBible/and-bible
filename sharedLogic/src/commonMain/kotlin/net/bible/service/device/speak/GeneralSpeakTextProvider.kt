@@ -27,7 +27,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade
-import org.crosswire.jsword.book.Books
+import net.bible.service.download.doesNotExist
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.SpeakSettingsChange
@@ -537,25 +537,23 @@ class GeneralSpeakTextProvider(
     }
 
     override fun restoreState(): Boolean {
-        val sharedPreferences = appSettings
-        if(sharedPreferences.getString(PERSIST_BOOK) != null) {
-            val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
-            val book = Books.installed().getBook(bookStr)
-            if(book is Book) {
-                this.book = book
-            }
+        val keyStr = appSettings.getString(PERSIST_KEY) ?: return false
+        val restored = try { BookAndKeySerialized.fromJSON(keyStr).resolve(fakeBookFactory) } catch (e: Exception) {
+            Log.e(TAG, "Can't restore state", e)
+            return false
         }
-        if(sharedPreferences.getString(PERSIST_KEY) != null) {
-            val keyStr = sharedPreferences.getString(PERSIST_KEY, "")!!
-            startKey = try { BookAndKeySerialized.fromJSON(keyStr).resolve(fakeBookFactory) } catch (e: Exception) {
-                Log.e(TAG, "Can't restore state", e)
-                return false
-            }
-            endKey = startKey
-            currentKey = startKey
-            return true
+        val restoredBook = restored.document ?: return false
+        if (restoredBook.doesNotExist || restored.ordinal == null) return false
+        lock.withLock {
+            reset()
+            // The serialized key owns its document. The legacy book setting can be stale or an abbreviation.
+            setupBook(restoredBook)
+            startKey = restored
+            endKey = restored
+            currentKey = restored
+            stopOrdinal = restored.ordinal.end
         }
-        return false
+        return true
     }
 
     override fun clearPersistedState() {

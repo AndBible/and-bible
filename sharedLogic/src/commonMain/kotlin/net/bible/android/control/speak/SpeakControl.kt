@@ -93,14 +93,7 @@ class SpeakControl constructor(
     
 
     val speakPageManager: CurrentPageManager
-        get() {
-            var pageManager = _speakPageManager
-            if(pageManager == null) {
-                pageManager = windowControl.activeWindowPageManager
-                _speakPageManager = pageManager
-            }
-            return pageManager
-        }
+        get() = _speakPageManager ?: windowControl.activeWindowPageManager
 
     val isCurrentDocSpeakAvailable: Boolean
         get() {
@@ -123,10 +116,7 @@ class SpeakControl constructor(
         get() = !isSpeaking && !isPaused
 
     private val currentBook: Book?
-        get() = windowControl
-                .activeWindowPageManager
-                .currentPage
-                .currentDocument
+        get() = speakPageManager.currentPage.currentDocument
 
     /** Epoch milliseconds at which the sleep timer fires, or null when no timer is scheduled. */
     val sleepTimerActivationTime: Long?
@@ -302,7 +292,7 @@ class SpeakControl constructor(
     private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
     private fun speakGeneric() {
-        val page = windowControl.activeWindowPageManager.currentPage
+        val page = speakPageManager.currentPage
         val fromBook = page.currentDocument
         val key =
             if(page is CurrentCommentaryPage)
@@ -319,7 +309,7 @@ class SpeakControl constructor(
     fun speakGeneric(bookAndKey: BookAndKey) {
         if (isPaused) {
             Log.i(TAG, "Clearing paused Speak text")
-            stop()
+            stop(willContinueAfter = true)
         }
 
         prepareForSpeaking()
@@ -328,9 +318,9 @@ class SpeakControl constructor(
     }
 
     fun speakBible(book: SwordBook, verse: Verse, force: Boolean = false) {
-        // if a previous speak request is paused clear the cached text
+        // Clear cached text without losing the window chosen for this request.
         if (isPaused) {
-            stop()
+            stop(willContinueAfter = true)
         }
 
         prepareForSpeaking()
@@ -538,6 +528,8 @@ class SpeakControl constructor(
     }
 
     private fun prepareForSpeaking() {
+        // Reading the source (for example to build a menu) must not lock a future playback request.
+        if (_speakPageManager == null) _speakPageManager = windowControl.activeWindowPageManager
         platform.onPrepareForSpeaking()
         enableSleepTimer(SpeakSettings.load().sleepTimer)
     }
