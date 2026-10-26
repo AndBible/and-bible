@@ -160,19 +160,22 @@ class CloudSync(
         return success
     }
     suspend fun signOut() {
-        _adapter?.signOut()
-        _adapter = null
-        // Stop any in-flight document transfers before wiping their state: they belong to the
-        // account just disconnected. store() already returns null now (_adapter == null), so a
-        // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
-        documentSyncStarter.stop()
-        documents.get().onSignOut()
-        DatabaseContainer.databaseAccessorFactories.asyncMap {
-            val dbDef = it.invoke()
-            val category = dbDef.category
-            category.setSyncEnabled(settings, false)
-            dbDef.dao.clearSyncStatus()
-            dbDef.dao.clearSyncConfiguration()
+        // A running sync still needs its adapter and folder IDs through the patch download.
+        syncMutex.withLock {
+            _adapter?.signOut()
+            _adapter = null
+            // Stop any in-flight document transfers before wiping their state: they belong to the
+            // account just disconnected. store() already returns null now (_adapter == null), so a
+            // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
+            documentSyncStarter.stop()
+            documents.get().onSignOut()
+            DatabaseContainer.databaseAccessorFactories.asyncMap {
+                val dbDef = it.invoke()
+                val category = dbDef.category
+                category.setSyncEnabled(settings, false)
+                dbDef.dao.clearSyncStatus()
+                dbDef.dao.clearSyncConfiguration()
+            }
         }
     }
 
@@ -655,15 +658,15 @@ class CloudSync(
 
     suspend fun synchronize(allowInteraction: Boolean = true) = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
-        if(!signedIn) {
-            Log.i(TAG, "Not signed in")
-            return@withContext
-        }
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
             return@withContext
         }
         syncMutex.withLock {
+            if(!signedIn) {
+                Log.i(TAG, "Not signed in")
+                return@withLock
+            }
             Log.i(TAG, "Synchronizing starts")
             val timerStart = Clock.System.now().toEpochMilliseconds()
 
