@@ -134,7 +134,7 @@ open class CurrentPageManager constructor(
      */
     val currentVersePage: VersePage
         get() {
-            return if (isBibleShown || isCommentaryShown) {
+            return if ((isBibleShown || isCommentaryShown) && currentPage.currentDocument != null) {
                 currentPage as VersePage
             } else {
                 currentBible
@@ -317,7 +317,8 @@ open class CurrentPageManager constructor(
             savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }
         currentPage = getBookPage(restoredBookCategory)
-        if(currentPage.key == null && currentPage.currentDocument == null) {
+        // Verse pages always have a key, even when there is no document to display.
+        if(currentPage.currentDocument == null) {
             currentPage = currentBible
         }
     }
