@@ -61,6 +61,7 @@ import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
@@ -223,12 +224,13 @@ class SearchHost(
      * installed Bible as `initials to abbreviation` sorted by abbreviation, and the persisted selection falling
      * back to the current document.
      */
-    internal fun loadSearchTranslations(): TranslationSelection {
+    internal fun loadSearchTranslations(currentDoc: Book? = currentSearchDocument): TranslationSelection {
         val bibles = SwordDocumentFacade.bibles
             .filterIsInstance<SwordBook>()
             .sortedBy { it.abbreviation }
-        val saved = loadSelectedSearchTranslations()
-        val fallback = currentSearchDocument?.initials?.let { listOf(it) } ?: emptyList()
+        // The remembered multi-selection belongs to Bible searches, not to the active commentary.
+        val saved = if (currentDoc?.bookCategory == BookCategory.BIBLE) loadSelectedSearchTranslations() else emptyList()
+        val fallback = currentDoc?.initials?.let { listOf(it) } ?: emptyList()
         return TranslationSelection(
             available = bibles.map { it.initials to it.abbreviation },
             selected = saved.ifEmpty { fallback },

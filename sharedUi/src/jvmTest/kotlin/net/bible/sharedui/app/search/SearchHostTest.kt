@@ -3,6 +3,10 @@ package net.bible.sharedui.app.search
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import net.bible.android.control.search.SearchControl
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedui.reading.host.slots.MapSearchSettings
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.NotificationPermission
@@ -51,10 +55,13 @@ class SearchHostTest {
             }
         } as Book
 
-    private fun host(books: Map<String, Book> = emptyMap()) = SearchHost(
+    private fun host(
+        books: Map<String, Book> = emptyMap(),
+        settings: AppSettings? = null,
+    ) = SearchHost(
         shell = shell,
         strings = strings,
-        appSettingsProvider = { error("settings must stay lazy") },
+        appSettingsProvider = { settings ?: error("settings must stay lazy") },
         userNotifierProvider = { error("notifier must stay lazy") },
         notificationPermission = object : NotificationPermission {
             override suspend fun request() = Unit
@@ -76,6 +83,42 @@ class SearchHostTest {
         bookByInitials = { books[it] },
         showInReadingOverride = { book, key -> shown += "${book.initials}:${key.getName()}" },
     )
+
+    @Test
+    fun commentaryFormDoesNotRestoreSavedBibleSelection() {
+        fun book(initials: String, driver: String): Book {
+            val config = """
+                [$initials]
+                DataPath=./modules/$initials
+                ModDrv=$driver
+                Description=$initials regression fixture
+                SourceType=OSIS
+                Lang=en
+                Encoding=UTF-8
+            """.trimIndent()
+            val metadata = SwordBookMetaData(config.toByteArray(), "$initials.conf")
+            return metadata.bookType!!.createBook(metadata)
+        }
+        val bible = book("Issue3873Bible", "RawText")
+        val secondBible = book("Issue3873SecondBible", "RawText")
+        val commentary = book("Issue3873Commentary", "RawCom")
+        val saved = "Issue3873Bible,Issue3873Gone,Issue3873SecondBible"
+        val settings = MapSearchSettings(mutableMapOf(SEARCH_SELECTED_TRANSLATIONS_KEY to saved))
+        Books.installed().addBook(bible)
+        Books.installed().addBook(secondBible)
+        try {
+            val host = host(settings = settings)
+            assertEquals(listOf("Issue3873Commentary"), host.loadSearchTranslations(commentary).selected)
+            assertEquals(saved, settings.strings[SEARCH_SELECTED_TRANSLATIONS_KEY])
+            assertEquals(
+                listOf("Issue3873Bible", "Issue3873SecondBible"),
+                host.loadSearchTranslations(bible).selected,
+            )
+        } finally {
+            Books.installed().removeBook(secondBible)
+            Books.installed().removeBook(bible)
+        }
+    }
 
     @Test
     fun epubResultsTitleShowsPlusOverCap() {

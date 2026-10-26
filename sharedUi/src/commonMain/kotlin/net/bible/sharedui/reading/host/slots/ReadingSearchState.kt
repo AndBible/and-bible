@@ -50,6 +50,7 @@ import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ReadingSearchController
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchKind
@@ -427,8 +428,12 @@ class ReadingSearchState(
     private fun refreshSearchTranslations() {
         val bibles = platform.installedBibles()
         searchAvailableTranslations.value = bibles
-        val fallback = platform.currentDocument()?.initials?.let { listOf(it) } ?: emptyList()
-        searchTranslations.value = loadPersistedTranslations(bibles.map { it.first }.toSet()).ifEmpty { fallback }
+        val current = platform.currentDocument()
+        val fallback = current?.initials?.let { listOf(it) } ?: emptyList()
+        // A commentary search targets that document without overwriting the saved Bible selection.
+        searchTranslations.value = if (platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE) {
+            loadPersistedTranslations(bibles.map { it.first }.toSet()).ifEmpty { fallback }
+        } else fallback
     }
 
     /**

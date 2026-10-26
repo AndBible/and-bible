@@ -179,6 +179,63 @@ class ReadingSearchHostLogicTest {
         assertNull(f.state.searchUnavailableDocName.value)
     }
 
+    @Test
+    fun commentarySearchIgnoresSavedBiblesAndPreservesThemForTheNextBibleSearch() = runTest {
+        val f = SearchFixture(scope = backgroundScope)
+        f.platform.bibles = listOf("KJV" to "KJV", "ESV" to "ESV")
+        f.settings.setString("search_selected_translations", "KJV,ESV")
+        val commentary = fakeSearchBook("Kingcomments")
+        f.platform.current = commentary
+        f.platform.documents["Kingcomments"] = commentary
+        f.platform.info = SearchDocumentInfo("Kingcomments", SearchDocumentCategory.COMMENTARY, false, true)
+
+        f.state.openSearch()
+        f.state.queries.setQuery("light")
+        f.state.controller.submit()
+
+        assertEquals(listOf("Kingcomments"), f.state.lastSearchRequestForTest?.translationIds)
+        assertEquals(listOf("Kingcomments"), f.state.searchTranslations.value)
+        assertEquals("KJV,ESV", f.settings.strings["search_selected_translations"])
+        f.state.leaveSearch()
+        f.platform.current = fakeSearchBook("KJV")
+        f.platform.info = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+
+        f.state.openSearch("light")
+
+        assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+    }
+
+    @Test
+    fun commentarySearchDoesNotPromptToIndexSavedBibles() = runTest {
+        val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("ESV")), scope = backgroundScope)
+        f.platform.bibles = listOf("ESV" to "ESV")
+        f.settings.setString("search_selected_translations", "ESV")
+        val commentary = fakeSearchBook("Kingcomments")
+        f.platform.current = commentary
+        f.platform.documents["Kingcomments"] = commentary
+        f.platform.info = SearchDocumentInfo("Kingcomments", SearchDocumentCategory.COMMENTARY, false, true)
+
+        f.state.openSearch("light")
+
+        assertEquals(ReadingSearchPhase.Results("Kingcomments", forEpub = false), f.state.controller.phase.value)
+        assertEquals(listOf("Kingcomments"), f.state.lastSearchRequestForTest?.translationIds)
+        assertNull(f.state.searchSelectorPendingIds)
+    }
+
+    @Test
+    fun unindexedCommentaryPromptsForItselfWithoutRestoringSavedBibles() = runTest {
+        val f = SearchFixture(scope = backgroundScope)
+        f.settings.setString("search_selected_translations", "KJV")
+        f.platform.current = fakeSearchBook("Kingcomments")
+        f.platform.info = SearchDocumentInfo("Kingcomments", SearchDocumentCategory.COMMENTARY, false, false)
+
+        f.state.openSearch("light")
+
+        assertEquals(ReadingSearchPhase.NeedsIndex("Kingcomments", forEpub = false), f.state.controller.phase.value)
+        assertEquals(listOf("Kingcomments"), f.state.searchTranslations.value)
+        assertEquals("KJV", f.settings.strings["search_selected_translations"])
+    }
+
     // ---- selector chain -------------------------------------------------------------------------
 
     @Test
