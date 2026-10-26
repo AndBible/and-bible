@@ -42,6 +42,10 @@ counted as another failed startup if the system closes the app while it is shown
 NOTE: If your backups were saved to cloud storage, download the backups to your
 device before proceeding.
 
+On the welcome screen, you can also choose *Restore database*. If the selected
+file cannot be read or the backup is damaged, an error dialog appears. Dismiss
+it to stay on the welcome screen and try again with a readable backup file.
+
 To restore your *AndBible* data:
 
 1. From the main menu, tap *Backup & Restore*.

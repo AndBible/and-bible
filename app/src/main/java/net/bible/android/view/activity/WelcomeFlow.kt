@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import java.util.Locale
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -116,7 +117,17 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
             CurrentActivityHolder.activate(host)
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data ?: return@launch
-                if (org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).restoreAppDatabaseFromSourceWithUI(AndroidBackupHost { host }, AndroidBackupHost.fromUri(uri))) host.welcomeAfterFlow()
+                val backupHost = AndroidBackupHost { host }
+                try {
+                    if (org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+                            .restoreAppDatabaseFromSourceWithUI(backupHost, AndroidBackupHost.fromUri(uri))) {
+                        host.welcomeAfterFlow()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    backupHost.showErrorReport(e.message ?: host.getString(R.string.error_occurred), e)
+                }
             }
         }
     }
