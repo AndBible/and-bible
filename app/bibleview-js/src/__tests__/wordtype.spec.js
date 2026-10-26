@@ -126,6 +126,38 @@ describe("WordType.vue", () => {
         }
     });
 
+    describe.each([false, true])("OSIS markers with typeEverything=%s", (typeEverything) => {
+        it.each(['“', '”', '¶', '¶“'])("skips %s without requiring it to be typed", async (marker) => {
+            const wrapper = createWrapper({
+                textItems: [{ key: "verse1", text: `${marker}For God”` }],
+                modeConfig: { typeConfig: { currentWordIndex: 0, typeEverything } },
+            });
+            await nextTick();
+
+            try {
+                const input = wrapper.find(".type-hidden-input");
+                for (const ch of typeEverything ? 'For' : 'F') {
+                    await input.setValue(ch);
+                }
+                expect(wrapper.find('.type-current').text()).toBe('God');
+                expect(wrapper.findAll('.type-incorrect')).toHaveLength(0);
+                expect(wrapper.findAll('.type-word:not(.punctuation)').map(w => w.text())).toEqual(['For', 'God']);
+
+                for (const ch of typeEverything ? 'God' : 'G') {
+                    await input.setValue(ch);
+                }
+                expect(wrapper.emitted('memorize-completed')).toHaveLength(1);
+                expect(wrapper.find('.type-current').exists()).toBe(false);
+                expect(wrapper.findAll('.punctuation').map(w => w.text())).toEqual([marker, '”']);
+
+                await wrapper.find('.memorize-controls .icon-button').trigger('click');
+                expect(wrapper.find('.type-current').text()).toBe('For');
+            } finally {
+                wrapper.unmount();
+            }
+        });
+    });
+
     it("emits memorize-completed when all words are typed", async () => {
         const wrapper = createWrapper();
         const input = wrapper.find(".type-hidden-input");

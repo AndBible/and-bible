@@ -52,6 +52,10 @@ text one word (or one letter) at a time. The behavior depends on the
     to advance.
 - *On* – you need to type each word in full.
 
+Punctuation, including curly double quotation marks (“ ”) and paragraph
+markers (¶), is skipped automatically in both typing modes. Start with the
+first letter of the word, even when a verse begins with one of these markers.
+
 Other Word Type settings include word visibility (light hint / dim /
 hidden) and an error heat-map that highlights words you mistype most
 often.
