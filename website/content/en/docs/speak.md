@@ -27,6 +27,11 @@ system text-to-speech settings, then:
 If *AndBible* says that another app is using the audio, stop the other app's playback (or end the
 call) and try again.
 
+If the speech engine reports an error during playback, AndBible pauses and shows an error
+message instead of silently skipping the failed part. Press Play to try again from the
+interrupted verse or passage. If the error keeps returning, check the engine and voice data
+using the steps above, or try another speech engine.
+
 ## Speak Settings
 
 The *Speak* dialog can be accessed from:
