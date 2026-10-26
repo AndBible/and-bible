@@ -17,6 +17,12 @@ With *AndBible*, you can easily share verses, notes, and study pads.
 
 [![Share options](images/share-options.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
+## Copying Footnote Text
+
+To copy text from a footnote popup, long-press the footnote text, adjust the
+selection, and choose *Copy* from the text-selection menu. This copies the
+selected footnote text without adding the Bible verse or its reference.
+
 ## Sharing A Study Pad
 
 [Study Pads](study_pads.md) can be shared with other *AndBible* users, or with anyone in html

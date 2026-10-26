@@ -56,7 +56,8 @@ data class SelectionMenuInput(
  *
  * - Bookmark rows need a verse selection. A Bible with two-step bookmarking disabled shows "selection" and "verses"
  *   directly; every other case (two-step Bible, any non-Bible document) shows the single "Bookmark" row.
- * - Compare and share are Bible-only; memorize is always offered; copy is the non-Bible row.
+ * - Compare and share are Bible-only; share also needs a verse selection. Memorize is always offered.
+ * - Copy needs text and is offered for non-Bible documents or selections without verse context (e.g. footnote popups).
  * - A selection that resolves to a reference offers "open"; otherwise "search". Web search needs text, dictionary
  *   lookup needs text and a dictionary, the AI row needs text and AI configured.
  * - The paragraph break needs a verse selection and the preference.
@@ -76,8 +77,8 @@ fun selectionMenuItems(input: SelectionMenuInput, step2: Boolean): List<Selectio
         }
         if (input.isBible) add(SelectionMenuItem.Compare)
         add(SelectionMenuItem.Memorize)
-        if (input.isBible) add(SelectionMenuItem.ShareVerses)
-        if (text && !input.isBible) add(SelectionMenuItem.Copy)
+        if (input.isBible && input.hasVerseSelection) add(SelectionMenuItem.ShareVerses)
+        if (text && (!input.isBible || !input.hasVerseSelection)) add(SelectionMenuItem.Copy)
         if (!input.resolvedRef && text) add(SelectionMenuItem.Search)
         if (input.resolvedRef) add(SelectionMenuItem.OpenRef)
         if (text) add(SelectionMenuItem.WebSearch)

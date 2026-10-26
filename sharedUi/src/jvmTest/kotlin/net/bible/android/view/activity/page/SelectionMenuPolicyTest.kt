@@ -65,6 +65,21 @@ class SelectionMenuPolicyTest {
         assertTrue(Search in items)
     }
 
+    @Test fun bibleFootnoteTextOffersCopyInsteadOfVerseSharing() {
+        // A teleported footnote popup reports plain text, without verse context.
+        val items = selectionMenuItems(
+            input(hasVerseSelection = false, selectionText = "An alternative reading"), step2 = false,
+        )
+        assertTrue(Copy in items, "Footnote text must be copyable even in a Bible window")
+        assertFalse(ShareVerses in items, "Verse sharing cannot handle a plain-text selection")
+    }
+
+    @Test fun bibleWithoutSelectionDoesNotOfferCopyOrVerseSharing() {
+        val items = selectionMenuItems(input(hasVerseSelection = false, selectionText = null), step2 = false)
+        assertFalse(Copy in items)
+        assertFalse(ShareVerses in items)
+    }
+
     @Test fun nonBibleHidesCompareAndShare() {
         val bible = selectionMenuItems(input(), step2 = false)
         assertTrue(Compare in bible && ShareVerses in bible && Memorize in bible)
