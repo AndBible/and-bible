@@ -55,15 +55,32 @@ suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, 
         }
         else -> {
             val backend = when(val book = this.document!!) {
-                is SwordGenBook -> book.backend as AbstractKeyBackend
+                is SwordGenBook -> {
+                    if(book.isEpub || book.isMyDocument) {
+                        book.backend as AbstractKeyBackend
+                    } else {
+                        book.backend as GenBookBackend
+                    }
+                }
                 is SwordDictionary -> book.backend as AbstractKeyBackend
                 else -> throw RuntimeException("Unsupported")
             }
-            val idx = backend.indexOf(this.key)
-            try {
-                backend.get(idx - 1)!!
-            } catch (e: IndexOutOfBoundsException) {
-                backend.lastOrNull() ?: this.key
+            when (backend) {
+                is AbstractKeyBackend -> {
+                    val idx = backend.indexOf(this.key)
+                    try {
+                        backend.get(idx - 1)!!
+                    } catch (e: IndexOutOfBoundsException) {
+                        backend.lastOrNull() ?: this.key
+                    }
+                }
+                is GenBookBackend -> {
+                    // TreeKey.iterator already traverses descendants; flatten would duplicate them.
+                    val keyList = backend.readIndex().toList()
+                    val idx = keyList.indexOf(this.key)
+                    keyList.getOrNull(idx - 1) ?: keyList.lastOrNull() ?: this.key
+                }
+                else -> throw RuntimeException("Unsupported")
             }
         }
     }
@@ -112,7 +129,8 @@ private suspend fun BookAndKey.nextKeyOrWrap(traverser: BibleTraverser): Pair<Ke
                 }
 
                 is GenBookBackend -> {
-                    val keyList = backend.readIndex().flatten().toList()
+                    // TreeKey.iterator already traverses descendants; flatten would duplicate them.
+                    val keyList = backend.readIndex().toList()
                     val idx = keyList.indexOf(this.key)
                     try {
                         keyList[idx + 1]
