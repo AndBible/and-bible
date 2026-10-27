@@ -311,9 +311,9 @@ class ReadingAppBootstrapTest {
             .takeWhile { !it.contains("private fun bootstrapIfNeeded()") }
         val deepLink = helper.indexOfFirst { it.contains("readingAppBootstrap.openDeepLink(") }
         val guard = helper.indexOfFirst {
-            it.trim() == "if (!bootstrapUiOwed || paused || !ReadingHostPresence.isForeground(this)) return"
+            it.trim() == "if (!readingAppBootstrapped || paused || !ReadingHostPresence.isForeground(this)) return"
         }
-        val consume = helper.indexOfFirst { it.trim() == "bootstrapUiOwed = false" }
+        val consume = helper.indexOfFirst { it.trim() == "intent.removeExtra(\"openLink\")" }
         assertTrue(
             "bootstrapIfNeeded() must call ReadingViewVisibility.setActivityVisible(this, true) — " +
                 "without it the deep link below records a wrong IntentHistoryItem, silently",
@@ -334,8 +334,8 @@ class ReadingAppBootstrapTest {
         assertTrue("the guarded helper must contain the actual deep-link producer", deepLink >= 0)
         val openLink = helper.indexOfFirst { it.trim() == "if (intent.hasExtra(\"openLink\")) {" }
         assertTrue("the actual deep link must be dispatched from the openLink branch", openLink >= 0 && openLink < deepLink)
-        assertTrue("the helper must reject paused, nonforeground or unowed UI before dispatch", guard >= 0 && guard < deepLink)
-        assertTrue("the helper must consume its one-shot debt after the guard and before dispatch", consume > guard && consume < deepLink)
+        assertTrue("the helper must reject paused, nonforeground or unbootstrapped UI before dispatch", guard >= 0 && guard < deepLink)
+        assertTrue("the helper must consume the pending link after the guard and before dispatch", consume > guard && consume < deepLink)
     }
 
     /**

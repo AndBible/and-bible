@@ -220,17 +220,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 /** Slice 8 §4 gate (a): the start route, from the one predicate. */
 internal fun startRouteForBoot(usable: Boolean): String = if (usable) NavRoutes.READING else NavRoutes.WELCOME
 
-/**
- * The handoff Intent `gotoMainBibleActivity` built (T8b), for either start route. `openLink` and both flag
- * sets are unchanged: `FLAG_ACTIVITY_MULTIPLE_TASK` stays on the `ACTION_VIEW` arm (a second live host is
- * what R7b's per-host tokens exist for). A WELCOME host keeps the `openLink`, and gate (b)'s
- * `bootstrapIfNeeded()` dispatches it (Review Focus 2).
- */
+/** Reuse the reading host for external links; a WELCOME host keeps the link until a Bible is usable. */
 internal fun bootHandoffIntent(context: Context, launching: Intent?, route: String): Intent {
     val handlerIntent = NavHostComposeActivity.intentFor(context, route)
     if (launching?.action == Intent.ACTION_VIEW) {
         handlerIntent.putExtra("openLink", launching.dataString)
-        handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
     } else {
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }

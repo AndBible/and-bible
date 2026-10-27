@@ -113,9 +113,6 @@ class UsableBibleGateTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
-    private fun openLinksKeys(): List<String?> = CommonUtils.windowControl.windowRepository.windowList
-        .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.getOsisRef() }
-
     /** Wait (bounded, real time, looper pumped) for a launched gate (b) coroutine to finish, so negative assertions are not vacuous. */
     private fun awaitJob(job: kotlinx.coroutines.Job) =
         net.bible.test.awaitHostUntil("welcomeAfterFlow must finish") { job.isCompleted }
@@ -291,10 +288,11 @@ class UsableBibleGateTest {
         awaitJob(activity.welcomeAfterFlow())
         idle()
         assertEquals(NavRoutes.READING, route(activity))
-        // showLink opens it in the links window (WindowControl.showLink); that window's page is the chapter.
-        net.bible.test.awaitHostUntil("deep link opened in the links window") { openLinksKeys().any { it == "Rev.22" } }
-        val linksKeys = openLinksKeys()
-        assertTrue("the deep link's passage is open in the links window: $linksKeys", linksKeys.any { it == "Rev.22" })
+        val repo = activity.hostWindowRepository
+        net.bible.test.awaitHostUntil("deep link opened in the active window") {
+            repo.activeWindow.pageManager.currentPage.singleKey?.getOsisID() == "Rev.22.21"
+        }
+        assertEquals(1, repo.sortedWindows.size)
     }
 
     @Test

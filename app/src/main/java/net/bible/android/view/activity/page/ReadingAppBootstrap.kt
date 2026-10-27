@@ -426,7 +426,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         when (uri.host) {
             "read.andbible.org" -> {
                 val key = CommonUtils.parseAndBibleReference(uri) ?: return
-                windowControl.showLink(key.document, key)
+                windowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(key.document, key)
             }
             "stepbible.org" -> {
                 val qParam = uri.getQueryParameter("q") ?: return

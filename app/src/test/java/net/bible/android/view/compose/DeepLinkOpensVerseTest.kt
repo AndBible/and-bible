@@ -16,18 +16,18 @@
  */
 package net.bible.android.view.compose
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.bootHandoffIntent
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.reading.ReadingHostPresence
-import net.bible.sharedcore.reading.ReadingViewVisibility
-import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,10 +40,7 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * F102 probe (fix batch 1, spec §2.10): does the `openLink` extra a deep link launches the host with
- * actually end up showing the verse -- in the links window, and is that window on screen?
- */
+/** External VIEW intents must navigate the existing active pane on both cold and warm starts (#3210). */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -57,8 +54,53 @@ class DeepLinkOpensVerseTest {
 
     private fun idleMain() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
+    private fun viewHandoff(url: String = "https://read.andbible.org/1Sam.1.2") = bootHandoffIntent(
+        ApplicationProvider.getApplicationContext(),
+        Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+        NavRoutes.READING,
+    )
+
+    private fun readingHost(intent: Intent): ActivityController<NavHostComposeActivity> {
+        resetComposeUiDispatcher()
+        firstTime = false
+        return Robolectric.buildActivity(NavHostComposeActivity::class.java, intent)
+            .also { controllers += it }.apply { create().start().resume() }
+    }
+
+    private fun assertLinkedPassage(controller: ActivityController<NavHostComposeActivity>) {
+        val repo = controller.get().hostWindowRepository
+        assertEquals("1Sam.1.2", repo.activeWindow.pageManager.currentPage.singleKey?.getOsisID())
+        assertEquals(1, repo.sortedWindows.size, "external links must not create a links window")
+    }
+
     @Test
-    fun aDeepLinkOpenLinkExtraShowsTheVerseInAVisibleLinksWindow() {
+    fun aColdViewIntentOpensThePassageWithoutAddingAWindow() {
+        val controller = readingHost(viewHandoff())
+        idleMain()
+        assertLinkedPassage(controller)
+        controller.get().hostWindowRepository.activeWindow.pageManager.currentBible.setKey("Gen.2.3")
+        controller.pause().resume()
+        idleMain()
+        assertEquals("Gen.2.3", controller.get().hostWindowRepository.activeWindow.pageManager.currentPage.singleKey?.getOsisID(),
+            "resuming must not replay a consumed deep link")
+    }
+
+    @Test
+    fun aWarmViewIntentOpensThePassageWithoutAddingAWindow() {
+        val controller = readingHost(NavHostComposeActivity.intentFor(
+            ApplicationProvider.getApplicationContext(), NavRoutes.READING))
+        idleMain()
+        val repo = controller.get().hostWindowRepository
+        assertEquals(1, repo.sortedWindows.size)
+        repo.activeWindow.pageManager.currentBible.setKey("Gen.1.1")
+        assertEquals("Gen.1.1", repo.activeWindow.pageManager.currentPage.singleKey?.getOsisID())
+        controller.pause().newIntent(viewHandoff()).resume()
+        idleMain()
+        assertLinkedPassage(controller)
+    }
+
+    @Test
+    fun aDeepLinkWithAnExplicitDocumentShowsTheVerseInTheActiveWindow() {
         firstTime = false
         val intent = NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING)
             .putExtra("openLink", "https://read.andbible.org/Ps.23.1?document=KJV")
@@ -66,13 +108,10 @@ class DeepLinkOpensVerseTest {
             .apply { create().start().resume() }
         idleMain()
         val repo = controller.get().hostWindowRepository
-        val links = repo.sortedWindows.single { it.isLinksWindow }
-        val doc = links.pageManager.currentPage.currentDocument?.initials
-        val key = links.pageManager.currentPage.singleKey?.getOsisID()
-        assertEquals("KJV" to "Ps.23.1", doc to key, "the links window does not hold the deep-linked verse")
-        assertTrue(
-            links.isVisible && !links.isMinimised && links.windowState != WindowState.CLOSED,
-            "the links window holds Ps.23.1 but is not on screen (state=${links.windowState}, visible=${links.isVisible})",
-        )
+        val active = repo.activeWindow
+        assertEquals("KJV", active.pageManager.currentPage.currentDocument?.initials)
+        assertEquals("Ps.23.1", active.pageManager.currentPage.singleKey?.getOsisID())
+        assertEquals(1, repo.sortedWindows.size)
+        assertTrue(active.isVisible && !active.isMinimised)
     }
 }

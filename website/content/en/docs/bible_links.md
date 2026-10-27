@@ -6,6 +6,12 @@
 
 where `OSISREF` is a standard OSIS reference to a Bible verse, such as `Gen.1.1`.
 
+Opening a link from another app navigates the active window to that passage without
+creating another window. This works both when *AndBible* is closed and when it is
+already running. Without a `document` parameter, the active window's remembered
+Bible is used (or the default Bible if the window has no Bible yet).
+The Links window preference still applies to links followed inside *AndBible*.
+
 A full list of OSIS book abbreviations can be found in the
 [OSIS User Manual (pages 123-124)](https://www.crosswire.org/osis/OSIS%202.1.1%20User%20Manual%2006March2006.pdf).
 

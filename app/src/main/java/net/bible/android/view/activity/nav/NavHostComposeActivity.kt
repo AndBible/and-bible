@@ -446,6 +446,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             return
         }
         navigateNewIntentRoute(route)
+        if (route == NavRoutes.READING) applyPendingDeepLinkIfForeground()
     }
 
     private fun navigateNewIntentRoute(route: String) {
@@ -884,13 +885,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * so a second run would register the same object twice against a single removal, and
      * `showFirstRunNotices` would re-enter its own process-wide gate.
      *
-     * NOTE on `openLink`: because the whole function is one-shot, an `openLink` extra that arrives on a
-     * LATER reading entry is not dispatched. The only producer, `StartupActivity`'s `ACTION_VIEW` handoff,
-     * writes it with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` -- always a fresh instance and a
-     * fresh `onCreate`, never `onNewIntent` on a live host. Since slice 8 that fresh instance may start on
-     * WELCOME (a fresh install opened by a link, Review Focus #2): the extra then waits in [getIntent] until
-     * gate (b)'s call here dispatches it, which `UsableBibleGateTest` pins. Splitting the deep link out of the
-     * one-shot is still a decision for the task that gives this host an `<intent-filter>` of its own.
+     * Deep-link dispatch is separate from this one-shot setup: StartupActivity reuses this host on a
+     * warm start. A WELCOME-started host retains its link until gate (b) bootstraps reading.
      *
      * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
      * view is built: the composition reads `windowControl.windowRepository`.
@@ -901,8 +897,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (!bootstrapUiOwed || paused || !ReadingHostPresence.isForeground(this)) return
         bootstrapUiOwed = false
         lifecycleScope.launch(Dispatchers.Main) { readingAppBootstrap.showFirstRunNotices() }
+        applyPendingDeepLinkIfForeground()
+    }
+
+    private fun applyPendingDeepLinkIfForeground() {
+        if (!readingAppBootstrapped || paused || !ReadingHostPresence.isForeground(this)) return
         if (intent.hasExtra("openLink")) {
-            readingAppBootstrap.openDeepLink(Uri.parse(intent.getStringExtra("openLink")))
+            val link = intent.getStringExtra("openLink")
+            intent.removeExtra("openLink")
+            if (link != null) readingAppBootstrap.openDeepLink(Uri.parse(link))
         }
     }
 
@@ -1539,6 +1542,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
             applyBootstrapUiIfForeground()
+            applyPendingDeepLinkIfForeground()
             applyPendingActivityResult()
         }
     }
