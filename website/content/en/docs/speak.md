@@ -48,6 +48,13 @@ The *Speak* dialog can be accessed from:
 | **Repeat passage** | Repeat the range of verses specified. |
 | **Sleep timer** | Stop the playback after the number of minutes specified. |
 
+## Speak bookmarks
+
+With `Automatic bookmarking` enabled in the Speak bookmarking settings, pausing or
+stopping playback saves a Speak bookmark at the current position. In a commentary,
+its marker appears in the commentary entry, including entries covering several
+Bible verses. Use `Speak from bookmark` to resume from a saved position.
+
 ## How to speak a range of verses
 
 1. Tick the `Repeat passage` box. This will show the verse selector.
