@@ -33,7 +33,19 @@ shared batch folder, e.g. `.local/bug-batch-<date>/`:
 - `issues/<n>.md`: `gh issue view <n> --json number,title,body,comments` rendered to Markdown.
 - Modules the bug needs (e.g. a CrossWire zip). Tell the child to unzip into a temp SWORD dir,
   never `~/.sword`.
-- osTicket logcats/attachments linked from the issue (`ostickethelper read`, read-only).
+- **osTicket evidence, gathered by the orchestrator.** Children have no osTicket access, so for
+  every candidate that links a ticket (`support.andbible.org/scp/tickets.php?id=<id>` in the body or
+  comments):
+  1. `ostickethelper --config ~/.osticket/osticket-config.yaml read <id>` (read-only; the
+     credentials are an optional mount, see the user's ostickethelper rules). It downloads the
+     ticket text and attachments into the osTicket inbox (`.local/osticket/inbox/<id>/`).
+  2. Read it: the user's description, `logcat.txt.gz` / `last_crash_logcat.txt.gz`,
+     screenshots, attached modules or backups. Note what matters (the exception, the app
+     version, the steps) — this often decides whether the bug is clear enough to spawn.
+  3. Copy the relevant files to `$BATCH/osticket/<n>/ticket-<id>/` (gunzip logcats; keep
+     screenshots and attachments as they are). Never copy the credentials.
+  4. In the spawn context, name these paths and say what to look for in them (e.g. "logcat
+     line 1234: the SQLiteException; the reporter's module is in gbsxmpl.zip").
 
 ## 3. Spawn and keep the pipeline full
 
