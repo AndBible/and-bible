@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import android.content.res.Configuration
 import android.os.Looper
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -354,6 +355,52 @@ class ReadingImePaddingTest {
                 "destination-changed listener can be what restores it",
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING,
             mode(),
+        )
+    }
+
+    /**
+     * #3652: after a night-mode switch mid-session the note editor stayed under the keyboard until the
+     * app was restarted (reported on API 35, 5.0.910). A night-mode switch is a `uiMode` configuration
+     * change, which this host does not handle itself (`uiMode` is not in its `configChanges`), so the
+     * framework recreates it. The RECREATED host must still be in the reading window mode
+     * (`ADJUST_NOTHING`, edge-to-edge) and its insets listener must still feed the keyboard shrink to
+     * its own sink -- otherwise the WebView keeps its full height and the editor sits under the
+     * keyboard, which is the reported symptom.
+     *
+     * Not reproducible on this branch (emulator API 36, both directions of the switch); this pins the
+     * behaviour so a regression in the recreate path shows up here.
+     */
+    @Config(sdk = [35])
+    @Test
+    fun aNightModeRecreateKeepsTheKeyboardShrink() {
+        val controller = hostController()
+        net.bible.test.awaitReadingGraph(controller.get()) { compose.waitForIdle() }
+        val before = controller.get()
+
+        val night = Configuration(before.resources.configuration).apply {
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
+        }
+        // Keep the old host's owners until teardown (the BookmarkRecreationStateTest idiom).
+        net.bible.test.ReadingFixtureOwners.retain(before)
+        controller.configurationChange(night)
+        val activity = controller.get()
+        assertTrue("a uiMode change must recreate this host (else this test proves nothing)", activity !== before)
+        // No second graph await: the mode and the insets listener are both set in onCreate, from the
+        // start route carried across the recreation, so they need no recomposition (which this rule's
+        // own activity does not drive for the recreated host). ADJUST_NOTHING below is only applied
+        // for a `reading` start route, so it also proves the recreated host came back on reading.
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(
+            "the recreated host must put the window back in reading's ADJUST_NOTHING mode",
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING,
+            activity.window.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST,
+        )
+        dispatchImeInsets(activity, 300)
+        assertEquals(
+            "the recreated host's insets listener must feed the keyboard shrink to its own sink",
+            300,
+            activity.imeBottomPaddingPx.value,
         )
     }
 }
