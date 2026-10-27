@@ -812,6 +812,20 @@ a {
   width: 100%;
   background: var(--background-color);
 
+  // The transparent native window bar sits over this blocker, above the page's noise layer.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("~@/assets/noise.svg");
+    opacity: var(--noise-opacity);
+    pointer-events: none;
+
+    .monochrome & {
+      filter: grayscale(1);
+    }
+  }
+
   .noAnimation & {
     background: var(--background-color);
     border-color: var(--text-color);
