@@ -5,6 +5,9 @@ The search form allows searching of Bible and commentaries.
 ## Overview
 
 Find allows you to search for word(s), phrases, or any combination of words.
+Its availability follows the active window's document. If Find is greyed out for a
+non-searchable document, select a Bible window or choose a searchable document;
+Find becomes available again.
 
 ## Bible searches
 

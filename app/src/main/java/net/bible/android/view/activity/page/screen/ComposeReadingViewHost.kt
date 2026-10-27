@@ -1028,7 +1028,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /** Toggles the Compose drawer — the target of [MainBibleActivity.toggleDrawer]. */
-    fun toggleDrawer() = hostState.toggleDrawer()
+    fun toggleDrawer() {
+        if (!isDrawerOpen) refreshDrawerCapabilities()
+        hostState.toggleDrawer()
+    }
 
     /**
      * Whether the Compose drawer is open. Reads the same request flag `mountComposeView` keeps in
@@ -1042,7 +1045,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     val isDrawerOpen: Boolean get() = hostState.isDrawerOpen
 
     /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
-    fun openDrawer() = hostState.openDrawer()
+    fun openDrawer() {
+        refreshDrawerCapabilities()
+        hostState.openDrawer()
+    }
+
+    private fun refreshDrawerCapabilities() {
+        // Window/document switches refresh the toolbar, not the drawer's cached capability flags.
+        val page = windowControl.activeWindowPageManager.currentPage
+        rebuildDrawer(showSearch = page.isSearchable, showSpeak = page.isSpeakable)
+    }
 
     /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
     fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
