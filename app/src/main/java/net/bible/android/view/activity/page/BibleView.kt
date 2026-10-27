@@ -1461,8 +1461,13 @@ class BibleView(
 
     private var checkWindows = false
 
-    private fun updateOffsets(immediate: Boolean = false) {
-        if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
+    /**
+     * Sends this window's offsets to the JS side. Every visible window with content sends them (a
+     * middle window's offsets are 0, so a window that moved from bottom to middle resets its stale
+     * bottom offset); the top window always does.
+     */
+    internal fun updateOffsets(immediate: Boolean = false) {
+        if(isTopWindow || contentVisible && window.isVisible)
             emit(BibleViewEvents.setOffsets(topOffset, bottomOffset, immediate, hostCallbacks.imeHeight() > 0))
     }
 
