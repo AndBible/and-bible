@@ -16,9 +16,11 @@
   -->
 
 <template>
-  <div :id="`frag-${uniqueId}`" :class="[`sword-${fragment.bookInitials}`, {'italic-non-strongs': fragment.hasStrongs && config.nonStrongsWordItalic}]" :lang="fragment.language"
-       :dir="fragment.direction" :style="{fontFamily: config.fontFamily === 'sans-serif' ? undefined : config.fontFamily}">
-    <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
+  <div :id="`frag-${uniqueId}`" :lang="fragment.language" :dir="fragment.direction"
+       :style="{fontFamily: config.fontFamily === 'sans-serif' ? undefined : config.fontFamily}">
+    <div :class="[`sword-${fragment.bookInitials}`, {'italic-non-strongs': fragment.hasStrongs && config.nonStrongsWordItalic}]">
+      <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
+    </div>
   </div>
 </template>
 
@@ -39,6 +41,8 @@ const props = withDefaults(defineProps<{
     isNativeHtml?: boolean
 }>(), {doNotConvert: false, hideTitles: false, isNativeHtml: false})
 
+// The user font is inline on the lang-bearing outer div so it beats font-only add-on rules like [lang=grc];
+// the module class sits on the inner div so a module's own .sword-X font still wins for its own text.
 const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());
 

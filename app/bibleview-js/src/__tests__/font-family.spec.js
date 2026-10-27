@@ -67,4 +67,13 @@ describe("Font Family with language-specific module CSS (#3818)", () => {
             expect(getComputedStyle(wrapper.element).fontFamily).toBe("UserFont");
         });
     }
+
+    it("lets a module's own .sword-X font win for its text while the user font beats [lang] add-on rules", () => {
+        moduleStyle.textContent += " .sword-TestModule { font-family: ModuleOwn; }";
+        render("grc", "UserFont");
+        expect(getComputedStyle(wrapper.element).fontFamily).toBe("UserFont");
+        const moduleElem = wrapper.element.matches(".sword-TestModule") ? wrapper.element
+            : wrapper.element.querySelector(".sword-TestModule");
+        expect(getComputedStyle(moduleElem).fontFamily).toBe("ModuleOwn");
+    });
 });
