@@ -16,10 +16,14 @@
  */
 package net.bible.android.view.activity.page
 
-import net.bible.android.AppDialogControllerResetRule
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.pm.ResolveInfo
 import android.os.Looper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
+import net.bible.android.AppDialogControllerResetRule
+import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -28,6 +32,7 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.BuildVariant
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -40,6 +45,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.AdditionalAnswers
+import org.mockito.Mockito
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
 import org.robolectric.Robolectric
@@ -47,6 +54,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.util.ReflectionHelpers
 
 /**
  * Task 19 Step 2: `MenuCommandHandler`'s rate (class B, HTML with links incl. `mailto:`) and app
@@ -116,6 +124,131 @@ class MenuCommandHandlerDialogTest {
 
         val started = shadowOf(activity).nextStartedActivityForResult
         assertNotNull("Ok must start the Play Store / Samsung Apps intent, as today", started)
+    }
+
+    private fun withPackageName(packageName: String, block: () -> Unit) {
+        val original = BibleApplication.application
+        try {
+            val application = Mockito.mock(BibleApplication::class.java, AdditionalAnswers.delegatesTo<BibleApplication>(original)).also {
+                doReturn(packageName).whenever(it).packageName
+            }
+            ReflectionHelpers.setStaticField(BibleApplication::class.java, "application", application)
+            block()
+        } finally {
+            ReflectionHelpers.setStaticField(BibleApplication::class.java, "application", original)
+        }
+    }
+
+    private fun assertRecommendationUsesPublishedPlayListing(packageName: String) = withPackageName(packageName) {
+        handler.handleMenuRequest(R.id.tellFriend)
+        val chooser = shadowOf(activity).nextStartedActivityForResult.intent
+        val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+        val message = send.getStringExtra(Intent.EXTRA_TEXT)!!
+        assertEquals(Intent.ACTION_SEND, send.action)
+        assertTrue(message, message.contains("https://andbible.org"))
+        val playLinks = Regex("https://play\\.google\\.com/store/apps/details\\?id=\\S+")
+            .findAll(message).map { it.value }.toList()
+        assertEquals(listOf("https://play.google.com/store/apps/details?id=net.bible.android.activity"), playLinks)
+    }
+
+    @Test fun standardPlayRecommendationUsesPublishedListing() =
+        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity")
+
+    @Test fun githubRecommendationUsesPublishedListing() =
+        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity.debug")
+
+    @Test fun fdroidRecommendationUsesPublishedListing() =
+        assertRecommendationUsesPublishedPlayListing("net.bible.android.activity")
+
+    @Test fun accrescentRecommendationUsesPublishedListing() =
+        assertRecommendationUsesPublishedPlayListing("org.andbible.andbible")
+
+    @Test fun discretePackageIsNeverUsedAsAPlayListing() =
+        assertRecommendationUsesPublishedPlayListing("com.app.calculator")
+
+    @Test fun discreteDebugPackageIsNeverUsedAsAPlayListing() =
+        assertRecommendationUsesPublishedPlayListing("com.app.calculator.debug")
+
+    @Test fun ratingNeverUsesTheRunningPackageAsThePlayListing() = withPackageName("org.andbible.andbible.debug") {
+        handler.handleMenuRequest(R.id.rateButton)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        idle()
+        assertEquals("market://details?id=net.bible.android.activity",
+            shadowOf(activity).nextStartedActivityForResult.intent.dataString)
+    }
+
+    @Test fun ratingBrowserFallbackUsesThePublishedPlayListing() = withPackageName("org.andbible.andbible.debug") {
+        val application = RuntimeEnvironment.getApplication()
+        val fallback = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
+            "https://play.google.com/store/apps/details?id=net.bible.android.activity"))
+        shadowOf(application.packageManager).addResolveInfoForIntent(fallback, ResolveInfo().apply {
+            activityInfo = ActivityInfo().apply { packageName = "test.browser"; name = "BrowserActivity" }
+        })
+        shadowOf(application).checkActivities(true)
+        try {
+            handler.handleMenuRequest(R.id.rateButton)
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+            idle()
+            assertEquals(fallback.dataString, shadowOf(activity).nextStartedActivityForResult.intent.dataString)
+        } finally {
+            shadowOf(application).checkActivities(false)
+        }
+    }
+
+    @Test fun samsungRecommendationKeepsOmittingThePlayStoreLink() {
+        org.junit.Assume.assumeTrue(BuildVariant.DistributionChannel.isSamsung)
+        withPackageName("net.bible.android.activity.debug") {
+            handler.handleMenuRequest(R.id.tellFriend)
+            val chooser = shadowOf(activity).nextStartedActivityForResult.intent
+            val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+            val message = send.getStringExtra(Intent.EXTRA_TEXT)!!
+            assertTrue(message, message.contains("https://andbible.org"))
+            org.junit.Assert.assertFalse(message, message.contains("play.google.com"))
+        }
+    }
+
+    @Test fun samsungRatingKeepsUsingTheSamsungListing() {
+        org.junit.Assume.assumeTrue(BuildVariant.DistributionChannel.isSamsung)
+        withPackageName("net.bible.android.activity") {
+            handler.handleMenuRequest(R.id.rateButton)
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+            idle()
+            assertEquals("samsungapps://AppRating/net.bible.android.activity",
+                shadowOf(activity).nextStartedActivityForResult.intent.dataString)
+        }
+    }
+
+    @Test fun discreteFlavorDoesNotShareOrRateEvenWithoutThePreference() {
+        org.junit.Assume.assumeTrue(BuildVariant.Appearance.isDiscrete)
+        handler.handleMenuRequest(R.id.tellFriend)
+        handler.handleMenuRequest(R.id.rateButton)
+        assertNull(dialogs.pending.value)
+        assertNull(shadowOf(activity).nextStartedActivityForResult)
+    }
+
+    @Test fun discreteModeDoesNotShareTheAppIdentityEvenIfDispatchedDirectly() {
+        val prefs = CommonUtils.realSharedPreferences
+        val original = prefs.getBoolean("discrete_mode", false)
+        try {
+            prefs.edit().putBoolean("discrete_mode", true).commit()
+            handler.handleMenuRequest(R.id.tellFriend)
+            assertNull(shadowOf(activity).nextStartedActivityForResult)
+        } finally {
+            prefs.edit().putBoolean("discrete_mode", original).commit()
+        }
+    }
+
+    @Test fun discreteModeDoesNotOpenARatingDialogEvenIfDispatchedDirectly() {
+        val prefs = CommonUtils.realSharedPreferences
+        val original = prefs.getBoolean("discrete_mode", false)
+        try {
+            prefs.edit().putBoolean("discrete_mode", true).commit()
+            handler.handleMenuRequest(R.id.rateButton)
+            assertNull(dialogs.pending.value)
+            assertNull(shadowOf(activity).nextStartedActivityForResult)
+        } finally {
+            prefs.edit().putBoolean("discrete_mode", original).commit()
+        }
     }
 
     @Test(timeout = 30000)

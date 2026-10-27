@@ -51,6 +51,18 @@ In other languages there are no tabs and the screen shows the Advanced options d
 - **Restore Database File**: restore a backup of your bookmarks, notes and settings. See
   [Backup and restore](backup_restore.md).
 
+## Sharing on Android
+
+**Recommend to a friend** opens the system share sheet with a description of AndBible,
+a link to the standard app's Play Store listing, and the homepage for other installation
+options. The Play link always points to the published standard app, even when your installed
+build uses a different package name (for example, Accrescent or a debug build). Samsung builds
+omit the Play link. **Rate the app**, when offered, also opens the standard Play listing,
+or Samsung Apps for Samsung builds.
+
+**Recommend to a friend** is hidden in discrete mode. Recommendation and rating actions
+are disabled while discrete mode is active, to avoid revealing the app's identity.
+
 ## Help and sharing on iOS
 
 The iOS drawer's **Help & tips** shows all eight help topics, tutorial and manual links,

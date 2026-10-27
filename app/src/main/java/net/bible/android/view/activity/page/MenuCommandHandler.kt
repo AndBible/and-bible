@@ -60,6 +60,8 @@ const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
 const val buyDevelopmentLink = net.bible.sharedcore.docs.SiteLinks.SHOP_URL
 const val homepageLink = "https://andbible.org"
+// Other distributions and debug/discrete packages do not have their own Play listing.
+private const val playStoreApplicationId = "net.bible.android.activity"
 
 /** Handle requests from the main menu
  *
@@ -122,6 +124,7 @@ class MenuCommandHandler(
                     hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {
+                    if (CommonUtils.isDiscrete) return true
                     val htmlMessage = hostActivity.run {
                         val email = "help.andbible@gmail.com"
                         val bugReport = getString(R.string.bug_report)
@@ -160,7 +163,7 @@ class MenuCommandHandler(
                     ) { result ->
                         if (result != AppDialogResult.Ok) return@post
                         val samsungUri = Uri.parse("samsungapps://AppRating/"+BibleApplication.application.packageName)
-                        val uri = Uri.parse("market://details?id=" + BibleApplication.application.packageName)
+                        val uri = Uri.parse("market://details?id=$playStoreApplicationId")
                         val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
                             // To count with Play market backstack, After pressing back button,
                             // to taken back to our application, we need to add following flags to intent.
@@ -171,7 +174,7 @@ class MenuCommandHandler(
                             hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                         } catch (e: ActivityNotFoundException) {
                             val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +BibleApplication.application.packageName)
-                            val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
+                            val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=$playStoreApplicationId")
                             hostActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
                         }
                     }
@@ -294,8 +297,9 @@ class MenuCommandHandler(
                     isHandled = true
                 }
                 R.id.tellFriend -> {
+                    if (CommonUtils.isDiscrete) return true
                     val homepage = Uri.parse(homepageLink)
-                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
+                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=$playStoreApplicationId")
 
                     val appName = hostActivity.getString(R.string.app_name_long)
                     val message1 = hostActivity.getString(R.string.tell_friend_message1, appName)
