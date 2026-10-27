@@ -577,6 +577,60 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed — see the class kdoc). */
     private fun host() = net.bible.test.fixtureReadingHost(activity)
 
+    @Test fun drawerFindFollowsTheActiveWindowAfterVisitingANonSearchableDocument() {
+        val bibleWindow = windowRepository.activeWindow
+        val bible = assertNotNull(Books.installed().getBook("KJV"))
+        bibleWindow.pageManager.setCurrentDocumentAndKey(bible, bible.getKey("John 3:16"))
+        val dictionaryWindow = windowRepository.addNewWindow(bibleWindow)
+        val dictionary = assertNotNull(Books.installed().getBook("StrongsGreek"))
+        dictionaryWindow.pageManager.setCurrentDocumentAndKey(dictionary, dictionary.getKey("02316"))
+        windowRepository.activeWindow = dictionaryWindow
+        val view = host()
+        view.rebuildDrawer(showSearch = false, showSpeak = true)
+        view.openDrawer()
+        assertFalse(drawerFindEnabled(view), "Find is disabled for the dictionary")
+        view.closeDrawer()
+
+        windowRepository.activeWindow = bibleWindow
+        shadowOf(Looper.getMainLooper()).idle()
+        view.openDrawer()
+        assertTrue(drawerFindEnabled(view), "Find must be enabled again for the Bible window")
+        view.closeDrawer()
+
+        windowRepository.activeWindow = dictionaryWindow
+        shadowOf(Looper.getMainLooper()).idle()
+        view.toggleDrawer()
+        assertFalse(drawerFindEnabled(view), "Find must be disabled again for the dictionary window")
+        view.closeDrawer()
+    }
+
+    @Test fun drawerFindFollowsDocumentChangesWithinTheActiveWindow() {
+        val pageManager = windowRepository.activeWindow.pageManager
+        val dictionary = assertNotNull(Books.installed().getBook("StrongsGreek"))
+        pageManager.setCurrentDocumentAndKey(dictionary, dictionary.getKey("02316"))
+        val view = host()
+        view.rebuildDrawer(showSearch = false, showSpeak = true)
+        view.openDrawer()
+        assertFalse(drawerFindEnabled(view), "Find is disabled for the dictionary")
+        view.closeDrawer()
+
+        val bible = assertNotNull(Books.installed().getBook("KJV"))
+        pageManager.setCurrentDocumentAndKey(bible, bible.getKey("John 3:16"))
+        shadowOf(Looper.getMainLooper()).idle()
+        view.toggleDrawer()
+        assertTrue(drawerFindEnabled(view), "Find must be enabled after selecting a Bible")
+        view.closeDrawer()
+
+        pageManager.setCurrentDocumentAndKey(dictionary, dictionary.getKey("02316"))
+        shadowOf(Looper.getMainLooper()).idle()
+        view.openDrawer()
+        assertFalse(drawerFindEnabled(view), "Find must be disabled after returning to the dictionary")
+        view.closeDrawer()
+    }
+
+    private fun drawerFindEnabled(view: ComposeReadingViewHost): Boolean =
+        view.drawerMenuForTest.value.groups.flatMap { it.items }.single { it.id == "searchButton" }.enabled
+
     @Test fun onBibleViewTouchedReShowsTheWindowButtons() {
         activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val host = activity.composeReadingViewHost!!
