@@ -537,6 +537,22 @@ function tokenWinner(css, token, mode) {
     return winning(css, mode, "", "div")[token] ?? root[token];
 }
 describe("bounded theme chrome contrast and geometry", () => {
+    it("paints noise above the solid window-bar background without covering its touch target", () => {
+        const css = componentCss("BibleView.vue");
+        const noise = declarations(css, ".bottom-touch-block::before");
+        expect(noise).toContain('content: ""');
+        expect(noise).toContain('background-image: url("~@/assets/noise.svg")');
+        expect(noise).toContain("opacity: var(--noise-opacity)");
+        expect(noise).toContain("position: absolute");
+        expect(noise).toContain("inset: 0");
+        expect(noise).toContain("pointer-events: none");
+        expect(declarations(css, ".monochrome .bottom-touch-block::before")).toContain("filter: grayscale(1)");
+        for (const mode of ["", "night", "monochrome", "monochrome night", "noAnimation", "noAnimation night"]) {
+            const bar = winning(css, "bottom-touch-block", mode, "div");
+            expect(bar.background).toBe("var(--background-color)");
+            expect(bar["z-index"]).toBe("10");
+        }
+    });
     // [selector, fillet circle centre]: the circle is centred on the corner farthest from the screen corner.
     it.each([
         [".top-left-corner", "100% 100%"],

@@ -248,7 +248,8 @@ its windows. These settings are synced across devices.
 **Text Appearance**
 
 - **Colors:** Adjust text color, background color, and background noise
-    (a subtle texture overlay on the background).
+    (a subtle texture overlay on the background). The texture also extends behind
+    the window buttons bar, using the same day or night noise setting as the reading area.
 - **Font size:** Set the base text size in points.
 - **Font family:** Change the typeface. Additional fonts can be installed via
     font add-on modules. With the default `sans-serif` setting, a font add-on
