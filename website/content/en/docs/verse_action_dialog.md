@@ -22,6 +22,7 @@ The Share icon allows you to copy or share the highlighted verses. See [Sharing 
 ## Memorize
 
 The Memorize button opens an interactive view for learning the selected verses by heart.
+It is available only for Bible documents, not commentaries or dictionaries.
 See [Memorize](memorize.md) for more information.
 
 ## Comparing verses

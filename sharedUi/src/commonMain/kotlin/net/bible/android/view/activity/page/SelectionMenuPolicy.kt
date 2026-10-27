@@ -28,7 +28,7 @@ enum class SelectionMenuItem {
 /**
  * What decides the selection menu's rows.
  *
- * @param isBible the window's first document is a Bible (two-step bookmarking, compare and share are Bible-only)
+ * @param isBible the window's first document is a Bible (two-step bookmarking, compare, memorize and share are Bible-only)
  * @param twoStepDisabled the `disable_two_step_bookmarking` preference
  * @param hasVerseSelection the page reported a verse-bound selection (Android: `currentSelection != null`)
  * @param selectionText the selected text, null when there is no selection
@@ -56,7 +56,7 @@ data class SelectionMenuInput(
  *
  * - Bookmark rows need a verse selection. A Bible with two-step bookmarking disabled shows "selection" and "verses"
  *   directly; every other case (two-step Bible, any non-Bible document) shows the single "Bookmark" row.
- * - Compare and share are Bible-only; share also needs a verse selection. Memorize is always offered.
+ * - Compare, memorize and share are Bible-only; share also needs a verse selection.
  * - Copy needs text and is offered for non-Bible documents or selections without verse context (e.g. footnote popups).
  * - A selection that resolves to a reference offers "open"; otherwise "search". Web search needs text, dictionary
  *   lookup needs text and a dictionary, the AI row needs text and AI configured.
@@ -76,7 +76,7 @@ fun selectionMenuItems(input: SelectionMenuInput, step2: Boolean): List<Selectio
             }
         }
         if (input.isBible) add(SelectionMenuItem.Compare)
-        add(SelectionMenuItem.Memorize)
+        if (input.isBible) add(SelectionMenuItem.Memorize)
         if (input.isBible && input.hasVerseSelection) add(SelectionMenuItem.ShareVerses)
         if (text && (!input.isBible || !input.hasVerseSelection)) add(SelectionMenuItem.Copy)
         if (!input.resolvedRef && text) add(SelectionMenuItem.Search)
