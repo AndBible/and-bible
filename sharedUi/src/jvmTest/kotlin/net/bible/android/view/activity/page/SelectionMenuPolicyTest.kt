@@ -87,8 +87,24 @@ class SelectionMenuPolicyTest {
         val other = selectionMenuItems(input(isBible = false), step2 = false)
         assertFalse(Compare in other)
         assertFalse(ShareVerses in other)
-        assertTrue(Memorize in other, "Android never hides memorize")
+        assertFalse(Memorize in other)
         assertTrue(Copy in other, "Copy is the non-Bible row")
+    }
+
+    @Test fun memorizeIsOfferedForBibleVerses() {
+        assertTrue(Memorize in selectionMenuItems(input(), step2 = false))
+    }
+
+    @Test fun commentaryVerseSelectionDoesNotOfferMemorize() {
+        val items = selectionMenuItems(input(isBible = false, hasVerseSelection = true), step2 = false)
+        assertFalse(Memorize in items)
+        assertTrue(AddBookmark in items)
+    }
+
+    @Test fun dictionaryTextSelectionDoesNotOfferMemorize() {
+        val items = selectionMenuItems(input(isBible = false, hasVerseSelection = false), step2 = false)
+        assertFalse(Memorize in items)
+        assertTrue(Copy in items)
     }
 
     @Test fun refSelectionShowsOpenRefNotSearch() {
@@ -108,7 +124,7 @@ class SelectionMenuPolicyTest {
 
     @Test fun textBoundRowsNeedSelectionText() {
         val none = selectionMenuItems(input(selectionText = null, isBible = false), step2 = false)
-        assertEquals(listOf(AddBookmark, Memorize), none)
+        assertEquals(listOf(AddBookmark), none)
     }
 
     @Test fun dictionaryParagraphBreakAndOrder() {
