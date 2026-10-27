@@ -419,6 +419,36 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     }
 
     @Test
+    fun changingSpeedWhileSpeakingGeneralBookResumesAtNewRate() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            epub.hold.set(false)
+            manager.speakGeneric(epub.key)
+            platform.listener!!.onInit(true)
+            joinSpeech()
+            val firstText = engine.calls.first { it.startsWith("speak:") }
+            platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+            joinSpeech()
+            assertTrue(speakControl.isSpeaking)
+            engine.calls.clear()
+            val queued = engine.utteranceIds.size
+
+            speakSettingsService.setSpeed(175)
+            joinSpeech()
+
+            assertTrue("Changing speed must leave speech playing", speakControl.isSpeaking)
+            assertFalse("Changing speed must not leave speech paused", speakControl.isPaused)
+            assertTrue("The new rate must reach the engine", engine.calls.contains("rate:1.75"))
+            assertTrue("Playback must actually resume, not just report speaking", engine.utteranceIds.size > queued)
+            assertEquals("Resume must restart the interrupted text", firstText,
+                engine.calls.first { it.startsWith("speak:") })
+            assertTrue("The new rate must be applied before queuing resumed speech",
+                engine.calls.indexOf("rate:1.75") < engine.calls.indexOfFirst { it.startsWith("speak:") })
+            assertTrue(notifier.errors.isEmpty())
+        }
+    }
+
+    @Test
     fun providerReplacementRemainsLiveAndSuppressesHeldOldCursor() {
         val manager = prepareGeneric()
         HeldEpub().use { epub ->
