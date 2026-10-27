@@ -199,7 +199,7 @@ class SpeakControl constructor(
 
     private var speakBook: Book? = null
     private var speakKey: Key? = null
-    val speakBookAndKey: BookAndKey? get() = speakKey?.let {BookAndKey(it, speakBook) }
+    val speakBookAndKey: BookAndKey? get() = speakKey?.let { it as? BookAndKey ?: BookAndKey(it, speakBook) }
 
 
     /** return a list of prompt ids for the speak screen associated with the current document type

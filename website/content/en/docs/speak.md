@@ -64,6 +64,11 @@ several verses. Verses that the spoken translation omits (for example Mark 7:16 
 translations) are skipped, and the reading position follows the next verse that is actually
 spoken.
 
+To return to the current speech position after scrolling elsewhere, open the window
+menu and choose **Open** with the headset icon. Its reference shows the current spoken
+position, even when **Text follows speech** is disabled. For books such as EPUBs, this
+also returns to the spoken paragraph within the chapter.
+
 With **Automatic bookmarking** enabled, pausing or stopping speech saves your position
 with the special Speak label. The playback bar's bookmark button appears when a Speak
 bookmark is available, without restarting the app, and lets you resume from a saved position.

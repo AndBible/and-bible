@@ -282,7 +282,7 @@ class WindowPaneMenuStateBuilder(
 
         // SplitBibleArea.kt:910-928
         if (!speakControl.isStopped) {
-            val bookAndKey = speakControl.speakPageManager.currentPage.bookAndKey
+            val bookAndKey = speakControl.speakBookAndKey
             val label = strings.goToRef(
                 bookAndKey?.let {
                     if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
