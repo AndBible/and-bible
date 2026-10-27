@@ -10,7 +10,9 @@ With *AndBible*, you can easily share verses, notes, and study pads.
 2. In the [Verse Action Dialog](verse_action_dialog.md), click the *share* button.
 
     - To share notes in addition to the verse text, click the *share* button
-        in the specific note you would like to share.
+        in the specific note you would like to share. Keep *Show notes* enabled
+        in the sharing options. If the bookmark is not tied to a particular Bible,
+        the verse text comes from the current Bible.
 3. Toggle the items that you want to include in the shared text.
 4. Click *COPY* to copy the text to your clipboard, or click *SHARE* to share
     the text via another app.

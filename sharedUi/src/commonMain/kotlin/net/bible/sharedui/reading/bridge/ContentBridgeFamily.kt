@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
@@ -80,7 +81,16 @@ internal class ContentBridgeFamily(
             val bookmark = session.bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
             session.scope.launch(Dispatchers.Main) {
                 if (session.isDisposed) return@launch
-                session.hostSheets?.showShare(facade().buildShareVersesInput(Selection(bookmark)))
+                // Translation-independent bookmarks need the current Bible to resolve shareable text.
+                val shareBookmark = if (bookmark.book == null) {
+                    val book = session.windowControl.defaultBibleDoc(false)
+                    val range = bookmark.verseRange.toV11n(book.versification)
+                    bookmark.copy(
+                        book = book, v11n = range.versification,
+                        ordinalStart = range.start.ordinal, ordinalEnd = range.end.ordinal,
+                    )
+                } else bookmark
+                session.hostSheets?.showShare(facade().buildShareVersesInput(Selection(shareBookmark)))
             }
         }
     }
