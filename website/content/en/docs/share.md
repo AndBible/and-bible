@@ -38,6 +38,9 @@ format:
 4. When prompted, choose either to save the exported study pad to your
     *Phone Storage* or to *Share* it via another app.
 
+Empty text entries do not include the "Tap to edit text" placeholder in HTML exports.
+The placeholder remains visible in the Study Pad so you can add text later.
+
 [![Share studypad](images/share-studypad.png){ height="500" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
 ## Sharing Bibles/Documents {#sharing-bibles-documents}

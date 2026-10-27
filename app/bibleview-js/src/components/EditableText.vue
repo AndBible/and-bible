@@ -25,7 +25,7 @@
       <div v-if="editText" class="notes-display" :class="[{constraintDisplayHeight}, isMarkdown ? 'markdown-notes' : '']" @click="handleClicks">
         <div v-html="displayHtml"/>
       </div>
-      <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
+      <div class="placeholder" v-else-if="showPlaceholder && !exportMode" @click="handleClicks">
         <slot>
           {{ strings.editTextPlaceholder }}
         </slot>
