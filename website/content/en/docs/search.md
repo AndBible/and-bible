@@ -17,6 +17,9 @@ If you enter multiple words, optionally you can also look for an exact match, as
 
 If you enter a Bible reference (for example "John 3:16" or "1 joh 3 16"), Find takes you to that passage instead of searching. A single word that is also a book name, such as "Job" or "Mark", is treated as a reference too.
 
+For modules that include the letters of Clement, the English alternative book names are
+`iclement` for 1 Clement and `iiclement` for 2 Clement.
+
 For Bible modules that contain Strong's numbers, you can enter the following to find any verses where that number appears:
 
 Note: the word strong must be in lower case.
