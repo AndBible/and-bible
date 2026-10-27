@@ -16,6 +16,12 @@ import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.test.testAppSettings
 import net.bible.test.testCoreStrings
+import net.bible.test.testWindowRepository
+import net.bible.android.control.page.window.WindowControl
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -70,6 +76,26 @@ class ReadingPlanControlDoneTest {
         assertEquals(2, control.currentPlanDay())
         control.done(info, 2, false)
         assertEquals(3, control.currentPlanDay())
+    }
+
+    @Test fun displayedDayAndDayListUseTheReadingBiblesVersification() = runBlocking {
+        val windowControl = GlobalContext.get().get<WindowControl>()
+        val originalRepository = windowControl.windowRepository
+        val repository = testWindowRepository()
+        val bible = Books.installed().getBook("FinRK") as AbstractPassageBook
+        try {
+            windowControl.windowRepository = repository
+            repository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(
+                bible, Verse(bible.versification, BibleBook.JOEL, 4, 1),
+            )
+            control.setReadingPlan("y2ot1ntps2")
+            val realControl = GlobalContext.get().get<ReadingPlanControl>()
+            assertEquals("Joel 4", realControl.getDaysReading(680, "y2ot1ntps2").getReadingKey(2).getName())
+            assertEquals("Joel 4", realControl.currentPlansReadingList().first { it.day == 680 }.getReadingKey(2).getName())
+        } finally {
+            repository.scope.coroutineContext[Job]?.cancel()
+            windowControl.windowRepository = originalRepository
+        }
     }
 
     @Test fun forcedDoneOnALaterDayStoresThatDayFirst() = runBlocking {

@@ -80,7 +80,10 @@ class ReadingPlanControl constructor(
 
     /** get list of days and readings for a plan so user can see the plan in advance
      */
-    suspend fun currentPlansReadingList(): List<OneDaysReadingsDto> = readingPlanTextDao.getReadingList(currentPlanCode)
+    suspend fun currentPlansReadingList(): List<OneDaysReadingsDto> {
+        val versification = currentPageManager.currentBible.versification
+        return readingPlanTextDao.getReadingList(currentPlanCode).map { it.forVersification(versification) }
+    }
 
     suspend fun currentPlanExists(planCode: String = currentPlanCode): Boolean = try {
         readingPlanTextDao.getReading(planCode, 1)
@@ -255,6 +258,7 @@ class ReadingPlanControl constructor(
      */
     suspend fun getDaysReading(day: Int, planCode: String = currentPlanCode): OneDaysReadingsDto {
         return readingPlanTextDao.getReading(planCode, day)
+            .forVersification(currentPageManager.currentBible.versification)
     }
 
     /** User wants to read a passage from the daily reading
