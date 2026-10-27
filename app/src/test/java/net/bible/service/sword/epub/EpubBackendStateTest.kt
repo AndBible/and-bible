@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import net.bible.android.control.page.contentJson
+import net.bible.service.download.doesNotExist
 import net.bible.test.testCoreStrings
 import net.bible.android.platform.AndroidAppEnvironment
 import net.bible.android.SharedConstants
@@ -568,6 +569,65 @@ class EpubBackendStateTest {
             listOf(name, otherName).forEach { n ->
                 books.getBook(epubInitials(n))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
             }
+        }
+    }
+
+    /** #3357: restoring an unavailable EPUB must not silently adopt another installed EPUB. */
+    @Test
+    fun restoredMissingEpubKeepsItsIdentityAndShowsDownloadMessage() = kotlinx.coroutines.runBlocking<Unit> {
+        val missingInitials = epubInitials("issue-3357-missing.epub")
+        val otherName = "issue-3357-other.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val manager = generalBookPage().pageManager
+        val window = net.bible.android.control.page.window.Window(
+            net.bible.android.database.WorkspaceEntities.Window(
+                workspaceId = net.bible.android.database.IdType(),
+                isSynchronized = false,
+                isPinMode = false,
+                windowLayout = net.bible.android.database.WorkspaceEntities.WindowLayout("VISIBLE"),
+            ),
+            manager,
+            org.mockito.Mockito.mock(net.bible.android.control.page.window.WindowRepository::class.java),
+        )
+        createdDbFilenames.add("epub-${epubInitials(otherName)}.sqlite3")
+        try {
+            assertTrue(committer().commitEpub(epubArchive(otherName, "cobalt"), otherName, true))
+            val other = books.getBook(epubInitials(otherName))!!
+            assertTrue(other is org.crosswire.jsword.book.sword.SwordGenBook)
+            assertTrue(other.epubBackend != null)
+            assertEquals(null, books.getBook(missingInitials))
+            withDefaultGeneralBook(other.initials) {
+                manager.restoreFrom(net.bible.android.database.WorkspaceEntities.PageManager(
+                    windowId = window.id,
+                    biblePage = net.bible.android.database.WorkspaceEntities.BiblePage(
+                        null, net.bible.android.database.WorkspaceEntities.Verse("KJV", 54, 3, 16),
+                    ),
+                    commentaryPage = null,
+                    dictionaryPage = null,
+                    generalBookPage = net.bible.android.database.WorkspaceEntities.Page(missingInitials, "chapter", 0),
+                    mapPage = null,
+                    currentCategoryName = "GENERAL_BOOK",
+                    textDisplaySettings = null,
+                    jsState = null,
+                ))
+
+                repeat(3) {
+                    org.junit.Assert.assertSame(manager.currentGeneralBook, manager.currentPage)
+                    val page = manager.currentPage
+                    assertEquals(missingInitials, page.currentDocument?.initials)
+                    assertTrue(page.currentDocument?.doesNotExist == true)
+                    val content = page.currentPageContent()
+                    assertTrue(content is net.bible.android.control.page.ErrorDocument)
+                    val error = (content as net.bible.android.control.page.ErrorDocument).asHashMap
+                    val message = error["errorMessage"]!!
+                    assertTrue(message, message.contains("download://?initials=$missingInitials"))
+                    assertEquals("`NORMAL`", error["severity"])
+                    assertEquals(missingInitials, manager.currentGeneralBook.pageEntity.document)
+                }
+            }
+        } finally {
+            window.destroy()
+            books.getBook(epubInitials(otherName))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
         }
     }
 
