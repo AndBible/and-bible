@@ -45,6 +45,8 @@ import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.KeyUtil
 import kotlin.collections.HashMap
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -162,6 +164,9 @@ class GeneralSpeakTextProvider(
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases): SpeakCommandArray {
         val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
+        val content = getSpeakCommandsForKey(key)
+        // A missing commentary entry must not produce a reference announcement on its own.
+        if (key.document?.bookCategory == BookCategory.COMMENTARY && content.isEmpty()) return cmds
 
         if(prevKey.getOsisRef() != key.getOsisRef()) {
             if(readingSettings.playbackSettings.speakChapterChanges) {
@@ -170,7 +175,7 @@ class GeneralSpeakTextProvider(
                 cmds.add(SilenceCommand())
             }
         }
-        cmds.addAll(getSpeakCommandsForKey(key))
+        cmds.addAll(content)
         return cmds
     }
 
@@ -412,11 +417,15 @@ class GeneralSpeakTextProvider(
         return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
     }
 
-    /** Like [getNextOrdinal], but null past the last ordinal of the last key of a general book instead of wrapping. */
+    /** Like [getNextOrdinal], but null at the end of a general book or commentary instead of wrapping. */
     private suspend fun getNextOrdinalOrNull(key: BookAndKey): BookAndKey? {
         val nextOrdinal = key.ordinal!!.start + 1
         if(nextOrdinal > key.document!!.ordinalRangeFor(key.key, strings).last) {
-            return key.nextOrNull(strings, traverser)
+            val next = key.nextOrNull(strings, traverser) ?: return null
+            // Verse navigation wraps; speech must finish even if the final commentary entries are empty.
+            if (key.document?.bookCategory == BookCategory.COMMENTARY &&
+                KeyUtil.getVerse(next.key).ordinal <= KeyUtil.getVerse(key.key).ordinal) return null
+            return next
         }
         return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
     }

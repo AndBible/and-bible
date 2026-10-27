@@ -32,6 +32,12 @@ message instead of silently skipping the failed part. Press Play to try again fr
 interrupted verse or passage. If the error keeps returning, check the engine and voice data
 using the steps above, or try another speech engine.
 
+## Speaking commentaries
+
+When a commentary has no entry for a verse, speech skips that verse and continues
+at the next verse with text. Empty verses are not announced, even when
+**Chapter Changes** is enabled.
+
 ## Speak Settings
 
 The *Speak* dialog can be accessed from:
