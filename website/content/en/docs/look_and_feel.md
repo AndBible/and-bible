@@ -249,7 +249,9 @@ its windows. These settings are synced across devices.
     (a subtle texture overlay on the background).
 - **Font size:** Set the base text size in points.
 - **Font family:** Change the typeface. Additional fonts can be installed via
-    font add-on modules.
+    font add-on modules. With the default `sans-serif` setting, a font add-on
+    such as FontPack may provide language-specific defaults for Greek or Hebrew.
+    Choosing another font overrides those defaults for every language.
 - **Margin size:** Set the left and right margins independently, measured in
     millimeters. You can also set a maximum text width to prevent lines from
     becoming too long on wide screens.
