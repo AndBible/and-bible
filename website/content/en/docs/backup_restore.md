@@ -67,6 +67,12 @@ To restore your *AndBible* data:
     backup — for example, only bookmarks or only workspaces — rather than
     restoring everything at once.
 
+When upgrading or restoring a database from before version 5.0, AndBible migrates
+it to the current database format. If an old reading-plan table is missing or
+lacks its required ID column, that table is skipped so the rest of your data can
+still be migrated. Reading plans or reading progress from the skipped table
+will not be available after migration.
+
 To restore you *AndBible* apk file:
 
 1. Locate the .apk file you previously backed up.

@@ -34,6 +34,7 @@ import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
+import net.bible.sharedcore.log.Log
 
 const val GENERATE_UUID4_SQL = "randomblob(16)"
 
@@ -171,34 +172,44 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, private val d
 
             execSQL("DROP TABLE IF EXISTS ReadingPlanMap")
             execSQL("DROP TABLE IF EXISTS ReadingPlanStatusMap")
-            execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO ReadingPlanMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan")
-            execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan_status")
+            // Inspect main explicitly: a missing readingplan otherwise resolves to new.ReadingPlan.
+            if ("_id" in getColumnNames(oldDb, "readingplan", "main")) {
+                execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
+                execSQL("INSERT INTO ReadingPlanMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan")
 
-            val readingPlanNames = getColumnNames(oldDb, "ReadingPlan", "new").map {
-                when (it) {
-                    "id" -> "m.`uuid`"
-                    "planCode" -> "r.plan_code"
-                    "planStartDate" -> "r.plan_start_date"
-                    "planCurrentDay" -> "r.plan_current_day"
-                    else -> throw IllegalArgumentException("Unknown column name: $it")
+                val readingPlanNames = getColumnNames(oldDb, "ReadingPlan", "new").map {
+                    when (it) {
+                        "id" -> "m.`uuid`"
+                        "planCode" -> "r.plan_code"
+                        "planStartDate" -> "r.plan_start_date"
+                        "planCurrentDay" -> "r.plan_current_day"
+                        else -> throw IllegalArgumentException("Unknown column name: $it")
+                    }
                 }
+                execSQL("INSERT INTO new.ReadingPlan SELECT ${readingPlanNames.joinToString(",")} FROM " +
+                    "readingplan r INNER JOIN ReadingPlanMap m ON m.id = r._id")
+            } else {
+                Log.w(TAG, "Skipping legacy readingplan: table or _id column is missing")
             }
-            execSQL("INSERT INTO new.ReadingPlan SELECT ${readingPlanNames.joinToString(",")} FROM " +
-                "readingplan r INNER JOIN ReadingPlanMap m ON m.id = r._id")
 
-            val readingPlanStatusNames = getColumnNames(oldDb, "ReadingPlanStatus", "new").map {
-                when (it) {
-                    "id" -> "m.`uuid`"
-                    "planCode" -> "r.plan_code"
-                    "planDay" -> "r.plan_day"
-                    "readingStatus" -> "r.reading_status"
-                    else -> throw IllegalArgumentException("Unknown column name: $it")
+            if ("_id" in getColumnNames(oldDb, "readingplan_status", "main")) {
+                execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
+                execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan_status")
+
+                val readingPlanStatusNames = getColumnNames(oldDb, "ReadingPlanStatus", "new").map {
+                    when (it) {
+                        "id" -> "m.`uuid`"
+                        "planCode" -> "r.plan_code"
+                        "planDay" -> "r.plan_day"
+                        "readingStatus" -> "r.reading_status"
+                        else -> throw IllegalArgumentException("Unknown column name: $it")
+                    }
                 }
+                execSQL("INSERT INTO new.ReadingPlanStatus SELECT ${readingPlanStatusNames.joinToString(",")} FROM " +
+                    "readingplan_status r INNER JOIN ReadingPlanStatusMap m ON m.id = r._id")
+            } else {
+                Log.w(TAG, "Skipping legacy readingplan_status: table or _id column is missing")
             }
-            execSQL("INSERT INTO new.ReadingPlanStatus SELECT ${readingPlanStatusNames.joinToString(",")} FROM " +
-                "readingplan_status r INNER JOIN ReadingPlanStatusMap m ON m.id = r._id")
 
             execSQL("PRAGMA foreign_keys=ON;")
             execSQL("DETACH DATABASE new")
