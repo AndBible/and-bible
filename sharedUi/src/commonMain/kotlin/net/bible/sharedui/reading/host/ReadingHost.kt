@@ -71,6 +71,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import net.bible.android.view.activity.page.screen.PaneMenuAnchor
 import net.bible.android.view.activity.page.screen.menuWindowIdFor
 import net.bible.android.view.activity.page.screen.searchSheetShadowElevation
@@ -263,10 +265,15 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     val windowButtonsVisible by state.windowButtonsVisibility.visible
     val overlayText by deps.overlayText
     val activeIsBibleShown by deps.activeIsBibleShown
-    val scrollTick by state.referenceOverlayScrollTick
-    LaunchedEffect(scrollTick) {
-        delay(2000)
-        state.referenceOverlayVisible.value = false
+    // The tick is read inside a snapshotFlow, not in composition: it changes on every scroll event and
+    // must not recompose this whole body. Programmatic scrolls in the active window count too.
+    LaunchedEffect(state) {
+        snapshotFlow { state.referenceOverlayScrollTick.intValue }
+            .drop(1)
+            .collectLatest {
+                delay(2000)
+                state.referenceOverlayVisible.value = false
+            }
     }
     val referenceOverlayVisible by state.referenceOverlayVisible
     // Only scrolling reveals the reference; taps and pane menus keep their separate button timer.
