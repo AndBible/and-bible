@@ -139,7 +139,7 @@ class WindowPaneMenuDispatcher(
             }
             // SplitBibleArea.kt:884-890: compound (add a new non-links window, close this one); the seam has no such command.
             WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL -> {
-                windowControl.addNewWindow(window).also { it.isLinksWindow = false }
+                windowControl.addNewWindow(window, inheritDisplayOverrides = true).also { it.isLinksWindow = false }
                 windowControl.closeWindow(window)
                 false
             }

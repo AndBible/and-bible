@@ -286,9 +286,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     fun getWindow(windowId: IdType?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 
-    fun addNewWindow(sourceWindow: Window? = null): Window {
+    /**
+     * @param inheritDisplayOverrides keep the source window's per-window display settings (a conversion of that
+     *   window); by default the new window inherits the workspace display settings instead.
+     */
+    fun addNewWindow(sourceWindow: Window? = null, inheritDisplayOverrides: Boolean = false): Window {
         Log.i(TAG, "addNewWindow $sourceWindow")
-        val newWindow = createNewWindow(sourceWindow)
+        val newWindow = createNewWindow(sourceWindow, inheritDisplayOverrides = inheritDisplayOverrides)
         newWindow.weight = (sourceWindow?: activeWindow).weight
 
         activeWindow.windowState = WindowState.VISIBLE
@@ -355,7 +359,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         this.windowList.addAll(unPinnedWindows)
     }
 
-    private fun createNewWindow(sourceWindow_: Window?, first: Boolean = false): Window {
+    private fun createNewWindow(sourceWindow_: Window?, first: Boolean = false, inheritDisplayOverrides: Boolean = false): Window {
         val sourceWindow = sourceWindow_?: if(initialized) activeWindow else null
         val pageManager = get<CurrentPageManager>()
         val winEntity =
@@ -376,8 +380,11 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val newWindow = Window(winEntity, pageManager, this)
         if(sourceWindow != null) {
             pageManager.restoreFrom(
-                // Copy the reading position, but let the new window inherit workspace display settings.
-                sourceWindow.pageManager.entity.copy(textDisplaySettings = null), textDisplaySettings,
+                // Copy the reading position, but let the new window inherit workspace display settings
+                // unless this is a conversion of the source window.
+                sourceWindow.pageManager.entity.let {
+                    if (inheritDisplayOverrides) it.copy() else it.copy(textDisplaySettings = null)
+                }, textDisplaySettings,
                 (sourceWindow.pageManager.currentGeneralBook.key as? StudyPadKey)?.label,
             )
         }

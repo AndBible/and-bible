@@ -170,8 +170,8 @@ open class WindowControl constructor() {
         }
     }
 
-    fun addNewWindow(sourceWindow: Window): Window {
-        val window = windowRepository.addNewWindow(sourceWindow)
+    fun addNewWindow(sourceWindow: Window, inheritDisplayOverrides: Boolean = false): Window {
+        val window = windowRepository.addNewWindow(sourceWindow, inheritDisplayOverrides)
 
         restoreWindow(window, true)
 

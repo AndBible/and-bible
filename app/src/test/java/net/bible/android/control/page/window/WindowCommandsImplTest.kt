@@ -234,6 +234,19 @@ class WindowCommandsImplTest {
         assertEquals(22, TextDisplaySettings.actual(added.pageManager.textDisplaySettings, repo.textDisplaySettings).fontSize)
     }
 
+    @Test fun convertingWindowKeepsItsDisplayOverridesWhenRequested() {
+        val src = repo.activeWindow
+        src.pageManager.currentBible.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2)
+        val sourceSettings = TextDisplaySettings(fontSize = 30, showVerseNumbers = false)
+        src.pageManager.textDisplaySettings = sourceSettings.copy()
+
+        val converted = windowControl.addNewWindow(src, inheritDisplayOverrides = true)
+
+        assertEquals(sourceSettings, converted.pageManager.textDisplaySettings)
+        assertEquals(sourceSettings, src.pageManager.textDisplaySettings)
+        assertEquals(PassageTestData.PS_139_2.getName(), converted.pageManager.currentBible.singleKey.getName())
+    }
+
     @Test fun addNewWindowWithUnknownIdIsNoOp() {
         val before = repo.windowList.size
 
