@@ -91,8 +91,12 @@ class SpeakTransportServiceImpl(
         }
     }
 
+    /** The newest visibility refresh; a new request cancels the previous so stale results never land last. */
+    private var visibilityJob: kotlinx.coroutines.Job? = null
+
     private fun refreshBookmarkVisibility() {
-        scope.launch {
+        visibilityJob?.cancel()
+        visibilityJob = scope.launch {
             bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
             refresh()
         }
