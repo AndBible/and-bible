@@ -128,6 +128,9 @@ open class SpeakIntegrationTestBase {
         })
         configureSpeakPlatform()
         speakControl = koin.get()
+        // A SpeakControl that an earlier test built lost its SpeakChanges subscription when that test's
+        // application terminated; only the first speak test after it would see no progress.
+        speakControl.resubscribeForTest()
         windowControl = koin.get()
         speakSettingsService = koin.get()
         windowControl.windowRepository = net.bible.test.testWindowRepository()

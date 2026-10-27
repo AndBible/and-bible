@@ -17,6 +17,7 @@
 
 package net.bible.android.control.speak
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
@@ -141,9 +142,20 @@ class SpeakControl constructor(
         }
     }
 
+    private val changeSubscriptions = net.bible.sharedcore.event.Subscriptions()
+
     init {
-        // Singleton lifetime: never cancelled.
-        SpeakChanges.changes.subscribeOnMain { change ->
+        subscribeToChanges()
+        platform.attachMediaControls(this)
+        Books.installed().addBooksListener(booksListener)
+    }
+
+    /**
+     * Singleton lifetime: never cancelled in production. [resubscribeForTest] is the only caller after
+     * construction.
+     */
+    private fun subscribeToChanges() {
+        changeSubscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             val event = change as? SpeakChange.Progress ?: return@subscribeOnMain
             speakKey = event.key
             speakBook = event.book
@@ -152,9 +164,9 @@ class SpeakControl constructor(
                 val book = speakPageManager.currentPage.currentDocument
                 speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
             }
-        }
+        })
         // Synchronous, as `on` was: save() pauses, applies and continues before it returns.
-        SpeakSettingsChanges.changes.subscribe { ev ->
+        changeSubscriptions.add(SpeakSettingsChanges.changes.subscribe { ev ->
             ttsServiceManager.updateSettings(ev)
             if (!isPaused && !isSpeaking) {
                 // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
@@ -173,9 +185,18 @@ class SpeakControl constructor(
                 }
                 continueAfterPause(true)
             }
-        }
-        platform.attachMediaControls(this)
-        Books.installed().addBooksListener(booksListener)
+        })
+    }
+
+    /**
+     * Test hook: the test application resets [SpeakChanges] and [SpeakSettingsChanges] subscribers when a test
+     * ends, but a Koin singleton built during that test lives on and would run the next test with no
+     * subscription (so [speakBookAndKey] never follows speech). Re-registers this instance's handlers.
+     */
+    @VisibleForTesting
+    fun resubscribeForTest() {
+        changeSubscriptions.cancelAll()
+        subscribeToChanges()
     }
 
     internal fun onBookRemoved(removed: Book) {
