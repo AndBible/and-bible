@@ -147,6 +147,55 @@ class GeneralSpeakEndOfBookTest : SpeakIntegrationTestBase() {
         assertEquals(0, count(spoken, "Alphaone"))
     }
 
+    private fun assertProgressThroughGeneralBook(prefetch: Boolean) = runBlocking {
+        val doc = myDocument(
+            "long_page" to "Alphaone. Alphatwo. Alphathree. Alphafour. Alphafive. Alphasix.",
+            "short_page" to "Betaone. Betatwo.",
+            "last_page" to "Gammaone. Gammatwo. Gammathree.",
+        )
+        val provider = generalProvider(doc, startOf(doc, "long_page"))
+        val queued = mutableListOf<Pair<String, SpeakCommand>>()
+        val spoken = StringBuilder()
+        val percentages = mutableListOf<Int>()
+
+        suspend fun play(id: String, command: SpeakCommand) {
+            provider.startUtterance(id)
+            val status = provider.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_PERCENT)
+            val percent = Regex("(-?\\d+)%").find(status)!!.groupValues[1].toInt()
+            assertTrue("Progress outside 0..100: $status", percent in 0..100)
+            percentages += percent
+            if (command is TextCommand) spoken.append(command.text).append(' ')
+            provider.finishedUtterance(id)
+        }
+
+        do {
+            check(queued.size < 60) { "Speech did not stop" }
+            val id = "progress-${queued.size}"
+            val command = provider.getNextSpeakCommand(id)
+            queued += id to command
+            if (!prefetch) play(id, command)
+        } while (provider.isMoreTextToSpeak())
+        if (prefetch) queued.forEach { (id, command) -> play(id, command) }
+
+        for (word in listOf("Alphaone", "Alphasix", "Betaone", "Betatwo", "Gammaone", "Gammathree")) {
+            assertEquals(word, 1, count(spoken.toString(), word))
+        }
+        assertTrue("Fixture must exercise intermediate progress: $percentages", percentages.any { it in 1..99 })
+        assertEquals("The final position must reach 100%", 100, percentages.last())
+        assertFalse(provider.isMoreTextToSpeak())
+    }
+
+    @Test
+    fun generalBookProgressStaysWithinBoundsThroughTheEnd() {
+        assertProgressThroughGeneralBook(prefetch = false)
+    }
+
+    // #2725: the playing ordinal must use its own page's range, not the prefetched page's shorter range.
+    @Test
+    fun prefetchedShorterPagesDoNotInflateThePlayingPageProgress() {
+        assertProgressThroughGeneralBook(prefetch = true)
+    }
+
     @Test
     fun nextStillWrapsForNavigation() = runBlocking {
         val doc = myDocument("page_a" to "A.", "page_b" to "B.")
