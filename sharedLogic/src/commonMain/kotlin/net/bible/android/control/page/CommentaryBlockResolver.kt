@@ -69,6 +69,10 @@ interface CommentaryWalker {
  * by more than one walk; callers create a fresh resolver per navigation action.
  */
 class CommentaryBlockResolver(private val walker: CommentaryWalker) {
+    private companion object {
+        const val MAX_BLOCK_COMPARISONS = 100
+    }
+
     private val cache = HashMap<Verse, String?>()
 
     /**
@@ -86,18 +90,24 @@ class CommentaryBlockResolver(private val walker: CommentaryWalker) {
      * Expands the block containing [verse]. If [verse] itself is empty, returns a single-verse
      * block with null content (no snapping to a neighbouring block). Blocks are delimited by
      * empty verses (whose rendered content is null), so two spans with coincidentally identical
-     * content separated by an empty verse remain distinct blocks.
+     * content separated by an empty verse remain distinct blocks. Expansion has a shared work
+     * budget in both directions: sparse modules can link the same no-note notice across thousands
+     * of verses. If the budget is exhausted, keep the selected verse and its content rather than
+     * blocking page loading or reporting an incomplete range as a complete block.
      */
     fun resolveBlock(verse: Verse): CommentaryBlock {
         val content = render(verse) ?: return CommentaryBlock(verse, verse, null)
+        var comparisonsLeft = MAX_BLOCK_COMPARISONS
         var start = verse
         while (true) {
             val p = walker.prev(start) ?: break
+            if (comparisonsLeft-- <= 0) return CommentaryBlock(verse, verse, content)
             if (render(p) == content) start = p else break
         }
         var end = verse
         while (true) {
             val n = walker.next(end) ?: break
+            if (comparisonsLeft-- <= 0) return CommentaryBlock(verse, verse, content)
             if (render(n) == content) end = n else break
         }
         return CommentaryBlock(start, end, content)
