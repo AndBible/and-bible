@@ -18,14 +18,13 @@
 package net.bible.sharedcore.reading
 
 /**
- * Pure visibility gate for the fullscreen bible-reference overlay — the Compose port of classic
- * `SplitBibleArea.updateBibleReferenceOverlay` (`screen/SplitBibleArea.kt:646-671`):
- * `!hide_bible_reference_overlay && fullScreen && activeWindow.pageManager.isBibleShown && show`,
- * where `show` is the same auto-hide flag that drives the floating window buttons.
+ * Pure visibility gate for the fullscreen Bible-reference overlay. [scrolling] stays true briefly
+ * after the last scroll event so the current reference remains readable, independently of taps
+ * that reveal the floating window buttons.
  */
 fun bibleReferenceOverlayVisible(
     fullScreen: Boolean,
     activeIsBibleShown: Boolean,
-    buttonsShown: Boolean,
+    scrolling: Boolean,
     hideSetting: Boolean,
-): Boolean = !hideSetting && fullScreen && activeIsBibleShown && buttonsShown
+): Boolean = !hideSetting && fullScreen && activeIsBibleShown && scrolling

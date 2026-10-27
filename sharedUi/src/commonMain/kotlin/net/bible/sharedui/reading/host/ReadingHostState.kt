@@ -19,6 +19,7 @@
 package net.bible.sharedui.reading.host
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CompletableDeferred
@@ -366,8 +367,17 @@ class ReadingHostState(
     val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
     val paneMenuAnchor = mutableStateOf(PaneMenuAnchor.Pane)
 
-    /** A touch on a Bible view: shows the window buttons (and the full-screen overlay) and restarts their idle timer. */
+    /** A touch shows the window buttons, but must not reveal or prolong the reference overlay. */
     fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
+
+    val referenceOverlayVisible = mutableStateOf(false)
+    val referenceOverlayScrollTick = mutableIntStateOf(0)
+
+    /** Actual scrolling, independently of the tap-driven window buttons and their idle timer. */
+    fun onBibleViewScrolled() {
+        referenceOverlayVisible.value = true
+        referenceOverlayScrollTick.intValue++
+    }
 
     /**
      * Opens the ☰ menu for [windowId] anchored to [anchor]. Forces the pane buttons visible first

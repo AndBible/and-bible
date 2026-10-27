@@ -263,13 +263,17 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     val windowButtonsVisible by state.windowButtonsVisibility.visible
     val overlayText by deps.overlayText
     val activeIsBibleShown by deps.activeIsBibleShown
-    // Pure gate (`:sharedCore`) mirroring classic `SplitBibleArea.updateBibleReferenceOverlay`: visible
-    // only fullscreen, with the active window showing a Bible, while the (auto-hiding) window buttons
-    // are shown, and the user hasn't disabled the overlay.
+    val scrollTick by state.referenceOverlayScrollTick
+    LaunchedEffect(scrollTick) {
+        delay(2000)
+        state.referenceOverlayVisible.value = false
+    }
+    val referenceOverlayVisible by state.referenceOverlayVisible
+    // Only scrolling reveals the reference; taps and pane menus keep their separate button timer.
     val overlayVisible = bibleReferenceOverlayVisible(
         fullScreen = fullScreen,
         activeIsBibleShown = activeIsBibleShown,
-        buttonsShown = windowButtonsVisible,
+        scrolling = referenceOverlayVisible,
         hideSetting = state.settings.getBoolean("hide_bible_reference_overlay", false),
     )
     // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):

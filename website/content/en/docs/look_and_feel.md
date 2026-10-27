@@ -162,8 +162,9 @@ replace those controls.
     window. You can still access the window menu by long-pressing the buttons in
     the bottom window bar.
 - **Hide Bible reference overlay:** Hides the semi-transparent Bible reference
-    indicator that normally appears near the bottom of the screen in fullscreen
-    mode.
+    indicator that appears near the bottom of the screen while scrolling in
+    fullscreen mode. It disappears after scrolling stops; tapping the text does
+    not show it.
 - **Show active window indicator:** Highlights the corners of the active window
     with a colored border. Makes it easier to see which window is currently
     active when using multiple windows side by side.

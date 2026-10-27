@@ -41,8 +41,8 @@ import net.bible.sharedui.reading.host.ReadingFullScreen
  *   function so the status bar follows too (builder's call: a trailing parameter with a default keeps the planned
  *   constructor shape).
  * @param onPaneTouched a finger touched a pane (a tap, or the start of a scroll drag): the host restarts the window buttons
- *   timer, as Android's `BibleGestureListener` does through `onBibleViewTouched`, so the buttons and the full-screen Bible
- *   reference overlay come back.
+ *   timer, as Android's `BibleGestureListener` does through `onBibleViewTouched`.
+ * @param onPaneScrolled actual scroll movement: reveals the full-screen reference independently of taps.
  * @param onSwipe receives the window the swipe was on and the decided action (never [SwipeAction.None]).
  */
 @kotlin.native.HiddenFromObjC
@@ -52,6 +52,7 @@ class IosReadingGestures(
     private val isRtl: () -> Boolean,
     private val onSwipe: (windowId: String, SwipeAction) -> Unit,
     private val onPaneTouched: () -> Unit = {},
+    private val onPaneScrolled: () -> Unit = {},
     private val setFullScreen: (value: Boolean, byDoubleTap: Boolean) -> Unit = { value, byDoubleTap -> fullScreen.set(value, byDoubleTap) },
 ) {
     private var tracking = AutoFullscreenTracking()
@@ -90,6 +91,7 @@ class IosReadingGestures(
      * bookkeeping; with auto full screen off it only tracks, never changes full screen.
      */
     fun onScroll(deltaY: Float, timestampMillis: Long) {
+        if (deltaY != 0f) onPaneScrolled()
         if (shouldReanchor(anchorInitialized, gestureStartTime, timestampMillis, anchorTime)) {
             tracking = reanchoredTracking(tracking)
             anchorTime = timestampMillis

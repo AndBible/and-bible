@@ -23,18 +23,18 @@ import kotlin.test.assertTrue
 
 class BibleReferenceOverlayTest {
     @Test fun shownOnlyWhenAllGatesOpen() {
-        assertTrue(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, buttonsShown = true, hideSetting = false))
+        assertTrue(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, scrolling = true, hideSetting = false))
     }
     @Test fun hiddenWhenSettingDisablesIt() {
-        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, buttonsShown = true, hideSetting = true))
+        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, scrolling = true, hideSetting = true))
     }
     @Test fun hiddenWhenNotFullScreen() {
-        assertFalse(bibleReferenceOverlayVisible(fullScreen = false, activeIsBibleShown = true, buttonsShown = true, hideSetting = false))
+        assertFalse(bibleReferenceOverlayVisible(fullScreen = false, activeIsBibleShown = true, scrolling = true, hideSetting = false))
     }
     @Test fun hiddenWhenActiveWindowIsNotBible() {
-        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = false, buttonsShown = true, hideSetting = false))
+        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = false, scrolling = true, hideSetting = false))
     }
-    @Test fun hiddenWhenButtonsAutoHidden() {
-        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, buttonsShown = false, hideSetting = false))
+    @Test fun hiddenWithoutScrolling() {
+        assertFalse(bibleReferenceOverlayVisible(fullScreen = true, activeIsBibleShown = true, scrolling = false, hideSetting = false))
     }
 }
