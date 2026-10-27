@@ -22,8 +22,8 @@
   </template>
   <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseNum"/>
   <template v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)">
-    <span v-if="verseInfo" :class="{'skip-offset': !isCanonical}"><slot/></span>
-    <div v-else :class="{'skip-offset': !isCanonical}"><slot/></div>
+    <span v-if="verseInfo" :dir="dir" :class="{'skip-offset': !isCanonical}"><slot/></span>
+    <div v-else :dir="dir" :class="{'skip-offset': !isCanonical}"><slot/></div>
   </template>
 </template>
 
@@ -42,6 +42,7 @@ const props = defineProps<{
     annotateRef?: string
     canonical?: string
     annotateType?: string
+    dir?: "auto" | "ltr" | "rtl"
 }>();
 
 checkUnsupportedProps(
