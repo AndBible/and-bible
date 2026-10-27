@@ -28,6 +28,8 @@ import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.SchemaExportFixtures
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -39,6 +41,10 @@ import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
 import net.bible.test.DatabaseResetter
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+import net.bible.test.testOrderedLauncher
+import org.mockito.Mockito
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -142,6 +148,55 @@ class SyncPatchTransactionTest {
         assertNull(createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)))
         // Device 2 has written no patch yet: its first one carries every logged row (label 3 and the merged ones).
         assertEquals(3, labelCountInPatch(createPatchForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!))
+    }
+
+    /** Regression for #3600: independent Paragraph creation must converge without dropping either device's links. */
+    @Test fun paragraphLabelsFromTwoDevicesConvergeWithBookmarkLinksIntact() = run {
+        val devices = listOf(accessor(fromSchemaExport = true), accessor(fromSchemaExport = false))
+        val container = DatabaseContainer.instance
+        val originalDb = container.bookmarkDb
+        val bookmarks = try {
+            devices.mapIndexed { index, device ->
+                container.bookmarkDb = device.localDb
+                val control = BookmarkControl(
+                    Mockito.mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), testOrderedLauncher(),
+                    net.bible.android.platform.androidSaxTextPolicy(),
+                )
+                val paragraph = control.paragraphBreakLabel()
+                val dao = device.localDb.bookmarkDao()
+                val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+                    kjvOrdinalStart = 5 + index, kjvOrdinalEnd = 5 + index, primaryLabelId = paragraph.id,
+                )
+                dao.insert(bookmark.bookmarkEntity)
+                dao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.bookmarkEntity, paragraph).apply {
+                    orderNumber = index + 3
+                    indentLevel = index + 1
+                    expandContent = true
+                })
+                bookmark
+            }
+        } finally {
+            container.bookmarkDb = originalDb
+        }
+        val env = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java)
+        // Both patches are made before either device sees the other one's label.
+        val patches = devices.map { createPatchForDatabase(it, env)!!.also { patch -> files += patch.toFile() } }
+        applyPatchesForDatabase(devices[0], env, patches[1])
+        applyPatchesForDatabase(devices[1], env, patches[0])
+
+        for (device in devices) {
+            val dao = device.localDb.bookmarkDao()
+            val paragraph = dao.allLabelsSortedByName().single { it.isParagraphBreakLabel }
+            assertEquals(1, dao.allLabelsSortedByName().size)
+            bookmarks.forEachIndexed { index, bookmark ->
+                assertEquals(paragraph.id, dao.bibleBookmarkById(bookmark.id)!!.primaryLabelId)
+                val link = dao.getBookmarkToLabelsForBookmark(bookmark.id).single()
+                assertEquals(paragraph.id, link.labelId)
+                assertEquals(index + 3, link.orderNumber)
+                assertEquals(index + 1, link.indentLevel)
+                assertTrue(link.expandContent)
+            }
+        }
     }
 
     /** Ported from androidTest `DatabasePatchingTests.testBookmarkToLabelUpdates`: needs `foreign_keys=OFF` while applying. */
