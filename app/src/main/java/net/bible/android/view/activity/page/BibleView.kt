@@ -1398,6 +1398,9 @@ class BibleView(
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
         lastTouched = System.currentTimeMillis()
         super.onScrollChanged(l, t, oldl, oldt)
+        if ((l != oldl || t != oldt) && isActive) {
+            hostCallbacks.composeReadingViewHost()?.onBibleViewScrolled()
+        }
     }
 
     /** ensure auto-scroll does not continue when screen is powered off

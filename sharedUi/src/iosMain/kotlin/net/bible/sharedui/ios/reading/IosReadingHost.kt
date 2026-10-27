@@ -214,6 +214,7 @@ class IosReadingHost(
             onSwipe = IosReadingWindows::performSwipe,
             setFullScreen = ::setFullScreen,
             onPaneTouched = { hostState.onBibleViewTouched() },
+            onPaneScrolled = { hostState.onBibleViewScrolled() },
         )
     }
 

@@ -1057,7 +1057,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
-    fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
+    fun onBibleViewTouched() = hostState.onBibleViewTouched()
+
+    fun onBibleViewScrolled() = hostState.onBibleViewScrolled()
 
     /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
     fun closeDrawer() = hostState.closeDrawer()
