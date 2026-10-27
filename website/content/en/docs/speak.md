@@ -50,8 +50,11 @@ The *Speak* dialog can be accessed from:
 
 ### Text follows speech and bookmarks
 
-In the advanced Speak settings, **Text follows speech** controls whether the displayed
-text follows the passage being read aloud. Changing it does not require restarting the app.
+In the advanced Speak settings, **Text follows speech** controls whether the reading
+window moves with playback. Changing it does not require restarting the app. With it
+disabled, speaking a selected commentary passage keeps the window at its current position
+while highlighting the spoken text in the displayed entry, including entries that cover
+several verses.
 
 With **Automatic bookmarking** enabled, pausing or stopping speech saves your position
 with the special Speak label. The playback bar's bookmark button appears when a Speak
