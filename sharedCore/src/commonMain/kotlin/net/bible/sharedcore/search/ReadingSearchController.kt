@@ -197,14 +197,20 @@ class ReadingSearchController(
 
         when (kind) {
             is SearchKind.NeedsIndex -> {
-                if (isIndexing(kind.docId)) {
-                    _phase.value = ReadingSearchPhase.Indexing(kind.docId, kind.forEpub)
-                    onObserveIndexing(kind.docId)
-                } else {
-                    _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
-                }
                 _sheetVisible.value = true
                 requestFieldRelease()
+                if (isIndexing(kind.docId)) {
+                    _phase.value = ReadingSearchPhase.Indexing(kind.docId, kind.forEpub)
+                    // Attaching may resolve immediately; do not overwrite its sheet/IME decision.
+                    onObserveIndexing(kind.docId)
+                } else {
+                    // The build can finish between resolveDoc() and isIndexing().
+                    when (val refreshed = searchKindFor(resolveDoc())) {
+                        is SearchKind.Bible -> enterFormOrResults(refreshed.docId, forEpub = false)
+                        is SearchKind.Epub -> enterFormOrResults(refreshed.docId, forEpub = true)
+                        else -> _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+                    }
+                }
             }
             is SearchKind.Bible -> enterFormOrResults(kind.docId, forEpub = false)
             is SearchKind.Epub -> enterFormOrResults(kind.docId, forEpub = true)

@@ -117,8 +117,10 @@ class FakeSearchIndexJobs : SearchIndexJobs {
         private set
     private val listeners = mutableListOf<(Any, () -> Boolean) -> Unit>()
     var running = false
+    var beforeSubscribe: () -> Unit = {}
 
     override fun subscribe(onEvent: (job: Any, isFinished: () -> Boolean) -> Unit): () -> Unit {
+        beforeSubscribe()
         subscribeCalls++
         subscribers++
         listeners += onEvent
@@ -167,6 +169,7 @@ class SearchFixture(
     val index: FakeIndexService = FakeIndexService(),
     val settings: MapSearchSettings = MapSearchSettings(),
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined),
+    val pollPause: suspend () -> Unit = {},
 ) {
     var leftFullScreen = 0
     val state = ReadingSearchState(
@@ -176,6 +179,6 @@ class SearchFixture(
         indexJobs = jobs,
         services = ReadingSearchServices(bible, FakeEpubSearch(), SearchResultsCache(), index),
         onLeaveFullScreen = { leftFullScreen++ },
-        pollPause = {},
+        pollPause = pollPause,
     )
 }

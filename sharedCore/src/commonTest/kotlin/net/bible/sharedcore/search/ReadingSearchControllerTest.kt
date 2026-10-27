@@ -53,6 +53,25 @@ class ReadingSearchControllerTest {
     }
 
     @Test
+    fun completionBetweenDocumentResolutionAndRunningStatusCheckDoesNotPromptAgain() {
+        var doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, false)
+        val searches = mutableListOf<String>()
+        val c = ReadingSearchController(
+            resolveDoc = { doc },
+            onUnavailable = {},
+            onLeaveFullScreen = { doc = doc.copy(indexDone = true) },
+            onStartIndexing = { error("must not rebuild") },
+            onRunSearch = { _, query, _ -> searches += query },
+            isIndexing = { false },
+        )
+
+        c.open("light")
+
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(listOf("light"), searches)
+    }
+
+    @Test
     fun submittingABibleReferenceJumpsInsteadOfSearching() {
         val (r, c) = controller(references = setOf("1 joh 3 16"))
         c.open()
