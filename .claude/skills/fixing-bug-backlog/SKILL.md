@@ -23,7 +23,10 @@ issue-management for tracker rules. This skill only adds the AndBible-specific c
    feature requests disguised as bugs, and "maybe just my phone" reports without repro steps.
    A device/layout bug with concrete repro steps is in: give it to Opus (step 3), which can
    reproduce it on the emulator.
-4. Stop when no clear bug is left; say which ones were skipped and why.
+4. A bug whose evidence nobody here can reach (a video or attachment egress blocks, a device-only
+   state, an answer only the reporter has) is out of the round: leave it waiting. If a child hits
+   such a blocker mid-work, destroy it unchanged and take the next bug.
+5. Stop when no clear bug is left; say which ones were skipped and why.
 
 ## 2. Prepare shared material
 
