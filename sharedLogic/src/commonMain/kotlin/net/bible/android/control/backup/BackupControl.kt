@@ -72,6 +72,10 @@ import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.epub.addOwnedEpubBook
+import net.bible.service.sword.epub.deleteOwnedEpubModule
+import net.bible.service.sword.epub.epubInitials
+import net.bible.service.sword.epub.installEpubModule
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
@@ -1043,6 +1047,8 @@ class BackupControl(
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
+        val epubStaging = targetDirectory / ".epub-install-${net.bible.android.database.IdType()}"
+        val epubModules = linkedSetOf<String>()
         var publishStep = 0
         var dataReplaced = false
         try {
@@ -1054,7 +1060,11 @@ class BackupControl(
                         ?: throw IOException("Unsafe ZIP entry name")
                     if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
-                    val file = targetDirectory / moduleArchiveTargetName(name)
+                    val segments = name.split('/')
+                    val isEpubEntry = segments.size >= 3 && segments[0] == "epub"
+                    if (isEpubEntry) epubModules.add(segments[1])
+                    // Never overwrite files used by an open EPUB owner while reading the archive.
+                    val file = (if (isEpubEntry) epubStaging else targetDirectory) / moduleArchiveTargetName(name)
                     val isConf = name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF)
                     if (isConf) confFiles.add(file)
 
@@ -1106,7 +1116,26 @@ class BackupControl(
             }
             for (old in asides.values) runCatching { fileSystem.delete(old) }
             asides.clear()
+            for (name in epubModules) {
+                val dir = targetDirectory / "epub" / name
+                installEpubModule(dir) {
+                    // Reuse the direct EPUB install lifecycle: drain readers, drop the internal metadata
+                    // cache, and publish a fresh owner so render caches cannot reuse the old generation.
+                    deleteOwnedEpubModule(dir)
+                    try {
+                        fileSystem.createDirectories(dir.parent!!)
+                        fileSystem.atomicMove(epubStaging / "epub" / name, dir)
+                        addOwnedEpubBook(dir, strings, env)
+                        check(Books.installed().getBook(epubInitials(name)) != null) { "EPUB registration failed: $name" }
+                        true
+                    } catch (e: Exception) {
+                        deleteOwnedEpubModule(dir)
+                        throw e
+                    }
+                }
+            }
         } finally {
+            runCatching { fileSystem.deleteRecursively(epubStaging, mustExist = false) }
             for (part in staged.values) runCatching { fileSystem.delete(part) }
             for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
             // Handled failure: nothing was replaced yet -> the old module is simply restored; otherwise its data may
