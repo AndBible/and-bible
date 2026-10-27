@@ -74,7 +74,8 @@ import kotlin.math.min
 
 open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
     constructor(msg: String): this(msg, msg)
-    val xml: Element = useKdomBuilder { it.build("<div>$xmlMessage</div>").rootElement }
+    // Inline errors are rendered inside module fragments, whose direction can differ from the UI text.
+    val xml: Element = useKdomBuilder { it.build("<div dir=\"auto\">$xmlMessage</div>").rootElement }
 }
 
 class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
