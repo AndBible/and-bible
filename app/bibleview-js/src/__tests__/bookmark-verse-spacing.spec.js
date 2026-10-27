@@ -20,6 +20,7 @@ import {mount} from "@vue/test-utils";
 import {defineComponent, h, nextTick, provide, ref} from "vue";
 import Color from "color";
 import Verse from "@/components/OSIS/Verse.vue";
+import {calculateOffsetToVerse} from "@/dom";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useConfig} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
@@ -116,5 +117,23 @@ describe("bookmark verse spacing", () => {
         await nextTick();
         expect(wrapper.element.textContent).toBe("First verse. Second verse. ");
         expect(wrapper.find("em").text()).toBe("verse.");
+    });
+
+    it("still renders legacy bookmarks whose end offset counted the old trailing space", async () => {
+        await renderVerses();
+        gb.updateBookmarks([bookmark([0, "First verse.".length + 1])]);
+        await nextTick();
+        expect([...document.querySelectorAll("#doc-spacing .bookmarked")].map(e => e.textContent).join("")).toBe("First verse.");
+    });
+
+    it("resolves a selection ending in the inter-verse space to its verse", () => {
+        return renderVerses().then(() => {
+            const verse = document.querySelector("#doc-spacing #v-1");
+            const spaceNode = [...verse.childNodes].find(n => n.nodeType === Node.TEXT_NODE);
+            expect(spaceNode.data).toBe(" ");
+            const {ordinal, offset} = calculateOffsetToVerse(spaceNode, 1);
+            expect(ordinal).toBe(1);
+            expect(offset).toBe("First verse.".length);
+        });
     });
 });

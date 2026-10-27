@@ -20,7 +20,7 @@ import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
-import {findNodeAtOffset, lastTextNode} from "./dom";
+import {contentLength, findNodeAtOffset, lastTextNode} from "./dom";
 import {sprintf as sprintfOrig} from "sprintf-js";
 import {CombinedRange, NumberRange, OffsetRange, OrdinalOffset, OrdinalRange} from "@/types/client-objects";
 import {BibleDocumentInfo, ColorParam, Nullable, VerseInfo} from "@/types/common";
@@ -507,6 +507,11 @@ export function findNodeAtOffsetWithNullOffset(elem: Element, offset: Nullable<n
         off = node.length;
     } else {
         [node, off] = findNodeAtOffset(elem, offset);
+        if ((!node || off === null) && offset > contentLength(elem)) {
+            // Legacy bookmarks counted the trailing inter-verse space; clamp to the end of the text.
+            node = lastTextNode(elem);
+            off = node.length;
+        }
     }
     if (!node || off === null) return null
     return {node, offset: off};

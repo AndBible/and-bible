@@ -245,6 +245,12 @@ export function calculateOffsetToVerse(node: Node, offset: number) {
     }
     let offsetNow = 0;
     if (!parent) {
+        // Inter-verse space lives inside #v-N but outside .ordinal: resolve to the end of that verse.
+        const start = node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement;
+        const ordinalElem = start?.closest('[id^="v-"]')?.querySelector(":scope > .ordinal");
+        if (ordinalElem) {
+            return {offset: contentLength(ordinalElem), ordinal: ordinalFromVerseElement(ordinalElem)}
+        }
         const {verseNode, siblings} = findParentsBeforeVerseSibling(node)
         const lastSibling = siblings.shift();
         if (lastSibling && hasOsisContent(lastSibling)) {
