@@ -80,7 +80,8 @@ in Strong’s enabled document modules (like KJV, BSB, NASB, NET, etc):
     below the words.
 
 To view the Strong’s definition for a word, simply click on a word in a Strong’s
-enabled Bible module.
+enabled Bible module. This also works in non-English modules such as SpaRV1909;
+install and select the Greek and Hebrew dictionaries you want to use.
 
 To display the Strong’s numbers in the Bible instead of underlines,
 click on the Greek or Hebrew icon on the top menu bar (For books in Hebrew,

@@ -80,7 +80,8 @@ function formatLink(first?: string, second?: string): string {
     const linkBodies = [];
 
     function toArgs(string: string): string {
-        return prep(string).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&");
+        // Some OSIS modules (e.g. SpaRV1909) use Strong: instead of strong:.
+        return prep(string).map(s => s.trim().replace(/^strong:/i, "strong:").replace(/ /g, "_").replace(/:/g, "=")).join("&");
     }
 
     if (first) {
