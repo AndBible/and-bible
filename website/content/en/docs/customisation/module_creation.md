@@ -4,6 +4,14 @@ Custom modules can be created for *AndBible* versions 4.0+
 
 Examples: <https://github.com/AndBible/special-modules/>
 
+## General Book Modules
+
+A SWORD module using `ModDrv=RawGenBook` has a tree of entries rather than
+Bible verses. Use `Category=Generic Books` for general books, or `Category=Maps`
+for maps. If a RawGenBook module incorrectly declares `Category=Biblical Texts`
+or `Category=Commentaries`, AndBible treats it as a general book instead of
+listing it as a Bible or commentary.
+
 ## Custom Font Modules
 
 It is possible to offer new fonts to users with custom font modules.
