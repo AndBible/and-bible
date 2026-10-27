@@ -37,6 +37,10 @@ counted as another failed startup if the system closes the app while it is shown
     - *Phone Storage* (you will be prompted to choose a folder on your device)
     - *Share* (you will be able to choose from a list of installed applications)
 
+Document backups store each file path only once, even when selected modules share
+files. If two installed versions provide the same path, the first selected version's
+file is kept in the backup.
+
 ## How to restore your data
 
 NOTE: If your backups were saved to cloud storage, download the backups to your
