@@ -56,14 +56,30 @@ class SyncService: Service() {
         return null
     }
 
+    // Guard starts and IO cleanup together so an old run cannot stop a new one.
+    private var syncing = false
+
+    @Synchronized
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        try {
+            // Acknowledge every foreground-service start before branching or dispatching IO work.
+            startForeground(SYNC_NOTIFICATION_ID, buildSyncNotification())
+        } catch (e: Exception) {
+            Log.e(TAG, "Foreground service entry failed", e)
+            if (!syncing) finish(false, false, null)
+            return START_NOT_STICKY
+        }
         when(intent?.action) {
-            START_SERVICE -> synchronize()
+            START_SERVICE -> if (!syncing) {
+                syncing = true
+                synchronize()
+            }
             else -> {
                 Log.w(TAG, "Unknown command $intent ${intent?.action}")
+                if (!syncing) stop()
             }
         }
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     val scope = CoroutineScope(Dispatchers.IO)
@@ -97,9 +113,6 @@ class SyncService: Service() {
             try {
                 Log.i(TAG, "Synchronize started")
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-                val notification = buildSyncNotification()
-                notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
-                startForeground(SYNC_NOTIFICATION_ID, notification)
                 wakeLock.acquire(5 * 60 * 1000)
                 jobStarted = true
                 succeeded = runDatabaseSyncJob(cloudSync, settings)
@@ -107,28 +120,38 @@ class SyncService: Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)
             } finally {
-                // Release every owner even if a listener or cleanup operation throws.
+                finish(succeeded, jobStarted, wakeLock)
+            }
+        }
+    }
+
+    @Synchronized
+    private fun finish(succeeded: Boolean, jobStarted: Boolean, wakeLock: PowerManager.WakeLock?) {
+        // Release every owner even if a listener or cleanup operation throws.
+        try {
+            // The job clears the running flag itself; only a failure before it started needs it here.
+            if (!jobStarted) cloudSync.notifySyncRunning(false)
+        } finally {
+            try {
+                wakeLock?.let { if (it.isHeld) it.release() }
+            } finally {
                 try {
-                    // The job clears the running flag itself; only a failure before it started needs it here.
-                    if (!jobStarted) cloudSync.notifySyncRunning(false)
+                    try {
+                        notificationManager.cancel(SYNC_NOTIFICATION_ID)
+                    } finally {
+                        stop()
+                    }
                 } finally {
                     try {
-                        wakeLock?.let { if (it.isHeld) it.release() }
+                        scheduler.complete(succeeded)
                     } finally {
-                        try {
-                            try {
-                                notificationManager.cancel(SYNC_NOTIFICATION_ID)
-                            } finally {
-                                stop()
-                            }
-                        } finally {
-                            scheduler.complete(succeeded)
-                        }
+                        syncing = false
                     }
                 }
             }
         }
     }
+
     private fun stop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
