@@ -106,6 +106,29 @@ class ScrolledOsisRefKeyUpdateTest {
         assertThat(page.key?.getOsisRef(), equalTo(heb11v9.getOsisRef()))
     }
 
+    /** #3878: returning to an already-loaded entry must replace the last fragment's title range. */
+    @Test
+    fun scrollingBackToAlreadyLoadedCommentaryEntryUpdatesDisplayRange() {
+        val page = commentaryPageAtEntry5to8()
+        page.annotateKey = entry5to8 // set when the previous fragment was loaded
+
+        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.getOsisRef()), equalTo(true))
+        assertThat(page.displayKey?.getOsisRef(), equalTo("Heb.11.9-Heb.11.10"))
+        assertThat(page.key?.getOsisRef(), equalTo("Heb.11.9"))
+
+        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.getOsisRef()), equalTo(true))
+        assertThat(page.displayKey?.getOsisRef(), equalTo("Heb.11.5-Heb.11.8"))
+    }
+
+    @Test
+    fun scrollingToSingleVerseCommentaryEntryReplacesPreviousDisplayRange() {
+        val page = commentaryPageAtEntry5to8()
+        page.annotateKey = entry5to8
+
+        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.getOsisRef()), equalTo(true))
+        assertThat(page.displayKey?.getOsisRef(), equalTo("Heb.11.9"))
+    }
+
     /** A move is reported once, not again for each further scroll tick inside the new entry. */
     @Test
     fun repeatedScrollTicksInTheSameEntryReportTheMoveOnlyOnce() {
@@ -131,10 +154,12 @@ class ScrolledOsisRefKeyUpdateTest {
     @Test
     fun anEntryThatContainsTheCurrentVerseIsNotAMove() {
         val page = commentaryPageAtEntry5to8()
+        page.annotateKey = entry5to8
         page.doSetKey(heb11v7)      // what window sync does when the Bible window scrolls to v7
 
         assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.getOsisRef()), equalTo(false))
         assertThat(page.key?.getOsisRef(), equalTo(heb11v7.getOsisRef()))
+        assertThat(page.displayKey?.getOsisRef(), equalTo("Heb.11.5-Heb.11.8"))
     }
 
     /** The same, one verse further in: any verse of the entry counts as being in that entry. */
