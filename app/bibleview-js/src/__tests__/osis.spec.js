@@ -26,7 +26,7 @@ import {strongsModes, useConfig} from "@/composables/config";
 import {useStrings} from "@/composables/strings";
 import {useAndroid} from "@/composables/android";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
-import {ref} from "vue";
+import {nextTick, ref} from "vue";
 import {
     androidKey,
     appSettingsKey,
@@ -74,7 +74,7 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
 }
 
 function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, isNativeHtml = false,
-    strongsMode = strongsModes.hidden} = {}) {
+    strongsMode = strongsModes.hidden, ordinalHighlight = useOrdinalHighlight()} = {}) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     config.showRedLetters = showRedLetters;
     config.strongsMode = strongsMode;
@@ -92,7 +92,7 @@ function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, 
         [footnoteCountKey]: {getFootNoteCount: () => 0},
         [androidKey]: android,
         [stringsKey]: useStrings(),
-        [ordinalHighlightKey]: useOrdinalHighlight(),
+        [ordinalHighlightKey]: ordinalHighlight,
         [globalBookmarksKey]: useGlobalBookmarks(config),
         [modalKey]: useModal(android),
     };
@@ -106,6 +106,52 @@ describe("OsisSegment.vue", () => {
     // https://runthatline.com/test-css-module-classes-in-vue-with-vitest/
     // https://github.com/AndBible/and-bible/issues/2434
     it.skip("Test rendering of Eph 2:8 in KJVA, #1985", () => verifyXmlRendering(test1Xml, test1Result));
+
+    it("highlights list item text within the selected verse and clears it on deselection (#3785)", async () => {
+        const ordinalHighlight = useOrdinalHighlight();
+        const wrapper = mountOsisSegment(
+            '<verse osisID="Deut.14.12" verseOrdinal="100">Do not eat these birds:' +
+            '<list><item>the eagle</item><item>the vulture</item></list></verse>' +
+            '<verse osisID="Deut.14.13" verseOrdinal="101"><list><item>the kite</item></list></verse>',
+            {ordinalHighlight});
+        try {
+            const items = wrapper.findAll("li");
+            expect(items.map(item => item.text())).toEqual(["the eagle", "the vulture", "the kite"]);
+            expect(wrapper.findAll(".isHighlighted")).toHaveLength(0);
+
+            ordinalHighlight.highlightOrdinal(100);
+            await nextTick();
+            expect(wrapper.get("#v-100 .highlight-transition").classes()).toContain("isHighlighted");
+            // An inline ancestor's background does not paint text in a block-level list item.
+            for (const item of items.slice(0, 2)) {
+                expect(item.get(".isHighlighted").text()).toBe(item.text());
+                expect(item.get(".isHighlighted").classes()).toContain("highlight-transition");
+            }
+            expect(items[2].find(".isHighlighted").exists()).toBe(false);
+
+            ordinalHighlight.resetHighlights();
+            await nextTick();
+            expect(wrapper.findAll(".isHighlighted")).toHaveLength(0);
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
+    it("leaves standalone lists unhighlighted when a different verse is selected", async () => {
+        const ordinalHighlight = useOrdinalHighlight();
+        const wrapper = mountOsisSegment(
+            '<list><item>Document introduction</item></list>' +
+            '<verse osisID="Deut.14.12" verseOrdinal="100">Verse text</verse>',
+            {ordinalHighlight});
+        try {
+            ordinalHighlight.highlightOrdinal(100);
+            await nextTick();
+            expect(wrapper.get("#v-100 .isHighlighted").text()).toContain("Verse text");
+            expect(wrapper.get("li").find(".isHighlighted").exists()).toBe(false);
+        } finally {
+            wrapper.unmount();
+        }
+    });
 
     // Original OSIS from SpaRV1909 1.0.1 (Gen 1:1 and Matt 1:1), issue #3229.
     it.each([

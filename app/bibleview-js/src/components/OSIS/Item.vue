@@ -16,11 +16,18 @@
   -->
 
 <template>
-  <li><slot/></li>
+  <li><span class="highlight-transition" :class="{isHighlighted: highlighted}"><slot/></span></li>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+import {computed, inject} from "vue";
+import {ordinalHighlightKey, verseInfoKey} from "@/types/constants";
+
+const verseInfo = inject(verseInfoKey, null);
+const ordinalHighlight = inject(ordinalHighlightKey, null);
+// The verse's inline background does not paint inside block-level list items.
+const highlighted = computed(() => !!verseInfo && !!ordinalHighlight?.isHighlighted(verseInfo.ordinal));
 
 useCommon()
 </script>
