@@ -48,6 +48,16 @@ The *Speak* dialog can be accessed from:
 | **Repeat passage** | Repeat the range of verses specified. |
 | **Sleep timer** | Stop the playback after the number of minutes specified. |
 
+### Text follows speech and bookmarks
+
+In the advanced Speak settings, **Text follows speech** controls whether the displayed
+text follows the passage being read aloud. Changing it does not require restarting the app.
+
+With **Automatic bookmarking** enabled, pausing or stopping speech saves your position
+with the special Speak label. The playback bar's bookmark button appears when a Speak
+bookmark is available, without restarting the app, and lets you resume from a saved position.
+It disappears when the last Speak bookmark is removed.
+
 ## How to speak a range of verses
 
 1. Tick the `Repeat passage` box. This will show the verse selector.
