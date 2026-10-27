@@ -281,6 +281,88 @@ class EpubBackendStateTest {
     }
 
     @Test
+    fun moduleArchiveReplacementRefreshesContentWithoutRestart() = moduleArchiveReplacement(styles = false)
+
+    @Test
+    fun moduleArchiveReplacementRefreshesStyleSheetsWithoutRestart() = moduleArchiveReplacement(styles = true)
+
+    private fun moduleArchiveReplacement(styles: Boolean) = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "archive-replace-$styles.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val strings = testCoreStrings()
+        val koin = org.koin.core.context.GlobalContext.get()
+        val backup = net.bible.android.control.backup.BackupControl(
+            dialogs = koin.get(), strings = strings, env = AndroidAppEnvironment(application),
+            settings = koin.get(), windowControl = koin.get(), cloudSync = koin.get(),
+            notifier = koin.get(), dirs = koin.get(),
+        )
+        val archives = mutableListOf<File>()
+        fun archive(token: String): File {
+            val source = buildEpub("source-$name-$token")
+            File(source, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Chapter One", "The $token river crosses the valley.")
+                .replace("</head>", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$token.css\"/></head>"))
+            File(source, "OEBPS/$token.css").writeText("p { font-family: $token; }")
+            newState(source).close()
+            return File.createTempFile("epub-replacement-", ".abmd.zip").also { archive ->
+                archives.add(archive)
+                java.util.zip.ZipOutputStream(archive.outputStream()).use { zip ->
+                    source.walkTopDown().filter { it.isFile }.forEach { file ->
+                        zip.putNextEntry(java.util.zip.ZipEntry("epub/$name/${file.relativeTo(source).invariantSeparatorsPath}"))
+                        file.inputStream().use { it.copyTo(zip) }
+                        zip.closeEntry()
+                    }
+                }
+                source.deleteRecursively()
+            }
+        }
+        fun rendered(): String {
+            val book = books.getBook(epubInitials(name))!!
+            return xml(net.bible.service.sword.SwordContentFacade.readOsisFragment(book, book.epubBackend!!.state.keys.first(), strings))
+        }
+        fun css(): String {
+            val book = books.getBook(epubInitials(name))!!
+            val key = book.epubBackend!!.state.keys.first().getOsisRef()
+            return net.bible.android.view.activity.page.BibleView.ModuleStylesAssetHandler()
+                .handle("epub/${book.initials}/$key/style.css").data.use { it.readBytes().toString(Charsets.UTF_8) }
+        }
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(backup.installModuleArchive(archive("quiet").toOkioPath(), epubInitials(name)))
+            assertTrue(rendered().contains("quiet"))
+            assertEquals("p { font-family: quiet; }", css())
+            val page = generalBookPage().apply { onlySetCurrentDocument(books.getBook(epubInitials(name))) }
+            val unsafeArchive = File.createTempFile("epub-unsafe-", ".abmd.zip").also { archives.add(it) }
+            java.util.zip.ZipOutputStream(unsafeArchive.outputStream()).use { zip ->
+                zip.putNextEntry(java.util.zip.ZipEntry("epub/$name/OEBPS/quiet.css"))
+                zip.write("p { font-family: broken; }".toByteArray())
+                zip.closeEntry()
+                zip.putNextEntry(java.util.zip.ZipEntry("../unsafe"))
+                zip.write(byteArrayOf(1))
+                zip.closeEntry()
+            }
+            assertFalse(backup.installModuleArchive(unsafeArchive.toOkioPath(), epubInitials(name)))
+            assertTrue("failed extraction preserves the opened document", rendered().contains("quiet"))
+            assertEquals("failed extraction preserves the stylesheet", "p { font-family: quiet; }", css())
+            assertTrue(backup.installModuleArchive(archive("quartz").toOkioPath(), epubInitials(name)))
+            assertFalse("replacement removes obsolete stylesheet files", File(epubRoot, "$name/OEBPS/quiet.css").exists())
+            assertTrue("archive staging must be cleaned", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-install-") })
+            if (styles) {
+                assertEquals("replacement CSS must use the new stylesheet mapping", "p { font-family: quartz; }", css())
+            } else {
+                val content = rendered()
+                assertTrue("replacement content must not come from the old render cache: $content", content.contains("quartz"))
+                assertFalse(content.contains("quiet"))
+            }
+            val current = page.currentDocument!!
+            assertTrue("the active page resolves the replacement", current.getRawText(current.epubBackend!!.state.keys.first()).contains("quartz"))
+        } finally {
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+            archives.forEach { it.delete() }
+        }
+    }
+
+    @Test
     fun sameNameCommitReplacesOpenedReaderAndPersistedSearchIndex() = kotlinx.coroutines.runBlocking<Unit> {
         val name = "ep3-replace.epub"
         val books = org.crosswire.jsword.book.Books.installed()

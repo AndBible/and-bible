@@ -146,6 +146,9 @@ To load a document from your device’s filesystem:
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
+Replacing an EPUB through a document backup (`.abmd.zip`) reloads its content and
+styles for subsequent reads without requiring you to force-stop the app.
+
 ## Deleting Modules
 
 To delete any of the above module types:
