@@ -78,11 +78,16 @@ class CommentaryRangeSpeakTest : SpeakIntegrationTestBase() {
         val metadata = SwordBookMetaData(conf.absolutePath.toPath(), KUri(root.toURI().toString()))
         commentary = BookType.fromString("RawCom")!!.createBook(metadata) as SwordBook
         Books.installed().addBook(commentary)
+        originalSynchronize = GlobalContext.get().get<AdvancedSpeakSettings>().synchronize
         GlobalContext.get().get<AdvancedSpeakSettings>().synchronize = false
     }
 
+    private var originalSynchronize: Boolean? = null
+
     @After
     fun unregisterCommentary() {
+        originalSynchronize?.let { GlobalContext.get().get<AdvancedSpeakSettings>().synchronize = it }
+        if (!::commentary.isInitialized) return
         windowControl.windowRepository.windowList.forEach { it.destroy(destroyView = false) }
         windowControl.retireWindowRepositoryForTest()
         Books.installed().removeBook(commentary)
