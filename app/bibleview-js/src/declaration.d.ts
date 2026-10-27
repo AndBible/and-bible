@@ -84,6 +84,7 @@ type TranslatedStrings = {
     lastUpdatedOn: string
     strongsAndMorph: string
     externalLink: string
+    internalLink: string
     referenceLink: string
     openFootnote: string
     noMyNotesTitle: string

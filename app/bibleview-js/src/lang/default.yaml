@@ -36,6 +36,7 @@ createdAt: "Created: %s"
 lastUpdatedOn: "Last updated: %s"
 strongsAndMorph: Definition & Morphology
 externalLink: Open external link
+internalLink: Open internal link
 referenceLink: Open reference link
 openFootnote: Open footnote
 noMyNotesTitle: No My Notes for this chapter.
