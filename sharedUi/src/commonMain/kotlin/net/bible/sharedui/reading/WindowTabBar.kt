@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.RailLeading
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisableAnimations
@@ -299,7 +300,8 @@ private fun RailLeadingControl(
             icon = if (leading.expanded) Icons.AutoMirrored.Filled.KeyboardArrowRight else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             description = strings.railExpandCollapse,
             onClick = onToggleCollapse,
-            modifier = modifier,
+            // The chevron direction is the only visible state; expose expanded/collapsed to TalkBack too.
+            modifier = modifier.toggleStateSemantics(leading.expanded),
         )
     }
 }
