@@ -15,6 +15,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.VersificationConverter
+import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.lang.reflect.Proxy
 import kotlin.test.Test
@@ -72,6 +73,30 @@ class BundledReadingPlanVersificationTest {
         } finally {
             scope.coroutineContext[Job]?.cancel()
         }
+    }
+
+    @Test
+    fun forVersificationReturnsSameInstanceForOwnVersificationAndKeepsDayData() {
+        val kjv = Versifications.instance().getVersification("KJV")!!
+        val german = Versifications.instance().getVersification("German")!!
+        val info = ReadingPlanInfoDto("p").apply { versification = kjv }
+        val strings = object : CoreStringsStub() {}.proxy()
+        val day = OneDaysReadingsDto(5, "Joel.1,Joel.3", info, strings, unused<LocalCalendar>())
+
+        assertTrue(day.forVersification(kjv) === day)
+
+        val mapped = day.forVersification(german)
+        assertEquals(5, mapped.day)
+        assertEquals(day.dayDesc, mapped.dayDesc)
+        assertEquals(2, mapped.numReadings)
+        assertEquals("Joel 4", mapped.getReadingKey(2).getName())
+        assertEquals("Joel 3", day.getReadingKey(2).getName())
+    }
+
+    private open class CoreStringsStub {
+        fun proxy(): CoreStrings = Proxy.newProxyInstance(
+            CoreStrings::class.java.classLoader, arrayOf(CoreStrings::class.java),
+        ) { _, m, a -> if (m.name == "readingPlanDay") "Day ${a[0]}" else error("Unexpected ${m.name}") } as CoreStrings
     }
 
     private inline fun <reified T> unused(): T = Proxy.newProxyInstance(

@@ -17,6 +17,7 @@
 
 package net.bible.service.readingplan
 
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 
 import org.crosswire.jsword.passage.Key
@@ -35,6 +36,8 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     : Comparable<OneDaysReadingsDto>
 {
     private var readingKeys: List<Key>? = null
+    /** Set on copies made by [forVersification]; mapped on first access so day/numReadings callers never pay for it. */
+    private var mappedKeys: Lazy<List<Key>>? = null
     /** reading date for date-based plan, else null
      */
     var readingDate: DbDate? = null
@@ -66,32 +69,48 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     val readingsDesc: String
         get() {
             val readingsBldr = StringBuilder()
-            for (i in readingKeys!!.indices) {
+            val readingKeys = keys()
+            for (i in readingKeys.indices) {
                 if (i > 0) {
                     readingsBldr.append(", ")
                 }
-                readingsBldr.append(readingKeys!![i].getName())
+                readingsBldr.append(readingKeys[i].getName())
             }
             return readingsBldr.toString()
         }
     val numReadings: Int
         get() {
-            return readingKeys!!.size
+            return keys().size
         }
 
     val getReadingKeys: List<Key>
         get() {
-            return readingKeys!!
+            return keys()
         }
 
-    /** Keeps plan numbering and read-status indices intact while displaying the reading Bible's references. */
-    fun forVersification(versification: Versification): OneDaysReadingsDto =
-        OneDaysReadingsDto(day, null, readingPlanInfo, coreStrings, calendar).also { converted ->
+    private fun keys(): List<Key> = mappedKeys?.value ?: readingKeys!!
+
+    /**
+     * Keeps plan numbering and read-status indices intact while displaying the reading Bible's references.
+     * Returns this when the plan already uses [versification]. A key that cannot be mapped is kept as is.
+     */
+    fun forVersification(versification: Versification): OneDaysReadingsDto {
+        if (readingPlanInfo.versification == versification) return this
+        return OneDaysReadingsDto(day, null, readingPlanInfo, coreStrings, calendar).also { converted ->
             converted.readingDate = readingDate
-            converted.readingKeys = getReadingKeys.map {
-                VersificationsMapper.instance().map(KeyUtil.getPassage(it), versification)
+            val original = keys()
+            converted.mappedKeys = lazy {
+                original.map {
+                    try {
+                        VersificationsMapper.instance().map(KeyUtil.getPassage(it), versification)
+                    } catch (e: Exception) {
+                        Log.w("OneDaysReadingsDto", "Cannot map ${it.getName()} to ${versification.name}", e)
+                        it
+                    }
+                }
             }
         }
+    }
 
     override fun toString(): String {
         return dayDesc
@@ -105,7 +124,7 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
      * @param readingNo 1-based reading number
      */
     fun getReadingKey(readingNo: Int): Key {
-        return readingKeys!![readingNo-1]
+        return keys()[readingNo-1]
     }
 
     private fun checkKeysGenerated() = withMonitor(this) {
