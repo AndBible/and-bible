@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <ModalDialog v-if="show" @close="show=false" blocking locate-top>
+  <ModalDialog v-if="show" @close="cancel" blocking locate-top>
     <template #title>
       <slot/>
     </template>

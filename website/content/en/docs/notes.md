@@ -137,3 +137,10 @@ The editor also supports these conveniences:
 - **Auto-save**: changes are saved automatically after a short delay.
 - **Keyboard shortcuts**: Ctrl+Z for undo, Ctrl+Y (or Ctrl+Shift+Z) for redo,
     Escape to close the editor.
+
+### Cancelling Prompts
+
+When entering a Bible reference or confirming a note deletion, you can cancel
+with **Cancel**, the prompt's **X** button, a tap outside the prompt, or Escape
+on a keyboard. Each of these returns to your notes without inserting the
+reference or deleting the note.
