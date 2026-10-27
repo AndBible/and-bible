@@ -98,6 +98,29 @@ class SyncServiceForegroundTest {
         assertEquals(1, workerCount())
     }
 
+    @Test
+    fun stopReleasesTheLatestStartIdSoANewerPendingStartIsNeverStopped() {
+        service.onStartCommand(Intent().setAction("unknown-command"), 0, 7)
+
+        assertTrue(shadowOf(service).isStoppedBySelf)
+        assertEquals("stopSelf() without an id would also stop a start that is still queued", 7, shadowOf(service).stopSelfResultId)
+    }
+
+    @Test
+    fun foregroundTimeoutEndsARunningSyncThroughTheNormalFinishPath() {
+        service.onStartCommand(startIntent(), 0, 3)
+        assertFalse(shadowOf(service).isStoppedBySelf)
+
+        service.onTimeout(3, 1)
+
+        assertTrue("onTimeout must leave the foreground state and stop the service", shadowOf(service).isStoppedBySelf)
+        assertTrue(shadowOf(service).isForegroundStopped)
+        assertEquals(3, shadowOf(service).stopSelfResultId)
+        // The run is over, so a fresh start is accepted and launches a new worker.
+        service.onStartCommand(startIntent(), 0, 4)
+        assertEquals(2, workerCount())
+    }
+
     private fun startIntent() = Intent().setAction(SyncService.START_SERVICE)
 
     private fun workerCount() = workerScope.coroutineContext[Job]!!.children.count()

@@ -30,6 +30,7 @@ import net.bible.sharedcore.log.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.service.common.BuildVariant
@@ -59,8 +60,16 @@ class SyncService: Service() {
     // Guard starts and IO cleanup together so an old run cannot stop a new one.
     private var syncing = false
 
+    // Latest start id: stopSelfResult(lastStartId) never stops a newer start that is still queued.
+    private var lastStartId = 0
+
+    // Generation of the running sync; a worker finishing after onTimeout ended its run must not finish again.
+    private var currentRun = 0
+    private var syncJob: Job? = null
+
     @Synchronized
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        lastStartId = startId
         try {
             // Acknowledge every foreground-service start before branching or dispatching IO work.
             startForeground(SYNC_NOTIFICATION_ID, buildSyncNotification())
@@ -105,8 +114,25 @@ class SyncService: Service() {
         return builder.build()
     }
 
+    /**
+     * Android 15 time limit of the dataSync foreground service: the service must stop within seconds,
+     * so the run is ended through [finish] right away and its worker cancelled.
+     */
+    @Synchronized
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        Log.w(TAG, "Foreground service time limit reached (type $fgsType); ending the sync")
+        if (syncing) {
+            currentRun++
+            syncJob?.cancel()
+            finish(false, true, null)
+        } else {
+            stop()
+        }
+    }
+
     private fun synchronize() {
-        scope.launch {
+        val run = ++currentRun
+        syncJob = scope.launch {
             var succeeded = false
             var jobStarted = false
             var wakeLock: PowerManager.WakeLock? = null
@@ -120,7 +146,14 @@ class SyncService: Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)
             } finally {
-                finish(succeeded, jobStarted, wakeLock)
+                synchronized(this@SyncService) {
+                    if (run == currentRun) {
+                        finish(succeeded, jobStarted, wakeLock)
+                    } else {
+                        // onTimeout already ended this run; only the lock is still ours.
+                        wakeLock?.let { if (it.isHeld) it.release() }
+                    }
+                }
             }
         }
     }
@@ -158,6 +191,6 @@ class SyncService: Service() {
         } else {
             stopForeground(true)
         }
-        stopSelf()
+        stopSelfResult(lastStartId)
     }
 }
