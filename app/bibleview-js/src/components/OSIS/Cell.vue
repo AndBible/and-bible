@@ -16,14 +16,16 @@
   -->
 
 <template>
-  <td :colspan="cols"><slot/></td>
+  <td :colspan="cols"><span class="highlight-transition" :class="{isHighlighted: highlighted}"><slot/></span></td>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {useVerseHighlighted} from "@/composables/verse-highlighted";
 
 const props = defineProps<{role?: string, cols?: string}>();
 
+const highlighted = useVerseHighlighted();
 checkUnsupportedProps(props, "role")
 useCommon();
 </script>

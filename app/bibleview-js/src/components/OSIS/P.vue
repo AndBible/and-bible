@@ -16,12 +16,14 @@
   -->
 
 <template>
-  <p><slot/></p>
+  <p><span class="highlight-transition" :class="{isHighlighted: highlighted}"><slot/></span></p>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+import {useVerseHighlighted} from "@/composables/verse-highlighted";
 
+const highlighted = useVerseHighlighted();
 useCommon();
 </script>
 

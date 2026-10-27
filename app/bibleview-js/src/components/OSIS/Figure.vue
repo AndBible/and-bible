@@ -17,17 +17,19 @@
 
 <template>
   <p>
-    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><slot/>
+    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><span class="highlight-transition" :class="{isHighlighted: highlighted}"><slot/></span>
   </p>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+import {useVerseHighlighted} from "@/composables/verse-highlighted";
 import {inject} from "vue";
 import {osisFragmentKey} from "@/types/constants";
 
 defineProps<{src: string}>();
 const {bookInitials} = inject(osisFragmentKey)!;
+const highlighted = useVerseHighlighted();
 useCommon();
 </script>
 
