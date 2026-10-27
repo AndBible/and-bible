@@ -1,5 +1,8 @@
 package net.bible.android.view.activity.page
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.res.Resources
 import android.view.ActionMode
 import android.view.MenuItem
 import com.nhaarman.mockitokotlin2.mock
@@ -31,7 +34,7 @@ class BibleViewEditorSelectionTest {
 
     @Before fun setup() {
         val host = mock<ReadingHostActivity>()
-        whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+        whenever(host.hostContext).thenReturn(WebViewResourcesContext(RuntimeEnvironment.getApplication()))
         val callbacks = BibleViewHostCallbacks(
             hostActivity = mock(), onNext = {}, onPrevious = {}, showLlmPromptSelector = { _, _ -> },
             composeSearchIfHosted = { _, _ -> false }, composeOpenDrawerIfHosted = { false },
@@ -58,6 +61,23 @@ class BibleViewEditorSelectionTest {
         view.destroy()
     }
 
+    /**
+     * Resolves the ids Chromium WebView gives its own selection menu items, as the real
+     * app resources do once WebView has added its package to them.
+     */
+    private class WebViewResourcesContext(base: Context) : ContextWrapper(base) {
+        @Suppress("DEPRECATION")
+        private val res = object : Resources(base.assets, base.resources.displayMetrics, base.resources.configuration) {
+            override fun getResourceEntryName(resid: Int): String = when (resid) {
+                WEBVIEW_SELECT_ALL -> "select_action_menu_select_all"
+                WEBVIEW_COPY -> "select_action_menu_copy"
+                else -> base.resources.getResourceEntryName(resid)
+            }
+        }
+        override fun getResources(): Resources = res
+        override fun getApplicationContext(): Context = this
+    }
+
     private fun item(id: Int): MenuItem = mock<MenuItem>().also {
         whenever(it.itemId).thenReturn(id)
     }
@@ -71,6 +91,34 @@ class BibleViewEditorSelectionTest {
         verify(nativeCallback).onActionItemClicked(mode, selectAll)
         // Finishing here clears the selection that WebView has just expanded to the whole note.
         verify(mode, never()).finish()
+    }
+
+    @Test fun webViewSelectAllKeepsTheNativeSelectionModeOpen() {
+        // Chromium WebView's menu uses its own id (select_action_menu_select_all), not android.R.id.selectAll.
+        val selectAll = item(WEBVIEW_SELECT_ALL)
+        whenever(nativeCallback.onActionItemClicked(mode, selectAll)).thenReturn(true)
+
+        assertTrue(callback.onActionItemClicked(mode, selectAll))
+
+        verify(nativeCallback).onActionItemClicked(mode, selectAll)
+        verify(mode, never()).finish()
+    }
+
+    @Test fun otherWebViewEditingActionsStillFinishTheSelectionMode() {
+        val copy = item(WEBVIEW_COPY)
+        whenever(nativeCallback.onActionItemClicked(mode, copy)).thenReturn(true)
+
+        assertTrue(callback.onActionItemClicked(mode, copy))
+
+        verify(mode).finish()
+    }
+
+    @Test fun unresolvableItemIdStillFinishesTheSelectionMode() {
+        val unknown = item(0x7e0000ff)
+
+        callback.onActionItemClicked(mode, unknown)
+
+        verify(mode).finish()
     }
 
     @Test fun otherEditingActionsStillFinishTheSelectionMode() {
@@ -90,5 +138,11 @@ class BibleViewEditorSelectionTest {
 
         verify(nativeCallback).onActionItemClicked(mode, selectAll)
         verify(mode, never()).finish()
+    }
+
+    private companion object {
+        /** Ids seen on an API 36 emulator with WebView 133 (package id 0x02). */
+        const val WEBVIEW_SELECT_ALL = 33620236
+        const val WEBVIEW_COPY = 33620231
     }
 }
