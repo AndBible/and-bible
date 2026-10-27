@@ -157,7 +157,7 @@ fun SplitContent(
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
         // Captured here (BoxWithConstraintsScope is the only implicit receiver in scope) so the
-        // averageExtentPx lambdas below — defined inside the nested Row/Column scope — don't need
+        // weightedExtentPx lambdas below — defined inside the nested Row/Column scope — don't need
         // to resolve maxWidth/maxHeight through an ambiguous nested-receiver chain.
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
@@ -186,6 +186,8 @@ fun SplitContent(
         }
 
         val axisExtentPx = if (isHorizontal) maxWidthPx else maxHeightPx
+        // The space the weighted panes share: the separators take a fixed in-flow extent (#3336).
+        val weightedExtentPx = axisExtentPx - (windows.size - 1).coerceAtLeast(0) * with(density) { SEPARATOR_THICKNESS.toPx() }
         // F64 fix round 1: one `movableContentOf` instance per visible window id, so the pane
         // subtree MOVES rather than disposes-and-recreates when SplitAxisContainer's `if` selects
         // the other branch. See rememberPaneContents' kdoc for why the textual hoist alone (round
@@ -204,7 +206,7 @@ fun SplitContent(
                             weights = weights,
                             isHorizontal = isHorizontal,
                             paneModifier = paneModifier(paneWeight(index)),
-                            averageExtentPx = { axisExtentPx / windows.size },
+                            weightedExtentPx = { weightedExtentPx },
                             onWindowActivated = onWindowActivated,
                             onDragChange = { drag = it },
                             onSeparatorCommitted = onSeparatorCommitted,
@@ -222,7 +224,7 @@ fun SplitContent(
                         isVertical = !isHorizontal,
                         isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
                         isDragging = drag?.index == index,
-                        averageExtentPx = { axisExtentPx / windows.size },
+                        weightedExtentPx = { weightedExtentPx },
                         onDragChange = { drag = it },
                         onSeparatorCommitted = onSeparatorCommitted,
                         modifier = if (isPureMonochrome() && drag?.index == index) separatorModifier.zIndex(1f) else separatorModifier,
@@ -287,7 +289,7 @@ private data class PaneRenderArgs(
     val weights: List<Float>,
     val isHorizontal: Boolean,
     val paneModifier: Modifier,
-    val averageExtentPx: () -> Float,
+    val weightedExtentPx: () -> Float,
     val onWindowActivated: (String) -> Unit,
     val onDragChange: (ActiveDrag?) -> Unit,
     val onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
@@ -337,13 +339,13 @@ private fun PaneBody(args: PaneRenderArgs) {
         if (args.index > 0) DragStrip(
             windows = args.windows, weights = args.weights, index = args.index - 1,
             isHorizontalSplit = args.isHorizontal, atStartEdge = true,
-            averageExtentPx = args.averageExtentPx,
+            weightedExtentPx = args.weightedExtentPx,
             onDragChange = args.onDragChange, onSeparatorCommitted = args.onSeparatorCommitted,
         )
         if (args.index < args.windows.lastIndex) DragStrip(
             windows = args.windows, weights = args.weights, index = args.index,
             isHorizontalSplit = args.isHorizontal, atStartEdge = false,
-            averageExtentPx = args.averageExtentPx,
+            weightedExtentPx = args.weightedExtentPx,
             onDragChange = args.onDragChange, onSeparatorCommitted = args.onSeparatorCommitted,
         )
     }
@@ -390,21 +392,19 @@ private fun rememberSeparatorDragHandlers(
     windows: List<WindowSnapshot>,
     weights: List<Float>,
     index: Int,
-    averageExtentPx: () -> Float,
+    weightedExtentPx: () -> Float,
     onDragChange: (ActiveDrag?) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
 ): DragHandlers {
     var accumulated by remember(windows[index].id, windows[index + 1].id) { mutableFloatStateOf(0f) }
-    val startWeight1 = weights[index]
-    val startWeight2 = weights[index + 1]
     return DragHandlers(
         onDragBy = { delta ->
             accumulated += delta
-            val live = separatorDrag(accumulated, averageExtentPx(), startWeight1, startWeight2)
+            val live = separatorDrag(accumulated, weightedExtentPx(), weights, index)
             onDragChange(ActiveDrag(index, live.weight1, live.weight2))
         },
         onDragEnd = {
-            val live = separatorDrag(accumulated, averageExtentPx(), startWeight1, startWeight2)
+            val live = separatorDrag(accumulated, weightedExtentPx(), weights, index)
             onSeparatorCommitted(windows[index].id, live.weight1, windows[index + 1].id, live.weight2)
             accumulated = 0f
             onDragChange(null)
@@ -436,13 +436,13 @@ private fun Separator(
     isVertical: Boolean,
     isActive: Boolean,
     isDragging: Boolean,
-    averageExtentPx: () -> Float,
+    weightedExtentPx: () -> Float,
     onDragChange: (ActiveDrag?) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     modifier: Modifier,
 ) {
     val handlers = rememberSeparatorDragHandlers(
-        windows, weights, index, averageExtentPx, onDragChange, onSeparatorCommitted,
+        windows, weights, index, weightedExtentPx, onDragChange, onSeparatorCommitted,
     )
     WindowSeparator(
         isVertical = isVertical,
@@ -478,12 +478,12 @@ private fun BoxScope.DragStrip(
     index: Int,
     isHorizontalSplit: Boolean,
     atStartEdge: Boolean,
-    averageExtentPx: () -> Float,
+    weightedExtentPx: () -> Float,
     onDragChange: (ActiveDrag?) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
 ) {
     val handlers = rememberSeparatorDragHandlers(
-        windows, weights, index, averageExtentPx, onDragChange, onSeparatorCommitted,
+        windows, weights, index, weightedExtentPx, onDragChange, onSeparatorCommitted,
     )
     val alignment = when {
         isHorizontalSplit && atStartEdge -> Alignment.CenterStart

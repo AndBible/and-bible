@@ -42,18 +42,43 @@ class ReadingSplitMathTest {
     }
 
     @Test fun separatorDragShiftsWeightByVariation() {
-        val d = separatorDrag(translation = 50f, averagePaneExtent = 200f, startWeight1 = 1f, startWeight2 = 1f)
+        val d = separatorDrag(translation = 50f, weightedExtentPx = 400f, weights = listOf(1f, 1f), index = 0)
         assertEquals(1.25f, d.weight1, absoluteTolerance = 1e-5f)
         assertEquals(0.75f, d.weight2, absoluteTolerance = 1e-5f)
     }
 
     @Test fun separatorDragClampsToMinimum() {
-        val d = separatorDrag(translation = -500f, averagePaneExtent = 200f, startWeight1 = 1f, startWeight2 = 1f)
+        val d = separatorDrag(translation = -500f, weightedExtentPx = 400f, weights = listOf(1f, 1f), index = 0)
         assertEquals(0.1f, d.weight1, absoluteTolerance = 1e-5f)
     }
 
     @Test fun separatorDragWithZeroExtentIsNoOp() {
-        val d = separatorDrag(translation = 50f, averagePaneExtent = 0f, startWeight1 = 1f, startWeight2 = 1f)
+        val d = separatorDrag(translation = 50f, weightedExtentPx = 0f, weights = listOf(1f, 1f), index = 0)
         assertEquals(1f, d.weight1); assertEquals(1f, d.weight2)
+    }
+
+    /** #3336: how many px pane [index] grows when its separator is dragged by [dragPx]. */
+    private fun paneGrowthPx(weights: List<Float>, index: Int, dragPx: Float, extentPx: Float): Float {
+        val d = separatorDrag(dragPx, extentPx, weights, index)
+        val after = weights.toMutableList().also { it[index] = d.weight1; it[index + 1] = d.weight2 }
+        return after[index] / after.sum() * extentPx - weights[index] / weights.sum() * extentPx
+    }
+
+    @Test fun separatorDragTracksFingerWhenWeightsSumToOne() {
+        assertEquals(50f, paneGrowthPx(listOf(0.5f, 0.5f), 0, dragPx = 50f, extentPx = 1000f), absoluteTolerance = 0.01f)
+    }
+
+    @Test fun separatorDragTracksFingerWhenWeightsSumToFour() {
+        assertEquals(50f, paneGrowthPx(listOf(2f, 2f), 0, dragPx = 50f, extentPx = 1000f), absoluteTolerance = 0.01f)
+    }
+
+    @Test fun separatorDragTracksFingerWithUnevenWeightsAndThreePanes() {
+        assertEquals(-80f, paneGrowthPx(listOf(0.3f, 1.7f, 0.6f), 1, dragPx = -80f, extentPx = 1200f), absoluteTolerance = 0.01f)
+    }
+
+    @Test fun separatorDragMinimumScalesWithWeightSum() {
+        // Weights summing to 0.2: classic's absolute 0.1 floor would be half the split.
+        val d = separatorDrag(translation = -1000f, weightedExtentPx = 1000f, weights = listOf(0.1f, 0.1f), index = 0)
+        assertEquals(0.01f, d.weight1, absoluteTolerance = 1e-5f)
     }
 }
