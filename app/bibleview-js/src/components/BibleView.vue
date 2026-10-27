@@ -40,7 +40,7 @@
       <div class="bottom-left-corner"/>
       <div class="bottom-right-corner"/>
     </div>
-    <div v-if="showGeneralBookTopGap" class="infinite-scroll-top-gap" style="height: 48px" aria-hidden="true"/>
+    <div v-if="showGeneralBookTopGap" class="infinite-scroll-top-gap" :style="{height: `${INFINITE_SCROLL_TOP_GAP_PX}px`}" aria-hidden="true"/>
     <div id="top"/>
     <ChapterNavigationButtons
       v-if="showChapterNavButtons"
@@ -119,7 +119,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faChevronUp, faChevronDown} from "@fortawesome/free-solid-svg-icons";
 import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, shallowRef, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
-import {useInfiniteScroll} from "@/composables/infinite-scroll";
+import {INFINITE_SCROLL_TOP_GAP_PX, useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
@@ -271,15 +271,24 @@ const {
     loadTextAtEnd,
     documentSupportsChapterNavigation,
     infiniteScrollIsEnabled,
-    reachedEnd
+    reachedEnd,
+    reachedStart,
 } = useInfiniteScroll(android, documents, config);
 
 // Keep the start anchor below a small gap so general books can scroll upwards
 // from their initial position and trigger loading the previous section.
 const showGeneralBookTopGap = computed(() => {
     const doc = documents[0];
-    return infiniteScrollIsEnabled.value && doc?.type === "osis" && doc.bookCategory === "GENERAL_BOOK";
+    return infiniteScrollIsEnabled.value && !reachedStart.value && doc?.type === "osis" && doc.bookCategory === "GENERAL_BOOK";
 });
+
+// Once the real start of the book is reached the gap is dead space. Removing it shifts the content
+// up, so move the scroll position by the same amount to keep what the user sees in place.
+watch(showGeneralBookTopGap, (shown, wasShown) => {
+    if (shown || !wasShown || !reachedStart.value) return;
+    const before = window.scrollY;
+    nextTick(() => window.scrollTo(0, Math.max(0, before - INFINITE_SCROLL_TOP_GAP_PX)));
+}, {flush: "pre"});
 
 const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;

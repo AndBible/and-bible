@@ -108,4 +108,38 @@ describe("general-book infinite scroll", () => {
         await nextTick();
         expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(false);
     });
+
+    it("removes the gap once the start of the book is reached, keeping the scroll position", async () => {
+        let resolvePrevious;
+        requestPreviousChapter.mockReturnValue(new Promise(resolve => { resolvePrevious = resolve; }));
+        window.bibleViewDebug.documents.push(generalBook("current"));
+        await nextTick();
+        emit("setup_content", {topOffset: 0, bottomOffset: 0});
+        await flushPromises();
+        expect(window.scrollY).toBe(46);
+        window.dispatchEvent(new Event("scroll"));
+
+        window.scrollTo(0, 0);
+        window.dispatchEvent(new Event("scroll"));
+        await vi.waitFor(() => expect(requestPreviousChapter).toHaveBeenCalledTimes(1));
+        // The user keeps scrolling down while the (empty) answer is on its way.
+        window.scrollTo(0, 100);
+        resolvePrevious(null);
+        await flushPromises();
+
+        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(false);
+        expect(window.scrollY).toBe(52);
+    });
+
+    it("keeps the gap in page-scroll (e-ink) mode, where the first page starts at the start anchor", async () => {
+        Object.assign(window.bibleViewDebug.appSettings, {einkMode: true});
+        window.bibleViewDebug.config.pageScrollAmount = 50;
+        window.bibleViewDebug.documents.push(generalBook("current"));
+        await nextTick();
+        emit("setup_content", {topOffset: 0, bottomOffset: 0});
+        await flushPromises();
+        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(true);
+        // The initial position is the anchor, just below the gap, so pages are aligned to the text.
+        expect(window.scrollY).toBe(46);
+    });
 });

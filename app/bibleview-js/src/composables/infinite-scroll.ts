@@ -48,6 +48,9 @@ export function supportsChapterNavigation(documents: AnyDocument[]): boolean {
     return doc.type === "bible";
 }
 
+/** Height (px) of the transparent gap kept above the start anchor of general books, so the user can scroll up to load the previous section. */
+export const INFINITE_SCROLL_TOP_GAP_PX = 48;
+
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     bibleViewDocuments: AnyDocument[],
@@ -59,7 +62,7 @@ export function useInfiniteScroll(
     let touchDown = false;
     let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
     let isProcessing = false;
-    let reachedStart = false;
+    const reachedStart = ref(false);
     const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
     const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
     const reachedEnd = ref(false);
@@ -75,7 +78,7 @@ export function useInfiniteScroll(
         clearDocumentCount++;
         reachedEnd.value = false;
         consecutiveEmptyLoads = 0;
-        reachedStart = false;
+        reachedStart.value = false;
     }
 
     function needsMoreContent(): boolean {
@@ -133,7 +136,7 @@ export function useInfiniteScroll(
                         contentAdded = true;
                         await nextTick();
                     } else {
-                        reachedStart = true;
+                        reachedStart.value = true;
                         console.log("inf: Reached start of content")
                     }
                 }
@@ -196,7 +199,7 @@ export function useInfiniteScroll(
             loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (!isEnabled.value || isProcessing || reachedStart) return;
+            if (!isEnabled.value || isProcessing || reachedStart.value) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
@@ -277,5 +280,6 @@ export function useInfiniteScroll(
         documentSupportsChapterNavigation,
         infiniteScrollIsEnabled: isEnabled,
         reachedEnd,
+        reachedStart,
     };
 }
