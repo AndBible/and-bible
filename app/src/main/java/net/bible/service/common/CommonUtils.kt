@@ -234,9 +234,12 @@ const val automaticSpeakBookmarkingVideo = net.bible.sharedcore.docs.HelpVideos.
 
 
 open class CommonUtilsBase : KoinComponent {
-    val windowControl: WindowControl by inject()
-    val speakControl: SpeakControl by inject()
-    val bibleTraverser: BibleTraverser by inject()
+    // Resolved on every read, not cached with `by inject()`: this lives in an `object` that outlives the Koin
+    // container, and a test that stops and restarts Koin would otherwise keep handing out the first container's
+    // singletons (a stale WindowControl whose repository nothing owns). The lookup is a map hit.
+    val windowControl: WindowControl get() = getKoin().get()
+    val speakControl: SpeakControl get() = getKoin().get()
+    val bibleTraverser: BibleTraverser get() = getKoin().get()
 }
 
 class Ref<T>(var value: T? = null)

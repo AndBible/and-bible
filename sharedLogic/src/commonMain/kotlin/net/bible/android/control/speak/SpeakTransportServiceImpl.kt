@@ -30,6 +30,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNo
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
@@ -71,16 +72,18 @@ class SpeakTransportServiceImpl(
     private val _state = MutableStateFlow(build(visible = !speakControl.isStopped))
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
+    private val subscriptions = Subscriptions()
+
     init {
         instance = this
         refreshBookmarkVisibility()
-        // Process lifetime (Koin single): never cancelled.
-        SpeakChanges.changes.subscribeOnMain { refresh() }
-        SpeakSettingsChanges.changes.subscribeOnMain {
+        // Process lifetime (Koin single): only [close] (tests) cancels these.
+        subscriptions.add(SpeakChanges.changes.subscribeOnMain { refresh() })
+        subscriptions.add(SpeakSettingsChanges.changes.subscribeOnMain {
             refreshBookmarkVisibility()
-        }
+        })
         // Speech bookmarks are saved asynchronously on pause/stop, after settings events have fired.
-        bookmarkControl.changes.subscribeOnMain { change ->
+        subscriptions.add(bookmarkControl.changes.subscribeOnMain { change ->
             when (change) {
                 is BookmarkChange.BookmarksUpserted,
                 is BookmarkChange.BookmarksDeleted,
@@ -88,7 +91,18 @@ class SpeakTransportServiceImpl(
                 is BookmarkChange.LabelsDeleted -> refreshBookmarkVisibility()
                 else -> Unit
             }
-        }
+        })
+    }
+
+    /**
+     * Cancels the event subscriptions and the pending visibility refresh. The Koin single never needs
+     * this; a test that builds its own instance must call it so the handlers do not outlive it and run
+     * (touching [SpeakControl] and hence the window repository) on later tests' events.
+     */
+    fun close() {
+        subscriptions.cancelAll()
+        visibilityJob?.cancel()
+        if (instance === this) instance = null
     }
 
     /** The newest visibility refresh; a new request cancels the previous so stale results never land last. */

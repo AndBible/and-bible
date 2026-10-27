@@ -26,10 +26,14 @@ import org.robolectric.Shadows.shadowOf
 class SpeakTransportBookmarkVisibilityTest : SpeakIntegrationTestBase() {
     private val transportScope = AppCoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
+    private var transport: SpeakTransportServiceImpl? = null
+
     @After
     fun closeTransport() {
+        transport?.close()
         transportScope.cancel()
         SpeakTransportServiceImpl.instance = null
+        GlobalContext.get().get<AdvancedSpeakSettings>().reset()
     }
 
     private fun awaitTransport() {
@@ -46,6 +50,7 @@ class SpeakTransportBookmarkVisibilityTest : SpeakIntegrationTestBase() {
         advanced.autoBookmark = true
         advanced.synchronize = true
         val transport = SpeakTransportServiceImpl(transportScope, fakePlatform, advanced, speakControl, bookmarkControl)
+        this.transport = transport
         val launcher = koin.get<OrderedLauncher>()
         awaitTransport()
         assertFalse(transport.state.value.bookmarkButtonVisible)
