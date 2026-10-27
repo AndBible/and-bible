@@ -17,7 +17,7 @@
 
 <template>
   <div :id="`frag-${uniqueId}`" :class="[`sword-${fragment.bookInitials}`, {'italic-non-strongs': fragment.hasStrongs && config.nonStrongsWordItalic}]" :lang="fragment.language"
-       :dir="fragment.direction">
+       :dir="fragment.direction" :style="{fontFamily: config.fontFamily === 'sans-serif' ? undefined : config.fontFamily}">
     <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
   </div>
 </template>
