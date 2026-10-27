@@ -114,4 +114,18 @@ class DeepLinkOpensVerseTest {
         assertEquals(1, repo.sortedWindows.size)
         assertTrue(active.isVisible && !active.isMinimised)
     }
+
+    @Test
+    fun aRestoredHostDoesNotReplayItsOriginalLaunchLink() {
+        resetComposeUiDispatcher()
+        firstTime = false
+        val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java, viewHandoff())
+            .also { controllers += it }.apply { create(android.os.Bundle()).start().resume() }
+        idleMain()
+        assertTrue(!controller.get().intent.hasExtra("openLink"), "state restore must drop the stale link extra")
+        assertTrue(
+            controller.get().hostWindowRepository.activeWindow.pageManager.currentPage.singleKey?.getOsisID() != "1Sam.1.2",
+            "a process-death restore must not jump back to the launch link",
+        )
+    }
 }

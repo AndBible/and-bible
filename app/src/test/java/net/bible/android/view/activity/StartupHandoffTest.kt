@@ -71,4 +71,16 @@ class StartupHandoffTest {
         )
         assertFalse(handoff.flags and Intent.FLAG_ACTIVITY_MULTIPLE_TASK != 0)
     }
+
+    @Test
+    fun aRecentsRelaunchDoesNotReplayTheDeepLink() {
+        val link = Intent(Intent.ACTION_VIEW, Uri.parse("https://read.andbible.org/Gen.1.1"))
+            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+        val handoff = bootHandoffIntent(context, link, NavRoutes.READING)
+        assertNull(handoff.getStringExtra("openLink"))
+        assertEquals(
+            Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP,
+            handoff.flags and (Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+        )
+    }
 }

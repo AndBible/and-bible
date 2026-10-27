@@ -2825,6 +2825,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // A state loss is recoverable; a launch crash loop is not.
+        // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
+        if (savedInstanceState != null) intent.removeExtra("openLink")
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before

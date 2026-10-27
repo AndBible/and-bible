@@ -223,7 +223,9 @@ internal fun startRouteForBoot(usable: Boolean): String = if (usable) NavRoutes.
 /** Reuse the reading host for external links; a WELCOME host keeps the link until a Bible is usable. */
 internal fun bootHandoffIntent(context: Context, launching: Intent?, route: String): Intent {
     val handlerIntent = NavHostComposeActivity.intentFor(context, route)
-    if (launching?.action == Intent.ACTION_VIEW) {
+    // A Recents relaunch re-delivers the original VIEW intent; replaying it would jump back to the old link.
+    val fromHistory = launching != null && (launching.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+    if (launching?.action == Intent.ACTION_VIEW && !fromHistory) {
         handlerIntent.putExtra("openLink", launching.dataString)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
     } else {
