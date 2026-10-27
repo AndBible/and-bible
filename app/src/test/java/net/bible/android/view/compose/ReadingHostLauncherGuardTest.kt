@@ -107,10 +107,18 @@ class ReadingHostLauncherGuardTest {
             "the boot handoff must construct the nav host's intent on the route gate (a) chose. Body was:\n$body",
             body.contains("NavHostComposeActivity.intentFor(context, route)"),
         )
+        // #3210: an external link opens in the ACTIVE window of the host that already exists, so the handoff
+        // must reuse the running task (NEW_TASK + CLEAR_TOP + SINGLE_TOP finds the live host by affinity and
+        // delivers onNewIntent) instead of stacking a second host the way MULTIPLE_TASK did.
+        val viewArm = body.substringAfter("ACTION_VIEW").substringBefore("} else {")
         assertTrue(
-            "FLAG_ACTIVITY_MULTIPLE_TASK stays on the ACTION_VIEW arm -- a second live host is what R7b's host " +
-                "tokens exist for",
-            body.contains("Intent.FLAG_ACTIVITY_MULTIPLE_TASK"),
+            "the ACTION_VIEW arm must reuse the existing task and host: NEW_TASK | CLEAR_TOP | SINGLE_TOP. Arm was:\n$viewArm",
+            listOf("FLAG_ACTIVITY_NEW_TASK", "FLAG_ACTIVITY_CLEAR_TOP", "FLAG_ACTIVITY_SINGLE_TOP").all { viewArm.contains("Intent.$it") },
+        )
+        assertFalse(
+            "FLAG_ACTIVITY_MULTIPLE_TASK must stay off the boot handoff: it made every deep link a second live host " +
+                "(#3210: the link must open in the active window)",
+            body.contains("FLAG_ACTIVITY_MULTIPLE_TASK"),
         )
         assertTrue(
             "gate (a) must choose the route with the one predicate",

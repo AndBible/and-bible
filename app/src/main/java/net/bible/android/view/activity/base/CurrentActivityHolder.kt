@@ -58,8 +58,8 @@ object CurrentActivityHolder {
      * [ActivityBase.freeze] for what that is and for why it is still here.
      *
      * The freeze/unfreeze hooks stay although no Activity overrides them since slice 8 deleted
-     * `MainBibleActivity`: `StartupActivity`'s `ACTION_VIEW` handoff (`FLAG_ACTIVITY_MULTIPLE_TASK`) can still make a
-     * SECOND live `NavHostComposeActivity`, and whether that host needs a real `freeze()` (two instances each subscribed to
+     * `MainBibleActivity`: a SECOND live `NavHostComposeActivity` is still reachable (the host is `singleTop`, so a host started
+     * from another Activity on top, such as `InstallZipComposeActivity`'s forward, stacks above the first), and whether that host needs a real `freeze()` (two instances each subscribed to
      * the owner `Events` streams) is an open question recorded in the slice 8 plan (Correction 11) -- not decided by deleting the hook.
      *
      * The FOREGROUND/BACKGROUND event pair is unrelated to any of this — it is about the app as a

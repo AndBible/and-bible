@@ -670,25 +670,48 @@ class ReadingDestinationInGraphTest {
      * **`freeze()`/`unFreeze()` STAY although nothing overrides them any more** (plan Correction 11).
      *
      * Slice 7 Task 6 deleted them on the premise that "the migration leaves one host, so there is
-     * nothing to swap"; its fix round 2 restored them because `StartupActivity`'s `ACTION_VIEW`
-     * handoff launches with `FLAG_ACTIVITY_MULTIPLE_TASK`, so a deep link opened while the app is
-     * running produces a SECOND live host. `MainBibleActivity` — the only override, whose `freeze()`
-     * unregistered it from `ABEventBus` — went in slice 8, but the MULTIPLE_TASK launch did not: it
-     * now makes a second live NAV HOST, the scenario [ReadingViewVisibility]'s and
-     * [ReadingViewHostCallbacks]'s per-host registrations exist for (R7b). Whether that second host
-     * needs a real `freeze()` (two instances on `ABEventBus` handle every bus event twice) is an open
-     * question Correction 11 records for a later batch — it is not decided by deleting the hook.
+     * nothing to swap"; its fix round 2 restored them because a second live `NavHostComposeActivity` was
+     * reachable: `StartupActivity`'s `ACTION_VIEW` handoff launched with `FLAG_ACTIVITY_MULTIPLE_TASK`.
+     * `MainBibleActivity` -- the only override, whose `freeze()` unregistered it from the old event bus --
+     * went in slice 8, but a second host did not stop being possible.
      *
-     * So this test is deliberately an argument, not just an assertion: a future deletion has to make
-     * the MULTIPLE_TASK launch go away first, and will trip over this scan when it does not.
+     * #3210 took MULTIPLE_TASK off that handoff (a deep link now reuses the running host), so it is no
+     * longer the reason. A second host is still reachable another way: `NavHostComposeActivity` is
+     * `launchMode="singleTop"`, which reuses an instance only when it is on top of its task. Any other
+     * Activity on top that starts the host (the exported `InstallZipComposeActivity`, which forwards a
+     * zip `ACTION_VIEW` into the CURRENT task with its sender's `FLAG_ACTIVITY_*` flags stripped, or
+     * `ErrorActivity`, or another app's task) therefore stacks a SECOND live host above the first.
+     * Whether that host needs a real `freeze()` (two instances subscribed to the owner `Events` streams)
+     * is still open (Correction 11), so the hooks stay as that safety net.
+     *
+     * This test is an argument, not just an assertion: a future deletion has to make the stacking
+     * impossible first (e.g. `singleTask`, or no forward from a non-host Activity), and will trip over
+     * the two scans below when it does not.
      */
     @Test
     fun freezeAndUnFreezeStayWhileASecondHostIsReachable() {
+        val manifest = java.io.File("src/main/AndroidManifest.xml").readText()
+        val hostBlock = manifest.substringAfter("""android:name="net.bible.android.view.activity.nav.NavHostComposeActivity"""")
+            .substringBefore("/>")
         assertTrue(
+            hostBlock.contains("""android:launchMode="singleTop""""),
+            "the host is singleTop: it is reused only while it is on top of its task, so a host started from " +
+                "any other Activity on top is a SECOND live host. If this changed, re-argue the deletion of " +
+                "freeze()/unFreeze() -- do not just delete this test. Block was: $hostBlock",
+        )
+        val forward = ClassicRemovalScan.codeLinesOf(
+            "src/main/java/net/bible/android/view/activity/installzip/InstallZipComposeActivity.kt",
+        )
+        assertTrue(
+            forward.contains(".setClass(context, NavHostComposeActivity::class.java)") &&
+                !forward.contains("FLAG_ACTIVITY_CLEAR_TOP") && !forward.contains("FLAG_ACTIVITY_SINGLE_TOP"),
+            "the reason freeze()/unFreeze() still exist: InstallZipComposeActivity forwards into a NavHost " +
+                "without CLEAR_TOP/SINGLE_TOP, so with it on top the running host is not reused. If this " +
+                "changed, re-argue the deletion -- do not just delete this test",
+        )
+        assertFalse(
             ClassicRemovalScan.codeLinesOf(STARTUP_ACTIVITY).contains("FLAG_ACTIVITY_MULTIPLE_TASK"),
-            "the reason freeze()/unFreeze() still exist: StartupActivity can launch a SECOND " +
-                "live nav host. If this line is gone, re-argue the deletion — do not just " +
-                "delete this test",
+            "#3210: the ACTION_VIEW handoff reuses the running host; MULTIPLE_TASK is no longer a way to a second host",
         )
 
         val members = ActivityBase::class.java.methods.map { it.name }
