@@ -1,0 +1,93 @@
+---
+name: fixing-bug-backlog
+description: Use when the maintainer wants a batch of AndBible GitHub bugs fixed in parallel by JailBee child containers from an orchestrator container — "käy backlogia läpi ja korjaa selkeät bugit", "jaa tiketit konteille", "fix the clear bugs in the backlog", "work through the bug backlog with child containers". Needs an orchestration grant (~/.jailbee/orchestration/grant.json).
+---
+
+# Fixing the bug backlog with child containers
+
+The orchestrator picks clear bugs, gives each one to its own child container, reviews and merges
+what comes back, keeps the containers busy, and stages a comment for every fixed issue. One child =
+one issue. Children do the debugging and TDD; the orchestrator owns review, merge, gates and GitHub.
+
+**REQUIRED SUB-SKILLS:** jailbee-orchestration for everything about children (grant, spawn,
+inbox, done, import, destroy); jailbee-issue-management for the outbox manifest format;
+issue-management for tracker rules. This skill only adds the AndBible-specific choices.
+
+## 1. Pick candidates
+
+1. Open bugs with board fields: `docs/superpowers/triage/snapshot/index.tsv` + `board.json`
+   (`Type: Bug`, not Done). Re-check live state with `gh issue view <n>`.
+2. Drop issues the branch already touches: `git log --oneline -E --grep="#<n>\b"`.
+3. Keep a bug only when it is **self-contained**: concrete repro or stack trace, an identifiable
+   code area, and a test that can show it red. Skip design debates (e.g. "Psalm vs Psalms"),
+   feature requests disguised as bugs, and "maybe just my phone" reports without repro steps.
+   A device/layout bug with concrete repro steps is in: give it to Opus (step 3), which can
+   reproduce it on the emulator.
+4. Stop when no clear bug is left; say which ones were skipped and why.
+
+## 2. Prepare shared material
+
+Children cannot read osTicket or (in strict egress) every download site. Put everything under a
+shared batch folder, e.g. `.local/bug-batch-<date>/`:
+
+- `issues/<n>.md`: `gh issue view <n> --json number,title,body,comments` rendered to Markdown.
+- Modules the bug needs (e.g. a CrossWire zip). Tell the child to unzip into a temp SWORD dir,
+  never `~/.sword`.
+- osTicket logcats/attachments linked from the issue (`ostickethelper read`, read-only).
+
+## 3. Spawn and keep the pipeline full
+
+```bash
+BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spawn-fix-child.sh \
+  <n> "<one-line task>" "<what the issue shows, where the code likely is>" "<red/green test to add, which tests to run>"
+```
+
+- Keep `max_running_children` children busy and **1–2 spawns queued**, no more; spawn the next
+  one whenever a child is merged.
+- Default runner: `claude-jb` codex profile, tier opus. For a harder bug (unclear cause, layout or
+  device behaviour, several modules) use Anthropic Opus: `RUNNER="--agent claude --model opus"
+  MODEL_NAME="Claude Opus"`.
+- Waiting, reading the inbox, answering questions, statuses and cleanup: follow
+  **jailbee-orchestration**; this skill adds nothing to that protocol.
+
+## 4. Review each `done` before merging
+
+Import and merge as **jailbee-orchestration** describes ("When a child says done"). Before the merge:
+
+1. Read the production diff yourself (`git diff HEAD...<imported_ref>`). Check the fix is at the
+   root cause, other entry points (a gesture path, another caller) are covered, and the report
+   shows a test that was red before the fix. Children ask for this review; give it.
+2. Merge with `--no-ff` and a message naming the issue:
+   `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`.
+3. A child that found "already fixed" may still bring a regression test: merge that, and name the
+   earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
+   report it to the user, no comment.
+
+## 5. Stage a comment per fixed issue
+
+One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` action per issue
+(regenerate it as fixes land; start a new NNN once the user has applied it). Comment shape:
+"Fixed: <what the user sees now>. <one sentence why, if useful>. The fix will be in an upcoming
+version." Read the issue title first so the comment matches what was reported. Do not close
+issues: `Fixes #<n>` commits close them when they reach the default branch. Tell the user to run
+`jb issue apply <container>` on the host.
+
+## 6. Final gate and report
+
+- Once at HEAD after the last merge, chosen from the diff per `docs/superpowers/CLAUDE.md` "Gate
+  selection": Vue `test:ci`/`lint`/`type-check` for bibleview-js; shared `jvmTest` + iOS
+  compiles; `:app:cleanTestStandardGoogleplayDebugUnitTest :app:verifyRoborazziStandardGoogleplayDebug`
+  for anything in `app/` or rendered; `assembleStandardGithubDebug` for Kotlin changes.
+- A golden that moves because of a fix: inspect it and re-record in the same batch.
+- Report per issue: root cause, fix, confidence (high / medium + why), and what was skipped.
+- Clean up: no emulator, no own idle Gradle daemons; remind `jailbee unmount osticket <container>`
+  if osTicket was mounted.
+
+## Common mistakes
+
+| Mistake | Fix |
+|---|---|
+| Spawning a bug that is already fixed on the branch | grep the log for `#<n>` first |
+| Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
+| Merging on the child's word | read the diff; children are told to ask for review |
+| Child cannot reach a download/osTicket | put the file in the shared batch folder |
