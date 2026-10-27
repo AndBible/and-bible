@@ -110,7 +110,10 @@ class DocumentDialogsCore(
         val history = document.bookMetaData.getValues("History")
         if(history != null) {
             about += "\n\n" + table().fmt("about_version_history", "\n" +
-                history.reversed().joinToString("\n"))
+                history.reversed().sortedByDescending {
+                    // History values start with the version; their metadata order is unspecified.
+                    try { Version(it.substringBefore(' ')) } catch (_: IllegalArgumentException) { null }
+                }.joinToString("\n"))
         }
 
         // add versification

@@ -122,6 +122,10 @@ To download a document from the provided repositories:
 2. Click *Download documents*.
 3. Search for, and click on a document to install it.
 
+Tap the information icon next to a document to view its description and module
+version history, when provided. Version history is listed newest first, using
+numeric version order (for example, 1.10 comes before 1.9).
+
 Repository and module downloads require HTTPS. A repository must not redirect a
 secure download to an insecure HTTP address. If a connection cannot be established
 or stops sending data for five seconds, the download times out; a large download
