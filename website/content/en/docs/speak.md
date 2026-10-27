@@ -66,6 +66,8 @@ With **Automatic bookmarking** enabled, pausing or stopping speech saves your po
 with the special Speak label. The playback bar's bookmark button appears when a Speak
 bookmark is available, without restarting the app, and lets you resume from a saved position.
 It disappears when the last Speak bookmark is removed.
+In a commentary, the Speak bookmark's marker appears in the commentary entry, including
+entries covering several Bible verses. Use `Speak from bookmark` to resume from a saved position.
 
 ## How to speak a range of verses
 

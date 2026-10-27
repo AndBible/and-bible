@@ -44,9 +44,11 @@ import net.bible.service.common.shortName
 import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
+import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.VerseRange
 import kotlin.collections.HashMap
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -317,10 +319,22 @@ class GeneralSpeakTextProvider(
         val autoBookmark = advanced.autoBookmark
         // Publish the intended position on the caller; the worker must not resurrect it after stop().
         bookmark = if (autoBookmark || previous != null) target else null
+        val position = startKey
         launcher.launch(SPEAK_KEY) {
+            target.key = bookmarkKey(position).key.getOsisRef()
             val wasRemoved = removeBookmark(previous)
             saveBookmark(wasRemoved, target, autoBookmark)
         }
+    }
+
+    /** Markers use the displayed entry's annotateRef, not the verse used to traverse to it. */
+    private fun bookmarkKey(position: BookAndKey): BookAndKey {
+        val document = position.document!!
+        if (document.bookCategory != BookCategory.COMMENTARY) return position
+        val key = (position.key as? VerseRange)?.start ?: position.key
+        val xml = SwordContentFacade.readOsisFragment(document, key, strings)
+        val entry = OsisFragment(xml, key, document).annotateRef ?: return position
+        return BookAndKey(entry, document, position.ordinal)
     }
 
     override fun savePosition(fractionCompleted: Double) {}
@@ -359,7 +373,11 @@ class GeneralSpeakTextProvider(
 
     override suspend fun loadBookmarkState() {
         val (expected, key, limited) = lock.withLock { Triple(revision, currentKey, stopOrdinal != null) }
-        val found = if (!limited) bookmarkControl.speakBookmarkForKey(key) else null
+        val found = if (!limited) {
+            val entry = bookmarkKey(key)
+            bookmarkControl.speakBookmarkForKey(entry)
+                ?: if (entry.key.getOsisRef() != key.key.getOsisRef()) bookmarkControl.speakBookmarkForKey(key) else null
+        } else null
         val loaded = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
         lock.withLock { checkRevision(expected); loadedBookmark = loaded }
     }
