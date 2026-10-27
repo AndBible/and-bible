@@ -68,7 +68,9 @@ settings hierarchy described above.
 - **Night mode:** Control when the dark theme is used:
 
     - *Manual* (default) – toggle dark mode from the three-dot menu.
-    - *Automatic* – switch based on time of day.
+    - *Automatic* – on Android devices with a light sensor, switch based on
+      ambient light. Enabling this mode starts monitoring immediately; no app
+      restart is needed.
     - *System* – follow the Android system dark mode setting (Android 10+).
 - **Theme style:** Choose how the app's colors are derived from the
     workspace color. *Tonal spot (soft, keeps grey)* (default) gives soft
