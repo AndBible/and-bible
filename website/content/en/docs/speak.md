@@ -48,6 +48,9 @@ The *Speak* dialog can be accessed from:
 | **Repeat passage** | Repeat the range of verses specified. |
 | **Sleep timer** | Stop the playback after the number of minutes specified. |
 
+When text follows speech, verses omitted by the spoken translation are skipped. The
+reading position follows the next verse with spoken content instead of an omitted verse.
+
 ## How to speak a range of verses
 
 1. Tick the `Repeat passage` box. This will show the verse selector.

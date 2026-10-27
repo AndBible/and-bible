@@ -227,13 +227,16 @@ class BibleSpeakTextProvider(
         fun more(cursor: State, remaining: SpeakCommandArray): Pair<State, SpeakCommandArray> {
             val commands = SpeakCommandArray(platform.maxSpeechInputLength)
             var verse = limit(cursor.currentVerse)
-            val start = verse
+            var start = verse
             if (remaining.isNotEmpty()) {
                 commands.addAll(remaining)
                 remaining.clear()
                 verse = next(verse)
             }
             while (render(verse).isEmpty()) verse = next(verse)
+            // Follow the first spoken verse, not an omitted verse with no scroll anchor.
+            // A sentence continuing from the previous verse must keep its original start.
+            if (commands.isEmpty()) start = verse
             commands.addAll(commands(cursor.endVerse, verse))
             val rest = SpeakCommandArray(platform.maxSpeechInputLength)
             while (!commands.endsSentence) {
