@@ -337,6 +337,9 @@ class SearchHost(
             override fun workStateChanged(ev: WorkEvent) = onIndexWorkEvent(ev, onJobs, onJobFinished)
         }
         JobManager.addWorkListener(listener)
+        // Re-entry can miss the last work event before this listener was attached.
+        onJobs(indexJobSnapshot())
+        onJobFinished()
         return { JobManager.removeWorkListener(listener) }
     }
 
@@ -418,6 +421,8 @@ class SearchHost(
                 Log.i(TAG_SEARCH_INDEX, "Index created")
                 if (document.isEpub) IndexOutcome.INDEXED_EPUB else IndexOutcome.INDEXED
             }
+            document?.indexStatus == IndexStatus.SCHEDULED || document?.indexStatus == IndexStatus.CREATING ->
+                IndexOutcome.STILL_RUNNING
             isAllIndexJobsFinished -> {
                 Log.e(TAG_SEARCH_INDEX, "Index finished but document's index is invalid")
                 IndexOutcome.FAILED

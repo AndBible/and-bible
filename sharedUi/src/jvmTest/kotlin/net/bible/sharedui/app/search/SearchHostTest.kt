@@ -2,6 +2,9 @@ package net.bible.sharedui.app.search
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
+import org.crosswire.jsword.index.IndexStatus
+import net.bible.sharedui.search.nav.IndexOutcome
 import net.bible.android.control.search.SearchControl
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedui.reading.host.slots.MapSearchSettings
@@ -117,6 +120,41 @@ class SearchHostTest {
         } finally {
             Books.installed().removeBook(secondBible)
             Books.installed().removeBook(bible)
+        }
+    }
+
+    @Test
+    fun idleProgressSubscriptionRechecksCompletionWithoutWaitingForANewEvent() {
+        var completions = 0
+        val stop = host().observeIndexJobs(onJobs = {}, onJobFinished = { completions++ })
+        try {
+            assertEquals(1, completions)
+        } finally {
+            stop()
+        }
+    }
+
+    @Test
+    fun queuedLegacyIndexIsStillRunningRatherThanFailed() = runBlocking {
+        val config = """
+            [Issue2632Queued]
+            DataPath=./modules/Issue2632Queued
+            ModDrv=RawText
+            Description=Queued regression fixture
+            SourceType=OSIS
+            Lang=en
+            Encoding=UTF-8
+        """.trimIndent()
+        val metadata = SwordBookMetaData(config.toByteArray(), "Issue2632Queued.conf")
+        val book = metadata.bookType!!.createBook(metadata)
+        Books.installed().addBook(book)
+        try {
+            for (status in listOf(IndexStatus.SCHEDULED, IndexStatus.CREATING)) {
+                book.indexStatus = status
+                assertEquals(IndexOutcome.STILL_RUNNING, host().awaitIndexed(book.initials))
+            }
+        } finally {
+            Books.installed().removeBook(book)
         }
     }
 

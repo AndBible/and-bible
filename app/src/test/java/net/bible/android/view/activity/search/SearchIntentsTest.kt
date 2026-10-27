@@ -46,6 +46,15 @@ class SearchIntentsTest {
         val book = document(false)
         assertRoute(book, NavRoutes.searchIndex(searchDocument = book.initials))
     }
+    @Test fun `scheduled and creating documents open progress without prompting again`() {
+        for (status in listOf(IndexStatus.SCHEDULED, IndexStatus.CREATING)) {
+            for (epub in listOf(false, true)) {
+                val book = document(false, epub = epub)
+                whenever(book.indexStatus).thenReturn(status)
+                assertRoute(book, NavRoutes.searchIndexProgress(searchDocument = book.initials))
+            }
+        }
+    }
     @Test fun `null document opens argument free index route`() = assertRoute(null, NavRoutes.searchIndex(searchDocument = null))
     @Test fun `unindexed general book has no search intent`() {
         assertNull(searchIntent(document(false, general = true), Robolectric.buildActivity(Activity::class.java).get()))

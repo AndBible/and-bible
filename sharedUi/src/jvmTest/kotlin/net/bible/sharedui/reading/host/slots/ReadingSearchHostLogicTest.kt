@@ -21,6 +21,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ProgressJob
@@ -107,6 +110,112 @@ class ReadingSearchHostLogicTest {
         f.jobs.emit(Any(), finished = false)
         assertEquals(60, f.state.searchIndexProgress.jobs.value.single().percent)
         assertEquals(1, f.jobs.subscribers)
+        f.state.dispose()
+    }
+
+    @Test
+    fun aBuildFinishingBeforeSubscriptionStillResolvesWithoutAnotherEvent() {
+        // Even an unrelated running job must not hide this document's completed index.
+        for (otherJobRunning in listOf(false, true)) {
+            val f = SearchFixture()
+            val book = f.platform.current!!
+            f.platform.info = unindexedBible
+            f.platform.documents["KJV"] = book
+            book.indexStatus = IndexStatus.CREATING
+            f.jobs.running = true
+            f.jobs.beforeSubscribe = {
+                book.indexStatus = IndexStatus.DONE
+                f.platform.info = unindexedBible.copy(indexDone = true)
+                f.jobs.running = otherJobRunning
+            }
+
+            f.state.openSearch("light")
+
+            assertTrue(f.state.controller.phase.value is ReadingSearchPhase.Results)
+            assertNull(f.state.searchIndexProgress.error.value)
+            assertEquals(0, f.jobs.subscribers)
+            assertTrue(f.index.created.isEmpty())
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun aBuildFinishingBeforeSubscriptionWithNoQueryLeavesTheFormWithoutASheet() {
+        val f = SearchFixture()
+        val book = f.platform.current!!
+        f.platform.info = unindexedBible
+        f.platform.documents["KJV"] = book
+        book.indexStatus = IndexStatus.CREATING
+        f.jobs.beforeSubscribe = {
+            book.indexStatus = IndexStatus.DONE
+            f.platform.info = unindexedBible.copy(indexDone = true)
+        }
+
+        f.state.openSearch()
+
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), f.state.controller.phase.value)
+        assertFalse(f.state.searchSheetVisible.value)
+        f.state.dispose()
+    }
+
+    @Test
+    fun anEpubFtsTableCreatedBeforeTheBuildFinishesIsNotACompletedIndex() {
+        for (tableExistsAtOpen in listOf(false, true)) {
+            val f = SearchFixture()
+            val book = f.platform.current!!
+            val epub = unindexedBible.copy(isEpub = true, indexDone = tableExistsAtOpen)
+            f.platform.info = epub
+            f.platform.documents["KJV"] = book
+            book.indexStatus = IndexStatus.CREATING
+            f.jobs.running = true
+            f.jobs.beforeSubscribe = { f.platform.info = epub.copy(indexDone = true) }
+
+            f.state.openSearch("light")
+
+            assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = true), f.state.controller.phase.value)
+            assertEquals(1, f.jobs.subscribers)
+            book.indexStatus = IndexStatus.DONE
+            f.jobs.running = false
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = true), f.state.controller.phase.value)
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun aQueuedBuildKeepsWaitingBeyondTheFinishedForeignJobsPollBudget() = runTest {
+        val f = SearchFixture(scope = backgroundScope, pollPause = { delay(2_000) })
+        val book = f.platform.current!!
+        f.platform.info = unindexedBible
+        f.platform.documents["KJV"] = book
+        book.indexStatus = IndexStatus.SCHEDULED
+        f.jobs.running = true
+        f.state.openSearch("light")
+        f.jobs.running = false
+        f.jobs.emit(Any(), finished = true)
+        runCurrent()
+        advanceTimeBy(20_000)
+        runCurrent()
+
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value)
+        assertNull(f.state.searchIndexProgress.error.value, "a queued index is not a failed index")
+        assertEquals(1, f.jobs.subscribers)
+
+        book.indexStatus = IndexStatus.CREATING
+        f.jobs.running = true
+        f.jobs.emit(Any(), finished = false)
+        advanceTimeBy(20_000)
+        runCurrent()
+        assertNull(f.state.searchIndexProgress.error.value)
+        book.indexStatus = IndexStatus.DONE
+        f.platform.info = unindexedBible.copy(indexDone = true)
+        f.jobs.running = false
+        f.jobs.emit(Any(), finished = true)
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertTrue(f.state.controller.phase.value is ReadingSearchPhase.Results)
+        assertEquals(0, f.jobs.subscribers)
+        assertTrue(f.index.created.isEmpty())
         f.state.dispose()
     }
 

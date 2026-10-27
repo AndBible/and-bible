@@ -128,6 +128,8 @@ In the search screen a colon is treated as a space, so `book:john` simply search
 After updating the app, searches ask once to create the search index again. Indexing runs in the
 background and shows a notification until it has finished. You can leave Search while indexing
 continues. Opening Search again for the same document shows the indexing progress rather than
-asking you to create the index again.
+asking you to create the index again. This also applies when the document's index is queued behind
+another build, or when you start a search from selected text. If the index has already finished,
+Search continues to the search form or runs the query you were waiting for.
 
 <span id="fallback"></span><span id="search-results"></span>

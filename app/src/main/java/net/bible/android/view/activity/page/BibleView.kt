@@ -479,7 +479,13 @@ class BibleView(
                 // only EXTRA_ROUTE) -- see NavHostRoutingGuardTest
                 // .migratedScreenArgumentIsNeverDroppedByAPutExtra. No SELECTED_TRANSLATIONS and
                 // no IS_STRONGS_SEARCH here, exactly as the classic bundle carried neither.
-                val route = if (currentBible.indexStatus != IndexStatus.DONE) {
+                val route = if (currentBible.indexStatus == IndexStatus.SCHEDULED || currentBible.indexStatus == IndexStatus.CREATING) {
+                    NavRoutes.searchIndexProgress(
+                        searchText = searchText,
+                        highlightText = highlightText,
+                        searchDocument = currentBible.initials,
+                    )
+                } else if (currentBible.indexStatus != IndexStatus.DONE) {
                     NavRoutes.searchIndex(
                         searchText = searchText,
                         highlightText = highlightText,
