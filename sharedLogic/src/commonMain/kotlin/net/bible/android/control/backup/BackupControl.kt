@@ -457,13 +457,26 @@ class BackupControl(
         return filePath.substring(dirPath.length + 1)
     }
 
-    private fun addFile(outFile: ZipWriter, rootDir: Path, file: Path) {
-        outFile.putEntry(relativeFileName(rootDir, file), fileSystem.source(file), dosTimeNow())
+    /** Selected books can share conf/data paths, including across SWORD installation roots. */
+    private inner class ModuleZipWriter(private val zip: ZipWriter) {
+        private val entryNames = mutableSetOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+
+        fun addFile(name: String, file: Path) {
+            if (!entryNames.add(name)) {
+                Log.w(TAG, "Skipping duplicate module backup entry $name from $file")
+                return
+            }
+            zip.putEntry(name, fileSystem.source(file), dosTimeNow())
+        }
     }
 
-    private fun addModuleFile(outFile: ZipWriter, moduleFile: Path) {
+    private fun addFile(outFile: ModuleZipWriter, rootDir: Path, file: Path) {
+        outFile.addFile(relativeFileName(rootDir, file), file)
+    }
+
+    private fun addModuleFile(outFile: ModuleZipWriter, moduleFile: Path) {
         val fileNameInsideZip = moduleFile.relativeTo(dirs.modulesDir).toString()
-        outFile.putEntry(fileNameInsideZip, fileSystem.source(moduleFile), dosTimeNow())
+        outFile.addFile(fileNameInsideZip, moduleFile)
     }
 
     /** The regular files below [dir] (following symbolic links); none when [dir] does not exist. */
@@ -474,18 +487,18 @@ class BackupControl(
             .toList()
     }
 
-    private fun addFiles(outFile: ZipWriter, rootDir: Path, files: List<Path>) {
+    private fun addFiles(outFile: ModuleZipWriter, rootDir: Path, files: List<Path>) {
         onModuleFilesListed(files)
         for (f in files) {
             addFile(outFile, rootDir, f)
         }
     }
 
-    private fun addModuleDir(outFile: ZipWriter, modDir: Path) {
+    private fun addModuleDir(outFile: ModuleZipWriter, modDir: Path) {
         addFiles(outFile, dirs.modulesDir, filesBelow(modDir))
     }
 
-    private fun addBookToZip(outFile: ZipWriter, b: Book) {
+    private fun addBookToZip(outFile: ModuleZipWriter, b: Book) {
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
             addModuleFile(outFile, b.dbPath)
@@ -561,14 +574,15 @@ class BackupControl(
         }
     }
 
-    private suspend fun createModulesZip(books: List<Book>, zipFile: Path) {
+    @VisibleForTesting suspend fun createModulesZip(books: List<Book>, zipFile: Path) {
         val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
 
         withContext(Dispatchers.IO) {
             writeZipAtomically(zipFile) { outFile ->
                 manifest.saveToZip(outFile, dosTimeNow())
+                val moduleZip = ModuleZipWriter(outFile)
                 for (b in books) {
-                    addBookToZip(outFile, b)
+                    addBookToZip(moduleZip, b)
                 }
             }
         }
@@ -578,7 +592,7 @@ class BackupControl(
         val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
         writeZipAtomically(zipFile) { outFile ->
             manifest.saveToZip(outFile, dosTimeNow())
-            addBookToZip(outFile, book)
+            addBookToZip(ModuleZipWriter(outFile), book)
         }
     }
 
