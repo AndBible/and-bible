@@ -21,9 +21,10 @@ The *Document Library* can be accessed in a few different ways:
 Bibles modules can be installed in different languages, translations, and formats.
 Many Bible modules contain Strong’s numbers, footnotes, cross-references, and study notes.
 
-If a referenced passage is missing from a module, its inline error message uses
-its own text direction rather than the Bible's direction. This keeps messages
-readable when the interface and Bible use different writing directions.
+Error messages that AndBible shows inline in place of missing content (for
+example in a view with several references) use the message's own text direction
+rather than the module's direction. This keeps messages readable when the
+interface and the module use different writing directions.
 
 <span id="id1"></span>
 
