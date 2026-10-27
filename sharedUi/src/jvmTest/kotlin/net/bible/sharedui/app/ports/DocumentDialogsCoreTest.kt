@@ -10,6 +10,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.strings.keyed.StringTable
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import kotlin.test.*
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -17,8 +18,8 @@ class DocumentDialogsCoreTest {
     private val table = StringTable("en", { it }, { key, args -> key + args.joinToString() }, { n, _ -> n }, { emptyList() })
     private val dialogs = AppDialogController()
     private fun core() = DocumentDialogsCore(dialogs, { table })
-    private fun book(attempt: (String) -> Boolean = { false }): Book {
-        val metadata = Proxy.newProxyInstance(BookMetaData::class.java.classLoader, arrayOf(BookMetaData::class.java)) { _, m, args ->
+    private fun book(metadataOverride: BookMetaData? = null, attempt: (String) -> Boolean = { false }): Book {
+        val metadata = metadataOverride ?: Proxy.newProxyInstance(BookMetaData::class.java.classLoader, arrayOf(BookMetaData::class.java)) { _, m, args ->
             when (m.name) {
                 "getProperty" -> mapOf("About" to "Description\\parSecond", "Version" to "1.2", "ShortPromo" to "Promo", "UnlockInfo" to "Key instructions")[args!![0]]
                 "getValues" -> if (args!![0] == "History") listOf("first", "second") else null
@@ -42,6 +43,54 @@ class DocumentDialogsCoreTest {
         assertContains(html, "Description<br>Second")
         assertContains(html, "second<br>first")
         assertContains(html, "Key instructions")
+    }
+    @Test fun aboutHtmlSortsSwordHistoryByNumericVersionNewestFirst() {
+        val metadata = SwordBookMetaData("""
+            [KJVA]
+            Description=King James Version with Apocrypha
+            ModDrv=RawText
+            Lang=en
+            History_3.0.1=Latest corrections
+            History_1.4=Earlier corrections
+            History_2.3=Updated text
+            History_1.2=Initial corrections
+            History_1.9=Ninth update
+            History_1.10=Tenth update
+            History_2.3.9=Ninth patch
+            History_2.3.10=Tenth patch
+        """.trimIndent().encodeToByteArray(), "kjva.conf")
+
+        val html = core().aboutHtml(book(metadata), installed = null)
+
+        assertContains(html, listOf(
+            "3.0.1 Latest corrections",
+            "2.3.10 Tenth patch",
+            "2.3.9 Ninth patch",
+            "2.3 Updated text",
+            "1.10 Tenth update",
+            "1.9 Ninth update",
+            "1.4 Earlier corrections",
+            "1.2 Initial corrections",
+        ).joinToString("<br>"))
+    }
+    @Test fun aboutHtmlKeepsHistoryWithNonNumericVersions() {
+        val metadata = SwordBookMetaData("""
+            [TEST]
+            Description=Test Bible
+            ModDrv=RawText
+            Lang=en
+            History_beta=Preview release
+            History_1.0=First release
+            History_1.0a=Letter suffix
+            History_999999999999999=Oversized version
+        """.trimIndent().encodeToByteArray(), "test.conf")
+
+        val html = core().aboutHtml(book(metadata), installed = null)
+
+        assertContains(html, "about_version_history<br>1.0 First release<br>")
+        assertContains(html, "beta Preview release")
+        assertContains(html, "1.0a Letter suffix")
+        assertContains(html, "999999999999999 Oversized version")
     }
     @Test fun unlockLoopsUntilCorrectKeyAndStoresIt() = runTest {
         val attempts = mutableListOf<String>()
