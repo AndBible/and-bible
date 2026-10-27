@@ -23,10 +23,12 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.search.IndexPollDecision
+import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.ReadingSearchController
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchDocumentInfo
+import org.crosswire.jsword.index.IndexStatus
 
 /**
  * The reading view's search host logic (moved out of `:app`'s `ReadingSearchHostTest` /
@@ -35,6 +37,78 @@ import net.bible.sharedcore.search.SearchDocumentInfo
 class ReadingSearchHostLogicTest {
     private val unindexedBible =
         SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, isEpub = false, indexDone = false)
+
+    @Test
+    fun reopeningSearchKeepsTheRunningIndexAndItsWaitingQuery() {
+        val f = SearchFixture()
+        f.platform.info = unindexedBible
+        f.platform.documents["KJV"] = f.platform.current!!
+        f.state.openSearch("light")
+        f.state.controller.acceptIndexing()
+        f.state.controller.closeSheet()
+
+        f.state.openSearch()
+
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value)
+        assertTrue(f.state.searchSheetVisible.value)
+        assertEquals("light", f.state.queries.query.value)
+        assertEquals(listOf("KJV"), f.index.created, "reopening must not start a second build")
+        assertEquals(1, f.jobs.subscribeCalls, "the existing progress feed stays attached")
+        f.state.dispose()
+    }
+
+    @Test
+    fun reopeningAfterLeavingSearchReattachesToTheRunningIndexWithoutStartingAnotherBuild() {
+        for (status in listOf(IndexStatus.SCHEDULED, IndexStatus.CREATING)) {
+            val f = SearchFixture()
+            f.platform.info = unindexedBible
+            val book = f.platform.current!!
+            f.platform.documents["KJV"] = book
+            f.state.openSearch()
+            f.state.controller.acceptIndexing()
+            book.indexStatus = status
+            f.jobs.running = true
+            f.state.leaveSearch()
+            assertEquals(0, f.jobs.subscribers)
+
+            f.state.openSearch()
+
+            assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value, "$status")
+            assertTrue(f.state.searchSheetVisible.value)
+            assertEquals(listOf("KJV"), f.index.created, "a $status build must not be restarted")
+            assertEquals(1, f.jobs.subscribers, "progress must be observed again")
+            f.platform.info = unindexedBible.copy(indexDone = true)
+            book.indexStatus = IndexStatus.DONE
+            f.jobs.running = false
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), f.state.controller.phase.value)
+            assertEquals(0, f.jobs.subscribers)
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun aNewSearchHostAttachesToAnIndexAlreadyRunningInTheBackground() {
+        val f = SearchFixture()
+        f.platform.info = unindexedBible
+        val book = f.platform.current!!
+        book.indexStatus = IndexStatus.CREATING
+        f.platform.documents["KJV"] = book
+        f.jobs.running = true
+        f.jobs.jobs = listOf(ProgressJob("index-kjv", "Indexing KJV", 42, false))
+
+        f.state.openSearch()
+
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value)
+        assertTrue(f.state.searchSheetVisible.value)
+        assertTrue(f.index.created.isEmpty(), "only observe the existing build")
+        assertEquals(listOf(ProgressJob("index-kjv", "Indexing KJV", 42, false)), f.state.searchIndexProgress.jobs.value)
+        f.jobs.jobs = listOf(ProgressJob("index-kjv", "Indexing KJV", 60, false))
+        f.jobs.emit(Any(), finished = false)
+        assertEquals(60, f.state.searchIndexProgress.jobs.value.single().percent)
+        assertEquals(1, f.jobs.subscribers)
+        f.state.dispose()
+    }
 
     // ---- the pure index helpers --------------------------------------------------------------
 

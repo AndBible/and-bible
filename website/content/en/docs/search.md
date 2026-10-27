@@ -126,6 +126,8 @@ In the search screen a colon is treated as a space, so `book:john` simply search
 ### Search index
 
 After updating the app, searches ask once to create the search index again. Indexing runs in the
-background and shows a notification until it has finished.
+background and shows a notification until it has finished. You can leave Search while indexing
+continues. Opening Search again for the same document shows the indexing progress rather than
+asking you to create the index again.
 
 <span id="fallback"></span><span id="search-results"></span>

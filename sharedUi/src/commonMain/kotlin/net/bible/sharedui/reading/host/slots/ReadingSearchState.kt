@@ -64,6 +64,7 @@ import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.index.IndexStatus
 
 /** The search services [ReadingSearchState] builds its controllers over (Koin singletons on Android). */
 @kotlin.native.HiddenFromObjC
@@ -251,6 +252,12 @@ class ReadingSearchState(
         tryOpenReference = { query -> platform.tryOpenReference(query) },
         onReferenceOpened = { leaveSearch() },
         queries = queries,
+        isIndexing = { docId ->
+            platform.documentByInitials(docId)?.indexStatus.let {
+                it == IndexStatus.SCHEDULED || it == IndexStatus.CREATING
+            }
+        },
+        onObserveIndexing = { docId -> observeSearchIndexing(docId) },
     )
 
     /** Phase-derived inputs for [searchBar], pre-combined so [searchBarCore] stays inside `combine`'s typed overload. */
@@ -630,17 +637,23 @@ class ReadingSearchState(
      * once the build resolves or search mode closes.
      */
     private fun startSearchIndexing(docId: String) {
+        // Subscribe FIRST, then build: the first work events of a fast build must have a listener.
+        observeSearchIndexing(docId)
+        searchIndexService.createIndex(docId)
+        refreshSearchIndexJobs()
+    }
+
+    /** Watches either a new build or an existing background build without enqueueing another one. */
+    private fun observeSearchIndexing(docId: String) {
         searchIndexDocument = platform.documentByInitials(docId)
         searchIndexPoll = IndexPollDecision()
         searchIndexFinishedJobs.clear()
         // This state owns one progress controller for its lifetime, so a previous build's failure the
         // user walked away from must not raise its error dialog over this brand-new prompt.
         searchIndexProgress.reset()
-        // Subscribe FIRST, then build: the first work events of a fast build must have a listener.
         if (stopIndexFeed == null) {
             stopIndexFeed = indexJobs.subscribe { job, isFinished -> onSearchIndexWorkEvent(job, isFinished) }
         }
-        searchIndexService.createIndex(docId)
         refreshSearchIndexJobs()
     }
 

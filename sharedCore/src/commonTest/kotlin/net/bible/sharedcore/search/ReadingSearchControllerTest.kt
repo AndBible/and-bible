@@ -36,6 +36,23 @@ class ReadingSearchControllerTest {
     )
 
     @Test
+    fun reopeningSearchPreservesAnIndexBuildForAnExplicitlySelectedTranslation() {
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open("light")
+        c.acceptIndexing()
+        c.closeSheet()
+
+        c.open()
+
+        assertEquals(ReadingSearchPhase.Indexing("ESV", forEpub = false), c.phase.value)
+        assertTrue(c.sheetVisible.value)
+        assertEquals(listOf("ESV"), r.indexingStarted)
+        c.onIndexingFinished(true)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun,
+            "the pending search must still target the originally active Bible")
+    }
+
+    @Test
     fun submittingABibleReferenceJumpsInsteadOfSearching() {
         val (r, c) = controller(references = setOf("1 joh 3 16"))
         c.open()
