@@ -53,7 +53,6 @@ class WidgetStartupIntentTest {
         val launched = shadowOf(app).nextStartedActivity
         assertNotNull("Widget content must launch an activity", launched)
         assertEquals(StartupActivity::class.java.name, launched.component?.className)
-        assertEquals(NavRoutes.WELCOME, startRouteForBoot(hasUsableBible()))
     }
 
     private fun withoutInstalledModules(block: () -> Unit) {
@@ -66,6 +65,8 @@ class WidgetStartupIntentTest {
         try {
             books.forEach { registry.removeBook(it) }
             assertTrue(SwordDocumentFacade.bibles.isEmpty())
+            // Precondition: with no usable Bible the boot route is the welcome flow.
+            assertEquals(NavRoutes.WELCOME, startRouteForBoot(hasUsableBible()))
             block()
         } finally {
             try {

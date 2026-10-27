@@ -141,7 +141,10 @@ class BibleViewEditorSelectionTest {
     }
 
     private companion object {
-        /** Ids seen on an API 36 emulator with WebView 133 (package id 0x02). */
+        /**
+         * The contract is the WebView resource entry name ("select_action_menu_select_all" / "select_action_menu_copy", mapped in the test resources);
+         * the numeric ids below are arbitrary stand-ins, not stable values.
+         * Ids seen on an API 36 emulator with WebView 133 (package id 0x02). */
         const val WEBVIEW_SELECT_ALL = 33620236
         const val WEBVIEW_COPY = 33620231
     }
