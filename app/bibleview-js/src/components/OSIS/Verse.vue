@@ -24,9 +24,9 @@
       :data-ordinal="ordinal"
     >
       <span class="highlight-transition" :class="{isHighlighted: highlighted}">
-        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
+        <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/>
       </span>
-    </span>
+    </span> <span/>
   </span>
   <span :class="{linebreak: config.showVersePerLine}"/>
 </template>
