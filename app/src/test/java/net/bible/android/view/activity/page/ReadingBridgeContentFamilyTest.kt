@@ -18,6 +18,8 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.Activity
+import android.content.Intent
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -27,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
@@ -37,6 +40,8 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.view.activity.nav.ports.AndroidTextShare
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -45,6 +50,7 @@ import net.bible.sharedcore.bibleview.JsHost
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.reading.ShareVersesInput
+import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
@@ -61,10 +67,12 @@ import org.crosswire.jsword.versification.BibleBook
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -214,6 +222,51 @@ class ReadingBridgeContentFamilyTest {
         bridge.shareVerse("KJV", john316Ordinal(), -1)
         awaitMain { sheets.shared.isNotEmpty() }
         assertTrue(sheets.shared.single().verses.isNotEmpty())
+    }
+
+    @Test fun shareBookmarkNoteWithoutDocumentIncludesVerseAndNoteInSendIntent() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        val verse = Verse(kjv.versification, BibleBook.JOHN, 3, 16)
+        repo.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+        val bookmark = runBlocking {
+            session.bookmarkControl.addOrUpdateBibleBookmark(
+                BibleBookmarkWithNotes(VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16)), null, true, null)
+            ).also { session.bookmarkControl.saveBibleBookmarkNote(it.id, "My personal note") }
+        }
+
+        bridge.shareBookmarkVerse(bookmark.id.toString())
+        awaitMain { sheets.shared.isNotEmpty() }
+        val text = ShareVersesOptions(advertiseApp = false).buildText(sheets.shared.single())
+        assertEquals("KJV", sheets.shared.single().versionAbbreviation)
+        assertNull(runBlocking { session.bookmarkControl.bibleBookmarkById(bookmark.id) }!!.book)
+        val activity = Robolectric.buildActivity(Activity::class.java).setup()
+        try {
+            AndroidTextShare(activity.get()).shareText(text, "Share")
+            val chooser = shadowOf(activity.get()).nextStartedActivity
+            val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+            assertEquals(Intent.ACTION_SEND, send.action)
+            val sharedText = send.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
+            assertTrue("shared verse text is missing: $sharedText", sharedText.contains("For God so loved the world"))
+            assertTrue("shared note is missing: $sharedText", sharedText.contains("My personal note"))
+        } finally {
+            activity.pause().stop().destroy()
+        }
+    }
+
+    @Test fun shareBookmarkNoteWithDocumentKeepsItsVerseAndNote() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        val verse = Verse(kjv.versification, BibleBook.JOHN, 3, 16)
+        val bookmark = runBlocking {
+            session.bookmarkControl.addOrUpdateBibleBookmark(
+                BibleBookmarkWithNotes(VerseRange(kjv.versification, verse), null, true, kjv)
+            ).also { session.bookmarkControl.saveBibleBookmarkNote(it.id, "My personal note") }
+        }
+
+        bridge.shareBookmarkVerse(bookmark.id.toString())
+        awaitMain { sheets.shared.isNotEmpty() }
+        val text = ShareVersesOptions(advertiseApp = false).buildText(sheets.shared.single())
+        assertTrue("shared verse text is missing: $text", text.contains("For God so loved the world"))
+        assertTrue("shared note is missing: $text", text.contains("My personal note"))
     }
 
     @Test fun shareVerseAfterDisposeIsIgnored() {
