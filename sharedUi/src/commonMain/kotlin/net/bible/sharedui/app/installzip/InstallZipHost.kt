@@ -110,7 +110,7 @@ class InstallZipHost(
             windowTitle = windowTitle(),
             installZipResults = installZipResults,
             sessionFor = { action, uris, onFinished -> sessionFor(action, uris, onFinished) },
-            lockOrientation = { orientation.lockPortrait() },
+            lockOrientation = { orientation.lockCurrentOrientation() },
             hostBound = { starter.hostBound() },
             hostUnbound = { starter.hostUnbound() },
         )

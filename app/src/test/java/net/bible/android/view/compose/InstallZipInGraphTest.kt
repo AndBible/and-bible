@@ -17,6 +17,8 @@
 
 package net.bible.android.view.compose
 
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.installzip.InstallZipFlow
+import net.bible.android.view.activity.nav.ports.AndroidOrientationLock
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
@@ -121,13 +124,14 @@ class InstallZipInGraphTest {
 
     private fun setGraph(
         sessionFor: (String?, List<String>, (InstallZipResult) -> Unit) -> InstallZipSession = ::fakeSessionFor,
+        lockOrientation: () -> (() -> Unit) = { locks++; { restores++ } },
     ) {
         val deps = InstallZipNavDeps(
             setWindowTitle = {},
             windowTitle = "Install",
             installZipResults = results,
             sessionFor = sessionFor,
-            lockOrientation = { locks++; { restores++ } },
+            lockOrientation = lockOrientation,
             hostBound = { bound++ },
             hostUnbound = { unbound++ },
         )
@@ -310,11 +314,42 @@ class InstallZipInGraphTest {
     }
 
     @Test
-    fun thePortraitLockAndTheServiceBindingFollowTheDestination() {
+    @Config(qualifiers = "land")
+    fun landscapeInstallStaysLockedUntilTheJobDrainsThenRestoresOrientation() {
+        assertEquals(Configuration.ORIENTATION_LANDSCAPE, compose.activity.resources.configuration.orientation)
+        compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+        val orientation = AndroidOrientationLock(compose.activity)
+        setGraph(::realSessionFor, orientation::lockCurrentOrientation)
+
+        compose.runOnIdle {
+            navController.navigate(NavRoutes.installZip("android.intent.action.SEND", listOf("content://x/module.zip")))
+        }
+        compose.waitForIdle()
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_LOCKED, compose.activity.requestedOrientation,
+            "entering InstallZip must lock the current landscape orientation, not request portrait")
+
+        compose.runOnIdle { jobs.value = listOf(running) }
+        compose.waitForIdle()
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_LOCKED, compose.activity.requestedOrientation)
+        compose.runOnIdle { jobs.value = listOf(running.copy(phase = InstallPhase.Committing(70))) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, navController.currentDestination?.route)
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_LOCKED, compose.activity.requestedOrientation,
+            "progress updates must not release the orientation lock")
+
+        compose.runOnIdle { jobs.value = emptyList() }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.READING, navController.currentDestination?.route)
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR, compose.activity.requestedOrientation,
+            "finishing the install restores the host's previous orientation policy")
+    }
+
+    @Test
+    fun theOrientationLockAndTheServiceBindingFollowTheDestination() {
         setGraph()
         compose.runOnIdle { navController.navigate(NavRoutes.installZip()) }
         compose.waitForIdle()
-        assertEquals(1, locks, "the destination locks portrait while it is on screen")
+        assertEquals(1, locks, "the destination locks orientation while it is on screen")
         assertEquals(1, bound, "DocumentInstallService.hostBound follows the destination's STARTED state")
 
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }

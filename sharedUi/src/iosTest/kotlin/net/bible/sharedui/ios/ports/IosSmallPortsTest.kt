@@ -64,7 +64,7 @@ class IosSmallPortsTest {
     }
 
     @Test fun orientationLockReturnsANoOpRestore() {
-        val restore = IosOrientationLock().lockPortrait()
+        val restore = IosOrientationLock().lockCurrentOrientation()
         restore()
         restore()
     }
