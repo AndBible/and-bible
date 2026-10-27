@@ -62,7 +62,7 @@ To change a bookmark’s icon:
 1. Click the verse containing the bookmark you want to change.
 2. Click the ‘icons’ button inside the bookmark you want to change.
 3. Choose a new icon for your bookmark. This icon will be displayed at the end
-    of the bookmarked verse (or text).
+    of the bookmarked verse (or text), before the space separating it from the next verse.
 
 ## Labels
 
