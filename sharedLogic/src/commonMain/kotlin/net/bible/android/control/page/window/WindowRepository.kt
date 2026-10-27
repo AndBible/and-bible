@@ -376,7 +376,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val newWindow = Window(winEntity, pageManager, this)
         if(sourceWindow != null) {
             pageManager.restoreFrom(
-                sourceWindow.pageManager.entity, textDisplaySettings,
+                // Copy the reading position, but let the new window inherit workspace display settings.
+                sourceWindow.pageManager.entity.copy(textDisplaySettings = null), textDisplaySettings,
                 (sourceWindow.pageManager.currentGeneralBook.key as? StudyPadKey)?.label,
             )
         }

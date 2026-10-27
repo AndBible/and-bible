@@ -5,7 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.test.DatabaseResetter
+import net.bible.test.PassageTestData
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -196,6 +198,40 @@ class WindowCommandsImplTest {
         commands.addNewWindow(src.id.toString())
 
         assertEquals(before + 1, repo.windowList.size)
+    }
+
+    @Test fun addNewWindowInheritsWorkspaceSettingsInsteadOfSourceOverrides() {
+        repo.textDisplaySettings.apply {
+            fontSize = 18
+            showVerseNumbers = true
+            colors = TextDisplaySettings.default.colors!!.copy(dayBackground = -1)
+            marginSize = TextDisplaySettings.default.marginSize!!.copy(marginLeft = 5)
+        }
+        val src = repo.activeWindow
+        src.pageManager.currentBible.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2)
+        val sourceSettings = TextDisplaySettings(
+            fontSize = 30,
+            showVerseNumbers = false,
+            colors = TextDisplaySettings.default.colors!!.copy(dayBackground = -16777216),
+            marginSize = TextDisplaySettings.default.marginSize!!.copy(marginLeft = 12),
+        )
+        src.pageManager.textDisplaySettings = sourceSettings.copy()
+
+        commands.addNewWindow(src.id.toString())
+
+        val added = repo.windowList.single { it.id != src.id }
+        assertEquals(TextDisplaySettings(), added.pageManager.textDisplaySettings)
+        assertEquals(sourceSettings, src.pageManager.textDisplaySettings)
+        assertEquals(PassageTestData.ESV, added.pageManager.currentBible.currentDocument)
+        assertEquals(PassageTestData.PS_139_2.getName(), added.pageManager.currentBible.singleKey.getName())
+        val actual = TextDisplaySettings.actual(added.pageManager.textDisplaySettings, repo.textDisplaySettings)
+        assertEquals(18, actual.fontSize)
+        assertEquals(true, actual.showVerseNumbers)
+        assertEquals(-1, actual.colors?.dayBackground)
+        assertEquals(5, actual.marginSize?.marginLeft)
+
+        repo.textDisplaySettings.fontSize = 22
+        assertEquals(22, TextDisplaySettings.actual(added.pageManager.textDisplaySettings, repo.textDisplaySettings).fontSize)
     }
 
     @Test fun addNewWindowWithUnknownIdIsNoOp() {

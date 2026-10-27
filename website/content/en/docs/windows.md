@@ -28,6 +28,12 @@ There are three ways to create a new window.
 2. Second, choose ‘New Window’ via the window button at the top right of any window.
 3. Third, long-press a window button at the bottom of the screen and choose ‘New Window’.
 
+A new window starts with the source window's document and reading position, but
+inherits its text display settings from the workspace defaults. Window-specific
+changes, such as a different font size or background color, are not copied.
+Later changes to workspace settings also apply to the new window unless you
+override them for that window.
+
 There are multiple ways to choose the document you want to show in the new window.
 
 1. You can choose a Bible by clicking the Bible-button at the top.
