@@ -128,8 +128,8 @@ class IosReadingKeysTest {
         val main = windowControl.activeWindow
         val links = main.targetLinksWindow
         try {
-            // `targetLinksWindow` creates the links window on first use, and a new window starts VISIBLE: minimise it so
-            // the premise ("no links window is showing") is true, as it is for a user whose links window was dismissed.
+            // `targetLinksWindow` creates the links window on first use, and a new links window starts MINIMISED. The
+            // explicit minimise keeps the premise ("no links window is showing") independent of that default.
             windowControl.windowRepository.minimise(links)
             assertFalse(links.isVisible, "premise: no links window is open")
             settings.setBoolean("open_links_in_special_window_pref", false)
