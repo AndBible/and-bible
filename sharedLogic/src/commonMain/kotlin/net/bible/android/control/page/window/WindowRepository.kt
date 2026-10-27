@@ -105,6 +105,11 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         return addNewWindow().also {
             it.isSynchronised = false
             it.isLinksWindow = true
+            // The copied entity carries the source's VISIBLE state, but a links window only shows once
+            // `WindowControl.showLink` shows it. Starting VISIBLE made showLink believe it was already
+            // open, so it neither activated it nor notified the window-set change: the window above it
+            // kept its stale bottom-window offset and covered its bottom (#3896).
+            it.windowState = WindowState.MINIMISED
             // Again, now that it is a links window: addNewWindow set the weight while the window
             // could still be in the shared unpinned slot (Window.usesUnpinnedSlot), leaving its
             // own weight at whatever raw value the copied entity carried.

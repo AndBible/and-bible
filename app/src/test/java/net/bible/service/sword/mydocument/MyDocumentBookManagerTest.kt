@@ -519,7 +519,9 @@ class MyDocumentBookManagerTest {
             controller.resume()
             net.bible.test.settleWorkspaceSwitches()
             assertTrue("actual reclaim must reload the workspace", resumeReloads > 0)
-            val restoredWindow = activity.hostWindowRepository.activeWindow.targetLinksWindow
+            // Not `activeWindow.targetLinksWindow`: showing the link into a minimised links window makes
+            // that window active, and a links window's own target is a new chained one (#2469).
+            val restoredWindow = activity.hostWindowRepository.primaryTargetLinksWindow
             val depth = 0
             val recorded = history.getHistory(restoredWindow.id).last() as net.bible.service.history.KeyHistoryItem
             assertEquals(oldKey, recorded.key.getOsisRef())
