@@ -46,7 +46,7 @@ class StartupHandoffTest {
 
     /** Review Focus 2: a deep link on a fresh install must survive the Welcome. */
     @Test
-    fun aDeepLinkCarriesOpenLinkAndANewTaskToEitherRoute() {
+    fun aDeepLinkCarriesOpenLinkAndReusesTheHostToEitherRoute() {
         val link = Intent(Intent.ACTION_VIEW, Uri.parse("https://read.andbible.org/Gen.1.1"))
         for (route in listOf(NavRoutes.READING, NavRoutes.WELCOME)) {
             val handoff = bootHandoffIntent(context, link, route)
@@ -54,9 +54,10 @@ class StartupHandoffTest {
             assertEquals(route, handoff.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
             assertEquals("https://read.andbible.org/Gen.1.1", handoff.getStringExtra("openLink"))
             assertEquals(
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK,
-                handoff.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK),
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP,
+                handoff.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             )
+            assertFalse(handoff.flags and Intent.FLAG_ACTIVITY_MULTIPLE_TASK != 0)
         }
     }
 

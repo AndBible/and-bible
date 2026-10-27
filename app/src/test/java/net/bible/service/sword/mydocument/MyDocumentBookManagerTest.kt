@@ -446,6 +446,8 @@ class MyDocumentBookManagerTest {
             val window = activity.hostWindowRepository.activeWindow.targetLinksWindow
             val oldKey = window.pageManager.currentPage.singleKey!!.getOsisRef()
             assertEquals("Gen.1.1", oldKey)
+            // A restored identical old position is de-duplicated, so start this recording probe with empty history.
+            history.clear()
             val depth = history.getHistory(window.id).size
             controller.resume()
             val recorded = history.getHistory(window.id).last() as net.bible.service.history.KeyHistoryItem
