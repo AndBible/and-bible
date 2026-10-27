@@ -40,6 +40,7 @@
       <div class="bottom-left-corner"/>
       <div class="bottom-right-corner"/>
     </div>
+    <div v-if="showGeneralBookTopGap" class="infinite-scroll-top-gap" style="height: 48px" aria-hidden="true"/>
     <div id="top"/>
     <ChapterNavigationButtons
       v-if="showChapterNavButtons"
@@ -272,6 +273,13 @@ const {
     infiniteScrollIsEnabled,
     reachedEnd
 } = useInfiniteScroll(android, documents, config);
+
+// Keep the start anchor below a small gap so general books can scroll upwards
+// from their initial position and trigger loading the previous section.
+const showGeneralBookTopGap = computed(() => {
+    const doc = documents[0];
+    return infiniteScrollIsEnabled.value && doc?.type === "osis" && doc.bookCategory === "GENERAL_BOOK";
+});
 
 const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
