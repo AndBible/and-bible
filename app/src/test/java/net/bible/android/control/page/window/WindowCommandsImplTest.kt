@@ -216,6 +216,72 @@ class WindowCommandsImplTest {
         assertTrue(w.isVisible)
     }
 
+    @Test fun swipeDownClosesSecondLinksWindowInsteadOfMinimisingIt() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val secondLinks = primaryLinks.targetLinksWindow
+        secondLinks.windowState = WindowLayout.WindowState.VISIBLE
+        commands.setActive(secondLinks.id.toString())
+
+        // The pane button's swipe-down action dispatches this command.
+        commands.minimise(secondLinks.id.toString())
+
+        assertNull(repo.getWindow(secondLinks.id))
+        assertTrue(primaryLinks.isVisible)
+        assertEquals(primaryLinks, repo.getWindow(primaryLinks.id))
+        assertNotEquals(secondLinks, repo.activeWindow)
+    }
+
+    @Test fun swipeDownMinimisesPrimaryLinksWindowWithoutClosingIt() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+
+        commands.minimise(primaryLinks.id.toString())
+
+        assertTrue(primaryLinks.isMinimised)
+        assertEquals(primaryLinks, repo.getWindow(primaryLinks.id))
+    }
+
+    @Test fun swipeDownPreservesIntermediateLinksWindowAndItsTarget() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val secondLinks = primaryLinks.targetLinksWindow
+        secondLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val thirdLinks = secondLinks.targetLinksWindow
+        thirdLinks.windowState = WindowLayout.WindowState.VISIBLE
+
+        commands.minimise(secondLinks.id.toString())
+
+        assertTrue(secondLinks.isMinimised)
+        assertEquals(secondLinks, repo.getWindow(secondLinks.id))
+        assertEquals(thirdLinks, secondLinks.targetLinksWindow)
+        assertTrue(thirdLinks.isVisible)
+    }
+
+    @Test fun tappingSecondLinksWindowButtonStillClosesIt() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val secondLinks = primaryLinks.targetLinksWindow
+        secondLinks.windowState = WindowLayout.WindowState.VISIBLE
+
+        commands.restore(secondLinks.id.toString())
+
+        assertNull(repo.getWindow(secondLinks.id))
+        assertTrue(primaryLinks.isVisible)
+    }
+
+    @Test fun forcedMinimisationKeepsSecondLinksWindowForLayoutChanges() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val secondLinks = primaryLinks.targetLinksWindow
+        secondLinks.windowState = WindowLayout.WindowState.VISIBLE
+
+        windowControl.minimiseWindow(secondLinks, force = true)
+
+        assertTrue(secondLinks.isMinimised)
+        assertEquals(secondLinks, repo.getWindow(secondLinks.id))
+    }
+
     @Test fun closeResolvesIdAndClosesWindow() {
         val w = repo.addNewWindow() // 2 windows so close is allowed
         val before = repo.windowList.size

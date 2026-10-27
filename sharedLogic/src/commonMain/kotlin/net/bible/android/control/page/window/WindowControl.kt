@@ -194,6 +194,13 @@ open class WindowControl constructor() {
     }
 
     fun minimiseWindow(window: Window, force: Boolean = false) {
+        // Match a bottom-bar tap: discard the last secondary links window, but keep
+        // forced layout changes non-destructive and preserve the rest of the link chain.
+        if (!force && window.isVisible && window.isLinksWindow &&
+            window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow) {
+            closeWindow(window)
+            return
+        }
         if(force || isWindowMinimizable(window)) {
             windowRepository.minimise(window)
 
@@ -229,10 +236,7 @@ open class WindowControl constructor() {
 
     fun restoreWindow(window: Window, force: Boolean = false) {
         if(window.isVisible && !force) {
-            if(window.isLinksWindow && window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow)
-                closeWindow(window)
-            else
-                minimiseWindow(window)
+            minimiseWindow(window)
         } else {
             if (window == activeWindow) return
 
