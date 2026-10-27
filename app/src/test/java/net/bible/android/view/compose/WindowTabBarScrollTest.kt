@@ -26,6 +26,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
@@ -118,5 +121,30 @@ class WindowTabBarScrollTest {
         compose.waitForIdle()
 
         compose.onNodeWithText("W8", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun removingATabDoesNotUndoManualScroll() {
+        setRail()
+        repeat(3) { compose.onRoot().performTouchInput { swipeLeft(durationMillis = 100) } }
+        compose.waitForIdle()
+        compose.onNodeWithText("W1", useUnmergedTree = true).assertIsNotDisplayed()
+
+        layoutState = layout(baseWindows.filter { it.id != "W3" }, active = "W1")
+        compose.waitForIdle()
+
+        compose.onNodeWithText("W1", useUnmergedTree = true).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun bulkReplaceTargetsTheActiveTab() {
+        setRail()
+        val replaced = (1..8).map { win("X$it") }
+
+        layoutState = layout(replaced, active = "X1")
+        compose.waitForIdle()
+
+        compose.onNodeWithText("X1", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("X8", useUnmergedTree = true).assertIsNotDisplayed()
     }
 }

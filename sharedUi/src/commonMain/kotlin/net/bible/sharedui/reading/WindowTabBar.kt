@@ -52,6 +52,7 @@ import net.bible.sharedcore.window.RailLeading
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedui.components.CappedBarFontScale
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.WindowTabBarModel
@@ -150,12 +151,18 @@ fun WindowTabBar(
     val activeId = tabs.firstOrNull { it.isActive }?.window?.id
     // Classic ensureRestoreButtonVisible() parity (#2498): bring a just-added tab into view (a new links
     // window starts minimised and inactive at the end of the strip), otherwise the active window's tab.
-    val seenIds = remember { SeenTabIds() }
+    val disableAnimations = LocalDisableAnimations.current
+    val seen = remember { SeenTabState() }
     LaunchedEffect(tabIds, activeId) {
-        val previous = seenIds.ids
-        seenIds.ids = tabIds.toSet()
-        val target = previous?.let { seen -> tabIds.lastOrNull { it !in seen } } ?: activeId ?: return@LaunchedEffect
-        listState.bringIntoView(model.entries.indexOfFirst { it is RailEntry.WindowTab && it.window.id == target })
+        val previous = seen.ids
+        val previousActive = seen.activeId
+        seen.ids = tabIds.toSet()
+        seen.activeId = activeId
+        val target = railScrollTarget(previous, previousActive, tabIds, activeId) ?: return@LaunchedEffect
+        listState.bringIntoView(
+            model.entries.indexOfFirst { it is RailEntry.WindowTab && it.window.id == target },
+            animate = !disableAnimations,
+        )
     }
 
     CappedBarFontScale {
@@ -237,17 +244,35 @@ fun WindowTabBar(
     }
 }
 
-/** Tab ids of the previous rail model; `null` until the first one, so initial tabs do not count as new. */
-private class SeenTabIds(var ids: Set<String>? = null)
+/** Tab ids and active id of the previous rail model; `null` ids until the first one, so initial tabs do not count as new. */
+private class SeenTabState(var ids: Set<String>? = null, var activeId: String? = null)
 
-/** Scrolls [index] into view unless it is already fully visible. */
-private suspend fun LazyListState.bringIntoView(index: Int) {
+/**
+ * The tab to bring into view after the rail model changed, or `null` to leave the scroll position alone.
+ * A single added tab wins (a new links window). A workspace switch or several tabs added at once targets the
+ * active tab. With nothing added (e.g. a tab was removed) only a changed active tab scrolls, so the user's
+ * manual scroll is not undone. The first model scrolls to the active tab.
+ */
+internal fun railScrollTarget(previous: Set<String>?, previousActive: String?, tabIds: List<String>, activeId: String?): String? {
+    if (previous == null) return activeId
+    val added = tabIds.filter { it !in previous }
+    return when {
+        added.size == 1 && tabIds.any { it in previous } -> added.single()
+        added.isNotEmpty() -> activeId
+        activeId != previousActive -> activeId
+        else -> null
+    }
+}
+
+/** Scrolls [index] into view unless it is already fully visible; [animate] false jumps (no-animations setting). */
+private suspend fun LazyListState.bringIntoView(index: Int, animate: Boolean) {
     if (index < 0) return
     val info = layoutInfo
     val item = info.visibleItemsInfo.firstOrNull { it.index == index }
     val fullyVisible = item != null &&
         item.offset >= info.viewportStartOffset && item.offset + item.size <= info.viewportEndOffset
-    if (!fullyVisible) animateScrollToItem(index)
+    if (fullyVisible) return
+    if (animate) animateScrollToItem(index) else scrollToItem(index)
 }
 
 /**
