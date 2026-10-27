@@ -62,16 +62,29 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
 - Waiting, reading the inbox, answering questions, statuses and cleanup: follow
   **jailbee-orchestration**; this skill adds nothing to that protocol.
 
-## 4. Review each `done` before merging
+## 4. Review, fix and merge each `done`
 
-Import and merge as **jailbee-orchestration** describes ("When a child says done"). Before the merge:
+Import as **jailbee-orchestration** describes ("When a child says done"). The child's own review
+does not count: children may not dispatch subagents and ask the orchestrator to review.
 
-1. Read the production diff yourself (`git diff HEAD...<imported_ref>`). Check the fix is at the
-   root cause, other entry points (a gesture path, another caller) are covered, and the report
-   shows a test that was red before the fix. Children ask for this review; give it.
-2. Merge with `--no-ff` and a message naming the issue:
+1. **Review with a subagent** (superpowers:requesting-code-review; reviewer model sonnet or opus,
+   never fable). Give it the issue file, the child's report and `git diff HEAD...<imported_ref>`,
+   not your conclusion. Ask: is the fix at the root cause, are other entry points (a gesture
+   path, another caller, other platforms) covered, does a test go red without the fix, any
+   regression risk. For a larger or riskier diff, also ask the container's other Claude process
+   (different model family) for a read-only review.
+2. **Read the production diff yourself** too, and verify every finding against the code
+   (superpowers:receiving-code-review) before acting on it.
+3. **Fix what the review found:**
+   - Small or Minor findings: merge the child's branch, then fix on the orchestrator branch with
+     a coder subagent (haiku or sonnet; opus only for hard ones), TDD, its own commit
+     (`Refs #<n> (...)`), and run that fix's focused tests yourself.
+   - The fix is wrong or misses the root cause: do not merge; spawn a new child for the issue
+     (fresh fork, new branch name such as `fix/issue-<n>-2`) with the review findings in its
+     context.
+4. **Merge** with `--no-ff` and a message naming the issue:
    `Merge fix/issue-<n> (child fix-issue-<n>): <what> (#<n>)`.
-3. A child that found "already fixed" may still bring a regression test: merge that, and name the
+5. A child that found "already fixed" may still bring a regression test: merge that, and name the
    earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
    report it to the user, no comment.
 
@@ -101,5 +114,5 @@ issues: `Fixes #<n>` commits close them when they reach the default branch. Tell
 |---|---|
 | Spawning a bug that is already fixed on the branch | grep the log for `#<n>` first |
 | Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
-| Merging on the child's word | read the diff; children are told to ask for review |
+| Merging on the child's word | subagent review + your own read of the diff, every time |
 | Child cannot reach a download/osTicket | put the file in the shared batch folder |
