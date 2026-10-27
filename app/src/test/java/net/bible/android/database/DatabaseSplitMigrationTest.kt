@@ -102,6 +102,41 @@ class DatabaseSplitMigrationTest {
     private fun <T> read(db: String, sql: String, row: (androidx.sqlite.SQLiteStatement) -> T): List<T> =
         openSqlite(application.getDatabasePath(db).path, readOnly = true).use { it.queryRows(sql, row = row) }
 
+    @Test fun splitsDatabaseWhenReadingPlanHasNoIdColumn() {
+        assertSplitsWithIncompleteReadingPlans("ALTER TABLE readingplan RENAME COLUMN _id TO legacy_id", 0L, 1L)
+    }
+
+    @Test fun splitsDatabaseWhenReadingPlanStatusHasNoIdColumn() {
+        assertSplitsWithIncompleteReadingPlans("ALTER TABLE readingplan_status RENAME COLUMN _id TO legacy_id", 1L, 0L)
+    }
+
+    @Test fun splitsDatabaseWhenReadingPlanTableIsMissing() {
+        assertSplitsWithIncompleteReadingPlans("DROP TABLE readingplan", 0L, 1L)
+    }
+
+    @Test fun splitsDatabaseWhenReadingPlanStatusTableIsMissing() {
+        assertSplitsWithIncompleteReadingPlans("DROP TABLE readingplan_status", 1L, 0L)
+    }
+
+    private fun assertSplitsWithIncompleteReadingPlans(sql: String, planCount: Long, statusCount: Long) {
+        DatabaseContainer.reset()
+        dbDir.listFiles()!!.filter { it.isFile }.forEach { it.delete() }
+        buildOldDatabase()
+        openSqlite(File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).path).use { db ->
+            db.prepare(sql).use { it.step() }
+        }
+
+        DatabaseContainer.instance
+        DatabaseContainer.reset()
+
+        assertFalse("the migration completed and consumed the old file", File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).exists())
+        assertEquals(listOf(planCount), read(ReadingPlanDatabase.dbFileName, "SELECT COUNT(*) FROM ReadingPlan") { it.getLong(0) })
+        assertEquals(listOf(statusCount), read(ReadingPlanDatabase.dbFileName, "SELECT COUNT(*) FROM ReadingPlanStatus") { it.getLong(0) })
+        assertEquals(listOf("a note"), read(BookmarkDatabase.dbFileName, "SELECT notes FROM Bookmark") { it.getText(0) })
+        assertEquals(listOf("WS"), read(WorkspaceDatabase.dbFileName, "SELECT name FROM Workspace") { it.getText(0) })
+        assertEquals(listOf("v"), read(SettingsDatabase.dbFileName, "SELECT value FROM StringSetting WHERE key = 's'") { it.getText(0) })
+    }
+
     @Test fun splitsEveryTableIntoItsOwnDatabaseAndConsumesTheOldFile() {
         DatabaseContainer.reset() // setUp already built a container (the settings write); the next one must see the old file
         dbDir.listFiles()!!.filter { it.isFile }.forEach { it.delete() }
