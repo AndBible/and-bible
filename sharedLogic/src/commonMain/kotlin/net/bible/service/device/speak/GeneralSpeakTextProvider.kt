@@ -45,6 +45,7 @@ import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import kotlin.collections.HashMap
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -497,7 +498,8 @@ class GeneralSpeakTextProvider(
                     OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
                 )
                 val command = state.command!!
-                val forceFollow = stopOrdinal != null
+                // Commentary selections use the window's annotateKey highlight path when follow is disabled.
+                val forceFollow = stopOrdinal != null && state.book.bookCategory != BookCategory.COMMENTARY
                 SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command, forceFollow))
             }
         }

@@ -48,6 +48,13 @@ The *Speak* dialog can be accessed from:
 | **Repeat passage** | Repeat the range of verses specified. |
 | **Sleep timer** | Stop the playback after the number of minutes specified. |
 
+### Text follows speech
+
+In the advanced Speak settings, **Text follows speech** controls whether the reading
+window moves with playback. With it disabled, speaking a selected commentary passage
+keeps the window at its current position while highlighting the spoken text in the
+displayed entry, including entries that cover several verses.
+
 ## How to speak a range of verses
 
 1. Tick the `Repeat passage` box. This will show the verse selector.
