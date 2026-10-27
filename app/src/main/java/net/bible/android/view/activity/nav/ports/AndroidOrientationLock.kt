@@ -4,11 +4,11 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import net.bible.sharedui.app.ports.OrientationLock
 
-/** Classic's manifest `screenOrientation="portrait"`, destination-scoped (spec §3.2). */
+/** Keeps InstallZip in its starting orientation until the destination leaves. */
 class AndroidOrientationLock(private val activity: Activity) : OrientationLock {
-    override fun lockPortrait(): () -> Unit {
+    override fun lockCurrentOrientation(): () -> Unit {
         val previous = activity.requestedOrientation
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         return { activity.requestedOrientation = previous }
     }
 }

@@ -99,7 +99,7 @@ class IosHostPortsTest {
             assertTrue(Regex("ai_prompts_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}\\.csv").matches(ports.promptFiles().suggestedExportName()))
             assertEquals("", ports.aiPlatform().languageChoices().first().value)
             assertEquals(net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG, ports.aiPlatform().languageChoices().last().value)
-            ports.orientationLock.lockPortrait().invoke()
+            ports.orientationLock.lockCurrentOrientation().invoke()
             assertEquals(null, ports.myDocumentFiles.displayName(DocumentRef("x")))
             assertEquals(net.bible.sharedui.icons.AbIcons.labelIconResources.keys.toList() + null,
                 ports.labelIcons.iconKeys)

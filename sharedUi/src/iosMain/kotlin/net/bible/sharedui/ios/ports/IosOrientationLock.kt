@@ -21,12 +21,12 @@ package net.bible.sharedui.ios.ports
 import net.bible.sharedui.app.ports.OrientationLock
 
 /**
- * Android locks InstallZip to portrait because rotation recreates its Activity and loses install
- * state. iOS does not recreate the host on rotation, so there is nothing to protect or restore.
+ * Android keeps InstallZip in its starting orientation. iOS does not recreate the host on rotation,
+ * so there is nothing to protect or restore.
  */
 @kotlin.native.HiddenFromObjC
 class IosOrientationLock : OrientationLock {
-    override fun lockPortrait(): () -> Unit {
+    override fun lockCurrentOrientation(): () -> Unit {
         return {}
     }
 }

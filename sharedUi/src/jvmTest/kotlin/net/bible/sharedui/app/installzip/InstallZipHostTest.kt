@@ -94,7 +94,7 @@ class InstallZipHostTest {
         platform = platform,
         starter = starter,
         documentPicker = picker,
-        orientation = object : OrientationLock { override fun lockPortrait(): () -> Unit = { } },
+        orientation = object : OrientationLock { override fun lockCurrentOrientation(): () -> Unit = { } },
     )
 
     @Test

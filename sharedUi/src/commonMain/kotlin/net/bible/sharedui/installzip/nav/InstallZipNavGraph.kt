@@ -71,8 +71,8 @@ interface InstallZipSession {
  *
  * [installZipResults] exits the host WITH a result when this is the start destination (the external
  * redirect's entry), and publishes + pops when an in-graph caller opened it -- `NavResultChannel`'s two
- * shapes. [lockOrientation] returns the restore lambda (classic's manifest portrait lock, now
- * destination-scoped; spec §3.2 keeps it purely to preserve behaviour, since the host absorbs rotation).
+ * shapes. [lockOrientation] keeps the starting orientation while the destination is visible and
+ * returns the restore lambda. The Android host also absorbs rotation without being recreated.
  * [hostBound]/[hostUnbound] are `DocumentInstallService`'s "a host UI is showing the ask-backs" pair, which
  * the Activity called from `onStart`/`onStop`.
  */

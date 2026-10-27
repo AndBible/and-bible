@@ -146,6 +146,11 @@ To load a document from your device’s filesystem:
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
+On Android, the installation screen keeps the orientation it had when opened,
+including landscape. Rotating the device during installation does not change the
+screen orientation or restart the installation. The previous orientation setting
+is restored when you leave the installation screen.
+
 ## Deleting Modules
 
 To delete any of the above module types:
