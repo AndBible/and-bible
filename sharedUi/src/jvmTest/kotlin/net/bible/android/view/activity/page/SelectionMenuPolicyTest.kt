@@ -95,6 +95,12 @@ class SelectionMenuPolicyTest {
         assertTrue(Memorize in selectionMenuItems(input(), step2 = false))
     }
 
+    @Test fun bibleTextSelectionWithoutVerseSelectionDoesNotOfferMemorize() {
+        // e.g. text selected in a footnote popup: the memorize action needs a verse and does nothing here.
+        val items = selectionMenuItems(input(isBible = true, hasVerseSelection = false), step2 = false)
+        assertFalse(Memorize in items)
+    }
+
     @Test fun commentaryVerseSelectionDoesNotOfferMemorize() {
         val items = selectionMenuItems(input(isBible = false, hasVerseSelection = true), step2 = false)
         assertFalse(Memorize in items)

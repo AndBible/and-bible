@@ -137,6 +137,30 @@ describe("OsisSegment.vue", () => {
         }
     });
 
+    it("highlights paragraph and table cell text within the selected verse (#3785)", async () => {
+        const ordinalHighlight = useOrdinalHighlight();
+        const wrapper = mountOsisSegment(
+            '<verse osisID="Gen.1.1" verseOrdinal="100">In the beginning<p>second paragraph</p>' +
+            '<table><row><cell>cell text</cell></row></table></verse>' +
+            '<verse osisID="Gen.1.2" verseOrdinal="101"><p>other verse</p></verse>',
+            {ordinalHighlight});
+        try {
+            ordinalHighlight.highlightOrdinal(100);
+            await nextTick();
+            const paragraphs = wrapper.findAll("p");
+            expect(paragraphs).toHaveLength(2);
+            expect(paragraphs[0].get(".isHighlighted").text()).toBe("second paragraph");
+            expect(wrapper.get("td .isHighlighted").text()).toBe("cell text");
+            expect(paragraphs[1].find(".isHighlighted").exists()).toBe(false);
+
+            ordinalHighlight.resetHighlights();
+            await nextTick();
+            expect(wrapper.findAll("p .isHighlighted, td .isHighlighted")).toHaveLength(0);
+        } finally {
+            wrapper.unmount();
+        }
+    });
+
     it("leaves standalone lists unhighlighted when a different verse is selected", async () => {
         const ordinalHighlight = useOrdinalHighlight();
         const wrapper = mountOsisSegment(

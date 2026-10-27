@@ -76,7 +76,7 @@ fun selectionMenuItems(input: SelectionMenuInput, step2: Boolean): List<Selectio
             }
         }
         if (input.isBible) add(SelectionMenuItem.Compare)
-        if (input.isBible) add(SelectionMenuItem.Memorize)
+        if (input.isBible && input.hasVerseSelection) add(SelectionMenuItem.Memorize)
         if (input.isBible && input.hasVerseSelection) add(SelectionMenuItem.ShareVerses)
         if (text && (!input.isBible || !input.hasVerseSelection)) add(SelectionMenuItem.Copy)
         if (!input.resolvedRef && text) add(SelectionMenuItem.Search)
