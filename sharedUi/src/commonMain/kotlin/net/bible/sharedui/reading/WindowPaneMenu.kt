@@ -70,6 +70,17 @@ fun WindowPaneMenu(
     LaunchedEffect(expanded) {
         if (!expanded) path = emptyList()
     }
+    // Issue #3899: the rows stay frozen while the closed menu animates out. The hosts pass an empty
+    // [items] list as soon as the menu closes and [path] is reset on close; rendering either change
+    // shrank the fading popup to its bare padding, and DropdownMenu's position provider re-placed
+    // the smaller popup, so the menu slid down and to the right before it disappeared.
+    val lastShown = remember { LastShownLevel() }
+    if (expanded) {
+        lastShown.items = path.lastOrNull()?.submenu ?: items
+        lastShown.showBack = path.isNotEmpty()
+    }
+    val level = lastShown.items
+    val showBack = lastShown.showBack
     val mono = isPureMonochrome()
     UncappedFontScale {
         DropdownMenu(
@@ -79,10 +90,9 @@ fun WindowPaneMenu(
             shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
-            val level = path.lastOrNull()?.submenu ?: items
             WindowPaneMenuRows(
                 items = level,
-                showBack = path.isNotEmpty(),
+                showBack = showBack,
                 onBack = { path = path.dropLast(1) },
                 onEnterSubmenu = { path = path + it },
                 onItemClick = onItemClick,
@@ -90,6 +100,12 @@ fun WindowPaneMenu(
             )
         }
     }
+}
+
+/** The level [WindowPaneMenu] last rendered while open; a plain holder, written during composition. */
+private class LastShownLevel {
+    var items: List<WindowPaneMenuItem> = emptyList()
+    var showBack: Boolean = false
 }
 
 /**
