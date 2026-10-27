@@ -52,6 +52,8 @@ import org.crosswire.jsword.passage.VerseRange
 import kotlin.collections.HashMap
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 class GeneralSpeakTextProvider(
     private val bookmarkControl: BookmarkControl,
@@ -205,6 +207,9 @@ class GeneralSpeakTextProvider(
         }
         var calculated = cursor
         while (pending.isEmpty()) {
+            // Long runs of silent commentary entries: a stop or newer request must end the scan.
+            currentCoroutineContext().ensureActive()
+            if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
             val result = getMoreSpeakCommands(calculated, remaining, readingSettings, readingPhrases, stop)
             calculated = result.first
             pending.addAll(result.second)
@@ -263,6 +268,7 @@ class GeneralSpeakTextProvider(
                 break
             }
             if ((stop != null && nextKey.ordinal!! > stop) || nextKey.ordinal!! < key.ordinal!!) break
+            currentCoroutineContext().ensureActive()
             cmds.addUntilSentenceBreak(getCommandsForKey(key, nextKey, readingSettings, readingPhrases), rest)
             key = nextKey
         }
@@ -317,11 +323,12 @@ class GeneralSpeakTextProvider(
         playback.bookmarkWasCreated = true
         target.playbackSettings = playback
         val autoBookmark = advanced.autoBookmark
+        // Normalize the key before publishing, so readers never see the legacy single-verse key.
+        val position = startKey
+        target.key = bookmarkKey(position).key.getOsisRef()
         // Publish the intended position on the caller; the worker must not resurrect it after stop().
         bookmark = if (autoBookmark || previous != null) target else null
-        val position = startKey
         launcher.launch(SPEAK_KEY) {
-            target.key = bookmarkKey(position).key.getOsisRef()
             val wasRemoved = removeBookmark(previous)
             saveBookmark(wasRemoved, target, autoBookmark)
         }
@@ -331,7 +338,10 @@ class GeneralSpeakTextProvider(
     private fun bookmarkKey(position: BookAndKey): BookAndKey {
         val document = position.document!!
         if (document.bookCategory != BookCategory.COMMENTARY) return position
-        val key = (position.key as? VerseRange)?.start ?: position.key
+        // A multi-verse range is already an entry key; nothing to normalize.
+        val range = position.key as? VerseRange
+        if (range != null && range.start != range.end) return position
+        val key = range?.start ?: position.key
         val xml = SwordContentFacade.readOsisFragment(document, key, strings)
         val entry = OsisFragment(xml, key, document).annotateRef ?: return position
         return BookAndKey(entry, document, position.ordinal)
