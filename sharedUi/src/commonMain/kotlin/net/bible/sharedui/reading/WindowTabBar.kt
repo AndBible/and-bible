@@ -27,8 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -38,6 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -140,6 +144,20 @@ fun WindowTabBar(
     menuIcon: @Composable (iconKey: String) -> Painter? = { null },
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+    val tabs = model.entries.filterIsInstance<RailEntry.WindowTab>()
+    val tabIds = tabs.map { it.window.id }
+    val activeId = tabs.firstOrNull { it.isActive }?.window?.id
+    // Classic ensureRestoreButtonVisible() parity (#2498): bring a just-added tab into view (a new links
+    // window starts minimised and inactive at the end of the strip), otherwise the active window's tab.
+    val seenIds = remember { SeenTabIds() }
+    LaunchedEffect(tabIds, activeId) {
+        val previous = seenIds.ids
+        seenIds.ids = tabIds.toSet()
+        val target = previous?.let { seen -> tabIds.lastOrNull { it !in seen } } ?: activeId ?: return@LaunchedEffect
+        listState.bringIntoView(model.entries.indexOfFirst { it is RailEntry.WindowTab && it.window.id == target })
+    }
+
     CappedBarFontScale {
         Row(
             modifier = modifier
@@ -157,6 +175,7 @@ fun WindowTabBar(
 
             AnimatedVisibility(visible = model.showButtons, modifier = Modifier.weight(1f, fill = false)) {
                 LazyRow(
+                    state = listState,
                     horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -216,6 +235,19 @@ fun WindowTabBar(
             }
         }
     }
+}
+
+/** Tab ids of the previous rail model; `null` until the first one, so initial tabs do not count as new. */
+private class SeenTabIds(var ids: Set<String>? = null)
+
+/** Scrolls [index] into view unless it is already fully visible. */
+private suspend fun LazyListState.bringIntoView(index: Int) {
+    if (index < 0) return
+    val info = layoutInfo
+    val item = info.visibleItemsInfo.firstOrNull { it.index == index }
+    val fullyVisible = item != null &&
+        item.offset >= info.viewportStartOffset && item.offset + item.size <= info.viewportEndOffset
+    if (!fullyVisible) animateScrollToItem(index)
 }
 
 /**
