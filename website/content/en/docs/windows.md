@@ -12,6 +12,10 @@ The ‘Bible Study App’ provides amazing window functionality.
 - Any number of pinned windows can be shown at one time. Only one unpinned window can be shown at once.
 - Document links are always opened in the links window. Change a window type by changing the Pin setting.
 
+When you scroll a synchronised commentary window, its title follows the verse
+range of the entry in view, including when you return to an already-loaded entry.
+The synchronised Bible windows follow that entry, too.
+
 https://www.youtube.com/watch?v=mKxEuQX-oX0
 
 ## Creating and configuring windows

@@ -40,8 +40,10 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 
 /** Reference to current passage shown by viewer
  *
@@ -215,6 +217,19 @@ open class CurrentCommentaryPage internal constructor(
 
     // If a passage (that is not just a single verse) is displayed, it is stored here.
     var originalVerseRange: VerseRange? = null
+
+    override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
+        val moved = super.updateKeyFromScrolledOsisRef(osisRef)
+        if (moved) {
+            // Loaded entries report their annotateRef without loading another fragment.
+            annotateKey = try {
+                VerseRangeFactory.fromString(versification, osisRef)
+            } catch (e: NoSuchVerseException) {
+                null
+            }
+        }
+        return moved
+    }
 
     override fun doSetKey(key: Key?) {
         if(key is VerseRange) {
