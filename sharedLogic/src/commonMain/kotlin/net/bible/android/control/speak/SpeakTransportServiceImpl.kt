@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -64,12 +65,7 @@ class SpeakTransportServiceImpl(
     /** Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks]. */
     private var bookmarkCache: Map<String, BookmarkEntities.BaseBookmarkWithNotes> = emptyMap()
 
-    /**
-     * Cached bookmark-button visibility. Classic `SpeakTransportWidget` only recomputes this on
-     * attach + [SpeakSettingsChanges] (`resetView`, :216-227) — never on the plain
-     * [SpeakChanges] handlers that fire on every verse transition. Mirror that:
-     * recompute only here (init) and in the [SpeakSettingsChanges] handler below, not in [build].
-     */
+    /** Cached visibility, refreshed after bookmark writes rather than on every speech progress event. */
     private var bookmarkVisible: Boolean = false
 
     private val _state = MutableStateFlow(build(visible = !speakControl.isStopped))
@@ -82,6 +78,16 @@ class SpeakTransportServiceImpl(
         SpeakChanges.changes.subscribeOnMain { refresh() }
         SpeakSettingsChanges.changes.subscribeOnMain {
             refreshBookmarkVisibility()
+        }
+        // Speech bookmarks are saved asynchronously on pause/stop, after settings events have fired.
+        bookmarkControl.changes.subscribeOnMain { change ->
+            when (change) {
+                is BookmarkChange.BookmarksUpserted,
+                is BookmarkChange.BookmarksDeleted,
+                is BookmarkChange.BookmarkToLabelUpserted,
+                is BookmarkChange.LabelsDeleted -> refreshBookmarkVisibility()
+                else -> Unit
+            }
         }
     }
 
