@@ -546,7 +546,10 @@ describe("bounded theme chrome contrast and geometry", () => {
         expect(noise).toContain("position: absolute");
         expect(noise).toContain("inset: 0");
         expect(noise).toContain("pointer-events: none");
-        expect(declarations(css, ".monochrome .bottom-touch-block::before")).toContain("filter: grayscale(1)");
+        // Same tile grid as the fixed reading-area .background (no phase-shifted seam) and no extra filter.
+        expect(noise).toContain("background-attachment: fixed");
+        expect(css).not.toContain(".monochrome .bottom-touch-block::before");
+        expect(declarations(css, ".background")).not.toContain("filter");
         for (const mode of ["", "night", "monochrome", "monochrome night", "noAnimation", "noAnimation night"]) {
             const bar = winning(css, "bottom-touch-block", mode, "div");
             expect(bar.background).toBe("var(--background-color)");

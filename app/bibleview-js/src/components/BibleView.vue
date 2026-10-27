@@ -818,12 +818,10 @@ a {
     position: absolute;
     inset: 0;
     background-image: url("~@/assets/noise.svg");
+    // Tile from the viewport origin, like the fixed reading-area .background, so there is no seam.
+    background-attachment: fixed;
     opacity: var(--noise-opacity);
     pointer-events: none;
-
-    .monochrome & {
-      filter: grayscale(1);
-    }
   }
 
   .noAnimation & {
