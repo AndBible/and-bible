@@ -733,7 +733,8 @@ class BibleView(
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             if(editingTextInJs) {
                 val rv = callback.onActionItemClicked(mode, item)
-                mode.finish()
+                // Select all expands the selection; finishing the mode would clear it again.
+                if (item.itemId != android.R.id.selectAll) mode.finish()
                 return rv
             }
             val handled = onActionMenuItemClicked(mode, item)

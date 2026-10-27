@@ -86,6 +86,10 @@ Notes support rich formatting. *AndBible* offers two editor types: an **HTML edi
 and a **Markdown editor**. You can choose which editor is used for new notes in
 the settings.
 
+On Android, use **Select all** in the text selection menu to highlight the entire
+note, even when part of the text is already selected. You can then copy, cut, or
+replace the selected text.
+
 <span id="notes-editor-setting"></span>
 
 ### Choosing the Editor Format
