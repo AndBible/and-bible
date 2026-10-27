@@ -20,6 +20,9 @@ package net.bible.service.readingplan
 import net.bible.sharedcore.platform.CoreStrings
 
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.VersificationsMapper
 
 import net.bible.android.database.DbDate
 import net.bible.sharedlogic.platform.LocalCalendar
@@ -79,6 +82,15 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     val getReadingKeys: List<Key>
         get() {
             return readingKeys!!
+        }
+
+    /** Keeps plan numbering and read-status indices intact while displaying the reading Bible's references. */
+    fun forVersification(versification: Versification): OneDaysReadingsDto =
+        OneDaysReadingsDto(day, null, readingPlanInfo, coreStrings, calendar).also { converted ->
+            converted.readingDate = readingDate
+            converted.readingKeys = getReadingKeys.map {
+                VersificationsMapper.instance().map(KeyUtil.getPassage(it), versification)
+            }
         }
 
     override fun toString(): String {

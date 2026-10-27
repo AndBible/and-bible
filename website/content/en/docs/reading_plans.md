@@ -8,6 +8,12 @@ When first accessing *Reading Plan*, you will be prompted to select a plan. Afte
 selecting a plan, you will be shown the Daily Reading screen for the first day
 of the reading plan’s schedule.
 
+Passage references in the Daily Reading screen and the list of days use the chapter
+and verse numbering of your current Bible. Built-in plans are mapped from KJV
+numbering, so a reading may span different chapters in your Bible. For example,
+the plan's Joel 3 reading appears as Joel 4 in Bibles with four chapters in Joel;
+KJV Joel 2 also includes their short Joel 3 chapter.
+
 Clicking the *Done* button will take you to the next day’s reading schedule.
 Note: The *Done* button will only be enabled after pressing either the *Speak*
 or *Passage* buttons for each passage that is listed. Alternatively, you can tap
