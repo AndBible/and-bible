@@ -223,8 +223,8 @@ class WindowCommandsImplTest {
         secondLinks.windowState = WindowLayout.WindowState.VISIBLE
         commands.setActive(secondLinks.id.toString())
 
-        // The pane button's swipe-down action dispatches this command.
-        commands.minimise(secondLinks.id.toString())
+        // The pane button's swipe-down and long-press actions dispatch this command.
+        commands.dismiss(secondLinks.id.toString())
 
         assertNull(repo.getWindow(secondLinks.id))
         assertTrue(primaryLinks.isVisible)
@@ -236,7 +236,7 @@ class WindowCommandsImplTest {
         val primaryLinks = repo.activeWindow.targetLinksWindow
         primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
 
-        commands.minimise(primaryLinks.id.toString())
+        commands.dismiss(primaryLinks.id.toString())
 
         assertTrue(primaryLinks.isMinimised)
         assertEquals(primaryLinks, repo.getWindow(primaryLinks.id))
@@ -250,12 +250,25 @@ class WindowCommandsImplTest {
         val thirdLinks = secondLinks.targetLinksWindow
         thirdLinks.windowState = WindowLayout.WindowState.VISIBLE
 
-        commands.minimise(secondLinks.id.toString())
+        commands.dismiss(secondLinks.id.toString())
 
         assertTrue(secondLinks.isMinimised)
         assertEquals(secondLinks, repo.getWindow(secondLinks.id))
         assertEquals(thirdLinks, secondLinks.targetLinksWindow)
         assertTrue(thirdLinks.isVisible)
+    }
+
+    @Test fun plainMinimiseOnlyMinimisesSecondLinksWindow() {
+        val primaryLinks = repo.activeWindow.targetLinksWindow
+        primaryLinks.windowState = WindowLayout.WindowState.VISIBLE
+        val secondLinks = primaryLinks.targetLinksWindow
+        secondLinks.windowState = WindowLayout.WindowState.VISIBLE
+
+        // The window menu "Minimise" and the AI MINIMIZE tool use this path.
+        commands.minimise(secondLinks.id.toString())
+
+        assertTrue(secondLinks.isMinimised)
+        assertEquals(secondLinks, repo.getWindow(secondLinks.id))
     }
 
     @Test fun tappingSecondLinksWindowButtonStillClosesIt() {

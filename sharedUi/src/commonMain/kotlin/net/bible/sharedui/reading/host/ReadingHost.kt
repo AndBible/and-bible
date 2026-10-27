@@ -766,7 +766,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
                 },
                 onLongPress = {
                     controller.onWindowActivated(windowId)
-                    controller.onMinimise(windowId)
+                    controller.onDismiss(windowId)
                 },
                 modifier = Modifier
                     .alpha(alpha)
@@ -780,7 +780,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
                                     }
                                     PaneButtonAction.Minimise -> {
                                         controller.onWindowActivated(windowId)
-                                        controller.onMinimise(windowId)
+                                        controller.onDismiss(windowId)
                                     }
                                     PaneButtonAction.None -> {}
                                 }

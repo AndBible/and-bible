@@ -16,6 +16,11 @@ interface WindowCommands {
     fun addNewWindow(fromWindowId: String)
     /** Minimise the window with this opaque id. */
     fun minimise(windowId: String)
+    /**
+     * Dismiss the window with this opaque id (pane button swipe-down / long-press): closes a
+     * visible secondary links window, otherwise minimises. Defaults to [minimise].
+     */
+    fun dismiss(windowId: String) = minimise(windowId)
     /** Close the window with this opaque id. */
     fun close(windowId: String)
     /** Restore (un-minimise) the window with this opaque id. */

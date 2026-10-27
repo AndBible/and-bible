@@ -24,6 +24,7 @@ class WindowCommandsImpl(private val windowControl: WindowControl) : WindowComma
 
     override fun addNewWindow(fromWindowId: String) { window(fromWindowId)?.let { windowControl.addNewWindow(it) } }
     override fun minimise(windowId: String) { window(windowId)?.let { windowControl.minimiseWindow(it) } }
+    override fun dismiss(windowId: String) { window(windowId)?.let { windowControl.dismissWindow(it) } }
     override fun close(windowId: String) { window(windowId)?.let { windowControl.closeWindow(it) } }
     override fun restore(windowId: String) { window(windowId)?.let { windowControl.restoreWindow(it) } }
     override fun maximise(windowId: String) { window(windowId)?.let { windowControl.maximiseWindow(it) } }

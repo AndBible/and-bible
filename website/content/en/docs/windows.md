@@ -43,11 +43,12 @@ the dark theme), rather than fading to gray. Bottom-bar buttons have square bott
 corners; pinned and links windows have more rounded top corners than unpinned
 windows. With automatic pinning enabled, all window buttons use the pinned shape.
 
-Swipe down on the button at the top right of a window to minimise it. If you
-open a link inside the links window, swiping down on the new links window's
-button closes that window instead, just like tapping its bottom-bar button.
-The first links window, and links windows with another links window opened from
-them, are minimised rather than closed.
+Swipe down on the button at the top right of a window, or long-press it, to
+minimise it. If you open a link inside the links window, swiping down on (or
+long-pressing) the new links window's button closes that window instead, just
+like tapping its bottom-bar button. The first links window, and links windows
+with another links window opened from them, are minimised rather than closed.
+The "Minimise" item in the window menu always only minimises.
 
 Reposition the window by using the ‘Move To’ menu option.
 

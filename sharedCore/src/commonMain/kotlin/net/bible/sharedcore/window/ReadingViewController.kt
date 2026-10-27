@@ -20,6 +20,7 @@ class ReadingViewController(
 
     fun onAddWindow(fromWindowId: String) = commands.addNewWindow(fromWindowId)
     fun onMinimise(windowId: String) = commands.minimise(windowId)
+    fun onDismiss(windowId: String) = commands.dismiss(windowId)
     fun onClose(windowId: String) = commands.close(windowId)
     fun onRestore(windowId: String) = commands.restore(windowId)
     fun onMaximise(windowId: String) = commands.maximise(windowId)

@@ -194,18 +194,24 @@ open class WindowControl constructor() {
     }
 
     fun minimiseWindow(window: Window, force: Boolean = false) {
-        // Match a bottom-bar tap: discard the last secondary links window, but keep
-        // forced layout changes non-destructive and preserve the rest of the link chain.
-        if (!force && window.isVisible && window.isLinksWindow &&
-            window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow) {
-            closeWindow(window)
-            return
-        }
         if(force || isWindowMinimizable(window)) {
             windowRepository.minimise(window)
 
             // redisplay the current page
             windowRepository.notifyWindowsChanged()
+        }
+    }
+
+    /**
+     * Pane button swipe-down / long-press: close a visible secondary (last-in-chain, non-primary)
+     * links window, like a bottom-bar tap; any other window is only minimised.
+     */
+    fun dismissWindow(window: Window) {
+        if (window.isVisible && window.isLinksWindow &&
+            window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow) {
+            closeWindow(window)
+        } else {
+            minimiseWindow(window)
         }
     }
 
@@ -236,7 +242,7 @@ open class WindowControl constructor() {
 
     fun restoreWindow(window: Window, force: Boolean = false) {
         if(window.isVisible && !force) {
-            minimiseWindow(window)
+            dismissWindow(window)
         } else {
             if (window == activeWindow) return
 
