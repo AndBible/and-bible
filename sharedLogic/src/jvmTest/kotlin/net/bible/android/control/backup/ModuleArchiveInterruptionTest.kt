@@ -279,5 +279,53 @@ class ModuleArchiveInterruptionTest {
         }
     }
 
+    private fun installGen1() = runBlocking { backupControl().extractAndRegisterModuleArchive({ zip(generation(1), "gen1.zip").source() }) }
+
+    /** A staging directory left by a crashed EPUB install is swept; unrelated directories are not touched. */
+    @Test fun leftoverEpubStagingDirectoriesAreSweptAtTheNextInstall() {
+        val leftover = File(dest, ".epub-install-crashed/epub/x").apply { mkdirs() }
+        File(leftover, "f.txt").writeText("stale")
+        val unrelated = File(dest, "keep-me").apply { mkdirs() }
+        installGen1()
+        assertTrue(!File(dest, ".epub-install-crashed").exists(), "stale staging dir must be swept")
+        assertTrue(unrelated.isDirectory, "only .epub-install-* dirs may be swept")
+    }
+
+    /** A bare directory entry `epub/foo/` must not create a live (empty) EPUB folder during extraction. */
+    @Test fun epubDirectoryEntryDoesNotCreateALiveFolder() {
+        val entries = generation(1) + ("epub/foo/" to ByteArray(0))
+        runBlocking { backupControl().extractAndRegisterModuleArchive({ zip(entries, "dir.zip").source() }) }
+        assertTrue(!File(dest, "epub/foo").exists(), "live epub/foo must not exist")
+        assertNotNull(Books.installed().getBook(INITIALS))
+    }
+
+    /** One EPUB failing to register must not skip SWORD conf registration or leave staging/old trees behind. */
+    @Test fun failingEpubDoesNotSkipSwordRegistration() {
+        val entries = generation(1) + listOf("epub/bad.epub/optimize.lock" to byteArrayOf(1), "epub/bad.epub/a.txt" to byteArrayOf(2))
+        val result = runCatching { runBlocking { backupControl().extractAndRegisterModuleArchive({ zip(entries, "bad.zip").source() }) } }
+        assertTrue(result.isFailure, "the EPUB failure must surface")
+        assertNotNull(Books.installed().getBook(INITIALS), "SWORD module must still be registered")
+        assertTrue(!File(dest, "epub/bad.epub").exists())
+        assertEquals(emptyList(), dest.listFiles()!!.filter { it.name.startsWith(".epub-") }.map { it.name })
+    }
+
+    /** EPUB data parts are not SWORD data: a later conf failure must still restore the old conf. */
+    @Test fun epubPartsDoNotMarkSwordDataReplaced() {
+        installGen1()
+        val oldConf = File(dest, "mods.d/$INITIALS.conf").readBytes()
+        val newConf = generation(2).first()
+        val entries = listOf(newConf, "epub/p.epub/a.txt" to byteArrayOf(2))
+        // Fail at publish step 0 and at step 1: whichever step is the conf's, a failure must restore the old conf.
+        for (failAt in 0..1) {
+            installGen1()
+            val control = backupControl()
+            control.onPublishStep = { if (it == failAt) throw IOException("injected publish failure at $it") }
+            val result = runCatching { runBlocking { control.extractAndRegisterModuleArchive({ zip(entries, "mixed.zip").source() }) } }
+            if (result.exceptionOrNull()?.message?.contains("injected") == true) {
+                assertTrue(File(dest, "mods.d/$INITIALS.conf").readBytes().contentEquals(oldConf), "failAt=$failAt: old conf must be restored")
+            }
+        }
+    }
+
     private companion object { const val INITIALS = "K4ZTextBook" }
 }

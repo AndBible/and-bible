@@ -362,6 +362,58 @@ class EpubBackendStateTest {
         }
     }
 
+    /**
+     * A corrupt replacement must leave the working EPUB installed and readable, and must not stop a second EPUB of
+     * the same archive from being published.
+     */
+    @Test
+    fun corruptArchiveReplacementKeepsOldEpubAndStillPublishesTheNext() = kotlinx.coroutines.runBlocking<Unit> {
+        val keep = "archive-keep.epub"
+        val second = "archive-second.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val strings = testCoreStrings()
+        val koin = org.koin.core.context.GlobalContext.get()
+        val backup = net.bible.android.control.backup.BackupControl(
+            dialogs = koin.get(), strings = strings, env = AndroidAppEnvironment(application),
+            settings = koin.get(), windowControl = koin.get(), cloudSync = koin.get(),
+            notifier = koin.get(), dirs = koin.get(),
+        )
+        val archives = mutableListOf<File>()
+        fun goodFiles(name: String, token: String): List<Pair<String, ByteArray>> {
+            val source = buildEpub("source-$name-$token")
+            File(source, "OEBPS/ch1.xhtml").writeText(chapterXhtml("Chapter One", "The $token river crosses the valley."))
+            newState(source).close()
+            return source.walkTopDown().filter { it.isFile }
+                .map { "epub/$name/${it.relativeTo(source).invariantSeparatorsPath}" to it.readBytes() }.toList()
+                .also { source.deleteRecursively() }
+        }
+        fun archive(entries: List<Pair<String, ByteArray>>) = File.createTempFile("epub-corrupt-", ".abmd.zip").also { archive ->
+            archives.add(archive)
+            java.util.zip.ZipOutputStream(archive.outputStream()).use { zip ->
+                for ((n, bytes) in entries) { zip.putNextEntry(java.util.zip.ZipEntry(n)); zip.write(bytes); zip.closeEntry() }
+            }
+        }
+        fun text(name: String): String {
+            val book = books.getBook(epubInitials(name))!!
+            return book.getRawText(book.epubBackend!!.state.keys.first())
+        }
+        createdDbFilenames.add("epub-${epubInitials(keep)}.sqlite3")
+        createdDbFilenames.add("epub-${epubInitials(second)}.sqlite3")
+        try {
+            assertTrue(backup.installModuleArchive(archive(goodFiles(keep, "quiet")).toOkioPath(), epubInitials(keep)))
+            assertTrue(text(keep).contains("quiet"))
+            val corrupt = listOf("epub/$keep/META-INF/container.xml" to "<not xml".toByteArray())
+            assertFalse(backup.installModuleArchive(archive(corrupt + goodFiles(second, "quartz")).toOkioPath(), epubInitials(second)))
+            assertTrue("the working EPUB must survive a corrupt replacement", text(keep).contains("quiet"))
+            assertTrue("the next EPUB of the archive must still be published", text(second).contains("quartz"))
+            assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
+        } finally {
+            for (n in listOf(keep, second)) books.getBook(epubInitials(n))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+            archives.forEach { it.delete() }
+        }
+    }
+
     @Test
     fun sameNameCommitReplacesOpenedReaderAndPersistedSearchIndex() = kotlinx.coroutines.runBlocking<Unit> {
         val name = "ep3-replace.epub"

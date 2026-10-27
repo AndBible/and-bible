@@ -179,12 +179,20 @@ fun deleteEpubModule(epubDir: Path) {
 
 /** Deletes the module's files and retires its owner; the caller must already hold the module owner lock. */
 internal fun deleteOwnedEpubModule(epubDir: Path) {
+    retireOwnedEpubModule(epubDir)
+    KFiles.deleteRecursively(epubDir)
+}
+
+/**
+ * Unregisters and closes the module's owner and drops its internal metadata cache, but leaves the files on disk.
+ * The caller must already hold the module owner lock.
+ */
+internal fun retireOwnedEpubModule(epubDir: Path) {
     val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
     oldBook?.epubBackend?.state?.let { state ->
         Books.installed().removeBook(oldBook)
         state.close()
     }
-    KFiles.deleteRecursively(epubDir)
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
     deleteAppDatabase(appDbFilename)
 }
