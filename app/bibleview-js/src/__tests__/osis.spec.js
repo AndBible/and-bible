@@ -22,7 +22,7 @@ import test1Xml from "./testdata/eph.2-kjva.xml";
 import test1Result from "./testdata/eph.2-kjva-result.html";
 
 
-import {useConfig} from "@/composables/config";
+import {strongsModes, useConfig} from "@/composables/config";
 import {useStrings} from "@/composables/strings";
 import {useAndroid} from "@/composables/android";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
@@ -73,9 +73,11 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
     expect(wrapper.html() + "\n").toBe(renderedHtml);
 }
 
-function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, isNativeHtml = false} = {}) {
+function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, isNativeHtml = false,
+    strongsMode = strongsModes.hidden} = {}) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     config.showRedLetters = showRedLetters;
+    config.strongsMode = strongsMode;
 
     const osisFragment = {
         bookCategory: "BIBLE",
@@ -104,6 +106,26 @@ describe("OsisSegment.vue", () => {
     // https://runthatline.com/test-css-module-classes-in-vue-with-vitest/
     // https://github.com/AndBible/and-bible/issues/2434
     it.skip("Test rendering of Eph 2:8 in KJVA, #1985", () => verifyXmlRendering(test1Xml, test1Result));
+
+    // Original OSIS from SpaRV1909 1.0.1 (Gen 1:1 and Matt 1:1), issue #3229.
+    it.each([
+        ['<w lemma="Strong:H7225">EN el principio</w>', 'ab-w://?strong=H7225'],
+        ['<w lemma="Strong:G0976">LIBRO</w>', 'ab-w://?strong=G0976'],
+        ['<w lemma="strong:G2424 strong:G5547">de Jesucristo</w>', 'ab-w://?strong=G5547&strong=G2424'],
+    ])("creates a recognised Strong's link from SpaRV1909 markup %s", (markup, href) => {
+        const wrapper = mountOsisSegment(markup, {strongsMode: strongsModes.links});
+        expect(wrapper.get("a.strongs").attributes("href")).toBe(href);
+        wrapper.unmount();
+    });
+
+    it("normalises only the Strong's namespace, preserving targets and other namespaces", () => {
+        const wrapper = mountOsisSegment(
+            '<w lemma="STRONG:G0976 strong:H0430 lemma.TR:AbC" morph="robinson:N-NSM">word</w>',
+            {strongsMode: strongsModes.links});
+        expect(wrapper.get("a.strongs").attributes("href")).toBe(
+            "ab-w://?lemma.TR=AbC&strong=H0430&strong=G0976&robinson=N-NSM");
+        wrapper.unmount();
+    });
 
     it("renders MyBible J tags as red letters when enabled", () => {
         const wrapper = mountOsisSegment("<J>Jesus words</J>", {showRedLetters: true});
