@@ -73,6 +73,39 @@ class CommentaryBlockResolverTest {
     }
 
     @Test
+    fun `a normal multi-chapter entry still resolves its full range`() {
+        val first = Verse(v11n, BibleBook.JOHN, 1, 1).ordinal
+        val verses = (first until first + 60).map { Verse(v11n, it) }
+        val block = resolver(verses, verses.associateWith { "A long commentary entry" })
+            .resolveBlock(verses[30])
+        assertEquals(verses.first(), block.start)
+        assertEquals(verses.last(), block.end)
+        assertEquals("A long commentary entry", block.content)
+    }
+
+    @Test
+    fun `resolving a huge repeated placeholder has bounded rendering work`() {
+        val first = Verse(v11n, BibleBook.JOHN, 1, 1).ordinal
+        val verses = (first until first + 1000).map { Verse(v11n, it) }
+        for (selected in listOf(verses.first(), verses[50], verses[500], verses.last())) {
+            var reads = 0
+            val walker = object : CommentaryWalker {
+                override fun next(verse: Verse) = verses.getOrNull(verse.ordinal - first + 1)
+                override fun prev(verse: Verse) = verses.getOrNull(verse.ordinal - first - 1)
+                override fun render(verse: Verse): String {
+                    // Luther links the same non-empty no-note notice across thousands of verses.
+                    if (++reads > 101) throw AssertionError("Unbounded placeholder scan at $verse")
+                    return "No commentary on these verses is included"
+                }
+            }
+            val block = CommentaryBlockResolver(walker).resolveBlock(selected)
+            assertEquals(selected, block.start)
+            assertEquals(selected, block.end)
+            assertEquals("No commentary on these verses is included", block.content)
+        }
+    }
+
+    @Test
     fun `nextBlockStart skips empty verses to the next non-empty block`() {
         val vs = johnVerses(7)
         val content = mapOf(

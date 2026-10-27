@@ -59,6 +59,11 @@ Commentaries contain explanations or interpretations of other Bibles or books.
 Many commentaries will contain interactive Bible references, and can be
 [navigated](navigation.md) like Bible modules.
 
+Some commentaries cover only selected passages. At a passage without a note,
+the module may display its own notice instead of commentary. Very long runs of
+identical entries are displayed at the selected verse without expanding the
+entry's verse range, so these notices do not keep the page loading.
+
 ## Dictionaries
 
 Dictionaries provide additional information about individual words. *AndBible* supports
