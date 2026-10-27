@@ -531,22 +531,22 @@ class BibleView(
     var currentSelectionText: String? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun createProcessTextIntent() = Intent()
+    private fun createProcessTextIntent(text: String) = Intent()
         .setAction(Intent.ACTION_PROCESS_TEXT)
         .setType("text/plain")
         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        .putExtra(Intent.EXTRA_PROCESS_TEXT, currentSelectionText!!)
+        .putExtra(Intent.EXTRA_PROCESS_TEXT, text)
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun getSupportedActivities(): List<ResolveInfo> {
+    private fun getSupportedActivities(text: String): List<ResolveInfo> {
         val packageManager: PackageManager = context.packageManager
         // No filter: AndBible stopped registering itself as a PROCESS_TEXT handler when the
         // SearchResults <activity-alias> was removed (837515385690, 2025-08-21), so there is no
         // longer an own entry to strip out of this list. See spec §9.2 / Appendix F.2.
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.queryIntentActivities(createProcessTextIntent(), PackageManager.ResolveInfoFlags.of(0))
+            packageManager.queryIntentActivities(createProcessTextIntent(text), PackageManager.ResolveInfoFlags.of(0))
         } else {
-            packageManager.queryIntentActivities(createProcessTextIntent(), 0)
+            packageManager.queryIntentActivities(createProcessTextIntent(text), 0)
         }
     }
 
@@ -555,8 +555,8 @@ class BibleView(
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun createProcessTextIntentForResolveInfo(info: ResolveInfo) =
-        createProcessTextIntent()
+    private fun createProcessTextIntentForResolveInfo(info: ResolveInfo, text: String) =
+        createProcessTextIntent(text)
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
@@ -629,13 +629,15 @@ class BibleView(
                 val item = menu.findItem(R.id.search)
                 item.title = if(text.length < 16) context.getString(R.string.search_what, text) else context.getString(R.string.search)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
+            // The JavaScript bridge can clear the selection while this menu is being prepared.
+            // Use the same text snapshot for the query and every handler's intent.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && text != null) {
                 var menuItemOrder = 100
-                for (resolveInfo in getSupportedActivities()) {
+                for (resolveInfo in getSupportedActivities(text)) {
                     menu.add(Menu.NONE, Menu.NONE,
                         menuItemOrder++,
                         getLabel(resolveInfo))
-                        .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
+                        .setIntent(createProcessTextIntentForResolveInfo(resolveInfo, text))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
             }
