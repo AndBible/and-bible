@@ -715,6 +715,15 @@ class BibleView(
         if(removeRanges) emit(BibleViewEvents.removeRanges())
     }
 
+    /**
+     * Chromium WebView's selection menu uses its own resource id for Select all
+     * (`select_action_menu_select_all` in the WebView package), not [android.R.id.selectAll],
+     * so the item is matched by resource entry name as well.
+     */
+    private fun isSelectAllItem(item: MenuItem): Boolean =
+        item.itemId == android.R.id.selectAll ||
+            runCatching { resources.getResourceEntryName(item.itemId) }.getOrNull() == "select_action_menu_select_all"
+
     @RequiresApi(Build.VERSION_CODES.M)
     private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -734,7 +743,7 @@ class BibleView(
             if(editingTextInJs) {
                 val rv = callback.onActionItemClicked(mode, item)
                 // Select all expands the selection; finishing the mode would clear it again.
-                if (item.itemId != android.R.id.selectAll) mode.finish()
+                if (!isSelectAllItem(item)) mode.finish()
                 return rv
             }
             val handled = onActionMenuItemClicked(mode, item)
