@@ -451,6 +451,18 @@ private val SQUASH_MIGRATION_10_27 = object : Migration(10, 27) {
     override fun doMigrate(connection: SQLiteConnection) {
         val db = connection
         db.apply {
+            // Some legacy/restored version-10 databases lack workspace tables. Reuse the original
+            // CREATE IF NOT EXISTS migration so existing tables and unrelated personal data survive.
+            val missingTables = listOf("Workspace", "Window", "PageManager", "HistoryItem").filter { table ->
+                queryRows("SELECT name FROM main.sqlite_master WHERE type='table' AND name=? COLLATE NOCASE", table) { 1 }.isEmpty()
+            }
+            if (missingTables.isNotEmpty()) {
+                Log.w(TAG, "Recreating missing legacy workspace tables: $missingTables")
+                MIGRATION_7_8.doMigrate(db)
+                if ("PageManager" in missingTables) {
+                    MIGRATION_8_9.doMigrate(db)
+                }
+            }
             execSQL("PRAGMA foreign_keys=OFF;")
             val wsOldCols = "`name`,`id`"
             val wsNewCols = "`name`,`id`"

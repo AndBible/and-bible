@@ -77,6 +77,10 @@ lacks its required ID column, that table is skipped so the rest of your data can
 still be migrated. Reading plans or reading progress from the skipped table
 will not be available after migration.
 
+For a legacy version-10 database with missing workspace tables, AndBible recreates
+those tables empty before continuing the upgrade. Existing tables and their data
+are preserved, but data from a missing table cannot be recovered this way.
+
 To restore you *AndBible* apk file:
 
 1. Locate the .apk file you previously backed up.
