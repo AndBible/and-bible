@@ -60,7 +60,9 @@ In the advanced Speak settings, **Text follows speech** controls whether the rea
 window moves with playback. Changing it does not require restarting the app. With it
 disabled, speaking a selected commentary passage keeps the window at its current position
 while highlighting the spoken text in the displayed entry, including entries that cover
-several verses.
+several verses. Verses that the spoken translation omits (for example Mark 7:16 in some
+translations) are skipped, and the reading position follows the next verse that is actually
+spoken.
 
 With **Automatic bookmarking** enabled, pausing or stopping speech saves your position
 with the special Speak label. The playback bar's bookmark button appears when a Speak

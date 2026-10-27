@@ -33,6 +33,9 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.control.page.CurrentBibleVerse
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
@@ -1028,6 +1031,51 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     @Test
+    fun missingVerseDoesNotBecomeSpeechSynchronizationKey() {
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        val missingVerse = getVerse("Mark.7.16")
+        val facade = net.bible.test.testSwordContentFacade()
+        assertThat(facade.getBibleSpeakCommands(provider.settings, book, missingVerse).isEmpty(), equalTo(true))
+        provider.setupReading(book, getVerse("Mark.7.15"))
+
+        nextText()
+        assertThat(range(), equalTo("Mark.7.15"))
+        val progresses = mutableListOf<SpeakChange.Progress>()
+        val subscription = SpeakChanges.changes.subscribe { change ->
+            if (change is SpeakChange.Progress) progresses.add(change)
+        }
+        try {
+            nextText()
+            assertThat(progresses.isNotEmpty(), equalTo(true))
+            val synchronizedVerse = CurrentBibleVerse()
+            val targetV11n = (Books.installed().getBook("KJV") as SwordBook).versification
+            progresses.forEach { progress ->
+                val key = progress.key as VerseRange
+                assertThat(key.start.verse, greaterThan(0))
+                assertThat(key.start.getOsisID(), equalTo("Mark.7.17"))
+                synchronizedVerse.setVerseSelected(targetV11n, key.start, notify = false)
+                val synchronizedKey = synchronizedVerse.getVerseSelected(targetV11n)
+                assertThat(synchronizedKey.verse, greaterThan(0))
+                assertThat(synchronizedKey.getOsisID(), equalTo("Mark.7.17"))
+            }
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test
+    fun startingAtMissingVerseFollowsFirstSpokenVerse() {
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        provider.setupReading(book, getVerse("Mark.7.16"))
+
+        val spoken = nextText()
+
+        assertThat(spoken, startsWith("And when he had entered"))
+        assertThat(range(), equalTo("Mark.7.17"))
+        assertThat(provider.getCurrentlyPlayingKey().getOsisID(), equalTo("Mark.7.17"))
+    }
+
+    @Test
     fun textProgression() {
         provider.setupReading(book, getVerse("Ps.14.1"))
 
@@ -1211,7 +1259,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rev.22.21"))
         assertThat(text, startsWith("May the grace of"))
         text = nextText()
-        assertThat(range(), equalTo("Gen-Matt.1.1"))
+        assertThat(range(), equalTo("Matt.1.1"))
         assertThat(text, equalTo("Book changed. Matthew Chapter 1."))
         text = nextText()
         assertThat(text, startsWith("The Gospel According"))
