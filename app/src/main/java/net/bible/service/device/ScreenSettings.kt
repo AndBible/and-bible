@@ -93,6 +93,8 @@ object ScreenSettings {
     private var lastNightMode: Boolean = refreshNightMode()
 
 	val nightMode: Boolean get() {
+        // Settings can enable automatic mode after this process-wide object was initialized.
+        checkMonitoring()
         // "automatic" only counts with a light sensor; without one the stored value falls through to the manual branch.
         val mode = when {
             autoNightMode -> "automatic"
