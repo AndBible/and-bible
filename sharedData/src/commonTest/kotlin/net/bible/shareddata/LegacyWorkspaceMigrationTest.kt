@@ -59,6 +59,20 @@ class LegacyWorkspaceMigrationTest {
     }
 
     @Test
+    fun tablesWhoseIndexIsMissingStillMigrate() = runTest {
+        withVersion10 { db ->
+            db.execSQL("DROP INDEX index_Window_workspaceId")
+            db.execSQL("DROP INDEX index_PageManager_windowId")
+            migrateTo27(db)
+
+            assertEquals(listOf("Study"), db.queryRows("SELECT name FROM Workspace") { it.getText(0) })
+            assertEquals(listOf(1L), db.queryRows("SELECT count(*) FROM Window") { it.getLong(0) })
+            assertEquals(listOf("KJV"), db.queryRows("SELECT bible_document FROM PageManager") { it.getText(0) })
+            assertPersonalData(db)
+        }
+    }
+
+    @Test
     fun healthyVersion10KeepsWorkspaceAndWindowState() = runTest {
         withVersion10 { db ->
             migrateTo27(db)
