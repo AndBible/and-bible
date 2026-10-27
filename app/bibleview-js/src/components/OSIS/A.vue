@@ -30,10 +30,12 @@ const {openExternalLink} = inject(androidKey)!;
 const {strings} = useCommon()
 
 function openLink(event: MouseEvent, url: string) {
+    // Match the in-app targets handled by classifyExternalLink in LinkBridgeFamily.kt.
+    const internal = /^(?:B:|S:|#b|#s|#d|sword:\/\/|osis:|strongs:\/\/|morphology:\/\/)/.test(url);
     addEventFunction(
         event,
         () => openExternalLink(url),
-        {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
+        {title: internal ? strings.internalLink : strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
     );
 }
 </script>

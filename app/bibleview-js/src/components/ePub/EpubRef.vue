@@ -34,7 +34,7 @@ function openLink(event: MouseEvent, toKey: string, toId: string) {
     addEventFunction(
         event,
         () => openEpubLink(bookInitials, toKey, toId),
-        {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
+        {title: strings.internalLink, priority: EventPriorities.EXTERNAL_LINK}
     );
 }
 </script>

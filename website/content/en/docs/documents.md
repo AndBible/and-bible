@@ -104,6 +104,10 @@ repositories (Sword) or directly loaded from your device’s filesystem.
 Since version 5.0, *AndBible* also supports ePub digital books, which can be loaded from
 your device’s filesystem and read as generic books.
 
+When a link action menu appears, links to another location within an EPUB or to
+other content inside *AndBible* are labeled **Open internal link**. Links that open
+outside the app, such as web or email links, are labeled **Open external link**.
+
 There is also experimental support for MyBible and MySword format modules, which can
 be loaded from your device’s filesystem.
 
