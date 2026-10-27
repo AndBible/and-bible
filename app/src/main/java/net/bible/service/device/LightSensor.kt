@@ -35,12 +35,17 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
      */
     val reading: Int
         get() {
-            if (!mMonitoring) {
-                ensureMonitoringLightLevel()
-            }
+            ensureMonitoring()
             Log.i(TAG, "Light Sensor:$mReading")
             return Math.round(mReading)
         }
+
+    /** Starts listening to the sensor if not yet doing so; cheap and silent when already monitoring. */
+    fun ensureMonitoring() {
+        if (!mMonitoring) {
+            ensureMonitoringLightLevel()
+        }
+    }
 
     @Synchronized
     private fun ensureMonitoringLightLevel() {

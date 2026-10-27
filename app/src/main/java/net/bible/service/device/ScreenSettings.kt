@@ -78,7 +78,7 @@ object ScreenSettings {
 
     fun checkMonitoring() {
         if(autoNightMode) {
-            lightSensor.reading
+            lightSensor.ensureMonitoring()
         }
     }
 
