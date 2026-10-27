@@ -35,6 +35,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.service.sword.BookAndKeyList
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 
 /** In-memory [AppSettings]; only strings are stored (the search state persists nothing else). */
@@ -59,12 +60,15 @@ class MapSearchSettings(val strings: MutableMap<String, String?> = mutableMapOf(
  */
 fun fakeSearchBook(initials: String, name: String = initials): Book {
     val keys = mutableMapOf<String, Key>()
+    var indexStatus = IndexStatus.UNDONE
     lateinit var self: Book
     self = Proxy.newProxyInstance(Book::class.java.classLoader, arrayOf(Book::class.java)) { _, m, args ->
         when (m.name) {
             "getInitials" -> initials
             "getName" -> name
             "getAbbreviation" -> initials
+            "getIndexStatus" -> indexStatus
+            "setIndexStatus" -> { indexStatus = args!![0] as IndexStatus; null }
             "getKey" -> keys.getOrPut(args!![0] as String) { fakeKey(args[0] as String) }
             "toString" -> "FakeBook($initials)"
             "hashCode" -> System.identityHashCode(self)
@@ -124,7 +128,8 @@ class FakeSearchIndexJobs : SearchIndexJobs {
         }
     }
 
-    override fun snapshot(): List<ProgressJob> = emptyList()
+    var jobs: List<ProgressJob> = emptyList()
+    override fun snapshot(): List<ProgressJob> = jobs
     override fun isEveryJobFinished() = !running
 
     /** Delivers a work event for [job] to every live subscriber. */

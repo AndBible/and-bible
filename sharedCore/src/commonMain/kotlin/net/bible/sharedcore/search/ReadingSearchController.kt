@@ -76,6 +76,10 @@ class ReadingSearchController(
     /** A submitted query was opened as a reference: the host leaves search entirely. */
     private val onReferenceOpened: () -> Unit = {},
     val queries: SearchQueryController = SearchQueryController(),
+    /** A build owned outside this search session (for example, after the host was recreated). */
+    private val isIndexing: (docId: String) -> Boolean = { false },
+    /** Reattaches progress/completion observation without starting another build. */
+    private val onObserveIndexing: (docId: String) -> Unit = {},
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
     val phase: StateFlow<ReadingSearchPhase> = _phase.asStateFlow()
@@ -185,13 +189,20 @@ class ReadingSearchController(
         // leaves it. `fullScreen = false` is idempotent host-side.
         onLeaveFullScreen()
         _searchModeActive.value = true
+        if (seedQuery != null) queries.setQuery(seedQuery)
+        // Re-entry must not orphan the build's completion or its pending selection search.
+        if (keepIndexingInFlight()) return
         indexPromptIsExplicit = false
         dropInterceptedSearch()
-        if (seedQuery != null) queries.setQuery(seedQuery)
 
         when (kind) {
             is SearchKind.NeedsIndex -> {
-                _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+                if (isIndexing(kind.docId)) {
+                    _phase.value = ReadingSearchPhase.Indexing(kind.docId, kind.forEpub)
+                    onObserveIndexing(kind.docId)
+                } else {
+                    _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+                }
                 _sheetVisible.value = true
                 requestFieldRelease()
             }
