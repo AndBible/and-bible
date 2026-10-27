@@ -269,6 +269,39 @@ class ReadingBridgeContentFamilyTest {
         assertTrue("shared note is missing: $text", text.contains("My personal note"))
     }
 
+    @Test fun shareBookmarkNoteWithoutDocumentAndNoBibleInstalledFallsBackToTheBookmarkItself() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        val bookmark = runBlocking {
+            session.bookmarkControl.addOrUpdateBibleBookmark(
+                BibleBookmarkWithNotes(VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16)), null, true, null)
+            ).also { session.bookmarkControl.saveBibleBookmarkNote(it.id, "My personal note") }
+        }
+        // As with no Bible installed: defaultBibleDoc falls back to firstBibleDoc, which throws NoSuchElementException.
+        windowControl = object : WindowControl() {
+            override fun defaultBibleDoc(useLinks: Boolean): SwordBook = throw NoSuchElementException("no Bible")
+        }.also { it.windowRepository = repo }
+        assertTrue(kjv.versification != null)
+
+        bridge.shareBookmarkVerse(bookmark.id.toString())
+        awaitMain { sheets.shared.isNotEmpty() }
+        assertEquals(1, sheets.shared.size)
+    }
+
+    @Test fun shareBookmarkNoteWithoutDocumentWhoseVerseIsNotInTheDefaultBibleStillShares() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        repo.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(kjv.versification, BibleBook.JOHN, 3, 16))
+        // KJV has no Apocrypha: the range cannot be converted to the default Bible's versification.
+        val bookmark = runBlocking {
+            session.bookmarkControl.addOrUpdateBibleBookmark(
+                BibleBookmarkWithNotes(VerseRange(KJVA, Verse(KJVA, BibleBook.TOB, 1, 1)), null, true, null)
+            ).also { session.bookmarkControl.saveBibleBookmarkNote(it.id, "Apocrypha note") }
+        }
+
+        bridge.shareBookmarkVerse(bookmark.id.toString())
+        awaitMain { sheets.shared.isNotEmpty() }
+        assertEquals(1, sheets.shared.size)
+    }
+
     @Test fun shareVerseAfterDisposeIsIgnored() {
         session.dispose()
         bridge.shareVerse("KJV", john316Ordinal(), -1)

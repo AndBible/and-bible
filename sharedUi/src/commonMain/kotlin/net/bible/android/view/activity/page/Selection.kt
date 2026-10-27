@@ -101,9 +101,8 @@ class Selection(
 
     val book: Book? get() = Books.installed().getBook(bookInitials)
     val swordBook: SwordBook? get() =
-        if(book is SwordBook)
-            book as SwordBook? ?: windowControl.defaultBibleDoc(false)
-        else null
+        // A book-less selection has no verseRange (it is not a SwordBook), so there is no default-Bible fallback here.
+        book as? SwordBook
     override val verseRange: VerseRange? get() {
         swordBook?: return null
         val v11n = swordBook?.versification ?: KJVA
