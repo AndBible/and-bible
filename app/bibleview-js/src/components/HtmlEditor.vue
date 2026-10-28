@@ -56,6 +56,7 @@ import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
 import {androidKey, appSettingsKey, customFeaturesKey, keyboardKey} from "@/types/constants";
+import {scrollEditorToolbarIntoView} from "@/composables/editor-toolbar";
 
 const props = withDefaults(defineProps<{
     text: string,
@@ -206,11 +207,7 @@ function scrollToCursor() {
     if (!el || !editor.value?.content.contains(document.activeElement)) return;
     const actionbar = el.querySelector('.pell-actionbar');
     if (!actionbar) return;
-    const barRect = actionbar.getBoundingClientRect();
-    const visibleBottom = window.innerHeight - appSettings.bottomOffset;
-    if (barRect.bottom > visibleBottom) {
-        window.scrollBy({top: barRect.bottom - visibleBottom + 8, behavior: appSettings.disableAnimations ? "instant" : "smooth"});
-    }
+    scrollEditorToolbarIntoView(actionbar, appSettings.bottomOffset, appSettings.disableAnimations);
 }
 
 // When the on-screen keyboard opens/closes, the visual viewport changes and the editor

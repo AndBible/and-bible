@@ -93,6 +93,7 @@ import type {NoteEditorContext} from "@/components/EditableText.vue";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {androidKey, appSettingsKey, customFeaturesKey, keyboardKey} from "@/types/constants";
+import {findScrollContainer, scrollEditorToolbarIntoView} from "@/composables/editor-toolbar";
 
 const props = withDefaults(defineProps<{
     text: string,
@@ -248,13 +249,19 @@ function applyIndent(direction: number) {
 function autoResize() {
     const ta = textareaEl.value;
     if (ta) {
-        // Save scroll position to prevent jump when resetting height
+        // Save scroll positions to prevent a jump when resetting height: the document's, and
+        // the bookmark modal's editor container's, which the collapse clamps to the top (#3870).
         const scrollY = window.scrollY;
+        const container = findScrollContainer(ta);
+        const containerScrollTop = container?.scrollTop ?? 0;
         ta.style.height = "0";
         ta.style.height = ta.scrollHeight + "px";
-        // Restore scroll position if it shifted during resize
+        // Restore scroll positions if they shifted during resize
         if (window.scrollY !== scrollY) {
             window.scrollTo({top: scrollY});
+        }
+        if (container && container.scrollTop !== containerScrollTop) {
+            container.scrollTop = containerScrollTop;
         }
     }
 }
@@ -539,11 +546,7 @@ function scrollToCursor() {
     const ta = textareaEl.value;
     const bar = actionbarEl.value;
     if (!ta || !bar || document.activeElement !== ta) return;
-    const barRect = bar.getBoundingClientRect();
-    const visibleBottom = window.innerHeight - appSettings.bottomOffset;
-    if (barRect.bottom > visibleBottom) {
-        window.scrollBy({top: barRect.bottom - visibleBottom + 8, behavior: appSettings.disableAnimations ? "instant" : "smooth"});
-    }
+    scrollEditorToolbarIntoView(bar, appSettings.bottomOffset, appSettings.disableAnimations);
 }
 
 // When the on-screen keyboard opens/closes, the visual viewport changes and the editor
