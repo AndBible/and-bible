@@ -147,6 +147,7 @@ interface Strings {
     val testErrorDialogQueueSummary: String
     val testErrorDialogSummary: String
     val progressSyncTitle: String
+    val readingPlansSyncTitle: String
     val documentSyncAutoDownloadTitle: String
     val documentSyncAutoDownloadSummary: String
     val documentSyncContents: String

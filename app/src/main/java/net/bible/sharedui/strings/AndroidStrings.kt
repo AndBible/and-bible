@@ -142,6 +142,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val testErrorDialogQueueSummary: String get() = context.getString(R.string.test_error_dialog_queue_summary)
     override val testErrorDialogSummary: String get() = context.getString(R.string.test_error_dialog_summary)
     override val progressSyncTitle: String get() = context.getString(R.string.progress_sync_title)
+    override val readingPlansSyncTitle: String get() = context.getString(R.string.reading_plans_plural)
     override val documentSyncAutoDownloadTitle: String get() = context.getString(R.string.document_sync_auto_download_title)
     override val documentSyncAutoDownloadSummary: String get() = context.getString(R.string.document_sync_auto_download_summary)
     override val documentSyncContents: String get() = context.getString(R.string.document_sync_contents)

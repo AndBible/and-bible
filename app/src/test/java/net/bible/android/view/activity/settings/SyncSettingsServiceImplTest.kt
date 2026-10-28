@@ -431,6 +431,18 @@ class SyncSettingsServiceImplTest {
         assertTrue(CommonUtils.settings.getBoolean("sync_enable_bookmarks", false))
     }
 
+    // #3902: the reading-plan category must reach the screen and its toggle must enable that category's sync.
+    @Test fun readingPlansCategoryInSnapshotAndTogglePersists() {
+        val service = impl()
+        val snapshot = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+        }
+        assertEquals(false, snapshot.categoryEnabled["sync_enable_readingplans"])
+        assertEquals(net.bible.test.testCoreStrings().syncCategoryContents("READINGPLANS"), snapshot.categorySummary["sync_enable_readingplans"])
+        service.setCategoryEnabled("sync_enable_readingplans", true)
+        assertTrue(SyncableDatabaseDefinition.READINGPLANS.isSyncEnabled(CommonUtils.settings))
+    }
+
     @Test fun adapter_persistsViaCloudAdapters() {
         val service = impl()
         service.setAdapter("NEXT_CLOUD")

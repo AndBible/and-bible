@@ -62,8 +62,6 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "raw_log_history" -> R.drawable.ic_baseline_description_gray_24
     "raw_log_retention" -> R.drawable.ic_delete_24dp
     // Round 14b — sync settings, mirroring res/xml/sync_settings.xml `android:icon` verbatim.
-    // `sync_enable_readingplans` is intentionally absent: classic hides that row at runtime and the
-    // Compose screen never builds it (SyncCategoryKeys.DISPLAY).
     "sync_adapter" -> R.drawable.ic_syncdb_24dp
     "cloud_sync_reset" -> R.drawable.baseline_logout_24
     "cloud_sync_info" -> R.drawable.ic_info_grey_24dp
@@ -74,6 +72,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "webdav_sync_cert" -> R.drawable.ic_baseline_lock_24
     "sync_enable_bookmarks" -> R.drawable.ic_bookmark_24dp
     "sync_enable_workspaces" -> R.drawable.ic_baseline_workspace_24
+    "sync_enable_readingplans" -> R.drawable.ic_reading_plan_24dp
     "sync_enable_mydocuments" -> R.drawable.ic_baseline_description_gray_24
     "sync_enable_ai_settings" -> R.drawable.icon_robot
     "sync_enable_progress" -> R.drawable.ic_baseline_check_circle_24
