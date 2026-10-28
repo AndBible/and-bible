@@ -59,7 +59,7 @@ import org.koin.core.context.GlobalContext
  */
 
 const val TEST_SDK = 33
-class TestBibleApplication : BibleApplication() {
+open class TestBibleApplication : BibleApplication() {
     private companion object {
         /** The container detached at the previous test's teardown, closed at this one's (see [onTerminate]). */
         var detachedContainer: DatabaseContainer? = null
@@ -164,12 +164,19 @@ class TestBibleApplication : BibleApplication() {
             singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
         }))
         MyDocumentBookManager.launcher = aiLauncher
+        beforeAppStartup()
         CommonUtils.initializeApp()
+        // The background snapshot load builds Koin singles (PromptService launches collectors on the AppCoroutineScope
+        // it resolves then). A test body that swaps that binding must not race it: finish the load before the test starts.
+        CommonUtils.awaitSnapshotLoadsAtEdge()
         kotlinx.coroutines.runBlocking { CommonUtils.aiSettings.ensureLoaded() }
         net.bible.test.DatabaseResetter.runResetBlocking {
             MyDocumentBookManager.launcher.join("mydocument-sync")
         }
     }
+
+    /** Runs after the fixture's Koin modules are loaded, right before the app starts (`initializeApp`). */
+    protected open fun beforeAppStartup() {}
 
     /**
      * This is never called in real system (only in tests). See parent documentation.
