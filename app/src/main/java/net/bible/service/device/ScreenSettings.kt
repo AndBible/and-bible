@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.service.common.CommonUtils
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.PowerManager
 import androidx.annotation.VisibleForTesting
@@ -60,6 +61,7 @@ object ScreenSettings {
     private const val MAX_DARK_READING = 5
     private const val DARK_READING_THRESHOLD = 15
     private const val MIN_LIGHT_READING = 50
+    private const val NIGHT_MODE_PREF = "night_mode_pref3"
 
 	val preferences get() = CommonUtils.realSharedPreferences
 
@@ -70,9 +72,9 @@ object ScreenSettings {
         }
 
     private val autoNightMode get() =
-        autoModeAvailable && preferences.getString("night_mode_pref3", "system") == "automatic"
-    val manualMode: Boolean get() = preferences.getString("night_mode_pref3", "system") == "manual"
-    val systemMode: Boolean get() = preferences.getString("night_mode_pref3", "system") == "system"
+        autoModeAvailable && preferences.getString(NIGHT_MODE_PREF, "system") == "automatic"
+    val manualMode: Boolean get() = preferences.getString(NIGHT_MODE_PREF, "system") == "manual"
+    val systemMode: Boolean get() = preferences.getString(NIGHT_MODE_PREF, "system") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor
 
@@ -80,6 +82,39 @@ object ScreenSettings {
         if(autoNightMode) {
             lightSensor.ensureMonitoring()
         }
+    }
+
+    /**
+     * Starts light-sensor monitoring while the stored mode is automatic and stops it otherwise, as the setting
+     * changes (#1976: switching to automatic applies at once). Held strongly here: SharedPreferences keeps its
+     * listeners only weakly.
+     */
+    private val nightModePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        // A null key is SharedPreferences.Editor.clear() (API 30+).
+        if (key == null || key == NIGHT_MODE_PREF) updateMonitoring()
+    }
+    private var observedPreferences: SharedPreferences? = null
+
+    /** Called at application start: monitor now if the mode is already automatic, and follow later changes. */
+    fun observeNightModePreference() {
+        val prefs = preferences
+        if (observedPreferences !== prefs) {
+            observedPreferences?.unregisterOnSharedPreferenceChangeListener(nightModePreferenceListener)
+            prefs.registerOnSharedPreferenceChangeListener(nightModePreferenceListener)
+            observedPreferences = prefs
+        }
+        updateMonitoring()
+    }
+
+    /** Called when the application terminates (Robolectric creates one per test): stop observing and monitoring. */
+    fun stopObservingNightModePreference() {
+        observedPreferences?.unregisterOnSharedPreferenceChangeListener(nightModePreferenceListener)
+        observedPreferences = null
+        lightSensor.stopMonitoring()
+    }
+
+    private fun updateMonitoring() {
+        if(autoNightMode) lightSensor.ensureMonitoring() else lightSensor.stopMonitoring()
     }
 
     fun refreshNightMode(): Boolean {
@@ -93,8 +128,6 @@ object ScreenSettings {
     private var lastNightMode: Boolean = refreshNightMode()
 
 	val nightMode: Boolean get() {
-        // Settings can enable automatic mode after this process-wide object was initialized.
-        checkMonitoring()
         // "automatic" only counts with a light sensor; without one the stored value falls through to the manual branch.
         val mode = when {
             autoNightMode -> "automatic"
