@@ -15,6 +15,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -87,7 +89,11 @@ class ModuleBackupDuplicateEntriesTest {
             .associateWith { File(root, it).readBytes() })
     }
 
-    @Test fun installedVersionsWithSameArchivePathsKeepFirstContents() = runBlocking {
+    /**
+     * #3039: two installations whose files map to the same archive path with different contents cannot both be
+     * represented; the backup fails naming both books instead of silently keeping a mix of the first one's files.
+     */
+    @Test fun installedVersionsWithDifferingContentsFailTheBackup() = runBlocking {
         val firstRoot = temporaryFolder.newFolder("first")
         val secondRoot = temporaryFolder.newFolder("second")
         val first = book(firstRoot, "DuplicateBackupDict", "First version")
@@ -101,13 +107,31 @@ class ModuleBackupDuplicateEntriesTest {
             val versions = installed.getBooks().filter { it.initials == "DuplicateBackupDict" }
             assertEquals(2, versions.size)
             val zip = File(temporaryFolder.root, "versions.zip")
-            backup.createModulesZip(listOf(first, second), zip.toOkioPath())
-            assertArchive(zip, listOf("mods.d/duplicatebackupdict.conf", "data/dict.dat")
-                .associateWith { File(firstRoot, it).readBytes() })
+            val conflict = assertThrows(ModuleBackupConflict::class.java) {
+                runBlocking { backup.createModulesZip(listOf(first, second), zip.toOkioPath()) }
+            }
+            assertEquals("mods.d/duplicatebackupdict.conf", conflict.entryName)
+            assertEquals(first.name, conflict.firstBook)
+            assertEquals(second.name, conflict.secondBook)
+            assertFalse("a failed backup leaves no archive", zip.exists())
+            assertFalse("a failed backup leaves no partial archive", File(zip.path + ".tmp").exists())
         } finally {
             installed.removeBook(first)
             installed.removeBook(second)
         }
+    }
+
+    @Test fun identicalCopiesInTwoRootsAreWrittenOnce() = runBlocking {
+        val firstRoot = temporaryFolder.newFolder("first")
+        val secondRoot = temporaryFolder.newFolder("second")
+        val first = book(firstRoot, "CopiedBackupDict")
+        val second = book(secondRoot, "CopiedBackupDict")
+        val zip = File(temporaryFolder.root, "copies.zip")
+
+        backup.createModulesZip(listOf(first, second), zip.toOkioPath())
+
+        assertArchive(zip, listOf("mods.d/copiedbackupdict.conf", "data/dict.dat")
+            .associateWith { File(firstRoot, it).readBytes() })
     }
 
     @Test fun dictionariesSharingDataDirectoryKeepBothConfsAndOneCopyOfData() = runBlocking {

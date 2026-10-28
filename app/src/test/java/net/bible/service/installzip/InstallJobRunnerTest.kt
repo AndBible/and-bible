@@ -50,7 +50,7 @@ class InstallJobRunnerTest {
         val calls = mutableListOf<String>()
         var epubOk = true; var sqliteThrows = false
         override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) { calls += "sword"; onProgress(100) }
-        override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean { calls += "epub"; return epubOk }
+        override suspend fun commitEpub(localFile: Path, displayName: String): Boolean { calls += "epub"; return epubOk }
         override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) { calls += "sqlite"; if (sqliteThrows) throw InvalidInstallFile(displayName) }
         override suspend fun commitTtf(localFile: Path, displayName: String) { calls += "ttf" }
         override suspend fun commitCsv(localFile: Path, displayName: String) { calls += "csv" }

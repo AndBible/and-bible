@@ -117,7 +117,7 @@ class InstallJobRunner(
                     if (!awaitDecision(DecisionRequest.EpubUpgrade)) return InstallPhase.Cancelled.also(onPhase)
                 }
                 commitWithProgress(onPhase, plan.displayName) {
-                    committer.commitEpub(acquireTo, plan.displayName, deleteExisting = true)
+                    committer.commitEpub(acquireTo, plan.displayName)
                 }
             }
 
@@ -127,7 +127,7 @@ class InstallJobRunner(
                     if (!awaitDecision(DecisionRequest.EpubUpgrade)) return InstallPhase.Cancelled.also(onPhase)
                 }
                 commitWithProgress(onPhase, plan.displayName) {
-                    committer.commitEpub(acquireTo, plan.displayName, deleteExisting = true)
+                    committer.commitEpub(acquireTo, plan.displayName)
                 }
             }
 

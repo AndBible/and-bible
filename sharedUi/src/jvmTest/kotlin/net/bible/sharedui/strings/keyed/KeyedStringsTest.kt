@@ -220,6 +220,7 @@ class KeyedStringsTest {
         assertText("overwriteSomething", core.overwriteSomething("x"))
         assertText("askRestoreOrImport", core.askRestoreOrImport("x"))
         assertText("resetDatabaseConfirm", core.resetDatabaseConfirm("x"))
+        assertText("backupModulesConflict", core.backupModulesConflict("a", "b", "c"))
         assertText("backupFileInfo", core.backupFileInfo(3, "x"))
         assertText("bookmarksDbStats", core.bookmarksDbStats("x", "x", "x"))
         assertText("exportedStudypadsSubject", core.exportedStudypadsSubject, filled = false)

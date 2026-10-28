@@ -28,11 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import java.util.Locale
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.restorePickedBackup
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -113,22 +113,21 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
 
     override fun onRestore() {
         host.lifecycleScope.launch {
-            val result = host.awaitIntent(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/*" })
-            CurrentActivityHolder.activate(host)
-            if (result.resultCode == Activity.RESULT_OK) {
-                val uri = result.data?.data ?: return@launch
-                val backupHost = AndroidBackupHost { host }
-                try {
-                    if (org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
-                            .restoreAppDatabaseFromSourceWithUI(backupHost, AndroidBackupHost.fromUri(uri))) {
-                        host.welcomeAfterFlow()
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    backupHost.showErrorReport(e.message ?: host.getString(R.string.error_occurred), e)
-                }
-            }
+            val backupHost = AndroidBackupHost { host }
+            restorePickedBackup(
+                pick = {
+                    val result = host.awaitIntent(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/*" })
+                    CurrentActivityHolder.activate(host)
+                    result.data?.data?.takeIf { result.resultCode == Activity.RESULT_OK }?.let { AndroidBackupHost.fromUri(it) }
+                },
+                restore = {
+                    org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+                        .restoreAppDatabaseFromSourceWithUI(backupHost, it)
+                },
+                reportError = { message, cause -> backupHost.showErrorReport(message, cause) },
+                fallbackError = { host.getString(R.string.error_occurred) },
+                afterRestore = { host.welcomeAfterFlow() },
+            )
         }
     }
 

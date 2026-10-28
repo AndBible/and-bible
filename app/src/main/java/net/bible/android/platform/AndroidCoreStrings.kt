@@ -153,6 +153,8 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun overwriteSomething(contents: String): String = context.getString(R.string.overwrite_something, contents)
     override fun askRestoreOrImport(contents: String): String = context.getString(R.string.ask_restore_or_import, contents)
     override fun resetDatabaseConfirm(name: String): String = context.getString(R.string.reset_database_confirm, name)
+    override fun backupModulesConflict(first: String, second: String, file: String): String =
+        context.getString(R.string.backup_modules_conflict, first, second, file)
     override fun backupFileInfo(version: Int, size: String): String = context.getString(R.string.backup_file_info, version, size)
     override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = context.getString(R.string.bookmarks_db_stats, firstLabel, labels, bookmarks)
     override val exportedStudypadsSubject: String get() = context.getString(R.string.exported_studypads_subject)

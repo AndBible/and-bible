@@ -72,11 +72,10 @@ import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
-import net.bible.service.sword.epub.addOwnedEpubBook
-import net.bible.service.sword.epub.deleteOwnedEpubModule
-import net.bible.service.sword.epub.epubInitials
-import net.bible.service.sword.epub.retireOwnedEpubModule
-import net.bible.service.sword.epub.installEpubModule
+import net.bible.service.sword.epub.newEpubStagingDir
+import net.bible.service.sword.epub.releaseEpubStagingDir
+import net.bible.service.sword.epub.sweepStaleEpubStagingDirs
+import net.bible.service.sword.epub.publishStagedEpub
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
@@ -110,9 +109,12 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
 
-/** Staging trees and set-aside old trees of a module-archive EPUB install, next to (not inside) the scanned `epub` folder. */
-private const val EPUB_STAGING_PREFIX = ".epub-install-"
-private const val EPUB_ASIDE_PREFIX = ".epub-old-"
+/**
+ * Two selected books have different files at the same module backup entry [entryName]; the archive cannot hold
+ * both, so the backup is not written.
+ */
+class ModuleBackupConflict(val entryName: String, val firstBook: String, val secondBook: String) :
+    IOException("Module backup entry $entryName differs between $firstBook and $secondBook")
 
 private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
 private val GZIP_MAGIC = "1f8b".decodeHex()
@@ -466,16 +468,51 @@ class BackupControl(
         return filePath.substring(dirPath.length + 1)
     }
 
-    /** Selected books can share conf/data paths, including across SWORD installation roots. */
+    /**
+     * Selected books can share conf/data paths, including across SWORD installation roots. The same file, or an
+     * identical copy, is written once. Two different contents for one entry cannot both be restored to that path, so
+     * the backup fails with [ModuleBackupConflict] rather than silently keeping a mix of the books' files.
+     */
     private inner class ModuleZipWriter(private val zip: ZipWriter) {
-        private val entryNames = mutableSetOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+        private val entries = mutableMapOf<String, Pair<Path, String>>() // entry name -> source file, book name
+        /** Name of the book whose files are being added, for the conflict report. */
+        var currentBook = ""
 
         fun addFile(name: String, file: Path) {
-            if (!entryNames.add(name)) {
-                Log.w(TAG, "Skipping duplicate module backup entry $name from $file")
+            if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                Log.w(TAG, "Skipping module file $file named like the backup manifest")
                 return
             }
-            zip.putEntry(name, fileSystem.source(file), dosTimeNow())
+            val previous = entries[name]
+            if (previous == null) {
+                entries[name] = file to currentBook
+                zip.putEntry(name, fileSystem.source(file), dosTimeNow())
+                return
+            }
+            val (previousFile, previousBook) = previous
+            if (fileSystem.canonicalize(previousFile) == fileSystem.canonicalize(file)) return
+            if (sameContents(previousFile, file)) {
+                Log.i(TAG, "Skipping identical duplicate module backup entry $name from $file")
+                return
+            }
+            Log.e(TAG, "Module backup entry $name has different contents in $previousFile ($previousBook) and $file ($currentBook)")
+            throw ModuleBackupConflict(name, previousBook, currentBook)
+        }
+    }
+
+    private fun sameContents(a: Path, b: Path): Boolean {
+        val size = fileSystem.metadata(a).size ?: return false
+        if (fileSystem.metadata(b).size != size) return false
+        return fileSystem.source(a).buffer().use { sa ->
+            fileSystem.source(b).buffer().use { sb ->
+                var remaining = size
+                while (remaining > 0) {
+                    val chunk = minOf(8192L, remaining)
+                    if (sa.readByteString(chunk) != sb.readByteString(chunk)) return@use false
+                    remaining -= chunk
+                }
+                true
+            }
         }
     }
 
@@ -508,6 +545,7 @@ class BackupControl(
     }
 
     private fun addBookToZip(outFile: ModuleZipWriter, b: Book) {
+        outFile.currentBook = b.name
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
             addModuleFile(outFile, b.dbPath)
@@ -632,6 +670,9 @@ class BackupControl(
         val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = strings.pleaseWait))
         try {
             createModulesZip(books, zipFile)
+        } catch (e: ModuleBackupConflict) {
+            showMessage(strings.backupModulesConflict(e.firstBook, e.secondBook, e.entryName))
+            return@withContext
         } finally {
             dialogs.dismiss(progressId)
         }
@@ -728,19 +769,20 @@ class BackupControl(
         saveDbBackupFileViaIntent(host, backupZipFile)
     }
 
-    suspend fun restoreAppDatabaseViaIntent(host: BackupHost) {
-        val source = host.pickBackupFile() ?: return
-        try {
-            restoreAppDatabaseFromSourceWithUI(host, source)
-        } catch (e: Exception) {
-            host.showErrorReport(e.message ?: strings.errorOccurred, e)
-        }
-    }
+    suspend fun restoreAppDatabaseViaIntent(host: BackupHost) = restorePickedBackup(
+        pick = { host.pickBackupFile() },
+        restore = { restoreAppDatabaseFromSourceWithUI(host, it) },
+        reportError = { message, cause -> host.showErrorReport(message, cause) },
+        fallbackError = { strings.errorOccurred },
+    )
 
     suspend fun restoreAppDatabaseFromSourceWithUI(host: BackupHost, source: PickedSource): Boolean {
         val filetype = withContext(Dispatchers.IO) {
             val input = runCatching { host.openInput(source) }
-                .onFailure { Log.e(TAG, "Unexpected exception when opening backup for file type detection", it) }
+                .onFailure {
+                    if (it is kotlin.coroutines.cancellation.CancellationException) throw it
+                    Log.e(TAG, "Unexpected exception when opening backup for file type detection", it)
+                }
                 .getOrNull()
             if (input == null) BackupFileType.UNKNOWN else BackupFileSniffer.sniff { input }
         }
@@ -833,6 +875,8 @@ class BackupControl(
             try {
                 host.openInput(source).use { input -> fileSystem.write(tmpFile) { writeAll(input) } }
                 net.bible.service.common.ArchiveUtils.unzip(tmpFile, unzipFolder)
+            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing backup file", e)
                 throw IOException("Failed to process backup file: ${e.message}")
@@ -1052,16 +1096,14 @@ class BackupControl(
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
-        val epubStaging = targetDirectory / "$EPUB_STAGING_PREFIX${net.bible.android.database.IdType()}"
+        val epubStaging = newEpubStagingDir(targetDirectory)
         val epubStaged = LinkedHashMap<Path, Path>() // EPUB staged file -> its ".part" sibling (inside the staging tree)
         val epubModules = linkedSetOf<String>()
         val epubFailures = mutableListOf<String>()
         var publishStep = 0
         var dataReplaced = false
-        // Staging trees of a crashed earlier install are never reused: sweep them before staging a new one.
-        fileSystem.listOrNull(targetDirectory)?.filter { it.name.startsWith(EPUB_STAGING_PREFIX) }?.forEach {
-            runCatching { fileSystem.deleteRecursively(it, mustExist = false) }
-        }
+        // Staging trees of a crashed earlier install are never reused: sweep them (not those of running installs).
+        sweepStaleEpubStagingDirs(targetDirectory)
         try {
             ZipReader(newSource()).use { zip ->
                 var entryNum = 0
@@ -1142,14 +1184,14 @@ class BackupControl(
                 val newTree = epubStaging / "epub" / name
                 if (!fileSystem.exists(newTree)) continue
                 try {
-                    publishStagedEpub(name, dir, newTree, targetDirectory)
+                    publishStagedEpub(dir, newTree, targetDirectory, strings, env)
                 } catch (e: Exception) {
                     Log.e(TAG, "Could not install EPUB $name", e)
                     epubFailures.add("$name: ${e.message ?: e::class.simpleName}")
                 }
             }
         } finally {
-            runCatching { fileSystem.deleteRecursively(epubStaging, mustExist = false) }
+            releaseEpubStagingDir(epubStaging)
             for (part in staged.values) runCatching { fileSystem.delete(part) }
             for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
             // Handled failure: nothing was replaced yet -> the old module is simply restored; otherwise its data may
@@ -1174,38 +1216,6 @@ class BackupControl(
         addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()
         if (epubFailures.isNotEmpty()) throw IOException("Could not install EPUB modules: ${epubFailures.joinToString("; ")}")
-    }
-
-    /**
-     * Replaces the live EPUB [dir] by the staged tree [newTree] through the direct EPUB install lifecycle: drain
-     * readers, drop the internal metadata cache and publish a fresh owner so render caches cannot reuse the old
-     * generation. The old module is only set aside (outside the scanned `epub` folder) until the new one is
-     * registered; if that fails, the new files are removed and the old module is moved back and registered again.
-     */
-    private suspend fun publishStagedEpub(name: String, dir: Path, newTree: Path, modulesRoot: Path) {
-        installEpubModule(dir) {
-            retireOwnedEpubModule(dir)
-            var aside: Path? = null
-            try {
-                fileSystem.createDirectories(dir.parent!!)
-                if (fileSystem.exists(dir)) {
-                    aside = modulesRoot / "$EPUB_ASIDE_PREFIX${net.bible.android.database.IdType()}"
-                    fileSystem.atomicMove(dir, aside)
-                }
-                fileSystem.atomicMove(newTree, dir)
-                addOwnedEpubBook(dir, strings, env)
-                check(Books.installed().getBook(epubInitials(name)) != null) { "EPUB registration failed: $name" }
-                aside?.let { runCatching { fileSystem.deleteRecursively(it, mustExist = false) } }
-                true
-            } catch (e: Exception) {
-                runCatching { deleteOwnedEpubModule(dir) }
-                if (aside != null) runCatching {
-                    fileSystem.atomicMove(aside, dir)
-                    addOwnedEpubBook(dir, strings, env)
-                }.onFailure { Log.e(TAG, "Could not restore the previous EPUB $name", it) }
-                throw e
-            }
-        }
     }
 
     /**
