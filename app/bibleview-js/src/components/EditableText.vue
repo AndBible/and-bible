@@ -204,6 +204,10 @@ defineExpose({editMode});
 
     // Keep the editor toolbar at the bottom of the bounded container while a long note
     // scrolls, instead of only after the end of the note (#3870).
+    // The sticky toolbar covers the bottom line of this container; scroll-padding makes the
+    // caret reveal (and scrollIntoView) stop above it.
+    scroll-padding-bottom: pell.$pell-button-height;
+
     :deep(.pell-actionbar) {
       position: sticky;
       bottom: 0;
