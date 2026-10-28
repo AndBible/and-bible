@@ -36,6 +36,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,5 +129,25 @@ class CurrentPageManagerNoActivityTest {
         } finally {
             holderActivities().addAll(saved)
         }
+    }
+
+    /**
+     * #3592: switching to a dictionary clears the old key, and when the key chooser is dismissed (or has no
+     * Activity) the window kept a null key and rendered the blank ErrorDocument.
+     */
+    @Test
+    fun aDictionaryPageWithNullKeyShowsItsFirstEntryNotAnErrorDocument() = kotlinx.coroutines.runBlocking {
+        windowRepository = net.bible.test.testWindowRepository()
+        CommonUtils.windowControl.windowRepository = windowRepository
+        windowRepository.initializeAtEdge()
+        val dictionary = requireNotNull(Books.installed().getBook("TestDict"))
+        val page = CommonUtils.windowControl.activeWindowPageManager.currentDictionary
+        page.setCurrentDocument(dictionary)
+        page.doSetKey(null)
+
+        val content = page.currentPageContent()
+
+        assertFalse("expected dictionary content, got ErrorDocument", content is ErrorDocument)
+        assertEquals("strong", page.key?.getName())
     }
 }

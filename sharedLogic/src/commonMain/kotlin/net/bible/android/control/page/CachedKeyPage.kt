@@ -94,6 +94,9 @@ abstract class CachedKeyPage internal constructor(
             return keylist
         }
 
+    /** The first entry of the current document, shown when the page has no key (see [CurrentPageBase.currentPageContent]). */
+    override fun fallbackKey(): Key? = cachedGlobalKeyList?.firstOrNull()
+
     /** add or subtract a number of pages from the current position and return Verse
      */
     override fun getKeyPlus(num: Int): Key {

@@ -153,8 +153,14 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
+    /** A key to show when the page has none, e.g. after switching to a dictionary and dismissing its key chooser. */
+    protected open fun fallbackKey(): Key? = null
+
     override suspend fun currentPageContent(): Document {
-        val key = key
+        val key = key ?: fallbackKey()?.also {
+            Log.w(TAG, "Key was null, falling back to ${it.getName()}")
+            doSetKey(it)
+        }
         if(currentDocument?.doesNotExist == true) {
             val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
             val errorXml = strings.documentNotInstalled(link)
