@@ -40,6 +40,11 @@ const val EPUB_OPTIMIZER_VERSION = 2
 
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
+    if (!KFiles.exists(file)) {
+        // The manifest can reference a file that is not in the archive (#3591); skip the item instead of aborting.
+        Log.w(TAG, "EPUB manifest item $origId points to a missing file: $file; skipping it")
+        return Pair(null, 0)
+    }
     val parentFolder = file.parent!!
 
     fun epubSrc(src: String): String {

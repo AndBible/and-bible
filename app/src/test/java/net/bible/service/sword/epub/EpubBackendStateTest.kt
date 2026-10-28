@@ -152,6 +152,32 @@ class EpubBackendStateTest {
         assertTrue(state.read(state.keys.first()).contains("src=\"/epub/pic.png\""))
     }
 
+    /** Issue #3591: a manifest item whose file is absent from the archive must not abort opening the book. */
+    @Test
+    fun manifestItemWithoutFileDoesNotCrashOpening() = runTest {
+        val dir = buildEpub("issue-3591-missing-chapter")
+        File(dir, "OEBPS/ch2.xhtml").delete()
+        val state = newState(dir)
+        assertTrue(state.read(state.keys.first()).contains("first chapter"))
+        assertEquals(1, state.keys.size)
+        state.tocKeys()
+        state.totalCharacters()
+    }
+
+    /** Issue #3591 (original trace): a stylesheet linked by a chapter but missing on disk must be skipped. */
+    @Test
+    fun missingStyleSheetIsSkippedWhenReadingStyles() = runTest {
+        val dir = buildEpub("issue-3591-missing-css")
+        File(dir, "OEBPS/ch1.xhtml").writeText(
+            chapterXhtml("Chapter One", "Styled.").replace("</head>",
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"present.css\"/>" +
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"gone.css\"/></head>"))
+        File(dir, "OEBPS/present.css").writeText("p { margin: 1px; }")
+        val state = newState(dir)
+        val css = state.styleSheetContent(state.keys.first())
+        assertTrue(css, css.contains("margin: 1px"))
+    }
+
     @Test
     fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
         val state = newState(buildEpub("suspend-queries"))
