@@ -28,8 +28,6 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.SwordGenBook
-import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.sword.GenBookBackend
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -53,36 +51,7 @@ suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, 
         is Verse -> {
             traverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
         }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> {
-                    if(book.isEpub || book.isMyDocument) {
-                        book.backend as AbstractKeyBackend
-                    } else {
-                        book.backend as GenBookBackend
-                    }
-                }
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            when (backend) {
-                is AbstractKeyBackend -> {
-                    val idx = backend.indexOf(this.key)
-                    try {
-                        backend.get(idx - 1)!!
-                    } catch (e: IndexOutOfBoundsException) {
-                        backend.lastOrNull() ?: this.key
-                    }
-                }
-                is GenBookBackend -> {
-                    // TreeKey.iterator already traverses descendants; flatten would duplicate them.
-                    val keyList = backend.readIndex().toList()
-                    val idx = keyList.indexOf(this.key)
-                    keyList.getOrNull(idx - 1) ?: keyList.lastOrNull() ?: this.key
-                }
-                else -> throw RuntimeException("Unsupported")
-            }
-        }
+        else -> this.document!!.adjacentGeneralKey(this.key, -1).first
     }
     return BookAndKey(
         nextKey,
@@ -95,56 +64,62 @@ suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, 
  * The key after this one, and whether reaching it wrapped past the end of a general book (EPUB, MyDocument,
  * GenBook, dictionary). Verses never wrap here.
  */
-private suspend fun BookAndKey.nextKeyOrWrap(traverser: BibleTraverser): Pair<Key, Boolean> {
-    var wrapped = false
-    val nextKey: Key = when(this.key) {
-        is VerseRange -> {
-            traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
-        }
-        is Verse -> {
-            traverser.getNextVerse(this.document as AbstractPassageBook, this.key)
-        }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> {
-                    if(book.isEpub || book.isMyDocument) {
-                        book.backend as AbstractKeyBackend
-                    } else {
-                        book.backend as GenBookBackend
-                    }
-                }
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            when (backend) {
-                is AbstractKeyBackend -> {
-                    val idx = backend.indexOf(this.key)
-                    try {
-                        backend.get(idx + 1)!!
-                    } catch (e: IndexOutOfBoundsException) {
-                        // wraps to the first key; an empty document (all pages deleted) has none, so stay put
-                        wrapped = true
-                        backend.firstOrNull() ?: this.key
-                    }
-                }
-
-                is GenBookBackend -> {
-                    // TreeKey.iterator already traverses descendants; flatten would duplicate them.
-                    val keyList = backend.readIndex().toList()
-                    val idx = keyList.indexOf(this.key)
-                    try {
-                        keyList[idx + 1]
-                    } catch (e: IndexOutOfBoundsException) {
-                        wrapped = true
-                        keyList.first()
-                    }
-                }
-                else -> throw RuntimeException("Unsupported")
-            }
-
-        }
+private suspend fun BookAndKey.nextKeyOrWrap(traverser: BibleTraverser): Pair<Key, Boolean> =
+    when(this.key) {
+        is VerseRange -> traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end) to false
+        is Verse -> traverser.getNextVerse(this.document as AbstractPassageBook, this.key) to false
+        else -> this.document!!.adjacentGeneralKey(this.key, 1)
     }
-    return nextKey to wrapped
+
+/**
+ * The key [delta] (1 or -1) steps from [key] in a general book or dictionary, and whether the step wrapped
+ * past an end to the first (forward) or last (backward) key. A [key] the book does not contain steps forward to
+ * the first key without counting as a wrap, and backward to the last key; an empty book stays on [key].
+ *
+ * Dispatches on the backend type: a key-list backend ([AbstractKeyBackend]: EPUB, MyDocument, dictionaries)
+ * is indexed directly; a tree backend ([GenBookBackend]) walks the book's cached global key list once
+ * instead of re-reading the index from disk.
+ */
+internal fun Book.adjacentGeneralKey(key: Key, delta: Int): Pair<Key, Boolean> {
+    require(delta == 1 || delta == -1) { "delta must be 1 or -1: $delta" }
+    val backend = when(this) {
+        is SwordGenBook -> this.backend
+        is SwordDictionary -> this.backend
+        else -> null
+    }
+    return when(backend) {
+        is AbstractKeyBackend<*> -> {
+            val idx = backend.indexOf(key)
+            try {
+                backend.get(idx + delta)!! to false
+            } catch (e: IndexOutOfBoundsException) {
+                // wraps to the other end; an empty document (all pages deleted) has none, so stay put
+                val count = backend.getCardinality()
+                (if (count == 0) key else backend.get(if (delta > 0) 0 else count - 1)!!) to true
+            }
+        }
+        is GenBookBackend -> adjacentTreeKey(getGlobalKeyList(), key, delta)
+        else -> throw RuntimeException("Unsupported")
+    }
+}
+
+/** [adjacentGeneralKey] over a key list in iteration order (TreeKey.iterator already traverses descendants). */
+private fun adjacentTreeKey(keys: Key, key: Key, delta: Int): Pair<Key, Boolean> {
+    var first: Key? = null
+    var previous: Key? = null
+    var found = false
+    for (k in keys) {
+        if (first == null) first = k
+        if (found && delta > 0) return k to false
+        if (!found && k == key) {
+            if (delta < 0 && previous != null) return previous to false
+            found = true
+        }
+        previous = k
+    }
+    // Here: past the end forward, before the start backward, or not found; previous is the last key.
+    if (first == null) return key to true
+    return (if (delta > 0) first else previous!!) to found
 }
 
 private suspend fun BookAndKey.startOf(key: Key, strings: net.bible.sharedcore.platform.CoreStrings) =
