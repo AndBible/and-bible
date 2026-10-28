@@ -45,6 +45,10 @@ class CurrentDictionaryPage internal constructor(
     override val isSingleKey = true
 	override val key: Key? get() = _key
 
+    /** The first entry of the dictionary, shown when the page has no key (see [CurrentPageBase.currentPageContent]).
+     * Dictionary-only: general books (StudyPads, EPUBs...) must not jump to an unrelated first key. */
+    override fun fallbackKey(): Key? = cachedGlobalKeyList?.firstOrNull()
+
 	/** can we enable the main menu search button
      */
     override val isSearchable = false

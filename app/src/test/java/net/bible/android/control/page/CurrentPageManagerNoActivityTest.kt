@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -149,5 +150,24 @@ class CurrentPageManagerNoActivityTest {
 
         assertFalse("expected dictionary content, got ErrorDocument", content is ErrorDocument)
         assertEquals("strong", page.key?.getName())
+    }
+
+    /**
+     * #3592 follow-up: the first-entry fallback is for dictionaries only. A general book (StudyPad, EPUB, My
+     * Documents...) with a null key must not be silently pointed at an unrelated first entry.
+     */
+    @Test
+    fun aGeneralBookPageWithNullKeyKeepsNoInventedKey() = kotlinx.coroutines.runBlocking {
+        windowRepository = net.bible.test.testWindowRepository()
+        CommonUtils.windowControl.windowRepository = windowRepository
+        windowRepository.initializeAtEdge()
+        val book = requireNotNull(Books.installed().getBook("TestDict"))
+        val page = CommonUtils.windowControl.activeWindowPageManager.currentGeneralBook
+        page.setCurrentDocument(book)
+        page.doSetKey(null)
+
+        page.currentPageContent()
+
+        assertNull(page.key)
     }
 }
