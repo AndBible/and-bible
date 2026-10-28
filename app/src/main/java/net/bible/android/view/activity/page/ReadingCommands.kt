@@ -624,8 +624,10 @@ class ReadingCommands(
      * [key] because it cannot be: an EPUB table-of-contents entry is a `BookAndKey` carrying its
      * OWN document, which is not the page's current document, while every other key carries none.
      */
-    internal fun applyChosenGenBookKey(book: Book?, key: Key) {
-        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+    internal fun applyChosenGenBookKey(book: Book?, key: Key?) {
+        val pageManager = windowControl.activeWindowPageManager
+        if (key != null) pageManager.setCurrentDocumentAndKey(book, key)
+        else if (book != null) pageManager.setCurrentDocument(book)
     }
 
     // --- reading-host re-typing T8c: the three activity-result arms both hosts now share ---------
