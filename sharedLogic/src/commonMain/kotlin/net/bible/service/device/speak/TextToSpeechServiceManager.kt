@@ -121,7 +121,8 @@ class TextToSpeechServiceManager constructor(
 
     private val ttsLanguageSupport = TTSLanguageSupport(settings)
     private var uniqueUtteranceNo: Long = 0
-    private val acceptedUtterances = mutableSetOf<String>()
+    /** Utterance ids handed to the engine and not yet done, with their sequence numbers, in acceptance order. */
+    private val acceptedUtterances = LinkedHashMap<String, Long>()
     private var lastStartedUtteranceNo = -1L
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
@@ -301,8 +302,8 @@ class TextToSpeechServiceManager constructor(
             launchRequest(request) {
                 withContext(mainDispatcher) {
                     lock.withLock {
-                        if (!valid(request) || !isSpeaking || !acceptedUtterances.contains(utteranceId)) return@withContext
-                        val number = utteranceId.removePrefix(UTTERANCE_PREFIX).toLongOrNull() ?: return@withContext
+                        if (!valid(request) || !isSpeaking) return@withContext
+                        val number = acceptedUtterances[utteranceId] ?: return@withContext
                         if (number <= lastStartedUtteranceNo) return@withContext
                         lastStartedUtteranceNo = number
                         request.provider.startUtterance(utteranceId)
@@ -318,10 +319,11 @@ class TextToSpeechServiceManager constructor(
             launchRequest(request) {
                 val advance = withContext(mainDispatcher) {
                     lock.withLock {
-                        if (!valid(request) || !acceptedUtterances.remove(utteranceId)) return@withLock false
+                        if (!valid(request)) return@withLock false
+                        val number = acceptedUtterances.remove(utteranceId) ?: return@withLock false
                         request.provider.finishedUtterance(utteranceId)
                         mSpeakTiming.finished(utteranceId)
-                        !isPaused && isSpeaking && utteranceId == UTTERANCE_PREFIX + (uniqueUtteranceNo - 1)
+                        !isPaused && isSpeaking && number == uniqueUtteranceNo - 1
                     }
                 }
                 if (advance) {
@@ -334,10 +336,10 @@ class TextToSpeechServiceManager constructor(
         override fun onUtteranceError(utteranceId: String) {
             lock.withLock {
                 Log.i(TAG, "onError $utteranceId")
-                if (!isSpeaking || isPaused || !acceptedUtterances.contains(utteranceId)) return
+                if (!isSpeaking || isPaused || utteranceId !in acceptedUtterances) return
                 // Synthesis can fail ahead of playback. Preserve the earliest unfinished item,
                 // including delayed errors, before synchronously stopping the native queue.
-                val interrupted = acceptedUtterances.minBy { it.removePrefix(UTTERANCE_PREFIX).toLong() }
+                val interrupted = acceptedUtterances.minBy { it.value }.key
                 mSpeakTextProvider.startUtterance(interrupted)
                 pause(willContinueAfterThis = false, fractionCompleted = 0.0)
                 notifier.showError(strings.errorOccurred)
@@ -716,16 +718,17 @@ class TextToSpeechServiceManager constructor(
 
     private suspend fun speakNextChunk(request: Request) {
         for (i in 0 until request.provider.numItemsToTts) {
-            val utteranceId = lock.withLock {
+            val number = lock.withLock {
                 if (!valid(request) || !isSpeaking || isPaused) return
-                UTTERANCE_PREFIX + uniqueUtteranceNo++
+                uniqueUtteranceNo++
             }
+            val utteranceId = UTTERANCE_PREFIX + number
             // No lock or Main thread is held while lazy EPUB ordinals are read.
             val cmd = request.provider.getNextSpeakCommand(utteranceId, i == 0) { valid(request) }
             withContext(mainDispatcher) {
                 lock.withLock {
                     if (!valid(request) || !isSpeaking || isPaused) return@withContext
-                    acceptedUtterances.add(utteranceId)
+                    acceptedUtterances[utteranceId] = number
                     cmd.speak(mTts!!, utteranceId)
                 }
             }

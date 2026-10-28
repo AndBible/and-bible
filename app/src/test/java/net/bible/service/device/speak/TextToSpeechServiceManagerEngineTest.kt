@@ -177,7 +177,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         start(supportedFinnish())
         val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
         val listener = platform.listener!!
-        val ids = org.robolectric.util.ReflectionHelpers.getField<Set<String>>(manager, "acceptedUtterances").toList()
+        val ids = org.robolectric.util.ReflectionHelpers.getField<Map<String, Long>>(manager, "acceptedUtterances").keys.toList()
         if (startFirst) {
             listener.onUtteranceStart(ids.first())
             joinSpeech()
@@ -227,13 +227,55 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         assertTrue(notifier.errors.isEmpty())
     }
 
+    /**
+     * #3859: utterance order is the order the manager accepted them, not the id text. Ids crossing a digit
+     * boundary (AND-BIBLE-6..9, AND-BIBLE-10) sort wrongly as strings; a late start of an earlier utterance must be
+     * ignored, and an error must restore the earliest unfinished one.
+     */
+    @Test
+    fun outOfOrderCallbacksAcrossDigitBoundaryFollowAcceptanceOrder() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakBible(book, (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0))
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        org.robolectric.util.ReflectionHelpers.setField(manager, "uniqueUtteranceNo", 6L)
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        val listener = platform.listener!!
+        val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
+        val ids = org.robolectric.util.ReflectionHelpers.getField<Map<String, Long>>(manager, "acceptedUtterances").keys.toList()
+        // AND-BIBLE-6..9 speak Rom 1:1 and AND-BIBLE-10 a later verse: the smallest string is not the earliest id.
+        assertEquals("AND-BIBLE-6", ids.first())
+        assertTrue("Fixture must cross the digit boundary: $ids", "AND-BIBLE-10" in ids)
+        val firstVerse = "Rom.1.1"
+        val states = org.robolectric.util.ReflectionHelpers.getField<Map<String, Any>>(provider, "utteranceState")
+        fun verseOf(id: String) = org.robolectric.util.ReflectionHelpers.getField<org.crosswire.jsword.passage.Verse>(states[id], "startVerse").getOsisRef()
+        assertEquals(firstVerse, verseOf(ids.first()))
+        assertNotEquals("Fixture: AND-BIBLE-10 must speak a later verse", firstVerse, verseOf("AND-BIBLE-10"))
+
+        listener.onUtteranceStart(ids.last())
+        joinSpeech()
+        val laterVerse = provider.verseRange.start.getOsisRef()
+        assertNotEquals("Fixture must span more than one verse", firstVerse, laterVerse)
+        // A start reported late for an earlier utterance must not move playback backwards.
+        listener.onUtteranceStart(ids.first())
+        joinSpeech()
+        assertEquals(laterVerse, provider.verseRange.start.getOsisRef())
+
+        listener.onUtteranceError(ids[1])
+        joinSpeech()
+        assertTrue(manager.isPaused)
+        assertEquals("The earliest unfinished utterance (-6, not -10) must be kept", firstVerse,
+            manager.currentlyPlayingKey!!.getOsisRef())
+    }
+
     @Test
     fun delayedUtteranceErrorRestoresFailedVerseRatherThanLaterStartedVerse() {
         start(supportedFinnish())
         val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
         val listener = platform.listener!!
         val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
-        val ids = org.robolectric.util.ReflectionHelpers.getField<Set<String>>(manager, "acceptedUtterances").toList()
+        val ids = org.robolectric.util.ReflectionHelpers.getField<Map<String, Long>>(manager, "acceptedUtterances").keys.toList()
         val first = ids.first()
         listener.onUtteranceStart(first)
         joinSpeech()
