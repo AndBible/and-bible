@@ -22,9 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.common.isConvertibleTo
-import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.bookmark.shareableBookmark
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
@@ -82,23 +81,8 @@ internal class ContentBridgeFamily(
             val bookmark = session.bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
             session.scope.launch(Dispatchers.Main) {
                 if (session.isDisposed) return@launch
-                // Translation-independent bookmarks need the current Bible to resolve shareable text.
-                // Without any installed Bible defaultBibleDoc throws; a range the default Bible's versification
-                // cannot hold (e.g. KJVA Apocrypha with a KJV default) is not converted either. Both keep the
-                // bookmark as it is (note-only share).
-                val shareBookmark = if (bookmark.book == null) {
-                    runCatching {
-                        val book = session.windowControl.defaultBibleDoc(false)
-                        if (!bookmark.verseRange.isConvertibleTo(book.versification)) return@runCatching null
-                        val range = bookmark.verseRange.toV11n(book.versification)
-                        // Book-less bookmarks are whole-verse: drop any character offsets.
-                        bookmark.copy(
-                            book = book, v11n = range.versification,
-                            ordinalStart = range.start.ordinal, ordinalEnd = range.end.ordinal,
-                            startOffset = null, endOffset = null,
-                        )
-                    }.getOrNull() ?: bookmark
-                } else bookmark
+                // A book-less bookmark is shared through the default Bible (see shareableBookmark).
+                val shareBookmark = shareableBookmark(bookmark) { session.windowControl.defaultBibleDoc(false) }
                 session.hostSheets?.showShare(facade().buildShareVersesInput(Selection(shareBookmark)))
             }
         }
