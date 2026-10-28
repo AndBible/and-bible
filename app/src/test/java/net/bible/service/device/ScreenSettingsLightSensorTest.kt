@@ -68,9 +68,7 @@ class ScreenSettingsLightSensorTest {
             assertTrue("Manual mode must not start the sensor (#1975)", sensorManager.listeners.isEmpty())
 
             prefs.edit().putString("night_mode_pref3", "automatic").commit()
-            // The recreated settings/reading host reads nightMode to apply its theme, in the same process.
-            ScreenSettings.nightMode
-            assertEquals("Enabling automatic mode must register the light listener", 1, sensorManager.listeners.size)
+            assertEquals("Enabling automatic mode must register the light listener at once", 1, sensorManager.listeners.size)
             val event = ShadowSensorManager.createSensorEvent(1).apply {
                 this.sensor = sensor
                 values[0] = 100f
@@ -89,6 +87,7 @@ class ScreenSettingsLightSensorTest {
             assertEquals("Repeated theme reads must not register duplicate listeners", 1, sensorManager.listeners.size)
 
             prefs.edit().putString("night_mode_pref3", "manual").commit()
+            assertTrue("Leaving automatic mode must unregister the light listener", sensorManager.listeners.isEmpty())
             event.values[0] = 0f
             sensorManager.sendSensorEventToListeners(event, sensor)
             assertFalse("Manual mode must ignore sensor readings", ScreenSettings.nightMode)
@@ -97,6 +96,59 @@ class ScreenSettingsLightSensorTest {
             sensorManager.listeners.toList().forEach { manager.unregisterListener(it) }
             prefs.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
             RuntimeEnvironment.setQualifiers("+notnight")
+        }
+    }
+
+    /** #1976: the sensor follows the stored mode, not reads of [ScreenSettings.nightMode]. */
+    @Test
+    fun switchingModesRegistersAndUnregistersTheSensor() {
+        val prefs = CommonUtils.realSharedPreferences
+        val manager = RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val sensorManager = shadowOf(manager)
+        try {
+            prefs.edit().putString("night_mode_pref3", "system").commit()
+            assertTrue("System mode must not start the sensor", sensorManager.listeners.isEmpty())
+            ScreenSettings.nightMode
+            assertTrue("Reading nightMode must not start the sensor", sensorManager.listeners.isEmpty())
+
+            prefs.edit().putString("night_mode_pref3", "automatic").commit()
+            assertEquals(1, sensorManager.listeners.size)
+            prefs.edit().putString("unrelated_pref", "x").commit()
+            assertEquals("Other preferences must not touch the sensor", 1, sensorManager.listeners.size)
+            prefs.edit().putString("night_mode_pref3", "automatic").commit()
+            assertEquals("Re-storing automatic must not register twice", 1, sensorManager.listeners.size)
+
+            prefs.edit().putString("night_mode_pref3", "system").commit()
+            assertTrue(sensorManager.listeners.isEmpty())
+            prefs.edit().putString("night_mode_pref3", "automatic").commit()
+            assertEquals("Monitoring must restart after a stop", 1, sensorManager.listeners.size)
+            prefs.edit().remove("night_mode_pref3").commit()
+            assertTrue("Removing the setting (default system) must stop the sensor", sensorManager.listeners.isEmpty())
+        } finally {
+            sensorManager.listeners.toList().forEach { manager.unregisterListener(it) }
+            prefs.edit().remove("unrelated_pref").remove("night_mode_pref3").commit()
+        }
+    }
+
+    /** An app that starts with automatic mode already stored monitors from startup, before any theme read. */
+    @Test
+    fun startupWithAutomaticModeStartsMonitoring() {
+        val prefs = CommonUtils.realSharedPreferences
+        val manager = RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val sensorManager = shadowOf(manager)
+        try {
+            // An application that terminated stops observing and monitoring; the mode is stored meanwhile.
+            ScreenSettings.stopObservingNightModePreference()
+            prefs.edit().putString("night_mode_pref3", "automatic").commit()
+            assertTrue(sensorManager.listeners.isEmpty())
+            // What BibleApplication.onCreate does.
+            ScreenSettings.observeNightModePreference()
+            assertEquals(1, sensorManager.listeners.size)
+            prefs.edit().putString("night_mode_pref3", "manual").commit()
+            assertTrue("The startup registration must also observe later changes", sensorManager.listeners.isEmpty())
+        } finally {
+            sensorManager.listeners.toList().forEach { manager.unregisterListener(it) }
+            prefs.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
         }
     }
 }

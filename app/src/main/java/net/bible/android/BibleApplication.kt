@@ -51,6 +51,7 @@ import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
 import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
@@ -167,6 +168,7 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         CommonUtils.realSharedPreferences.registerOnSharedPreferenceChangeListener(localeListener)
+        ScreenSettings.observeNightModePreference()
         createChannels()
     }
 
@@ -177,6 +179,7 @@ open class BibleApplication : Application() {
     override fun onTerminate() {
         userMessagesSubscription?.cancel()
         userMessagesSubscription = null
+        ScreenSettings.stopObservingNightModePreference()
         super.onTerminate()
     }
 

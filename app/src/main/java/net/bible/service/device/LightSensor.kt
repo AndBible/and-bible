@@ -65,6 +65,16 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
         }
     }
 
+    /** Stops listening to the sensor; [ensureMonitoring] starts it again. */
+    @Synchronized
+    fun stopMonitoring() {
+        if (mMonitoring) {
+            val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+            sm?.unregisterListener(myLightListener)
+            mMonitoring = false
+        }
+    }
+
     private val myLightListener: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
