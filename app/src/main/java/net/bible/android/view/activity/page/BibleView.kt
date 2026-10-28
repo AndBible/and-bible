@@ -362,7 +362,10 @@ class BibleView(
         gestureDetector = GestureDetectorCompat(context, gestureListener)
         setOnTouchListener { v, event ->
             if (gestureDetector.onTouchEvent(event)) {
-                true
+                // A handled swipe still has to end the touch in the page: without ACTION_UP the
+                // page never gets pointerup/touchend, and a drag there (the memorize Order tiles)
+                // never finishes and keeps cancelling every later touchmove (#3736).
+                event.actionMasked != MotionEvent.ACTION_UP
             } else v.performClick()
         }
         settings.allowFileAccess = false
