@@ -25,27 +25,42 @@ import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.readingplan.ReadingPlanDayWrites
+import net.bible.android.control.readingplan.ReadingStatus
+import net.bible.android.platform.AndroidLocalCalendar
 import net.bible.android.database.DbDate
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.readingplan.ReadingPlanSource
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+import okio.Path.Companion.toPath
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.test.DatabaseResetter
 import okio.Path
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.koin.java.KoinJavaComponent
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.Job
 
 /**
  * Reading-plan changes travelling between two devices through normal patches (#3902): A and B are two devices
@@ -58,12 +73,23 @@ class ReadingPlanPatchSyncTest {
     private val opened = mutableListOf<SyncableDatabaseAccessor<ReadingPlanDatabase>>()
     private val files = mutableListOf<File>()
     private val env get() = KoinJavaComponent.get<AppEnvironment>(AppEnvironment::class.java)
+    private val appScope = AppCoroutineScope()
+    private val settings = testAppSettings()
+    private var originalPlan: String? = null
+    private val repos = mutableMapOf<SyncableDatabaseAccessor<ReadingPlanDatabase>, ReadingPlanRepository>()
+
+    /** Waits for the fire-and-forget status writes queued through [controlOn]'s repository of [device]. */
+    private suspend fun landed(device: SyncableDatabaseAccessor<ReadingPlanDatabase>) {
+        repos[device]?.getStartDate(PLAN) // joins the queued writes first
+    }
 
     @Before fun setUp() {
         DatabaseResetter.resetDatabase()
     }
 
     @After fun tearDown() {
+        appScope.coroutineContext[Job]?.cancel()
+        originalPlan?.let { settings.setString("reading_plan", it) }
         opened.forEach { it.localDb.close() }
         files.forEach { File(it.path).delete(); File(it.path + "-journal").delete() }
         DatabaseResetter.resetDatabase()
@@ -197,9 +223,79 @@ class ReadingPlanPatchSyncTest {
         assertNull(b.rp.getStatus(PLAN, 1))
     }
 
+    /** The reading-plan screen's state holder on [device], with [PLAN] (two readings a day) as the current plan. */
+    private fun controlOn(device: SyncableDatabaseAccessor<ReadingPlanDatabase>): ReadingPlanControl {
+        val repo = ReadingPlanRepository(daoProvider = { device.rp }, appScope = appScope, calendar = AndroidLocalCalendar())
+        repos[device] = repo
+        val source = object : ReadingPlanSource {
+            override fun builtInPlanCodes() = listOf(PLAN)
+            override fun openBuiltInPlan(code: String) = "# Plan\n1=Gen.1,Mat.1\n2=Gen.2,Mat.2\n3=Gen.3,Mat.3\n"
+        }
+        val textDao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), AndroidLocalCalendar(),
+            userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
+        val koin = GlobalContext.get()
+        originalPlan = originalPlan ?: settings.getString("reading_plan", "")
+        return ReadingPlanControl(koin.get(), koin.get(), repo, textDao, settings, AndroidLocalCalendar())
+            .also { it.setReadingPlan(PLAN) }
+    }
+
+    /** The status of [day] as stored on [device] (after the queued writes landed). */
+    private suspend fun stored(device: SyncableDatabaseAccessor<ReadingPlanDatabase>, day: Int): ReadingStatus {
+        val repo = ReadingPlanRepository(daoProvider = { device.rp }, appScope = appScope, calendar = AndroidLocalCalendar())
+        return ReadingStatus(PLAN, day, 2, repo).apply { reloadStatus() }
+    }
+
+    /**
+     * #2618/#3902: B has the day on screen (its status loaded) when A's read of that day arrives through a
+     * patch. The day must show A's read after the sync, and B's next tick must not write the stale status back.
+     */
+    @Test fun aDayLoadedBeforeTheSyncShowsTheReadsTheSyncBrought() = run {
+        val a = device()
+        a.start(PLAN)
+        val b = join(a)
+        val control = controlOn(b)
+        val writes = ReadingPlanDayWrites(control, appScope.coroutineContext)
+        writes.toggleRead(1, 1)
+        assertTrue(control.getReadingStatus(1).isRead(1))
+        assertFalse(control.getReadingStatus(1).isRead(2))
+        landed(b)
+        sync(b, a)
+
+        a.markRead(PLAN, 1, BOTH_READ)
+        sync(a, b)
+
+        assertTrue("A's read of reading 2 is shown on B", control.getReadingStatus(1).isRead(2))
+        writes.toggleRead(1, 1) // B unticks reading 1
+        landed(b)
+        sync(b, a)
+        for (device in listOf(b, a)) {
+            val stored = stored(device, 1)
+            assertFalse(stored.isRead(1))
+            assertTrue("the synced read survives B's tick", stored.isRead(2))
+        }
+    }
+
+    /** A reset on A removes the day's status on B: a day B had loaded no longer shows its old reads. */
+    @Test fun aDayLoadedBeforeAResetElsewhereShowsNoReads() = run {
+        val a = device()
+        a.start(PLAN)
+        a.markRead(PLAN, 1, BOTH_READ)
+        val b = join(a)
+        val control = controlOn(b)
+        assertTrue(control.getReadingStatus(1).isRead(1))
+
+        a.reset(PLAN)
+        a.start(PLAN)
+        sync(a, b)
+
+        assertNull(b.rp.getStatus(PLAN, 1))
+        assertFalse(control.getReadingStatus(1).isRead(1))
+    }
+
     companion object {
         const val PLAN = "y1ot1nt1_OTthenNT"
         const val READ = """{"1":"READ","2":"READ"}"""
         const val PARTIAL = """{"1":"READ","2":"UNREAD"}"""
+        const val BOTH_READ = """{"chapterReadArray":[{"readingNumber":1,"isRead":true},{"readingNumber":2,"isRead":true}]}"""
     }
 }
