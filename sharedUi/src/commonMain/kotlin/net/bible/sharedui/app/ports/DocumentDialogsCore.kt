@@ -110,10 +110,7 @@ class DocumentDialogsCore(
         val history = document.bookMetaData.getValues("History")
         if(history != null) {
             about += "\n\n" + table().fmt("about_version_history", "\n" +
-                history.reversed().sortedByDescending {
-                    // History values start with the version; their metadata order is unspecified.
-                    try { Version(it.substringBefore(' ')) } catch (_: IllegalArgumentException) { null }
-                }.joinToString("\n"))
+                sortedVersionHistory(history.toList()).joinToString("\n"))
         }
 
         // add versification
@@ -228,4 +225,18 @@ class DocumentDialogsCore(
                 confirmText = okText,
             )
     }
+}
+
+/**
+ * Orders a SWORD module's `History` values (each starts with its version, e.g. `1.2 Initial corrections`)
+ * newest first by version. Values whose version does not parse go after every parsable one. Among values
+ * that compare equal (the same version, or both unparsable) the reverse of the metadata order applies:
+ * conf files list history oldest first, so that is newest first too.
+ */
+internal fun sortedVersionHistory(history: List<String>): List<String> {
+    val (parsable, unparsable) = history.asReversed()
+        .map { it to try { Version(it.substringBefore(' ')) } catch (_: IllegalArgumentException) { null } }
+        .partition { it.second != null }
+    // sortedByDescending is stable, so equal versions keep the reversed metadata order.
+    return parsable.sortedByDescending { it.second!! }.map { it.first } + unparsable.map { it.first }
 }

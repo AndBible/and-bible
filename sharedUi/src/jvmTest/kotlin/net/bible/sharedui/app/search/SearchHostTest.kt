@@ -106,13 +106,13 @@ class SearchHostTest {
         val secondBible = book("Issue3873SecondBible", "RawText")
         val commentary = book("Issue3873Commentary", "RawCom")
         val saved = "Issue3873Bible,Issue3873Gone,Issue3873SecondBible"
-        val settings = MapSearchSettings(mutableMapOf(SEARCH_SELECTED_TRANSLATIONS_KEY to saved))
+        val settings = MapSearchSettings(mutableMapOf(SearchControl.SEARCH_TRANSLATIONS_PREF to saved))
         Books.installed().addBook(bible)
         Books.installed().addBook(secondBible)
         try {
             val host = host(settings = settings)
             assertEquals(listOf("Issue3873Commentary"), host.loadSearchTranslations(commentary).selected)
-            assertEquals(saved, settings.strings[SEARCH_SELECTED_TRANSLATIONS_KEY])
+            assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
             assertEquals(
                 listOf("Issue3873Bible", "Issue3873SecondBible"),
                 host.loadSearchTranslations(bible).selected,

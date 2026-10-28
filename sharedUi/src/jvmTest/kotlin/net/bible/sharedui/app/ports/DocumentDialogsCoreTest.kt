@@ -92,6 +92,18 @@ class DocumentDialogsCoreTest {
         assertContains(html, "1.0a Letter suffix")
         assertContains(html, "999999999999999 Oversized version")
     }
+    @Test fun versionHistoryPutsUnparsableEntriesLastInReverseMetadataOrder() {
+        // SWORD conf files list History oldest first, so reversing the metadata order shows the newest
+        // first; that applies both to unparsable versions and to ties between equal versions.
+        assertEquals(
+            listOf("2.0 Second", "1.0 Later tie", "1.0 Earlier tie", "gamma Third", "beta Second", "alpha First"),
+            sortedVersionHistory(listOf("alpha First", "1.0 Earlier tie", "beta Second", "2.0 Second", "1.0 Later tie", "gamma Third")),
+        )
+    }
+    @Test fun versionHistoryWithOnlyUnparsableEntriesIsReversed() {
+        assertEquals(listOf("second", "first"), sortedVersionHistory(listOf("first", "second")))
+        assertEquals(emptyList<String>(), sortedVersionHistory(emptyList()))
+    }
     @Test fun unlockLoopsUntilCorrectKeyAndStoresIt() = runTest {
         val attempts = mutableListOf<String>()
         var stored: String? = null
