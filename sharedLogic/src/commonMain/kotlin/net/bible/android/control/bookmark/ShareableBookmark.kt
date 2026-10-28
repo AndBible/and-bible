@@ -48,11 +48,11 @@ fun shareableBookmark(
         return bookmark
     }
     val versification = book.versification
-    if (!bookmark.verseRange.isConvertibleTo(versification)) {
-        Log.i(TAG, "Bookmark ${bookmark.id} range is not in ${book.initials}'s versification ${versification.name}; sharing it without verse text")
-        return bookmark
-    }
     val range = try {
+        if (!bookmark.verseRange.isConvertibleTo(versification)) {
+            Log.i(TAG, "Bookmark ${bookmark.id} range is not in ${book.initials}'s versification ${versification.name}; sharing it without verse text")
+            return bookmark
+        }
         bookmark.verseRange.toV11n(versification)
     } catch (e: Exception) {
         Log.w(TAG, "Could not convert bookmark ${bookmark.id} to ${versification.name}; sharing it without verse text", e)

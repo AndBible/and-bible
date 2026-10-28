@@ -77,7 +77,6 @@ private const val TAG_SEARCH_RESULTS = "SearchResultsCompose"
 private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
 private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
 
-
 /**
  * The search cluster's deps builder and host baggage: the Bible search form, the index prompt and its progress
  * screen, the Bible results, and the EPUB search form and results.
