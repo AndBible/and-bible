@@ -11,6 +11,7 @@ import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.index.IndexStatus
+import net.bible.service.sword.index.isInProgress
 
 private const val TAG = "SearchControl"
 
@@ -27,7 +28,7 @@ fun searchIntent(document: Book?, activity: Activity): Intent? {
             ScreenLauncher.intentFor(activity, Screen.EpubSearch)
         } else
             ScreenLauncher.intentFor(activity, Screen.Search)
-    } else if (indexStatus == IndexStatus.SCHEDULED || indexStatus == IndexStatus.CREATING) {
+    } else if (document != null && indexStatus.isInProgress) {
         NavHostComposeActivity.intentFor(activity, NavRoutes.searchIndexProgress(searchDocument = document.initials))
     } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
         return null

@@ -121,6 +121,7 @@ import net.bible.sharedui.theme.themeColorsJson
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.index.isInProgress
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import okio.buffer
@@ -479,7 +480,7 @@ class BibleView(
                 // only EXTRA_ROUTE) -- see NavHostRoutingGuardTest
                 // .migratedScreenArgumentIsNeverDroppedByAPutExtra. No SELECTED_TRANSLATIONS and
                 // no IS_STRONGS_SEARCH here, exactly as the classic bundle carried neither.
-                val route = if (currentBible.indexStatus == IndexStatus.SCHEDULED || currentBible.indexStatus == IndexStatus.CREATING) {
+                val route = if (currentBible.indexStatus.isInProgress) {
                     NavRoutes.searchIndexProgress(
                         searchText = searchText,
                         highlightText = highlightText,

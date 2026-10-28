@@ -192,9 +192,11 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
 
 /**
  * Waits out JSword's "the job says finished before `indexStatus` says DONE" gap and reports whether
- * the index actually appeared. A queued or active build does not spend the reload budget. The
- * bookkeeping (and the ~12s cap after the build) is [poll]'s; the waiting is [pause]'s, so this is
- * testable with no clock at all.
+ * the index actually appeared. While [indexRunning] (the status still says SCHEDULED/CREATING) the
+ * wait does not spend the ~12 s reload budget but [IndexPollDecision.onRunningPoll]'s stall budget:
+ * a running status with no [buildActive] job anywhere (a crashed or cancelled build that left the
+ * status behind) gives up instead of holding the sheet forever. The bookkeeping is [poll]'s; the
+ * waiting is [pause]'s, so this is testable with no clock at all.
  */
 @kotlin.native.HiddenFromObjC
 suspend fun awaitIndexDone(
@@ -202,15 +204,12 @@ suspend fun awaitIndexDone(
     indexDone: () -> Boolean,
     pause: suspend () -> Unit,
     indexRunning: () -> Boolean = { false },
+    buildActive: () -> Boolean = { false },
 ): Boolean {
     while (true) {
         val done = indexDone()
-        // A scheduled build may not own a progress job yet. Its queue/build time is not reload time.
-        if (!done && indexRunning()) {
-            pause()
-            continue
-        }
-        when (poll.onPoll(done)) {
+        val outcome = if (!done && indexRunning()) poll.onRunningPoll(buildActive()) else poll.onPoll(done)
+        when (outcome) {
             PollOutcome.Done -> return true
             PollOutcome.GaveUp -> return false
             PollOutcome.KeepPolling -> pause()

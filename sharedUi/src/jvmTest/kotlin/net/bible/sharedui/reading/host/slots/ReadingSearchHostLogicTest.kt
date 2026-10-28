@@ -19,6 +19,7 @@ package net.bible.sharedui.reading.host.slots
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.delay
@@ -159,27 +160,27 @@ class ReadingSearchHostLogicTest {
     }
 
     @Test
-    fun anEpubFtsTableCreatedBeforeTheBuildFinishesIsNotACompletedIndex() {
-        for (tableExistsAtOpen in listOf(false, true)) {
-            val f = SearchFixture()
-            val book = f.platform.current!!
-            val epub = unindexedBible.copy(isEpub = true, indexDone = tableExistsAtOpen)
-            f.platform.info = epub
-            f.platform.documents["KJV"] = book
-            book.indexStatus = IndexStatus.CREATING
-            f.jobs.running = true
-            f.jobs.beforeSubscribe = { f.platform.info = epub.copy(indexDone = true) }
+    fun anEpubBuildStillRunningShowsProgressAndResolvesOnCompletion() {
+        // The platform reports an EPUB whose build is scheduled/running as not indexed (its FTS table
+        // exists before every row is written; `EpubBackendState.isIndexed` owns that rule).
+        val f = SearchFixture()
+        val book = f.platform.current!!
+        val epub = unindexedBible.copy(isEpub = true, indexDone = false)
+        f.platform.info = epub
+        f.platform.documents["KJV"] = book
+        book.indexStatus = IndexStatus.CREATING
+        f.jobs.running = true
 
-            f.state.openSearch("light")
+        f.state.openSearch("light")
 
-            assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = true), f.state.controller.phase.value)
-            assertEquals(1, f.jobs.subscribers)
-            book.indexStatus = IndexStatus.DONE
-            f.jobs.running = false
-            f.jobs.emit(Any(), finished = true)
-            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = true), f.state.controller.phase.value)
-            f.state.dispose()
-        }
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = true), f.state.controller.phase.value)
+        assertEquals(1, f.jobs.subscribers)
+        book.indexStatus = IndexStatus.DONE
+        f.platform.info = epub.copy(indexDone = true)
+        f.jobs.running = false
+        f.jobs.emit(Any(), finished = true)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = true), f.state.controller.phase.value)
+        f.state.dispose()
     }
 
     @Test
@@ -216,6 +217,47 @@ class ReadingSearchHostLogicTest {
         assertTrue(f.state.controller.phase.value is ReadingSearchPhase.Results)
         assertEquals(0, f.jobs.subscribers)
         assertTrue(f.index.created.isEmpty())
+        f.state.dispose()
+    }
+
+    @Test
+    fun aStuckRunningIndexStatusEventuallyGivesUpWithAnError() = runTest {
+        // A build that crashed or was cancelled can leave SCHEDULED/CREATING behind with no job.
+        val f = SearchFixture(scope = backgroundScope, pollPause = { delay(2_000) })
+        val book = f.platform.current!!
+        f.platform.info = unindexedBible
+        f.platform.documents["KJV"] = book
+        book.indexStatus = IndexStatus.CREATING
+        f.jobs.running = false
+
+        f.state.openSearch("light")
+        runCurrent()
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value)
+
+        advanceTimeBy(10 * 60_000)
+        runCurrent()
+
+        assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), f.state.controller.phase.value)
+        assertNotNull(f.state.searchIndexProgress.error.value, "a stuck build is reported, not waited on forever")
+        assertEquals(0, f.jobs.subscribers)
+        assertTrue(f.index.created.isEmpty())
+        f.state.dispose()
+    }
+
+    @Test
+    fun attachingWhileAJobIsRunningWaitsForItsEventInsteadOfResolving() {
+        val f = SearchFixture()
+        val book = f.platform.current!!
+        f.platform.info = unindexedBible
+        f.platform.documents["KJV"] = book
+        book.indexStatus = IndexStatus.CREATING
+        f.jobs.running = true
+
+        f.state.openSearch("light")
+
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), f.state.controller.phase.value)
+        assertNull(f.state.searchIndexProgress.error.value)
+        assertEquals(1, f.jobs.subscribers)
         f.state.dispose()
     }
 
@@ -268,6 +310,34 @@ class ReadingSearchHostLogicTest {
         controller.onIndexingFinished(done)
         assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), controller.phase.value)
         assertEquals(listOf("light"), runs)
+    }
+
+    @Test
+    fun aRunningStatusWithoutAnyActiveJobStopsWaitingAfterTheStallCap() = runTest {
+        var pauses = 0
+        val done = awaitIndexDone(
+            poll = IndexPollDecision(maxStalledPolls = 5),
+            indexDone = { false },
+            pause = { pauses++ },
+            indexRunning = { true },
+            buildActive = { false },
+        )
+        assertFalse(done)
+        assertEquals(4, pauses, "five stalled reads, four pauses between them")
+    }
+
+    @Test
+    fun aRunningStatusWithAnActiveJobKeepsWaitingUntilTheIndexIsDone() = runTest {
+        var pauses = 0
+        val done = awaitIndexDone(
+            poll = IndexPollDecision(maxPolls = 1, maxStalledPolls = 1),
+            indexDone = { pauses >= 500 },
+            pause = { pauses++ },
+            indexRunning = { pauses < 500 },
+            buildActive = { true },
+        )
+        assertTrue(done)
+        assertEquals(500, pauses)
     }
 
     @Test

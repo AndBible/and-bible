@@ -58,6 +58,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.index.IndexStatus
+import net.bible.service.sword.index.isInProgress
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import fi.sykero.kdom.Namespace
@@ -296,7 +297,15 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     private val dao = readDb.epubDao()
 
-    val isIndexed get() = withMonitor(lifetime) { if (retired) false else search.isIndexed }
+    /**
+     * Whether the search index is complete and usable. The FTS table is created before its rows are
+     * written, so its existence alone is not enough: while a build is scheduled or running
+     * (#2632) the index is reported as not done, for every caller (search routing, `documentInfo`,
+     * `hasIndex`).
+     */
+    val isIndexed get() = withMonitor(lifetime) {
+        if (retired || getBookMetaData().indexStatus.isInProgress) false else search.isIndexed
+    }
 
     fun deleteSearchIndex() {
         withOpen { search.deleteIndex() }

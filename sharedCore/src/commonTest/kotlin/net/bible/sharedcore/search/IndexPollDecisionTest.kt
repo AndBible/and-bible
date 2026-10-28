@@ -33,4 +33,30 @@ class IndexPollDecisionTest {
         d.onPoll(false)
         assertEquals(PollOutcome.Done, d.onPoll(true))
     }
+    @Test
+    fun aRunningStatusWithNoActiveJobGivesUpAfterTheStallCap() {
+        // SCHEDULED/CREATING left behind by a crashed or cancelled build must not be waited on forever.
+        val d = IndexPollDecision(maxStalledPolls = 3)
+        assertEquals(PollOutcome.KeepPolling, d.onRunningPoll(buildActive = false))
+        assertEquals(PollOutcome.KeepPolling, d.onRunningPoll(buildActive = false))
+        assertEquals(PollOutcome.GaveUp, d.onRunningPoll(buildActive = false))
+    }
+
+    @Test
+    fun anActiveBuildKeepsWaitingAndResetsTheStallCount() {
+        val d = IndexPollDecision(maxStalledPolls = 2)
+        assertEquals(PollOutcome.KeepPolling, d.onRunningPoll(buildActive = false))
+        repeat(1_000) { assertEquals(PollOutcome.KeepPolling, d.onRunningPoll(buildActive = true)) }
+        // The earlier stalled read no longer counts: the job made the status honest again.
+        assertEquals(PollOutcome.KeepPolling, d.onRunningPoll(buildActive = false))
+        assertEquals(PollOutcome.GaveUp, d.onRunningPoll(buildActive = false))
+    }
+
+    @Test
+    fun runningPollsDoNotSpendThePostBuildReloadBudget() {
+        val d = IndexPollDecision(maxPolls = 2, maxStalledPolls = 10)
+        repeat(9) { d.onRunningPoll(buildActive = false) }
+        assertEquals(PollOutcome.KeepPolling, d.onPoll(false))
+        assertEquals(PollOutcome.GaveUp, d.onPoll(false))
+    }
 }

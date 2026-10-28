@@ -204,6 +204,39 @@ class EpubBackendStateTest {
         }
     }
 
+    /**
+     * #2632: the FTS table is created before its rows are written, so table existence alone must not
+     * report the index as built while the build is scheduled or running.
+     */
+    @Test
+    fun indexIsNotReportedDoneWhileItsBuildIsScheduledOrRunning() = runTest {
+        val state = newState(buildEpub("in-progress-index"))
+        val seenWhileBuilding = mutableListOf<Boolean>()
+        val listener = object : org.crosswire.common.progress.WorkListener {
+            override fun workProgressed(ev: org.crosswire.common.progress.WorkEvent) {
+                if (!ev.job.isFinished && state.getBookMetaData().indexStatus == org.crosswire.jsword.index.IndexStatus.CREATING) {
+                    seenWhileBuilding += state.isIndexed
+                }
+            }
+            override fun workStateChanged(ev: org.crosswire.common.progress.WorkEvent) = Unit
+        }
+        org.crosswire.common.progress.JobManager.addWorkListener(listener)
+        try {
+            state.buildSearchIndex()
+        } finally {
+            org.crosswire.common.progress.JobManager.removeWorkListener(listener)
+        }
+        assertTrue("the build must have reported progress", seenWhileBuilding.isNotEmpty())
+        assertEquals(listOf(false), seenWhileBuilding.distinct())
+        assertTrue(state.isIndexed)
+
+        // A queued rebuild over an existing table is not a finished index either.
+        state.getBookMetaData().indexStatus = org.crosswire.jsword.index.IndexStatus.SCHEDULED
+        assertFalse(state.isIndexed)
+        state.getBookMetaData().indexStatus = org.crosswire.jsword.index.IndexStatus.DONE
+        assertTrue(state.isIndexed)
+    }
+
     @Test
     fun failedIndexBuildResetsStatusForRetry() = runTest {
         val dir = buildEpub("failed-index")

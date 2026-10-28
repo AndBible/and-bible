@@ -28,10 +28,22 @@ enum class PollOutcome { Done, KeepPolling, GaveUp }
  * cap is preserved here; what is dropped is the blocking `pause(2)` loop, so the caller owns the
  * delay (a coroutine `delay`, a timer, or a test's nothing at all) and this class stays pure.
  *
- * One instance per index build: the counter is not reset.
+ * While the document's status still says the build is queued or running (SCHEDULED/CREATING), the
+ * caller reports [onRunningPoll] instead: that time is build time, not reload time, so it does not
+ * spend the [maxPolls] budget. It is bounded separately: a running status with no active job
+ * anywhere (a crashed or cancelled build that left the status behind) gives up after
+ * [maxStalledPolls] consecutive reads (~60 s at the production 2 s interval). A read that sees a job
+ * running resets that count, so a long but genuine build (a queue of several Bibles on a slow device)
+ * is never cut off; the job itself always ends (`Progress.done()` in a `finally`).
+ *
+ * One instance per index build: the counters are not reset.
  */
-class IndexPollDecision(private val maxPolls: Int = 6) {
+class IndexPollDecision(
+    private val maxPolls: Int = 6,
+    private val maxStalledPolls: Int = 30,
+) {
     private var polls = 0
+    private var stalledPolls = 0
 
     /**
      * Records one status read. [indexDone] short-circuits to [PollOutcome.Done] regardless of how
@@ -42,6 +54,16 @@ class IndexPollDecision(private val maxPolls: Int = 6) {
     fun onPoll(indexDone: Boolean): PollOutcome = when {
         indexDone -> PollOutcome.Done
         ++polls >= maxPolls -> PollOutcome.GaveUp
+        else -> PollOutcome.KeepPolling
+    }
+
+    /**
+     * Records one read during which the status still said SCHEDULED/CREATING. [buildActive] is
+     * whether any progress job is running; [PollOutcome.Done] is never returned.
+     */
+    fun onRunningPoll(buildActive: Boolean): PollOutcome = when {
+        buildActive -> { stalledPolls = 0; PollOutcome.KeepPolling }
+        ++stalledPolls >= maxStalledPolls -> PollOutcome.GaveUp
         else -> PollOutcome.KeepPolling
     }
 }

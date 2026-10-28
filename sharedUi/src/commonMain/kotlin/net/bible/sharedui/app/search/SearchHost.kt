@@ -22,6 +22,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.index.isInProgress
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
@@ -337,9 +338,12 @@ class SearchHost(
             override fun workStateChanged(ev: WorkEvent) = onIndexWorkEvent(ev, onJobs, onJobFinished)
         }
         JobManager.addWorkListener(listener)
-        // Re-entry can miss the last work event before this listener was attached.
+        // Read the job state AFTER attaching, so nothing can slip between the read and the listener.
+        // A running job will deliver its own finished event to the listener. With none running, the
+        // build this screen waits on already ended before we attached (#2632 re-entry) and its last
+        // event is gone: report that settled state once, so `awaitIndexed` routes on the real status.
         onJobs(indexJobSnapshot())
-        onJobFinished()
+        if (isAllIndexJobsFinished) onJobFinished()
         return { JobManager.removeWorkListener(listener) }
     }
 
@@ -421,7 +425,7 @@ class SearchHost(
                 Log.i(TAG_SEARCH_INDEX, "Index created")
                 if (document.isEpub) IndexOutcome.INDEXED_EPUB else IndexOutcome.INDEXED
             }
-            document?.indexStatus == IndexStatus.SCHEDULED || document?.indexStatus == IndexStatus.CREATING ->
+            document?.indexStatus.isInProgress ->
                 IndexOutcome.STILL_RUNNING
             isAllIndexJobsFinished -> {
                 Log.e(TAG_SEARCH_INDEX, "Index finished but document's index is invalid")

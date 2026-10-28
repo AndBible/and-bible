@@ -42,6 +42,7 @@ import org.crosswire.jsword.book.install.InstallException
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.IndexStatus
+import net.bible.service.sword.index.isInProgress
 
 /** JSword facade
  *
@@ -198,7 +199,7 @@ object SwordDocumentFacade {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
         withMonitor(book) {
-            if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
+            if (!book.indexStatus.isInProgress) {
                 book.indexStatus = IndexStatus.SCHEDULED
                 scheduleIndexCreation(book, appScope)
             }

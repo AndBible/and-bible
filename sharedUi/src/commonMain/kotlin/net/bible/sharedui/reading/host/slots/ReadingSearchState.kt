@@ -41,6 +41,7 @@ import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.index.isInProgress
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.ReadingSearchBarState
@@ -66,7 +67,6 @@ import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.index.IndexStatus
 
 /** The search services [ReadingSearchState] builds its controllers over (Koin singletons on Android). */
 @kotlin.native.HiddenFromObjC
@@ -235,13 +235,8 @@ class ReadingSearchState(
      * machine itself platform-free and host-testable; see [ReadingSearchController].
      */
     val controller = ReadingSearchController(
-        resolveDoc = {
-            val book = platform.currentDocument()
-            platform.documentInfo(book)?.let { info ->
-                // An EPUB's FTS table exists before its rows have all been written.
-                if (isSearchIndexRunning(book)) info.copy(indexDone = false) else info
-            }
-        },
+        // `documentInfo` is truthful at its source: a scheduled/running build is not done (#2632).
+        resolveDoc = { platform.documentInfo(platform.currentDocument()) },
         onUnavailable = { _searchUnavailableDocName.value = platform.currentDocument()?.name.orEmpty() },
         onLeaveFullScreen = onLeaveFullScreen,
         onStartIndexing = { docId -> startSearchIndexing(docId) },
@@ -260,12 +255,8 @@ class ReadingSearchState(
         tryOpenReference = { query -> platform.tryOpenReference(query) },
         onReferenceOpened = { leaveSearch() },
         queries = queries,
-        isIndexing = { docId -> isSearchIndexRunning(platform.documentByInitials(docId)) },
-        onObserveIndexing = { docId ->
-            observeSearchIndexing(docId)
-            // Subscribe before re-checking: completion may have happened after open() read the status.
-            onSearchIndexWorkEvent(Any()) { true }
-        },
+        isIndexing = { docId -> platform.documentByInitials(docId)?.indexStatus.isInProgress },
+        onObserveIndexing = { docId -> attachToRunningSearchIndex(docId) },
     )
 
     /** Phase-derived inputs for [searchBar], pre-combined so [searchBarCore] stays inside `combine`'s typed overload. */
@@ -666,6 +657,19 @@ class ReadingSearchState(
         refreshSearchIndexJobs()
     }
 
+    /**
+     * Re-attaches to a build that is already scheduled or running (the sheet was reopened, or the
+     * host was recreated). Subscribe first, then read the state: a build that ended between
+     * `open()`'s status read and the subscription has no event left to deliver, so the state read
+     * here is what resolves it. With a job still running, its own finished event will.
+     */
+    private fun attachToRunningSearchIndex(docId: String) {
+        observeSearchIndexing(docId)
+        scope.launch {
+            if (isSearchIndexDone() || indexJobs.isEveryJobFinished()) resolveSearchIndexBuild()
+        }
+    }
+
     private fun stopSearchIndexFeed() {
         searchIndexResolution?.cancel()
         searchIndexResolution = null
@@ -695,40 +699,45 @@ class ReadingSearchState(
             val alreadyDone = isSearchIndexDone()
             if (!alreadyDone && !shouldResolveIndexBuild(isFinished(), indexJobs.isEveryJobFinished())) return@launch
             if (!searchIndexFinishedJobs.add(job)) return@launch
-            val poll = searchIndexPoll ?: return@launch
-            searchIndexResolution = scope.launch(start = CoroutineStart.LAZY) {
-                val indexDone = awaitIndexDone(
-                    poll = poll,
-                    // EPUB completion uses the actual FTS index, not just the metadata's DONE flag.
-                    indexDone = { isSearchIndexDone() },
-                    pause = pollPause,
-                    indexRunning = { isSearchIndexRunning(searchIndexDocument) },
-                )
-                // Re-read rather than reuse the gate's answer: the poll may have straddled a new job's start.
-                if (!indexDone && indexJobs.isEveryJobFinished()) searchIndexProgress.showError()
-                searchIndexResolution = null
-                stopSearchIndexFeed()
-                // A selection holding more than one unindexed translation chains to the next one instead
-                // of letting `onIndexingFinished` re-run against only the just-built translation.
-                val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) { bibleSearchService.unindexedAmong(it) }
-                if (next != null) {
-                    controller.promptIndexFor(next, keepInterceptedSearch = true)
-                } else {
-                    searchSelectorPendingIds = null
-                    controller.onIndexingFinished(indexDone)
-                }
-            }
-            searchIndexResolution?.start()
+            resolveSearchIndexBuild()
         }
     }
 
-    private fun isSearchIndexDone(): Boolean =
-        !isSearchIndexRunning(searchIndexDocument) &&
-            searchIndexDocument?.let { platform.documentInfo(it)?.indexDone } == true
+    /**
+     * Waits for the watched build's outcome (bounded, see [awaitIndexDone]) and hands it to the
+     * controller. At most one resolution runs at a time; it ends the feed subscription.
+     */
+    private fun resolveSearchIndexBuild() {
+        if (stopIndexFeed == null || searchIndexResolution?.isActive == true) return
+        val poll = searchIndexPoll ?: return
+        searchIndexResolution = scope.launch(start = CoroutineStart.LAZY) {
+            val indexDone = awaitIndexDone(
+                poll = poll,
+                indexDone = { isSearchIndexDone() },
+                pause = pollPause,
+                indexRunning = { searchIndexDocument?.indexStatus.isInProgress },
+                buildActive = { !indexJobs.isEveryJobFinished() },
+            )
+            // Re-read rather than reuse the gate's answer: the poll may have straddled a new job's start.
+            if (!indexDone && indexJobs.isEveryJobFinished()) searchIndexProgress.showError()
+            searchIndexResolution = null
+            stopSearchIndexFeed()
+            // A selection holding more than one unindexed translation chains to the next one instead
+            // of letting `onIndexingFinished` re-run against only the just-built translation.
+            val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) { bibleSearchService.unindexedAmong(it) }
+            if (next != null) {
+                controller.promptIndexFor(next, keepInterceptedSearch = true)
+            } else {
+                searchSelectorPendingIds = null
+                controller.onIndexingFinished(indexDone)
+            }
+        }
+        searchIndexResolution?.start()
+    }
 
-    private fun isSearchIndexRunning(book: Book?): Boolean =
-        // EPUB also sets SCHEDULED/CREATING reliably, even though completion needs the FTS check.
-        book?.indexStatus.let { it == IndexStatus.SCHEDULED || it == IndexStatus.CREATING }
+    /** Through the platform's document mapping, which owns the per-format "is the index usable" rule. */
+    private fun isSearchIndexDone(): Boolean =
+        searchIndexDocument?.let { platform.documentInfo(it)?.indexDone } == true
 
     private fun refreshSearchIndexJobs() {
         searchIndexProgress.setJobs(indexJobs.snapshot())

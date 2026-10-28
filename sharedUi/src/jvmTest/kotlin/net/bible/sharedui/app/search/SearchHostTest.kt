@@ -135,6 +135,19 @@ class SearchHostTest {
     }
 
     @Test
+    fun progressSubscriptionWhileAJobIsRunningWaitsForTheRealFinishedEvent() {
+        val job = org.crosswire.common.progress.JobManager.createJob("issue-2632-running-job")
+        var completions = 0
+        val stop = host().observeIndexJobs(onJobs = {}, onJobFinished = { completions++ })
+        try {
+            assertEquals(0, completions, "a running job will report its own completion; no synthetic one")
+        } finally {
+            stop()
+            job.done()
+        }
+    }
+
+    @Test
     fun queuedLegacyIndexIsStillRunningRatherThanFailed() = runBlocking {
         val config = """
             [Issue2632Queued]
