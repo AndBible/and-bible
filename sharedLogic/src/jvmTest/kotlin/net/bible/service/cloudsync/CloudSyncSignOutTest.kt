@@ -34,6 +34,7 @@ import okio.Path.Companion.toPath
 import okio.Sink
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -70,7 +71,13 @@ class CloudSyncSignOutTest {
         override suspend fun signIn() = true
         override suspend fun signOut() { loggedIn = false }
         override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?) = emptyList<CloudFile>()
-        override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = error("already initialized")
+        var createdFolders = 0
+        var allowCreate = false
+        override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
+            check(allowCreate) { "already initialized" }
+            createdFolders++
+            return CloudFile("new-folder-$createdFolders", name, 0L, 1L, parentId ?: "root")
+        }
         override suspend fun get(id: String): CloudFile = error("unused")
         override suspend fun getFolders(parentId: String): List<CloudFile> {
             downloaded = true
@@ -162,7 +169,7 @@ class CloudSyncSignOutTest {
 
     @Test fun signOutDuringUploadLetsPatchDownloadFinishBeforeClearingSyncState() = withFixture { f ->
         val (cloud, adapter, db, settings, container) = f
-            val errors = mutableListOf<UserMessage>()
+        val errors = mutableListOf<UserMessage>()
         val subscription = UserMessages.messages.subscribe { errors += it }
         val sync = async(Dispatchers.IO) { cloud.synchronize() }
         var signOut: kotlinx.coroutines.Deferred<Unit>? = null
@@ -196,10 +203,10 @@ class CloudSyncSignOutTest {
             } finally {
                 subscription.cancel()
             }
-    }
+        }
     }
 
-    @Test fun missingFolderIdsAreSkippedWithoutGenericErrorAndRejoinedOnNextSync() = withFixture { f ->
+    @Test fun missingFolderIdsAreSkippedWithoutGenericError() = withFixture { f ->
         val (cloud, adapter, db, _, _) = f
         val errors = mutableListOf<UserMessage>()
         val subscription = UserMessages.messages.subscribe { errors += it }
@@ -216,5 +223,37 @@ class CloudSyncSignOutTest {
         } finally {
             subscription.cancel()
         }
+    }
+
+    @Test fun halfFinishedJoinWithoutInteractionIsCancelledQuietlyAndResetsSyncState() = withFixture { f ->
+        val (cloud, adapter, db, _, _) = f
+        val errors = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { errors += it }
+        try {
+            db.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+            db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 12345L)
+            db.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 12345L)
+            assertFailsWith<CancelStartedSync> { cloud.initializeSync(db, allowInteraction = false) }
+            assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+            assertNull(db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+            assertNull(db.dao.getLong(LAST_SYNCHRONIZED_KEY), "A stale watermark must not survive into a fresh join")
+            assertNull(db.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+            assertEquals(0, adapter.createdFolders)
+            assertTrue(errors.isEmpty(), "Cancelled start must not emit an error notification: $errors")
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test fun halfFinishedJoinIsRejoinedAfresh() = withFixture { f ->
+        val (cloud, adapter, db, _, _) = f
+        adapter.allowCreate = true
+        adapter.finishUpload.complete(Unit)
+        db.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+        db.dao.setConfig(LAST_SYNCHRONIZED_KEY, 12345L)
+        cloud.initializeSync(db)
+        assertEquals("new-folder-1", db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+        assertEquals("new-folder-2", db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+        assertTrue(db.dao.getLong(LAST_SYNCHRONIZED_KEY) != 12345L, "Stale watermark replaced by the fresh join")
     }
 }

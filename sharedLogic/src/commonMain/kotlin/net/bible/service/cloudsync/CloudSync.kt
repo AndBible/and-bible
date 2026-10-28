@@ -295,8 +295,8 @@ class CloudSync(
             // A folder id without this device's folder id is a half-finished join: join afresh.
             if (!syncFolderKnown || dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) == null) {
                 syncFolderId = null
-                dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-                dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+                // Watermarks too: a stale LAST_SYNCHRONIZED_KEY would make the fresh join skip older patches.
+                removeSyncState(dbDef)
             }
         }
 
