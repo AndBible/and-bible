@@ -201,6 +201,14 @@ defineExpose({editMode});
     max-height: var(--max-height);
     overflow-y: auto;
     overscroll-behavior: contain;
+
+    // Keep the editor toolbar at the bottom of the bounded container while a long note
+    // scrolls, instead of only after the end of the note (#3870).
+    :deep(.pell-actionbar) {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+    }
   }
 }
 
