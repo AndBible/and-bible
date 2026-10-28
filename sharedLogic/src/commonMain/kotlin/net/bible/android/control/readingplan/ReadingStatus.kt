@@ -98,9 +98,10 @@ open class ReadingStatus(
         readingPlanRepo.deleteOldStatuses(planInfo, day)
     }
 
+    /** Replaces the in-memory status with the stored one; no stored row (a reset, also one synced from another device) is no reads. */
     open suspend fun reloadStatus() {
         val status: String? = readingPlanRepo.getReadingStatus(planCode, day)
-        status?.let { this.status = ReadingStatus(status) }
+        this.status = if (status != null) ReadingStatus(status) else ReadingStatus(ArrayList())
     }
 
     private fun saveStatus() {

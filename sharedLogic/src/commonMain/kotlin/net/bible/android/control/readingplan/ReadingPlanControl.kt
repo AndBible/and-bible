@@ -154,21 +154,25 @@ class ReadingPlanControl constructor(
         settings.setString(READING_PLAN, planCode)
     }
 
-    /** get read status of this days readings
+    /** get read status of this days readings. The day's instance is kept, but its status is reloaded on every
+     * call: a cloud sync may have changed or removed the stored row (and the current day) since it was loaded, and
+     * a tick on a stale status would write the old reads back (#2618, #3902).
      */
     suspend fun getReadingStatus(day: Int, planCode: String = currentPlanCode): ReadingStatus {
+        val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
+        // if Historic then return historic status that returns read=true for all passages
+        val historic = !oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay(planCode)
         var readingStatus = readingStatus
-        if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
-            val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
-            // if Historic then return historic status that returns read=true for all passages
-            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay(planCode)) {
+        if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day ||
+            (readingStatus is HistoricReadingStatus) != historic) {
+            readingStatus = if (historic) {
                 HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
             } else {
                 ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
             }
-            this.readingStatus = readingStatus.apply { reloadStatus() }
+            this.readingStatus = readingStatus
         }
-        return readingStatus
+        return readingStatus.apply { reloadStatus() }
     }
 
     private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
