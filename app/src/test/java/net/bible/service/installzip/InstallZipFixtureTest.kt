@@ -136,7 +136,7 @@ class InstallZipFixtureTest {
 
     private class FixtureCommitter : InstallCommitter {
         override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) = Unit
-        override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean) = true
+        override suspend fun commitEpub(localFile: Path, displayName: String) = true
         override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) = Unit
         override suspend fun commitTtf(localFile: Path, displayName: String) = Unit
         override suspend fun commitCsv(localFile: Path, displayName: String) = Unit

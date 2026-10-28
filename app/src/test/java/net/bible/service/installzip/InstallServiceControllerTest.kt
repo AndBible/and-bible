@@ -268,7 +268,7 @@ class InstallServiceControllerTest {
             override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) {
                 swordCalls++; onProgress(100)
             }
-            override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean) = true
+            override suspend fun commitEpub(localFile: Path, displayName: String) = true
             override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {}
             override suspend fun commitTtf(localFile: Path, displayName: String) {}
             override suspend fun commitCsv(localFile: Path, displayName: String) {}

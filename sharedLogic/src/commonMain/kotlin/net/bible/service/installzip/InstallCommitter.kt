@@ -26,15 +26,14 @@ import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
-import net.bible.service.sword.epub.addOwnedEpubBook
-import net.bible.service.sword.epub.deleteOwnedEpubModule
-import net.bible.service.sword.epub.epubInitials
-import net.bible.service.sword.epub.installEpubModule
+import net.bible.service.sword.epub.newEpubStagingDir
+import net.bible.service.sword.epub.publishStagedEpub
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.log.Log
 import okio.FileSystem
 import okio.Path
 import okio.buffer
@@ -58,9 +57,10 @@ interface InstallCommitter {
     /** SWORD zip. Reopen the local file per call (engine reads once). */
     suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit)
 
-    /** @return true on success, false if the epub was rejected by the discovery scanner
-     *  (`addManuallyInstalledEpubBooks()` genuinely returns Boolean). */
-    suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean
+    /** Installs, or replaces, the EPUB module [displayName]. A replaced module is kept until the new one registers.
+     *  @return true on success, false if the epub could not be unpacked or registered (the previous module, if any,
+     *  is then left in place). */
+    suspend fun commitEpub(localFile: Path, displayName: String): Boolean
 
     /** Copies + registers a MyBible/MySword/eSword sqlite book. Throws [InvalidInstallFile] if the
      *  file is not a real SQLite3 db (16-byte header != "SQLite format 3\u0000"), mirroring classic.
@@ -111,20 +111,23 @@ class DefaultInstallCommitter(
         installWatcher().awaitPendingInstalls()
     }
 
-    override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean {
+    override suspend fun commitEpub(localFile: Path, displayName: String): Boolean {
         val dir = modulesDir / "epub" / displayName.trimStart('/')
-        return installEpubModule(dir) {
-            if (deleteExisting) deleteOwnedEpubModule(dir)
-            fileSystem.createDirectories(dir)
-            try {
-                unzip(localFile, dir)
-                addOwnedEpubBook(dir, strings, environment)
-                org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
-            } catch (e: Exception) {
-                deleteOwnedEpubModule(dir)
-                if (e is kotlinx.coroutines.CancellationException) throw e
-                false
-            }
+        // Unzip outside the scanned epub folder; the live module is only replaced once the new tree is complete,
+        // and rolled back if the new one does not register.
+        val staging = newEpubStagingDir(modulesDir)
+        return try {
+            val newTree = staging / dir.name
+            fileSystem.createDirectories(newTree)
+            unzip(localFile, newTree)
+            publishStagedEpub(dir, newTree, modulesDir, strings, environment)
+            true
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            Log.e("InstallCommitter", "Could not install EPUB $displayName", e)
+            false
+        } finally {
+            runCatching { fileSystem.deleteRecursively(staging, mustExist = false) }
         }
     }
 

@@ -74,7 +74,7 @@ class IosInstallFailureTest {
                     InstallJobRunner(InstallInspector { BackupFileType.ZIP }, object : InstallCommitter {
                         override suspend fun commitTtf(localFile: Path, displayName: String) = error("unused")
                         override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) { commits++ }
-                        override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean = error("unused")
+                        override suspend fun commitEpub(localFile: Path, displayName: String): Boolean = error("unused")
                         override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) = error("unused")
                         override suspend fun commitCsv(localFile: Path, displayName: String) = error("unused")
                         override suspend fun commitBackgroundImage(localFile: Path, fileName: String) = error("unused")

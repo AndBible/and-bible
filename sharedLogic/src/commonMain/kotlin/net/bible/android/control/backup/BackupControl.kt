@@ -72,11 +72,9 @@ import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
-import net.bible.service.sword.epub.addOwnedEpubBook
-import net.bible.service.sword.epub.deleteOwnedEpubModule
-import net.bible.service.sword.epub.epubInitials
-import net.bible.service.sword.epub.retireOwnedEpubModule
-import net.bible.service.sword.epub.installEpubModule
+import net.bible.service.sword.epub.EPUB_STAGING_PREFIX
+import net.bible.service.sword.epub.newEpubStagingDir
+import net.bible.service.sword.epub.publishStagedEpub
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
@@ -109,10 +107,6 @@ const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
 const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
-
-/** Staging trees and set-aside old trees of a module-archive EPUB install, next to (not inside) the scanned `epub` folder. */
-private const val EPUB_STAGING_PREFIX = ".epub-install-"
-private const val EPUB_ASIDE_PREFIX = ".epub-old-"
 
 private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
 private val GZIP_MAGIC = "1f8b".decodeHex()
@@ -1052,7 +1046,7 @@ class BackupControl(
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
-        val epubStaging = targetDirectory / "$EPUB_STAGING_PREFIX${net.bible.android.database.IdType()}"
+        val epubStaging = newEpubStagingDir(targetDirectory)
         val epubStaged = LinkedHashMap<Path, Path>() // EPUB staged file -> its ".part" sibling (inside the staging tree)
         val epubModules = linkedSetOf<String>()
         val epubFailures = mutableListOf<String>()
@@ -1142,7 +1136,7 @@ class BackupControl(
                 val newTree = epubStaging / "epub" / name
                 if (!fileSystem.exists(newTree)) continue
                 try {
-                    publishStagedEpub(name, dir, newTree, targetDirectory)
+                    publishStagedEpub(dir, newTree, targetDirectory, strings, env)
                 } catch (e: Exception) {
                     Log.e(TAG, "Could not install EPUB $name", e)
                     epubFailures.add("$name: ${e.message ?: e::class.simpleName}")
@@ -1174,38 +1168,6 @@ class BackupControl(
         addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()
         if (epubFailures.isNotEmpty()) throw IOException("Could not install EPUB modules: ${epubFailures.joinToString("; ")}")
-    }
-
-    /**
-     * Replaces the live EPUB [dir] by the staged tree [newTree] through the direct EPUB install lifecycle: drain
-     * readers, drop the internal metadata cache and publish a fresh owner so render caches cannot reuse the old
-     * generation. The old module is only set aside (outside the scanned `epub` folder) until the new one is
-     * registered; if that fails, the new files are removed and the old module is moved back and registered again.
-     */
-    private suspend fun publishStagedEpub(name: String, dir: Path, newTree: Path, modulesRoot: Path) {
-        installEpubModule(dir) {
-            retireOwnedEpubModule(dir)
-            var aside: Path? = null
-            try {
-                fileSystem.createDirectories(dir.parent!!)
-                if (fileSystem.exists(dir)) {
-                    aside = modulesRoot / "$EPUB_ASIDE_PREFIX${net.bible.android.database.IdType()}"
-                    fileSystem.atomicMove(dir, aside)
-                }
-                fileSystem.atomicMove(newTree, dir)
-                addOwnedEpubBook(dir, strings, env)
-                check(Books.installed().getBook(epubInitials(name)) != null) { "EPUB registration failed: $name" }
-                aside?.let { runCatching { fileSystem.deleteRecursively(it, mustExist = false) } }
-                true
-            } catch (e: Exception) {
-                runCatching { deleteOwnedEpubModule(dir) }
-                if (aside != null) runCatching {
-                    fileSystem.atomicMove(aside, dir)
-                    addOwnedEpubBook(dir, strings, env)
-                }.onFailure { Log.e(TAG, "Could not restore the previous EPUB $name", it) }
-                throw e
-            }
-        }
     }
 
     /**
