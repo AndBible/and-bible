@@ -12,6 +12,8 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.sharedui.search.SEARCH_RECENT_TERMS_KEY
+import net.bible.sharedui.search.seedSearchTranslations
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
@@ -75,8 +77,6 @@ private const val TAG_SEARCH_RESULTS = "SearchResultsCompose"
 private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
 private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
 
-internal const val SEARCH_SELECTED_TRANSLATIONS_KEY = "search_selected_translations"
-internal const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
 
 /**
  * The search cluster's deps builder and host baggage: the Bible search form, the index prompt and its progress
@@ -229,21 +229,15 @@ class SearchHost(
         val bibles = SwordDocumentFacade.bibles
             .filterIsInstance<SwordBook>()
             .sortedBy { it.abbreviation }
-        // The remembered multi-selection belongs to Bible searches, not to the active commentary.
-        val saved = if (currentDoc?.bookCategory == BookCategory.BIBLE) loadSelectedSearchTranslations() else emptyList()
-        val fallback = currentDoc?.initials?.let { listOf(it) } ?: emptyList()
         return TranslationSelection(
             available = bibles.map { it.initials to it.abbreviation },
-            selected = saved.ifEmpty { fallback },
+            selected = seedSearchTranslations(
+                currentInitials = currentDoc?.initials,
+                isBible = currentDoc?.bookCategory == BookCategory.BIBLE,
+                saved = appSettings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null),
+                installedBibles = bibles.map { it.initials }.toSet(),
+            ),
         )
-    }
-
-    /** Classic Search.loadSelectedTranslations: only initials that still resolve to a Bible. */
-    private fun loadSelectedSearchTranslations(): List<String> {
-        val saved = appSettings.getString(SEARCH_SELECTED_TRANSLATIONS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        val available = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().map { it.initials }.toSet()
-        return saved.split(",").filter { it in available }
     }
 
     /** Classic Search.loadRecentTerms (F22): newline-separated, since a query may contain commas. */
@@ -257,7 +251,7 @@ class SearchHost(
     internal fun buildSearchFormController(currentBookName: String) = SearchFormController(
         currentBookName = currentBookName,
         persistTranslations = { ids ->
-            appSettings.setString(SEARCH_SELECTED_TRANSLATIONS_KEY, ids.joinToString(","))
+            appSettings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, ids.joinToString(","))
         },
         persistRecentTerms = { terms ->
             appSettings.setString(SEARCH_RECENT_TERMS_KEY, terms.joinToString("\n"))

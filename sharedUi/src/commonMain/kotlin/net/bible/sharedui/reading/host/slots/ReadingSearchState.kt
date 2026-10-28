@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
@@ -66,6 +67,9 @@ import net.bible.sharedcore.search.forEpubOf
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
+import net.bible.sharedui.search.SEARCH_RECENT_TERMS_KEY
+import net.bible.sharedui.search.parseSavedSearchTranslations
+import net.bible.sharedui.search.seedSearchTranslations
 import org.crosswire.jsword.book.Book
 
 /** The search services [ReadingSearchState] builds its controllers over (Koin singletons on Android). */
@@ -149,15 +153,12 @@ class ReadingSearchState(
     /** Applies and persists a translation choice made in the settings sheet (comma-joined, as classic). */
     fun setSearchTranslations(ids: List<String>) {
         searchTranslations.value = ids
-        settings.setString(SEARCH_TRANSLATIONS_KEY, ids.joinToString(","))
+        settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, ids.joinToString(","))
     }
 
     /** The persisted translation choice, restricted to [installed] initials; empty when none is saved. */
-    fun loadPersistedTranslations(installed: Set<String>): List<String> {
-        val saved = settings.getString(SEARCH_TRANSLATIONS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        return saved.split(",").filter { it in installed }
-    }
+    fun loadPersistedTranslations(installed: Set<String>): List<String> =
+        parseSavedSearchTranslations(settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null), installed)
 
     // ---- the search session ---------------------------------------------------------------------
 
@@ -436,11 +437,12 @@ class ReadingSearchState(
         val bibles = platform.installedBibles()
         searchAvailableTranslations.value = bibles
         val current = platform.currentDocument()
-        val fallback = current?.initials?.let { listOf(it) } ?: emptyList()
-        // A commentary search targets that document without overwriting the saved Bible selection.
-        searchTranslations.value = if (platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE) {
-            loadPersistedTranslations(bibles.map { it.first }.toSet()).ifEmpty { fallback }
-        } else fallback
+        searchTranslations.value = seedSearchTranslations(
+            currentInitials = current?.initials,
+            isBible = platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE,
+            saved = settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null),
+            installedBibles = bibles.map { it.first }.toSet(),
+        )
     }
 
     /**
@@ -744,8 +746,6 @@ class ReadingSearchState(
     }
 
     internal companion object {
-        const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
-        const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
         const val TAG = "ComposeReadingViewHost"
     }
 }
