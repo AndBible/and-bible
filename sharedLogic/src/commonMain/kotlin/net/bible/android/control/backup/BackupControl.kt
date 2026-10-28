@@ -722,19 +722,20 @@ class BackupControl(
         saveDbBackupFileViaIntent(host, backupZipFile)
     }
 
-    suspend fun restoreAppDatabaseViaIntent(host: BackupHost) {
-        val source = host.pickBackupFile() ?: return
-        try {
-            restoreAppDatabaseFromSourceWithUI(host, source)
-        } catch (e: Exception) {
-            host.showErrorReport(e.message ?: strings.errorOccurred, e)
-        }
-    }
+    suspend fun restoreAppDatabaseViaIntent(host: BackupHost) = restorePickedBackup(
+        pick = { host.pickBackupFile() },
+        restore = { restoreAppDatabaseFromSourceWithUI(host, it) },
+        reportError = { message, cause -> host.showErrorReport(message, cause) },
+        fallbackError = { strings.errorOccurred },
+    )
 
     suspend fun restoreAppDatabaseFromSourceWithUI(host: BackupHost, source: PickedSource): Boolean {
         val filetype = withContext(Dispatchers.IO) {
             val input = runCatching { host.openInput(source) }
-                .onFailure { Log.e(TAG, "Unexpected exception when opening backup for file type detection", it) }
+                .onFailure {
+                    if (it is kotlin.coroutines.cancellation.CancellationException) throw it
+                    Log.e(TAG, "Unexpected exception when opening backup for file type detection", it)
+                }
                 .getOrNull()
             if (input == null) BackupFileType.UNKNOWN else BackupFileSniffer.sniff { input }
         }
@@ -827,6 +828,8 @@ class BackupControl(
             try {
                 host.openInput(source).use { input -> fileSystem.write(tmpFile) { writeAll(input) } }
                 net.bible.service.common.ArchiveUtils.unzip(tmpFile, unzipFolder)
+            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing backup file", e)
                 throw IOException("Failed to process backup file: ${e.message}")

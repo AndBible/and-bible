@@ -90,7 +90,7 @@ class IosWelcomeHostPlatform(
     override fun onRestore() {
         scope.launch {
             val host = koin.get<BackupHost>()
-            net.bible.sharedui.app.welcome.restoreWelcomeBackup(
+            net.bible.android.control.backup.restorePickedBackup(
                 pick = { host.pickBackupFile() },
                 restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
                 reportError = { message, cause -> host.showErrorReport(message, cause) },

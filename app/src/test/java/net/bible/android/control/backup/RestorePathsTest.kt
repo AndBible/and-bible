@@ -134,6 +134,22 @@ class RestorePathsTest {
         override suspend fun showErrorReport(message: String, cause: Throwable?) { errors += message }
     }
 
+    /** #3135: a cancelled restore must propagate, not be reported as an error and swallowed. */
+    @Test fun cancelledRestoreViaIntentPropagatesWithoutAnErrorReport() {
+        val cancellation = kotlinx.coroutines.CancellationException("cancelled")
+        val errors = mutableListOf<String>()
+        val host = object : BackupHost {
+            override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String, saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult = error("unused")
+            override suspend fun pickBackupFile(mime: String): PickedSource = PickedSource("file:///backup.abdb.zip", "backup.abdb.zip", null)
+            override suspend fun openInput(source: PickedSource): Source = throw cancellation
+            override suspend fun restoreModules() = Unit
+            override suspend fun showErrorReport(message: String, cause: Throwable?) { errors += message }
+        }
+        val thrown = runCatching { kotlinx.coroutines.runBlocking { backup.restoreAppDatabaseViaIntent(host) } }.exceptionOrNull()
+        assertTrue("cancellation must propagate, got $thrown", thrown is kotlinx.coroutines.CancellationException)
+        assertEquals(emptyList<String>(), errors)
+    }
+
     /** Answers the restore flow's dialogs: only the bookmarks section is selected, [restoreNotImport] answers the question. */
     private fun answer(request: AppDialogRequest, restoreNotImport: Boolean): AppDialogResult = when (request) {
         is AppDialogRequest.MultiChoice -> AppDialogResult.SelectedMany(

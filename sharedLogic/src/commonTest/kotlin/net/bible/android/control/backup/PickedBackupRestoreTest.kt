@@ -1,4 +1,4 @@
-package net.bible.sharedui.app.welcome
+package net.bible.android.control.backup
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
@@ -9,13 +9,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
-class WelcomeRestoreTest {
+class PickedBackupRestoreTest {
     private val source = PickedSource("file:///backup.zip", "backup.zip", null)
 
     @Test fun brokenBackupIsReportedWithoutReturningToReading() = runTest {
         val failure = IOException("corrupt zip")
         val events = mutableListOf<String>()
-        restoreWelcomeBackup(
+        restorePickedBackup(
             pick = { source }, restore = { throw failure },
             reportError = { message, cause -> assertSame(failure, cause); events += message },
             fallbackError = { "restore failed" }, afterRestore = { events += "return gate" },
@@ -27,7 +27,7 @@ class WelcomeRestoreTest {
         val cancellation = CancellationException("cancelled")
         val events = mutableListOf<String>()
         val thrown = assertFailsWith<CancellationException> {
-            restoreWelcomeBackup(
+            restorePickedBackup(
                 pick = { source }, restore = { throw cancellation },
                 reportError = { _, _ -> events += "error" }, fallbackError = { "restore failed" },
                 afterRestore = { events += "return gate" },
@@ -40,7 +40,7 @@ class WelcomeRestoreTest {
     @Test fun pickerFailureIsReportedWithTranslatedFallback() = runTest {
         val failure = IOException()
         val events = mutableListOf<String>()
-        restoreWelcomeBackup(
+        restorePickedBackup(
             pick = { throw failure }, restore = { error("must not restore") },
             reportError = { message, cause -> assertSame(failure, cause); events += message },
             fallbackError = { "translated fallback" }, afterRestore = { error("must not return") },
@@ -51,7 +51,7 @@ class WelcomeRestoreTest {
     @Test fun onlySuccessfulRestoreCallsReturnGate() = runTest {
         val events = mutableListOf<String>()
         for (result in listOf(false, true)) {
-            restoreWelcomeBackup(
+            restorePickedBackup(
                 pick = { source }, restore = { assertSame(source, it); result },
                 reportError = { _, _ -> error("unexpected error") }, fallbackError = { "restore failed" },
                 afterRestore = { events += "return gate" },
