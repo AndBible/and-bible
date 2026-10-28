@@ -2,6 +2,7 @@ package net.bible.android.platform
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -198,7 +199,10 @@ class SuspendHttpTransportTest {
         val body = body(fake)
         if (!hangMetadata) body.prepareRead()
         val result = CompletableDeferred<Throwable?>()
-        val caller = launch(Dispatchers.IO) {
+        // UNDISPATCHED: the caller is suspended inside status()/read() before it can be cancelled. A dispatched
+        // start could be cancelled before its body ran (readEntered only proves the producer reads), leaving
+        // `result` incomplete and the guard below timing out.
+        val caller = launch(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
             result.complete(runCatching { if (hangMetadata) body.status() else body.read(ByteArray(10)) }.exceptionOrNull())
         }
         withContext(Dispatchers.IO) {

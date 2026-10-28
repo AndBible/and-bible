@@ -41,6 +41,7 @@ import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.speak.SpeakChanges
+import net.bible.test.dropSingle
 import net.bible.android.control.speak.SpeakSettingsChanges
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.cloudsync.CloudSync
@@ -292,6 +293,9 @@ class TestBibleApplication : BibleApplication() {
         cleanup { GlobalContext.getOrNull()?.getOrNull<DocumentSync>()?.resetSubscribersForTest() }
         cleanup { GlobalContext.getOrNull()?.getOrNull<CloudSync>()?.resetSubscribersForTest() }
         cleanup { InstallZipProgress.resetSubscribersForTest() }
+        // Their subscriptions die with the reset below; drop (release) them so the next test builds subscribed ones.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakTransportServiceImpl::class) }
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakControl::class) }
         cleanup { SpeakChanges.resetSubscribersForTest() }
         cleanup { SpeakSettingsChanges.resetSubscribersForTest() }
         cleanup { DatabaseContainer.resetBookmarksSyncedForTest() }
