@@ -71,6 +71,12 @@ const val TAG = "DeviceSync"
 
 class CancelStartedSync: Exception()
 
+/**
+ * The category's sync folder ids are not stored although a sync step needs them (a reset or an interrupted join
+ * removed them). Not an error to show: the next [CloudSync.initializeSync] sees no folder and joins afresh.
+ */
+class MissingSyncFolderIds(category: String): Exception("Sync folder ids missing for $category")
+
 class CloudSync(
     private val dialogs: AppDialogController,
     private val strings: CoreStrings,
@@ -286,7 +292,8 @@ class CloudSync(
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
-            if (!syncFolderKnown) {
+            // A folder id without this device's folder id is a half-finished join: join afresh.
+            if (!syncFolderKnown || dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) == null) {
                 syncFolderId = null
                 dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
                 dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
@@ -372,6 +379,12 @@ class CloudSync(
         dbDef.dao.setConfig(SYNC_NAMESPACE_KEY, namespace)
     }
 
+    private suspend fun requireSyncFolderId(dbDef: SyncableDatabaseAccessor<*>): String =
+        dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY) ?: throw MissingSyncFolderIds(dbDef.categoryName)
+
+    private suspend fun requireDeviceFolderId(dbDef: SyncableDatabaseAccessor<*>): String =
+        dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY) ?: throw MissingSyncFolderIds(dbDef.categoryName)
+
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
@@ -386,7 +399,7 @@ class CloudSync(
         val result = adapter.upload(
             name = INITIAL_BACKUP_FILENAME,
             file = gzippedTmpFile,
-            parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
+            parentId = requireSyncFolderId(dbDef)
         )
         dbDef.dao.addStatus(SyncStatus(syncDeviceName, 0, result.size, result.createdTime))
         FileSystem.SYSTEM.delete(gzippedTmpFile)
@@ -397,12 +410,12 @@ class CloudSync(
         replacement: AiDatabaseLifetime.Replacement? = null,
         failWithoutMessage: Boolean = false,
     ) {
-        val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
-        val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val syncFolderId = requireSyncFolderId(dbDef)
+        val deviceFolderId = requireDeviceFolderId(dbDef)
         val adapterConfigs = adapter.getConfigs(dbDef)
         val initialFile = adapter
             .listFiles(
-                parentsIds = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
+                parentsIds = listOf(requireSyncFolderId(dbDef)),
                 name = INITIAL_BACKUP_FILENAME
             )
             .first()
@@ -698,6 +711,9 @@ class CloudSync(
                     } catch (e: IOException) {
                         Log.e(TAG, "IOException", e)
                         return@asyncMap
+                    } catch (e: MissingSyncFolderIds) {
+                        Log.w(TAG, "Skipping upload, will rejoin on the next sync", e)
+                        return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
                         reportUserFacing(e, reported, needsReconnect)
                         return@asyncMap
@@ -715,6 +731,9 @@ class CloudSync(
                         }
                     } catch (e: IOException) {
                         Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
+                    } catch (e: MissingSyncFolderIds) {
+                        Log.w(TAG, "Skipping download, will rejoin on the next sync", e)
+                        return@asyncMap
                     } catch (e: IncompatiblePatchVersion) {
                         UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false)
                         dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
@@ -761,8 +780,8 @@ class CloudSync(
     class IncompatiblePatchVersion: Exception()
     private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
-        val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
-        val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val syncFolder = requireSyncFolderId(dbDef)
+        val deviceSyncFolder = requireDeviceFolderId(dbDef)
 
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
         Log.i(TAG, "This device $syncDeviceName (id: ${deviceSyncFolder})")
@@ -846,7 +865,7 @@ class CloudSync(
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
         val file = createPatchForDatabase(dbDef, env, false)?: return@withContext
-        val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val syncDeviceFolderId = requireDeviceFolderId(dbDef)
         val count = (dbDef.dao.lastPatchNum(syncDeviceName)?: 0) + 1
         val fileName = "$count.${dbDef.version()}.sqlite3.gz"
         val lastWritten = Clock.System.now().toEpochMilliseconds();
