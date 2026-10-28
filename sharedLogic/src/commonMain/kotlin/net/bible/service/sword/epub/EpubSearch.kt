@@ -19,6 +19,7 @@ package net.bible.service.sword.epub
 
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteException
+import androidx.sqlite.execSQL
 import net.bible.service.db.exec
 import net.bible.service.db.queryLong
 import net.bible.service.db.openSqlite
@@ -41,29 +42,58 @@ class EpubSearch(val file: Path) {
     }
     fun close() = db?.let { c -> withMonitor(c) { c.close() } }
 
+    /**
+     * True when a COMPLETE index exists. A build fills [BUILD_TABLE] and only [commitIndex] renames it to
+     * [INDEX_TABLE], so a process killed mid-build leaves no [INDEX_TABLE] (#3876).
+     */
     val isIndexed: Boolean get() = db?.let { c ->
         withMonitor(c) {
-            c.queryFirst("SELECT name FROM sqlite_master WHERE type='table' AND name=?", "SearchIndex") { true } ?: false
+            c.queryFirst("SELECT name FROM sqlite_master WHERE type='table' AND name=?", INDEX_TABLE) { true } ?: false
         }
     } ?: false
 
+    /** Drops the index and any unfinished build. */
     fun deleteIndex() = db?.let { c ->
-        withMonitor(c) { c.exec("""DROP TABLE IF EXISTS SearchIndex""") }
+        withMonitor(c) {
+            c.exec("DROP TABLE IF EXISTS $BUILD_TABLE")
+            c.exec("DROP TABLE IF EXISTS $INDEX_TABLE")
+        }
     }
 
+    /**
+     * Starts a build: a fresh [BUILD_TABLE] (the leftover of an interrupted build is dropped). The existing index,
+     * if any, keeps serving searches until [commitIndex].
+     */
     fun createTable() = checkNotNull(db) { "EPUB search database is unavailable" }.let { c ->
         withMonitor(c) {
+            c.exec("DROP TABLE IF EXISTS $BUILD_TABLE")
             c.exec("""
-                CREATE VIRTUAL TABLE SearchIndex USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
+                CREATE VIRTUAL TABLE $BUILD_TABLE USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
             """.trimIndent())
         }
     }
 
+    /** Adds a row to the build started by [createTable]. */
     fun addContent(content: String, fragId:Long, ordinal: Int) = checkNotNull(db) { "EPUB search database is unavailable" }.let { c ->
         withMonitor(c) {
             // Unlike the legacy insertOr helper, an index mutation must propagate SQLite failures.
-            c.exec("INSERT INTO SearchIndex (contentText, frag_id, ordinal) VALUES (?, ?, ?)", content, fragId, ordinal)
+            c.exec("INSERT INTO $BUILD_TABLE (contentText, frag_id, ordinal) VALUES (?, ?, ?)", content, fragId, ordinal)
             c.queryLong("SELECT last_insert_rowid()")!!
+        }
+    }
+
+    /** Finishes the build: [BUILD_TABLE] atomically replaces [INDEX_TABLE], which marks the index complete. */
+    fun commitIndex() = checkNotNull(db) { "EPUB search database is unavailable" }.let { c ->
+        withMonitor(c) {
+            c.execSQL("BEGIN IMMEDIATE")
+            try {
+                c.exec("DROP TABLE IF EXISTS $INDEX_TABLE")
+                c.exec("ALTER TABLE $BUILD_TABLE RENAME TO $INDEX_TABLE")
+                c.execSQL("COMMIT")
+            } catch (t: Throwable) {
+                try { c.execSQL("ROLLBACK") } catch (r: Throwable) { t.addSuppressed(r) }
+                throw t
+            }
         }
     }
 
@@ -73,10 +103,17 @@ class EpubSearch(val file: Path) {
         // own ellipsis marker, is what a result row should show. No schema change, no re-index.
         withMonitor(c) {
             c.queryRows(
-                "SELECT frag_id, ordinal, snippet(SearchIndex, 0, '<b>', '</b>', '…', 30) " +
-                    "FROM SearchIndex WHERE contentText MATCH ?",
+                "SELECT frag_id, ordinal, snippet($INDEX_TABLE, 0, '<b>', '</b>', '…', 30) " +
+                    "FROM $INDEX_TABLE WHERE contentText MATCH ?",
                 text,
             ) { EpubSearchResult(it.getLong(0), it.getInt(1), it.getText(2)) }
         }
     } ?: emptyList()
+
+    private companion object {
+        /** The complete index; its existence is the completion signal. */
+        const val INDEX_TABLE = "SearchIndex"
+        /** The index being built; renamed to [INDEX_TABLE] when the build finishes. */
+        const val BUILD_TABLE = "SearchIndexBuilding"
+    }
 }

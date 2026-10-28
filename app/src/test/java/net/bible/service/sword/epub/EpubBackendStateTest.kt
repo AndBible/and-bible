@@ -263,6 +263,29 @@ class EpubBackendStateTest {
         assertTrue(state.isIndexed)
     }
 
+    /**
+     * #3876: a process killed after the FTS table was created but before it was filled left a table, and table
+     * existence was the completion signal, so the next start reported the empty index as DONE.
+     */
+    @Test
+    fun anIndexBuildKilledBeforeItFinishedIsUndoneAfterRestartAndIsRebuiltCleanly() = runTest {
+        val dir = buildEpub("killed-index")
+        newState(dir) // creates the search database file
+        val searchFile = dir.walkTopDown().single { it.name.endsWith("-search.sqlite3") }
+        // What a killed build leaves behind: the table created, a partial fill, no completion.
+        EpubSearch(searchFile.toOkioPath()).apply { createTable(); addContent("leftover partial", 1L, 1); close() }
+
+        val restarted = newState(dir)
+        assertEquals(org.crosswire.jsword.index.IndexStatus.UNDONE, restarted.getBookMetaData().indexStatus)
+        assertFalse(restarted.isIndexed)
+
+        restarted.buildSearchIndex()
+        assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, restarted.getBookMetaData().indexStatus)
+        assertEquals(1, restarted.search("first").size)
+        assertEquals(0, restarted.search("leftover").size)
+        assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, newState(dir).getBookMetaData().indexStatus)
+    }
+
     @Test
     fun failedIndexBuildResetsStatusForRetry() = runTest {
         val dir = buildEpub("failed-index")

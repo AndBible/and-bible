@@ -97,6 +97,22 @@ class SearchIndexServiceImplLegacyTest {
         assertFalse(hasUsableSearchIndex(fake(IndexStatus.UNDONE)))
     }
 
+    /**
+     * #3876 gap 3: `isIndexed` is only "the file exists", so startup marks a book with an empty or corrupt index file
+     * DONE. The search path must still treat such a file as no index, so the user is asked to build one.
+     */
+    @Test fun anEmptyOrCorruptIndexFileIsNotAUsableIndex() {
+        val file = FtsTestSupport.indexFile(kjv)
+        file.parentFile.mkdirs()
+        for (content in listOf(ByteArray(0), "not a sqlite file".toByteArray())) {
+            file.writeBytes(content)
+            kjv.indexStatus = IndexStatus.DONE // what SwordBookDriver sets at startup for an existing file
+            assertTrue(FtsTestSupport.manager.isIndexed(kjv))
+            assertTrue(FtsTestSupport.manager.needsReindexing(kjv))
+            assertFalse(hasUsableSearchIndex(kjv))
+        }
+    }
+
     @Test fun orphanSweepKeepsTheLegacyDirectoryOfAnInstalledNonSwordBook() {
         val dir = Files.createTempDirectory("legacy-keep").toFile().also { tempFiles += it }
         val file = File(dir, "legacykeep.SQLite3")
