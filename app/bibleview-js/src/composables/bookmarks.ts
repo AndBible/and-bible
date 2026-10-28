@@ -738,7 +738,7 @@ export function useBookmarks(
 
     function highlightStyleRange(styleRange: StyleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
-        let firstElement: Element, lastElement: Element;
+        let firstElement: Element | null = null, lastElement: Element | null = null;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId)!);
         function frameElement(elem: Element, first: boolean, last: boolean) {
@@ -760,7 +760,6 @@ export function useBookmarks(
 
         // Handle whole verse spanning styling
         if (!startOff && !endOff) {
-            firstElement = document.querySelector(`#doc-${documentId} #o-${startOrdinal}`) as HTMLElement;
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for (let ord = startOrdinal; ord <= lastOrdinal; ord++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
@@ -768,6 +767,7 @@ export function useBookmarks(
                     console.error("Element is not found!", documentId, ord);
                     continue;
                 }
+                firstElement ??= elem;
                 lastElement = elem;
                 const oldStyle = elem.style.backgroundImage;
                 elem.classList.add("bookmarked")
@@ -823,6 +823,10 @@ export function useBookmarks(
                 lastElement = secondElem;
             }
         }
+        // A bookmark (e.g. a note) on verses that this module does not contain (#3515) has
+        // nothing to attach its icons to; inserting them would throw and abort highlighting
+        // of the remaining style ranges.
+        if (firstElement === null || lastElement === null) return;
         // Add speak labels to the beginning of verse
         if (config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
@@ -950,7 +954,8 @@ export function useBookmarks(
             }
         }
         for (const [lastOrdinal, bookmarkList] of bookmarkMap) {
-            const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement;
+            const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement | null;
+            if (!lastElement) continue; // verse missing from this module (#3515)
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
