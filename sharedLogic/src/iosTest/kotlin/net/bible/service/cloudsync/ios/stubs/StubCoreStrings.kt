@@ -130,6 +130,7 @@ internal class StubCoreStrings : CoreStrings {
     override fun overwriteSomething(contents: String): String = "overwriteSomething ${contents}"
     override fun askRestoreOrImport(contents: String): String = "askRestoreOrImport ${contents}"
     override fun resetDatabaseConfirm(name: String): String = "resetDatabaseConfirm ${name}"
+    override fun backupModulesConflict(first: String, second: String, file: String): String = "backupModulesConflict ${first} ${second} ${file}"
     override fun backupFileInfo(version: Int, size: String): String = "backupFileInfo ${version} ${size}"
     override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = "bookmarksDbStats ${firstLabel} ${labels} ${bookmarks}"
     override val exportedStudypadsSubject = "exportedStudypadsSubject"

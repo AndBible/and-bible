@@ -108,6 +108,13 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
 
+/**
+ * Two selected books have different files at the same module backup entry [entryName]; the archive cannot hold
+ * both, so the backup is not written.
+ */
+class ModuleBackupConflict(val entryName: String, val firstBook: String, val secondBook: String) :
+    IOException("Module backup entry $entryName differs between $firstBook and $secondBook")
+
 private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
 private val GZIP_MAGIC = "1f8b".decodeHex()
 
@@ -460,16 +467,51 @@ class BackupControl(
         return filePath.substring(dirPath.length + 1)
     }
 
-    /** Selected books can share conf/data paths, including across SWORD installation roots. */
+    /**
+     * Selected books can share conf/data paths, including across SWORD installation roots. The same file, or an
+     * identical copy, is written once. Two different contents for one entry cannot both be restored to that path, so
+     * the backup fails with [ModuleBackupConflict] rather than silently keeping a mix of the books' files.
+     */
     private inner class ModuleZipWriter(private val zip: ZipWriter) {
-        private val entryNames = mutableSetOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+        private val entries = mutableMapOf<String, Pair<Path, String>>() // entry name -> source file, book name
+        /** Name of the book whose files are being added, for the conflict report. */
+        var currentBook = ""
 
         fun addFile(name: String, file: Path) {
-            if (!entryNames.add(name)) {
-                Log.w(TAG, "Skipping duplicate module backup entry $name from $file")
+            if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                Log.w(TAG, "Skipping module file $file named like the backup manifest")
                 return
             }
-            zip.putEntry(name, fileSystem.source(file), dosTimeNow())
+            val previous = entries[name]
+            if (previous == null) {
+                entries[name] = file to currentBook
+                zip.putEntry(name, fileSystem.source(file), dosTimeNow())
+                return
+            }
+            val (previousFile, previousBook) = previous
+            if (fileSystem.canonicalize(previousFile) == fileSystem.canonicalize(file)) return
+            if (sameContents(previousFile, file)) {
+                Log.i(TAG, "Skipping identical duplicate module backup entry $name from $file")
+                return
+            }
+            Log.e(TAG, "Module backup entry $name has different contents in $previousFile ($previousBook) and $file ($currentBook)")
+            throw ModuleBackupConflict(name, previousBook, currentBook)
+        }
+    }
+
+    private fun sameContents(a: Path, b: Path): Boolean {
+        val size = fileSystem.metadata(a).size ?: return false
+        if (fileSystem.metadata(b).size != size) return false
+        return fileSystem.source(a).buffer().use { sa ->
+            fileSystem.source(b).buffer().use { sb ->
+                var remaining = size
+                while (remaining > 0) {
+                    val chunk = minOf(8192L, remaining)
+                    if (sa.readByteString(chunk) != sb.readByteString(chunk)) return@use false
+                    remaining -= chunk
+                }
+                true
+            }
         }
     }
 
@@ -502,6 +544,7 @@ class BackupControl(
     }
 
     private fun addBookToZip(outFile: ModuleZipWriter, b: Book) {
+        outFile.currentBook = b.name
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
             addModuleFile(outFile, b.dbPath)
@@ -626,6 +669,9 @@ class BackupControl(
         val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = strings.pleaseWait))
         try {
             createModulesZip(books, zipFile)
+        } catch (e: ModuleBackupConflict) {
+            showMessage(strings.backupModulesConflict(e.firstBook, e.secondBook, e.entryName))
+            return@withContext
         } finally {
             dialogs.dismiss(progressId)
         }

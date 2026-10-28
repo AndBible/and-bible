@@ -756,6 +756,7 @@
     <string name="loading_backup">Loading database from backup…</string>
     <string name="backup_success2">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces backed up successfully.</string>
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
+    <string name="backup_modules_conflict">The backup was not made: %1$s and %2$s both contain the file %3$s, with different contents. Select only one of them and try again.</string>
 
     <string name="backup_modules_email_subject_2">%s modules backup</string>
     <string name="backup_modules_email_message_2">Attached is your %1$s modules backup, which contains the following modules: %2$s</string>
