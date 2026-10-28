@@ -72,6 +72,7 @@ import {MemorizeTextItem} from "@/types/documents";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faEye, faUndo} from "@fortawesome/free-solid-svg-icons";
 import draggable from "vuedraggable";
+import {isMemorizePunctuation, tokenizeMemorizeText} from "@/utils/memorize-text";
 
 interface TileItem {
     origIdx: number;
@@ -111,18 +112,12 @@ watch(isCompleted, (completed) => {
     if (completed) emit('memorize-completed');
 });
 
-// Character class shared by getWordsFromText and isPunctuation
-const PUNCT = String.raw`"".,;:!?…"'«»„‚–—\-()\[\]{}`;
-const WORD_TOKENIZER = new RegExp(`([${PUNCT}]+)|([^\\s${PUNCT}]+)`, 'g');
-const PUNCTUATION_ONLY = new RegExp(`^[${PUNCT}]+$`);
-
 function getWordsFromText(text: string) {
-    const tokens = text.match(WORD_TOKENIZER) || [];
-    return tokens.filter(token => token.length > 0);
+    return tokenizeMemorizeText(text);
 }
 
 function isPunctuation(word: string): boolean {
-    return PUNCTUATION_ONLY.test(word);
+    return isMemorizePunctuation(word);
 }
 
 function buildWordList() {

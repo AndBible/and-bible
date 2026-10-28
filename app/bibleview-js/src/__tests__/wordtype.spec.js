@@ -127,7 +127,7 @@ describe("WordType.vue", () => {
     });
 
     describe.each([false, true])("OSIS markers with typeEverything=%s", (typeEverything) => {
-        it.each(['“', '”', '¶', '¶“'])("skips %s without requiring it to be typed", async (marker) => {
+        it.each(['“', '”', '¶', '¶“', '*', '/', '‘'])("skips %s without requiring it to be typed", async (marker) => {
             const wrapper = createWrapper({
                 textItems: [{ key: "verse1", text: `${marker}For God”` }],
                 modeConfig: { typeConfig: { currentWordIndex: 0, typeEverything } },
@@ -499,6 +499,21 @@ describe("WordType.vue", () => {
         const words = wrapper.findAll(".type-word:not(.punctuation)");
         // "Peace" stays its own token; the closing quote is a separate punctuation token
         expect(words.map(w => w.text())).toEqual(["he", "said", "Peace", "loudly"]);
+    });
+
+    it("skips asterisks and slashes between words", async () => {
+        const wrapper = createWrapper({
+            textItems: [{ key: "verse1", text: "*For* God/Lord" }],
+        });
+        await nextTick();
+
+        const input = wrapper.find(".type-hidden-input");
+        await input.setValue('F');
+        expect(wrapper.find('.type-current').text()).toBe('God');
+        await input.setValue('G');
+        expect(wrapper.find('.type-current').text()).toBe('Lord');
+        expect(wrapper.findAll('.type-incorrect')).toHaveLength(0);
+        expect(wrapper.findAll('.punctuation').map(w => w.text())).toEqual(['*', '*', '/']);
     });
 
     it("saves wordVisibility in config", async () => {

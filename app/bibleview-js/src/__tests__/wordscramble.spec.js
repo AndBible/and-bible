@@ -336,6 +336,24 @@ describe("WordScramble.vue", () => {
     });
   });
 
+  it("auto-reveals pilcrows, curly quotes, asterisks and slashes and keeps contractions whole", async () => {
+    const wrapper = createWrapper({
+      textItems: [{ key: "verse1", text: "¶“Don’t fear, Jesus’ *friends* and/or “little” ones”" }]
+    });
+    await wrapper.vm.$nextTick();
+
+    const buttonTexts = wrapper.findAll('.word-buttons .button').map(b => b.text().trim().toLowerCase());
+    expect(buttonTexts.sort()).toEqual(["don’t", "fear", "jesus’", "friends", "and", "or", "little", "ones"].sort());
+
+    const punctuation = wrapper.findAll('.memorize-text .punctuation').map(p => p.text().trim());
+    expect(punctuation).toEqual(["¶“", ",", "*", "*", "/", "“", "”", "”"]);
+    // The leading "¶“" is skipped, so picking "Don’t" first is accepted.
+    const dont = wrapper.findAll('.word-buttons .button').find(b => b.text().trim().toLowerCase() === "don’t");
+    await dont.trigger('click');
+    expect(dont.classes()).not.toContain('incorrect');
+    expect(wrapper.findAll('.memorize-text .revealed').map(w => w.text().trim())).toContain("Don’t");
+  });
+
   it("completes the exercise in sequence and transitions to completed state", async () => {
     const wrapper = createWrapper({
       textItems: [
