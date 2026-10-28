@@ -72,8 +72,9 @@ import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
-import net.bible.service.sword.epub.EPUB_STAGING_PREFIX
 import net.bible.service.sword.epub.newEpubStagingDir
+import net.bible.service.sword.epub.releaseEpubStagingDir
+import net.bible.service.sword.epub.sweepStaleEpubStagingDirs
 import net.bible.service.sword.epub.publishStagedEpub
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
@@ -1101,10 +1102,8 @@ class BackupControl(
         val epubFailures = mutableListOf<String>()
         var publishStep = 0
         var dataReplaced = false
-        // Staging trees of a crashed earlier install are never reused: sweep them before staging a new one.
-        fileSystem.listOrNull(targetDirectory)?.filter { it.name.startsWith(EPUB_STAGING_PREFIX) }?.forEach {
-            runCatching { fileSystem.deleteRecursively(it, mustExist = false) }
-        }
+        // Staging trees of a crashed earlier install are never reused: sweep them (not those of running installs).
+        sweepStaleEpubStagingDirs(targetDirectory)
         try {
             ZipReader(newSource()).use { zip ->
                 var entryNum = 0
@@ -1192,7 +1191,7 @@ class BackupControl(
                 }
             }
         } finally {
-            runCatching { fileSystem.deleteRecursively(epubStaging, mustExist = false) }
+            releaseEpubStagingDir(epubStaging)
             for (part in staged.values) runCatching { fileSystem.delete(part) }
             for (file in bufferedConfs.keys) runCatching { fileSystem.delete(file.parent!! / (file.name + ".tmp")) }
             // Handled failure: nothing was replaced yet -> the old module is simply restored; otherwise its data may

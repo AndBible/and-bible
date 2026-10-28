@@ -27,6 +27,8 @@ import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.newEpubStagingDir
+import net.bible.service.sword.epub.releaseEpubStagingDir
+import net.bible.service.sword.epub.sweepStaleEpubStagingDirs
 import net.bible.service.sword.epub.publishStagedEpub
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
@@ -115,6 +117,7 @@ class DefaultInstallCommitter(
         val dir = modulesDir / "epub" / displayName.trimStart('/')
         // Unzip outside the scanned epub folder; the live module is only replaced once the new tree is complete,
         // and rolled back if the new one does not register.
+        sweepStaleEpubStagingDirs(modulesDir)
         val staging = newEpubStagingDir(modulesDir)
         return try {
             val newTree = staging / dir.name
@@ -127,7 +130,7 @@ class DefaultInstallCommitter(
             Log.e("InstallCommitter", "Could not install EPUB $displayName", e)
             false
         } finally {
-            runCatching { fileSystem.deleteRecursively(staging, mustExist = false) }
+            releaseEpubStagingDir(staging)
         }
     }
 

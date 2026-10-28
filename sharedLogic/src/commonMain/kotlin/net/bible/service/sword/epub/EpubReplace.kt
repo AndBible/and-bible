@@ -21,6 +21,7 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedlogic.sync.withMonitor
 import okio.FileSystem
 import okio.Path
 import org.crosswire.jsword.book.Books
@@ -29,8 +30,29 @@ import org.crosswire.jsword.book.Books
 internal const val EPUB_STAGING_PREFIX = ".epub-install-"
 private const val EPUB_ASIDE_PREFIX = ".epub-old-"
 
-/** A fresh, not yet created staging directory below [modulesRoot] (outside the scanned `epub` folder). */
-internal fun newEpubStagingDir(modulesRoot: Path): Path = modulesRoot / "$EPUB_STAGING_PREFIX${IdType()}"
+/** Staging trees of installs in progress; [sweepStaleEpubStagingDirs] leaves them alone. */
+private val activeStagingDirs = mutableSetOf<Path>()
+
+/**
+ * A fresh, not yet created staging directory below [modulesRoot] (outside the scanned `epub` folder), protected from
+ * [sweepStaleEpubStagingDirs] until [releaseEpubStagingDir].
+ */
+internal fun newEpubStagingDir(modulesRoot: Path): Path =
+    (modulesRoot / "$EPUB_STAGING_PREFIX${IdType()}").also { dir -> withMonitor(activeStagingDirs) { activeStagingDirs.add(dir) } }
+
+/** Deletes the staging tree [dir] (best effort) and drops its protection. */
+internal fun releaseEpubStagingDir(dir: Path) {
+    runCatching { FileSystem.SYSTEM.deleteRecursively(dir, mustExist = false) }
+    withMonitor(activeStagingDirs) { activeStagingDirs.remove(dir) }
+}
+
+/** Removes staging trees below [modulesRoot] left by a crashed install; those of installs still running are kept. */
+internal fun sweepStaleEpubStagingDirs(modulesRoot: Path) {
+    val active = withMonitor(activeStagingDirs) { activeStagingDirs.toSet() }
+    FileSystem.SYSTEM.listOrNull(modulesRoot)
+        ?.filter { it.name.startsWith(EPUB_STAGING_PREFIX) && it !in active }
+        ?.forEach { runCatching { FileSystem.SYSTEM.deleteRecursively(it, mustExist = false) } }
+}
 
 /**
  * Replaces (or installs) the live EPUB module [dir] by the staged tree [newTree] through the EPUB install lifecycle:
@@ -52,22 +74,26 @@ internal suspend fun publishStagedEpub(
     installEpubModule(dir) {
         retireOwnedEpubModule(dir)
         var aside: Path? = null
+        var replaced = false
         try {
             fileSystem.createDirectories(dir.parent!!)
             if (fileSystem.exists(dir)) {
-                aside = modulesRoot / "$EPUB_ASIDE_PREFIX${IdType()}"
-                fileSystem.atomicMove(dir, aside)
+                val target = modulesRoot / "$EPUB_ASIDE_PREFIX${IdType()}"
+                fileSystem.atomicMove(dir, target)
+                aside = target
             }
             fileSystem.atomicMove(newTree, dir)
+            replaced = true
             addOwnedEpubBook(dir, strings, environment)
             check(Books.installed().getBook(epubInitials(dir.name)) != null) { "EPUB registration failed: ${dir.name}" }
             aside?.let { runCatching { fileSystem.deleteRecursively(it, mustExist = false) } }
             true
         } catch (e: Exception) {
-            runCatching { deleteOwnedEpubModule(dir) }
-            if (aside != null) runCatching {
-                fileSystem.atomicMove(aside, dir)
-                addOwnedEpubBook(dir, strings, environment)
+            // Only the new files are removed; a failure before they were moved in leaves the old module in place.
+            if (replaced) runCatching { deleteOwnedEpubModule(dir) }
+            runCatching {
+                aside?.let { fileSystem.atomicMove(it, dir) }
+                addOwnedEpubBook(dir, strings, environment) // the old module was retired above; no-op when absent
             }.onFailure { Log.e("EpubReplace", "Could not restore the previous EPUB ${dir.name}", it) }
             throw e
         }
