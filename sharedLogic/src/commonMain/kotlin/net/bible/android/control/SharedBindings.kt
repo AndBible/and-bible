@@ -237,7 +237,7 @@ fun buildSharedBindings() = module {
     single { SearchResultsCache() }
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() }
-    singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() }
+    singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() } onClose { it?.close() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }

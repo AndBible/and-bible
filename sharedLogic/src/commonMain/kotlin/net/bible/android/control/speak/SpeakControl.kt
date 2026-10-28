@@ -17,7 +17,6 @@
 
 package net.bible.android.control.speak
 
-import androidx.annotation.VisibleForTesting
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
@@ -145,16 +144,7 @@ class SpeakControl constructor(
     private val changeSubscriptions = net.bible.sharedcore.event.Subscriptions()
 
     init {
-        subscribeToChanges()
-        platform.attachMediaControls(this)
-        Books.installed().addBooksListener(booksListener)
-    }
-
-    /**
-     * Singleton lifetime: never cancelled in production. [resubscribeForTest] is the only caller after
-     * construction.
-     */
-    private fun subscribeToChanges() {
+        // Cancelled by [release], when the owning Koin container closes.
         changeSubscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             val event = change as? SpeakChange.Progress ?: return@subscribeOnMain
             speakKey = event.key
@@ -186,17 +176,8 @@ class SpeakControl constructor(
                 continueAfterPause(true)
             }
         })
-    }
-
-    /**
-     * Test hook: the test application resets [SpeakChanges] and [SpeakSettingsChanges] subscribers when a test
-     * ends, but a Koin singleton built during that test lives on and would run the next test with no
-     * subscription (so [speakBookAndKey] never follows speech). Re-registers this instance's handlers.
-     */
-    @VisibleForTesting
-    fun resubscribeForTest() {
-        changeSubscriptions.cancelAll()
-        subscribeToChanges()
+        platform.attachMediaControls(this)
+        Books.installed().addBooksListener(booksListener)
     }
 
     internal fun onBookRemoved(removed: Book) {
@@ -207,9 +188,13 @@ class SpeakControl constructor(
         }
     }
 
-    /** Unregisters the global installed-books listener; called when the owning Koin container closes. */
+    /**
+     * Unregisters the global installed-books listener and the speak event subscriptions; called when the owning
+     * Koin container closes (or drops this single).
+     */
     fun release() {
         Books.installed().removeBooksListener(booksListener)
+        changeSubscriptions.cancelAll()
     }
 
     protected fun finalize() {

@@ -77,7 +77,7 @@ class SpeakTransportServiceImpl(
     init {
         instance = this
         refreshBookmarkVisibility()
-        // Process lifetime (Koin single): only [close] (tests) cancels these.
+        // Cancelled by [close], when the owning Koin container closes.
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { refresh() })
         subscriptions.add(SpeakSettingsChanges.changes.subscribeOnMain {
             refreshBookmarkVisibility()
@@ -95,9 +95,9 @@ class SpeakTransportServiceImpl(
     }
 
     /**
-     * Cancels the event subscriptions and the pending visibility refresh. The Koin single never needs
-     * this; a test that builds its own instance must call it so the handlers do not outlive it and run
-     * (touching [SpeakControl] and hence the window repository) on later tests' events.
+     * Cancels the event subscriptions and the pending visibility refresh. Koin calls it when the container
+     * closes (or drops this single); an instance built outside Koin must call it itself, or its handlers outlive
+     * it and keep reacting (touching [SpeakControl] and hence the window repository) to later events.
      */
     fun close() {
         subscriptions.cancelAll()
