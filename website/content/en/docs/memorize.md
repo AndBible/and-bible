@@ -52,8 +52,9 @@ text one word (or one letter) at a time. The behavior depends on the
     to advance.
 - *On* – you need to type each word in full.
 
-Punctuation, including curly double quotation marks (“ ”) and paragraph
-markers (¶), is skipped automatically in both typing modes. Start with the
+Punctuation, including curly quotation marks (“ ” ‘ ’), paragraph markers (¶)
+and editorial signs such as * and /, is skipped automatically in both typing
+modes and is never offered as a word in Scramble or Order. Start with the
 first letter of the word, even when a verse begins with one of these markers.
 
 Other Word Type settings include word visibility (light hint / dim /
