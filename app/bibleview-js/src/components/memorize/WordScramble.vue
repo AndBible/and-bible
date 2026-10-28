@@ -92,6 +92,7 @@ import {faEye, faGear, faSquareCheck, faUndo} from "@fortawesome/free-solid-svg-
 import {faSquare} from "@fortawesome/free-regular-svg-icons";
 import {readingProgressSettingsKey} from "@/types/constants";
 import {useCommon} from "@/composables";
+import {isMemorizePunctuation, tokenizeMemorizeText} from "@/utils/memorize-text";
 
 interface WordObject {
     word: string;
@@ -183,12 +184,7 @@ function getLocalIndices(globalIndex: number): { itemIndex: number, localIndex: 
 }
 
 function getWordsFromText(text: string) {
-    // Split text into words and punctuation tokens
-    // This regex matches:
-    // 1. Punctuation: one or more punctuation characters (including quotation marks and Unicode variants)
-    // 2. Words: one or more non-whitespace, non-punctuation characters
-    const tokens = text.match(/([“”.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”.,;:!?…"'«»„‚–—\-()[\]{}]+)/g) || [];
-    return tokens.filter(token => token.length > 0);
+    return tokenizeMemorizeText(text);
 }
 
 function isWordRevealed(globalWordIndex: number) {
@@ -196,7 +192,7 @@ function isWordRevealed(globalWordIndex: number) {
 }
 
 function isPunctuation(word: string): boolean {
-    return /^[“”.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
+    return isMemorizePunctuation(word);
 }
 
 onMounted(() => {

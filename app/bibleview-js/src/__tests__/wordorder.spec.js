@@ -91,6 +91,16 @@ describe("WordOrder.vue", () => {
       expect(displayedWords.sort()).toEqual(["Hello", "How", "are", "world", "you"].sort());
     });
 
+    it("excludes pilcrows, curly quotes, asterisks and slashes but keeps contractions whole", async () => {
+      const wrapper = await createWrapper({
+        textItems: [
+          { key: "verse1", text: "¶“Don’t fear, Jesus’ *friends* and/or “little” ones”" }
+        ]
+      });
+      const displayedWords = wrapper.findAll(".order-tile").map(t => t.text().trim());
+      expect(displayedWords.sort()).toEqual(["Don’t", "fear", "Jesus’", "friends", "and", "or", "little", "ones"].sort());
+    });
+
     it("handles multiple text items", async () => {
       const wrapper = await createWrapper({
         textItems: [
