@@ -43,6 +43,7 @@ class SyncSettingsController(
     private fun categoryTitle(key: String): String = when (key) {
         "sync_enable_bookmarks" -> labels.bookmarksTitle
         "sync_enable_workspaces" -> labels.workspacesTitle
+        "sync_enable_readingplans" -> labels.readingPlansTitle
         "sync_enable_mydocuments" -> labels.myDocumentsTitle
         "sync_enable_ai_settings" -> labels.aiSettingsTitle
         "sync_enable_progress" -> labels.progressTitle

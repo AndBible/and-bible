@@ -95,7 +95,18 @@ class SyncSettingsControllerTest {
         )))
         assertFalse("cloud_sync_reset" in keys)       // resetVisible=false
         assertFalse("document_sync_category" in keys)  // documentCategoryVisible=false
-        assertFalse("sync_enable_readingplans" in keys) // always omitted
+    }
+
+    // #3902: the docs promise a Reading Plans toggle; it sits between workspaces and my documents (classic order).
+    @Test fun readingPlansRowShownWithTitleAndSwitchable() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
+        val ctrl = controller(svc)
+        val keys = ctrl.state.value.screen.visibleItems.map { it.key }
+        assertEquals(keys.indexOf("sync_enable_workspaces") + 1, keys.indexOf("sync_enable_readingplans"))
+        val row = ctrl.state.value.screen.items.single { it.key == "sync_enable_readingplans" }
+        assertEquals("Reading plans", (row as SettingsItem.SwitchRow).title)
+        ctrl.onSwitch("sync_enable_readingplans", true)
+        assertEquals(listOf("signIn", "cat:sync_enable_readingplans=true"), svc.calls)
     }
 
     @Test fun certificateRow_hiddenByDefault_visibleWithPin() {
@@ -293,15 +304,15 @@ class SyncSettingsControllerTest {
         assertEquals(emptyList(), items.filterIsInstance<SettingsItem.Category>().filter { it.iconKeyOrNull() != null }.map { it.key })
     }
 
-    @Test fun theNineteenSyncRowsAreAllPresent() {
+    @Test fun theTwentySyncRowsAreAllPresent() {
         val rows = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.items
             .filter { it !is SettingsItem.Category }.map { it.key }
         assertEquals(
             listOf(
                 "sync_adapter", "cloud_sync_reset", "cloud_sync_info", "cloud_sync_server_url",
                 "cloud_sync_username", "cloud_sync_password", "cloud_sync_folder_path", "webdav_sync_cert",
-                "sync_enable_bookmarks", "sync_enable_workspaces", "sync_enable_mydocuments",
-                "sync_enable_ai_settings", "sync_enable_progress", "sync_enable_documents",
+                "sync_enable_bookmarks", "sync_enable_workspaces", "sync_enable_readingplans",
+                "sync_enable_mydocuments", "sync_enable_ai_settings", "sync_enable_progress", "sync_enable_documents",
                 "sync_documents_auto_download", "sync_documents_auto_upload",
                 "sync_documents_auto_delete", "sync_documents_wifi_only", "document_sync_manage",
             ),

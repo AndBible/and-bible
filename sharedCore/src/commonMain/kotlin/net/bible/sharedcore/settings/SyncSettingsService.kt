@@ -37,7 +37,7 @@ data class SyncSettingsSnapshot(
     val resetVisible: Boolean,                 // isCloudSyncEnabled && signedIn
     val cloudInfoVisible: Boolean,             // isCloudSyncEnabled && signedIn
     // -- synchronization categories (key = "sync_enable_<name>") --
-    val categoryEnabled: Map<String, Boolean>, // 5 categories, no readingplans (always hidden)
+    val categoryEnabled: Map<String, Boolean>, // the SyncCategoryKeys.DISPLAY categories
     val categorySummary: Map<String, String>,  // pre-composed contentDescription + last-synced
     val documentsEnabled: Boolean,             // sync_enable_documents state
     // -- document sync sub-category --
@@ -56,12 +56,13 @@ data class SyncSettingsSnapshot(
     val certificateSummary: String = "",       // shortened pinned fingerprint
 )
 
-/** The 5 syncable-category keys shown, in classic `sync_settings.xml` order (readingplans omitted —
- *  classic sets it `isVisible=false` unconditionally). Documents is a separate row handled apart. */
+/** The 6 syncable-category keys shown, in classic `sync_settings.xml` order. Documents is a separate row
+ *  handled apart. */
 object SyncCategoryKeys {
     val DISPLAY = listOf(
         "sync_enable_bookmarks",
         "sync_enable_workspaces",
+        "sync_enable_readingplans",
         "sync_enable_mydocuments",
         "sync_enable_ai_settings",
         "sync_enable_progress",
@@ -122,6 +123,7 @@ data class SyncSettingsLabels(
     // category rows (titles only; summaries come from the snapshot)
     val bookmarksTitle: String,
     val workspacesTitle: String,
+    val readingPlansTitle: String,
     val myDocumentsTitle: String,
     val aiSettingsTitle: String,
     val progressTitle: String,
@@ -154,7 +156,7 @@ data class SyncSettingsLabels(
             adapterTitle = "Sync provider", resetTitle = "Reset sync", resetSummary = "Sign out and reset",
             cloudInfoTitle = "Cloud info", serverUrlTitle = "Server URL", usernameTitle = "Username",
             passwordTitle = "Password", folderPathTitle = "Folder path", folderPathSummary = "Remote folder",
-            bookmarksTitle = "Bookmarks", workspacesTitle = "Workspaces", myDocumentsTitle = "My documents",
+            bookmarksTitle = "Bookmarks", workspacesTitle = "Workspaces", readingPlansTitle = "Reading plans", myDocumentsTitle = "My documents",
             aiSettingsTitle = "AI settings", progressTitle = "Progress", documentsTitle = "Documents",
             documentsSummary = "Sync installed documents",
             autoDownloadTitle = "Auto download", autoDownloadSummary = "Download automatically",

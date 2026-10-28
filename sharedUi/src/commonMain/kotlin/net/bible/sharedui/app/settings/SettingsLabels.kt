@@ -142,6 +142,7 @@ fun Strings.syncSettingsLabels() = SyncSettingsLabels(
     folderPathSummary = authFolderPathSummary,
     bookmarksTitle = bookmarks,
     workspacesTitle = helpWorkspacesTitle,
+    readingPlansTitle = readingPlansSyncTitle,
     myDocumentsTitle = myDocumentsTitle,
     aiSettingsTitle = aiSettingsSyncTitle,
     progressTitle = progressSyncTitle,

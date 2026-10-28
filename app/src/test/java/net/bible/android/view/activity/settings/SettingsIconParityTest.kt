@@ -85,11 +85,7 @@ class SettingsIconParityTest {
         assertTrue("rows classic leaves iconless must stay iconless: $extra", extra.isEmpty())
     }
 
-    // sync_enable_readingplans is hidden at runtime by classic itself (`SyncSettings.kt`) and is
-    // absent from `SyncCategoryKeys.DISPLAY`, so it cannot have parity here.
-    @Test fun syncSettingsIconsMatchClassic() = assertParity(
-        R.xml.sync_settings, expectedIconRows = 18, notPorted = setOf("sync_enable_readingplans"),
-    )
+    @Test fun syncSettingsIconsMatchClassic() = assertParity(R.xml.sync_settings, expectedIconRows = 19)
 
     @Test fun appSettingsIconsMatchClassic() = assertParity(R.xml.settings, expectedIconRows = 41)
 
