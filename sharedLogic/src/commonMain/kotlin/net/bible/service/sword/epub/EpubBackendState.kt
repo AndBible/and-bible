@@ -298,8 +298,8 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     private val dao = readDb.epubDao()
 
     /**
-     * Whether the search index is complete and usable. The FTS table is created before its rows are
-     * written, so its existence alone is not enough: while a build is scheduled or running
+     * Whether the search index is complete and usable. [EpubSearch.isIndexed] reports only a committed build
+     * (#3876), but a rebuild may also be pending over an existing index: while a build is scheduled or running
      * (#2632) the index is reported as not done, for every caller (search routing, `documentInfo`,
      * `hasIndex`).
      */
@@ -348,10 +348,12 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                         search.addContent(bva.text, frag.id, ordinal)
                     }
                 }
+                currentCoroutineContext().ensureActive()
+                search.commitIndex()
                 getBookMetaData().indexStatus = IndexStatus.DONE
             } catch (e: Exception) {
                 Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
-                // Table existence is the completion signal, so never retain an interrupted build.
+                // A failed or cancelled build leaves no usable index (the existing one was deleted before a rebuild).
                 getBookMetaData().indexStatus = IndexStatus.UNDONE
                 try {
                     search.deleteIndex()
