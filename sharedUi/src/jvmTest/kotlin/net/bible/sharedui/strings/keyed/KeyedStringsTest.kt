@@ -221,6 +221,7 @@ class KeyedStringsTest {
         assertText("askRestoreOrImport", core.askRestoreOrImport("x"))
         assertText("resetDatabaseConfirm", core.resetDatabaseConfirm("x"))
         assertText("backupModulesConflict", core.backupModulesConflict("a", "b", "c"))
+        assertText("backupModulesConflictBook", core.backupModulesConflictBook("a", "b", "c"))
         assertText("backupFileInfo", core.backupFileInfo(3, "x"))
         assertText("bookmarksDbStats", core.bookmarksDbStats("x", "x", "x"))
         assertText("exportedStudypadsSubject", core.exportedStudypadsSubject, filled = false)

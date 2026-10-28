@@ -757,6 +757,8 @@
     <string name="backup_success2">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces backed up successfully.</string>
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
     <string name="backup_modules_conflict">The backup was not made: %1$s and %2$s both contain the file %3$s, with different contents. Select only one of them and try again.</string>
+    <!-- One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in. -->
+    <string name="backup_modules_conflict_book">%1$s (version %2$s, folder %3$s)</string>
 
     <string name="backup_modules_email_subject_2">%s modules backup</string>
     <string name="backup_modules_email_message_2">Attached is your %1$s modules backup, which contains the following modules: %2$s</string>

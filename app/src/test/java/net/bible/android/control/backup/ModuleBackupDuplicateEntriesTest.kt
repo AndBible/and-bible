@@ -9,7 +9,6 @@ import net.bible.test.testBackupControl
 import okio.Path.Companion.toOkioPath
 import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
@@ -24,6 +23,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import java.util.zip.ZipFile
@@ -38,7 +38,7 @@ class ModuleBackupDuplicateEntriesTest {
     @Before fun setUp() = DatabaseResetter.resetDatabase()
     @After fun tearDown() = DatabaseResetter.resetDatabase()
 
-    private fun book(root: File, initials: String, description: String = initials, dataPath: String = "./data/dict"): Book {
+    private fun book(root: File, initials: String, description: String = initials, dataPath: String = "./data/dict", version: String? = null): Book {
         File(root, dataPath.removePrefix("./") + ".dat").apply {
             parentFile!!.mkdirs()
             writeText("dictionary data for $description")
@@ -52,7 +52,7 @@ class ModuleBackupDuplicateEntriesTest {
                 DataPath=$dataPath
                 Encoding=UTF-8
                 Lang=en
-            """.trimIndent())
+            """.trimIndent() + (version?.let { "\nVersion=$it" } ?: ""))
         }
         return SwordBook(SwordBookMetaDataJvm.create(conf, NetUtilJvm.getURI(root)), NullBackend())
     }
@@ -96,29 +96,26 @@ class ModuleBackupDuplicateEntriesTest {
     @Test fun installedVersionsWithDifferingContentsFailTheBackup() = runBlocking {
         val firstRoot = temporaryFolder.newFolder("first")
         val secondRoot = temporaryFolder.newFolder("second")
-        val first = book(firstRoot, "DuplicateBackupDict", "First version")
-        val second = book(secondRoot, "DuplicateBackupDict", "Second version")
-        val installed = Books.installed()
-        installed.addBook(first)
-        installed.addBook(second)
-        try {
-            // Books compares category, abbreviation, initials AND name: two installations of the
-            // same initials with differing descriptions survive the registry's set deduplication.
-            val versions = installed.getBooks().filter { it.initials == "DuplicateBackupDict" }
-            assertEquals(2, versions.size)
-            val zip = File(temporaryFolder.root, "versions.zip")
-            val conflict = assertThrows(ModuleBackupConflict::class.java) {
-                runBlocking { backup.createModulesZip(listOf(first, second), zip.toOkioPath()) }
-            }
-            assertEquals("mods.d/duplicatebackupdict.conf", conflict.entryName)
-            assertEquals(first.name, conflict.firstBook)
-            assertEquals(second.name, conflict.secondBook)
-            assertFalse("a failed backup leaves no archive", zip.exists())
-            assertFalse("a failed backup leaves no partial archive", File(zip.path + ".tmp").exists())
-        } finally {
-            installed.removeBook(first)
-            installed.removeBook(second)
+        val first = book(firstRoot, "DuplicateBackupDict", "Dictionary", version = "1.2")
+        val second = book(secondRoot, "DuplicateBackupDict", "Dictionary", version = "2.0")
+        val zip = File(temporaryFolder.root, "versions.zip")
+        val conflict = assertThrows(ModuleBackupConflict::class.java) {
+            runBlocking { backup.createModulesZip(listOf(first, second), zip.toOkioPath()) }
         }
+        assertEquals("mods.d/duplicatebackupdict.conf", conflict.entryName)
+        // #3039 review: the realistic conflict is one module in two SWORD roots with the same name, so the
+        // message must tell the two apart by version and folder.
+        assertEquals(ModuleBackupSource(first.name, "1.2", firstRoot.toOkioPath().toString()), conflict.first)
+        assertEquals(ModuleBackupSource(second.name, "2.0", secondRoot.toOkioPath().toString()), conflict.second)
+        val message = conflict.userMessage(net.bible.android.platform.AndroidCoreStrings(RuntimeEnvironment.getApplication()))
+        assertEquals(
+            "The backup was not made: Dictionary (version 1.2, folder $firstRoot) and Dictionary (version 2.0, " +
+                "folder $secondRoot) both contain the file mods.d/duplicatebackupdict.conf, with different contents. " +
+                "Select only one of them and try again.",
+            message,
+        )
+        assertFalse("a failed backup leaves no archive", zip.exists())
+        assertFalse("a failed backup leaves no partial archive", File(zip.path + ".tmp").exists())
     }
 
     @Test fun identicalCopiesInTwoRootsAreWrittenOnce() = runBlocking {

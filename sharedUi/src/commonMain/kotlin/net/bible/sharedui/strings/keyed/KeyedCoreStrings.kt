@@ -177,6 +177,8 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override fun resetDatabaseConfirm(name: String): String = t.fmt("reset_database_confirm", name)
     override fun backupModulesConflict(first: String, second: String, file: String): String =
         t.fmt("backup_modules_conflict", first, second, file)
+    override fun backupModulesConflictBook(name: String, version: String, folder: String): String =
+        t.fmt("backup_modules_conflict_book", name, version, folder)
     override fun backupFileInfo(version: Int, size: String): String = t.fmt("backup_file_info", version, size)
     override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = t.fmt("bookmarks_db_stats", firstLabel, labels, bookmarks)
     override val exportedStudypadsSubject: String get() = t.text("exported_studypads_subject")
