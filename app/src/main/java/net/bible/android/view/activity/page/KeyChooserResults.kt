@@ -174,8 +174,11 @@ object KeyChooserResults {
      * The document is returned explicitly rather than derived from the key because it cannot be: an
      * EPUB table-of-contents entry is a `BookAndKey` carrying its OWN document, which is not the
      * page's current document, while every other key carries none.
+     *
+     * The key is null when the chosen book has no such entry (see [resolveGenBookKey]); the caller then
+     * opens the book without a key.
      */
-    fun genBookKeyFrom(extras: Bundle): Pair<Book?, Key> =
+    fun genBookKeyFrom(extras: Bundle): Pair<Book?, Key?> =
         resolveGenBookKey(
             ChosenKey.GenBookKey(
                 bookAndKeyJson = extras.getString("bookAndKey"),
@@ -184,14 +187,25 @@ object KeyChooserResults {
             )
         )
 
-    private fun resolveGenBookKey(chosen: ChosenKey.GenBookKey): Pair<Book?, Key> {
+    /**
+     * A chosen key the book cannot resolve (#3591: a downloaded InvStrongsRealHebrew listed "00001" but
+     * `getKey("00001")` threw) must not crash the result delivery: log it and answer with a null key,
+     * so the caller opens the book without one, as [openMyDocumentPage] does.
+     */
+    internal fun resolveGenBookKey(chosen: ChosenKey.GenBookKey): Pair<Book?, Key?> {
         chosen.bookAndKeyJson?.let {
             val bookAndKey = BookAndKeySerialized.fromJSON(it).resolve(fakeBookFactory)
             return bookAndKey.document to bookAndKey
         }
         val book = Books.installed().getBook(chosen.bookInitials)
             ?: fakeBookFactory.giveDoesNotExist(chosen.bookInitials!!)
-        return book to book.getKey(chosen.osisRef)
+        val key = try {
+            book.getKey(chosen.osisRef)
+        } catch (e: NoSuchKeyException) {
+            Log.e(TAG, "Chosen key '${chosen.osisRef}' not found in ${book.initials}, opening book without key", e)
+            null
+        }
+        return book to key
     }
 
     /**
@@ -224,7 +238,8 @@ object KeyChooserResults {
             }
             is ChosenKey.GenBookKey -> {
                 val (book, key) = resolveGenBookKey(chosen)
-                pageManager.setCurrentDocumentAndKey(book, key)
+                if (key != null) pageManager.setCurrentDocumentAndKey(book, key)
+                else if (book != null) pageManager.setCurrentDocument(book)
             }
             ChosenKey.Nothing -> {}
         }
