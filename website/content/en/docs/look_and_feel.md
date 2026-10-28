@@ -242,8 +242,9 @@ its windows. These settings are synced across devices.
     associated with them. Useful for translations like KJV where added words are
     traditionally shown in italics.
 - **Infinite scroll:** Automatically load more content when you scroll to the
-    end of a chapter. In general books and EPUBs, a small gap above the loaded
-    content lets you scroll upwards to load the previous section.
+    end of a chapter. When you are at the top and try to scroll further up
+    (dragging down or turning the mouse wheel up), the previous chapter or
+    section is loaded.
 
 <span id="text-appearance-options"></span>
 

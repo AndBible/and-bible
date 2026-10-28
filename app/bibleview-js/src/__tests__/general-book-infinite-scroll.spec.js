@@ -65,81 +65,112 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-describe("general-book infinite scroll", () => {
-    it("leaves room above the initial section and loads the previous section on an upward touch scroll", async () => {
-        const previous = generalBook("previous");
-        requestPreviousChapter.mockResolvedValue(previous);
-        window.bibleViewDebug.documents.push(generalBook("current"));
+function touch(type, clientY) {
+    const event = new Event(type);
+    event.touches = [{clientY}];
+    window.dispatchEvent(event);
+}
+
+function wheel(deltaY) {
+    const event = new Event("wheel");
+    event.deltaY = deltaY;
+    window.dispatchEvent(event);
+}
+
+describe("infinite scroll at the top of the document", () => {
+    async function setup(doc = generalBook("current")) {
+        requestPreviousChapter.mockResolvedValue(generalBook("previous"));
+        window.bibleViewDebug.documents.push(doc);
         await nextTick();
-
-        for (const nightMode of [false, true]) for (const monochromeMode of [false, true]) for (const disableAnimations of [false, true]) {
-            Object.assign(window.bibleViewDebug.appSettings, {nightMode, monochromeMode, disableAnimations});
-            await nextTick();
-            const gap = wrapper.get(".infinite-scroll-top-gap").element;
-            expect(parseFloat(window.getComputedStyle(gap).height)).toBeGreaterThan(2);
-            expect(gap.compareDocumentPosition(wrapper.get("#top").element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-        }
-
         emit("setup_content", {topOffset: 0, bottomOffset: 0});
         await flushPromises();
-        expect(window.scrollY).toBeGreaterThan(0);
-        window.dispatchEvent(new Event("scroll"));
-        expect(requestPreviousChapter).not.toHaveBeenCalled();
+    }
 
-        window.dispatchEvent(new Event("touchstart"));
-        window.scrollTo(0, 0);
-        window.dispatchEvent(new Event("scroll"));
+    it("renders no top gap element", async () => {
+        await setup();
+        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(false);
+    });
+
+    it("loads the previous section on a mouse wheel up at the top", async () => {
+        await setup();
+        expect(window.scrollY).toBe(0);
+        wheel(-100);
+        await flushPromises();
+        expect(requestPreviousChapter).toHaveBeenCalledTimes(1);
+        expect(window.bibleViewDebug.documents.map(doc => doc.id)).toEqual(["previous", "current"]);
+    });
+
+    it("does not load on wheel down, or on wheel up when not at the top", async () => {
+        await setup();
+        wheel(100);
+        window.scrollTo(0, 300);
+        wheel(-100);
+        await flushPromises();
+        expect(requestPreviousChapter).not.toHaveBeenCalled();
+    });
+
+    it("loads on a downward drag at the top, deferred until the finger is lifted", async () => {
+        await setup();
+        touch("touchstart", 100);
+        touch("touchmove", 103); // below threshold
+        expect(requestPreviousChapter).not.toHaveBeenCalled();
+        touch("touchmove", 160);
+        await flushPromises();
         expect(requestPreviousChapter).not.toHaveBeenCalled();
         window.dispatchEvent(new Event("touchend"));
         await flushPromises();
-
         expect(requestPreviousChapter).toHaveBeenCalledTimes(1);
         expect(window.bibleViewDebug.documents.map(doc => doc.id)).toEqual(["previous", "current"]);
+    });
+
+    it("ignores an upward finger drag (scrolling down) and drags away from the top", async () => {
+        await setup();
+        touch("touchstart", 200);
+        touch("touchmove", 100);
+        window.scrollTo(0, 300);
+        touch("touchmove", 400);
+        window.dispatchEvent(new Event("touchend"));
+        await flushPromises();
+        expect(requestPreviousChapter).not.toHaveBeenCalled();
+    });
+
+    it("loads for a Bible document too", async () => {
+        await setup({id: "bible", type: "bible"});
+        wheel(-1);
+        await flushPromises();
+        expect(requestPreviousChapter).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not load once the start has been reached", async () => {
+        requestPreviousChapter.mockResolvedValue(null);
+        window.bibleViewDebug.documents.push(generalBook("current"));
+        await nextTick();
+        wheel(-100);
+        await flushPromises();
+        expect(requestPreviousChapter).toHaveBeenCalledTimes(1);
+        wheel(-100);
+        await flushPromises();
+        expect(requestPreviousChapter).toHaveBeenCalledTimes(1);
     });
 
     it.each([
         ["manual navigation", generalBook("current"), false],
         ["AI content", generalBook("ai", {isAiDocument: true}), true],
         ["dictionary", generalBook("dictionary", {bookCategory: "DICTIONARY"}), true],
-        ["Bible", {id: "bible", type: "bible"}, true],
-    ])("does not add a general-book gap for %s", async (_name, doc, infiniteScroll) => {
+    ])("does not load for %s", async (_name, doc, infiniteScroll) => {
         window.bibleViewDebug.config.infiniteScroll = infiniteScroll;
-        window.bibleViewDebug.documents.push(doc);
-        await nextTick();
-        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(false);
+        await setup(doc);
+        wheel(-100);
+        await flushPromises();
+        expect(requestPreviousChapter).not.toHaveBeenCalled();
     });
 
-    it("removes the gap once the start of the book is reached, keeping the scroll position", async () => {
-        let resolvePrevious;
-        requestPreviousChapter.mockReturnValue(new Promise(resolve => { resolvePrevious = resolve; }));
-        window.bibleViewDebug.documents.push(generalBook("current"));
-        await nextTick();
-        emit("setup_content", {topOffset: 0, bottomOffset: 0});
+    it("removes its listeners on unmount", async () => {
+        await setup();
+        wrapper.unmount();
+        wheel(-100);
         await flushPromises();
-        expect(window.scrollY).toBe(46);
-        window.dispatchEvent(new Event("scroll"));
-
-        window.scrollTo(0, 0);
-        window.dispatchEvent(new Event("scroll"));
-        await vi.waitFor(() => expect(requestPreviousChapter).toHaveBeenCalledTimes(1));
-        // The user keeps scrolling down while the (empty) answer is on its way.
-        window.scrollTo(0, 100);
-        resolvePrevious(null);
-        await flushPromises();
-
-        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(false);
-        expect(window.scrollY).toBe(52);
-    });
-
-    it("keeps the gap in page-scroll (e-ink) mode, where the first page starts at the start anchor", async () => {
-        Object.assign(window.bibleViewDebug.appSettings, {einkMode: true});
-        window.bibleViewDebug.config.pageScrollAmount = 50;
-        window.bibleViewDebug.documents.push(generalBook("current"));
-        await nextTick();
-        emit("setup_content", {topOffset: 0, bottomOffset: 0});
-        await flushPromises();
-        expect(wrapper.find(".infinite-scroll-top-gap").exists()).toBe(true);
-        // The initial position is the anchor, just below the gap, so pages are aligned to the text.
-        expect(window.scrollY).toBe(46);
+        expect(requestPreviousChapter).not.toHaveBeenCalled();
+        wrapper = mount(BibleView, {attachTo: document.body, global: {stubs: {BookmarkModal: true, DocumentBroker: true, DevelopmentMode: true, AmbiguousSelection: true}}});
     });
 });

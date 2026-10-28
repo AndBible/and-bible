@@ -48,9 +48,6 @@ export function supportsChapterNavigation(documents: AnyDocument[]): boolean {
     return doc.type === "bible";
 }
 
-/** Height (px) of the transparent gap kept above the start anchor of general books, so the user can scroll up to load the previous section. */
-export const INFINITE_SCROLL_TOP_GAP_PX = 48;
-
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     bibleViewDocuments: AnyDocument[],
@@ -208,10 +205,32 @@ export function useInfiniteScroll(
             }
         },
 
-        touchstartListener = () => touchDown = true;
+        // Minimum downward finger travel (px) at the top of the page that counts as an attempt to scroll further up.
+        TOUCH_PULL_THRESHOLD = 8;
+
+    let touchStartY: Nullable<number> = null;
+
+    function touchstartListener(event: Event) {
+        touchDown = true;
+        touchStartY = (event as TouchEvent).touches?.[0]?.clientY ?? null;
+    }
+
+    // At scrollY 0 the browser fires no scroll event on an upward gesture (there is nothing to scroll),
+    // so scrollHandler alone can never load content above a document that starts at the very top.
+    // Detect the gesture itself: a finger dragged downwards or a wheel turned up while at the top.
+    function touchmoveListener(event: Event) {
+        const y = (event as TouchEvent).touches?.[0]?.clientY;
+        if (touchStartY == null || y == null) return;
+        if (scrollPosition() < UP_MARGIN && y - touchStartY > TOUCH_PULL_THRESHOLD) addMoreAtTop();
+    }
+
+    function wheelListener(event: Event) {
+        if ((event as WheelEvent).deltaY < 0 && scrollPosition() < UP_MARGIN) addMoreAtTop();
+    }
 
     function touchendListener() {
         touchDown = false;
+        touchStartY = null;
         if (textToBeInsertedAtTop) {
             insertThisTextAtTop(textToBeInsertedAtTop);
             textToBeInsertedAtTop = null;
@@ -263,6 +282,8 @@ export function useInfiniteScroll(
         if(enabled) scrollHandler();
     })
     setupWindowEventListener('touchstart', touchstartListener, false);
+    setupWindowEventListener('touchmove', touchmoveListener, {passive: true});
+    setupWindowEventListener('wheel', wheelListener, {passive: true});
     setupWindowEventListener('touchend', touchendListener, false);
     setupWindowEventListener("touchcancel", touchendListener, false);
 
