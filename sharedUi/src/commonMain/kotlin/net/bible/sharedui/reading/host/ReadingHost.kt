@@ -258,7 +258,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     // whenever either key changes, so closing the menu starts a fresh 2s countdown.
     LaunchedEffect(touchTick, paneMenuWindowId) {
         if (paneMenuWindowId == null) {
-            delay(2000)
+            delay(ReadingChromeHideDelayMillis)
             state.windowButtonsVisibility.onHideTimeout()
         }
     }
@@ -271,7 +271,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         snapshotFlow { state.referenceOverlayScrollTick.intValue }
             .drop(1)
             .collectLatest {
-                delay(2000)
+                delay(ReadingChromeHideDelayMillis)
                 state.referenceOverlayVisible.value = false
             }
     }
@@ -608,6 +608,12 @@ private fun onPaneMenuItemClick(deps: ReadingHostDeps, windowId: String, id: Str
  * self-sizing, so a short index prompt does not become a half-screen panel.
  */
 private const val SearchSheetMaxHeightFraction = 0.6f
+
+/**
+ * Idle time after which the reading chrome hides again: the window buttons after the last touch (classic
+ * `resetTouchTimer`'s 2 s countdown) and the Bible reference overlay after the last scroll.
+ */
+private const val ReadingChromeHideDelayMillis = 2_000L
 
 /** Bound for [DriveSearchSheet]'s expand retry: ~10 x 50ms, i.e. well under a second. */
 private const val SearchSheetExpandAttempts = 10
