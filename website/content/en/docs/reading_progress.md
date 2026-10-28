@@ -30,8 +30,13 @@ as read.
 
 To enable automatic tracking:
 
-1. Open the main menu (☰) and go to **Application preferences**.
-2. Enable **Auto-track reading** under Behavior Customization.
+1. Open the main menu (☰) and go to **Settings**.
+2. Open **Progress & memorization**.
+3. Toggle **Auto-track reading**.
+
+This sets the application-wide default, the same switch as **Auto-track reading** under
+**Global Text Options** > **Reading & Memorization**. A workspace or an individual window
+can override it in its own text options.
 
 ## Memorization Tracking
 

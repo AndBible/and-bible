@@ -84,6 +84,27 @@ class ReadingProgressSettingsServiceImplTest {
         assertTrue(ReadingProgressSettings.memorizeScrambleHideUsed)
     }
 
+    // --- auto_track_reading is the GLOBAL AUTO_TRACK_READING text display setting (#3833) ---
+
+    @Test fun setBool_autoTrackReading_changesGlobalTextDisplaySetting() {
+        val service = ReadingProgressSettingsServiceImpl()
+        val store = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.common.GlobalTextDisplaySettingsStore>()
+        assertFalse(service.snapshot.value.autoTrackReading)
+
+        service.setBool("auto_track_reading", true)
+
+        assertTrue(service.snapshot.value.autoTrackReading)
+        assertEquals(true, store.current.autoTrackReading)
+        val actual = net.bible.android.database.WorkspaceEntities.TextDisplaySettings.actual(
+            null, net.bible.android.database.WorkspaceEntities.TextDisplaySettings(), store.current,
+        )
+        assertEquals(true, actual.autoTrackReading)
+
+        service.setBool("auto_track_reading", false)
+        assertFalse(service.snapshot.value.autoTrackReading)
+        assertEquals(false, store.current.autoTrackReading)
+    }
+
     // --- string round trip ---
 
     @Test fun setString_memorizeWordVisibility_roundTrips() {

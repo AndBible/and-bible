@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 /**
  * Builds the declarative [SettingsScreenState] for the reading-progress/memorization settings
  * screen from a [ReadingProgressSettingsService] snapshot. This is the classic screen with no
- * categories and no navigation rows — flat list of six items in the classic preference order.
+ * categories and no navigation rows — flat list of seven items in the classic preference order.
  * Modelled on `net.bible.sharedcore.ai.AiConnectionSettingsController`.
  */
 class ReadingProgressSettingsController(
@@ -33,6 +33,13 @@ class ReadingProgressSettingsController(
 
     private fun build(s: ReadingProgressSettingsSnapshot): SettingsScreenState {
         val items = listOf(
+            SettingsItem.SwitchRow(
+                key = "auto_track_reading",
+                title = labels.autoTrackReadingTitle,
+                summary = labels.autoTrackReadingSummary,
+                checked = s.autoTrackReading,
+                iconKey = "auto_track_reading",
+            ),
             SettingsItem.SwitchRow(
                 key = "auto_mark_memorized",
                 title = labels.autoMarkMemorizedTitle,
@@ -80,7 +87,10 @@ class ReadingProgressSettingsController(
         return SettingsScreenState(title = labels.screenTitle, items = items)
     }
 
-    /** All switch keys equal their classic pref key, so the write is a direct pass-through. */
+    /**
+     * Switch keys equal their classic pref key, so the write is a direct pass-through. `auto_track_reading` is
+     * the exception in kind: the service stores it as the global text display setting.
+     */
     fun onSwitch(key: String, checked: Boolean) = service.setBool(key, checked)
 
     fun onListChoice(key: String, value: String) = service.setString(key, value)

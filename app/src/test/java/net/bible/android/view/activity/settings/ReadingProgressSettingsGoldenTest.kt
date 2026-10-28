@@ -62,6 +62,7 @@ class ReadingProgressSettingsGoldenTest {
 
     /** Representative baseline snapshot: a mix of on/off switches and a chosen list value. */
     private fun baseSnapshot() = ReadingProgressSettingsSnapshot(
+        autoTrackReading = false,
         autoMarkMemorized = true,
         memorizeTypeFullWords = false,
         memorizeWordVisibility = "normal",

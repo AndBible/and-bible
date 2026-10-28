@@ -19,11 +19,16 @@ package net.bible.android.view.activity.settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
+import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedcore.settings.TextSettingValue
 import org.koin.mp.KoinPlatform
 
 /**
@@ -46,6 +51,8 @@ class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<ReadingProgressSettingsSnapshot> = _snapshot.asStateFlow()
 
+    private val globalStore get() = KoinPlatform.getKoin().get<GlobalTextDisplaySettingsStore>()
+
     private fun memorizeWordVisibilityChoices(): List<Choice2> {
         val labels = strings.memorizeWordVisibilityEntries
         val values = strings.memorizeWordVisibilityValues
@@ -55,6 +62,8 @@ class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
     private fun build(): ReadingProgressSettingsSnapshot {
         val bundle = ReadingProgressSettings.getBundle()
         return ReadingProgressSettingsSnapshot(
+            autoTrackReading = globalStore.current.autoTrackReading
+                ?: TextDisplaySettings.default.autoTrackReading ?: false,
             autoMarkMemorized = bundle.autoMarkMemorized,
             memorizeTypeFullWords = bundle.memorizeTypeFullWords,
             memorizeWordVisibility = bundle.memorizeWordVisibility,
@@ -67,6 +76,10 @@ class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
 
     override fun setBool(key: String, value: Boolean) {
         when (key) {
+            // Same path as Global Text Options: writes the global row and propagates to workspaces/windows.
+            "auto_track_reading" -> TextDisplaySettingsServiceImpl().setValue(
+                SettingsScope.Global, TextSettingType.AUTO_TRACK_READING, TextSettingValue.BoolValue(value),
+            )
             "auto_mark_memorized" -> ReadingProgressSettings.autoMarkMemorized = value
             "memorize_type_full_words" -> ReadingProgressSettings.memorizeTypeFullWords = value
             "memorize_error_heatmap" -> ReadingProgressSettings.memorizeErrorHeatmap = value
