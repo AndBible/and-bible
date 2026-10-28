@@ -65,6 +65,7 @@ class CloudSyncSignOutTest {
         val finishUpload = CompletableDeferred<Unit>()
         var loggedIn = true
         var downloaded = false
+        var onUpload: suspend () -> Unit = {}
         override val signedIn get() = loggedIn
         override suspend fun signIn() = true
         override suspend fun signOut() { loggedIn = false }
@@ -78,6 +79,7 @@ class CloudSyncSignOutTest {
         override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = error("unused")
         override suspend fun upload(name: String, file: Path, parentId: String): CloudFile {
             uploading.complete(Unit)
+            onUpload()
             finishUpload.await()
             return CloudFile("patch", name, FileSystem.SYSTEM.metadata(file).size!!, 1L, parentId)
         }
@@ -87,7 +89,16 @@ class CloudSyncSignOutTest {
         override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>) = emptyList<SyncConfiguration>()
     }
 
-    @Test fun signOutDuringUploadLetsPatchDownloadFinishBeforeClearingSyncState() = runTest {
+    private data class Fixture(
+        val cloud: CloudSync,
+        val adapter: Adapter,
+        val db: SyncableDatabaseAccessor<*>,
+        val settings: DatabaseAppSettings,
+        val container: DatabaseContainer,
+        val stopping: () -> Boolean,
+    )
+
+    private fun withFixture(block: suspend kotlinx.coroutines.test.TestScope.(Fixture) -> Unit) = runTest {
         val hostField = DatabaseContainer::class.java.getDeclaredField("_host").apply { isAccessible = true }
         val instanceField = DatabaseContainer::class.java.getDeclaredField("_instance").apply { isAccessible = true }
         val previousHost = hostField.get(null)
@@ -132,41 +143,7 @@ class CloudSyncSignOutTest {
             db.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "sync-folder")
             db.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "device-folder")
             container.bookmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "upload me"))
-            val errors = mutableListOf<UserMessage>()
-            val subscription = UserMessages.messages.subscribe { errors += it }
-            val sync = async(Dispatchers.IO) { cloud.synchronize() }
-            var signOut: kotlinx.coroutines.Deferred<Unit>? = null
-            try {
-                adapter.uploading.await()
-                // UNDISPATCHED enters signOut immediately; if it is serialized it suspends on the sync lock.
-                signOut = async(start = CoroutineStart.UNDISPATCHED) { cloud.signOut() }
-                runCurrent()
-                // On the broken implementation, finish the reset before releasing the upload to reproduce
-                // the missing folder IDs at the start of downloadAndApplyNewPatches, without a timing race.
-                if (stopping) signOut.await()
-                adapter.finishUpload.complete(Unit)
-                sync.await()
-                assertTrue(errors.isEmpty(), "Sync must not emit the generic error notification: $errors")
-                assertTrue(adapter.downloaded, "Patch download must run before sign-out removes the folder IDs")
-                signOut.await()
-                assertFalse(cloud.signedIn)
-                assertFalse(db.category.isSyncEnabled(settings))
-                assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
-                assertNull(db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
-                assertNull(db.dao.getLong(LAST_SYNCHRONIZED_KEY))
-            } finally {
-                try {
-                    withContext(NonCancellable) {
-                        adapter.finishUpload.complete(Unit)
-                        sync.cancel()
-                        signOut?.cancel()
-                        sync.join()
-                        signOut?.join()
-                    }
-                } finally {
-                    subscription.cancel()
-                }
-            }
+            block(Fixture(cloud, adapter, db, settings, container) { stopping })
         } finally {
             try {
                 DatabaseContainer.detachInstanceForTest()
@@ -180,6 +157,64 @@ class CloudSyncSignOutTest {
                 DatabaseContainer.ready = previousReady
                 FileSystem.SYSTEM.deleteRecursively(dir.toPath())
             }
+        }
+    }
+
+    @Test fun signOutDuringUploadLetsPatchDownloadFinishBeforeClearingSyncState() = withFixture { f ->
+        val (cloud, adapter, db, settings, container) = f
+            val errors = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { errors += it }
+        val sync = async(Dispatchers.IO) { cloud.synchronize() }
+        var signOut: kotlinx.coroutines.Deferred<Unit>? = null
+        try {
+            adapter.uploading.await()
+            // UNDISPATCHED enters signOut immediately; if it is serialized it suspends on the sync lock.
+            signOut = async(start = CoroutineStart.UNDISPATCHED) { cloud.signOut() }
+            runCurrent()
+            // On the broken implementation, finish the reset before releasing the upload to reproduce
+            // the missing folder IDs at the start of downloadAndApplyNewPatches, without a timing race.
+            if (f.stopping()) signOut.await()
+            adapter.finishUpload.complete(Unit)
+            sync.await()
+            assertTrue(errors.isEmpty(), "Sync must not emit the generic error notification: $errors")
+            assertTrue(adapter.downloaded, "Patch download must run before sign-out removes the folder IDs")
+            signOut.await()
+            assertFalse(cloud.signedIn)
+            assertFalse(db.category.isSyncEnabled(settings))
+            assertNull(db.dao.getString(SYNC_FOLDER_FILE_ID_KEY))
+            assertNull(db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
+            assertNull(db.dao.getLong(LAST_SYNCHRONIZED_KEY))
+        } finally {
+            try {
+                withContext(NonCancellable) {
+                    adapter.finishUpload.complete(Unit)
+                    sync.cancel()
+                    signOut?.cancel()
+                    sync.join()
+                    signOut?.join()
+                }
+            } finally {
+                subscription.cancel()
+            }
+    }
+    }
+
+    @Test fun missingFolderIdsAreSkippedWithoutGenericErrorAndRejoinedOnNextSync() = withFixture { f ->
+        val (cloud, adapter, db, _, _) = f
+        val errors = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { errors += it }
+        try {
+            adapter.finishUpload.complete(Unit)
+            // Whatever clears the ids (a reset, an interrupted join) must not surface as an empty error.
+            adapter.onUpload = {
+                db.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+                db.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+            }
+            cloud.synchronize()
+            assertTrue(errors.isEmpty(), "Missing folder ids must not emit the generic error notification: $errors")
+            assertFalse(adapter.downloaded, "Patch download must be skipped when the folder ids are missing")
+        } finally {
+            subscription.cancel()
         }
     }
 }
