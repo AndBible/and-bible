@@ -1186,6 +1186,7 @@ class BackupControl(
                 try {
                     publishStagedEpub(dir, newTree, targetDirectory, strings, env)
                 } catch (e: Exception) {
+                    if (e is kotlin.coroutines.cancellation.CancellationException) throw e
                     Log.e(TAG, "Could not install EPUB $name", e)
                     epubFailures.add("$name: ${e.message ?: e::class.simpleName}")
                 }
