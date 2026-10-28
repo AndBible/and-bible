@@ -113,8 +113,19 @@ const val ZIP_MIMETYPE = "application/zip"
  * Two selected books have different files at the same module backup entry [entryName]; the archive cannot hold
  * both, so the backup is not written.
  */
-class ModuleBackupConflict(val entryName: String, val firstBook: String, val secondBook: String) :
-    IOException("Module backup entry $entryName differs between $firstBook and $secondBook")
+class ModuleBackupConflict(val entryName: String, val first: ModuleBackupSource, val second: ModuleBackupSource) :
+    IOException("Module backup entry $entryName differs between $first and $second") {
+    /** The realistic case is one module installed in two SWORD roots: same name, so the version and folder tell them apart. */
+    fun userMessage(strings: CoreStrings): String =
+        strings.backupModulesConflict(first.describe(strings), second.describe(strings), entryName)
+}
+
+/** A book whose files go into a module backup: its name, its conf `Version` (if any) and the folder the entries are relative to. */
+data class ModuleBackupSource(val bookName: String, val version: String?, val folder: String) {
+    fun describe(strings: CoreStrings): String =
+        if (version != null) strings.backupModulesConflictBook(bookName, version, folder)
+        else strings.somethingWithParenthesis(bookName, folder)
+}
 
 private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
 private val GZIP_MAGIC = "1f8b".decodeHex()
@@ -474,9 +485,9 @@ class BackupControl(
      * the backup fails with [ModuleBackupConflict] rather than silently keeping a mix of the books' files.
      */
     private inner class ModuleZipWriter(private val zip: ZipWriter) {
-        private val entries = mutableMapOf<String, Pair<Path, String>>() // entry name -> source file, book name
-        /** Name of the book whose files are being added, for the conflict report. */
-        var currentBook = ""
+        private val entries = mutableMapOf<String, Pair<Path, Book?>>() // entry name -> source file, its book
+        /** The book whose files are being added, for the conflict report. */
+        var currentBook: Book? = null
 
         fun addFile(name: String, file: Path) {
             if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
@@ -495,8 +506,19 @@ class BackupControl(
                 Log.i(TAG, "Skipping identical duplicate module backup entry $name from $file")
                 return
             }
-            Log.e(TAG, "Module backup entry $name has different contents in $previousFile ($previousBook) and $file ($currentBook)")
-            throw ModuleBackupConflict(name, previousBook, currentBook)
+            Log.e(TAG, "Module backup entry $name has different contents in $previousFile (${previousBook?.name}) and $file (${currentBook?.name})")
+            throw ModuleBackupConflict(name, source(previousBook, previousFile, name), source(currentBook, file, name))
+        }
+
+        /** [file] is stored as entry [name], so the folder the entries are relative to is [file] minus the entry's segments. */
+        private fun source(book: Book?, file: Path, name: String): ModuleBackupSource {
+            var folder = file
+            repeat(name.split('/').size) { folder = folder.parent ?: folder }
+            return ModuleBackupSource(
+                bookName = book?.name ?: "",
+                version = book?.bookMetaData?.getProperty(SwordBookMetaData.KEY_VERSION),
+                folder = folder.toString(),
+            )
         }
     }
 
@@ -545,7 +567,7 @@ class BackupControl(
     }
 
     private fun addBookToZip(outFile: ModuleZipWriter, b: Book) {
-        outFile.currentBook = b.name
+        outFile.currentBook = b
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
             addModuleFile(outFile, b.dbPath)
@@ -671,7 +693,7 @@ class BackupControl(
         try {
             createModulesZip(books, zipFile)
         } catch (e: ModuleBackupConflict) {
-            showMessage(strings.backupModulesConflict(e.firstBook, e.secondBook, e.entryName))
+            showMessage(e.userMessage(strings))
             return@withContext
         } finally {
             dialogs.dismiss(progressId)
@@ -1186,6 +1208,7 @@ class BackupControl(
                 try {
                     publishStagedEpub(dir, newTree, targetDirectory, strings, env)
                 } catch (e: Exception) {
+                    if (e is kotlin.coroutines.cancellation.CancellationException) throw e
                     Log.e(TAG, "Could not install EPUB $name", e)
                     epubFailures.add("$name: ${e.message ?: e::class.simpleName}")
                 }

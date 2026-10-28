@@ -447,6 +447,32 @@ class EpubBackendStateTest {
         }
     }
 
+    /**
+     * #3005 review: a module archive install cancelled before its EPUB is published must end cancelled; the per-EPUB
+     * failure collection must not turn the cancellation into an ordinary install failure.
+     */
+    @Test
+    fun cancelledArchiveInstallPropagatesTheCancellationFromTheEpubPublish() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "archive-cancelled.epub"
+        val koin = org.koin.core.context.GlobalContext.get()
+        val backup = koin.get<net.bible.android.control.backup.BackupControl>()
+        val archive = File.createTempFile("epub-cancelled-", ".abmd.zip").also { archive ->
+            java.util.zip.ZipOutputStream(archive.outputStream()).use { zip ->
+                zip.putNextEntry(java.util.zip.ZipEntry("epub/$name/META-INF/container.xml")); zip.write("<x/>".toByteArray()); zip.closeEntry()
+            }
+            archive.deleteOnExit()
+        }
+        val install = async(kotlinx.coroutines.Dispatchers.IO) {
+            val self = coroutineContext[kotlinx.coroutines.Job]!!
+            // Cancelled while the archive is read: the first suspension point is the EPUB publish.
+            backup.extractAndRegisterModuleArchive(newSource = { self.cancel(); okio.FileSystem.SYSTEM.source(archive.toOkioPath()) })
+        }
+        val thrown = runCatching { install.await() }.exceptionOrNull()
+        assertTrue("the install must end cancelled, got $thrown", thrown is kotlinx.coroutines.CancellationException)
+        assertFalse("nothing is published", File(epubRoot, name).exists())
+        assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
+    }
+
     /** #3005: a corrupt direct replacement must roll back to the working EPUB instead of deleting it first. */
     @Test
     fun corruptDirectReplacementKeepsTheOldEpub() = kotlinx.coroutines.runBlocking<Unit> {
@@ -461,10 +487,43 @@ class EpubBackendStateTest {
         }
         try {
             assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name))
+            books.getBook(epubInitials(name))!!.epubBackend!!.state.buildSearchIndex()
             assertFalse("a corrupt replacement is reported as a failure", committer().commitEpub(corrupt, name))
             val book = books.getBook(epubInitials(name))
             assertTrue("the working EPUB must stay registered", book != null)
             assertTrue("the working EPUB must stay readable", book!!.getRawText(book.epubBackend!!.state.keys.first()).contains("quiet"))
+            // #3005 review: the app database is dropped before the swap, but the optimized DB (gz) and the search
+            // index live in the module folder, so the restored module keeps both.
+            val state = book.epubBackend!!.state
+            assertTrue("the restored EPUB keeps its search index", state.isIndexed)
+            assertEquals(1, state.search("quiet").size)
+            assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
+        } finally {
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+        }
+    }
+
+    /** #3005 review: a replacement that fails before the old module was moved aside re-registers the old module. */
+    @Test
+    fun replacementFailingToSetTheOldEpubAsideKeepsItRegistered() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-aside-fails.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name))
+            val replacement = epubArchive(name, "quartz")
+            // The module folder cannot be renamed out of a read-only parent: the move aside fails.
+            assertTrue(epubRoot.setWritable(false))
+            org.junit.Assume.assumeFalse("needs a user that read-only folders apply to", File(epubRoot, "probe").mkdir())
+            try {
+                assertFalse("the failed replacement is reported", committer().commitEpub(replacement, name))
+            } finally {
+                epubRoot.setWritable(true)
+            }
+            val book = books.getBook(epubInitials(name))
+            assertTrue("the old EPUB is registered again", book != null)
+            assertTrue("the old EPUB stays readable", book!!.getRawText(book.epubBackend!!.state.keys.first()).contains("quiet"))
             assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
         } finally {
             books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }

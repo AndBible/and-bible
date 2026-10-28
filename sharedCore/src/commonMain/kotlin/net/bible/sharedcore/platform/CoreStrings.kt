@@ -125,6 +125,7 @@ interface CoreStrings {
     fun askRestoreOrImport(contents: String): String
     fun resetDatabaseConfirm(name: String): String
     fun backupModulesConflict(first: String, second: String, file: String): String // R.string.backup_modules_conflict
+    fun backupModulesConflictBook(name: String, version: String, folder: String): String // R.string.backup_modules_conflict_book
     fun backupFileInfo(version: Int, size: String): String
     fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String // R.string.bookmarks_db_stats
     val exportedStudypadsSubject: String // R.string.exported_studypads_subject

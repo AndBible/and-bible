@@ -252,6 +252,8 @@ internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: 
 
 fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
     val dir = epubModulesDir()
+    // Put back an old module that an interrupted replacement left set aside, before the scan registers what is there.
+    sweepStaleEpubStagingDirs(dir.parent!!)
     try { KFiles.createDirectories(dir) } catch (e: IOException) { Log.w(TAG, "Could not create $dir", e) } // File.mkdirs returned false
     if(!KFiles.isDirectory(dir)) return false
     var ok = true

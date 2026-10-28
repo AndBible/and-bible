@@ -150,6 +150,28 @@ class RestorePathsTest {
         assertEquals(emptyList<String>(), errors)
     }
 
+    /**
+     * #3135 review: a cancellation while the picked zip backup is copied and unzipped (the second [BackupHost.openInput],
+     * after the file type check) must propagate, not become a "failed to process" IOException.
+     */
+    @Test fun cancelledZipCopyPropagatesWithoutAnErrorReport() {
+        val zip = fixture("db-backup.abdb.zip")
+        val cancellation = kotlinx.coroutines.CancellationException("cancelled")
+        var opened = 0
+        val host = object : BackupHost {
+            override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String, saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult = error("unused")
+            override suspend fun pickBackupFile(mime: String): PickedSource? = error("unused")
+            override suspend fun openInput(source: PickedSource): Source = if (opened++ == 0) zip.source() else throw cancellation
+            override suspend fun restoreModules() = Unit
+            override suspend fun showErrorReport(message: String, cause: Throwable?) = error("unexpected error report: $message")
+        }
+        val thrown = runCatching {
+            kotlinx.coroutines.runBlocking { backup.restoreAppDatabaseFromSourceWithUI(host, PickedSource(zip.path, zip.name, null)) }
+        }.exceptionOrNull()
+        assertEquals(2, opened)
+        assertTrue("cancellation must propagate, got $thrown", thrown is kotlinx.coroutines.CancellationException)
+    }
+
     /** Answers the restore flow's dialogs: only the bookmarks section is selected, [restoreNotImport] answers the question. */
     private fun answer(request: AppDialogRequest, restoreNotImport: Boolean): AppDialogResult = when (request) {
         is AppDialogRequest.MultiChoice -> AppDialogResult.SelectedMany(
