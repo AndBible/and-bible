@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 /** Immutable snapshot the reading-progress/memorization settings screen renders from. */
 data class ReadingProgressSettingsSnapshot(
+    /** The GLOBAL (application-wide default) value of the AUTO_TRACK_READING text display setting. */
+    val autoTrackReading: Boolean,
     val autoMarkMemorized: Boolean,
     val memorizeTypeFullWords: Boolean,
     val memorizeWordVisibility: String,

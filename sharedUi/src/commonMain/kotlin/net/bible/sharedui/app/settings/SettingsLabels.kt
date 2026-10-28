@@ -170,6 +170,8 @@ fun Strings.syncSettingsLabels() = SyncSettingsLabels(
 @kotlin.native.HiddenFromObjC
 fun Strings.readingProgressSettingsLabels() = ReadingProgressSettingsLabels(
     screenTitle = readingProgressSettings,
+    autoTrackReadingTitle = prefsAutoTrackReadingTitle,
+    autoTrackReadingSummary = prefsAutoTrackReadingSummary,
     autoMarkMemorizedTitle = memorizeAutoMark,
     autoMarkMemorizedSummary = memorizeAutoMarkSummary,
     memorizeTypeFullWordsTitle = memorizeTypeFullWords,

@@ -9,6 +9,8 @@ package net.bible.sharedcore.settings
 data class ReadingProgressSettingsLabels(
     val screenTitle: String,
 
+    val autoTrackReadingTitle: String,
+    val autoTrackReadingSummary: String,
     val autoMarkMemorizedTitle: String,
     val autoMarkMemorizedSummary: String,
     val memorizeTypeFullWordsTitle: String,
@@ -26,6 +28,8 @@ data class ReadingProgressSettingsLabels(
         fun forTest() = ReadingProgressSettingsLabels(
             screenTitle = "Reading progress settings",
 
+            autoTrackReadingTitle = "Auto-track reading",
+            autoTrackReadingSummary = "Automatically mark chapters as read when you scroll through them",
             autoMarkMemorizedTitle = "Automatically mark as memorized",
             autoMarkMemorizedSummary = "Mark a verse as memorized once you have typed it correctly",
             memorizeTypeFullWordsTitle = "Type full words",

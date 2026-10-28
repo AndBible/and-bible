@@ -17,6 +17,7 @@ private class FakeReadingProgressSettingsService(initial: ReadingProgressSetting
 
 class ReadingProgressSettingsControllerTest {
     private fun snap(
+        autoTrackReading: Boolean = false,
         autoMarkMemorized: Boolean = true,
         memorizeTypeFullWords: Boolean = false,
         memorizeWordVisibility: String = "normal",
@@ -24,6 +25,7 @@ class ReadingProgressSettingsControllerTest {
         memorizeScrambleHideUsed: Boolean = false,
         memorizeIncludeReference: Boolean = true,
     ) = ReadingProgressSettingsSnapshot(
+        autoTrackReading = autoTrackReading,
         autoMarkMemorized = autoMarkMemorized,
         memorizeTypeFullWords = memorizeTypeFullWords,
         memorizeWordVisibility = memorizeWordVisibility,
@@ -47,11 +49,11 @@ class ReadingProgressSettingsControllerTest {
         assertEquals("light", c.state.value.items.filterIsInstance<SettingsItem.ListChoiceRow>().single().selectedValue)
     }
 
-    @Test fun buildsSixRowsInOrder() {
+    @Test fun buildsSevenRowsInOrder() {
         val keys = controller(FakeReadingProgressSettingsService(snap())).state.value.visibleItems.map { it.key }
         assertEquals(
             listOf(
-                "auto_mark_memorized", "memorize_type_full_words", "memorize_word_visibility",
+                "auto_track_reading", "auto_mark_memorized", "memorize_type_full_words", "memorize_word_visibility",
                 "memorize_error_heatmap", "memorize_scramble_hide_used", "memorize_include_reference",
             ),
             keys,
@@ -63,6 +65,15 @@ class ReadingProgressSettingsControllerTest {
             .filterIsInstance<SettingsItem.ListChoiceRow>().single()
         assertEquals("memorize_word_visibility", row.key)
         assertEquals("light", row.selectedValue)
+    }
+
+    @Test fun autoTrackReadingRowReflectsSnapshotAndWritesByKey() {
+        val svc = FakeReadingProgressSettingsService(snap(autoTrackReading = true))
+        val c = controller(svc)
+        val row = c.state.value.items.filterIsInstance<SettingsItem.SwitchRow>().first { it.key == "auto_track_reading" }
+        assertEquals(true, row.checked)
+        c.onSwitch("auto_track_reading", false)
+        assertEquals("auto_track_reading" to false, svc.boolWrites.single())
     }
 
     @Test fun switchWriteGoesThroughByKey() {
@@ -77,10 +88,10 @@ class ReadingProgressSettingsControllerTest {
         assertEquals("memorize_word_visibility" to "full", svc.stringWrites.single())
     }
 
-    /** Round 14b: all six rows take their own key as `iconKey` (see `res/xml/reading_progress_settings.xml`). */
+    /** Round 14b: all seven rows take their own key as `iconKey` (see `res/xml/reading_progress_settings.xml`). */
     @Test fun everyRowCarriesItsOwnKeyAsIconKey() {
         val items = controller(FakeReadingProgressSettingsService(snap())).state.value.items
-        assertEquals(6, items.size)
+        assertEquals(7, items.size)
         assertEquals(emptyList(), items.filter { it.iconKeyOrNull() != it.key }.map { it.key })
     }
 }

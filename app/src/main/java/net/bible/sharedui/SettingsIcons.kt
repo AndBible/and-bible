@@ -129,6 +129,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "crash_app", "test_error_dialog", "test_error_dialog_queue" -> R.drawable.ic_bug_report_white_24dp
 
     // Round 14b — reading progress, mirroring res/xml/reading_progress_settings.xml verbatim.
+    "auto_track_reading" -> R.drawable.ic_baseline_check_circle_24
     "auto_mark_memorized" -> R.drawable.ic_baseline_check_circle_24
     "memorize_type_full_words" -> R.drawable.ic_baseline_keyboard_24
     "memorize_word_visibility" -> R.drawable.ic_baseline_visibility_24
