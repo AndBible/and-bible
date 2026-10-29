@@ -43,7 +43,7 @@ val kcefJbrTag = "jbr-release-17.0.14b1367.22"
 val kcefNativesDigest: String? =
     "1c875b43de4d20deb429a686331e4ea5c7c34c519569d1a3b785867d761ed002941203f79b19a338e4a49fab48a6cd4d35408a7356f55781e95c3d60c6c5a8d1"
 val kcefNativesDir = layout.buildDirectory.dir("kcef-natives/lib")
-val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED", "--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")
 
 /**
  * Downloads the JBR JCEF package for this OS/arch (with its `.checksum`), verifies it, and lays its `lib/` out as KCEF's
