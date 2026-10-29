@@ -95,6 +95,30 @@ class DesktopPortContractTest {
         if (failures.isNotEmpty()) fail("Unresolvable port types:\n" + failures.joinToString("\n"))
     }
 
+    @Test fun agentUsesInitialWindowFocus() {
+        val window = object : DesktopWindowHandle {
+            override val sizeDp = IntSize(1200, 800)
+            override val density = 1f
+            override val isFocusedAndVisible = true
+            override fun toFront() = Unit
+        }
+        withKoin(window) { koin, _ -> assertTrue(koin.get<net.bible.service.llm.agent.AgentPlatform>().hasForegroundUi) }
+    }
+
+    @Test fun desktopMiscBindingsUseConcretePorts() = withKoin { koin, _ ->
+        assertIs<DesktopNightModeAdapter>(koin.get<DesktopNightModeSource>())
+        assertTrue(koin.get<DesktopNightModeSource>() === koin.get<net.bible.sharedlogic.platform.NightModeState>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopNotificationPermission>(koin.get<net.bible.sharedui.app.ports.NotificationPermission>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopSystemScreens>(koin.get<net.bible.sharedui.app.ports.SystemScreens>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopDebugActions>(koin.get<net.bible.sharedui.app.ports.DebugActions>())
+        assertIs<net.bible.sharedcore.platform.desktop.misc.DesktopReadingPlanSource>(koin.get<net.bible.sharedcore.readingplan.ReadingPlanSource>())
+        assertIs<net.bible.sharedlogic.platform.desktop.misc.DesktopAgentPlatform>(koin.get<net.bible.service.llm.agent.AgentPlatform>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopTextDisplayPlatform>(koin.get<net.bible.sharedui.app.ports.TextDisplayPlatform>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopBookmarkCsvFiles>(koin.get<DesktopBookmarkCsvFiles>())
+        assertIs<net.bible.sharedui.desktop.misc.DesktopBugReportPlatform>(koin.get<net.bible.sharedui.app.ai.BugReportPlatform>())
+        Unit
+    }
+
     @Test fun resolvingCreatesNoDatabaseFile() = withKoin { koin, root ->
         (IOS_BOUND_PORT_TYPES + IOS_HOST_BINDING_TYPES).forEach { koin.getOrNull<Any>(it) }
         // The data dir may get its device-settings/config files, but never a database.

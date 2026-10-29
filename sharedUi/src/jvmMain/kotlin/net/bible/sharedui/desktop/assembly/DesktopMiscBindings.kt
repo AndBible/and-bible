@@ -16,45 +16,30 @@
  */
 package net.bible.sharedui.desktop.assembly
 
-import androidx.compose.ui.graphics.ImageBitmap
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakPhrases
 import net.bible.android.control.speak.SpeakPlatform
 import net.bible.android.control.speak.SpeakSettingsStore
 import net.bible.android.control.speak.SpeakSetupProblem
-import net.bible.android.view.activity.bookmark.ManageLabelsContract
-import net.bible.android.view.activity.bookmark.ManageLabelsMapper
-import net.bible.android.view.activity.settings.TextDisplaySettingsRouteEntry
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.llm.agent.AgentPlatform
-import net.bible.service.llm.agent.ToolPermissionAnswer
-import net.bible.sharedcore.event.EventSource
-import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.log.Log
-import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import net.bible.sharedcore.platform.speak.SpeakEngine
 import net.bible.sharedcore.platform.speak.SpeakEngineListener
 import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
-import net.bible.sharedcore.settings.SettingsScope
-import net.bible.sharedcore.settings.TextDisplaySettingsController
-import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedlogic.platform.SentenceBreaker
-import net.bible.sharedlogic.platform.resolveNightMode
 import net.bible.sharedui.app.ai.BugReportPlatform
 import net.bible.sharedui.app.ports.DebugActions
-import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.app.ports.SystemScreens
-import net.bible.sharedui.app.ports.TextDisplayEntry
 import net.bible.sharedui.app.ports.TextDisplayPlatform
-import okio.Sink
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import org.koin.mp.KoinPlatform
+import org.koin.dsl.onClose
 import net.bible.sharedcore.log.recentLogSnapshot
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
@@ -69,51 +54,12 @@ import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
 import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
 import net.bible.sharedui.desktop.misc.DesktopCrashTracker
 import java.nio.file.Path
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.concurrent.ConcurrentHashMap
 
 // OWNER: plan D3d (desktop misc: night mode, notification permission, system screens, debug actions, bug report, text
 // display platform, reading plans, agent platform, bookmark CSV files; the speak/SentenceBreaker no-ops stay no-ops
-// because TTS is dropped on desktop). D3d replaces the bindings in this file only. Everything below is a D2b stub: it
-// logs its first use once and answers neutrally, except where noted.
+// because TTS is dropped on desktop).
 
 private const val TAG = "DesktopMiscBindings"
-private val reported = ConcurrentHashMap.newKeySet<String>()
-
-private fun pending(member: String) {
-    if (reported.add(member)) Log.w(TAG, "desktop misc stub (D3d pending): $member")
-}
-
-/**
- * A minimal REAL night-mode answer (D2b's live checks need it): the stored mode of `night_mode_pref3` (default
- * `"system"`) and the manual flag `night_mode_pref`, resolved by the common [resolveNightMode]. The desktop cannot
- * tell the system appearance yet, so `"system"` and `"automatic"` mean light. [observeChanges] fires when either key
- * changes value (any writer in the process, on the writing thread). D3d replaces this with the real store.
- */
-class DesktopNightModeStub(private val deviceSettings: DesktopDeviceSettings) : DesktopNightModeSource {
-    val mode: String get() = deviceSettings.getString(NIGHT_MODE_MODE_KEY, DEFAULT_MODE) ?: DEFAULT_MODE
-    override val nightMode: Boolean
-        get() = resolveNightMode(mode, deviceSettings.getBoolean(NIGHT_MODE_KEY, false), systemDark = false, autoReading = null)
-    override val manual: Boolean get() = mode == "manual"
-
-    override fun observeChanges(onChange: () -> Unit): () -> Unit {
-        val lock = Any()
-        var previous = snapshot()
-        return deviceSettings.observeChanges {
-            val changed = synchronized(lock) { snapshot().let { now -> (now != previous).also { previous = now } } }
-            if (changed) onChange()
-        }
-    }
-
-    private fun snapshot(): List<String?> = listOf(deviceSettings.getString(NIGHT_MODE_MODE_KEY), deviceSettings.getString(NIGHT_MODE_KEY))
-
-    companion object {
-        const val NIGHT_MODE_KEY = "night_mode_pref"
-        const val NIGHT_MODE_MODE_KEY = "night_mode_pref3"
-        const val DEFAULT_MODE = "system"
-    }
-}
 
 /** Installs crash capture before the database or dependency graph exists. */
 fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
@@ -136,58 +82,10 @@ fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
     )
 }
 
-class DesktopNotificationPermissionStub : NotificationPermission {
-    override suspend fun request() = Unit
-}
-
-class DesktopSystemScreensStub : SystemScreens {
-    override fun openAppLinkSettings() = pending("SystemScreens.openAppLinkSettings")
-}
-
-class DesktopDebugActionsStub : DebugActions {
-    override fun crashAppDelayed() = pending("DebugActions.crashAppDelayed")
-    override fun showTestError(message: String) = pending("DebugActions.showTestError")
-}
-
-class DesktopReadingPlanSourceStub : ReadingPlanSource {
-    override fun builtInPlanCodes(): List<String> = emptyList()
-    override fun openBuiltInPlan(code: String): String? = null
-}
-
-/** No agent UI: tool permissions are denied, questions answered "no". */
-class DesktopAgentPlatformStub : AgentPlatform {
-    private val source = EventSource<Boolean>()
-    override val hasForegroundUi: Boolean get() = true
-    override val foregroundChanges: Events<Boolean> get() = source
-    override suspend fun awaitForegroundUi(): Boolean = true
-    override suspend fun askToolPermission(toolDisplayName: String, toolDescription: String, actionDescription: String?): ToolPermissionAnswer {
-        pending("AgentPlatform.askToolPermission"); return ToolPermissionAnswer.DENY
-    }
-    override suspend fun askQuestion(title: String?, message: String): Boolean { pending("AgentPlatform.askQuestion"); return false }
-    override fun showShortMessage(message: String) = pending("AgentPlatform.showShortMessage")
-}
-
-/** The text display screen's entry and hide-labels result (as on every platform); no module thumbnails yet. */
-class DesktopTextDisplayPlatformStub(private val sharedService: () -> TextDisplaySettingsServiceImpl) : TextDisplayPlatform {
-    override fun entryFor(args: TextDisplaySettingsArgs): TextDisplayEntry {
-        val entry = TextDisplaySettingsRouteEntry(args, sharedService())
-        return TextDisplayEntry(entry.service, entry.scope, { scope: SettingsScope ->
-            ManageLabelsMapper.hideLabelsData(entry.service.currentHideLabelsIds(scope), scope is SettingsScope.Window).toJSON()
-        }, entry::resultOnLeave)
-    }
-
-    override fun applyHideLabelsResult(resultJson: String, controller: TextDisplaySettingsController) {
-        val data = ManageLabelsContract.ManageLabelsData.fromJSON(resultJson)
-        if (data.reset) controller.onRevert(TextSettingType.BOOKMARKS_HIDELABELS.name)
-        else controller.onHideLabelsChange(data.selectedLabels.map { it.toString() })
-    }
-
-    override fun thumbnail(token: String): ImageBitmap? = null
-}
-
-class DesktopBookmarkCsvFilesStub : DesktopBookmarkCsvFiles {
-    override fun openSink(ref: DocumentRef): Sink? { pending("BookmarkCsvFiles.openSink"); return null }
-    override fun timestamp(): String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
+class DesktopNightModeAdapter(private val state: net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState) : DesktopNightModeSource {
+    override val nightMode: Boolean get() = state.nightMode
+    override val manual: Boolean get() = state.manual
+    override fun observeChanges(onChange: () -> Unit): () -> Unit = state.observeChanges(onChange)
 }
 
 // --- speak: text to speech is dropped on desktop; these bindings exist because common code resolves them.
@@ -232,11 +130,11 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
-    single<DesktopNightModeSource> { DesktopNightModeStub(get<DesktopDeviceSettings>()) }
+    single<DesktopNightModeSource> { DesktopNightModeAdapter(net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState(get())) }
     single<NightModeState> { get<DesktopNightModeSource>() }
-    single<NotificationPermission> { DesktopNotificationPermissionStub() }
-    single<SystemScreens> { DesktopSystemScreensStub() }
-    single<DebugActions> { DesktopDebugActionsStub() }
+    single<NotificationPermission> { net.bible.sharedui.desktop.misc.DesktopNotificationPermission() }
+    single<SystemScreens> { net.bible.sharedui.desktop.misc.DesktopSystemScreens() }
+    single<DebugActions> { net.bible.sharedui.desktop.misc.DesktopDebugActions(get()) }
     single {
         val table = get<IosStringTableHolder>()
         val dialogs = get<AppDialogController>()
@@ -268,10 +166,23 @@ fun desktopMiscModule(): Module = module {
     }
     single<BugReportPlatform> { DesktopBugReportPlatform(get()) }
     single<DesktopBugReport> { get<ConcreteBugReport>() }
-    single<ReadingPlanSource> { DesktopReadingPlanSourceStub() }
-    single<AgentPlatform> { DesktopAgentPlatformStub() }
-    single<TextDisplayPlatform> { DesktopTextDisplayPlatformStub { get<TextDisplaySettingsServiceImpl>() } }
-    single<DesktopBookmarkCsvFiles> { DesktopBookmarkCsvFilesStub() }
+    single<ReadingPlanSource> { net.bible.sharedcore.platform.desktop.misc.DesktopReadingPlanSource() }
+    single {
+        val table = get<IosStringTableHolder>()
+        val window = get<DesktopWindowHandle>()
+        net.bible.sharedlogic.platform.desktop.misc.DesktopAgentPlatform(
+            get(), get(), get(), { table.current.text(it) }, get(), { window.isFocusedAndVisible },
+        )
+    } onClose { it?.close() }
+    single<AgentPlatform> { get<net.bible.sharedlogic.platform.desktop.misc.DesktopAgentPlatform>() }
+    single<TextDisplayPlatform> {
+        val window = get<DesktopWindowHandle>()
+        net.bible.sharedui.desktop.misc.DesktopTextDisplayPlatform(
+            sharedService = { get<TextDisplaySettingsServiceImpl>() },
+            windowPixels = { (window.sizeDp.width * window.density).toInt() to (window.sizeDp.height * window.density).toInt() },
+        )
+    }
+    single<DesktopBookmarkCsvFiles> { net.bible.sharedui.desktop.misc.DesktopBookmarkCsvFiles() }
     single<SpeakPlatform> { DesktopNoSpeakPlatform() }
     single<SpeakSettingsStore> { DesktopNoSpeakSettingsStore() }
     single<SentenceBreaker> { DesktopNoSentenceBreaker }

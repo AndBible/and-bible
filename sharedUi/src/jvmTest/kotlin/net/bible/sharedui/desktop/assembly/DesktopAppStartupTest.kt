@@ -17,6 +17,8 @@
 package net.bible.sharedui.desktop.assembly
 
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.async
+import okio.Path.Companion.toPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -51,6 +53,7 @@ import kotlin.test.assertTrue
  * The real desktop startup (Koin, databases, Sword) against temporary XDG directories. Every test resets the startup in
  * [after]; the database host is global, so the one installed before the class is put back.
  */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DesktopAppStartupTest {
     private class FakeWindow : DesktopWindowHandle {
         override val sizeDp: IntSize = IntSize(1200, 800)
@@ -122,6 +125,58 @@ class DesktopAppStartupTest {
         // A second call joins the finished start: same graph, still ready.
         assertEquals(StartupPhase.Ready, start(paths))
         assertSame(koin, KoinPlatform.getKoin())
+    }
+
+    @Test fun csvRoundTripMatchesAndroidFormat() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val koin = KoinPlatform.getKoin()
+        val control = koin.get<net.bible.android.control.bookmark.BookmarkControl>()
+        val bookmark = control.addOrUpdateBibleBookmark(net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = org.crosswire.jsword.passage.VerseRangeFactory.fromString(net.bible.android.database.bookmarks.KJVA, "Gen.1.1"),
+            textRange = null, wholeVerse = true, book = null,
+        ).apply { notes = "first; line\nsecond"; customIcon = "star"; new = true })
+        val path = root.resolve("bookmark CSV # test.csv")
+        val ref = net.bible.sharedui.app.ports.DocumentRef(path.toUri().toString())
+        val dialogs = net.bible.sharedcore.ui.dialog.AppDialogController()
+        val errors = mutableListOf<Throwable?>()
+        val picker = object : net.bible.sharedui.app.ports.DocumentPicker {
+            override suspend fun createDocument(suggestedName: String, mimeType: String) = ref
+            override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean) = listOf(ref)
+            override suspend fun openDocumentTree(): net.bible.sharedui.app.ports.DocumentRef? = null
+        }
+        val notifier = object : net.bible.sharedcore.platform.UserNotifier {
+            override fun showInfo(message: String, long: Boolean) = Unit
+            override fun showError(message: String, cause: Throwable?) { errors += cause }
+        }
+        val csvFiles = net.bible.sharedui.desktop.misc.DesktopBookmarkCsvFiles()
+        val flow = net.bible.sharedui.app.bookmark.BookmarkCsvHostFlow(
+            { control }, picker, koin.get(), dialogs, { koin.get<IosStringTableHolder>().current }, notifier,
+            { okio.FileSystem.SYSTEM.source(path.toString().toPath()) }, csvFiles::openSink, csvFiles::timestamp,
+        )
+        kotlinx.coroutines.coroutineScope {
+            val job = async { flow.exportBookmarksCsv(listOf(bookmark)) }
+            kotlinx.coroutines.withTimeout(10_000) { while (dialogs.pending.value == null) kotlinx.coroutines.delay(1) }
+            val shown = dialogs.pending.value!!
+            val request = (shown.request as net.bible.sharedcore.ui.dialog.AppDialogRequest.Localized).resolve() as net.bible.sharedcore.ui.dialog.AppDialogRequest.MultiChoice
+            dialogs.respond(shown.id, net.bible.sharedcore.ui.dialog.AppDialogResult.SelectedMany(request.options.map { it.value }))
+            job.await()
+        }
+        val text = Files.readString(path)
+        assertTrue(text.startsWith("osisRef;bibleRef;document;book;"))
+        assertTrue(text.contains("\"first; line\nsecond\""))
+        assertTrue(errors.isEmpty(), "$errors")
+        control.deleteBookmark(bookmark)
+        flow.importBookmarksCsv()
+        val restored = assertNotNull(control.bibleBookmarkById(bookmark.id))
+        assertEquals("first; line\nsecond", restored.notes)
+        assertEquals("star", restored.customIcon)
+        assertTrue(errors.isEmpty(), "$errors")
     }
 
     @Test fun startsWithStartupFixtureModule() {

@@ -153,7 +153,7 @@ class DesktopReadingPaneEngineTest {
     @Test
     fun displayModeSignalFiresOnNightModeStoreChange() {
         val settings = DesktopDeviceSettings(Files.createTempDirectory("night").resolve("prefs.properties"))
-        val signals = DesktopDisplayModeSignals(net.bible.sharedui.desktop.assembly.DesktopNightModeStub(settings), runOnMain = { it() })
+        val signals = DesktopDisplayModeSignals(net.bible.sharedui.desktop.assembly.DesktopNightModeAdapter(net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState(settings)), runOnMain = { it() })
         var fired = 0
         val stop = signals.observe { fired++ }
         try {
