@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.accrescent.bundletool) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
     // Pre-staged for Spec 2 (KMP foundations) — declared apply-false, not yet used:
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.kotlin.compose) apply false
