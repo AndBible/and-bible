@@ -114,6 +114,7 @@ object IosReadingWindows {
                 linkControl = { koin.get<LinkControl>() },
                 links = { koin.get<ExternalLinks>() },
                 openSearch = { host.openSearchWithSelection(it) },
+                copyText = ::iosCopyToPasteboard,
                 llmConfiguredSource = host::llmConfigured,
             ),
             strings = { KeyedSelectionMenuStrings(IosAppStartup.stringTable) },
