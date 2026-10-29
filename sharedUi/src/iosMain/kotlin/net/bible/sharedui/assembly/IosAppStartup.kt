@@ -60,7 +60,7 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSSearchPathDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.preferredLanguages
-import net.bible.sharedui.ios.startup.IosStartupOwner
+import net.bible.sharedui.host.startup.IosStartupOwner
 
 private const val TAG = "IosAppStartup"
 

@@ -21,10 +21,10 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
 import net.bible.sharedui.ios.ports.iosShareFile
-import net.bible.sharedui.ios.report.Attachment
+import net.bible.sharedui.host.report.Attachment
 import net.bible.sharedui.ios.report.IosBugReport
 import net.bible.sharedui.ios.startup.LEGACY_SETTLED_KEY
-import net.bible.sharedui.ios.startup.StartupGateResult
+import net.bible.sharedui.host.startup.StartupGateResult
 
 /**
  * Model shown when [IosLegacyMigrationRunner.run] throws an unexpected error (a failure to apply the extras after the

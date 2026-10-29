@@ -1,4 +1,4 @@
-package net.bible.sharedui.ios.startup
+package net.bible.sharedui.host.startup
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart

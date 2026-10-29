@@ -9,6 +9,7 @@ import okio.Path.Companion.toPath
 import platform.Foundation.*
 import platform.UIKit.*
 import kotlin.test.*
+import net.bible.sharedui.host.report.Attachment
 
 class IosReportLifecycleTest {
     private fun awaitOnMain(block: suspend CoroutineScope.() -> Unit) {

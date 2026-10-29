@@ -1,4 +1,4 @@
-package net.bible.sharedui.ios.startup
+package net.bible.sharedui.host.startup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

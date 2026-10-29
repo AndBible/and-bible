@@ -1,5 +1,5 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-package net.bible.sharedui.ios.startup
+package net.bible.sharedui.host.startup
 
 /** Ordered pre-database gates: calculator, legacy migration, crash recovery, then startup. */
 internal sealed interface StartupGate {

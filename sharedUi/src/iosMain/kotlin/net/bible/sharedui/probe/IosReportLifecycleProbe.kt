@@ -4,7 +4,7 @@ package net.bible.sharedui.probe
 
 import kotlinx.coroutines.*
 import net.bible.sharedcore.platform.files.FilePresentation
-import net.bible.sharedui.ios.report.Attachment
+import net.bible.sharedui.host.report.Attachment
 import net.bible.sharedui.ios.report.IosMailOrShare
 import platform.Foundation.NSURL
 import platform.UIKit.UIViewController

@@ -1,4 +1,5 @@
-package net.bible.sharedui.ios.report
+package net.bible.sharedui.host.report
+
 
 /** Keep a recoverable report failure out of the app's uncaught-exception hook. Cancellation is not a failure. */
 internal suspend fun reportSafely(failure: suspend (Exception) -> Unit, action: suspend () -> Unit) {
