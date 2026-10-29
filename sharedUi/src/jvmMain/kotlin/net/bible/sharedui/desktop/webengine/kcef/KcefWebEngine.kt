@@ -247,7 +247,7 @@ internal class KcefPane(
                 val text = request ?: return true
                 // invokeLater: after AWT's own focus handling of the press.
                 SwingUtilities.invokeLater {
-                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true) }, log) && !evals.consume(text)) onMessage(text)
+                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true); x11Focus.focus(this@KcefPane.browser.uiComponent) }, log) && !evals.consume(text)) onMessage(text)
                 }
                 return true
             }
@@ -283,6 +283,8 @@ internal class KcefPane(
         })
         browser = client.createBrowser(url, CefRendering.DEFAULT, false)
     }
+
+    private val x11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log) }
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */
     val component: Component by lazy { JPanel(BorderLayout()).apply { add(browser.uiComponent, BorderLayout.CENTER) } }
