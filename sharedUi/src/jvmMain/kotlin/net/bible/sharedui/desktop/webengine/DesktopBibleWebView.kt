@@ -69,7 +69,3 @@ class DesktopBibleWebViews(private val engine: DesktopWebEngine, private val log
         panes.keys.toList().forEach(::dispose)
     }
 }
-
-/** Convenience for callers that never dispose panes individually (D1: panes live as long as the process). */
-fun desktopBibleWebViewFactory(engine: DesktopWebEngine, log: (String) -> Unit): BibleWebViewFactory =
-    DesktopBibleWebViews(engine, log).factory

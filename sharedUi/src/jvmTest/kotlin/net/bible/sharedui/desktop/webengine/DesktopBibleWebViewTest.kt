@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class DesktopBibleWebViewTest {
     private val engine = FakeWebEngine()
-    private val factory = desktopBibleWebViewFactory(engine) {}
+    private val factory = DesktopBibleWebViews(engine) {}.factory
 
     @Test
     fun clientReadyProducesStartupSequence() = runComposeUiTest {
@@ -80,7 +80,8 @@ class DesktopBibleWebViewTest {
             }
         }
         val c = PocBibleViewController("w1", "{}", false)
-        setContent { desktopBibleWebViewFactory(early) {}(c, androidx.compose.ui.Modifier) }
+        val earlyFactory = DesktopBibleWebViews(early) {}.factory
+        setContent { earlyFactory(c, androidx.compose.ui.Modifier) }
         assertTrue(engine.pane("w1").evaluated.any { "set_config" in it })
     }
 

@@ -155,6 +155,24 @@ class KcefWebEngine(
         @Synchronized
         fun shutdown() {
             if (initialized) runCatching { KCEF.disposeBlocking() }
+            markShutDown()
+        }
+
+        /** Makes the engine terminal: a later [init] (and so every pane creation) fails clearly instead of blocking. */
+        private fun markShutDown() {
+            initialized = false
+            terminalFailure = IllegalStateException("The KCEF engine was shut down; CEF cannot be restarted in this process")
+        }
+
+        /** Test seam: [shutdown]'s state change without touching CEF. */
+        @Synchronized
+        internal fun markShutDownForTest() = markShutDown()
+
+        /** Test seam: forgets every terminal state so unit tests do not leak into each other. */
+        @Synchronized
+        internal fun resetStateForTest() {
+            initialized = false
+            terminalFailure = null
         }
 
         /** Why [dir] cannot serve as the CEF install dir, or null when it holds the natives. */

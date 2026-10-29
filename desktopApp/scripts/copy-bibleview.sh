@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds app/bibleview-js (production) and copies dist/ + the PoC fixture into $1 (the bibleview-js resource dir).
-# npm ci runs only when node_modules is missing or older than package-lock.json; the build only when dist/ is missing or older than src/.
+# npm ci runs only when node_modules is missing or older than package-lock.json; the build only when dist/ is missing or older than any of src/, public/, package.json, package-lock.json, index.html, vite.config.mts or tsconfig*.json.
 set -eu
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SRC="$ROOT/app/bibleview-js"

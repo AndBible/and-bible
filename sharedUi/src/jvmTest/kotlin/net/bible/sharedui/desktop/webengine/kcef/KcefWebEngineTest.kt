@@ -177,6 +177,30 @@ class KcefWebEngineTest {
     }
 
     @Test
+    fun failAllAnswersEveryCallbackEvenWhenOneThrows() {
+        val evals = EvalReplies()
+        val got = mutableListOf<String>()
+        evals.wrap("1", "post", { got += "a:$it" })
+        evals.wrap("2", "post", { throw IllegalStateException("boom") })
+        evals.wrap("3", "post", { got += "c:$it" })
+        evals.failAll()
+        assertEquals(listOf("a:null", "c:null"), got)
+        assertEquals(0, evals.pendingCount)
+    }
+
+    @Test
+    fun shutdownIsTerminalSoLaterInitFailsClearly() {
+        try {
+            KcefWebEngine.markShutDownForTest()
+            val failure = KcefWebEngine.init(tmp.resolve("whatever")).exceptionOrNull()
+            assertNotNull(failure)
+            assertTrue("shut down" in failure.message!!, failure.message)
+        } finally {
+            KcefWebEngine.resetStateForTest()
+        }
+    }
+
+    @Test
     fun onlyTheBundleOriginIsTrusted() {
         assertTrue(isAtBundleOrigin(BUNDLE_ORIGIN))
         assertTrue(isAtBundleOrigin("$BUNDLE_ORIGIN/"))

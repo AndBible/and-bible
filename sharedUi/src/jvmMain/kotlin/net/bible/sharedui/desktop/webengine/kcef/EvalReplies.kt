@@ -57,7 +57,13 @@ internal class EvalReplies {
     fun failAll() {
         val callbacks = pending.values.toList()
         pending.clear()
-        callbacks.forEach { it(NO_RESULT) }
+        callbacks.forEach { cb ->
+            try {
+                cb(NO_RESULT)
+            } catch (t: Throwable) {
+                System.err.println("EvalReplies: callback threw while being failed: $t")
+            }
+        }
     }
 
     val pendingCount: Int get() = pending.size

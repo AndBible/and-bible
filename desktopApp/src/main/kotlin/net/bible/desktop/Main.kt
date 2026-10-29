@@ -6,13 +6,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.delay
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.system.exitProcess
+import javax.swing.SwingUtilities
 
 /**
  * Starts the desktop PoC on the KCEF engine. `kcef.installDir` (set by `./gradlew :desktopApp:run`) names the CEF
@@ -38,12 +42,23 @@ fun main() {
     val documentJson = BibleViewBundle.pocDocumentJson()
 
     application {
-        Window(
-            title = "AndBible",
-            onCloseRequest = {
+        // Closing is two-phase. Disposing the window while the browsers' SwingPanels are still in the composition
+        // makes the AWT remove the CEF canvases from an already-disposed SkiaLayer ("SkiaLayer is disposed" crash,
+        // process left hanging). So onCloseRequest only flips [closing], which takes the panes out of the
+        // composition; the engine is then shut down and the application exits.
+        var closing by remember { mutableStateOf(false) }
+        if (closing) {
+            LaunchedEffect(Unit) {
+                withFrameNanos { } // the frame that applies the removal of the panes
+                withFrameNanos { }
+                repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } } // AWT's own queued removals
                 session.close()
                 exitApplication()
-            },
+            }
+        }
+        Window(
+            title = "AndBible",
+            onCloseRequest = { closing = true },
         ) {
             // Spike-only (D1 measurements), remove in D2: the theme-flip timer and SpikeOverlay. With no
             // andbible.poc.* properties this is the pre-switch behaviour: SPLIT2, light theme, no overlay.
@@ -58,8 +73,10 @@ fun main() {
                 }
             }
             Box {
-                DesktopPocRoot(documentJson, session.webViews.factory, options.scenario, dark)
-                options.overlay?.let { SpikeOverlay(it) }
+                if (!closing) {
+                    DesktopPocRoot(documentJson, session.webViews.factory, options.scenario, dark)
+                    options.overlay?.let { SpikeOverlay(it) }
+                }
             }
         }
     }
