@@ -5,13 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.graphics.Insets
@@ -29,6 +36,7 @@ import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
+import net.bible.sharedui.components.LocalTopCutoutRects
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -110,13 +118,43 @@ class TopBarCutoutInsetTest {
         return topOfText(text) - before
     }
 
-    private fun withHost(statusVisible: Boolean, content: @Composable () -> Unit) = compose.setContent {
+    private fun withHost(
+        statusVisible: Boolean,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        content: @Composable () -> Unit,
+    ) = compose.setContent {
         ProvideAppLocals {
-            CompositionLocalProvider(LocalHostSystemBars provides HostSystemBars(statusVisible, navVisible = true)) {
+            CompositionLocalProvider(
+                LocalHostSystemBars provides HostSystemBars(statusVisible, navVisible = true),
+                LocalTopCutoutRects provides cutoutRects.value,
+                LocalLayoutDirection provides layoutDirection,
+            ) {
                 content()
             }
         }
     }
+
+    /** The top cutout rects the bars see (window px); null = read the platform's. */
+    private val cutoutRects = mutableStateOf<List<IntRect>?>(null)
+
+    @Composable
+    private fun readingScreen() = Box(Modifier.fillMaxSize()) {
+        ReadingViewScreen(
+            layout = layout(), toolbar = ToolbarState.EMPTY, toolbarIcons = icons(),
+            toolbarCallbacks = callbacks(), fullScreen = false,
+            onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
+            pane = { Box(Modifier.fillMaxSize().testTag("pane")) },
+        )
+    }
+
+    private fun rootWidth(): Int = compose.activity.findViewById<ViewGroup>(android.R.id.content).width
+
+    private fun menuButton() = compose.onNodeWithContentDescription(compose.activity.getString(R.string.menu))
+        .fetchSemanticsNode().boundsInRoot
+
+    private fun overflowButton() =
+        compose.onNodeWithContentDescription(compose.activity.getString(R.string.reading_toolbar_options))
+            .fetchSemanticsNode().boundsInRoot
 
     private fun mountReading() = compose.setContent {
         ProvideAppLocals {
@@ -246,5 +284,93 @@ class TopBarCutoutInsetTest {
             ) { pv -> Box(Modifier.fillMaxSize().padding(pv).testTag("content")) }
         }
         assertEquals(0f, shift("content", statusTop = 0, cutoutTop = 60), 1f)
+    }
+
+    // #3900: with the status bar hidden the cutout band is NOT reserved vertically, but a top cutout over an
+    // edge button (the emulator's top-left hole) is cleared sideways, just past the hole.
+
+    private val leftHole = IntRect(10, 5, 40, 35)
+
+    /** Shift of [bounds] after setting the cutout rects to [to], relative to no rects. */
+    private fun sideShift(to: List<IntRect>, bounds: () -> Float): Float {
+        cutoutRects.value = null
+        dispatch(0, 35)
+        val before = bounds()
+        cutoutRects.value = to
+        compose.waitForIdle()
+        return bounds() - before
+    }
+
+    @Test fun readingToolbarClearsATopLeftHoleSidewaysWhenTheHostHidesTheStatusBar() {
+        withHost(statusVisible = false) { readingScreen() }
+        assertEquals(40f, sideShift(listOf(leftHole)) { menuButton().left }, 1f)
+        assertEquals(0f, shift("pane", statusTop = 0, cutoutTop = 35), 1f)
+    }
+
+    @Test fun readingToolbarClearsATopRightHoleOnTheRight() {
+        withHost(statusVisible = false) { readingScreen() }
+        dispatch(0, 0)
+        val w = rootWidth()
+        assertEquals(-40f, sideShift(listOf(IntRect(w - 40, 5, w - 10, 35))) { overflowButton().right }, 1f)
+    }
+
+    // RTL mirrors the row: the menu button is on the right, and a top-right hole is cleared there.
+    @Test fun readingToolbarClearsAHoleOverTheMenuButtonInRtl() {
+        withHost(statusVisible = false, layoutDirection = LayoutDirection.Rtl) { readingScreen() }
+        dispatch(0, 0)
+        val w = rootWidth()
+        assertEquals(w.toFloat(), menuButton().right, 1f)
+        assertEquals(-40f, sideShift(listOf(IntRect(w - 40, 5, w - 10, 35))) { menuButton().right }, 1f)
+    }
+
+    // A centred hole (Pixel 7) only covers the title; it stays there.
+    @Test fun readingToolbarLeavesACentredHoleAlone() {
+        withHost(statusVisible = false) { readingScreen() }
+        dispatch(0, 0)
+        val w = rootWidth()
+        assertEquals(0f, sideShift(listOf(IntRect(w / 2 - 15, 5, w / 2 + 15, 35))) { menuButton().left }, 1f)
+    }
+
+    // With the status bar shown the band is reserved vertically; no sideways padding on top of that.
+    @Test fun readingToolbarDoesNotPadSidewaysWhenTheHostShowsTheStatusBar() {
+        withHost(statusVisible = true) { readingScreen() }
+        assertEquals(0f, sideShift(listOf(leftHole)) { menuButton().left }, 1f)
+    }
+
+    // No host state (goldens, previews): unchanged.
+    @Test fun readingToolbarDoesNotPadSidewaysWithNoHostState() {
+        compose.setContent {
+            ProvideAppLocals {
+                CompositionLocalProvider(LocalTopCutoutRects provides cutoutRects.value) { readingScreen() }
+            }
+        }
+        assertEquals(0f, sideShift(listOf(leftHole)) { menuButton().left }, 1f)
+    }
+
+    @Test fun abTopAppBarClearsATopLeftHoleSidewaysWhenTheHostHidesTheStatusBar() {
+        withHost(statusVisible = false) { AbTopAppBar(title = { Text("T", Modifier.testTag("title")) }) }
+        assertEquals(40f, sideShift(listOf(leftHole)) { left("title") }, 1f)
+        assertEquals(0f, shift("title", statusTop = 0, cutoutTop = 35), 1f)
+    }
+
+    @Test fun abSearchBarClearsATopLeftHoleSidewaysWhenTheHostHidesTheStatusBar() {
+        withHost(statusVisible = false) {
+            AbTopAppBar(title = {}, search = searchState(), searchCallbacks = searchCallbacks())
+        }
+        assertEquals(40f, sideShift(listOf(leftHole)) { compose.onNodeWithText("ph").fetchSemanticsNode().boundsInRoot.left }, 1f)
+    }
+
+    @Test fun selectionBarClearsATopRightHoleSidewaysWhenTheHostHidesTheStatusBar() {
+        withHost(statusVisible = false) {
+            AbSelectionScaffold(
+                title = "x", selectionMode = true, selectedCount = 3,
+                onNavigateUp = {}, onExitSelection = {},
+                selectionActions = { Box(Modifier.size(24.dp).testTag("action")) },
+            ) { pv -> Box(Modifier.fillMaxSize().padding(pv).testTag("content")) }
+        }
+        dispatch(0, 0)
+        val w = rootWidth()
+        val action = { compose.onNodeWithTag("action").fetchSemanticsNode().boundsInRoot.right }
+        assertEquals(-40f, sideShift(listOf(IntRect(w - 40, 5, w - 10, 35)), action), 1f)
     }
 }

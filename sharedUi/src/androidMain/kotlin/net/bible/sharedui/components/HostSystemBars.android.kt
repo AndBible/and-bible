@@ -1,8 +1,15 @@
 package net.bible.sharedui.components
 
+import android.os.Build
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -24,5 +31,26 @@ actual fun MirrorHostSystemBars() {
             }
         }
         onDispose {}
+    }
+}
+
+@Composable
+internal actual fun platformTopCutoutRects(): List<IntRect> {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return emptyList()
+    val view = LocalView.current
+    val density = LocalDensity.current
+    val direction = LocalLayoutDirection.current
+    // Compose keeps only the cutout's safe insets, not its rects. Reading them (state-backed) recomposes this
+    // when the cutout changes (rotation, a cutout overlay), and keys the platform read below.
+    val cutout = WindowInsets.displayCutout
+    val safe = listOf(cutout.getLeft(density, direction), cutout.getTop(density), cutout.getRight(density, direction))
+    return remember(view, safe) {
+        val c = view.rootWindowInsets?.displayCutout ?: return@remember emptyList()
+        val rects = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            listOf(c.boundingRectTop).filterNot { it.isEmpty }
+        } else {
+            c.boundingRects.filter { it.top == 0 && !it.isEmpty }
+        }
+        rects.map { IntRect(it.left, it.top, it.right, it.bottom) }
     }
 }
