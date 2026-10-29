@@ -79,7 +79,8 @@ class KcefLiveTest {
                     "</head><body>live</body></html>",
             )
             val engine = KcefWebEngine(installDir, dir)
-            KcefWebEngine.init(installDir).getOrThrow()
+            val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
+            KcefWebEngine.init(installDir, args).getOrThrow()
             SwingUtilities.invokeAndWait {
                 val p = engine.createPane("live", engine.bundleUrl("en", false), emptyList()) { text ->
                     messages.offer(text to SwingUtilities.isEventDispatchThread())

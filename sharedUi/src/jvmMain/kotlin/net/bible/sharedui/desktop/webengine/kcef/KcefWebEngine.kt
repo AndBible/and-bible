@@ -37,6 +37,8 @@ import java.nio.file.Path
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.Timer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -53,7 +55,8 @@ import kotlin.coroutines.CoroutineContext
  *   external links in the system browser belongs to a later desktop stage (D3b).
  * - Evaluate: every callback is answered exactly once, with `"null"` when no reply can come (pane disposed, main frame
  *   loading a new document, or [EVAL_TIMEOUT_MS] elapsed).
- * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`).
+ * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`). No GPU switches: without a usable
+ *   GPU, Chromium's GPU process fails and it falls back to software compositing by itself.
  */
 class KcefWebEngine(
     private val installDir: Path,
@@ -77,6 +80,8 @@ class KcefWebEngine(
         /** How long an evaluate callback waits for the page's reply before it gets `"null"`. */
         const val EVAL_TIMEOUT_MS = 10_000
 
+        private const val INIT_TIMEOUT_S = 30L
+
         private var initialized = false
 
         /**
@@ -89,21 +94,42 @@ class KcefWebEngine(
             nativesProblem(installDir)?.let { return Result.failure(IllegalStateException(it)) }
             var error: Throwable? = null
             var restartRequired = false
+            // JBR's JCEF ignores the subprocess/resources paths in the settings and takes them from
+            // `java.home/lib` (it is built to run inside the JetBrains Runtime). installDir is such a `lib`, so
+            // java.home points at its parent until CEF has initialised, then goes back (the JDK read it at startup).
+            val realJavaHome = System.getProperty("java.home")
+            val initialised = CountDownLatch(1)
+            System.setProperty("java.home", installDir.toAbsolutePath().parent.toString())
             try {
                 KCEF.initBlocking(
                     builder = {
                         installDir(installDir.toFile())
-                        if (extraArgs.isNotEmpty()) addArgs(*extraArgs.toTypedArray())
+                        progress { onInitialized { initialised.countDown() } }
+                        // KCEF's own args() never reach Chromium (its default app handler is built with none): the
+                        // switches must go through the app handler.
+                        appHandler(KCEF.AppHandler(extraArgs.toTypedArray()))
                         settings {
-                            logSeverity = KCEFBuilder.Settings.LogSeverity.Disable
+                            // Chromium's sandbox needs a setuid chrome-sandbox or unprivileged user namespaces, which
+                            // containers and AppArmor-restricted distributions (Ubuntu 24.04+) refuse. JBR/IntelliJ run
+                            // JCEF unsandboxed too; the pane only loads the bundled origin (navigation is locked).
+                            noSandbox = true
+                            // Diagnosis: -Dkcef.logFile=<path> writes CEF's own log (Info and up) there.
+                            val logPath = System.getProperty("kcef.logFile")
+                            logSeverity = if (logPath == null) KCEFBuilder.Settings.LogSeverity.Disable else KCEFBuilder.Settings.LogSeverity.Info
+                            if (logPath != null) logFile = logPath
                             windowlessRenderingEnabled = false
                         }
                     },
                     onError = { error = it ?: IllegalStateException("unknown KCEF error") },
                     onRestartRequired = { restartRequired = true },
                 )
+                if (error == null && !restartRequired && !initialised.await(INIT_TIMEOUT_S, TimeUnit.SECONDS)) {
+                    error = IllegalStateException("CEF did not finish initialising within $INIT_TIMEOUT_S s")
+                }
             } catch (t: Throwable) {
                 error = t
+            } finally {
+                System.setProperty("java.home", realJavaHome)
             }
             val failure = error ?: if (restartRequired) IllegalStateException("KCEF asked for a restart") else null
             if (failure != null) {
@@ -123,6 +149,7 @@ class KcefWebEngine(
         internal fun nativesProblem(dir: Path): String? {
             val hint = "build them with ./gradlew :desktopApp:prepareKcefNatives (CEF natives are never downloaded at run time)"
             if (!Files.isDirectory(dir)) return "CEF natives directory $dir does not exist; $hint"
+            if (dir.fileName?.toString() != "lib") return "CEF natives directory $dir must be a JBR-style <home>/lib directory; $hint"
             if (!Files.isRegularFile(dir.resolve("install.lock"))) return "CEF natives directory $dir has no install.lock; $hint"
             val libraries = listOf("libcef.so", "libcef.dll", "Frameworks")
             if (libraries.none { Files.exists(dir.resolve(it)) }) return "CEF natives directory $dir has no CEF library (${libraries.joinToString()}); $hint"

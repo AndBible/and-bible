@@ -25,16 +25,18 @@ dependencies {
 // CEF natives for KCEF (:sharedUi's KcefWebEngine). KCEF 2025.03.23's JCEF Java API matches the JCEF natives of this
 // JetBrains Runtime release (KCEF's release notes: "compatible with jbr-release-17.0.14b1367.22"). They are fetched
 // once at build time into kcefNativesDir (KCEF's install dir); the app never downloads anything at run time.
+// The dir is `build/kcef-natives/lib`, a JBR-shaped `<home>/lib`: JBR's JCEF finds jcef_helper and the .pak resources
+// under `java.home/lib`, so KcefWebEngine points java.home at `build/kcef-natives` while CEF initialises.
 val kcefJbrTag = "jbr-release-17.0.14b1367.22"
 
 /**
- * The pinned hex digest (SHA-256: 64 chars, SHA-512: 128 chars) of the Linux x64 natives archive of [kcefJbrTag].
- * Deliberately unset until the archive has been downloaded and checked once (the natives host was unreachable when
- * this task was written); while null, only the `.checksum` served next to the archive is checked, which proves the
- * download intact but not authentic. Once set, a `.checksum` that disagrees with it fails the build.
+ * The pinned SHA-512 of the Linux x64 natives archive of [kcefJbrTag] (jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz,
+ * 193 MiB; its SHA-256 is 496e9a8b4bec55741b3f6cf1111ca3fab870aa6a176d62d870629e5c675a199e). A `.checksum` served
+ * next to the archive that disagrees with it fails the build. Other OS/arch packages are not supported in D1.
  */
-val kcefNativesDigest: String? = null
-val kcefNativesDir = layout.buildDirectory.dir("kcef-natives")
+val kcefNativesDigest: String? =
+    "1c875b43de4d20deb429a686331e4ea5c7c34c519569d1a3b785867d761ed002941203f79b19a338e4a49fab48a6cd4d35408a7356f55781e95c3d60c6c5a8d1"
+val kcefNativesDir = layout.buildDirectory.dir("kcef-natives/lib")
 val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
 
 /**
@@ -79,6 +81,7 @@ abstract class PrepareKcefNatives : DefaultTask() {
         extract.deleteRecursively()
         target.deleteRecursively()
         extract.mkdirs()
+        target.parentFile.mkdirs()
         exec.exec { commandLine("tar", "-xzf", archive.absolutePath, "-C", extract.absolutePath) }
         val lib = extract.listFiles()?.map { File(it, "lib") }?.firstOrNull { it.isDirectory }
             ?: throw GradleException("No <jbr>/lib directory in ${archive.name}")
@@ -130,7 +133,7 @@ abstract class PrepareKcefNatives : DefaultTask() {
 
 val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
     group = "build"
-    description = "Fetches the CEF natives ($kcefJbrTag) into build/kcef-natives, KCEF's install dir."
+    description = "Fetches the CEF natives ($kcefJbrTag) into build/kcef-natives/lib, KCEF's install dir."
     val os = System.getProperty("os.name").lowercase()
     val arch = when (System.getProperty("os.arch")) {
         "amd64", "x86_64" -> "x64"
@@ -159,10 +162,15 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
 compose.desktop {
     application {
         mainClass = "net.bible.desktop.MainKt"
+        // The JCEF natives are JBR 17 builds: run on the JDK 17 toolchain, never on whatever JDK runs Gradle.
+        javaHome = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
+            .get().metadata.installationPath.asFile.absolutePath
         jvmArgs += kcefJvmArgs
         // D1 only: `run` points the app at the natives in this build dir by absolute path. Shipping the natives inside
         // the packaged distribution (and resolving them relative to it) is D4a.
         jvmArgs += "-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}"
+        // Optional extra Chromium switches for `run`, e.g. -Pkcef.args=--remote-debugging-port=9222 (debugging, CDP).
+        providers.gradleProperty("kcef.args").orNull?.let { jvmArgs += "-Dkcef.args=$it" }
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }

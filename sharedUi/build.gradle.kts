@@ -168,9 +168,9 @@ tasks.matching { it.name == "jvmTest" }.configureEach {
 
 // Live KCEF tests (KcefLiveTest, in the jvmTest source set): a windowed Chromium needs a non-headless AWT, which the
 // headless jvmTest run above cannot give, so they run in their own task. `kcef.installDir` is passed only when the
-// natives that `:desktopApp:prepareKcefNatives` produces exist at execution time (no task dependency on :desktopApp);
+// natives that `:desktopApp:prepareKcefNatives` produces (desktopApp/build/kcef-natives/lib) exist at execution time (no task dependency on :desktopApp);
 // without them, or without DISPLAY, the tests skip themselves. In jvmTest they always skip (headless).
-val kcefNativesDir = rootProject.layout.projectDirectory.dir("desktopApp/build/kcef-natives").asFile
+val kcefNativesDir = rootProject.layout.projectDirectory.dir("desktopApp/build/kcef-natives/lib").asFile
 tasks.register<Test>("jvmKcefTest") {
     group = "verification"
     description = "Runs the live KCEF tests (needs desktopApp/build/kcef-natives and DISPLAY)."
@@ -179,7 +179,12 @@ tasks.register<Test>("jvmKcefTest") {
     classpath = testCompilation.output.allOutputs + testCompilation.runtimeDependencyFiles!!
     filter { includeTestsMatching("net.bible.sharedui.desktop.webengine.kcef.KcefLiveTest") }
     systemProperty("java.awt.headless", "false")
+    // The JCEF natives are JBR 17 builds: the test JVM must be the JDK 17 toolchain.
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) })
     jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+    // Extra Chromium switches for diagnosis (space-separated), e.g. -Pkcef.args="--enable-logging=stderr --v=1".
+    providers.gradleProperty("kcef.args").orNull?.let { systemProperty("kcef.args", it) }
+    providers.gradleProperty("kcef.logFile").orNull?.let { systemProperty("kcef.logFile", it) }
     jvmArgumentProviders.add(CommandLineArgumentProvider {
         if (File(kcefNativesDir, "install.lock").isFile) listOf("-Dkcef.installDir=${kcefNativesDir.absolutePath}") else emptyList()
     })
