@@ -2,7 +2,7 @@ package net.bible.desktop
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.poc.PocScenario
 import net.bible.sharedui.webview.PlaceholderBibleWebView
 import kotlin.test.Test
