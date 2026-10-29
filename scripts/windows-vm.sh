@@ -106,11 +106,12 @@ start_vm() {
   mkdir -p "$RUNS"
   run_dir="$RUNS/$id"
   mkdir -p "$run_dir"
-  cp "$vars" "$run_dir/OVMF_VARS.ms.fd"
+  cp "${BASE}.vars" "$run_dir/OVMF_VARS.ms.fd" 2>/dev/null || cp "$vars" "$run_dir/OVMF_VARS.ms.fd"
+  chmod u+w "$run_dir/OVMF_VARS.ms.fd"
   qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$run_dir/overlay.qcow2" >/dev/null
   touch "$run_dir/lock"
   local qmp_sock="$run_dir/qmp.sock"
-  "$QEMU" -name windows-vm -enable-kvm -m "$RAM" -smp "$CPUS" \
+  "$QEMU" -name windows-vm -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
     -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
@@ -159,16 +160,105 @@ stop_vm() {
   stop_locked
 }
 
+ssh_options() {
+  SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=$VM_DIR/known_hosts")
+}
+
+install_vm() {
+  umask 077
+  mkdir -p "$VM_DIR" "$STATE" "$RUNS"
+  chmod 700 "$VM_DIR"
+  exec 7>"$VM_DIR/install.lock"; flock -n 7 || error 'another install is running'
+  exec 9>"$STATE/lock"; flock -n 9 || error 'VM state is busy'
+  [[ ! -e "$BASE" && ! -e "${BASE}.vars" ]] || error 'base image or firmware already exists; refusing to overwrite'
+  owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'VM is already running'
+  local iso=${WINDOWS_VM_ISO:-$ROOT/.local/win.iso} listing run_dir qpid deadline next_shot now boot_deadline shot_count=0
+  [[ -r "$iso" && -s "$iso" ]] || error "Windows ISO not readable: $iso"
+  command -v 7z >/dev/null || error '7z is required to validate Windows media'
+  listing=$(7z l "$iso" 2>/dev/null) || error 'cannot read Windows ISO'
+  [[ "${listing,,}" == *'sources/install.wim'* || "${listing,,}" == *'sources/install.esd'* ]] || error 'Windows ISO has no installation image'
+  [[ "${listing,,}" == *'sources/boot.wim'* ]] || error 'Windows ISO has no boot image'
+  command -v xorriso >/dev/null || error 'xorriso is required to create the answer ISO'
+  command -v ssh-keygen >/dev/null || error 'ssh-keygen is required'
+  if [[ ! -e "$VM_DIR/password" ]]; then openssl rand -hex 24 > "$VM_DIR/password"; fi
+  chmod 600 "$VM_DIR/password"
+  if [[ ! -e "$VM_DIR/id_ed25519" && ! -e "$VM_DIR/id_ed25519.pub" ]]; then ssh-keygen -q -t ed25519 -N '' -f "$VM_DIR/id_ed25519"; fi
+  [[ -s "$VM_DIR/id_ed25519" && -s "$VM_DIR/id_ed25519.pub" ]] || error 'incomplete SSH key pair'
+  chmod 600 "$VM_DIR/id_ed25519"
+  run_dir="$RUNS/install-$(date -u +%Y%m%dT%H%M%S).$$.$RANDOM"
+  mkdir -p "$run_dir/answer" "$run_dir/install-shots"
+  python3 - "$ROOT/scripts/windows-vm/autounattend.xml" "$run_dir/answer/autounattend.xml" "$VM_DIR/password" <<'PYINSTALL'
+import pathlib, sys, xml.sax.saxutils
+source, dest, password = map(pathlib.Path, sys.argv[1:])
+dest.write_text(source.read_text().replace('@@PASSWORD@@', xml.sax.saxutils.escape(password.read_text().strip())))
+PYINSTALL
+  cp "$ROOT/scripts/windows-vm/firstlogon.ps1" "$run_dir/answer/firstlogon.ps1"
+  cp "$VM_DIR/id_ed25519.pub" "$run_dir/answer/authorized_key.pub"
+  xorriso -as mkisofs -quiet -V ABANSWER -o "$run_dir/answer.iso" "$run_dir/answer" 2>"$run_dir/iso.log" || error 'could not create answer ISO'
+  chmod 600 "$run_dir/answer.iso" "$run_dir/answer/"*
+  cp /usr/share/OVMF/OVMF_VARS_4M.ms.fd "$run_dir/OVMF_VARS.ms.fd"
+  qemu-img create -f qcow2 "$run_dir/install.qcow2" "${WINDOWS_VM_DISK_SIZE:-80G}" >"$run_dir/qemu-img.log"
+  touch "$run_dir/lock"
+  "$QEMU" -name windows-vm-install -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
+    -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
+    -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
+    -device ahci,id=sata0 -drive "file=$run_dir/install.qcow2,if=none,id=disk0,format=qcow2" -device ide-hd,drive=disk0,bus=sata0.0 \
+    -drive "file=$iso,if=none,id=cd0,media=cdrom,readonly=on" -device ide-cd,drive=cd0,bus=sata0.1,bootindex=1 \
+    -drive "file=$run_dir/answer.iso,if=none,id=cd1,media=cdrom,readonly=on" -device ide-cd,drive=cd1,bus=sata0.2 \
+    -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" -device e1000e,netdev=net0 \
+    -display none -serial mon:stdio -qmp "unix:$run_dir/qmp.sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 7>&- 9>&- &
+  qpid=$!
+  printf '%s\n' "$qpid" > "$STATE/qemu.pid"; printf '%s\n' "$run_dir" > "$STATE/run-dir"
+  for _ in {1..20}; do process_identity "$qpid" > "$STATE/qemu.start" 2>/dev/null && break; sleep .01; done
+  [[ -s "$STATE/qemu.start" ]] || { kill "$qpid" 2>/dev/null || true; error 'could not record QEMU process identity'; }
+  trap 'terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || true; rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"' EXIT
+  ssh_options
+  deadline=$((SECONDS + ${WINDOWS_VM_INSTALL_TIMEOUT:-5400})); next_shot=$SECONDS; boot_deadline=$((SECONDS + 30))
+  printf 'Installer running; logs and screenshots: %s\n' "$run_dir"
+  while (( SECONDS < deadline )); do
+    owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || error "installer QEMU exited; see $run_dir/qemu.log"
+    now=$SECONDS
+    if (( now >= next_shot )) && [[ -S "$run_dir/qmp.sock" ]]; then
+      shot_count=$((shot_count+1))
+      raw="$run_dir/install-shots/$(printf '%04d' "$shot_count").ppm"
+      if qmp "$run_dir/qmp.sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}" >/dev/null 2>&1; then
+        python3 - "$raw" "${raw%.ppm}.png" <<'PYSHOT'
+from PIL import Image
+import sys
+Image.open(sys.argv[1]).save(sys.argv[2])
+PYSHOT
+        rm -f "$raw"
+      fi
+      next_shot=$((now + 300))
+    fi
+    if (( now < boot_deadline )) && [[ -S "$run_dir/qmp.sock" ]]; then "$ROOT/scripts/windows-vm.sh" key spc >/dev/null 2>&1 || true; fi
+    if ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'if (Test-Path C:\abtest\ready.txt) { exit 0 } else { exit 1 }' >/dev/null 2>&1; then
+      ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'shutdown.exe /s /t 0' >/dev/null 2>&1 || error 'failed to request clean shutdown'
+      for _ in {1..120}; do owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || break; sleep 1; done
+      owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'clean shutdown timed out; base not promoted'
+      wait "$qpid" || error 'QEMU exited unsuccessfully; base not promoted'
+      chmod a-w "$run_dir/install.qcow2" "$run_dir/OVMF_VARS.ms.fd"
+      [[ ! -e "$BASE" && ! -e "${BASE}.vars" ]] || error 'base appeared during install; refusing promotion'
+      ln "$run_dir/OVMF_VARS.ms.fd" "${BASE}.vars" || error 'could not promote firmware'
+      ln "$run_dir/install.qcow2" "$BASE" || { rm -f "${BASE}.vars"; error 'could not promote base'; }
+      printf 'Windows base installed: %s\n' "$BASE"
+      return
+    fi
+    sleep 5
+  done
+  error "install timed out; see $run_dir"
+}
+
 [[ $# -gt 0 ]] || usage
 cmd=$1; shift
 case "$cmd" in
-  install) error 'install is not implemented; provide a Windows base image at WINDOWS_VM_BASE' ;;
+  install) install_vm ;;
   start) start_vm ;;
   stop) stop_vm ;;
-  status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; else echo 'stopped'; fi ;;
-  ssh) exec ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${WINDOWS_VM_USER:-windows}@127.0.0.1" "$@" ;;
-  scp-to) [[ $# == 2 ]] || usage; exec scp -P "$SSH_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$1" "${WINDOWS_VM_USER:-windows}@127.0.0.1:$2" ;;
-  scp-from) [[ $# == 2 ]] || usage; exec scp -P "$SSH_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${WINDOWS_VM_USER:-windows}@127.0.0.1:$1" "$2" ;;
+  status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
+  ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
+  scp-to) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$2" ;;
+  scp-from) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$1" "$2" ;;
   shot) [[ $# == 1 ]] || usage; mkdir -p "$VM_DIR/shots"; run_dir=$(<"$STATE/run-dir"); raw="$VM_DIR/shots/$1.ppm"; qmp "$run_dir/qmp.sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}"; python3 - "$raw" "$VM_DIR/shots/$1.png" <<'PY'
 from PIL import Image
 import sys

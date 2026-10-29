@@ -363,7 +363,29 @@ stopKillsQemu() {
   if kill -0 "$qemu" 2>/dev/null && [[ $(ps -o stat= -p "$qemu" | tr -d ' ') != Z* ]]; then fail 'QEMU remained alive after stop'; fi
 }
 
-for test in qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+installAnswerHasRequiredConfiguration() {
+  python3 - "$ROOT/scripts/windows-vm/autounattend.xml" <<'PY'
+import sys, xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+text = ' '.join(root.itertext())
+for expected in ('BypassTPMCheck', 'BypassSecureBootCheck', 'BypassRAMCheck', 'fi-FI', 'abtest', 'ABANSWER'):
+    assert expected in text, expected
+assert text.count('REG_DWORD /d 1') == 3
+PY
+}
+
+installRejectsMissingIso() {
+  if WINDOWS_VM_BASE="$TMP/no-base" WINDOWS_VM_ISO="$TMP/missing.iso" run install >"$TMP/install-missing.out" 2>&1; then fail 'install accepted missing ISO'; fi
+  grep -qi 'ISO not readable' "$TMP/install-missing.out" || fail 'missing ISO not explained'
+  [[ ! -e "$TMP/no-base" ]] || fail 'missing ISO created base'
+}
+
+installRefusesExistingBase() {
+  if run install >"$TMP/install-existing.out" 2>&1; then fail 'install overwrote existing base'; fi
+  grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
+}
+
+for test in installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'
