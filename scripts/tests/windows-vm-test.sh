@@ -392,6 +392,33 @@ SH
   rm -f "$FAKE/7z" "$FAKE/ssh"
 }
 
+installShutdownTimeoutsPreserveDiagnostics() {
+  local root iso="$TMP/shutdown.iso" output mode
+  printf 'fake' > "$iso"
+  cat > "$FAKE/7z" <<'SH'
+#!/usr/bin/env bash
+printf 'sources/install.wim\nsources/boot.wim\n'
+SH
+  cat > "$FAKE/ssh" <<'SH'
+#!/usr/bin/env bash
+if [[ "$*" == *shutdown.exe* ]]; then
+  if [[ "$FAKE_SHUTDOWN_MODE" == hang ]]; then sleep 20; fi
+  exit 0
+fi
+if [[ "$FAKE_SHUTDOWN_MODE" == late ]]; then sleep 3; fi
+exit 0
+SH
+  chmod +x "$FAKE/7z" "$FAKE/ssh"
+  for mode in late hang noexit; do
+    root="$TMP/shutdown-$mode"; output="$TMP/shutdown-$mode.out"
+    if FAKE_SHUTDOWN_MODE="$mode" WINDOWS_VM_DIR="$root" WINDOWS_VM_BASE="$root/base.qcow2" WINDOWS_VM_ISO="$iso" WINDOWS_VM_INSTALL_TIMEOUT=3 run install >"$output" 2>&1; then fail "$mode install succeeded"; fi
+    [[ -f "$root/install-shots/final.png" ]] || fail "$mode final screenshot missing"
+    grep -Fq "$root/install-shots/final.png" "$output" || fail "$mode screenshot path not reported"
+    [[ ! -e "$root/base.qcow2" ]] || fail "$mode promoted base"
+  done
+  rm -f "$FAKE/7z" "$FAKE/ssh"
+}
+
 answerIsoExposesWindowsFilenames() {
   local source="$TMP/iso-source" iso="$TMP/test-answer.iso" listing
   mkdir -p "$source"
@@ -438,7 +465,7 @@ installRefusesExistingBase() {
   grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
 }
 
-for test in installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

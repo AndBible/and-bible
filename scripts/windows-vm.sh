@@ -196,6 +196,19 @@ PYSHOT
   return "$result"
 }
 
+install_timeout_failure() {
+  local reason=$1
+  if ! WINDOWS_VM_QMP_TIMEOUT=3 install_screenshot "$qmp_sock" "$run_dir/install-shots/final.png"; then
+    printf 'windows-vm: final screenshot capture failed\n' >&2
+  fi
+  ln -sfn "$run_dir/install-shots" "$VM_DIR/install-shots.new.$$"
+  mv -Tf "$VM_DIR/install-shots.new.$$" "$VM_DIR/install-shots"
+  if [[ -f "$run_dir/install-shots/final.png" ]]; then
+    error "$reason; final screenshot: $VM_DIR/install-shots/final.png"
+  fi
+  error "$reason; final screenshot unavailable; screenshots: $run_dir/install-shots"
+}
+
 install_vm() {
   local deadline=$((SECONDS + ${WINDOWS_VM_INSTALL_TIMEOUT:-5400}))
   umask 077
@@ -265,10 +278,16 @@ PYINSTALL
     remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
     (( remaining > 10 )) && remaining=10
     if timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'if (Test-Path C:\abtest\ready.txt) { exit 0 } else { exit 1 }' >/dev/null 2>&1; then
-      remaining=$((deadline - SECONDS)); (( remaining > 0 )) || error 'install deadline exceeded before shutdown'
-      timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'shutdown.exe /s /t 0' >/dev/null 2>&1 || error 'failed to request clean shutdown'
+      remaining=$((deadline - SECONDS)); (( remaining > 0 )) || install_timeout_failure 'install deadline exceeded before shutdown'
+      if timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'shutdown.exe /s /t 0' >/dev/null 2>&1; then
+        :
+      else
+        local shutdown_status=$?
+        if (( shutdown_status == 124 || SECONDS >= deadline )); then install_timeout_failure 'shutdown request timed out'; fi
+        error 'failed to request clean shutdown'
+      fi
       for _ in {1..120}; do owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || break; (( SECONDS < deadline )) || break; sleep 1; done
-      owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'clean shutdown timed out; base not promoted'
+      if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then install_timeout_failure 'clean shutdown timed out; base not promoted'; fi
       wait "$qpid" || error 'QEMU exited unsuccessfully; base not promoted'
       [[ -s "$run_dir/known_hosts" ]] || error 'SSH host key was not recorded'
       cp "$run_dir/known_hosts" "$VM_DIR/known_hosts.new.$$"
@@ -288,16 +307,7 @@ PYINSTALL
     (( remaining > 5 )) && remaining=5
     sleep "$remaining"
   done
-  # Capture once after the deadline, with a small bounded diagnostic allowance.
-  if ! WINDOWS_VM_QMP_TIMEOUT=3 install_screenshot "$qmp_sock" "$run_dir/install-shots/final.png"; then
-    printf 'windows-vm: final screenshot capture failed\n' >&2
-  fi
-  ln -sfn "$run_dir/install-shots" "$VM_DIR/install-shots.new.$$"
-  mv -Tf "$VM_DIR/install-shots.new.$$" "$VM_DIR/install-shots"
-  if [[ -f "$run_dir/install-shots/final.png" ]]; then
-    error "install timed out; final screenshot: $VM_DIR/install-shots/final.png"
-  fi
-  error "install timed out; final screenshot unavailable; screenshots: $run_dir/install-shots"
+  install_timeout_failure 'install timed out'
 }
 
 [[ $# -gt 0 ]] || usage
