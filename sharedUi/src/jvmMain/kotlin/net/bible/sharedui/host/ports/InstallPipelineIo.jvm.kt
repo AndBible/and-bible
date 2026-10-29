@@ -18,6 +18,7 @@ package net.bible.sharedui.host.ports
 
 import net.bible.service.installzip.JobId
 import net.bible.sharedui.assembly.HostDebugArgs
+import net.bible.sharedui.desktop.assembly.DesktopNoDebugArgs
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Source
@@ -29,15 +30,12 @@ import java.util.UUID
 
 internal actual fun installPipelineIo(): InstallPipelineIo = JvmInstallPipelineIo()
 
-/** No debug launch arguments on the desktop. */
-private object NoDebugArgs : HostDebugArgs
-
 /**
  * The `java.nio` implementation of [InstallPipelineIo] (the Foundation one's counterpart). [tempDir] is injectable so
  * tests keep their files in a temporary directory.
  */
 internal class JvmInstallPipelineIo(
-    override val debugArgs: HostDebugArgs = NoDebugArgs,
+    override val debugArgs: HostDebugArgs = DesktopNoDebugArgs,
     private val temp: () -> java.nio.file.Path = { Paths.get(System.getProperty("java.io.tmpdir")) },
 ) : InstallPipelineIo {
     override fun tempDir(): Path = temp().toOkioPath()

@@ -95,7 +95,7 @@ class DesktopPortContractTest {
         if (failures.isNotEmpty()) fail("Unresolvable port types:\n" + failures.joinToString("\n"))
     }
 
-    @Test fun resolvingCreatesNoDatabaseAndNoNetworkFiles() = withKoin { koin, root ->
+    @Test fun resolvingCreatesNoDatabaseFile() = withKoin { koin, root ->
         (IOS_BOUND_PORT_TYPES + IOS_HOST_BINDING_TYPES).forEach { koin.getOrNull<Any>(it) }
         // The data dir may get its device-settings/config files, but never a database.
         val databases = Files.walk(root).use { stream -> stream.filter { it.toString().endsWith(".db") }.count() }
@@ -151,8 +151,16 @@ class DesktopPortContractTest {
             assertEquals(null, koin.get<net.bible.sharedui.app.ports.ImagePicker>().pickImage())
             assertEquals(null, koin.get<net.bible.sharedcore.platform.files.FilePicker>().pickBackupFile())
             assertEquals(false, koin.get<net.bible.sharedcore.platform.sync.SyncScheduler>().startDatabaseSync().await())
-            assertEquals(emptyList(), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
+            assertEquals(listOf(net.bible.service.cloudsync.desktop.DESKTOP_PENDING_ADAPTER_ID), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
         }
+        // CloudSync reads adapterId (available.first()) and builds an adapter on sign-in: neither may throw. CloudSync.signIn()
+        // itself is not called: after a false answer it awaits the "sign in failed" dialog, which only a user can dismiss.
+        val cloud = koin.get<net.bible.service.cloudsync.CloudSync>()
+        assertTrue(cloud.adapterId.isNotEmpty())
+        val adapter = koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().create(cloud.adapterId)
+        kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(10_000) { assertEquals(false, adapter.signIn()) } }
+        assertEquals(false, adapter.signedIn)
+        assertEquals(false, cloud.signedIn)
         koin.get<net.bible.sharedui.app.ports.ExternalLinks>().open("https://example.org")
         koin.get<net.bible.sharedui.app.ports.ClipboardText>().write("x", "y")
     }

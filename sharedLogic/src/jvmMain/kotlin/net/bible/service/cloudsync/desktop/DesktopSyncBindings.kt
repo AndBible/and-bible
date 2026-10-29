@@ -21,7 +21,13 @@ import kotlinx.coroutines.Deferred
 import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.SyncSettingsPlatform
+import net.bible.android.database.SyncConfiguration
 import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.sharedcore.platform.cloud.CloudFile
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
+import okio.Path
+import okio.Sink
 import net.bible.service.cloudsync.host.IosBackupHost
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.service.cloudsync.webdav.Propagation
@@ -64,12 +70,36 @@ class DesktopSyncSchedulerStub : SyncScheduler {
     override fun startDatabaseSync(): Deferred<Boolean> { pending("SyncScheduler.startDatabaseSync"); return CompletableDeferred(false) }
 }
 
-/** A cloud with no adapters: the settings screen shows no provider. */
+/** The one placeholder adapter id: `CloudSync.adapterId` takes `available.first()`, so the list must not be empty. */
+const val DESKTOP_PENDING_ADAPTER_ID = "desktop-pending"
+
+/**
+ * A cloud adapter that is never signed in: `signIn()` answers false after one pending log, listings are empty. The members
+ * that must return a remote file are unreachable without a sign-in and fail loudly if some caller skips it.
+ */
+class DesktopPendingCloudAdapter : CloudAdapter {
+    override val signedIn: Boolean get() = false
+    override suspend fun signIn(): Boolean { pending("CloudAdapter.signIn"); return false }
+    override suspend fun signOut() = Unit
+    override suspend fun get(id: String): CloudFile = notSignedIn()
+    override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> = emptyList()
+    override suspend fun getFolders(parentId: String): List<CloudFile> = emptyList()
+    override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = Unit
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = notSignedIn()
+    override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = notSignedIn()
+    override suspend fun delete(id: String) = Unit
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean = false
+    override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) = Unit
+    override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
+
+    private fun notSignedIn(): Nothing = throw IllegalStateException("Cloud sync is not available on desktop yet")
+}
+
+/** One placeholder provider, so every reader of `adapterId` and `signIn()` gets an answer instead of an exception. */
 class DesktopCloudAdapterFactoryStub : CloudAdapterFactory {
-    override val available: List<String> get() = emptyList()
-    override fun displayName(id: String): String = id
-    override fun create(id: String): CloudAdapter =
-        throw UnsupportedOperationException("Cloud sync adapters are not available on desktop yet ($id)")
+    override val available: List<String> get() = listOf(DESKTOP_PENDING_ADAPTER_ID)
+    override fun displayName(id: String): String = "Not available yet"
+    override fun create(id: String): CloudAdapter = DesktopPendingCloudAdapter()
 }
 
 /** In-memory WebDAV state. */

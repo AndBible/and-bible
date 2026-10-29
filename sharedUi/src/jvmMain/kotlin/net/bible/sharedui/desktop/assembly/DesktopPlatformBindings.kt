@@ -127,7 +127,7 @@ private const val TAG = "DesktopPlatformBindings"
 const val DESKTOP_DEVICE_SETTINGS_FILE = "device-settings.properties"
 
 /** A hoisted-iOS-class parameter default that does nothing: the desktop has no debug launch arguments. */
-internal object DesktopNoDebugArgs : HostDebugArgs
+object DesktopNoDebugArgs : HostDebugArgs
 
 /** The orientation never changes on a desktop. */
 class DesktopOrientationLock : OrientationLock {

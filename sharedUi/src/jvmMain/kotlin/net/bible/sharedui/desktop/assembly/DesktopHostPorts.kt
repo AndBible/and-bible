@@ -44,7 +44,6 @@ import java.io.File
  * completes; later reads follow the live string-table holder. `backupHost` is the hoisted `IosBackupHost` and
  * `welcomePlatform()` an `IosWelcomeHostPlatform`: `IosApp` casts both.
  */
-@Suppress("UNUSED_PARAMETER")
 fun buildDesktopHostPorts(
     koin: Koin,
     shell: HostShell,
