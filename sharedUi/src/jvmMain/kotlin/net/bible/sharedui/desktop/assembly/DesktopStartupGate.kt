@@ -26,7 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import net.bible.sharedui.host.startup.CrashRecoveryScreen
-import net.bible.sharedui.host.startup.IosStartupGates
+import net.bible.sharedui.host.startup.HostStartupGates
 import net.bible.sharedui.host.startup.StartupGate
 import net.bible.sharedui.host.startup.StartupGateResult
 import net.bible.sharedui.host.startup.productionStartupGates
@@ -63,7 +63,7 @@ fun DesktopStartupGate(
     content: @Composable (outcome: DesktopGateOutcome, returnFromBackup: () -> Unit) -> Unit,
 ) {
     val gates = remember {
-        IosStartupGates(productionStartupGates(
+        HostStartupGates(productionStartupGates(
             calculatorRequired = { false },
             legacyMigrationRequired = { false },
             crashRecoveryRequired = crashRecoveryRequired,

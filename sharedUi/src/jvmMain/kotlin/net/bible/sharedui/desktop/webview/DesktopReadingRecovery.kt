@@ -18,14 +18,14 @@ package net.bible.sharedui.desktop.webview
 
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.HostReadingWindows
 import org.koin.core.Koin
 
 /**
  * Recovery of a reading window whose renderer process died; pass it as `DesktopReadingPaneEngine(onRendererGone = ...)`.
  *
  * Android rebuilds the BibleView on a renderer crash. Here the window's assembly is released (session and pane
- * dropped through [IosReadingWindows.release]) and, when the window is still open, assembled again ([IosReadingWindows.sessionFor])
+ * dropped through [HostReadingWindows.release]) and, when the window is still open, assembled again ([HostReadingWindows.sessionFor])
  * and told to load its text, so the new page gets the document that the old session had marked as delivered. The pane
  * factory's recomposition then attaches the new pane. Runs on the Swing thread.
  */
@@ -43,11 +43,11 @@ class DesktopReadingRecovery(
     }
 
     companion object {
-        /** The real wiring over [IosReadingWindows] and the window model of [koin]. */
+        /** The real wiring over [HostReadingWindows] and the window model of [koin]. */
         fun forWindows(koin: Koin): DesktopReadingRecovery = DesktopReadingRecovery(
-            release = IosReadingWindows::release,
-            isOpen = IosReadingWindows::isOpen,
-            assemble = { IosReadingWindows.sessionFor(it) },
+            release = HostReadingWindows::release,
+            isOpen = HostReadingWindows::isOpen,
+            assemble = { HostReadingWindows.sessionFor(it) },
             reload = { id -> koin.get<WindowControl>().windowRepository.getWindow(IdType(id))?.loadText() },
         )
     }

@@ -17,7 +17,7 @@
 package net.bible.sharedui.desktop.assembly
 
 import net.bible.sharedcore.settings.DeviceLocalPrefs
-import net.bible.sharedui.assembly.IosUiLanguage
+import net.bible.sharedui.assembly.HostUiLanguage
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import java.util.Locale
 
@@ -50,5 +50,5 @@ object DesktopUiLanguage {
     ): String = resolveDeviceUiLanguage(settings) { preferredLanguages(env, locale) }
 
     /** Whether [language] is written right to left. */
-    fun isRtl(language: String): Boolean = IosUiLanguage.isRtl(language)
+    fun isRtl(language: String): Boolean = HostUiLanguage.isRtl(language)
 }

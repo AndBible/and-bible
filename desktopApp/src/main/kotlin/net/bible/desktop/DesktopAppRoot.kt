@@ -53,7 +53,7 @@ import net.bible.sharedui.desktop.assembly.DesktopGateOutcome
 import net.bible.sharedui.desktop.assembly.DesktopStartupGate
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.host.app.AppHostPlatform
-import net.bible.sharedui.host.app.IosApp
+import net.bible.sharedui.host.app.HostApp
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.webview.BibleWebViewFactory
@@ -115,7 +115,7 @@ class DesktopStartupState(
 /**
  * The desktop window content (the counterpart of iOS `MainViewController`'s gate chain): the crash-recovery gate when
  * required, then the splash while the startup runs, the startup-failed screen with the failure's message (it names the
- * data directory), and once Ready the real app root `IosApp()` with [LocalBibleWebView] and the UI language's
+ * data directory), and once Ready the real app root `HostApp()` with [LocalBibleWebView] and the UI language's
  * [LocalLayoutDirection] provided, as on iOS. Splash, failure and gate follow the system appearance (no settings read
  * before Ready).
  */
@@ -133,7 +133,7 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                     StartupPhase.Starting -> StartupSplash(dark)
                     is StartupPhase.Failed -> StartupFailed(dark, strings.errorOccurred, p.error)
                     StartupPhase.Ready -> AppProviders(state, layoutDirection) {
-                        IosApp(state.platform(), NavRoutes.BACKUP, dark, returnFromBackup)
+                        HostApp(state.platform(), NavRoutes.BACKUP, dark, returnFromBackup)
                     }
                 }
             }
@@ -144,7 +144,7 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 when (val p = phase) {
                     StartupPhase.Starting -> StartupSplash(dark)
                     is StartupPhase.Failed -> StartupFailed(dark, strings.errorOccurred, p.error)
-                    StartupPhase.Ready -> AppProviders(state, layoutDirection) { IosApp(state.platform()) }
+                    StartupPhase.Ready -> AppProviders(state, layoutDirection) { HostApp(state.platform()) }
                 }
             }
         }

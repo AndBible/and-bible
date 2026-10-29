@@ -35,7 +35,7 @@ import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.assembly.HostDebugArgs
 import net.bible.sharedui.assembly.HostLifecycle
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.webview.DesktopDisplayModeSignals
 import net.bible.sharedui.desktop.webview.DesktopReadingInput
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
@@ -44,7 +44,7 @@ import net.bible.sharedui.desktop.webview.desktopReadingPaneFactory
 import net.bible.sharedui.host.app.AppDialogHost
 import net.bible.sharedui.host.app.AppHostPlatform
 import net.bible.sharedui.host.reading.DisplayModeSignals
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.host.reading.ReadingHostPlatform
 import net.bible.sharedui.host.reading.ReadingPaneEngine
 import net.bible.sharedui.host.reading.TiltScrollSession
@@ -70,8 +70,8 @@ private const val TAG = "DesktopAppHostPlatform"
 private const val NO_BACKGROUND_TASK: ULong = 0UL
 
 /**
- * The desktop [AppHostPlatform] passed to the hoisted `IosApp` root. [lifecycle] is driven by the window, [paneEngine]
- * is the reading windows' KCEF engine (the same instance `IosApp` binds into `IosReadingWindows` and the pane factory
+ * The desktop [AppHostPlatform] passed to the hoisted `HostApp` root. [lifecycle] is driven by the window, [paneEngine]
+ * is the reading windows' KCEF engine (the same instance `HostApp` binds into `HostReadingWindows` and the pane factory
  * reads), [window] the application window. Everything Koin-backed resolves from the global Koin on use, so the platform
  * can be built before the startup has finished.
  *
@@ -106,7 +106,7 @@ class DesktopAppHostPlatform(
     ): HostPorts = buildDesktopHostPorts(koin, shell, table, initialiseWelcome, isPortrait)
 
     override fun readingPaneFactory(): ReadingPaneFactory = desktopReadingPaneFactory(
-        paneEngine, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen,
+        paneEngine, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen,
         input = { koin().get<DesktopReadingInput>() },
     )
 
@@ -202,7 +202,7 @@ class DesktopReadingHostPlatform(
     override fun isPortrait(): Boolean = window.sizeDp.let { it.height > it.width }
 
     override fun isRightToLeft(): Boolean =
-        DesktopUiLanguage.isRtl(koin().getOrNull<IosStringTableHolder>()?.current?.tag ?: "en")
+        DesktopUiLanguage.isRtl(koin().getOrNull<HostStringTableHolder>()?.current?.tag ?: "en")
 
     override fun screenScale(): Float = window.density
 
@@ -211,7 +211,7 @@ class DesktopReadingHostPlatform(
     override fun tiltAvailable(): Boolean = false
 
     override fun formatHistoryTimestamp(epochMillis: Long): String {
-        val tag = koin().getOrNull<IosStringTableHolder>()?.current?.tag ?: "en"
+        val tag = koin().getOrNull<HostStringTableHolder>()?.current?.tag ?: "en"
         return SimpleDateFormat("h:mm a, E d MMM ", Locale.forLanguageTag(tag)).format(Date(epochMillis))
     }
 

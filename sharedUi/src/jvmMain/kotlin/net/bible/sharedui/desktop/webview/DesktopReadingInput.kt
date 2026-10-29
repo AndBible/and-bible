@@ -22,8 +22,8 @@ import org.koin.mp.KoinPlatform
 
 /**
  * Reading input of the desktop app: the per-pane hooks the reading pane engine calls for each window's web pane
- * (the iOS pane factory's `gesturesFor` / `selectionMenu`: an implementation gets them from `IosReadingWindows.gesturesFor`
- * and `IosReadingWindows.selectionMenu`) and the application window's key handlers (keys and back).
+ * (the iOS pane factory's `gesturesFor` / `selectionMenu`: an implementation gets them from `HostReadingWindows.gesturesFor`
+ * and `HostReadingWindows.selectionMenu`) and the application window's key handlers (keys and back).
  *
  * Owner: plan D3a, bound in `DesktopReadingBindings`. Default ([None]) = today's behaviour: no extra page scripts, page
  * messages all go to the bridge, no pane hooks, keys unhandled.

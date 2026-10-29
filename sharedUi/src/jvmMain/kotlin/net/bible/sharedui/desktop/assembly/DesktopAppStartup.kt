@@ -36,14 +36,14 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedlogic.platform.desktop.DesktopDatabaseHost
 import net.bible.sharedlogic.platform.desktop.DesktopLocaleProvider
-import net.bible.sharedlogic.platform.host.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.HostSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
 import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.HostStartupInfo
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.assembly.StartupPhase
-import net.bible.sharedui.host.app.IosWorkspaceSaver
+import net.bible.sharedui.host.app.HostWorkspaceSaver
 import net.bible.sharedui.strings.keyed.StringTable
 import okio.Path.Companion.toOkioPath
 import org.crosswire.common.util.PropertyMap
@@ -94,7 +94,7 @@ object DesktopAppStartup {
         override val isStarted: Boolean get() = koinApp != null
         override val databasesOpen: Boolean get() = opened
         override val stringTable: StringTable
-            get() = checkNotNull(koinApp) { "DesktopAppStartup.ensureStarted has not completed" }.koin.get<IosStringTableHolder>().live
+            get() = checkNotNull(koinApp) { "DesktopAppStartup.ensureStarted has not completed" }.koin.get<HostStringTableHolder>().live
     }
 
     /** True once the Koin graph is published (the databases may still be closed). */
@@ -196,7 +196,7 @@ object DesktopAppStartup {
     fun persistBeforeExit(
         timeoutMs: Long = 5_000,
         exitTasksTimeoutMs: Long = 10_000,
-        saveWorkspace: suspend (Koin) -> Unit = { IosWorkspaceSaver.saveNow(it) },
+        saveWorkspace: suspend (Koin) -> Unit = { HostWorkspaceSaver.saveNow(it) },
     ) {
         val koin = koinApp?.koin ?: return
         try {
@@ -222,7 +222,7 @@ object DesktopAppStartup {
         val message = when {
             !ev.message.isNullOrEmpty() -> ev.message!!
             !ev.exception?.message.isNullOrEmpty() ->
-                koin.get<IosStringTableHolder>().current.fmt("error_occurred_with_link", ev.exception?.message)
+                koin.get<HostStringTableHolder>().current.fmt("error_occurred_with_link", ev.exception?.message)
             else -> koin.get<CoreStrings>().errorOccurred
         }
         val now = System.currentTimeMillis()
@@ -287,7 +287,7 @@ object DesktopAppStartup {
 }
 
 /**
- * JSword's module folder on the desktop: `<data>/sword` only. [IosSwordEnvironment] sets JSword's process-wide state up
+ * JSword's module folder on the desktop: `<data>/sword` only. [HostSwordEnvironment] sets JSword's process-wide state up
  * once (passage key type, frontend name, project home, network timeout); a start with another directory (tests: each
  * one has its own data directory) re-points the download dir and the augment path, which re-registers the Sword driver,
  * so the installed book list follows the new folder.
@@ -301,7 +301,7 @@ internal object DesktopSwordFolders {
     @Volatile private var current: Path? = null
     private var previous: Previous? = null
 
-    val isLoaded: Boolean get() = current != null && IosSwordEnvironment.isLoaded
+    val isLoaded: Boolean get() = current != null && HostSwordEnvironment.isLoaded
 
     /**
      * Points JSword at [dir] only. The default SWORD locations (`~/.sword`, `sword.conf`, the working directory) are
@@ -318,7 +318,7 @@ internal object DesktopSwordFolders {
         }
         SwordBookPath.scanDefaultLocations = false
         val modules = dir.toOkioPath()
-        IosSwordEnvironment.createModuleFolders(modules) // throws: a module folder that cannot be created fails startup
+        HostSwordEnvironment.createModuleFolders(modules) // throws: a module folder that cannot be created fails startup
         // The download dir first: initialiseJSwordFolders sets the augment path, which re-registers the Sword driver at
         // once; without an explicit download dir that scan would fall back to JSword's default one, ~/.sword.
         SwordBookPath.setDownloadDir(modules)
@@ -327,9 +327,9 @@ internal object DesktopSwordFolders {
         // property names the home: without it the JVM gets `~/<absolute module path>`. CWProject keeps the first home
         // it establishes for the process.
         System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
-        IosSwordEnvironment.initialiseJSwordFolders(modules)
+        HostSwordEnvironment.initialiseJSwordFolders(modules)
         // initialiseJSwordFolders logs and swallows its own failures.
-        if (!IosSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
+        if (!HostSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
         if (current == dir) return
         // Always re-register here (setDownloadDir alone does not): the book list is exactly this folder's, whatever an
         // earlier start or the first registration saw.
@@ -340,7 +340,7 @@ internal object DesktopSwordFolders {
     /**
      * Test only: puts JSword's default-location flag, download dir and augment path back as they were before the first
      * desktop start (re-registering the Sword driver). A download dir that was unset stays at the last one (JSword cannot
-     * unset it). The process-wide `IosSwordEnvironment` and `CWProject` setup stays.
+     * unset it). The process-wide `HostSwordEnvironment` and `CWProject` setup stays.
      */
     @Synchronized
     fun restoreForTest() {

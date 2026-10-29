@@ -26,7 +26,7 @@ import net.bible.service.db.DatabaseHost
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedlogic.fixtures.StartupFixture
 import net.bible.sharedui.assembly.HostStartup
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.assembly.StartupPhase
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.PropertyMap
@@ -112,7 +112,7 @@ class DesktopAppStartupTest {
         assertTrue(DatabaseContainer.ready)
         assertEquals("en", HostStartup.stringTable.tag)
         assertTrue(HostStartup.stringTable.text("okay").isNotBlank())
-        assertEquals(koin.get<IosStringTableHolder>().current.tag, HostStartup.stringTable.tag)
+        assertEquals(koin.get<HostStringTableHolder>().current.tag, HostStartup.stringTable.tag)
         // Databases and Sword folders live below the data directory.
         assertTrue(Files.isDirectory(paths.data.resolve("databases")))
         assertTrue(Files.list(paths.data.resolve("databases")).use { s -> s.count() } > 0, "no database file was created")

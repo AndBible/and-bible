@@ -25,8 +25,8 @@ import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.assembly.HostWindowMetrics
 import net.bible.sharedui.assembly.IOS_BOUND_PORT_TYPES
 import net.bible.sharedui.assembly.IOS_HOST_BINDING_TYPES
-import net.bible.service.cloudsync.host.IosBackupHost
-import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.sharedui.host.ports.HostWelcomeHostPlatform
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
 import net.bible.sharedlogic.platform.desktop.DesktopDatabaseHost
@@ -134,8 +134,8 @@ class DesktopPortContractTest {
         val shell = FakeShell()
         try {
             val ports = buildDesktopHostPorts(koin, shell)
-            assertIs<IosBackupHost>(ports.backupHost)
-            assertIs<IosWelcomeHostPlatform>(ports.welcomePlatform())
+            assertIs<HostBackupHost>(ports.backupHost)
+            assertIs<HostWelcomeHostPlatform>(ports.welcomePlatform())
             // The lazily built platforms construct without reaching a stub that throws.
             ports.installZipPlatform(); ports.downloadPlatform(); ports.cloudDocumentsPlatform()
             ports.bookmarkPlatform(); ports.readingPlanPlatform(); ports.chooserPlatform(); ports.aiPlatform()

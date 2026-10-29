@@ -33,7 +33,7 @@ import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.kcef.SwingMainDispatcher
 import net.bible.sharedui.host.reading.ReadingPaneEngine
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
-import net.bible.sharedui.webview.IosReadingWindowSurface
+import net.bible.sharedui.webview.HostReadingWindowSurface
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
 import java.nio.file.Files
@@ -111,7 +111,7 @@ class DesktopReadingPaneEngine(
 
     override fun jsHostFor(windowId: String): JsHost = DeferredJsHost(entry(windowId))
 
-    override fun surfaceFor(host: JsHost, links: ExternalLinks): ReadingWindowSurface = IosReadingWindowSurface(
+    override fun surfaceFor(host: JsHost, links: ExternalLinks): ReadingWindowSurface = HostReadingWindowSurface(
         host = host,
         links = links,
         // The ports are resolved on each use, so a surface built before the graph changed follows the bound ones.

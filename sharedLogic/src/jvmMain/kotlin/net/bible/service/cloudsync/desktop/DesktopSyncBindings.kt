@@ -28,7 +28,7 @@ import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import okio.Path
 import okio.Sink
-import net.bible.service.cloudsync.host.IosBackupHost
+import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.WebDavStateStore
@@ -134,7 +134,7 @@ class DesktopDocumentSyncStarterStub : DocumentSyncStarter {
 }
 
 /**
- * The sync stack of the desktop graph. `BackupHost` is the hoisted [IosBackupHost] over the `FilePicker` and
+ * The sync stack of the desktop graph. `BackupHost` is the hoisted [HostBackupHost] over the `FilePicker` and
  * `FileDelivery` ports that the document stream (D3b) binds in `DesktopDocumentBindings`.
  */
 fun desktopSyncModule(): Module = module {
@@ -144,7 +144,7 @@ fun desktopSyncModule(): Module = module {
     single<SyncSettingsPlatform> { DesktopSyncSettingsPlatformStub { get<DateTimeFormats>() } }
     single<DocumentSyncStarter> { DesktopDocumentSyncStarterStub() }
     single<BackupHost> {
-        IosBackupHost(
+        HostBackupHost(
             get<FilePicker>(), get<FileDelivery>(), { get<AppDialogController>() },
             { get<CoreStrings>().okay },
             { get<CoreStrings>().errorReport }, { get<CoreStrings>().errorBackup }, { get<CoreStrings>().errorSkip },

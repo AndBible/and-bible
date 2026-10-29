@@ -79,17 +79,17 @@ import net.bible.sharedlogic.platform.SearchIndexScheduler
 import net.bible.sharedlogic.platform.desktop.DesktopLocalCalendar
 import net.bible.sharedlogic.platform.desktop.DesktopLocaleSupport
 import net.bible.sharedlogic.platform.desktop.DesktopPlatformLocales
-import net.bible.sharedlogic.platform.host.IosEpubStoreEdge
-import net.bible.sharedlogic.platform.host.IosFirstLoadEdge
-import net.bible.sharedlogic.platform.host.IosHistoryPlatform
-import net.bible.sharedlogic.platform.host.IosKeyChooserLauncher
-import net.bible.sharedlogic.platform.host.IosLinkPlatform
-import net.bible.sharedlogic.platform.host.IosMarkdownRenderer
-import net.bible.sharedlogic.platform.host.IosMyDocumentStoreEdge
-import net.bible.sharedlogic.platform.host.IosReadOnlyModuleDbOpener
-import net.bible.sharedlogic.platform.host.IosSearchIndexScheduler
-import net.bible.sharedlogic.platform.host.IosUserNotifier
-import net.bible.sharedlogic.platform.host.IosWindowSettingsPicker
+import net.bible.sharedlogic.platform.host.HostEpubStoreEdge
+import net.bible.sharedlogic.platform.host.HostFirstLoadEdge
+import net.bible.sharedlogic.platform.host.HostHistoryPlatform
+import net.bible.sharedlogic.platform.host.HostKeyChooserLauncher
+import net.bible.sharedlogic.platform.host.HostLinkPlatform
+import net.bible.sharedlogic.platform.host.HostMarkdownRenderer
+import net.bible.sharedlogic.platform.host.HostMyDocumentStoreEdge
+import net.bible.sharedlogic.platform.host.HostReadOnlyModuleDbOpener
+import net.bible.sharedlogic.platform.host.HostSearchIndexScheduler
+import net.bible.sharedlogic.platform.host.HostUserNotifier
+import net.bible.sharedlogic.platform.host.HostWindowSettingsPicker
 import net.bible.sharedlogic.search.CommonSearchHighlighter
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
@@ -103,15 +103,15 @@ import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.assembly.HostDebugArgs
 import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.HostWindowMetrics
-import net.bible.sharedui.assembly.IosStringTableHolder
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.HostStringTableHolder
+import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.components.AppToasts
-import net.bible.sharedui.host.app.IosRootLinks
-import net.bible.sharedui.host.ports.IosDocumentInstallStarter
-import net.bible.sharedui.host.ports.IosHelpDialogs
-import net.bible.sharedui.host.ports.IosReadingExtrasImpl
-import net.bible.sharedui.host.ports.IosSettingsPlatform
-import net.bible.sharedui.host.reading.IosReadingExtras
+import net.bible.sharedui.host.app.HostRootLinks
+import net.bible.sharedui.host.ports.HostDocumentInstallStarter
+import net.bible.sharedui.host.ports.HostHelpDialogs
+import net.bible.sharedui.host.ports.HostReadingExtrasImpl
+import net.bible.sharedui.host.ports.HostSettingsPlatform
+import net.bible.sharedui.host.reading.HostReadingExtras
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
@@ -201,16 +201,16 @@ fun desktopPlatformModule(
         // --- strings (retained wrappers read the current language per access)
         single {
             val language = uiLanguage ?: DesktopUiLanguage.resolve(get<DesktopDeviceSettings>())
-            IosStringTableHolder(iosStringTable(language, ::classpathRawResource))
+            HostStringTableHolder(hostStringTable(language, ::classpathRawResource))
         }
-        single<CoreStrings> { KeyedCoreStrings { get<IosStringTableHolder>().current } }
-        single<LlmStrings> { KeyedLlmStrings { get<IosStringTableHolder>().current } }
-        single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
-        single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
-        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
+        single<CoreStrings> { KeyedCoreStrings { get<HostStringTableHolder>().current } }
+        single<LlmStrings> { KeyedLlmStrings { get<HostStringTableHolder>().current } }
+        single<LabelNameStrings> { KeyedLabelNameStrings { get<HostStringTableHolder>().current } }
+        single<SettingLabels> { KeyedSettingLabels { get<HostStringTableHolder>().current } }
+        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<HostStringTableHolder>().current } }
         single<TextDisplayPrefItems> {
             SharedTextDisplayPrefItems(
-                strings = { get<IosStringTableHolder>().live },
+                strings = { get<HostStringTableHolder>().live },
                 contentSource = { get() },
                 windowControl = { get() },
                 documentControl = { get() },
@@ -228,18 +228,18 @@ fun desktopPlatformModule(
         single<HtmlToPlainText> { CommonHtmlToPlainText }
         single<SearchTextHighlighter> { CommonSearchHighlighter }
         single<SaxTextPolicy> { SaxTextPolicy.MODERN }
-        single<MarkdownRenderer> { IosMarkdownRenderer() }
-        single<PlatformText> { DesktopPlatformText(table = { get<IosStringTableHolder>().current }) }
+        single<MarkdownRenderer> { HostMarkdownRenderer() }
+        single<PlatformText> { DesktopPlatformText(table = { get<HostStringTableHolder>().current }) }
 
         // --- content and storage
-        single<ReadOnlyModuleDbOpener> { IosReadOnlyModuleDbOpener() }
-        single<FirstLoadEdge> { IosFirstLoadEdge }
-        single<EpubStoreEdge> { IosEpubStoreEdge }
-        single<MyDocumentStoreEdge> { IosMyDocumentStoreEdge }
+        single<ReadOnlyModuleDbOpener> { HostReadOnlyModuleDbOpener() }
+        single<FirstLoadEdge> { HostFirstLoadEdge }
+        single<EpubStoreEdge> { HostEpubStoreEdge }
+        single<MyDocumentStoreEdge> { HostMyDocumentStoreEdge }
         single<PromptPackSource> { promptPacks }
         single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks) }
         // No background-task budget on a desktop: the index build simply runs.
-        single<SearchIndexScheduler> { IosSearchIndexScheduler({ _, build -> build { false } }, get<AppCoroutineScope>()) }
+        single<SearchIndexScheduler> { HostSearchIndexScheduler({ _, build -> build { false } }, get<AppCoroutineScope>()) }
         single<ManualInstallFolderEnabler> { ManualInstallFolderEnabler { } }
 
         // --- network
@@ -249,9 +249,9 @@ fun desktopPlatformModule(
 
         // --- notifications
         single<UserNotifier> {
-            IosUserNotifier(
+            HostUserNotifier(
                 get<AppDialogController>(),
-                okText = { get<IosStringTableHolder>().current.text("okay") },
+                okText = { get<HostStringTableHolder>().current.text("okay") },
                 onInfo = { message, long -> AppToasts.show(message, long) },
             )
         }
@@ -265,7 +265,7 @@ fun desktopPlatformModule(
         }
         single<WindowSettingsPicker> {
             val scope = this
-            IosWindowSettingsPicker(
+            HostWindowSettingsPicker(
                 dialogs = get<AppDialogController>(),
                 title = { win, type ->
                     val repository = win.windowRepository
@@ -278,44 +278,44 @@ fun desktopPlatformModule(
                     )
                     scope.get<TextDisplayPrefItems>().item(bundle, type).title ?: type.name
                 },
-                text = { get<IosStringTableHolder>().current.text(it) },
+                text = { get<HostStringTableHolder>().current.text(it) },
             )
         }
-        single<IosReadingExtras> {
-            val holder = get<IosStringTableHolder>()
+        single<HostReadingExtras> {
+            val holder = get<HostStringTableHolder>()
             val currentTable = { holder.current }
             val bugReport = get<DesktopBugReport>()
-            IosReadingExtrasImpl(
-                helpDialogs = IosHelpDialogs(get<AppDialogController>(), currentTable, ::classpathBundledHtml, { get<DesktopAppEnvironment>().versionName }),
+            HostReadingExtrasImpl(
+                helpDialogs = HostHelpDialogs(get<AppDialogController>(), currentTable, ::classpathBundledHtml, { get<DesktopAppEnvironment>().versionName }),
                 table = currentTable,
                 scope = get<AppCoroutineScope>(),
                 textShare = get<TextShare>(),
                 report = { cause -> bugReport.report(cause) },
             )
         }
-        single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }
+        single<KeyChooserLauncher> { HostKeyChooserLauncher(HostRootLinks::startKeyChooser) }
         single<LinkPlatform> {
             val koinScope = this
-            IosLinkPlatform(
-                openRoute = IosRootLinks::openRoute,
-                searchStrongs = IosRootLinks::searchStrongsInReadingView,
+            HostLinkPlatform(
+                openRoute = HostRootLinks::openRoute,
+                searchStrongs = HostRootLinks::searchStrongsInReadingView,
                 reportError = {
-                    koinScope.getOrNull<IosReadingExtras>()?.reportJsError()
+                    koinScope.getOrNull<HostReadingExtras>()?.reportJsError()
                         ?: Log.w(TAG, "LinkPlatform.reportJsError: no error report flow")
                 },
             )
         }
-        single<HistoryPlatform> { IosHistoryPlatform(isOnReading = IosRootLinks::isOnReadingScreen, leave = IosRootLinks::leaveCurrentScreen) }
+        single<HistoryPlatform> { HostHistoryPlatform(isOnReading = HostRootLinks::isOnReadingScreen, leave = HostRootLinks::leaveCurrentScreen) }
 
         // --- host ports of the hoisted classes (`buildIosHostBindings` counterpart)
         single {
             val scope = this
             // LegacyDataImport is never bound on desktop: the legacy-import row stays hidden.
-            IosSettingsPlatform(get<CoreStrings>(), get(), get(), legacyImport = { scope.getOrNull<LegacyDataImport>() })
+            HostSettingsPlatform(get<CoreStrings>(), get(), get(), legacyImport = { scope.getOrNull<LegacyDataImport>() })
         }
-        single<SettingsPlatform> { get<IosSettingsPlatform>() }
-        single<SettingsPlatformFlags> { get<IosSettingsPlatform>() }
-        single<DocumentInstallStarter> { IosDocumentInstallStarter() }
+        single<SettingsPlatform> { get<HostSettingsPlatform>() }
+        single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }
+        single<DocumentInstallStarter> { HostDocumentInstallStarter() }
         factory<AppSettingsService> {
             AppSettingsServiceImpl(settings = get(), devicePrefs = get(), strings = get(), platform = get())
         }
