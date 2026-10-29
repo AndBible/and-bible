@@ -19,6 +19,8 @@ import org.freedesktop.dbus.types.Variant
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+// dbus-java derives the wire signature from Java generics, where wildcards lose Variant's type.
+@JvmSuppressWildcards
 @DBusInterfaceName("org.freedesktop.portal.FileChooser")
 interface PortalChooser : DBusInterface {
     fun OpenFile(parent: String, title: String, options: Map<String, Variant<*>>): DBusPath

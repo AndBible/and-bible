@@ -10,6 +10,7 @@ import org.freedesktop.dbus.annotations.DBusInterfaceName
 import org.freedesktop.dbus.interfaces.DBusInterface
 import org.freedesktop.dbus.types.Variant
 
+@JvmSuppressWildcards
 @DBusInterfaceName("org.freedesktop.portal.OpenURI")
 interface PortalOpenUriInterface : DBusInterface {
     fun OpenURI(parent: String, uri: String, options: Map<String, Variant<*>>): DBusPath
