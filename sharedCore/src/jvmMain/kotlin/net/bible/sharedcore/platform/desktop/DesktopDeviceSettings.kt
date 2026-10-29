@@ -18,6 +18,7 @@ package net.bible.sharedcore.platform.desktop
 
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.settings.DeviceLocalPrefs
+import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
@@ -52,7 +53,14 @@ class DesktopDeviceSettings(file: Path) : DeviceLocalPrefs {
             val current = state.values.toMutableMap()
             val before = current[key]
             if (value == null) current.remove(key) else current[key] = value
-            if (before != value) writeFile(current)
+            if (before != value) {
+                try {
+                    writeFile(current)
+                } catch (e: IOException) {
+                    // A preference write must not crash its caller; the value stays in memory for this run.
+                    Log.w(TAG, "Could not persist device settings to $file", e)
+                }
+            }
             state.values = current
             before != value
         }
@@ -116,10 +124,13 @@ class DesktopDeviceSettings(file: Path) : DeviceLocalPrefs {
 
     private class State(@Volatile var values: Map<String, String>)
 
-    private companion object {
-        const val TAG = "DesktopDeviceSettings"
-        val LOCK = Any()
-        val STATES = HashMap<Path, State>()
-        val LISTENERS = CopyOnWriteArrayList<() -> Unit>()
+    internal companion object {
+        /** Test hook: forgets the shared in-memory copies so the next open reads the file again. */
+        internal fun clearSharedStateForTest() = synchronized(LOCK) { STATES.clear() }
+
+        private const val TAG = "DesktopDeviceSettings"
+        private val LOCK = Any()
+        private val STATES = HashMap<Path, State>()
+        private val LISTENERS = CopyOnWriteArrayList<() -> Unit>()
     }
 }

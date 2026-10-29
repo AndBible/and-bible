@@ -26,6 +26,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DesktopDeviceSettingsTest {
+    private fun reopen(f: Path): DesktopDeviceSettings {
+        DesktopDeviceSettings.clearSharedStateForTest()
+        return DesktopDeviceSettings(f)
+    }
+
     private fun file(): Path = Files.createTempDirectory("device-settings").resolve("config/prefs.properties")
 
     @Test fun valuesSurviveReopen() {
@@ -33,7 +38,7 @@ class DesktopDeviceSettingsTest {
         DesktopDeviceSettings(f).apply {
             setString("s", "hello = wörld\nline2"); setBoolean("b", true); putLong("l", 1L shl 40); putInt("i", -7)
         }
-        val reopened = DesktopDeviceSettings(f)
+        val reopened = reopen(f)
         assertEquals("hello = wörld\nline2", reopened.getString("s", null))
         assertTrue(reopened.getBoolean("b", false))
         assertEquals(1L shl 40, reopened.getLong("l", 0))
@@ -53,7 +58,7 @@ class DesktopDeviceSettingsTest {
         val f = file()
         val s = DesktopDeviceSettings(f)
         s.setString("k", "v"); s.remove("k")
-        assertNull(DesktopDeviceSettings(f).getString("k", null))
+        assertNull(reopen(f).getString("k", null))
     }
 
     @Test fun writeLeavesNoTempFilesAndAReadableFile() {
@@ -61,17 +66,17 @@ class DesktopDeviceSettingsTest {
         val s = DesktopDeviceSettings(f)
         repeat(20) { s.putInt("k", it) }
         assertEquals(listOf(f.fileName.toString()), Files.list(f.parent).use { l -> l.map { it.fileName.toString() }.toList() })
-        assertEquals(19, DesktopDeviceSettings(f).getInt("k", -1))
+        assertEquals(19, reopen(f).getInt("k", -1))
     }
 
     @Test fun corruptFileIsTreatedAsEmptyAndRecovers() {
         val f = file()
         Files.createDirectories(f.parent)
         Files.write(f, byteArrayOf(0x5c, 0x75, 0x78)) // "\ux": malformed unicode escape
-        val s = DesktopDeviceSettings(f)
+        val s = reopen(f)
         assertEquals("d", s.getString("a", "d"))
         s.setString("a", "v")
-        assertEquals("v", DesktopDeviceSettings(f).getString("a", null))
+        assertEquals("v", reopen(f).getString("a", null))
     }
 
     @Test fun concurrentWritersFromTwoInstancesLoseNothing() {
@@ -84,7 +89,7 @@ class DesktopDeviceSettingsTest {
         }
         threads.forEach { it.join() }
         assertTrue(failures.isEmpty(), failures.toString())
-        val merged = DesktopDeviceSettings(f)
+        val merged = reopen(f)
         for (prefix in listOf("a", "b")) for (i in 0 until 100) assertEquals(i, merged.getInt("$prefix$i", -1), "$prefix$i")
     }
 
@@ -113,5 +118,23 @@ class DesktopDeviceSettingsTest {
         assertEquals(listOf(false, true), seen)
         assertTrue(observed.getBoolean("flag", false))
         cancel()
+    }
+
+    @Test fun fileContentIsAPlainPropertiesFile() {
+        val f = file()
+        DesktopDeviceSettings(f).apply { setString("k", "v"); setBoolean("b", true) }
+        val props = java.util.Properties().also { p -> Files.newBufferedReader(f).use { p.load(it) } }
+        assertEquals("v", props.getProperty("k"))
+        assertEquals("true", props.getProperty("b"))
+    }
+
+    @Test fun failedWriteKeepsTheValueInMemoryAndDoesNotThrow() {
+        val dir = Files.createTempDirectory("device-settings-ro")
+        val blocker = dir.resolve("blocker")
+        Files.writeString(blocker, "a file where a directory is needed")
+        val s = DesktopDeviceSettings(blocker.resolve("prefs.properties"))
+        s.setString("k", "v") // createDirectories under a regular file throws IOException internally
+        assertEquals("v", s.getString("k", null))
+        assertTrue(s.getBoolean("missing", true))
     }
 }
