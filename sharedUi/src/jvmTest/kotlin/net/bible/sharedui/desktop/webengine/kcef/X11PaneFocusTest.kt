@@ -45,6 +45,14 @@ class X11PaneFocusTest {
         assertEquals(listOf(3L), set)
     }
 
+    @Test fun logsTheChosenWindowOncePerPane() {
+        val lines = mutableListOf<String>()
+        val f = X11PaneFocus({ 1L }, { tree[it].orEmpty() }, {}, { lines += it })
+        f.focus(FakeHeavy())
+        f.focus(FakeHeavy())
+        assertEquals(listOf("x11 focus -> 3 (depth 2)"), lines)
+    }
+
     @Test fun noWindowOrNoHeavyweightDoesNothing() {
         val set = mutableListOf<Long>()
         X11PaneFocus({ null }, { emptyList() }, { set += it }, {}).focus(FakeHeavy())

@@ -39,12 +39,19 @@ internal class X11PaneFocus(
     var enabled: Boolean = true
         private set
 
+    private var logged = false
+
     /** Focuses the deepest child X window of [component]'s heavyweight host; no-op when disabled or nothing is found. */
     fun focus(component: Component) {
         if (!enabled) return
         try {
             val root = findHeavyweight(component)?.let(windowOf) ?: return
-            setFocus(deepest(root, children))
+            val target = deepest(root, children)
+            if (!logged) {
+                logged = true
+                log("x11 focus -> $target (depth ${depth(root, target, children)})")
+            }
+            setFocus(target)
         } catch (t: Throwable) {
             disable("X11 pane focus failed, disabled: $t")
         }
@@ -58,6 +65,16 @@ internal class X11PaneFocus(
 
     companion object {
         private const val MAX_DEPTH = 16
+
+        private fun depth(root: Long, target: Long, children: (Long) -> Collection<Long>): Int {
+            var n = 0
+            var cur = root
+            while (cur != target && n < MAX_DEPTH) {
+                cur = children(cur).firstOrNull() ?: break
+                n++
+            }
+            return n
+        }
 
         /** Follows the first child at each level (CEF has one chain of children) down to the deepest window; [root] if none. */
         fun deepest(root: Long, children: (Long) -> Collection<Long>): Long {
@@ -89,7 +106,14 @@ internal class X11PaneFocus(
                 val accessor = Class.forName("sun.awt.AWTAccessor").getMethod("getComponentAccessor").invoke(null)
                 val getPeer = Class.forName("sun.awt.AWTAccessor\$ComponentAccessor").getMethod("getPeer", Component::class.java)
                 val getWindow = Class.forName("sun.awt.X11.XBaseWindow").getMethod("getWindow")
-                val childWindows = Class.forName("sun.awt.X11.XlibUtil").getDeclaredMethod("getChildWindows", Long::class.javaPrimitiveType)
+                // XlibUtil.getChildWindows returns only AWT-known children for AWT windows (empty for CEF's), so query X directly.
+                val queryTree = Class.forName("sun.awt.X11.XQueryTree")
+                val qtNew = queryTree.getConstructor(Long::class.javaPrimitiveType)
+                val qtExecute = queryTree.getMethod("execute")
+                val qtChildren = queryTree.getMethod("get_children")
+                val qtCount = queryTree.getMethod("get_nchildren")
+                val qtDispose = queryTree.getMethod("dispose")
+                val nativeGetWindow = Class.forName("sun.awt.X11.Native").getDeclaredMethod("getWindow", Long::class.javaPrimitiveType, Int::class.javaPrimitiveType)
                     .apply { isAccessible = true }
                 val getDisplay = Class.forName("sun.awt.X11.XToolkit").getMethod("getDisplay")
                 val lock = Class.forName("sun.awt.SunToolkit").getMethod("awtLock")
@@ -100,7 +124,20 @@ internal class X11PaneFocus(
                 val flush = xlib.getDeclaredMethod("XFlush", Long::class.javaPrimitiveType).apply { isAccessible = true }
                 X11PaneFocus(
                     windowOf = { c -> getPeer.invoke(accessor, c)?.let { getWindow.invoke(it) as Long } },
-                    children = { w -> (childWindows.invoke(null, w) as Collection<*>).map { it as Long } },
+                    children = { w ->
+                        lock.invoke(null)
+                        try {
+                            val q = qtNew.newInstance(w)
+                            try {
+                                val ptr = if ((qtExecute.invoke(q) as Int) == 0) 0L else qtChildren.invoke(q) as Long
+                                if (ptr == 0L) emptyList() else List(qtCount.invoke(q) as Int) { nativeGetWindow.invoke(null, ptr, it) as Long }
+                            } finally {
+                                qtDispose.invoke(q)
+                            }
+                        } finally {
+                            unlock.invoke(null)
+                        }
+                    },
                     setFocus = { w ->
                         val display = getDisplay.invoke(null) as Long
                         lock.invoke(null)
