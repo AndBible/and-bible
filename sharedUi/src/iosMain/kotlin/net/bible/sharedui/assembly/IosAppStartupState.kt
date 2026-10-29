@@ -41,7 +41,7 @@ sealed interface StartupPhase {
  * Never stuck in [StartupPhase.Starting] after a failure: any exception becomes [StartupPhase.Failed].
  */
 class IosAppStartupState(
-    private val open: suspend () -> Unit = { IosAppStartup.openDatabases() },
+    private val open: suspend () -> Unit,
 ) {
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
     val phase: StateFlow<StartupPhase> = _phase

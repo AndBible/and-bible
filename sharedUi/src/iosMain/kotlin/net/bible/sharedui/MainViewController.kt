@@ -81,7 +81,7 @@ private val startupScope = CoroutineScope(
 )
 
 /** One per process: the Swift host may build the view controller more than once. */
-private val startupState = IosAppStartupState()
+private val startupState = IosAppStartupState(open = { IosAppStartup.openDatabases() })
 private val crashTracker get() = IosPlatformBootstrap.crashTracker
 
 /**
