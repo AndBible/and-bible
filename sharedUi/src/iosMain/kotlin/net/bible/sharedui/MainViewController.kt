@@ -16,6 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.host.startup.CrashRecoveryScreen
+import net.bible.sharedui.host.startup.IosStartupGates
+import net.bible.sharedui.host.startup.StartupGate
+import net.bible.sharedui.host.startup.StartupGateResult
+import net.bible.sharedui.host.startup.productionStartupGates
 import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
