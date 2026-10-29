@@ -23,7 +23,7 @@ class IosHelpDialogsTest {
     @Test fun helpAndTipsPostsAllEightItemsWithVersionAndWithoutShopSponsor() {
         val dialogs = AppDialogController()
         try {
-            IosHelpDialogs(dialogs, { task4Table() }).show(HelpTopic.HELP_AND_TIPS)
+            IosHelpDialogs(dialogs, { task4Table() }, ::iosBundledHtml, ::iosBundleVersionName).show(HelpTopic.HELP_AND_TIPS)
             val notice = assertIs<AppDialogRequest.Notice>(dialogs.task4Request())
             assertEquals("en:help", notice.title)
             assertEquals("en:okay", notice.confirmText)
@@ -65,7 +65,7 @@ class IosHelpDialogsTest {
         val dialogs = AppDialogController()
         var table = task4Table("en")
         try {
-            IosHelpDialogs(dialogs, { table }).show(HelpTopic.HELP_AND_TIPS)
+            IosHelpDialogs(dialogs, { table }, ::iosBundledHtml, ::iosBundleVersionName).show(HelpTopic.HELP_AND_TIPS)
             assertEquals("en:help", assertIs<AppDialogRequest.Notice>(dialogs.task4Request()).title)
             table = task4Table("fi")
             val refreshed = assertIs<AppDialogRequest.Notice>(dialogs.task4Request())
@@ -80,7 +80,7 @@ class IosHelpDialogsTest {
         val reads = mutableListOf<String>()
         val html = "<!doctype html>\n<p>GPL &amp; full license</p>\n<pre>last line</pre>"
         try {
-            IosHelpDialogs(dialogs, { task4Table() }, bundleHtml = { name -> reads += name; html })
+            IosHelpDialogs(dialogs, { task4Table() }, bundleHtml = { name -> reads += name; html }, versionName = ::iosBundleVersionName)
                 .show(HelpTopic.LICENCE)
             val request = assertIs<AppDialogRequest.Message>(dialogs.task4Request())
             assertTrue(reads.isNotEmpty())

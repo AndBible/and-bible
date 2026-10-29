@@ -35,7 +35,7 @@ class IosWelcomeHostPlatformTest {
         }
         try {
             val platform = IosWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table,
-                initialise = { events += "initialise" }, navigate = { events += it })
+                initialise = { events += "initialise" }, navigate = { events += it }, versionName = ::iosBundleVersionName)
             platform.onDownload()
             assertEquals(listOf(table.text("storage_space_warning")), events)
         } finally {
@@ -54,7 +54,7 @@ class IosWelcomeHostPlatformTest {
             } }
         }) }
         try {
-            val platform = IosWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table, {}, {})
+            val platform = IosWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table, {}, {}, ::iosBundleVersionName)
             platform.onOpenHomepage()
             platform.onOpenGithub()
             assertEquals(listOf(table.text("homepage"), table.text("github_page")), urls)

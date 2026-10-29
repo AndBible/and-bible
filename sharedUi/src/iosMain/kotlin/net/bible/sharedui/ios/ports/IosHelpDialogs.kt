@@ -1,4 +1,4 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedcore.docs.DocsLinks
@@ -9,13 +9,13 @@ import net.bible.sharedui.app.ports.HelpAndTips
 import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.strings.keyed.StringTable
-import platform.Foundation.*
 
 @kotlin.native.HiddenFromObjC
 class IosHelpDialogs(
     private val dialogs: AppDialogController,
     private val table: () -> StringTable,
-    private val bundleHtml: (String) -> String = ::bundledHelpHtml,
+    private val bundleHtml: (String) -> String,
+    private val versionName: () -> String,
 ) : HelpDialogs {
     override fun show(topic: HelpTopic) {
         val core = DocumentDialogsCore(dialogs, table)
@@ -30,7 +30,7 @@ class IosHelpDialogs(
                     HelpAndTips.items.map { item ->
                         DocumentDialogsCore.HelpItem(t.text(item.titleKey), t.text(item.textKey), item.videoLink, helpPage(item.docPage))
                     },
-                    versionMsg = t.fmt("version_text", NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""),
+                    versionMsg = t.fmt("version_text", versionName()),
                     includeSponsor = false,
                 )
                 HelpTopic.LICENCE -> AppDialogRequest.Message(
@@ -55,9 +55,4 @@ private fun helpPage(page: String?): String? = when (page) {
     "search" -> DocsLinks.page("search")
     "workspaces" -> DocsLinks.page("workspaces")
     else -> error("Unknown help page: $page")
-}
-
-private fun bundledHelpHtml(name: String): String {
-    val path = checkNotNull(NSBundle.mainBundle.pathForResource(name, "html")) { "Missing bundled HTML: $name" }
-    return checkNotNull(NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null)) { "Unreadable bundled HTML: $name" }
 }

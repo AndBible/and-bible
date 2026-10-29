@@ -298,7 +298,10 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
             val holder = get<IosStringTableHolder>()
             val currentTable = { holder.current }
             net.bible.sharedui.ios.ports.IosReadingExtrasImpl(
-                helpDialogs = net.bible.sharedui.ios.ports.IosHelpDialogs(get<AppDialogController>(), currentTable),
+                helpDialogs = net.bible.sharedui.ios.ports.IosHelpDialogs(
+                    get<AppDialogController>(), currentTable,
+                    { net.bible.sharedui.ios.ports.iosBundledHtml(it) }, { net.bible.sharedui.ios.ports.iosBundleVersionName() },
+                ),
                 table = currentTable,
                 scope = get<AppCoroutineScope>(),
             )

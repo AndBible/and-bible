@@ -49,6 +49,8 @@ import net.bible.sharedui.ios.ports.IosSystemScreens
 import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 import net.bible.sharedui.ios.ports.IosWindowMetrics
+import net.bible.sharedui.ios.ports.iosBundleVersionName
+import net.bible.sharedui.ios.ports.iosBundledHtml
 import net.bible.sharedui.ios.ports.iosFreeSpaceBytes
 import org.koin.core.Koin
 
@@ -66,7 +68,7 @@ fun buildIosHostPorts(
     initialiseWelcome: suspend () -> Unit = {},
     isPortrait: () -> Boolean = { true },
 ): HostPorts {
-    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
+    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate, ::iosBundleVersionName)
     val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
     val installZip = IosInstallZipHostPlatform(table = currentTable, notificationPermission = IosNotificationPermission(), debugArgs = IosDebugLaunchArgs)
@@ -91,7 +93,7 @@ fun buildIosHostPorts(
         notificationPermission = koin.get<NotificationPermission>(),
         systemScreens = IosSystemScreens(),
         documentDialogs = documents,
-        helpDialogs = IosHelpDialogs(koin.get(), currentTable),
+        helpDialogs = IosHelpDialogs(koin.get(), currentTable, ::iosBundledHtml, ::iosBundleVersionName),
         welcomePlatform = { welcome },
         chooserPlatform = { chooser },
         labelIcons = IosLabelIcons(),

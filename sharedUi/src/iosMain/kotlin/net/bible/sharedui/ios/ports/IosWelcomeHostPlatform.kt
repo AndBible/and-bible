@@ -22,7 +22,6 @@ import net.bible.sharedui.icons.AbIcons
 import net.bible.sharedui.strings.keyed.StringTable
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.Koin
-import platform.Foundation.NSBundle
 
 /** iOS device seams around the same Welcome flow used by Android. */
 @kotlin.native.HiddenFromObjC
@@ -32,6 +31,7 @@ class IosWelcomeHostPlatform(
     private val table: StringTable = iosStringTable("en"),
     private val initialise: suspend () -> Unit,
     private val navigate: (String) -> Unit,
+    private val versionName: () -> String,
 ) : WelcomeHostPlatform {
     private val environment get() = koin.get<AppEnvironment>()
     private val discrete get() = environment.isDiscrete
@@ -44,7 +44,7 @@ class IosWelcomeHostPlatform(
     private val core by lazy {
         WelcomeFlowCore(
             versionText = {
-                table.fmt("version_text", NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: "")
+                table.fmt("version_text", versionName())
             },
             supportedFormatsText = {
                 val zip = table.fmt("format_zip", table.text(if (discrete) "app_name_calculator" else "app_name_andbible"))
