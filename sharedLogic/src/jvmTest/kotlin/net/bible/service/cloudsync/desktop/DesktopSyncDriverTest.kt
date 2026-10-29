@@ -47,6 +47,7 @@ class DesktopSyncDriverTest {
         val events = DesktopLifecycleEvents()
         val ready = CompletableDeferred<Unit>()
         var closePasses = 0
+        var startedPasses = 0
         var databasesReady = true
         var closeResult: Boolean? = null
     }
@@ -56,7 +57,7 @@ class DesktopSyncDriverTest {
     private fun policy(f: Fixture) = BackgroundSyncPolicy(
         syncEnabled = { true }, replacing = { false }, intervalSeconds = { intervalSeconds },
         lastSynchronizedMs = { 0L }, nowMs = { Long.MAX_VALUE / 2 }, signedIn = { true }, signIn = { true },
-        startSync = f.startSync,
+        startSync = { f.startedPasses++; f.startSync() },
     )
 
     private fun driver(f: Fixture, closeWaitMs: Long = 9_000) = DesktopSyncDriver(
@@ -104,7 +105,8 @@ class DesktopSyncDriverTest {
     }
 
     @Test fun closeWaitsForRunningPassUpTo10s() = runTest {
-        val f = fixture { CompletableDeferred() } // a pass that never ends
+        val pass = CompletableDeferred<Boolean>() // a pass that runs past the bound
+        val f = fixture { pass }
         driver(f); f.ready.complete(Unit)
         runCurrent()
         f.events.emit(DesktopLifecycleEvent.Background)
@@ -112,6 +114,11 @@ class DesktopSyncDriverTest {
         // The exit-task runner's own bound is 10 s; the driver stops waiting at 9 s so the whole run finishes inside it.
         assertTrue(f.exitTasks.runAll(10_000), "the task returns before the runner's bound")
         assertEquals(9_000L, currentTime - before)
+        // Teardown: the running pass ends late; no close pass and no new pass may start behind it.
+        pass.complete(true)
+        advanceTimeBy(intervalSeconds * 1000 * 3); runCurrent()
+        assertEquals(0, f.closePasses, "a close pass must not queue behind the timed-out pass")
+        assertEquals(1, f.startedPasses, "no fresh pass after the exit began")
     }
 
     @Test fun closeReturnsAsSoonAsTheRunningPassEnds() = runTest {
@@ -222,5 +229,39 @@ class DesktopSyncDriverTest {
         } finally {
             dir.toFile().deleteRecursively()
         }
+    }
+
+    @Test fun readinessNeedsASuccessfulOpenNotJustTheFlag() = runTest {
+        var ready = false
+        var openAttempts = 0
+        var returned = false
+        backgroundScope.launch {
+            awaitDatabasesOpen({ ready }, { openAttempts++; if (openAttempts < 3) error("not migrated yet") }, pollMs = 500)
+            returned = true
+        }
+        advanceTimeBy(5_000); runCurrent()
+        assertEquals(0, openAttempts, "a clear flag means the container is not touched")
+        ready = true
+        advanceTimeBy(400); assertFalse(returned)
+        advanceTimeBy(2_000); runCurrent()
+        assertEquals(3, openAttempts, "failed opens are retried")
+        assertTrue(returned)
+    }
+
+    @Test fun readinessIsRecheckedAfterTheOpen() = runTest {
+        var ready = true
+        var opens = 0
+        var returned = false
+        backgroundScope.launch {
+            // The first open closes the databases again (a replace started meanwhile): that is not "ready".
+            awaitDatabasesOpen({ ready }, { if (opens++ == 0) ready = false }, pollMs = 100)
+            returned = true
+        }
+        runCurrent()
+        assertFalse(returned)
+        ready = true
+        advanceTimeBy(150); runCurrent()
+        assertTrue(returned)
+        assertEquals(2, opens)
     }
 }

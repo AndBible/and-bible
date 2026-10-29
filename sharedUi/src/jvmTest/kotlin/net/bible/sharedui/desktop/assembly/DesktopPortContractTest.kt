@@ -38,6 +38,7 @@ import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -151,6 +152,7 @@ class DesktopPortContractTest {
             assertEquals(null, koin.get<net.bible.sharedui.app.ports.ImagePicker>().pickImage())
             assertEquals(null, koin.get<net.bible.sharedcore.platform.files.FilePicker>().pickBackupFile())
             assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
+            assertNotEquals("adapters_next_cloud", koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().displayName("NEXT_CLOUD"), "the real string table resolves")
         }
         // CloudSync reads adapterId (available.first()) and builds an adapter: neither may throw. No sign-in is attempted:
         // with the real bindings it would reach the WebDAV stack or wait for a dialog only a user can dismiss.

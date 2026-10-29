@@ -20,9 +20,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.CloudAdapterFactory
+import net.bible.service.cloudsync.SyncNamespace
 import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.host.IosBackupHost
 import net.bible.service.cloudsync.host.IosDocumentSyncStarter
+import net.bible.service.cloudsync.host.IosSyncStrings
+import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppEnvironment
@@ -74,15 +77,21 @@ class DesktopSyncBindingsContractTest {
         override fun remove(key: String) { map.remove(key) }
     }
 
-    private fun <T> withGraph(block: (Koin) -> T): T {
+    private fun <T> withGraph(appSettings: AppSettings = inert(), block: (Koin) -> T): T {
         val scope = AppCoroutineScope()
         val app = koinApplication {
             modules(
                 module {
                     single<DeviceLocalPrefs> { MapPrefs() }
                     single<AppEnvironment> { inert() }
-                    single<AppSettings> { inert() }
+                    single<AppSettings> { appSettings }
                     single<CoreStrings> { inert() }
+                    single {
+                        IosSyncStrings(
+                            adapterDisplayName = { "name:$it" }, webDavServerUrlHint = { "hint" }, syncError = { "err" },
+                            webDavMessage = { "msg" }, ok = { "ok" },
+                        )
+                    }
                     single<UserNotifier> { inert() }
                     single<FilePicker> { inert() }
                     single<FileDelivery> { inert() }
@@ -105,6 +114,7 @@ class DesktopSyncBindingsContractTest {
 
     @Test fun syncTypesResolveToTheRealDesktopClasses() = withGraph { koin ->
         assertIs<DesktopSecretStore>(koin.get<SecretStore>())
+        assertTrue(koin.get<net.bible.service.cloudsync.CloudSyncNamespace>().value.startsWith("net.bible.android.activity"))
         assertIs<DesktopSyncScheduler>(koin.get<SyncScheduler>())
         assertIs<DesktopCloudAdapterFactory>(koin.get<CloudAdapterFactory>())
         assertIs<DesktopSyncSettingsPlatform>(koin.get<SyncSettingsPlatform>())
@@ -115,14 +125,32 @@ class DesktopSyncBindingsContractTest {
         assertSame(koin.get<SyncScheduler>(), koin.get<SyncScheduler>())
     }
 
-    @Test fun theDriverStartsWithTheGraphAndRegistersItsExitTask() = withGraph { koin ->
-        // Created by createEagerInstances; with the databases not open the exit task finishes at once without touching them.
-        runBlocking { withTimeout(5_000) { assertTrue(koin.get<DesktopExitTasks>().runAll(1_000)) } }
+    /**
+     * The driver is only created by createEagerInstances (the test never resolves it): its exit task is the only thing that
+     * reads the sync settings once the databases are flagged ready, so a recorded read proves the registration.
+     */
+    @Test fun theDriverStartsWithTheGraphAndRegistersItsExitTask() {
+        val reads = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, args ->
+            reads += m.name + (args?.firstOrNull() ?: "")
+            when (m.returnType) { java.lang.Boolean.TYPE -> false; java.lang.Long.TYPE -> 0L; java.lang.Integer.TYPE -> 0; String::class.java -> ""; else -> null }
+        } as AppSettings
+        val wasReady = DatabaseContainer.ready
+        try {
+            withGraph(settings) { koin ->
+                DatabaseContainer.ready = true
+                runBlocking { withTimeout(5_000) { assertTrue(koin.get<DesktopExitTasks>().runAll(2_000)) } }
+                assertTrue(reads.any { it.startsWith("getBoolean") }, "the exit task ran the close pass check: $reads")
+            }
+        } finally {
+            DatabaseContainer.ready = wasReady
+        }
     }
 
     @Test fun onlyNextCloudAndWebDavAreOffered() = withGraph { koin ->
         val factory = koin.get<CloudAdapterFactory>()
         assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), factory.available)
+        assertEquals("name:NEXT_CLOUD", factory.displayName("NEXT_CLOUD"))
         assertEquals(false, factory.create("NEXT_CLOUD").signedIn)
         assertEquals(false, factory.create("WEBDAV").signedIn)
         assertFailsWith<IllegalStateException> { factory.create("ICLOUD_DRIVE") }
@@ -130,15 +158,12 @@ class DesktopSyncBindingsContractTest {
         Unit
     }
 
-    @Test fun stringLookupReadsTheHolderByReflectionAndFallsBackToTheKey() {
-        class Table { fun text(key: String) = "en:$key" }
-        class Holder { val current = Table() }
-        val koin = koinApplication { modules(module { single { Holder() } }) }.koin
-        val lookup = reflectiveStringLookup(koin, Holder::class.java.name)
-        assertEquals("en:adapters_next_cloud", DesktopSyncTexts(lookup).adapterDisplayName("NEXT_CLOUD"))
-        assertEquals("en:adapters_webdav", DesktopSyncTexts(lookup).adapterDisplayName("WEBDAV"))
-        assertEquals("en:webdav_server_url_hint", DesktopSyncTexts(lookup).serverUrlHint())
-        // No holder in the graph: the key itself, never an exception.
-        assertEquals("webdav_server_url_hint", DesktopSyncTexts(reflectiveStringLookup(koinApplication { }.koin, Holder::class.java.name)).serverUrlHint())
+    @Test fun syncNamespaceSharesWithAndroidReleaseOnlyWhenPackaged() {
+        assertEquals("net.bible.android.activity", desktopSyncNamespace("1.2.3", null))
+        assertEquals("net.bible.android.activity.debug", desktopSyncNamespace("dev", null))
+        assertEquals("net.bible.android.activity.debug", desktopSyncNamespace(null, null))
+        assertEquals("net.bible.android.activity.debug", desktopSyncNamespace("1.2.3", ".debug"))
+        assertEquals("net.bible.android.activity", desktopSyncNamespace("dev", ""))
+        assertEquals("net.bible.android.activity", SyncNamespace.forAppId(desktopSyncNamespace("1.2.3", null)))
     }
 }

@@ -57,9 +57,4 @@ class DesktopSyncSchedulerTest {
         scheduler.stop(pass)
         assertFalse(pass.await())
     }
-
-    @Test fun backgroundRefreshIsANoOp() {
-        val refresh = DesktopBackgroundRefresh()
-        refresh.register { true }; refresh.schedule(60); refresh.cancel()
-    }
 }
