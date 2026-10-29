@@ -4,7 +4,8 @@
  */
 package net.bible.sharedui.desktop.assembly
 
-import kotlinx.coroutines.awaitCancellation
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
 import net.bible.sharedcore.platform.desktop.files.DesktopFileDelivery
 import net.bible.sharedcore.platform.desktop.files.DesktopFilePicker
@@ -19,11 +20,7 @@ import net.bible.sharedui.app.ports.*
 import net.bible.sharedui.desktop.files.*
 import org.koin.core.module.Module
 import org.koin.dsl.module
-
-/** Incoming-file delivery is implemented separately in Task 3. */
-class DesktopIncomingFilesStub : DesktopIncomingFiles {
-    override suspend fun receive(open: (List<DocumentRef>, () -> Unit) -> Unit, onFailure: () -> Unit) = awaitCancellation()
-}
+import org.koin.dsl.onClose
 
 fun desktopDocumentModule(): Module = module {
     single<FileChooserBackend> { desktopFileChooser(DesktopDbus()) }
@@ -34,7 +31,9 @@ fun desktopDocumentModule(): Module = module {
     single<ContentSource> { DesktopContentSource() }
     single<ClipboardText> { DesktopClipboardText() }
     single<TextShare> { DesktopTextShare(get(), get()) }
-    single<DesktopIncomingFiles> { DesktopIncomingFilesStub() }
+    single<DesktopIncomingFiles>(createdAtStart = true) {
+        DesktopIncomingFilesImpl(get<AppDirectories>().internalFilesDir.toNioPath(), get<DesktopLaunchArgs>().args, get(), get<DesktopExitTasks>())
+    } onClose { (it as? DesktopIncomingFilesImpl)?.close() }
     single<DesktopFileShare> { DesktopFileShareImpl(get()) }
     single<ExternalLinks> { DesktopExternalLinks() }
     single<MyDocumentFiles> { DesktopMyDocumentFiles() }

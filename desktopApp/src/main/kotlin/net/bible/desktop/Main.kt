@@ -26,6 +26,8 @@ import net.bible.sharedcore.platform.desktop.AlreadyRunningException
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedcore.platform.desktop.InstanceLock
+import net.bible.sharedcore.platform.desktop.files.InstanceHandOff
+import java.nio.file.Paths
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
 import net.bible.sharedui.desktop.assembly.DesktopAppHostPlatform
@@ -86,8 +88,13 @@ private fun runApp(launchArgs: List<String>) {
     val paths = DesktopPaths.system()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {
-        System.err.println("AndBible is already running")
-        exitProcess(0)
+        val files = try { launchArgs.map { Paths.get(it).toAbsolutePath().normalize() } } catch (e: Exception) {
+            System.err.println("AndBible could not resolve incoming files: ${e.message}")
+            exitProcess(1)
+        }
+        if (InstanceHandOff.send(paths.data, files)) exitProcess(0)
+        System.err.println("AndBible is already running, but incoming files could not be delivered")
+        exitProcess(1)
     }
     // The lock proved the data directory writable: from here on every failure (CEF, natives) reaches the log file too.
     if (lockFailure == null) configureDesktopLogFile(paths.data.resolve("logs"))

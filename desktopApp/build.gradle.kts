@@ -373,6 +373,13 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         val work = layout.buildDirectory.dir("deb-fix").get().asFile.apply { deleteRecursively(); mkdirs() }
         val unpacked = File(work, "pkg")
         run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
+        // D3b: install and verify the file-association launcher in the actual Debian payload.
+        val desktopTemplate = layout.projectDirectory.file("packaging/linux/andbible.desktop").asFile
+        val desktopEntry = File(unpacked, "usr/share/applications/andbible.desktop")
+        desktopEntry.parentFile.mkdirs()
+        desktopEntry.writeText(desktopTemplate.readText())
+        check("Exec=/opt/andbible/bin/andbible %F" in desktopEntry.readText())
+        check("MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;" in desktopEntry.readText())
         val natives = File(unpacked, "opt/andbible/lib/app/resources/kcef-natives")
         check(natives.isDirectory) { "No kcef-natives in the .deb ($natives)" }
         restoreNativeModes(kcefNativesDir.get().asFile, natives)

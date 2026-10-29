@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AndBible
+Comment=Offline Bible study app
+Exec=/opt/andbible/bin/andbible %F
+Icon=andbible
+Terminal=false
+Categories=Education;
+MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;
