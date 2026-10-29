@@ -52,16 +52,14 @@ import net.bible.sharedui.reading.session.SessionEventRelay
 import net.bible.sharedui.reading.session.activeLanguagesJson
 import net.bible.sharedui.reading.session.readingVerseChooser
 import net.bible.sharedui.reading.session.watchSettingKeys
-import net.bible.sharedui.webview.IosReadingWebViews
-import net.bible.sharedui.webview.iosReadingWindowSurface
-import net.bible.sharedui.webview.WkWebViewJsHost
 import net.bible.sharedui.webview.activeLanguagesScript
 import org.koin.core.Koin
 
 /**
  * Per-window reading session assembly on iOS (the counterpart of Android's `BibleView` constructor and
- * `listenEvents`): for each window id, once, a [BibleWindowSession] over the window's cached WKWebView with its
- * [DocumentLoader], [ReadingBridge], [ReadingLinkHandler] and a started [SessionEventRelay].
+ * `listenEvents`): for each window id, once, a [BibleWindowSession] over the window's cached web view (from the bound
+ * [ReadingPaneEngine]; iOS: a WKWebView) with its [DocumentLoader], [ReadingBridge], [ReadingLinkHandler] and a started
+ * [SessionEventRelay].
  *
  * Main thread only (WebKit and the web-view cache are). Call [bind] once the window repository exists and before
  * the first [sessionFor]. A window that is closed is released on the next window change; [release] disposes the
@@ -99,12 +97,17 @@ object IosReadingWindows {
         private set
     private var binding: Binding? = null
 
+    /** The web engine of the last [bind]; kept after an unbind so a later [release] still drops the window's web view. */
+    private var panes: ReadingPaneEngine? = null
+
     /**
      * Binds the assembly to the reading host. A second bind (a new host) drops the previous binding's window
-     * subscription; sessions of the old host are released first.
+     * subscription; sessions of the old host are released first. [panes] creates and drops the windows' web views
+     * (iOS: `IosReadingPaneEngine`).
      */
-    fun bind(host: IosReadingHost, scope: CoroutineScope, koin: Koin, nightModeState: NightModeState) {
+    fun bind(host: IosReadingHost, scope: CoroutineScope, koin: Koin, nightModeState: NightModeState, panes: ReadingPaneEngine) {
         unbind()
+        this.panes = panes
         val b = Binding(host, scope, koin, nightModeState)
         binding = b
         selectionMenu = IosSelectionMenu(
@@ -114,14 +117,14 @@ object IosReadingWindows {
                 linkControl = { koin.get<LinkControl>() },
                 links = { koin.get<ExternalLinks>() },
                 openSearch = { host.openSearchWithSelection(it) },
-                copyText = ::iosCopyToPasteboard,
+                copyText = host.platform::copyToPasteboard,
                 llmConfiguredSource = host::llmConfigured,
             ),
             strings = { KeyedSelectionMenuStrings(IosAppStartup.stringTable) },
             onLlmAction = host::openSelectionPromptSelector,
         )
         // The languages of the installed Bibles (Android's `getActiveLanguages`), read when each window's WebView is created.
-        IosReadingWebViews.activeLanguages = ::installedLanguagesJson
+        panes.setActiveLanguages(::installedLanguagesJson)
         b.subscriptions.add(koin.get<WindowStateServiceImpl>().windowChanges.subscribe { change ->
             if (change == WindowChange.WindowsChanged) {
                 // Minimising or restoring a window shows or hides the restore row, which is an offsets term.
@@ -221,13 +224,13 @@ object IosReadingWindows {
         // Refuse before creating anything: no WebView entry, no session, nothing cached for a closed or missing window.
         val window = windowControl.windowRepository.getWindow(IdType(windowId))
         check(window != null && window.windowState != WindowLayout.WindowState.CLOSED) { "window $windowId is closed or missing" }
-        val webView = IosReadingWebViews.webViewFor(windowId)
-        val host = WkWebViewJsHost(webView)
+        val panes = checkNotNull(panes)
+        val host = panes.jsHostFor(windowId)
         val session = BibleWindowSession(
             window = window,
             jsChannel = BibleViewJsChannel(host) { nsLog("bridge[$windowId]: $it") },
             hostScope = { b.scope },
-            surface = iosReadingWindowSurface(host, links = koin.get<ExternalLinks>()),
+            surface = panes.surfaceFor(host, koin.get<ExternalLinks>()),
             navigator = b.host.navigator,
         )
         try {
@@ -250,8 +253,8 @@ object IosReadingWindows {
                 nightModeState = { b.nightModeState },
                 llmConfigured = { b.host.llmConfigured() },
                 offsets = { b.host.offsets },
-                isPortrait = ::iosIsPortrait,
-                onPageBackground = { IosReadingWebViews.applyBackground(windowId, it) },
+                isPortrait = b.host.platform::isPortrait,
+                onPageBackground = { panes.applyBackground(windowId, it) },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
             val loader = DocumentLoader(session, platform).also { session.paging = it }
@@ -273,7 +276,7 @@ object IosReadingWindows {
         } catch (t: Throwable) {
             // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
             session.dispose()
-            IosReadingWebViews.release(windowId)
+            panes.release(windowId)
             throw t
         }
     }
@@ -288,7 +291,7 @@ object IosReadingWindows {
             a.session.dispose()
         }
         selectionMenu?.clear(windowId)
-        IosReadingWebViews.release(windowId)
+        panes?.release(windowId)
     }
 
     private fun releaseClosedWindows() {

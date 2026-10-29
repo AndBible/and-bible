@@ -121,6 +121,7 @@ import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.theme.AbHostTheme
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.webview.iosReadingPaneFactory
+import net.bible.sharedui.webview.IosReadingPaneEngine
 import org.crosswire.jsword.book.Book
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
@@ -638,7 +639,7 @@ private class ReadingHostHolder(
         ).also {
             host = it
             IosRootLinks.attachReading(it.navigator, it::openSearchStrongs)
-            IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())
+            IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>(), IosReadingPaneEngine)
         }
 }
 

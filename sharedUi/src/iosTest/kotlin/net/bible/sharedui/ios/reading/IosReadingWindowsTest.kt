@@ -50,6 +50,7 @@ import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
+import net.bible.sharedui.webview.IosReadingPaneEngine
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSDate
 import platform.Foundation.NSRunLoop
@@ -106,7 +107,7 @@ class IosReadingWindowsTest {
             val koin = KoinPlatform.getKoin()
             val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
             currentHost = host
-            IosReadingWindows.bind(host, scope, koin, night)
+            IosReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
@@ -290,7 +291,7 @@ class IosReadingWindowsTest {
         NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
         val scope = IosReadingReady.scope
         val night = FakeNight(false)
-        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night)
+        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night, IosReadingPaneEngine)
         assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
     }
 

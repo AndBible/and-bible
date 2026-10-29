@@ -61,6 +61,7 @@ import platform.Foundation.runUntilDate
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
 import net.bible.sharedui.webview.uiColorFromArgb
+import net.bible.sharedui.webview.IosReadingPaneEngine
 
 /** Night, colour mode and animation switches reach shown documents as `set_config`, never as a page reload. */
 class IosDisplayModesTest {
@@ -102,7 +103,7 @@ class IosDisplayModesTest {
             val koin = KoinPlatform.getKoin()
             val night = nightFor(koin)
             val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
-            IosReadingWindows.bind(host, scope, koin, night)
+            IosReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
             IosReadingWindows.resetForTest()
