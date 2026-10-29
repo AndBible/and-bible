@@ -10,7 +10,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import kotlin.test.*
-import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
+import net.bible.service.cloudsync.host.HostWebDavCertificatePrompt
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosWebDavSignInUiTest {
@@ -20,7 +20,7 @@ class IosWebDavSignInUiTest {
         val host = "dav.example<a href=\"https://attacker.invalid\">link</a>"
         val subject = "CN=<b>not bold</b>\n<!--still identity-->&amp; &lt;name&gt;"
         val issuer = "O=<i>not italic</i><big>not big</big><small>not small</small>"
-        val ui = IosWebDavCertificatePrompt({ dialogs }, strings) { "date-$it" }
+        val ui = HostWebDavCertificatePrompt({ dialogs }, strings) { "date-$it" }
         val answer = async { ui.confirmCertificate(DavCertificateInfo(host, "AABB", subject, issuer, 1, 2)) }
         try {
             runCurrent()
@@ -36,7 +36,7 @@ class IosWebDavSignInUiTest {
 
     @Test fun certificatePromptShowsIssuerAndDates() = runTest {
         val dialogs = AppDialogController()
-        val ui = IosWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { "date-$it" }
+        val ui = HostWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { "date-$it" }
         val answer = async { ui.confirmCertificate(DavCertificateInfo("dav.example", "AABBCC", "Server CN", "Real Issuer", 1000, 2000)) }
         try {
             runCurrent()
@@ -54,7 +54,7 @@ class IosWebDavSignInUiTest {
 
     @Test fun decliningCertificateDoesNotGrantTrust() = runTest {
         val dialogs = AppDialogController()
-        val ui = IosWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { it.toString() }
+        val ui = HostWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { it.toString() }
         val answer = async { ui.confirmCertificate(DavCertificateInfo("host", "AA", "subject", "issuer", 1, 2)) }
         try {
             runCurrent()
@@ -65,7 +65,7 @@ class IosWebDavSignInUiTest {
     }
 
     @Test fun allWebDavMessagesAreLocalized() {
-        val ui = IosWebDavCertificatePrompt({ error("messages cannot present UI") }, StubCoreStrings()) { it.toString() }
+        val ui = HostWebDavCertificatePrompt({ error("messages cannot present UI") }, StubCoreStrings()) { it.toString() }
         assertEquals(listOf("webDavWrongCredentials", "webDavNotAFolder", "webDavCertificateChanged", "webDavStorageFull"),
             listOf(WebDavMessage.WRONG_CREDENTIALS, WebDavMessage.NOT_A_FOLDER, WebDavMessage.CERTIFICATE_CHANGED, WebDavMessage.STORAGE_FULL).map(ui::message))
     }

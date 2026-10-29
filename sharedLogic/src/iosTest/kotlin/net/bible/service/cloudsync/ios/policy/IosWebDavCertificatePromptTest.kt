@@ -14,7 +14,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
+import net.bible.service.cloudsync.host.HostWebDavCertificatePrompt
 
 /**
  * The iOS certificate prompt must use the device-neutral wording. The stub mirrors the English resource text; the
@@ -24,7 +24,7 @@ import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
 class IosWebDavCertificatePromptTest {
     @Test fun messageDoesNotNameAndroid() = runTest {
         val dialogs = AppDialogController()
-        val ui = IosWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { "date-$it" }
+        val ui = HostWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { "date-$it" }
         val answer = async {
             ui.confirmCertificate(DavCertificateInfo("dav.example", "AABBCC", "CN=Server", "CN=Real Issuer", 1000, 2000))
         }

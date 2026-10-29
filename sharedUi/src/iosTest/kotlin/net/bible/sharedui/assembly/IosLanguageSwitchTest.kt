@@ -20,7 +20,7 @@ class IosLanguageSwitchTest {
             val labels = app.koin.get<LabelNameStrings>()
             val plans = app.koin.get<DistributedPlanCatalog>()
             val before = listOf(core.studypads, llm.actionActiveWindow, labels.speak, plans.plans().first().planName)
-            app.koin.get<IosStringTableHolder>().switchTo("fi")
+            app.koin.get<HostStringTableHolder>().switchTo("fi")
             assertEquals(lookup("fi", "studypads"), core.studypads)
             val after = listOf(core.studypads, llm.actionActiveWindow, labels.speak, plans.plans().first().planName)
             before.zip(after).forEach { (en, fi) -> assertNotEquals(en, fi) }
@@ -29,7 +29,7 @@ class IosLanguageSwitchTest {
 
     @Test
     fun retainedLiveTableFollowsTheSwitchIncludingItsTag() {
-        val holder = IosStringTableHolder(iosStringTable("en"))
+        val holder = HostStringTableHolder(hostStringTable("en"))
         val retained = holder.live // a host keeps this facade across language switches
         assertEquals("en", retained.tag)
         holder.switchTo("fi")

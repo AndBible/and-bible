@@ -26,7 +26,7 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
 import platform.UIKit.UIScreen
 
-/** Opens [url] through UIKit (the default of [IosSpeakSettingsPlatform]); a malformed URL is ignored. */
+/** Opens [url] through UIKit (the default of [HostSpeakSettingsPlatform]); a malformed URL is ignored. */
 internal fun iosOpenUrl(url: String) {
     val nsUrl = NSURL.URLWithString(url) ?: return
     UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap<Any?, Any?>(), completionHandler = null)

@@ -9,7 +9,7 @@ import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
 import net.bible.sharedui.app.ports.DocumentFolderExport
 import net.bible.sharedui.app.ports.DocumentRef
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -277,7 +277,7 @@ class IosMyDocumentFilesTest {
         private val active = mutableSetOf<String>()
 
         fun port() = IosMyDocumentFiles(
-            strings = { iosStringTable("en") },
+            strings = { hostStringTable("en") },
             startAccess = { url ->
                 val uri = assertNotNull(url.absoluteString)
                 assertTrue(url.isFileURL())

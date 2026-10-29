@@ -28,7 +28,7 @@ import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import net.bible.sharedui.host.reading.DisplayModeSignals
-import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.HostNightModeObserver
 
 /** The night-mode observer's [DisplayModeSignals] seam: which iOS notifications it follows, and one observation per start. */
 class IosDisplayModeSignalsTest {
@@ -71,7 +71,7 @@ class IosDisplayModeSignalsTest {
         }
         val night = Night(false)
         var changes = 0
-        val observer = IosNightModeObserver(night, signals, restored = { null }) { changes++ }
+        val observer = HostNightModeObserver(night, signals, restored = { null }) { changes++ }
         observer.start()
         observer.start() // already started: no second observation
         assertEquals(1, observing)

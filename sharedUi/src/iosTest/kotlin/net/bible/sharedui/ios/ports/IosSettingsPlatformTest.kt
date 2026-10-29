@@ -7,7 +7,7 @@ import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.StringTable
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUUID
-import net.bible.sharedui.host.ports.IosSettingsPlatform
+import net.bible.sharedui.host.ports.HostSettingsPlatform
 
 class IosSettingsPlatformTest {
     @Test fun resetClearsTheSameKeysOnBothPlatforms() {
@@ -17,7 +17,7 @@ class IosSettingsPlatformTest {
             val local = IosDeviceSettings(defaults)
             val db = MemorySettings()
             val strings = KeyedCoreStrings(StringTable.of("en", { it }, { key, _ -> key }, { emptyList() }))
-            val platform = IosSettingsPlatform(strings, db, local)
+            val platform = HostSettingsPlatform(strings, db, local)
             for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) local.putString(key, "stored")
             db.setBoolean("navigate_to_verse_pref", true)
             db.setString("night_mode_pref3", "manual")

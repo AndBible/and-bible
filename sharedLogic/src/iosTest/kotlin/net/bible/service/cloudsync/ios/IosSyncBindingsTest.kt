@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
-import net.bible.service.cloudsync.host.IosSyncStrings
+import net.bible.service.cloudsync.host.HostSyncStrings
 
 class IosSyncBindingsTest {
     private class MapSettings : AppSettings {
@@ -88,7 +88,7 @@ class IosSyncBindingsTest {
         single { AppCoroutineScope() }
     }
 
-    private val strings = IosSyncStrings(
+    private val strings = HostSyncStrings(
         adapterDisplayName = { "name-$it" },
         webDavServerUrlHint = { "https://hint" },
         syncError = { "sync error" },

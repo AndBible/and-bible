@@ -17,14 +17,14 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.*
 
-private fun iosStringTable(language: String) = StringTable(language, { key -> "$language:$key" },
+private fun hostStringTable(language: String) = StringTable(language, { key -> "$language:$key" },
     { key, args -> "$language:$key:${args.joinToString()}" }, { n, _ -> n }, { emptyList() })
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class BookmarkCsvHostFlowTest {
     private val settings = MapSearchSettings()
     private val dialogs = AppDialogController()
-    private var table: StringTable = iosStringTable("en")
+    private var table: StringTable = hostStringTable("en")
     private val messages = mutableListOf<String>()
     private val errors = mutableListOf<Throwable?>()
     private var creates = 0
@@ -80,7 +80,7 @@ class BookmarkCsvHostFlowTest {
         assertEquals(18, english.options.size)
         assertFalse("notes" in english.selectedIds)
         assertTrue("osisRef" in english.selectedIds)
-        table = iosStringTable("fi")
+        table = hostStringTable("fi")
         val finnish = choice()
         assertEquals(table.text("csv_column_selection_title"), finnish.title)
         assertNotEquals(english.title, finnish.title)

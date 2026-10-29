@@ -26,7 +26,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.PlainHttpRefusedException
 
 class IosCloudAdapterFactoryTest {
@@ -63,7 +63,7 @@ class IosCloudAdapterFactoryTest {
     private fun factory(
         iCloud: () -> CloudFileStore = { store(tmpRoot) },
         awaitReady: suspend () -> Unit = {},
-    ) = IosCloudAdapterFactory(
+    ) = HostCloudAdapterFactory(
         platform, "dev-1", { "name-$it" }, iCloud, ui, tmpRoot / "tmp",
         clientFactory = { c: WebDavConfig, _: WebDavStateStore ->
             recorded += c
@@ -176,7 +176,7 @@ class IosCloudAdapterFactoryTest {
             }
             override val webDavState: WebDavStateStore = state
         }
-        val f = IosCloudAdapterFactory(
+        val f = HostCloudAdapterFactory(
             fake, "dev-1", { it }, { store(tmpRoot) }, ui, tmpRoot / "tmp",
             clientFactory = { c: WebDavConfig, s: WebDavStateStore -> recorded += c; seenStates += s; error("I2-test: no network") },
         )

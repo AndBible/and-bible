@@ -21,7 +21,7 @@ class IosBackgroundWorkTest {
         val scope = CoroutineScope(coroutineContext + owner)
         val completions = mutableListOf<Boolean>()
         var expire: () -> Unit = {}
-        val work = IosBackgroundWork(scope, { CompletableDeferred<Boolean>().await() }) { completions += it }
+        val work = HostBackgroundWork(scope, { CompletableDeferred<Boolean>().await() }) { completions += it }
         work.start { expire = it }
         runCurrent()
         expire()
@@ -36,7 +36,7 @@ class IosBackgroundWorkTest {
         val owner = SupervisorJob().apply { cancel() }
         var installed = false
         var completions = 0
-        val work = IosBackgroundWork(CoroutineScope(coroutineContext + owner), { true }) {
+        val work = HostBackgroundWork(CoroutineScope(coroutineContext + owner), { true }) {
             kotlin.test.assertTrue(installed)
             completions++
         }
@@ -55,7 +55,7 @@ class IosBackgroundWorkTest {
         try {
             var expire: () -> Unit = {}
             val completions = mutableListOf<Boolean>()
-            val work = IosBackgroundWork(this, { CompletableDeferred<Boolean>().await() }) { completions += it }
+            val work = HostBackgroundWork(this, { CompletableDeferred<Boolean>().await() }) { completions += it }
             work.start { expire = it }
             runCurrent()
             expire()
@@ -65,7 +65,7 @@ class IosBackgroundWorkTest {
             assertEquals(listOf(false), completions)
 
             val owner = SupervisorJob()
-            val cancelled = IosBackgroundWork(CoroutineScope(coroutineContext + owner), {
+            val cancelled = HostBackgroundWork(CoroutineScope(coroutineContext + owner), {
                 CompletableDeferred<Boolean>().await()
             }) { completions += it }
             cancelled.start { }
@@ -89,7 +89,7 @@ class IosBackgroundWorkTest {
         }
         try {
             val completions = mutableListOf<Boolean>()
-            val work = IosBackgroundWork(this, { throw failure }) { completions += it }
+            val work = HostBackgroundWork(this, { throw failure }) { completions += it }
             work.start { }
             runCurrent()
             assertFalse(work.result.await())
@@ -104,7 +104,7 @@ class IosBackgroundWorkTest {
     @Test fun normalCompletionWinsAgainstLateExpiration() = runTest {
         val completions = mutableListOf<Boolean>()
         var expire: () -> Unit = {}
-        val work = IosBackgroundWork(this, { true }) { completions += it }
+        val work = HostBackgroundWork(this, { true }) { completions += it }
         work.start { expire = it }
         runCurrent()
         expire()

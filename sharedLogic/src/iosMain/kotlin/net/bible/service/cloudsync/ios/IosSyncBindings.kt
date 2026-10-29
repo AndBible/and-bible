@@ -33,10 +33,10 @@ import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
-import net.bible.service.cloudsync.host.IosBackupHost
-import net.bible.service.cloudsync.host.IosCloudAdapterFactory
-import net.bible.service.cloudsync.host.IosDocumentSyncStarter
-import net.bible.service.cloudsync.host.IosSyncStrings
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostDocumentSyncStarter
+import net.bible.service.cloudsync.host.HostSyncStrings
 
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
@@ -57,7 +57,7 @@ internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDate
  * caller waiting for that lock.
  */
 @OptIn(ExperimentalForeignApi::class)
-fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
+fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
     single { IosDevicePrefs() }
     // ONE container for the whole module: its lookup runs once and signIn() awaits that same lookup.
     single { IosUbiquityContainer().also { it.prefetch() } }
@@ -65,7 +65,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
     single<CloudAdapterFactory> {
-        IosCloudAdapterFactory(
+        HostCloudAdapterFactory(
             platform = get<SyncSettingsPlatform>(),
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
@@ -77,7 +77,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
     single<DocumentSyncStarter> {
-        IosDocumentSyncStarter(
+        HostDocumentSyncStarter(
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
@@ -95,7 +95,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
     single<BackupHost> {
-        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
+        HostBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
             { get<net.bible.sharedcore.platform.CoreStrings>().errorReport },
             { get<net.bible.sharedcore.platform.CoreStrings>().errorBackup },
             { get<net.bible.sharedcore.platform.CoreStrings>().errorSkip })

@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import net.bible.sharedui.app.ports.ExternalLinks
 
 /**
- * What [IosAppDialogOverlay] needs from the host: the external-link opener for links in queued dialogs, and whether
+ * What [HostAppDialogOverlay] needs from the host: the external-link opener for links in queued dialogs, and whether
  * the host's view can show app dialogs right now. iOS: `IosAppDialogHost` (UIKit presentation state of the Compose
  * view controller). A host whose window is never covered by native UI (desktop) answers a constant `true`.
  */

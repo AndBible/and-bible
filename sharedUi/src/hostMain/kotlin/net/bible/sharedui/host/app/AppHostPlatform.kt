@@ -37,7 +37,7 @@ import net.bible.sharedui.strings.keyed.StringTable
 import org.koin.core.Koin
 
 /**
- * The platform hooks of the app root ([IosApp]): everything it needs that is not shared code. iOS passes
+ * The platform hooks of the app root ([HostApp]): everything it needs that is not shared code. iOS passes
  * `IosAppHostPlatform` (the UIKit calls and iOS objects the root used directly before). The debug/UI-test members
  * (`Debug*`, [receiveIncomingFiles]'s harness preflight, [debugArgs]) mean "nothing" on a host without them.
  *
@@ -79,7 +79,7 @@ interface AppHostPlatform {
         isPortrait: () -> Boolean,
     ): HostPorts
 
-    /** The reading view's pane factory over `IosReadingWindows`; called once per reading destination. */
+    /** The reading view's pane factory over `HostReadingWindows`; called once per reading destination. */
     fun readingPaneFactory(): ReadingPaneFactory
 
     /** Keeps the display awake while [disabled] is true (iOS: `UIApplication.idleTimerDisabled`). */

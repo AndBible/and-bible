@@ -27,7 +27,7 @@ import platform.UIKit.UIApplicationWillResignActiveNotification
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/** Pins [IosHostLifecycle] to the UIKit notifications IosApp observed directly before the seam. */
+/** Pins [IosHostLifecycle] to the UIKit notifications HostApp observed directly before the seam. */
 class IosHostLifecycleTest {
     private fun post(name: String?) {
         NSNotificationCenter.defaultCenter.postNotificationName(name!!, null)

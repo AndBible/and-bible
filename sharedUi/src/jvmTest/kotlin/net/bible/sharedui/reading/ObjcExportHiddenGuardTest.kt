@@ -130,7 +130,7 @@ class ObjcExportHiddenGuardTest {
         val names = files.map { it.name }.toSet()
         assertTrue("ReadingHostSlots.kt" in names && "QuickSheets.kt" in names && "GridPassageHostSupport.kt" in names,
             "scope must include the recursive slots tree and the moved grid support, got $names")
-        assertTrue("IosReadingWindowSurface.kt" in names, "scope must include the hoisted hostMain webview files, got $names")
+        assertTrue("HostReadingWindowSurface.kt" in names, "scope must include the hoisted hostMain webview files, got $names")
         assertTrue("TiltAxis.kt" in names && "WorkspaceResultTarget.kt" in names, "scope must include the top-level reading files, got $names")
         val (missing, publicCount) = violations(files)
         assertTrue(publicCount > 30, "scanner must see the public declarations, saw $publicCount")

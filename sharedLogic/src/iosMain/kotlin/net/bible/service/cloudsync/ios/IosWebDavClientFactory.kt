@@ -38,7 +38,7 @@ import platform.Security.SecTrustCopyCertificateChain
 import platform.Security.SecTrustEvaluateWithError
 import platform.Security.SecTrustRef
 import net.bible.service.cloudsync.host.CertificateDetails
-import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
+import net.bible.service.cloudsync.host.HostWebDavCertificatePrompt
 import net.bible.service.cloudsync.host.certificateDetails
 
 private const val TAG = "IosWebDavClient"
@@ -180,4 +180,4 @@ private fun derBytes(cert: SecCertificateRef): ByteArray? {
 class IosWebDavSignInUi(
     dialogs: () -> net.bible.sharedcore.ui.dialog.AppDialogController,
     strings: net.bible.sharedcore.platform.CoreStrings,
-) : net.bible.service.cloudsync.webdav.WebDavSignInUi by IosWebDavCertificatePrompt(dialogs, strings, ::certificateDate)
+) : net.bible.service.cloudsync.webdav.WebDavSignInUi by HostWebDavCertificatePrompt(dialogs, strings, ::certificateDate)

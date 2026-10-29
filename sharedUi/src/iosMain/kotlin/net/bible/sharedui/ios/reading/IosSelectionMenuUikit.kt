@@ -32,10 +32,10 @@ import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
 import net.bible.sharedui.host.reading.CachedSelection
-import net.bible.sharedui.host.reading.IosSelectionMenu
+import net.bible.sharedui.host.reading.HostSelectionMenu
 import net.bible.sharedui.host.reading.SelectionMenuRow
 
-/** Puts [text] on the general pasteboard (the copy action of [IosSelectionMenuEnvironment]). */
+/** Puts [text] on the general pasteboard (the copy action of [HostSelectionMenuEnvironment]). */
 internal fun iosCopyToPasteboard(text: String) {
     UIPasteboard.generalPasteboard.string = text
 }
@@ -47,7 +47,7 @@ internal fun iosCopyToPasteboard(text: String) {
  */
 internal class IosSelectionMessageHandler(
     private val windowId: String,
-    private val menu: IosSelectionMenu,
+    private val menu: HostSelectionMenu,
     private val rebuild: () -> Unit = { UIMenuSystem.contextSystem.setNeedsRebuild() },
 ) : NSObject(), WKScriptMessageHandlerProtocol {
     override fun userContentController(userContentController: WKUserContentController, didReceiveScriptMessage: WKScriptMessage) {
@@ -66,7 +66,7 @@ internal class IosSelectionMessageHandler(
  * non-Bible "Copy" row is left out (the system one copies the same text). On a Bible with two-step bookmarking the
  * "Bookmark" row is a submenu holding the step-two choices; UIKit shows it natively, no menu has to be re-presented.
  */
-internal fun insertSelectionMenu(builder: UIMenuBuilderProtocol, windowId: String, menu: IosSelectionMenu) {
+internal fun insertSelectionMenu(builder: UIMenuBuilderProtocol, windowId: String, menu: HostSelectionMenu) {
     val snapshot = menu.snapshot(windowId) ?: return
     val rows = menu.rows(windowId, snapshot).filter { it.item != SelectionMenuItem.Copy }
     if (rows.isEmpty()) return
@@ -86,5 +86,5 @@ internal fun insertSelectionMenu(builder: UIMenuBuilderProtocol, windowId: Strin
     }
 }
 
-private fun action(row: SelectionMenuRow, menu: IosSelectionMenu, windowId: String, snapshot: CachedSelection): UIAction =
+private fun action(row: SelectionMenuRow, menu: HostSelectionMenu, windowId: String, snapshot: CachedSelection): UIAction =
     UIAction.actionWithTitle(row.title, null, null) { _ -> menu.run(windowId, row.item, snapshot) }

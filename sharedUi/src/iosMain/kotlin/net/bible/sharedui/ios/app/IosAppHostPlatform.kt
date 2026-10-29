@@ -63,7 +63,7 @@ import net.bible.sharedui.ios.files.IosIncomingRuntimeHarness
 import net.bible.sharedui.host.reading.DisplayModeSignals
 import net.bible.sharedui.ios.reading.IosDisplayModeSignals
 import net.bible.sharedui.ios.reading.IosReadingHostPlatform
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.ios.reading.IosTiltScroll
 import net.bible.sharedui.host.reading.ReadingHostPlatform
 import net.bible.sharedui.host.reading.ReadingPaneEngine
@@ -84,7 +84,7 @@ import net.bible.sharedui.host.app.AppDialogHost
 import net.bible.sharedui.host.app.AppHostPlatform
 
 /**
- * The iOS [AppHostPlatform]: exactly the objects and UIKit calls [IosApp] used directly before the seam (the same
+ * The iOS [AppHostPlatform]: exactly the objects and UIKit calls [HostApp] used directly before the seam (the same
  * singletons, a new instance where the root built one per use). Passed by `MainViewController`.
  */
 @kotlin.native.HiddenFromObjC
@@ -112,7 +112,7 @@ object IosAppHostPlatform : AppHostPlatform {
     ): HostPorts = buildIosHostPorts(shell, koin, table, initialiseWelcome = initialiseWelcome, isPortrait = isPortrait)
 
     override fun readingPaneFactory(): ReadingPaneFactory =
-        iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+        iosReadingPaneFactory(HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
 
     override fun setIdleTimerDisabled(disabled: Boolean) {
         UIApplication.sharedApplication.idleTimerDisabled = disabled

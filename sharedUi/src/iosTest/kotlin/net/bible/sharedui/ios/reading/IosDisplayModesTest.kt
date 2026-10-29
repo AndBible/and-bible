@@ -42,9 +42,9 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.app.IosReadingReady
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.HostReadingReady
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.attachReadingPane
 import org.koin.mp.KoinPlatform
@@ -62,13 +62,13 @@ import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
 import net.bible.sharedui.webview.uiColorFromArgb
 import net.bible.sharedui.webview.IosReadingPaneEngine
-import net.bible.sharedui.host.reading.IosNightModeObserver
-import net.bible.sharedui.host.reading.IosReadingHost
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.HostNightModeObserver
+import net.bible.sharedui.host.reading.HostReadingHost
+import net.bible.sharedui.host.reading.HostReadingWindows
 
 /** Night, colour mode and animation switches reach shown documents as `set_config`, never as a page reload. */
 class IosDisplayModesTest {
-    private object NoNavigator : IosNavigator {
+    private object NoNavigator : HostNavigator {
         override fun navigate(route: String) = Unit
         override fun popBackStack(): Boolean = false
         override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
@@ -101,17 +101,17 @@ class IosDisplayModesTest {
                 ),
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
-            awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
-            val scope: CoroutineScope = IosReadingReady.scope
+            awaitOnMain { HostReadingReady.ensure(IosAppStartup.stringTable) }
+            val scope: CoroutineScope = HostReadingReady.scope
             val koin = KoinPlatform.getKoin()
             val night = nightFor(koin)
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
-            IosReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
+            val host = HostReadingHost(scope, HostNavShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
+            HostReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
-            IosReadingWindows.resetForTest()
+            HostReadingWindows.resetForTest()
             IosReadingWebViews.resetForTest()
-            IosReadingReady.resetForTest()
+            HostReadingReady.resetForTest()
             ReadingAppInit.resetForTest()
             runBlocking { IosAppStartup.resetForTest() }
         }
@@ -128,14 +128,14 @@ class IosDisplayModesTest {
         withWindows(night) { id ->
             var loads = 0
             IosReadingWebViews.bundleLoader = { _, _, _ -> loads++ }
-            attachReadingPane(id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+            attachReadingPane(id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
             val webView = IosReadingWebViews.entry(id).webView
-            val relay = IosReadingWindows.relayPlatformFor(id)!!
+            val relay = HostReadingWindows.relayPlatformFor(id)!!
             assertEquals(1, loads)
             val before = relay.configUpdates
 
             night.dark = true
-            IosReadingWindows.nightModeChanged()
+            HostReadingWindows.nightModeChanged()
 
             assertEquals(before + 1, relay.configUpdates, "night switch re-sends set_config through the relay")
             assertEquals(1, loads, "no second loadBibleBundle: no reload flash, no lost scroll position")
@@ -152,17 +152,17 @@ class IosDisplayModesTest {
         val night = FakeNight(false)
         withWindows(night) { id ->
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
-            attachReadingPane(id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+            attachReadingPane(id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
             val webView = IosReadingWebViews.entry(id).webView
-            IosReadingWindows.nightModeChanged()
+            HostReadingWindows.nightModeChanged()
             assertBackground(webView, READING_BACKGROUND_DAY, "day")
 
             night.dark = true
-            IosReadingWindows.nightModeChanged()
+            HostReadingWindows.nightModeChanged()
             assertBackground(webView, READING_BACKGROUND_NIGHT, "night")
 
             night.dark = false
-            IosReadingWindows.nightModeChanged()
+            HostReadingWindows.nightModeChanged()
             assertBackground(webView, READING_BACKGROUND_DAY, "back to day")
         }
     }
@@ -189,7 +189,7 @@ class IosDisplayModesTest {
     /**
      * Colour mode and animations are database-backed settings: a write through the real [DatabaseAppSettings] over a
      * [SettingsStore] reaches the observer through the store's change flow, with no app-active or UserDefaults event,
-     * and updates [IosNightModeObserver.monochrome] (the predicate the reading host and the loader share).
+     * and updates [HostNightModeObserver.monochrome] (the predicate the reading host and the loader share).
      */
     @Test
     fun databaseSettingWritesReachTheObserverWithoutAnAppActiveEvent() {
@@ -197,7 +197,7 @@ class IosDisplayModesTest {
         val settings = DatabaseAppSettings({ store }) { true }
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(FakeNight(false), IosDisplayModeSignals, settings, store.changes) { changes++ }
+        val observer = HostNightModeObserver(FakeNight(false), IosDisplayModeSignals, settings, store.changes) { changes++ }
         try {
             observer.start(scope)
             assertFalse(observer.monochrome.value)
@@ -237,14 +237,14 @@ class IosDisplayModesTest {
         withWindows(state) { id ->
             var loads = 0
             IosReadingWebViews.bundleLoader = { _, _, _ -> loads++ }
-            attachReadingPane(id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen)
+            attachReadingPane(id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
             val webView = IosReadingWebViews.entry(id).webView
-            val relay = IosReadingWindows.relayPlatformFor(id)!!
+            val relay = HostReadingWindows.relayPlatformFor(id)!!
             val configsBefore = relay.configUpdates
             var changes = 0
-            val observer = IosNightModeObserver(state, IosDisplayModeSignals, restored = { null }) {
+            val observer = HostNightModeObserver(state, IosDisplayModeSignals, restored = { null }) {
                 changes++
-                IosReadingWindows.nightModeChanged()
+                HostReadingWindows.nightModeChanged()
             }
             try {
                 observer.start()
@@ -290,7 +290,7 @@ class IosDisplayModesTest {
         standard.setBool(true, forKey = "night_mode_pref")
         withWindows({ it.get<NightModeState>() }) {
             val koin = KoinPlatform.getKoin()
-            val observer = IosNightModeObserver(koin.get<NightModeState>(), IosDisplayModeSignals, restored = { null })
+            val observer = HostNightModeObserver(koin.get<NightModeState>(), IosDisplayModeSignals, restored = { null })
             try {
                 observer.start()
                 observer.refresh()
@@ -316,7 +316,7 @@ class IosDisplayModesTest {
         val restored = net.bible.sharedcore.event.EventSource<Unit>()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(night, IosDisplayModeSignals, restored = { restored }) { changes++ }
+        val observer = HostNightModeObserver(night, IosDisplayModeSignals, restored = { restored }) { changes++ }
         try {
             observer.start(scope)
             night.dark = true // the restore replaced the stored mode: no notification of its own

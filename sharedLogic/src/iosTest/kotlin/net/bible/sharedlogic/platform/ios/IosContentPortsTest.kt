@@ -38,10 +38,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedlogic.platform.host.IosFirstLoadEdge
-import net.bible.sharedlogic.platform.host.IosMarkdownRenderer
-import net.bible.sharedlogic.platform.host.IosReadOnlyModuleDbOpener
-import net.bible.sharedlogic.platform.host.IosSearchIndexScheduler
+import net.bible.sharedlogic.platform.host.HostFirstLoadEdge
+import net.bible.sharedlogic.platform.host.HostMarkdownRenderer
+import net.bible.sharedlogic.platform.host.HostReadOnlyModuleDbOpener
+import net.bible.sharedlogic.platform.host.HostSearchIndexScheduler
 
 /** The scheduler takes the runner as a function; iOS passes the runner's `run`. */
 private fun runnerOf(r: IosSearchIndexingRunner): suspend (() -> Unit, suspend (() -> Boolean) -> Unit) -> Unit =
@@ -144,10 +144,10 @@ class IosContentPortsTest {
         }
     }
 
-    // --- IosMarkdownRenderer
+    // --- HostMarkdownRenderer
 
     @Test fun markdownRendersStrongAndListItemsAsWellFormedXml() {
-        val xhtml = IosMarkdownRenderer().toXhtml("**a**\n\n- b")
+        val xhtml = HostMarkdownRenderer().toXhtml("**a**\n\n- b")
         assertTrue("<strong>a</strong>" in xhtml, xhtml)
         assertTrue("<li>b</li>" in xhtml, xhtml)
         assertFalse("<body" in xhtml, xhtml)
@@ -155,7 +155,7 @@ class IosContentPortsTest {
     }
 
     @Test fun markdownKeepsTextEntitiesEscapedAndWellFormed() {
-        val xhtml = IosMarkdownRenderer().toXhtml("a & b < c\n\nline one  \nline two\n\n---")
+        val xhtml = HostMarkdownRenderer().toXhtml("a & b < c\n\nline one  \nline two\n\n---")
         KdomBuilder(allowDocType = true).build("<root>$xhtml</root>")
         assertTrue("&amp;" in xhtml, xhtml)
         assertTrue("<br />" in xhtml, xhtml)
@@ -174,14 +174,14 @@ class IosContentPortsTest {
         assertEquals("""{"a":1}""", defaults.stringForKey("SpeakSettings"))
     }
 
-    // --- IosSearchIndexScheduler
+    // --- HostSearchIndexScheduler
 
     private class Fixture(val scope: AppCoroutineScope = AppCoroutineScope(SupervisorJob() + Dispatchers.Default)) {
         val built = mutableListOf<String>()
         val cancelled = mutableListOf<String>()
         val gate = CompletableDeferred<Unit>()
         var failFor: String? = null
-        val scheduler = IosSearchIndexScheduler(
+        val scheduler = HostSearchIndexScheduler(
             runnerOf(IosSearchIndexingRunner(begin = { 1UL }, end = {})), scope,
             build = { book ->
                 if (book.initials == "A") runBlocking { gate.await() }
@@ -281,7 +281,7 @@ class IosContentPortsTest {
 
     @Test fun schedulerUnderExpiredBackgroundTimeCancelsTheJobAndLeavesUndone() {
         val f = Fixture()
-        val expiring = IosSearchIndexScheduler(
+        val expiring = HostSearchIndexScheduler(
             runnerOf(IosSearchIndexingRunner(begin = { expire -> expire(); 1UL }, end = {})), f.scope,
             build = { f.built += it.initials }, cancelBuild = { f.cancelled += it.initials },
         )
@@ -296,16 +296,16 @@ class IosContentPortsTest {
     // --- edges (the DAO-backed edges are exercised by the Task 9 acceptance test)
 
     @Test fun firstLoadEdgeBlocksUntilASuspendingBodyFinishesAndPropagatesFailures() {
-        assertEquals("done", IosFirstLoadEdge.awaitFirstLoad { delay(20); yield(); "done" })
-        assertFailsWith<IllegalStateException> { IosFirstLoadEdge.awaitFirstLoad<Unit> { delay(5); error("boom") } }
+        assertEquals("done", HostFirstLoadEdge.awaitFirstLoad { delay(20); yield(); "done" })
+        assertFailsWith<IllegalStateException> { HostFirstLoadEdge.awaitFirstLoad<Unit> { delay(5); error("boom") } }
     }
 
-    // --- IosReadOnlyModuleDbOpener
+    // --- HostReadOnlyModuleDbOpener
 
     @Test fun readOnlyOpenerOpensAValidDatabaseReadOnly() {
         val path = tmp / "module.sqlite"
         openSqlite(path.toString()).use { it.execSQL("CREATE TABLE t(a INTEGER)"); it.execSQL("INSERT INTO t VALUES (42)") }
-        IosReadOnlyModuleDbOpener().open(path).use { db ->
+        HostReadOnlyModuleDbOpener().open(path).use { db ->
             assertEquals(listOf(42L), db.queryRows("SELECT a FROM t") { it.getLong(0) })
             assertFailsWith<SQLiteException> { db.execSQL("INSERT INTO t VALUES (1)") } // read-only
         }
@@ -314,6 +314,6 @@ class IosContentPortsTest {
     @Test fun readOnlyOpenerThrowsSqliteExceptionForANonDatabaseFile() {
         val path = tmp / "junk.sqlite"
         fs.write(path) { writeUtf8("this is definitely not a sqlite database file, just text".repeat(20)) }
-        assertFailsWith<SQLiteException> { IosReadOnlyModuleDbOpener().open(path) }
+        assertFailsWith<SQLiteException> { HostReadOnlyModuleDbOpener().open(path) }
     }
 }

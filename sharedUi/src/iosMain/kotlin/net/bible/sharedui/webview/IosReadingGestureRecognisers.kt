@@ -22,7 +22,7 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
-import net.bible.sharedui.host.reading.IosReadingGestures
+import net.bible.sharedui.host.reading.HostReadingGestures
 import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSSelectorFromString
 import platform.UIKit.UIGestureRecognizer
@@ -38,7 +38,7 @@ import platform.WebKit.WKWebView
 import platform.darwin.NSObject
 
 /**
- * Attaches the reading gestures to one pane's WKWebView and feeds [IosReadingGestures]: a two-tap recogniser, a non-cancelling tap recogniser that reports touches, left and
+ * Attaches the reading gestures to one pane's WKWebView and feeds [HostReadingGestures]: a two-tap recogniser, a non-cancelling tap recogniser that reports touches, left and
  * right swipe recognisers, and an observer of the scroll view's own pan recogniser for the auto-full-screen deltas.
  *
  * Nothing of WebKit is replaced (builder's call: no KVO on `contentOffset` and no scroll-delegate forwarding). The
@@ -53,7 +53,7 @@ import platform.darwin.NSObject
 internal class IosReadingGestureRecognisers(
     private val windowId: String,
     private val webView: WKWebView,
-    private val gestures: IosReadingGestures,
+    private val gestures: HostReadingGestures,
 ) : NSObject(), UIGestureRecognizerDelegateProtocol {
     private val doubleTap = UITapGestureRecognizer(target = this, action = NSSelectorFromString("doubleTapped:")).apply {
         numberOfTapsRequired = 2u

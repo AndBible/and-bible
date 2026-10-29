@@ -11,7 +11,7 @@ import kotlinx.coroutines.withTimeout
 import net.bible.service.installzip.*
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.files.BackupFileType
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import okio.Buffer
 import okio.FileSystem
@@ -20,8 +20,8 @@ import okio.Path.Companion.toPath
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUUID
 import kotlin.test.*
-import net.bible.sharedui.host.ports.IosDocumentInstallStarter
-import net.bible.sharedui.host.ports.IosInstallTerminalFeedback
+import net.bible.sharedui.host.ports.HostDocumentInstallStarter
+import net.bible.sharedui.host.ports.HostInstallTerminalFeedback
 import net.bible.sharedui.host.ports.createIosInstallController
 
 class IosInstallFailureTest {
@@ -48,7 +48,7 @@ class IosInstallFailureTest {
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val terminal = CompletableDeferred<InstallPhase>()
-        val strings = KeyedCoreStrings(iosStringTable("en"))
+        val strings = KeyedCoreStrings(hostStringTable("en"))
         val errors = mutableListOf<String>()
         val infos = mutableListOf<String>()
         var changed = 0
@@ -58,7 +58,7 @@ class IosInstallFailureTest {
             override fun showInfo(message: String, long: Boolean) { infos += message }
             override fun showError(message: String, cause: Throwable?) { errors += message }
         }
-        val feedback = IosInstallTerminalFeedback(
+        val feedback = HostInstallTerminalFeedback(
             strings = { strings }, notifier = { notifier }, installedChanged = { changed++ },
         )
         lateinit var controller: InstallServiceController
@@ -98,7 +98,7 @@ class IosInstallFailureTest {
                 swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 1, isEpub = false, invalid = false) },
                 epubUpgradeCheck = { false },
             )
-            IosDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
+            HostDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
                 .start(listOf(net.bible.sharedui.app.ports.DocumentRef("file:///tmp/module.zip")), null)
             withTimeout(5_000) { entered.await() }
             assertEquals(InstallPhase.Queued, controller.jobs.value.single().phase)

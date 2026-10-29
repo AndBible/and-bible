@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.bible.service.cloudsync.BackgroundSyncPolicy
-import net.bible.sharedcore.platform.sync.IosSyncRunner
+import net.bible.sharedcore.platform.sync.HostSyncRunner
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -19,7 +19,7 @@ class IosBackgroundSchedulerIntegrationTest {
         val secondGate = CompletableDeferred<Unit>()
         var passes = 0
         var replacementStopped = false
-        val runner = IosSyncRunner(scope, {
+        val runner = HostSyncRunner(scope, {
             val pass = ++passes
             try {
                 kotlinx.coroutines.withTimeout(5_000) { (if (pass == 1) firstGate else secondGate).await() }
@@ -60,7 +60,7 @@ class IosBackgroundSchedulerIntegrationTest {
     @Test fun expirationStopsPassWithoutCancellingForegroundWaiter() = runTest {
         var stopped = 0
         var ends = 0
-        val runner = IosSyncRunner(this, {
+        val runner = HostSyncRunner(this, {
             try { CompletableDeferred<Boolean>().await() } finally { stopped++ }
         }, { 1uL }, { ends++ })
         val shared = runner.startDatabaseSync()

@@ -4,7 +4,7 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIBackgroundTaskInvalid
 
 /**
- * The UIKit background-task calls that [IosDocumentSyncStarter] receives as injected lambdas. Apple documents
+ * The UIKit background-task calls that [HostDocumentSyncStarter] receives as injected lambdas. Apple documents
  * `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, so there is no main-queue hop.
  */
 internal object UiKitBackgroundTask {

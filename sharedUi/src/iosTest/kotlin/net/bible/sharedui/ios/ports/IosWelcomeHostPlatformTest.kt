@@ -8,18 +8,18 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedcore.platform.IosAppEnvironment
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.host.ports.HostWelcomeHostPlatform
 
 class IosWelcomeHostPlatformTest {
     @Test fun downloadRefusalUsesDeviceSpaceAndTranslatedAndroidMessageWithoutInitialising() {
         val events = mutableListOf<String>()
-        val table = iosStringTable("fi")
+        val table = hostStringTable("fi")
         val device = IosAppEnvironment(InMemorySecretStore(), isDiscrete = { false })
         val environment = object : AppEnvironment by device {
             override val megabytesFree = 49L
@@ -35,7 +35,7 @@ class IosWelcomeHostPlatformTest {
             })
         }
         try {
-            val platform = IosWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table,
+            val platform = HostWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table,
                 initialise = { events += "initialise" }, navigate = { events += it }, versionName = ::iosBundleVersionName)
             platform.onDownload()
             assertEquals(listOf(table.text("storage_space_warning")), events)
@@ -47,7 +47,7 @@ class IosWelcomeHostPlatformTest {
 
     @Test fun linksUseExternalLinksAndDoNotRemainPending() {
         val urls = mutableListOf<String>()
-        val table = iosStringTable("en")
+        val table = hostStringTable("en")
         val app = koinApplication { modules(module {
             single<ExternalLinks> { object : ExternalLinks {
                 override val askBeforeOpening = false
@@ -55,7 +55,7 @@ class IosWelcomeHostPlatformTest {
             } }
         }) }
         try {
-            val platform = IosWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table, {}, {}, ::iosBundleVersionName)
+            val platform = HostWelcomeHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), table, {}, {}, ::iosBundleVersionName)
             platform.onOpenHomepage()
             platform.onOpenGithub()
             assertEquals(listOf(table.text("homepage"), table.text("github_page")), urls)

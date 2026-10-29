@@ -22,11 +22,11 @@ import net.bible.sharedcore.nav.NavRoutes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.app.iosExitWithResult
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.hostExitWithResult
 
-private class RecordingNavigator : IosNavigator {
+private class RecordingNavigator : HostNavigator {
     val calls = mutableListOf<String>()
     var popResult = true
     /** Routes currently "on the stack" for [popBackStackTo]. */
@@ -41,7 +41,7 @@ private class RecordingNavigator : IosNavigator {
 
 class IosHostShellTest {
     private val nav = RecordingNavigator()
-    private val shell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav)
+    private val shell = HostNavShell(CoroutineScope(EmptyCoroutineContext), nav)
 
     private val readingReuse = "popTo(${NavRoutes.READING},false)"
     private val popDownload = "popTo(${NavRoutes.DOWNLOAD_PATTERN},true)"
@@ -50,7 +50,7 @@ class IosHostShellTest {
     @Test
     fun recreationRefreshesLanguageWithoutReplacingNavigationOrHistory() {
         var refreshes = 0
-        val liveShell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav) { refreshes++ }
+        val liveShell = HostNavShell(CoroutineScope(EmptyCoroutineContext), nav) { refreshes++ }
         val owner = Any()
         liveShell.setHistoryRoute(owner, "history")
         nav.stack += NavRoutes.READING
@@ -107,7 +107,7 @@ class IosHostShellTest {
     @Test
     fun recoveryBackupExitReturnsWithoutNavigatingToReading() {
         var returned = 0
-        val recoveryShell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav, onExit = { returned++ })
+        val recoveryShell = HostNavShell(CoroutineScope(EmptyCoroutineContext), nav, onExit = { returned++ })
         recoveryShell.exitHost()
         assertEquals(1, returned)
         assertEquals(emptyList(), nav.calls)
@@ -134,7 +134,7 @@ class IosHostShellTest {
     @Test
     fun resultChannelFallbackPops() {
         var opened = 0
-        iosExitWithResult<String>(nav) { opened++ }("answer")
+        hostExitWithResult<String>(nav) { opened++ }("answer")
         assertEquals(listOf("pop"), nav.calls)
         assertEquals(0, opened)
     }
@@ -143,7 +143,7 @@ class IosHostShellTest {
     fun resultChannelFallbackOpensReadingWhenThereIsNothingToPop() {
         nav.popResult = false
         var opened = 0
-        iosExitWithResult<String>(nav) { opened++; shell.openReading() }("answer")
+        hostExitWithResult<String>(nav) { opened++; shell.openReading() }("answer")
         assertEquals(listOf("pop", readingReuse, popDownload, popWelcome, "navigate(${NavRoutes.READING})"), nav.calls)
         assertEquals(1, opened)
     }

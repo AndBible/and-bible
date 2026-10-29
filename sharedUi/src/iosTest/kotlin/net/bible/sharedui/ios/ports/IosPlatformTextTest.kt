@@ -1,7 +1,7 @@
 package net.bible.sharedui.ios.ports
 
-import net.bible.sharedui.assembly.IosStringTableHolder
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.HostStringTableHolder
+import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.app.ports.PluralKey
 import net.bible.sharedui.strings.lookupPlural
 import net.bible.sharedui.strings.keyed.formatTemplate
@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 class IosPlatformTextTest {
     @Test
     fun pluralUsesTheTable() {
-        val holder = IosStringTableHolder(iosStringTable("en"))
+        val holder = HostStringTableHolder(hostStringTable("en"))
         val text = IosPlatformText { holder.current }
         for (language in listOf("en", "fi")) {
             holder.switchTo(language)
@@ -29,7 +29,7 @@ class IosPlatformTextTest {
     }
 
     @Test fun liveFacadePluralFormattingUsesCurrentNumericSymbols() {
-        val holder = IosStringTableHolder(iosStringTable("en"))
+        val holder = HostStringTableHolder(hostStringTable("en"))
         val live = holder.live
         assertEquals("15", live.pluralFormat("%d", 15, 15))
         holder.switchTo("ar")
@@ -41,7 +41,7 @@ class IosPlatformTextTest {
 
     @Test
     fun fileSizeFormat() {
-        val text = IosPlatformText { iosStringTable("en") }
+        val text = IosPlatformText { hostStringTable("en") }
         val small = text.formatFileSize(1024)
         val large = text.formatFileSize(5_000_000)
         assertTrue(small.isNotBlank())

@@ -11,7 +11,7 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import org.crosswire.jsword.book.Books
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -20,7 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
-import net.bible.sharedui.host.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.ports.HostChooserHostPlatform
 
 class IosChooserHostPlatformTest {
     @Test fun docRowsMatchAndroidMapping() {
@@ -31,7 +31,7 @@ class IosChooserHostPlatformTest {
             val koin = KoinPlatform.getKoin()
             val book = assertNotNull(Books.installed().getBook("K4RawText"))
             val books = listOf(book)
-            val platform = IosChooserHostPlatform(koin, CoroutineScope(Dispatchers.Unconfined), { IosAppStartup.stringTable }, IosWindowMetrics())
+            val platform = HostChooserHostPlatform(koin, CoroutineScope(Dispatchers.Unconfined), { IosAppStartup.stringTable }, IosWindowMetrics())
             assertEquals(listOf(DocRowMapper(koin.get<DownloadControl>(), books).toDocRow(book)), platform.docRows(books))
             assertEquals(emptyList(), platform.docRows(emptyList()))
         } finally { runBlocking { IosAppStartup.resetForTest() } }
@@ -45,13 +45,13 @@ class IosChooserHostPlatformTest {
             override fun showError(message: String, cause: Throwable?) { messages += message; causes += cause }
         } } }) }
         try {
-            var table = iosStringTable("en")
-            val platform = IosChooserHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), { table }, IosWindowMetrics())
+            var table = hostStringTable("en")
+            val platform = HostChooserHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), { table }, IosWindowMetrics())
             val cause = IllegalStateException("chooser failure")
             platform.showError(cause)
-            table = iosStringTable("fi")
+            table = hostStringTable("fi")
             platform.showError(cause)
-            assertEquals(listOf(iosStringTable("en").text("error_occurred"), table.text("error_occurred")), messages)
+            assertEquals(listOf(hostStringTable("en").text("error_occurred"), table.text("error_occurred")), messages)
             assertSame(cause, causes[0])
             assertSame(cause, causes[1])
         } finally { app.close() }

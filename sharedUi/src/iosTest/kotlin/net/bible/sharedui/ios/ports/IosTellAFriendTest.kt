@@ -1,12 +1,12 @@
 package net.bible.sharedui.ios.ports
 
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import kotlin.test.*
-import net.bible.sharedui.host.ports.IosTellAFriend
+import net.bible.sharedui.host.ports.HostTellAFriend
 
 class IosTellAFriendTest {
     @Test fun messageHasHomepageAndNoStoreLink() {
-        val message = IosTellAFriend.message(task4Table())
+        val message = HostTellAFriend.message(task4Table())
         assertContains(message, "en:tell_friend_message1(en:app_name_long)")
         assertContains(message, "en:tell_friend_message2_device")
         assertContains(message, "en:tell_friend_message4(https://andbible.org)")
@@ -17,7 +17,7 @@ class IosTellAFriendTest {
     }
 
     @Test fun englishRecommendationDoesNotClaimToBeAnAndroidApplication() {
-        val message = IosTellAFriend.message(iosStringTable("en"))
+        val message = HostTellAFriend.message(hostStringTable("en"))
         assertContains(message, "https://andbible.org")
         assertContains(message, "offline Bible study application")
         assertFalse(message.contains("Android", ignoreCase = true))
