@@ -175,9 +175,6 @@ egress_allow:
   - developer.android.com:443
   # Kotlin/Native (iOS targets)
   - download.jetbrains.com:443
-  # Desktop (:desktopApp prepareKcefNatives): JBR JCEF natives; the redirector answers with a CloudFront URL
-  - cache-redirector.jetbrains.com:443
-  - d2xrhe97vsfxuc.cloudfront.net:443
   # Node / npm (app/bibleview-js)
   - registry.npmjs.org
   - registry.yarnpkg.com
@@ -190,9 +187,6 @@ egress_allow:
   # Ubuntu apt
   - archive.ubuntu.com:443
   - security.ubuntu.com:443
-  # The image's apt sources use plain http (desktop D5 needed WebKitGTK packages)
-  - archive.ubuntu.com:80
-  - security.ubuntu.com:80
   - ports.ubuntu.com:443
   # GitHub: HTTPS submodules (jsword, goldens) and release downloads
   - github.com:443
