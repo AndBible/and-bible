@@ -48,7 +48,6 @@ kotlin {
             implementation(libs.xmlutil.core)
         }
         jvmTest {
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/sync/runner")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
             // Execute the platform-free iOS publication policy on Linux as well as Native.
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/speak/systemsurfaces")
