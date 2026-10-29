@@ -86,7 +86,10 @@ import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.assembly.HostLifecycle
+import net.bible.sharedui.assembly.HostLifecycleEvent
 import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosHostLifecycle
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.components.AppToastHost
 import net.bible.sharedui.components.LocalBarFontScaleCap
@@ -126,13 +129,10 @@ import net.bible.sharedui.webview.IosReadingPaneEngine
 import org.crosswire.jsword.book.Book
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
-import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
-import platform.UIKit.UIApplicationDidEnterBackgroundNotification
-import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.UIKit.UIBackgroundTaskInvalid
 
 /**
@@ -438,7 +438,7 @@ private fun IosAppContent(
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
-    if (nightObserver != null) SaveWorkspaceOnBackground(koin)
+    if (nightObserver != null) SaveWorkspaceOnBackground(koin, IosHostLifecycle)
     val shell = remember {
         IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) {
             holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>(), ::iosPreferredLanguages))
@@ -695,8 +695,8 @@ private fun IosReadingDestination(
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
     HideStatusBarInFullScreen(host)
-    KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() })
-    TiltScrollWhileReading(koin)
+    KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() }, IosHostLifecycle)
+    TiltScrollWhileReading(koin, IosHostLifecycle)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         val density = LocalDensity.current
         val topInset = if (host.fullScreen.state.value) with(density) { WindowInsets.safeDrawing.getTop(density).toDp() } else 0.dp
@@ -744,7 +744,7 @@ private fun HideStatusBarInFullScreen(host: IosReadingHost) {
  * `idleTimerDisabled` is set from [ReadingKeepScreenOn] and reset on leaving reading and when backgrounding.
  */
 @Composable
-private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.coroutines.flow.Flow<String>) {
+private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.coroutines.flow.Flow<String>, lifecycle: HostLifecycle) {
     val scope = rememberCoroutineScope()
     DisposableEffect(Unit) {
         val settings = koin.get<AppSettings>()
@@ -752,16 +752,14 @@ private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.corout
             read = { settings.getBoolean("screen_keep_on_pref", false) },
             apply = { UIApplication.sharedApplication.idleTimerDisabled = it },
         )
-        val center = NSNotificationCenter.defaultCenter
-        val observers = listOf(
-            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(true) },
-            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(false) },
-        )
+        val stopLifecycle = lifecycle.observe(listOf(HostLifecycleEvent.Active, HostLifecycleEvent.ResignActive)) {
+            keepOn.setActive(it == HostLifecycleEvent.Active)
+        }
         // screen_keep_on_pref lives in the database-backed settings: its writes arrive through SettingsStore.changes.
         val watch = watchSettingKeys(settingsChanges, setOf("screen_keep_on_pref"), scope) { keepOn.refresh() }
         keepOn.setReading(true)
         onDispose {
-            observers.forEach { center.removeObserver(it) }
+            stopLifecycle()
             watch.cancel()
             keepOn.setReading(false)
         }
@@ -773,19 +771,16 @@ private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.corout
  * updates stop when the app resigns active / backgrounds and restart (with a fresh neutral pose) on becoming active.
  */
 @Composable
-private fun TiltScrollWhileReading(koin: Koin) {
+private fun TiltScrollWhileReading(koin: Koin, lifecycle: HostLifecycle) {
     val scope = rememberCoroutineScope()
     DisposableEffect(Unit) {
         val tilt = IosTiltScroll(koin)
-        val center = NSNotificationCenter.defaultCenter
-        val observers = listOf(
-            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(true) },
-            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
-            center.addObserverForName(UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
-        )
+        val stopLifecycle = lifecycle.observe(
+            listOf(HostLifecycleEvent.Active, HostLifecycleEvent.ResignActive, HostLifecycleEvent.Background),
+        ) { tilt.setAppActive(it == HostLifecycleEvent.Active) }
         tilt.start(scope)
         onDispose {
-            observers.forEach { center.removeObserver(it) }
+            stopLifecycle()
             tilt.stop()
         }
     }
@@ -796,11 +791,10 @@ private fun TiltScrollWhileReading(koin: Koin) {
  * resigns active / enters the background, inside a background task so the writes finish before suspension.
  */
 @Composable
-private fun SaveWorkspaceOnBackground(koin: Koin) {
+private fun SaveWorkspaceOnBackground(koin: Koin, lifecycle: HostLifecycle) {
     val scope = rememberCoroutineScope()
     DisposableEffect(Unit) {
-        val center = NSNotificationCenter.defaultCenter
-        val save: (NSNotification?) -> Unit = {
+        val save: () -> Unit = {
             val app = UIApplication.sharedApplication
             var task = UIBackgroundTaskInvalid
             fun endTask() {
@@ -823,9 +817,8 @@ private fun SaveWorkspaceOnBackground(koin: Koin) {
                 }
             }
         }
-        val observers = listOf(UIApplicationWillResignActiveNotification, UIApplicationDidEnterBackgroundNotification)
-            .map { center.addObserverForName(it, null, NSOperationQueue.mainQueue, save) }
-        onDispose { observers.forEach { center.removeObserver(it) } }
+        val stopLifecycle = lifecycle.observe(listOf(HostLifecycleEvent.ResignActive, HostLifecycleEvent.Background)) { save() }
+        onDispose { stopLifecycle() }
     }
 }
 
