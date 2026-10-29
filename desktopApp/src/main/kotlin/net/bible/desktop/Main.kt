@@ -21,6 +21,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.configureDesktopLogFile
 import net.bible.sharedcore.platform.desktop.AlreadyRunningException
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
@@ -32,9 +33,11 @@ import net.bible.sharedui.desktop.assembly.DesktopAppStartup
 import net.bible.sharedui.desktop.assembly.DesktopHostLifecycle
 import net.bible.sharedui.desktop.assembly.DesktopStartupException
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
+import net.bible.sharedui.desktop.assembly.desktopCrashGate
 import net.bible.sharedui.desktop.assembly.desktopRendererRecovery
 import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
+import net.bible.sharedui.desktop.webview.DesktopReadingInput
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
 import java.awt.EventQueue
@@ -61,29 +64,33 @@ private val startupScope = CoroutineScope(
  * Starts the desktop app: the real AndBible app by default, the D1 PoC when `andbible.poc.scenario` is set
  * ([PocLaunchOptions]). The CEF natives come from [CefNativesLocation]: `kcef.installDir` (set by
  * `./gradlew :desktopApp:run`, built by `:desktopApp:prepareKcefNatives`) or the packaged app's resources dir;
- * `kcef.args` optionally adds Chromium switches (space-separated).
+ * `kcef.args` optionally adds Chromium switches (space-separated). [args] (files to open, for example) reach the app
+ * graph as `DesktopLaunchArgs` (read by D3b); the PoC ignores them.
  */
-fun main() {
+fun main(args: Array<String>) {
     // Compose dialogs and popups in their own heavyweight windows, so they show above the CEF panes (D1 verified it).
     // Before any Compose window.
     System.setProperty("compose.layers.type", "WINDOW")
-    if (System.getProperty("andbible.poc.scenario") != null) runPoc() else runApp()
+    if (System.getProperty("andbible.poc.scenario") != null) runPoc() else runApp(args.toList())
 }
 
 /**
  * The real app, in this order: instance lock (a second instance prints one line and exits 0 before anything else);
- * display check; CEF natives and `KcefWebEngine.init` (CEF cache in `<cache>/cef`); `DesktopAppStartup.ensureStarted`
+ * the log file in `<data>/logs` (when the data directory is usable); display check; the crash gate
+ * (`desktopCrashGate`, D3d); the CEF cache directory check; CEF natives and `KcefWebEngine.init` (CEF cache in `<cache>/cef`); `DesktopAppStartup.ensureStarted`
  * off the UI thread; the window ([DesktopAppRoot]); window activation, deactivation and close wired to
  * [DesktopHostLifecycle]. A data directory that cannot be written skips CEF and the startup and shows the
  * startup-failed screen naming the directory.
  */
-private fun runApp() {
+private fun runApp(launchArgs: List<String>) {
     val paths = DesktopPaths.system()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {
         System.err.println("AndBible is already running")
         exitProcess(0)
     }
+    // The lock proved the data directory writable: from here on every failure (CEF, natives) reaches the log file too.
+    if (lockFailure == null) configureDesktopLogFile(paths.data.resolve("logs"))
     requireDisplay()
 
     val windowHandle = AwtWindowHandle()
@@ -102,9 +109,12 @@ private fun runApp() {
         )
     } else {
         val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
+        val crashGate = desktopCrashGate(paths)
+        val cefCache = paths.cache.resolve("cef")
+        requireWritableDirectory(cefCache, "the cache directory")
         val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
         val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
-        KcefWebEngine.init(installDir, args, cacheDir = paths.cache.resolve("cef")).onFailure { fail(it.message ?: it.toString()) }
+        KcefWebEngine.init(installDir, args, cacheDir = cefCache).onFailure { fail(it.message ?: it.toString()) }
 
         val bundleRoot = Files.createTempDirectory("andbible-bibleview")
         val index = BibleViewBundle.extractTo(bundleRoot)
@@ -116,9 +126,15 @@ private fun runApp() {
         val webViews = DesktopBibleWebViews(engine, log)
         state = DesktopStartupState(
             language = language,
-            start = { openDatabases -> DesktopAppStartup.ensureStarted(paths, windowHandle, language, openDatabases) },
+            start = { openDatabases ->
+                DesktopAppStartup.ensureStarted(
+                    paths, windowHandle, language, openDatabases, launchArgs = launchArgs, lifecycleEvents = lifecycle.events,
+                )
+            },
             platform = { platform },
             bibleWebView = webViews.factory,
+            crashRecoveryRequired = crashGate.recoveryRequired,
+            reportBug = crashGate.reportBug,
             onExit = { exitRequested.value = true },
         )
         shutdownEngine = {
@@ -150,6 +166,9 @@ private fun runApp() {
             title = "AndBible",
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
             onCloseRequest = requestClose,
+            // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
+            onPreviewKeyEvent = { DesktopReadingInput.current().onPreviewKeyEvent(it) },
+            onKeyEvent = { DesktopReadingInput.current().onKeyEvent(it) },
         ) {
             val awtWindow = window
             DisposableEffect(awtWindow) {
@@ -276,7 +295,22 @@ private fun runPoc() {
     }
 }
 
+/**
+ * Fails clearly (stderr, the log file once configured) when [dir] cannot be created or written; CEF would otherwise fail
+ * with an unclear message, or not at all until later.
+ */
+private fun requireWritableDirectory(dir: java.nio.file.Path, what: String) {
+    val problem = try {
+        Files.createDirectories(dir)
+        if (Files.isDirectory(dir) && Files.isWritable(dir)) null else "not writable"
+    } catch (e: Exception) {
+        e.toString()
+    }
+    if (problem != null) fail("$what $dir cannot be used ($problem); check the cache location (XDG_CACHE_HOME on Linux) and its permissions")
+}
+
 private fun fail(message: String): Nothing {
-    System.err.println("AndBible desktop: $message")
+    // Log.e writes stderr and, once main() configured it, the log file.
+    Log.e(TAG, "AndBible desktop: $message")
     exitProcess(1)
 }
