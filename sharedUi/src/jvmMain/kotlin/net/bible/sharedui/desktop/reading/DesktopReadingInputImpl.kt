@@ -165,18 +165,25 @@ class DesktopReadingInputImpl(
         if (event.type != KeyEventType.KeyDown) return false
         val chord = composeChord(event) ?: return false
         if (!(chord.alt || chord.key == "F11") || chord.ctrl) return false
-        return shortcuts.onChord(chord, null).also { if (it) swallowTyped = true }
+        return shortcuts.onChord(chord, null)
+    }
+
+    /** An AWT mouse event outside the panes: only the press of the back/forward buttons counts (not release or click). */
+    internal fun onAwtEvent(e: AWTEvent) {
+        if (e is MouseEvent) onAwtMouse(e.id, e.button)
+    }
+
+    internal fun onAwtMouse(eventId: Int, button: Int) {
+        if (eventId == MouseEvent.MOUSE_PRESSED) {
+            DesktopBackDispatcher.navigationForAwtMouseButton(button)?.let { shortcuts.onNavigation(it) }
+        }
     }
 
     private fun ensureMouseListener() {
         if (mouseListenerInstalled) return
         mouseListenerInstalled = true
         try {
-            installMouseListener(AWTEventListener { e ->
-                if (e is MouseEvent && e.id == MouseEvent.MOUSE_PRESSED) {
-                    DesktopBackDispatcher.navigationForAwtMouseButton(e.button)?.let { shortcuts.onNavigation(it) }
-                }
-            })
+            installMouseListener(AWTEventListener(::onAwtEvent))
         } catch (e: Exception) {
             System.err.println("desktop mouse button listener not installed: $e")
         }

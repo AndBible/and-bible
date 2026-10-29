@@ -39,6 +39,8 @@ class DesktopShortcutsTest {
         override fun toggleFullScreen() { log += "fullscreen" }
         override fun openSettings() { log += "settings" }
         override fun escapeAllowed(windowId: String) = escapeAllowed
+        var modalOpen = false
+        override fun closePageModals(windowId: String?): Boolean { if (modalOpen) log += "closeModals:${windowId ?: "active"}"; return modalOpen }
     }
 
     private val actions = Fake()
@@ -85,6 +87,27 @@ class DesktopShortcutsTest {
     @Test fun escFromThePaneIsBackWithoutHistoryFallback() {
         assertTrue(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
         assertEquals(listOf("back:false"), actions.log)
+    }
+
+    @Test fun escClosesAnOpenPageModalInsteadOfGoingBack() {
+        actions.modalOpen = true
+        assertTrue(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
+        assertEquals(listOf("closeModals:w1"), actions.log)
+    }
+
+    @Test fun backNavigationClosesAnOpenPageModalFirst() {
+        actions.modalOpen = true
+        assertTrue(shortcuts.onChord(Chord("ArrowLeft", alt = true), null))
+        assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Back, "w2"))
+        assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Forward))
+        assertEquals(listOf("closeModals:active", "closeModals:w2"), actions.log)
+    }
+
+    @Test fun escIsIgnoredWhileAPageEditorIsEditing() {
+        actions.modalOpen = true
+        actions.escapeAllowed = false
+        assertFalse(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
+        assertEquals(emptyList(), actions.log)
     }
 
     @Test fun escIsIgnoredWhileAPageModalOrEditorIsOpen() {

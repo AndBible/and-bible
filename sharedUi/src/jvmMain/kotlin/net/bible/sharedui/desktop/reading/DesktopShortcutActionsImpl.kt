@@ -19,6 +19,7 @@ package net.bible.sharedui.desktop.reading
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.SelectionMenuItem
 import net.bible.service.history.HistoryManager
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedui.host.app.IosRootLinks
@@ -83,10 +84,16 @@ class DesktopShortcutActionsImpl(
 
     override fun openSettings() = IosRootLinks.openRoute(NavRoutes.SETTINGS)
 
-    override fun escapeAllowed(windowId: String): Boolean {
-        if (!IosReadingWindows.hasAssembly(windowId)) return true
-        val session = IosReadingWindows.sessionFor(windowId)
-        return !session.modalOpen && !session.editingTextInJs
+    override fun escapeAllowed(windowId: String): Boolean =
+        !IosReadingWindows.hasAssembly(windowId) || !IosReadingWindows.sessionFor(windowId).editingTextInJs
+
+    override fun closePageModals(windowId: String?): Boolean {
+        val id = windowId ?: activeWindowId() ?: return false
+        if (!IosReadingWindows.hasAssembly(id)) return false
+        val session = IosReadingWindows.sessionFor(id)
+        if (!session.modalOpen) return false
+        session.emit(BibleViewEvents.closeModals())
+        return true
     }
 
     companion object {

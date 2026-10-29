@@ -73,8 +73,14 @@ interface DesktopShortcutActions {
     fun toggleFullScreen()
     fun openSettings()
 
-    /** Whether an Esc from [windowId]'s page may go back: no page modal open and no text being edited in the page. */
+    /** Whether an Esc from [windowId]'s page may be taken: false while the page edits text (its editors handle Escape). */
     fun escapeAllowed(windowId: String): Boolean
+
+    /**
+     * Closes the page modals of [windowId] (null = the active window) when one is open, as Android's back does, and
+     * returns true; false when none is open (nothing was done).
+     */
+    fun closePageModals(windowId: String?): Boolean = false
 }
 
 /**
@@ -92,9 +98,12 @@ class DesktopShortcuts(
     private val actions: DesktopShortcutActions,
     private val isRtl: () -> Boolean = { DesktopLayoutDirection.isRtl() },
 ) {
-    /** Handles a mouse or key navigation; forward is consumed without effect. Returns true (always consumed). */
-    fun onNavigation(navigation: Navigation): Boolean {
-        if (navigation == Navigation.Back) actions.back(historyFallback = true)
+    /**
+     * Handles a mouse or key navigation; forward is consumed without effect. Back closes an open page modal first, else
+     * goes back. Returns true (always consumed).
+     */
+    fun onNavigation(navigation: Navigation, windowId: String? = null): Boolean {
+        if (navigation == Navigation.Back && !actions.closePageModals(windowId)) actions.back(historyFallback = true)
         return true
     }
 
@@ -115,13 +124,13 @@ class DesktopShortcuts(
         if (chord.alt && !chord.ctrl) {
             if (chord.editable) return false
             val nav = DesktopBackDispatcher.navigationForDomKey(key, alt = true, isRtl = isRtl()) ?: return false
-            return onNavigation(nav)
+            return onNavigation(nav, windowId)
         }
         if (!chord.ctrl) return when (key) {
             "Escape" -> {
                 val id = windowId
                 if (!chord.fromPane || chord.editable || id == null || !actions.escapeAllowed(id)) return false
-                actions.back(historyFallback = false)
+                if (!actions.closePageModals(id)) actions.back(historyFallback = false)
                 true
             }
             "F11" -> reading { actions.toggleFullScreen() }

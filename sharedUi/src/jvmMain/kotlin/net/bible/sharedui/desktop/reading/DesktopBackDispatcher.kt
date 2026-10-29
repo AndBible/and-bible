@@ -153,10 +153,14 @@ object DesktopBackDispatcher {
         else -> null
     }
 
-    /** AWT `MouseEvent.getButton()`: 4 = the back button, 5 = the forward button. */
+    /**
+     * AWT `MouseEvent.getButton()`: Windows and macOS report the back button as 4 and the forward button as 5; on
+     * Linux/X11 the X buttons 8 and 9 arrive as 6 and 7 (the X wheel buttons 4-7 never come as button events, they
+     * become wheel events).
+     */
     fun navigationForAwtMouseButton(button: Int): Navigation? = when (button) {
-        4 -> Navigation.Back
-        5 -> Navigation.Forward
+        4, 6 -> Navigation.Back
+        5, 7 -> Navigation.Forward
         else -> null
     }
 }

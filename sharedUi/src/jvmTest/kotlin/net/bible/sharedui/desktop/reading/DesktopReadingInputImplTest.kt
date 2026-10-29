@@ -40,6 +40,7 @@ class DesktopReadingInputImplTest {
         override fun toggleFullScreen() { log += "fs" }
         override fun openSettings() { log += "settings" }
         override fun escapeAllowed(windowId: String) = true
+        override fun closePageModals(windowId: String?) = false
     }
 
     private val rec = Rec()
@@ -93,6 +94,16 @@ class DesktopReadingInputImplTest {
         assertFalse(input.onPreviewKeyEvent(keyEv(KeyEventType.KeyDown, false)))
         assertFalse(input.onPreviewKeyEvent(keyEv(KeyEventType.Unknown, false)))
         assertEquals(emptyList(), rec.log)
+    }
+
+    @Test fun awtBackAndForwardButtonsAcceptWindowsAndX11NumberingOnPressOnly() {
+        fun ev(id: Int, button: Int) = id to button // headless AWT cannot build extra-button MouseEvents
+        for (b in listOf(4, 6)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
+        for (b in listOf(5, 7)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
+        input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_RELEASED, 4).first, ev(java.awt.event.MouseEvent.MOUSE_RELEASED, 4).second)
+        input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_CLICKED, 4).first, ev(java.awt.event.MouseEvent.MOUSE_CLICKED, 4).second)
+        input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, 1).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, 1).second)
+        assertEquals(listOf("back:true", "back:true"), rec.log)
     }
 
     @Test fun zoomMessagesChangeFontSize() {

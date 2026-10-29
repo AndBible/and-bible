@@ -144,11 +144,15 @@ window.addEventListener('keydown', function (e) {
      */
     const val ZOOM_PART: String = """
 (function () {
-  var acc = 0, pending = false;
+  var acc = 0, pending = false, last = 0;
   window.addEventListener('wheel', function (e) {
     if (!e.ctrlKey) return;
     e.preventDefault();
-    acc += e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? window.innerHeight : 1));
+    var dy = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? window.innerHeight : 1)), now = performance.now();
+    // The accumulator decays: a pause or a change of direction starts over.
+    if (now - last > 300 || (acc !== 0 && (dy < 0) !== (acc < 0))) acc = 0;
+    last = now;
+    acc += dy;
     if (pending) return;
     pending = true;
     requestAnimationFrame(function () {

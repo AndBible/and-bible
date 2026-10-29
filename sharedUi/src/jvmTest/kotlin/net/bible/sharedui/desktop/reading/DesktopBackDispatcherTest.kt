@@ -92,6 +92,9 @@ class DesktopBackDispatcherTest {
         assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForDomMouseButton(4))
         assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(4))
         assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(5))
+        // Linux/X11: X buttons 8 and 9 arrive as AWT buttons 6 and 7.
+        assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(6))
+        assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(7))
         assertNull(DesktopBackDispatcher.navigationForDomMouseButton(0))
         assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(1))
         assertTrue(DesktopBackDispatcher.perform(DesktopBackDispatcher.navigationForDomMouseButton(3)!!))
