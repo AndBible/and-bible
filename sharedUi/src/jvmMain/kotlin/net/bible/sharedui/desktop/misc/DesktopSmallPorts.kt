@@ -4,7 +4,6 @@ import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.app.ports.SystemScreens
 import net.bible.sharedcore.platform.UserNotifier
-import java.awt.EventQueue
 import java.util.Timer
 import java.util.TimerTask
 
@@ -20,7 +19,17 @@ class DesktopDebugActions(private val notifier: UserNotifier? = null, private va
     override fun crashAppDelayed() {
         if (!enabled()) return
         Timer("desktop-debug-crash", true).schedule(object : TimerTask() {
-            override fun run() { EventQueue.invokeLater { throw IllegalStateException("Deliberate desktop debug crash") } }
+            override fun run() {
+                val error = IllegalStateException("Deliberate desktop debug crash")
+                try {
+                    val thread = Thread.currentThread()
+                    val handler = Thread.getDefaultUncaughtExceptionHandler()
+                    if (handler != null) handler.uncaughtException(thread, error) else error.printStackTrace()
+                } finally {
+                    // Bypass shutdown hooks: a clean-exit hook must not clear crash recovery state.
+                    Runtime.getRuntime().halt(1)
+                }
+            }
         }, 2000)
     }
 

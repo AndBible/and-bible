@@ -13,9 +13,12 @@ import java.time.format.DateTimeFormatter
 
 class DesktopBookmarkCsvFiles : BookmarkCsvFilesPort {
     override fun openSink(ref: DocumentRef): Sink? = try {
-        val path = if (ref.uri.startsWith("/")) Paths.get(ref.uri) else {
-            val uri = URI(ref.uri)
-            require(uri.scheme == "file")
+        val value = ref.uri
+        val windowsDrive = Regex("^[A-Za-z]:[\\\\/].*").matches(value)
+        val scheme = Regex("^[A-Za-z][A-Za-z0-9+.-]*:").find(value)?.value
+        val path = if (windowsDrive || scheme == null) Paths.get(value) else {
+            val uri = URI(value)
+            require(uri.scheme.equals("file", ignoreCase = true))
             Paths.get(uri)
         }
         FileSystem.SYSTEM.sink(path.toString().toPath())
