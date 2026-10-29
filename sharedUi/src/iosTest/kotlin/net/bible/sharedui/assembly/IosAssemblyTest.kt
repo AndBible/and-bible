@@ -29,7 +29,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.android.control.speak.SpeakPlatform
 import net.bible.sharedlogic.fixtures.StartupFixture
 import net.bible.sharedlogic.platform.PromptPackSource
-import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import okio.FileSystem
 import okio.Path

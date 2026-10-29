@@ -10,7 +10,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import net.bible.sharedlogic.platform.ios.IosUserNotifier
+import net.bible.sharedlogic.platform.host.IosUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue

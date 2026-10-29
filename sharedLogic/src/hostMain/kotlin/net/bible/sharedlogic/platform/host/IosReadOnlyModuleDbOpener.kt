@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.sharedlogic.platform.ios
+package net.bible.sharedlogic.platform.host
 
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException

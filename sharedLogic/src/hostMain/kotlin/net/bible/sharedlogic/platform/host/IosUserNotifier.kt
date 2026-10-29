@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.sharedlogic.platform.ios
+package net.bible.sharedlogic.platform.host
 
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier

@@ -38,7 +38,7 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
 import net.bible.sharedlogic.platform.ios.IosDatabaseHost
 import net.bible.sharedlogic.platform.ios.IosLocaleProvider
-import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
 import net.bible.sharedui.platform.IosPlatformBootstrap

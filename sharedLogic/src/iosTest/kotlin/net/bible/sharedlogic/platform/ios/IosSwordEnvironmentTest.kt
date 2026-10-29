@@ -25,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedlogic.platform.host.IosSwordEnvironment
 
 class IosSwordEnvironmentTest {
     private val fs = FileSystem.SYSTEM

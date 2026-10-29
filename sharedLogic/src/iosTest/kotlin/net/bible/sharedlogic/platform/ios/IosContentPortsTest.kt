@@ -38,6 +38,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedlogic.platform.host.IosFirstLoadEdge
+import net.bible.sharedlogic.platform.host.IosMarkdownRenderer
+import net.bible.sharedlogic.platform.host.IosReadOnlyModuleDbOpener
+import net.bible.sharedlogic.platform.host.IosSearchIndexScheduler
 
 /** The scheduler takes the runner as a function; iOS passes the runner's `run`. */
 private fun runnerOf(r: IosSearchIndexingRunner): suspend (() -> Unit, suspend (() -> Boolean) -> Unit) -> Unit =

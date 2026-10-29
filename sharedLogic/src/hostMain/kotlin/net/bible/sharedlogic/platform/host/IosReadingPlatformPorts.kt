@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.sharedlogic.platform.ios
+package net.bible.sharedlogic.platform.host
 
 import net.bible.android.control.link.LinkPlatform
 import net.bible.android.control.page.CurrentPage
