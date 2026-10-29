@@ -105,9 +105,12 @@ class KcefWebEngine(
          * namespaces, which containers and AppArmor-restricted distributions (Ubuntu 24.04+) refuse, and then
          * Chromium aborts; JBR/IntelliJ run JCEF unsandboxed too. The pane only ever loads the bundled origin
          * (navigation and popups are locked). `-Dkcef.sandbox=true` turns it on where the host supports it.
+         *
+         * [cacheDir], when given, is the CEF cache directory, e.g. `<cache>/cef` of the desktop app;
+         * null keeps the KCEF default.
          */
         @Synchronized
-        fun init(installDir: Path, extraArgs: List<String> = emptyList()): Result<Unit> {
+        fun init(installDir: Path, extraArgs: List<String> = emptyList(), cacheDir: Path? = null): Result<Unit> {
             if (initialized) return Result.success(Unit)
             terminalFailure?.let { return Result.failure(it) }
             nativesProblem(installDir)?.let { return Result.failure(IllegalStateException(it)) }
@@ -135,6 +138,7 @@ class KcefWebEngine(
                             logSeverity = if (logPath == null) KCEFBuilder.Settings.LogSeverity.Disable else KCEFBuilder.Settings.LogSeverity.Info
                             if (logPath != null) logFile = logPath
                             windowlessRenderingEnabled = false
+                            if (cacheDir != null) cachePath = cacheDir.toAbsolutePath().toString()
                         }
                     },
                     onError = { error = it ?: IllegalStateException("unknown KCEF error") },

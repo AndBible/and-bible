@@ -19,6 +19,9 @@ dependencies {
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
     implementation(compose.desktop.currentOs)
+    implementation(compose.material3) // the splash and startup-failed screens (DesktopAppRoot)
+    // Dispatchers.Main on the AWT event thread: the hoisted host code (hostMain) uses Dispatchers.Main.
+    implementation(libs.kotlinx.coroutines.swing)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlinx.serialization.json)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
@@ -208,6 +211,8 @@ compose.desktop {
         javaHome = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
             .get().metadata.installationPath.asFile.absolutePath
         jvmArgs += kcefJvmArgs
+        // The version the app reports (DesktopAppEnvironment.versionName): `run` and the packaged launcher (.cfg) alike.
+        jvmArgs += "-Dandbible.version=$desktopVersion"
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }
@@ -268,6 +273,24 @@ sourceSets.main {
     resources.srcDir(prepareBibleViewBundle.map { bibleViewGenerated.get().asFile })
 }
 tasks.named("processResources") { dependsOn(prepareBibleViewBundle) }
+
+// Raw resources the real app reads from the classpath (iOS copies the same files into its bundle, iosApp/project.yml):
+// the repository site map, the licence page of the help dialog and the two LLM system prompts. Copied at build time from
+// app/src/main/res/raw, so they are not duplicated in git; the packaged app gets them inside the app jar.
+val desktopRawResources = layout.buildDirectory.dir("generated/desktop-raw")
+val desktopRawResourceNames = listOf("repositories.txt", "license.html", "llm_agent_system_prompt.md", "llm_text_transformation_system_prompt.md")
+val prepareDesktopRawResources by tasks.registering(Sync::class) {
+    from(rootProject.layout.projectDirectory.dir("app/src/main/res/raw")) { include(desktopRawResourceNames) }
+    into(desktopRawResources)
+    doLast {
+        val missing = desktopRawResourceNames
+            .filterNot { File(desktopRawResources.get().asFile, it).isFile }
+        if (missing.isNotEmpty()) throw GradleException("Missing raw resources in app/src/main/res/raw: $missing")
+    }
+}
+sourceSets.main {
+    resources.srcDir(prepareDesktopRawResources)
+}
 
 tasks.named("check") { dependsOn("verifyDesktopVersion") }
 tasks.register("verifyDesktopVersion") {

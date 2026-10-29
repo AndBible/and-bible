@@ -1,0 +1,157 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedui.desktop.assembly
+
+import androidx.compose.ui.unit.IntSize
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabaseHost
+import net.bible.sharedcore.platform.desktop.DesktopPaths
+import net.bible.sharedlogic.fixtures.StartupFixture
+import net.bible.sharedui.assembly.HostStartup
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.StartupPhase
+import org.crosswire.common.util.PropertyMap
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.koin.mp.KoinPlatform
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+
+/**
+ * The real desktop startup (Koin, databases, Sword) against temporary XDG directories. Every test resets the startup in
+ * [after]; the database host is global, so the one installed before the class is put back.
+ */
+class DesktopAppStartupTest {
+    private class FakeWindow : DesktopWindowHandle {
+        override val sizeDp: IntSize = IntSize(1200, 800)
+        override val density: Float = 1f
+        override fun toFront() = Unit
+    }
+
+    private lateinit var root: Path
+    private var previousHost: DatabaseHost? = null
+
+    private fun paths(): DesktopPaths = DesktopPaths(
+        { name ->
+            when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            }
+        },
+        "Linux", root.resolve("home"),
+    )
+
+    private fun start(paths: DesktopPaths = paths()): StartupPhase =
+        DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", repositories = { PropertyMap() })
+
+    @BeforeTest fun before() {
+        assertNull(KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
+        previousHost = runCatching { DatabaseContainer.host }.getOrNull()
+        root = Files.createTempDirectory("desktop-startup")
+    }
+
+    @AfterTest fun after() {
+        try {
+            DesktopAppStartup.resetForTest()
+        } finally {
+            previousHost?.let { DatabaseContainer.installHost(it) }
+            root.toFile().deleteRecursively()
+        }
+    }
+
+    @Test fun startsWithEmptyDataDir() {
+        val paths = paths()
+        assertEquals(StartupPhase.Ready, start(paths))
+        val koin = assertNotNull(KoinPlatform.getKoinOrNull())
+        assertTrue(HostStartup.isStarted)
+        assertTrue(HostStartup.databasesOpen)
+        assertTrue(DatabaseContainer.ready)
+        assertEquals("en", HostStartup.stringTable.tag)
+        assertTrue(HostStartup.stringTable.text("okay").isNotBlank())
+        assertEquals(koin.get<IosStringTableHolder>().current.tag, HostStartup.stringTable.tag)
+        // Databases and Sword folders live below the data directory.
+        assertTrue(Files.isDirectory(paths.data.resolve("databases")))
+        assertTrue(Files.list(paths.data.resolve("databases")).use { s -> s.count() } > 0, "no database file was created")
+        assertTrue(Files.isDirectory(paths.sword.resolve("mods.d")))
+        // The log file is configured into the data directory.
+        assertTrue(Files.isDirectory(paths.data.resolve("logs")))
+        // A second call joins the finished start: same graph, still ready.
+        assertEquals(StartupPhase.Ready, start(paths))
+        assertSame(koin, KoinPlatform.getKoin())
+    }
+
+    @Test fun startsWithStartupFixtureModule() {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val bibles = Books.installed().getBooks().filter { it.bookCategory == BookCategory.BIBLE }.map { it.initials }
+        assertTrue("K4RawText" in bibles, "installed Bibles: $bibles")
+    }
+
+    @Test fun unwritableDataDirFails() {
+        val paths = paths()
+        // The data directory's place is taken by a plain file, so it can be neither created nor written.
+        Files.createDirectories(paths.data.parent)
+        Files.write(paths.data, byteArrayOf(1))
+        val phase = assertIs<StartupPhase.Failed>(start(paths))
+        val message = assertNotNull(phase.error.message)
+        assertTrue(paths.data.toString() in message, message)
+        assertFalse(HostStartup.isStarted)
+        assertFalse(HostStartup.databasesOpen)
+        assertNull(KoinPlatform.getKoinOrNull())
+    }
+
+    @Test fun koinOnlyStartLeavesTheDatabasesClosedUntilAskedToOpen() {
+        val paths = paths()
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() }))
+        assertNotNull(KoinPlatform.getKoinOrNull())
+        assertTrue(HostStartup.isStarted)
+        assertFalse(HostStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready)
+        assertEquals(StartupPhase.Ready, start(paths))
+        assertTrue(HostStartup.databasesOpen)
+    }
+
+    @Test fun resetForTestForgetsEveryGlobal() {
+        assertEquals(StartupPhase.Ready, start())
+        DesktopAppStartup.resetForTest()
+        assertNull(KoinPlatform.getKoinOrNull())
+        assertFalse(HostStartup.isStarted)
+        assertFalse(HostStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready)
+        // And a new start in a fresh directory works again.
+        root.toFile().deleteRecursively()
+        root = Files.createTempDirectory("desktop-startup")
+        assertEquals(StartupPhase.Ready, start())
+    }
+}
