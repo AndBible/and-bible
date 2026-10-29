@@ -14,7 +14,7 @@ import net.bible.sharedui.app.installzip.InstallZipHostPlatform
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.assembly.IosDebugLaunchArgs
+import net.bible.sharedui.assembly.HostDebugArgs
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.strings.keyed.StringTable
@@ -26,7 +26,8 @@ class IosInstallZipHostPlatform(
     private val controller: () -> InstallServiceController = { IosInstallPipeline.controller },
     private val scope: CoroutineScope = IosInstallPipeline.scope,
     private val table: () -> StringTable = { iosStringTable("en") },
-    private val notificationPermission: NotificationPermission = IosNotificationPermission(),
+    private val notificationPermission: NotificationPermission,
+    private val debugArgs: HostDebugArgs = IosInstallPipeline.debugArgs,
     // "If started": before startup completes (or after a reset) there is nothing to initialise, and the table is not there to read.
     private val initialise: suspend () -> Unit = { if (IosAppStartup.isStarted) IosInstallPipeline.ensureInitialized() },
 ) : InstallZipHostPlatform {
@@ -53,7 +54,7 @@ class IosInstallZipHostPlatform(
 
     /** Debug seam: with `-installCommitDelayMs` the status also carries " [commit N%]" so a UI test can prove it is mid-commit. */
     private fun commitMarker(percent: Int): String =
-        if (IosDebugLaunchArgs.installCommitDelayMs() > 0) " [commit $percent%]" else ""
+        if (debugArgs.installCommitDelayMs() > 0) " [commit $percent%]" else ""
 
     override fun mapPhase(job: InstallJobState): InstallUiState {
         val table = table()

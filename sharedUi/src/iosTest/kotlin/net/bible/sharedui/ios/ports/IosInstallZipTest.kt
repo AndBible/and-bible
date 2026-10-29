@@ -85,7 +85,7 @@ class IosInstallZipTest {
                 deps = { deps },
                 scope = scope,
             )
-            val platform = IosInstallZipHostPlatform(controller = { controller })
+            val platform = IosInstallZipHostPlatform(controller = { controller }, notificationPermission = IosNotificationPermission())
             val refs = listOf(ref(dir / "My module.zip"), ref(dir / "Pilgrim.epub"))
             starter.start(refs, "android.intent.action.SEND_MULTIPLE")
             withTimeout(5_000) { entered.await() }
@@ -291,7 +291,7 @@ class IosInstallZipTest {
                 acquireDir = dir, openStream = { error("unused") }, isStudyPadExport = { false },
                 studyPadStats = { error("unused") }, swordZipScan = { error("unused") }, epubUpgradeCheck = { false },
             )
-            val platform = IosInstallZipHostPlatform(controller = { controller })
+            val platform = IosInstallZipHostPlatform(controller = { controller }, notificationPermission = IosNotificationPermission())
             IosDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
                 .start(listOf(ref(dir / "module.zip")), null)
             withTimeout(5_000) { entered.await() }
@@ -314,7 +314,7 @@ class IosInstallZipTest {
             ZipWriter(FileSystem.SYSTEM.sink(ordinary)).use { zip ->
                 zip.putEntry("notes.txt") { it.writeUtf8("not an AndBible export") }
             }
-            val platform = IosInstallZipHostPlatform()
+            val platform = IosInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
             assertTrue(platform.isStudyPadExport(ref(studyPad)))
             assertFalse(platform.isStudyPadExport(ref(modules)))
             assertFalse(platform.isStudyPadExport(ref(ordinary)))
@@ -322,12 +322,12 @@ class IosInstallZipTest {
     }
 
     @Test fun displayNameDecodesTheLastFileUrlComponent() {
-        val platform = IosInstallZipHostPlatform()
+        val platform = IosInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
         assertEquals("My module.zip", platform.displayName(DocumentRef("file:///tmp/nested/My%20module.zip")))
     }
 
     @Test fun mapPhasePreservesDecisionPayloadsAndProgress() {
-        val platform = IosInstallZipHostPlatform()
+        val platform = IosInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
         fun map(phase: InstallPhase) = platform.mapPhase(InstallJobState("job", "module.zip", phase))
         assertEquals(InstallUiState.Overwrite(listOf("mods.d/kjv.conf")),
             map(InstallPhase.AwaitingDecision(DecisionRequest.Overwrite(listOf("mods.d/kjv.conf")))))
@@ -348,6 +348,7 @@ class IosInstallZipTest {
         val finished = CompletableDeferred<Unit>()
         try {
             val platform = IosInstallZipHostPlatform(
+                notificationPermission = IosNotificationPermission(),
                 scope = scope,
                 initialise = {
                     entered.complete(NSThread.isMainThread)

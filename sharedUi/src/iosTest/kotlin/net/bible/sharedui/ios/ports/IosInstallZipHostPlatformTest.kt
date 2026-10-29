@@ -13,7 +13,7 @@ class IosInstallZipHostPlatformTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var table = iosStringTable("en")
         try {
-            val platform = IosInstallZipHostPlatform(table = { table }, scope = scope)
+            val platform = IosInstallZipHostPlatform(table = { table }, scope = scope, notificationPermission = IosNotificationPermission())
             assertEquals(
                 "You have to choose the file that you want to load to AndBible.  \n\n" +
                     "Supported formats for loading documents from a file: " +

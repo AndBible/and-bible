@@ -20,9 +20,11 @@ package net.bible.sharedui.ios.app
 
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.ios.ports.IosAiHostPlatform
+import net.bible.sharedui.ios.ports.IosNotificationPermission
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
 import net.bible.sharedui.ios.ports.IosBugReportPlatform
 import net.bible.sharedui.ios.ports.IosChooserHostPlatform
@@ -62,7 +64,7 @@ fun buildIosHostPorts(
     val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
     val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
-    val installZip = IosInstallZipHostPlatform(table = currentTable)
+    val installZip = IosInstallZipHostPlatform(table = currentTable, notificationPermission = IosNotificationPermission(), debugArgs = IosDebugLaunchArgs)
     val picker = IosDocumentPicker()
     val bookmark by lazy {
         IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
