@@ -63,12 +63,18 @@ class KcefWebEngine(
     private val bundleDir: Path,
     private val log: (String) -> Unit = ::println,
 ) : DesktopWebEngine {
+    @Volatile
+    private var languagesSource: (() -> String)? = null
+
+    override fun setActiveLanguages(source: () -> String) {
+        languagesSource = source
+    }
 
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_ORIGIN/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         init(installDir).getOrThrow()
-        val scripts = listOf(androidBridgeShim(CEF_POST_MESSAGE_JS, activeLanguagesJson(url))) + documentStartScripts
+        val scripts = listOf(androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))) + documentStartScripts
         return KcefPane(id, url, BundleRequestHandler(bundleDir, scripts), onMessage) { msg -> log("kcef[$id]: $msg") }
     }
 
@@ -99,9 +105,12 @@ class KcefWebEngine(
          * namespaces, which containers and AppArmor-restricted distributions (Ubuntu 24.04+) refuse, and then
          * Chromium aborts; JBR/IntelliJ run JCEF unsandboxed too. The pane only ever loads the bundled origin
          * (navigation and popups are locked). `-Dkcef.sandbox=true` turns it on where the host supports it.
+         *
+         * [cacheDir], when given, is the CEF cache directory, e.g. `<cache>/cef` of the desktop app;
+         * null keeps the KCEF default.
          */
         @Synchronized
-        fun init(installDir: Path, extraArgs: List<String> = emptyList()): Result<Unit> {
+        fun init(installDir: Path, extraArgs: List<String> = emptyList(), cacheDir: Path? = null): Result<Unit> {
             if (initialized) return Result.success(Unit)
             terminalFailure?.let { return Result.failure(it) }
             nativesProblem(installDir)?.let { return Result.failure(IllegalStateException(it)) }
@@ -129,6 +138,7 @@ class KcefWebEngine(
                             logSeverity = if (logPath == null) KCEFBuilder.Settings.LogSeverity.Disable else KCEFBuilder.Settings.LogSeverity.Info
                             if (logPath != null) logFile = logPath
                             windowlessRenderingEnabled = false
+                            if (cacheDir != null) cachePath = cacheDir.toAbsolutePath().toString()
                         }
                     },
                     onError = { error = it ?: IllegalStateException("unknown KCEF error") },
@@ -196,7 +206,7 @@ class KcefWebEngine(
 }
 
 /** The AWT event thread, the desktop UI thread. */
-private object SwingMainDispatcher : CoroutineDispatcher() {
+internal object SwingMainDispatcher : CoroutineDispatcher() {
     override fun dispatch(context: CoroutineContext, block: Runnable) = SwingUtilities.invokeLater(block)
     override fun isDispatchNeeded(context: CoroutineContext): Boolean = !SwingUtilities.isEventDispatchThread()
 }
@@ -210,6 +220,12 @@ internal class KcefPane(
 ) : DesktopWebPane {
     @Volatile
     private var disposed = false
+
+    @Volatile
+    private var backgroundArgb: Int? = null
+
+    @Volatile
+    private var onRendererGone: (() -> Unit)? = null
     private val evals = EvalReplies()
     private val client: KCEFClient = KCEF.newClientBlocking()
 
@@ -239,11 +255,19 @@ internal class KcefPane(
     init {
         // Everything the page needs (router, bundle + document-start scripts) is registered before loading starts.
         client.addMessageRouter(router)
-        client.addRequestHandler(BundleCefRequestHandler(bundle, log))
+        client.addRequestHandler(BundleCefRequestHandler(bundle, log) { status ->
+            log("renderer process gone: $status")
+            SwingUtilities.invokeLater { if (!disposed) onRendererGone?.invoke() }
+        })
         client.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
                 // A new main document cannot answer the old document's evaluations.
                 if (frame?.isMain == true) SwingUtilities.invokeLater { evals.failAll() }
+            }
+
+            override fun onLoadEnd(browser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
+                // The page's own style is gone after a (re)load: paint it again.
+                if (frame?.isMain == true) backgroundArgb?.let { applyPageBackground(it) }
             }
         })
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
@@ -261,6 +285,28 @@ internal class KcefPane(
     @Composable
     override fun Content(modifier: Modifier) {
         SwingPanel(factory = { component }, modifier = modifier)
+    }
+
+    override fun setBackground(argb: Int) {
+        backgroundArgb = argb
+        SwingUtilities.invokeLater {
+            if (disposed) return@invokeLater
+            component.background = java.awt.Color(argb, true)
+            applyPageBackground(argb)
+        }
+    }
+
+    override fun setOnRendererGone(listener: () -> Unit) {
+        onRendererGone = listener
+    }
+
+    /** BibleView-JS paints no page background of its own, so the root element gets the host colour (as `setBackgroundColor` on Android). */
+    private fun applyPageBackground(argb: Int) {
+        if (disposed) return
+        val css = "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${((argb shr 24) and 0xFF) / 255.0})"
+        SwingUtilities.invokeLater {
+            if (!disposed) browser.executeJavaScript("document.documentElement.style.background='$css';", browser.url ?: url, 0)
+        }
     }
 
     override val isMainThread: Boolean get() = SwingUtilities.isEventDispatchThread()
@@ -307,7 +353,12 @@ internal class KcefPane(
 private class BundleCefRequestHandler(
     private val bundle: BundleRequestHandler,
     private val log: (String) -> Unit,
+    private val onRenderProcessGone: (org.cef.handler.CefRequestHandler.TerminationStatus) -> Unit = {},
 ) : CefRequestHandlerAdapter() {
+    override fun onRenderProcessTerminated(browser: CefBrowser?, status: org.cef.handler.CefRequestHandler.TerminationStatus?) {
+        if (status != null) onRenderProcessGone(status)
+    }
+
     override fun onBeforeBrowse(
         browser: CefBrowser?, frame: CefFrame?, request: CefRequest?, userGesture: Boolean, isRedirect: Boolean,
     ): Boolean {

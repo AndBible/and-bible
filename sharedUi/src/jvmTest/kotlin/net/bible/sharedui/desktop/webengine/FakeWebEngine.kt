@@ -20,6 +20,15 @@ class FakeWebEngine : DesktopWebEngine {
     }
 
     fun pane(id: String) = panes.single { it.id == id }
+
+    /** The newest pane of [id] that is not disposed (a crashed pane is replaced, not reused). */
+    fun live(id: String) = panes.last { it.id == id && !it.disposed }
+
+    var languagesSource: (() -> String)? = null
+
+    override fun setActiveLanguages(source: () -> String) {
+        languagesSource = source
+    }
 }
 
 class FakePane(
@@ -30,6 +39,14 @@ class FakePane(
 ) : DesktopWebPane {
     val evaluated = mutableListOf<String>()
     var disposed = false
+    val backgrounds = mutableListOf<Int>()
+    private var rendererGone: (() -> Unit)? = null
+
+    override fun setBackground(argb: Int) { backgrounds += argb }
+    override fun setOnRendererGone(listener: () -> Unit) { rendererGone = listener }
+
+    /** Simulates the renderer process dying. */
+    fun crash() { rendererGone?.invoke() }
 
     override val isMainThread = true
     override val isAttached = true

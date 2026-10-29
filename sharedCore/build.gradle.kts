@@ -47,6 +47,9 @@ kotlin {
             api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
             implementation(libs.xmlutil.core)
         }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.okhttp)   // desktop HTTP engine (DesktopHttpClients)
+        }
         jvmTest {
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
             // Execute the platform-free iOS publication policy on Linux as well as Native.
