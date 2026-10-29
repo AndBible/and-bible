@@ -28,9 +28,12 @@ import net.bible.sharedui.reading.bridge.ReadingWindowSurface
  * [jsHostFor] and [surfaceFor]; the pane composable that shows the view, and the bridge handler wiring, belong to the
  * platform's pane factory, not to this interface.
  *
- * iOS: the WKWebView cache (`IosReadingWebViews`) with a `WkWebViewJsHost`. A desktop engine fits the same shape: a
- * `DesktopWebPane` per window is already a [JsHost], created with the active-languages script as a document-start
- * script and disposed on [release].
+ * iOS: the WKWebView cache (`IosReadingWebViews`) with a `WkWebViewJsHost`. A desktop engine does not fit this shape
+ * one to one: a `DesktopWebPane` is a [JsHost], but `DesktopWebEngine.createPane` needs the page URL and the
+ * bridge's message handler at creation, and the active languages reach the page through the engine's bridge shim
+ * (`getActiveLanguages()`), not a document-start script. A desktop implementation must therefore create the pane in
+ * [jsHostFor] with a deferred message sink that the session's bridge is attached to later (as `DesktopBibleWebViews`
+ * queues JS until its pane exists), and read [setActiveLanguages]'s source when it builds the shim.
  *
  * Main thread only, except [applyBackground].
  */

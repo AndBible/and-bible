@@ -303,7 +303,11 @@ object IosReadingWindows {
         }
     }
 
-    internal fun resetForTest() = unbind()
+    /** Unbinds and forgets the pane engine too, so a test's fake engine cannot reach the next test. */
+    internal fun resetForTest() {
+        unbind()
+        panes = null
+    }
 }
 
 /**

@@ -70,7 +70,10 @@ interface ReadingHostPlatform {
     /** Ends the background task [id] that [beginBackgroundTask] returned. */
     fun endBackgroundTask(id: ULong)
 
-    /** The id [beginBackgroundTask] returns when no task was granted; it is never ended. */
+    /**
+     * The id [beginBackgroundTask] returns when no task was granted; it is never ended. A host without background
+     * tasks (desktop) returns this id from every [beginBackgroundTask] and so never ends anything.
+     */
     val invalidBackgroundTaskId: ULong
 
     /** A new document picker (one per pane-menu import or export). */
