@@ -48,9 +48,11 @@ navigationCompose = "2.9.2"
 lifecycleRuntimeCompose = "2.9.6"
 # Desktop D5: JNA for the WebKitGTK experiment (:desktopWebkitGtk)
 jna = "5.17.0"
+java-keyring = { module = "com.github.javakeyring:java-keyring", version = "1.0.4" }
 
 [libraries]
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+java-keyring = { module = "com.github.javakeyring:java-keyring", version = "1.0.4" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }

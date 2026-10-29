@@ -49,6 +49,7 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)   // desktop HTTP engine (DesktopHttpClients)
+            implementation(libs.java.keyring)   // desktop OS secret store (DesktopSecretStore)
         }
         jvmTest {
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
