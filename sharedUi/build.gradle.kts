@@ -107,6 +107,11 @@ kotlin {
         }
         jvmMain {
             dependencies {
+                // Desktop D3a back handling: the jvm actuals of PlatformBackHandler/PassThroughBackHandler and
+                // DesktopBackDispatcher use the common BackHandler (ui-backhandler, version of the Compose plugin) and
+                // the navigationevent dispatcher it registers with (the version navigation-compose 2.9.2 resolves).
+                implementation("org.jetbrains.compose.ui:ui-backhandler:1.11.1")
+                implementation("androidx.navigationevent:navigationevent:1.0.1")
                 // Desktop D1 web engine (package net.bible.sharedui.desktop.webengine.kcef only). JOGL/gluegen are
                 // jcef's runtime deps for GL off-screen rendering; they are not on Maven Central (jogamp.org only)
                 // and the windowed rendering D1 uses does not need them.
