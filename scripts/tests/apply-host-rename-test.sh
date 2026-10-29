@@ -160,7 +160,20 @@ pathsArgument() {
   check pathsArgument $rc
 }
 
+backtickIdentifiersAreCode() {
+  new_repo < <(printf 'IosX\tHostX\n')
+  cat > "$REPO/a.kt" <<'K'
+class IosX { val `a "q` = 1; val k = IosX }
+fun `IosX // works`() = IosX()
+val s = "IosX"
+K
+  commit_all base; run >/dev/null
+  same backtickIdentifiersAreCode a.kt 'class HostX { val `a "q` = 1; val k = HostX }
+fun `HostX // works`() = HostX()
+val s = "IosX"'
+}
+
 for t in longestNameFirst wholeWordOnly stringLiteralsAndLogTagsUntouched fileRenamedWithGitMv \
-         reapplyOnMixedTreeIsIdempotent secondRunIsNoop refusesClash pathsArgument; do $t; done
+         reapplyOnMixedTreeIsIdempotent secondRunIsNoop refusesClash pathsArgument backtickIdentifiersAreCode; do $t; done
 echo "$PASS/$TOTAL passed"
 [ "$FAILED" = 0 ]

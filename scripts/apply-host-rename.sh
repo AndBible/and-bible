@@ -97,6 +97,7 @@ def rewrite(src):
                     continue
             i += 1
         segs.append(("str", src[start:i]))
+        print("warning: %s ends inside a string literal" % current_path, file=sys.stderr)
         return n
 
     def code(i, in_template):
@@ -129,6 +130,11 @@ def rewrite(src):
                 flush(i)
                 segs.append(("str", '"'))
                 i = start = string(i + 1, False)
+            elif c == "`":
+                # backtick identifier: stays code (renamed), but its quotes or slashes open nothing
+                j = src.find("`", i + 1)
+                nl = src.find("\n", i + 1)
+                i = i + 1 if j < 0 or (0 <= nl < j) else j + 1
             elif c == "'":
                 j = i + 1
                 if j < n and src[j] == "\\":
@@ -206,7 +212,9 @@ if clashes:
     sys.exit(1)
 
 rewritten = 0
+current_path = ""
 for p in files:
+    current_path = p
     with open(p, "rb") as f:
         raw = f.read()
     src = raw.decode("utf-8", "surrogateescape")
