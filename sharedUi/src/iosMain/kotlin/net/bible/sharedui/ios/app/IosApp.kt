@@ -81,6 +81,7 @@ import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
 import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.iosPreferredLanguages
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.strings.iosStrings
@@ -437,7 +438,7 @@ private fun IosAppContent(
     if (nightObserver != null) SaveWorkspaceOnBackground(koin)
     val shell = remember {
         IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) {
-            holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
+            holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>(), ::iosPreferredLanguages))
         }.also { if (nightObserver != null) IosRootLinks.attachShell(it) }
     }
     DisposableEffect(shell) {

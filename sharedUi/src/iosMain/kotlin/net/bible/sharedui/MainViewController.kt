@@ -34,6 +34,7 @@ import net.bible.sharedui.assembly.IosAppStartupState
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.IosUiLanguage
 import net.bible.sharedui.assembly.StartupPhase
+import net.bible.sharedui.assembly.iosPreferredLanguages
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
@@ -109,7 +110,7 @@ fun MainViewController(): UIViewController {
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
-    val language = resolveDeviceUiLanguage(settings)
+    val language = resolveDeviceUiLanguage(settings, ::iosPreferredLanguages)
     val layoutDirection = if (IosUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {

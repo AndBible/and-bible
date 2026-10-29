@@ -96,7 +96,7 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
     /** Initial language (C4); later changes use the same holder, without touching databases. */
     val uiLanguage: String by lazy {
-        config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings)
+        config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings, ::iosPreferredLanguages)
     }
 
     val stringTableHolder by lazy { IosStringTableHolder(iosStringTable(uiLanguage, ::bundleRawResource)) }

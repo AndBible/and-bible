@@ -17,11 +17,9 @@
 package net.bible.sharedui.assembly
 
 import androidx.compose.ui.unit.LayoutDirection
-import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedui.strings.layoutDirectionForLanguage
 import net.bible.sharedui.strings.StringsData
-import platform.Foundation.NSLocale
-import platform.Foundation.preferredLanguages
 
 /** Picks the UI language on iOS (spec C4). Pure logic so it is testable without a device. */
 object IosUiLanguage {
@@ -55,9 +53,13 @@ object IosUiLanguage {
     fun isRtl(language: String): Boolean = layoutDirectionForLanguage(language) == LayoutDirection.Rtl
 }
 
-/** The one place the iOS UI language is read from the device: `locale_pref`, the device languages, the string table. */
-internal fun resolveDeviceUiLanguage(settings: IosDeviceSettings): String = IosUiLanguage.resolve(
-    settings.getString("locale_pref"),
-    NSLocale.preferredLanguages.map { it.toString() },
-    StringsData.data.keys,
-)
+/**
+ * The one place the UI language is read from the device: `locale_pref`, the device languages, the string table.
+ * [preferredLanguages] is the host's ordered device-language list (iOS: `NSLocale.preferredLanguages`).
+ */
+internal fun resolveDeviceUiLanguage(settings: DeviceLocalPrefs, preferredLanguages: () -> List<String>): String =
+    IosUiLanguage.resolve(
+        settings.getString("locale_pref", null),
+        preferredLanguages(),
+        StringsData.data.keys,
+    )

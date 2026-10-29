@@ -72,4 +72,22 @@ class IosUiLanguageTest {
         for (tag in listOf("he", "iw", "ar", "ur", "fa", "he-IL", "ar_EG", "HE")) assertTrue(IosUiLanguage.isRtl(tag), tag)
         for (tag in listOf("en", "fi", "pt-BR", "zh-Hans", "sr-Latn", "")) assertTrue(!IosUiLanguage.isRtl(tag), tag)
     }
+
+    private class FakePrefs(private val values: Map<String, String>) : net.bible.sharedcore.settings.DeviceLocalPrefs {
+        override fun getString(key: String, default: String?) = values[key] ?: default
+        override fun getBoolean(key: String, default: Boolean) = default
+        override fun setString(key: String, value: String) = Unit
+        override fun setBoolean(key: String, value: Boolean) = Unit
+        override fun remove(key: String) = Unit
+    }
+
+    @Test
+    fun deviceResolutionReadsLocalePrefThenTheInjectedDeviceLanguages() {
+        val real = net.bible.sharedui.strings.StringsData.data.keys
+        assertTrue("fi" in real && "en" in real)
+        assertEquals("fi", resolveDeviceUiLanguage(FakePrefs(mapOf("locale_pref" to "fi")), { listOf("en-US") }))
+        assertEquals("fi", resolveDeviceUiLanguage(FakePrefs(emptyMap()), { listOf("xx-XX", "fi-FI") }))
+        assertEquals("fi", resolveDeviceUiLanguage(FakePrefs(mapOf("locale_pref" to " ")), { listOf("fi-FI") }))
+        assertEquals("en", resolveDeviceUiLanguage(FakePrefs(emptyMap()), { emptyList() }))
+    }
 }
