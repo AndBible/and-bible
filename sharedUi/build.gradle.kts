@@ -85,6 +85,7 @@ kotlin {
             implementation(libs.jetbrains.lifecycle.runtime.compose)
             // JsonElement parsing for the BibleView bridge (no plugin needed):
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.atomicfu)
         }
         androidMain.dependencies {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.

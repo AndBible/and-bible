@@ -18,7 +18,8 @@
 
 package net.bible.sharedui.ios
 
-import platform.Foundation.NSLock
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import net.bible.sharedcore.log.nsLog
 
 /**
@@ -28,7 +29,7 @@ import net.bible.sharedcore.log.nsLog
  */
 @kotlin.native.HiddenFromObjC
 object IosPending {
-    private val lock = NSLock()
+    private val lock = SynchronizedObject()
     private var seen: Set<String> = emptySet()
 
     /** The members reported so far. */
@@ -49,8 +50,5 @@ object IosPending {
 
     internal fun resetForTest() = locked { seen = emptySet(); onFirstReport = null }
 
-    private inline fun <T> locked(block: () -> T): T {
-        lock.lock()
-        try { return block() } finally { lock.unlock() }
-    }
+    private inline fun <T> locked(block: () -> T): T = synchronized(lock, block)
 }
