@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.sharedui.desktop.webview
 
 import net.bible.sharedcore.bibleview.UnimplementedBibleBridge
@@ -150,5 +166,64 @@ class DesktopReadingPaneEngineTest {
         stop()
         settings.setBoolean("night_mode_pref", false)
         assertEquals(2, fired, "stopped observers hear nothing")
+    }
+
+    @Test
+    fun rendererDeathCallsTheOwnerOnceAndIgnoresStalePanes() {
+        val gone = mutableListOf<String>()
+        val e = DesktopReadingPaneEngine(fake, { logs += it }, lang = { "en" }, onRendererGone = { gone += it })
+        e.attach("w1", false, bridge, {}, {})
+        val first = fake.pane("w1")
+        first.crash()
+        assertEquals(listOf("w1"), gone)
+        assertTrue(first.disposed)
+        assertEquals(null, e.paneFor("w1"), "the owner decides when a new pane is attached")
+        assertEquals(1, fake.panes.size, "the engine does not recreate on its own")
+        first.crash() // the dead pane again
+        assertEquals(listOf("w1"), gone)
+    }
+
+    @Test
+    fun ownerRecoveryReleasesAndAttachesAFreshPane() {
+        lateinit var e: DesktopReadingPaneEngine
+        val recovery = DesktopReadingRecovery(
+            release = { e.release(it) },
+            isOpen = { true },
+            assemble = { e.jsHostFor(it) },
+            reload = { e.attach(it, false, bridge, {}, { attached += "re:$it" }) },
+        )
+        e = DesktopReadingPaneEngine(fake, { logs += it }, onRendererGone = recovery)
+        e.attach("w1", false, bridge, {}, {})
+        fake.pane("w1").crash()
+        val fresh = fake.live("w1")
+        assertSame(fresh, e.paneFor("w1"))
+        assertEquals(listOf("re:w1"), attached)
+    }
+
+    @Test
+    fun recoveryOfAClosedWindowOnlyReleases() {
+        val calls = mutableListOf<String>()
+        DesktopReadingRecovery({ calls += "release" }, { false }, { calls += "assemble" }, { calls += "reload" })("w1")
+        assertEquals(listOf("release"), calls)
+        calls.clear()
+        DesktopReadingRecovery({ calls += "release" }, { true }, { calls += "assemble" }, { calls += "reload" })("w1")
+        assertEquals(listOf("release", "assemble", "reload"), calls)
+    }
+
+    @Test
+    fun aCrashLoopParksTheWindow() {
+        var gone = 0
+        lateinit var e: DesktopReadingPaneEngine
+        e = DesktopReadingPaneEngine(fake, { logs += it }, onRendererGone = {
+            gone++
+            e.release(it)
+            e.attach(it, false, bridge, {}, {})
+        })
+        e.attach("w1", false, bridge, {}, {})
+        repeat(DesktopReadingPaneEngine.MAX_RENDERER_DEATHS + 1) { if (!e.hasFailed("w1")) fake.live("w1").crash() }
+        assertEquals(DesktopReadingPaneEngine.MAX_RENDERER_DEATHS, gone)
+        assertTrue(e.hasFailed("w1"))
+        assertEquals(null, e.paneFor("w1"))
+        assertTrue(logs.any { "giving up" in it })
     }
 }

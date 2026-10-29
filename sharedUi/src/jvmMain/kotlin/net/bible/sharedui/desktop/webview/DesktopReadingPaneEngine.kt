@@ -51,8 +51,10 @@ import javax.swing.SwingUtilities
  *   re-applies it after each page load.
  * - Active languages: handed to the engine ([DesktopWebEngine.setActiveLanguages]) for the creation-time shim answer;
  *   the per-load `window.__activeLanguages__` refresh of the hoisted assembly is honoured live by the shim.
- * - Crash: a pane whose renderer died is disposed and recreated at the same URL (which reloads the page); the page's
- *   client-ready handshake then re-initialises the session.
+ * - Crash: a pane whose renderer died is disposed. With an [onRendererGone] owner (the real wiring) the owner rebuilds the
+ *   window's session and the pane factory then attaches a fresh pane; a session that outlived its page is not
+ *   re-initialised by the client-ready handshake alone. Without an owner the pane is recreated at the same URL (page
+ *   reload only). After [MAX_RENDERER_DEATHS] deaths of one window it is parked as failed.
  * - Readiness: the first `setClientReady` of each pane is logged as `[desktop] reading ready <windowId>`.
  *
  * Main (Swing event) thread, except [applyBackground] and the [JsHost] of a window.
@@ -61,6 +63,14 @@ class DesktopReadingPaneEngine(
     private val engine: DesktopWebEngine,
     private val log: (String) -> Unit,
     private val lang: () -> String = { Locale.getDefault().language.ifEmpty { "en" } },
+    /**
+     * Called (Swing thread) after a window's renderer died, once the dead pane is disposed, at most [MAX_RENDERER_DEATHS]
+     * times per window. The owner rebuilds the window's session and asks it to load again (see [DesktopReadingRecovery]),
+     * which ends in [release] and a fresh [attach]; a session that outlived its page cannot be re-initialised by the page's
+     * client-ready handshake alone. Without a callback the engine only recreates the pane, which reloads the page but not
+     * the session's document.
+     */
+    private val onRendererGone: ((windowId: String) -> Unit)? = null,
 ) : ReadingPaneEngine {
     private class Entry(val windowId: String) {
         /** The current pane; state so that the pane composable follows a crash recreation. */
@@ -77,6 +87,12 @@ class DesktopReadingPaneEngine(
     private class Wiring(val dark: Boolean, val dispatcher: BridgeDispatcher, val onAttached: () -> Unit)
 
     private val entries = ConcurrentHashMap<String, Entry>()
+
+    /** Renderer deaths per window; survives [release] (recovery releases the window) so a crash loop is capped. */
+    private val deaths = mutableMapOf<String, Int>()
+
+    /** Read by [paneFor] so that composables notice entries appearing and disappearing, not only pane changes. */
+    private var entriesVersion by mutableStateOf(0)
 
     override fun setActiveLanguages(source: () -> String) = engine.setActiveLanguages(source)
 
@@ -104,6 +120,7 @@ class DesktopReadingPaneEngine(
 
     override fun release(windowId: String) {
         val e = entries.remove(windowId) ?: return
+        entriesVersion++
         e.pane?.dispose()
         e.pane = null
         e.wiring = null
@@ -111,10 +128,16 @@ class DesktopReadingPaneEngine(
     }
 
     /** The window's current pane (null before [attach]); read in composition, it follows a crash recreation. */
-    fun paneFor(windowId: String): DesktopWebPane? = entries[windowId]?.pane
+    fun paneFor(windowId: String): DesktopWebPane? {
+        entriesVersion
+        return entries[windowId]?.pane
+    }
 
     /** Whether [attach] failed for the window: its pane stays empty and is not retried. */
-    fun hasFailed(windowId: String): Boolean = entries[windowId]?.failed == true
+    fun hasFailed(windowId: String): Boolean {
+        entriesVersion
+        return entries[windowId]?.failed == true
+    }
 
     /**
      * Creates the window's pane once, loads the bundle ([dark] is only the initial `night` URL parameter; live night
@@ -147,8 +170,10 @@ class DesktopReadingPaneEngine(
         e.readyLogged = false
         val pane = engine.createPane(e.windowId, engine.bundleUrl(lang(), w.dark), emptyList()) { text -> onMessage(e, text) }
         pane.setOnRendererGone { rendererGone(e, pane) }
-        e.background?.let(pane::setBackground)
+        // The pane is published before the remembered background is applied, so a concurrent applyBackground (any
+        // thread) either sees the pane or is seen here.
         e.pane = pane
+        e.background?.let(pane::setBackground)
         val queued = e.pending.toList()
         e.pending.clear()
         queued.forEach { pane.post(it) }
@@ -174,6 +199,25 @@ class DesktopReadingPaneEngine(
         log("reading pane ${e.windowId}: renderer process gone, recreating")
         runCatching { gone.dispose() }
         e.pane = null
+        val count = (deaths[e.windowId] ?: 0) + 1
+        deaths[e.windowId] = count
+        if (count > MAX_RENDERER_DEATHS) {
+            e.failed = true
+            entriesVersion++
+            log("reading pane ${e.windowId}: renderer died $count times, giving up")
+            return
+        }
+        val owner = onRendererGone
+        if (owner != null) {
+            try {
+                owner(e.windowId)
+            } catch (t: Throwable) {
+                e.failed = true
+                entriesVersion++
+                log("reading pane ${e.windowId}: recovery failed $t")
+            }
+            return
+        }
         try {
             create(e)
         } catch (t: Throwable) {
@@ -182,7 +226,7 @@ class DesktopReadingPaneEngine(
         }
     }
 
-    private fun entry(windowId: String): Entry = entries.getOrPut(windowId) { Entry(windowId) }
+    private fun entry(windowId: String): Entry = entries.getOrPut(windowId) { entriesVersion++; Entry(windowId) }
 
     /** The window's [JsHost]: the current pane once it exists; work posted before that is queued and run on creation. */
     private class DeferredJsHost(private val e: Entry) : JsHost {
@@ -203,12 +247,15 @@ class DesktopReadingPaneEngine(
         }
     }
 
-    private companion object {
-        fun copyToClipboard(text: String) {
+    companion object {
+        /** After this many renderer deaths a window is parked as failed instead of being recovered again. */
+        const val MAX_RENDERER_DEATHS = 3
+
+        private fun copyToClipboard(text: String) {
             SwingUtilities.invokeLater { Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null) }
         }
 
-        fun writeSharedHtml(dir: String, path: String, html: String): Boolean = try {
+        private fun writeSharedHtml(dir: String, path: String, html: String): Boolean = try {
             Files.createDirectories(Path.of(dir))
             Files.writeString(Path.of(path), html)
             true

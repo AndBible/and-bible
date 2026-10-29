@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.desktop.webview
 
+import androidx.compose.runtime.key
 import androidx.compose.ui.platform.testTag
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BibleViewEvents
@@ -52,6 +53,7 @@ fun desktopReadingPaneFactory(
                 engine.markFailed(windowId, t)
             }
         }
-        engine.paneFor(windowId)?.Content(modifier.testTag("pane-$windowId"))
+        // key(pane): SwingPanel's holder captures its factory once, so a recreated pane needs a fresh slot.
+        engine.paneFor(windowId)?.let { pane -> key(pane) { pane.Content(modifier.testTag("pane-$windowId")) } }
     }
 }
