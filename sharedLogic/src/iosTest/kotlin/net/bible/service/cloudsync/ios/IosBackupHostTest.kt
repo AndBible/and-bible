@@ -20,6 +20,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bible.service.cloudsync.host.IosBackupHost
+import net.bible.service.cloudsync.host.IosErrorReportHooks
 
 class IosBackupHostTest {
     private val picked = PickedSource("tok", "b.zip", null)

@@ -86,31 +86,31 @@ import net.bible.sharedlogic.platform.SearchIndexScheduler
 import net.bible.sharedlogic.platform.SentenceBreaker
 import net.bible.sharedlogic.platform.ios.IosAgentPlatform
 import net.bible.sharedlogic.platform.ios.IosContentSource
-import net.bible.sharedlogic.platform.ios.IosEpubStoreEdge
-import net.bible.sharedlogic.platform.ios.IosFirstLoadEdge
-import net.bible.sharedlogic.platform.ios.IosHistoryPlatform
-import net.bible.sharedlogic.platform.ios.IosKeyChooserLauncher
-import net.bible.sharedlogic.platform.ios.IosLinkPlatform
+import net.bible.sharedlogic.platform.host.IosEpubStoreEdge
+import net.bible.sharedlogic.platform.host.IosFirstLoadEdge
+import net.bible.sharedlogic.platform.host.IosHistoryPlatform
+import net.bible.sharedlogic.platform.host.IosKeyChooserLauncher
+import net.bible.sharedlogic.platform.host.IosLinkPlatform
 import net.bible.sharedlogic.platform.ios.IosLocalCalendar
 import net.bible.sharedlogic.platform.ios.IosLocaleSupport
-import net.bible.sharedlogic.platform.ios.IosMarkdownRenderer
-import net.bible.sharedlogic.platform.ios.IosMyDocumentStoreEdge
+import net.bible.sharedlogic.platform.host.IosMarkdownRenderer
+import net.bible.sharedlogic.platform.host.IosMyDocumentStoreEdge
 import net.bible.sharedlogic.platform.ios.IosNightModeState
 import net.bible.sharedlogic.platform.ios.IosPlatformLocales
-import net.bible.sharedlogic.platform.ios.IosReadOnlyModuleDbOpener
-import net.bible.sharedlogic.platform.ios.IosSearchIndexScheduler
+import net.bible.sharedlogic.platform.host.IosReadOnlyModuleDbOpener
+import net.bible.sharedlogic.platform.host.IosSearchIndexScheduler
 import net.bible.sharedlogic.platform.ios.IosSentenceBreaker
 import net.bible.sharedlogic.platform.ios.IosSpeakPlatform
 import net.bible.sharedlogic.platform.ios.IosSpeakSettingsStore
-import net.bible.sharedlogic.platform.ios.IosUserNotifier
-import net.bible.sharedlogic.platform.ios.IosWindowSettingsPicker
+import net.bible.sharedlogic.platform.host.IosUserNotifier
+import net.bible.sharedlogic.platform.host.IosWindowSettingsPicker
 import net.bible.sharedlogic.search.CommonSearchHighlighter
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedlogic.text.CommonHtmlToPlainText
 import net.bible.sharedui.components.AppToasts
-import net.bible.sharedui.ios.app.IosRootLinks
-import net.bible.sharedui.ios.reading.IosReadingExtras
+import net.bible.sharedui.host.app.IosRootLinks
+import net.bible.sharedui.host.reading.IosReadingExtras
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
@@ -123,6 +123,8 @@ import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.Books
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import net.bible.sharedui.host.ports.IosHelpDialogs
+import net.bible.sharedui.host.ports.IosReadingExtrasImpl
 
 /**
  * Where the app keeps its files and what it was told by its host.
@@ -220,7 +222,10 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<MyDocumentStoreEdge> { IosMyDocumentStoreEdge }
         single<PromptPackSource> { promptPacks }
         single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks) }
-        single<SearchIndexScheduler> { IosSearchIndexScheduler(IosSearchIndexingRunner(), get<AppCoroutineScope>()) }
+        single<SearchIndexScheduler> {
+            val runner = IosSearchIndexingRunner()
+            IosSearchIndexScheduler({ cancelBuild, build -> runner.run(cancelBuild, build) }, get<AppCoroutineScope>())
+        }
         single<ManualInstallFolderEnabler> { ManualInstallFolderEnabler { } } // no manual install folders on iOS
 
         // --- network
@@ -291,13 +296,18 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 text = { parts.strings.text(it) },
             )
         }
-        single<net.bible.sharedui.ios.reading.IosReadingExtras> {
+        single<IosReadingExtras> {
             val holder = get<IosStringTableHolder>()
             val currentTable = { holder.current }
-            net.bible.sharedui.ios.ports.IosReadingExtrasImpl(
-                helpDialogs = net.bible.sharedui.ios.ports.IosHelpDialogs(get<AppDialogController>(), currentTable),
+            IosReadingExtrasImpl(
+                helpDialogs = IosHelpDialogs(
+                    get<AppDialogController>(), currentTable,
+                    { net.bible.sharedui.ios.ports.iosBundledHtml(it) }, { net.bible.sharedui.ios.ports.iosBundleVersionName() },
+                ),
                 table = currentTable,
                 scope = get<AppCoroutineScope>(),
+                textShare = net.bible.sharedui.ios.ports.IosTextShare(),
+                report = { cause -> net.bible.sharedui.ios.report.IosBugReport(currentTable()).report(cause) },
             )
         }
         single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }

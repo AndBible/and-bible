@@ -20,6 +20,9 @@ import okio.Path.Companion.toPath
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUUID
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.IosInstallTerminalFeedback
+import net.bible.sharedui.host.ports.createIosInstallController
 
 class IosInstallFailureTest {
     @Test fun queuedInitializationFailureReportsErrorAfterJobRemoval() = exercise(

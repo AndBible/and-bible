@@ -20,29 +20,38 @@ package net.bible.sharedui.ios.app
 
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.strings.keyed.StringTable
-import net.bible.sharedui.ios.ports.IosAiHostPlatform
-import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.host.ports.IosAiHostPlatform
+import net.bible.sharedui.ios.ports.IosNotificationPermission
+import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
+import net.bible.sharedui.host.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.ios.ports.iosAiLogTimestamp
+import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
 import net.bible.sharedui.ios.ports.IosBugReportPlatform
-import net.bible.sharedui.ios.ports.IosChooserHostPlatform
-import net.bible.sharedui.ios.ports.IosCloudDocumentsHostPlatform
-import net.bible.sharedui.ios.ports.IosDocumentDialogs
+import net.bible.sharedui.host.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.ports.IosCloudDocumentsHostPlatform
+import net.bible.sharedui.host.ports.IosDocumentDialogs
 import net.bible.sharedui.ios.ports.IosDocumentPicker
-import net.bible.sharedui.ios.ports.IosDownloadHostPlatform
-import net.bible.sharedui.ios.ports.IosHelpDialogs
+import net.bible.sharedui.host.ports.IosDownloadHostPlatform
+import net.bible.sharedui.host.ports.IosHelpDialogs
 import net.bible.sharedui.ios.ports.IosImagePicker
-import net.bible.sharedui.ios.ports.IosInstallZipHostPlatform
-import net.bible.sharedui.ios.ports.IosLabelIcons
+import net.bible.sharedui.host.ports.IosInstallZipHostPlatform
+import net.bible.sharedui.host.ports.IosLabelIcons
 import net.bible.sharedui.ios.ports.IosMyDocumentFiles
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.ios.ports.IosOrientationLock
 import net.bible.sharedui.ios.ports.IosPromptFiles
-import net.bible.sharedui.ios.ports.IosReadingPlanHostPlatform
-import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
+import net.bible.sharedui.host.ports.IosReadingPlanHostPlatform
+import net.bible.sharedui.host.ports.IosStudyPadExportPlatform
 import net.bible.sharedui.ios.ports.IosSystemScreens
 import net.bible.sharedui.ios.ports.IosTextShare
-import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.ios.ports.IosWindowMetrics
+import net.bible.sharedui.ios.ports.iosBundleVersionName
+import net.bible.sharedui.ios.ports.iosBundledHtml
+import net.bible.sharedui.ios.ports.iosFreeSpaceBytes
 import org.koin.core.Koin
 
 /**
@@ -53,27 +62,28 @@ import org.koin.core.Koin
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
 fun buildIosHostPorts(
-    shell: IosHostShell,
+    shell: net.bible.sharedui.app.HostShell,
     koin: Koin,
     table: StringTable = iosStringTable("en"),
     initialiseWelcome: suspend () -> Unit = {},
     isPortrait: () -> Boolean = { true },
 ): HostPorts {
-    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
+    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate, ::iosBundleVersionName)
     val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
-    val installZip = IosInstallZipHostPlatform(table = currentTable)
+    val installZip = IosInstallZipHostPlatform(table = currentTable, notificationPermission = IosNotificationPermission(), debugArgs = IosDebugLaunchArgs)
     val picker = IosDocumentPicker()
     val bookmark by lazy {
-        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
+        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get(),
+            IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp)
     }
-    val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
+    val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable, IosWindowMetrics())
     val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), { koin.get() })
-    val download = IosDownloadHostPlatform(documents)
+    val download = IosDownloadHostPlatform(documents, ::iosFreeSpaceBytes)
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()
-    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable) { message, cause ->
+    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable, { iosAiLogTimestamp(currentTable().tag, it) }) { message, cause ->
         koin.get<BackupHost>().showErrorReport(message, cause)
     }
     return HostPorts(
@@ -83,7 +93,7 @@ fun buildIosHostPorts(
         notificationPermission = koin.get<NotificationPermission>(),
         systemScreens = IosSystemScreens(),
         documentDialogs = documents,
-        helpDialogs = IosHelpDialogs(koin.get(), currentTable),
+        helpDialogs = IosHelpDialogs(koin.get(), currentTable, ::iosBundledHtml, ::iosBundleVersionName),
         welcomePlatform = { welcome },
         chooserPlatform = { chooser },
         labelIcons = IosLabelIcons(),

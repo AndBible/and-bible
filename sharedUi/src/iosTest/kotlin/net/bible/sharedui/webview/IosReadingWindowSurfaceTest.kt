@@ -41,7 +41,7 @@ class IosReadingWindowSurfaceTest {
     @Test
     fun stopSelectionByDefaultPreservesTheEditorCaret() {
         val host = Host()
-        val surface = IosReadingWindowSurface(host)
+        val surface = iosReadingWindowSurface(host)
 
         // selectionCleared uses the default: a collapsed editor caret must stay in the DOM.
         surface.stopSelection()
@@ -52,7 +52,7 @@ class IosReadingWindowSurfaceTest {
     @Test
     fun stopSelectionFalsePreservesTheEditorCaret() {
         val host = Host()
-        val surface = IosReadingWindowSurface(host)
+        val surface = iosReadingWindowSurface(host)
 
         surface.stopSelection(removeRanges = false)
 
@@ -62,7 +62,7 @@ class IosReadingWindowSurfaceTest {
     @Test
     fun stopSelectionTrueClearsDomRangesExactlyOnce() {
         val host = Host()
-        val surface = IosReadingWindowSurface(host)
+        val surface = iosReadingWindowSurface(host)
 
         surface.stopSelection(removeRanges = true)
 
@@ -72,21 +72,21 @@ class IosReadingWindowSurfaceTest {
     @Test
     fun webSearchOpensTheUrlThroughExternalLinks() {
         val links = Links()
-        IosReadingWindowSurface(Host(), links = links).openWebSearch("a b")
+        iosReadingWindowSurface(Host(), links = links).openWebSearch("a b")
         assertEquals(listOf("https://www.google.com/search?q=a%20b"), links.opened)
     }
 
     @Test
     fun shareTextGoesThroughThePort() {
         val shares = Shares()
-        IosReadingWindowSurface(Host(), textShare = shares).shareText("verse", "Genesis")
+        iosReadingWindowSurface(Host(), textShare = shares).shareText("verse", "Genesis")
         assertEquals(listOf("verse" to "Genesis"), shares.shared)
     }
 
     @Test
     fun toastGoesToTheToastSink() {
         val toasts = mutableListOf<String>()
-        IosReadingWindowSurface(Host(), toast = { toasts += it }).toast("Copied")
+        iosReadingWindowSurface(Host(), toast = { toasts += it }).toast("Copied")
         assertEquals(listOf("Copied"), toasts)
     }
 
@@ -100,7 +100,7 @@ class IosReadingWindowSurfaceTest {
     fun shareHtmlWritesAFile() {
         val tmp = freshTempDir()
         val shared = mutableListOf<String>()
-        IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp }).shareHtml("<p>Grüße</p>", "My Doc")
+        iosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp }).shareHtml("<p>Grüße</p>", "My Doc")
         val path = shared.single()
         assertTrue(path.startsWith(tmp) && path.endsWith("/My Doc.html"), path)
         assertEquals("<p>Grüße</p>", NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null))
@@ -111,7 +111,7 @@ class IosReadingWindowSurfaceTest {
     fun aSecondShareRemovesTheFirstFile() {
         val tmp = freshTempDir()
         val shared = mutableListOf<String>()
-        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp })
+        val surface = iosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp })
         surface.shareHtml("one", "First")
         surface.shareHtml("two", "Second")
         assertEquals(2, shared.size)
@@ -126,7 +126,7 @@ class IosReadingWindowSurfaceTest {
         val tmp = freshTempDir()
         val shared = mutableListOf<String>()
         var sheetUp = false
-        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { !sheetUp }, tempDir = { tmp })
+        val surface = iosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { !sheetUp }, tempDir = { tmp })
         surface.shareHtml("one", "First")
         sheetUp = true
         surface.shareHtml("two", "Second")

@@ -4,6 +4,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.report.Attachment
+import net.bible.sharedui.host.report.ReportDevice
+import net.bible.sharedui.host.report.ReportTransport
+import net.bible.sharedui.host.report.aiReportEligible
+import net.bible.sharedui.host.report.reportAttachments
+import net.bible.sharedui.host.report.reportDetails
+import net.bible.sharedui.host.report.reportSafely
+import net.bible.sharedui.host.report.reportTransport
 
 class IosBugReportTest {
     @Test fun stagingFailureIsContainedAndRecoveryCanReportAgain() = kotlinx.coroutines.runBlocking {

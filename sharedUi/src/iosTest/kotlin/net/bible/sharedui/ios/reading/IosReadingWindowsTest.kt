@@ -42,14 +42,15 @@ import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingReady
 import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
+import net.bible.sharedui.webview.IosReadingPaneEngine
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSDate
 import platform.Foundation.NSRunLoop
@@ -60,6 +61,12 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
+import net.bible.sharedui.host.app.IosWorkspaceSaver
+import net.bible.sharedui.host.reading.IosDocumentLoaderPlatform
+import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingKeyActions
+import net.bible.sharedui.host.reading.IosReadingWindows
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {
@@ -104,9 +111,9 @@ class IosReadingWindowsTest {
             awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
             currentHost = host
-            IosReadingWindows.bind(host, scope, koin, night)
+            IosReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
@@ -273,7 +280,7 @@ class IosReadingWindowsTest {
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
         assertTrue(before != live, "precondition: the stored passage differs from the changed one")
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin) }
+        runBlocking { IosWorkspaceSaver.saveNow(koin) }
         assertEquals(live, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse)
     }
 
@@ -290,7 +297,7 @@ class IosReadingWindowsTest {
         NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
         val scope = IosReadingReady.scope
         val night = FakeNight(false)
-        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night), scope, koin, night)
+        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night, IosReadingPaneEngine)
         assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
     }
 
@@ -303,7 +310,7 @@ class IosReadingWindowsTest {
         pageManager.setCurrentDocumentAndKey(null, key)
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, ready = { false }) }
+        runBlocking { IosWorkspaceSaver.saveNow(koin, ready = { false }) }
         assertEquals(before, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse, "not ready: nothing is saved")
     }
 
@@ -321,8 +328,8 @@ class IosReadingWindowsTest {
             active--
         }
         runBlocking {
-            val a = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
-            val b = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val a = async(Dispatchers.Default) { IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val b = async(Dispatchers.Default) { IosWorkspaceSaver.saveNow(koin, { true }, save) }
             a.await(); b.await()
         }
         assertEquals(2, calls)
@@ -398,7 +405,7 @@ class IosReadingWindowsTest {
     fun nightObserverFollowsStateAndReportsChanges() {
         val night = FakeNight(false)
         var changes = 0
-        val observer = IosNightModeObserver(night) { changes++ }
+        val observer = IosNightModeObserver(night, IosDisplayModeSignals) { changes++ }
         assertFalse(observer.dark.value)
         night.dark = true
         assertTrue(observer.refresh())

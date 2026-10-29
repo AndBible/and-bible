@@ -31,6 +31,8 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSURL
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.host.ports.IosLabelIcons
 
 /** Picker-fake evidence only: stream F's real document UI is intentionally not implemented here. */
 class IosBookmarkHostPlatformTest {
@@ -73,7 +75,7 @@ class IosBookmarkHostPlatformTest {
             object : UserNotifier {
                 override fun showInfo(message: String, long: Boolean) { notices += message }
                 override fun showError(message: String, cause: Throwable?) { notices += message; failures += cause }
-            }, koin.get())
+            }, koin.get(), IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp)
     }
 
     @AfterTest fun tearDown() {

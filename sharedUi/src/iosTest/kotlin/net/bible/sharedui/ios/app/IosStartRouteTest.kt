@@ -30,6 +30,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import net.bible.sharedui.host.app.resolveIosStartRoute
 
 /**
  * The iOS start route: READING only with a usable (unlocked) Bible, else WELCOME through the shared gate. The

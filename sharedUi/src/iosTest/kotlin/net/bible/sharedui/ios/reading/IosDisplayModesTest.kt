@@ -42,9 +42,9 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingReady
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.attachReadingPane
 import org.koin.mp.KoinPlatform
@@ -61,6 +61,10 @@ import platform.Foundation.runUntilDate
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
 import net.bible.sharedui.webview.uiColorFromArgb
+import net.bible.sharedui.webview.IosReadingPaneEngine
+import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingWindows
 
 /** Night, colour mode and animation switches reach shown documents as `set_config`, never as a page reload. */
 class IosDisplayModesTest {
@@ -101,8 +105,8 @@ class IosDisplayModesTest {
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
             val night = nightFor(koin)
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
-            IosReadingWindows.bind(host, scope, koin, night)
+            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
+            IosReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
             IosReadingWindows.resetForTest()
@@ -193,7 +197,7 @@ class IosDisplayModesTest {
         val settings = DatabaseAppSettings({ store }) { true }
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(FakeNight(false), settings, store.changes) { changes++ }
+        val observer = IosNightModeObserver(FakeNight(false), IosDisplayModeSignals, settings, store.changes) { changes++ }
         try {
             observer.start(scope)
             assertFalse(observer.monochrome.value)
@@ -238,7 +242,7 @@ class IosDisplayModesTest {
             val relay = IosReadingWindows.relayPlatformFor(id)!!
             val configsBefore = relay.configUpdates
             var changes = 0
-            val observer = IosNightModeObserver(state, restored = { null }) {
+            val observer = IosNightModeObserver(state, IosDisplayModeSignals, restored = { null }) {
                 changes++
                 IosReadingWindows.nightModeChanged()
             }
@@ -286,7 +290,7 @@ class IosDisplayModesTest {
         standard.setBool(true, forKey = "night_mode_pref")
         withWindows({ it.get<NightModeState>() }) {
             val koin = KoinPlatform.getKoin()
-            val observer = IosNightModeObserver(koin.get<NightModeState>(), restored = { null })
+            val observer = IosNightModeObserver(koin.get<NightModeState>(), IosDisplayModeSignals, restored = { null })
             try {
                 observer.start()
                 observer.refresh()
@@ -312,7 +316,7 @@ class IosDisplayModesTest {
         val restored = net.bible.sharedcore.event.EventSource<Unit>()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(night, restored = { restored }) { changes++ }
+        val observer = IosNightModeObserver(night, IosDisplayModeSignals, restored = { restored }) { changes++ }
         try {
             observer.start(scope)
             night.dark = true // the restore replaced the stored mode: no notification of its own

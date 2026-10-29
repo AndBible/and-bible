@@ -15,6 +15,9 @@ import platform.Foundation.*
 import platform.MessageUI.*
 import platform.UIKit.*
 import platform.darwin.NSObject
+import net.bible.sharedui.host.report.Attachment
+import net.bible.sharedui.host.report.ReportTransport
+import net.bible.sharedui.host.report.reportTransport
 
 /** Owns staging files and UIKit's weak mail delegate until the shared terminal-event owner dismisses. */
 internal class IosMailOrShare(

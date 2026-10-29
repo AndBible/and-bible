@@ -66,6 +66,18 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    // Intermediate source set shared by the iOS targets and the JVM target (not Android): host code that
+    // iOS and the desktop app both use. See the desktop port audit, section 2.1.
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("host") {
+                withJvm()
+                group("ios")
+            }
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(project(":sharedData"))
@@ -80,6 +92,8 @@ kotlin {
         // I2 step 0: Darwin engine for iOS HTTP (spec C5; streams C and D)
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+        getByName("hostMain").dependencies {
             implementation(libs.jetbrains.markdown)
         }
         commonTest {
@@ -93,11 +107,9 @@ kotlin {
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
         jvmTest {
-            kotlin.srcDir("../sharedCore/src/iosMain/kotlin/net/bible/sharedcore/platform/sync/runner")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/stubs")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/policy")
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/backuperror")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/backuperror")
             dependencies { implementation(libs.androidx.sqlite.bundled.jvm) }
         }

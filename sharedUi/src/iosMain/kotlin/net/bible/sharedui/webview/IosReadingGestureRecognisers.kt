@@ -22,7 +22,7 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
-import net.bible.sharedui.ios.reading.IosReadingGestures
+import net.bible.sharedui.host.reading.IosReadingGestures
 import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSSelectorFromString
 import platform.UIKit.UIGestureRecognizer

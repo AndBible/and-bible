@@ -37,14 +37,20 @@ import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
 import net.bible.sharedui.nav.NavResultChannel
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.reading.ChooserKind
+import net.bible.sharedui.host.reading.ChooserRequests
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingNavigator
+import net.bible.sharedui.host.reading.searchRoute
 
 /**
  * [IosReadingNavigator] against a recording [IosNavigator]: every member must start the route Android's
@@ -99,7 +105,7 @@ class IosReadingNavigatorTest {
                 ),
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
-            val platform = net.bible.sharedui.ios.app.IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform)
                 ReadingAppInit.prepareData(platform)
@@ -109,7 +115,7 @@ class IosReadingNavigatorTest {
             val nav = RecordingNavigator()
             val shell = IosHostShell(CoroutineScope(Dispatchers.Unconfined), nav)
             shell.routeChanged(NavRoutes.READING)
-            val host = IosReadingHost(scope, shell, koin)
+            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val links = RecordingLinks()
             val labels = NavResultChannel<ManageLabelsResult> { }
             val navigator = IosReadingNavigator(

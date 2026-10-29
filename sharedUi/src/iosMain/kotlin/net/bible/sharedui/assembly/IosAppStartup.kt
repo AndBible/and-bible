@@ -38,7 +38,7 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
 import net.bible.sharedlogic.platform.ios.IosDatabaseHost
 import net.bible.sharedlogic.platform.ios.IosLocaleProvider
-import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
 import net.bible.sharedui.platform.IosPlatformBootstrap
@@ -60,6 +60,7 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSSearchPathDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.preferredLanguages
+import net.bible.sharedui.host.startup.IosStartupOwner
 
 private const val TAG = "IosAppStartup"
 
@@ -96,7 +97,7 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
     /** Initial language (C4); later changes use the same holder, without touching databases. */
     val uiLanguage: String by lazy {
-        config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings)
+        config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings, ::iosPreferredLanguages)
     }
 
     val stringTableHolder by lazy { IosStringTableHolder(iosStringTable(uiLanguage, ::bundleRawResource)) }
@@ -145,7 +146,7 @@ object IosAppStartup {
     private val processScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
     // Selected on Main, used only by the process-owned initialization operation on IO.
     private var selectedParts: IosPlatformParts? = null
-    private var owner: net.bible.sharedui.ios.startup.IosStartupOwner<IosPlatformParts>? = null
+    private var owner: IosStartupOwner<IosPlatformParts>? = null
 
     @kotlin.concurrent.Volatile
     private var opened = false
@@ -157,6 +158,15 @@ object IosAppStartup {
 
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
+
+    init {
+        // Parts exist only after this object ran, so a HostStartup reader before this point sees "not started" either way.
+        HostStartup.register(object : HostStartupInfo {
+            override val isStarted: Boolean get() = this@IosAppStartup.isStarted
+            override val databasesOpen: Boolean get() = this@IosAppStartup.databasesOpen
+            override val stringTable: StringTable get() = this@IosAppStartup.stringTable
+        })
+    }
 
     /** True once [ensureStarted] has published the platform parts (a later [resetForTest] clears it again). */
     internal val isStarted: Boolean get() = parts != null
@@ -171,7 +181,7 @@ object IosAppStartup {
      */
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
-            owner ?: net.bible.sharedui.ios.startup.IosStartupOwner(processScope,
+            owner ?: IosStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()

@@ -37,6 +37,6 @@ internal actual fun platformLog(level: LogLevel, tag: String, msg: String, tr: T
 // The compiler calls the cast impossible, but Kotlin/Native bridges String to NSString at runtime (verified on the
 // iOS simulator: CI run 37995718911, probe 3).
 @Suppress("CAST_NEVER_SUCCEEDS")
-fun nsLog(message: String) {
+actual fun nsLog(message: String) {
     NSLog("%@", message as NSString)
 }

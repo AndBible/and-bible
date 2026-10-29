@@ -10,12 +10,12 @@ import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BridgeDispatcher
 import net.bible.sharedcore.log.nsLog
-import net.bible.sharedui.ios.reading.IosReadingGestures
-import net.bible.sharedui.ios.reading.IosReadingWindows
-import net.bible.sharedui.ios.reading.IosSelectionMenu
+import net.bible.sharedui.host.reading.IosReadingGestures
+import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.IosSelectionMenu
 import net.bible.sharedui.ios.reading.IosSelectionMessageHandler
-import net.bible.sharedui.ios.reading.SELECTION_HANDLER_NAME
-import net.bible.sharedui.ios.reading.SELECTION_USER_SCRIPT
+import net.bible.sharedui.host.reading.SELECTION_HANDLER_NAME
+import net.bible.sharedui.host.reading.SELECTION_USER_SCRIPT
 import net.bible.sharedui.ios.reading.insertSelectionMenu
 import platform.UIKit.UIMenuBuilderProtocol
 import platform.WebKit.WKUserScript

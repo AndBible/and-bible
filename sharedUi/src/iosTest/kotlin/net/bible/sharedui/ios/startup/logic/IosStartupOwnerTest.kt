@@ -3,6 +3,7 @@ package net.bible.sharedui.ios.startup
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import kotlin.test.*
+import net.bible.sharedui.host.startup.IosStartupOwner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosStartupOwnerTest {

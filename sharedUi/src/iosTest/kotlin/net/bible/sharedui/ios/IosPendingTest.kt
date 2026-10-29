@@ -2,7 +2,7 @@ package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
-import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import kotlin.test.AfterTest
@@ -10,9 +10,14 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import net.bible.sharedlogic.platform.host.IosUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.IosPending
 
 class IosPendingTest {
     @BeforeTest fun reset() = IosPending.resetForTest()
@@ -74,7 +79,7 @@ class IosHostPortsTest {
                 // Document ports now use the real app-wide dialog queue and error notifier.
                 single { net.bible.sharedcore.ui.dialog.AppDialogController() }
                 single<net.bible.sharedcore.platform.UserNotifier> {
-                    net.bible.sharedlogic.platform.ios.IosUserNotifier(get())
+                    IosUserNotifier(get())
                 }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
@@ -83,7 +88,7 @@ class IosHostPortsTest {
         }.koin
         try {
             val scope = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.EmptyCoroutineContext)
-            val shell = net.bible.sharedui.ios.app.IosHostShell(scope, object : net.bible.sharedui.ios.app.IosNavigator {
+            val shell = IosHostShell(scope, object : IosNavigator {
                 override fun navigate(route: String) = Unit
                 override fun popBackStack() = false
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
@@ -91,7 +96,7 @@ class IosHostPortsTest {
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
             assertSame(permission, ports.notificationPermission)
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
-            assertTrue(ports.chooserPlatform() is net.bible.sharedui.ios.ports.IosChooserHostPlatform)
+            assertTrue(ports.chooserPlatform() is IosChooserHostPlatform)
             ports.bookmarkPlatform().documentsRecreation()
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)

@@ -33,15 +33,10 @@ import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
-
-/** Localized texts the iOS sync classes need; supplied by the host (`:sharedLogic` cannot see `Strings`). */
-data class IosSyncStrings(
-    val adapterDisplayName: (String) -> String,
-    val webDavServerUrlHint: () -> String,
-    val syncError: () -> String,
-    val webDavMessage: (WebDavMessage) -> String,
-    val ok: () -> String,
-)
+import net.bible.service.cloudsync.host.IosBackupHost
+import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.IosDocumentSyncStarter
+import net.bible.service.cloudsync.host.IosSyncStrings
 
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
@@ -56,8 +51,8 @@ internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDate
  * `SecretStore`, `UserNotifier`, `AppDialogController`, `AppCoroutineScope`, `CloudSync` and
  * `DocumentSync` from the host/shared bindings; all are resolved lazily.
  *
- * The starter and scheduler use their default UIKit background-task calls directly, with no main-queue
- * hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
+ * The starter and scheduler get explicit `UiKitBackgroundTask` begin/end lambdas that call UIKit directly, with no
+ * main-queue hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
  * blocking `dispatch_sync` to main from inside the scheduler lock could deadlock against a main-thread
  * caller waiting for that lock.
  */
@@ -71,12 +66,13 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
     }
     single<CloudAdapterFactory> {
         IosCloudAdapterFactory(
-            platform = get<SyncSettingsPlatform>() as IosSyncSettingsPlatform,
+            platform = get<SyncSettingsPlatform>(),
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
             iCloudStore = { iCloudDriveStore(get<IosUbiquityContainer>()) },
             signInUi = IosWebDavSignInUi({ get<AppDialogController>() }, get()),
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
+            clientFactory = { c, s -> createIosWebDavClient(c, s, ::nowMs) },
             awaitReady = { get<IosUbiquityContainer>().awaitReady() },
         )
     }
@@ -87,6 +83,9 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
             cloudSync = CloudSyncProvider { get() },
             notifier = get<UserNotifier>(),
             syncErrorMessage = strings.syncError,
+            begin = UiKitBackgroundTask.begin("document-sync"),
+            end = UiKitBackgroundTask.end,
+            invalidTask = UiKitBackgroundTask.invalid,
         )
     }
     single<SyncScheduler> {

@@ -16,6 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.host.startup.CrashRecoveryScreen
+import net.bible.sharedui.host.startup.IosStartupGates
+import net.bible.sharedui.host.startup.StartupGate
+import net.bible.sharedui.host.startup.StartupGateResult
+import net.bible.sharedui.host.startup.productionStartupGates
 import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
@@ -27,13 +32,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
-import net.bible.sharedui.ios.app.IosApp
+import net.bible.sharedui.host.app.IosApp
+import net.bible.sharedui.ios.app.IosAppHostPlatform
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAppStartupState
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.IosUiLanguage
 import net.bible.sharedui.assembly.StartupPhase
+import net.bible.sharedui.assembly.iosPreferredLanguages
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
@@ -80,7 +87,7 @@ private val startupScope = CoroutineScope(
 )
 
 /** One per process: the Swift host may build the view controller more than once. */
-private val startupState = IosAppStartupState()
+private val startupState = IosAppStartupState(open = { IosAppStartup.openDatabases() })
 private val crashTracker get() = IosPlatformBootstrap.crashTracker
 
 /**
@@ -109,7 +116,7 @@ fun MainViewController(): UIViewController {
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
-    val language = resolveDeviceUiLanguage(settings)
+    val language = resolveDeviceUiLanguage(settings, ::iosPreferredLanguages)
     val layoutDirection = if (IosUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
@@ -204,7 +211,7 @@ fun MainViewController(): UIViewController {
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
             else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                IosApp(IosAppHostPlatform, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
                 }
@@ -262,7 +269,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp()
+                IosApp(IosAppHostPlatform)
             }
             return@ComposeUIViewController
         }

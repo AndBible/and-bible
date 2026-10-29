@@ -37,6 +37,9 @@ import platform.Security.SecCertificateRef
 import platform.Security.SecTrustCopyCertificateChain
 import platform.Security.SecTrustEvaluateWithError
 import platform.Security.SecTrustRef
+import net.bible.service.cloudsync.host.CertificateDetails
+import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
+import net.bible.service.cloudsync.host.certificateDetails
 
 private const val TAG = "IosWebDavClient"
 

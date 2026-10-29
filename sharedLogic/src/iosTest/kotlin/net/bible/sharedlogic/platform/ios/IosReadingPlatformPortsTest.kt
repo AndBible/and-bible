@@ -50,6 +50,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedlogic.platform.host.IosHistoryPlatform
+import net.bible.sharedlogic.platform.host.IosLinkPlatform
+import net.bible.sharedlogic.platform.host.IosUserNotifier
+import net.bible.sharedlogic.platform.host.IosWindowSettingsPicker
 
 class IosReadingPlatformPortsTest {
     private val logs = mutableListOf<Triple<LogLevel, String, String>>()

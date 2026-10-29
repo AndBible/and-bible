@@ -9,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.ports.copyFileReplacing
 
 class IosDownloadHostPlatformTest {
     private val fs = FileSystem.SYSTEM
@@ -26,7 +27,7 @@ class IosDownloadHostPlatformTest {
     fun copiesAndCreatesParentDirectories() {
         val src = write("src.tmp", "hello")
         val dst = root / "a" / "b" / "dst.zip"
-        assertTrue(copyFileReplacing(src, dst))
+        assertTrue(copyFileReplacing(src, dst, freeBytes = ::iosFreeSpaceBytes))
         assertEquals("hello", fs.read(dst) { readUtf8() })
         assertTrue(fs.exists(src), "source is copied, not moved")
     }
@@ -44,14 +45,14 @@ class IosDownloadHostPlatformTest {
     fun overwritesAnExistingTarget() {
         val src = write("src.tmp", "new")
         val dst = write("dst.zip", "old content that is longer")
-        assertTrue(copyFileReplacing(src, dst))
+        assertTrue(copyFileReplacing(src, dst, freeBytes = ::iosFreeSpaceBytes))
         assertEquals("new", fs.read(dst) { readUtf8() })
     }
 
     @Test
     fun missingSourceReturnsFalseWithoutCreatingTarget() {
         val dst = root / "dst.zip"
-        assertFalse(copyFileReplacing(root / "nope", dst))
+        assertFalse(copyFileReplacing(root / "nope", dst, freeBytes = ::iosFreeSpaceBytes))
         assertFalse(fs.exists(dst))
     }
 
@@ -59,7 +60,7 @@ class IosDownloadHostPlatformTest {
     fun leavesNoTempFileBehind() {
         val src = write("src.tmp", "x")
         val dst = root / "out" / "dst.zip"
-        assertTrue(copyFileReplacing(src, dst))
+        assertTrue(copyFileReplacing(src, dst, freeBytes = ::iosFreeSpaceBytes))
         assertFalse(fs.exists(root / "out" / "dst.zip.tmp"))
     }
 
@@ -67,7 +68,7 @@ class IosDownloadHostPlatformTest {
     fun failedCopyKeepsTheExistingTarget() {
         val dst = write("dst.zip", "existing module")
         val src = root / "missing-source"
-        assertFalse(copyFileReplacing(src, dst))
+        assertFalse(copyFileReplacing(src, dst, freeBytes = ::iosFreeSpaceBytes))
         assertEquals("existing module", fs.read(dst) { readUtf8() })
     }
 }

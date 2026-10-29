@@ -5,6 +5,7 @@ import net.bible.service.cloudsync.webdav.WebDavSignInUi
 import net.bible.service.cloudsync.webdav.WebDavMessage
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import kotlin.test.*
+import net.bible.service.cloudsync.host.IosBackgroundSignInUi
 
 class IosBackgroundSignInTest {
     @Test fun backgroundSignInNeverShowsADialog() = runTest {

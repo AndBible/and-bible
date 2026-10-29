@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
+import net.bible.service.cloudsync.host.errorReportAction
 
 class ErrorReportActionTest {
     @Test fun errorDialogBackupNavigates() = runTest {

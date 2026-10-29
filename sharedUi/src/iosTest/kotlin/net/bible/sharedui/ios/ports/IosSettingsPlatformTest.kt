@@ -7,6 +7,7 @@ import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.StringTable
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUUID
+import net.bible.sharedui.host.ports.IosSettingsPlatform
 
 class IosSettingsPlatformTest {
     @Test fun resetClearsTheSameKeysOnBothPlatforms() {

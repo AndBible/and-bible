@@ -29,7 +29,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.android.control.speak.SpeakPlatform
 import net.bible.sharedlogic.fixtures.StartupFixture
 import net.bible.sharedlogic.platform.PromptPackSource
-import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import okio.FileSystem
 import okio.Path
@@ -51,6 +51,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.NavControllerNavigator
+import net.bible.sharedui.host.app.iosResultChannels
+import net.bible.sharedui.host.reading.IosReadingExtras
 
 /** Keychain stand-in: see the class comment of [IosAssemblyTest]. */
 internal class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
@@ -164,10 +168,10 @@ class IosAssemblyTest {
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
         try {
             val nav = androidx.navigation.NavHostController()
-            val shell = net.bible.sharedui.ios.app.IosHostShell(scope, net.bible.sharedui.ios.app.NavControllerNavigator { nav })
+            val shell = IosHostShell(scope, NavControllerNavigator { nav })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin, IosAppStartup.stringTable)
             val hosts = net.bible.sharedui.app.AppHosts(koin, shell, ports, net.bible.sharedui.strings.iosStrings("en"))
-            val graphs = hosts.graphs(nav, net.bible.sharedui.ios.app.iosResultChannels({ nav }, shell::openReading))
+            val graphs = hosts.graphs(nav, iosResultChannels({ nav }, shell::openReading))
             assertTrue(net.bible.sharedui.app.routeStartsUninitialised(net.bible.sharedcore.nav.NavRoutes.BACKUP))
             assertFalse(koin.get<net.bible.sharedcore.platform.AppEnvironment>().isInitialized)
             val controller = graphs.backup.controllerFor()
@@ -537,7 +541,7 @@ class IosAssemblyTest {
             // iOS-only settings seam read through getOrNull by SettingsHost; not a port of the shared graph, so it is
             // deliberately not in IOS_BOUND_PORT_TYPES (`:app`'s IosPortParityTest requires every listed port on Android too).
             net.bible.sharedui.app.settings.LegacyDataImport::class,
-            net.bible.sharedui.ios.reading.IosReadingExtras::class,
+            IosReadingExtras::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */

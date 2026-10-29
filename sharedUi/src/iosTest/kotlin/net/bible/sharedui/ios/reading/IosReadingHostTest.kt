@@ -30,10 +30,10 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
-import net.bible.sharedui.ios.IosPending
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.IosPending
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingAppInitPlatform
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import org.koin.mp.KoinPlatform
 import platform.UIKit.UIApplicationOpenSettingsURLString
@@ -41,6 +41,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.IOS_OMITTED_PANE_MENU_ROWS
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingKeyChooserPage
+import net.bible.sharedui.host.reading.IosReadingNavigator
+import net.bible.sharedui.host.reading.IosReadingQuickActions
+import net.bible.sharedui.host.reading.IosReadingSearchPlatform
+import net.bible.sharedui.host.reading.IosSpeakSettingsPlatform
 
 /** The iOS reading host deps build once the window repository exists, and follow the active window and night mode. */
 class IosReadingHostTest {
@@ -74,7 +81,7 @@ class IosReadingHostTest {
             val p = ColorPainter(Color.Black)
             val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
 
-            val host = IosReadingHost(scope, shell, koin)
+            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val deps = host.deps(icons)
             val activeId = koin.get<WindowControl>().activeWindow.id.toString()
             assertEquals(activeId, deps.controller.layout.value.activeWindowId)
@@ -94,8 +101,8 @@ class IosReadingHostTest {
             assertEquals(emptyList(), IosPending.reported.filter { it.startsWith("ReadingToolbar.") }, "toolbar pendings")
 
             // Night mode follows NightModeState, both ways.
-            assertTrue(IosReadingHost(scope, shell, koin, FakeNight(true)).deps(icons).nightMode.value)
-            assertFalse(IosReadingHost(scope, shell, koin, FakeNight(false)).deps(icons).nightMode.value)
+            assertTrue(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(true)).deps(icons).nightMode.value)
+            assertFalse(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(false)).deps(icons).nightMode.value)
         } finally {
             scope.cancel()
             ReadingAppInit.resetForTest()
@@ -444,7 +451,7 @@ class IosReadingHostTest {
     @Test
     fun speakSettingsPlatformOpensTheSettingsUrl() {
         val opened = mutableListOf<String>()
-        IosSpeakSettingsPlatform { opened += it }.openSystemTtsSettings()
+        IosSpeakSettingsPlatform({ opened += it }, UIApplicationOpenSettingsURLString).openSystemTtsSettings()
         assertEquals(listOf(UIApplicationOpenSettingsURLString), opened)
     }
 }

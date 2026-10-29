@@ -23,6 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.IosReadingGestures
 
 /** [IosReadingGestures]: the same decisions as Android's `BibleGestureListener`, without UIKit. */
 class IosReadingGesturesTest {

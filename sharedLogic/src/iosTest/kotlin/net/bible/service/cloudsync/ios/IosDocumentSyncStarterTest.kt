@@ -13,6 +13,8 @@ import platform.UIKit.UIBackgroundTaskInvalid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.service.cloudsync.host.DocumentSyncDriver
+import net.bible.service.cloudsync.host.IosDocumentSyncStarter
 
 class IosDocumentSyncStarterTest {
     private val events = mutableListOf<String>()
@@ -79,6 +81,7 @@ class IosDocumentSyncStarterTest {
             backgroundScope, driver, notifier, { "generic" },
             begin = { begins++; UIBackgroundTaskInvalid },
             end = { ends += it },
+            invalidTask = UIBackgroundTaskInvalid,
         )
         s.start(push = listOf("A"), download = emptyList())
         s.awaitIdle()
