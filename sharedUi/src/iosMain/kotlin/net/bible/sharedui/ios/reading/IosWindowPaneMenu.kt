@@ -100,9 +100,7 @@ import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
 import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.IosStringTableHolder
-import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
-import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
 import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
 import org.koin.mp.KoinPlatform
@@ -161,12 +159,16 @@ class IosWindowPaneMenuPlatform(
         { label -> KoinPlatform.getKoin().get<BookmarkControl>().getBibleBookmarksWithLabel(label) },
     /** A new document picker for the CSV export, created per export (the iOS host passes `IosDocumentPicker()`). */
     private val newDocumentPicker: () -> DocumentPicker,
+    /** A new sink opener for the CSV export, created per export (iOS: `IosBookmarkCsvFiles()::openSink`). */
+    private val newCsvSinkOpener: () -> (net.bible.sharedui.app.ports.DocumentRef) -> okio.Sink?,
+    /** The timestamp in the exported CSV's file name (iOS: `iosBookmarkCsvTimestamp`). */
+    private val csvTimestamp: () -> String,
     private val exportCsv: suspend (List<BookmarkEntities.BibleBookmarkWithNotes>) -> Unit = { bookmarks ->
         val koin = KoinPlatform.getKoin()
         IosBookmarkHostPlatform(
             { koin.get() }, newDocumentPicker(), koin.get(), koin.get(),
             { koin.getOrNull<IosStringTableHolder>()?.current ?: HostStartup.stringTable }, koin.get(), koin.get(),
-            IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp,
+            newCsvSinkOpener(), csvTimestamp,
         ).exportBookmarksCsv(bookmarks)
     },
     private val scope: CoroutineScope = shell.hostScope,
