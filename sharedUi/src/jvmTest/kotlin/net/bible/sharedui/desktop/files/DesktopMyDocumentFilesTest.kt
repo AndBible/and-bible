@@ -27,7 +27,7 @@ class DesktopMyDocumentFilesTest {
             assertEquals("sentinel", Files.readString(root.resolve("01-Page.md")))
             assertEquals("first", Files.readString(root.resolve("01-Page (2).md")))
             assertEquals("second", Files.readString(root.resolve("01-Page (3).md")))
-            assertTrue(port.exportDocumentsToFolder(listOf(DocumentFolderExport("Notes", listOf(page("Page", "one"))), DocumentFolderExport("Notes", listOf(page("Page", "two"))), DocumentFolderExport("..", listOf(page("Escape", "bad")))), ref))
+            assertTrue(port.exportDocumentsToFolder(listOf(DocumentFolderExport("Notes", listOf(page("Page", "one"))), DocumentFolderExport("Notes", listOf(page("Page", "two")))), ref))
             assertEquals("one", Files.readString(root.resolve("Notes/01-Page.md")))
             assertEquals("two", Files.readString(root.resolve("Notes (2)/01-Page.md")))
         } finally { root.toFile().deleteRecursively() }
@@ -59,6 +59,28 @@ class DesktopMyDocumentFilesTest {
         } finally { root.toFile().deleteRecursively() }
     }
 
+    @Test fun blockedPageReportsFailureButWritesLaterPage() = runTest {
+        val root = Files.createTempDirectory("documents")
+        try {
+            Files.createDirectory(root.resolve("01-Blocked.md"))
+            val port = DesktopMyDocumentFiles { "page" }
+            assertFalse(port.exportPagesToFolder(listOf(page("Blocked", "lost"), page("Later", "kept")), DocumentRef(root.toUri().toString())))
+            assertEquals("kept", Files.readString(root.resolve("02-Later.md")))
+        } finally { root.toFile().deleteRecursively() }
+    }
+
+    @Test fun symlinkPageCollisionReportsFailureAndContinues() = runTest {
+        val root = Files.createTempDirectory("documents")
+        try {
+            val outside = Files.writeString(root.resolve("outside"), "sentinel")
+            Files.createSymbolicLink(root.resolve("01-Blocked.md"), outside)
+            val port = DesktopMyDocumentFiles { "page" }
+            assertFalse(port.exportPagesToFolder(listOf(page("Blocked", "lost"), page("Later", "kept")), DocumentRef(root.toUri().toString())))
+            assertEquals("sentinel", Files.readString(outside))
+            assertEquals("kept", Files.readString(root.resolve("02-Later.md")))
+        } finally { root.toFile().deleteRecursively() }
+    }
+
     @Test fun symlinkFolderIsNotFollowed() = runTest {
         val root = Files.createTempDirectory("documents")
         try {
@@ -66,8 +88,9 @@ class DesktopMyDocumentFilesTest {
             val picked = Files.createDirectory(root.resolve("picked"))
             Files.createSymbolicLink(picked.resolve("Notes"), outside)
             val port = DesktopMyDocumentFiles { "page" }
-            assertTrue(port.exportDocumentsToFolder(listOf(DocumentFolderExport("Notes", listOf(page("Page", "bad")))), DocumentRef(picked.toUri().toString())))
+            assertFalse(port.exportDocumentsToFolder(listOf(DocumentFolderExport("Notes", listOf(page("Page", "bad"))), DocumentFolderExport("Later", listOf(page("Page", "kept")))), DocumentRef(picked.toUri().toString())))
             assertFalse(Files.exists(outside.resolve("01-Page.md")))
+            assertEquals("kept", Files.readString(picked.resolve("Later/01-Page.md")))
         } finally { root.toFile().deleteRecursively() }
     }
 

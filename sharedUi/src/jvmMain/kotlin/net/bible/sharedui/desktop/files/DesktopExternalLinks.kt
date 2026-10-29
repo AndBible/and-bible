@@ -7,10 +7,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.desktop.dbus.PortalOpenUri
+import net.bible.sharedcore.platform.desktop.dbus.PortalOpenResult
 import net.bible.sharedui.app.ports.ExternalLinks
 
 class DesktopExternalLinks(
-    private val portal: suspend (URI) -> Boolean = { PortalOpenUri().open(it) },
+    private val portal: suspend (URI) -> PortalOpenResult = { PortalOpenUri().open(it) },
     private val desktop: (URI) -> Boolean = { uri ->
         try {
             val d = Desktop.getDesktop()
@@ -28,8 +29,9 @@ class DesktopExternalLinks(
         val uri = try { URI(url) } catch (_: Exception) { return }
         if (uri.scheme?.lowercase() !in setOf("http", "https", "mailto")) return
         scope.launch {
-            val opened = try { portal(uri) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { false }
-            if (!opened && !desktop(uri)) xdg(uri)
+            val result = try { portal(uri) } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (_: Exception) { PortalOpenResult.UNAVAILABLE } catch (_: LinkageError) { PortalOpenResult.UNAVAILABLE }
+            if (result == PortalOpenResult.UNAVAILABLE && !desktop(uri)) xdg(uri)
         }
     }
 }

@@ -9,6 +9,13 @@ import java.nio.file.Files
 import okio.Buffer
 
 class DesktopFilePickerTest {
+    @Test fun discoveryLinkageFailureFallsBackToAwt() {
+        val dbus = object : net.bible.sharedcore.platform.desktop.dbus.DesktopDbus() {
+            override fun portalAvailable(): Boolean = throw NoClassDefFoundError("UnixSystem")
+        }
+        kotlin.test.assertIs<AwtFileChooserBackend>(desktopFileChooser(dbus))
+    }
+
     @Test
     fun cancelReturnsCancelled() = runTest {
         val chooser = object : FileChooserBackend {

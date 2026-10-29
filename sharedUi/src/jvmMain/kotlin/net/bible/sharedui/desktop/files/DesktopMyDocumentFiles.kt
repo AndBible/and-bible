@@ -55,7 +55,8 @@ class DesktopMyDocumentFiles(private val text: (String) -> String = { KoinPlatfo
             })
         Unit
     }
-    private fun writePages(dir: Path, pages: List<MyDocumentPageWithContent>) {
+    private fun writePages(dir: Path, pages: List<MyDocumentPageWithContent>): Boolean {
+        var success = true
         pages.forEachIndexed { index, page ->
             val stem = "${(index + 1).toString().padStart(2, '0')}-${title(page.title)}"
             var suffix = 1
@@ -63,33 +64,35 @@ class DesktopMyDocumentFiles(private val text: (String) -> String = { KoinPlatfo
                 val name = "$stem${if (suffix == 1) "" else " ($suffix)"}.${ext(page)}"
                 try { Files.writeString(dir.resolve(name), page.content ?: "", CREATE_NEW); break }
                 catch (_: java.nio.file.FileAlreadyExistsException) {
-                    if (!Files.isRegularFile(dir.resolve(name), NOFOLLOW_LINKS)) break
+                    if (!Files.isRegularFile(dir.resolve(name), NOFOLLOW_LINKS)) { success = false; break }
                     suffix++
-                } catch (_: java.io.IOException) { break }
+                } catch (_: java.io.IOException) { success = false; break }
             }
         }
+        return success
     }
     override suspend fun exportPagesToFolder(pages: List<MyDocumentPageWithContent>, tree: DocumentRef): Boolean = withContext(Dispatchers.IO) {
         val dir = path(tree) ?: return@withContext false
         if (!Files.isDirectory(dir, NOFOLLOW_LINKS)) return@withContext false
-        writePages(dir, pages); true
+        writePages(dir, pages)
     }
     override suspend fun exportDocumentsToFolder(documents: List<DocumentFolderExport>, tree: DocumentRef): Boolean = withContext(Dispatchers.IO) {
         val root = path(tree) ?: return@withContext false
         if (!Files.isDirectory(root, NOFOLLOW_LINKS)) return@withContext false
+        var success = true
         for (doc in documents) {
             val name = doc.folderName
-            if (name.isEmpty() || name == "." || name == ".." || name.any { it == '/' || it == '\\' || it == '\u0000' }) continue
+            if (name.isEmpty() || name == "." || name == ".." || name.any { it == '/' || it == '\\' || it == '\u0000' }) { success = false; continue }
             var suffix = 1
             while (true) {
                 val dir = root.resolve(if (suffix == 1) name else "$name ($suffix)")
-                try { Files.createDirectory(dir); writePages(dir, doc.pages); break }
+                try { Files.createDirectory(dir); if (!writePages(dir, doc.pages)) success = false; break }
                 catch (_: java.nio.file.FileAlreadyExistsException) {
-                    if (!Files.isDirectory(dir, NOFOLLOW_LINKS)) break
+                    if (!Files.isDirectory(dir, NOFOLLOW_LINKS)) { success = false; break }
                     suffix++
-                } catch (_: java.io.IOException) { break }
+                } catch (_: java.io.IOException) { success = false; break }
             }
         }
-        true
+        success
     }
 }

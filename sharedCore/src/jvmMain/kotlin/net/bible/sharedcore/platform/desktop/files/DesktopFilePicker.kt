@@ -18,7 +18,7 @@ interface FileChooserBackend {
 }
 
 fun desktopFileChooser(dbus: DesktopDbus): FileChooserBackend =
-    if (dbus.portalAvailable()) PortalFileChooserBackend(dbus) else AwtFileChooserBackend()
+    if (try { dbus.portalAvailable() } catch (_: LinkageError) { false }) PortalFileChooserBackend(dbus) else AwtFileChooserBackend()
 
 fun fileFiltersFor(mimeTypes: List<String>): List<FileFilter> = mimeTypes.distinct().mapNotNull { mime ->
     val globs = when (mime.lowercase()) {

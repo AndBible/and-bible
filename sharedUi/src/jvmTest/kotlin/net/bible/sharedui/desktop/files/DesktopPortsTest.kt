@@ -13,6 +13,8 @@ import net.bible.sharedui.app.ports.DocumentRef
 import org.junit.Assume.assumeFalse
 import kotlin.test.*
 import org.crosswire.jsword.book.Books
+import net.bible.sharedcore.platform.desktop.dbus.PortalOpenUri
+import net.bible.sharedcore.platform.desktop.dbus.PortalOpenResult
 import java.util.UUID
 
 class DesktopPortsTest {
@@ -34,20 +36,31 @@ class DesktopPortsTest {
     }
     @Test fun internalLinksNeverLeaveApp() = runTest {
         val opened = mutableListOf<String>()
-        val links = DesktopExternalLinks({ opened += "portal"; true }, { opened += "desktop"; true }, { opened += "xdg"; true }, this)
+        val links = DesktopExternalLinks({ opened += "portal"; PortalOpenResult.OPENED }, { opened += "desktop"; true }, { opened += "xdg"; true }, this)
         listOf("andbible://foo", "file:///etc/passwd", "javascript:alert(1)").forEach(links::open)
         assertTrue(opened.isEmpty())
     }
     @Test fun httpsOpensViaPortalThenDesktopThenXdgOpen() = runTest {
         val opened = mutableListOf<String>()
-        val links = DesktopExternalLinks({ opened += "portal:$it"; false }, { opened += "desktop:$it"; false }, { opened += "xdg:$it"; true }, this)
+        val links = DesktopExternalLinks({ opened += "portal:$it"; PortalOpenResult.UNAVAILABLE }, { opened += "desktop:$it"; false }, { opened += "xdg:$it"; true }, this)
         links.open("https://example.org/path?q=1")
         runCurrent()
         assertEquals(listOf("portal:https://example.org/path?q=1", "desktop:https://example.org/path?q=1", "xdg:https://example.org/path?q=1"), opened)
     }
+    @Test fun portalResponseCodesRespectCancellation() = runTest {
+        for ((code, expected) in listOf(0 to emptyList(), 1 to emptyList(), 2 to listOf("desktop", "xdg"))) {
+            val calls = mutableListOf<String>()
+            val portal = PortalOpenUri(testResponse = { code })
+            val links = DesktopExternalLinks({ portal.open(it) }, { calls += "desktop"; false }, { calls += "xdg"; true }, this)
+            links.open("https://example.org/")
+            runCurrent()
+            assertEquals(expected, calls, "response $code")
+        }
+    }
+
     @Test fun successfulPortalPreventsFallback() = runTest {
         val calls = mutableListOf<String>()
-        val links = DesktopExternalLinks({ calls += "portal:$it"; true }, { calls += "desktop"; true }, { calls += "xdg"; true }, this)
+        val links = DesktopExternalLinks({ calls += "portal:$it"; PortalOpenResult.OPENED }, { calls += "desktop"; true }, { calls += "xdg"; true }, this)
         links.open("https://example.org/")
         runCurrent()
         assertEquals(listOf("portal:https://example.org/"), calls)
@@ -55,7 +68,7 @@ class DesktopPortsTest {
 
     @Test fun mailtoOpensMailClient() = runTest {
         val opened = mutableListOf<String>()
-        val links = DesktopExternalLinks({ false }, { opened += it.toString(); true }, { error("unexpected fallback") }, this)
+        val links = DesktopExternalLinks({ PortalOpenResult.UNAVAILABLE }, { opened += it.toString(); true }, { error("unexpected fallback") }, this)
         links.open("mailto:user@example.org?subject=Hi")
         runCurrent()
         assertEquals(listOf("mailto:user@example.org?subject=Hi"), opened)
