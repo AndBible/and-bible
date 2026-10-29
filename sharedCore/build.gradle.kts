@@ -26,6 +26,18 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    // Intermediate source set shared by the iOS targets and the JVM target (not Android): host code that
+    // iOS and the desktop app both use. See the desktop port audit, section 2.1.
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("host") {
+                withJvm()
+                group("ios")
+            }
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             api("com.squareup.okio:okio:3.9.0")
