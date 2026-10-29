@@ -93,6 +93,15 @@ class DesktopDeviceSettings(file: Path) : DeviceLocalPrefs {
         return { LISTENERS -= listener }
     }
 
+    /**
+     * Calls [onChange] after every write in this process that changed any value (on the writing thread). The returned
+     * function stops the observation. For observers of several keys; [observeBoolean] serves a single one.
+     */
+    fun observeChanges(onChange: () -> Unit): () -> Unit {
+        LISTENERS += onChange
+        return { LISTENERS -= onChange }
+    }
+
     private fun readFile(): Map<String, String> {
         if (!Files.exists(file)) return emptyMap()
         return try {
