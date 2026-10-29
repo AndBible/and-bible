@@ -272,7 +272,9 @@ object DesktopAppStartup {
  */
 internal object DesktopSwordFolders {
     /** JSword's book-location state before the first desktop start (tests share one JVM): restored by [restoreForTest]. */
-    private class Previous(val scanDefaults: Boolean, val downloadDir: okio.Path?, val augment: Array<okio.Path>)
+    private class Previous(val scanDefaults: Boolean, val downloadDir: okio.Path?, val augment: Array<okio.Path>, val jswordHome: String?)
+
+    private const val JSWORD_HOME_PROPERTY = "jsword.home"
 
     @Volatile private var current: Path? = null
     private var previous: Previous? = null
@@ -287,7 +289,10 @@ internal object DesktopSwordFolders {
     @Synchronized
     fun initialise(dir: Path) {
         if (previous == null) {
-            previous = Previous(SwordBookPath.scanDefaultLocations, SwordBookPath.getDownloadDir(), SwordBookPath.getAugmentPath())
+            previous = Previous(
+                SwordBookPath.scanDefaultLocations, SwordBookPath.getDownloadDir(), SwordBookPath.getAugmentPath(),
+                System.getProperty(JSWORD_HOME_PROPERTY),
+            )
         }
         SwordBookPath.scanDefaultLocations = false
         val modules = dir.toOkioPath()
@@ -295,6 +300,11 @@ internal object DesktopSwordFolders {
         // The download dir first: initialiseJSwordFolders sets the augment path, which re-registers the Sword driver at
         // once; without an explicit download dir that scan would fall back to JSword's default one, ~/.sword.
         SwordBookPath.setDownloadDir(modules)
+        // JSword's project home (netcache, the front-end dir). `CWProject.setHome("jsword.home", <dir>, null)` in
+        // initialiseJSwordFolders takes <dir> as a directory NAME under user.home unless the `jsword.home` system
+        // property names the home: without it the JVM gets `~/<absolute module path>`. CWProject keeps the first home
+        // it establishes for the process.
+        System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
         IosSwordEnvironment.initialiseJSwordFolders(modules)
         // initialiseJSwordFolders logs and swallows its own failures.
         if (!IosSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
@@ -308,12 +318,13 @@ internal object DesktopSwordFolders {
     /**
      * Test only: puts JSword's default-location flag, download dir and augment path back as they were before the first
      * desktop start (re-registering the Sword driver). A download dir that was unset stays at the last one (JSword cannot
-     * unset it). The process-wide `IosSwordEnvironment` setup stays.
+     * unset it). The process-wide `IosSwordEnvironment` and `CWProject` setup stays.
      */
     @Synchronized
     fun restoreForTest() {
         val p = previous ?: return
         SwordBookPath.scanDefaultLocations = p.scanDefaults
+        if (p.jswordHome == null) System.clearProperty(JSWORD_HOME_PROPERTY) else System.setProperty(JSWORD_HOME_PROPERTY, p.jswordHome)
         p.downloadDir?.let { SwordBookPath.setDownloadDir(it) }
         SwordBookPath.setAugmentPath(p.augment)
         previous = null

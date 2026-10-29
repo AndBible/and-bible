@@ -28,6 +28,7 @@ import net.bible.sharedlogic.fixtures.StartupFixture
 import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.IosStringTableHolder
 import net.bible.sharedui.assembly.StartupPhase
+import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.PropertyMap
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -148,6 +149,32 @@ class DesktopAppStartupTest {
         } finally {
             System.setProperty("user.home", previousHome)
         }
+    }
+
+    @Test fun jswordProjectHomeIsTheModuleFolderAndTheHomeStaysEmpty() {
+        val paths = paths()
+        val home = Files.createDirectories(root.resolve("home"))
+        val previousHome = System.getProperty("user.home")
+        try {
+            System.setProperty("user.home", home.toString())
+            // CWProject keeps the first project home of the process: start from a fresh one, as the app's first start does.
+            resetCwProject()
+            assertEquals(StartupPhase.Ready, start(paths))
+            val projectDir = assertNotNull(CWProject.instance().writableProjectDirPath).toNioPath()
+            assertTrue(projectDir.startsWith(paths.sword), "JSword project dir $projectDir is not inside ${paths.sword}")
+            val written = Files.walk(home).use { s -> s.filter { it != home }.map { home.relativize(it).toString() }.toList() }
+            assertEquals(emptyList(), written, "files were written under user.home")
+        } finally {
+            System.setProperty("user.home", previousHome)
+        }
+    }
+
+    /** CWProject's own test reset (a private static): a new instance that establishes its home again on first use. */
+    private fun resetCwProject() {
+        val method = runCatching { CWProject::class.java.getDeclaredMethod("reset") }
+            .getOrElse { CWProject.Companion::class.java.getDeclaredMethod("reset") }
+        method.isAccessible = true
+        method.invoke(if (java.lang.reflect.Modifier.isStatic(method.modifiers)) null else CWProject.Companion)
     }
 
     @Test fun unwritableDataDirFails() {
