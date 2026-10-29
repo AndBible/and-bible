@@ -39,6 +39,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+/** The scheduler takes the runner as a function; iOS passes the runner's `run`. */
+private fun runnerOf(r: IosSearchIndexingRunner): suspend (() -> Unit, suspend (() -> Boolean) -> Unit) -> Unit =
+    { cancelBuild, build -> r.run(cancelBuild, build) }
+
 class IosContentPortsTest {
     private val fs = FileSystem.SYSTEM
     private val tmp = (NSTemporaryDirectory().trimEnd('/') + "/content-ports-" + NSUUID().UUIDString).toPath()
@@ -174,7 +178,7 @@ class IosContentPortsTest {
         val gate = CompletableDeferred<Unit>()
         var failFor: String? = null
         val scheduler = IosSearchIndexScheduler(
-            IosSearchIndexingRunner(begin = { 1UL }, end = {}), scope,
+            runnerOf(IosSearchIndexingRunner(begin = { 1UL }, end = {})), scope,
             build = { book ->
                 if (book.initials == "A") runBlocking { gate.await() }
                 withMonitor(built) { built += book.initials }
@@ -274,7 +278,7 @@ class IosContentPortsTest {
     @Test fun schedulerUnderExpiredBackgroundTimeCancelsTheJobAndLeavesUndone() {
         val f = Fixture()
         val expiring = IosSearchIndexScheduler(
-            IosSearchIndexingRunner(begin = { expire -> expire(); 1UL }, end = {}), f.scope,
+            runnerOf(IosSearchIndexingRunner(begin = { expire -> expire(); 1UL }, end = {})), f.scope,
             build = { f.built += it.initials }, cancelBuild = { f.cancelled += it.initials },
         )
         val book = fakeAddonBook("E", "/e")

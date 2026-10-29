@@ -25,7 +25,6 @@ import kotlinx.coroutines.withContext
 import net.bible.service.sword.index.AndroidIndexPolicy
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppCoroutineScope
-import net.bible.sharedcore.platform.search.IosSearchIndexingRunner
 import net.bible.sharedlogic.platform.SearchIndexScheduler
 import net.bible.sharedlogic.sync.withMonitor
 import org.crosswire.common.progress.JobManager
@@ -40,7 +39,7 @@ private const val TAG = "IosSearchIndexScheduler"
  * iOS [SearchIndexScheduler]. Mirrors the queue semantics of Android's `SearchIndexingService`: builds run one at a
  * time in request order (a single worker coroutine drains a FIFO map), a request for a book that is queued or being built is ignored, a
  * failed build leaves the book `UNDONE` and the queue goes on, and [dequeue] drops a build that has not started
- * (status `UNDONE`). Each build runs under [runner] so UIKit grants background time and an expiry cancels the
+ * (status `UNDONE`). Each build runs under [runner] (on iOS `IosSearchIndexingRunner::run`) so UIKit grants background time and an expiry cancels the
  * `CREATE_INDEX-<initials>` job the same way a user cancel does. Deviation: there is no notification host.
  *
  * [build] and [cancelBuild] default to the jsword FTS index manager exactly as `SearchIndexingService.builder`
@@ -48,7 +47,7 @@ private const val TAG = "IosSearchIndexScheduler"
  * parameters so tests can observe the queue without a real index.
  */
 class IosSearchIndexScheduler(
-    private val runner: IosSearchIndexingRunner,
+    private val runner: suspend (cancelBuild: () -> Unit, build: suspend (isExpired: () -> Boolean) -> Unit) -> Unit,
     private val scope: AppCoroutineScope,
     private val build: (Book) -> Unit = { book ->
         IndexManagerFactory.getIndexManager().apply {
@@ -94,7 +93,7 @@ class IosSearchIndexScheduler(
                     }
                 } ?: return
                 try {
-                    runner.run(cancelBuild = { cancelBuild(next) }) { withContext(Dispatchers.Default) { build(next) } }
+                    runner({ cancelBuild(next) }) { withContext(Dispatchers.Default) { build(next) } }
                 } catch (e: CancellationException) {
                     next.indexStatus = IndexStatus.UNDONE
                     currentCoroutineContext().ensureActive() // our own coroutine cancelled: propagate

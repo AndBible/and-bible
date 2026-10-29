@@ -220,7 +220,10 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<MyDocumentStoreEdge> { IosMyDocumentStoreEdge }
         single<PromptPackSource> { promptPacks }
         single<AddonCatalog> { SharedAddonCatalog(scanner, promptPacks) }
-        single<SearchIndexScheduler> { IosSearchIndexScheduler(IosSearchIndexingRunner(), get<AppCoroutineScope>()) }
+        single<SearchIndexScheduler> {
+            val runner = IosSearchIndexingRunner()
+            IosSearchIndexScheduler({ cancelBuild, build -> runner.run(cancelBuild, build) }, get<AppCoroutineScope>())
+        }
         single<ManualInstallFolderEnabler> { ManualInstallFolderEnabler { } } // no manual install folders on iOS
 
         // --- network
