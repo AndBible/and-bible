@@ -104,7 +104,7 @@ class IosReadingWindowsTest {
             awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
             currentHost = host
             IosReadingWindows.bind(host, scope, koin, night)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
@@ -290,7 +290,7 @@ class IosReadingWindowsTest {
         NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
         val scope = IosReadingReady.scope
         val night = FakeNight(false)
-        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night), scope, koin, night)
+        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night)
         assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
     }
 

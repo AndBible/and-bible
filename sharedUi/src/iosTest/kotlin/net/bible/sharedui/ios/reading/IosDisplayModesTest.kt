@@ -101,7 +101,7 @@ class IosDisplayModesTest {
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
             val night = nightFor(koin)
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
             IosReadingWindows.bind(host, scope, koin, night)
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {

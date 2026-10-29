@@ -62,6 +62,7 @@ internal fun withIosReadingHost(
     startAgent: ((IdType, Selection, String?, IdType?) -> Unit)? = null,
     startRegenerate: ((IdType, IdType?, String?, Boolean, Boolean, IdType?) -> Unit)? = null,
     showNotice: (windowId: String, text: String) -> Unit = { _, _ -> },
+    hostPlatform: ReadingHostPlatform = IosReadingHostPlatform,
     block: (host: IosReadingHost, deps: ReadingHostDeps) -> Unit,
 ) {
     try {
@@ -82,7 +83,7 @@ internal fun withIosReadingHost(
         val p = ColorPainter(Color.Black)
         val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
         val host = IosReadingHost(
-            scope, IosHostShell(scope, NoNavigatorForHostTests), koin, FakeNightForHostTests(false),
+            scope, IosHostShell(scope, NoNavigatorForHostTests), koin, hostPlatform, FakeNightForHostTests(false),
             openUrl = openUrl, statusBarHidden = statusBar,
             llmConfiguredSource = llmConfigured ?: IosReadingHost.defaultLlmConfigured(koin),
             llmService = llmService ?: { koin.get() },

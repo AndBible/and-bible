@@ -100,21 +100,12 @@ import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedlogic.platform.NightModeState
-import net.bible.sharedlogic.platform.ios.IosNightModeState
-import net.bible.sharedcore.platform.IosDeviceSettings
-import net.bible.sharedui.ios.ports.iosBundleVersionName
 import net.bible.sharedlogic.settings.RecentDisplaySettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.iosSetStatusBarHidden
-import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
-import net.bible.sharedui.ios.ports.IosDocumentPicker
-import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
-import net.bible.sharedui.ios.ports.IosImagePicker
-import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -133,9 +124,6 @@ import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings
 import org.koin.core.Koin
-import platform.Foundation.NSDate
-import platform.Foundation.NSDateFormatter
-import platform.Foundation.dateWithTimeIntervalSince1970
 
 /** The English strings, built once, for a host that was not given the app's. */
 private val englishStrings: Strings by lazy { iosStrings("en") }
@@ -147,26 +135,29 @@ private val englishStrings: Strings by lazy { iosStrings("en") }
  *
  * [slots] is the common [ReadingHostSlots] built over the iOS ports ([IosReadingSlotPorts.kt]); [deps] hands its
  * composables to the screen exactly as Android's `ComposeReadingViewHost` does. [strings] is read per composition;
- * [openUrl] opens a URL through UIKit (the Speak sheet's system-settings row goes through it).
+ * [openUrl] opens a URL through the [platform] (the Speak sheet's system-settings row goes through it). [platform] makes
+ * the system calls and builds the platform objects ([ReadingHostPlatform]; iOS: [IosReadingHostPlatform]).
  */
 @kotlin.native.HiddenFromObjC
 class IosReadingHost(
     private val scope: CoroutineScope,
     private val shell: IosHostShell,
     private val koin: Koin,
+    /** The system calls and platform objects of the host (iOS: [IosReadingHostPlatform]). */
+    internal val platform: ReadingHostPlatform,
     private val nightModeState: NightModeState = koin.get(),
     /** A live night-mode source (see [IosNightModeObserver]); null keeps a snapshot of [nightModeState]. */
     private val nightModeSource: State<Boolean>? = null,
     /** A live monochrome source (colour mode other than NORMAL, see [IosNightModeObserver]); null keeps a snapshot. */
     private val monochromeSource: State<Boolean>? = null,
     private val strings: () -> Strings = { englishStrings },
-    private val openUrl: (String) -> Unit = ::iosOpenUrl,
+    private val openUrl: (String) -> Unit = platform::openUrl,
     /** The app's `manageLabels` result channel (the label chooser's answer); a private one when the host stands alone. */
     labelResults: NavResultChannel<ManageLabelsResult> = NavResultChannel { },
     /** Applies the document, key and passage choosers' answers to the window that asked; null: answers are not applied. */
     private val readingResults: IosReadingResults? = null,
-    /** Hides or shows the system status bar (full screen hides it); the app's [iosSetStatusBarHidden] by default. */
-    private val statusBarHidden: (Boolean) -> Unit = ::iosSetStatusBarHidden,
+    /** Hides or shows the system status bar (full screen hides it); the platform's [ReadingHostPlatform.setStatusBarHidden] by default. */
+    private val statusBarHidden: (Boolean) -> Unit = platform::setStatusBarHidden,
     /** Whether the AI features are configured (Android: `CommonUtils.settings.llmConfigured`); shows the AI rows and menu item. */
     private val llmConfiguredSource: () -> Boolean = defaultLlmConfigured(koin),
     /** The prompt lists and model choices behind the prompt selector dialog. */
@@ -201,7 +192,7 @@ class IosReadingHost(
 
     /**
      * Enters or leaves full screen and hides or shows the status bar with it. The toolbar, tab bar and speak bar follow
-     * `fullScreen.state` in common code; the status bar is a UIKit matter, see [iosSetStatusBarHidden].
+     * `fullScreen.state` in common code; the status bar is a platform matter, see [ReadingHostPlatform.setStatusBarHidden].
      */
     internal fun setFullScreen(value: Boolean, byDoubleTap: Boolean = false) {
         fullScreen.set(value, byDoubleTap)
@@ -216,7 +207,7 @@ class IosReadingHost(
         IosReadingGestures(
             fullScreen = fullScreen,
             settings = koin.get<AppSettings>(),
-            isRtl = ::iosIsRightToLeft,
+            isRtl = platform::isRightToLeft,
             onSwipe = IosReadingWindows::performSwipe,
             setFullScreen = ::setFullScreen,
             onPaneTouched = { hostState.onBibleViewTouched() },
@@ -293,8 +284,8 @@ class IosReadingHost(
     private val agentStarter: IosAgentStarter by lazy {
         IosAgentStarter(
             scope, windowRepositoryId = ::currentWorkspaceId,
-            beginBackgroundTask = ::iosBeginAgentBackgroundTask, endBackgroundTask = ::iosEndAgentBackgroundTask,
-            invalidTaskId = iosInvalidBackgroundTaskId,
+            beginBackgroundTask = platform::beginBackgroundTask, endBackgroundTask = platform::endBackgroundTask,
+            invalidTaskId = platform.invalidBackgroundTaskId,
         )
     }
 
@@ -374,9 +365,9 @@ class IosReadingHost(
             copiedMessage = { KeyedPaneMenuStrings(IosAppStartup.stringTable).referenceCopiedToClipboard },
             bridgeFor = { id -> if (IosReadingWindows.hasAssembly(id)) IosReadingWindows.bridgeFor(id) else null },
             openPromptSelector = ::openPromptSelector,
-            newDocumentPicker = { IosDocumentPicker() },
-            newCsvSinkOpener = { IosBookmarkCsvFiles()::openSink },
-            csvTimestamp = ::iosBookmarkCsvTimestamp,
+            newDocumentPicker = { platform.newDocumentPicker() },
+            newCsvSinkOpener = { platform.newCsvSinkOpener() },
+            csvTimestamp = platform::csvTimestamp,
         )
     }
 
@@ -422,9 +413,7 @@ class IosReadingHost(
     /** Android's `ReadingCommands.applyChosenVerse` (non-bookmark arm): a malformed OSIS id only toasts. */
     private fun applyChosenVerse(osisId: String) = activeChooserTarget().applyVerse(osisId)
 
-    private fun formatHistoryTimestamp(epochMillis: Long): String =
-        NSDateFormatter().apply { dateFormat = "h:mm a, E d MMM " }
-            .stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMillis / 1000.0))
+    private fun formatHistoryTimestamp(epochMillis: Long): String = platform.formatHistoryTimestamp(epochMillis)
 
     /** Shown as an in-app toast: the iOS `UserNotifier.showInfo` feeds `AppToasts`. */
     private fun toast(message: String) = koin.get<UserNotifier>().showInfo(message, false)
@@ -506,7 +495,7 @@ class IosReadingHost(
         windowControl = windowControl,
         settings = settings,
         workspaceName = { windowControl.windowRepository.name },
-        isPortrait = ::iosIsPortrait,
+        isPortrait = platform::isPortrait,
     )
 
     private val quickActions: IosReadingQuickActions = IosReadingQuickActions(
@@ -548,17 +537,17 @@ class IosReadingHost(
         searchState = searchState,
         textDisplaySettingsService = { koin.get<TextDisplaySettingsService>() },
         scope = scope,
-        imagePicker = IosImagePicker(),
+        imagePicker = platform.newImagePicker(),
         thumbnailFor = { null },
         speakSettingsService = koin.get<SpeakSettingsService>(),
-        speakPlatform = IosSpeakSettingsPlatform(openUrl, iosOpenSettingsUrl),
+        speakPlatform = IosSpeakSettingsPlatform(openUrl, platform.settingsUrl),
         gridPassages = gridFactory,
         workspaceService = { koin.get<WorkspaceService>() },
         readingProgressService = { koin.get<ReadingProgressService>() },
         quickActions = quickActions,
         keyChooserPage = IosReadingKeyChooserPage { windowControl },
         navigator = navigator,
-        textShare = IosTextShare(),
+        textShare = platform.newTextShare(),
         clipboard = koin.get<ClipboardText>(),
         toast = ::toast,
         workspaceName = { windowControl.windowRepository.name },
@@ -566,14 +555,13 @@ class IosReadingHost(
         currentDocumentInitials = { documentControl.currentDocument?.initials },
     )
 
+    /** What the toolbar host used to default to: fresh device preferences and a night state over them, built on first use. */
+    private val toolbarDevice = platform.newToolbarDeviceState()
+
     /**
      * The toolbar, overflow menu and drawer over the iOS controls ([IosReadingToolbarHost]); the common decision logic
      * and the menus built from it follow.
      */
-    /** What the toolbar host used to default to: a fresh `IosDeviceSettings()` and a night state over it, built on first use. */
-    private val toolbarDeviceSettings = IosDeviceSettings()
-    private val toolbarNightState by lazy { IosNightModeState(toolbarDeviceSettings) }
-
     internal val toolbarHost: IosReadingToolbarHost = IosReadingToolbarHost(
         scope = scope,
         shell = shell,
@@ -598,11 +586,11 @@ class IosReadingHost(
         fakeBooks = { koin.get<FakeBookFactory>() },
         llmConfiguredSource = ::llmConfigured,
         showLlmActionsSource = ::showWorkspaceLlmActions,
-        deviceSettings = toolbarDeviceSettings,
-        nightModeOn = { toolbarNightState.nightMode },
-        nightModeManual = { toolbarNightState.mode == "manual" },
-        versionNameSource = ::iosBundleVersionName,
-        tiltAvailable = { iosMotionManager.deviceMotionAvailable },
+        deviceSettings = toolbarDevice.deviceSettings,
+        nightModeOn = toolbarDevice.nightModeOn,
+        nightModeManual = toolbarDevice.nightModeManual,
+        versionNameSource = platform::versionName,
+        tiltAvailable = { platform.tiltAvailable() },
         extras = koin.getOrNull<IosReadingExtras>() ?: IosReadingExtras.None,
     )
 
@@ -756,7 +744,7 @@ class IosReadingHost(
         onSearchSheetDismissed = { searchState.controller.closeSheet() },
         searchUnavailableDocName = searchState.searchUnavailableDocName,
         onSearchUnavailableMessageShown = searchState::searchUnavailableMessageShown,
-        onSearchSheetOffsetsChanged = { visible, heightPx -> offsets.setSearchSheet(visible, heightPx, iosScreenScale()) },
+        onSearchSheetOffsetsChanged = { visible, heightPx -> offsets.setSearchSheet(visible, heightPx, platform.screenScale()) },
         searchSheetSlot = { slots.SearchSheet() },
         searchSettingsSlot = { slots.SearchSettings() },
         textSettingsEditorSlot = { slots.TextSettingsEditor() },

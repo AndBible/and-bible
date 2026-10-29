@@ -109,7 +109,7 @@ class IosReadingNavigatorTest {
             val nav = RecordingNavigator()
             val shell = IosHostShell(CoroutineScope(Dispatchers.Unconfined), nav)
             shell.routeChanged(NavRoutes.READING)
-            val host = IosReadingHost(scope, shell, koin)
+            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val links = RecordingLinks()
             val labels = NavResultChannel<ManageLabelsResult> { }
             val navigator = IosReadingNavigator(

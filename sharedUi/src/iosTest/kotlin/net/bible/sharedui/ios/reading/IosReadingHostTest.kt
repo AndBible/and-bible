@@ -74,7 +74,7 @@ class IosReadingHostTest {
             val p = ColorPainter(Color.Black)
             val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
 
-            val host = IosReadingHost(scope, shell, koin)
+            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val deps = host.deps(icons)
             val activeId = koin.get<WindowControl>().activeWindow.id.toString()
             assertEquals(activeId, deps.controller.layout.value.activeWindowId)
@@ -94,8 +94,8 @@ class IosReadingHostTest {
             assertEquals(emptyList(), IosPending.reported.filter { it.startsWith("ReadingToolbar.") }, "toolbar pendings")
 
             // Night mode follows NightModeState, both ways.
-            assertTrue(IosReadingHost(scope, shell, koin, FakeNight(true)).deps(icons).nightMode.value)
-            assertFalse(IosReadingHost(scope, shell, koin, FakeNight(false)).deps(icons).nightMode.value)
+            assertTrue(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(true)).deps(icons).nightMode.value)
+            assertFalse(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(false)).deps(icons).nightMode.value)
         } finally {
             scope.cancel()
             ReadingAppInit.resetForTest()

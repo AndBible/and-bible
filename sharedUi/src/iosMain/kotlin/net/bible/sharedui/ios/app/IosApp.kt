@@ -95,6 +95,7 @@ import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.ios.reading.ChooserTarget
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
+import net.bible.sharedui.ios.reading.IosReadingHostPlatform
 import net.bible.sharedui.ios.reading.IosReadingResults
 import net.bible.sharedui.ios.reading.IosReadingWindows
 import net.bible.sharedui.ios.reading.IosTiltScroll
@@ -630,7 +631,7 @@ private class ReadingHostHolder(
 
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
-            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome,
+            IosReadingReady.scope, shell, koin, IosReadingHostPlatform, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome,
             { currentStrings ?: strings },
             labelResults = labelResults,
             readingResults = readingResults,
