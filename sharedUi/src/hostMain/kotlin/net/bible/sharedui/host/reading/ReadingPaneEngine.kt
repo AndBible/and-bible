@@ -33,7 +33,10 @@ import net.bible.sharedui.reading.bridge.ReadingWindowSurface
  * bridge's message handler at creation, and the active languages reach the page through the engine's bridge shim
  * (`getActiveLanguages()`), not a document-start script. A desktop implementation must therefore create the pane in
  * [jsHostFor] with a deferred message sink that the session's bridge is attached to later (as `DesktopBibleWebViews`
- * queues JS until its pane exists), and read [setActiveLanguages]'s source when it builds the shim.
+ * queues JS until its pane exists). Two further gaps, both for D2b: `createPane` has no languages input, so the engine
+ * API needs a languages source (today the shim is built from the URL's `lang`); and the per-load refresh evaluates
+ * `window.__activeLanguages__`, which the page ignores whenever `androidBridge` exists, so on desktop it does nothing
+ * until the shim reads a live value or the engine gets a hook such as `refreshActiveLanguages(windowId)`.
  *
  * Main thread only, except [applyBackground].
  */

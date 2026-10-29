@@ -38,7 +38,9 @@ enum class HostLifecycleEvent {
  * collected flow would deliver through a coroutine dispatch and subscribe only once its collector started.
  *
  * iOS implements it with `IosHostLifecycle` (one `NSNotificationCenter` observer per event on the main queue). A host
- * without these transitions (desktop) may return a no-op unregister and never call the handler.
+ * without app activation (desktop) must still send [HostLifecycleEvent.ResignActive] (or `Background`) on window
+ * deactivation and on app exit: the shared root saves the workspace only on those events, and keep-screen-on and
+ * tilt-scroll hang off the same registration. A no-op registration would silently skip the workspace save.
  */
 @kotlin.native.HiddenFromObjC
 fun interface HostLifecycle {

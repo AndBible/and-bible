@@ -51,8 +51,8 @@ internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDate
  * `SecretStore`, `UserNotifier`, `AppDialogController`, `AppCoroutineScope`, `CloudSync` and
  * `DocumentSync` from the host/shared bindings; all are resolved lazily.
  *
- * The starter and scheduler use their default UIKit background-task calls directly, with no main-queue
- * hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
+ * The starter and scheduler get explicit `UiKitBackgroundTask` begin/end lambdas that call UIKit directly, with no
+ * main-queue hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
  * blocking `dispatch_sync` to main from inside the scheduler lock could deadlock against a main-thread
  * caller waiting for that lock.
  */
