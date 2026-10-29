@@ -25,8 +25,8 @@ dependencies {
 // CEF natives for KCEF (:sharedUi's KcefWebEngine). KCEF 2025.03.23's JCEF Java API matches the JCEF natives of this
 // JetBrains Runtime release (KCEF's release notes: "compatible with jbr-release-17.0.14b1367.22"). They are fetched
 // once at build time into kcefNativesDir (KCEF's install dir); the app never downloads anything at run time.
-// The dir is `build/kcef-natives/lib`, a JBR-shaped `<home>/lib`: JBR's JCEF finds jcef_helper and the .pak resources
-// under `java.home/lib`, so KcefWebEngine points java.home at `build/kcef-natives` while CEF initialises.
+// The dir is `build/kcef-natives/lib` (the package's JBR `lib`, as KCEF's installer lays it out); KcefWebEngine passes
+// its jcef_helper, resources and locales paths to CEF explicitly.
 val kcefJbrTag = "jbr-release-17.0.14b1367.22"
 
 /**
@@ -77,11 +77,10 @@ abstract class PrepareKcefNatives : DefaultTask() {
         }
 
         val target = installDir.get().asFile
+        // The whole build/kcef-natives tree is this task's: wipe it, so nothing of an earlier layout lingers.
+        target.parentFile.deleteRecursively()
         val extract = File(target.parentFile, target.name + ".extract")
-        extract.deleteRecursively()
-        target.deleteRecursively()
         extract.mkdirs()
-        target.parentFile.mkdirs()
         exec.exec { commandLine("tar", "-xzf", archive.absolutePath, "-C", extract.absolutePath) }
         val lib = extract.listFiles()?.map { File(it, "lib") }?.firstOrNull { it.isDirectory }
             ?: throw GradleException("No <jbr>/lib directory in ${archive.name}")

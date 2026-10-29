@@ -224,12 +224,6 @@ class KcefWebEngineTest {
         assertTrue(KcefWebEngine.init(missing).exceptionOrNull()!!.message!!.contains(missing.toString()))
         assertFalse(Files.exists(missing))
 
-        // The natives must sit in a JBR-shaped <home>/lib (JCEF finds its helper and resources under java.home/lib).
-        val notLib = tmp.resolve("flat").createDirectories()
-        Files.writeString(notLib.resolve("install.lock"), "")
-        Files.writeString(notLib.resolve("libcef.so"), "")
-        assertTrue(KcefWebEngine.init(notLib).exceptionOrNull()!!.message!!.contains("<home>/lib"))
-
         // A lock without the library is not enough either.
         Files.writeString(empty.resolve("install.lock"), "")
         assertTrue(KcefWebEngine.init(empty).exceptionOrNull()!!.message!!.contains("no CEF library"))
