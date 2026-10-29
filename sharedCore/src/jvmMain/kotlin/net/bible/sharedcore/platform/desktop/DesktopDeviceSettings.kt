@@ -64,7 +64,18 @@ class DesktopDeviceSettings(file: Path) : DeviceLocalPrefs {
             state.values = current
             before != value
         }
-        if (changed) LISTENERS.forEach { it() }
+        if (changed) notifyListeners()
+    }
+
+    /** Every listener runs, in registration order; a throwing one is logged and never reaches the writer. */
+    private fun notifyListeners() {
+        for (listener in LISTENERS) {
+            try {
+                listener()
+            } catch (e: Throwable) {
+                Log.e(TAG, "Device settings change listener failed", e)
+            }
+        }
     }
 
     override fun getBoolean(key: String, default: Boolean): Boolean =

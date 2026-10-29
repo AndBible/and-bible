@@ -137,4 +137,21 @@ class DesktopDeviceSettingsTest {
         assertEquals("v", s.getString("k", null))
         assertTrue(s.getBoolean("missing", true))
     }
+
+    @Test fun aThrowingListenerNeitherSkipsTheOthersNorReachesTheWriter() {
+        val s = DesktopDeviceSettings(file())
+        val heard = mutableListOf<String>()
+        val stops = listOf(
+            s.observeChanges { heard += "first" },
+            s.observeChanges { error("listener failure") },
+            s.observeChanges { heard += "third" },
+        )
+        try {
+            s.setString("k", "v") // must not throw
+            assertEquals(listOf("first", "third"), heard)
+            assertEquals("v", s.getString("k", null))
+        } finally {
+            stops.forEach { it() }
+        }
+    }
 }
