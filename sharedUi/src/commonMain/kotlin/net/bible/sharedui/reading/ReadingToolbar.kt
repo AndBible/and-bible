@@ -128,6 +128,7 @@ import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.topBarCutoutSides
 import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -407,6 +408,7 @@ fun ReadingToolbar(
                             .windowInsetsPadding(
                                 WindowInsets.systemBars.union(WindowInsets.displayCutout)
                                     .only(WindowInsetsSides.Horizontal)
+                                    .union(topBarCutoutSides())
                             )
                             .height(ToolbarHeight),
                         verticalAlignment = Alignment.CenterVertically,
@@ -562,7 +564,11 @@ fun ReadingToolbar(
             // instead of stopping below it (the reported "light strip, white clock" bug).
             .background(container)
             .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
-            .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal))
+            // #3900: with the cutout band not reserved, a top cutout over an edge button is cleared sideways.
+            .windowInsetsPadding(
+                WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
+                    .union(topBarCutoutSides())
+            )
             .height(ToolbarHeight),
     ) {
         val widthPx = with(density) { maxWidth.roundToPx() }
