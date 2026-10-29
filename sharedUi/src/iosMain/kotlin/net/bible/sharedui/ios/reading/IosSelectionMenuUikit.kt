@@ -15,9 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-
 package net.bible.sharedui.ios.reading
 
+import net.bible.android.view.activity.page.SelectionMenuItem
 import net.bible.sharedcore.log.nsLog
 import platform.UIKit.UIAction
 import platform.UIKit.UIMenu

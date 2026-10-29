@@ -20,7 +20,6 @@ package net.bible.sharedui.ios.reading
 
 import net.bible.android.control.link.LinkControl
 import net.bible.android.view.activity.page.Selection
-import net.bible.android.view.activity.page.SelectionMenuItem
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.bibleview.BibleViewEvents

@@ -444,7 +444,7 @@ class IosReadingHostTest {
     @Test
     fun speakSettingsPlatformOpensTheSettingsUrl() {
         val opened = mutableListOf<String>()
-        IosSpeakSettingsPlatform { opened += it }.openSystemTtsSettings()
+        IosSpeakSettingsPlatform({ opened += it }, UIApplicationOpenSettingsURLString).openSystemTtsSettings()
         assertEquals(listOf(UIApplicationOpenSettingsURLString), opened)
     }
 }
