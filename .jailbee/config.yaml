@@ -298,6 +298,19 @@ golden:
     - php-mbstring
     - php-gd
     - php-zip
+    # Desktop app (:desktopApp, :desktopWebkitGtk) live checks on the headless weston + Xwayland display:
+    # the WebKitGTK engine's runtime, xdg-utils (the .deb depends on it), and input/clipboard drivers.
+    - libwebkitgtk-6.0-4
+    - libgtk-4-1
+    - xdg-utils
+    - xdotool
+    - xclip
+    # Windows test VM for the desktop Windows work (KVM-accelerated; Windows 11 needs UEFI + TPM 2.0).
+    - qemu-system-x86
+    - qemu-utils
+    - ovmf
+    - swtpm
+    - swtpm-tools
     - php-curl
     - php-intl
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
