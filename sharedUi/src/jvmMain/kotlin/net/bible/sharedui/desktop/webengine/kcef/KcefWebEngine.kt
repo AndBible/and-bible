@@ -281,7 +281,12 @@ internal class KcefPane(
     }
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */
-    val component: Component by lazy { JPanel(BorderLayout()).apply { add(browser.uiComponent, BorderLayout.CENTER) } }
+    val component: Component by lazy {
+        val ui = browser.uiComponent
+        // Native mouse events of the CEF window are forwarded to the component's listeners (CefBrowserWr).
+        ui.addMouseListener(PaneFocusOnPress({ ui.isFocusOwner }, { ui.requestFocusInWindow() }))
+        JPanel(BorderLayout()).apply { add(ui, BorderLayout.CENTER) }
+    }
 
     @Composable
     override fun Content(modifier: Modifier) {
