@@ -100,7 +100,9 @@ import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
 import net.bible.sharedui.ios.ports.IosDocumentPicker
 import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
 import org.koin.mp.KoinPlatform
@@ -162,6 +164,7 @@ class IosWindowPaneMenuPlatform(
         IosBookmarkHostPlatform(
             { koin.get() }, IosDocumentPicker(), koin.get(), koin.get(),
             { koin.getOrNull<IosStringTableHolder>()?.current ?: IosAppStartup.stringTable }, koin.get(), koin.get(),
+            IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp,
         ).exportBookmarksCsv(bookmarks)
     },
     private val scope: CoroutineScope = shell.hostScope,

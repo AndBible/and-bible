@@ -73,7 +73,7 @@ class IosBookmarkHostPlatformTest {
             object : UserNotifier {
                 override fun showInfo(message: String, long: Boolean) { notices += message }
                 override fun showError(message: String, cause: Throwable?) { notices += message; failures += cause }
-            }, koin.get())
+            }, koin.get(), IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp)
     }
 
     @AfterTest fun tearDown() {

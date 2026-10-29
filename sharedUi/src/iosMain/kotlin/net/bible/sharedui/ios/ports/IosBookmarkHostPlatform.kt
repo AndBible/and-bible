@@ -12,10 +12,9 @@ import net.bible.sharedui.app.bookmark.BookmarkCsvHostFlow
 import net.bible.sharedui.app.bookmark.BookmarkDocumentsRecreation
 import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
 import net.bible.sharedui.app.ports.DocumentPicker
+import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.strings.keyed.StringTable
-import platform.Foundation.NSDate
-import platform.Foundation.NSDateFormatter
-import platform.Foundation.NSLocale
+import okio.Sink
 
 /** Bookmark CSV uses the host's picker, shared codec, and live UI-language provider. */
 @kotlin.native.HiddenFromObjC
@@ -27,16 +26,11 @@ class IosBookmarkHostPlatform(
     table: () -> StringTable,
     notifier: UserNotifier,
     contentSource: ContentSource,
-    files: IosBookmarkCsvFiles = IosBookmarkCsvFiles(),
+    openSink: (DocumentRef) -> Sink?,
+    timestamp: () -> String,
 ) : BookmarkHostPlatform {
     private val csv = BookmarkCsvHostFlow(bookmarkControl, picker, settings, dialogs, table, notifier,
-        openSource = { contentSource.openSource(it.uri) }, openSink = files::openSink,
-        timestamp = {
-            NSDateFormatter().apply {
-                locale = NSLocale("en_US_POSIX")
-                dateFormat = "yyyy-MM-dd_HH-mm"
-            }.stringFromDate(NSDate())
-        })
+        openSource = { contentSource.openSource(it.uri) }, openSink = openSink, timestamp = timestamp)
 
     override fun subscribeBookmarkSync(onChanged: () -> Unit): () -> Unit = subscribeToBookmarkSync(onChanged)
     override suspend fun exportBookmarksCsv(bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>) = csv.exportBookmarksCsv(bookmarks)

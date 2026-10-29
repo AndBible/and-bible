@@ -24,7 +24,6 @@ import net.bible.sharedlogic.platform.LocaleSupport
 import net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG
 import net.bible.sharedui.app.ai.AiHostPlatform
 import net.bible.sharedui.strings.keyed.StringTable
-import platform.Foundation.*
 
 /** Locale choices are rebuilt against the current string table, including an already-open chooser. */
 @kotlin.native.HiddenFromObjC
@@ -32,6 +31,7 @@ class IosAiHostPlatform(
     private val strings: CoreStrings,
     private val locales: LocaleSupport,
     private val table: () -> StringTable,
+    private val formatTimestamp: (Long) -> String,
     private val reportError: suspend (String, Throwable) -> Unit,
 ) : AiHostPlatform {
     override fun languageChoices(): List<SettingsItem.Choice> = buildList {
@@ -44,12 +44,7 @@ class IosAiHostPlatform(
         add(SettingsItem.Choice(AI_CUSTOM_LANGUAGE_TAG, t.text("ai_language_custom")))
     }
 
-    override fun formatLogTimestamp(epochMs: Long): String = NSDateFormatter().apply {
-        locale = NSLocale.localeWithLocaleIdentifier(table().tag)
-        calendar = NSCalendar(calendarIdentifier = NSCalendarIdentifierGregorian)
-        timeZone = NSTimeZone.defaultTimeZone
-        dateFormat = "yyyy-MM-dd HH:mm"
-    }.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
+    override fun formatLogTimestamp(epochMs: Long): String = formatTimestamp(epochMs)
 
     override suspend fun showErrorDialog(message: String, cause: Throwable) = reportError(message, cause)
 }

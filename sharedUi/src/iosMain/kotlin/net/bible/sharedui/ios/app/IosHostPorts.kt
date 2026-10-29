@@ -25,7 +25,10 @@ import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.ios.ports.IosAiHostPlatform
 import net.bible.sharedui.ios.ports.IosNotificationPermission
+import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.ios.ports.iosAiLogTimestamp
+import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
 import net.bible.sharedui.ios.ports.IosBugReportPlatform
 import net.bible.sharedui.ios.ports.IosChooserHostPlatform
 import net.bible.sharedui.ios.ports.IosCloudDocumentsHostPlatform
@@ -67,7 +70,8 @@ fun buildIosHostPorts(
     val installZip = IosInstallZipHostPlatform(table = currentTable, notificationPermission = IosNotificationPermission(), debugArgs = IosDebugLaunchArgs)
     val picker = IosDocumentPicker()
     val bookmark by lazy {
-        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
+        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get(),
+            IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp)
     }
     val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
     val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), { koin.get() })
@@ -75,7 +79,7 @@ fun buildIosHostPorts(
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()
-    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable) { message, cause ->
+    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable, { iosAiLogTimestamp(currentTable().tag, it) }) { message, cause ->
         koin.get<BackupHost>().showErrorReport(message, cause)
     }
     return HostPorts(
