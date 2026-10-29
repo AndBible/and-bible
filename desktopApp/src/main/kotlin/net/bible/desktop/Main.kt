@@ -37,6 +37,7 @@ import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
+import java.awt.EventQueue
 import java.awt.GraphicsEnvironment
 import java.nio.file.Files
 import kotlin.coroutines.resume
@@ -46,6 +47,7 @@ import javax.swing.SwingUtilities
 
 private const val TAG = "DesktopMain"
 private const val STARTUP_SETTLE_TIMEOUT_MS = 10_000L
+private const val EXIT_SETTLE_MS = 200L
 
 /** Held for the whole process: the lock on `<data>/instance.lock` lasts as long as this reference (and the JVM). */
 @Volatile private var instanceLock: AutoCloseable? = null
@@ -131,7 +133,9 @@ private fun runApp() {
         if (!state.crashRecoveryRequired()) state.launch(startupScope)
     }
 
-    application {
+    val watchdog = ExitWatchdog()
+    // exitProcessOnExit = false: the exit below runs only after the windows are gone and the AWT thread is idle.
+    application(exitProcessOnExit = false) {
         var closing by remember { mutableStateOf(false) }
         val requestClose: () -> Unit = {
             if (!closing) {
@@ -141,7 +145,7 @@ private fun runApp() {
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
-        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine) }
+        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine, watchdog) }
         Window(
             title = "AndBible",
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
@@ -168,13 +172,14 @@ private fun runApp() {
             if (!closing) DesktopAppRoot(state)
         }
     }
+    exitAfterWindows(watchdog)
 }
 
 /**
  * The second phase of closing, after the content has left the composition: let the frames and AWT's own queued
  * removals run, write the workspace and settings (bounded), shut CEF down, then exit.
  */
-private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdownEngine: () -> Unit) {
+private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdownEngine: () -> Unit, watchdog: ExitWatchdog) {
     withFrameNanos { } // the frame that applies the removal of the panes
     withFrameNanos { }
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
@@ -186,7 +191,21 @@ private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdo
     } catch (e: Throwable) {
         Log.e(TAG, "engine shutdown failed", e)
     }
+    watchdog.markPersisted()
     exitApplication()
+}
+
+/**
+ * The process exit after `application` returned (windows disposed). The AWT event queue is drained and the toolkit given
+ * [EXIT_SETTLE_MS] so AWT-XAWT is back in its native poll and not holding the Xlib display lock when the exit safepoint
+ * freezes it (libGLX's exit handler waits for that lock). The [ExitWatchdog] backs that up on Linux.
+ */
+private fun exitAfterWindows(watchdog: ExitWatchdog): Nothing {
+    runCatching { EventQueue.invokeAndWait { } }
+    runCatching { Thread.sleep(EXIT_SETTLE_MS) }
+    runCatching { EventQueue.invokeAndWait { } }
+    watchdog.arm()
+    exitProcess(0)
 }
 
 /** CEF cannot start without a display and then takes the JVM down silently (D1 defect 4): fail clearly instead. */
