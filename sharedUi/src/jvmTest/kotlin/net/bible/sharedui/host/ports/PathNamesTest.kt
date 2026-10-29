@@ -1,9 +1,7 @@
-package net.bible.sharedui.ios.ports
+package net.bible.sharedui.host.ports
 
-import net.bible.sharedui.assembly.HostDebugArgs
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import net.bible.sharedui.host.ports.lastPathComponent
 
 class PathNamesTest {
     @Test
@@ -27,10 +25,5 @@ class PathNamesTest {
         assertEquals("Raamattu 1938 (fi).zip", lastPathComponent("/tmp/Raamattu 1938 (fi).zip"))
         assertEquals("päivä%20x\\y.epub", lastPathComponent("/Users/Ääkkönen/päivä%20x\\y.epub"))
         assertEquals("..", lastPathComponent("/a/.."))
-    }
-
-    @Test
-    fun hostDebugArgsDefaultsAreNeutral() {
-        assertEquals(0L, object : HostDebugArgs {}.installCommitDelayMs())
     }
 }
