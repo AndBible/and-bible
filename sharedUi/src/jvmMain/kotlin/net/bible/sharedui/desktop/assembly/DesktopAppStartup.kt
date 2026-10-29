@@ -31,6 +31,8 @@ import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.desktop.DataDirUnwritableException
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
+import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedlogic.platform.desktop.DesktopDatabaseHost
 import net.bible.sharedlogic.platform.desktop.DesktopLocaleProvider
@@ -104,7 +106,8 @@ object DesktopAppStartup {
     /**
      * Starts the app for [paths] and [window] in the UI [language]. [openDatabases] false stops after Koin (the
      * crash-recovery backup path needs the databases closed); a later call with true opens them. [repositories] is the
-     * repository site map (`repositories.txt` on the classpath; tests pass their own).
+     * repository site map (`repositories.txt` on the classpath; tests pass their own). [launchArgs] and
+     * [lifecycleEvents] go into the graph (see [desktopPlatformModule]); only the first successful start uses them.
      */
     fun ensureStarted(
         paths: DesktopPaths,
@@ -112,10 +115,12 @@ object DesktopAppStartup {
         language: String,
         openDatabases: Boolean = true,
         repositories: () -> PropertyMap = ::classpathRepositories,
+        launchArgs: List<String> = emptyList(),
+        lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
     ): StartupPhase = synchronized(lock) {
         HostStartup.register(info)
         try {
-            if (koinApp == null) startCore(paths, window, language, repositories)
+            if (koinApp == null) startCore(paths, window, language, repositories, launchArgs, lifecycleEvents)
             if (openDatabases && !opened) openDatabasesLocked()
             StartupPhase.Ready
         } catch (e: Throwable) {
@@ -125,7 +130,14 @@ object DesktopAppStartup {
         }
     }
 
-    private fun startCore(paths: DesktopPaths, window: DesktopWindowHandle, language: String, repositories: () -> PropertyMap) {
+    private fun startCore(
+        paths: DesktopPaths,
+        window: DesktopWindowHandle,
+        language: String,
+        repositories: () -> PropertyMap,
+        launchArgs: List<String>,
+        lifecycleEvents: DesktopLifecycleEvents,
+    ) {
         ensureWritableDirectory(paths.data)
         configureDesktopLogFile(paths.data.resolve("logs"))
         Log.i(TAG, "Starting (data ${paths.data}, config ${paths.config}, cache ${paths.cache}, language $language)")
@@ -135,7 +147,7 @@ object DesktopAppStartup {
         val app = KoinApplication.init()
         try {
             app.modules(
-                desktopPlatformModule(paths, window, language),
+                desktopPlatformModule(paths, window, language, launchArgs, lifecycleEvents),
                 desktopReadingModule(), desktopDocumentModule(), desktopMiscModule(), desktopSyncModule(),
             )
             // Before any eager instance or other reader can touch a setting: the settings store opens through this host.
@@ -177,16 +189,26 @@ object DesktopAppStartup {
 
     /**
      * The last writes before the process exits (window close, after the lifecycle's `Background`): the workspace save
-     * that the `ResignActive`/`Background` observers started is joined (or redone) here, bounded by [timeoutMs], and the
-     * queued settings are flushed. Blocking; never throws.
+     * that the `ResignActive`/`Background` observers started is joined (or redone) here, bounded by [timeoutMs]; then the
+     * registered [DesktopExitTasks] run (D3c's on-close sync), bounded by [exitTasksTimeoutMs]; then the queued settings
+     * are flushed. Blocking; never throws. [saveWorkspace] is a test seam.
      */
-    fun persistBeforeExit(timeoutMs: Long = 5_000) {
+    fun persistBeforeExit(
+        timeoutMs: Long = 5_000,
+        exitTasksTimeoutMs: Long = 10_000,
+        saveWorkspace: suspend (Koin) -> Unit = { IosWorkspaceSaver.saveNow(it) },
+    ) {
         val koin = koinApp?.koin ?: return
         try {
-            val saved = runBlocking { withTimeoutOrNull(timeoutMs) { IosWorkspaceSaver.saveNow(koin) } }
+            val saved = runBlocking { withTimeoutOrNull(timeoutMs) { saveWorkspace(koin) } }
             if (saved == null) Log.w(TAG, "Workspace save did not finish within $timeoutMs ms before exit")
         } catch (e: Throwable) {
             Log.e(TAG, "Workspace save before exit failed", e)
+        }
+        try {
+            koin.getOrNull<DesktopExitTasks>()?.let { tasks -> runBlocking { tasks.runAll(exitTasksTimeoutMs) } }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Exit tasks failed", e)
         }
         if (opened) {
             runCatching { DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 2_000) }

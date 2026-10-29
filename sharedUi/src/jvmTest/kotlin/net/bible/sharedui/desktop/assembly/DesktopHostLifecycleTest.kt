@@ -67,4 +67,18 @@ class DesktopHostLifecycleTest {
         lifecycle.onExit()
         assertEquals(listOf("first ResignActive", "second ResignActive", "second Background"), seen)
     }
+
+    @Test fun everyEventReachesTheLifecycleEventsAfterTheHostObservers() {
+        val events = net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents()
+        val lifecycle = DesktopHostLifecycle(events)
+        val seen = mutableListOf<String>()
+        lifecycle.observe(all) { seen += "host $it" }
+        events.observe { seen += "core $it" }
+        lifecycle.onWindowActivated()
+        lifecycle.onExit()
+        assertEquals(
+            listOf("host Active", "core Active", "host ResignActive", "core ResignActive", "host Background", "core Background"),
+            seen,
+        )
+    }
 }

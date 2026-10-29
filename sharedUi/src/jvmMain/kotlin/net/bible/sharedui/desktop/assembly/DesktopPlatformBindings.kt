@@ -51,6 +51,8 @@ import net.bible.sharedcore.platform.desktop.DesktopAppDirectories
 import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
 import net.bible.sharedcore.platform.desktop.DesktopDateTimeFormats
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
+import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.sharedcore.settings.AppSettingsService
@@ -165,14 +167,27 @@ internal fun classpathBundledHtml(name: String): String {
  *
  * Nothing starts when the module is built or resolved: no database opens, no network is used. Builds a NEW `Module`
  * on every call (a `Module` caches its singletons). [uiLanguage] pins the string-table language (tests); null resolves
- * it from `locale_pref`, `LANGUAGE`/`LANG` and the JVM locale ([DesktopUiLanguage]).
+ * it from `locale_pref`, `LANGUAGE`/`LANG` and the JVM locale ([DesktopUiLanguage]). [launchArgs] are `main()`'s
+ * arguments ([DesktopLaunchArgs], read by D3b); [lifecycleEvents] is the host lifecycle's copy of its events for the
+ * modules below `:sharedUi` (D3c). The graph also holds the [DesktopExitTasks] that the exit path joins.
  */
-fun desktopPlatformModule(paths: DesktopPaths, window: DesktopWindowHandle, uiLanguage: String? = null): Module {
+fun desktopPlatformModule(
+    paths: DesktopPaths,
+    window: DesktopWindowHandle,
+    uiLanguage: String? = null,
+    launchArgs: List<String> = emptyList(),
+    lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
+): Module {
     // One scanner for both add-on ports, so a clearCaches() on the catalog also reloads the prompt packs.
     val scanner = SharedAddonScanner(books = { Books.installed().getBooks() })
     val promptPacks = SharedPromptPackSource(scanner)
 
     val platform = module {
+        // --- launch, lifecycle and exit (wave-3 seams: D3b reads the arguments, D3c observes and registers)
+        single { DesktopLaunchArgs(launchArgs) }
+        single { lifecycleEvents }
+        single { DesktopExitTasks() }
+
         // --- device, sandbox and settings
         single { DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)) }
         single<DeviceLocalPrefs> { get<DesktopDeviceSettings>() }

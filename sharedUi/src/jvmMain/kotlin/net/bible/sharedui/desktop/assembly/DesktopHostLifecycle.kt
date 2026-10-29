@@ -18,6 +18,8 @@ package net.bible.sharedui.desktop.assembly
 
 import net.bible.sharedui.assembly.HostLifecycle
 import net.bible.sharedui.assembly.HostLifecycleEvent
+import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
+import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -29,8 +31,11 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * Every event is delivered synchronously, on the calling thread (the AWT event thread), to the observers registered
  * for it, in registration order, before the `on...` call returns. The workspace save hangs off these events.
+ *
+ * Every event is then emitted to [events] (same thread), the copy that modules below `:sharedUi` observe through Koin
+ * (`DesktopAppStartup` binds it into the graph; D3c's sync hangs off it).
  */
-class DesktopHostLifecycle : HostLifecycle {
+class DesktopHostLifecycle(val events: DesktopLifecycleEvents = DesktopLifecycleEvents()) : HostLifecycle {
     private class Registration(val events: List<HostLifecycleEvent>, val onEvent: (HostLifecycleEvent) -> Unit) {
         @Volatile var active = true
     }
@@ -61,5 +66,12 @@ class DesktopHostLifecycle : HostLifecycle {
         for (registration in registrations) {
             if (registration.active && event in registration.events) registration.onEvent(event)
         }
+        events.emit(
+            when (event) {
+                HostLifecycleEvent.Active -> DesktopLifecycleEvent.Active
+                HostLifecycleEvent.ResignActive -> DesktopLifecycleEvent.ResignActive
+                HostLifecycleEvent.Background -> DesktopLifecycleEvent.Background
+            },
+        )
     }
 }

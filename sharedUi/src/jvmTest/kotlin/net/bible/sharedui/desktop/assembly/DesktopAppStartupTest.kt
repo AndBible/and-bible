@@ -61,6 +61,7 @@ class DesktopAppStartupTest {
     private val mainThread = Executors.newSingleThreadExecutor { Thread(it, "test-main").apply { isDaemon = true } }.asCoroutineDispatcher()
     private lateinit var root: Path
     private var previousHost: DatabaseHost? = null
+    private var restoreCwProject: () -> Unit = {}
 
     private fun paths(): DesktopPaths = DesktopPaths(
         { name ->
@@ -84,6 +85,7 @@ class DesktopAppStartupTest {
         // navigation onto the AWT thread. A real thread stands in, for this class only.
         Dispatchers.setMain(mainThread)
         previousHost = runCatching { DatabaseContainer.host }.getOrNull()
+        restoreCwProject = snapshotCwProject()
         root = Files.createTempDirectory("desktop-startup")
     }
 
@@ -92,6 +94,9 @@ class DesktopAppStartupTest {
             DesktopAppStartup.resetForTest()
         } finally {
             previousHost?.let { DatabaseContainer.installHost(it) }
+            // A start here may have established JSword's project home inside [root]; later test classes in this JVM
+            // must not keep a project home in a deleted directory.
+            restoreCwProject()
             root.toFile().deleteRecursively()
             Dispatchers.resetMain()
             mainThread.close()
@@ -169,6 +174,27 @@ class DesktopAppStartupTest {
         }
     }
 
+    /**
+     * CWProject's process-wide state: the returned function puts the home settings that `setHome` stores back and
+     * restores the singleton. A singleton that had established its home before is put back as it was; one that had not
+     * (it may have established it inside this test's temp dir since) is replaced by a fresh instance, which establishes
+     * its home again on first use.
+     */
+    private fun snapshotCwProject(): () -> Unit {
+        fun field(name: String) = (runCatching { CWProject::class.java.getDeclaredField(name) }.getOrNull()
+            ?: CWProject.Companion::class.java.getDeclaredField(name)).apply { isAccessible = true }
+        fun owner(f: java.lang.reflect.Field): Any? = if (java.lang.reflect.Modifier.isStatic(f.modifiers)) null else CWProject.Companion
+        val statics = listOf("homeProperty", "homeDirectory", "homeAltDirectory").map(::field)
+        val staticValues = statics.map { it.get(owner(it)) }
+        val instanceField = field("instance")
+        val instance = instanceField.get(owner(instanceField))
+        val established = CWProject::class.java.getDeclaredField("writeHome").apply { isAccessible = true }.get(instance) != null
+        return {
+            statics.zip(staticValues).forEach { (f, v) -> f.set(owner(f), v) }
+            if (established) instanceField.set(owner(instanceField), instance) else resetCwProject()
+        }
+    }
+
     /** CWProject's own test reset (a private static): a new instance that establishes its home again on first use. */
     private fun resetCwProject() {
         val method = runCatching { CWProject::class.java.getDeclaredMethod("reset") }
@@ -212,5 +238,30 @@ class DesktopAppStartupTest {
         root.toFile().deleteRecursively()
         root = Files.createTempDirectory("desktop-startup")
         assertEquals(StartupPhase.Ready, start())
+    }
+
+    @Test fun exitRunsTheRegisteredTasksAfterTheWorkspaceSaveAndBounded() {
+        assertEquals(StartupPhase.Ready, start())
+        val koin = KoinPlatform.getKoin()
+        val order = java.util.Collections.synchronizedList(mutableListOf<String>())
+        val tasks = koin.get<net.bible.sharedcore.platform.desktop.DesktopExitTasks>()
+        tasks.register("first") { order += "task" }
+        tasks.register("hang") { kotlinx.coroutines.awaitCancellation() }
+        val started = System.nanoTime()
+        DesktopAppStartup.persistBeforeExit(exitTasksTimeoutMs = 300, saveWorkspace = { order += "save" })
+        val tookMs = (System.nanoTime() - started) / 1_000_000
+        assertEquals(listOf("save", "task"), order.toList())
+        assertTrue(tookMs < 10_000, "persistBeforeExit took $tookMs ms")
+    }
+
+    @Test fun launchArgumentsAndLifecycleEventsReachTheGraph() {
+        val events = net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents()
+        assertEquals(
+            StartupPhase.Ready,
+            DesktopAppStartup.ensureStarted(paths(), FakeWindow(), "en", repositories = { PropertyMap() }, launchArgs = listOf("a.zip"), lifecycleEvents = events),
+        )
+        val koin = KoinPlatform.getKoin()
+        assertEquals(listOf("a.zip"), koin.get<DesktopLaunchArgs>().args)
+        assertSame(events, koin.get<net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents>())
     }
 }

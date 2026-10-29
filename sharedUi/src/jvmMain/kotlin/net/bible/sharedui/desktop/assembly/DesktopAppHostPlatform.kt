@@ -20,12 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.awaitCancellation
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
-import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppResultChannels
 import net.bible.sharedui.app.HostShell
@@ -39,6 +37,7 @@ import net.bible.sharedui.assembly.HostDebugArgs
 import net.bible.sharedui.assembly.HostLifecycle
 import net.bible.sharedui.assembly.IosStringTableHolder
 import net.bible.sharedui.desktop.webview.DesktopDisplayModeSignals
+import net.bible.sharedui.desktop.webview.DesktopReadingInput
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingRecovery
 import net.bible.sharedui.desktop.webview.desktopReadingPaneFactory
@@ -78,7 +77,8 @@ private const val NO_BACKGROUND_TASK: ULong = 0UL
  *
  * Desktop answers: no debug arguments, probes, harness overlays or feature routes; no background tasks (the exit path
  * joins the workspace save itself, see `DesktopAppStartup.persistBeforeExit`); no idle timer; no tilt sensor; the
- * text scale as Compose has it; no incoming files until D3b.
+ * text scale as Compose has it. Incoming files come from the Koin [DesktopIncomingFiles] (D3b), the panes' reading
+ * input from the Koin [DesktopReadingInput] (D3a), night mode from the Koin [DesktopNightModeSource] (D3d).
  */
 class DesktopAppHostPlatform(
     override val lifecycle: DesktopHostLifecycle,
@@ -88,7 +88,7 @@ class DesktopAppHostPlatform(
 ) : AppHostPlatform {
     override val debugArgs: HostDebugArgs get() = DesktopNoDebugArgs
     override val readingHost: ReadingHostPlatform by lazy { DesktopReadingHostPlatform(window, koin) }
-    override val displayModeSignals: DisplayModeSignals by lazy { DesktopDisplayModeSignals(koin().get<DesktopDeviceSettings>()) }
+    override val displayModeSignals: DisplayModeSignals by lazy { DesktopDisplayModeSignals(koin().get<DesktopNightModeSource>()) }
     override val dialogHost: AppDialogHost by lazy { DesktopAppDialogHost(koin) }
 
     override fun deviceUiLanguage(koin: Koin): String = DesktopUiLanguage.resolve(koin.get<DesktopDeviceSettings>())
@@ -107,6 +107,7 @@ class DesktopAppHostPlatform(
 
     override fun readingPaneFactory(): ReadingPaneFactory = desktopReadingPaneFactory(
         paneEngine, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen,
+        input = { koin().get<DesktopReadingInput>() },
     )
 
     override fun setIdleTimerDisabled(disabled: Boolean) = Unit
@@ -138,9 +139,9 @@ class DesktopAppHostPlatform(
         askBookmarks: () -> Unit,
     ) = Unit
 
-    /** No share / "open with" delivery on the desktop yet (D3b): suspends until cancelled. */
+    /** Delegates to the Koin [DesktopIncomingFiles] (D3b; today none arrive and this suspends until cancelled). */
     override suspend fun receiveIncomingFiles(open: (List<DocumentRef>, () -> Unit) -> Unit, onFailure: () -> Unit) {
-        awaitCancellation()
+        koin().get<DesktopIncomingFiles>().receive(open, onFailure)
     }
 }
 
@@ -171,7 +172,8 @@ class DesktopAppDialogHost(private val koin: () -> Koin = { KoinPlatform.getKoin
 /**
  * The desktop [ReadingHostPlatform]: window facts from [window], pickers and sharing from Koin (stubs until D3b), the
  * AWT clipboard and desktop browser where the JVM has them. The toolbar's [ToolbarDeviceState] reads the same
- * [DeviceLocalPrefs] and [NightModeState] singletons as the Koin graph, so the toolbar and the app agree on night mode.
+ * [DeviceLocalPrefs] and [DesktopNightModeSource] singletons as the Koin graph, so the toolbar and the app agree on night
+ * mode.
  */
 class DesktopReadingHostPlatform(
     private val window: DesktopWindowHandle,
@@ -246,15 +248,12 @@ class DesktopReadingHostPlatform(
 
     override fun newToolbarDeviceState(): ToolbarDeviceState {
         val k = koin()
-        val nightState = k.get<NightModeState>()
-        val prefs = k.get<DeviceLocalPrefs>()
+        val night = k.get<DesktopNightModeSource>()
         return ToolbarDeviceState(
-            deviceSettings = prefs,
-            nightModeOn = { nightState.nightMode },
-            // The mode key of the same store that NightModeState reads (iOS: IosNightModeState.mode == "manual").
-            nightModeManual = {
-                prefs.getString(DesktopNightModeStub.NIGHT_MODE_MODE_KEY, DesktopNightModeStub.DEFAULT_MODE) == "manual"
-            },
+            deviceSettings = k.get<DeviceLocalPrefs>(),
+            nightModeOn = { night.nightMode },
+            // iOS: IosNightModeState.mode == "manual".
+            nightModeManual = { night.manual },
         )
     }
 }

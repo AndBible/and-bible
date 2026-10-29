@@ -24,16 +24,18 @@ import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BridgeDispatcher
 import net.bible.sharedcore.bibleview.JsHost
 import net.bible.sharedcore.bibleview.parseBridgeMessage
+import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.TextShare
+import net.bible.sharedui.desktop.assembly.DesktopFileShare
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.kcef.SwingMainDispatcher
 import net.bible.sharedui.host.reading.ReadingPaneEngine
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import net.bible.sharedui.webview.IosReadingWindowSurface
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
+import org.koin.core.Koin
+import org.koin.mp.KoinPlatform
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -56,6 +58,10 @@ import javax.swing.SwingUtilities
  *   re-initialised by the client-ready handshake alone. Without an owner the pane is recreated at the same URL (page
  *   reload only). After [MAX_RENDERER_DEATHS] deaths of one window it is parked as failed.
  * - Readiness: the first `setClientReady` of each pane is logged as `[desktop] reading ready <windowId>`.
+ * - Reading input: the [DesktopReadingInput] given to [attach] adds document-start scripts, may consume page messages
+ *   before the bridge, and hears every pane's creation and disposal (D3a's gestures and selection menu).
+ * - Sharing and clipboard ([surfaceFor]): the Koin-bound [TextShare], [ClipboardText] and [DesktopFileShare] (D3b),
+ *   resolved on each use.
  *
  * Main (Swing event) thread, except [applyBackground] and the [JsHost] of a window.
  */
@@ -71,6 +77,8 @@ class DesktopReadingPaneEngine(
      * the session's document.
      */
     private val onRendererGone: ((windowId: String) -> Unit)? = null,
+    /** The app graph that [surfaceFor]'s share and clipboard ports resolve from, on each use (a test seam). */
+    private val koin: () -> Koin = { KoinPlatform.getKoin() },
 ) : ReadingPaneEngine {
     private class Entry(val windowId: String) {
         /** The current pane; state so that the pane composable follows a crash recreation. */
@@ -84,7 +92,12 @@ class DesktopReadingPaneEngine(
         var readyLogged = false
     }
 
-    private class Wiring(val dark: Boolean, val dispatcher: BridgeDispatcher, val onAttached: () -> Unit)
+    private class Wiring(
+        val dark: Boolean,
+        val dispatcher: BridgeDispatcher,
+        val onAttached: () -> Unit,
+        val input: DesktopReadingInput,
+    )
 
     private val entries = ConcurrentHashMap<String, Entry>()
 
@@ -101,14 +114,14 @@ class DesktopReadingPaneEngine(
     override fun surfaceFor(host: JsHost, links: ExternalLinks): ReadingWindowSurface = IosReadingWindowSurface(
         host = host,
         links = links,
-        // Share, file share and the selection menu are D3a; until then text "shares" onto the clipboard and files do not share.
+        // The ports are resolved on each use, so a surface built before the graph changed follows the bound ones.
         textShare = object : TextShare {
-            override fun shareText(text: String, chooserTitle: String) = copyToClipboard(text)
+            override fun shareText(text: String, chooserTitle: String) = koin().get<TextShare>().shareText(text, chooserTitle)
         },
-        shareFile = { log("share of a file is not supported on the desktop yet: $it") },
-        canShare = { false },
+        shareFile = { path -> koin().get<DesktopFileShare>().shareFile(path) },
+        canShare = { koin().get<DesktopFileShare>().canShare },
         tempDir = { System.getProperty("java.io.tmpdir") },
-        copyToClipboard = { copyToClipboard(it) },
+        copyToClipboard = { text -> koin().get<ClipboardText>().write("", text) },
         writeSharedHtml = { dir, path, html -> writeSharedHtml(dir, path, html) },
     )
 
@@ -121,7 +134,7 @@ class DesktopReadingPaneEngine(
     override fun release(windowId: String) {
         val e = entries.remove(windowId) ?: return
         entriesVersion++
-        e.pane?.dispose()
+        e.pane?.let { disposePane(e, it) }
         e.pane = null
         e.wiring = null
         e.pending.clear()
@@ -143,13 +156,20 @@ class DesktopReadingPaneEngine(
      * Creates the window's pane once, loads the bundle ([dark] is only the initial `night` URL parameter; live night
      * mode travels in `set_config`), wires the page's bridge messages to [bridge] and runs [onAttached] (the session's
      * `jsChannel.flush()`). A second call, or a call after a failure, does nothing; a failure is logged and parks the pane.
-     * [respondNull] answers a deferred call whose handler threw.
+     * [respondNull] answers a deferred call whose handler threw. [input] is the window's reading input (D3a).
      */
-    fun attach(windowId: String, dark: Boolean, bridge: BibleBridge, respondNull: (Long) -> Unit, onAttached: () -> Unit) {
+    fun attach(
+        windowId: String,
+        dark: Boolean,
+        bridge: BibleBridge,
+        respondNull: (Long) -> Unit,
+        onAttached: () -> Unit,
+        input: DesktopReadingInput = DesktopReadingInput.None,
+    ) {
         val e = entry(windowId)
         if (e.pane != null || e.failed) return
         val paneLog: (String) -> Unit = { msg -> log("bridge[$windowId]: $msg") }
-        e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, paneLog), onAttached)
+        e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, paneLog), onAttached, input)
         try {
             create(e)
         } catch (t: Throwable) {
@@ -168,7 +188,8 @@ class DesktopReadingPaneEngine(
     private fun create(e: Entry) {
         val w = checkNotNull(e.wiring)
         e.readyLogged = false
-        val pane = engine.createPane(e.windowId, engine.bundleUrl(lang(), w.dark), emptyList()) { text -> onMessage(e, text) }
+        val scripts = w.input.documentStartScripts(e.windowId)
+        val pane = engine.createPane(e.windowId, engine.bundleUrl(lang(), w.dark), scripts) { text -> onMessage(e, text) }
         pane.setOnRendererGone { rendererGone(e, pane) }
         // The pane is published before the remembered background is applied, so a concurrent applyBackground (any
         // thread) either sees the pane or is seen here.
@@ -177,7 +198,22 @@ class DesktopReadingPaneEngine(
         val queued = e.pending.toList()
         e.pending.clear()
         queued.forEach { pane.post(it) }
+        try {
+            w.input.onPaneCreated(e.windowId, pane)
+        } catch (t: Throwable) {
+            log("reading input failed on the pane of ${e.windowId}: $t")
+        }
         w.onAttached()
+    }
+
+    /** Tells the window's reading input, then disposes [pane]; neither may throw out of here. */
+    private fun disposePane(e: Entry, pane: DesktopWebPane) {
+        try {
+            e.wiring?.input?.onPaneDisposed(e.windowId, pane)
+        } catch (t: Throwable) {
+            log("reading input failed on disposing the pane of ${e.windowId}: $t")
+        }
+        runCatching { pane.dispose() }
     }
 
     private fun onMessage(e: Entry, text: String) {
@@ -187,7 +223,9 @@ class DesktopReadingPaneEngine(
                 e.readyLogged = true
                 log("[desktop] reading ready ${e.windowId}")
             }
-            val dispatcher = e.wiring?.dispatcher ?: return
+            val wiring = e.wiring ?: return
+            if (wiring.input.handleMessage(e.windowId, text)) return
+            val dispatcher = wiring.dispatcher
             if (message != null) dispatcher.dispatch(message) else dispatcher.dispatch(text)
         } catch (t: Throwable) {
             log("bridge[${e.windowId}]: handler failure $t")
@@ -197,7 +235,7 @@ class DesktopReadingPaneEngine(
     private fun rendererGone(e: Entry, gone: DesktopWebPane) {
         if (e.pane !== gone || entries[e.windowId] !== e) return
         log("reading pane ${e.windowId}: renderer process gone, recreating")
-        runCatching { gone.dispose() }
+        disposePane(e, gone)
         e.pane = null
         val count = (deaths[e.windowId] ?: 0) + 1
         deaths[e.windowId] = count
@@ -250,10 +288,6 @@ class DesktopReadingPaneEngine(
     companion object {
         /** After this many renderer deaths a window is parked as failed instead of being recovered again. */
         const val MAX_RENDERER_DEATHS = 3
-
-        private fun copyToClipboard(text: String) {
-            SwingUtilities.invokeLater { Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null) }
-        }
 
         private fun writeSharedHtml(dir: String, path: String, html: String): Boolean = try {
             Files.createDirectories(Path.of(dir))

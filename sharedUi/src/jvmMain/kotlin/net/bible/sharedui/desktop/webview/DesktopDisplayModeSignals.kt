@@ -16,44 +16,30 @@
  */
 package net.bible.sharedui.desktop.webview
 
-import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
+import net.bible.sharedui.desktop.assembly.DesktopNightModeSource
 import net.bible.sharedui.host.reading.DisplayModeSignals
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 
 /**
- * Desktop [DisplayModeSignals]: fires when the night-mode keys of the device settings store ([KEYS]) change, which is
- * where the settings screen writes them. The desktop has no system-appearance or app-activation signal yet (the night
- * mode stub never follows the system), so the store is the only source.
+ * Desktop [DisplayModeSignals]: fires whenever the [DesktopNightModeSource] reports a possible change (today: its
+ * night-mode keys in the device settings changed; D3d adds the system appearance). The source owns the change detection.
  *
- * [onSignal] runs on the Swing event thread, whichever thread wrote the setting. [runOnMain] is a test seam.
+ * [onSignal] runs on the Swing event thread, whichever thread the source reported on; nothing is delivered after the
+ * returned stop function ran. [runOnMain] is a test seam.
  */
 class DesktopDisplayModeSignals(
-    private val settings: DesktopDeviceSettings,
+    private val source: DesktopNightModeSource,
     private val runOnMain: (() -> Unit) -> Unit = { block ->
         if (SwingUtilities.isEventDispatchThread()) block() else SwingUtilities.invokeLater(block)
     },
 ) : DisplayModeSignals {
     override fun observe(onSignal: () -> Unit): () -> Unit {
-        val lock = Any()
-        var previous = snapshot()
-        var active = true
-        val stop = settings.observeChanges {
-            val changed = synchronized(lock) {
-                val now = snapshot()
-                (now != previous).also { previous = now }
-            }
-            if (changed) runOnMain { if (synchronized(lock) { active }) onSignal() }
-        }
+        val active = AtomicBoolean(true)
+        val stop = source.observeChanges { if (active.get()) runOnMain { if (active.get()) onSignal() } }
         return {
-            synchronized(lock) { active = false }
+            active.set(false)
             stop()
         }
-    }
-
-    private fun snapshot(): List<String?> = KEYS.map { settings.getString(it) }
-
-    companion object {
-        /** The mode (`system`/`manual`/`automatic`) and the manual flag, as read by `DesktopNightModeStub`. */
-        val KEYS = listOf("night_mode_pref3", "night_mode_pref")
     }
 }

@@ -35,15 +35,22 @@ import net.bible.sharedui.app.ports.MyDocumentFiles
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.service.sword.ContentSource
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
+import kotlinx.coroutines.awaitCancellation
 import okio.Buffer
 import okio.Source
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.awt.GraphicsEnvironment
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.util.concurrent.ConcurrentHashMap
+import javax.swing.SwingUtilities
 
 // OWNER: plan D3b (desktop documents and files: pickers, file delivery, content source, clipboard, share, external
 // links, my-document and prompt files). D3b replaces the bindings in this file only and adds its substitutes under its
-// own directory. Everything below is a D2b stub: it logs its first use once and answers "cancelled / nothing".
+// own directory. Everything below is a D2b stub: it logs its first use once and answers "cancelled / nothing", except the
+// clipboard write and the clipboard-backed text share that the reading panes have used since D2b. Its desktop-only seams:
+// [DesktopIncomingFiles] (with the launch arguments in [DesktopLaunchArgs]) and [DesktopFileShare].
 
 private const val TAG = "DesktopDocumentBindings"
 private val reported = ConcurrentHashMap.newKeySet<String>()
@@ -80,13 +87,35 @@ class DesktopContentSourceStub : ContentSource {
     override fun mimeType(uri: String): String? = null
 }
 
+/** Writes to the AWT system clipboard (on the Swing thread; nothing in a headless JVM); reading is still a stub. */
 class DesktopClipboardTextStub : ClipboardText {
     override fun read(): String? { pending("ClipboardText.read"); return null }
-    override fun write(label: String, text: String) = pending("ClipboardText.write")
+    override fun write(label: String, text: String) {
+        if (GraphicsEnvironment.isHeadless()) { pending("ClipboardText.write (headless)"); return }
+        SwingUtilities.invokeLater {
+            try {
+                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null)
+            } catch (e: Throwable) { // AWTError too: no display behind a non-headless toolkit
+                Log.w(TAG, "clipboard write failed", e)
+            }
+        }
+    }
 }
 
-class DesktopTextShareStub : TextShare {
-    override fun shareText(text: String, chooserTitle: String) = pending("TextShare.shareText")
+/** No share sheet yet: "sharing" text puts it on the clipboard (what the reading panes have done since D2b). */
+class DesktopTextShareStub(private val clipboard: ClipboardText) : TextShare {
+    override fun shareText(text: String, chooserTitle: String) = clipboard.write(chooserTitle, text)
+}
+
+/** No incoming files: suspends until cancelled. */
+class DesktopIncomingFilesStub : DesktopIncomingFiles {
+    override suspend fun receive(open: (List<DocumentRef>, () -> Unit) -> Unit, onFailure: () -> Unit) = awaitCancellation()
+}
+
+/** No file share: the reading panes skip "share as HTML". */
+class DesktopFileShareStub : DesktopFileShare {
+    override val canShare: Boolean get() = false
+    override fun shareFile(path: String) = pending("DesktopFileShare.shareFile")
 }
 
 class DesktopExternalLinksStub : ExternalLinks {
@@ -117,7 +146,9 @@ fun desktopDocumentModule(): Module = module {
     single<ImagePicker> { DesktopImagePickerStub() }
     single<ContentSource> { DesktopContentSourceStub() }
     single<ClipboardText> { DesktopClipboardTextStub() }
-    single<TextShare> { DesktopTextShareStub() }
+    single<TextShare> { DesktopTextShareStub(get<ClipboardText>()) }
+    single<DesktopIncomingFiles> { DesktopIncomingFilesStub() }
+    single<DesktopFileShare> { DesktopFileShareStub() }
     single<ExternalLinks> { DesktopExternalLinksStub() }
     single<MyDocumentFiles> { DesktopMyDocumentFilesStub() }
     single<PromptFiles> { DesktopPromptFilesStub() }

@@ -16,11 +16,15 @@
  */
 package net.bible.sharedui.desktop.assembly
 
+import net.bible.sharedui.desktop.webview.DesktopReadingInput
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 // OWNER: plan D3a (desktop reading: layout direction, reading input such as wheel, keys and back, selection-menu wiring).
-// D3a replaces this file's content only. Nothing in the D2b assembly needs a reading binding that is not already
-// hoisted, so the module is empty on purpose; the layout direction and key/back handling hang off the window, not Koin.
+// D3a replaces this file's content only. Its seam is [DesktopReadingInput]: the reading pane engine asks it for each
+// window's pane (document-start scripts, page messages, pane creation and disposal; the gestures and selection menu of
+// IosReadingWindows plug in there) and main()'s window passes its key events to it. Today it is the no-op.
 
-fun desktopReadingModule(): Module = module { }
+fun desktopReadingModule(): Module = module {
+    single<DesktopReadingInput> { DesktopReadingInput.None }
+}

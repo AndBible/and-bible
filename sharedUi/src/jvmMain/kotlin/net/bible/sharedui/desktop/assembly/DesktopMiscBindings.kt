@@ -37,7 +37,8 @@ import net.bible.sharedcore.platform.speak.SpeakEngine
 import net.bible.sharedcore.platform.speak.SpeakEngineListener
 import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.sharedcore.readingplan.ReadingPlanSource
-import net.bible.sharedcore.settings.DeviceLocalPrefs
+import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
+import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedcore.settings.TextSettingType
@@ -73,12 +74,25 @@ private fun pending(member: String) {
 /**
  * A minimal REAL night-mode answer (D2b's live checks need it): the stored mode of `night_mode_pref3` (default
  * `"system"`) and the manual flag `night_mode_pref`, resolved by the common [resolveNightMode]. The desktop cannot
- * tell the system appearance yet, so `"system"` and `"automatic"` mean light. D3d replaces this with the real store.
+ * tell the system appearance yet, so `"system"` and `"automatic"` mean light. [observeChanges] fires when either key
+ * changes value (any writer in the process, on the writing thread). D3d replaces this with the real store.
  */
-class DesktopNightModeStub(private val deviceSettings: DeviceLocalPrefs) : NightModeState {
+class DesktopNightModeStub(private val deviceSettings: DesktopDeviceSettings) : DesktopNightModeSource {
     val mode: String get() = deviceSettings.getString(NIGHT_MODE_MODE_KEY, DEFAULT_MODE) ?: DEFAULT_MODE
     override val nightMode: Boolean
         get() = resolveNightMode(mode, deviceSettings.getBoolean(NIGHT_MODE_KEY, false), systemDark = false, autoReading = null)
+    override val manual: Boolean get() = mode == "manual"
+
+    override fun observeChanges(onChange: () -> Unit): () -> Unit {
+        val lock = Any()
+        var previous = snapshot()
+        return deviceSettings.observeChanges {
+            val changed = synchronized(lock) { snapshot().let { now -> (now != previous).also { previous = now } } }
+            if (changed) onChange()
+        }
+    }
+
+    private fun snapshot(): List<String?> = listOf(deviceSettings.getString(NIGHT_MODE_MODE_KEY), deviceSettings.getString(NIGHT_MODE_KEY))
 
     companion object {
         const val NIGHT_MODE_KEY = "night_mode_pref"
@@ -86,6 +100,13 @@ class DesktopNightModeStub(private val deviceSettings: DeviceLocalPrefs) : Night
         const val DEFAULT_MODE = "system"
     }
 }
+
+/**
+ * The crash-recovery gate for `main()`, built before Koin exists (D3d's crash tracker starts here). Today: no gate, no
+ * report.
+ */
+@Suppress("UNUSED_PARAMETER")
+fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate = DesktopCrashGate(recoveryRequired = { false }, reportBug = {})
 
 class DesktopNotificationPermissionStub : NotificationPermission {
     override suspend fun request() = Unit
@@ -188,7 +209,8 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
-    single<NightModeState> { DesktopNightModeStub(get<DeviceLocalPrefs>()) }
+    single<DesktopNightModeSource> { DesktopNightModeStub(get<DesktopDeviceSettings>()) }
+    single<NightModeState> { get<DesktopNightModeSource>() }
     single<NotificationPermission> { DesktopNotificationPermissionStub() }
     single<SystemScreens> { DesktopSystemScreensStub() }
     single<DebugActions> { DesktopDebugActionsStub() }

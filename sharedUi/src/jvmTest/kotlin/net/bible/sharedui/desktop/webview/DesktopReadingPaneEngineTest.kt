@@ -153,17 +153,20 @@ class DesktopReadingPaneEngineTest {
     @Test
     fun displayModeSignalFiresOnNightModeStoreChange() {
         val settings = DesktopDeviceSettings(Files.createTempDirectory("night").resolve("prefs.properties"))
-        val signals = DesktopDisplayModeSignals(settings, runOnMain = { it() })
+        val signals = DesktopDisplayModeSignals(net.bible.sharedui.desktop.assembly.DesktopNightModeStub(settings), runOnMain = { it() })
         var fired = 0
         val stop = signals.observe { fired++ }
-        settings.setString("night_mode_pref3", "manual")
-        assertEquals(1, fired)
-        settings.setString("night_mode_pref3", "manual") // same value
-        settings.setString("unrelated", "x")
-        assertEquals(1, fired)
-        settings.setBoolean("night_mode_pref", true)
-        assertEquals(2, fired)
-        stop()
+        try {
+            settings.setString("night_mode_pref3", "manual")
+            assertEquals(1, fired)
+            settings.setString("night_mode_pref3", "manual") // same value
+            settings.setString("unrelated", "x")
+            assertEquals(1, fired)
+            settings.setBoolean("night_mode_pref", true)
+            assertEquals(2, fired)
+        } finally {
+            stop()
+        }
         settings.setBoolean("night_mode_pref", false)
         assertEquals(2, fired, "stopped observers hear nothing")
     }
@@ -225,5 +228,85 @@ class DesktopReadingPaneEngineTest {
         assertTrue(e.hasFailed("w1"))
         assertEquals(null, e.paneFor("w1"))
         assertTrue(logs.any { "giving up" in it })
+    }
+
+    @Test
+    fun readingInputAddsScriptsConsumesMessagesAndHearsEveryPane() {
+        val events = mutableListOf<String>()
+        val input = object : DesktopReadingInput {
+            override fun documentStartScripts(windowId: String) = listOf("selection($windowId)")
+            override fun handleMessage(windowId: String, text: String) = (text == "selection").also { if (it) events += "consumed" }
+            override fun onPaneCreated(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { events += "created:$windowId" }
+            override fun onPaneDisposed(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { events += "disposed:$windowId" }
+        }
+        engine.jsHostFor("w1")
+        engine.attach("w1", false, bridge, {}, {}, input)
+        val first = fake.pane("w1")
+        assertEquals(listOf("selection(w1)"), first.scripts)
+        first.onMessage("selection")
+        first.onMessage(readyMessage)
+        assertEquals(listOf("ready"), ready, "only the unconsumed message reaches the bridge")
+        first.crash() // no owner: the engine recreates the pane with the same input
+        assertEquals(listOf("selection(w1)"), fake.live("w1").scripts)
+        engine.release("w1")
+        assertEquals(listOf("created:w1", "consumed", "disposed:w1", "created:w1", "disposed:w1"), events)
+    }
+
+    @Test
+    fun aThrowingReadingInputDoesNotBreakThePane() {
+        val input = object : DesktopReadingInput {
+            override fun onPaneCreated(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) = error("hook")
+            override fun onPaneDisposed(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) = error("hook")
+        }
+        engine.jsHostFor("w1")
+        engine.attach("w1", false, bridge, {}, { attached += "w1" }, input)
+        assertEquals(listOf("w1"), attached)
+        assertFalse(engine.hasFailed("w1"))
+        engine.release("w1")
+        assertTrue(fake.pane("w1").disposed)
+    }
+
+    @Test
+    fun surfaceSharesAndCopiesThroughTheKoinPorts() {
+        val calls = mutableListOf<String>()
+        var canShare = false
+        val app = org.koin.dsl.koinApplication {
+            modules(org.koin.dsl.module {
+                single<net.bible.sharedui.app.ports.TextShare> {
+                    object : net.bible.sharedui.app.ports.TextShare {
+                        override fun shareText(text: String, chooserTitle: String) { calls += "share:$text" }
+                    }
+                }
+                single<net.bible.sharedui.app.ports.ClipboardText> {
+                    object : net.bible.sharedui.app.ports.ClipboardText {
+                        override fun read(): String? = null
+                        override fun write(label: String, text: String) { calls += "copy:$text" }
+                    }
+                }
+                single<net.bible.sharedui.desktop.assembly.DesktopFileShare> {
+                    object : net.bible.sharedui.desktop.assembly.DesktopFileShare {
+                        override val canShare: Boolean get() = canShare
+                        override fun shareFile(path: String) { calls += "file:" + java.nio.file.Path.of(path).fileName }
+                    }
+                }
+            })
+        }
+        try {
+            val e = DesktopReadingPaneEngine(fake, { logs += it }, koin = { app.koin })
+            val links = object : net.bible.sharedui.app.ports.ExternalLinks {
+                override val askBeforeOpening: Boolean get() = false
+                override fun open(url: String) = Unit
+            }
+            val surface = e.surfaceFor(fake.createPane("w1", "u", emptyList()) {}, links)
+            surface.copyText(null, "a")
+            surface.shareText("b", null)
+            surface.shareHtml("<p/>", "t")
+            assertEquals(listOf("copy:a", "share:b"), calls, "no file share while the port says it cannot share")
+            canShare = true
+            surface.shareHtml("<p/>", "t")
+            assertEquals(listOf("copy:a", "share:b", "file:t.html"), calls)
+        } finally {
+            app.close()
+        }
     }
 }

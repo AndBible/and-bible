@@ -164,4 +164,51 @@ class DesktopPortContractTest {
         koin.get<net.bible.sharedui.app.ports.ExternalLinks>().open("https://example.org")
         koin.get<net.bible.sharedui.app.ports.ClipboardText>().write("x", "y")
     }
+
+    /** The wave-3 seams (D3a..D3d): each resolves from the core + stream modules and answers today's behaviour. */
+    @Test fun everyWaveThreeSeamResolvesWithTodaysBehaviour() = withKoin { koin, _ ->
+        val seams = listOf(
+            net.bible.sharedui.desktop.webview.DesktopReadingInput::class,
+            DesktopIncomingFiles::class, DesktopFileShare::class, DesktopLaunchArgs::class,
+            net.bible.sharedcore.platform.desktop.DesktopExitTasks::class,
+            net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents::class,
+            DesktopNightModeSource::class,
+        )
+        val failures = seams.mapNotNull { type ->
+            try { assertNotNull(koin.getOrNull<Any>(type), type.simpleName); null } catch (e: Throwable) { "${type.simpleName}: $e" }
+        }
+        if (failures.isNotEmpty()) fail("Unresolvable seam types:\n" + failures.joinToString("\n"))
+
+        assertTrue(koin.get<net.bible.sharedui.desktop.webview.DesktopReadingInput>().documentStartScripts("w1").isEmpty())
+        assertEquals(false, koin.get<DesktopFileShare>().canShare)
+        assertEquals(emptyList(), koin.get<DesktopLaunchArgs>().args)
+        // The night-mode source is the graph's NightModeState, so the toolbar, the panes and the app agree.
+        assertTrue(koin.get<DesktopNightModeSource>() === koin.get<net.bible.sharedlogic.platform.NightModeState>())
+        // No incoming files: the port suspends until cancelled.
+        kotlinx.coroutines.runBlocking {
+            val result = kotlinx.coroutines.withTimeoutOrNull(200) { koin.get<DesktopIncomingFiles>().receive({ _, _ -> fail("no files") }, { fail("no failure") }) }
+            assertEquals(null, result)
+        }
+        // No crash gate before Koin.
+        val gate = desktopCrashGate(paths(Files.createTempDirectory("crash-gate")))
+        assertEquals(false, gate.recoveryRequired())
+    }
+
+    @Test fun nightModeSourceReportsManualAndChangesOfItsKeysOnly() = withKoin { koin, _ ->
+        val prefs = koin.get<net.bible.sharedcore.settings.DeviceLocalPrefs>()
+        val source = koin.get<DesktopNightModeSource>()
+        var changes = 0
+        val stop = source.observeChanges { changes++ }
+        try {
+            assertEquals(false, source.manual)
+            prefs.setString("night_mode_pref3", "manual")
+            assertEquals(true, source.manual)
+            prefs.setString("unrelated", "x")
+            prefs.setBoolean("night_mode_pref", true)
+            assertEquals(2, changes)
+            assertEquals(true, source.nightMode)
+        } finally {
+            stop()
+        }
+    }
 }
