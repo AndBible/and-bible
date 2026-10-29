@@ -161,18 +161,32 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
 compose.desktop {
     application {
         mainClass = "net.bible.desktop.MainKt"
+        nativeDistributions {
+            appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
+        }
         // The JCEF natives are JBR 17 builds: run on the JDK 17 toolchain, never on whatever JDK runs Gradle.
         javaHome = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
             .get().metadata.installationPath.asFile.absolutePath
         jvmArgs += kcefJvmArgs
-        // D1 only: `run` points the app at the natives in this build dir by absolute path. Shipping the natives inside
-        // the packaged distribution (and resolving them relative to it) is D4a.
+        // `run` points the app at the natives in this build dir by absolute path; the packaged app finds them in its
+        // resources dir instead (stageKcefNatives, CefNativesLocation). Distribution packages ship them there.
         jvmArgs += "-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}"
         // Optional extra Chromium switches for `run`, e.g. -Pkcef.args=--remote-debugging-port=9222 (debugging, CDP).
         providers.gradleProperty("kcef.args").orNull?.let { jvmArgs += "-Dkcef.args=$it" }
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }
+
+// The CEF natives as app resources of the Linux x64 distribution (appResourcesRootDir/<os-arch>/kcef-natives), found
+// at run time through compose.application.resources.dir.
+val stageKcefNatives by tasks.registering(Sync::class) {
+    dependsOn(prepareKcefNatives)
+    from(kcefNativesDir)
+    into(layout.buildDirectory.dir("desktop-resources/linux-x64/kcef-natives"))
+}
+tasks.matching { it.name == "prepareAppResources" || it.name.startsWith("package") }.configureEach {
+    dependsOn(stageKcefNatives)
+}
 
 // Headless desktop Compose (no X server in the container / CI).
 tasks.withType<Test>().configureEach {

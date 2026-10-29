@@ -12,22 +12,20 @@ import androidx.compose.ui.window.application
 import kotlinx.coroutines.delay
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import java.nio.file.Files
-import java.nio.file.Path
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.system.exitProcess
 import javax.swing.SwingUtilities
 
 /**
- * Starts the desktop PoC on the KCEF engine. `kcef.installDir` (set by `./gradlew :desktopApp:run`) names the CEF
- * natives built by `:desktopApp:prepareKcefNatives`; `kcef.args` optionally adds Chromium switches (space-separated).
- * That absolute build-dir path is a D1 arrangement; packaging the natives inside the distribution is D4a.
+ * Starts the desktop PoC on the KCEF engine. The CEF natives come from [CefNativesLocation]: `kcef.installDir` (set by
+ * `./gradlew :desktopApp:run`, built by `:desktopApp:prepareKcefNatives`) or the packaged app's resources dir;
+ * `kcef.args` optionally adds Chromium switches (space-separated).
  * The scenario, theme and spike diagnostics come from the `andbible.poc.*` properties ([PocLaunchOptions]).
  */
 fun main() {
     val options = runCatching { PocLaunchOptions.from(System::getProperty) }.getOrElse { fail(it.message ?: it.toString()) }
-    val installDir = System.getProperty("kcef.installDir")?.let { Path.of(it) }
-        ?: fail("System property kcef.installDir is not set; start the app with ./gradlew :desktopApp:run")
+    val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
     val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
     KcefWebEngine.init(installDir, args).onFailure { fail(it.message ?: it.toString()) }
 
