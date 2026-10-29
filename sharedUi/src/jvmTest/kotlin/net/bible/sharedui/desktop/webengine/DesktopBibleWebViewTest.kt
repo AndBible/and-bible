@@ -65,10 +65,31 @@ class DesktopBibleWebViewTest {
         val c = PocBibleViewController("w1", "{}", true)
         setContent { factory(c, androidx.compose.ui.Modifier) }
         val p = engine.pane("w1")
-        assertTrue(p.scripts.isNotEmpty())
-        assertTrue(p.scripts.any { "__activeLanguages__" in it })
+        // Real document-start ordering is the engine's contract (KDoc) and is pinned in the KCEF engine tests.
         assertEquals(listOf("scripts:w1", "load:w1"), engine.events)
+        assertTrue(p.scripts.isEmpty())
         assertEquals("fake://bundle/index.html?lang=en&night=true", p.url)
+    }
+
+    @Test
+    fun messageDuringCreatePaneIsNotLost() = runComposeUiTest {
+        val early = object : DesktopWebEngine by engine {
+            override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
+                onMessage("""{"method":"setClientReady","args":[]}""")
+                return engine.createPane(id, url, documentStartScripts, onMessage)
+            }
+        }
+        val c = PocBibleViewController("w1", "{}", false)
+        setContent { desktopBibleWebViewFactory(early) {}(c, androidx.compose.ui.Modifier) }
+        assertTrue(engine.pane("w1").evaluated.any { "set_config" in it })
+    }
+
+    @Test
+    fun shimDefinesBothMembers() {
+        val s = androidBridgeShim("window.__post", "[\"en\",\"fi\"]")
+        assertTrue("postMessage" in s && "window.__post" in s)
+        assertTrue("getActiveLanguages" in s && "[\"en\",\"fi\"]" in s)
+        assertTrue("it's" in androidBridgeShim("p", "[\"it's\"]").replace("\\'", "'"))
     }
 
     @Test
