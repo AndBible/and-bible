@@ -31,7 +31,7 @@ if [[ ${FAKE_QEMU_NO_QMP:-0} == 1 ]]; then exec sleep 300; fi
 while (($#)); do
   if [[ "$1" == -qmp ]]; then
     socket_path=${2#unix:}; socket_path=${socket_path%%,*}
-    exec python3 -c 'import json,socket,sys,os,signal,ctypes; signal.signal(signal.SIGTERM, signal.SIG_IGN) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; ctypes.CDLL(None).prctl(15, b"qemu test", 0, 0, 0) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; p=sys.argv[1]; s=socket.socket(socket.AF_UNIX); s.bind(p); s.listen();
+    exec python3 -c 'import json,socket,sys,os,signal,ctypes; signal.signal(signal.SIGTERM, signal.SIG_IGN if os.environ.get("FAKE_QEMU_IGNORE_TERM") else (lambda *_: sys.exit(0))) if os.environ.get("FAKE_QEMU_IGNORE_TERM") or os.environ.get("FAKE_QEMU_CLEAN_EXIT") else None; ctypes.CDLL(None).prctl(15, b"qemu test", 0, 0, 0) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; p=sys.argv[1]; s=socket.socket(socket.AF_UNIX); s.bind(p); s.listen();
 while True:
  c,_=s.accept(); f=c.makefile("rwb",buffering=0);
  if __import__("os").path.exists(__import__("os").environ["WINDOWS_VM_TEST_LOG"]+"/silent-greeting"):
@@ -405,6 +405,31 @@ SH
   rm -f "$FAKE/7z" "$FAKE/ssh"
 }
 
+installSuccessCleansStateAndPromotesBase() {
+  local root="$TMP/success-vm" iso="$TMP/success.iso" output="$TMP/success.out" run_dir
+  printf fake > "$iso"
+  cat > "$FAKE/7z" <<'SH'
+#!/usr/bin/env bash
+printf 'sources/install.wim\nsources/boot.wim\n'
+SH
+  cat > "$FAKE/ssh" <<'SH'
+#!/usr/bin/env bash
+for arg in "$@"; do
+  if [[ "$arg" == UserKnownHostsFile=* ]]; then printf 'fake host key\n' > "${arg#*=}"; fi
+done
+if [[ "$*" == *shutdown.exe* ]]; then kill "$(<"$WINDOWS_VM_DIR/state/$WINDOWS_VM_ID/qemu.pid")"; fi
+exit 0
+SH
+  chmod +x "$FAKE/7z" "$FAKE/ssh"
+  if ! FAKE_QEMU_CLEAN_EXIT=1 WINDOWS_VM_DIR="$root" WINDOWS_VM_BASE="$root/base.qcow2" WINDOWS_VM_ISO="$iso" WINDOWS_VM_INSTALL_TIMEOUT=15 run install >"$output" 2>&1; then fail "successful install exited nonzero: $(<"$output")"; fi
+  [[ -f "$root/base.qcow2" && -f "$root/base.qcow2.vars" ]] || fail 'successful install did not promote base and firmware'
+  [[ $(stat -c %a "$root/base.qcow2") == 400 ]] || fail 'base image not read-only'
+  [[ ! -e "$root/state/$WINDOWS_VM_ID/qemu.pid" && ! -e "$root/state/$WINDOWS_VM_ID/run-dir" ]] || fail 'successful install left stale state'
+  run_dir=$(find "$root/runs/$WINDOWS_VM_ID" -mindepth 1 -maxdepth 1 -type d -print -quit)
+  [[ ! -e "$run_dir/qmp-path" ]] || fail 'successful install left QMP metadata'
+  rm -f "$FAKE/7z" "$FAKE/ssh"
+}
+
 installRejectsCorruptMsi() {
   local root="$TMP/corrupt-vm" iso="$TMP/corrupt.iso" output="$TMP/corrupt.out"
   printf fake > "$iso"
@@ -502,7 +527,7 @@ installRefusesExistingBase() {
   grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
 }
 
-for test in installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in installSuccessCleansStateAndPromotesBase installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

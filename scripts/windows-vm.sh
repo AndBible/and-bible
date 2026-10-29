@@ -306,6 +306,9 @@ PYINSTALL
       ln -sfn "${run_dir}/install-shots" "$VM_DIR/install-shots.new.$$"
       mv -Tf "$VM_DIR/install-shots.new.$$" "$VM_DIR/install-shots"
       printf 'Windows base installed: %s\n' "$BASE"
+      cleanup_qmp_path "$run_dir"
+      rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"
+      trap - EXIT
       return
     fi
     remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
