@@ -51,6 +51,9 @@ class GtkThread(private val driver: MainLoopDriver, name: String = "gtk-main") :
         failure.get()?.let { throw IllegalStateException("Main loop failed to start", it) }
     }
 
+    /** True once the loop has stopped or [close] was called; [post] then drops its block. */
+    val isClosed: Boolean get() = closed
+
     /** True on the loop thread. */
     val isCurrent: Boolean get() = Thread.currentThread() === thread
 

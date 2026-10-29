@@ -65,8 +65,12 @@ class WebKitGtkEngine(
         val handler = BundleSchemeHandler(bundleDir)
         thread.call { BundleScheme.install(handler, log) }
         val scripts = listOf(androidBridgeShim(WEBKIT_POST_MESSAGE_JS, activeLanguagesJson(url))) + documentStartScripts
-        return WebKitGtkPane(id, url, thread, scripts, onMessage) { msg -> log("webkitgtk[$id]: $msg") }
+        // Panes stay referenced for the process lifetime: their JNA callbacks may still fire (a late evaluate result or
+        // signal) after dispose, and a collected callback crashes JNA. Experiment only: one engine per process.
+        return WebKitGtkPane(id, url, thread, scripts, onMessage) { msg -> log("webkitgtk[$id]: $msg") }.also { retained += it }
     }
+
+    private val retained = java.util.Collections.synchronizedList(mutableListOf<WebKitGtkPane>())
 
     /** Stops the GTK thread. Panes must have been disposed first. Idempotent. */
     override fun close() {
@@ -85,7 +89,7 @@ class WebKitGtkEngine(
      */
     fun exitProcess(status: Int): Nothing {
         val thread = synchronized(lock) { gtkThread }
-        if (thread != null) {
+        if (thread != null && !thread.isClosed) {
             thread.post { LibC.exit(status) }
             while (true) Thread.sleep(1_000)
         }
@@ -145,6 +149,7 @@ internal object BundleScheme {
     fun install(bundle: BundleSchemeHandler, logger: (String) -> Unit) {
         handler.set(bundle)
         log = logger
+        // One engine (one GTK thread) per process: the context and the scheme belong to the first engine's GTK thread.
         if (registered) return
         val wk = Gtk.webkit
         val ctx = wk.webkit_web_context_new().also { context = it }

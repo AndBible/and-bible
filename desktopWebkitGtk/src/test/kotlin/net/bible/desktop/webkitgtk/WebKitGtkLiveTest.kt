@@ -29,7 +29,10 @@ class WebKitGtkLiveTest {
         assertEquals("\"ab\"", evaluate(a, "'a'+'b'"))
         assertEquals("\"a\\\"b\"", evaluate(a, "'a\"b'"))
         assertEquals("null", evaluate(a, "undefined"))
+        // "null" is also what the 10 s timeout gives: the exception path must answer long before that.
+        val started = System.nanoTime()
         assertEquals("null", evaluate(a, "throw new Error()"))
+        assertTrue(System.nanoTime() - started < TimeUnit.SECONDS.toNanos(3), "a JS exception was answered only by the timeout")
     }
 
     @Test
