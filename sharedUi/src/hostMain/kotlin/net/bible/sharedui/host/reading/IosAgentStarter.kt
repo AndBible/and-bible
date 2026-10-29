@@ -68,8 +68,8 @@ class IosAgentStarter(
     private val stopAgent: (IdType) -> Unit = AgentSessionManager::stopAgent,
     private val beginBackgroundTask: (onExpire: () -> Unit) -> ULong,
     private val endBackgroundTask: (ULong) -> Unit,
-    /** The identifier [beginBackgroundTask] returns when no task was granted (UIKit's `invalidTaskId`); it is never ended. */
-    private val invalidTaskId: ULong = ULong.MAX_VALUE,
+    /** The identifier [beginBackgroundTask] returns when no task was granted (UIKit's `UIBackgroundTaskInvalid`, 0); it is never ended. */
+    private val invalidTaskId: ULong,
     /** Where the run executes; the agent does model and database work, so not the main thread (Android: `Dispatchers.IO`). */
     private val runContext: CoroutineContext = Dispatchers.Default,
 ) {
