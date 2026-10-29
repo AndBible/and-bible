@@ -49,6 +49,7 @@ import net.bible.sharedui.ios.ports.IosSystemScreens
 import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 import net.bible.sharedui.ios.ports.IosWindowMetrics
+import net.bible.sharedui.ios.ports.iosFreeSpaceBytes
 import org.koin.core.Koin
 
 /**
@@ -76,7 +77,7 @@ fun buildIosHostPorts(
     }
     val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable, IosWindowMetrics())
     val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), { koin.get() })
-    val download = IosDownloadHostPlatform(documents)
+    val download = IosDownloadHostPlatform(documents, ::iosFreeSpaceBytes)
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()

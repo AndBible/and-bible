@@ -27,9 +27,6 @@ import net.bible.sharedcore.log.nsLog
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
-import platform.Foundation.NSFileManager
-import platform.Foundation.NSFileSystemFreeSize
-import platform.Foundation.NSNumber
 import org.crosswire.jsword.book.Book
 
 /**
@@ -41,7 +38,7 @@ internal fun copyFileReplacing(
     from: Path,
     to: Path,
     files: FileSystem = FileSystem.SYSTEM,
-    freeBytes: (String) -> Long? = ::freeSpaceBytes,
+    freeBytes: (String) -> Long?,
 ): Boolean = try {
     val size = files.metadataOrNull(from)?.takeIf { it.isRegularFile }?.size
     if (size == null) {
@@ -75,14 +72,13 @@ internal fun copyFileReplacing(
     false
 }
 
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-private fun freeSpaceBytes(path: String): Long? =
-    (NSFileManager.defaultManager.attributesOfFileSystemForPath(path, null)?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue
-
 /** Device file operations and shared document dialogs for iOS downloads. */
 @kotlin.native.HiddenFromObjC
-class IosDownloadHostPlatform(private val documents: IosDocumentDialogs) : DownloadHostPlatform {
-    override fun copyFile(from: Path, to: Path): Boolean = copyFileReplacing(from, to)
+class IosDownloadHostPlatform(
+    private val documents: IosDocumentDialogs,
+    private val freeBytes: (String) -> Long?,
+) : DownloadHostPlatform {
+    override fun copyFile(from: Path, to: Path): Boolean = copyFileReplacing(from, to, freeBytes = freeBytes)
 
     override suspend fun showAbout(book: Book) = documents.showAboutBook(book)
     override suspend fun unlock(book: Book): Boolean = documents.unlockBook(book)
