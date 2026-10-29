@@ -118,6 +118,9 @@ class WebKitGtkEngine(
  * The process-wide `andbible://` scheme registration. A second registration of a scheme on the same context is a GLib
  * critical, so it happens once and dispatches to the handler of the most recent engine.
  */
+private const val GTK_PHASE_CAPTURE = 1
+private const val X_REVERT_TO_PARENT = 2
+
 internal object BundleScheme {
     private val handler = AtomicReference<BundleSchemeHandler?>()
     private var registered = false
@@ -243,6 +246,20 @@ internal class WebKitGtkPane(
             SwingUtilities.invokeLater { if (!disposed) onMessage(text) }
         }
     }
+    /**
+     * Keyboard focus. X sends key events to the X focus window, which stays AWT's while the pointer works on the
+     * embedded GTK window, so a press anywhere in the pane moves the X input focus to the GTK window (GDK then sees
+     * FocusIn and routes keys and IME to the web view). Capture phase, so WebKit's own handling is untouched.
+     */
+    private val clickPressedCallback = object : ClickPressedCallback {
+        override fun invoke(gesture: Pointer?, nPress: Int, x: Double, y: Double, userData: Pointer?) {
+            val dpy = display ?: return
+            if (gtkXid == 0L || canvasXid == 0L) return
+            val rc = Gtk.x11.XSetInputFocus(dpy, gtkXid, X_REVERT_TO_PARENT, 0L)
+            if (System.getProperty("andbible.d5.focusLog") == "true") log("click n=$nPress: XSetInputFocus(${java.lang.Long.toHexString(gtkXid)}) = $rc")
+        }
+    }
+
     private val loadChangedCallback = object : LoadChangedCallback {
         override fun invoke(view: Pointer?, event: Int, userData: Pointer?) {
             // A new main document cannot answer the old document's evaluations.
@@ -349,6 +366,10 @@ internal class WebKitGtkPane(
         window = win
         gtkLib.gtk_window_set_decorated(win, 0)
         gtkLib.gtk_window_set_child(win, v)
+        val click = gtkLib.gtk_gesture_click_new()
+        gtkLib.gtk_event_controller_set_propagation_phase(click, GTK_PHASE_CAPTURE)
+        Gtk.gobject.g_signal_connect_data(click, "pressed", clickPressedCallback, null, null, 0)
+        gtkLib.gtk_widget_add_controller(win, click)
         gtkLib.gtk_window_set_default_size(win, pixelWidth, pixelHeight)
         // Realize (not present) first, so the X window exists and can be reparented before it is ever mapped at the root.
         gtkLib.gtk_widget_realize(win)

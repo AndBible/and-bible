@@ -34,6 +34,11 @@ interface LoadChangedCallback : Callback {
 }
 
 /** `void (*WebKitURISchemeRequestCallback)(WebKitURISchemeRequest*, gpointer)`. */
+/** `GtkGestureClick::pressed`: `void (GtkGestureClick*, gint n_press, gdouble x, gdouble y, gpointer)`. */
+interface ClickPressedCallback : Callback {
+    fun invoke(gesture: Pointer?, nPress: Int, x: Double, y: Double, userData: Pointer?)
+}
+
 interface SchemeRequestCallback : Callback {
     fun invoke(request: Pointer?, userData: Pointer?)
 }
@@ -84,6 +89,9 @@ interface Gtk4 : Library {
     fun gtk_window_set_default_size(window: Pointer, width: Int, height: Int)
     fun gtk_window_present(window: Pointer)
     fun gtk_window_destroy(window: Pointer)
+    fun gtk_gesture_click_new(): Pointer
+    fun gtk_event_controller_set_propagation_phase(controller: Pointer, phase: Int)
+    fun gtk_widget_add_controller(widget: Pointer, controller: Pointer)
     fun gtk_widget_realize(widget: Pointer)
     fun gtk_native_get_surface(native: Pointer): Pointer?
     fun gdk_display_get_default(): Pointer?
@@ -141,6 +149,7 @@ interface X11 : Library {
     fun XUnmapWindow(display: Pointer, window: Long): Int
     fun XSync(display: Pointer, discard: Int): Int
     fun XDefaultRootWindow(display: Pointer): Long
+    fun XSetInputFocus(display: Pointer, window: Long, revertTo: Int, time: Long): Int
     fun XChangeWindowAttributes(display: Pointer, window: Long, valueMask: Long, attributes: Pointer): Int
 }
 

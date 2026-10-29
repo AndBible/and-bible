@@ -38,7 +38,9 @@ fun main() {
     val index = BibleViewBundle.extractTo(bundleRoot)
     val engine = WebKitGtkEngine(index.parent)
     val session = DesktopWebSession(
-        engine = if (options.spikeLog) SpikeTimingEngine(engine) else engine,
+        engine = (if (options.spikeLog) SpikeTimingEngine(engine) else engine).let { e ->
+            System.getProperty("andbible.d5.frameProbe")?.toLongOrNull()?.let { FrameProbeEngine(e, it) } ?: e
+        }.let { e -> System.getProperty("andbible.d5.eval")?.let { EvalProbeEngine(e, it) } ?: e },
         // The GTK thread stays up: the process ends from it (engine.exitProcess), see below.
         shutdownEngine = {},
         cleanUp = { bundleRoot.toFile().deleteRecursively() },
