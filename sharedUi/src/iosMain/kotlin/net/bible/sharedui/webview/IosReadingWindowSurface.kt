@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedui.webview
 
@@ -23,19 +23,8 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.components.AppToasts
-import net.bible.sharedui.ios.ports.IosExternalLinks
-import net.bible.sharedui.ios.ports.IosTextShare
-import net.bible.sharedui.ios.ports.iosCanPresentShare
-import net.bible.sharedui.ios.ports.iosShareFile
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import net.bible.sharedui.reading.bridge.webSearchUrl
-import platform.Foundation.NSFileManager
-import platform.Foundation.NSString
-import platform.Foundation.NSTemporaryDirectory
-import platform.Foundation.NSUTF8StringEncoding
-import platform.Foundation.create
-import platform.Foundation.writeToFile
-import platform.UIKit.UIPasteboard
 
 /**
  * iOS per-window actions of a reading view (Android: `BibleViewSurface`): copy to the pasteboard, share text through
@@ -45,17 +34,24 @@ import platform.UIKit.UIPasteboard
 @kotlin.native.HiddenFromObjC
 class IosReadingWindowSurface(
     private val host: JsHost,
-    private val links: ExternalLinks = IosExternalLinks(),
-    private val textShare: TextShare = IosTextShare(),
+    private val links: ExternalLinks,
+    private val textShare: TextShare,
     private val toast: (String) -> Unit = { AppToasts.show(it) },
-    private val shareFile: (path: String) -> Unit = ::iosShareFile,
+    private val shareFile: (path: String) -> Unit,
     /** False while a share sheet is already up: [shareHtml] then does nothing, and above all leaves the open sheet's file alone. */
-    private val canShare: () -> Boolean = ::iosCanPresentShare,
+    private val canShare: () -> Boolean,
     /** The temporary directory shared HTML files go under; a parameter for tests. */
-    private val tempDir: () -> String = { NSTemporaryDirectory() },
+    private val tempDir: () -> String,
+    /** Puts text on the system clipboard (iOS: the general pasteboard); runs on the host's post queue. */
+    private val copyToClipboard: (String) -> Unit,
+    /**
+     * Replaces the directory [dir] with a fresh empty one and writes [html] to [path] inside it; false when the write failed.
+     * (iOS: `NSFileManager` plus `NSString.writeToFile`, see `iosWriteSharedHtml`.)
+     */
+    private val writeSharedHtml: (dir: String, path: String, html: String) -> Boolean,
 ) : ReadingWindowSurface {
     override fun copyText(label: String?, text: String) {
-        host.post { UIPasteboard.generalPasteboard.string = text }
+        host.post { copyToClipboard(text) }
     }
 
     override fun shareText(text: String, subject: String?) {
@@ -72,12 +68,8 @@ class IosReadingWindowSurface(
     override fun shareHtml(html: String, title: String) {
         if (!canShare()) return
         val dir = tempDir().trimEnd('/') + "/shared-html"
-        val fm = NSFileManager.defaultManager
-        fm.removeItemAtPath(dir, null)
-        fm.createDirectoryAtPath(dir, withIntermediateDirectories = true, attributes = null, error = null)
         val path = "$dir/${sharedFileName(title)}.html"
-        val written = NSString.create(string = html).writeToFile(path, atomically = true, encoding = NSUTF8StringEncoding, error = null)
-        if (!written) {
+        if (!writeSharedHtml(dir, path, html)) {
             nsLog("shareHtml: could not write $path")
             return
         }

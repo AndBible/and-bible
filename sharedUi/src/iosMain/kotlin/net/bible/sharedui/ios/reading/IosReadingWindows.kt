@@ -53,7 +53,7 @@ import net.bible.sharedui.reading.session.activeLanguagesJson
 import net.bible.sharedui.reading.session.readingVerseChooser
 import net.bible.sharedui.reading.session.watchSettingKeys
 import net.bible.sharedui.webview.IosReadingWebViews
-import net.bible.sharedui.webview.IosReadingWindowSurface
+import net.bible.sharedui.webview.iosReadingWindowSurface
 import net.bible.sharedui.webview.WkWebViewJsHost
 import net.bible.sharedui.webview.activeLanguagesScript
 import org.koin.core.Koin
@@ -227,7 +227,7 @@ object IosReadingWindows {
             window = window,
             jsChannel = BibleViewJsChannel(host) { nsLog("bridge[$windowId]: $it") },
             hostScope = { b.scope },
-            surface = IosReadingWindowSurface(host, links = koin.get<ExternalLinks>()),
+            surface = iosReadingWindowSurface(host, links = koin.get<ExternalLinks>()),
             navigator = b.host.navigator,
         )
         try {
