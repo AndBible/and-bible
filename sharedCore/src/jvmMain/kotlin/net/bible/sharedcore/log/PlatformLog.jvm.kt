@@ -10,7 +10,20 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.time.Instant
 
+private val recentJvmLog = RecentJvmLog()
+
+fun recentLogSnapshot(): String = recentJvmLog.snapshot()
+
+internal class RecentJvmLog(private val limit: Int = 256 * 1024) {
+    private var text = ""
+
+    @Synchronized fun append(line: String) { text = (text + line + "\n").takeLast(limit) }
+    @Synchronized fun snapshot(): String = text
+}
+
 internal actual fun platformLog(level: LogLevel, tag: String, msg: String, tr: Throwable?) {
+    val text = if (tr == null) msg else "$msg\n${tr.stackTraceToString()}"
+    recentJvmLog.append("${level.name.first()}/$tag: $text")
     System.err.println("${level.name.first()}/$tag: $msg")
     tr?.printStackTrace()
     DesktopLogFile.write(level, tag, msg, tr)

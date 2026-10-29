@@ -27,7 +27,6 @@ import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.settings.TextDisplaySettingsRouteEntry
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.llm.agent.AgentPlatform
-import net.bible.service.llm.agent.RawLlmLog
 import net.bible.service.llm.agent.ToolPermissionAnswer
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
@@ -55,6 +54,21 @@ import net.bible.sharedui.app.ports.TextDisplayPlatform
 import okio.Sink
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.mp.KoinPlatform
+import net.bible.sharedcore.log.recentLogSnapshot
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
+import net.bible.sharedcore.platform.files.FileDelivery
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
+import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
+import net.bible.sharedui.desktop.misc.DesktopCrashTracker
+import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
@@ -101,12 +115,19 @@ class DesktopNightModeStub(private val deviceSettings: DesktopDeviceSettings) : 
     }
 }
 
-/**
- * The crash-recovery gate for `main()`, built before Koin exists (D3d's crash tracker starts here). Today: no gate, no
- * report.
- */
-@Suppress("UNUSED_PARAMETER")
-fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate = DesktopCrashGate(recoveryRequired = { false }, reportBug = {})
+/** Installs crash capture before the database or dependency graph exists. */
+fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
+    val tracker = DesktopCrashTracker(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)), paths.data.resolve("logs"))
+    tracker.install()
+    tracker.onLaunch()
+    if (System.getProperty("andbible.debug.startupCrash") == "true" && !tracker.shouldOfferRecovery()) {
+        throw IllegalStateException("Deliberate desktop startup crash")
+    }
+    return DesktopCrashGate(
+        recoveryRequired = tracker::shouldOfferRecovery,
+        reportBug = { KoinPlatform.getKoinOrNull()?.get<DesktopBugReport>()?.report(null) },
+    )
+}
 
 class DesktopNotificationPermissionStub : NotificationPermission {
     override suspend fun request() = Unit
@@ -119,11 +140,6 @@ class DesktopSystemScreensStub : SystemScreens {
 class DesktopDebugActionsStub : DebugActions {
     override fun crashAppDelayed() = pending("DebugActions.crashAppDelayed")
     override fun showTestError(message: String) = pending("DebugActions.showTestError")
-}
-
-class DesktopBugReportPlatformStub : BugReportPlatform {
-    override suspend fun reportRecord(recordId: String) = pending("BugReportPlatform.reportRecord")
-    override suspend fun reportRawLog(rawLog: RawLlmLog) = pending("BugReportPlatform.reportRawLog")
 }
 
 class DesktopReadingPlanSourceStub : ReadingPlanSource {
@@ -214,8 +230,37 @@ fun desktopMiscModule(): Module = module {
     single<NotificationPermission> { DesktopNotificationPermissionStub() }
     single<SystemScreens> { DesktopSystemScreensStub() }
     single<DebugActions> { DesktopDebugActionsStub() }
-    single<BugReportPlatform> { DesktopBugReportPlatformStub() }
-    single<DesktopBugReport> { DesktopBugReport { pending("BugReport.report") } }
+    single {
+        val table = get<IosStringTableHolder>()
+        val dialogs = get<AppDialogController>()
+        val delivery = get<FileDelivery>()
+        val links = get<ExternalLinks>()
+        val dirs = get<AppDirectories>()
+        ConcreteBugReport(
+            directory = Path.of(get<DesktopAppEnvironment>().cacheDir).resolve("reports"),
+            version = get<DesktopAppEnvironment>().versionName,
+            log = ::recentLogSnapshot,
+            deliver = { path, name, subject -> delivery.deliver(path.toString(), name, SaveOrShare.SAVE,
+                "application/gzip", "application/gzip", subject, null, table.current.text("bug_report_email_title")) },
+            open = links::open,
+            confirm = { ai ->
+                val strings = table.current
+                dialogs.await(AppDialogRequest.Confirm(
+                    strings.text(if (ai) "send_ai_bug_report_title" else "bug_report_email_title"),
+                    strings.text("bug_report_email_text"), strings.text("okay"), strings.text("cancel"),
+                )) == AppDialogResult.Ok
+            },
+            failure = { error ->
+                Log.w(TAG, "Report preparation failed", error)
+                val strings = table.current
+                dialogs.await(AppDialogRequest.Message(strings.text("error"), strings.text("bug_report_prepare_failed"), strings.text("okay")))
+            },
+            introduction = { table.current.text("report_bug_line_1") },
+            crashFile = Path.of(dirs.internalFilesDir.toString()).resolve("logs/last_crash.txt"),
+        )
+    }
+    single<BugReportPlatform> { DesktopBugReportPlatform(get()) }
+    single<DesktopBugReport> { get<ConcreteBugReport>() }
     single<ReadingPlanSource> { DesktopReadingPlanSourceStub() }
     single<AgentPlatform> { DesktopAgentPlatformStub() }
     single<TextDisplayPlatform> { DesktopTextDisplayPlatformStub { get<TextDisplaySettingsServiceImpl>() } }
