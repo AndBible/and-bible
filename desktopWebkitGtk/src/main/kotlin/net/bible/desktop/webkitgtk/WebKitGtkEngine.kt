@@ -306,8 +306,8 @@ internal class WebKitGtkPane(
         val gtkLib = Gtk.gtk
         val v = wk.webkit_web_view_new()
         view = v
-        val rgb = if (WebKitGtkEngine.isNight(url)) 0.0 else 1.0
-        wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1.0))
+        val rgb = if (WebKitGtkEngine.isNight(url)) 0f else 1f
+        wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1f))
 
         val ucm = wk.webkit_web_view_get_user_content_manager(v)
         if (wk.webkit_user_content_manager_register_script_message_handler(ucm, "bridge", null) == 0) {
@@ -332,11 +332,15 @@ internal class WebKitGtkPane(
         val dpy = gtkLib.gdk_display_get_default()
         if (surface == null || dpy == null) error("GTK window has no surface or display after realize")
         gtkXid = gtkLib.gdk_x11_surface_get_xid(surface)
-        display = gtkLib.gdk_x11_display_get_xdisplay(dpy)
+        display = gtkLib.gdk_x11_display_get_xdisplay(dpy).also { Gtk.setOverrideRedirect(it, gtkXid) }
+        // Presented only once it sits inside the canvas (attachIfReady): mapped at the root first, a window manager
+        // would take it over (Weston's Xwayland WM framed it and the panes stayed blank).
         attachIfReady()
-        gtkLib.gtk_window_present(win)
         wk.webkit_web_view_load_uri(v, url)
     }
+
+    /** GTK thread: whether the GTK window was presented (it is, at its first attach). */
+    private var presented = false
 
     /** GTK thread: reparents the GTK window into the canvas once both exist. */
     private fun attachIfReady() {
@@ -345,7 +349,12 @@ internal class WebKitGtkPane(
         val x = Gtk.x11
         x.XReparentWindow(dpy, gtkXid, canvasXid, 0, 0)
         x.XMoveResizeWindow(dpy, gtkXid, 0, 0, pixelWidth, pixelHeight)
-        x.XMapWindow(dpy, gtkXid)
+        if (!presented) {
+            presented = true
+            Gtk.gtk.gtk_window_present(window!!)
+        } else {
+            x.XMapWindow(dpy, gtkXid)
+        }
         x.XSync(dpy, 0)
     }
 

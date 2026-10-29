@@ -43,13 +43,13 @@ interface SourceFunc : Callback {
     fun invoke(userData: Pointer?): Int
 }
 
-/** `GdkRGBA`: four doubles in 0..1. */
+/** `GdkRGBA`: four floats in 0..1 (GTK4; GTK3 used doubles). */
 @Structure.FieldOrder("red", "green", "blue", "alpha")
 class GdkRGBA(
-    @JvmField var red: Double = 0.0,
-    @JvmField var green: Double = 0.0,
-    @JvmField var blue: Double = 0.0,
-    @JvmField var alpha: Double = 1.0,
+    @JvmField var red: Float = 0f,
+    @JvmField var green: Float = 0f,
+    @JvmField var blue: Float = 0f,
+    @JvmField var alpha: Float = 1f,
 ) : Structure()
 
 interface GLib : Library {
@@ -133,6 +133,7 @@ interface X11 : Library {
     fun XUnmapWindow(display: Pointer, window: Long): Int
     fun XSync(display: Pointer, discard: Int): Int
     fun XDefaultRootWindow(display: Pointer): Long
+    fun XChangeWindowAttributes(display: Pointer, window: Long, valueMask: Long, attributes: Pointer): Int
 }
 
 /** WebKitGTK's `WEBKIT_USER_CONTENT_INJECT_TOP_FRAME`, `WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START`, `WEBKIT_LOAD_STARTED`. */
@@ -170,6 +171,16 @@ internal object Gtk {
     val webkit: WebKit by lazy { load(WebKit::class.java, "libwebkitgtk-6.0.so.4", "webkitgtk-6.0") }
     val jsc: Jsc by lazy { load(Jsc::class.java, "libjavascriptcoregtk-6.0.so.1", "javascriptcoregtk-6.0") }
     val x11: X11 by lazy { load(X11::class.java, "libX11.so.6", "X11") }
+
+    /**
+     * Marks [window] override-redirect, so no window manager ever manages (frames, moves, reparents) it. A GTK toplevel
+     * embedded into an AWT canvas must never be mapped as a managed toplevel first. LP64 `XSetWindowAttributes`
+     * layout: `override_redirect` is the `Bool` at offset 88 of the 112-byte struct; `CWOverrideRedirect` is 1 shl 9.
+     */
+    fun setOverrideRedirect(display: Pointer, window: Long) {
+        val attributes = com.sun.jna.Memory(112).apply { clear(); setInt(88, 1) }
+        x11.XChangeWindowAttributes(display, window, 1L shl 9, attributes)
+    }
 
     /** The address of `g_free`, usable as a `GDestroyNotify`. */
     val gFreeNotify: Pointer by lazy { NativeLibrary.getInstance(glibName).getFunction("g_free") }
