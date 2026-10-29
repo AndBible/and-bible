@@ -284,7 +284,13 @@ class IosReadingHost(
         )
     }
 
-    private val agentStarter: IosAgentStarter by lazy { IosAgentStarter(scope, windowRepositoryId = ::currentWorkspaceId) }
+    private val agentStarter: IosAgentStarter by lazy {
+        IosAgentStarter(
+            scope, windowRepositoryId = ::currentWorkspaceId,
+            beginBackgroundTask = ::iosBeginAgentBackgroundTask, endBackgroundTask = ::iosEndAgentBackgroundTask,
+            invalidTaskId = iosInvalidBackgroundTaskId,
+        )
+    }
 
     /** The workspace an agent run starts in (read at start time). */
     internal fun currentWorkspaceId(): IdType = windowControl.windowRepository.id

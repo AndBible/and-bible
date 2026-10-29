@@ -19,6 +19,8 @@
 
 package net.bible.sharedui.ios.reading
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -31,9 +33,6 @@ import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.log.nsLog
-import platform.Foundation.NSRecursiveLock
-import platform.UIKit.UIApplication
-import platform.UIKit.UIBackgroundTaskInvalid
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -45,7 +44,8 @@ import kotlin.coroutines.CoroutineContext
  * (Android's cancel action) and the run cancelled, because the app is about to be suspended; nothing is left half-running.
  * The progress, the result window and the failure messages are the session manager's own, shown by the agent log.
  *
- * The collaborators are constructor parameters only so a test can replace them; the defaults are the production ones.
+ * The collaborators are constructor parameters only so a test can replace them; the defaults are the production ones, except
+ * the background-task calls, which the iOS entry point supplies (UIKit, see `iosBeginAgentBackgroundTask`).
  *
  * @param windowRepositoryId the current workspace id, read when a run starts; the run's agent session is the one keyed by it
  */
@@ -66,10 +66,10 @@ class IosAgentStarter(
         },
     /** Stops the workspace's agent session; called on the main thread from the expiry handler, so it must not block (it does not: it cancels the run's job and logs). */
     private val stopAgent: (IdType) -> Unit = AgentSessionManager::stopAgent,
-    private val beginBackgroundTask: (onExpire: () -> Unit) -> ULong = { onExpire ->
-        UIApplication.sharedApplication.beginBackgroundTaskWithName("agent-run") { onExpire() }
-    },
-    private val endBackgroundTask: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
+    private val beginBackgroundTask: (onExpire: () -> Unit) -> ULong,
+    private val endBackgroundTask: (ULong) -> Unit,
+    /** The identifier [beginBackgroundTask] returns when no task was granted (UIKit's `invalidTaskId`); it is never ended. */
+    private val invalidTaskId: ULong = ULong.MAX_VALUE,
     /** Where the run executes; the agent does model and database work, so not the main thread (Android: `Dispatchers.IO`). */
     private val runContext: CoroutineContext = Dispatchers.Default,
 ) {
@@ -99,7 +99,7 @@ class IosAgentStarter(
      */
     private fun launchRun(body: suspend () -> Unit) {
         val workspaceId = windowRepositoryId()
-        val lock = NSRecursiveLock()
+        val lock = SynchronizedObject()
         var identifier: ULong? = null
         var expired = false
         var ended = false
@@ -107,15 +107,15 @@ class IosAgentStarter(
 
         // UIKit terminates an app whose expiration handler returns with the task still open, so the handler itself ends it;
         // the run's own end and the handler race, hence exactly once.
-        fun endOnce() = lock.withLock {
-            val id = identifier ?: return@withLock
-            if (ended) return@withLock
+        fun endOnce() = synchronized(lock) {
+            val id = identifier ?: return@synchronized
+            if (ended) return@synchronized
             ended = true
-            if (id != UIBackgroundTaskInvalid) endBackgroundTask(id)
+            if (id != invalidTaskId) endBackgroundTask(id)
         }
 
         fun onExpire() {
-            val running = lock.withLock { expired = true; job }
+            val running = synchronized(lock) { expired = true; job }
             try {
                 if (running != null && !running.isCompleted) {
                     nsLog("IosAgentStarter: background time expired; stopping the agent of workspace $workspaceId")
@@ -128,7 +128,7 @@ class IosAgentStarter(
         }
 
         val id = beginBackgroundTask { onExpire() }
-        lock.withLock { identifier = id }
+        synchronized(lock) { identifier = id }
         // LAZY, like the Android service (F123): the job is known to the expiry handler before the run can end.
         val run = scope.launch(runContext, start = CoroutineStart.LAZY) {
             try {
@@ -142,21 +142,12 @@ class IosAgentStarter(
             }
         }
         // Expiry can arrive inside beginBackgroundTask, before UIKit returned the identifier: then nothing runs.
-        val expiredAlready = lock.withLock { job = run; expired }
+        val expiredAlready = synchronized(lock) { job = run; expired }
         if (expiredAlready) {
             run.cancel()
             endOnce()
             return
         }
         run.start()
-    }
-}
-
-private inline fun <T> NSRecursiveLock.withLock(block: () -> T): T {
-    lock()
-    try {
-        return block()
-    } finally {
-        unlock()
     }
 }
