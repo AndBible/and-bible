@@ -100,6 +100,9 @@ import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedlogic.platform.ios.IosNightModeState
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.ios.ports.iosBundleVersionName
 import net.bible.sharedlogic.settings.RecentDisplaySettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedui.app.ports.ClipboardText
@@ -561,6 +564,10 @@ class IosReadingHost(
      * The toolbar, overflow menu and drawer over the iOS controls ([IosReadingToolbarHost]); the common decision logic
      * and the menus built from it follow.
      */
+    /** What the toolbar host used to default to: a fresh `IosDeviceSettings()` and a night state over it, built on first use. */
+    private val toolbarDeviceSettings = IosDeviceSettings()
+    private val toolbarNightState by lazy { IosNightModeState(toolbarDeviceSettings) }
+
     internal val toolbarHost: IosReadingToolbarHost = IosReadingToolbarHost(
         scope = scope,
         shell = shell,
@@ -585,8 +592,14 @@ class IosReadingHost(
         fakeBooks = { koin.get<FakeBookFactory>() },
         llmConfiguredSource = ::llmConfigured,
         showLlmActionsSource = ::showWorkspaceLlmActions,
+        deviceSettings = toolbarDeviceSettings,
+        nightModeOn = { toolbarNightState.nightMode },
+        nightModeManual = { toolbarNightState.mode == "manual" },
+        versionNameSource = ::iosBundleVersionName,
+        tiltAvailable = { iosMotionManager.deviceMotionAvailable },
         extras = koin.getOrNull<IosReadingExtras>() ?: IosReadingExtras.None,
     )
+
 
     private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
 

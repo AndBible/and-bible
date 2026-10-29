@@ -48,8 +48,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.navigation.DocumentSheetScope
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedcore.reading.KeyChooserKind
+import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.QuickDocRow
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -71,7 +71,6 @@ import net.bible.sharedui.reading.toolbar.resolveKeyChooserOpening
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import platform.Foundation.NSBundle
 
 /**
  * The iOS side of the reading toolbar, overflow menu and drawer: implements the common [ReadingToolbarHost],
@@ -115,8 +114,15 @@ internal class IosReadingToolbarHost(
     private val llmConfiguredSource: () -> Boolean = { false },
     /** Opens the prompt selector for the workspace menu (the overflow "AI Actions" row). */
     private val showLlmActionsSource: () -> Unit = {},
-    private val deviceSettings: IosDeviceSettings = IosDeviceSettings(),
-    private val tiltAvailable: () -> Boolean = { iosMotionManager.deviceMotionAvailable },
+    private val deviceSettings: DeviceLocalPrefs,
+    /** The resolved night mode (the iOS host reads `IosNightModeState`, which is live on every call). */
+    private val nightModeOn: () -> Boolean,
+    /** Whether the night mode preference is "manual", the only mode the overflow toggle can switch. */
+    private val nightModeManual: () -> Boolean,
+    /** The app's version name, shown by the drawer. */
+    private val versionNameSource: () -> String,
+    /** Whether tilt-to-scroll is possible on this device; a host without a motion sensor keeps the default. */
+    private val tiltAvailable: () -> Boolean = { false },
     /** The drawer's help, licence, bug report, tell a friend, rate and buy rows; [IosReadingExtras.None] hides them all. */
     private val extras: IosReadingExtras = IosReadingExtras.None,
 ) : ReadingToolbarHost, ReadingOverflowHost, ReadingDrawerHost {
@@ -303,13 +309,11 @@ internal class IosReadingToolbarHost(
 
     override fun toggleFullScreen() = toggleFullScreen.invoke()
 
-    private val nightState by lazy { net.bible.sharedlogic.platform.ios.IosNightModeState(deviceSettings) }
-
-    override fun nightMode(): Boolean = nightState.nightMode
+    override fun nightMode(): Boolean = nightModeOn()
 
     /** Like Android's overflow row, the toggle only works in manual mode; "system" (the default) follows the appearance. */
-    override fun nightModeSwitchable(): Boolean = nightState.mode == "manual"
-    override fun setNightMode(on: Boolean) = deviceSettings.putBoolean(NIGHT_MODE_KEY, on)
+    override fun nightModeSwitchable(): Boolean = nightModeManual()
+    override fun setNightMode(on: Boolean) = deviceSettings.setBoolean(NIGHT_MODE_KEY, on)
 
     override fun tiltPossible(): Boolean = tiltAvailable()
     override fun tiltToScroll(): Boolean = repository.workspaceSettings.enableTiltToScroll
@@ -399,8 +403,7 @@ internal class IosReadingToolbarHost(
 
     override fun searchable(): Boolean = activePageManager.currentPage.isSearchable
     override fun speakable(): Boolean = activePageManager.currentPage.isSpeakable
-    override fun versionName(): String =
-        NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
+    override fun versionName(): String = versionNameSource()
 
     private companion object {
         /** The manual night mode preference (`IosNightModeState` reads the same key). */
