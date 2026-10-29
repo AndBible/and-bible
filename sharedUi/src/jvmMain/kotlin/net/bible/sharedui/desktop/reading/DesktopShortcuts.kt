@@ -98,10 +98,14 @@ class DesktopShortcuts(
         return true
     }
 
-    /** A Ctrl+wheel step in a pane: [deltaY] < 0 (wheel up) = larger text. Same action as Ctrl+Plus/Minus. */
-    fun onZoom(deltaY: Double): Boolean {
-        if (deltaY == 0.0) return false
-        return reading { actions.changeFontSize(if (deltaY < 0) FontSizeChange.Larger else FontSizeChange.Smaller) }
+    /** [steps] Ctrl+wheel steps in a pane: [deltaY] < 0 (wheel up) = larger text. Same action as Ctrl+Plus/Minus. */
+    fun onZoom(deltaY: Double, steps: Int = 1): Boolean {
+        if (deltaY == 0.0 || steps < 1) return false
+        return reading {
+            repeat(steps.coerceAtMost(MAX_ZOOM_STEPS)) {
+                actions.changeFontSize(if (deltaY < 0) FontSizeChange.Larger else FontSizeChange.Smaller)
+            }
+        }
     }
 
     /** Handles [chord] for [windowId] (the pane's window, null for a Compose key: the active window). True = consumed. */
@@ -144,6 +148,10 @@ class DesktopShortcuts(
             "Tab" -> reading { if (chord.shift) actions.focusPreviousWindow() else actions.focusNextWindow() }
             else -> false
         }
+    }
+
+    private companion object {
+        const val MAX_ZOOM_STEPS = 10
     }
 
     private inline fun reading(block: () -> Unit): Boolean {

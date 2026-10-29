@@ -116,7 +116,7 @@ class DesktopReadingInputImpl(
                 m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
                 (m["t"]?.jsonPrimitive?.doubleOrNull ?: System.nanoTime() / 1_000_000.0).toLong(),
             )
-            "zoom" -> shortcuts.onZoom(m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0)
+            "zoom" -> shortcuts.onZoom(m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0, m["steps"]?.jsonPrimitive?.intOrNull ?: 1)
             "click" -> gestures.onClick(windowId)
             else -> if (type != null) extensions[type]?.invoke(windowId, m)
         }
@@ -128,17 +128,33 @@ class DesktopReadingInputImpl(
 
     private fun JsonObject.bool(name: String) = this[name]?.jsonPrimitive?.booleanOrNull ?: false
 
+    /** A key-down chord was consumed and its key is still down: the typed character that follows belongs to it. */
+    private var swallowTyped = false
+
     override fun onPreviewKeyEvent(event: KeyEvent): Boolean {
-        if (event.type != KeyEventType.KeyDown || !event.isCtrlPressed && !event.isMetaPressed) return false
-        val chord = composeChord(event) ?: return false
-        return shortcuts.onChord(chord, null)
+        when {
+            event.type == KeyEventType.KeyUp -> swallowTyped = false
+            // Compose delivers the AWT KEY_TYPED as its own event (type Unknown); a consumed chord must not type its character.
+            isTyped(event) -> return swallowTyped
+            event.type == KeyEventType.KeyDown -> {
+                swallowTyped = false
+                if (!event.isCtrlPressed && !event.isMetaPressed) return false
+                val chord = composeChord(event) ?: return false
+                swallowTyped = shortcuts.onChord(chord, null)
+                return swallowTyped
+            }
+        }
+        return false
     }
+
+    /** The AWT KEY_TYPED reaches Compose as an event of type Unknown (key down and up have their own types). */
+    private fun isTyped(event: KeyEvent) = event.type == KeyEventType.Unknown
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         if (event.type != KeyEventType.KeyDown) return false
         val chord = composeChord(event) ?: return false
         if (!(chord.alt || chord.key == "F11") || chord.ctrl) return false
-        return shortcuts.onChord(chord, null)
+        return shortcuts.onChord(chord, null).also { if (it) swallowTyped = true }
     }
 
     private fun ensureMouseListener() {

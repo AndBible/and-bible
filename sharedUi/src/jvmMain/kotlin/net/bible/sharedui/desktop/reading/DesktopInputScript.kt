@@ -138,21 +138,26 @@ window.addEventListener('keydown', function (e) {
 
     /**
      * Ctrl+wheel: Chromium would zoom the page, a second zoom path next to the font size shortcuts. Cancelled (hence
-     * non-passive) and reported as one zoom step per animation frame, `dy` < 0 (wheel up) = bigger.
+     * non-passive). The deltas accumulate (a trackpad pinch is many small events) and one zoom message is posted per
+     * animation frame with `steps` whole steps of 100 px (a classic mouse notch of 100-120 px is one step) and the
+     * direction in `dy`: negative (wheel up) = bigger. The remainder carries over.
      */
     const val ZOOM_PART: String = """
 (function () {
-  var dy = 0, pending = false;
+  var acc = 0, pending = false;
   window.addEventListener('wheel', function (e) {
     if (!e.ctrlKey) return;
     e.preventDefault();
-    dy += e.deltaY;
+    acc += e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? window.innerHeight : 1));
     if (pending) return;
     pending = true;
     requestAnimationFrame(function () {
       pending = false;
-      var y = dy; dy = 0;
-      if (y !== 0) window.__abDesktop.post({type: 'zoom', dy: y});
+      var steps = Math.floor(Math.abs(acc) / 100);
+      if (steps < 1) return;
+      var sign = acc < 0 ? -1 : 1;
+      acc -= sign * steps * 100;
+      window.__abDesktop.post({type: 'zoom', dy: sign, steps: steps});
     });
   }, {passive: false, capture: true});
 })();

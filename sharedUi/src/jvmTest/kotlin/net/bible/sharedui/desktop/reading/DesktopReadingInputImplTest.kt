@@ -73,10 +73,32 @@ class DesktopReadingInputImplTest {
         assertEquals(listOf("goto:w1"), rec.log)
     }
 
+    // Compose's own AWT conversion is internal; its events are the same shape: key down/up by type, the KEY_TYPED as Unknown.
+    private fun keyEv(type: KeyEventType, ctrl: Boolean) =
+        KeyEvent(Key.Comma, type, codePoint = ','.code, isCtrlPressed = ctrl)
+
+    @Test fun typedCharacterOfAConsumedChordIsConsumedToo() {
+        val pressed = keyEv(KeyEventType.KeyDown, true)
+        val typed = keyEv(KeyEventType.Unknown, true)
+        val released = keyEv(KeyEventType.KeyUp, true)
+        assertTrue(input.onPreviewKeyEvent(pressed))
+        assertTrue(input.onPreviewKeyEvent(typed))
+        assertFalse(input.onPreviewKeyEvent(released))
+        // After the key-up a typed character is the user's again.
+        assertFalse(input.onPreviewKeyEvent(typed))
+        assertEquals(listOf("settings"), rec.log)
+    }
+
+    @Test fun plainTypedCommaIsNotConsumed() {
+        assertFalse(input.onPreviewKeyEvent(keyEv(KeyEventType.KeyDown, false)))
+        assertFalse(input.onPreviewKeyEvent(keyEv(KeyEventType.Unknown, false)))
+        assertEquals(emptyList(), rec.log)
+    }
+
     @Test fun zoomMessagesChangeFontSize() {
         input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":-100}"))
-        input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":100}"))
-        assertEquals(listOf("font:Larger", "font:Smaller"), rec.log)
+        input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":1,\"steps\":2}"))
+        assertEquals(listOf("font:Larger", "font:Smaller", "font:Smaller"), rec.log)
     }
 
     @Test fun scriptKeepsFieldKeysFromThePageWithoutBlockingTheTarget() {
@@ -85,7 +107,7 @@ class DesktopReadingInputImplTest {
         assertTrue(k.contains("t.addEventListener('keydown', f)")) // one-shot target listener, after the target's own
         assertFalse(k.contains("e.stopPropagation(); return;")) // no window-level stop for field keys
         val z = DesktopInputScript.ZOOM_PART
-        assertTrue(z.contains("preventDefault") && z.contains("passive: false"))
+        assertTrue(z.contains("preventDefault") && z.contains("passive: false") && z.contains("steps"))
     }
 
     @Test fun mouseButtonsMapToBackAndForward() {

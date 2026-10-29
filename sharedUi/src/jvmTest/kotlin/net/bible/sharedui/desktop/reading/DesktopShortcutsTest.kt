@@ -188,10 +188,12 @@ class DesktopShortcutsTest {
 
     @Test fun ctrlWheelZoomsLikeCtrlPlusMinus() {
         assertTrue(shortcuts.onZoom(-120.0))
-        assertTrue(shortcuts.onZoom(120.0))
+        assertTrue(shortcuts.onZoom(1.0))
+        assertTrue(shortcuts.onZoom(-1.0, steps = 2))
+        assertFalse(shortcuts.onZoom(1.0, steps = 0))
         assertFalse(shortcuts.onZoom(0.0))
         actions.reading = false
         assertFalse(shortcuts.onZoom(-120.0))
-        assertEquals(listOf("font:Larger", "font:Smaller"), actions.log)
+        assertEquals(listOf("font:Larger", "font:Smaller", "font:Larger", "font:Larger"), actions.log)
     }
 }
