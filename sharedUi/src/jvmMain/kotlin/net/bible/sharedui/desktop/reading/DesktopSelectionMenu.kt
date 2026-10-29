@@ -149,10 +149,7 @@ class DesktopSelectionMenu(
   function onScroll(e) { if (menu && !(e.target && e.target.nodeType && menu.contains(e.target))) close(); }
   window.addEventListener('wheel', onScroll, {passive: true, capture: true});
   window.addEventListener('scroll', onScroll, true);
-  // KCEF blurs and refocuses the page window while a pane is clicked: only a blur that lasts closes the menu.
-  window.addEventListener('blur', function () {
-    setTimeout(function () { if (menu && !document.hasFocus()) close(); }, 250);
-  });
+  // No blur-close: KCEF blurs the page window while a pane is clicked and keeps the focus elsewhere.
   window.addEventListener('resize', function () { close(); });
   function place(x, y) {
     var r = menu.getBoundingClientRect(), w = window.innerWidth, h = window.innerHeight;

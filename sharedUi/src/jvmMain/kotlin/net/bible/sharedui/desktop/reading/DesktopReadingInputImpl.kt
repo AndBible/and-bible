@@ -120,7 +120,7 @@ class DesktopReadingInputImpl(
             )
             "mouse" -> m["button"]?.jsonPrimitive?.intOrNull
                 ?.let(DesktopBackDispatcher::navigationForDomMouseButton)
-                ?.let { shortcuts.onNavigation(it) }
+                ?.let { shortcuts.onNavigation(it, windowId) }
             "wheel" -> gestures.onWheel(
                 windowId,
                 m["dx"]?.jsonPrimitive?.doubleOrNull ?: 0.0,

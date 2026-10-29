@@ -28,6 +28,7 @@ import kotlin.test.assertTrue
 class DesktopReadingInputImplTest {
     private class Rec : DesktopShortcutActions {
         val log = mutableListOf<String>()
+        val modalChecks = mutableListOf<String?>()
         override fun isOnReadingScreen() = true
         override fun activeWindowId() = "active"
         override fun search(windowId: String) { log += "search:$windowId" }
@@ -40,7 +41,7 @@ class DesktopReadingInputImplTest {
         override fun toggleFullScreen() { log += "fs" }
         override fun openSettings() { log += "settings" }
         override fun escapeAllowed(windowId: String) = true
-        override fun closePageModals(windowId: String?) = false
+        override fun closePageModals(windowId: String?): Boolean { modalChecks += windowId; return false }
     }
 
     private val rec = Rec()
@@ -125,6 +126,11 @@ class DesktopReadingInputImplTest {
         input.handleMessage("w1", msg("{\"type\":\"mouse\",\"button\":3}"))
         input.handleMessage("w1", msg("{\"type\":\"mouse\",\"button\":4}"))
         assertEquals(listOf("back:true"), rec.log)
+    }
+
+    @Test fun mouseBackPassesItsPaneToTheModalCheck() {
+        input.handleMessage("w2", msg("{\"type\":\"mouse\",\"button\":3}"))
+        assertEquals(listOf<String?>("w2"), rec.modalChecks)
     }
 
     @Test fun extensionsGetTheirMessages() {
