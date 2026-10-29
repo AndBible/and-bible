@@ -44,6 +44,7 @@ import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.UIKit.UIWindowScene
 import kotlin.math.max
+import net.bible.sharedui.host.reading.TiltScrollSession
 
 /** The app's one `CMMotionManager` (Apple: create a single instance per app; the overflow menu probes it too). */
 internal val iosMotionManager: CMMotionManager by lazy { CMMotionManager() }

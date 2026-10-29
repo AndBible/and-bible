@@ -28,6 +28,9 @@ import net.bible.sharedui.nav.NavResultChannel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.ChooserKind
+import net.bible.sharedui.host.reading.ChooserTarget
+import net.bible.sharedui.host.reading.IosReadingResults
 
 /** Chooser answers reach the window that asked ([IosReadingResults]); the target stands in for that window's page manager. */
 class IosReadingResultsTest {

@@ -7,6 +7,7 @@ import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.strings.keyed.StringTable
 import platform.Foundation.NSBundle
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosHelpDialogs
 
 internal fun task4Table(language: String = "en") = StringTable(
     language, { "$language:$it" },

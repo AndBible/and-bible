@@ -25,6 +25,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.IosSelectionMenu
+import net.bible.sharedui.host.reading.SelectionMenuEnvironment
+import net.bible.sharedui.host.reading.SelectionMenuWindow
 
 /** The selection menu's cache, policy wiring and dispatch, over fake windows (the production wiring is Koin and WebKit bound). */
 class IosSelectionMenuTest {

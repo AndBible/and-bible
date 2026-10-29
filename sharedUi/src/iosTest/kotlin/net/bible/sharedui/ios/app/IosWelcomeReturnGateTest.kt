@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.IosWelcomeReturnGate
 
 /** Unconfined scope: a launched check runs eagerly up to its first real suspension and resumes inline, deterministically. */
 class IosWelcomeReturnGateTest {

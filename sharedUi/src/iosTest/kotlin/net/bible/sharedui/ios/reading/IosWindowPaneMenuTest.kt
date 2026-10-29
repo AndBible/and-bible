@@ -45,7 +45,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedui.ios.app.IosHostShell
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.reading.IOS_IMPLEMENTED_PANE_MENU_ROWS
+import net.bible.sharedui.host.reading.IOS_OMITTED_PANE_MENU_ROWS
+import net.bible.sharedui.host.reading.IosWindowPaneMenuPlatform
+import net.bible.sharedui.host.reading.iosDrawerIcon
+import net.bible.sharedui.host.reading.windowMenuSelection
 
 /** The iOS omit list and implemented list partition the dispatcher's platform rows: nothing shown that does nothing. */
 class IosWindowPaneMenuTest {

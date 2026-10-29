@@ -42,9 +42,9 @@ import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingReady
 import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.activeLanguagesScript
@@ -61,7 +61,12 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
-import net.bible.sharedui.ios.app.IosWorkspaceSaver
+import net.bible.sharedui.host.app.IosWorkspaceSaver
+import net.bible.sharedui.host.reading.IosDocumentLoaderPlatform
+import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingKeyActions
+import net.bible.sharedui.host.reading.IosReadingWindows
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {

@@ -50,6 +50,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.IosInstallZipHostPlatform
+import net.bible.sharedui.host.ports.lastPathComponent
 
 class IosInstallZipTest {
     @Test fun startEnqueuesOneJobPerRef() = withInstallScope { scope ->

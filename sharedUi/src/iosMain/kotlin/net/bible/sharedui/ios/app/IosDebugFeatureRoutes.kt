@@ -28,6 +28,7 @@ import net.bible.sharedui.app.DebugFeatureScenario
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.strings.LocalStrings
 import org.koin.core.Koin
+import net.bible.sharedui.host.app.IosReadingReady
 
 /** Real graph only: no production reading callbacks, arbitrary routes, or replacement feature UI. */
 @Composable

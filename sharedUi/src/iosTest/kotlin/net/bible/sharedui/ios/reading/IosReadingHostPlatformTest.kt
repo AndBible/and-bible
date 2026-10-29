@@ -30,6 +30,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.ReadingHostPlatform
+import net.bible.sharedui.host.reading.ToolbarDeviceState
 
 /**
  * The reading host's [ReadingHostPlatform] seam: the iOS implementation answers what the host's own UIKit calls answered,

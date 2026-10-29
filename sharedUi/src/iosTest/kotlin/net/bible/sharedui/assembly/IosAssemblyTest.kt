@@ -51,10 +51,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.NavControllerNavigator
-import net.bible.sharedui.ios.app.iosResultChannels
-import net.bible.sharedui.ios.reading.IosReadingExtras
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.NavControllerNavigator
+import net.bible.sharedui.host.app.iosResultChannels
+import net.bible.sharedui.host.reading.IosReadingExtras
 
 /** Keychain stand-in: see the class comment of [IosAssemblyTest]. */
 internal class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {

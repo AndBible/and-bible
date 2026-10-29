@@ -20,7 +20,7 @@ package net.bible.sharedui.webview
 
 import net.bible.sharedcore.bibleview.JsHost
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.ios.reading.ReadingPaneEngine
+import net.bible.sharedui.host.reading.ReadingPaneEngine
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 
 /** The iOS [ReadingPaneEngine]: the [IosReadingWebViews] WKWebView cache, a [WkWebViewJsHost] and [iosReadingWindowSurface]. */

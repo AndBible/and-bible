@@ -33,12 +33,14 @@ import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.awaitStartupOnMain
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingAppInitPlatform
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.host.ReadingHostDeps
 import org.koin.mp.KoinPlatform
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.ReadingHostPlatform
 
 internal object NoNavigatorForHostTests : IosNavigator {
     override fun navigate(route: String) = Unit

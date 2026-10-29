@@ -10,6 +10,7 @@ import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.ios.report.IosBugReport
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosReadingExtrasImpl
 
 class IosReadingExtrasImplTest {
     private class Boundary {

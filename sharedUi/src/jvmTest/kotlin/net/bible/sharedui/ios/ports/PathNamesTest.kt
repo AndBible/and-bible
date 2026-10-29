@@ -3,6 +3,7 @@ package net.bible.sharedui.ios.ports
 import net.bible.sharedui.assembly.HostDebugArgs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.ports.lastPathComponent
 
 class PathNamesTest {
     @Test

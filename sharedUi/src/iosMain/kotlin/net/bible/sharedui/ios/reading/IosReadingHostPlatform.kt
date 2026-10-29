@@ -35,6 +35,8 @@ import okio.Sink
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.dateWithTimeIntervalSince1970
+import net.bible.sharedui.host.reading.ReadingHostPlatform
+import net.bible.sharedui.host.reading.ToolbarDeviceState
 
 /** The iOS [ReadingHostPlatform]: the UIKit, Foundation and CoreMotion calls the reading host made itself before. */
 @kotlin.native.HiddenFromObjC

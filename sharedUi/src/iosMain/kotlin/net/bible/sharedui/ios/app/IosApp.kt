@@ -91,17 +91,17 @@ import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.components.AppToastHost
 import net.bible.sharedui.components.FailClosedLinkRouting
 import net.bible.sharedui.components.LocalSheetDragHandleDescription
-import net.bible.sharedui.ios.reading.ChooserKind
-import net.bible.sharedui.ios.reading.ChooserTarget
-import net.bible.sharedui.ios.reading.IosNightModeObserver
-import net.bible.sharedui.ios.reading.IosReadingHost
-import net.bible.sharedui.ios.reading.IosReadingResults
-import net.bible.sharedui.ios.reading.IosReadingWindows
-import net.bible.sharedui.ios.reading.askedByActiveWindow
-import net.bible.sharedui.ios.reading.iosChooserTarget
-import net.bible.sharedui.ios.reading.iosReadingNavDeps
-import net.bible.sharedui.ios.reading.rememberIosPaneIcons
-import net.bible.sharedui.ios.reading.rememberIosReadingIcons
+import net.bible.sharedui.host.reading.ChooserKind
+import net.bible.sharedui.host.reading.ChooserTarget
+import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingResults
+import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.askedByActiveWindow
+import net.bible.sharedui.host.reading.iosChooserTarget
+import net.bible.sharedui.host.reading.iosReadingNavDeps
+import net.bible.sharedui.host.reading.rememberIosPaneIcons
+import net.bible.sharedui.host.reading.rememberIosReadingIcons
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalDrawerRowsGrowWithText
@@ -122,7 +122,17 @@ import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
-import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.host.app.AppHostPlatform
+import net.bible.sharedui.host.app.IosAppDialogOverlay
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.app.IosReadingReady
+import net.bible.sharedui.host.app.IosRootLinks
+import net.bible.sharedui.host.app.IosWelcomeReturnGate
+import net.bible.sharedui.host.app.IosWorkspaceSaver
+import net.bible.sharedui.host.app.NavControllerNavigator
+import net.bible.sharedui.host.app.iosResultChannels
 
 /**
  * The start route of a cold launch: READING when a usable (unlocked) Bible is installed, else WELCOME, decided by the

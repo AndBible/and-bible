@@ -31,6 +31,8 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSURL
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosBookmarkHostPlatform
+import net.bible.sharedui.host.ports.IosLabelIcons
 
 /** Picker-fake evidence only: stream F's real document UI is intentionally not implemented here. */
 class IosBookmarkHostPlatformTest {

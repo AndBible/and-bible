@@ -37,6 +37,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.IosAgentStarter
 
 /**
  * The in-reader AI start on iOS: [IosAgentStarter] runs the same `executePrompt` call as Android's foreground service inside

@@ -14,6 +14,7 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
 
 class IosWelcomeHostPlatformTest {
     @Test fun downloadRefusalUsesDeviceSpaceAndTranslatedAndroidMessageWithoutInitialising() {

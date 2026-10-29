@@ -22,6 +22,7 @@ import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSUserDefaultsDidChangeNotification
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
+import net.bible.sharedui.host.reading.DisplayModeSignals
 
 /** The iOS [DisplayModeSignals]: `UserDefaults` changed and app became active, delivered on the main queue. */
 @kotlin.native.HiddenFromObjC

@@ -60,14 +60,14 @@ import net.bible.sharedui.ios.files.IosFilesFeatureHarness
 import net.bible.sharedui.ios.files.IosFilesRuntimeHarness
 import net.bible.sharedui.ios.files.IosIncomingFiles
 import net.bible.sharedui.ios.files.IosIncomingRuntimeHarness
-import net.bible.sharedui.ios.reading.DisplayModeSignals
+import net.bible.sharedui.host.reading.DisplayModeSignals
 import net.bible.sharedui.ios.reading.IosDisplayModeSignals
 import net.bible.sharedui.ios.reading.IosReadingHostPlatform
-import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.IosReadingWindows
 import net.bible.sharedui.ios.reading.IosTiltScroll
-import net.bible.sharedui.ios.reading.ReadingHostPlatform
-import net.bible.sharedui.ios.reading.ReadingPaneEngine
-import net.bible.sharedui.ios.reading.TiltScrollSession
+import net.bible.sharedui.host.reading.ReadingHostPlatform
+import net.bible.sharedui.host.reading.ReadingPaneEngine
+import net.bible.sharedui.host.reading.TiltScrollSession
 import net.bible.sharedui.ios.report.IosBugReport
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.strings.Strings
@@ -80,6 +80,8 @@ import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIBackgroundTaskInvalid
+import net.bible.sharedui.host.app.AppDialogHost
+import net.bible.sharedui.host.app.AppHostPlatform
 
 /**
  * The iOS [AppHostPlatform]: exactly the objects and UIKit calls [IosApp] used directly before the seam (the same

@@ -7,6 +7,7 @@ import kotlinx.coroutines.cancel
 import net.bible.sharedui.assembly.iosStringTable
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.ports.IosInstallZipHostPlatform
 
 class IosInstallZipHostPlatformTest {
     @Test fun formatsTextFollowsLanguageSwitch() {

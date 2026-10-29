@@ -28,7 +28,7 @@ import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.ios.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.ports.IosChooserHostPlatform
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.reading.host.paneButtonsShown
 import net.bible.sharedui.reading.session.ConfigInputs
@@ -43,6 +43,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.IosDocumentLoaderPlatform
 
 /**
  * One test per reading preference that the iOS reading surface must honour. Each writes the Android key through the

@@ -12,6 +12,7 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.UIKit.transitionCoordinator
 import platform.UIKit.UISceneActivationStateForegroundActive
+import net.bible.sharedui.host.app.AppDialogHost
 
 /** Inspect containment as well as the Compose controller: SwiftUI may present from an ancestor. */
 internal fun canRenderIosAppDialogs(

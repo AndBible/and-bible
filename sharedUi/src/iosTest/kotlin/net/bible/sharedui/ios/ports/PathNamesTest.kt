@@ -6,6 +6,7 @@ import platform.Foundation.NSString
 import platform.Foundation.lastPathComponent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.ports.lastPathComponent
 
 /** Pins [lastPathComponent] to Foundation's `NSString.lastPathComponent` over the inputs that can reach it. */
 class PathNamesTest {

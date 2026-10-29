@@ -22,6 +22,9 @@ import net.bible.sharedcore.nav.NavRoutes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.iosExitWithResult
 
 private class RecordingNavigator : IosNavigator {
     val calls = mutableListOf<String>()

@@ -9,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.ports.copyFileReplacing
 
 class IosDownloadHostPlatformTest {
     private val fs = FileSystem.SYSTEM

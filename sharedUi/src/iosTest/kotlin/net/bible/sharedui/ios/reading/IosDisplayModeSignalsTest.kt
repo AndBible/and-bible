@@ -27,6 +27,8 @@ import platform.Foundation.runUntilDate
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.reading.DisplayModeSignals
+import net.bible.sharedui.host.reading.IosNightModeObserver
 
 /** The night-mode observer's [DisplayModeSignals] seam: which iOS notifications it follows, and one observation per start. */
 class IosDisplayModeSignalsTest {

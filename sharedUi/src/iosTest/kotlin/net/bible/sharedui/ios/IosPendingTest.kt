@@ -2,7 +2,7 @@ package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
-import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import kotlin.test.AfterTest
@@ -14,9 +14,9 @@ import net.bible.sharedlogic.platform.host.IosUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.ports.IosChooserHostPlatform
 
 class IosPendingTest {
     @BeforeTest fun reset() = IosPending.resetForTest()

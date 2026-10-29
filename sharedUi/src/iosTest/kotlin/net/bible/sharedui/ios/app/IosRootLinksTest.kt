@@ -27,6 +27,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosRootLinks
 
 /** The ports that reach the shared root through [IosRootLinks]: speak, history and link handling. */
 class IosRootLinksTest {

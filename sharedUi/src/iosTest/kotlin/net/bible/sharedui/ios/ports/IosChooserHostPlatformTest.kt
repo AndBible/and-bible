@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
+import net.bible.sharedui.host.ports.IosChooserHostPlatform
 
 class IosChooserHostPlatformTest {
     @Test fun docRowsMatchAndroidMapping() {

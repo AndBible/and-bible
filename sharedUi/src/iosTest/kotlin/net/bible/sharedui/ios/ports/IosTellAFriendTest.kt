@@ -2,6 +2,7 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.assembly.iosStringTable
 import kotlin.test.*
+import net.bible.sharedui.host.ports.IosTellAFriend
 
 class IosTellAFriendTest {
     @Test fun messageHasHomepageAndNoStoreLink() {

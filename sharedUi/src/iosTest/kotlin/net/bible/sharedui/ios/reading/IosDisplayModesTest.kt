@@ -42,9 +42,9 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.host.app.IosHostShell
+import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.IosReadingReady
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.attachReadingPane
 import org.koin.mp.KoinPlatform
@@ -62,6 +62,9 @@ import net.bible.android.view.activity.page.screen.READING_BACKGROUND_DAY
 import net.bible.android.view.activity.page.screen.READING_BACKGROUND_NIGHT
 import net.bible.sharedui.webview.uiColorFromArgb
 import net.bible.sharedui.webview.IosReadingPaneEngine
+import net.bible.sharedui.host.reading.IosNightModeObserver
+import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.IosReadingWindows
 
 /** Night, colour mode and animation switches reach shown documents as `set_config`, never as a page reload. */
 class IosDisplayModesTest {

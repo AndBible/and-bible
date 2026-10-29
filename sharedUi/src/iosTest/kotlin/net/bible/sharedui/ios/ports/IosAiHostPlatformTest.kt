@@ -10,6 +10,7 @@ import kotlin.test.assertNotEquals
 import platform.Foundation.defaultTimeZone
 import platform.Foundation.setDefaultTimeZone
 import platform.Foundation.timeZoneWithName
+import net.bible.sharedui.host.ports.IosAiHostPlatform
 
 class IosAiHostPlatformTest {
     @Test fun errorDialogPreservesMessageAndCause() = kotlinx.coroutines.runBlocking {

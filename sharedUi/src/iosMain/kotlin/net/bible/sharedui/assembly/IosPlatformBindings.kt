@@ -109,8 +109,8 @@ import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedlogic.text.CommonHtmlToPlainText
 import net.bible.sharedui.components.AppToasts
-import net.bible.sharedui.ios.app.IosRootLinks
-import net.bible.sharedui.ios.reading.IosReadingExtras
+import net.bible.sharedui.host.app.IosRootLinks
+import net.bible.sharedui.host.reading.IosReadingExtras
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
@@ -123,8 +123,8 @@ import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.Books
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import net.bible.sharedui.ios.ports.IosHelpDialogs
-import net.bible.sharedui.ios.ports.IosReadingExtrasImpl
+import net.bible.sharedui.host.ports.IosHelpDialogs
+import net.bible.sharedui.host.ports.IosReadingExtrasImpl
 
 /**
  * Where the app keeps its files and what it was told by its host.
