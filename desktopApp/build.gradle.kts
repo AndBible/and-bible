@@ -1,4 +1,5 @@
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
@@ -251,6 +252,9 @@ val rootVersionProperties = Properties().apply {
     rootProject.layout.projectDirectory.file("version.properties").asFile.inputStream().use { load(it) }
 }
 val desktopVersion = desktopPackageVersion(rootVersionProperties)
+// Compose passes the project version to jpackage as `--app-version` (packageVersion/debPackageVersion do not reach it
+// for Linux); unset it would be 1.0.0.
+version = desktopVersion
 
 tasks.register("verifyDesktopVersion") {
     group = "verification"
@@ -269,7 +273,7 @@ tasks.register("verifyDesktopVersion") {
     }
 }
 
-// A relocatable tar.gz of the createDistributable app image. Tar stores the modes of the files it reads, so jcef_helper
+// A relocatable tar.gz of the createDistributable app image. eachFile below keeps the executable bits, so jcef_helper
 // stays executable.
 val desktopTarball by tasks.registering(Tar::class) {
     group = "distribution"
@@ -278,6 +282,58 @@ val desktopTarball by tasks.registering(Tar::class) {
     dependsOn(image)
     from(layout.buildDirectory.dir("compose/binaries/main/app"))
     compression = Compression.GZIP
+    // Gradle's copy spec writes 0644 for every file unless told otherwise: carry the executable bit over explicitly.
+    eachFile { if (file.canExecute()) permissions { unix("rwxr-xr-x") } }
     archiveFileName.set("andbible-$desktopVersion-linux-x64.tar.gz")
     destinationDirectory.set(layout.buildDirectory.dir("compose/binaries/main"))
+}
+
+/**
+ * jpackage copies app resources without their file modes, so the natives that must be executable (`jcef_helper`,
+ * `cef_server`, ...) arrive as 0644. Gives every file under [target] the executable bits it has in [source] (the staged
+ * natives). Done at package time so the app never has to chmod anything at run time.
+ */
+fun restoreNativeModes(source: File, target: File) {
+    source.walkTopDown().filter { it.isFile && it.canExecute() }.forEach { src ->
+        val dst = File(target, src.relativeTo(source).path)
+        if (dst.isFile) dst.setExecutable(true, false)
+    }
+}
+
+val appImageNatives = layout.buildDirectory.dir("compose/binaries/main/app/andbible/lib/app/resources/kcef-natives")
+tasks.matching { it.name == "createDistributable" }.configureEach {
+    doLast { restoreNativeModes(kcefNativesDir.get().asFile, appImageNatives.get().asFile) }
+}
+
+// packageDeb runs its own jpackage, so its .deb is unpacked, given the executable bits back and rebuilt under the same
+// name. The Version field is then checked against version.properties, so the .deb can never drift from the tarball.
+tasks.matching { it.name == "packageDeb" }.configureEach {
+    doLast {
+        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val deb = debDir.listFiles { f -> f.name.endsWith(".deb") }?.singleOrNull()
+            ?: throw GradleException("Expected exactly one .deb in $debDir")
+        fun run(vararg cmd: String): String {
+            val p = ProcessBuilder(*cmd).redirectErrorStream(true).start()
+            val out = p.inputStream.bufferedReader().readText()
+            if (p.waitFor() != 0) throw GradleException("${cmd.joinToString(" ")} failed:\n$out")
+            return out.trim()
+        }
+        val work = layout.buildDirectory.dir("deb-fix").get().asFile.apply { deleteRecursively(); mkdirs() }
+        val unpacked = File(work, "pkg")
+        run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
+        val natives = File(unpacked, "opt/andbible/lib/app/resources/kcef-natives")
+        check(natives.isDirectory) { "No kcef-natives in the .deb ($natives)" }
+        restoreNativeModes(kcefNativesDir.get().asFile, natives)
+        // jpackage appends a release to the version ("6.0.1230-1"); the package version is exactly version.properties.
+        val control = File(unpacked, "DEBIAN/control")
+        control.writeText(control.readText().replace(Regex("(?m)^Version: .*$"), "Version: $desktopVersion"))
+        val fixed = File(work, "andbible_${desktopVersion}_amd64.deb")
+        run("dpkg-deb", "--root-owner-group", "-Zxz", "--build", unpacked.absolutePath, fixed.absolutePath)
+        deb.delete()
+        val finalDeb = File(debDir, fixed.name)
+        Files.move(fixed.toPath(), finalDeb.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        work.deleteRecursively()
+        val version = run("dpkg-deb", "-f", finalDeb.absolutePath, "Version")
+        check(version == desktopVersion) { "The .deb Version is $version, expected $desktopVersion" }
+    }
 }
