@@ -121,7 +121,6 @@ kotlin {
             }
         }
         jvmTest {
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/report/logic")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/startup/logic")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/startup/logic")
