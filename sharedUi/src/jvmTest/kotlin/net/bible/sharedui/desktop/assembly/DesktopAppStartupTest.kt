@@ -17,6 +17,10 @@
 package net.bible.sharedui.desktop.assembly
 
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseHost
 import net.bible.sharedcore.platform.desktop.DesktopPaths
@@ -30,6 +34,7 @@ import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.Executors
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -52,6 +57,7 @@ class DesktopAppStartupTest {
         override fun toFront() = Unit
     }
 
+    private val mainThread = Executors.newSingleThreadExecutor { Thread(it, "test-main").apply { isDaemon = true } }.asCoroutineDispatcher()
     private lateinit var root: Path
     private var previousHost: DatabaseHost? = null
 
@@ -72,6 +78,10 @@ class DesktopAppStartupTest {
 
     @BeforeTest fun before() {
         assertNull(KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
+        // The shared startup reaches Dispatchers.Main (MyDocumentBookManager's scope); the app has the AWT thread
+        // (kotlinx-coroutines-swing in :desktopApp). Not on this classpath: it would move every Compose test's
+        // navigation onto the AWT thread. A real thread stands in, for this class only.
+        Dispatchers.setMain(mainThread)
         previousHost = runCatching { DatabaseContainer.host }.getOrNull()
         root = Files.createTempDirectory("desktop-startup")
     }
@@ -82,6 +92,8 @@ class DesktopAppStartupTest {
         } finally {
             previousHost?.let { DatabaseContainer.installHost(it) }
             root.toFile().deleteRecursively()
+            Dispatchers.resetMain()
+            mainThread.close()
         }
     }
 

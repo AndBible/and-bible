@@ -132,9 +132,6 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.uiTest)
                 implementation(libs.kotlinx.coroutines.test)
-                // Dispatchers.Main of the desktop app (the AWT event thread), as :desktopApp has it at run time: the
-                // shared startup reaches Dispatchers.Main (e.g. MyDocumentBookManager's scope).
-                implementation(libs.kotlinx.coroutines.swing)
             }
         }
     }
