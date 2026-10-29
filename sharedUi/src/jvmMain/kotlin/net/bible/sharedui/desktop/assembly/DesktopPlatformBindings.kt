@@ -105,6 +105,7 @@ import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.HostWindowMetrics
 import net.bible.sharedui.assembly.IosStringTableHolder
 import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.iosSyncStrings
 import net.bible.sharedui.components.AppToasts
 import net.bible.sharedui.host.app.IosRootLinks
 import net.bible.sharedui.host.ports.IosDocumentInstallStarter
@@ -204,6 +205,7 @@ fun desktopPlatformModule(
             IosStringTableHolder(iosStringTable(language, ::classpathRawResource))
         }
         single<CoreStrings> { KeyedCoreStrings { get<IosStringTableHolder>().current } }
+        single<net.bible.service.cloudsync.host.IosSyncStrings> { iosSyncStrings(get<IosStringTableHolder>().current) }
         single<LlmStrings> { KeyedLlmStrings { get<IosStringTableHolder>().current } }
         single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
         single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
