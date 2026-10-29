@@ -23,13 +23,19 @@ import java.awt.event.MouseEvent
  * Gives a reading pane the keyboard focus when the user presses a mouse button in it. Under a window manager the X
  * focus stays on the AWT frame's focus proxy and clicking the native CEF window never moves AWT focus to it, so the page
  * would get no key events; once the component is the AWT focus owner JCEF's own focus listener moves the native focus.
- * Focus is only ever requested on a press (never on a timer or on focus loss), and not when [isFocusOwner] already.
+ * On every press the native focus is set ([setNativeFocus], CEF `setFocus(true)`), and AWT focus is requested unless
+ * [isFocusOwner] already. Nothing is ever requested without a press (no timer, no focus-loss reaction).
  */
 internal class PaneFocusOnPress(
     private val isFocusOwner: () -> Boolean,
     private val requestFocus: () -> Unit,
+    private val setNativeFocus: () -> Unit = {},
+    private val log: (String) -> Unit = {},
 ) : MouseAdapter() {
     override fun mousePressed(e: MouseEvent?) {
+        log("press: focus to pane")
+        // Idempotent; the native focus does not follow AWT's focus owner when that is already this component.
+        setNativeFocus()
         if (!isFocusOwner()) requestFocus()
     }
 }

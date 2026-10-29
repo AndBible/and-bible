@@ -46,4 +46,13 @@ class PaneFocusOnPressTest {
         press(l)
         assertEquals(2, requests)
     }
+
+    @Test fun everyPressSetsTheNativeFocusAndLogs() {
+        var native = 0
+        val lines = mutableListOf<String>()
+        val l = PaneFocusOnPress({ true }, { error("already the owner") }, { native++ }, { lines += it })
+        press(l); press(l)
+        assertEquals(2, native)
+        assertEquals(listOf("press: focus to pane", "press: focus to pane"), lines)
+    }
 }

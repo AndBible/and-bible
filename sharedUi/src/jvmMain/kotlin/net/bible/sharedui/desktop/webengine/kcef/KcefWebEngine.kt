@@ -284,7 +284,7 @@ internal class KcefPane(
     val component: Component by lazy {
         val ui = browser.uiComponent
         // Native mouse events of the CEF window are forwarded to the component's listeners (CefBrowserWr).
-        ui.addMouseListener(PaneFocusOnPress({ ui.isFocusOwner }, { ui.requestFocusInWindow() }))
+        ui.addMouseListener(PaneFocusOnPress({ ui.isFocusOwner }, { ui.requestFocusInWindow() }, { browser.setFocus(true) }, log))
         JPanel(BorderLayout()).apply { add(ui, BorderLayout.CENTER) }
     }
 
