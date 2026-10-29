@@ -1,5 +1,8 @@
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
+import java.util.Properties
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import javax.inject.Inject
 
 plugins {
@@ -158,21 +161,84 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
     }
 }
 
+/**
+ * The distribution version of the desktop packages: `<versionMajorMinor>.<versionCode>` from the root
+ * `version.properties`, e.g. `6.0.1230`. A .deb needs a numeric dotted version, so `versionNameSuffix` is not part of it.
+ */
+fun desktopPackageVersion(props: Properties): String {
+    val majorMinor = props.getProperty("versionMajorMinor")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: throw GradleException("version.properties has no versionMajorMinor")
+    val code = props.getProperty("versionCode")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: throw GradleException("version.properties has no versionCode")
+    if (code.toIntOrNull() == null) throw GradleException("versionCode is not an integer: $code")
+    return "$majorMinor.$code"
+}
+
+val rootVersionProperties = Properties().apply {
+    rootProject.layout.projectDirectory.file("version.properties").asFile.inputStream().use { load(it) }
+}
+val desktopVersion = desktopPackageVersion(rootVersionProperties)
+// Compose passes the project version to jpackage as `--app-version` (packageVersion/debPackageVersion do not reach it
+// for Linux); unset it would be 1.0.0.
+version = desktopVersion
+
+
 compose.desktop {
     application {
         mainClass = "net.bible.desktop.MainKt"
+        nativeDistributions {
+            appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
+            targetFormats(TargetFormat.Deb)
+            packageName = "andbible"
+            packageVersion = desktopVersion
+            description = "Offline Bible study app"
+            vendor = "AndBible"
+            licenseFile.set(rootProject.layout.projectDirectory.file("LICENSE.txt"))
+            // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
+            // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
+            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata")
+            linux {
+                iconFile.set(project.file("packaging/linux/andbible.png"))
+                debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
+                menuGroup = "Education"
+                appCategory = "Education"
+            }
+        }
         // The JCEF natives are JBR 17 builds: run on the JDK 17 toolchain, never on whatever JDK runs Gradle.
         javaHome = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
             .get().metadata.installationPath.asFile.absolutePath
         jvmArgs += kcefJvmArgs
-        // D1 only: `run` points the app at the natives in this build dir by absolute path. Shipping the natives inside
-        // the packaged distribution (and resolving them relative to it) is D4a.
-        jvmArgs += "-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}"
-        // Optional extra Chromium switches for `run`, e.g. -Pkcef.args=--remote-debugging-port=9222 (debugging, CDP).
-        providers.gradleProperty("kcef.args").orNull?.let { jvmArgs += "-Dkcef.args=$it" }
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }
+// `run` points the app at the natives in this build dir by absolute path. This must stay out of
+// compose.desktop.application.jvmArgs: those land in the packaged app's .cfg and would beat the resources dir that
+// the installed app resolves its natives from (CefNativesLocation). verifyPackagedConfig enforces that.
+tasks.matching { it.name == "run" }.withType<JavaExec>().configureEach {
+    jvmArgs("-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}")
+    // Optional extra Chromium switches for `run`, e.g. -Pkcef.args=--remote-debugging-port=9222 (debugging, CDP).
+    providers.gradleProperty("kcef.args").orNull?.let { jvmArgs("-Dkcef.args=$it") }
+}
+
+// The CEF natives as app resources of the Linux x64 distribution (appResourcesRootDir/<os-arch>/kcef-natives), found
+// at run time through compose.application.resources.dir.
+val stageKcefNatives by tasks.registering(Sync::class) {
+    dependsOn(prepareKcefNatives)
+    from(kcefNativesDir)
+    into(layout.buildDirectory.dir("desktop-resources/linux-x64/kcef-natives"))
+}
+// Distribution packages are Linux x64 only (the natives are the linux-x64 JBR build).
+val packagingTaskNames = setOf("prepareAppResources", "createDistributable", "createReleaseDistributable", "packageDeb", "packageReleaseDeb")
+stageKcefNatives.configure {
+    doFirst {
+        val os = System.getProperty("os.name").lowercase()
+        val arch = System.getProperty("os.arch")
+        if (!os.contains("linux") || (arch != "amd64" && arch != "x86_64")) {
+            throw GradleException("The desktop packages are Linux x64 only (this host is $os $arch)")
+        }
+    }
+}
+tasks.matching { it.name in packagingTaskNames }.configureEach { dependsOn(stageKcefNatives) }
 
 // Headless desktop Compose (no X server in the container / CI).
 tasks.withType<Test>().configureEach {
@@ -202,3 +268,103 @@ sourceSets.main {
     resources.srcDir(prepareBibleViewBundle.map { bibleViewGenerated.get().asFile })
 }
 tasks.named("processResources") { dependsOn(prepareBibleViewBundle) }
+
+tasks.named("check") { dependsOn("verifyDesktopVersion") }
+tasks.register("verifyDesktopVersion") {
+    group = "verification"
+    description = "Checks desktopPackageVersion on in-memory property sets."
+    doLast {
+        fun props(vararg pairs: Pair<String, String>) = Properties().apply { pairs.forEach { (k, v) -> setProperty(k, v) } }
+        check(desktopPackageVersion(props("versionMajorMinor" to "6.0", "versionCode" to "1230")) == "6.0.1230")
+        for ((label, bad) in listOf(
+            "missing versionCode" to props("versionMajorMinor" to "6.0"),
+            "missing versionMajorMinor" to props("versionCode" to "1230"),
+            "non-integer versionCode" to props("versionMajorMinor" to "6.0", "versionCode" to "abc"),
+        )) {
+            val threw = runCatching { desktopPackageVersion(bad) }.isFailure
+            check(threw) { "desktopPackageVersion should throw for $label" }
+        }
+    }
+}
+
+// A relocatable tar.gz of the createDistributable app image. eachFile below keeps the executable bits, so jcef_helper
+// stays executable.
+val desktopTarball by tasks.registering(Tar::class) {
+    group = "distribution"
+    description = "Packs the app image into build/compose/binaries/main/andbible-<version>-linux-x64.tar.gz."
+    val image = tasks.named("createDistributable")
+    dependsOn(image)
+    from(layout.buildDirectory.dir("compose/binaries/main/app"))
+    compression = Compression.GZIP
+    // Gradle's copy spec writes 0644 for every file unless told otherwise: carry the executable bit over explicitly.
+    eachFile { if (file.canExecute()) permissions { unix("rwxr-xr-x") } }
+    doLast {
+        val listing = ProcessBuilder("tar", "-tvzf", archiveFile.get().asFile.absolutePath).redirectErrorStream(true).start()
+            .inputStream.bufferedReader().readLines()
+        val helperLine = listing.singleOrNull { it.endsWith("/kcef-natives/jcef_helper") }
+        check(helperLine != null && helperLine.startsWith("-rwx")) { "jcef_helper is not executable in the tarball: $helperLine" }
+    }
+    archiveFileName.set("andbible-$desktopVersion-linux-x64.tar.gz")
+    destinationDirectory.set(layout.buildDirectory.dir("compose/binaries/main"))
+}
+
+/**
+ * jpackage copies app resources without their file modes, so the natives that must be executable (`jcef_helper`,
+ * `cef_server`, ...) arrive as 0644. Gives every file under [target] the executable bits it has in [source] (the staged
+ * natives). Done at package time so the app never has to chmod anything at run time.
+ */
+fun restoreNativeModes(source: File, target: File) {
+    source.walkTopDown().filter { it.isFile && it.canExecute() }.forEach { src ->
+        val dst = File(target, src.relativeTo(source).path)
+        if (dst.isFile) dst.setExecutable(true, false)
+    }
+}
+
+val appImageNatives = layout.buildDirectory.dir("compose/binaries/main/app/andbible/lib/app/resources/kcef-natives")
+val appImageCfg = layout.buildDirectory.file("compose/binaries/main/app/andbible/lib/app/andbible.cfg")
+tasks.matching { it.name == "createDistributable" || it.name == "createReleaseDistributable" }.configureEach {
+    doLast {
+        restoreNativeModes(kcefNativesDir.get().asFile, appImageNatives.get().asFile)
+        val helper = File(appImageNatives.get().asFile, "jcef_helper")
+        check(helper.isFile && helper.canExecute()) { "jcef_helper is missing or not executable in the app image ($helper)" }
+        val cfg = appImageCfg.get().asFile
+        check(cfg.isFile) { "No app image .cfg at $cfg" }
+        // A build-machine path here would beat the resources dir on the user's machine (CefNativesLocation).
+        check("kcef.installDir" !in cfg.readText()) { "$cfg must not contain kcef.installDir" }
+    }
+}
+
+// packageDeb runs its own jpackage, so its .deb is unpacked, given the executable bits back and rebuilt under the same
+// name. The Version field is then checked against version.properties, so the .deb can never drift from the tarball.
+tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.configureEach {
+    doLast {
+        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val deb = debDir.listFiles { f -> f.name.endsWith(".deb") }?.singleOrNull()
+            ?: throw GradleException("Expected exactly one .deb in $debDir")
+        fun run(vararg cmd: String): String {
+            val p = ProcessBuilder(*cmd).redirectErrorStream(true).start()
+            val out = p.inputStream.bufferedReader().readText()
+            if (p.waitFor() != 0) throw GradleException("${cmd.joinToString(" ")} failed:\n$out")
+            return out.trim()
+        }
+        val work = layout.buildDirectory.dir("deb-fix").get().asFile.apply { deleteRecursively(); mkdirs() }
+        val unpacked = File(work, "pkg")
+        run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
+        val natives = File(unpacked, "opt/andbible/lib/app/resources/kcef-natives")
+        check(natives.isDirectory) { "No kcef-natives in the .deb ($natives)" }
+        restoreNativeModes(kcefNativesDir.get().asFile, natives)
+        // jpackage appends a release to the version ("6.0.1230-1"); the package version is exactly version.properties.
+        val control = File(unpacked, "DEBIAN/control")
+        control.writeText(control.readText().replace(Regex("(?m)^Version: .*$"), "Version: $desktopVersion"))
+        val fixed = File(work, "andbible_${desktopVersion}_amd64.deb")
+        run("dpkg-deb", "--root-owner-group", "-Zxz", "--build", unpacked.absolutePath, fixed.absolutePath)
+        deb.delete()
+        val finalDeb = File(debDir, fixed.name)
+        Files.move(fixed.toPath(), finalDeb.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        work.deleteRecursively()
+        val version = run("dpkg-deb", "-f", finalDeb.absolutePath, "Version")
+        check(version == desktopVersion) { "The .deb Version is $version, expected $desktopVersion" }
+        val helperLine = run("dpkg-deb", "-c", finalDeb.absolutePath).lines().singleOrNull { it.endsWith("/kcef-natives/jcef_helper") }
+        check(helperLine != null && helperLine.startsWith("-rwxr-xr-x")) { "jcef_helper is not executable in the .deb: $helperLine" }
+    }
+}
