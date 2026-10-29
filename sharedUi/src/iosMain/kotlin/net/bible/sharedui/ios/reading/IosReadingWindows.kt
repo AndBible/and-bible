@@ -33,7 +33,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.android.control.link.LinkControl
-import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.strings.keyed.KeyedSelectionMenuStrings
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.android.view.activity.page.SwipeAction
@@ -120,7 +120,7 @@ object IosReadingWindows {
                 copyText = host.platform::copyToPasteboard,
                 llmConfiguredSource = host::llmConfigured,
             ),
-            strings = { KeyedSelectionMenuStrings(IosAppStartup.stringTable) },
+            strings = { KeyedSelectionMenuStrings(HostStartup.stringTable) },
             onLlmAction = host::openSelectionPromptSelector,
         )
         // The languages of the installed Bibles (Android's `getActiveLanguages`), read when each window's WebView is created.

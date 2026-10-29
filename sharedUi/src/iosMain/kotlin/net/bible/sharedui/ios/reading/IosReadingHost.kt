@@ -104,7 +104,7 @@ import net.bible.sharedlogic.settings.RecentDisplaySettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
@@ -362,7 +362,7 @@ class IosReadingHost(
             slots = { slots },
             clipboard = koin.get<ClipboardText>(),
             toast = ::toast,
-            copiedMessage = { KeyedPaneMenuStrings(IosAppStartup.stringTable).referenceCopiedToClipboard },
+            copiedMessage = { KeyedPaneMenuStrings(HostStartup.stringTable).referenceCopiedToClipboard },
             bridgeFor = { id -> if (IosReadingWindows.hasAssembly(id)) IosReadingWindows.bridgeFor(id) else null },
             openPromptSelector = ::openPromptSelector,
             newDocumentPicker = { platform.newDocumentPicker() },
@@ -381,7 +381,7 @@ class IosReadingHost(
         return WindowPaneMenuStateBuilder(
             windowControl = windowControl,
             speakControl = speakControl,
-            strings = KeyedPaneMenuStrings(IosAppStartup.stringTable),
+            strings = KeyedPaneMenuStrings(HostStartup.stringTable),
             prefItems = koin.get<TextDisplayPrefItems>(),
             recentDisplaySettings = { RecentDisplaySettings(settings).sorted },
             globalTextDisplaySettings = { koin.get<GlobalTextDisplaySettingsSource>().current },
@@ -408,7 +408,7 @@ class IosReadingHost(
 
     /** The shared [ChooserTarget] of the active window (one implementation of every chooser answer). */
     private fun activeChooserTarget(): ChooserTarget =
-        iosChooserTarget(koin, IosAppStartup.stringTable, windowControl.activeWindowPageManager, scope)
+        iosChooserTarget(koin, HostStartup.stringTable, windowControl.activeWindowPageManager, scope)
 
     /** Android's `ReadingCommands.applyChosenVerse` (non-bookmark arm): a malformed OSIS id only toasts. */
     private fun applyChosenVerse(osisId: String) = activeChooserTarget().applyVerse(osisId)
@@ -595,7 +595,7 @@ class IosReadingHost(
     )
 
 
-    private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
+    private val menuStrings = { KeyedReadingMenuStrings(HostStartup.stringTable) }
 
     private val toolbarCommands = ReadingToolbarCommands(toolbarHost)
 
@@ -771,7 +771,7 @@ class IosReadingHost(
     )
 
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
-        iosReadingNavDeps(this, shell, IosAppStartup.stringTable, readingResults?.collectors() ?: emptyList(), content)
+        iosReadingNavDeps(this, shell, HostStartup.stringTable, readingResults?.collectors() ?: emptyList(), content)
 
     internal companion object {
         /** The production answer: the prompt service's configured flag; false while the service is not available yet. */
