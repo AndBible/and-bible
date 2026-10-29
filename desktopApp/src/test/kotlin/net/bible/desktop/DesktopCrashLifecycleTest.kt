@@ -42,6 +42,28 @@ class DesktopCrashLifecycleTest {
     }
 
     @Test
+    fun lateReadyAfterCloseDoesNotRearmCrashTracking() = runBlocking {
+        val release = java.util.concurrent.CountDownLatch(1)
+        val started = java.util.concurrent.CountDownLatch(1)
+        val events = java.util.Collections.synchronizedList(mutableListOf<String>())
+        val state = DesktopStartupState("en", {
+            started.countDown()
+            release.await()
+            StartupPhase.Ready
+        }, { error("unused") }, onStartupReady = { events += "ready" }, onCleanExit = { events += "clean" })
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            state.launch(scope)
+            started.await()
+            kotlin.test.assertFalse(state.awaitStartupSettled(10))
+            state.markCleanExit()
+            release.countDown()
+            withTimeout(10_000) { state.phase.first { it is StartupPhase.Ready } }
+            assertEquals(listOf("clean"), events.toList())
+        } finally { release.countDown(); scope.cancel() }
+    }
+
+    @Test
     fun cleanExitFollowsCompletedPersistenceAndNotThrownException() {
         val events = mutableListOf<String>()
         persistAndMarkClean({ events += "save" }, { events += "clean" })

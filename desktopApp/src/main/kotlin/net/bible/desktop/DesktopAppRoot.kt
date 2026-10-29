@@ -80,6 +80,8 @@ class DesktopStartupState(
     val onCleanExit: () -> Unit = {},
 ) {
     private val launched = AtomicBoolean(false)
+    private val lifecycleLock = Any()
+    private var cleanExit = false
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
 
     /** The normal startup's phase; it leaves [StartupPhase.Starting] once. */
@@ -93,8 +95,17 @@ class DesktopStartupState(
         if (!launched.compareAndSet(false, true)) return
         scope.launch(Dispatchers.IO) {
             val result = runStart(openDatabases = true)
-            if (result is StartupPhase.Ready) onStartupReady()
+            if (result is StartupPhase.Ready) synchronized(lifecycleLock) {
+                if (!cleanExit) onStartupReady()
+            }
             _phase.value = result
+        }
+    }
+
+    internal fun markCleanExit() = synchronized(lifecycleLock) {
+        if (!cleanExit) {
+            cleanExit = true
+            onCleanExit()
         }
     }
 

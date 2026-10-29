@@ -211,7 +211,7 @@ private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdo
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
     // A close during the startup: let it finish (bounded), so nothing is persisted or shut down under a half-built graph.
     if (!state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS)) Log.w(TAG, "closing while the startup still runs")
-    withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state.onCleanExit) }
+    withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state::markCleanExit) }
     try {
         shutdownEngine()
     } catch (e: Throwable) {
