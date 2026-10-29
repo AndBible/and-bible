@@ -1,0 +1,106 @@
+# Host rename map: Ios*/ios* names declared in hostMain (sharedCore, sharedLogic, sharedUi) -> host names.
+# Format: old<TAB>new[<TAB># reason]. Longest old name first. Used by scripts/apply-host-rename.sh and
+# HostRenameGuardTest. Rule: leading Ios -> Host (ios -> host), HostHost -> Host; on a clash pick Host<Role>.
+# Entries marked "# file" name a hostMain file whose stem is not a declared type; they rename the file and textual mentions of it.
+IosCloudDocumentsHostPlatform	HostCloudDocumentsHostPlatform
+IosSessionEventRelayPlatform	HostSessionEventRelayPlatform
+IosSelectionMenuEnvironment	HostSelectionMenuEnvironment
+IosInstallTerminalFeedback	HostInstallTerminalFeedback
+IosReadingPlanHostPlatform	HostReadingPlanHostPlatform
+IosWebDavCertificatePrompt	HostWebDavCertificatePrompt
+IosDocumentInstallStarter	HostDocumentInstallStarter
+IosDocumentLoaderPlatform	HostDocumentLoaderPlatform
+IosInstallZipHostPlatform	HostInstallZipHostPlatform
+IosReadOnlyModuleDbOpener	HostReadOnlyModuleDbOpener
+IosReadingAppInitPlatform	HostReadingAppInitPlatform
+IosStudyPadExportPlatform	HostStudyPadExportPlatform
+IosWindowPaneMenuPlatform	HostWindowPaneMenuPlatform
+IosReadingKeyChooserPage	HostReadingKeyChooserPage
+IosReadingSearchPlatform	HostReadingSearchPlatform
+IosSpeakSettingsPlatform	HostSpeakSettingsPlatform
+IosBookmarkHostPlatform	HostBookmarkHostPlatform
+IosDownloadHostPlatform	HostDownloadHostPlatform
+IosReadingPlatformPorts	HostReadingPlatformPorts	# file
+IosReadingWindowSurface	HostReadingWindowSurface
+IosSearchIndexScheduler	HostSearchIndexScheduler
+IosWindowSettingsPicker	HostWindowSettingsPicker
+IosChooserHostPlatform	HostChooserHostPlatform
+IosCloudAdapterFactory	HostCloudAdapterFactory
+IosDocumentSyncStarter	HostDocumentSyncStarter
+IosMyDocumentStoreEdge	HostMyDocumentStoreEdge
+IosReadingQuickActions	HostReadingQuickActions
+IosSelectionMenuWindow	HostSelectionMenuWindow
+IosWelcomeHostPlatform	HostWelcomeHostPlatform
+IosBackgroundSignInUi	HostBackgroundSignInUi
+IosKeyChooserLauncher	HostKeyChooserLauncher
+IosReadingDestination	HostReadingDestination
+IosReadingToolbarHost	HostReadingToolbarHost
+IosSyncStringsFactory	HostSyncStringsFactory	# file
+IosNightModeObserver	HostNightModeObserver
+IosReadingExtrasImpl	HostReadingExtrasImpl
+IosReadingKeyActions	HostReadingKeyActions
+IosStringTableHolder	HostStringTableHolder
+IosWelcomeReturnGate	HostWelcomeReturnGate
+IosAppDialogOverlay	HostAppDialogOverlay
+IosErrorReportHooks	HostErrorReportHooks
+IosMarkdownRenderer	HostMarkdownRenderer
+IosReadingNavigator	HostReadingNavigator
+IosReadingSlotPorts	HostReadingSlotPorts	# file
+IosSettingsPlatform	HostSettingsPlatform
+IosSwordEnvironment	HostSwordEnvironment
+IosAppStartupState	HostAppStartupState
+IosDocumentDialogs	HostDocumentDialogs
+IosHistoryPlatform	HostHistoryPlatform
+IosInstallPipeline	HostInstallPipeline
+IosReadingGestures	HostReadingGestures
+IosSearchIndexJobs	HostSearchIndexJobs
+IosSelectionMenuUi	HostSelectionMenuUi	# file
+iosSettingsChanges	hostSettingsChanges
+IosAiHostPlatform	HostAiHostPlatform
+IosBackgroundWork	HostBackgroundWork
+IosReadingResults	HostReadingResults
+IosReadingWindows	HostReadingWindows
+IosResultChannels	HostResultChannels	# file
+IosWindowPaneMenu	HostWindowPaneMenu	# file
+IosWorkspaceSaver	HostWorkspaceSaver
+iosExitWithResult	hostExitWithResult
+iosReadingNavDeps	hostReadingNavDeps
+iosResultChannels	hostResultChannels
+IosAssemblyProbe	HostAssemblyProbe	# file
+IosEpubStoreEdge	HostEpubStoreEdge
+IosFirstLoadEdge	HostFirstLoadEdge
+IosReadingExtras	HostReadingExtras
+IosSelectionMenu	HostSelectionMenu
+iosChooserTarget	hostChooserTarget
+iosWorkspaceSeed	hostWorkspaceSeed
+IosAgentStarter	HostAgentStarter
+IosLinkPlatform	HostLinkPlatform
+IosReadingIcons	HostReadingIcons	# file
+IosReadingReady	HostReadingReady
+IosStartupGates	HostStartupGates
+IosStartupOwner	HostStartupOwner
+IosUserNotifier	HostUserNotifier
+iosPaneMenuIcon	hostPaneMenuIcon
+IosHelpDialogs	HostHelpDialogs
+IosReadingHost	HostReadingHost
+IosStringTable	HostStringTable	# file
+IosSyncStrings	HostSyncStrings
+IosTellAFriend	HostTellAFriend
+iosStringTable	hostStringTable
+iosSyncStrings	hostSyncStrings
+IosAppContent	HostAppContent
+IosBackupHost	HostBackupHost
+IosLabelIcons	HostLabelIcons
+IosSyncRunner	HostSyncRunner
+IosUiLanguage	HostUiLanguage
+IosWindowView	HostWindowView
+iosDrawerIcon	hostDrawerIcon
+IosHostShell	HostNavShell	# HostShell is the commonMain interface it implements
+IosHostTheme	HostTheme
+IosNavigator	HostNavigator
+IosPaneIcons	HostPaneIcons
+IosRootLinks	HostRootLinks
+IosUiStartup	HostUiStartup	# file
+IosPending	HostPending
+IosEdges	HostEdges	# file
+IosApp	HostApp
