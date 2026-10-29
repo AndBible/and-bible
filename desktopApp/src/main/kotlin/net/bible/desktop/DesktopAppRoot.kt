@@ -101,7 +101,7 @@ class DesktopStartupState(
         return withTimeoutOrNull(timeoutMs) { phase.first { it !is StartupPhase.Starting } } != null
     }
 
-        /** The recovery path's start: Koin only, the databases stay closed. */
+    /** The recovery path's start: Koin only, the databases stay closed. */
     internal suspend fun startForRecovery(): StartupPhase = withContext(Dispatchers.IO) { runStart(openDatabases = false) }
 
     private fun runStart(openDatabases: Boolean): StartupPhase =

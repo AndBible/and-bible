@@ -292,14 +292,16 @@ internal object DesktopSwordFolders {
         SwordBookPath.scanDefaultLocations = false
         val modules = dir.toOkioPath()
         IosSwordEnvironment.createModuleFolders(modules) // throws: a module folder that cannot be created fails startup
+        // The download dir first: initialiseJSwordFolders sets the augment path, which re-registers the Sword driver at
+        // once; without an explicit download dir that scan would fall back to JSword's default one, ~/.sword.
+        SwordBookPath.setDownloadDir(modules)
         IosSwordEnvironment.initialiseJSwordFolders(modules)
         // initialiseJSwordFolders logs and swallows its own failures.
         if (!IosSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
         if (current == dir) return
-        if (SwordBookPath.getDownloadDir() != modules) {
-            SwordBookPath.setDownloadDir(modules)
-            SwordBookPath.setAugmentPath(arrayOf(modules))
-        }
+        // Always re-register here (setDownloadDir alone does not): the book list is exactly this folder's, whatever an
+        // earlier start or the first registration saw.
+        SwordBookPath.setAugmentPath(arrayOf(modules))
         current = dir
     }
 
