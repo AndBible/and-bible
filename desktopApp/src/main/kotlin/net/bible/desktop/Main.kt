@@ -30,6 +30,7 @@ fun main() {
     val bundleRoot = Files.createTempDirectory("andbible-bibleview")
     val index = BibleViewBundle.extractTo(bundleRoot)
     val session = DesktopWebSession(
+        // Spike-only (D1 measurements), remove in D2: the SpikeTimingEngine wrapper.
         engine = KcefWebEngine(installDir, index.parent).let { if (options.spikeLog) SpikeTimingEngine(it) else it },
         shutdownEngine = KcefWebEngine::shutdown,
         cleanUp = { bundleRoot.toFile().deleteRecursively() },
@@ -44,6 +45,8 @@ fun main() {
                 exitApplication()
             },
         ) {
+            // Spike-only (D1 measurements), remove in D2: the theme-flip timer and SpikeOverlay. With no
+            // andbible.poc.* properties this is the pre-switch behaviour: SPLIT2, light theme, no overlay.
             var dark by remember { mutableStateOf(options.dark) }
             options.themeFlipMs?.let { period ->
                 LaunchedEffect(Unit) {
