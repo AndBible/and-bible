@@ -194,7 +194,7 @@ class IosDisplayModesTest {
         val settings = DatabaseAppSettings({ store }) { true }
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(FakeNight(false), settings, store.changes) { changes++ }
+        val observer = IosNightModeObserver(FakeNight(false), IosDisplayModeSignals, settings, store.changes) { changes++ }
         try {
             observer.start(scope)
             assertFalse(observer.monochrome.value)
@@ -239,7 +239,7 @@ class IosDisplayModesTest {
             val relay = IosReadingWindows.relayPlatformFor(id)!!
             val configsBefore = relay.configUpdates
             var changes = 0
-            val observer = IosNightModeObserver(state, restored = { null }) {
+            val observer = IosNightModeObserver(state, IosDisplayModeSignals, restored = { null }) {
                 changes++
                 IosReadingWindows.nightModeChanged()
             }
@@ -287,7 +287,7 @@ class IosDisplayModesTest {
         standard.setBool(true, forKey = "night_mode_pref")
         withWindows({ it.get<NightModeState>() }) {
             val koin = KoinPlatform.getKoin()
-            val observer = IosNightModeObserver(koin.get<NightModeState>(), restored = { null })
+            val observer = IosNightModeObserver(koin.get<NightModeState>(), IosDisplayModeSignals, restored = { null })
             try {
                 observer.start()
                 observer.refresh()
@@ -313,7 +313,7 @@ class IosDisplayModesTest {
         val restored = net.bible.sharedcore.event.EventSource<Unit>()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         var changes = 0
-        val observer = IosNightModeObserver(night, restored = { restored }) { changes++ }
+        val observer = IosNightModeObserver(night, IosDisplayModeSignals, restored = { restored }) { changes++ }
         try {
             observer.start(scope)
             night.dark = true // the restore replaced the stored mode: no notification of its own

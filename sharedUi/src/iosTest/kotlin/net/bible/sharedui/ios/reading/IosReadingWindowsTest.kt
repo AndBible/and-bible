@@ -399,7 +399,7 @@ class IosReadingWindowsTest {
     fun nightObserverFollowsStateAndReportsChanges() {
         val night = FakeNight(false)
         var changes = 0
-        val observer = IosNightModeObserver(night) { changes++ }
+        val observer = IosNightModeObserver(night, IosDisplayModeSignals) { changes++ }
         assertFalse(observer.dark.value)
         night.dark = true
         assertTrue(observer.refresh())

@@ -93,6 +93,7 @@ import net.bible.sharedui.components.LocalBarFontScaleCap
 import net.bible.sharedui.components.FailClosedLinkRouting
 import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.ios.reading.ChooserTarget
+import net.bible.sharedui.ios.reading.IosDisplayModeSignals
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingHostPlatform
@@ -230,7 +231,7 @@ fun IosApp(recoveryStartRoute: String? = null, recoveryDark: Boolean = false, on
     val modesVersion = remember { mutableIntStateOf(0) }
     val settingsChanges = remember { iosSettingsChanges() }
     val nightObserver = remember {
-        IosNightModeObserver(koin.get<NightModeState>(), koin.get<AppSettings>(), settingsChanges) {
+        IosNightModeObserver(koin.get<NightModeState>(), IosDisplayModeSignals, koin.get<AppSettings>(), settingsChanges) {
             modesVersion.intValue++
             IosReadingWindows.nightModeChanged()
         }

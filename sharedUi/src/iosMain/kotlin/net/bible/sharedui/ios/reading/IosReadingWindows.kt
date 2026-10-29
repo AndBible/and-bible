@@ -308,14 +308,16 @@ object IosReadingWindows {
 
 /**
  * Follows the display modes that need a `set_config` and a theme refresh: night mode, colour mode and the animation
- * setting. Two signals, because the sources differ: night mode is a `UserDefaults` key (`NSUserDefaultsDidChange`, plus
- * app-active), while colour mode and animations live in the database-backed [AppSettings], whose writes post no
+ * setting. Two signals, because the sources differ: night mode is a `UserDefaults` key ([signals]: on iOS
+ * `NSUserDefaultsDidChange`, plus app-active), while colour mode and animations live in the database-backed [AppSettings], whose writes post no
  * platform notification; those arrive through [settingsChanges] (`SettingsStore.changes`). [dark] and [monochrome]
  * are Compose state for the theme and the reading host; [onChange] fires once per real change of any of the modes.
  */
 @kotlin.native.HiddenFromObjC
 class IosNightModeObserver(
     private val state: NightModeState,
+    /** The platform signals after which the night mode is re-read (iOS: [IosDisplayModeSignals]). */
+    private val signals: DisplayModeSignals,
     private val settings: AppSettings? = null,
     private val settingsChanges: kotlinx.coroutines.flow.Flow<String>? = null,
     /** Fires after a database restore or sign-in replaced the databases (resolved on [start]); the modes are re-read then. */
@@ -329,7 +331,8 @@ class IosNightModeObserver(
 
     /** Colour mode other than NORMAL: the predicate `IosDocumentLoaderPlatform` sends as `monochromeMode`. */
     val monochrome: androidx.compose.runtime.State<Boolean> get() = monochromeState
-    private val observers = mutableListOf<Any>()
+    /** Stops the [signals] observation; non-null while started. */
+    private var stopSignals: (() -> Unit)? = null
     private var settingsWatch: kotlinx.coroutines.Job? = null
     private var restoreWatch: kotlinx.coroutines.Job? = null
 
@@ -357,11 +360,8 @@ class IosNightModeObserver(
      */
     fun start(scope: kotlinx.coroutines.CoroutineScope? = null) {
         require(scope != null || settingsChanges == null) { "IosNightModeObserver.start needs a scope when settingsChanges is given" }
-        if (observers.isNotEmpty()) return
-        val center = platform.Foundation.NSNotificationCenter.defaultCenter
-        for (name in listOf(platform.Foundation.NSUserDefaultsDidChangeNotification, platform.UIKit.UIApplicationDidBecomeActiveNotification)) {
-            observers += center.addObserverForName(name, null, platform.Foundation.NSOperationQueue.mainQueue) { refresh() }
-        }
+        if (stopSignals != null) return
+        stopSignals = signals.observe { refresh() }
         if (scope != null && settingsChanges != null) {
             settingsWatch = watchSettingKeys(settingsChanges, DISPLAY_MODE_KEYS, scope) { refresh() }
         }
@@ -375,9 +375,8 @@ class IosNightModeObserver(
     }
 
     fun stop() {
-        val center = platform.Foundation.NSNotificationCenter.defaultCenter
-        observers.forEach { center.removeObserver(it) }
-        observers.clear()
+        stopSignals?.invoke()
+        stopSignals = null
         settingsWatch?.cancel()
         settingsWatch = null
         restoreWatch?.cancel()
