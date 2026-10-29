@@ -69,8 +69,8 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.service.cloudsync.ios.IosBackupHost
-import net.bible.service.cloudsync.ios.IosErrorReportHooks
+import net.bible.service.cloudsync.host.IosBackupHost
+import net.bible.service.cloudsync.host.IosErrorReportHooks
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible

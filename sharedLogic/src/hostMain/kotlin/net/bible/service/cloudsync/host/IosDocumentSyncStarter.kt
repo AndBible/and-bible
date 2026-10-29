@@ -1,4 +1,4 @@
-package net.bible.service.cloudsync.ios
+package net.bible.service.cloudsync.host
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized

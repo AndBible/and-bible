@@ -14,6 +14,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
 
 /**
  * The iOS certificate prompt must use the device-neutral wording. The stub mirrors the English resource text; the

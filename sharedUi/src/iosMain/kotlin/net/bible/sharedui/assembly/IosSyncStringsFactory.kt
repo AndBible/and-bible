@@ -16,7 +16,7 @@
  */
 package net.bible.sharedui.assembly
 
-import net.bible.service.cloudsync.ios.IosSyncStrings
+import net.bible.service.cloudsync.host.IosSyncStrings
 import net.bible.service.cloudsync.webdav.WebDavMessage
 import net.bible.sharedui.strings.keyed.StringTable
 

@@ -26,6 +26,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.PlainHttpRefusedException
 
 class IosCloudAdapterFactoryTest {
     private val suite = "i2-factory-${NSUUID().UUIDString}"

@@ -33,6 +33,10 @@ import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
+import net.bible.service.cloudsync.host.IosBackupHost
+import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.IosDocumentSyncStarter
+import net.bible.service.cloudsync.host.IosSyncStrings
 
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 

@@ -1,4 +1,4 @@
-package net.bible.service.cloudsync.ios
+package net.bible.service.cloudsync.host
 
 import net.bible.android.control.backup.BackupHost
 import net.bible.sharedcore.log.Log

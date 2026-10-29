@@ -15,7 +15,7 @@ import net.bible.service.installzip.InstallError
 import net.bible.sharedui.app.ports.CompletingDocumentInstallStarter
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import net.bible.service.cloudsync.ios.IosBackupHost
+import net.bible.service.cloudsync.host.IosBackupHost
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.installzip.DecisionRequest

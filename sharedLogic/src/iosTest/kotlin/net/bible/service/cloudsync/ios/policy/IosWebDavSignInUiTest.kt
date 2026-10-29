@@ -10,6 +10,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import kotlin.test.*
+import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosWebDavSignInUiTest {

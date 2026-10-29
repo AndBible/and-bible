@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
+import net.bible.service.cloudsync.host.IosSyncStrings
 
 class IosSyncBindingsTest {
     private class MapSettings : AppSettings {

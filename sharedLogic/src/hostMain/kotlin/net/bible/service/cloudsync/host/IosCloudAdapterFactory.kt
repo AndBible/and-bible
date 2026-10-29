@@ -1,4 +1,4 @@
-package net.bible.service.cloudsync.ios
+package net.bible.service.cloudsync.host
 
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudAdapterFactory
