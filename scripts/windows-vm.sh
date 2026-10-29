@@ -183,7 +183,21 @@ ssh_options() {
   SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=${1:-$VM_DIR/known_hosts}")
 }
 
+install_screenshot() {
+  local socket=$1 png=$2 raw="${2%.png}.ppm"
+  qmp "$socket" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}" >/dev/null 2>&1 || return 1
+  python3 - "$raw" "$png" <<'PYSHOT'
+from PIL import Image
+import sys
+Image.open(sys.argv[1]).save(sys.argv[2])
+PYSHOT
+  local result=$?
+  rm -f "$raw"
+  return "$result"
+}
+
 install_vm() {
+  local deadline=$((SECONDS + ${WINDOWS_VM_INSTALL_TIMEOUT:-5400}))
   umask 077
   mkdir -p "$VM_DIR" "$STATE" "$RUNS"
   chmod 700 "$VM_DIR"
@@ -191,7 +205,7 @@ install_vm() {
   exec 9>"$STATE/lock"; flock -n 9 || error 'VM state is busy'
   [[ ! -e "$BASE" && ! -e "${BASE}.vars" ]] || error 'base image or firmware already exists; refusing to overwrite'
   owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'VM is already running'
-  local iso=${WINDOWS_VM_ISO:-$ROOT/.local/win.iso} listing run_dir qpid qmp_sock deadline next_shot now boot_deadline remaining shot_count=0
+  local iso=${WINDOWS_VM_ISO:-$ROOT/.local/win.iso} listing run_dir qpid qmp_sock next_shot now boot_deadline remaining shot_count=0
   [[ -r "$iso" && -s "$iso" ]] || error "Windows ISO not readable: $iso"
   command -v 7z >/dev/null || error '7z is required to validate Windows media'
   listing=$(7z l "$iso" 2>/dev/null) || error 'cannot read Windows ISO'
@@ -235,25 +249,19 @@ PYINSTALL
   [[ -s "$STATE/qemu.start" ]] || { kill "$qpid" 2>/dev/null || true; error 'could not record QEMU process identity'; }
   trap 'terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || true; cleanup_qmp_path "$run_dir"; rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"' EXIT
   ssh_options "$run_dir/known_hosts"
-  deadline=$((SECONDS + ${WINDOWS_VM_INSTALL_TIMEOUT:-5400})); next_shot=$SECONDS; boot_deadline=$((SECONDS + 30))
+  next_shot=$SECONDS; boot_deadline=$((SECONDS + 30))
   printf 'Installer running; logs and screenshots: %s\n' "$run_dir"
   while (( SECONDS < deadline )); do
     owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || error "installer QEMU exited; see $run_dir/qemu.log"
     now=$SECONDS
     if (( now >= next_shot )) && [[ -S "$qmp_sock" ]]; then
       shot_count=$((shot_count+1))
-      raw="$run_dir/install-shots/$(printf '%04d' "$shot_count").ppm"
-      if qmp "$qmp_sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}" >/dev/null 2>&1; then
-        python3 - "$raw" "${raw%.ppm}.png" <<'PYSHOT'
-from PIL import Image
-import sys
-Image.open(sys.argv[1]).save(sys.argv[2])
-PYSHOT
-        rm -f "$raw"
-      fi
+      remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
+      WINDOWS_VM_QMP_TIMEOUT=$remaining install_screenshot "$qmp_sock" "$run_dir/install-shots/$(printf '%04d' "$shot_count").png" || true
       next_shot=$((now + 300))
     fi
-    if (( now < boot_deadline )) && [[ -S "$qmp_sock" ]]; then "$ROOT/scripts/windows-vm.sh" key spc >/dev/null 2>&1 || true; fi
+    remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
+    if (( now < boot_deadline )) && [[ -S "$qmp_sock" ]]; then WINDOWS_VM_QMP_TIMEOUT=$remaining "$ROOT/scripts/windows-vm.sh" key spc >/dev/null 2>&1 || true; fi
     remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
     (( remaining > 10 )) && remaining=10
     if timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'if (Test-Path C:\abtest\ready.txt) { exit 0 } else { exit 1 }' >/dev/null 2>&1; then
@@ -276,9 +284,20 @@ PYSHOT
       printf 'Windows base installed: %s\n' "$BASE"
       return
     fi
-    sleep 5
+    remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
+    (( remaining > 5 )) && remaining=5
+    sleep "$remaining"
   done
-  error "install timed out; see $run_dir"
+  # Capture once after the deadline, with a small bounded diagnostic allowance.
+  if ! WINDOWS_VM_QMP_TIMEOUT=3 install_screenshot "$qmp_sock" "$run_dir/install-shots/final.png"; then
+    printf 'windows-vm: final screenshot capture failed\n' >&2
+  fi
+  ln -sfn "$run_dir/install-shots" "$VM_DIR/install-shots.new.$$"
+  mv -Tf "$VM_DIR/install-shots.new.$$" "$VM_DIR/install-shots"
+  if [[ -f "$run_dir/install-shots/final.png" ]]; then
+    error "install timed out; final screenshot: $VM_DIR/install-shots/final.png"
+  fi
+  error "install timed out; final screenshot unavailable; screenshots: $run_dir/install-shots"
 }
 
 [[ $# -gt 0 ]] || usage
