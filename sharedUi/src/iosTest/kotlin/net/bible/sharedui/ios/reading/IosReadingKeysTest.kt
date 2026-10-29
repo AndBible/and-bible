@@ -157,7 +157,7 @@ class IosReadingKeysTest {
         val koin = KoinPlatform.getKoin()
         val settings = koin.get<AppSettings>()
         val scope = CoroutineScope(Dispatchers.Unconfined)
-        val chooser = IosChooserHostPlatform(koin, scope, { IosAppStartup.stringTable })
+        val chooser = IosChooserHostPlatform(koin, scope, { IosAppStartup.stringTable }, net.bible.sharedui.ios.ports.IosWindowMetrics())
         try {
             settings.setBoolean("navigate_to_verse_pref", false)
             val offResults = mutableListOf<String>()

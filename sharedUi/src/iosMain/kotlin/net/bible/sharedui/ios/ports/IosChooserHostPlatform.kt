@@ -14,13 +14,12 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedui.ios.ports
 
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -46,6 +45,7 @@ import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
+import net.bible.sharedui.assembly.HostWindowMetrics
 import net.bible.sharedui.app.chooser.ChooserOverflowItem
 import net.bible.sharedui.icons.AbIcons
 import net.bible.sharedui.strings.keyed.StringTable
@@ -55,7 +55,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.Koin
-import platform.UIKit.UIScreen
 
 /** Chooser adapters over the shared mapping, key and passage-grid contracts. */
 @kotlin.native.HiddenFromObjC
@@ -63,6 +62,7 @@ class IosChooserHostPlatform(
     private val koin: Koin,
     private val hostScope: CoroutineScope,
     private val table: () -> StringTable,
+    private val metrics: HostWindowMetrics,
 ) : ChooserHostPlatform {
     override fun backupModules() {
         hostScope.launch { koin.get<BackupControl>().backupModulesViaIntent(koin.get<BackupHost>()) }
@@ -91,7 +91,7 @@ class IosChooserHostPlatform(
                 // Read the current table on each build, not when the platform/controller was created.
                 buildGridStep(step, options, table().text("choosePassageBookName"), windows.windowRepository.name,
                     selectedBookNo, selectedChapter, navigation, windows,
-                    UIScreen.mainScreen.bounds.useContents { size.height >= size.width })
+                    metrics.isPortrait)
             },
             onPersistOptions = { persistGridOptions(it, navigation, settings) },
             onPickBook = { bookNo ->

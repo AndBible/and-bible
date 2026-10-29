@@ -48,6 +48,7 @@ import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
 import net.bible.sharedui.ios.ports.IosSystemScreens
 import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
+import net.bible.sharedui.ios.ports.IosWindowMetrics
 import org.koin.core.Koin
 
 /**
@@ -73,7 +74,7 @@ fun buildIosHostPorts(
         IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get(),
             IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp)
     }
-    val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
+    val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable, IosWindowMetrics())
     val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get(), { koin.get() })
     val download = IosDownloadHostPlatform(documents)
     val cloud = IosCloudDocumentsHostPlatform()

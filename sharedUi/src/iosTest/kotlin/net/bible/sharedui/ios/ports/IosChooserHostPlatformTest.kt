@@ -30,7 +30,7 @@ class IosChooserHostPlatformTest {
             val koin = KoinPlatform.getKoin()
             val book = assertNotNull(Books.installed().getBook("K4RawText"))
             val books = listOf(book)
-            val platform = IosChooserHostPlatform(koin, CoroutineScope(Dispatchers.Unconfined), { IosAppStartup.stringTable })
+            val platform = IosChooserHostPlatform(koin, CoroutineScope(Dispatchers.Unconfined), { IosAppStartup.stringTable }, IosWindowMetrics())
             assertEquals(listOf(DocRowMapper(koin.get<DownloadControl>(), books).toDocRow(book)), platform.docRows(books))
             assertEquals(emptyList(), platform.docRows(emptyList()))
         } finally { runBlocking { IosAppStartup.resetForTest() } }
@@ -45,7 +45,7 @@ class IosChooserHostPlatformTest {
         } } }) }
         try {
             var table = iosStringTable("en")
-            val platform = IosChooserHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), { table })
+            val platform = IosChooserHostPlatform(app.koin, CoroutineScope(Dispatchers.Unconfined), { table }, IosWindowMetrics())
             val cause = IllegalStateException("chooser failure")
             platform.showError(cause)
             table = iosStringTable("fi")
