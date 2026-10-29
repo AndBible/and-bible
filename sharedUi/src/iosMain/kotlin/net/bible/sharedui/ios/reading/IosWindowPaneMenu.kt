@@ -98,12 +98,12 @@ import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
-import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.IosStringTableHolder
 import net.bible.sharedui.ios.ports.IosBookmarkCsvFiles
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
 import net.bible.sharedui.ios.ports.iosBookmarkCsvTimestamp
-import net.bible.sharedui.ios.ports.IosDocumentPicker
+import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.ios.ports.IosStudyPadExportPlatform
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.page.window.Window
@@ -159,11 +159,13 @@ class IosWindowPaneMenuPlatform(
     },
     private val bookmarksWithLabel: suspend (BookmarkEntities.Label) -> List<BookmarkEntities.BibleBookmarkWithNotes> =
         { label -> KoinPlatform.getKoin().get<BookmarkControl>().getBibleBookmarksWithLabel(label) },
+    /** A new document picker for the CSV export, created per export (the iOS host passes `IosDocumentPicker()`). */
+    private val newDocumentPicker: () -> DocumentPicker,
     private val exportCsv: suspend (List<BookmarkEntities.BibleBookmarkWithNotes>) -> Unit = { bookmarks ->
         val koin = KoinPlatform.getKoin()
         IosBookmarkHostPlatform(
-            { koin.get() }, IosDocumentPicker(), koin.get(), koin.get(),
-            { koin.getOrNull<IosStringTableHolder>()?.current ?: IosAppStartup.stringTable }, koin.get(), koin.get(),
+            { koin.get() }, newDocumentPicker(), koin.get(), koin.get(),
+            { koin.getOrNull<IosStringTableHolder>()?.current ?: HostStartup.stringTable }, koin.get(), koin.get(),
             IosBookmarkCsvFiles()::openSink, ::iosBookmarkCsvTimestamp,
         ).exportBookmarksCsv(bookmarks)
     },

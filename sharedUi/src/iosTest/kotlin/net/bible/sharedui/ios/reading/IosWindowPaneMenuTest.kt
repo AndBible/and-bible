@@ -108,6 +108,7 @@ class IosWindowPaneMenuTest {
                 clipboard = KoinPlatform.getKoin().get(),
                 toast = {}, copiedMessage = { "" }, bridgeFor = { null },
                 openPromptSelector = { s, c, k -> opened += Triple(s, c, k) },
+                newDocumentPicker = { net.bible.sharedui.ios.ports.IosDocumentPicker() },
             )
 
             platform.llmActions(window)
@@ -172,6 +173,7 @@ class IosWindowPaneMenuTest {
                 clipboard = koin.get(),
                 toast = {}, copiedMessage = { "" }, bridgeFor = { null },
                 openPromptSelector = { _, _, _ -> },
+                newDocumentPicker = { net.bible.sharedui.ios.ports.IosDocumentPicker() },
                 emitEvent = { id, call -> rec.events += id to call.js },
                 studyPadExport = object : StudyPadExportPlatform {
                     override suspend fun export(labels: List<BookmarkEntities.Label>, chooseDestination: suspend () -> SaveOrShare?) {

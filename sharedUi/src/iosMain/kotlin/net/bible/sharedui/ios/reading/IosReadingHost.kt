@@ -110,6 +110,7 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.app.iosSetStatusBarHidden
+import net.bible.sharedui.ios.ports.IosDocumentPicker
 import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosTextShare
 import net.bible.sharedui.nav.NavResultChannel
@@ -371,6 +372,7 @@ class IosReadingHost(
             copiedMessage = { KeyedPaneMenuStrings(IosAppStartup.stringTable).referenceCopiedToClipboard },
             bridgeFor = { id -> if (IosReadingWindows.hasAssembly(id)) IosReadingWindows.bridgeFor(id) else null },
             openPromptSelector = ::openPromptSelector,
+            newDocumentPicker = { IosDocumentPicker() },
         )
     }
 
