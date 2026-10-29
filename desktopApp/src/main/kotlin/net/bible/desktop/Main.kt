@@ -10,6 +10,7 @@ import kotlin.system.exitProcess
 /**
  * Starts the desktop PoC on the KCEF engine. `kcef.installDir` (set by `./gradlew :desktopApp:run`) names the CEF
  * natives built by `:desktopApp:prepareKcefNatives`; `kcef.args` optionally adds Chromium switches (space-separated).
+ * That absolute build-dir path is a D1 arrangement; packaging the natives inside the distribution is D4a.
  */
 fun main() {
     val installDir = System.getProperty("kcef.installDir")?.let { Path.of(it) }

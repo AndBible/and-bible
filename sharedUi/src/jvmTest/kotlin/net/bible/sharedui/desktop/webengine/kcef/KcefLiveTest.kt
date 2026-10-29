@@ -45,6 +45,13 @@ class KcefLiveTest {
         assertEquals("hello" to true, got)
     }
 
+    @Test
+    fun navigationAwayFromTheBundleOriginIsBlocked() {
+        evaluate("location.href = 'https://example.org/'; 0")
+        Thread.sleep(1000)
+        assertEquals("\"$BUNDLE_ORIGIN\"", evaluate("location.origin"))
+    }
+
     private fun evaluate(js: String): String {
         val result = ArrayBlockingQueue<String>(1)
         SwingUtilities.invokeAndWait { pane!!.evaluate(js) { result.offer(it) } }

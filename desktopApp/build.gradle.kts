@@ -26,6 +26,14 @@ dependencies {
 // JetBrains Runtime release (KCEF's release notes: "compatible with jbr-release-17.0.14b1367.22"). They are fetched
 // once at build time into kcefNativesDir (KCEF's install dir); the app never downloads anything at run time.
 val kcefJbrTag = "jbr-release-17.0.14b1367.22"
+
+/**
+ * The pinned hex digest (SHA-256: 64 chars, SHA-512: 128 chars) of the Linux x64 natives archive of [kcefJbrTag].
+ * Deliberately unset until the archive has been downloaded and checked once (the natives host was unreachable when
+ * this task was written); while null, only the `.checksum` served next to the archive is checked, which proves the
+ * download intact but not authentic. Once set, a `.checksum` that disagrees with it fails the build.
+ */
+val kcefNativesDigest: String? = null
 val kcefNativesDir = layout.buildDirectory.dir("kcef-natives")
 val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
 
@@ -35,6 +43,7 @@ val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--a
  */
 abstract class PrepareKcefNatives : DefaultTask() {
     @get:Input abstract val packageUrl: Property<String>
+    @get:Input @get:Optional abstract val expectedDigest: Property<String>
     @get:Internal abstract val installDir: DirectoryProperty
     @get:Internal abstract val downloadDir: DirectoryProperty
     @get:OutputFile abstract val installLock: RegularFileProperty
@@ -46,8 +55,15 @@ abstract class PrepareKcefNatives : DefaultTask() {
         val downloads = downloadDir.get().asFile.apply { mkdirs() }
         val archive = File(downloads, url.substringAfterLast('/'))
         val checksumFile = File(downloads, archive.name + ".checksum")
-        if (!archive.isFile || !checksumMatches(archive, checksumFile)) {
+        val cached = runCatching { pinMatches(checksumFile) && checksumMatches(archive, checksumFile) }.getOrDefault(false)
+        if (!cached) {
             curl("$url.checksum", checksumFile)
+            if (!pinMatches(checksumFile)) {
+                throw GradleException(
+                    "The .checksum served for $url (${digestIn(checksumFile)}) disagrees with the pinned digest " +
+                        "${expectedDigest.get()}; refusing the natives",
+                )
+            }
             val part = File(downloads, archive.name + ".part")
             curl(url, part)
             if (!checksumMatches(part, checksumFile)) {
@@ -81,11 +97,19 @@ abstract class PrepareKcefNatives : DefaultTask() {
         exec.exec { commandLine("curl", "-fsSL", "--retry", "2", "-o", out.absolutePath, url) }
     }
 
-    /** The `.checksum` holds a hex digest (SHA-256 or SHA-512, by length) followed by the file name. */
+    /** The hex digest in a `.checksum` file (a SHA-256 or SHA-512 digest followed by the file name). */
+    private fun digestIn(checksumFile: File): String =
+        Regex("\\b[0-9a-fA-F]{64,128}\\b").find(checksumFile.readText())?.value?.lowercase()
+            ?: throw GradleException("No digest in $checksumFile")
+
+    /** True when no digest is pinned, or [checksumFile] carries exactly the pinned one. */
+    private fun pinMatches(checksumFile: File): Boolean =
+        !expectedDigest.isPresent || digestIn(checksumFile) == expectedDigest.get().lowercase()
+
+    /** Whether [file] hashes to the digest in [checksumFile] (algorithm chosen by the digest's length). */
     private fun checksumMatches(file: File, checksumFile: File): Boolean {
         if (!file.isFile || !checksumFile.isFile) return false
-        val expected = Regex("\\b[0-9a-fA-F]{64,128}\\b").find(checksumFile.readText())?.value?.lowercase()
-            ?: throw GradleException("No digest in $checksumFile")
+        val expected = digestIn(checksumFile)
         val algorithm = when (expected.length) {
             64 -> "SHA-256"
             128 -> "SHA-512"
@@ -122,6 +146,7 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
         },
     )
     installDir.set(kcefNativesDir)
+    kcefNativesDigest?.let { expectedDigest.set(it) }
     downloadDir.set(layout.buildDirectory.dir("kcef-download"))
     installLock.set(kcefNativesDir.map { it.file("install.lock") })
     doFirst {
@@ -135,6 +160,8 @@ compose.desktop {
     application {
         mainClass = "net.bible.desktop.MainKt"
         jvmArgs += kcefJvmArgs
+        // D1 only: `run` points the app at the natives in this build dir by absolute path. Shipping the natives inside
+        // the packaged distribution (and resolving them relative to it) is D4a.
         jvmArgs += "-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}"
     }
 }

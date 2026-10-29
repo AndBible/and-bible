@@ -17,6 +17,8 @@ import org.cef.browser.CefMessageRouter
 import org.cef.browser.CefRendering
 import org.cef.callback.CefCallback
 import org.cef.callback.CefQueryCallback
+import org.cef.handler.CefLifeSpanHandlerAdapter
+import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.handler.CefMessageRouterHandlerAdapter
 import org.cef.handler.CefRequestHandlerAdapter
 import org.cef.handler.CefResourceHandler
@@ -34,6 +36,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import javax.swing.Timer
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -45,22 +48,34 @@ import kotlin.coroutines.CoroutineContext
  * - Bridge: the shim posts through a `CefMessageRouter` (`window.cefQuery`); messages reach `onMessage` on the AWT
  *   event thread. The shim and the pane's document-start scripts are injected into the served HTML document
  *   (see [BundleRequestHandler]), registered before the browser starts loading.
+ * - Trust: bridge messages (and eval replies) are accepted only from the main frame of a document at [BUNDLE_ORIGIN];
+ *   the pane never navigates away from that origin and opens no popups. Blocked navigations are only logged: opening
+ *   external links in the system browser belongs to a later desktop stage (D3b).
+ * - Evaluate: every callback is answered exactly once, with `"null"` when no reply can come (pane disposed, main frame
+ *   loading a new document, or [EVAL_TIMEOUT_MS] elapsed).
  * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`).
  */
-class KcefWebEngine(private val installDir: Path, private val bundleDir: Path) : DesktopWebEngine {
+class KcefWebEngine(
+    private val installDir: Path,
+    private val bundleDir: Path,
+    private val log: (String) -> Unit = ::println,
+) : DesktopWebEngine {
 
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_ORIGIN/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         init(installDir).getOrThrow()
         val scripts = listOf(androidBridgeShim(CEF_POST_MESSAGE_JS, activeLanguagesJson(url))) + documentStartScripts
-        return KcefPane(id, url, BundleRequestHandler(bundleDir, scripts), onMessage)
+        return KcefPane(id, url, BundleRequestHandler(bundleDir, scripts), onMessage) { msg -> log("kcef[$id]: $msg") }
     }
 
     companion object {
         /** JS function that sends its argument to the native side through the pane's message router. */
         internal const val CEF_POST_MESSAGE_JS =
             "function (t) { window.cefQuery({request: String(t), persistent: false, onSuccess: function () {}, onFailure: function () {}}); }"
+
+        /** How long an evaluate callback waits for the page's reply before it gets `"null"`. */
+        const val EVAL_TIMEOUT_MS = 10_000
 
         private var initialized = false
 
@@ -135,6 +150,7 @@ internal class KcefPane(
     private val url: String,
     private val bundle: BundleRequestHandler,
     private val onMessage: (String) -> Unit,
+    private val log: (String) -> Unit,
 ) : DesktopWebPane {
     @Volatile
     private var disposed = false
@@ -148,6 +164,12 @@ internal class KcefPane(
                 browser: CefBrowser?, frame: CefFrame?, queryId: Long, request: String?, persistent: Boolean,
                 callback: CefQueryCallback?,
             ): Boolean {
+                if (frame?.isMain != true || !isAtBundleOrigin(frame.url)) {
+                    // Not our document (a subframe or a foreign page): no bridge access, no forged eval replies.
+                    callback?.failure(403, "refused")
+                    log("refused a bridge message from ${frame?.url}")
+                    return true
+                }
                 callback?.success("")
                 val text = request ?: return true
                 SwingUtilities.invokeLater { if (!disposed && !evals.consume(text)) onMessage(text) }
@@ -161,7 +183,19 @@ internal class KcefPane(
     init {
         // Everything the page needs (router, bundle + document-start scripts) is registered before loading starts.
         client.addMessageRouter(router)
-        client.addRequestHandler(BundleCefRequestHandler(bundle))
+        client.addRequestHandler(BundleCefRequestHandler(bundle, log))
+        client.addLoadHandler(object : CefLoadHandlerAdapter() {
+            override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
+                // A new main document cannot answer the old document's evaluations.
+                if (frame?.isMain == true) SwingUtilities.invokeLater { evals.failAll() }
+            }
+        })
+        client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
+            override fun onBeforePopup(browser: CefBrowser?, frame: CefFrame?, targetUrl: String?, targetFrameName: String?): Boolean {
+                log("blocked a popup to $targetUrl")
+                return true
+            }
+        })
         browser = client.createBrowser(url, CefRendering.DEFAULT, false)
     }
 
@@ -180,19 +214,29 @@ internal class KcefPane(
     override fun post(block: () -> Unit) = SwingUtilities.invokeLater { if (!disposed) block() }
 
     override fun evaluate(js: String, callback: ((String) -> Unit)?) {
-        if (disposed) return
-        if (!isMainThread) {
-            post { evaluate(js, callback) }
+        if (disposed) {
+            callback?.invoke(EvalReplies.NO_RESULT)
             return
         }
-        val code = if (callback == null) js else evals.wrap(js, KcefWebEngine.CEF_POST_MESSAGE_JS, callback)
-        browser.executeJavaScript(code, browser.url ?: url, 0)
+        if (!isMainThread) {
+            // Not through post(): that drops the block after dispose, and the callback must still be answered.
+            SwingUtilities.invokeLater { evaluate(js, callback) }
+            return
+        }
+        if (callback == null) {
+            browser.executeJavaScript(js, browser.url ?: url, 0)
+            return
+        }
+        val wrapped = evals.wrap(js, KcefWebEngine.CEF_POST_MESSAGE_JS, callback)
+        Timer(KcefWebEngine.EVAL_TIMEOUT_MS) { evals.expire(wrapped.id) }.apply { isRepeats = false }.start()
+        browser.executeJavaScript(wrapped.script, browser.url ?: url, 0)
     }
 
     override fun dispose() {
         if (disposed) return
         disposed = true
-        evals.clear()
+        // dispose() runs on the UI thread (DesktopBibleWebViews' owner), where the eval registry lives.
+        if (isMainThread) evals.failAll() else SwingUtilities.invokeLater { evals.failAll() }
         runCatching { browser.close(true) }
         runCatching { client.removeMessageRouter(router) }
         runCatching { router.dispose() }
@@ -200,8 +244,23 @@ internal class KcefPane(
     }
 }
 
-/** Serves [BUNDLE_ORIGIN] from the bundle; a refused or missing path gets a 404, never the network. */
-private class BundleCefRequestHandler(private val bundle: BundleRequestHandler) : CefRequestHandlerAdapter() {
+/**
+ * Serves [BUNDLE_ORIGIN] from the bundle (a refused or missing path gets a 404, never the network) and keeps the pane
+ * on that origin: any navigation elsewhere is cancelled and logged.
+ */
+private class BundleCefRequestHandler(
+    private val bundle: BundleRequestHandler,
+    private val log: (String) -> Unit,
+) : CefRequestHandlerAdapter() {
+    override fun onBeforeBrowse(
+        browser: CefBrowser?, frame: CefFrame?, request: CefRequest?, userGesture: Boolean, isRedirect: Boolean,
+    ): Boolean {
+        val target = request?.url
+        if (isAtBundleOrigin(target)) return false
+        log("blocked navigation to $target")
+        return true
+    }
+
     override fun getResourceRequestHandler(
         browser: CefBrowser?, frame: CefFrame?, request: CefRequest?, isNavigation: Boolean, isDownload: Boolean,
         requestInitiator: String?, disableDefaultHandling: BoolRef?,

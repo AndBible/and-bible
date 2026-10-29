@@ -168,19 +168,20 @@ tasks.matching { it.name == "jvmTest" }.configureEach {
 
 // Live KCEF tests (KcefLiveTest, in the jvmTest source set): a windowed Chromium needs a non-headless AWT, which the
 // headless jvmTest run above cannot give, so they run in their own task. `kcef.installDir` is passed only when the
-// natives that `:desktopApp:prepareKcefNatives` produces exist (no task dependency on :desktopApp); without them, or
-// without DISPLAY, the tests skip themselves. In jvmTest they always skip (headless).
+// natives that `:desktopApp:prepareKcefNatives` produces exist at execution time (no task dependency on :desktopApp);
+// without them, or without DISPLAY, the tests skip themselves. In jvmTest they always skip (headless).
 val kcefNativesDir = rootProject.layout.projectDirectory.dir("desktopApp/build/kcef-natives").asFile
-val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
 tasks.register<Test>("jvmKcefTest") {
     group = "verification"
     description = "Runs the live KCEF tests (needs desktopApp/build/kcef-natives and DISPLAY)."
-    val jvmTest = tasks.named<Test>("jvmTest").get()
-    testClassesDirs = jvmTest.testClassesDirs
-    classpath = jvmTest.classpath
+    val testCompilation = kotlin.jvm().compilations.getByName("test")
+    testClassesDirs = testCompilation.output.classesDirs
+    classpath = testCompilation.output.allOutputs + testCompilation.runtimeDependencyFiles!!
     filter { includeTestsMatching("net.bible.sharedui.desktop.webengine.kcef.KcefLiveTest") }
     systemProperty("java.awt.headless", "false")
-    jvmArgs(kcefJvmArgs)
-    if (File(kcefNativesDir, "install.lock").isFile) systemProperty("kcef.installDir", kcefNativesDir.absolutePath)
+    jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+    jvmArgumentProviders.add(CommandLineArgumentProvider {
+        if (File(kcefNativesDir, "install.lock").isFile) listOf("-Dkcef.installDir=${kcefNativesDir.absolutePath}") else emptyList()
+    })
     outputs.upToDateWhen { false }
 }

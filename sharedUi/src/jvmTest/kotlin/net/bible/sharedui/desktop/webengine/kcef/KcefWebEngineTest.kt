@@ -129,7 +129,7 @@ class KcefWebEngineTest {
     fun evalRepliesGoToTheirCallbackNotToTheBridge() {
         val evals = EvalReplies()
         val got = mutableListOf<String>()
-        val script = evals.wrap("1+1", "post", { got += "a:$it" })
+        val script = evals.wrap("1+1", "post", { got += "a:$it" }).script
         evals.wrap("2", "post", { got += "b:$it" })
         assertTrue(script.contains("(0, eval)(\"1+1\")"), script)
         assertTrue(script.contains("__eval: 1"), script)
@@ -143,6 +143,56 @@ class KcefWebEngineTest {
         assertTrue(evals.consume("""{"__eval":1,"v":"3"}"""))
         assertFalse(evals.consume("""{"method":"setClientReady","args":[]}"""))
         assertEquals(2, got.size)
+    }
+
+    @Test
+    fun timedOutEvalIsAnsweredWithNullOnceAndItsLateReplyDropped() {
+        val evals = EvalReplies()
+        val got = mutableListOf<String>()
+        val first = evals.wrap("slow()", "post", { got += "a:$it" })
+        evals.wrap("2", "post", { got += "b:$it" })
+        evals.expire(first.id)
+        evals.expire(first.id)
+        assertEquals(listOf("a:null"), got)
+        assertTrue(evals.consume("""{"__eval":${first.id},"v":"42"}"""), "a late reply is still not bridge traffic")
+        assertEquals(listOf("a:null"), got)
+        assertEquals(1, evals.pendingCount)
+    }
+
+    @Test
+    fun failAllAnswersEveryPendingCallbackWithNull() {
+        val evals = EvalReplies()
+        val got = mutableListOf<String>()
+        val a = evals.wrap("1", "post", { got += "a:$it" })
+        evals.wrap("2", "post", { got += "b:$it" })
+        // A callback that registers another evaluation while being failed (as a re-trying caller might) is safe.
+        evals.wrap("3", "post", { got += "c:$it"; evals.wrap("4", "post", { got += "d:$it" }) })
+        evals.failAll()
+        assertEquals(listOf("a:null", "b:null", "c:null"), got)
+        assertEquals(1, evals.pendingCount)
+        evals.failAll()
+        assertEquals(listOf("a:null", "b:null", "c:null", "d:null"), got)
+        evals.expire(a.id)
+        assertEquals(4, got.size, "an answered callback is never called again")
+    }
+
+    @Test
+    fun onlyTheBundleOriginIsTrusted() {
+        assertTrue(isAtBundleOrigin(BUNDLE_ORIGIN))
+        assertTrue(isAtBundleOrigin("$BUNDLE_ORIGIN/"))
+        assertTrue(isAtBundleOrigin("$BUNDLE_ORIGIN/index.html?lang=en&night=true"))
+        assertTrue(isAtBundleOrigin("$BUNDLE_ORIGIN?x"))
+        assertTrue(isAtBundleOrigin("$BUNDLE_ORIGIN#top"))
+        assertFalse(isAtBundleOrigin(null))
+        assertFalse(isAtBundleOrigin(""))
+        assertFalse(isAtBundleOrigin("about:blank"))
+        assertFalse(isAtBundleOrigin("https://example.org/"))
+        assertFalse(isAtBundleOrigin("$BUNDLE_ORIGIN.evil.org/index.html"))
+        assertFalse(isAtBundleOrigin("${BUNDLE_ORIGIN}evil/index.html"))
+        assertFalse(isAtBundleOrigin("$BUNDLE_ORIGIN:8443/index.html"), "another port is another origin")
+        assertFalse(isAtBundleOrigin("$BUNDLE_ORIGIN@evil.org/"), "userinfo trick")
+        assertFalse(isAtBundleOrigin("http://bibleview.andbible.local/index.html"), "another scheme")
+        assertFalse(isAtBundleOrigin("file:///tmp/index.html"))
     }
 
     @Test

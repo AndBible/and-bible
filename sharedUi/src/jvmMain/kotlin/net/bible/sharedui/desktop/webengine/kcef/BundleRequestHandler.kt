@@ -10,6 +10,16 @@ import java.nio.file.Path
  */
 const val BUNDLE_ORIGIN = "https://bibleview.andbible.local"
 
+/**
+ * Whether [url] is at [BUNDLE_ORIGIN] exactly (path, query or fragment may follow; a look-alike host such as
+ * `bibleview.andbible.local.evil.org` or another scheme/port is not). The pane trusts bridge messages and allows
+ * navigation only for documents at this origin.
+ */
+fun isAtBundleOrigin(url: String?): Boolean {
+    if (url == null || !url.startsWith(BUNDLE_ORIGIN)) return false
+    return url.length == BUNDLE_ORIGIN.length || url[BUNDLE_ORIGIN.length] in "/?#"
+}
+
 /** One bundle file the handler serves. */
 data class BundleResource(val file: Path, val mimeType: String) {
     /**
@@ -36,7 +46,7 @@ class BundleRequestHandler(bundleDir: Path, private val documentStartScripts: Li
     private val root: Path = bundleDir.toAbsolutePath().normalize()
 
     /** Whether [url] is at [BUNDLE_ORIGIN] (so it must never reach the network, even when [resolve] refuses it). */
-    fun isBundleUrl(url: String): Boolean = url == BUNDLE_ORIGIN || url.startsWith("$BUNDLE_ORIGIN/")
+    fun isBundleUrl(url: String): Boolean = isAtBundleOrigin(url)
 
     /** The file for [url], or null for another origin, a path escaping [bundleDir] or a missing file. */
     fun resolve(url: String): BundleResource? {
