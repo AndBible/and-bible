@@ -61,6 +61,7 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
+import net.bible.sharedui.ios.app.IosWorkspaceSaver
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {
@@ -274,7 +275,7 @@ class IosReadingWindowsTest {
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
         assertTrue(before != live, "precondition: the stored passage differs from the changed one")
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin) }
+        runBlocking { IosWorkspaceSaver.saveNow(koin) }
         assertEquals(live, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse)
     }
 
@@ -304,7 +305,7 @@ class IosReadingWindowsTest {
         pageManager.setCurrentDocumentAndKey(null, key)
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, ready = { false }) }
+        runBlocking { IosWorkspaceSaver.saveNow(koin, ready = { false }) }
         assertEquals(before, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse, "not ready: nothing is saved")
     }
 
@@ -322,8 +323,8 @@ class IosReadingWindowsTest {
             active--
         }
         runBlocking {
-            val a = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
-            val b = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val a = async(Dispatchers.Default) { IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val b = async(Dispatchers.Default) { IosWorkspaceSaver.saveNow(koin, { true }, save) }
             a.await(); b.await()
         }
         assertEquals(2, calls)

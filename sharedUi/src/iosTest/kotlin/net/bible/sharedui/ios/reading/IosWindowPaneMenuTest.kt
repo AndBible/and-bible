@@ -45,6 +45,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.ios.app.IosHostShell
 
 /** The iOS omit list and implemented list partition the dispatcher's platform rows: nothing shown that does nothing. */
 class IosWindowPaneMenuTest {
@@ -102,7 +103,7 @@ class IosWindowPaneMenuTest {
             window.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
             val page = window.pageManager.currentPage
             val platform = IosWindowPaneMenuPlatform(
-                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+                shell = IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
                 windowControl = { KoinPlatform.getKoin().get() },
                 slots = { host.slots },
                 clipboard = KoinPlatform.getKoin().get(),
@@ -168,7 +169,7 @@ class IosWindowPaneMenuTest {
             val control = koin.get<WindowControl>()
             val rec = Recorder()
             val platform = IosWindowPaneMenuPlatform(
-                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+                shell = IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
                 windowControl = { control },
                 slots = { host.slots },
                 clipboard = koin.get(),

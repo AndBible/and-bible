@@ -122,6 +122,7 @@ import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
+import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 
 /**
  * The start route of a cold launch: READING when a usable (unlocked) Bible is installed, else WELCOME, decided by the
@@ -398,7 +399,7 @@ private fun IosAppContent(
             koin.get<net.bible.android.control.backup.BackupHost>().showErrorReport(strings.errorOccurred, IllegalStateException("Task 5 simulator error"))
         }
     }
-    val welcome = remember { ports.welcomePlatform() as net.bible.sharedui.ios.ports.IosWelcomeHostPlatform }
+    val welcome = remember { ports.welcomePlatform() as IosWelcomeHostPlatform }
     SideEffect {
         welcome.openImport = { appHosts.installZip.open() }
         welcome.refreshTextIfCreated()

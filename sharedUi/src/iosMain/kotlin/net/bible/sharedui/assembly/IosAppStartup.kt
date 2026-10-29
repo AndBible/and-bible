@@ -60,6 +60,7 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSSearchPathDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.preferredLanguages
+import net.bible.sharedui.ios.startup.IosStartupOwner
 
 private const val TAG = "IosAppStartup"
 
@@ -145,7 +146,7 @@ object IosAppStartup {
     private val processScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
     // Selected on Main, used only by the process-owned initialization operation on IO.
     private var selectedParts: IosPlatformParts? = null
-    private var owner: net.bible.sharedui.ios.startup.IosStartupOwner<IosPlatformParts>? = null
+    private var owner: IosStartupOwner<IosPlatformParts>? = null
 
     @kotlin.concurrent.Volatile
     private var opened = false
@@ -180,7 +181,7 @@ object IosAppStartup {
      */
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
-            owner ?: net.bible.sharedui.ios.startup.IosStartupOwner(processScope,
+            owner ?: IosStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()

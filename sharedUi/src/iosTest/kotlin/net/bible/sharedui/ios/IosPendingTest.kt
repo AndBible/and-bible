@@ -14,6 +14,9 @@ import net.bible.sharedlogic.platform.host.IosUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bible.sharedui.ios.app.IosHostShell
+import net.bible.sharedui.ios.app.IosNavigator
+import net.bible.sharedui.ios.ports.IosChooserHostPlatform
 
 class IosPendingTest {
     @BeforeTest fun reset() = IosPending.resetForTest()
@@ -84,7 +87,7 @@ class IosHostPortsTest {
         }.koin
         try {
             val scope = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.EmptyCoroutineContext)
-            val shell = net.bible.sharedui.ios.app.IosHostShell(scope, object : net.bible.sharedui.ios.app.IosNavigator {
+            val shell = IosHostShell(scope, object : IosNavigator {
                 override fun navigate(route: String) = Unit
                 override fun popBackStack() = false
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
@@ -92,7 +95,7 @@ class IosHostPortsTest {
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
             assertSame(permission, ports.notificationPermission)
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
-            assertTrue(ports.chooserPlatform() is net.bible.sharedui.ios.ports.IosChooserHostPlatform)
+            assertTrue(ports.chooserPlatform() is IosChooserHostPlatform)
             ports.bookmarkPlatform().documentsRecreation()
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)

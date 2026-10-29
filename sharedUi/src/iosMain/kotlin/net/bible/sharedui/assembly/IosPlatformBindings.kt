@@ -123,6 +123,8 @@ import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.Books
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import net.bible.sharedui.ios.ports.IosHelpDialogs
+import net.bible.sharedui.ios.ports.IosReadingExtrasImpl
 
 /**
  * Where the app keeps its files and what it was told by its host.
@@ -294,11 +296,11 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 text = { parts.strings.text(it) },
             )
         }
-        single<net.bible.sharedui.ios.reading.IosReadingExtras> {
+        single<IosReadingExtras> {
             val holder = get<IosStringTableHolder>()
             val currentTable = { holder.current }
-            net.bible.sharedui.ios.ports.IosReadingExtrasImpl(
-                helpDialogs = net.bible.sharedui.ios.ports.IosHelpDialogs(
+            IosReadingExtrasImpl(
+                helpDialogs = IosHelpDialogs(
                     get<AppDialogController>(), currentTable,
                     { net.bible.sharedui.ios.ports.iosBundledHtml(it) }, { net.bible.sharedui.ios.ports.iosBundleVersionName() },
                 ),

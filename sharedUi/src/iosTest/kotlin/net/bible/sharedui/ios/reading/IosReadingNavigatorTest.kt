@@ -45,6 +45,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
 
 /**
  * [IosReadingNavigator] against a recording [IosNavigator]: every member must start the route Android's
@@ -99,7 +100,7 @@ class IosReadingNavigatorTest {
                 ),
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
-            val platform = net.bible.sharedui.ios.app.IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform)
                 ReadingAppInit.prepareData(platform)
