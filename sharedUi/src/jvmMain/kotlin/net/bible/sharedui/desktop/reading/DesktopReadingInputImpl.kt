@@ -63,6 +63,7 @@ class DesktopReadingInputImpl(
     private val shortcuts: DesktopShortcuts = DesktopShortcuts(DesktopShortcutActionsImpl()),
     private val gestures: DesktopReadingGestures = DesktopReadingGestures(),
     private val installMouseListener: ((AWTEventListener) -> Unit) = ::installAwtListener,
+    private val selectionMenu: DesktopSelectionMenu = DesktopSelectionMenu(),
 ) : DesktopReadingInput {
     /** The page script parts every pane gets. */
     val scriptParts: MutableList<String> = DesktopInputScript.DEFAULT_PARTS.toMutableList()
@@ -72,12 +73,22 @@ class DesktopReadingInputImpl(
 
     private var mouseListenerInstalled = false
 
+    init {
+        selectionMenu.install(this)
+    }
+
     override fun documentStartScripts(windowId: String): List<String> = listOf(DesktopInputScript.compose(scriptParts))
 
     // Installed once, on the first pane: the mouse buttons outside panes are only needed once panes exist.
-    override fun onPaneCreated(windowId: String, pane: DesktopWebPane) = ensureMouseListener()
+    override fun onPaneCreated(windowId: String, pane: DesktopWebPane) {
+        selectionMenu.onPaneCreated(windowId, pane)
+        ensureMouseListener()
+    }
 
-    override fun onPaneDisposed(windowId: String, pane: DesktopWebPane) = gestures.forget(windowId)
+    override fun onPaneDisposed(windowId: String, pane: DesktopWebPane) {
+        selectionMenu.onPaneDisposed(windowId, pane)
+        gestures.forget(windowId)
+    }
 
     override fun handleMessage(windowId: String, text: String): Boolean {
         if (!text.startsWith("{\"desktopInput\"")) return false

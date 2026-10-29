@@ -259,6 +259,7 @@ internal class KcefPane(
             log("renderer process gone: $status")
             SwingUtilities.invokeLater { if (!disposed) onRendererGone?.invoke() }
         })
+        client.addContextMenuHandler(SuppressChromiumMenuHandler())
         client.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
                 // A new main document cannot answer the old document's evaluations.
