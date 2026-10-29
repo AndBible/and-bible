@@ -95,7 +95,8 @@ class QuickSheetMountGuardTest {
     }
 
     private val productionRoots = listOf(File("src/main"), File("../sharedUi/src/commonMain"),
-        File("../sharedUi/src/androidMain"), File("../sharedUi/src/iosMain"))
+        File("../sharedUi/src/androidMain"), File("../sharedUi/src/iosMain"),
+        File("../sharedUi/src/hostMain"))
 
     /** Files (relative name -> call count) that CALL `GridKeyChooserSheetFor(` in [roots], declarations and comments excluded. */
     private fun gridSheetCallers(roots: List<File>): Map<String, Int> {
