@@ -46,8 +46,11 @@ navigationCompose = "2.9.2"
 # or drop there would be a silent Android-only failure with nothing in this file to flag it.
 # Measured via `./gradlew :sharedUi:dependencies --configuration iosSimulatorArm64CompileKlibraries`.
 lifecycleRuntimeCompose = "2.9.6"
+# Desktop D5: JNA for the WebKitGTK experiment (:desktopWebkitGtk)
+jna = "5.17.0"
 
 [libraries]
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
