@@ -69,6 +69,8 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.service.cloudsync.ios.IosBackupHost
+import net.bible.service.cloudsync.ios.IosErrorReportHooks
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
@@ -363,11 +365,11 @@ private fun IosAppContent(
         }.also { if (nightObserver != null) IosRootLinks.attachShell(it) }
     }
     DisposableEffect(shell) {
-        net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = { shell.navigate(NavRoutes.BACKUP) }
-        net.bible.service.cloudsync.ios.IosErrorReportHooks.report = { cause -> platform.reportBug(table, cause) }
+        IosErrorReportHooks.backup = { shell.navigate(NavRoutes.BACKUP) }
+        IosErrorReportHooks.report = { cause -> platform.reportBug(table, cause) }
         onDispose {
-            net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = null
-            net.bible.service.cloudsync.ios.IosErrorReportHooks.report = null
+            IosErrorReportHooks.backup = null
+            IosErrorReportHooks.report = null
         }
     }
     val windowSize = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
@@ -384,7 +386,7 @@ private fun IosAppContent(
         scope.launch { platform.reportBug(table, null) }
     }) }
     DisposableEffect(appHosts) {
-        val backup = ports.backupHost as net.bible.service.cloudsync.ios.IosBackupHost
+        val backup = ports.backupHost as IosBackupHost
         val restore: () -> Unit = { appHosts.installZip.open() }
         backup.onRestoreModules = restore
         onDispose {

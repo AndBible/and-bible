@@ -10,6 +10,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import net.bible.sharedlogic.platform.ios.IosUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -74,7 +75,7 @@ class IosHostPortsTest {
                 // Document ports now use the real app-wide dialog queue and error notifier.
                 single { net.bible.sharedcore.ui.dialog.AppDialogController() }
                 single<net.bible.sharedcore.platform.UserNotifier> {
-                    net.bible.sharedlogic.platform.ios.IosUserNotifier(get())
+                    IosUserNotifier(get())
                 }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
