@@ -25,30 +25,32 @@ class AwtFileChooserBackend : FileChooserBackend {
                 if (!continuation.isActive) return@invokeLater
                 val owner = Frame()
                 try {
-                    dialog = FileDialog(owner, "", if (save) FileDialog.SAVE else FileDialog.LOAD).apply {
+                    val fileDialog = FileDialog(owner, "", if (save) FileDialog.SAVE else FileDialog.LOAD).apply {
                         isMultipleMode = multiple
                         file = name
                         val patterns = filters.flatMap { it.globs }.map { java.nio.file.FileSystems.getDefault().getPathMatcher("glob:$it") }
                         if (patterns.isNotEmpty()) setFilenameFilter { _, file -> patterns.any { it.matches(Path.of(file)) } }
                     }
+                    dialog = fileDialog
                     // AWT has no portable directory-selection mode; Swing supplies it instead.
                     val result = if (directory) {
                         val picker = javax.swing.JFileChooser().apply { fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY }
                         var accepted = false
-                        directoryDialog = javax.swing.JDialog(owner, true).apply {
+                        val folderDialog = javax.swing.JDialog(owner, true).apply {
                             contentPane.add(picker)
                             pack()
                             setLocationRelativeTo(owner)
                         }
+                        directoryDialog = folderDialog
                         picker.addActionListener { event ->
                             accepted = event.actionCommand == javax.swing.JFileChooser.APPROVE_SELECTION
-                            directoryDialog?.dispose()
+                            folderDialog.dispose()
                         }
-                        directoryDialog!!.isVisible = true
+                        folderDialog.isVisible = true
                         if (accepted) listOf(picker.selectedFile.toPath()) else null
                     } else {
-                        dialog!!.isVisible = true
-                        dialog!!.files.map { it.toPath() }.takeIf { it.isNotEmpty() }
+                        fileDialog.isVisible = true
+                        fileDialog.files.map { it.toPath() }.takeIf { it.isNotEmpty() }
                     }
                     if (continuation.isActive) continuation.resume(result)
                 } catch (e: Throwable) {

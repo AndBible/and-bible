@@ -13,7 +13,11 @@ import net.bible.sharedcore.platform.files.FileDelivery
 import net.bible.sharedcore.platform.files.SaveOrShare
 import kotlin.coroutines.coroutineContext
 
-class DesktopFileDelivery(private val chooser: FileChooserBackend) : FileDelivery {
+class DesktopFileDelivery(
+    private val chooser: FileChooserBackend,
+    private val openInput: (Path) -> java.io.InputStream = { Files.newInputStream(it) },
+    private val isPortalPath: (Path) -> Boolean = { Regex("^/run/user/[^/]+/doc/").containsMatchIn(it.toString()) },
+) : FileDelivery {
     override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String,
         saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult {
         try {
@@ -27,11 +31,11 @@ class DesktopFileDelivery(private val chooser: FileChooserBackend) : FileDeliver
     }
 
     private suspend fun write(source: Path, target: Path) {
-        val portal = Regex("^/run/user/[^/]+/doc/").containsMatchIn(target.toString())
+        val portal = isPortalPath(target)
         val part = if (portal) Files.createTempFile("andbible-export-", ".part") else target.resolveSibling(target.fileName.toString() + ".part")
         var owned = portal
         try {
-            Files.newInputStream(source).use { input ->
+            openInput(source).use { input ->
                 val output = if (portal) Files.newOutputStream(part, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
                     else Files.newOutputStream(part, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE).also { owned = true }
                 output.use {
@@ -46,9 +50,11 @@ class DesktopFileDelivery(private val chooser: FileChooserBackend) : FileDeliver
             }
             coroutineContext.ensureActive()
             if (portal) {
+                var targetOpened = false
                 try {
-                    Files.newInputStream(part).use { input ->
+                    openInput(part).use { input ->
                         Files.newOutputStream(target, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).use { output ->
+                            targetOpened = true
                             val bytes = ByteArray(65536)
                             while (true) {
                                 coroutineContext.ensureActive()
@@ -59,7 +65,9 @@ class DesktopFileDelivery(private val chooser: FileChooserBackend) : FileDeliver
                         }
                     }
                 } catch (error: Throwable) {
-                    try { Files.newOutputStream(target, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).close() } catch (_: Exception) { }
+                    if (targetOpened) {
+                        try { Files.newOutputStream(target, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).close() } catch (_: Exception) { }
+                    }
                     throw error
                 }
             } else Files.move(part, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
