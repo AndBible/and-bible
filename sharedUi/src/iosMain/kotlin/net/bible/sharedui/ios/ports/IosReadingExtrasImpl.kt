@@ -6,7 +6,6 @@ import net.bible.sharedui.app.ports.HelpDialogs
 import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.ios.reading.IosReadingExtras
-import net.bible.sharedui.ios.report.IosBugReport
 import net.bible.sharedui.strings.keyed.StringTable
 
 /** Drawer actions share the existing presenters and read the current language on each invocation. */
@@ -14,8 +13,8 @@ internal class IosReadingExtrasImpl(
     private val helpDialogs: HelpDialogs,
     private val table: () -> StringTable,
     private val scope: CoroutineScope,
-    private val textShare: TextShare = IosTextShare(),
-    private val report: suspend (Throwable?) -> Unit = { cause -> IosBugReport(table()).report(cause) },
+    private val textShare: TextShare,
+    private val report: suspend (Throwable?) -> Unit,
 ) : IosReadingExtras {
     override val offeredRows = setOf("helpButton", "appLicence", "bugReport", "tellFriend")
 

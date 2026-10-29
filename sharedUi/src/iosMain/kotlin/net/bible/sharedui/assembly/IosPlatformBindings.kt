@@ -304,6 +304,8 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 ),
                 table = currentTable,
                 scope = get<AppCoroutineScope>(),
+                textShare = net.bible.sharedui.ios.ports.IosTextShare(),
+                report = { cause -> net.bible.sharedui.ios.report.IosBugReport(currentTable()).report(cause) },
             )
         }
         single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }
