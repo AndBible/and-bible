@@ -49,6 +49,8 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)   // desktop HTTP engine (DesktopHttpClients)
+            implementation(libs.dbus.java.core)
+            runtimeOnly(libs.dbus.java.transport.native.unixsocket)
         }
         jvmTest {
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")

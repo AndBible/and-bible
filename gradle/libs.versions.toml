@@ -48,8 +48,11 @@ navigationCompose = "2.9.2"
 lifecycleRuntimeCompose = "2.9.6"
 # Desktop D5: JNA for the WebKitGTK experiment (:desktopWebkitGtk)
 jna = "5.17.0"
+dbusJava = "4.3.1"
 
 [libraries]
+dbus-java-core = { module = "com.github.hypfvieh:dbus-java-core", version.ref = "dbusJava" }
+dbus-java-transport-native-unixsocket = { module = "com.github.hypfvieh:dbus-java-transport-native-unixsocket", version.ref = "dbusJava" }
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
