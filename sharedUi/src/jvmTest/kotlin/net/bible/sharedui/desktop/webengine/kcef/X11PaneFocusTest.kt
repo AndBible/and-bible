@@ -60,15 +60,30 @@ class X11PaneFocusTest {
         assertTrue(set.isEmpty())
     }
 
-    @Test fun aFailureLogsOnceAndDisables() {
+    @Test fun aPerPressFailureLogsOnceAndKeepsTrying() {
         val lines = mutableListOf<String>()
         var calls = 0
         val f = X11PaneFocus({ 1L }, { emptyList() }, { calls++; error("boom") }, { lines += it })
         f.focus(FakeHeavy())
         f.focus(FakeHeavy())
-        assertFalse(f.enabled)
-        assertEquals(1, calls)
-        assertEquals(1, lines.count { "disabled" in it })
+        assertTrue(f.enabled)
+        assertEquals(2, calls)
+        assertEquals(1, lines.count { "failed" in it })
+    }
+
+    @Test fun queryAndFocusRunInOneLockSection() {
+        val events = mutableListOf<String>()
+        var depth = 0
+        val f = X11PaneFocus(
+            { 1L },
+            { events += "query:lock=$depth"; tree[it].orEmpty() },
+            { events += "focus:lock=$depth" },
+            {},
+            { block -> depth++; try { block() } finally { depth-- } },
+        )
+        f.focus(FakeHeavy())
+        assertTrue(events.all { it.endsWith("lock=1") })
+        assertEquals("focus:lock=1", events.last())
     }
 
     @Test fun createNeverThrowsAndLogsAtMostOneLine() {

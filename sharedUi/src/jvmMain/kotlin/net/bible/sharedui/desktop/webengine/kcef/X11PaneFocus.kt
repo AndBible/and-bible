@@ -28,32 +28,41 @@ import java.awt.Container
  * @param windowOf X window id of a heavyweight, displayable AWT component, or null
  * @param children child X windows of a window, outermost first
  * @param setFocus performs XSetInputFocus(window, RevertToParent, CurrentTime)
+ * @param withLock runs a block under the AWT lock, so the tree query and the focus call are one atomic section
  */
 internal class X11PaneFocus(
     private val windowOf: (Component) -> Long?,
     private val children: (Long) -> Collection<Long>,
     private val setFocus: (Long) -> Unit,
     private val log: (String) -> Unit,
+    private val withLock: (() -> Unit) -> Unit = { it() },
 ) {
     @Volatile
     var enabled: Boolean = true
         private set
 
     private var logged = false
+    private var failureLogged = false
 
     /** Focuses the deepest child X window of [component]'s heavyweight host; no-op when disabled or nothing is found. */
     fun focus(component: Component) {
         if (!enabled) return
         try {
             val root = findHeavyweight(component)?.let(windowOf) ?: return
-            val target = deepest(root, children)
-            if (!logged) {
-                logged = true
-                log("x11 focus -> $target (depth ${depth(root, target, children)})")
+            withLock {
+                val target = deepest(root, children)
+                if (!logged) {
+                    logged = true
+                    log("x11 focus -> $target (depth ${depth(root, target, children)})")
+                }
+                setFocus(target)
             }
-            setFocus(target)
         } catch (t: Throwable) {
-            disable("X11 pane focus failed, disabled: $t")
+            // A per-press failure is not a reason to give up: log the first one and carry on.
+            if (!failureLogged) {
+                failureLogged = true
+                log("X11 pane focus failed (further failures not logged): $t")
+            }
         }
     }
 
@@ -121,7 +130,19 @@ internal class X11PaneFocus(
                 val xlib = Class.forName("sun.awt.X11.XlibWrapper")
                 val setInputFocus = xlib.getDeclaredMethod("XSetInputFocus2", Long::class.javaPrimitiveType, Long::class.javaPrimitiveType, Long::class.javaPrimitiveType)
                     .apply { isAccessible = true }
-                val flush = xlib.getDeclaredMethod("XFlush", Long::class.javaPrimitiveType).apply { isAccessible = true }
+                val sync = xlib.getDeclaredMethod("XSync", Long::class.javaPrimitiveType, Int::class.javaPrimitiveType).apply { isAccessible = true }
+                val getAttrs = xlib.getDeclaredMethod("XGetWindowAttributes", Long::class.javaPrimitiveType, Long::class.javaPrimitiveType, Long::class.javaPrimitiveType)
+                    .apply { isAccessible = true }
+                val attrsClass = Class.forName("sun.awt.X11.XWindowAttributes")
+                val attrsNew = attrsClass.getConstructor()
+                val attrsData = attrsClass.getDeclaredField("pData").apply { isAccessible = true }
+                val attrsMapState = attrsClass.getMethod("get_map_state")
+                val attrsDispose = attrsClass.getMethod("dispose")
+                val handlerUtil = Class.forName("sun.awt.X11.XErrorHandlerUtil")
+                val withHandler = handlerUtil.getMethod("WITH_XERROR_HANDLER", Class.forName("sun.awt.X11.XErrorHandler"))
+                val restoreHandler = handlerUtil.getMethod("RESTORE_XERROR_HANDLER")
+                val ignoreBadWindow = Class.forName("sun.awt.X11.XErrorHandler\$IgnoreBadWindowHandler").getMethod("getInstance").invoke(null)
+                var queryFailureLogged = false
                 X11PaneFocus(
                     windowOf = { c -> getPeer.invoke(accessor, c)?.let { getWindow.invoke(it) as Long } },
                     children = { w ->
@@ -129,7 +150,12 @@ internal class X11PaneFocus(
                         try {
                             val q = qtNew.newInstance(w)
                             try {
-                                val ptr = if ((qtExecute.invoke(q) as Int) == 0) 0L else qtChildren.invoke(q) as Long
+                                val ok = (qtExecute.invoke(q) as Int) != 0
+                                if (!ok && !queryFailureLogged) {
+                                    queryFailureLogged = true
+                                    log("X11 pane focus: XQueryTree failed for window $w, using it as is")
+                                }
+                                val ptr = if (!ok) 0L else qtChildren.invoke(q) as Long
                                 if (ptr == 0L) emptyList() else List(qtCount.invoke(q) as Int) { nativeGetWindow.invoke(null, ptr, it) as Long }
                             } finally {
                                 qtDispose.invoke(q)
@@ -142,13 +168,34 @@ internal class X11PaneFocus(
                         val display = getDisplay.invoke(null) as Long
                         lock.invoke(null)
                         try {
-                            setInputFocus.invoke(null, display, w, 0L) // CurrentTime; the native call uses RevertToParent
-                            flush.invoke(null, display)
+                            // BadWindow is ignored by the handler; BadMatch (a non-viewable window) is avoided by checking the map state
+                            // (IsViewable = 2) under the same lock before the request.
+                            withHandler.invoke(null, ignoreBadWindow)
+                            try {
+                                val attrs = attrsNew.newInstance()
+                                val viewable = try {
+                                    (getAttrs.invoke(null, display, w, attrsData.get(attrs) as Long) as Int) != 0 && (attrsMapState.invoke(attrs) as Int) == 2
+                                } finally {
+                                    attrsDispose.invoke(attrs)
+                                }
+                                if (viewable) setInputFocus.invoke(null, display, w, 0L) // CurrentTime; the native call uses RevertToParent
+                                sync.invoke(null, display, 0)
+                            } finally {
+                                restoreHandler.invoke(null)
+                            }
                         } finally {
                             unlock.invoke(null)
                         }
                     },
                     log = log,
+                    withLock = { block ->
+                        lock.invoke(null)
+                        try {
+                            block()
+                        } finally {
+                            unlock.invoke(null)
+                        }
+                    },
                 )
             } catch (t: Throwable) {
                 off(t.toString())
