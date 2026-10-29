@@ -542,7 +542,7 @@ class IosReadingHost(
         imagePicker = IosImagePicker(),
         thumbnailFor = { null },
         speakSettingsService = koin.get<SpeakSettingsService>(),
-        speakPlatform = IosSpeakSettingsPlatform(openUrl),
+        speakPlatform = IosSpeakSettingsPlatform(openUrl, iosOpenSettingsUrl),
         gridPassages = gridFactory,
         workspaceService = { koin.get<WorkspaceService>() },
         readingProgressService = { koin.get<ReadingProgressService>() },

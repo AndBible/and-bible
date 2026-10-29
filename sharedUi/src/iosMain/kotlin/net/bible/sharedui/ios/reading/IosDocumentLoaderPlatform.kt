@@ -51,7 +51,7 @@ class IosDocumentLoaderPlatform(
     private val nightModeState: () -> NightModeState,
     private val llmConfigured: () -> Boolean = { false },
     private val offsets: () -> ReadingOffsets = { ReadingOffsets() },
-    private val isPortrait: () -> Boolean = ::iosIsPortrait,
+    private val isPortrait: () -> Boolean,
     /** Android's `CommonUtils.isBeta`: the error box is a beta-only debug aid, so the setting counts only in a beta build. */
     private val isBeta: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isBeta },
     /**

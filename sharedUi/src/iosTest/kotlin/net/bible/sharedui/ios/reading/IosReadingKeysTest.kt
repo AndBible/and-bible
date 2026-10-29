@@ -58,6 +58,7 @@ class IosReadingKeysTest {
         windowControl = { koin.get<WindowControl>() },
         settings = { koin.get<AppSettings>() },
         nightModeState = { FakeNightForKeys(false) },
+        isPortrait = ::iosIsPortrait,
         isBeta = { beta },
     ).configInputs(emptyList())
 

@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedui.ios.reading
 
-import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -50,22 +49,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
-import platform.Foundation.NSURL
-import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationOpenSettingsURLString
-import platform.UIKit.UIScreen
-
-/** Opens [url] through UIKit (the default of [IosSpeakSettingsPlatform]); a malformed URL is ignored. */
-internal fun iosOpenUrl(url: String) {
-    val nsUrl = NSURL.URLWithString(url) ?: return
-    UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap<Any?, Any?>(), completionHandler = null)
-}
-
-/** Whether the screen is taller than wide (the passage grid lays out differently in portrait). */
-internal fun iosIsPortrait(): Boolean = UIScreen.mainScreen.bounds.useContents { size.height >= size.width }
-
-/** The screen scale (px per dp = CSS px), Compose's density on iOS. */
-internal fun iosScreenScale(): Float = UIScreen.mainScreen.scale.toFloat()
 
 /**
  * iOS [SpeakSettingsPlatform]: iOS has no per-feature text-to-speech settings screen an app can open, so the Speak
@@ -73,9 +56,11 @@ internal fun iosScreenScale(): Float = UIScreen.mainScreen.scale.toFloat()
  * where the user reaches Accessibility > Spoken Content from. [openUrl] is the seam tests replace.
  */
 internal class IosSpeakSettingsPlatform(
-    private val openUrl: (String) -> Unit = ::iosOpenUrl,
+    private val openUrl: (String) -> Unit,
+    /** The URL of the app's page in the Settings app (UIKit's `UIApplicationOpenSettingsURLString`). */
+    private val settingsUrl: String,
 ) : SpeakSettingsPlatform {
-    override fun openSystemTtsSettings() = openUrl(UIApplicationOpenSettingsURLString)
+    override fun openSystemTtsSettings() = openUrl(settingsUrl)
 }
 
 /**

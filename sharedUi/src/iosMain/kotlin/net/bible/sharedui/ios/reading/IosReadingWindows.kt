@@ -249,6 +249,7 @@ object IosReadingWindows {
                 nightModeState = { b.nightModeState },
                 llmConfigured = { b.host.llmConfigured() },
                 offsets = { b.host.offsets },
+                isPortrait = ::iosIsPortrait,
                 onPageBackground = { IosReadingWebViews.applyBackground(windowId, it) },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
