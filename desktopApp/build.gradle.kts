@@ -199,7 +199,7 @@ compose.desktop {
             licenseFile.set(rootProject.layout.projectDirectory.file("LICENSE.txt"))
             // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
             // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
-            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata")
+            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata", "jdk.security.auth")
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
                 debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
