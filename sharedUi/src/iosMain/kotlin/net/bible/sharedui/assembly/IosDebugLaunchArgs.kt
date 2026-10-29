@@ -57,7 +57,10 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
     }
 
     /** X-owned debug controls, independent of the H-owned Settings implementation. */
-    fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+    override fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+
+    /** A flag among the process arguments; false in release binaries (the app root's `-task5Settings` etc.). */
+    override fun hasLaunchFlag(name: String): Boolean = Platform.isDebugBinary && name in arguments
 
     /** Explicit disposable-simulator reset, never a read-only argument-domain preference override. */
     fun resetTask6CrashState(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
@@ -158,7 +161,7 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
      * Opens `-openRef` once per process, off the main thread, by setting the key on the active window's page manager (not
      * `WindowControl.showLink`, which targets the links window and opens a new split window). Retries a few times while the window repository is still loading.
      */
-    suspend fun openRefOnce() {
+    override suspend fun openRefOnce() {
         val ref = openRef() ?: return
         if (openRefDone) return
         withContext(Dispatchers.Default) {

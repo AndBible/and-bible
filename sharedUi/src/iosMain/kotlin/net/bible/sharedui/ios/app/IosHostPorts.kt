@@ -62,7 +62,7 @@ import org.koin.core.Koin
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
 fun buildIosHostPorts(
-    shell: IosHostShell,
+    shell: net.bible.sharedui.app.HostShell,
     koin: Koin,
     table: StringTable = iosStringTable("en"),
     initialiseWelcome: suspend () -> Unit = {},

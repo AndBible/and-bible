@@ -30,4 +30,16 @@ interface HostDebugArgs {
      * process mid-extraction. 0 means no delay.
      */
     fun installCommitDelayMs(): Long = 0L
+
+    /** True when the debug launch flag [name] (e.g. `-task5Settings`) was given. Always false in a release build. */
+    fun hasLaunchFlag(name: String): Boolean = false
+
+    /** True when the app root shows the crash / test-error debug buttons (`-task6DebugActions`). */
+    fun task6Controls(): Boolean = false
+
+    /**
+     * Once reading is shown, navigates the active window to the debug `-openRef` reference (once per process).
+     * Does nothing without the argument.
+     */
+    suspend fun openRefOnce() {}
 }

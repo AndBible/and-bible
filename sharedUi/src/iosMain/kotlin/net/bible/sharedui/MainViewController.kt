@@ -28,6 +28,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.ios.app.IosApp
+import net.bible.sharedui.ios.app.IosAppHostPlatform
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAppStartupState
@@ -205,7 +206,7 @@ fun MainViewController(): UIViewController {
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
             else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                IosApp(IosAppHostPlatform, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
                 }
@@ -263,7 +264,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp()
+                IosApp(IosAppHostPlatform)
             }
             return@ComposeUIViewController
         }
