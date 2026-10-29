@@ -4,11 +4,10 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 TMP=$(mktemp -d)
 cleanup() {
-  for pidfile in "$TMP"/vm-root/state/*/qemu.pid "$TMP"/vm-root/state/*/swtpm.pid; do
+  for pidfile in "$TMP"/vm-root/state/*/qemu.pid; do
     [[ -f "$pidfile" ]] || continue
     kill "$(<"$pidfile")" 2>/dev/null || true
   done
-  for pidfile in "$TMP"/vm-root/runs/*/*/swtpm.pid; do [[ -f "$pidfile" ]] && kill "$(<"$pidfile")" 2>/dev/null || true; done
   for pidfile in "$TMP"/log/qmp.pid; do [[ -f "$pidfile" ]] && kill "$(<"$pidfile")" 2>/dev/null || true; done
   rm -rf "$TMP"
 }
@@ -28,14 +27,20 @@ if [[ ${FAKE_QEMU_NO_QMP:-0} == 1 ]]; then exec sleep 300; fi
 while (($#)); do
   if [[ "$1" == -qmp ]]; then
     socket_path=${2#unix:}; socket_path=${socket_path%%,*}
-    exec python3 -c 'import json,socket,sys; p=sys.argv[1]; s=socket.socket(socket.AF_UNIX); s.bind(p); s.listen();
+    exec python3 -c 'import json,socket,sys,os,signal,ctypes; signal.signal(signal.SIGTERM, signal.SIG_IGN) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; ctypes.CDLL(None).prctl(15, b"qemu test", 0, 0, 0) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; p=sys.argv[1]; s=socket.socket(socket.AF_UNIX); s.bind(p); s.listen();
 while True:
- c,_=s.accept(); f=c.makefile("rwb",buffering=0); f.write(b"{\"QMP\":{}}\r\n")
+ c,_=s.accept(); f=c.makefile("rwb",buffering=0);
+ if __import__("os").path.exists(__import__("os").environ["WINDOWS_VM_TEST_LOG"]+"/silent-greeting"):
+  import time
+  time.sleep(1); c.close(); continue
+ f.write(b"{\"QMP\":{}}\r\n")
  while True:
   line=f.readline()
   if not line:break
   r=json.loads(line); open(sys.argv[2],"a").write(json.dumps(r)+"\n"); f.write(b"{\"event\":\"RESET\"}\r\n");
-  if r["execute"]=="qmp_capabilities" and __import__("os").environ.get("FAKE_QMP_CAP_ERROR"): f.write(json.dumps({"error":{"desc":"capability denied"},"id":r["id"]}).encode()+b"\r\n")
+  qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|set("minus equal semicolon apostrophe backslash comma dot slash ctrl alt shift delete esc ret tab spc backspace up down left right home end pgup pgdn insert print pause f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 bracket_left bracket_right grave_accent".split())
+  if r["execute"]=="send-key" and any(k["data"] not in qcodes for k in r["arguments"]["keys"]): f.write(json.dumps({"error":{"desc":"invalid QKeyCode"},"id":r["id"]}).encode()+b"\r\n")
+  elif r["execute"]=="qmp_capabilities" and __import__("os").environ.get("FAKE_QMP_CAP_ERROR"): f.write(json.dumps({"error":{"desc":"capability denied"},"id":r["id"]}).encode()+b"\r\n")
   elif __import__("os").environ.get("FAKE_QMP_EVENT_FLOOD"):
    while True:f.write(b"{\"event\":\"NOISE\"}\r\n")
   else:
@@ -45,14 +50,6 @@ while True:
    f.write(json.dumps({"return":{},"id":r["id"]}).encode()+b"\r\n")' "$socket_path" "$WINDOWS_VM_TEST_LOG/qmp-requests"
   fi
   shift
-done
-exit 1
-SH
-cat > "$FAKE/swtpm" <<'SH'
-#!/usr/bin/env bash
-printf '%s\n' "$*" >> "$WINDOWS_VM_TEST_LOG/swtpm"
-for arg in "$@"; do
-  if [[ "$arg" == file\=* ]]; then sleep 300 & echo $! > "${arg#file=}"; exit 0; fi
 done
 exit 1
 SH
@@ -68,14 +65,15 @@ touch "$WINDOWS_VM_BASE"
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 run() { bash "$ROOT/scripts/windows-vm.sh" "$@"; }
 
-startUsesKvmOvmfTpmAhci() {
+startUsesKvmOvmfAhci() {
   run start
   local args
   args=$(<"$WINDOWS_VM_TEST_LOG/qemu")
   [[ "$args" == *'-enable-kvm'* ]] || fail 'QEMU was not started with KVM'
+  [[ "$args" == *'-m 6G'* && "$args" == *'-smp 4'* ]] || fail 'VM defaults are not 6 GiB and 4 CPUs'
   [[ "$args" == *'/usr/share/OVMF/OVMF_CODE_4M.secboot.fd'* ]] || fail 'secure OVMF code missing'
   [[ "$args" == *'OVMF_VARS.ms.fd'* ]] || fail 'copied OVMF vars missing'
-  [[ "$args" == *'socket,id=chrtpm,path='* && "$args" == *'-tpmdev emulator,id=tpm0,chardev=chrtpm'* ]] || fail 'TPM chardev missing'
+  [[ "$args" != *'tpm'* && "$args" != *'swtpm'* ]] || fail 'QEMU arguments contain TPM setup'
   [[ "$args" == *'-device ahci,id=sata0'* && "$args" == *'bus=sata0.0'* ]] || fail 'AHCI controller or disk bus missing'
   [[ "$args" == *'readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd'* ]] || fail 'firmware code drive is not readonly'
   [[ "$args" == *'hostfwd=tcp:127.0.0.1:2222-:22'* ]] || fail 'SSH forwarding is not bound to loopback'
@@ -94,12 +92,17 @@ keyAcceptsPlusAndHyphenCombos() {
   : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
   run key ctrl-alt-delete
   run key ctrl+alt+delete
+  run key enter
+  run key grave
+  run key bracketleft
+  run key del
   python3 - "$WINDOWS_VM_TEST_LOG/qmp-requests" <<'PY'
 import json, sys
 rows=[json.loads(line) for line in open(sys.argv[1])]
 keys=[r["arguments"]["keys"] for r in rows if r.get("execute")=="send-key"]
 expected=[{"type":"qcode","data":k} for k in ("ctrl","alt","delete")]
-assert len(keys)==2 and all(item==expected for item in keys), keys
+assert keys[:2]==[expected, expected], keys
+assert [x[0]["data"] for x in keys[2:]] == ["ret", "grave_accent", "bracket_left", "delete"]
 PY
   run stop >/dev/null
 }
@@ -112,21 +115,14 @@ qmpEventFloodHonorsDeadline() {
   run stop >/dev/null
 }
 
-qemuExitBeforeQmpCleansTpm() {
+qemuExitBeforeQmpCleansState() {
   if FAKE_QEMU_EXIT=1 run start >"$TMP/qemu-exit.out" 2>&1; then fail 'early QEMU exit unexpectedly started'; fi
-  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/swtpm.pid" ]] || fail 'early QEMU exit left state files'
-  local pid
-  pid=$(find "$WINDOWS_VM_DIR/runs/test-container" -name swtpm.pid -print -quit)
-  ! kill -0 "$(<"$pid")" 2>/dev/null || fail 'early QEMU exit leaked swtpm'
+  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/run-dir" ]] || fail 'early QEMU exit left state files'
 }
 
-startupTimeoutCleansTpm() {
+startupTimeoutCleansState() {
   WINDOWS_VM_START_POLLS=2 FAKE_QEMU_NO_QMP=1 timeout 5 bash "$ROOT/scripts/windows-vm.sh" start >"$TMP/start-timeout.out" 2>&1 && fail 'QMP startup timeout unexpectedly succeeded'
-  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/swtpm.pid" ]] || fail 'startup timeout retained process state'
-  local tpm
-  tpm=$(find "$WINDOWS_VM_DIR/runs/test-container" -name swtpm.pid -print -quit)
-  [[ -n "$tpm" ]] || fail 'startup timeout run directory missing TPM record'
-  ! kill -0 "$(<"$tpm")" 2>/dev/null || fail 'startup timeout left swtpm alive'
+  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/run-dir" ]] || fail 'startup timeout retained process state'
 }
 
 typeRejectsUnicodeBeforeSendingAnything() {
@@ -134,6 +130,53 @@ typeRejectsUnicodeBeforeSendingAnything() {
   : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
   if run type 'oké' >"$TMP/type.out" 2>&1; then fail 'type accepted unsupported non-ASCII'; fi
   [[ $(grep -c '"execute": "send-key"' "$WINDOWS_VM_TEST_LOG/qmp-requests" || true) == 0 ]] || fail 'type sent a partial prefix before rejecting Unicode'
+  run stop >/dev/null
+}
+
+silentQmpGreetingTimesOut() {
+  run start
+  local before=$SECONDS
+  touch "$WINDOWS_VM_TEST_LOG/silent-greeting"
+  if WINDOWS_VM_QMP_TIMEOUT=.2 run key ctrl >"$TMP/silent-qmp.out" 2>&1; then fail 'silent QMP greeting unexpectedly succeeded'; fi
+  (( SECONDS - before < 3 )) || fail 'silent greeting exceeded deadline'
+  sleep 1
+  if WINDOWS_VM_QMP_TIMEOUT=.2 run type x >"$TMP/silent-type.out" 2>&1; then fail 'type accepted silent greeting'; fi
+  rm -f "$WINDOWS_VM_TEST_LOG/silent-greeting"
+  run stop >/dev/null
+}
+
+qemuArgsOmitTpmDevices() {
+  run start
+  local args
+  args=$(<"$WINDOWS_VM_TEST_LOG/qemu")
+  [[ "$args" != *tpm* && "$args" != *swtpm* ]] || fail 'QEMU arguments include TPM setup'
+  run stop >/dev/null
+}
+
+typeUsesValidQcodesForPrintableAscii() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  run type " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~"
+  python3 - "$WINDOWS_VM_TEST_LOG/qmp-requests" <<'PY'
+import json, sys
+rows=[json.loads(line) for line in open(sys.argv[1])]
+requests=[r for r in rows if r.get("execute")=="send-key"]
+assert len(requests)==95, len(requests)
+keys=[r["arguments"]["keys"] for r in requests]
+plain = dict(zip(".,/-=;'\\[]`", "dot comma slash minus equal semicolon apostrophe backslash bracket_left bracket_right grave_accent".split()))
+shift = dict(zip('!@#$%^&*()_+:?<>"{}|~', '1 2 3 4 5 6 7 8 9 0 minus equal semicolon slash comma dot apostrophe bracket_left bracket_right backslash grave_accent'.split()))
+for char, actual in zip(map(chr, range(32,127)), keys):
+    if char == ' ': expected = ['spc']
+    elif char in shift: expected = ['shift', shift[char]]
+    elif char in plain: expected = [plain[char]]
+    elif char.isupper(): expected = ['shift', char.lower()]
+    else: expected = [char]
+    assert [k['data'] for k in actual] == expected, (char, actual, expected)
+assert [{"type":"qcode","data":"bracket_left"}] in keys
+assert [{"type":"qcode","data":"bracket_right"}] in keys
+assert [{"type":"qcode","data":"grave_accent"}] in keys
+assert all(r["arguments"].get("hold-time")==10 for r in requests)
+PY
   run stop >/dev/null
 }
 
@@ -227,22 +270,40 @@ startRefusesWhenRunning() {
   run stop >/dev/null
 }
 
-stoppingAfterQemuExitCleansSwtpm() {
+stoppingAfterQemuExitCleansState() {
   run start
-  local qemu swtpm
-  qemu=$(<"$STATE_DIR/qemu.pid"); swtpm=$(<"$STATE_DIR/swtpm.pid")
+  local qemu
+  qemu=$(<"$STATE_DIR/qemu.pid")
   kill "$qemu"
   sleep .1
   run stop >/dev/null
-  kill -0 "$swtpm" 2>/dev/null && [[ $(ps -o stat= -p "$swtpm" | tr -d ' ') != Z* ]] && fail 'stop left swtpm running after QEMU exited'
-  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/swtpm.pid" ]] || fail 'stop did not clear stale state'
+  [[ ! -f "$STATE_DIR/qemu.pid" && ! -f "$STATE_DIR/run-dir" ]] || fail 'stop did not clear stale state'
 }
 
-stopKillsQemuAndSwtpm() {
+
+stopEscalatesAndHandlesSpacedComm() {
+  FAKE_QEMU_IGNORE_TERM=1 run start
+  local pid; pid=$(<"$STATE_DIR/qemu.pid")
+  [[ $(<"/proc/$pid/comm") == 'qemu test' ]] || fail 'fake process name did not contain a space'
+  run stop >"$TMP/stop-escalate.out"
+  [[ ! -e "$STATE_DIR/qemu.pid" ]] || fail 'SIGKILL stop retained state'
+  [[ ! -e /proc/$pid/stat || $(ps -o stat= -p "$pid" | tr -d ' ') == Z* ]] || fail 'SIGKILL did not terminate QEMU'
+}
+
+staleRestartDoesNotHoldRunLock() {
   run start
-  local qemu swtpm
+  local pid old; pid=$(<"$STATE_DIR/qemu.pid"); old=$(<"$STATE_DIR/run-dir")
+  kill "$pid"
+  sleep .1
+  run start
+  timeout 2 flock -n "$old/lock" true || fail 'stale run lock inherited by new QEMU'
+  run stop >/dev/null
+}
+
+stopKillsQemu() {
+  run start
+  local qemu
   qemu=$(<"$STATE_DIR/qemu.pid")
-  swtpm=$(<"$STATE_DIR/swtpm.pid")
   run stop
   for _ in {1..20}; do
     kill -0 "$qemu" 2>/dev/null || break
@@ -250,15 +311,9 @@ stopKillsQemuAndSwtpm() {
     sleep .05
   done
   if kill -0 "$qemu" 2>/dev/null && [[ $(ps -o stat= -p "$qemu" | tr -d ' ') != Z* ]]; then fail 'QEMU remained alive after stop'; fi
-  for _ in {1..20}; do
-    kill -0 "$swtpm" 2>/dev/null || break
-    [[ $(ps -o stat= -p "$swtpm" | tr -d ' ') == Z* ]] && break
-    sleep .05
-  done
-  if kill -0 "$swtpm" 2>/dev/null && [[ $(ps -o stat= -p "$swtpm" | tr -d ' ') != Z* ]]; then fail 'swtpm remained alive after stop'; fi
 }
 
-for test in startUsesKvmOvmfTpmAhci qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansTpm startupTimeoutCleansTpm typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansSwtpm concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning stopKillsQemuAndSwtpm; do
+for test in startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

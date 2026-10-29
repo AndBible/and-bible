@@ -91,43 +91,31 @@ start_vm() {
   [[ -r "$vars" ]] || error "OVMF variables template not found: $vars (install ovmf)"
   [[ -f "$BASE" ]] || error "base disk not found: $BASE (install/import a Windows base image first)"
   command -v "$QEMU" >/dev/null || error "QEMU executable not found: $QEMU"
-  command -v swtpm >/dev/null || error 'swtpm executable not found'
   command -v qemu-img >/dev/null || error 'qemu-img executable not found'
   local id run_dir
   id="$(date -u +%Y%m%dT%H%M%S).$$.$RANDOM"
   mkdir -p "$RUNS"
   run_dir="$RUNS/$id"
-  mkdir -p "$run_dir/tpm"
+  mkdir -p "$run_dir"
   cp "$vars" "$run_dir/OVMF_VARS.ms.fd"
   qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$run_dir/overlay.qcow2" >/dev/null
-  if ! swtpm 9>&- socket --tpm2 --tpmstate "dir=$run_dir/tpm" --ctrl "type=unixio,path=$run_dir/tpm.sock" --daemon --pid file="$run_dir/swtpm.pid"; then rm -rf "$run_dir"; error 'failed to start swtpm'; fi
-  local swtpm_pid
-  swtpm_pid=$(<"$run_dir/swtpm.pid")
-  for _ in {1..20}; do
-    process_identity "$swtpm_pid" > "$run_dir/swtpm.start" 2>/dev/null && break
-    sleep .01
-  done
-  [[ -s "$run_dir/swtpm.start" ]] || { kill "$swtpm_pid" 2>/dev/null || true; error 'could not record swtpm process identity'; }
   touch "$run_dir/lock"
   local qmp_sock="$run_dir/qmp.sock"
-  "$QEMU" 9>&- -name windows-vm -enable-kvm -m "$RAM" -smp "$CPUS" \
+  "$QEMU" -name windows-vm -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
-    -chardev "socket,id=chrtpm,path=$run_dir/tpm.sock" -tpmdev emulator,id=tpm0,chardev=chrtpm \
-    -device tpm-tis,tpmdev=tpm0 -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
+    -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
     -device ide-hd,drive=disk0,bus=sata0.0 -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" \
     -device e1000e,netdev=net0 -display none -serial mon:stdio \
-    -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 9>&- &
+    -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 8>&- 9>&- &
   local qpid=$!
   printf '%s\n' "$qpid" > "$STATE/qemu.pid"
-  printf '%s\n' "$swtpm_pid" > "$STATE/swtpm.pid"
-  cp "$run_dir/swtpm.start" "$STATE/swtpm.start"
   printf '%s\n' "$run_dir" > "$STATE/run-dir"
   for _ in {1..20}; do
     process_identity "$qpid" > "$STATE/qemu.start" 2>/dev/null && break
     sleep .01
   done
-  [[ -s "$STATE/qemu.start" ]] || { kill "$qpid" 2>/dev/null || true; terminate_owned "$STATE/swtpm.pid" "$STATE/swtpm.start"; rm -f "$STATE/qemu.pid" "$STATE/swtpm.pid" "$STATE/swtpm.start" "$STATE/run-dir"; error 'could not record QEMU process identity'; }
+  [[ -s "$STATE/qemu.start" ]] || { kill "$qpid" 2>/dev/null || true; rm -f "$STATE/qemu.pid" "$STATE/run-dir"; error 'could not record QEMU process identity'; }
   touch "$run_dir/lock"
   for ((i=0; i<${WINDOWS_VM_START_POLLS:-50}; i++)); do
     owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || { stop_locked; error 'QEMU exited during startup'; }
@@ -144,13 +132,15 @@ stop_locked() {
   owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && qemu_alive=true
   local run_dir=''
   [[ -r "$STATE/run-dir" ]] && run_dir=$(<"$STATE/run-dir")
+  local run_lock_open=false
   if [[ -n "$run_dir" && -e "$run_dir/lock" ]]; then
     exec 8>"$run_dir/lock"
     flock -n 8 || error 'VM run is busy; refusing to stop during another operation'
+    run_lock_open=true
   fi
   terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || error 'could not terminate owned QEMU process'
-  terminate_owned "$STATE/swtpm.pid" "$STATE/swtpm.start" || error 'could not terminate owned swtpm process'
-  rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/swtpm.pid" "$STATE/swtpm.start" "$STATE/run-dir"
+  rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"
+  if "$run_lock_open" == true; then exec 8>&-; fi
   if "$qemu_alive" == true; then echo 'Windows VM stopped'; else echo 'Cleaned stale VM state'; fi
 }
 stop_vm() {
@@ -181,12 +171,12 @@ import json, socket, sys, time
 path, mode, text, timeout = sys.argv[1:]
 timeout=float(timeout)
 if mode == "type" and (not text.isascii() or any(not ch.isprintable() for ch in text)): raise SystemExit("type accepts printable ASCII only")
-shift={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"minus","+":"equal",":":"semicolon","?":"slash","<":"comma",">":"dot","\"":"apostrophe","{":"bracketleft","}":"bracketright","|":"backslash","~":"grave"}
-plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon","'":"apostrophe","\\":"backslash","[":"bracketleft","]":"bracketright","`":"grave"}
-valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","shift","delete","esc","enter","tab","space","backspace","up","down","left","right","home","end","pageup","pagedown","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
+shift={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"minus","+":"equal",":":"semicolon","?":"slash","<":"comma",">":"dot","\"":"apostrophe","{":"bracket_left","}":"bracket_right","|":"backslash","~":"grave_accent"}
+plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon","'":"apostrophe","\\":"backslash","[":"bracket_left","]":"bracket_right","`":"grave_accent"}
+valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
 def qmp(keys):
     deadline=time.monotonic()+timeout
-    sock=socket.socket(socket.AF_UNIX); sock.connect(path); f=sock.makefile("rwb",buffering=0)
+    sock=socket.socket(socket.AF_UNIX); sock.settimeout(max(0, deadline-time.monotonic())); sock.connect(path); f=sock.makefile("rwb",buffering=0)
     def receive(wanted):
         while True:
             remain=deadline-time.monotonic()
@@ -197,13 +187,17 @@ def qmp(keys):
             if "event" in row or row.get("id") != wanted: continue
             if "error" in row: raise RuntimeError(str(row["error"]))
             return row
-    f.readline(); f.write(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
+    greeting=f.readline()
+    if not greeting: raise RuntimeError("QMP closed before greeting")
+    f.write(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
     request={"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":k} for k in keys],"hold-time":10},"id":"key"}
     f.write(json.dumps(request).encode()+b"\r\n"); receive("key"); sock.close()
 if mode == "key":
-    keys=text.replace("-", "+").split("+")
+    aliases={"enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
+    valid_qcodes.update(plain.values())
+    keys=[aliases.get(k,k) for k in text.replace("-", "+").split("+")]
     if not keys or any(k not in valid_qcodes for k in keys): raise SystemExit("unsupported QEMU key name")
-    qmp(["delete" if k == "del" else k for k in keys])
+    qmp(keys)
 else:
     for ch in text:
         if ch.isalpha(): keys=(['shift'] if ch.isupper() else [])+[ch.lower()]
