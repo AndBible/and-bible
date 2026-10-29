@@ -150,15 +150,13 @@ class DesktopPortContractTest {
             assertEquals(emptyList(), koin.get<net.bible.sharedui.app.ports.DocumentPicker>().openDocuments(listOf("*/*"), true))
             assertEquals(null, koin.get<net.bible.sharedui.app.ports.ImagePicker>().pickImage())
             assertEquals(null, koin.get<net.bible.sharedcore.platform.files.FilePicker>().pickBackupFile())
-            assertEquals(false, koin.get<net.bible.sharedcore.platform.sync.SyncScheduler>().startDatabaseSync().await())
-            assertEquals(listOf(net.bible.service.cloudsync.desktop.DESKTOP_PENDING_ADAPTER_ID), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
+            assertEquals(listOf("NEXT_CLOUD", "WEBDAV"), koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().available)
         }
-        // CloudSync reads adapterId (available.first()) and builds an adapter on sign-in: neither may throw. CloudSync.signIn()
-        // itself is not called: after a false answer it awaits the "sign in failed" dialog, which only a user can dismiss.
+        // CloudSync reads adapterId (available.first()) and builds an adapter: neither may throw. No sign-in is attempted:
+        // with the real bindings it would reach the WebDAV stack or wait for a dialog only a user can dismiss.
         val cloud = koin.get<net.bible.service.cloudsync.CloudSync>()
-        assertTrue(cloud.adapterId.isNotEmpty())
+        assertEquals("NEXT_CLOUD", cloud.adapterId)
         val adapter = koin.get<net.bible.service.cloudsync.CloudAdapterFactory>().create(cloud.adapterId)
-        kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(10_000) { assertEquals(false, adapter.signIn()) } }
         assertEquals(false, adapter.signedIn)
         assertEquals(false, cloud.signedIn)
         koin.get<net.bible.sharedui.app.ports.ExternalLinks>().open("https://example.org")
