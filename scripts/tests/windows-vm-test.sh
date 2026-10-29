@@ -107,6 +107,56 @@ PY
   run stop >/dev/null
 }
 
+qmpPartialLinesHonorDeadline() {
+  python3 - "$ROOT/scripts/windows-vm.sh" "$TMP/partial-qmp" <<'PY'
+import json, os, pathlib, socket, subprocess, sys, threading, time
+script, root = sys.argv[1:]
+failures = []
+for stage in ("greeting", "reply"):
+    for mode, argument in (("shot", "partial"), ("key", "ctrl"), ("type", "x")):
+        directory = pathlib.Path(root) / (stage + "-" + mode)
+        run = directory / "run"
+        run.mkdir(parents=True)
+        state = directory / "state" / os.environ["WINDOWS_VM_ID"]
+        state.mkdir(parents=True)
+        (state / "run-dir").write_text(str(run))
+        listener = socket.socket(socket.AF_UNIX)
+        listener.bind(str(run / "qmp.sock"))
+        listener.listen()
+        def serve(listener=listener, stage=stage):
+            connection, _ = listener.accept()
+            with connection:
+                try:
+                    if stage == "reply":
+                        connection.sendall(b'{"QMP":{}}\r\n')
+                        stream = connection.makefile("rb")
+                        request = json.loads(stream.readline())
+                        connection.sendall(json.dumps({"return": {}, "id": request["id"]}).encode() + b'\r\n')
+                        json.loads(stream.readline())
+                    connection.sendall(b'{"QMP":' if stage == "greeting" else b'{"return":')
+                    # Bytes keep arriving inside the socket timeout, but never finish a line.
+                    for _ in range(100):
+                        connection.sendall(b' ')
+                        time.sleep(.02)
+                except OSError:
+                    pass
+        server = threading.Thread(target=serve, daemon=True)
+        server.start()
+        env = dict(os.environ, WINDOWS_VM_DIR=str(directory), WINDOWS_VM_QMP_TIMEOUT=".2")
+        before = time.monotonic()
+        try:
+            result = subprocess.run(["bash", script, mode, argument], env=env, capture_output=True, timeout=.8)
+            elapsed = time.monotonic() - before
+            if result.returncode == 0 or b"QMP response deadline exceeded" not in result.stderr or elapsed >= .8:
+                failures.append(f"{stage}/{mode}: did not report the absolute deadline ({elapsed:.3f}s): {result.stderr!r}")
+        except subprocess.TimeoutExpired:
+            failures.append(f"{stage}/{mode}: exceeded .8s with a .2s QMP deadline")
+        server.join(timeout=.2)
+        listener.close()
+assert not failures, "\n".join(failures)
+PY
+}
+
 qmpEventFloodHonorsDeadline() {
   FAKE_QMP_EVENT_FLOOD=1 run start
   local before=$SECONDS
@@ -313,7 +363,7 @@ stopKillsQemu() {
   if kill -0 "$qemu" 2>/dev/null && [[ $(ps -o stat= -p "$qemu" | tr -d ' ') != Z* ]]; then fail 'QEMU remained alive after stop'; fi
 }
 
-for test in startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

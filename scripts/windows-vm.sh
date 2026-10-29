@@ -26,24 +26,33 @@ path, command = sys.argv[1:]
 import time
 deadline = time.monotonic() + float(__import__('os').environ.get('WINDOWS_VM_QMP_TIMEOUT', '3'))
 s = socket.socket(socket.AF_UNIX); s.settimeout(max(0, deadline-time.monotonic())); s.connect(path)
-f = s.makefile("rwb", buffering=0)
-def receive(expected):
+pending = b""
+def read_line():
+    global pending
     while True:
         remaining = deadline - time.monotonic()
         if remaining <= 0: raise TimeoutError("QMP response deadline exceeded")
+        if b"\n" in pending:
+            line, pending = pending.split(b"\n", 1)
+            return line
+        # Recompute the remaining budget for every chunk, not every complete line.
         s.settimeout(remaining)
-        line = f.readline()
-        if not line: raise RuntimeError("QMP connection closed")
-        response = json.loads(line)
+        try: chunk = s.recv(4096)
+        except socket.timeout: raise TimeoutError("QMP response deadline exceeded") from None
+        if not chunk: raise RuntimeError("QMP connection closed")
+        pending += chunk
+def receive(expected):
+    while True:
+        response = json.loads(read_line())
         if "event" in response: continue
         if response.get("id") != expected: continue
         if "error" in response: raise RuntimeError(str(response["error"]))
         return response
-f.readline()
-f.write(b'{"execute":"qmp_capabilities","id":"capabilities"}\r\n')
+read_line()
+s.sendall(b'{"execute":"qmp_capabilities","id":"capabilities"}\r\n')
 receive("capabilities")
 request = json.loads(command); request["id"] = "command"
-f.write(json.dumps(request).encode() + b"\r\n")
+s.sendall(json.dumps(request).encode() + b"\r\n")
 print(json.dumps(receive("command").get("return", {})))
 s.close()
 PY
@@ -176,22 +185,32 @@ plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon"
 valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
 def qmp(keys):
     deadline=time.monotonic()+timeout
-    sock=socket.socket(socket.AF_UNIX); sock.settimeout(max(0, deadline-time.monotonic())); sock.connect(path); f=sock.makefile("rwb",buffering=0)
-    def receive(wanted):
+    sock=socket.socket(socket.AF_UNIX); sock.settimeout(max(0, deadline-time.monotonic())); sock.connect(path)
+    pending=b""
+    def read_line():
+        nonlocal pending
         while True:
             remain=deadline-time.monotonic()
             if remain <= 0: raise TimeoutError("QMP response deadline exceeded")
-            sock.settimeout(remain); line=f.readline()
-            if not line: raise RuntimeError("QMP closed")
-            row=json.loads(line)
+            if b"\n" in pending:
+                line,pending=pending.split(b"\n",1)
+                return line
+            # Recompute the remaining budget for every chunk, not every complete line.
+            sock.settimeout(remain)
+            try: chunk=sock.recv(4096)
+            except socket.timeout: raise TimeoutError("QMP response deadline exceeded") from None
+            if not chunk: raise RuntimeError("QMP closed")
+            pending+=chunk
+    def receive(wanted):
+        while True:
+            row=json.loads(read_line())
             if "event" in row or row.get("id") != wanted: continue
             if "error" in row: raise RuntimeError(str(row["error"]))
             return row
-    greeting=f.readline()
-    if not greeting: raise RuntimeError("QMP closed before greeting")
-    f.write(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
+    read_line()
+    sock.sendall(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
     request={"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":k} for k in keys],"hold-time":10},"id":"key"}
-    f.write(json.dumps(request).encode()+b"\r\n"); receive("key"); sock.close()
+    sock.sendall(json.dumps(request).encode()+b"\r\n"); receive("key"); sock.close()
 if mode == "key":
     aliases={"enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
     valid_qcodes.update(plain.values())
