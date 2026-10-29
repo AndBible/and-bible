@@ -38,8 +38,6 @@ import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 import java.nio.file.Files
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -47,6 +45,7 @@ import kotlin.system.exitProcess
 import javax.swing.SwingUtilities
 
 private const val TAG = "DesktopMain"
+private const val STARTUP_SETTLE_TIMEOUT_MS = 10_000L
 
 /** Held for the whole process: the lock on `<data>/instance.lock` lasts as long as this reference (and the JVM). */
 @Volatile private var instanceLock: AutoCloseable? = null
@@ -142,7 +141,7 @@ private fun runApp() {
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
-        if (closing) LaunchedEffect(Unit) { shutDown(shutdownEngine) }
+        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine) }
         Window(
             title = "AndBible",
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
@@ -152,13 +151,16 @@ private fun runApp() {
             DisposableEffect(awtWindow) {
                 awtWindow.minimumSize = Dimension(AwtWindowHandle.MIN_WIDTH_DP, AwtWindowHandle.MIN_HEIGHT_DP)
                 windowHandle.attach(awtWindow)
-                val listener = object : WindowAdapter() {
-                    override fun windowActivated(e: WindowEvent) = lifecycle.onWindowActivated()
-                    override fun windowDeactivated(e: WindowEvent) = lifecycle.onWindowDeactivated()
-                }
-                awtWindow.addWindowListener(listener)
-                if (awtWindow.isActive) lifecycle.onWindowActivated()
-                onDispose { awtWindow.removeWindowListener(listener) }
+                // Active / ResignActive for the app as a whole: a Compose dialog or popup is a window of its own
+                // (layers=WINDOW) owned by this one, so moving the focus into it is not leaving the app.
+                val tracker = DesktopAppFocusTracker(
+                    isAppWindow = DesktopAppFocusTracker.ownedBy(awtWindow),
+                    onActive = lifecycle::onWindowActivated,
+                    onInactive = lifecycle::onWindowDeactivated,
+                )
+                val uninstall = DesktopAppFocusTracker.install(tracker)
+                if (awtWindow.isActive) tracker.activated(awtWindow)
+                onDispose { uninstall() }
             }
             // Closing is two-phase: the content (and with it the CEF panes' SwingPanels) leaves the composition first;
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
@@ -172,10 +174,12 @@ private fun runApp() {
  * The second phase of closing, after the content has left the composition: let the frames and AWT's own queued
  * removals run, write the workspace and settings (bounded), shut CEF down, then exit.
  */
-private suspend fun ApplicationScope.shutDown(shutdownEngine: () -> Unit) {
+private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdownEngine: () -> Unit) {
     withFrameNanos { } // the frame that applies the removal of the panes
     withFrameNanos { }
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
+    // A close during the startup: let it finish (bounded), so nothing is persisted or shut down under a half-built graph.
+    if (!state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS)) Log.w(TAG, "closing while the startup still runs")
     withContext(Dispatchers.IO) { DesktopAppStartup.persistBeforeExit() }
     try {
         shutdownEngine()

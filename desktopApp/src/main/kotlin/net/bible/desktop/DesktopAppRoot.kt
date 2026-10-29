@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -44,6 +45,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.desktop.assembly.DesktopGateOutcome
@@ -89,7 +92,16 @@ class DesktopStartupState(
         scope.launch(Dispatchers.IO) { _phase.value = runStart(openDatabases = true) }
     }
 
-    /** The recovery path's start: Koin only, the databases stay closed. */
+    /**
+     * Waits until a launched normal startup has left [StartupPhase.Starting], at most [timeoutMs]. True when none was
+     * launched or it settled in time.
+     */
+    suspend fun awaitStartupSettled(timeoutMs: Long): Boolean {
+        if (!launched.get()) return true
+        return withTimeoutOrNull(timeoutMs) { phase.first { it !is StartupPhase.Starting } } != null
+    }
+
+        /** The recovery path's start: Koin only, the databases stay closed. */
     internal suspend fun startForRecovery(): StartupPhase = withContext(Dispatchers.IO) { runStart(openDatabases = false) }
 
     private fun runStart(openDatabases: Boolean): StartupPhase =
@@ -126,7 +138,7 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 }
             }
             DesktopGateOutcome.Continue -> {
-                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                val scope = rememberCoroutineScope()
                 LaunchedEffect(Unit) { state.launch(scope) }
                 val phase by state.phase.collectAsState()
                 when (val p = phase) {

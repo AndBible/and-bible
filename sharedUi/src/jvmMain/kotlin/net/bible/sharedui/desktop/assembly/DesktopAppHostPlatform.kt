@@ -63,6 +63,7 @@ import java.awt.datatransfer.StringSelection
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 private const val TAG = "DesktopAppHostPlatform"
 
@@ -207,7 +208,10 @@ class DesktopReadingHostPlatform(
 
     override fun tiltAvailable(): Boolean = false
 
-    override fun formatHistoryTimestamp(epochMillis: Long): String = SimpleDateFormat("h:mm a, E d MMM ").format(Date(epochMillis))
+    override fun formatHistoryTimestamp(epochMillis: Long): String {
+        val tag = koin().getOrNull<IosStringTableHolder>()?.current?.tag ?: "en"
+        return SimpleDateFormat("h:mm a, E d MMM ", Locale.forLanguageTag(tag)).format(Date(epochMillis))
+    }
 
     override fun copyToPasteboard(text: String) {
         try {

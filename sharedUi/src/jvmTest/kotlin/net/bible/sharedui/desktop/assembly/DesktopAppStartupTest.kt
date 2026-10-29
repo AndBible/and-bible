@@ -130,6 +130,26 @@ class DesktopAppStartupTest {
         assertTrue("K4RawText" in bibles, "installed Bibles: $bibles")
     }
 
+    @Test fun modulesOfOtherSwordAppsInHomeAreNotRead() {
+        // A module in ~/.sword (another SWORD application's) must not become an installed book.
+        val home = root.resolve("home")
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = home.resolve(".sword").resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        val previousHome = System.getProperty("user.home")
+        try {
+            System.setProperty("user.home", home.toString())
+            assertEquals(StartupPhase.Ready, start())
+            val books = Books.installed().getBooks().map { it.initials }
+            assertFalse("K4RawText" in books, "a ~/.sword module was installed: $books")
+            assertTrue(Files.isRegularFile(home.resolve(".sword/mods.d/K4RawText.conf")), "~/.sword must be left alone")
+        } finally {
+            System.setProperty("user.home", previousHome)
+        }
+    }
+
     @Test fun unwritableDataDirFails() {
         val paths = paths()
         // The data directory's place is taken by a plain file, so it can be neither created nor written.

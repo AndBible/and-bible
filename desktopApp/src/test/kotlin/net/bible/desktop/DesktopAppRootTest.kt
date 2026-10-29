@@ -86,4 +86,27 @@ class DesktopAppRootTest {
         onNodeWithText("after the gate", substring = true).assertExists()
         assertEquals(1, starts.get())
     }
+
+    @Test
+    fun closeWaitsForARunningStartupBounded() = kotlinx.coroutines.runBlocking {
+        kotlinx.coroutines.withTimeout(20_000) {
+            val release = CountDownLatch(1)
+            val state = DesktopStartupState(
+                language = "en",
+                start = { release.await(10, TimeUnit.SECONDS); StartupPhase.Failed(IllegalStateException("done")) },
+                platform = noPlatform,
+            )
+            kotlin.test.assertTrue(state.awaitStartupSettled(10), "nothing launched: nothing to wait for")
+            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO)
+            try {
+                state.launch(scope)
+                kotlin.test.assertFalse(state.awaitStartupSettled(200), "the startup is still running")
+                release.countDown()
+                kotlin.test.assertTrue(state.awaitStartupSettled(10_000))
+            } finally {
+                release.countDown()
+                scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            }
+        }
+    }
 }

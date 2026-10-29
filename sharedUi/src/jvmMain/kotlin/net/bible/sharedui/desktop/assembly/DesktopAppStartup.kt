@@ -130,7 +130,7 @@ object DesktopAppStartup {
         configureDesktopLogFile(paths.data.resolve("logs"))
         Log.i(TAG, "Starting (data ${paths.data}, config ${paths.config}, cache ${paths.cache}, language $language)")
         SharedAppStartup.installEnvironment(repositories(), DesktopLocaleProvider())
-        DesktopSwordFolders.initialise(paths.sword)
+        DesktopSwordFolders.initialise(paths.sword) // also turns JSword's default-location scan (~/.sword etc.) off
         check(KoinPlatform.getKoinOrNull() == null) { "a Koin context is already running; the desktop startup owns it" }
         val app = KoinApplication.init()
         try {
@@ -244,6 +244,7 @@ object DesktopAppStartup {
                 DatabaseContainer.detachInstanceForTest()
             }
         }
+        DesktopSwordFolders.restoreForTest()
         DesktopLogFile.close()
         HostStartup.register(null)
         koinApp = null
@@ -270,20 +271,51 @@ object DesktopAppStartup {
  * so the installed book list follows the new folder.
  */
 internal object DesktopSwordFolders {
+    /** JSword's book-location state before the first desktop start (tests share one JVM): restored by [restoreForTest]. */
+    private class Previous(val scanDefaults: Boolean, val downloadDir: okio.Path?, val augment: Array<okio.Path>)
+
     @Volatile private var current: Path? = null
+    private var previous: Previous? = null
 
     val isLoaded: Boolean get() = current != null && IosSwordEnvironment.isLoaded
 
+    /**
+     * Points JSword at [dir] only. The default SWORD locations (`~/.sword`, `sword.conf`, the working directory) are
+     * switched off first ([SwordBookPath.scanDefaultLocations]): the desktop never reads other SWORD applications'
+     * modules and never migrates `~/.jsword`. Throws when the folders cannot be created or JSword was not set up.
+     */
+    @Synchronized
     fun initialise(dir: Path) {
+        if (previous == null) {
+            previous = Previous(SwordBookPath.scanDefaultLocations, SwordBookPath.getDownloadDir(), SwordBookPath.getAugmentPath())
+        }
+        SwordBookPath.scanDefaultLocations = false
         val modules = dir.toOkioPath()
         IosSwordEnvironment.createModuleFolders(modules) // throws: a module folder that cannot be created fails startup
         IosSwordEnvironment.initialiseJSwordFolders(modules)
+        // initialiseJSwordFolders logs and swallows its own failures.
+        if (!IosSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
         if (current == dir) return
         if (SwordBookPath.getDownloadDir() != modules) {
             SwordBookPath.setDownloadDir(modules)
             SwordBookPath.setAugmentPath(arrayOf(modules))
         }
         current = dir
+    }
+
+    /**
+     * Test only: puts JSword's default-location flag, download dir and augment path back as they were before the first
+     * desktop start (re-registering the Sword driver). A download dir that was unset stays at the last one (JSword cannot
+     * unset it). The process-wide `IosSwordEnvironment` setup stays.
+     */
+    @Synchronized
+    fun restoreForTest() {
+        val p = previous ?: return
+        SwordBookPath.scanDefaultLocations = p.scanDefaults
+        p.downloadDir?.let { SwordBookPath.setDownloadDir(it) }
+        SwordBookPath.setAugmentPath(p.augment)
+        previous = null
+        current = null
     }
 }
 
