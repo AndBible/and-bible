@@ -109,6 +109,8 @@ interface WebKit : Library {
     fun webkit_user_script_unref(script: Pointer)
 
     fun webkit_web_context_get_default(): Pointer
+    fun webkit_web_context_new(): Pointer
+    fun webkit_web_view_get_type(): Long
     fun webkit_web_context_register_uri_scheme(context: Pointer, scheme: String, callback: SchemeRequestCallback, userData: Pointer?, destroy: Pointer?)
     fun webkit_web_context_get_security_manager(context: Pointer): Pointer
     fun webkit_security_manager_register_uri_scheme_as_secure(manager: Pointer, scheme: String)
@@ -124,6 +126,12 @@ interface WebKit : Library {
 interface Jsc : Library {
     fun jsc_value_to_string(value: Pointer): Pointer?
     fun jsc_value_to_json(value: Pointer, indent: Int): Pointer?
+}
+
+/** libc's `exit`, to end the process from the GTK thread (see `WebKitGtkEngine.exitProcess`). */
+object LibC {
+    private val exitFunction by lazy { com.sun.jna.NativeLibrary.getInstance("c").getFunction("exit") }
+    fun exit(status: Int) = exitFunction.invokeVoid(arrayOf(status))
 }
 
 interface X11 : Library {
@@ -180,6 +188,12 @@ internal object Gtk {
     fun setOverrideRedirect(display: Pointer, window: Long) {
         val attributes = com.sun.jna.Memory(112).apply { clear(); setInt(88, 1) }
         x11.XChangeWindowAttributes(display, window, 1L shl 9, attributes)
+    }
+
+    /** `g_object_new(WEBKIT_TYPE_WEB_VIEW, "web-context", context, NULL)`: a web view on [context]. */
+    fun newWebView(context: Pointer): Pointer {
+        val f = NativeLibrary.getInstance("gobject-2.0").getFunction("g_object_new")
+        return f.invokePointer(arrayOf<Any?>(webkit.webkit_web_view_get_type(), "web-context", context, null))
     }
 
     /** The address of `g_free`, usable as a `GDestroyNotify`. */

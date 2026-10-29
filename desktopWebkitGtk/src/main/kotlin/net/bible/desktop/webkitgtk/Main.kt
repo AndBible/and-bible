@@ -39,7 +39,8 @@ fun main() {
     val engine = WebKitGtkEngine(index.parent)
     val session = DesktopWebSession(
         engine = if (options.spikeLog) SpikeTimingEngine(engine) else engine,
-        shutdownEngine = engine::close,
+        // The GTK thread stays up: the process ends from it (engine.exitProcess), see below.
+        shutdownEngine = {},
         cleanUp = { bundleRoot.toFile().deleteRecursively() },
     )
     val documentJson = BibleViewBundle.pocDocumentJson()
@@ -54,7 +55,9 @@ fun main() {
                 withFrameNanos { }
                 repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
                 session.close()
-                exitApplication()
+                // Not exitApplication(): a JVM exit runs WebKit's C exit handlers on the VM thread and WebKit aborts
+                // (SIGABRT, exit 134, on every close). exitProcess runs them on the GTK thread.
+                engine.exitProcess(0)
             }
         }
         Window(

@@ -77,6 +77,22 @@ class WebKitGtkEngine(
         thread?.close()
     }
 
+    /**
+     * Ends the process from the GTK thread with libc `exit(status)` and never returns. WebKit registers C exit handlers
+     * that tear down its statics and abort when they do not run on WebKit's main thread (the GTK thread). A normal JVM
+     * exit runs them on the JVM's VM thread: every window close ended in SIGABRT (exit 134). Calling `exit` on the GTK
+     * thread runs them there; JVM shutdown hooks do not run (the caller must have released everything already).
+     */
+    fun exitProcess(status: Int): Nothing {
+        val thread = synchronized(lock) { gtkThread }
+        if (thread != null) {
+            thread.post { LibC.exit(status) }
+            while (true) Thread.sleep(1_000)
+        }
+        Runtime.getRuntime().halt(status)
+        error("unreachable")
+    }
+
     companion object {
         /** JS function that sends its argument to the native side through the `bridge` script message handler. */
         internal const val WEBKIT_POST_MESSAGE_JS = "function (t) { window.webkit.messageHandlers.bridge.postMessage(String(t)); }"
@@ -114,13 +130,21 @@ internal object BundleScheme {
         }
     }
 
+    /**
+     * The engine's own web context (GTK thread), not `webkit_web_context_get_default()`: the default one is a static
+     * that WebKit tears down from the C exit handlers, which the JVM runs on its VM thread, and WebKit aborts there
+     * (not its main thread). Created on first [install].
+     */
+    var context: Pointer? = null
+        private set
+
     /** GTK thread only. */
     fun install(bundle: BundleSchemeHandler, logger: (String) -> Unit) {
         handler.set(bundle)
         log = logger
         if (registered) return
         val wk = Gtk.webkit
-        val ctx = wk.webkit_web_context_get_default()
+        val ctx = wk.webkit_web_context_new().also { context = it }
         wk.webkit_web_context_register_uri_scheme(ctx, BUNDLE_SCHEME, callback, null, null)
         val security = wk.webkit_web_context_get_security_manager(ctx)
         wk.webkit_security_manager_register_uri_scheme_as_secure(security, BUNDLE_SCHEME)
@@ -304,7 +328,7 @@ internal class WebKitGtkPane(
     private fun createWindow(scripts: List<String>) {
         val wk = Gtk.webkit
         val gtkLib = Gtk.gtk
-        val v = wk.webkit_web_view_new()
+        val v = Gtk.newWebView(checkNotNull(BundleScheme.context) { "BundleScheme.install must run first" })
         view = v
         val rgb = if (WebKitGtkEngine.isNight(url)) 0f else 1f
         wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1f))

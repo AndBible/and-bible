@@ -86,6 +86,10 @@ class WebKitGtkLiveTest {
                     "</head><body>live</body></html>",
             )
             val e = WebKitGtkEngine(dir).also { engine = it }
+            // The worker JVM's own exit would run WebKit's C exit handlers on the VM thread, where WebKit aborts
+            // (SIGABRT, exit 134, in 3 of 5 runs). By shutdown-hook time the results are reported: end the process from
+            // the GTK thread instead (see WebKitGtkEngine.exitProcess).
+            Runtime.getRuntime().addShutdownHook(Thread { e.exitProcess(0) })
             SwingUtilities.invokeAndWait {
                 a = e.createPane("a", e.bundleUrl("en", false), emptyList()) { messagesA.offer(it to SwingUtilities.isEventDispatchThread()) } as WebKitGtkPane
                 b = e.createPane("b", e.bundleUrl("en", true), emptyList()) { messagesB.offer(it to SwingUtilities.isEventDispatchThread()) } as WebKitGtkPane
@@ -121,7 +125,7 @@ class WebKitGtkLiveTest {
                 b?.dispose()
                 frames.forEach { it.dispose() }
             }
-            engine?.close()
+            // The engine (GTK thread) stays up for the shutdown hook.
             tmp?.toFile()?.deleteRecursively()
         }
     }
