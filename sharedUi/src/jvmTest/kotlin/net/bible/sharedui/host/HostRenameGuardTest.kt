@@ -100,16 +100,11 @@ class HostRenameGuardTest {
 
     /** Returns (1-based line, old name) for each whole-word use of a map key outside string literals. */
     internal fun findOldNames(text: String, map: Map<String, String>): List<Pair<Int, String>> {
-        val code = stripStringLiterals(text)
-        val result = mutableListOf<Pair<Int, String>>()
-        code.lines().forEachIndexed { i, line ->
-            for (old in map.keys) {
-                if (Regex("(?<![A-Za-z0-9_])" + Regex.escape(old) + "(?![A-Za-z0-9_])").containsMatchIn(line)) {
-                    result += (i + 1) to old
-                }
-            }
+        val names = map.keys.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
+        val word = Regex("(?<![A-Za-z0-9_])($names)(?![A-Za-z0-9_])")
+        return stripStringLiterals(text).lines().flatMapIndexed { i, line ->
+            word.findAll(line).map { (i + 1) to it.groupValues[1] }.distinct().toList()
         }
-        return result
     }
 
     /** Blanks string and char literals (newlines kept so line numbers stay valid); comments are copied as-is. */
