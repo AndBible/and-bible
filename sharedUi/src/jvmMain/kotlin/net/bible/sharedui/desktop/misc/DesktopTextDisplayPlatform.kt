@@ -86,7 +86,7 @@ class DesktopTextDisplayPlatform(
             if (!readers.hasNext()) return null
             val reader = readers.next()
             try {
-                reader.input = input
+                reader.setInput(input, false, true)
                 val width = reader.getWidth(0)
                 val height = reader.getHeight(0)
                 // ImageIO decoders may allocate a full source scanline even with subsampling.

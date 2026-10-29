@@ -73,6 +73,50 @@ class DesktopBugReportTest {
     }
 
     @Test
+    fun largeCrashAndCurrentExceptionKeepMailBoundedAndDiagnosticsInAttachment() = runBlocking {
+        val root = Files.createTempDirectory("large-report")
+        val crash = "crash-marker-" + "%".repeat(100_000) + "-crash-end"
+        val current = "current-marker-" + "!".repeat(100_000) + "-current-end"
+        Files.writeString(root.resolve("last_crash.txt"), crash)
+        var url = ""
+        var saved = ""
+        DesktopBugReport(root, "1.2", { "log" }, { path, _, _ ->
+            saved = GZIPInputStream(Files.newInputStream(path)).bufferedReader().readText()
+            DeliveryResult.DELIVERED
+        }, { url = it }, introduction = { "Introduction" }).report(IllegalStateException(current))
+        assertTrue(url.toByteArray().size <= 8192)
+        val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
+        assertTrue("Introduction" in decoded && "net.bible.desktop" in decoded)
+        assertTrue(crash in saved && current in saved)
+    }
+
+    @Test
+    fun recoveryLargeDiagnosticsKeepBoundedMailAndRetainedGzip() = runBlocking {
+        val root = Files.createTempDirectory("large-recovery")
+        Files.createDirectories(root.resolve("logs"))
+        val crash = "crash-marker-" + "%".repeat(100_000) + "-crash-end"
+        val current = "current-marker-" + "!".repeat(100_000) + "-current-end"
+        Files.writeString(root.resolve("logs/last_crash.txt"), crash)
+        var url = ""
+        recoveryBugReport(root, "1.2", { "log" }, "Introduction", { url = it })
+            .report(IllegalStateException(current))
+        val file = Files.list(root.resolve("reports")).use { it.toList().single() }
+        val saved = GZIPInputStream(Files.newInputStream(file)).bufferedReader().readText()
+        val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
+        assertTrue(url.toByteArray().size <= 8192)
+        assertTrue("Introduction" in decoded && "net.bible.desktop" in decoded && file.toString() in decoded)
+        assertTrue(crash in saved && current in saved)
+    }
+
+    @Test
+    fun recoveryRetainsGzipWhenMailLaunchFails() = runBlocking {
+        val root = Files.createTempDirectory("failed-recovery")
+        recoveryBugReport(root, "1.2", { "diagnostic log" }, "Introduction", { error("mail failed") }).report(null)
+        val file = Files.list(root.resolve("reports")).use { it.toList().single() }
+        assertTrue(GZIPInputStream(Files.newInputStream(file)).bufferedReader().readText().contains("diagnostic log"))
+    }
+
+    @Test
     fun cancelledSaveDoesNotOpenMail() = runBlocking {
         val root = Files.createTempDirectory("report-cancel")
         var opened = false

@@ -56,9 +56,11 @@ class DesktopBugReport(
             val result = deliver(path, name, subject)
             if (result == DeliveryResult.FAILED) error("Report file delivery failed")
             if (result == DeliveryResult.DELIVERED) {
-                val mailBody = if (retainReport) "$body\n\n$path" else body
-                open("mailto:errors.andbible@gmail.com?subject=${encode(subject)}&body=${encode(mailBody)}")
+                val prefix = "mailto:errors.andbible@gmail.com?subject=${encodeBounded(subject, 1024)}&body="
+                val suffix = if (retainReport) encode("\n\n$path") else ""
+                val mailBody = encodeBounded(body, (MAX_MAIL_BYTES - prefix.length - suffix.length).coerceAtLeast(0))
                 completed = true
+                open(prefix + mailBody + suffix)
             }
         } finally {
             if (!retainReport || !completed) Files.deleteIfExists(path)
@@ -74,7 +76,22 @@ class DesktopBugReport(
     }
 
     private fun encode(value: String) = URLEncoder.encode(value, Charsets.UTF_8).replace("+", "%20")
-    private companion object { const val MAX_REPORT_BYTES = 1024 * 1024 }
+
+    private fun encodeBounded(value: String, limit: Int): String {
+        var low = 0
+        var high = minOf(value.length, limit)
+        while (low < high) {
+            val middle = (low + high + 1) / 2
+            if (encode(value.substring(0, middle)).length <= limit) low = middle else high = middle - 1
+        }
+        if (low < value.length && low > 0 && Character.isHighSurrogate(value[low - 1])) low--
+        return encode(value.substring(0, low))
+    }
+
+    private companion object {
+        const val MAX_REPORT_BYTES = 1024 * 1024
+        const val MAX_MAIL_BYTES = 8 * 1024
+    }
 }
 
 fun recoveryBugReport(directory: Path, version: String, log: () -> String, introduction: String, open: (String) -> Unit = ::openRecoveryMail): DesktopBugReport =
