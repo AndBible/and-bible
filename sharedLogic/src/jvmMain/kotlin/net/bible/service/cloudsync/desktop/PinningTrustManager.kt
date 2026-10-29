@@ -22,13 +22,20 @@ import net.bible.service.cloudsync.webdav.pinDecision
 import net.bible.service.cloudsync.webdav.sha256HexUpper
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import net.bible.sharedcore.webdav.DavUntrustedCertificateException
+import net.bible.sharedcore.log.Log
+import java.net.Socket
 import java.security.KeyStore
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLEngine
 import javax.net.ssl.SSLSession
+import javax.net.ssl.SSLSocket
 import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509ExtendedTrustManager
 import javax.net.ssl.X509TrustManager
+
+private const val TAG = "PinningTrust"
 
 /** The JVM's system trust store (the default for [PinningTrustManager]). */
 fun systemTrustManager(): X509TrustManager =
@@ -46,25 +53,40 @@ internal fun X509Certificate.toDavCertificateInfo(host: String) = DavCertificate
 )
 
 /**
- * Trust-on-first-use for the WebDAV client of one [host]: system trust first, otherwise the shared
- * [pinDecision] (a pin applies only to the host it was taken on). A rejection throws a
+ * Trust-on-first-use for the WebDAV client: system trust first, otherwise the shared [pinDecision] (a pin
+ * applies only to the host it was taken on). The host is the one actually being connected to (the
+ * handshake session's peer host, so a redirect to another server is judged by that server's name, like
+ * iOS's protection-space host); [fallbackHost] is used only when the JSSE gives none. A rejection throws a
  * [CertificateException] whose cause is a [DavUntrustedCertificateException]; the JVM wraps it in an
  * SSLHandshakeException and the client digs it out of the cause chain.
  */
 class PinningTrustManager(
-    private val host: String,
+    private val fallbackHost: String,
     private val pin: () -> CertPin?,
     private val platform: X509TrustManager = systemTrustManager(),
-) : X509TrustManager {
+) : X509ExtendedTrustManager() {
     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) =
         platform.checkClientTrusted(chain, authType)
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?, socket: Socket?) =
+        platform.checkClientTrusted(chain, authType)
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?, engine: SSLEngine?) =
+        platform.checkClientTrusted(chain, authType)
 
-    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String) {
+    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String) =
+        check(chain, authType, fallbackHost)
+    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, socket: Socket?) =
+        check(chain, authType, (socket as? SSLSocket)?.handshakeSession?.peerHost)
+    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, engine: SSLEngine?) =
+        check(chain, authType, engine?.handshakeSession?.peerHost)
+
+    private fun check(chain: Array<out X509Certificate>, authType: String, peerHost: String?) {
+        val host = peerHost?.takeIf { it.isNotEmpty() } ?: fallbackHost
         val systemTrusted = try {
             platform.checkServerTrusted(chain, authType); true
         } catch (_: CertificateException) { false }
         val leaf = chain.firstOrNull() ?: throw CertificateException("Empty certificate chain for $host")
         if (pinDecision(systemTrusted, host, sha256HexUpper(leaf.encoded), pin()) == PinDecision.REJECT) {
+            Log.w(TAG, "Rejected untrusted certificate for $host")
             throw CertificateException("Untrusted certificate for $host", DavUntrustedCertificateException(leaf.toDavCertificateInfo(host)))
         }
     }
@@ -78,7 +100,6 @@ class PinningTrustManager(
  * SSLPeerUnverifiedException into a trust prompt instead of a silent transient error.
  */
 class PinningHostnameVerifier(
-    private val host: String,
     private val pin: () -> CertPin?,
     private val default: HostnameVerifier,
 ) : HostnameVerifier {
@@ -90,8 +111,9 @@ class PinningHostnameVerifier(
     override fun verify(hostname: String, session: SSLSession): Boolean {
         if (default.verify(hostname, session)) return true
         val leaf = session.peerCertificates.firstOrNull() as? X509Certificate ?: return false
-        if (pinDecision(false, host, sha256HexUpper(leaf.encoded), pin()) == PinDecision.TRUST_PINNED) return true
-        lastRejected = leaf.toDavCertificateInfo(host)
+        if (pinDecision(false, hostname, sha256HexUpper(leaf.encoded), pin()) == PinDecision.TRUST_PINNED) return true
+        Log.w(TAG, "Rejected certificate name mismatch for $hostname")
+        lastRejected = leaf.toDavCertificateInfo(hostname)
         return false
     }
 }

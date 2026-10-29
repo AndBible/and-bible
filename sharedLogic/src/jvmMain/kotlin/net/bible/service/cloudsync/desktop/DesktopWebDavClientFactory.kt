@@ -16,6 +16,7 @@
  */
 package net.bible.service.cloudsync.desktop
 
+import net.bible.service.cloudsync.host.PlainHttpRefusedException
 import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.sharedcore.http.LocalNetworkHost
@@ -51,8 +52,10 @@ class DesktopWebDavClientFactory(
     private val nowMs: () -> Long = System::currentTimeMillis,
 ) {
     fun create(config: WebDavConfig, state: WebDavStateStore): WebDavClient {
+        // Defence in depth: the hoisted factory refuses plain http for NEXT_CLOUD, but never let a client be built for it.
+        if (!desktopPlainHttpAllowed(config.serverUrl)) throw PlainHttpRefusedException(config.serverUrl)
         val trust = PinningTrustManager(config.host, { state.certPin }, platformTrust())
-        val verifier = PinningHostnameVerifier(config.host, { state.certPin }, defaultVerifier())
+        val verifier = PinningHostnameVerifier({ state.certPin }, defaultVerifier())
         val ssl = SSLContext.getInstance("TLS").apply { init(null, arrayOf(trust), null) }
         val engine = desktopPinnedHttpEngine(ssl.socketFactory, trust, verifier)
         return WebDavClient(

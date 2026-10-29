@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.service.cloudsync.desktop
 
 import com.sun.net.httpserver.HttpServer
@@ -9,6 +25,7 @@ import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.host.IosCloudAdapterFactory
 import net.bible.service.cloudsync.host.PlainHttpRefusedException
 import net.bible.service.cloudsync.webdav.CertPin
+import net.bible.sharedcore.platform.desktop.sync.desktopDefaultHostnameVerifier
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.WebDavCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavConfig
@@ -51,12 +68,12 @@ class DesktopWebDavClientFactoryTest {
     }
 
     /** A self-signed certificate for [cn] (SAN: localhost and 127.0.0.1), generated with the JDK's keytool. */
-    private fun selfSigned(cn: String): Cert {
+    private fun selfSigned(cn: String, san: String = "dns:localhost,ip:127.0.0.1"): Cert {
         val file = File(tmp, "$cn-${System.nanoTime()}.p12")
         val keytool = File(System.getProperty("java.home"), "bin/keytool").path
         val p = ProcessBuilder(
             keytool, "-genkeypair", "-alias", "k", "-keyalg", "RSA", "-keysize", "2048", "-validity", "30",
-            "-dname", "CN=$cn", "-ext", "san=dns:localhost,ip:127.0.0.1", "-keystore", file.path,
+            "-dname", "CN=$cn", "-ext", "san=$san", "-keystore", file.path,
             "-storetype", "PKCS12", "-storepass", "changeit", "-keypass", "changeit",
         ).redirectErrorStream(true).start()
         val out = p.inputStream.bufferedReader().readText()
@@ -67,12 +84,13 @@ class DesktopWebDavClientFactoryTest {
 
     private val multistatus = """<d:multistatus xmlns:d="DAV:"><d:response><d:href>/dav/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response></d:multistatus>"""
 
-    private fun startHttps(cert: Cert): HttpsServer {
+    private fun startHttps(cert: Cert, handler: ((com.sun.net.httpserver.HttpExchange) -> Unit)? = null): HttpsServer {
         val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()).apply { init(cert.keyStore, "changeit".toCharArray()) }
         val ctx = SSLContext.getInstance("TLS").apply { init(kmf.keyManagers, null, null) }
         val server = HttpsServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0)
         server.httpsConfigurator = HttpsConfigurator(ctx)
         server.createContext("/dav/") { ex ->
+            if (handler != null) { handler(ex); return@createContext }
             val body = multistatus.toByteArray()
             ex.sendResponseHeaders(207, body.size.toLong())
             ex.responseBody.use { it.write(body) }
@@ -172,7 +190,7 @@ class DesktopWebDavClientFactoryTest {
     }
 
     @Test fun pinnedCertReachedByIpPassesHostnameCheck() = runBlocking {
-        val cert = selfSigned("other-name")
+        val cert = selfSigned("other-name", san = "dns:other-name")
         val server = startHttps(cert)
         state.certPin = CertPin("127.0.0.1", cert.sha256)
         assertEquals(1, factory.create(config(server, "127.0.0.1"), state).propfind("", 0).size)
@@ -214,5 +232,56 @@ class DesktopWebDavClientFactoryTest {
         secrets["cloud_sync_server_url"] = "http://127.0.0.1:${local.address.port}"
         runCatching { f.create("NEXT_CLOUD").signIn() }
         assertEquals(1, built.size)
+    }
+
+    @Test fun nameMismatchWithoutPinRaisesUntrustedWithDetails() = runBlocking {
+        // Chain is trusted by the platform, but the certificate is not issued for "localhost".
+        val cert = selfSigned("other-name", san = "dns:other-name")
+        val server = startHttps(cert)
+        val e = assertFailsWith<DavUntrustedCertificateException> {
+            DesktopWebDavClientFactory(platformTrust = trusting(cert)).create(config(server), state).propfind("", 0)
+        }
+        assertEquals("localhost", e.certificate.host)
+        assertEquals(cert.sha256, e.certificate.sha256)
+        assertTrue(e.certificate.subject.contains("CN=other-name"), e.certificate.subject)
+    }
+
+    @Test fun nameMismatchWithPinForThatHostConnects() = runBlocking {
+        val cert = selfSigned("other-name", san = "dns:other-name")
+        val server = startHttps(cert)
+        state.certPin = CertPin("localhost", cert.sha256)
+        assertEquals(1, factory.create(config(server), state).propfind("", 0).size)
+    }
+
+    private fun sessionOf(cert: X509Certificate): javax.net.ssl.SSLSession =
+        java.lang.reflect.Proxy.newProxyInstance(javaClass.classLoader, arrayOf(javax.net.ssl.SSLSession::class.java)) { _, m, _ ->
+            when (m.name) { "getPeerCertificates" -> arrayOf<java.security.cert.Certificate>(cert); else -> null }
+        } as javax.net.ssl.SSLSession
+
+    @Test fun hostnameVerifierPinAppliesOnlyToTheHostnameItWasTakenOn() {
+        val cert = selfSigned("x", san = "dns:other-name")
+        val verifier = PinningHostnameVerifier({ CertPin("A", cert.sha256) }, desktopDefaultHostnameVerifier())
+        assertTrue(verifier.verify("A", sessionOf(cert.x509)))
+        assertFalse(verifier.verify("B", sessionOf(cert.x509)))
+        assertEquals("B", verifier.takeRejected()?.host)
+        assertEquals(null, verifier.takeRejected())
+    }
+
+    @Test fun redirectToOtherHostIsJudgedByThatHostNotTheConfiguredOne() = runBlocking {
+        val certB = selfSigned("b")
+        val serverB = startHttps(certB)
+        val certA = selfSigned("a")
+        val serverA = startHttps(certA) { ex ->
+            ex.responseHeaders.add("Location", "https://127.0.0.1:${serverB.address.port}/dav/")
+            ex.sendResponseHeaders(307, -1); ex.close()
+        }
+        state.certPin = CertPin("localhost", certA.sha256)
+        val e = assertFailsWith<DavUntrustedCertificateException> { factory.create(config(serverA), state).get("f.txt") { _, _ -> } } // GET: ktor follows redirects only for GET/HEAD
+        assertEquals("127.0.0.1", e.certificate.host)
+        assertEquals(certB.sha256, e.certificate.sha256)
+    }
+
+    @Test fun factoryRefusesPlainHttpToPublicHost() {
+        assertFailsWith<PlainHttpRefusedException> { factory.create(WebDavConfig("http://example.com/dav/", "u", "p", ""), state) }
     }
 }
