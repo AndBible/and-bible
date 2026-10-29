@@ -74,7 +74,8 @@ class KcefWebEngine(
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         init(installDir).getOrThrow()
-        val scripts = listOf(androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))) + documentStartScripts
+        val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
+        val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts)
         return KcefPane(id, url, BundleRequestHandler(bundleDir, scripts), onMessage) { msg -> log("kcef[$id]: $msg") }
     }
 
@@ -244,7 +245,10 @@ internal class KcefPane(
                 }
                 callback?.success("")
                 val text = request ?: return true
-                SwingUtilities.invokeLater { if (!disposed && !evals.consume(text)) onMessage(text) }
+                // invokeLater: after AWT's own focus handling of the press.
+                SwingUtilities.invokeLater {
+                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true) }, log) && !evals.consume(text)) onMessage(text)
+                }
                 return true
             }
         },
@@ -281,12 +285,7 @@ internal class KcefPane(
     }
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */
-    val component: Component by lazy {
-        val ui = browser.uiComponent
-        // Native mouse events of the CEF window are forwarded to the component's listeners (CefBrowserWr).
-        ui.addMouseListener(PaneFocusOnPress({ ui.isFocusOwner }, { ui.requestFocusInWindow() }, { browser.setFocus(true) }, log))
-        JPanel(BorderLayout()).apply { add(ui, BorderLayout.CENTER) }
-    }
+    val component: Component by lazy { JPanel(BorderLayout()).apply { add(browser.uiComponent, BorderLayout.CENTER) } }
 
     @Composable
     override fun Content(modifier: Modifier) {
