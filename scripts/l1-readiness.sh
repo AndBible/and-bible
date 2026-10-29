@@ -75,15 +75,15 @@ if [ $CHECK -eq 1 ] && grep -qxF '@no-unmarked-bridges' "$DONE" 2>/dev/null; the
   fi
 fi
 if [ $CHECK -eq 1 ] && grep -qxF '@no-common-blocking' "$DONE" 2>/dev/null; then
-  # No blocking bridge in any module's commonMain/iosMain code. Comment lines are dropped and trailing // cut first.
-  common=$(find "$ROOT"/*/src/commonMain "$ROOT"/*/src/iosMain -name '*.kt' 2>/dev/null | sort \
+  # No blocking bridge in any module's commonMain/hostMain/iosMain code. Comment lines are dropped and trailing // cut first.
+  common=$(find "$ROOT"/*/src/commonMain "$ROOT"/*/src/hostMain "$ROOT"/*/src/iosMain -name '*.kt' 2>/dev/null | sort \
     | while read -r f; do
         # Edge files: the plan-mandated sync bridges (JSword synchronous contract in IosEdges.kt; the DatabaseHost sync
         # contract in IosDatabaseHost.kt, called off the main thread, C2). The exemption is per LINE: only a line that
         # carries a `// L1-edge:` marker is exempt (import lines never count), so a new unmarked bridge is still caught.
         edge=0
         case "$f" in
-          */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosEdges.kt) edge=1;;
+          */sharedLogic/src/hostMain/kotlin/net/bible/sharedlogic/platform/host/IosEdges.kt) edge=1;;
           */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosDatabaseHost.kt) edge=1;;
         esac
         awk -v f="$f" -v edge="$edge" '{ l=$0; if (l ~ /^[[:space:]]*(\*|\/\*|\/\/)/) next;
@@ -92,7 +92,7 @@ if [ $CHECK -eq 1 ] && grep -qxF '@no-common-blocking' "$DONE" 2>/dev/null; then
       done)
   if [ -n "$common" ]; then
     echo "$common" >&2
-    echo "REGRESSION: blocking bridge in commonMain/iosMain (@no-common-blocking)" >&2
+    echo "REGRESSION: blocking bridge in commonMain/hostMain/iosMain (@no-common-blocking)" >&2
     fail=1
   fi
 fi
