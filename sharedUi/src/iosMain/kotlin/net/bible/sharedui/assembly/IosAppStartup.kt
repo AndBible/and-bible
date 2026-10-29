@@ -38,7 +38,7 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.secrets.IosKeychainSecretStore
 import net.bible.sharedlogic.platform.ios.IosDatabaseHost
 import net.bible.sharedlogic.platform.ios.IosLocaleProvider
-import net.bible.sharedlogic.platform.host.IosSwordEnvironment
+import net.bible.sharedlogic.platform.host.HostSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
 import net.bible.sharedui.platform.IosPlatformBootstrap
@@ -60,7 +60,7 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSSearchPathDirectory
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.preferredLanguages
-import net.bible.sharedui.host.startup.IosStartupOwner
+import net.bible.sharedui.host.startup.HostStartupOwner
 
 private const val TAG = "IosAppStartup"
 
@@ -100,7 +100,7 @@ internal class IosPlatformParts(val config: IosAppConfig) {
         config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings, ::iosPreferredLanguages)
     }
 
-    val stringTableHolder by lazy { IosStringTableHolder(iosStringTable(uiLanguage, ::bundleRawResource)) }
+    val stringTableHolder by lazy { HostStringTableHolder(hostStringTable(uiLanguage, ::bundleRawResource)) }
     val strings: StringTable get() = stringTableHolder.live
 
     /** The locale JSword formats with: the UI language when the config pins one, else the device locale. */
@@ -146,7 +146,7 @@ object IosAppStartup {
     private val processScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
     // Selected on Main, used only by the process-owned initialization operation on IO.
     private var selectedParts: IosPlatformParts? = null
-    private var owner: IosStartupOwner<IosPlatformParts>? = null
+    private var owner: HostStartupOwner<IosPlatformParts>? = null
 
     @kotlin.concurrent.Volatile
     private var opened = false
@@ -181,7 +181,7 @@ object IosAppStartup {
      */
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
-            owner ?: IosStartupOwner(processScope,
+            owner ?: HostStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
@@ -190,9 +190,9 @@ object IosAppStartup {
                     val localeProvider = IosLocaleProvider(localeTag = p::jswordLocaleTag)
                     SharedAppStartup.installEnvironment(p.repositories(), localeProvider)
                     SharedAppStartup.start(StartupHooks(
-                        initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
+                        initialiseJSwordFolders = { HostSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
                         koinModules = {
-                            val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
+                            val sync = buildIosSyncBindings(hostSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
                             val namespace = org.koin.dsl.module {
                                 IosDebugLaunchArgs.syncNamespace()?.let { value ->
                                     single { net.bible.service.cloudsync.CloudSyncNamespace(value) }
@@ -201,7 +201,7 @@ object IosAppStartup {
                             listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()) + extraModules, p))
                         },
                         reportJSwordError = { ev -> reportJSwordError(p, ev) },
-                        isSwordLoaded = { IosSwordEnvironment.isLoaded },
+                        isSwordLoaded = { HostSwordEnvironment.isLoaded },
                         isolateKoinPublication = true,
                     ))
                     withContext(Dispatchers.Main.immediate) { parts = p }

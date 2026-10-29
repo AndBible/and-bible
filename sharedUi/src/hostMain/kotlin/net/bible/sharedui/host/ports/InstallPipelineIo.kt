@@ -8,7 +8,7 @@ import okio.IOException
 import okio.Source
 
 /**
- * The platform-specific I/O of [IosInstallPipeline]: file URLs, temp directory, streaming a (security-scoped) file,
+ * The platform-specific I/O of [HostInstallPipeline]: file URLs, temp directory, streaming a (security-scoped) file,
  * job ids and the debug sleep. iOS answers with Foundation (`IosInstallPipelineIo`).
  */
 @kotlin.native.HiddenFromObjC

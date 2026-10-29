@@ -37,27 +37,27 @@ import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
 import net.bible.sharedui.nav.NavResultChannel
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.app.HostReadingAppInitPlatform
 import net.bible.sharedui.host.reading.ChooserKind
 import net.bible.sharedui.host.reading.ChooserRequests
-import net.bible.sharedui.host.reading.IosReadingHost
-import net.bible.sharedui.host.reading.IosReadingNavigator
+import net.bible.sharedui.host.reading.HostReadingHost
+import net.bible.sharedui.host.reading.HostReadingNavigator
 import net.bible.sharedui.host.reading.searchRoute
 
 /**
- * [IosReadingNavigator] against a recording [IosNavigator]: every member must start the route Android's
+ * [HostReadingNavigator] against a recording [HostNavigator]: every member must start the route Android's
  * `AndroidReadingNavigator` starts, and the label chooser's answer must reach the caller that asked.
  */
 class IosReadingNavigatorTest {
-    private class RecordingNavigator : IosNavigator {
+    private class RecordingNavigator : HostNavigator {
         val routes = mutableListOf<String>()
         var failNavigate = false
         override fun navigate(route: String) {
@@ -75,9 +75,9 @@ class IosReadingNavigatorTest {
     }
 
     private class Fixture(
-        val navigator: IosReadingNavigator,
+        val navigator: HostReadingNavigator,
         val nav: RecordingNavigator,
-        val shell: IosHostShell,
+        val shell: HostNavShell,
         val links: RecordingLinks,
         val labels: NavResultChannel<ManageLabelsResult>,
         val hostState: net.bible.sharedui.reading.host.ReadingHostState,
@@ -105,7 +105,7 @@ class IosReadingNavigatorTest {
                 ),
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
-            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            val platform = HostReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform)
                 ReadingAppInit.prepareData(platform)
@@ -113,12 +113,12 @@ class IosReadingNavigatorTest {
             val koin = KoinPlatform.getKoin()
             ReadingAppInit.createWindowRepository(scope)
             val nav = RecordingNavigator()
-            val shell = IosHostShell(CoroutineScope(Dispatchers.Unconfined), nav)
+            val shell = HostNavShell(CoroutineScope(Dispatchers.Unconfined), nav)
             shell.routeChanged(NavRoutes.READING)
-            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
+            val host = HostReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val links = RecordingLinks()
             val labels = NavResultChannel<ManageLabelsResult> { }
-            val navigator = IosReadingNavigator(
+            val navigator = HostReadingNavigator(
                 shell = shell,
                 hostState = host.hostState,
                 links = links,
@@ -160,7 +160,7 @@ class IosReadingNavigatorTest {
     @Test
     fun openSearchRunsTheInPlaceSearchInsteadOfARoute() = withNavigator {
         var opened = 0
-        val inPlace = IosReadingNavigator(
+        val inPlace = HostReadingNavigator(
             shell = shell, hostState = hostState, links = links, labelResults = labels,
             downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
             fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
@@ -179,7 +179,7 @@ class IosReadingNavigatorTest {
             override fun asked(kind: ChooserKind, asker: Any?) { kinds += kind }
             override fun activeAsker(): Any? = null
         }
-        val withRequests = IosReadingNavigator(
+        val withRequests = HostReadingNavigator(
             shell = shell, hostState = hostState, links = links, labelResults = labels,
             downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
             fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
@@ -321,7 +321,7 @@ class IosReadingNavigatorTest {
 
     // ----- R3 Task 5: overflow "Auto assign labels" -----
 
-    private fun Fixture.navigatorFor(settings: net.bible.android.database.WorkspaceEntities.WorkspaceSettings?) = IosReadingNavigator(
+    private fun Fixture.navigatorFor(settings: net.bible.android.database.WorkspaceEntities.WorkspaceSettings?) = HostReadingNavigator(
         shell = shell,
         hostState = hostState,
         links = links,

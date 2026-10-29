@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import net.bible.service.cloudsync.host.DocumentSyncDriver
-import net.bible.service.cloudsync.host.IosDocumentSyncStarter
+import net.bible.service.cloudsync.host.HostDocumentSyncStarter
 
 class IosDocumentSyncStarterTest {
     private val events = mutableListOf<String>()
@@ -58,7 +58,7 @@ class IosDocumentSyncStarterTest {
         override fun showError(message: String, cause: Throwable?) { errors += message }
     }
 
-    private fun kotlinx.coroutines.test.TestScope.starter() = IosDocumentSyncStarter.forDriver(
+    private fun kotlinx.coroutines.test.TestScope.starter() = HostDocumentSyncStarter.forDriver(
         backgroundScope, driver, notifier, { "generic" },
         begin = { handler -> begins++; expire = handler; 7uL },
         end = { ends += it },
@@ -77,7 +77,7 @@ class IosDocumentSyncStarterTest {
     }
 
     @Test fun invalidBackgroundTaskIdIsNeverEnded() = runTest {
-        val s = IosDocumentSyncStarter.forDriver(
+        val s = HostDocumentSyncStarter.forDriver(
             backgroundScope, driver, notifier, { "generic" },
             begin = { begins++; UIBackgroundTaskInvalid },
             end = { ends += it },

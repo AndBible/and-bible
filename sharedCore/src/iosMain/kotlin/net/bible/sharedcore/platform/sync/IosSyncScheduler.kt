@@ -14,7 +14,7 @@ class IosSyncScheduler(
     },
     end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
 ) : SyncScheduler {
-    private val runner = IosSyncRunner(scope, sync, begin) { if (it != UIBackgroundTaskInvalid) end(it) }
+    private val runner = HostSyncRunner(scope, sync, begin) { if (it != UIBackgroundTaskInvalid) end(it) }
     override fun startDatabaseSync() = runner.startDatabaseSync()
     /** The creator fixes interaction policy for the pass; a coalescing caller cannot change it. */
     fun startBackgroundDatabaseSync(sync: suspend () -> Boolean) = runner.startDatabaseSync(sync)

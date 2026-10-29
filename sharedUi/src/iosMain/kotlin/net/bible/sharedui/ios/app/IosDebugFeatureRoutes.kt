@@ -28,7 +28,7 @@ import net.bible.sharedui.app.DebugFeatureScenario
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.strings.LocalStrings
 import org.koin.core.Koin
-import net.bible.sharedui.host.app.IosReadingReady
+import net.bible.sharedui.host.app.HostReadingReady
 
 /** Real graph only: no production reading callbacks, arbitrary routes, or replacement feature UI. */
 @Composable
@@ -36,7 +36,7 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
     val scenario = remember { IosDebugLaunchArgs.featureScenario() } ?: return
     val once = remember { DebugFeatureOnce() }
     LaunchedEffect(ready) {
-        if (!once.take(ready && IosReadingReady.isReady, IosDebugLaunchArgs.referenceApplied)) return@LaunchedEffect
+        if (!once.take(ready && HostReadingReady.isReady, IosDebugLaunchArgs.referenceApplied)) return@LaunchedEffect
         val route = when (scenario) {
             DebugFeatureScenario.CHOOSER -> NavRoutes.chooseDocument("BIBLE")
             DebugFeatureScenario.PLAN_SETTINGS -> NavRoutes.dailyReading()
@@ -63,7 +63,7 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
         nav.navigate(route)
     }
     // This DEBUG scenario consumes the document chooser output for the fixture routes; in production the reading destination's
-    // ReadingResultCollector (IosReadingResults) consumes the same channel.
+    // ReadingResultCollector (HostReadingResults) consumes the same channel.
     val pending by channels.document.pending.collectAsState()
     LaunchedEffect(pending, ready) {
         net.bible.sharedui.app.consumeDebugDocument(scenario, ready, channels.document::consume) { initials ->

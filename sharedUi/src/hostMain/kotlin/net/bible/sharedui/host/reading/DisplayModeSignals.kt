@@ -20,7 +20,7 @@ package net.bible.sharedui.host.reading
 
 /**
  * The platform signals after which the night mode may have changed without a settings write, for
- * [IosNightModeObserver]: on iOS, `NSUserDefaultsDidChangeNotification` (the night-mode keys live in `UserDefaults`)
+ * [HostNightModeObserver]: on iOS, `NSUserDefaultsDidChangeNotification` (the night-mode keys live in `UserDefaults`)
  * and `UIApplicationDidBecomeActiveNotification` (the system appearance may have changed in the background).
  *
  * A callback, not a flow: the observer refreshes synchronously on the main thread as each signal arrives, and it may be

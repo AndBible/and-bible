@@ -2,7 +2,7 @@ package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
-import net.bible.sharedui.host.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.HostDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import kotlin.test.AfterTest
@@ -10,38 +10,38 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import net.bible.sharedlogic.platform.host.IosUserNotifier
+import net.bible.sharedlogic.platform.host.HostUserNotifier
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.ports.IosChooserHostPlatform
-import net.bible.sharedui.host.IosPending
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.ports.HostChooserHostPlatform
+import net.bible.sharedui.host.HostPending
 
 class IosPendingTest {
-    @BeforeTest fun reset() = IosPending.resetForTest()
-    @AfterTest fun clean() = IosPending.resetForTest()
+    @BeforeTest fun reset() = HostPending.resetForTest()
+    @AfterTest fun clean() = HostPending.resetForTest()
 
     @Test
     fun logsEachMemberOnce() {
         val emitted = mutableListOf<String>()
-        IosPending.onFirstReport = { emitted += it }
-        IosPending.log("X.y")
-        IosPending.log("X.y")
+        HostPending.onFirstReport = { emitted += it }
+        HostPending.log("X.y")
+        HostPending.log("X.y")
         assertEquals(listOf("X.y"), emitted)
-        assertEquals(setOf("X.y"), IosPending.reported)
+        assertEquals(setOf("X.y"), HostPending.reported)
     }
 
     @Test
     fun pendingPortReturnsNoOpValues() {
-        IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
+        HostDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
     }
 }
 
 class IosHostPortsTest {
-    @BeforeTest fun reset() = IosPending.resetForTest()
-    @AfterTest fun clean() = IosPending.resetForTest()
+    @BeforeTest fun reset() = HostPending.resetForTest()
+    @AfterTest fun clean() = HostPending.resetForTest()
 
     private class FakeBackupHost : net.bible.android.control.backup.BackupHost {
         override suspend fun showErrorReport(message: String, cause: Throwable?) = Unit
@@ -67,7 +67,7 @@ class IosHostPortsTest {
                 single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.sharedlogic.platform.ios.IosLocalCalendar() }
                 single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.sharedlogic.platform.ios.IosLocaleSupport }
                 single<net.bible.sharedcore.platform.CoreStrings> {
-                    net.bible.sharedui.strings.keyed.KeyedCoreStrings(net.bible.sharedui.assembly.iosStringTable("en"))
+                    net.bible.sharedui.strings.keyed.KeyedCoreStrings(net.bible.sharedui.assembly.hostStringTable("en"))
                 }
                 single<net.bible.sharedcore.platform.AppSettings> {
                     net.bible.sharedlogic.settings.DatabaseAppSettings(
@@ -79,7 +79,7 @@ class IosHostPortsTest {
                 // Document ports now use the real app-wide dialog queue and error notifier.
                 single { net.bible.sharedcore.ui.dialog.AppDialogController() }
                 single<net.bible.sharedcore.platform.UserNotifier> {
-                    IosUserNotifier(get())
+                    HostUserNotifier(get())
                 }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
@@ -88,7 +88,7 @@ class IosHostPortsTest {
         }.koin
         try {
             val scope = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.EmptyCoroutineContext)
-            val shell = IosHostShell(scope, object : IosNavigator {
+            val shell = HostNavShell(scope, object : HostNavigator {
                 override fun navigate(route: String) = Unit
                 override fun popBackStack() = false
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
@@ -96,7 +96,7 @@ class IosHostPortsTest {
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
             assertSame(permission, ports.notificationPermission)
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
-            assertTrue(ports.chooserPlatform() is IosChooserHostPlatform)
+            assertTrue(ports.chooserPlatform() is HostChooserHostPlatform)
             ports.bookmarkPlatform().documentsRecreation()
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)
@@ -110,7 +110,7 @@ class IosHostPortsTest {
                 ports.labelIcons.iconKeys)
             ports.cloudDocumentsPlatform()
             ports.bugReport()
-            assertFalse("TextShare.shareText" in IosPending.reported)
+            assertFalse("TextShare.shareText" in HostPending.reported)
         } finally {
             org.koin.core.context.stopKoin()
         }

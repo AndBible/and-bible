@@ -21,7 +21,7 @@ package net.bible.sharedui.ios.reading
 import platform.UIKit.UIApplication
 import platform.UIKit.UIBackgroundTaskInvalid
 
-/** UIKit's background-task window for an agent run: begins it, [onExpire] runs when iOS expires it. Passed to [IosAgentStarter] by the iOS host. */
+/** UIKit's background-task window for an agent run: begins it, [onExpire] runs when iOS expires it. Passed to [HostAgentStarter] by the iOS host. */
 internal fun iosBeginAgentBackgroundTask(onExpire: () -> Unit): ULong =
     UIApplication.sharedApplication.beginBackgroundTaskWithName("agent-run") { onExpire() }
 

@@ -23,7 +23,7 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 
 /**
- * The platform web engine behind the reading windows, as [IosReadingWindows] assembles them: one cached web view per
+ * The platform web engine behind the reading windows, as [HostReadingWindows] assembles them: one cached web view per
  * window id, created on first use and kept until [release]. The assembly builds each window's session over
  * [jsHostFor] and [surfaceFor]; the pane composable that shows the view, and the bridge handler wiring, belong to the
  * platform's pane factory, not to this interface.

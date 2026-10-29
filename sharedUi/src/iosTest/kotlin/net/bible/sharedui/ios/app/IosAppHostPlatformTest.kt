@@ -38,7 +38,7 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-/** Pins [IosAppHostPlatform] to the objects and calls IosApp used directly before the seam. */
+/** Pins [IosAppHostPlatform] to the objects and calls HostApp used directly before the seam. */
 class IosAppHostPlatformTest {
     @Test
     fun theSingletonsAreTheOnesTheRootUsedBefore() {

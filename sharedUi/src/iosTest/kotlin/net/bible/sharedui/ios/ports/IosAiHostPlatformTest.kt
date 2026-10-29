@@ -1,6 +1,6 @@
 package net.bible.sharedui.ios.ports
 
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedlogic.platform.ios.IosLocaleSupport
 import net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG
@@ -10,15 +10,15 @@ import kotlin.test.assertNotEquals
 import platform.Foundation.defaultTimeZone
 import platform.Foundation.setDefaultTimeZone
 import platform.Foundation.timeZoneWithName
-import net.bible.sharedui.host.ports.IosAiHostPlatform
+import net.bible.sharedui.host.ports.HostAiHostPlatform
 
 class IosAiHostPlatformTest {
     @Test fun errorDialogPreservesMessageAndCause() = kotlinx.coroutines.runBlocking {
-        val table = { iosStringTable("en") }
+        val table = { hostStringTable("en") }
         var message: String? = null
         var cause: Throwable? = null
         val failure = IllegalArgumentException("original")
-        val port = IosAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { m, c -> message = m; cause = c }
+        val port = HostAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { m, c -> message = m; cause = c }
         port.showErrorDialog("Failed", failure)
         assertEquals("Failed", message)
         kotlin.test.assertSame(failure, cause)
@@ -28,16 +28,16 @@ class IosAiHostPlatformTest {
         val saved = platform.Foundation.NSTimeZone.defaultTimeZone
         try {
             platform.Foundation.NSTimeZone.setDefaultTimeZone(platform.Foundation.NSTimeZone.timeZoneWithName("Europe/Helsinki")!!)
-            val table = { iosStringTable("en") }
-            val port = IosAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { _, _ -> }
+            val table = { hostStringTable("en") }
+            val port = HostAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { _, _ -> }
             assertEquals("2026-03-28 09:17", port.formatLogTimestamp(1774682232345L))
         } finally { platform.Foundation.NSTimeZone.setDefaultTimeZone(saved) }
     }
 
     @Test fun aiLanguageChoicesIncludeAppDefaultAndCustom() {
         var language = "en"
-        val table = { iosStringTable(language) }
-        val port = IosAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { _, _ -> }
+        val table = { hostStringTable(language) }
+        val port = HostAiHostPlatform(KeyedCoreStrings(table), IosLocaleSupport, table, { iosAiLogTimestamp(table().tag, it) }) { _, _ -> }
         val choices = port.languageChoices()
         assertEquals("", choices.first().value)
         assertEquals(AI_CUSTOM_LANGUAGE_TAG, choices.last().value)

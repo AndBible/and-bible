@@ -37,10 +37,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.reading.IosAgentStarter
+import net.bible.sharedui.host.reading.HostAgentStarter
 
 /**
- * The in-reader AI start on iOS: [IosAgentStarter] runs the same `executePrompt` call as Android's foreground service inside
+ * The in-reader AI start on iOS: [HostAgentStarter] runs the same `executePrompt` call as Android's foreground service inside
  * a background-task window, and the host's prompt selector hands a chosen prompt to it.
  */
 class IosAgentStarterTest {
@@ -67,7 +67,7 @@ class IosAgentStarterTest {
         execute: suspend (AgentPrompt, Selection, String?, IdType?) -> Boolean = { p, s, u, m ->
             r.events += "execute"; r.executed = listOf(p, s, u, m); true
         },
-    ) = IosAgentStarter(
+    ) = HostAgentStarter(
         scope = scope,
         windowRepositoryId = currentWorkspace,
         regenerate = { page, target, text, keep, fresh, model ->

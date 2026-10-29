@@ -3,7 +3,7 @@
 package net.bible.sharedui.ios.report
 
 import kotlinx.coroutines.*
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import platform.Foundation.*
@@ -29,7 +29,7 @@ class IosReportLifecycleTest {
         val problem = IllegalStateException("staging unavailable")
         val errors = mutableListOf<Exception>()
         var attempts = 0
-        val report = IosBugReport(iosStringTable("en"), confirm = { true }, send = { _, _, _, _ ->
+        val report = IosBugReport(hostStringTable("en"), confirm = { true }, send = { _, _, _, _ ->
             if (attempts++ == 0) throw problem
         }, failure = { errors += it })
         report.report()
@@ -41,7 +41,7 @@ class IosReportLifecycleTest {
     @Test fun declinedConfirmationDoesNotStageOrSend() = awaitOnMain {
         val before = staged()
         var sends = 0
-        val report = IosBugReport(iosStringTable("en"), confirm = { false }, send = { _, _, _, _ -> sends++ })
+        val report = IosBugReport(hostStringTable("en"), confirm = { false }, send = { _, _, _, _ -> sends++ })
         report.report(IllegalStateException("not sent"))
         report.ai("model", "details", byteArrayOf(1), true)
         assertEquals(0, sends)
@@ -49,7 +49,7 @@ class IosReportLifecycleTest {
     }
 
     @Test fun emptyAiLogNeverAsksConfirmation() = awaitOnMain {
-        val report = IosBugReport(iosStringTable("en"), confirm = { error("Must not ask") }, send = { _, _, _, _ -> error("Must not send") })
+        val report = IosBugReport(hostStringTable("en"), confirm = { error("Must not ask") }, send = { _, _, _, _ -> error("Must not send") })
         report.ai("supported", "details", byteArrayOf(), true)
         report.ai("unsupported", "details", byteArrayOf(1), false)
     }
@@ -57,7 +57,7 @@ class IosReportLifecycleTest {
     @Test fun confirmedAiReportPreservesGzipMimeRecipientAndSubject() = awaitOnMain {
         val bytes = net.bible.service.llm.agent.RawLlmLog.gzipCompress("conversation")
         var sent = false
-        IosBugReport(iosStringTable("en"), confirm = { ai -> assertTrue(ai); true }, send = { to, subject, body, attachments ->
+        IosBugReport(hostStringTable("en"), confirm = { ai -> assertTrue(ai); true }, send = { to, subject, body, attachments ->
             sent = true
             assertEquals("errors.andbible@gmail.com", to)
             assertTrue(subject.startsWith("AI Bug Report v"))

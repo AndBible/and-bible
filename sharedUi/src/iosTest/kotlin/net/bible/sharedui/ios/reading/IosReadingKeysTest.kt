@@ -28,7 +28,7 @@ import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.host.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.ports.HostChooserHostPlatform
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.reading.host.paneButtonsShown
 import net.bible.sharedui.reading.session.ConfigInputs
@@ -43,7 +43,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.reading.IosDocumentLoaderPlatform
+import net.bible.sharedui.host.reading.HostDocumentLoaderPlatform
 
 /**
  * One test per reading preference that the iOS reading surface must honour. Each writes the Android key through the
@@ -54,7 +54,7 @@ class IosReadingKeysTest {
     private class FakeNightForKeys(override val nightMode: Boolean) : NightModeState
 
     /** The config inputs the active window's loader builds (`set_config`), read through the production settings. */
-    private fun configFor(koin: Koin, beta: Boolean = false): ConfigInputs = IosDocumentLoaderPlatform(
+    private fun configFor(koin: Koin, beta: Boolean = false): ConfigInputs = HostDocumentLoaderPlatform(
         window = { koin.get<WindowControl>().activeWindow },
         windowControl = { koin.get<WindowControl>() },
         settings = { koin.get<AppSettings>() },
@@ -159,7 +159,7 @@ class IosReadingKeysTest {
         val koin = KoinPlatform.getKoin()
         val settings = koin.get<AppSettings>()
         val scope = CoroutineScope(Dispatchers.Unconfined)
-        val chooser = IosChooserHostPlatform(koin, scope, { IosAppStartup.stringTable }, net.bible.sharedui.ios.ports.IosWindowMetrics())
+        val chooser = HostChooserHostPlatform(koin, scope, { IosAppStartup.stringTable }, net.bible.sharedui.ios.ports.IosWindowMetrics())
         try {
             settings.setBoolean("navigate_to_verse_pref", false)
             val offResults = mutableListOf<String>()

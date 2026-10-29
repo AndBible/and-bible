@@ -17,7 +17,7 @@ class IosSyncRunnerTest {
         val cleanup = CompletableDeferred<Unit>()
         var passes = 0
         var ends = 0
-        val scheduler = IosSyncRunner(this, {
+        val scheduler = HostSyncRunner(this, {
             passes++
             entered.complete(Unit)
             try { CompletableDeferred<Boolean>().await() }
@@ -44,7 +44,7 @@ class IosSyncRunnerTest {
 
     @Test fun stopAfterRealCompletionKeepsSuccess() = runTest {
         val finish = CompletableDeferred<Boolean>()
-        val scheduler = IosSyncRunner(this, { finish.await() }, { 1uL }, {})
+        val scheduler = HostSyncRunner(this, { finish.await() }, { 1uL }, {})
         val result = scheduler.startDatabaseSync()
         val foreground = async { result.await() }
         runCurrent()

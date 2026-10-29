@@ -36,7 +36,7 @@ class IosAppStartupStateTest {
     @Test
     fun aSuccessfulOpenGoesFromStartingToReady() = runBlocking<Unit> {
         val gate = CompletableDeferred<Unit>()
-        val state = IosAppStartupState(open = { gate.await() })
+        val state = HostAppStartupState(open = { gate.await() })
         val scope = scope()
         state.launch(scope)
         assertEquals(StartupPhase.Starting, state.phase.value)
@@ -49,7 +49,7 @@ class IosAppStartupStateTest {
     @Test
     fun aFailingOpenEndsInFailedWithThatError() = runBlocking<Unit> {
         val error = IllegalStateException("corrupt")
-        val state = IosAppStartupState(open = { throw error })
+        val state = HostAppStartupState(open = { throw error })
         val scope = scope()
         state.launch(scope)
         val phase = withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
@@ -60,7 +60,7 @@ class IosAppStartupStateTest {
 
     @Test
     fun anOpenThatNeverFinishesStaysStarting() = runBlocking<Unit> {
-        val state = IosAppStartupState(open = { CompletableDeferred<Unit>().await() })
+        val state = HostAppStartupState(open = { CompletableDeferred<Unit>().await() })
         val scope = scope()
         state.launch(scope)
         // Real time on purpose: runTest's virtual time would skip the wait without letting Default threads run.
@@ -72,7 +72,7 @@ class IosAppStartupStateTest {
     @Test
     fun theOpenRunsOffTheMainThread() = runBlocking<Unit> {
         var onMain: Boolean? = null
-        val state = IosAppStartupState(open = { onMain = NSThread.isMainThread })
+        val state = HostAppStartupState(open = { onMain = NSThread.isMainThread })
         val scope = scope()
         state.launch(scope)
         withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
@@ -83,7 +83,7 @@ class IosAppStartupStateTest {
     @Test
     fun aSecondLaunchDoesNotRunOpenAgain() = runBlocking<Unit> {
         var calls = 0
-        val state = IosAppStartupState(open = { calls++ })
+        val state = HostAppStartupState(open = { calls++ })
         val scope = scope()
         state.launch(scope)
         withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
@@ -96,7 +96,7 @@ class IosAppStartupStateTest {
     @Test
     fun failBeforeLaunchShowsTheErrorAndNeverOpens() = runBlocking<Unit> {
         var opened = false
-        val state = IosAppStartupState(open = { opened = true })
+        val state = HostAppStartupState(open = { opened = true })
         val error = IllegalStateException("start failed")
         state.fail(error)
         val scope = scope()
@@ -110,7 +110,7 @@ class IosAppStartupStateTest {
 
     @Test
     fun aCancellationThrownByOpenWhileTheScopeIsActiveIsAFailure() = runBlocking<Unit> {
-        val state = IosAppStartupState(open = { withTimeout(50) { CompletableDeferred<Unit>().await() } })
+        val state = HostAppStartupState(open = { withTimeout(50) { CompletableDeferred<Unit>().await() } })
         val scope = scope()
         state.launch(scope)
         val phase = withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
@@ -121,7 +121,7 @@ class IosAppStartupStateTest {
 
     @Test
     fun failAfterASuccessfulLaunchKeepsReady() = runBlocking<Unit> {
-        val state = IosAppStartupState(open = { })
+        val state = HostAppStartupState(open = { })
         val scope = scope()
         state.launch(scope)
         withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }

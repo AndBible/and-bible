@@ -33,16 +33,16 @@ import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.awaitStartupOnMain
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.HostReadingAppInitPlatform
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.host.ReadingHostDeps
 import org.koin.mp.KoinPlatform
-import net.bible.sharedui.host.reading.IosReadingHost
+import net.bible.sharedui.host.reading.HostReadingHost
 import net.bible.sharedui.host.reading.ReadingHostPlatform
 
-internal object NoNavigatorForHostTests : IosNavigator {
+internal object NoNavigatorForHostTests : HostNavigator {
     override fun navigate(route: String) = Unit
     override fun popBackStack(): Boolean = false
     override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
@@ -51,7 +51,7 @@ internal object NoNavigatorForHostTests : IosNavigator {
 internal class FakeNightForHostTests(override val nightMode: Boolean) : NightModeState
 
 /**
- * Boots the app parts the reading host reads and runs [block] over an [IosReadingHost]; tears everything down after.
+ * Boots the app parts the reading host reads and runs [block] over an [HostReadingHost]; tears everything down after.
  * [scope] is the host's scope (a test that awaits the host's coroutines passes an unconfined one); [llmConfigured],
  * [llmService] and [startAgent] replace the host's AI collaborators when given.
  */
@@ -65,7 +65,7 @@ internal fun withIosReadingHost(
     startRegenerate: ((IdType, IdType?, String?, Boolean, Boolean, IdType?) -> Unit)? = null,
     showNotice: (windowId: String, text: String) -> Unit = { _, _ -> },
     hostPlatform: ReadingHostPlatform = IosReadingHostPlatform,
-    block: (host: IosReadingHost, deps: ReadingHostDeps) -> Unit,
+    block: (host: HostReadingHost, deps: ReadingHostDeps) -> Unit,
 ) {
     try {
         awaitStartupOnMain { IosAppStartup.ensureStarted(
@@ -75,7 +75,7 @@ internal fun withIosReadingHost(
             ),
         ) }
         awaitStartupOnMain { IosAppStartup.openDatabases() }
-        val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
+        val platform = HostReadingAppInitPlatform(IosAppStartup.stringTable)
         runBlocking {
             ReadingAppInit.initialise(platform)
             ReadingAppInit.prepareData(platform)
@@ -84,10 +84,10 @@ internal fun withIosReadingHost(
         ReadingAppInit.createWindowRepository(scope)
         val p = ColorPainter(Color.Black)
         val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
-        val host = IosReadingHost(
-            scope, IosHostShell(scope, NoNavigatorForHostTests), koin, hostPlatform, FakeNightForHostTests(false),
+        val host = HostReadingHost(
+            scope, HostNavShell(scope, NoNavigatorForHostTests), koin, hostPlatform, FakeNightForHostTests(false),
             openUrl = openUrl, statusBarHidden = statusBar,
-            llmConfiguredSource = llmConfigured ?: IosReadingHost.defaultLlmConfigured(koin),
+            llmConfiguredSource = llmConfigured ?: HostReadingHost.defaultLlmConfigured(koin),
             llmService = llmService ?: { koin.get() },
             startAgent = startAgent,
             startRegenerate = startRegenerate,

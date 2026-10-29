@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.startup.IosStartupGates
+import net.bible.sharedui.host.startup.HostStartupGates
 import net.bible.sharedui.host.startup.StartupGate
 import net.bible.sharedui.host.startup.StartupGateResult
 
@@ -63,7 +63,7 @@ class IosCrashTrackerTest {
         assertTrue(tracker.shouldOfferRecovery())
         assertEquals(0, settings.getInt(CrashPreferences.COUNT, -1))
         assertTrue(tracker.wouldOfferRecoveryAfterLaunch(), "held recovery survives preference reset")
-        val gates = IosStartupGates(listOf(StartupGate.CrashRecovery { tracker.shouldOfferRecovery() }))
+        val gates = HostStartupGates(listOf(StartupGate.CrashRecovery { tracker.shouldOfferRecovery() }))
         gates.advance()
         gates.advance(StartupGateResult.OpenBackup)
         assertTrue(tracker.wouldOfferRecoveryAfterLaunch())

@@ -26,7 +26,7 @@ import net.bible.sharedui.app.ports.TextShare
 import okio.Sink
 
 /**
- * The platform hooks of the reading host ([IosReadingHost]) and its window assembly ([IosReadingWindows]): the system
+ * The platform hooks of the reading host ([HostReadingHost]) and its window assembly ([HostReadingWindows]): the system
  * calls (URL opening, status bar, layout direction, screen, background tasks, pasteboard) and the platform objects
  * (pickers, share, device preferences) the host builds. The host calls each hook exactly where and when it used to make
  * the platform call itself: a `new*` hook is called once per object the host used to construct, so instance

@@ -27,13 +27,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.app.IosRootLinks
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.HostRootLinks
 
-/** The ports that reach the shared root through [IosRootLinks]: speak, history and link handling. */
+/** The ports that reach the shared root through [HostRootLinks]: speak, history and link handling. */
 class IosRootLinksTest {
-    private class Nav : IosNavigator {
+    private class Nav : HostNavigator {
         val calls = mutableListOf<String>()
         val stack = mutableSetOf<String>()
         override fun navigate(route: String) { calls += "navigate($route)" }
@@ -45,55 +45,55 @@ class IosRootLinksTest {
     }
 
     private val nav = Nav()
-    private val shell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav)
+    private val shell = HostNavShell(CoroutineScope(EmptyCoroutineContext), nav)
 
     @BeforeTest fun attach() {
-        IosRootLinks.mainContext = Dispatchers.Unconfined
-        IosRootLinks.attachShell(shell)
+        HostRootLinks.mainContext = Dispatchers.Unconfined
+        HostRootLinks.attachShell(shell)
     }
 
     @AfterTest fun detach() {
-        IosRootLinks.reset()
-        IosRootLinks.mainContext = Dispatchers.Main
+        HostRootLinks.reset()
+        HostRootLinks.mainContext = Dispatchers.Main
     }
 
     @Test fun bringReadingToFrontPopsToReading() {
         nav.stack += NavRoutes.READING
-        IosRootLinks.bringReadingToFront()
+        HostRootLinks.bringReadingToFront()
         assertEquals(listOf("popTo(${NavRoutes.READING},false)"), nav.calls)
     }
 
     @Test fun bringReadingToFrontOpensReadingWhenItIsNotOnTheStack() {
-        IosRootLinks.bringReadingToFront()
+        HostRootLinks.bringReadingToFront()
         assertEquals("navigate(${NavRoutes.READING})", nav.calls.last())
     }
 
     @Test fun openRouteNavigatesTheSingleNavHost() {
-        IosRootLinks.openRoute("bookmarks")
+        HostRootLinks.openRoute("bookmarks")
         assertEquals(listOf("navigate(bookmarks)"), nav.calls)
     }
 
     @Test fun leavingTheCurrentScreenPopsIt() {
-        IosRootLinks.leaveCurrentScreen()
+        HostRootLinks.leaveCurrentScreen()
         assertEquals(listOf("pop"), nav.calls)
     }
 
     @Test fun readingScreenFollowsTheCurrentRouteAndIsTrueBeforeAnyRoute() {
-        assertTrue(IosRootLinks.isOnReadingScreen(), "no route yet")
+        assertTrue(HostRootLinks.isOnReadingScreen(), "no route yet")
         shell.routeChanged("bookmarks")
-        assertFalse(IosRootLinks.isOnReadingScreen())
+        assertFalse(HostRootLinks.isOnReadingScreen())
         shell.routeChanged(NavRoutes.READING)
-        assertTrue(IosRootLinks.isOnReadingScreen())
+        assertTrue(HostRootLinks.isOnReadingScreen())
         shell.routeChanged("${NavRoutes.READING}?x=1")
-        assertTrue(IosRootLinks.isOnReadingScreen(), "arguments do not matter")
+        assertTrue(HostRootLinks.isOnReadingScreen(), "arguments do not matter")
     }
 
     @Test fun portsDoNothingBeforeTheRootIsAttached() {
-        IosRootLinks.reset()
-        IosRootLinks.openRoute("bookmarks")
-        IosRootLinks.bringReadingToFront()
-        IosRootLinks.leaveCurrentScreen()
+        HostRootLinks.reset()
+        HostRootLinks.openRoute("bookmarks")
+        HostRootLinks.bringReadingToFront()
+        HostRootLinks.leaveCurrentScreen()
         assertEquals(emptyList(), nav.calls)
-        assertFalse(IosRootLinks.searchStrongsInReadingView("H1", emptyList()), "no reading host: not handled")
+        assertFalse(HostRootLinks.searchStrongsInReadingView("H1", emptyList()), "no reading host: not handled")
     }
 }

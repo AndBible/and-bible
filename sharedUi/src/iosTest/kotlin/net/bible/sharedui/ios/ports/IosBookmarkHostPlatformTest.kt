@@ -21,7 +21,7 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.awaitStartupOnMain
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import okio.FileSystem
 import okio.buffer
 import okio.use
@@ -31,8 +31,8 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSURL
 import kotlin.test.*
-import net.bible.sharedui.host.ports.IosBookmarkHostPlatform
-import net.bible.sharedui.host.ports.IosLabelIcons
+import net.bible.sharedui.host.ports.HostBookmarkHostPlatform
+import net.bible.sharedui.host.ports.HostLabelIcons
 
 /** Picker-fake evidence only: stream F's real document UI is intentionally not implemented here. */
 class IosBookmarkHostPlatformTest {
@@ -42,10 +42,10 @@ class IosBookmarkHostPlatformTest {
     private val notices = mutableListOf<String>()
     private val failures = mutableListOf<Throwable?>()
     private var language = "en"
-    private val table get() = iosStringTable(language)
+    private val table get() = hostStringTable(language)
     private lateinit var control: BookmarkControl
     private lateinit var dialogs: AppDialogController
-    private lateinit var platform: IosBookmarkHostPlatform
+    private lateinit var platform: HostBookmarkHostPlatform
     private var importRef: DocumentRef? = null
     private var exportRef: DocumentRef? = null
     private val picker = object : DocumentPicker {
@@ -71,7 +71,7 @@ class IosBookmarkHostPlatformTest {
         val koin = KoinPlatform.getKoin()
         control = koin.get()
         dialogs = koin.get()
-        platform = IosBookmarkHostPlatform({ control }, picker, koin.get(), dialogs, { table },
+        platform = HostBookmarkHostPlatform({ control }, picker, koin.get(), dialogs, { table },
             object : UserNotifier {
                 override fun showInfo(message: String, long: Boolean) { notices += message }
                 override fun showError(message: String, cause: Throwable?) { notices += message; failures += cause }
@@ -183,7 +183,7 @@ class IosBookmarkHostPlatformTest {
     }
 
     @Test fun labelIconForEveryKey() {
-        assertEquals(33, IosLabelIcons().iconKeys.size)
-        assertEquals(null, IosLabelIcons().iconKeys.last())
+        assertEquals(33, HostLabelIcons().iconKeys.size)
+        assertEquals(null, HostLabelIcons().iconKeys.last())
     }
 }

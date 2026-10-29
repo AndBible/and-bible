@@ -30,10 +30,10 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
-import net.bible.sharedui.host.IosPending
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosNavigator
-import net.bible.sharedui.host.app.IosReadingAppInitPlatform
+import net.bible.sharedui.host.HostPending
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.HostReadingAppInitPlatform
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import org.koin.mp.KoinPlatform
 import platform.UIKit.UIApplicationOpenSettingsURLString
@@ -42,16 +42,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bible.sharedui.host.reading.IOS_OMITTED_PANE_MENU_ROWS
-import net.bible.sharedui.host.reading.IosReadingHost
-import net.bible.sharedui.host.reading.IosReadingKeyChooserPage
-import net.bible.sharedui.host.reading.IosReadingNavigator
-import net.bible.sharedui.host.reading.IosReadingQuickActions
-import net.bible.sharedui.host.reading.IosReadingSearchPlatform
-import net.bible.sharedui.host.reading.IosSpeakSettingsPlatform
+import net.bible.sharedui.host.reading.HostReadingHost
+import net.bible.sharedui.host.reading.HostReadingKeyChooserPage
+import net.bible.sharedui.host.reading.HostReadingNavigator
+import net.bible.sharedui.host.reading.HostReadingQuickActions
+import net.bible.sharedui.host.reading.HostReadingSearchPlatform
+import net.bible.sharedui.host.reading.HostSpeakSettingsPlatform
 
 /** The iOS reading host deps build once the window repository exists, and follow the active window and night mode. */
 class IosReadingHostTest {
-    private object NoNavigator : IosNavigator {
+    private object NoNavigator : HostNavigator {
         override fun navigate(route: String) = Unit
         override fun popBackStack(): Boolean = false
         override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
@@ -70,18 +70,18 @@ class IosReadingHostTest {
                 ),
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
-            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            val platform = HostReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform) // production order: initialise, then prepareData
                 ReadingAppInit.prepareData(platform)
             }
             val koin = KoinPlatform.getKoin()
             ReadingAppInit.createWindowRepository(scope)
-            val shell = IosHostShell(scope, NoNavigator)
+            val shell = HostNavShell(scope, NoNavigator)
             val p = ColorPainter(Color.Black)
             val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
 
-            val host = IosReadingHost(scope, shell, koin, IosReadingHostPlatform)
+            val host = HostReadingHost(scope, shell, koin, IosReadingHostPlatform)
             val deps = host.deps(icons)
             val activeId = koin.get<WindowControl>().activeWindow.id.toString()
             assertEquals(activeId, deps.controller.layout.value.activeWindowId)
@@ -92,17 +92,17 @@ class IosReadingHostTest {
 
             // Every toolbar callback is safe to invoke before a window exists on screen, and none is a logged pending
             // (see toolbarCallbacksAreWiredAndNoneIsPending for what each one does).
-            IosPending.resetForTest()
+            HostPending.resetForTest()
             deps.toolbarCallbacks.apply {
                 onHome(); onTitleTap(); onTitleLongPress(); onTitleFlingVertical(); onTitleFlingHorizontal(true)
                 onBible(); onBibleLong(); onCommentary(); onCommentaryLong(); onStrongs(); onStrongsLong()
                 onSearch(); onSpeak(); onSpeakLong(); onWorkspace(); onOverflow()
             }
-            assertEquals(emptyList(), IosPending.reported.filter { it.startsWith("ReadingToolbar.") }, "toolbar pendings")
+            assertEquals(emptyList(), HostPending.reported.filter { it.startsWith("ReadingToolbar.") }, "toolbar pendings")
 
             // Night mode follows NightModeState, both ways.
-            assertTrue(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(true)).deps(icons).nightMode.value)
-            assertFalse(IosReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(false)).deps(icons).nightMode.value)
+            assertTrue(HostReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(true)).deps(icons).nightMode.value)
+            assertFalse(HostReadingHost(scope, shell, koin, IosReadingHostPlatform, FakeNight(false)).deps(icons).nightMode.value)
         } finally {
             scope.cancel()
             ReadingAppInit.resetForTest()
@@ -114,7 +114,7 @@ class IosReadingHostTest {
     private fun withReadingHost(
         openUrl: (String) -> Unit = {},
         statusBar: (Boolean) -> Unit = {},
-        block: (host: IosReadingHost, deps: net.bible.sharedui.reading.host.ReadingHostDeps) -> Unit,
+        block: (host: HostReadingHost, deps: net.bible.sharedui.reading.host.ReadingHostDeps) -> Unit,
     ) = withIosReadingHost(openUrl = openUrl, statusBar = statusBar, block = block)
 
     /**
@@ -297,8 +297,8 @@ class IosReadingHostTest {
 
     /**
      * Every `ReadingToolbarCallbacks` member is invoked by name; none may log a pending. The allow-list of callbacks
-     * that may stay pending is EMPTY: every gap is inside a wired callback and named on `IosReadingToolbarHost`
-     * (the drawer's extra rows wait for an `IosReadingExtras` implementation).
+     * that may stay pending is EMPTY: every gap is inside a wired callback and named on `HostReadingToolbarHost`
+     * (the drawer's extra rows wait for an `HostReadingExtras` implementation).
      * Not compiled or run on Linux (no Mac): owed to the Mac run.
      */
     @Test
@@ -316,9 +316,9 @@ class IosReadingHostTest {
         assertEquals(16, calls.size)
         val allowedPending = emptySet<String>()
         for ((name, call) in calls) {
-            IosPending.resetForTest()
+            HostPending.resetForTest()
             call()
-            val pending = IosPending.reported.filter { it.startsWith("ReadingToolbar.") }
+            val pending = HostPending.reported.filter { it.startsWith("ReadingToolbar.") }
             if (name !in allowedPending) assertEquals(emptyList(), pending, "$name is still a logged pending")
         }
 
@@ -390,14 +390,14 @@ class IosReadingHostTest {
         assertEquals(emptyList(), inertHooks.filterValues { !it }.keys.toList(), "allow-listed hooks that are no longer inert")
 
         val s = host.slots
-        assertTrue(s.speakPlatform is IosSpeakSettingsPlatform, "speakPlatform")
-        assertTrue(s.quickActions is IosReadingQuickActions, "quickActions")
-        assertTrue(s.keyChooserPage is IosReadingKeyChooserPage, "keyChooserPage")
-        assertTrue(s.searchState.platform is IosReadingSearchPlatform, "search platform")
+        assertTrue(s.speakPlatform is HostSpeakSettingsPlatform, "speakPlatform")
+        assertTrue(s.quickActions is HostReadingQuickActions, "quickActions")
+        assertTrue(s.keyChooserPage is HostReadingKeyChooserPage, "keyChooserPage")
+        assertTrue(s.searchState.platform is HostReadingSearchPlatform, "search platform")
         // INERT ALLOW-LIST (slot parameters): fullScreen and thumbnailFor constant,
         // toast goes through UserNotifier to AppToasts (real since Task 3), image picker / external links are Stream F's
         // pending ports.
-        assertTrue(s.navigator is IosReadingNavigator && s.navigator === host.navigator, "navigator")
+        assertTrue(s.navigator is HostReadingNavigator && s.navigator === host.navigator, "navigator")
         assertFalse(s.fullScreen(), "fullScreen")
         assertEquals(null, s.thumbnailFor("any"), "thumbnailFor")
         assertTrue(s.imagePicker is net.bible.sharedui.ios.ports.IosImagePicker, "imagePicker")
@@ -451,7 +451,7 @@ class IosReadingHostTest {
     @Test
     fun speakSettingsPlatformOpensTheSettingsUrl() {
         val opened = mutableListOf<String>()
-        IosSpeakSettingsPlatform({ opened += it }, UIApplicationOpenSettingsURLString).openSystemTtsSettings()
+        HostSpeakSettingsPlatform({ opened += it }, UIApplicationOpenSettingsURLString).openSystemTtsSettings()
         assertEquals(listOf(UIApplicationOpenSettingsURLString), opened)
     }
 }

@@ -31,7 +31,7 @@ import net.bible.sharedui.reading.ReadingToolbarCallbacks
  * What the reading toolbar's commands need from the platform: the sheets and routes they open, the documents they
  * switch between, the Strong's setting, the speak transport bar, workspaces and the toolbar state. Documents travel as
  * [QuickDocRow]s (the `Book.initials` is the id), so the decision logic in [ReadingToolbarCommands] is testable
- * without jsword. The iOS implementation is `IosReadingToolbarHost`.
+ * without jsword. The iOS implementation is `HostReadingToolbarHost`.
  */
 @kotlin.native.HiddenFromObjC
 interface ReadingToolbarHost {

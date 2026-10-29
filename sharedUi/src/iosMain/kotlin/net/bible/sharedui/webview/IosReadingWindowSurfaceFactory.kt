@@ -36,7 +36,7 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.create
 import platform.Foundation.writeToFile
 
-/** The iOS [IosReadingWindowSurface]: UIKit share sheet, general pasteboard, `NSFileManager` temp files and `NSTemporaryDirectory`. */
+/** The iOS [HostReadingWindowSurface]: UIKit share sheet, general pasteboard, `NSFileManager` temp files and `NSTemporaryDirectory`. */
 @kotlin.native.HiddenFromObjC
 fun iosReadingWindowSurface(
     host: JsHost,
@@ -47,7 +47,7 @@ fun iosReadingWindowSurface(
     canShare: () -> Boolean = ::iosCanPresentShare,
     tempDir: () -> String = { NSTemporaryDirectory() },
     copyToClipboard: (String) -> Unit = ::iosCopyToPasteboard,
-): IosReadingWindowSurface = IosReadingWindowSurface(
+): HostReadingWindowSurface = HostReadingWindowSurface(
     host, links, textShare, toast, shareFile, canShare, tempDir, copyToClipboard, ::iosWriteSharedHtml,
 )
 

@@ -20,8 +20,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import net.bible.service.cloudsync.host.IosBackupHost
-import net.bible.service.cloudsync.host.IosErrorReportHooks
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.service.cloudsync.host.HostErrorReportHooks
 
 class IosBackupHostTest {
     private val picked = PickedSource("tok", "b.zip", null)
@@ -40,7 +40,7 @@ class IosBackupHostTest {
         }
     }
     private val controller = AppDialogController()
-    private val host = IosBackupHost(picker, delivery, { controller }, { "OK" })
+    private val host = HostBackupHost(picker, delivery, { controller }, { "OK" })
 
     @Test fun pickerAndDeliveryDelegate() = runTest {
         assertSame(picked, host.pickBackupFile("application/zip"))
@@ -62,16 +62,16 @@ class IosBackupHostTest {
         assertEquals(listOf("report", "backup"), req.options.map { it.value })
         assertTrue(!returned)
         var navigated = false
-        val old = IosErrorReportHooks.backup
+        val old = HostErrorReportHooks.backup
         try {
-            IosErrorReportHooks.backup = { navigated = true }
+            HostErrorReportHooks.backup = { navigated = true }
             controller.respond(shown.id, AppDialogResult.Selected("backup"))
             runCurrent()
             job.join()
             assertTrue(navigated)
             assertTrue(returned)
             assertNull(controller.pending.value)
-        } finally { IosErrorReportHooks.backup = old }
+        } finally { HostErrorReportHooks.backup = old }
     }
 
     @Test fun restoreModulesInvokesTheRegisteredInstallZipHook() = runTest {
