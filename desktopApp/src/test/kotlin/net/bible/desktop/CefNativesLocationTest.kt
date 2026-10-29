@@ -4,7 +4,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CefNativesLocationTest {
@@ -50,6 +49,5 @@ class CefNativesLocationTest {
         val result = CefNativesLocation.resolve(props("kcef.installDir" to empty.toString()))
         assertTrue(result.isFailure)
         assertTrue(empty.toString() in result.exceptionOrNull()!!.message!!)
-        assertFalse(result.isSuccess)
     }
 }

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=AndBible
-GenericName=Bible study
-Comment=Offline Bible study app
-Exec=andbible
-Icon=andbible
-Terminal=false
-Categories=Education;
