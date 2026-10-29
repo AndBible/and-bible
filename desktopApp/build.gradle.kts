@@ -1,5 +1,7 @@
 import java.nio.file.Files
 import java.security.MessageDigest
+import java.util.Properties
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import javax.inject.Inject
 
 plugins {
@@ -163,6 +165,21 @@ compose.desktop {
         mainClass = "net.bible.desktop.MainKt"
         nativeDistributions {
             appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
+            targetFormats(TargetFormat.Deb)
+            packageName = "andbible"
+            packageVersion = desktopVersion
+            description = "Offline Bible study app"
+            vendor = "AndBible"
+            licenseFile.set(rootProject.layout.projectDirectory.file("LICENSE.txt"))
+            // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
+            // (java.net.http) need at run time, which static analysis cannot see.
+            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http")
+            linux {
+                iconFile.set(project.file("packaging/linux/andbible.png"))
+                debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
+                menuGroup = "Education"
+                appCategory = "Education"
+            }
         }
         // The JCEF natives are JBR 17 builds: run on the JDK 17 toolchain, never on whatever JDK runs Gradle.
         javaHome = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) }
@@ -216,3 +233,51 @@ sourceSets.main {
     resources.srcDir(prepareBibleViewBundle.map { bibleViewGenerated.get().asFile })
 }
 tasks.named("processResources") { dependsOn(prepareBibleViewBundle) }
+
+/**
+ * The distribution version of the desktop packages: `<versionMajorMinor>.<versionCode>` from the root
+ * `version.properties`, e.g. `6.0.1230`. A .deb needs a numeric dotted version, so `versionNameSuffix` is not part of it.
+ */
+fun desktopPackageVersion(props: Properties): String {
+    val majorMinor = props.getProperty("versionMajorMinor")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: throw GradleException("version.properties has no versionMajorMinor")
+    val code = props.getProperty("versionCode")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: throw GradleException("version.properties has no versionCode")
+    if (code.toIntOrNull() == null) throw GradleException("versionCode is not an integer: $code")
+    return "$majorMinor.$code"
+}
+
+val rootVersionProperties = Properties().apply {
+    rootProject.layout.projectDirectory.file("version.properties").asFile.inputStream().use { load(it) }
+}
+val desktopVersion = desktopPackageVersion(rootVersionProperties)
+
+tasks.register("verifyDesktopVersion") {
+    group = "verification"
+    description = "Checks desktopPackageVersion on in-memory property sets."
+    doLast {
+        fun props(vararg pairs: Pair<String, String>) = Properties().apply { pairs.forEach { (k, v) -> setProperty(k, v) } }
+        check(desktopPackageVersion(props("versionMajorMinor" to "6.0", "versionCode" to "1230")) == "6.0.1230")
+        for ((label, bad) in listOf(
+            "missing versionCode" to props("versionMajorMinor" to "6.0"),
+            "missing versionMajorMinor" to props("versionCode" to "1230"),
+            "non-integer versionCode" to props("versionMajorMinor" to "6.0", "versionCode" to "abc"),
+        )) {
+            val threw = runCatching { desktopPackageVersion(bad) }.isFailure
+            check(threw) { "desktopPackageVersion should throw for $label" }
+        }
+    }
+}
+
+// A relocatable tar.gz of the createDistributable app image. Tar stores the modes of the files it reads, so jcef_helper
+// stays executable.
+val desktopTarball by tasks.registering(Tar::class) {
+    group = "distribution"
+    description = "Packs the app image into build/compose/binaries/main/andbible-<version>-linux-x64.tar.gz."
+    val image = tasks.named("createDistributable")
+    dependsOn(image)
+    from(layout.buildDirectory.dir("compose/binaries/main/app"))
+    compression = Compression.GZIP
+    archiveFileName.set("andbible-$desktopVersion-linux-x64.tar.gz")
+    destinationDirectory.set(layout.buildDirectory.dir("compose/binaries/main"))
+}
