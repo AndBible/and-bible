@@ -79,6 +79,7 @@ class IosDocumentSyncStarterTest {
             backgroundScope, driver, notifier, { "generic" },
             begin = { begins++; UIBackgroundTaskInvalid },
             end = { ends += it },
+            invalidTask = UIBackgroundTaskInvalid,
         )
         s.start(push = listOf("A"), download = emptyList())
         s.awaitIdle()

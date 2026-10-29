@@ -19,8 +19,6 @@ import net.bible.service.cloudsync.documents.runDocumentSyncOp
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
-import platform.UIKit.UIApplication
-import platform.UIKit.UIBackgroundTaskInvalid
 import kotlin.coroutines.coroutineContext
 
 private const val TAG = "IosDocumentSyncStarter"
@@ -54,6 +52,7 @@ class IosDocumentSyncStarter private constructor(
     private val syncErrorMessage: () -> String,
     private val begin: (() -> Unit) -> ULong,
     private val end: (ULong) -> Unit,
+    private val invalidTask: ULong,
 ) : DocumentSyncStarter {
 
     constructor(
@@ -63,8 +62,9 @@ class IosDocumentSyncStarter private constructor(
         notifier: UserNotifier,
         syncErrorMessage: () -> String,
         actions: (DocumentSync) -> DocumentSyncActions = { it.asActions() },
-        begin: (() -> Unit) -> ULong = { UIApplication.sharedApplication.beginBackgroundTaskWithName("document-sync", it) },
-        end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
+        begin: (() -> Unit) -> ULong,
+        end: (ULong) -> Unit,
+        invalidTask: ULong,
     ) : this(
         scope,
         {
@@ -76,7 +76,7 @@ class IosDocumentSyncStarter private constructor(
                 override fun dropAdapterForReconnect() = cloudSync.get().dropAdapterForReconnect()
             }
         },
-        notifier, syncErrorMessage, begin, end,
+        notifier, syncErrorMessage, begin, end, invalidTask,
     )
 
     companion object {
@@ -88,7 +88,8 @@ class IosDocumentSyncStarter private constructor(
             syncErrorMessage: () -> String,
             begin: (() -> Unit) -> ULong,
             end: (ULong) -> Unit,
-        ) = IosDocumentSyncStarter(scope, { driver }, notifier, syncErrorMessage, begin, end)
+            invalidTask: ULong = ULong.MAX_VALUE,
+        ) = IosDocumentSyncStarter(scope, { driver }, notifier, syncErrorMessage, begin, end, invalidTask)
     }
 
     private val lock = SynchronizedObject()
@@ -152,7 +153,7 @@ class IosDocumentSyncStarter private constructor(
         val task = BackgroundTask()
         // UIKit requires endBackgroundTask before the expiration handler returns, and cancellation is
         // asynchronous (a blocking op may outlive the deadline), so the handler ends the task itself.
-        task.attach(begin { task.expire { self?.cancel() } }, end)
+        task.attach(begin { task.expire { self?.cancel() } }, end, invalidTask)
         var finishedNormally = false
         try {
             val d = driver()
@@ -212,10 +213,10 @@ private class BackgroundTask {
     private var expired = false
     private var ended = false
 
-    fun attach(id: ULong, end: (ULong) -> Unit) {
-        // UIBackgroundTaskInvalid means the system refused the task: there is nothing to end
+    fun attach(id: ULong, end: (ULong) -> Unit, invalidTask: ULong) {
+        // The invalid-task id (UIBackgroundTaskInvalid on iOS) means the system refused the task: there is nothing to end
         // (mirrors IosSyncScheduler's guard).
-        if (id == UIBackgroundTaskInvalid) {
+        if (id == invalidTask) {
             synchronized(lock) { ended = true }
             return
         }

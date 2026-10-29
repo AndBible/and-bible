@@ -87,6 +87,9 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
             cloudSync = CloudSyncProvider { get() },
             notifier = get<UserNotifier>(),
             syncErrorMessage = strings.syncError,
+            begin = UiKitBackgroundTask.begin("document-sync"),
+            end = UiKitBackgroundTask.end,
+            invalidTask = UiKitBackgroundTask.invalid,
         )
     }
     single<SyncScheduler> {
