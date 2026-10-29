@@ -52,6 +52,16 @@ class DesktopAppHostPlatformTest {
         }
     }
 
+    @Test fun windowHandleIsNotFocusedAndVisibleByDefault() {
+        val window = object : DesktopWindowHandle {
+            override val sizeDp = IntSize(1200, 800)
+            override val density = 1f
+            override fun toFront() = Unit
+        }
+
+        assertFalse(window.isFocusedAndVisible)
+    }
+
     @Test fun toolbarReadsTheNightModeStoreOfTheKoinGraph() = withKoin { koin ->
         val toolbar = DesktopReadingHostPlatform(FakeWindow(IntSize(1200, 800))) { koin }.newToolbarDeviceState()
         val prefs = koin.get<DeviceLocalPrefs>()

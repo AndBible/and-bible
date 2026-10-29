@@ -26,6 +26,7 @@ import net.bible.sharedui.assembly.HostWindowMetrics
 interface DesktopWindowHandle {
     val sizeDp: IntSize
     val density: Float
+    val isFocusedAndVisible: Boolean get() = false
     fun toFront()
 }
 

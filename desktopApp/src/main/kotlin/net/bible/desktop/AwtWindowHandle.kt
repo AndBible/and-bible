@@ -18,6 +18,7 @@ package net.bible.desktop
 
 import androidx.compose.ui.unit.IntSize
 import net.bible.sharedui.desktop.assembly.DesktopWindowHandle
+import java.awt.KeyboardFocusManager
 import java.awt.Window
 import javax.swing.RootPaneContainer
 import javax.swing.SwingUtilities
@@ -43,6 +44,14 @@ class AwtWindowHandle(private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_D
 
     override val density: Float
         get() = window?.graphicsConfiguration?.defaultTransform?.scaleX?.toFloat()?.takeIf { it > 0f } ?: 1f
+
+    override val isFocusedAndVisible: Boolean
+        get() {
+            val mainWindow = window ?: return false
+            if (!mainWindow.isVisible) return false
+            val focusedWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow ?: return false
+            return DesktopAppFocusTracker.ownedBy(mainWindow)(focusedWindow)
+        }
 
     override fun toFront() {
         val w = window ?: return
