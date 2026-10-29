@@ -10,7 +10,7 @@ import kotlinx.coroutines.sync.withLock
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.installzip.InstallCommitter
 import net.bible.sharedui.assembly.HostDebugArgs
-import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
 import net.bible.android.control.backup.BackupControl
 import net.bible.service.common.AndBibleBackupManifest
@@ -84,7 +84,7 @@ internal object IosInstallPipeline {
     private val initMutex = Mutex()
 
     suspend fun ensureInitialized() = initMutex.withLock {
-        if (!ReadingAppInit.initialized) ReadingAppInit.initialise(IosReadingAppInitPlatform(IosAppStartup.stringTable))
+        if (!ReadingAppInit.initialized) ReadingAppInit.initialise(IosReadingAppInitPlatform(HostStartup.stringTable))
     }
 
     val controller by lazy {

@@ -158,6 +158,15 @@ object IosAppStartup {
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
 
+    init {
+        // Parts exist only after this object ran, so a HostStartup reader before this point sees "not started" either way.
+        HostStartup.register(object : HostStartupInfo {
+            override val isStarted: Boolean get() = this@IosAppStartup.isStarted
+            override val databasesOpen: Boolean get() = this@IosAppStartup.databasesOpen
+            override val stringTable: StringTable get() = this@IosAppStartup.stringTable
+        })
+    }
+
     /** True once [ensureStarted] has published the platform parts (a later [resetForTest] clears it again). */
     internal val isStarted: Boolean get() = parts != null
 
