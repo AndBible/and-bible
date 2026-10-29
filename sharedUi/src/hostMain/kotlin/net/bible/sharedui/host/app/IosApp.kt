@@ -16,7 +16,7 @@
  */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlin.experimental.ExperimentalNativeApi::class)
 
-package net.bible.sharedui.ios.app
+package net.bible.sharedui.host.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -123,16 +123,6 @@ import org.crosswire.jsword.book.Book
 import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
 import net.bible.sharedui.host.ports.IosWelcomeHostPlatform
-import net.bible.sharedui.host.app.AppHostPlatform
-import net.bible.sharedui.host.app.IosAppDialogOverlay
-import net.bible.sharedui.host.app.IosHostShell
-import net.bible.sharedui.host.app.IosReadingAppInitPlatform
-import net.bible.sharedui.host.app.IosReadingReady
-import net.bible.sharedui.host.app.IosRootLinks
-import net.bible.sharedui.host.app.IosWelcomeReturnGate
-import net.bible.sharedui.host.app.IosWorkspaceSaver
-import net.bible.sharedui.host.app.NavControllerNavigator
-import net.bible.sharedui.host.app.iosResultChannels
 
 /**
  * The start route of a cold launch: READING when a usable (unlocked) Bible is installed, else WELCOME, decided by the

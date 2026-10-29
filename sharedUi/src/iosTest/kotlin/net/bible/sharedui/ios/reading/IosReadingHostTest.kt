@@ -30,7 +30,7 @@ import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.host.IosPending
 import net.bible.sharedui.host.app.IosHostShell
 import net.bible.sharedui.host.app.IosNavigator
 import net.bible.sharedui.host.app.IosReadingAppInitPlatform

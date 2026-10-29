@@ -27,7 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
-import net.bible.sharedui.ios.app.IosApp
+import net.bible.sharedui.host.app.IosApp
 import net.bible.sharedui.ios.app.IosAppHostPlatform
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup

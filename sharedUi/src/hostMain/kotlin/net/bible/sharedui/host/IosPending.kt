@@ -16,7 +16,7 @@
  */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
-package net.bible.sharedui.ios
+package net.bible.sharedui.host
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized

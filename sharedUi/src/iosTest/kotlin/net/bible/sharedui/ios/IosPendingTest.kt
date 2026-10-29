@@ -17,6 +17,7 @@ import kotlin.test.assertTrue
 import net.bible.sharedui.host.app.IosHostShell
 import net.bible.sharedui.host.app.IosNavigator
 import net.bible.sharedui.host.ports.IosChooserHostPlatform
+import net.bible.sharedui.host.IosPending
 
 class IosPendingTest {
     @BeforeTest fun reset() = IosPending.resetForTest()
