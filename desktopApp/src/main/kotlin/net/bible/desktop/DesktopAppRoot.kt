@@ -76,6 +76,8 @@ class DesktopStartupState(
     val crashRecoveryRequired: () -> Boolean = { false },
     val reportBug: suspend () -> Unit = {},
     val onExit: () -> Unit = {},
+    val onStartupReady: () -> Unit = {},
+    val onCleanExit: () -> Unit = {},
 ) {
     private val launched = AtomicBoolean(false)
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
@@ -89,7 +91,11 @@ class DesktopStartupState(
      */
     fun launch(scope: CoroutineScope) {
         if (!launched.compareAndSet(false, true)) return
-        scope.launch(Dispatchers.IO) { _phase.value = runStart(openDatabases = true) }
+        scope.launch(Dispatchers.IO) {
+            val result = runStart(openDatabases = true)
+            if (result is StartupPhase.Ready) onStartupReady()
+            _phase.value = result
+        }
     }
 
     /**

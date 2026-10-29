@@ -125,7 +125,14 @@ fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
     }
     return DesktopCrashGate(
         recoveryRequired = tracker::shouldOfferRecovery,
-        reportBug = { KoinPlatform.getKoinOrNull()?.get<DesktopBugReport>()?.report(null) },
+        reportBug = {
+            net.bible.sharedui.desktop.misc.recoveryBugReport(
+                paths.data, System.getProperty("andbible.version")?.takeIf { it.isNotBlank() } ?: "dev",
+                ::recentLogSnapshot, net.bible.sharedui.assembly.iosStringTable(DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))).text("report_bug_line_1"),
+            ).report(null)
+        },
+        onStartupReady = tracker::continueStartup,
+        onCleanExit = tracker::onCleanExit,
     )
 }
 

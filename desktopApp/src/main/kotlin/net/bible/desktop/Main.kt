@@ -136,6 +136,8 @@ private fun runApp(launchArgs: List<String>) {
             crashRecoveryRequired = crashGate.recoveryRequired,
             reportBug = crashGate.reportBug,
             onExit = { exitRequested.value = true },
+            onStartupReady = crashGate.onStartupReady,
+            onCleanExit = crashGate.onCleanExit,
         )
         shutdownEngine = {
             try {
@@ -198,13 +200,18 @@ private fun runApp(launchArgs: List<String>) {
  * The second phase of closing, after the content has left the composition: let the frames and AWT's own queued
  * removals run, write the workspace and settings (bounded), shut CEF down, then exit.
  */
+internal fun persistAndMarkClean(persist: () -> Unit, clean: () -> Unit) {
+    persist()
+    clean()
+}
+
 private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdownEngine: () -> Unit, watchdog: ExitWatchdog) {
     withFrameNanos { } // the frame that applies the removal of the panes
     withFrameNanos { }
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
     // A close during the startup: let it finish (bounded), so nothing is persisted or shut down under a half-built graph.
     if (!state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS)) Log.w(TAG, "closing while the startup still runs")
-    withContext(Dispatchers.IO) { DesktopAppStartup.persistBeforeExit() }
+    withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state.onCleanExit) }
     try {
         shutdownEngine()
     } catch (e: Throwable) {

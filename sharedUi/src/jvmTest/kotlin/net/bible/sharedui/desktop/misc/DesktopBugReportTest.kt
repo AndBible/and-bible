@@ -32,6 +32,47 @@ class DesktopBugReportTest {
     }
 
     @Test
+    fun aiReportBoundsExpandedGzip() = runBlocking {
+        val root = Files.createTempDirectory("report-ai")
+        val bytes = java.io.ByteArrayOutputStream().also { output ->
+            java.util.zip.GZIPOutputStream(output).use { it.write(ByteArray(5_000_000) { 'x'.code.toByte() }) }
+        }.toByteArray()
+        var size = 0
+        DesktopBugReport(root, "1.2", { "" }, { path, _, _ ->
+            size = GZIPInputStream(Files.newInputStream(path)).use { it.readBytes().size }
+            DeliveryResult.DELIVERED
+        }, {}).ai("model", "summary", bytes, true)
+        assertTrue(size in 1..1024 * 1024)
+    }
+
+    @Test
+    fun recoveryReportKeepsGzipAndIncludesItsPathInMail() = runBlocking {
+        val root = Files.createTempDirectory("recovery-report")
+        var url = ""
+        recoveryBugReport(root, "1.2", { "diagnostic log" }, "Introduction", { url = it }).report(null)
+        val files = Files.list(root.resolve("reports")).use { it.toList() }
+        assertTrue(files.size == 1)
+        assertTrue(GZIPInputStream(Files.newInputStream(files.single())).bufferedReader().readText().contains("diagnostic log"))
+        val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
+        assertTrue(decoded.startsWith("mailto:errors.andbible@gmail.com?subject=Bug Report v1.2&body="))
+        assertTrue(files.single().toString() in decoded)
+    }
+
+    @Test
+    fun mailBodyContainsIntroductionAndDeviceDetails() = runBlocking {
+        val root = Files.createTempDirectory("report-body")
+        var url = ""
+        DesktopBugReport(root, "1.2", { "private log" },
+            { _, _, _ -> DeliveryResult.DELIVERED }, { url = it },
+            introduction = { "Report introduction" }).report(null)
+        val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
+        assertTrue("body=" in decoded)
+        assertTrue("Report introduction" in decoded)
+        assertTrue("net.bible.desktop" in decoded)
+        assertFalse("private log" in decoded)
+    }
+
+    @Test
     fun cancelledSaveDoesNotOpenMail() = runBlocking {
         val root = Files.createTempDirectory("report-cancel")
         var opened = false
