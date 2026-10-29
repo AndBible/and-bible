@@ -111,7 +111,6 @@ kotlin {
             kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/stubs")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/policy")
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/backuperror")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/backuperror")
             dependencies { implementation(libs.androidx.sqlite.bundled.jvm) }
         }
