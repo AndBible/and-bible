@@ -34,15 +34,6 @@ import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
 
-/** Localized texts the iOS sync classes need; supplied by the host (`:sharedLogic` cannot see `Strings`). */
-data class IosSyncStrings(
-    val adapterDisplayName: (String) -> String,
-    val webDavServerUrlHint: () -> String,
-    val syncError: () -> String,
-    val webDavMessage: (WebDavMessage) -> String,
-    val ok: () -> String,
-)
-
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
 internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDateFormatter().apply {
