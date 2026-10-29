@@ -373,13 +373,17 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         val work = layout.buildDirectory.dir("deb-fix").get().asFile.apply { deleteRecursively(); mkdirs() }
         val unpacked = File(work, "pkg")
         run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
-        // D3b: install and verify the file-association launcher in the actual Debian payload.
+        // D3b: replace the jpackage-registered launcher, not a second desktop menu entry.
         val desktopTemplate = layout.projectDirectory.file("packaging/linux/andbible.desktop").asFile
-        val desktopEntry = File(unpacked, "usr/share/applications/andbible.desktop")
-        desktopEntry.parentFile.mkdirs()
+        val desktopEntry = File(unpacked, "opt/andbible/lib/andbible-andbible.desktop")
+        check(desktopEntry.isFile) { "Missing jpackage desktop entry: $desktopEntry" }
         desktopEntry.writeText(desktopTemplate.readText())
         check("Exec=/opt/andbible/bin/andbible %F" in desktopEntry.readText())
         check("MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;" in desktopEntry.readText())
+        check("Icon=/opt/andbible/lib/andbible.png" in desktopEntry.readText())
+        check(File(unpacked, "opt/andbible/lib/andbible.png").isFile)
+        check(unpacked.walkTopDown().count { it.isFile && it.extension == "desktop" } == 1)
+        check("andbible-andbible.desktop" in File(unpacked, "DEBIAN/postinst").readText())
         val natives = File(unpacked, "opt/andbible/lib/app/resources/kcef-natives")
         check(natives.isDirectory) { "No kcef-natives in the .deb ($natives)" }
         restoreNativeModes(kcefNativesDir.get().asFile, natives)

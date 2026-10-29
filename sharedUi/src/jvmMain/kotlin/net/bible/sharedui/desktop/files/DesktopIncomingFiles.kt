@@ -19,7 +19,7 @@ import net.bible.sharedui.desktop.assembly.DesktopWindowHandle
 internal fun resolveIncomingArgs(args: List<String>, cwd: Path = Paths.get("").toAbsolutePath()): List<Path> =
     args.mapNotNull { runCatching { cwd.resolve(it).toAbsolutePath().normalize() }.getOrNull() }
 
-/** All queue methods run on Main. An unanswered entry belongs to the current binding. */
+/** Acceptance is thread-safe; binding, delivery and acknowledgement run on Main. */
 internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
     private class Binding(val open: (List<DocumentRef>, () -> Unit) -> Unit)
     private class Entry(val ref: DocumentRef)

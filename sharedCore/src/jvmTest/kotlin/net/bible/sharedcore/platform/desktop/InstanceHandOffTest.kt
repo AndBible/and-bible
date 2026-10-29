@@ -30,6 +30,22 @@ class InstanceHandOffTest {
         }
     }
 
+    @Test fun acknowledgementWaitsForAcceptance() {
+        val dir = Files.createTempDirectory("handoff-ack")
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        try {
+            InstanceHandOff.listen(dir) { entered.countDown(); check(release.await(5, TimeUnit.SECONDS)) }.use {
+                val sent = executor.submit<Boolean> { InstanceHandOff.send(dir, listOf(dir.resolve("book.zip"))) }
+                assertTrue(entered.await(2, TimeUnit.SECONDS))
+                assertFalse(sent.isDone, "send acknowledged before acceptance completed")
+                release.countDown()
+                assertTrue(sent.get(3, TimeUnit.SECONDS))
+            }
+        } finally { release.countDown(); executor.shutdownNow() }
+    }
+
     @Test fun staleSocketIsReplaced() {
         val dir = Files.createTempDirectory("handoff-stale")
         ServerSocketChannel.open(StandardProtocolFamily.UNIX).use {
