@@ -29,5 +29,9 @@ try {
     New-Item -Path $policy -Force | Out-Null
     New-ItemProperty $policy -Name DeferFeatureUpdates -Value 1 -PropertyType DWord -Force | Out-Null
     New-ItemProperty $policy -Name DeferFeatureUpdatesPeriodInDays -Value 365 -PropertyType DWord -Force | Out-Null
+    $winlogon = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
+    New-ItemProperty $winlogon -Name AutoLogonCount -Value 0 -PropertyType DWord -Force | Out-Null
+    Set-ItemProperty $winlogon -Name AutoAdminLogon -Value '0'
+    Remove-ItemProperty $winlogon -Name DefaultPassword -ErrorAction SilentlyContinue
     Set-Content -Path C:\abtest\ready.txt -Value 'ready'
 } finally { Stop-Transcript }

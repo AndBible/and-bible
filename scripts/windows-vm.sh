@@ -89,6 +89,23 @@ terminate_owned() {
   return 0
 }
 
+create_qmp_path() {
+  local run_dir=$1 dir
+  dir=$(mktemp -d "${TMPDIR:-/tmp}/abwin-qmp.XXXXXXXX")
+  if (( ${#dir} + 5 >= 108 )); then rmdir "$dir"; dir=$(mktemp -d /tmp/abwin-qmp.XXXXXXXX); fi
+  printf '%s/qmp\n' "$dir" > "$run_dir/qmp-path"
+}
+qmp_path() {
+  if [[ -r "$1/qmp-path" ]]; then printf '%s\n' "$(<"$1/qmp-path")"; else printf '%s/qmp.sock\n' "$1"; fi
+}
+cleanup_qmp_path() {
+  local run_dir=$1 path
+  [[ -r "$run_dir/qmp-path" ]] || return 0
+  path=$(<"$run_dir/qmp-path")
+  case "$path" in /tmp/abwin-qmp.*/qmp|"${TMPDIR:-/tmp}"/abwin-qmp.*/qmp) rm -f -- "$path"; rmdir -- "${path%/qmp}" 2>/dev/null || true ;; esac
+  rm -f "$run_dir/qmp-path"
+}
+
 start_vm() {
   mkdir -p "$VM_DIR" "$RUNS" "$STATE"
   exec 9>"$STATE/lock"
@@ -110,7 +127,8 @@ start_vm() {
   chmod u+w "$run_dir/OVMF_VARS.ms.fd"
   qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$run_dir/overlay.qcow2" >/dev/null
   touch "$run_dir/lock"
-  local qmp_sock="$run_dir/qmp.sock"
+  create_qmp_path "$run_dir"
+  local qmp_sock; qmp_sock=$(qmp_path "$run_dir")
   "$QEMU" -name windows-vm -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
@@ -149,6 +167,7 @@ stop_locked() {
     run_lock_open=true
   fi
   terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || error 'could not terminate owned QEMU process'
+  [[ -z "$run_dir" ]] || cleanup_qmp_path "$run_dir"
   rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"
   if "$run_lock_open" == true; then exec 8>&-; fi
   if "$qemu_alive" == true; then echo 'Windows VM stopped'; else echo 'Cleaned stale VM state'; fi
@@ -161,7 +180,7 @@ stop_vm() {
 }
 
 ssh_options() {
-  SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=$VM_DIR/known_hosts")
+  SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=${1:-$VM_DIR/known_hosts}")
 }
 
 install_vm() {
@@ -172,7 +191,7 @@ install_vm() {
   exec 9>"$STATE/lock"; flock -n 9 || error 'VM state is busy'
   [[ ! -e "$BASE" && ! -e "${BASE}.vars" ]] || error 'base image or firmware already exists; refusing to overwrite'
   owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'VM is already running'
-  local iso=${WINDOWS_VM_ISO:-$ROOT/.local/win.iso} listing run_dir qpid deadline next_shot now boot_deadline shot_count=0
+  local iso=${WINDOWS_VM_ISO:-$ROOT/.local/win.iso} listing run_dir qpid qmp_sock deadline next_shot now boot_deadline remaining shot_count=0
   [[ -r "$iso" && -s "$iso" ]] || error "Windows ISO not readable: $iso"
   command -v 7z >/dev/null || error '7z is required to validate Windows media'
   listing=$(7z l "$iso" 2>/dev/null) || error 'cannot read Windows ISO'
@@ -180,25 +199,28 @@ install_vm() {
   [[ "${listing,,}" == *'sources/boot.wim'* ]] || error 'Windows ISO has no boot image'
   command -v xorriso >/dev/null || error 'xorriso is required to create the answer ISO'
   command -v ssh-keygen >/dev/null || error 'ssh-keygen is required'
-  if [[ ! -e "$VM_DIR/password" ]]; then openssl rand -hex 24 > "$VM_DIR/password"; fi
-  chmod 600 "$VM_DIR/password"
+  if [[ ! -e "$VM_DIR/credentials" ]]; then
+    if [[ -e "$VM_DIR/password" ]]; then cp "$VM_DIR/password" "$VM_DIR/credentials"; else openssl rand -hex 24 > "$VM_DIR/credentials"; fi
+  fi
+  chmod 600 "$VM_DIR/credentials"
   if [[ ! -e "$VM_DIR/id_ed25519" && ! -e "$VM_DIR/id_ed25519.pub" ]]; then ssh-keygen -q -t ed25519 -N '' -f "$VM_DIR/id_ed25519"; fi
   [[ -s "$VM_DIR/id_ed25519" && -s "$VM_DIR/id_ed25519.pub" ]] || error 'incomplete SSH key pair'
   chmod 600 "$VM_DIR/id_ed25519"
   run_dir="$RUNS/install-$(date -u +%Y%m%dT%H%M%S).$$.$RANDOM"
   mkdir -p "$run_dir/answer" "$run_dir/install-shots"
-  python3 - "$ROOT/scripts/windows-vm/autounattend.xml" "$run_dir/answer/autounattend.xml" "$VM_DIR/password" <<'PYINSTALL'
+  python3 - "$ROOT/scripts/windows-vm/autounattend.xml" "$run_dir/answer/autounattend.xml" "$VM_DIR/credentials" <<'PYINSTALL'
 import pathlib, sys, xml.sax.saxutils
 source, dest, password = map(pathlib.Path, sys.argv[1:])
 dest.write_text(source.read_text().replace('@@PASSWORD@@', xml.sax.saxutils.escape(password.read_text().strip())))
 PYINSTALL
   cp "$ROOT/scripts/windows-vm/firstlogon.ps1" "$run_dir/answer/firstlogon.ps1"
   cp "$VM_DIR/id_ed25519.pub" "$run_dir/answer/authorized_key.pub"
-  xorriso -as mkisofs -quiet -V ABANSWER -o "$run_dir/answer.iso" "$run_dir/answer" 2>"$run_dir/iso.log" || error 'could not create answer ISO'
+  xorriso -as mkisofs -quiet -J -iso-level 3 -V ABANSWER -o "$run_dir/answer.iso" "$run_dir/answer" 2>"$run_dir/iso.log" || error 'could not create answer ISO'
   chmod 600 "$run_dir/answer.iso" "$run_dir/answer/"*
   cp /usr/share/OVMF/OVMF_VARS_4M.ms.fd "$run_dir/OVMF_VARS.ms.fd"
   qemu-img create -f qcow2 "$run_dir/install.qcow2" "${WINDOWS_VM_DISK_SIZE:-80G}" >"$run_dir/qemu-img.log"
   touch "$run_dir/lock"
+  create_qmp_path "$run_dir"; qmp_sock=$(qmp_path "$run_dir")
   "$QEMU" -name windows-vm-install -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
@@ -206,22 +228,22 @@ PYINSTALL
     -drive "file=$iso,if=none,id=cd0,media=cdrom,readonly=on" -device ide-cd,drive=cd0,bus=sata0.1,bootindex=1 \
     -drive "file=$run_dir/answer.iso,if=none,id=cd1,media=cdrom,readonly=on" -device ide-cd,drive=cd1,bus=sata0.2 \
     -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" -device e1000e,netdev=net0 \
-    -display none -serial mon:stdio -qmp "unix:$run_dir/qmp.sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 7>&- 9>&- &
+    -display none -serial mon:stdio -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 7>&- 9>&- &
   qpid=$!
   printf '%s\n' "$qpid" > "$STATE/qemu.pid"; printf '%s\n' "$run_dir" > "$STATE/run-dir"
   for _ in {1..20}; do process_identity "$qpid" > "$STATE/qemu.start" 2>/dev/null && break; sleep .01; done
   [[ -s "$STATE/qemu.start" ]] || { kill "$qpid" 2>/dev/null || true; error 'could not record QEMU process identity'; }
-  trap 'terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || true; rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"' EXIT
-  ssh_options
+  trap 'terminate_owned "$STATE/qemu.pid" "$STATE/qemu.start" || true; cleanup_qmp_path "$run_dir"; rm -f "$STATE/qemu.pid" "$STATE/qemu.start" "$STATE/run-dir"' EXIT
+  ssh_options "$run_dir/known_hosts"
   deadline=$((SECONDS + ${WINDOWS_VM_INSTALL_TIMEOUT:-5400})); next_shot=$SECONDS; boot_deadline=$((SECONDS + 30))
   printf 'Installer running; logs and screenshots: %s\n' "$run_dir"
   while (( SECONDS < deadline )); do
     owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || error "installer QEMU exited; see $run_dir/qemu.log"
     now=$SECONDS
-    if (( now >= next_shot )) && [[ -S "$run_dir/qmp.sock" ]]; then
+    if (( now >= next_shot )) && [[ -S "$qmp_sock" ]]; then
       shot_count=$((shot_count+1))
       raw="$run_dir/install-shots/$(printf '%04d' "$shot_count").ppm"
-      if qmp "$run_dir/qmp.sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}" >/dev/null 2>&1; then
+      if qmp "$qmp_sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}" >/dev/null 2>&1; then
         python3 - "$raw" "${raw%.ppm}.png" <<'PYSHOT'
 from PIL import Image
 import sys
@@ -231,16 +253,26 @@ PYSHOT
       fi
       next_shot=$((now + 300))
     fi
-    if (( now < boot_deadline )) && [[ -S "$run_dir/qmp.sock" ]]; then "$ROOT/scripts/windows-vm.sh" key spc >/dev/null 2>&1 || true; fi
-    if ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'if (Test-Path C:\abtest\ready.txt) { exit 0 } else { exit 1 }' >/dev/null 2>&1; then
-      ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'shutdown.exe /s /t 0' >/dev/null 2>&1 || error 'failed to request clean shutdown'
-      for _ in {1..120}; do owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || break; sleep 1; done
+    if (( now < boot_deadline )) && [[ -S "$qmp_sock" ]]; then "$ROOT/scripts/windows-vm.sh" key spc >/dev/null 2>&1 || true; fi
+    remaining=$((deadline - SECONDS)); (( remaining > 0 )) || break
+    (( remaining > 10 )) && remaining=10
+    if timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'if (Test-Path C:\abtest\ready.txt) { exit 0 } else { exit 1 }' >/dev/null 2>&1; then
+      remaining=$((deadline - SECONDS)); (( remaining > 0 )) || error 'install deadline exceeded before shutdown'
+      timeout "${remaining}s" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'shutdown.exe /s /t 0' >/dev/null 2>&1 || error 'failed to request clean shutdown'
+      for _ in {1..120}; do owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" || break; (( SECONDS < deadline )) || break; sleep 1; done
       owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'clean shutdown timed out; base not promoted'
       wait "$qpid" || error 'QEMU exited unsuccessfully; base not promoted'
+      [[ -s "$run_dir/known_hosts" ]] || error 'SSH host key was not recorded'
+      cp "$run_dir/known_hosts" "$VM_DIR/known_hosts.new.$$"
+      chmod 600 "$VM_DIR/known_hosts.new.$$"
       chmod a-w "$run_dir/install.qcow2" "$run_dir/OVMF_VARS.ms.fd"
       [[ ! -e "$BASE" && ! -e "${BASE}.vars" ]] || error 'base appeared during install; refusing promotion'
       ln "$run_dir/OVMF_VARS.ms.fd" "${BASE}.vars" || error 'could not promote firmware'
       ln "$run_dir/install.qcow2" "$BASE" || { rm -f "${BASE}.vars"; error 'could not promote base'; }
+      mv -f "$VM_DIR/known_hosts.new.$$" "$VM_DIR/known_hosts"
+      if (( shot_count > 0 )); then cp "$run_dir/install-shots/$(printf '%04d' "$shot_count").png" "$run_dir/install-shots/final.png" 2>/dev/null || true; fi
+      ln -sfn "${run_dir}/install-shots" "$VM_DIR/install-shots.new.$$"
+      mv -Tf "$VM_DIR/install-shots.new.$$" "$VM_DIR/install-shots"
       printf 'Windows base installed: %s\n' "$BASE"
       return
     fi
@@ -259,13 +291,13 @@ case "$cmd" in
   ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
   scp-to) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$2" ;;
   scp-from) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$1" "$2" ;;
-  shot) [[ $# == 1 ]] || usage; mkdir -p "$VM_DIR/shots"; run_dir=$(<"$STATE/run-dir"); raw="$VM_DIR/shots/$1.ppm"; qmp "$run_dir/qmp.sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}"; python3 - "$raw" "$VM_DIR/shots/$1.png" <<'PY'
+  shot) [[ $# == 1 ]] || usage; mkdir -p "$VM_DIR/shots"; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); raw="$VM_DIR/shots/$1.ppm"; qmp "$qmp_sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}"; python3 - "$raw" "$VM_DIR/shots/$1.png" <<'PY'
 from PIL import Image
 import sys
 Image.open(sys.argv[1]).save(sys.argv[2], format="PNG")
 PY
 rm -f "$raw" ;;
-  type|key) [[ $# -ge 1 ]] || usage; run_dir=$(<"$STATE/run-dir"); mode=$cmd; [[ $mode == type || $# == 1 ]] || usage; python3 - "$run_dir/qmp.sock" "$mode" "$*" "${WINDOWS_VM_QMP_TIMEOUT:-3}" <<'PYQMP'
+  type|key) [[ $# -ge 1 ]] || usage; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); mode=$cmd; [[ $mode == type || $# == 1 ]] || usage; python3 - "$qmp_sock" "$mode" "$*" "${WINDOWS_VM_QMP_TIMEOUT:-3}" <<'PYQMP'
 import json, socket, sys, time
 path, mode, text, timeout = sys.argv[1:]
 timeout=float(timeout)

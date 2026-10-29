@@ -363,6 +363,41 @@ stopKillsQemu() {
   if kill -0 "$qemu" 2>/dev/null && [[ $(ps -o stat= -p "$qemu" | tr -d ' ') != Z* ]]; then fail 'QEMU remained alive after stop'; fi
 }
 
+longRunPathUsesShortQmpSocket() {
+  local longroot="$TMP/$(printf '%090d' 0)" run_dir socket
+  WINDOWS_VM_DIR="$longroot" run start >/dev/null
+  run_dir=$(<"$longroot/state/$WINDOWS_VM_ID/run-dir")
+  socket=$(<"$run_dir/qmp-path")
+  [[ ${#socket} -lt 108 && -S "$socket" ]] || fail 'QMP socket path is too long or unavailable'
+  WINDOWS_VM_DIR="$longroot" run key enter >/dev/null
+  WINDOWS_VM_DIR="$longroot" run stop >/dev/null
+  [[ ! -e "$socket" ]] || fail 'QMP socket was not cleaned up'
+}
+
+answerIsoExposesWindowsFilenames() {
+  local source="$TMP/iso-source" iso="$TMP/test-answer.iso" listing
+  mkdir -p "$source"
+  cp "$ROOT/scripts/windows-vm/autounattend.xml" "$source/autounattend.xml"
+  cp "$ROOT/scripts/windows-vm/firstlogon.ps1" "$source/firstlogon.ps1"
+  touch "$source/authorized_key.pub"
+  xorriso -as mkisofs -quiet -J -iso-level 3 -V ABANSWER -o "$iso" "$source" 2>/dev/null
+  listing=$(xorriso -read_fs norock -indev "$iso" -find / -type f 2>/dev/null)
+  [[ "$listing" == *autounattend.xml* && "$listing" == *firstlogon.ps1* && "$listing" == *authorized_key.pub* ]] || fail 'Joliet filenames are truncated'
+}
+
+installerReviewRegressions() {
+  python3 - "$ROOT/scripts/windows-vm.sh" "$ROOT/scripts/windows-vm/firstlogon.ps1" <<'PY'
+import sys
+script, ps = (open(p).read() for p in sys.argv[1:])
+assert '-J -iso-level 3' in script, 'answer ISO lacks long-name extensions'
+assert '"$VM_DIR/credentials"' in script, 'missing credentials file'
+assert 'timeout ' in script, 'SSH commands are not bounded'
+assert 'known_hosts' in script and 'run_dir/known_hosts' in script, 'missing per-install host pin'
+assert 'AutoLogonCount' in ps and 'AutoAdminLogon' in ps and 'DefaultPassword' in ps, 'autologon not cleared'
+assert 'install-shots' in script and 'final.png' in script, 'missing stable screenshot interface'
+PY
+}
+
 installAnswerHasRequiredConfiguration() {
   python3 - "$ROOT/scripts/windows-vm/autounattend.xml" <<'PY'
 import sys, xml.etree.ElementTree as ET
@@ -385,7 +420,7 @@ installRefusesExistingBase() {
   grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
 }
 
-for test in installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'
