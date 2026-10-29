@@ -11,7 +11,8 @@ import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 
 /** Adapts UIKit's execution allowance; the injected action owns all sync policy. */
-internal class IosSyncRunner(
+@kotlin.native.HiddenFromObjC
+public class IosSyncRunner(
     private val scope: CoroutineScope,
     private val sync: suspend () -> Boolean,
     private val begin: (() -> Unit) -> ULong,
@@ -51,7 +52,8 @@ internal class IosSyncRunner(
 }
 
 /** Serializes completion against expiration, including cancellation before the coroutine starts. */
-internal class IosBackgroundWork(
+@kotlin.native.HiddenFromObjC
+public class IosBackgroundWork(
     private val scope: CoroutineScope,
     private val action: suspend () -> Boolean,
     private val lock: SynchronizedObject = SynchronizedObject(),
