@@ -6,6 +6,9 @@ VM_DIR=${WINDOWS_VM_DIR:-$ROOT/.local/windows-vm}
 BASE=${WINDOWS_VM_BASE:-$VM_DIR/base.qcow2}
 RAM=${WINDOWS_VM_RAM:-6G}
 CPUS=${WINDOWS_VM_CPUS:-4}
+CPU_MODEL=host,hv-relaxed,hv-vapic,hv-spinlocks=0x1fff,hv-time,hv-vpindex,hv-synic,hv-stimer,hv-frequencies
+OPENSSH_URL=https://github.com/PowerShell/Win32-OpenSSH/releases/download/10.4.0.0p1-Preview/OpenSSH-Win64-v10.4.0.0.msi
+OPENSSH_SHA256=788d8643464a01eb63640a2fd746f9ed23d106b5a901a35f88dc8cd40e446ac9
 SSH_PORT=${WINDOWS_VM_SSH_PORT:-2222}
 VM_ID=${WINDOWS_VM_ID:-$(hostname)}
 [[ "$VM_ID" =~ ^[a-zA-Z0-9._-]+$ ]] || { printf 'windows-vm: invalid container id: %s\n' "$VM_ID" >&2; exit 2; }
@@ -129,7 +132,7 @@ start_vm() {
   touch "$run_dir/lock"
   create_qmp_path "$run_dir"
   local qmp_sock; qmp_sock=$(qmp_path "$run_dir")
-  "$QEMU" -name windows-vm -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
+  "$QEMU" -name windows-vm -machine q35,smm=on -cpu "$CPU_MODEL" -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
     -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
@@ -242,13 +245,15 @@ dest.write_text(source.read_text().replace('@@PASSWORD@@', xml.sax.saxutils.esca
 PYINSTALL
   cp "$ROOT/scripts/windows-vm/firstlogon.ps1" "$run_dir/answer/firstlogon.ps1"
   cp "$VM_DIR/id_ed25519.pub" "$run_dir/answer/authorized_key.pub"
+  curl -fsSL --connect-timeout 15 --max-time 180 -o "$run_dir/answer/openssh.msi" "$OPENSSH_URL" || error 'failed to download pinned OpenSSH MSI'
+  printf '%s  %s\n' "$OPENSSH_SHA256" "$run_dir/answer/openssh.msi" | sha256sum -c --status || error 'OpenSSH MSI SHA256 mismatch'
   xorriso -as mkisofs -quiet -J -iso-level 3 -V ABANSWER -o "$run_dir/answer.iso" "$run_dir/answer" 2>"$run_dir/iso.log" || error 'could not create answer ISO'
   chmod 600 "$run_dir/answer.iso" "$run_dir/answer/"*
   cp /usr/share/OVMF/OVMF_VARS_4M.ms.fd "$run_dir/OVMF_VARS.ms.fd"
   qemu-img create -f qcow2 "$run_dir/install.qcow2" "${WINDOWS_VM_DISK_SIZE:-80G}" >"$run_dir/qemu-img.log"
   touch "$run_dir/lock"
   create_qmp_path "$run_dir"; qmp_sock=$(qmp_path "$run_dir")
-  "$QEMU" -name windows-vm-install -machine q35,smm=on -cpu host -enable-kvm -m "$RAM" -smp "$CPUS" \
+  "$QEMU" -name windows-vm-install -machine q35,smm=on -cpu "$CPU_MODEL" -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
     -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
     -device ahci,id=sata0 -drive "file=$run_dir/install.qcow2,if=none,id=disk0,format=qcow2" -device ide-hd,drive=disk0,bus=sata0.0 \

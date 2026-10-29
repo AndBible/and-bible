@@ -17,7 +17,11 @@ mkdir -p "$FAKE" "$TMP/vm-root" "$TMP/log"
 cat > "$FAKE/qemu-img" <<'SH'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> "$WINDOWS_VM_TEST_LOG/qemu-img"
-if [[ "$1" == create ]]; then touch "${@: -1}"; fi
+if [[ "$1" == create ]]; then
+  args=("$@"); last=$((${#args[@]} - 1))
+  [[ ${args[$last]} =~ ^[0-9]+[KMGTP]?$ ]] && ((last-=1))
+  touch "${args[$last]}"
+fi
 SH
 cat > "$FAKE/qemu-system-x86_64" <<'SH'
 #!/usr/bin/env bash
@@ -52,6 +56,15 @@ while True:
   shift
 done
 exit 1
+SH
+cat > "$FAKE/curl" <<'SH'
+#!/usr/bin/env bash
+while (($#)); do if [[ $1 == -o ]]; then printf fake-msi > "$2"; exit; fi; shift; done
+exit 1
+SH
+cat > "$FAKE/sha256sum" <<'SH'
+#!/usr/bin/env bash
+[[ ${FAKE_BAD_MSI:-0} != 1 ]]
 SH
 chmod +x "$FAKE"/*
 export PATH="$FAKE:$PATH"
@@ -392,6 +405,30 @@ SH
   rm -f "$FAKE/7z" "$FAKE/ssh"
 }
 
+installRejectsCorruptMsi() {
+  local root="$TMP/corrupt-vm" iso="$TMP/corrupt.iso" output="$TMP/corrupt.out"
+  printf fake > "$iso"
+  cat > "$FAKE/7z" <<'SH'
+#!/usr/bin/env bash
+printf 'sources/install.wim\nsources/boot.wim\n'
+SH
+  chmod +x "$FAKE/7z"
+  if FAKE_BAD_MSI=1 WINDOWS_VM_DIR="$root" WINDOWS_VM_BASE="$root/base.qcow2" WINDOWS_VM_ISO="$iso" run install >"$output" 2>&1; then fail 'corrupt MSI accepted'; fi
+  grep -q 'SHA256 mismatch' "$output" || fail 'checksum error not reported'
+  [[ ! -e "$root/base.qcow2" ]] || fail 'corrupt MSI promoted base'
+  rm -f "$FAKE/7z"
+}
+
+installerUsesPinnedOfflineSshAndHyperv() {
+  local script="$ROOT/scripts/windows-vm.sh" ps="$ROOT/scripts/windows-vm/firstlogon.ps1"
+  [[ $(grep -c -- '-cpu "$CPU_MODEL"' "$script") == 2 ]] || fail 'Hyper-V CPU model not used on every boot'
+  grep -q 'hv-relaxed.*hv-vapic.*hv-spinlocks.*hv-time.*hv-vpindex.*hv-synic.*hv-stimer.*hv-frequencies' "$script" || fail 'Hyper-V features missing'
+  grep -q '788d8643464a01eb63640a2fd746f9ed23d106b5a901a35f88dc8cd40e446ac9' "$script" || fail 'official MSI digest not pinned'
+  grep -q 'sha256sum' "$script" || fail 'MSI digest is not checked'
+  grep -qi 'msiexec' "$ps" || fail 'MSI not installed locally'
+  if grep -qi 'Add-WindowsCapability' "$ps"; then fail 'guest network capability installation remains'; fi
+}
+
 installShutdownTimeoutsPreserveDiagnostics() {
   local root iso="$TMP/shutdown.iso" output mode
   printf 'fake' > "$iso"
@@ -465,7 +502,7 @@ installRefusesExistingBase() {
   grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
 }
 
-for test in installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

@@ -4,8 +4,10 @@ Start-Transcript -Path C:\abtest\firstlogon.log -Force
 try {
     $volume = Get-Volume -FileSystemLabel ABANSWER
     $key = "$($volume.DriveLetter):\authorized_key.pub"
-    $cap = Get-WindowsCapability -Online -Name OpenSSH.Server*
-    if ($cap.State -ne 'Installed') { Add-WindowsCapability -Online -Name $cap.Name | Out-Null }
+    $msi = "$($volume.DriveLetter):\openssh.msi"
+    $install = Start-Process msiexec.exe -ArgumentList @('/i', $msi, '/qn', '/norestart', '/l*v', 'C:\abtest\openssh-install.log') -Wait -PassThru
+    if ($install.ExitCode -ne 0) { throw "OpenSSH MSI failed with exit code $($install.ExitCode)" }
+    if (-not (Get-Service sshd -ErrorAction SilentlyContinue)) { throw 'OpenSSH MSI did not install sshd service' }
     Set-Service sshd -StartupType Automatic
     New-Item -Path 'HKLM:\SOFTWARE\OpenSSH' -Force | Out-Null
     New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -Value "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force | Out-Null
