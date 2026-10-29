@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedcore.platform.sync
 
 import kotlinx.coroutines.CancellationException
