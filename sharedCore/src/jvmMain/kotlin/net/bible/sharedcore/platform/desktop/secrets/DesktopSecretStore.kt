@@ -51,9 +51,13 @@ class JavaKeyringBackend : KeyringBackend {
         }
     }
 
-    private fun isNotFound(e: PasswordAccessException): Boolean {
-        val text = generateSequence<Throwable>(e) { it.cause }.mapNotNull { it.message }.joinToString(" ").lowercase()
-        return "no stored credentials" in text || "not found" in text || "no such" in text || "could not be found" in text || "not exist" in text
+    internal companion object {
+        /** java-keyring reports an absent entry only through the exception text (this and its causes). */
+        internal fun isNotFound(e: PasswordAccessException): Boolean {
+            val text = generateSequence<Throwable>(e) { it.cause }.mapNotNull { it.message }.joinToString(" ").lowercase()
+            return "no stored credentials" in text || "not found" in text || "no such" in text ||
+                "could not be found" in text || "not exist" in text
+        }
     }
 }
 
@@ -71,6 +75,9 @@ class SessionMemoryBackend : KeyringBackend {
  * If the backend throws on any use, this logs once and switches permanently to a [SessionMemoryBackend]: secrets then
  * last for the session only and are never written to a plain file. The non-secret [DEVICE_ID_KEY] is always kept in
  * [prefs] (never in the keyring) so the device id stays stable across restarts even without a keyring.
+ *
+ * After a mid-session keyring failure, secrets stored earlier read as absent for the rest of the session (the sync
+ * layer then asks to sign in again).
  */
 class DesktopSecretStore(backend: KeyringBackend, private val prefs: DeviceLocalPrefs) : SecretStore {
     @Volatile private var backend: KeyringBackend = backend

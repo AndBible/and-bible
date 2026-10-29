@@ -17,7 +17,7 @@
 package net.bible.sharedcore.platform.desktop.secrets
 
 import net.bible.sharedcore.settings.DeviceLocalPrefs
-import java.nio.file.Files
+import com.github.javakeyring.PasswordAccessException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -68,8 +68,7 @@ class DesktopSecretStoreTest {
     fun fallsBackToSessionMemory() {
         val backend = ThrowingBackend()
         val prefs = FakePrefs()
-        val dir = Files.createTempDirectory("secretstore")
-        try {
+        run {
             val store = DesktopSecretStore(backend, prefs)
             store.put("pw", "secret-value")
             assertEquals("secret-value", store.get("pw"))
@@ -79,9 +78,6 @@ class DesktopSecretStoreTest {
             assertEquals("again", store.get("pw"))
             assertEquals(1, backend.calls, "backend is abandoned after the first failure")
             assertTrue(prefs.map.values.none { it.contains("secret") || it == "again" }, "secret must not reach prefs")
-            assertTrue(Files.list(dir).use { it.count() } == 0L)
-        } finally {
-            Files.deleteIfExists(dir)
         }
     }
 
@@ -129,5 +125,12 @@ class DesktopSecretStoreTest {
         val store = DesktopSecretStore.create(FakePrefs()) { error("cannot construct") }
         store.put("k", "v")
         assertEquals("v", store.get("k"))
+    }
+
+    @Test
+    fun notFoundDetection() {
+        assertTrue(JavaKeyringBackend.isNotFound(PasswordAccessException("No stored credentials match AndBible account: k")))
+        assertTrue(JavaKeyringBackend.isNotFound(PasswordAccessException("lookup failed", RuntimeException("Item not found"))))
+        assertTrue(!JavaKeyringBackend.isNotFound(PasswordAccessException("Cannot connect to the secret service")))
     }
 }
