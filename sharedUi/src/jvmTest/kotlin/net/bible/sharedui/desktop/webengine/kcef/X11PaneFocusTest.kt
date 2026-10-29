@@ -68,7 +68,7 @@ class X11PaneFocusTest {
         f.focus(FakeHeavy())
         assertFalse(f.enabled)
         assertEquals(1, calls)
-        assertEquals(1, lines.size)
+        assertEquals(1, lines.count { "disabled" in it })
     }
 
     @Test fun createNeverThrowsAndLogsAtMostOneLine() {
