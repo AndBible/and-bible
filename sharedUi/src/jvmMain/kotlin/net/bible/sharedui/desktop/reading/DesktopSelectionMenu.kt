@@ -134,6 +134,7 @@ class DesktopSelectionMenu(
   }
   function onOutside(e) { if (menu && !menu.contains(e.target)) close(); }
   function onKey(e) {
+    if (e.isComposing) return;
     if (menu && e.key === 'Escape') {
       swallowUp = true; e.preventDefault(); e.stopImmediatePropagation(); close();
     }
@@ -144,9 +145,14 @@ class DesktopSelectionMenu(
   window.addEventListener('keydown', onKey, true);
   window.addEventListener('keyup', onKeyUp, true);
   window.addEventListener('mousedown', onOutside, true);
-  window.addEventListener('wheel', function () { close(); }, {passive: true, capture: true});
-  window.addEventListener('scroll', function () { close(); }, true);
-  window.addEventListener('blur', function () { close(); });
+  // The menu's own scrolling (a tall menu) must not close it.
+  function onScroll(e) { if (menu && !(e.target && e.target.nodeType && menu.contains(e.target))) close(); }
+  window.addEventListener('wheel', onScroll, {passive: true, capture: true});
+  window.addEventListener('scroll', onScroll, true);
+  // KCEF blurs and refocuses the page window while a pane is clicked: only a blur that lasts closes the menu.
+  window.addEventListener('blur', function () {
+    setTimeout(function () { if (menu && !document.hasFocus()) close(); }, 250);
+  });
   window.addEventListener('resize', function () { close(); });
   function place(x, y) {
     var r = menu.getBoundingClientRect(), w = window.innerWidth, h = window.innerHeight;
@@ -159,7 +165,7 @@ class DesktopSelectionMenu(
     b.textContent = row.label;
     var s = b.style;
     s.display = 'block'; s.width = '100%'; s.textAlign = 'start'; s.border = '0'; s.margin = '0';
-    s.padding = '6px ' + (14 + indent) + 'px 6px 14px'; s.font = 'inherit'; s.cursor = 'default';
+    s.padding = '6px 14px'; s.font = 'inherit'; s.cursor = 'default';
     s.background = 'transparent'; s.color = night ? '#e6e6e6' : '#1a1a1a'; s.whiteSpace = 'nowrap';
     s.paddingInlineStart = (14 + indent) + 'px';
     b.addEventListener('mouseenter', function () { s.background = night ? '#4a4a4a' : '#dcdcdc'; });

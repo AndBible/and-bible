@@ -131,10 +131,16 @@ class DesktopSelectionMenuTest {
     }
 
     @Test fun labelsAreJsonEncodedIntoTheScript() {
-        contextMenu(""""Say \"hi\" </script>   x"""") // a plain-text selection with quotes and a script end tag
+        val text = "a\"</script>\u2028b" // quotes, a script end tag and a line separator, short enough for the Find label
+        val json = kotlinx.serialization.json.Json.encodeToString(kotlinx.serialization.serializer<String>(), text)
+        contextMenu(json)
         val script = pane.scripts.single()
-        assertTrue(' ' !in script)
-        assertTrue("\"label\":" in script)
+        assertTrue('\u2028' !in script, "the line separator is escaped")
+        val rows = kotlinx.serialization.json.Json.parseToJsonElement(
+            script.removePrefix("window.__abMenu&&window.__abMenu.show(").substringBeforeLast(",120.0"),
+        ) as kotlinx.serialization.json.JsonArray
+        val search = rows.map { it as kotlinx.serialization.json.JsonObject }.first { (it["item"] as kotlinx.serialization.json.JsonPrimitive).content == "Search" }
+        assertEquals("Find \"$text\"", (search["label"] as kotlinx.serialization.json.JsonPrimitive).content)
     }
 
     @Test fun menuActionsMatchIos() {
