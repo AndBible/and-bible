@@ -38,12 +38,17 @@ val prepareBibleViewBundle by tasks.registering(Exec::class) {
     inputs.dir(jsDir.dir("src"))
     inputs.file(jsDir.file("package-lock.json"))
     inputs.file(jsDir.file("package.json"))
+    for (name in listOf("public")) {
+        if (jsDir.dir(name).asFile.isDirectory) inputs.dir(jsDir.dir(name))
+    }
+    jsDir.asFile.listFiles { f -> f.isFile && (f.name == "index.html" || f.name.startsWith("vite.config.") || (f.name.startsWith("tsconfig") && f.name.endsWith(".json"))) }
+        ?.forEach { inputs.file(it) }
     inputs.file(jsDir.file("ios/poc-document.json"))
     outputs.dir(bibleViewGenerated)
     val dest = bibleViewGenerated.map { it.dir("bibleview-js").asFile.absolutePath }
     commandLine("sh", script.asFile.absolutePath, dest.get())
 }
 sourceSets.main {
-    resources.srcDir(bibleViewGenerated.map { it.asFile })
+    resources.srcDir(prepareBibleViewBundle.map { bibleViewGenerated.get().asFile })
 }
 tasks.named("processResources") { dependsOn(prepareBibleViewBundle) }

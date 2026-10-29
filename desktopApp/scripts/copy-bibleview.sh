@@ -7,7 +7,11 @@ SRC="$ROOT/app/bibleview-js"
 DEST="$1"
 needs_build() {
   [ -f "$SRC/dist/index.html" ] || return 0
-  [ -n "$(find "$SRC/src" -type f -newer "$SRC/dist/index.html" 2>/dev/null | head -n 1)" ]
+  for p in src public package.json package-lock.json index.html vite.config.mts tsconfig*.json; do
+    [ -e "$SRC/$p" ] || continue
+    [ -n "$(find "$SRC/$p" -type f -newer "$SRC/dist/index.html" 2>/dev/null | head -n 1)" ] && return 0
+  done
+  return 1
 }
 if needs_build; then
   command -v npm >/dev/null 2>&1 || { echo "error: app/bibleview-js/dist is missing or outdated and npm is not installed; install Node.js 24 (npm)"; exit 1; }
