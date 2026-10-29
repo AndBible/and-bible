@@ -76,14 +76,17 @@ private const val READY_POLL_MS = 500L
  *   for testing, "" to sync with release data from a development run.
  */
 fun desktopSyncNamespace(versionName: String?, suffixOverride: String?): String {
-    val suffix = suffixOverride ?: if (!versionName.isNullOrEmpty() && versionName != "dev") "" else ".debug"
+    val version = versionName?.trim()
+    val suffix = suffixOverride ?: if (!version.isNullOrEmpty() && version != "dev") "" else ".debug"
     return SyncNamespace.SHARED + suffix
 }
 
 /**
- * Suspends until the databases are really usable. `DatabaseContainer.ready` is set BEFORE the container is built and migrated,
- * so it is not enough: [open] (reading `DatabaseContainer.instance`) must also succeed, and [isReady] must still hold after
- * it. A failure is retried every [pollMs]; the caller's cancellation ends the wait.
+ * Suspends until sync can really work. `DatabaseContainer.ready` is set BEFORE the container is built and migrated, so it is
+ * not enough: [open] (reading `DatabaseContainer.instance`) must also succeed, and [isReady] must still hold after it. The
+ * binding's [isReady] also requires the app to be initialised, because the desktop `AppSettings` booleans answer their
+ * DEFAULT until then (`DatabaseAppSettings` guard), so a pass before that sees "sync is off" and does nothing until the next
+ * interval. A failure is retried every [pollMs]; the caller's cancellation ends the wait.
  */
 internal suspend fun awaitDatabasesOpen(isReady: () -> Boolean, open: () -> Unit, pollMs: Long = READY_POLL_MS) {
     while (true) {
@@ -143,6 +146,8 @@ fun desktopSyncModule(): Module = module {
     single<BackgroundRefresh> { DesktopBackgroundRefresh() }
     single(createdAtStart = true) {
         val scheduler = get<SyncScheduler>() as DesktopSyncScheduler
+        // Databases open AND the app initialised: before that the settings booleans answer their defaults (sync looks off).
+        fun appReady() = DatabaseContainer.ready && get<AppEnvironment>().isInitialized
         fun syncEnabled() = SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
         DesktopSyncDriver(
             policy = BackgroundSyncPolicy(
@@ -160,7 +165,7 @@ fun desktopSyncModule(): Module = module {
             ),
             closePass = {
                 // Push local changes only: no interactive sign-in at exit, and nothing unless sync is on and already signed in.
-                val cloud = if (DatabaseContainer.ready && syncEnabled()) get<CloudSync>() else null
+                val cloud = if (appReady() && syncEnabled()) get<CloudSync>() else null
                 if (cloud == null || !cloud.signedIn || !cloud.hasChanges()) null
                 else scheduler.startBackgroundDatabaseSync {
                     runDatabaseSyncJob(cloud, get<AppSettings>(), allowInteraction = false)
@@ -169,8 +174,8 @@ fun desktopSyncModule(): Module = module {
             exitTasks = get<DesktopExitTasks>(),
             events = get<DesktopLifecycleEvents>(),
             scope = get<AppCoroutineScope>(),
-            awaitReady = { awaitDatabasesOpen({ DatabaseContainer.ready }, { DatabaseContainer.instance }) },
-            databasesReady = { DatabaseContainer.ready },
+            awaitReady = { awaitDatabasesOpen(::appReady, { DatabaseContainer.instance }) },
+            databasesReady = ::appReady,
         )
     }
     single<BackupHost> {

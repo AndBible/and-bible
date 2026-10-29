@@ -77,13 +77,13 @@ class DesktopSyncBindingsContractTest {
         override fun remove(key: String) { map.remove(key) }
     }
 
-    private fun <T> withGraph(appSettings: AppSettings = inert(), block: (Koin) -> T): T {
+    private fun <T> withGraph(appSettings: AppSettings = inert(), appEnvironment: AppEnvironment = inert(), block: (Koin) -> T): T {
         val scope = AppCoroutineScope()
         val app = koinApplication {
             modules(
                 module {
                     single<DeviceLocalPrefs> { MapPrefs() }
-                    single<AppEnvironment> { inert() }
+                    single<AppEnvironment> { appEnvironment }
                     single<AppSettings> { appSettings }
                     single<CoreStrings> { inert() }
                     single {
@@ -125,20 +125,40 @@ class DesktopSyncBindingsContractTest {
         assertSame(koin.get<SyncScheduler>(), koin.get<SyncScheduler>())
     }
 
-    /**
-     * The driver is only created by createEagerInstances (the test never resolves it): its exit task is the only thing that
-     * reads the sync settings once the databases are flagged ready, so a recorded read proves the registration.
-     */
-    @Test fun theDriverStartsWithTheGraphAndRegistersItsExitTask() {
-        val reads = java.util.concurrent.CopyOnWriteArrayList<String>()
-        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, args ->
+    private fun recordingSettings(reads: MutableList<String>) =
+        Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, m, args ->
             reads += m.name + (args?.firstOrNull() ?: "")
             when (m.returnType) { java.lang.Boolean.TYPE -> false; java.lang.Long.TYPE -> 0L; java.lang.Integer.TYPE -> 0; String::class.java -> ""; else -> null }
         } as AppSettings
+
+    private fun environment(initialized: java.util.concurrent.atomic.AtomicBoolean) =
+        Proxy.newProxyInstance(AppEnvironment::class.java.classLoader, arrayOf(AppEnvironment::class.java)) { _, m, _ ->
+            when {
+                m.name == "isInitialized" -> initialized.get()
+                m.returnType == String::class.java -> "/tmp"
+                m.returnType == java.lang.Boolean.TYPE -> false
+                m.returnType == java.lang.Long.TYPE -> 0L
+                m.returnType == java.lang.Integer.TYPE -> 0
+                else -> null
+            }
+        } as AppEnvironment
+
+    /**
+     * The driver is only created by createEagerInstances (the test never resolves it): its exit task is the only thing that
+     * reads the sync settings once the app is ready, so a recorded read proves the registration. The settings booleans answer
+     * their defaults until the app is initialised, so with the databases flagged ready but the app NOT initialised the driver
+     * must not consult them at all; once initialised it does.
+     */
+    @Test fun theDriverStartsWithTheGraphAndRegistersItsExitTask() {
+        val reads = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val initialized = java.util.concurrent.atomic.AtomicBoolean(false)
         val wasReady = DatabaseContainer.ready
         try {
-            withGraph(settings) { koin ->
+            withGraph(recordingSettings(reads), environment(initialized)) { koin ->
                 DatabaseContainer.ready = true
+                runBlocking { withTimeout(5_000) { assertTrue(koin.get<DesktopExitTasks>().runAll(2_000)) } }
+                assertTrue(reads.isEmpty(), "databases ready but the app not initialised: settings would answer defaults, so not read: $reads")
+                initialized.set(true)
                 runBlocking { withTimeout(5_000) { assertTrue(koin.get<DesktopExitTasks>().runAll(2_000)) } }
                 assertTrue(reads.any { it.startsWith("getBoolean") }, "the exit task ran the close pass check: $reads")
             }
@@ -164,6 +184,8 @@ class DesktopSyncBindingsContractTest {
         assertEquals("net.bible.android.activity.debug", desktopSyncNamespace(null, null))
         assertEquals("net.bible.android.activity.debug", desktopSyncNamespace("1.2.3", ".debug"))
         assertEquals("net.bible.android.activity", desktopSyncNamespace("dev", ""))
+        assertEquals("net.bible.android.activity.debug", desktopSyncNamespace("  ", null))
+        assertEquals("net.bible.android.activity.debug", desktopSyncNamespace(" dev ", null))
         assertEquals("net.bible.android.activity", SyncNamespace.forAppId(desktopSyncNamespace("1.2.3", null)))
     }
 }

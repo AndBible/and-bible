@@ -94,7 +94,7 @@ class DesktopSyncDriver(
         passLock.withLock {
             if (stopped) return@launch // no new pass once the exit has begun
             try {
-                policy.runOnce()
+                if (!policy.runOnce()) Log.i(TAG, "Sync pass did not complete (sign-in or sync failed)")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
