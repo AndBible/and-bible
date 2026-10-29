@@ -97,6 +97,15 @@ private suspend fun readPatchData(
                 """.trimIndent()
     }
 
+    // Delete all marked deletions from patch LogEntry table. Before the upserts: a row deleted on the other device
+    // and created again under the same natural key (a reset reading plan started again: ReadingPlan.planCode,
+    // ReadingPlanStatus(planCode, planDay)) would otherwise be upserted onto the old local row by ON CONFLICT and
+    // then deleted with it (#3902). An id is either upserted or deleted in one patch, never both.
+    exec("""
+            DELETE FROM $table WHERE $idFields IN ${where("DELETE")}
+            """.trimIndent()
+    )
+
     // Insert all rows from patch table that don't have more recent entry in LogEntry table
     exec("""
             INSERT INTO $table ($cols)
@@ -110,12 +119,6 @@ private suspend fun readPatchData(
     exec("""
             DELETE FROM $table 
             WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
-            """.trimIndent()
-    )
-
-    // Delete all marked deletions from patch LogEntry table
-    exec("""
-            DELETE FROM $table WHERE $idFields IN ${where("DELETE")}
             """.trimIndent()
     )
 

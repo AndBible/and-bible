@@ -48,8 +48,11 @@ class ReadingPlanRepository(
     /** Serialises the read-modify-write of a plan row (start date, current day). */
     private val planMutex = Mutex()
 
-    suspend fun getReadingStatus(planCode: String, planDay: Int): String? =
-        readingPlanDao.getStatus(planCode, planDay)?.readingStatus
+    /** The stored status, after the queued writes landed: a status reloaded right after a tick still has the tick. */
+    suspend fun getReadingStatus(planCode: String, planDay: Int): String? {
+        writes.join(WRITE_KEY)
+        return readingPlanDao.getStatus(planCode, planDay)?.readingStatus
+    }
 
     /**
      * The plan's start date, healing a row the pre-fix INSERT corrupted (it stored the day number
