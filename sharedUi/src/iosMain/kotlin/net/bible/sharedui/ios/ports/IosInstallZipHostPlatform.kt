@@ -38,7 +38,7 @@ class IosInstallZipHostPlatform(
         catch (_: Exception) { false }
     }
 
-    override fun displayName(uri: DocumentRef): String? = IosInstallPipeline.url(uri.uri).lastPathComponent
+    override fun displayName(uri: DocumentRef): String? = lastPathComponent(IosInstallPipeline.filePath(uri.uri))
 
     override fun formatsText(): String {
         val table = table()

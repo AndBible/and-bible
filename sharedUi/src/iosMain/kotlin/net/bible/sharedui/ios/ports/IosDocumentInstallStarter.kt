@@ -46,8 +46,8 @@ class IosDocumentInstallStarter(
 
     private fun sources(uris: List<DocumentRef>, action: String?) = uris.map { ref ->
         // Both metadata fields become Okio destination components; the source URL stays exact.
-        val name = IosInstallPipeline.url(ref.uri).lastPathComponent
-            ?.replace('/', '_')?.replace('\\', '_')?.replace(':', '_')?.replace('\u0000', '_')
+        val name = lastPathComponent(IosInstallPipeline.filePath(ref.uri))
+            .replace('/', '_')?.replace('\\', '_')?.replace(':', '_')?.replace('\u0000', '_')
             ?.takeUnless { it.isBlank() || it == "." || it == ".." } ?: "document"
         val mime = when (name?.substringAfterLast('.', "")?.lowercase()) {
             "epub" -> "application/epub+zip"
