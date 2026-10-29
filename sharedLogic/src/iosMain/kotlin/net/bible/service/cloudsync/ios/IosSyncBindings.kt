@@ -71,12 +71,13 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
     }
     single<CloudAdapterFactory> {
         IosCloudAdapterFactory(
-            platform = get<SyncSettingsPlatform>() as IosSyncSettingsPlatform,
+            platform = get<SyncSettingsPlatform>(),
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
             iCloudStore = { iCloudDriveStore(get<IosUbiquityContainer>()) },
             signInUi = IosWebDavSignInUi({ get<AppDialogController>() }, get()),
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
+            clientFactory = { c, s -> createIosWebDavClient(c, s, ::nowMs) },
             awaitReady = { get<IosUbiquityContainer>().awaitReady() },
         )
     }

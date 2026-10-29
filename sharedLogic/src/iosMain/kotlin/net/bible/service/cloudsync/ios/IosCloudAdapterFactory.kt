@@ -2,6 +2,7 @@ package net.bible.service.cloudsync.ios
 
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudAdapterFactory
+import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.filetree.FileTreeCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavConfig
@@ -12,10 +13,6 @@ import net.bible.service.cloudsync.webdav.nextcloudDavUrl
 import net.bible.sharedcore.platform.cloud.CloudFileStore
 import net.bible.sharedcore.webdav.WebDavClient
 import okio.Path
-import platform.Foundation.NSDate
-import platform.Foundation.timeIntervalSince1970
-
-private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
 /**
  * iOS cloud back ends (spec C9), in this order: iCloud Drive, Nextcloud (a [WebDavCloudAdapter]
@@ -25,19 +22,18 @@ private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
  * asynchronously and reads as null until then). The host binds ONE container and passes its
  * `awaitReady`; `iCloudStore` must reuse that same container on every call.
  *
- * `NEXT_CLOUD` and `WEBDAV` share the one WebDAV state store ([IosSyncSettingsPlatform.webDavState]),
+ * `NEXT_CLOUD` and `WEBDAV` share the one WebDAV state store ([SyncSettingsPlatform.webDavState]),
  * so switching between them recalibrates from `UNKNOWN` and one certificate pin serves both. Known
  * limitation.
  */
 class IosCloudAdapterFactory(
-    private val platform: IosSyncSettingsPlatform,
+    private val platform: SyncSettingsPlatform,
     private val deviceId: String,
     private val displayName: (String) -> String,
     private val iCloudStore: () -> CloudFileStore,
     private val signInUi: WebDavSignInUi,
     private val tempDir: Path,
-    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient =
-        { c, s -> createIosWebDavClient(c, s, ::nowMs) },
+    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient,
     private val awaitReady: suspend () -> Unit = {},
 ) : CloudAdapterFactory {
     override val available: List<String> = listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
