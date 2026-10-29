@@ -48,6 +48,7 @@ import java.awt.event.MouseEvent
  * - `key`: `key`, `ctrl`, `alt`, `shift`, `editable`, optional `selection` (JSON string of the page selection) -> [DesktopShortcuts]
  * - `mouse`: `button` (DOM 3 = back, 4 = forward)
  * - `wheel`: `dx`, `dy` (pixels), `t` (page clock, ms) -> [DesktopReadingGestures]
+ * - `zoom`: `dy` (Ctrl+wheel step; negative = larger) -> the font size shortcut
  * - `click` -> [DesktopReadingGestures.onClick]
  * Other types go to [extensions] (a handler per type name: `(windowId, message) -> Unit`); a message with the envelope
  * is always consumed, an unknown type is dropped. Everything else is not ours (false, so it reaches the bridge).
@@ -73,6 +74,7 @@ class DesktopReadingInputImpl(
 
     override fun documentStartScripts(windowId: String): List<String> = listOf(DesktopInputScript.compose(scriptParts))
 
+    // Installed once, on the first pane: the mouse buttons outside panes are only needed once panes exist.
     override fun onPaneCreated(windowId: String, pane: DesktopWebPane) = ensureMouseListener()
 
     override fun onPaneDisposed(windowId: String, pane: DesktopWebPane) = gestures.forget(windowId)
@@ -97,7 +99,8 @@ class DesktopReadingInputImpl(
         when (type) {
             "key" -> shortcuts.onChord(
                 Chord(
-                    key = m["key"]?.jsonPrimitive?.contentOrNull ?: return,
+                    key = letterOfCode(m["code"]?.jsonPrimitive?.contentOrNull)
+                        ?: m["key"]?.jsonPrimitive?.contentOrNull ?: return,
                     ctrl = m.bool("ctrl"), alt = m.bool("alt"), shift = m.bool("shift"),
                     fromPane = true, editable = m.bool("editable"), composing = m.bool("composing"),
                     selection = m["selection"]?.jsonPrimitive?.contentOrNull,
@@ -113,15 +116,19 @@ class DesktopReadingInputImpl(
                 m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
                 (m["t"]?.jsonPrimitive?.doubleOrNull ?: System.nanoTime() / 1_000_000.0).toLong(),
             )
+            "zoom" -> shortcuts.onZoom(m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0)
             "click" -> gestures.onClick(windowId)
             else -> if (type != null) extensions[type]?.invoke(windowId, m)
         }
     }
 
+    /** The Latin letter of a DOM `code` such as "KeyL" (layout independent, as the page's own shortcuts), else null. */
+    private fun letterOfCode(code: String?): String? =
+        if (code != null && code.length == 4 && code.startsWith("Key") && code[3] in 'A'..'Z') code.substring(3).lowercase() else null
+
     private fun JsonObject.bool(name: String) = this[name]?.jsonPrimitive?.booleanOrNull ?: false
 
     override fun onPreviewKeyEvent(event: KeyEvent): Boolean {
-        ensureMouseListener()
         if (event.type != KeyEventType.KeyDown || !event.isCtrlPressed && !event.isMetaPressed) return false
         val chord = composeChord(event) ?: return false
         return shortcuts.onChord(chord, null)

@@ -98,11 +98,18 @@ class DesktopShortcuts(
         return true
     }
 
+    /** A Ctrl+wheel step in a pane: [deltaY] < 0 (wheel up) = larger text. Same action as Ctrl+Plus/Minus. */
+    fun onZoom(deltaY: Double): Boolean {
+        if (deltaY == 0.0) return false
+        return reading { actions.changeFontSize(if (deltaY < 0) FontSizeChange.Larger else FontSizeChange.Smaller) }
+    }
+
     /** Handles [chord] for [windowId] (the pane's window, null for a Compose key: the active window). True = consumed. */
     fun onChord(chord: Chord, windowId: String?): Boolean {
         if (chord.composing) return false
         val key = if (chord.key.length == 1) chord.key.lowercase() else chord.key
         if (chord.alt && !chord.ctrl) {
+            if (chord.editable) return false
             val nav = DesktopBackDispatcher.navigationForDomKey(key, alt = true, isRtl = isRtl()) ?: return false
             return onNavigation(nav)
         }

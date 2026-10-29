@@ -179,4 +179,19 @@ class DesktopShortcutsTest {
         for (k in keys) assertFalse(shortcuts.onChord(k, "w1"), k.toString())
         assertEquals(emptyList(), actions.log)
     }
+
+    @Test fun altArrowsAreNotTakenFromTextFields() {
+        assertFalse(shortcuts.onChord(Chord("ArrowLeft", alt = true, fromPane = true, editable = true), "w1"))
+        assertFalse(shortcuts.onChord(Chord("ArrowRight", alt = true, fromPane = true, editable = true), "w1"))
+        assertEquals(emptyList(), actions.log)
+    }
+
+    @Test fun ctrlWheelZoomsLikeCtrlPlusMinus() {
+        assertTrue(shortcuts.onZoom(-120.0))
+        assertTrue(shortcuts.onZoom(120.0))
+        assertFalse(shortcuts.onZoom(0.0))
+        actions.reading = false
+        assertFalse(shortcuts.onZoom(-120.0))
+        assertEquals(listOf("font:Larger", "font:Smaller"), actions.log)
+    }
 }

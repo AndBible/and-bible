@@ -45,22 +45,37 @@ window.__abDesktop = {
     } catch (e) { return false; }
   },
   flags: function (e) {
-    return {key: e.key, ctrl: !!(e.ctrlKey || e.metaKey), alt: !!e.altKey, shift: !!e.shiftKey};
+    return {key: e.key, code: e.code, ctrl: !!(e.ctrlKey || e.metaKey), alt: !!e.altKey, shift: !!e.shiftKey};
   }
 };
 """
 
     /**
      * Capture-phase keydown on window for the chords the page does not handle or that desktop overrides (they are
-     * posted and cancelled), and Ctrl+C/V/X/A/Z inside an editable (propagation stopped, default kept, so the page's own
-     * Ctrl+C handler cannot steal a field copy).
+     * posted and cancelled). Letter chords match `e.code` (`KeyL`), as the page's keyboard.ts does, so non-Latin layouts
+     * work. Inside an editable, Ctrl+C/F/W (what keyboard.ts handles on `document`) are kept from the page's document
+     * handler by a one-shot listener on the target that stops propagation after the target's own handlers (an editor's
+     * Ctrl+Z needs those); default actions are never prevented. Alt+arrows are not taken from a text field.
      */
     const val KEY_PART: String = """
+var pendingStop = null;
+function clearPendingStop() {
+  if (pendingStop) { pendingStop.t.removeEventListener('keydown', pendingStop.f); pendingStop = null; }
+}
 window.addEventListener('keydown', function (e) {
+  clearPendingStop();
   var d = window.__abDesktop, k = e.key;
   if (typeof k !== 'string' || e.isComposing || e.keyCode === 229) return;
-  var ed = d.isEditable(e.target), ctrl = e.ctrlKey || e.metaKey, kk = k.length === 1 ? k.toLowerCase() : k;
-  if (ctrl && !e.altKey && ed && kk.length === 1 && 'cvxaz'.indexOf(kk) >= 0) { e.stopPropagation(); return; }
+  var ed = d.isEditable(e.target), ctrl = e.ctrlKey || e.metaKey;
+  var letter = /^Key[A-Z]$/.test(e.code || '') ? e.code.charAt(3).toLowerCase() : null;
+  var kk = letter !== null ? letter : (k.length === 1 ? k.toLowerCase() : k);
+  if (ctrl && !e.altKey && ed && (kk === 'c' || kk === 'f' || kk === 'w') && e.target.addEventListener) {
+    var t = e.target, f = function (ev) { ev.stopPropagation(); clearPendingStop(); };
+    t.addEventListener('keydown', f);
+    pendingStop = {t: t, f: f};
+    setTimeout(clearPendingStop, 0);
+    return;
+  }
   var hit = false, selection = null;
   if (ctrl && !e.altKey) {
     if (kk === 'l' || kk === '+' || kk === '=' || kk === '-' || kk === '_' || kk === '0' || kk === 'Tab' || kk === ',') hit = true;
@@ -72,11 +87,11 @@ window.addEventListener('keydown', function (e) {
       } catch (x) {}
     }
   } else if (e.altKey && !ctrl) {
-    if (k === 'ArrowLeft' || k === 'ArrowRight') hit = true;
+    if (!ed && (k === 'ArrowLeft' || k === 'ArrowRight')) hit = true;
   } else if (k === 'F11' && !ctrl && !e.altKey) hit = true;
   if (!hit) return;
   e.preventDefault(); e.stopPropagation();
-  var o = d.flags(e); o.type = 'key'; o.editable = ed; if (selection !== null) o.selection = selection;
+  var o = d.flags(e); o.type = 'key'; o.key = kk.length === 1 ? kk : k; o.editable = ed; if (selection !== null) o.selection = selection;
   d.post(o);
 }, true);
 """
@@ -121,13 +136,35 @@ window.addEventListener('keydown', function (e) {
 })();
 """
 
+    /**
+     * Ctrl+wheel: Chromium would zoom the page, a second zoom path next to the font size shortcuts. Cancelled (hence
+     * non-passive) and reported as one zoom step per animation frame, `dy` < 0 (wheel up) = bigger.
+     */
+    const val ZOOM_PART: String = """
+(function () {
+  var dy = 0, pending = false;
+  window.addEventListener('wheel', function (e) {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    dy += e.deltaY;
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () {
+      pending = false;
+      var y = dy; dy = 0;
+      if (y !== 0) window.__abDesktop.post({type: 'zoom', dy: y});
+    });
+  }, {passive: false, capture: true});
+})();
+"""
+
     /** A click is a touch. The page's own click handling (verse selection) is untouched: no preventDefault. */
     const val CLICK_PART: String = """
 window.addEventListener('click', function () { window.__abDesktop.post({type: 'click'}); }, {passive: true, capture: true});
 """
 
     /** The parts every pane gets. Task 3 adds the context menu part beside them. */
-    val DEFAULT_PARTS: List<String> = listOf(KEY_PART, ESCAPE_PART, MOUSE_PART, WHEEL_PART, CLICK_PART)
+    val DEFAULT_PARTS: List<String> = listOf(KEY_PART, ESCAPE_PART, MOUSE_PART, WHEEL_PART, ZOOM_PART, CLICK_PART)
 
     /** The document-start script for [parts]: the preamble, then each part in its own try/catch. */
     fun compose(parts: List<String> = DEFAULT_PARTS): String = buildString {

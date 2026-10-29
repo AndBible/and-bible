@@ -67,6 +67,27 @@ class DesktopReadingInputImplTest {
         assertEquals(listOf("goto:w1", "back:true", "back:false"), rec.log)
     }
 
+    @Test fun letterChordsAreDecodedByCodeOnAnyLayout() {
+        // Cyrillic layout: key is "д", the physical key is KeyL.
+        input.handleMessage("w1", msg("{\"type\":\"key\",\"key\":\"д\",\"code\":\"KeyL\",\"ctrl\":true}"))
+        assertEquals(listOf("goto:w1"), rec.log)
+    }
+
+    @Test fun zoomMessagesChangeFontSize() {
+        input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":-100}"))
+        input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":100}"))
+        assertEquals(listOf("font:Larger", "font:Smaller"), rec.log)
+    }
+
+    @Test fun scriptKeepsFieldKeysFromThePageWithoutBlockingTheTarget() {
+        val k = DesktopInputScript.KEY_PART
+        assertTrue(k.contains("e.code"))
+        assertTrue(k.contains("t.addEventListener('keydown', f)")) // one-shot target listener, after the target's own
+        assertFalse(k.contains("e.stopPropagation(); return;")) // no window-level stop for field keys
+        val z = DesktopInputScript.ZOOM_PART
+        assertTrue(z.contains("preventDefault") && z.contains("passive: false"))
+    }
+
     @Test fun mouseButtonsMapToBackAndForward() {
         input.handleMessage("w1", msg("{\"type\":\"mouse\",\"button\":3}"))
         input.handleMessage("w1", msg("{\"type\":\"mouse\",\"button\":4}"))
@@ -89,6 +110,7 @@ class DesktopReadingInputImplTest {
 
     @Test fun mouseListenerIsInstalledOnce() {
         input.onPaneCreated("w1", noPane())
+        input.onPaneCreated("w2", noPane())
         input.onPreviewKeyEvent(ev(Key.A))
         assertEquals(1, installs)
     }

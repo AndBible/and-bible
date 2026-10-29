@@ -57,7 +57,8 @@ class DesktopShortcutActionsImpl(
     }
 
     override fun bookmarkSelection(windowId: String, selectionJson: String) {
-        val menu = IosReadingWindows.selectionMenu ?: return
+        // Without a selection menu the key still does something useful: the page's Ctrl+B, the key chooser.
+        val menu = IosReadingWindows.selectionMenu ?: return goToReference(windowId)
         menu.cacheSelection(windowId, selectionJson)
         menu.run(windowId, SelectionMenuItem.AddBookmarkSelection)
     }
