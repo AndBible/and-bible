@@ -14,6 +14,10 @@ snakeyaml = "2.2"
 # L1a.6: first ktor; OkHttp engine on Android, Darwin engine wired in I1
 ktor = "3.5.2"
 atomicfu = "0.33.0"
+# Desktop D1: KCEF (embedded Chromium for :sharedUi jvmMain). 2025.03.23 is the newest release (published 2025-04-01);
+# its JCEF Java API matches the natives of JBR tag jbr-release-17.0.14b1367.22 (pinned in desktopApp/build.gradle.kts).
+# KCEF brings ktor 3.0.0 (only for its runtime downloader, which D1 never calls); Gradle resolves it up to `ktor`.
+kcef = "2025.03.23"
 coreKtx = "1.16.0"
 jdom = "2.0.6.1"
 commonsText = "1.9"
@@ -48,6 +52,7 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+kcef = { module = "dev.datlag:kcef", version.ref = "kcef" }
 # I2 stream C: Markdown rendering on iOS (iosMain of :sharedLogic)
 jetbrains-markdown = { module = "org.jetbrains:markdown", version = "0.7.18" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidxSqlite" }

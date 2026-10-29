@@ -91,7 +91,22 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
         // The generated holder is pure Kotlin; the desktop app (and jvmTest) use it for real English text.
-        jvmMain { kotlin.srcDir(iosStringsOutDir) }
+        jvmMain {
+            kotlin.srcDir(iosStringsOutDir)
+            dependencies {
+                // Desktop D1 web engine (package net.bible.sharedui.desktop.webengine.kcef only). JOGL/gluegen are
+                // jcef's runtime deps for GL off-screen rendering; they are not on Maven Central (jogamp.org only)
+                // and the windowed rendering D1 uses does not need them.
+                // KCEF pulls ktor 3.0.0 modules (okhttp engine, content negotiation, kotlinx-json) next to the
+                // catalog's ktor core; the BOM aligns every ktor module on `ktor` so no 3.0.0/3.5.2 mix reaches the
+                // classpath. KCEFBuilder builds its (unused) HttpClient at construction, so linkage is exercised.
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:${libs.versions.ktor.get()}"))
+                implementation(libs.kcef.get().toString()) {
+                    exclude(group = "org.jogamp.gluegen")
+                    exclude(group = "org.jogamp.jogl")
+                }
+            }
+        }
         jvmTest {
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/report/logic")
@@ -149,4 +164,23 @@ providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
 tasks.matching { it.name == "jvmTest" }.configureEach {
     (this as Test).systemProperty("java.awt.headless", "true")
     systemProperty("repoRoot", rootProject.projectDir.absolutePath)
+}
+
+// Live KCEF tests (KcefLiveTest, in the jvmTest source set): a windowed Chromium needs a non-headless AWT, which the
+// headless jvmTest run above cannot give, so they run in their own task. `kcef.installDir` is passed only when the
+// natives that `:desktopApp:prepareKcefNatives` produces exist (no task dependency on :desktopApp); without them, or
+// without DISPLAY, the tests skip themselves. In jvmTest they always skip (headless).
+val kcefNativesDir = rootProject.layout.projectDirectory.dir("desktopApp/build/kcef-natives").asFile
+val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+tasks.register<Test>("jvmKcefTest") {
+    group = "verification"
+    description = "Runs the live KCEF tests (needs desktopApp/build/kcef-natives and DISPLAY)."
+    val jvmTest = tasks.named<Test>("jvmTest").get()
+    testClassesDirs = jvmTest.testClassesDirs
+    classpath = jvmTest.classpath
+    filter { includeTestsMatching("net.bible.sharedui.desktop.webengine.kcef.KcefLiveTest") }
+    systemProperty("java.awt.headless", "false")
+    jvmArgs(kcefJvmArgs)
+    if (File(kcefNativesDir, "install.lock").isFile) systemProperty("kcef.installDir", kcefNativesDir.absolutePath)
+    outputs.upToDateWhen { false }
 }
