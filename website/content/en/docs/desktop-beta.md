@@ -2,7 +2,7 @@
 
 The desktop version of *AndBible* is in beta. Reading, studying and syncing work, but some things are
 missing and some environments have not been tried yet. This page lists them so you know what to expect.
-For installing and everyday use, see the desktop page of the documentation (AndBible on the desktop).
+For installing and everyday use, see [AndBible on Linux and Windows](desktop.md).
 
 ## What has been tried
 

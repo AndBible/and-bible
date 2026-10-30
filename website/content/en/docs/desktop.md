@@ -12,4 +12,4 @@ On Linux, AndBible stores data in `$XDG_DATA_HOME/andbible` (normally `~/.local/
 
 On Windows, data is in `%APPDATA%\AndBible`, configuration in its `config` subdirectory, and cache in `%LOCALAPPDATA%\AndBible\cache`. Bible documents are stored in the `sword` directory under the data directory.
 
-A separate known-limitations page is planned as `desktop-beta.md`.
+For what the beta does not do yet, see [Desktop beta: known limitations](desktop-beta.md).
