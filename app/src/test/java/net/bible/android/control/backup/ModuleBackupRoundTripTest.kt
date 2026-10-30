@@ -353,6 +353,45 @@ class ModuleBackupRoundTripTest {
     }
 
     /**
+     * On case-insensitive storage (Android external files, macOS, Windows) `testdict/test.dat` and `TESTDICT/test.dat`
+     * are ONE file, so the obsolete-file prune must never delete a path that equals a published path ignoring case.
+     * Linux keeps both files, which is what lets this test see the prune's decision.
+     */
+    @Test
+    fun swordArchiveReplacementPruneNeverTouchesCaseVariantsOfPublishedPaths() = runBlocking {
+        registerMinimalRawLdDictionary()
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val root = SwordBookPathJvm.getSwordDownloadDir()
+        val datBytes = "strong\nThe test definition body.".toByteArray(Charsets.UTF_8)
+        val idxBytes = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN).putInt(0).putShort(datBytes.size.toShort()).array()
+        val archive = File(CommonUtils.tmpDir, "rawld-case.abmd.zip")
+        java.util.zip.ZipOutputStream(archive.outputStream()).use { zip ->
+            fun entry(name: String, bytes: ByteArray) { zip.putNextEntry(java.util.zip.ZipEntry(name)); zip.write(bytes); zip.closeEntry() }
+            entry("mods.d/TESTDICT.conf", """
+                [TestDict]
+                DataPath=./modules/lexdict/rawld/TESTDICT/test
+                ModDrv=RawLD
+                SourceType=Plaintext
+                Encoding=UTF-8
+                Lang=en
+                Description=Test Dictionary
+                DistributionLicense=Public Domain
+            """.trimIndent().toByteArray())
+            entry("modules/lexdict/rawld/TESTDICT/test.dat", datBytes)
+            entry("modules/lexdict/rawld/TESTDICT/test.idx", idxBytes)
+        }
+        try {
+            assertTrue(backup.installModuleArchive(archive.toOkioPath(), "TestDict"))
+            assertTrue("case variant of a published data file must not be pruned",
+                File(root, "modules/lexdict/rawld/testdict/test.dat").exists())
+            assertTrue("case variant of a published conf must not be pruned", File(root, "mods.d/testdict.conf").exists())
+        } finally {
+            File(root, "mods.d/TESTDICT.conf").delete()
+            File(root, "modules/lexdict/rawld/TESTDICT").deleteRecursively()
+        }
+    }
+
+    /**
      * Writes a minimal single-entry RawLD (2-byte) dictionary into the SWORD download dir and
      * registers it the same way restore does (file-based [SwordBookMetaData] +
      * [SwordBookDriver.registerNewBook]), returning the registered book.

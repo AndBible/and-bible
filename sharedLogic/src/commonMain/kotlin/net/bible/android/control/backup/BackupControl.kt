@@ -1176,6 +1176,12 @@ class BackupControl(
             // Snapshot only the replaced SWORD module's own files, never the whole modules tree.
             // Do this before publishing: its old DataPath may differ from the new version's.
             val obsoleteFiles = linkedSetOf<Path>()
+            // Case-insensitive storage (Android external files, macOS, Windows) makes "KJV.conf" and "kjv.conf" one file,
+            // so a path that equals any published path ignoring case is never obsolete.
+            val publishedKeys = HashSet<String>().apply {
+                (staged.keys + staged.values + bufferedConfs.keys).forEach { add(it.toString().lowercase()) }
+            }
+            fun isPublished(path: Path) = path.toString().lowercase() in publishedKeys
             val dataRoot = (targetDirectory / SwordConstants.DIR_DATA).normalized()
             val installed = Books.installed().getBooks()
             for ((conf, bytes) in bufferedConfs) {
@@ -1197,10 +1203,10 @@ class BackupControl(
                 ) {
                     obsoleteFiles.addAll(fileSystem.listRecursively(oldDir, followSymlinks = false)
                         .filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
-                        .filter { it !in staged.keys && it !in staged.values })
+                        .filter { !isPublished(it) })
                 }
                 metadata.configFile?.let { oldConf ->
-                    if (oldConf !in bufferedConfs && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
+                    if (!isPublished(oldConf) && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
                 }
             }
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
