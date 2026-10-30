@@ -151,11 +151,21 @@ class BookAndKey(
 }
 
 class BookAndKeyList: DefaultKeyList() {
+    private var customName: String? = null
+
+    override fun setName(name: String?) {
+        customName = name
+    }
+
+    /** Compact localized titles for every multi-reference entry point, including restored windows. */
+    override fun getName(): String = customName ?: map {
+        (it as? BookAndKey)?.shortName ?: it.shortName
+    }.distinct().joinToString(", ")
+
     /** An independent copy: same keys in the same order, no shared list. */
     override fun clone(): BookAndKeyList = BookAndKeyList().also { copy ->
         for (key in this) copy.addAll(key)
-        // A custom name (setName) is not derivable from the keys; carry it over.
-        if (copy.getName() != getName()) copy.setName(getName())
+        copy.setName(customName)
     }
 
     override fun getOsisRef(): String {

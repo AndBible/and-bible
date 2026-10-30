@@ -48,6 +48,10 @@ When enabled, cross-references appear as small orange superscript markers in the
 Bible text. Tap a marker to open a dialog listing the related passages. If inline
 expansion is enabled, the references are shown directly in the text instead.
 
+Choose **Open all references** to view the listed passages together in the links
+window. Its title uses localized abbreviated book names (for example,
+**Ecc 7:29, Gen 1:26** in English) and lists each reference only once.
+
 **Treasury of Scripture Knowledge (TSK)**
 
 For comprehensive cross-references covering every verse in the Bible, install the
