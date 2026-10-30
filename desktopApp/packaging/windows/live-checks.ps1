@@ -44,7 +44,7 @@ switch ($Action) {
     }
     'Compare' {
         if (-not $Snapshot) { throw '-Snapshot is required.' }
-        $before = @(Get-Content -LiteralPath $Snapshot -Raw | ConvertFrom-Json)
+        $before = Get-Content -LiteralPath $Snapshot -Raw | ConvertFrom-Json
         $after = @(Manifest)
         if ($before.Count -ne 2 -or $after.Count -ne 2) { throw 'Expected exactly two snapshot entries.' }
         $difference = @(Compare-Object $before $after -Property Path,Hash)
