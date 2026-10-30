@@ -515,6 +515,8 @@ tasks.register("packageAppImage") {
     group = "distribution"
     dependsOn("createReleaseDistributable", downloadAppImageTool, downloadAppImageRuntime, "validateLinuxMetadata")
     inputs.files(appImageRuntime, appImageTool)
+    val releaseImage = layout.buildDirectory.dir("compose/binaries/main-release/app/andbible")
+    inputs.dir(releaseImage).withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.files(linuxMetadata, linuxDesktop, layout.projectDirectory.file("packaging/linux/AppRun"),
         layout.projectDirectory.file("packaging/linux/andbible.png"))
     inputs.property("version", desktopVersion)
@@ -523,7 +525,7 @@ tasks.register("packageAppImage") {
     doLast {
         check(hostTarget == "linux-x64") { "AppImage requires Linux x64 (this host is $hostTarget)" }
         val stage = layout.buildDirectory.dir("appimage/AppDir").get().asFile
-        val image = layout.buildDirectory.dir("compose/binaries/main-release/app/andbible").get().asFile
+        val image = releaseImage.get().asFile
         check(File(image, "bin/andbible").isFile) { "Release distributable missing at $image" }
         // Earlier runs may have copied read-only runtime files; make the owned staging tree removable.
         if (stage.exists()) {
