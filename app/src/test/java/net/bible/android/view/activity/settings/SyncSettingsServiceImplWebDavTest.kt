@@ -104,16 +104,16 @@ class SyncSettingsServiceImplWebDavTest {
         assertNull(prefs.getString("webdav_sync_server_url", null))
         assertNull(prefs.getString("cloud_sync_server_url", null))
         assertTrue(service.setText("cloud_sync_server_url", "https://nas/dav/"))
-        assertEquals("https://nas/dav/", prefs.getString("webdav_sync_server_url", null))
+        assertEquals("https://nas/dav", prefs.getString("webdav_sync_server_url", null))
     }
 
     @Test fun webDav_url_isTrimmedBeforeValidationAndStorage() {
         current = "WEBDAV"
         val service = impl()
         assertTrue(service.setText("cloud_sync_server_url", " https://nas/dav/ \n"))
-        assertEquals("https://nas/dav/", prefs.getString("webdav_sync_server_url", null))
+        assertEquals("https://nas/dav", prefs.getString("webdav_sync_server_url", null))
         assertFalse(service.setText("cloud_sync_server_url", " http://nas/ "))
-        assertEquals("https://nas/dav/", prefs.getString("webdav_sync_server_url", null))
+        assertEquals("https://nas/dav", prefs.getString("webdav_sync_server_url", null))
     }
 
     @Test fun webDav_urlOrFolderChange_resetsPropagation() {

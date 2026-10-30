@@ -33,6 +33,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncSettingsCategories
 import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.DocumentSyncProvider
+import net.bible.service.cloudsync.normalizeSyncServerUrl
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
 import net.bible.service.cloudsync.webdav.WebDavConfig
@@ -220,8 +221,7 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setText(key: String, rawValue: String): Boolean {
-        // Addresses are often pasted with a trailing space/newline.
-        val value = if (key == "cloud_sync_server_url") rawValue.trim() else rawValue
+        val value = if (key == "cloud_sync_server_url") normalizeSyncServerUrl(rawValue) else rawValue
         if (key == "cloud_sync_server_url") {
             val valid = if (isWebDav) WebDavUrl.validate(value) else {
                 validNextcloudUrl(value) && platform.plainHttpAllowed(value)

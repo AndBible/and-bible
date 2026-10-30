@@ -116,7 +116,7 @@ class IosCloudAdapterFactoryTest {
         platform.setCredential("cloud_sync_folder_path", "AndBible")
         runCatching { factory().create("NEXT_CLOUD").signIn() }
         assertEquals(
-            listOf(WebDavConfig("https://c.example/remote.php/dav/files/anna/", "anna", "pw", "AndBible")),
+            listOf(WebDavConfig("https://c.example/remote.php/dav/files/anna", "anna", "pw", "AndBible")),
             recorded,
         )
     }
@@ -146,7 +146,7 @@ class IosCloudAdapterFactoryTest {
         platform.setCredential("cloud_sync_server_url", "http://NAS.local:8080/")
         platform.setCredential("cloud_sync_username", "anna")
         runCatching { factory().create("NEXT_CLOUD").signIn() }
-        assertEquals("http://NAS.local:8080/remote.php/dav/files/anna/", recorded.single().serverUrl)
+        assertEquals("http://NAS.local:8080/remote.php/dav/files/anna", recorded.single().serverUrl)
     }
 
     @Test fun webDavUsesWebdavKeys() = runTest {
@@ -155,7 +155,7 @@ class IosCloudAdapterFactoryTest {
         platform.setCredential("webdav_sync_password", "secret")
         platform.setCredential("webdav_sync_folder_path", "Sync")
         runCatching { factory().create("WEBDAV").signIn() }
-        assertEquals(listOf(WebDavConfig("https://w.example/dav/", "bob", "secret", "Sync")), recorded)
+        assertEquals(listOf(WebDavConfig("https://w.example/dav", "bob", "secret", "Sync")), recorded)
     }
 
     @Test fun unknownIdThrows() {
@@ -181,7 +181,7 @@ class IosCloudAdapterFactoryTest {
             clientFactory = { c: WebDavConfig, s: WebDavStateStore -> recorded += c; seenStates += s; error("I2-test: no network") },
         )
         runCatching { f.create("WEBDAV").signIn() }
-        assertEquals(listOf(WebDavConfig("https://fake.example/dav/", "u", "p", "f")), recorded)
+        assertEquals(listOf(WebDavConfig("https://fake.example/dav", "u", "p", "f")), recorded)
         assertTrue(seenStates.single() === state, "the client gets the platform's own state store")
     }
 }

@@ -15,6 +15,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeoutException
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import java.util.concurrent.TimeUnit
@@ -50,7 +53,23 @@ class NextCloudServerUrlTest {
                     .putString("cloud_sync_password", "pw")
                     .commit()
                 val adapter = AndroidCloudAdapterFactory(host.get()).create("NEXT_CLOUD")
-                assertTrue(runBlocking { adapter.signIn() } == true)
+                val executor = Executors.newSingleThreadExecutor()
+                try {
+                    // owncloud posts its completion callback to main; do not block that looper.
+                    val signIn = executor.submit<Boolean> { runBlocking { adapter.signIn() } == true }
+                    val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
+                    while (!signIn.isDone && System.nanoTime() < deadline) {
+                        shadowOf(android.os.Looper.getMainLooper()).idle()
+                        try {
+                            signIn.get(10, TimeUnit.MILLISECONDS)
+                        } catch (_: TimeoutException) {
+                            // Wait briefly for HTTP work before servicing the next main callback.
+                        }
+                    }
+                    assertTrue(signIn.get(1, TimeUnit.SECONDS))
+                } finally {
+                    executor.shutdownNow()
+                }
                 assertEquals("/remote.php/dav/files/me/", server.takeRequest(5, TimeUnit.SECONDS)!!.target)
             }
         } finally {
