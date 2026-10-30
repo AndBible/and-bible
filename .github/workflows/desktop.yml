@@ -58,6 +58,10 @@ jobs:
         with:
           path: desktopApp/build/kcef-download
           key: kcef-natives-jbr-release-17.0.14b1367.22
+      - name: Install Linux packaging prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y appstream desktop-file-utils file squashfs-tools
       - name: Desktop tests and Linux packages
         env:
           REF_TYPE: ${{ github.ref_type }}
