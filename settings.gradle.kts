@@ -31,7 +31,7 @@ dependencyResolutionManagement {
     }
 }
 
-include(":app", ":jsword", ":sharedCore", ":sharedData", ":sharedLogic", ":strings-gen", ":sharedUi", ":desktopApp", ":desktopWebkitGtk")
+include(":app", ":jsword", ":sharedCore", ":sharedData", ":sharedLogic", ":strings-gen", ":sharedUi", ":desktopApp", ":desktopWebkitGtk", ":desktopWebView2")
 
 // kdom (fi.sykero:kdom) is a separate repository, consumed as a composite build.
 includeBuild("kdom")
