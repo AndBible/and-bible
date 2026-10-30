@@ -52,6 +52,9 @@ class DesktopPaths(
     /** Sword modules: `<data>/sword`. */
     val sword: NioPath
 
+    /** CEF's profile and cache: `<cache>/cef`. */
+    val cefCache: NioPath
+
     init {
         val fs = home.fileSystem
         fun variable(name: String, requireAbsolute: Boolean): NioPath? {
@@ -82,6 +85,7 @@ class DesktopPaths(
             }
         }
         sword = data.resolve("sword")
+        cefCache = cache.resolve("cef")
     }
 
     companion object {

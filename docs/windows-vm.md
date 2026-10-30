@@ -23,8 +23,16 @@ scripts/windows-vm.sh scp-from 'C:/abtest/file' /path/to/local-copy
 scripts/windows-vm.sh shot desktop
 scripts/windows-vm.sh key ctrl+alt+delete
 scripts/windows-vm.sh type 'printable ASCII text'
+scripts/windows-vm.sh mouse click 640 400 [left|right|middle|back|forward]   # also move, down, up, wheel x y notches
+scripts/windows-vm.sh gui-run 'set "APPDATA=C:\p\Roaming" && C:\abtest\app\AndBible\AndBible.exe'
 scripts/windows-vm.sh key enter
 scripts/windows-vm.sh stop
+# persistent dev overlay (JDK, repo copy, Gradle caches survive stop)
+scripts/windows-vm.sh dev-start
+scripts/windows-vm.sh dev-provision   # once per dev overlay: JDK 17 and Git for Windows
+scripts/windows-vm.sh push-repo [--clean] [dir]
+scripts/windows-vm.sh dev-gradle :desktopApp:packageWindowsZip
+scripts/windows-vm.sh dev-reset
 ```
 
 `start` returns when QMP is ready, not when Windows or SSH has finished booting. Retry SSH with a bounded timeout before using the guest; a successful `start` alone does not establish SSH readiness.
@@ -33,7 +41,23 @@ scripts/windows-vm.sh stop
 
 Each `start` creates a fresh ephemeral overlay and a firmware-variable copy; changes made in a run do not persist to the base. `stop` terminates QEMU rather than cleanly shutting down the guest: use it only knowing that the overlay is disposable. Initial base promotion, by contrast, requires clean shutdown. A run's files remain under `runs/`; do not assume `stop` removes them.
 
+### Dev overlay
+
+`dev-start` boots from a persistent per-container overlay `dev-<id>.qcow2` (plus `dev-<id>.vars` firmware variables) in the VM directory, created on top of the base on first use and reused afterwards. Use it for the guest JDK (Temurin 17; the script sets `JAVA_HOME` from `WINDOWS_VM_JAVA_HOME`, default `C:\Program Files\Eclipse Adoptium\jdk-17.0.20.1-hotspot`), the repo copy in `C:\abtest\src` and the Gradle caches. The same per-container lock applies: only one VM, throwaway or dev, runs at a time. `stop` never deletes the dev overlay; only `dev-reset` does, and it refuses while the VM runs. The plain `start` stays the throwaway overlay for clean test runs. A dev overlay is bound to the base it was created on: after a base is rebuilt, run `dev-reset` (and `dev-provision` again) before the next `dev-start`.
+
+`push-repo` tars the working tree (tracked and untracked-not-ignored files, the `jsword` and `kdom` submodules, and the gitignored `app/bibleview-js/dist/` bundle; never `.git`, `build/`, `.gradle/`, `node_modules/` or `.local/`) and unpacks it over `C:\abtest\src`, keeping guest build outputs; `--clean` removes the guest tree first. `dev-gradle` runs `gradlew.bat` with the given arguments (PowerShell-quoted), returns Gradle's exit code, and always fetches `*.zip` files from `desktopApp\build\compose\binaries` and the `test-results` and `reports` directories into `.local/windows-vm/out/<id>/` (reports under `build/`).
+
+`dev-provision` copies `scripts/windows-vm/dev-provision.ps1` into the guest and runs it; it is idempotent. It installs, each pinned by version and SHA-256: Temurin JDK `17.0.20.1+1` (MSI `OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.msi`, SHA-256 `a6013774c5e4a34951e11c1997d8b4641d2de7736d3eac839231f4266bd1116f`) with only its main feature, so no `java` lands on the PATH and no `JAVA_HOME` is set (the app must run on its bundled runtime); and Git for Windows `2.56.0.windows.4` (SHA-256 `4961a4a8cc778d8b6e00a5819e5fe4d078b754555aff7aedc2d77a5d74c2de80`) with its Unix tools on the PATH, because `:app`'s configuration runs `git` and `:desktopApp:prepareBibleViewBundle` runs `sh`. Restart `sshd` (or the VM) after the first provisioning so SSH sessions see the new PATH. The guest reaches Maven Central, Google and GitHub directly through QEMU user networking.
+
+The guest copy is not a git checkout: `push-repo` gives it a stub repository with one empty commit (for `:app`'s `git rev-parse`) and a `local.properties` naming an empty `C:\abtest\android-sdk-stub` (AGP wants an SDK location while configuring `:app`, but no Android task runs). Build the BibleView bundle in the container (`cd app/bibleview-js && npm run build-production`) before `push-repo`; the guest has no Node, and `copy-bibleview.sh` only copies an up-to-date `dist/`. A cold `:desktopApp:packageWindowsZip` in the guest took about 25 minutes (4 vCPUs), an incremental one 5 minutes.
+
 GUI testing requires a manual `abtest` logon once per fresh overlay: automatic logon is disabled after provisioning. SSH is available at the login screen. If the screenshot is black, wake the display with a key before capturing it. QMP `type` sends printable US-ASCII key sequences, not clipboard text; the active guest keyboard layout affects the resulting characters. `key` sends QEMU key combinations such as `ctrl+alt+delete`.
+
+### GUI runs
+
+A process started over SSH lives on a non-interactive window station: its windows are invisible, get no input, and the app's Skia finds no Direct3D/OpenGL device there (`Direct3DRedrawer_initSwapChain` access violation, then a blank window). `gui-run <cmd>` instead starts the command in the logged-on user's desktop through a one-shot scheduled task (`/IT`), so log on at the console first (`type` the password from `credentials`, then `key enter`). Each run gets its own task and its own `C:\abtest\gui\<id>.cmd`, `.log` (the command's stdout and stderr) and `.exit` (its exit code, written when it ends); `gui-run` prints the id. The command line is cmd.exe syntax in UTF-8 (code page 65001), so `set "NAME=value" && ...` sets environment variables, and non-ASCII paths work. `mouse` drives the absolute pointer (a `usb-tablet` on its own xHCI controller) through QMP `input-send-event`; coordinates are guest screen pixels (the screen size comes from a screendump, or `WINDOWS_VM_SCREEN=WxH`); `back`/`forward` are the side buttons. `key` also knows `altgr` and `win` (`win+spc` switches the keyboard layout). Disable the display timeout once (`powercfg /change monitor-timeout-ac 0`), or screenshots come out black.
+
+Display scaling: set `HKCU\Control Panel\Desktop` `LogPixels` (120 = 125 %, 144 = 150 %) and `Win8DpiScaling` = 1, then log off (`gui-run 'shutdown /l'`) and log on again. A folder created over SSH under `C:\Users` belongs to the elevated Administrators token and is read-only for the UAC-filtered desktop session; `icacls <dir> /grant abtest:(OI)(CI)F /T` before using it as a test profile.
 
 ## Files and configuration
 

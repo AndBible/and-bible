@@ -23,12 +23,17 @@ class DesktopExternalLinks(
         try { ProcessBuilder("xdg-open", uri.toASCIIString()).start(); true } catch (_: Exception) { false }
     },
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    osName: String = System.getProperty("os.name").orEmpty(),
 ) : ExternalLinks {
+    /** The freedesktop portal and `xdg-open` exist on Linux/Unix only; Windows and macOS go straight to `Desktop`. */
+    private val freedesktop = osName.lowercase().let { !it.startsWith("windows") && !it.startsWith("mac") }
+
     override val askBeforeOpening: Boolean get() = false
     override fun open(url: String) {
         val uri = try { URI(url) } catch (_: Exception) { return }
         if (uri.scheme?.lowercase() !in setOf("http", "https", "mailto")) return
         scope.launch {
+            if (!freedesktop) { desktop(uri); return@launch }
             val result = try { portal(uri) } catch (e: kotlinx.coroutines.CancellationException) { throw e }
                 catch (_: Exception) { PortalOpenResult.UNAVAILABLE } catch (_: LinkageError) { PortalOpenResult.UNAVAILABLE }
             if (result == PortalOpenResult.UNAVAILABLE && !desktop(uri)) xdg(uri)

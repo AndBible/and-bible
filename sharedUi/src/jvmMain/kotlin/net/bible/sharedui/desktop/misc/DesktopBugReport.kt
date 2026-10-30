@@ -100,22 +100,27 @@ fun recoveryBugReport(directory: Path, version: String, log: () -> String, intro
 
         { path, _, _ -> println(path); DeliveryResult.DELIVERED }, open,
 
-        introduction = { introduction }, crashFile = directory.resolve("logs/last_crash.txt"), retainReport = true)
+        introduction = { introduction }, crashFile = directory.resolve("logs").resolve("last_crash.txt"), retainReport = true)
 
 
 
-private fun openRecoveryMail(url: String) {
+private fun openRecoveryMail(url: String) = openMailto(java.net.URI(url))
 
-    val uri = java.net.URI(url)
-
+/**
+ * Opens a `mailto:` URI in the mail client: `Desktop.mail` first. When that fails, Windows and macOS fall back to
+ * `Desktop.browse` (the shell opens mailto: links); other Unix desktops to `xdg-open`, which Windows does not have.
+ */
+internal fun openMailto(
+    uri: java.net.URI,
+    osName: String = System.getProperty("os.name").orEmpty(),
+    mail: (java.net.URI) -> Unit = { java.awt.Desktop.getDesktop().mail(it) },
+    browse: (java.net.URI) -> Unit = { java.awt.Desktop.getDesktop().browse(it) },
+    xdg: (java.net.URI) -> Unit = { ProcessBuilder("xdg-open", it.toASCIIString()).start() },
+) {
     try {
-
-        java.awt.Desktop.getDesktop().mail(uri)
-
+        mail(uri)
     } catch (_: Exception) {
-
-        ProcessBuilder("xdg-open", url).start()
-
+        val lower = osName.lowercase()
+        if (lower.startsWith("windows") || lower.startsWith("mac")) browse(uri) else xdg(uri)
     }
-
 }

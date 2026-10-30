@@ -66,5 +66,34 @@ class AwtWindowHandle(private val defaultSize: IntSize = IntSize(DEFAULT_WIDTH_D
         const val DEFAULT_HEIGHT_DP = 800
         const val MIN_WIDTH_DP = 480
         const val MIN_HEIGHT_DP = 600
+
+        /**
+         * The first window size: the default, shrunk to fit [workArea] (the screen minus the taskbar, in AWT user space,
+         * i.e. dp on a scaled Windows display), but never below the minimum size. At 150 % a 1920 x 1080 laptop has only
+         * 1280 x ~690 dp above the taskbar (W1). A null [workArea] (headless, unknown) keeps the default.
+         */
+        fun initialSizeDp(workArea: java.awt.Rectangle?): IntSize {
+            if (workArea == null || workArea.width <= 0 || workArea.height <= 0) return IntSize(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP)
+            return IntSize(
+                DEFAULT_WIDTH_DP.coerceAtMost(workArea.width).coerceAtLeast(MIN_WIDTH_DP),
+                DEFAULT_HEIGHT_DP.coerceAtMost(workArea.height).coerceAtLeast(MIN_HEIGHT_DP),
+            )
+        }
+
+        /**
+         * Where the first window goes: centred on [workArea], but never above or left of it, so the title bar stays on
+         * screen even when the minimum size is taller than the work area. Null (no work area) leaves it to the platform.
+         */
+        fun initialPositionDp(workArea: java.awt.Rectangle?, size: IntSize): androidx.compose.ui.unit.IntOffset? {
+            if (workArea == null || workArea.width <= 0 || workArea.height <= 0) return null
+            return androidx.compose.ui.unit.IntOffset(
+                workArea.x + ((workArea.width - size.width) / 2).coerceAtLeast(0),
+                workArea.y + ((workArea.height - size.height) / 2).coerceAtLeast(0),
+            )
+        }
+
+        /** The default screen's work area, or null when there is none (headless). */
+        fun screenWorkArea(): java.awt.Rectangle? =
+            runCatching { java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().maximumWindowBounds }.getOrNull()
     }
 }

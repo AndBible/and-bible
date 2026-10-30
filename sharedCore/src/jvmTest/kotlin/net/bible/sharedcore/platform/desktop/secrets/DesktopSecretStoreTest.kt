@@ -133,4 +133,33 @@ class DesktopSecretStoreTest {
         assertTrue(JavaKeyringBackend.isNotFound(PasswordAccessException("lookup failed", RuntimeException("Item not found"))))
         assertTrue(!JavaKeyringBackend.isNotFound(PasswordAccessException("Cannot connect to the secret service")))
     }
+
+    @Test
+    fun windowsNotFoundIsAbsent() {
+        assertTrue(JavaKeyringBackend.isNotFound(PasswordAccessException("Error code 1168")))
+        assertTrue(!JavaKeyringBackend.isNotFound(PasswordAccessException("Error code 5")))
+        assertTrue(!JavaKeyringBackend.isNotFound(PasswordAccessException("Error code 11680")))
+        assertTrue(!JavaKeyringBackend.isNotFound(PasswordAccessException("Error code 21168")))
+    }
+
+    @Test
+    fun vaultUnavailableAsksEachTime() {
+        val prefs = FakePrefs()
+        val store = DesktopSecretStore(ThrowingBackend(), prefs)
+        assertNull(store.get("webdav_password"))
+        assertNull(store.get("webdav_password"))
+        store.put("webdav_password", "secret")
+        store.remove("webdav_password")
+        assertTrue(prefs.map.values.none { it == "secret" }, "secret must not reach the prefs")
+        assertNull(store.get("other"))
+    }
+
+    @Test
+    fun absentEntryDoesNotDegradeStore() {
+        val backend = MapBackend()
+        val store = DesktopSecretStore(backend, FakePrefs())
+        assertNull(store.get("webdav_password"))
+        store.put("webdav_password", "secret")
+        assertEquals("secret", backend.map[DesktopSecretStore.SERVICE to "webdav_password"])
+    }
 }

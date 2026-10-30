@@ -15,7 +15,26 @@ import java.nio.file.Paths
 import java.nio.file.LinkOption.NOFOLLOW_LINKS
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFilePermissions
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicBoolean
+
+/**
+ * The OS-dependent parts of [InstanceHandOff], injectable so Windows behaviour is testable on Linux.
+ *
+ * @param osName `os.name`
+ * @param tmpDir where the short fallback socket goes when the data dir path is too long for an AF_UNIX address
+ * @param deleteFile removes a stale socket file; on Windows it fails while anything still has the file open
+ * @param deleteRetries attempts at removing a stale socket before giving up (Windows: the dying process may hold it briefly)
+ */
+internal class HandOffPlatform(
+    val osName: String = System.getProperty("os.name").orEmpty(),
+    val tmpDir: Path = Paths.get(System.getProperty("java.io.tmpdir")),
+    val deleteFile: (Path) -> Unit = { Files.deleteIfExists(it) },
+    val deleteRetries: Int = 10,
+    val retryDelayMs: Long = 100,
+) {
+    val windows: Boolean get() = osName.lowercase().startsWith("windows")
+}
 
 /** Bounded, acknowledged local hand-off; a callback owns the files before the acknowledgement is sent. */
 object InstanceHandOff {
@@ -24,32 +43,70 @@ object InstanceHandOff {
     private const val TIMEOUT_MS = 2000L
     private const val ACK = 0x41434b31
 
-    private fun address(dir: Path) = UnixDomainSocketAddress.of(dir.resolve("instance.sock"))
+    /** sun_path is about 108 bytes (NUL included); stay clear of it. Measured in UTF-8, the safe reading for non-ASCII. */
+    private const val MAX_SOCKET_PATH_BYTES = 100
 
-    fun listen(dataDir: Path, onFiles: (List<Path>) -> Unit): AutoCloseable {
+    /**
+     * Where the socket lives: `<dataDir>/instance.sock`, next to the lock file. On Windows a `%APPDATA%` under a long or
+     * non-ASCII profile name can exceed the AF_UNIX path limit; then the socket goes under [HandOffPlatform.tmpDir] with a
+     * name derived from a hash of the data dir, so the listener and a second launch compute the same path.
+     */
+    internal fun socketPath(dataDir: Path, platform: HandOffPlatform = HandOffPlatform()): Path {
+        val preferred = dataDir.resolve("instance.sock")
+        if (!platform.windows || preferred.toString().toByteArray(StandardCharsets.UTF_8).size <= MAX_SOCKET_PATH_BYTES) return preferred
+        val hash = MessageDigest.getInstance("SHA-256").digest(dataDir.toAbsolutePath().normalize().toString().toByteArray(StandardCharsets.UTF_8))
+            .take(8).joinToString("") { "%02x".format(it) }
+        return platform.tmpDir.resolve("andbible-$hash.sock")
+    }
+
+    private fun address(path: Path) = UnixDomainSocketAddress.of(path)
+
+    fun listen(dataDir: Path, onFiles: (List<Path>) -> Unit): AutoCloseable = listen(dataDir, HandOffPlatform(), onFiles)
+
+    internal fun listen(dataDir: Path, platform: HandOffPlatform, onFiles: (List<Path>) -> Unit): AutoCloseable {
         Files.createDirectories(dataDir)
-        Files.setPosixFilePermissions(dataDir, PosixFilePermissions.fromString("rwx------"))
-        val path = dataDir.resolve("instance.sock")
-        fun identity(): Any? = Files.readAttributes(path, BasicFileAttributes::class.java, NOFOLLOW_LINKS).fileKey()
+        if (!platform.windows) Files.setPosixFilePermissions(dataDir, PosixFilePermissions.fromString("rwx------"))
+        val path = socketPath(dataDir, platform)
+        val windows = platform.windows
+        // Windows has no file keys and no unix:mode; a socket file there is a reparse point, so identify it by its
+        // timestamps and size instead.
+        fun key(attrs: BasicFileAttributes): Any? =
+            if (windows) listOf(attrs.creationTime(), attrs.lastModifiedTime(), attrs.size()) else attrs.fileKey()
+        fun identity(): Any? = key(Files.readAttributes(path, BasicFileAttributes::class.java, NOFOLLOW_LINKS))
         fun socketIdentity(): Any {
             val attrs = Files.readAttributes(path, BasicFileAttributes::class.java, NOFOLLOW_LINKS)
-            require(attrs.isOther && !attrs.isSymbolicLink) { "Not a socket: $path" }
-            val mode = Files.getAttribute(path, "unix:mode", NOFOLLOW_LINKS) as Int
-            require(mode and 0xf000 == 0xc000) { "Not a socket: $path" }
-            return requireNotNull(attrs.fileKey())
+            if (windows) {
+                require(!attrs.isDirectory && !attrs.isSymbolicLink) { "Not a socket: $path" }
+            } else {
+                require(attrs.isOther && !attrs.isSymbolicLink) { "Not a socket: $path" }
+                val mode = Files.getAttribute(path, "unix:mode", NOFOLLOW_LINKS) as Int
+                require(mode and 0xf000 == 0xc000) { "Not a socket: $path" }
+            }
+            return requireNotNull(key(attrs))
         }
         fun deleteIfSame(key: Any) {
-            if (runCatching { socketIdentity() == key }.getOrDefault(false)) Files.deleteIfExists(path)
+            if (runCatching { socketIdentity() == key }.getOrDefault(false)) runCatching { platform.deleteFile(path) }
+        }
+        // An open file cannot be deleted on Windows: the dying owner of a stale socket may hold it for a moment.
+        fun deleteStale(key: Any) {
+            var last: Exception? = null
+            repeat(platform.deleteRetries.coerceAtLeast(1)) { attempt ->
+                if (attempt > 0) Thread.sleep(platform.retryDelayMs)
+                if (runCatching { socketIdentity() == key }.getOrDefault(false)) {
+                    try { platform.deleteFile(path); return } catch (e: java.io.IOException) { last = e }
+                } else return
+            }
+            throw java.io.IOException("Cannot remove the stale socket $path (still in use?)", last)
         }
         val server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)
         try {
-            try { server.bind(address(dataDir)) } catch (original: Exception) {
+            try { server.bind(address(path)) } catch (original: Exception) {
                 if (!Files.exists(path, NOFOLLOW_LINKS)) throw original
                 val key = socketIdentity()
                 val active = try {
                     SocketChannel.open(StandardProtocolFamily.UNIX).use { probe ->
                         probe.configureBlocking(false)
-                        if (!probe.connect(address(dataDir))) {
+                        if (!probe.connect(address(path))) {
                             waitReady(probe, SelectionKey.OP_CONNECT, System.nanoTime() + TIMEOUT_MS * 1_000_000)
                             check(probe.finishConnect())
                         }
@@ -58,12 +115,12 @@ object InstanceHandOff {
                 } catch (_: java.net.ConnectException) { false }
                 if (active) throw original
                 check(identity() == key) { "Socket changed during stale probe" }
-                deleteIfSame(key)
-                server.bind(address(dataDir))
+                deleteStale(key)
+                server.bind(address(path))
             }
         } catch (e: Throwable) { server.close(); throw e }
         val boundKey = socketIdentity()
-        try { Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-------")) }
+        try { if (!windows) Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-------")) }
         catch (e: Throwable) { server.close(); deleteIfSame(boundKey); throw e }
         val closed = AtomicBoolean(false)
         val guard = Any()
@@ -107,7 +164,10 @@ object InstanceHandOff {
         }
     }
 
-    fun send(dataDir: Path, files: List<Path>): Boolean {
+    fun send(dataDir: Path, files: List<Path>): Boolean = send(dataDir, files, HandOffPlatform())
+
+    internal fun send(dataDir: Path, files: List<Path>, platform: HandOffPlatform): Boolean {
+        val socket = socketPath(dataDir, platform)
         val bytes = try {
             require(files.size <= MAX_FILES)
             files.map { it.toAbsolutePath().normalize().toString().toByteArray(StandardCharsets.UTF_8).also { b -> require(b.size in 1..MAX_PATH) } }
@@ -119,7 +179,7 @@ object InstanceHandOff {
                 SocketChannel.open(StandardProtocolFamily.UNIX).use { peer ->
                     peer.configureBlocking(false)
                     val deadline = minOf(end, System.nanoTime() + TIMEOUT_MS * 1_000_000)
-                    if (!peer.connect(address(dataDir))) {
+                    if (!peer.connect(address(socket))) {
                         waitReady(peer, SelectionKey.OP_CONNECT, deadline)
                         check(peer.finishConnect())
                     }
