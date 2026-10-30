@@ -45,7 +45,7 @@ class OsrInputTest {
     private val source = JPanel()
 
     /** Scale 2: 200 x 100 DIP view, 400 x 200 px. */
-    private val input = OsrInput(sink, { OsrGeometry(400, 200, 2.0, Point(10, 20)) }, source)
+    private val input = OsrInput(sink, { OsrGeometry(400, 200, 2.0, Point(10, 20)) }, source, osName = "Linux")
 
     @Test fun pressReleaseClickMappedWithButtonAndModifiers() {
         val down = InputEvent.BUTTON1_DOWN_MASK or InputEvent.SHIFT_DOWN_MASK
@@ -112,6 +112,21 @@ class OsrInputTest {
         val e = sink.wheel.single()
         assertTrue(e.modifiersEx and InputEvent.SHIFT_DOWN_MASK != 0)
         assertWheel(e, -1, 120)
+    }
+
+    /**
+     * Windows: JCEF's native wheel path negates the vertical delta there (`deltaY = -unitsToScroll` under OS_WIN, not
+     * on Linux), so the vertical rotation keeps AWT's sign; the horizontal one is not negated on either OS. Measured
+     * live on the W1 VM: before this, one notch down reached the page as deltaY = -100 (scrolling up).
+     */
+    @Test fun windowsVerticalWheelKeepsTheAwtSign() {
+        val windows = OsrInput(sink, { OsrGeometry(400, 200, 2.0, Point(10, 20)) }, source, osName = "Windows 11")
+        assertTrue(windows.wheel(100f, 100f, 0, 1.0))
+        assertTrue(windows.wheel(100f, 100f, 0, -2.0))
+        assertTrue(windows.wheel(100f, 100f, InputEvent.SHIFT_DOWN_MASK, 1.0))
+        assertWheel(sink.wheel[0], 1, 120)
+        assertWheel(sink.wheel[1], -1, 240)
+        assertWheel(sink.wheel[2], -1, 120)
     }
 
     @Test fun ctrlWheelForwardedWithModifier() {

@@ -2,6 +2,9 @@
 # Builds app/bibleview-js (production) and copies dist/ + the PoC fixture into $1 (the bibleview-js resource dir).
 # npm ci runs only when node_modules is missing or older than package-lock.json; the build only when dist/ is missing or older than any of src/, public/, package.json, package-lock.json, index.html, vite.config.mts or tsconfig*.json.
 set -eu
+# Git for Windows' sh (the Windows build, W1): System32 precedes the Unix tools on the PATH there, and Windows' own
+# find.exe and sort.exe would silently produce an empty files.txt.
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) PATH="/usr/bin:$PATH" ;; esac
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SRC="$ROOT/app/bibleview-js"
 DEST="$1"
@@ -25,3 +28,4 @@ rm -rf "$DEST"; mkdir -p "$DEST"
 cp -R "$SRC/dist/." "$DEST/"
 cp "$SRC/ios/poc-document.json" "$DEST/"
 (cd "$DEST" && find . -type f ! -name files.txt | sed 's|^\./||' | LC_ALL=C sort > files.txt)
+grep -qx 'index.html' "$DEST/files.txt" || { echo "error: $DEST/files.txt does not list index.html"; exit 1; }

@@ -161,7 +161,7 @@ fun desktopMiscModule(): Module = module {
                 dialogs.await(AppDialogRequest.Message(strings.text("error"), strings.text("bug_report_prepare_failed"), strings.text("okay")))
             },
             introduction = { table.current.text("report_bug_line_1") },
-            crashFile = Path.of(dirs.internalFilesDir.toString()).resolve("logs/last_crash.txt"),
+            crashFile = Path.of(dirs.internalFilesDir.toString()).resolve("logs").resolve("last_crash.txt"),
         )
     }
     single<BugReportPlatform> { DesktopBugReportPlatform(get()) }

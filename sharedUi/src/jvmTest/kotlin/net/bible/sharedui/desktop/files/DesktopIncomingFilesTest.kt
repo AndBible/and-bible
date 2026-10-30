@@ -52,6 +52,42 @@ class DesktopIncomingFilesTest {
         }
     }
 
+    /**
+     * A hand-off socket that cannot be bound (a path too long for AF_UNIX, a stale socket Windows keeps locked) must not
+     * abort the app start: the app runs without a second-launch hand-off, and its own launch arguments still arrive.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun handOffListenFailureDegradesInsteadOfAbortingStartup() {
+        val main = java.util.concurrent.Executors.newSingleThreadExecutor { Thread(it, "incoming-test-main") }
+            .asCoroutineDispatcher()
+        kotlinx.coroutines.Dispatchers.setMain(main)
+        val dir = java.nio.file.Files.createTempDirectory("incoming-listen-failure")
+        val window = object : net.bible.sharedui.desktop.assembly.DesktopWindowHandle {
+            override val sizeDp = androidx.compose.ui.unit.IntSize(1, 1)
+            override val density = 1f
+            override fun toFront() {}
+        }
+        val file = dir.resolve("book.zip")
+        val incoming = DesktopIncomingFilesImpl(
+            dir, listOf(file.toString()), window, net.bible.sharedcore.platform.desktop.DesktopExitTasks(),
+            listen = { _, _ -> throw java.io.IOException("Cannot remove the stale socket (still in use?)") },
+        )
+        try {
+            val delivered = java.util.concurrent.LinkedBlockingQueue<String>()
+            kotlinx.coroutines.runBlocking {
+                val job = launch(main) {
+                    incoming.receive({ refs, done -> delivered.add(refs.single().uri); done() }, {})
+                }
+                assertEquals(file.toUri().toString(), delivered.poll(3, java.util.concurrent.TimeUnit.SECONDS))
+                job.cancel(); job.join()
+            }
+        } finally {
+            incoming.close()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            main.close()
+        }
+    }
+
     @Test fun relativeArgsResolvedAgainstCallerCwd() {
         val cwd = Paths.get("/tmp/caller")
         assertEquals(listOf(cwd.resolve("book.epub")), resolveIncomingArgs(listOf("book.epub"), cwd))

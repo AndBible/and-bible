@@ -76,13 +76,13 @@ class OsrKeyCodeTest {
         }
     }
 
-    @Test fun scriptOnlyForOffscreenOnX11() {
+    @Test fun scriptOnlyWhenTheKeyCodeFixApplies() {
         val base = listOf("SHIM", "page")
-        assertTrue(OsrKeyCode.SCRIPT in PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), osrOnX11 = true))
+        assertTrue(OsrKeyCode.SCRIPT in PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), keyCodeFix = true))
         assertFalse(OsrKeyCode.SCRIPT in PaneFocusRequest.documentStartScripts("SHIM", listOf("page")))
-        assertFalse(OsrKeyCode.SCRIPT in PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), osrOnX11 = false))
-        assertEquals(base, PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), osrOnX11 = true).filter { it in base })
-        val list = PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), osrOnX11 = true)
+        assertFalse(OsrKeyCode.SCRIPT in PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), keyCodeFix = false))
+        assertEquals(base, PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), keyCodeFix = true).filter { it in base })
+        val list = PaneFocusRequest.documentStartScripts("SHIM", listOf("page"), keyCodeFix = true)
         assertTrue(list.indexOf(OsrKeyCode.SCRIPT) < list.indexOf("page"), "before the page's own scripts")
     }
 }

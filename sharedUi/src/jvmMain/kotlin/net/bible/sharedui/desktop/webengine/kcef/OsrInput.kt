@@ -54,13 +54,18 @@ internal interface OsrBrowserSink {
  * presses of those buttons toolkit-wide and navigates itself, and CEF's off-screen mouse path knows buttons 1 to 3 only.
  *
  * @param source the (invisible) component the events claim to come from
+ * @param osName `os.name`: JCEF's native wheel path differs on Windows (see [wheel])
  */
 internal class OsrInput(
     private val sink: OsrBrowserSink,
     private val geometry: () -> OsrGeometry,
     private val source: Component,
     private val clock: () -> Long = System::currentTimeMillis,
+    osName: String = System.getProperty("os.name").orEmpty(),
 ) {
+    /** JCEF negates the vertical wheel delta on Windows only (`deltaY = -unitsToScroll` under OS_WIN in CefBrowser_N). */
+    private val nativeNegatesVertical = osName.lowercase().startsWith("windows")
+
     /**
      * Forwards one mouse event of type [id] ([MouseEvent.MOUSE_PRESSED] etc.) at [xPx], [yPx] (Compose pixels inside the
      * view). Returns true when it was forwarded, i.e. the caller should consume it.
@@ -80,7 +85,9 @@ internal class OsrInput(
     /**
      * Forwards a wheel turn of [preciseRotation] notches (positive scrolls down). Horizontal scrolling is expected as
      * shift-wheel in [modifiersEx], as AWT delivers it. The event is always synthesised so that CEF receives
-     * -(notches * [WHEEL_PIXELS_PER_NOTCH]) pixels on the dominant axis, see [WHEEL_PIXELS_PER_NOTCH].
+     * -(notches * [WHEEL_PIXELS_PER_NOTCH]) pixels on the dominant axis, see [WHEEL_PIXELS_PER_NOTCH]. On Windows JCEF
+     * negates the vertical delta itself, so a vertical notch keeps AWT's sign there; Chromium on Windows then scrolls
+     * 100 px per 120 (the native Windows wheel step, measured live in W1).
      */
     fun wheel(xPx: Float, yPx: Float, modifiersEx: Int, preciseRotation: Double): Boolean {
         if (preciseRotation == 0.0) return false
@@ -88,7 +95,9 @@ internal class OsrInput(
         val p = g.toViewDip(xPx, yPx)
         val screen = g.toScreen(p)
         // Rotation is the same +-1 as an integer and as a double, so whichever JCEF multiplies gives the same sign.
-        val rotation = if (preciseRotation > 0) -1 else 1
+        val vertical = modifiersEx and InputEvent.SHIFT_DOWN_MASK == 0
+        val cefSign = if (preciseRotation > 0) -1 else 1
+        val rotation = if (vertical && nativeNegatesVertical) -cefSign else cefSign
         val amount = maxOf(1, (abs(preciseRotation) * WHEEL_PIXELS_PER_NOTCH).roundToInt())
         sink.sendWheel(
             MouseWheelEvent(

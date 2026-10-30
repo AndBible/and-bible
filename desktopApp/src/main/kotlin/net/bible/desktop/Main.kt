@@ -14,6 +14,8 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +77,8 @@ internal fun composeLayersTypeFor(windowed: Boolean): String? = if (windowed) "W
  * graph as `DesktopLaunchArgs` (read by D3b); the PoC ignores them.
  */
 fun main(args: Array<String>) {
+    // Developer self-test of the credential store (needs -Dandbible.selftest=true): before lock, windows, CEF.
+    SecretsSelfTest.runFromMain(args)?.let { exitProcess(it) }
     // Windowed panes are heavyweight components, so Compose dialogs and popups need their own windows to show above them
     // (D1 verified it). Off-screen panes paint into a Compose canvas: popups stay in-window, correctly placed and without
     // black corners. The mode is the engine's own one-time resolution. Before any Compose window and before KCEF init.
@@ -123,7 +127,7 @@ private fun runApp(launchArgs: List<String>) {
     } else {
         val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
         val crashGate = desktopCrashGate(paths)
-        val cefCache = paths.cache.resolve("cef")
+        val cefCache = paths.cefCache
         requireWritableDirectory(cefCache, "the cache directory")
         val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
         val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
@@ -181,9 +185,19 @@ private fun runApp(launchArgs: List<String>) {
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
         if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine, watchdog) }
+        val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
+        val workArea = remember { AwtWindowHandle.screenWorkArea() }
+        val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
         Window(
             title = "AndBible",
-            state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
+            // Shrunk to the work area when the default does not fit (HiDPI laptops), and then placed on it with the title
+            // bar on screen.
+            state = rememberWindowState(
+                size = initialSize.let { DpSize(it.width.dp, it.height.dp) },
+                position = AwtWindowHandle.initialPositionDp(workArea, initialSize)
+                    ?.takeIf { initialSize != defaultSize }
+                    ?.let { WindowPosition(it.x.dp, it.y.dp) } ?: WindowPosition.PlatformDefault,
+            ),
             onCloseRequest = requestClose,
             // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
             // An off-screen web pane that has focus takes every key itself (the page's script owns the shortcuts).

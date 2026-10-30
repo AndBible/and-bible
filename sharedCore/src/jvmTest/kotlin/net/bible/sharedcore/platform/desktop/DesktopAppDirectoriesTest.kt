@@ -82,4 +82,32 @@ class DesktopAppDirectoriesTest {
         assertTrue(Files.isDirectory(dirs.internalFilesDir.toNioPath()))
         assertTrue(Files.isDirectory(dirs.manualInstallDir.toNioPath()))
     }
+
+    @Test fun windowsPathsWithSpacesAndUmlauts() {
+        val roaming = "C:\\Users\\Jänis Ö\\AppData\\Roaming"
+        val local = "C:\\Users\\Jänis Ö\\AppData\\Local"
+        val p = DesktopPaths(mapOf("APPDATA" to roaming, "LOCALAPPDATA" to local)::get, "Windows 11", home)
+        val fs = home.fileSystem
+        assertEquals(fs.getPath(roaming).resolve("AndBible"), p.data)
+        assertEquals(p.data.resolve("config"), p.config)
+        assertEquals(fs.getPath(local).resolve("AndBible").resolve("cache"), p.cache)
+        assertEquals(p.data.resolve("sword"), p.sword)
+        assertEquals(p.cache.resolve("cef"), p.cefCache)
+        assertTrue(p.cefCache.toString().contains("Jänis Ö"))
+
+        // Same layout on the real file system, in directories with a space and an umlaut: the module install folder
+        // (the Sword path) and the CEF cache are created and usable.
+        val base = Files.createTempDirectory("Jänis Ö")
+        val real = DesktopPaths(
+            mapOf("APPDATA" to base.resolve("Roaming").toString(), "LOCALAPPDATA" to base.resolve("Local").toString())::get,
+            "Windows 11", base,
+        )
+        val dirs = DesktopAppDirectories(real)
+        val modules = Paths.get(dirs.modulesDir.toString())
+        assertEquals(real.sword, modules)
+        assertTrue(Files.isDirectory(modules) && modules.toString().contains("Jänis Ö"))
+        Files.createDirectories(real.cefCache)
+        Files.writeString(real.cefCache.resolve("Cookies"), "x")
+        assertTrue(Files.isRegularFile(real.cefCache.resolve("Cookies")))
+    }
 }
