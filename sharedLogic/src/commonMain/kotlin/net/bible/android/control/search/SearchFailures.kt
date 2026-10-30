@@ -50,3 +50,11 @@ internal fun ftsIndexManager(): FtsIndexManager? = IndexManagerFactory.getIndexM
     if (book.bookMetaData.driverName == null) return book.indexStatus == IndexStatus.DONE
     return IndexManagerFactory.getIndexManager().hasUsableIndex(book)
 }
+
+/**
+ * The full check of the search index of every installed document, for a background thread after startup. Startup
+ * marks a document `DONE` from the existence of its index file only (it runs on Main on Android); this resets the
+ * ones whose index is empty, corrupt, stale or of another engine to `UNDONE`. Returns how many were reset.
+ */
+fun revalidateSearchIndexStatuses(): Int =
+    ftsIndexManager()?.revalidateIndexStatuses(org.crosswire.jsword.book.Books.installed().getBooks()) ?: 0

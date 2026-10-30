@@ -133,8 +133,11 @@ another build, or when you start a search from selected text. If the index has a
 Search continues to the search form or runs the query you were waiting for.
 
 An empty, damaged or outdated SWORD search index is treated as needing a rebuild, including when
-searching from links or AI tools. If any verse cannot be read during indexing, the incomplete new
-index is not used and the affected references are reported. Try reinstalling the document before
+searching from links or AI tools. If a few entries of a document cannot be read during indexing
+(up to 5, or 1% of the document when it is large), the index is still created and AndBible tells you
+once which entries are not searchable (the first ten, then the number of the rest). If more cannot be read, the
+incomplete index is not used, any earlier index stays in place and the affected references are
+reported (the first twenty, then the number of the rest). Try reinstalling the document before
 building its index again if the read errors persist.
 
 <span id="fallback"></span><span id="search-results"></span>

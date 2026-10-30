@@ -444,6 +444,7 @@ fun addMyBibleBook(file: Path) {
         else
             SwordBook(metadata, backend)
 
+    // Existence only (this can run on Main); revalidateSearchIndexStatuses does the full check in the background.
     if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
         metadata.indexStatus = IndexStatus.DONE
     } else {
