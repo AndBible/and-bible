@@ -275,7 +275,7 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
-                debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
+                debMaintainer = "AndBible <help.andbible@gmail.com>"
                 menuGroup = "Education"
                 appCategory = "Education"
             }
