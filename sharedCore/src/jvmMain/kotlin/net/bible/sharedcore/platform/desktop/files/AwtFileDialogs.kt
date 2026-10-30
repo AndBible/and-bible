@@ -9,6 +9,20 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 class AwtFileChooserBackend : FileChooserBackend {
+    companion object {
+        /** Where the user last chose a file or folder in this process (AWT dialogs remember nothing themselves). */
+        @Volatile private var lastDirectory: Path? = null
+
+        /**
+         * The directory a dialog opens in: [lastUsed] while it exists, else `<home>/Documents`, else [home]. Without one,
+         * AWT opens the process's working directory, which on Windows is often C:\Windows\System32 (W1).
+         */
+        internal fun initialDirectory(lastUsed: Path?, home: Path): Path =
+            lastUsed?.takeIf { java.nio.file.Files.isDirectory(it) }
+                ?: home.resolve("Documents").takeIf { java.nio.file.Files.isDirectory(it) }
+                ?: home
+    }
+
     override suspend fun open(filters: List<FileFilter>, multiple: Boolean, directory: Boolean): List<Path>? =
         dialog(false, null, filters, multiple, directory)
 
@@ -25,8 +39,10 @@ class AwtFileChooserBackend : FileChooserBackend {
                 if (!continuation.isActive) return@invokeLater
                 val owner = Frame()
                 try {
+                    val startDir = initialDirectory(lastDirectory, Path.of(System.getProperty("user.home")))
                     val fileDialog = FileDialog(owner, "", if (save) FileDialog.SAVE else FileDialog.LOAD).apply {
                         isMultipleMode = multiple
+                        setDirectory(startDir.toString())
                         file = name
                         val patterns = filters.flatMap { it.globs }.map { java.nio.file.FileSystems.getDefault().getPathMatcher("glob:$it") }
                         if (patterns.isNotEmpty()) setFilenameFilter { _, file -> patterns.any { it.matches(Path.of(file)) } }
@@ -34,7 +50,7 @@ class AwtFileChooserBackend : FileChooserBackend {
                     dialog = fileDialog
                     // AWT has no portable directory-selection mode; Swing supplies it instead.
                     val result = if (directory) {
-                        val picker = javax.swing.JFileChooser().apply { fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY }
+                        val picker = javax.swing.JFileChooser(startDir.toFile()).apply { fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY }
                         var accepted = false
                         val folderDialog = javax.swing.JDialog(owner, true).apply {
                             contentPane.add(picker)
@@ -52,6 +68,7 @@ class AwtFileChooserBackend : FileChooserBackend {
                         fileDialog.isVisible = true
                         fileDialog.files.map { it.toPath() }.takeIf { it.isNotEmpty() }
                     }
+                    result?.firstOrNull()?.let { lastDirectory = if (directory) it else it.parent }
                     if (continuation.isActive) continuation.resume(result)
                 } catch (e: Throwable) {
                     if (continuation.isActive) continuation.resume(null)
