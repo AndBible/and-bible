@@ -278,8 +278,10 @@ const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
 });
 const loadingCount = ref(0);
+let documentGeneration = 0;
 
 function addDocuments(...docs: AnyDocument[]) {
+    const generation = documentGeneration;
     async function doAddDocuments() {
         console.log("doAddDocuments, start")
         loadingCount.value++;
@@ -288,10 +290,13 @@ function addDocuments(...docs: AnyDocument[]) {
         // 2 animation frames seem to make sure that loading indicator is visible.
         await waitNextAnimationFrame();
         await waitNextAnimationFrame();
+        // A sync/navigation can clear the view while this insertion waits for fonts or frames.
+        if (generation !== documentGeneration) return;
         documents.push(...docs);
         await nextTick();
         await Promise.all(customCss.customCssPromises);
         await waitNextAnimationFrame();
+        if (generation !== documentGeneration) return;
         loadingCount.value--;
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
@@ -309,6 +314,7 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
 })
 
 setupEventBusListener("clear_document", function clearDocument() {
+    documentGeneration++;
     loadingCount.value = 0;
     footNoteCount = 0;
     documentsCleared();
