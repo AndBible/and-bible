@@ -2,6 +2,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.Properties
+import java.util.zip.ZipFile
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import javax.inject.Inject
 
@@ -36,25 +37,57 @@ dependencies {
 val kcefJbrTag = "jbr-release-17.0.14b1367.22"
 
 /**
- * The pinned SHA-512 of the Linux x64 natives archive of [kcefJbrTag] (jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz,
- * 193 MiB; its SHA-256 is 496e9a8b4bec55741b3f6cf1111ca3fab870aa6a176d62d870629e5c675a199e). A `.checksum` served
- * next to the archive that disagrees with it fails the build. Other OS/arch packages are not supported in D1.
+ * The pinned SHA-512 digests of the natives archives of [kcefJbrTag], by `<os>-<arch>`. A `.checksum` served next to an
+ * archive that disagrees with its pin fails the build.
+ * - linux-x64: jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz, 193 MiB (SHA-256
+ *   496e9a8b4bec55741b3f6cf1111ca3fab870aa6a176d62d870629e5c675a199e).
+ * - windows-x64: jbr_jcef-17.0.14-windows-x64-b1367.22.tar.gz, 210 MiB; the pin equals both the JetBrains `.checksum`
+ *   and a hash of our own download (W1, 2026-10-30).
+ * Other OS/arch packages (linux-aarch64) are fetched unpinned, checked only against their `.checksum`.
  */
-val kcefNativesDigest: String? =
-    "1c875b43de4d20deb429a686331e4ea5c7c34c519569d1a3b785867d761ed002941203f79b19a338e4a49fab48a6cd4d35408a7356f55781e95c3d60c6c5a8d1"
+val kcefNativesDigests = mapOf(
+    "linux-x64" to "1c875b43de4d20deb429a686331e4ea5c7c34c519569d1a3b785867d761ed002941203f79b19a338e4a49fab48a6cd4d35408a7356f55781e95c3d60c6c5a8d1",
+    "windows-x64" to "1f737ebb5f389dc7cee875d5308b44cbd8e3cdaa239cb1a6f39761e3c449ea54c8117777ca37cd8b04fee488dc212a70575139308afd84e4d17bd6909a5b5bf7",
+)
 val kcefNativesDir = layout.buildDirectory.dir("kcef-natives/lib")
+
+/** The build host as `<os>-<arch>` (`linux-x64`, `windows-x64`, ...): the packages are built on the OS they are for. */
+val hostOs: String = System.getProperty("os.name").lowercase().let {
+    when {
+        it.contains("linux") -> "linux"
+        it.contains("windows") -> "windows"
+        it.contains("mac") -> "macos"
+        else -> "unsupported"
+    }
+}
+val hostArch: String = when (System.getProperty("os.arch")) {
+    "amd64", "x86_64" -> "x64"
+    "aarch64", "arm64" -> "aarch64"
+    else -> "unsupported"
+}
+val hostTarget = "$hostOs-$hostArch"
+val isWindowsHost = hostOs == "windows"
+/** The targets the desktop distribution packages are built for (each on its own OS). */
+val packageTargets = setOf("linux-x64", "windows-x64")
+
 // sun.awt.X11 is only needed by the windowed-pane fallback (X11 focus helper); off-screen rendering does not use it.
-val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED", "--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")
+// java.desktop has no sun.awt.X11 on Windows, where the JVM would warn about the unknown package on every start.
+val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") +
+    if (isWindowsHost) emptyList() else listOf("--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")
 
 /**
- * Downloads the JBR JCEF package for this OS/arch (with its `.checksum`), verifies it, and lays its `lib/` out as KCEF's
- * install dir (`install.lock` included, the layout KCEF's own installer produces). Linux x64/aarch64 only for D1.
+ * Downloads the JBR JCEF package for this OS/arch (with its `.checksum`), verifies it, and lays it out as KCEF's install
+ * dir (`install.lock` included), the layout KCEF's own installer produces: the package's `lib/` on Linux; on Windows its
+ * `lib/` with the contents of `bin/` (libcef.dll, jcef.dll, jcef_helper.exe, ...) merged in. Linux x64/aarch64 and
+ * Windows x64.
  */
 abstract class PrepareKcefNatives : DefaultTask() {
     @get:Input abstract val packageUrl: Property<String>
     @get:Input @get:Optional abstract val expectedDigest: Property<String>
     @get:Internal abstract val installDir: DirectoryProperty
     @get:Internal abstract val downloadDir: DirectoryProperty
+    /** True for the Windows layout (`bin/` merged into `lib/`, `libcef.dll`) and the Windows `tar.exe`. */
+    @get:Input abstract val windowsLayout: Property<Boolean>
     @get:OutputFile abstract val installLock: RegularFileProperty
     @get:Inject abstract val exec: ExecOperations
 
@@ -88,12 +121,22 @@ abstract class PrepareKcefNatives : DefaultTask() {
         target.parentFile.deleteRecursively()
         val extract = File(target.parentFile, target.name + ".extract")
         extract.mkdirs()
-        exec.exec { commandLine("tar", "-xzf", archive.absolutePath, "-C", extract.absolutePath) }
-        val lib = extract.listFiles()?.map { File(it, "lib") }?.firstOrNull { it.isDirectory }
+        val windows = windowsLayout.get()
+        // Windows: the system bsdtar, not a tar from a Unix tool set that may come first on the PATH (Git's GNU tar
+        // reads `C:` as a remote host).
+        val tar = if (windows) File(System.getenv("SystemRoot") ?: "C:\\Windows", "System32\\tar.exe").path else "tar"
+        exec.exec { commandLine(tar, "-xzf", archive.absolutePath, "-C", extract.absolutePath) }
+        val jbr = extract.listFiles()?.firstOrNull { File(it, "lib").isDirectory }
             ?: throw GradleException("No <jbr>/lib directory in ${archive.name}")
-        Files.move(lib.toPath(), target.toPath())
+        Files.move(File(jbr, "lib").toPath(), target.toPath())
+        if (windows) {
+            val bin = File(jbr, "bin")
+            if (!bin.isDirectory) throw GradleException("No <jbr>/bin directory in ${archive.name}")
+            bin.listFiles().orEmpty().forEach { Files.move(it.toPath(), File(target, it.name).toPath()) }
+        }
         extract.deleteRecursively()
-        check(File(target, "libcef.so").isFile) { "${archive.name} has no libcef.so" }
+        val cefLibrary = if (windows) "libcef.dll" else "libcef.so"
+        check(File(target, cefLibrary).isFile) { "${archive.name} has no $cefLibrary" }
         installLock.get().asFile.writeText("$url\n")
 
         val bytes = target.walkTopDown().filter { it.isFile }.sumOf { it.length() }
@@ -140,27 +183,23 @@ abstract class PrepareKcefNatives : DefaultTask() {
 val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
     group = "build"
     description = "Fetches the CEF natives ($kcefJbrTag) into build/kcef-natives/lib, KCEF's install dir."
-    val os = System.getProperty("os.name").lowercase()
-    val arch = when (System.getProperty("os.arch")) {
-        "amd64", "x86_64" -> "x64"
-        "aarch64", "arm64" -> "aarch64"
-        else -> "unsupported"
-    }
     val (jbrVersion, jbrBuild) = kcefJbrTag.removePrefix("jbr-release-").split("b", limit = 2)
+    val supported = hostTarget in setOf("linux-x64", "linux-aarch64", "windows-x64")
     packageUrl.set(
-        if (os.contains("linux") && arch != "unsupported") {
-            "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-$jbrVersion-linux-$arch-b$jbrBuild.tar.gz"
+        if (supported) {
+            "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-$jbrVersion-$hostTarget-b$jbrBuild.tar.gz"
         } else {
-            "unsupported:$os-$arch"
+            "unsupported:$hostTarget"
         },
     )
+    windowsLayout.set(isWindowsHost)
     installDir.set(kcefNativesDir)
-    kcefNativesDigest?.let { expectedDigest.set(it) }
+    kcefNativesDigests[hostTarget]?.let { expectedDigest.set(it) }
     downloadDir.set(layout.buildDirectory.dir("kcef-download"))
     installLock.set(kcefNativesDir.map { it.file("install.lock") })
     doFirst {
         if (packageUrl.get().startsWith("unsupported:")) {
-            throw GradleException("D1 bundles CEF natives for Linux x64/aarch64 only (${packageUrl.get()})")
+            throw GradleException("CEF natives are bundled for Linux x64/aarch64 and Windows x64 only (${packageUrl.get()})")
         }
     }
 }
@@ -193,7 +232,8 @@ compose.desktop {
         nativeDistributions {
             appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
             targetFormats(TargetFormat.Deb)
-            packageName = "andbible"
+            // The launcher's name: /opt/andbible/bin/andbible on Linux, AndBible.exe on Windows.
+            packageName = if (isWindowsHost) "AndBible" else "andbible"
             packageVersion = desktopVersion
             description = "Offline Bible study app"
             vendor = "AndBible"
@@ -226,21 +266,19 @@ tasks.matching { it.name == "run" }.withType<JavaExec>().configureEach {
     providers.gradleProperty("kcef.args").orNull?.let { jvmArgs("-Dkcef.args=$it") }
 }
 
-// The CEF natives as app resources of the Linux x64 distribution (appResourcesRootDir/<os-arch>/kcef-natives), found
+// The CEF natives as app resources of this host's distribution (appResourcesRootDir/<os-arch>/kcef-natives), found
 // at run time through compose.application.resources.dir.
 val stageKcefNatives by tasks.registering(Sync::class) {
     dependsOn(prepareKcefNatives)
     from(kcefNativesDir)
-    into(layout.buildDirectory.dir("desktop-resources/linux-x64/kcef-natives"))
+    into(layout.buildDirectory.dir("desktop-resources/$hostTarget/kcef-natives"))
 }
-// Distribution packages are Linux x64 only (the natives are the linux-x64 JBR build).
+// Distribution packages: Linux x64 (on Linux) and Windows x64 (on Windows), each with its own JBR natives build.
 val packagingTaskNames = setOf("prepareAppResources", "createDistributable", "createReleaseDistributable", "packageDeb", "packageReleaseDeb")
 stageKcefNatives.configure {
     doFirst {
-        val os = System.getProperty("os.name").lowercase()
-        val arch = System.getProperty("os.arch")
-        if (!os.contains("linux") || (arch != "amd64" && arch != "x86_64")) {
-            throw GradleException("The desktop packages are Linux x64 only (this host is $os $arch)")
+        if (hostTarget !in packageTargets) {
+            throw GradleException("The desktop packages are built for ${packageTargets.joinToString()} only (this host is $hostTarget)")
         }
     }
 }
@@ -332,6 +370,7 @@ val desktopTarball by tasks.registering(Tar::class) {
     description = "Packs the app image into build/compose/binaries/main/andbible-<version>-linux-x64.tar.gz."
     val image = tasks.named("createDistributable")
     dependsOn(image)
+    doFirst { if (hostTarget != "linux-x64") throw GradleException("desktopTarball is Linux x64 only (this host is $hostTarget)") }
     from(layout.buildDirectory.dir("compose/binaries/main/app"))
     compression = Compression.GZIP
     // Gradle's copy spec writes 0644 for every file unless told otherwise: carry the executable bit over explicitly.
@@ -358,12 +397,15 @@ fun restoreNativeModes(source: File, target: File) {
     }
 }
 
-val appImageNatives = layout.buildDirectory.dir("compose/binaries/main/app/andbible/lib/app/resources/kcef-natives")
-val appImageCfg = layout.buildDirectory.file("compose/binaries/main/app/andbible/lib/app/andbible.cfg")
+// The jpackage app image layout differs per OS: <name>/lib/app on Linux, <name>/app on Windows.
+val appImageAppDir = if (isWindowsHost) "compose/binaries/main/app/AndBible/app" else "compose/binaries/main/app/andbible/lib/app"
+val appImageNatives = layout.buildDirectory.dir("$appImageAppDir/resources/kcef-natives")
+val appImageCfg = layout.buildDirectory.file(if (isWindowsHost) "$appImageAppDir/AndBible.cfg" else "$appImageAppDir/andbible.cfg")
 tasks.matching { it.name == "createDistributable" || it.name == "createReleaseDistributable" }.configureEach {
     doLast {
-        restoreNativeModes(kcefNativesDir.get().asFile, appImageNatives.get().asFile)
-        val helper = File(appImageNatives.get().asFile, "jcef_helper")
+        // Windows has no executable bit: jcef_helper.exe runs as it is.
+        if (!isWindowsHost) restoreNativeModes(kcefNativesDir.get().asFile, appImageNatives.get().asFile)
+        val helper = File(appImageNatives.get().asFile, if (isWindowsHost) "jcef_helper.exe" else "jcef_helper")
         check(helper.isFile && helper.canExecute()) { "jcef_helper is missing or not executable in the app image ($helper)" }
         val cfg = appImageCfg.get().asFile
         check(cfg.isFile) { "No app image .cfg at $cfg" }
@@ -415,5 +457,30 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         check(version == desktopVersion) { "The .deb Version is $version, expected $desktopVersion" }
         val helperLine = run("dpkg-deb", "-c", finalDeb.absolutePath).lines().singleOrNull { it.endsWith("/kcef-natives/jcef_helper") }
         check(helperLine != null && helperLine.startsWith("-rwxr-xr-x")) { "jcef_helper is not executable in the .deb: $helperLine" }
+    }
+}
+
+// Windows x64: the app image (AndBible.exe, its runtime and the windows-x64 CEF natives) and a zip of it. Built on
+// Windows only: jpackage cannot cross-build, and the natives are the windows-x64 JBR build. Unsigned (W3 decides that).
+val createWindowsAppImage by tasks.registering {
+    group = "distribution"
+    description = "Builds the Windows x64 app image build/compose/binaries/main/app/AndBible (AndBible.exe)."
+    dependsOn("createDistributable")
+    doFirst { if (hostTarget != "windows-x64") throw GradleException("createWindowsAppImage needs a Windows x64 host (this host is $hostTarget)") }
+}
+val packageWindowsZip by tasks.registering(Zip::class) {
+    group = "distribution"
+    description = "Packs the Windows app image into build/compose/binaries/main/andbible-<version>-windows-x64.zip."
+    dependsOn(createWindowsAppImage)
+    from(layout.buildDirectory.dir("compose/binaries/main/app"))
+    archiveFileName.set("andbible-$desktopVersion-windows-x64.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("compose/binaries/main"))
+    doFirst { if (hostTarget != "windows-x64") throw GradleException("packageWindowsZip needs a Windows x64 host (this host is $hostTarget)") }
+    doLast {
+        val names = ZipFile(archiveFile.get().asFile).use { zip -> zip.entries().asSequence().map { it.name }.toSet() }
+        for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/app/resources/kcef-natives/libcef.dll",
+            "AndBible/app/resources/kcef-natives/jcef_helper.exe", "AndBible/runtime/bin/java.dll")) {
+            check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
+        }
     }
 }

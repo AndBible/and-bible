@@ -17,7 +17,7 @@ RUNS="$VM_DIR/runs/$VM_ID"
 QEMU=${QEMU:-qemu-system-x86_64}
 
 usage() {
-  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|dev-start|dev-reset|push-repo [--clean] [dir]|dev-gradle args...}' >&2
+  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|dev-gradle args...}' >&2
   exit 2
 }
 error() { printf 'windows-vm: %s\n' "$*" >&2; exit 1; }
@@ -238,7 +238,9 @@ push_repo() {
   } > "$list"
   tar -C "$dir" --null -T "$list" -cf "$out/src.tar" || { rm -f "$list" "$out/src.tar"; error 'could not build tarball'; }
   rm -f "$list"
-  local rc=0 prep='New-Item -ItemType Directory -Force C:\abtest\src | Out-Null; tar.exe -xf C:\abtest\src.tar -C C:\abtest\src; exit $LASTEXITCODE'
+  # :app's configuration runs `git rev-parse/describe/log`: the guest copy gets a stub repository with one empty commit.
+  # AGP's configuration needs an SDK location, but no Android task runs there: local.properties names an empty stub dir.
+  local rc=0 prep='New-Item -ItemType Directory -Force C:\abtest\src | Out-Null; tar.exe -xf C:\abtest\src.tar -C C:\abtest\src; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; if (-not (Test-Path C:\abtest\src\.git)) { git -C C:\abtest\src init -q; git -C C:\abtest\src -c user.name=abtest -c user.email=abtest@localhost commit -q --allow-empty -m "windows-vm push-repo" }; if (-not (Test-Path C:\abtest\src\local.properties)) { New-Item -ItemType Directory -Force C:\abtest\android-sdk-stub | Out-Null; Set-Content -Encoding ascii C:\abtest\src\local.properties "sdk.dir=C:/abtest/android-sdk-stub" }; exit $LASTEXITCODE'
   if $clean; then prep='Remove-Item -Recurse -Force C:\abtest\src -ErrorAction SilentlyContinue; '"$prep"; fi
   guest_scp_to "$out/src.tar" 'C:/abtest/src.tar' && guest_ssh "$prep" || rc=$?
   rm -f "$out/src.tar"
@@ -417,6 +419,7 @@ case "$cmd" in
   dev-reset) dev_reset ;;
   push-repo) push_repo "$@" ;;
   dev-gradle) dev_gradle "$@" ;;
+  dev-provision) guest_scp_to "$ROOT/scripts/windows-vm/dev-provision.ps1" C:/abtest/dev-provision.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\dev-provision.ps1' ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
   ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
