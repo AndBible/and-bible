@@ -243,12 +243,18 @@ export function useScroll(
     setupEventBusListener("scroll_to_verse", scrollToId)
     setupEventBusListener("setup_content", setupContent)
 
-    // Scroll anchor: preserves clicked element visibility when viewport shrinks (e.g. links window opens)
+    // Scroll anchor: keeps a tapped link visible when the viewport shrinks right after the tap
+    // (e.g. the links window opens below this window, #3043). The link itself is the anchor, not its
+    // whole verse: a long verse can stay partly visible while the link at its end is hidden. The
+    // anchor lives for a short time window and survives several resize events, as the split can
+    // settle in more than one layout pass.
     let scrollAnchorElement: HTMLElement | null = null;
+    let scrollAnchorFallback: HTMLElement | null = null;
     let scrollAnchorCleanupTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function clearScrollAnchor() {
         scrollAnchorElement = null;
+        scrollAnchorFallback = null;
         if (scrollAnchorCleanupTimeout) {
             clearTimeout(scrollAnchorCleanupTimeout);
             scrollAnchorCleanupTimeout = null;
@@ -257,8 +263,16 @@ export function useScroll(
 
     function setScrollAnchor(element: HTMLElement) {
         clearScrollAnchor();
-        scrollAnchorElement = (element.closest('.ordinal') as HTMLElement) || element;
+        scrollAnchorElement = element;
+        // Used if the tapped element is re-rendered away before the resize arrives.
+        scrollAnchorFallback = element.closest('.ordinal') as HTMLElement | null;
         scrollAnchorCleanupTimeout = setTimeout(clearScrollAnchor, 3000);
+    }
+
+    function currentScrollAnchor(): HTMLElement | null {
+        if (scrollAnchorElement?.isConnected) return scrollAnchorElement;
+        if (scrollAnchorFallback?.isConnected) return scrollAnchorFallback;
+        return null;
     }
 
     setupEventBusListener("set_scroll_anchor", setScrollAnchor);
@@ -266,17 +280,17 @@ export function useScroll(
     setupWindowEventListener('resize', async () => {
         if (!scrollAnchorElement) return;
         await waitNextAnimationFrame();
-        if (!scrollAnchorElement) return;
-        const rect = scrollAnchorElement.getBoundingClientRect();
+        const anchor = currentScrollAnchor();
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
         const viewTop = calculatedConfig.value.topOffset;
-        const viewBottom = window.innerHeight;
+        const viewBottom = window.innerHeight - appSettings.bottomOffset;
 
-        if (rect.bottom < viewTop || rect.top > viewBottom) {
+        if (rect.top < viewTop || rect.bottom > viewBottom) {
             const elementTop = rect.top + window.scrollY;
             const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
             window.scrollTo(0, Math.max(0, targetY));
         }
-        clearScrollAnchor();
     });
 
     return {scrollToId, isScrolling, doScrolling, scrollY}
