@@ -47,12 +47,18 @@ internal interface OsrKeyboardSink {
  */
 internal object OsrKeys {
     private val source = Canvas()
+    private val synthLogged = java.util.concurrent.atomic.AtomicBoolean(false)
+    private val getters = java.util.concurrent.ConcurrentHashMap<Class<*>, java.lang.reflect.Method?>()
+
+    /** Where the one-time "synthesized" note goes. */
+    internal var log: (String) -> Unit = { println("kcef: $it") }
 
     /** The AWT event inside Compose's wrapper [nativeEvent] (or [nativeEvent] itself when it already is one); null when there is none. */
     fun original(nativeEvent: Any?): AwtKeyEvent? {
         if (nativeEvent == null) return null
         if (nativeEvent is AwtKeyEvent) return nativeEvent
-        return runCatching { nativeEvent.javaClass.getMethod("getNativeEvent").invoke(nativeEvent) as? AwtKeyEvent }.getOrNull()
+        val getter = getters.computeIfAbsent(nativeEvent.javaClass) { c -> runCatching { c.getMethod("getNativeEvent") }.getOrNull() } ?: return null
+        return runCatching { getter.invoke(nativeEvent) as? AwtKeyEvent }.getOrNull()
     }
 
     /** An AWT event rebuilt from Compose's view of a key; null for an [KeyEventType.Unknown] event that carries no character. */
@@ -67,7 +73,12 @@ internal object OsrKeys {
     }
 
     /** The AWT event to send for [e]: its original, or a rebuilt one. */
-    fun awtEvent(e: KeyEvent): AwtKeyEvent? = original(e.nativeKeyEvent) ?: synthesize(e.type, e.key.nativeKeyCode, e.utf16CodePoint, modifiersOf(e))
+    fun awtEvent(e: KeyEvent): AwtKeyEvent? = original(e.nativeKeyEvent) ?: synthesize(e.type, e.key.nativeKeyCode, e.utf16CodePoint, modifiersOf(e))?.also {
+        if (synthLogged.compareAndSet(false, true)) log("key: no AWT original in Compose's event, rebuilt it (raw platform code is lost)")
+    }
+
+    /** Test hook: makes the next synthesized event log again. */
+    internal fun resetSynthLog() = synthLogged.set(false)
 
     private fun modifiersOf(e: KeyEvent): Int {
         var m = 0

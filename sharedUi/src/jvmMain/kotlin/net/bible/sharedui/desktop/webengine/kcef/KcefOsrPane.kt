@@ -73,11 +73,11 @@ internal class KcefOsrPane(
     private var background by mutableStateOf<Color?>(null)
     private val frames = OsrFrameBuffer(onPersistentMismatch = { log("off-screen: $it") })
     private val input = OsrInput(this, { geometry }, hostComponent)
-    private val focus = OsrFocus(this)
     private val ime = OsrIme(this)
+    private val focus = OsrFocus(this, onFocusChange = ime.gate::setPaneFocused)
 
     // The page's mousedown asks for focus: in off-screen mode that is Compose focus (which then focuses CEF), not X11.
-    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = { focus.requestFocus() }) {
+    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = { focus.requestFocus() }, onEditableFocus = ime.gate::setEditable) {
         // Only the native browser takes a frame rate; before onAfterCreated the call is silently lost (CEF default 30 fps).
         it.setWindowlessFrameRate(FRAME_RATE)
     }

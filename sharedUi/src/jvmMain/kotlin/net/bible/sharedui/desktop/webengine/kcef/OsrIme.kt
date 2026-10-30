@@ -20,8 +20,6 @@ package net.bible.sharedui.desktop.webengine.kcef
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusEventModifierNode
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -35,6 +33,9 @@ import androidx.compose.ui.text.input.TextEditingScope
 import androidx.compose.ui.text.input.TextEditorState
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.cef.input.CefCompositionUnderline
 import org.cef.misc.CefRange
@@ -60,7 +61,7 @@ internal interface OsrImeSink {
  * IME bridge of the off-screen pane. Chosen path: Compose's platform text input. The window's AWT component only forwards
  * `InputMethodEvent`s to a text input session the focused node establishes (`DesktopTextInputService2`); a second listener
  * on the component would fight it and would not receive `getTextLocation`. So the pane's node establishes a session while
- * focused ([OsrImeElement]); Compose turns each `InputMethodEvent` into [editText] calls ("commit this, then compose that"),
+ * focused in an editable element ([OsrImeGate], [OsrImeElement]); Compose turns each `InputMethodEvent` into [editText] calls ("commit this, then compose that"),
  * which become CEF's composition calls here, and Compose answers the input method's `getTextLocation` from
  * [PlatformTextInputMethodRequest.focusedRectInRoot], which is the candidate rectangle CEF reports through
  * `OnImeCompositionRangeChanged` ([onCompositionRangeChanged]).
@@ -70,6 +71,9 @@ internal interface OsrImeSink {
  * at the end of each [editText] batch so a changing composition ("ni" then "n") never flickers through a cancel.
  */
 internal class OsrIme(private val sink: OsrImeSink) {
+    /** Gates the text input session on pane focus and page editable focus. */
+    val gate = OsrImeGate()
+
     private var composing = ""
 
     @Volatile
@@ -106,8 +110,13 @@ internal class OsrIme(private val sink: OsrImeSink) {
     private inner class Scope : TextEditingScope {
         var cancelPending = false
 
+        /**
+         * Deliberately a no-op. Compose calls this only for its macOS dead-key workaround (the dead key arrives as KEY_TYPED, is
+         * deleted again here, and the composed character is then committed). It also needs a non-empty "selection" in [state],
+         * which this bridge never has, so it cannot fire. Making dead keys work on macOS means sending CEF backspace key
+         * events for the page-owned text: a macOS item for the D6 phase.
+         */
         override fun deleteSurroundingTextInCodePoints(lengthBeforeCursor: Int, lengthAfterCursor: Int) {
-            // The page owns the text; only a macOS dead-key workaround of Compose asks for this.
         }
 
         override fun commitText(text: CharSequence, newCursorPosition: Int) {
@@ -183,29 +192,52 @@ internal class OsrIme(private val sink: OsrImeSink) {
     }
 }
 
-/** Modifier element that establishes Compose's text input session for [ime] while the node is focused. */
+/**
+ * When the IME text input session may run: only while the pane has Compose focus AND the page's focus is in an editable
+ * element ([PageEditableFocus]). Otherwise a CJK input method would compose the letters the page's shortcut script needs.
+ * [active] flips on either input changing; the session follows it.
+ */
+internal class OsrImeGate {
+    private val paneFocused = MutableStateFlow(false)
+    private val editable = MutableStateFlow(false)
+    private val _active = MutableStateFlow(false)
+
+    /** True while a session should run. */
+    val active: StateFlow<Boolean> get() = _active
+
+    fun setPaneFocused(value: Boolean) { paneFocused.value = value; update() }
+
+    fun setEditable(value: Boolean) { editable.value = value; update() }
+
+    private fun update() { _active.value = paneFocused.value && editable.value }
+}
+
+/** Modifier element that establishes Compose's text input session for [ime] while its [OsrImeGate] is active. */
 internal data class OsrImeElement(val ime: OsrIme) : ModifierNodeElement<OsrImeNode>() {
     override fun create() = OsrImeNode(ime)
     override fun update(node: OsrImeNode) { node.ime = ime }
 }
 
-internal class OsrImeNode(var ime: OsrIme) : Modifier.Node(), PlatformTextInputModifierNode, FocusEventModifierNode {
-    private var session: Job? = null
+internal class OsrImeNode(var ime: OsrIme) : Modifier.Node(), PlatformTextInputModifierNode {
+    private var watcher: Job? = null
 
-    override fun onFocusEvent(focusState: FocusState) {
-        if (focusState.isFocused) start() else stop()
+    override fun onAttach() {
+        watcher = coroutineScope.launch {
+            // collectLatest cancels the running session when the gate closes.
+            ime.gate.active.collectLatest { active ->
+                if (!active) return@collectLatest
+                try {
+                    establishTextInputSession { startInputMethod(ime.request()) }
+                } finally {
+                    ime.reset()
+                }
+            }
+        }
     }
 
-    private fun start() {
-        if (session?.isActive == true) return
-        session = coroutineScope.launch { establishTextInputSession { startInputMethod(ime.request()) } }
-    }
-
-    private fun stop() {
-        session?.cancel()
-        session = null
+    override fun onDetach() {
+        watcher?.cancel()
+        watcher = null
         ime.reset()
     }
-
-    override fun onDetach() = stop()
 }

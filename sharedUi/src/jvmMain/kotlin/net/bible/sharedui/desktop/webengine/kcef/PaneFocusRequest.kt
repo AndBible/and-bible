@@ -32,8 +32,8 @@ internal object PaneFocusRequest {
         "window.addEventListener('mousedown', function () { try { window.cefQuery({request: '\\u0000kcef:focus', persistent: false, " +
             "onSuccess: function () {}, onFailure: function () {}}); } catch (e) {} }, true);"
 
-    /** The engine's document-start scripts: the bridge [shim], the focus script once, then the page's own [scripts]. */
-    fun documentStartScripts(shim: String, scripts: List<String>): List<String> = listOf(shim, SCRIPT) + scripts
+    /** The engine's document-start scripts: the bridge [shim], the focus and editable-focus scripts once, then the page's own [scripts]. */
+    fun documentStartScripts(shim: String, scripts: List<String>): List<String> = listOf(shim, SCRIPT, PageEditableFocus.SCRIPT) + scripts
 
     /**
      * Handles [text] when it is the focus request (calls [setFocus]) and returns true; false for anything else. The press

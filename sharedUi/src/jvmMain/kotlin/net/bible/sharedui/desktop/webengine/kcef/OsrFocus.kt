@@ -30,7 +30,7 @@ import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
  * the window's keys ([DesktopWebPaneKeys]); losing it (or [release]) undoes both. Keys reach [onKey] only through the
  * focus chain, so none arrive while something else (the drawer, a dialog) has focus.
  */
-internal class OsrFocus(private val sink: OsrKeyboardSink) {
+internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusChange: (Boolean) -> Unit = {}) {
     val requester = FocusRequester()
 
     @Volatile
@@ -42,6 +42,7 @@ internal class OsrFocus(private val sink: OsrKeyboardSink) {
         isFocused = focused
         if (focused) DesktopWebPaneKeys.focusGained(this) else DesktopWebPaneKeys.focusLost(this)
         sink.setFocus(focused)
+        onFocusChange(focused)
     }
 
     /** Moves Compose focus into the pane (on the EDT); a pane that has no focus target in the composition yet ignores it. */

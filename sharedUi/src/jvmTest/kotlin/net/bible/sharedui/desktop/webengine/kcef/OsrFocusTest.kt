@@ -55,10 +55,11 @@ class OsrFocusTest {
 
     @AfterTest fun clear() = pane.release()
 
-    private fun androidx.compose.ui.test.ComposeUiTest.setUpContent(otherRequester: FocusRequester, window: (String) -> Unit = {}) {
+    private fun androidx.compose.ui.test.ComposeUiTest.setUpContent(otherRequester: FocusRequester, window: (String) -> Unit = {}, ungated: () -> Unit = {}) {
         setContent {
             Column(
                 Modifier
+                    .onKeyEvent { ungated(); false }
                     .onPreviewKeyEvent { DesktopWebPaneKeys.windowKey { window("preview"); false } }
                     .onKeyEvent { DesktopWebPaneKeys.windowKey { window("bubble"); false } },
             ) {
@@ -90,10 +91,13 @@ class OsrFocusTest {
 
     @Test fun keyForwardedOnceAndNotSeenByWindowHandler() = runComposeUiTest {
         val seen = mutableListOf<String>()
-        setUpContent(FocusRequester()) { seen += it }
+        var ungated = 0
+        setUpContent(FocusRequester(), { seen += it }, { ungated++ })
         runOnIdle { pane.requester.requestFocus() }
         onNodeWithTagPane().performKeyInput { pressKey(Key.B) }
         runOnIdle {
+            // Consumed by the pane itself: even an outer handler that is not gated never sees the key.
+            assertEquals(0, ungated)
             assertEquals(listOf(Awt.KEY_PRESSED, Awt.KEY_RELEASED), sink.keys.map { it.id })
             assertEquals(emptyList(), seen)
         }
@@ -102,7 +106,7 @@ class OsrFocusTest {
     @Test fun keysStopWhilePaneUnfocused() = runComposeUiTest {
         val other = FocusRequester()
         val seen = mutableListOf<String>()
-        setUpContent(other) { seen += it }
+        setUpContent(other, { seen += it })
         runOnIdle { pane.requester.requestFocus() }
         runOnIdle { other.requestFocus() }
         onNodeWithTag("other").performKeyInput { pressKey(Key.B) }

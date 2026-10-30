@@ -49,6 +49,7 @@ import javax.swing.Timer
  *
  * Call [createBrowser] once; the rest is usable afterwards.
  *
+ * @param onEditableFocus receives the page's "an editable element has focus" flag (see [PageEditableFocus]); false again when a new main document starts loading
  * @param onBrowserCreated runs on CEF's UI thread when the native browser exists (`onAfterCreated`); settings that need the
  *   native browser, such as the windowless frame rate, belong there
  * @param requestFocus moves keyboard focus into the pane when the page reports a press (see [PaneFocusRequest]); runs on the UI thread
@@ -59,6 +60,7 @@ internal class KcefPaneCore(
     private val onMessage: (String) -> Unit,
     private val log: (String) -> Unit,
     private val requestFocus: () -> Unit,
+    private val onEditableFocus: (Boolean) -> Unit = {},
     private val onBrowserCreated: (CefBrowser) -> Unit = {},
 ) {
     @Volatile
@@ -93,7 +95,10 @@ internal class KcefPaneCore(
                 val text = request ?: return true
                 // invokeLater: after AWT's own focus handling of the press.
                 SwingUtilities.invokeLater {
-                    if (!disposed && !PaneFocusRequest.handle(text, requestFocus, log, focusPressLogged) && !evals.consume(text)) onMessage(text)
+                    if (disposed) return@invokeLater
+                    val editable = PageEditableFocus.parse(text)
+                    if (editable != null) onEditableFocus(editable)
+                    else if (!PaneFocusRequest.handle(text, requestFocus, log, focusPressLogged) && !evals.consume(text)) onMessage(text)
                 }
                 return true
             }
@@ -117,7 +122,7 @@ internal class KcefPaneCore(
         client.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
                 // A new main document cannot answer the old document's evaluations.
-                if (frame?.isMain == true) SwingUtilities.invokeLater { evals.failAll() }
+                if (frame?.isMain == true) SwingUtilities.invokeLater { evals.failAll(); if (!disposed) onEditableFocus(false) }
             }
 
             override fun onLoadEnd(browser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {

@@ -132,4 +132,23 @@ class OsrImeTest {
         h.OnImeCompositionRangeChanged(null, CefRange(0, 1), b)
         assertEquals(b.toList(), seen?.toList())
     }
+
+    @Test fun sessionRunsOnlyWhilePaneFocusedAndPageEditable() {
+        val g = ime.gate
+        val seen = mutableListOf<Boolean>()
+        fun note() { if (seen.lastOrNull() != g.active.value) seen += g.active.value }
+        assertEquals(false, g.active.value)
+        g.setPaneFocused(true); note()
+        assertEquals(false, g.active.value) // focused pane, page not editing: letters reach the shortcut script
+        g.setEditable(true); note()
+        assertEquals(true, g.active.value)
+        g.setEditable(false); note()
+        assertEquals(false, g.active.value)
+        g.setEditable(true); note()
+        g.setPaneFocused(false); note()
+        assertEquals(false, g.active.value)
+        g.setPaneFocused(true); note()
+        assertEquals(true, g.active.value) // the page is still editable
+        assertEquals(listOf(false, true, false, true, false, true), seen)
+    }
 }

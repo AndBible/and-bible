@@ -49,7 +49,7 @@ class PaneFocusRequestTest {
 
     @Test fun theFocusScriptIsInstalledOnceAfterTheShim() {
         val list = PaneFocusRequest.documentStartScripts("SHIM", listOf("page1", "page2"))
-        assertEquals(listOf("SHIM", PaneFocusRequest.SCRIPT, "page1", "page2"), list)
+        assertEquals(listOf("SHIM", PaneFocusRequest.SCRIPT, PageEditableFocus.SCRIPT, "page1", "page2"), list)
         assertEquals(1, list.count { it == PaneFocusRequest.SCRIPT })
         assertTrue("'mousedown'" in PaneFocusRequest.SCRIPT && "true);" in PaneFocusRequest.SCRIPT)
         assertFalse("preventDefault" in PaneFocusRequest.SCRIPT || "stopPropagation" in PaneFocusRequest.SCRIPT)

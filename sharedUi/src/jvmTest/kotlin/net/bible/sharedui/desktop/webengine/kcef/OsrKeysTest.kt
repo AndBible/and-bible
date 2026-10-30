@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.desktop.webengine.kcef
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import java.awt.Canvas
 import java.awt.event.KeyEvent as Awt
@@ -46,14 +48,37 @@ class OsrKeysTest {
         assertNull(OsrKeys.original(null))
     }
 
+    /** A real Compose event: Compose's own factory builds the InternalKeyEvent that carries [awt]. */
+    @OptIn(androidx.compose.ui.InternalComposeUiApi::class)
+    private fun compose(awt: Awt, type: KeyEventType): KeyEvent =
+        KeyEvent(Key(awt.keyCode), type, awt.keyChar.code, isCtrlPressed = false, isMetaPressed = false, isAltPressed = false, isShiftPressed = false, nativeEvent = awt)
+
     @Test fun pressedTypedReleasedForwardedInOrder() {
         val sink = Sink()
         val pressed = awt(Awt.KEY_PRESSED, Awt.VK_A, 'a')
         val typed = awt(Awt.KEY_TYPED, Awt.VK_UNDEFINED, 'a')
         val released = awt(Awt.KEY_RELEASED, Awt.VK_A, 'a')
-        // Without a Compose wrapper the originals are what OsrKeys sends, unchanged and in order, KEY_TYPED included.
-        listOf(pressed, typed, released).forEach { sink.sendKey(OsrKeys.original(Wrapper(it))!!) }
-        assertEquals(listOf(pressed, typed, released), sink.keys)
+        val events = listOf(compose(pressed, KeyEventType.KeyDown), compose(typed, KeyEventType.Unknown), compose(released, KeyEventType.KeyUp))
+        // The wrapper really is Compose's internal class: the reflection path is what finds the AWT original.
+        assertEquals("androidx.compose.ui.input.key.InternalKeyEvent", events[0].nativeKeyEvent!!.javaClass.name)
+        assertTrue(events.all { OsrKeys.forward(it, sink) })
+        assertEquals(3, sink.keys.size)
+        assertSame(pressed, sink.keys[0]); assertSame(typed, sink.keys[1]); assertSame(released, sink.keys[2])
+    }
+
+    @Test fun synthesisIsLoggedOnce() {
+        val lines = mutableListOf<String>()
+        val old = OsrKeys.log
+        OsrKeys.log = { lines += it }
+        OsrKeys.resetSynthLog()
+        try {
+            @OptIn(androidx.compose.ui.InternalComposeUiApi::class)
+            val noAwt = KeyEvent(Key.A, KeyEventType.KeyDown, 'a'.code, isCtrlPressed = false, isMetaPressed = false, isAltPressed = false, isShiftPressed = false, nativeEvent = null)
+            repeat(3) { assertTrue(OsrKeys.forward(noAwt, Sink())) }
+            assertEquals(1, lines.size)
+        } finally {
+            OsrKeys.log = old
+        }
     }
 
     @Test fun synthesizedEventsCoverPressTypeRelease() {
