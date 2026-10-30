@@ -11,6 +11,20 @@ import org.w3c.dom.Element
 
 class WindowsManifestTest {
     @Test
+    fun msiAssociationsAndSigningPolicyAreGeneratedForPackaging() {
+        val policy = java.util.Properties().apply {
+            File("build/windows-msix/packaging-policy.properties").inputStream().use { load(it) }
+        }
+        val extensions = policy.getProperty("msi.extensions").split(',').toSet()
+        assertEquals(setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3"), extensions)
+        assertEquals(System.getProperty("expectedTimestamp"), policy.getProperty("timestamp.url"))
+        assertEquals(System.getProperty("expectedTestSigning"), policy.getProperty("test.signing"))
+        val expectedArgs = if (System.getProperty("expectedTestSigning") == "true") "" else
+            "/tr|${System.getProperty("expectedTimestamp")}|/td|SHA256"
+        assertEquals(expectedArgs, policy.getProperty("timestamp.args"))
+    }
+
+    @Test
     fun generatedManifestHasIdentityVersionAndFileAssociations() {
         val stage = File("build/windows-msix/staging")
         val manifest = File(stage, "AppxManifest.xml")
