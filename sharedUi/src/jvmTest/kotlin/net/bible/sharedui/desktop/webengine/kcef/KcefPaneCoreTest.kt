@@ -114,14 +114,15 @@ class KcefPaneCoreTest {
     @Test
     fun renderingModeParse() {
         val lines = mutableListOf<String>()
-        assertEquals(KcefRenderingMode.Windowed, KcefRenderingMode.parse(null) { lines += it })
-        assertEquals(KcefRenderingMode.Windowed, KcefRenderingMode.parse("windowed") { lines += it })
+        assertEquals(KcefRenderingMode.Osr, KcefRenderingMode.parse(null) { lines += it }, "off-screen is the default")
         assertEquals(KcefRenderingMode.Osr, KcefRenderingMode.parse("osr") { lines += it })
+        assertEquals(KcefRenderingMode.Windowed, KcefRenderingMode.parse("windowed") { lines += it })
         assertTrue(lines.isEmpty(), "valid values and the default log nothing")
-        assertEquals(KcefRenderingMode.Windowed, KcefRenderingMode.parse("OSR") { lines += it }, "values are case-sensitive")
-        assertEquals(KcefRenderingMode.Windowed, KcefRenderingMode.parse("gpu") { lines += it })
+        assertEquals(KcefRenderingMode.Osr, KcefRenderingMode.parse("WINDOWED") { lines += it }, "values are case-sensitive")
+        assertEquals(KcefRenderingMode.Osr, KcefRenderingMode.parse("gpu") { lines += it })
         assertEquals(2, lines.size)
         assertTrue("gpu" in lines[1], lines[1])
+        assertTrue("osr" in lines[1], lines[1])
     }
 
     @Test

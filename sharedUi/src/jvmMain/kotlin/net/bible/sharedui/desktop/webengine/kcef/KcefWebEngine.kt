@@ -37,8 +37,8 @@ import kotlin.coroutines.CoroutineContext
  *   external links in the system browser belongs to a later desktop stage (D3b).
  * - Evaluate: every callback is answered exactly once, with `"null"` when no reply can come (pane disposed, main frame
  *   loading a new document, or [EVAL_TIMEOUT_MS] elapsed).
- * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`, the default) or off-screen into a Compose
- *   canvas (`-Dandbible.kcef.rendering=osr`, see [KcefRenderingMode]). No GPU switches: without a usable
+ * - Rendering: off-screen into a Compose canvas (the default) or windowed (CEF's heavyweight component in a Compose
+ *   `SwingPanel`, `-Dandbible.kcef.rendering=windowed`, see [KcefRenderingMode]). No GPU switches: without a usable
  *   GPU, Chromium's GPU process fails and it falls back to software compositing by itself.
  */
 class KcefWebEngine(
@@ -70,6 +70,13 @@ class KcefWebEngine(
     }
 
     companion object {
+        /**
+         * Whether this process renders the panes windowed (the fallback), from the same one-time resolution the engine
+         * uses. The app reads it before any Compose window to choose the Compose layer type.
+         */
+        fun isWindowedRendering(log: (String) -> Unit = ::println): Boolean =
+            KcefRenderingMode.current(log) == KcefRenderingMode.Windowed
+
         /** JS function that sends its argument to the native side through the pane's message router. */
         internal const val CEF_POST_MESSAGE_JS =
             "function (t) { window.cefQuery({request: String(t), persistent: false, onSuccess: function () {}, onFailure: function () {}}); }"
