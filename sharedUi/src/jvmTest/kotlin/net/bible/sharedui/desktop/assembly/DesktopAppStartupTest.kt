@@ -156,7 +156,7 @@ class DesktopAppStartupTest {
         }
         val csvFiles = net.bible.sharedui.desktop.misc.DesktopBookmarkCsvFiles()
         val flow = net.bible.sharedui.app.bookmark.BookmarkCsvHostFlow(
-            { control }, picker, koin.get(), dialogs, { koin.get<IosStringTableHolder>().current }, notifier,
+            { control }, picker, koin.get(), dialogs, { koin.get<HostStringTableHolder>().current }, notifier,
             { okio.FileSystem.SYSTEM.source(path.toString().toPath()) }, csvFiles::openSink, csvFiles::timestamp,
         )
         kotlinx.coroutines.coroutineScope {

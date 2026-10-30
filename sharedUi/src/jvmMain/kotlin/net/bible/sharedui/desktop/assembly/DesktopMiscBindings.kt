@@ -49,7 +49,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
 import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
 import net.bible.sharedui.desktop.misc.DesktopCrashTracker
@@ -74,7 +74,7 @@ fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
         reportBug = {
             net.bible.sharedui.desktop.misc.recoveryBugReport(
                 paths.data, System.getProperty("andbible.version")?.takeIf { it.isNotBlank() } ?: "dev",
-                ::recentLogSnapshot, net.bible.sharedui.assembly.iosStringTable(DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))).text("report_bug_line_1"),
+                ::recentLogSnapshot, net.bible.sharedui.assembly.hostStringTable(DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))).text("report_bug_line_1"),
             ).report(null)
         },
         onStartupReady = tracker::continueStartup,
@@ -136,7 +136,7 @@ fun desktopMiscModule(): Module = module {
     single<SystemScreens> { net.bible.sharedui.desktop.misc.DesktopSystemScreens() }
     single<DebugActions> { net.bible.sharedui.desktop.misc.DesktopDebugActions(get()) }
     single {
-        val table = get<IosStringTableHolder>()
+        val table = get<HostStringTableHolder>()
         val dialogs = get<AppDialogController>()
         val delivery = get<FileDelivery>()
         val links = get<ExternalLinks>()
@@ -168,7 +168,7 @@ fun desktopMiscModule(): Module = module {
     single<DesktopBugReport> { get<ConcreteBugReport>() }
     single<ReadingPlanSource> { net.bible.sharedcore.platform.desktop.misc.DesktopReadingPlanSource() }
     single {
-        val table = get<IosStringTableHolder>()
+        val table = get<HostStringTableHolder>()
         val window = get<DesktopWindowHandle>()
         net.bible.sharedlogic.platform.desktop.misc.DesktopAgentPlatform(
             get(), get(), get(), { table.current.text(it) }, get(), { window.isFocusedAndVisible },
