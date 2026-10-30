@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-VM_DIR=${WINDOWS_VM_DIR:-$ROOT/.local/windows-vm}
-BASE=${WINDOWS_VM_BASE:-$VM_DIR/base.qcow2}
+VM_DIR=$(realpath -m -- "${WINDOWS_VM_DIR:-$ROOT/.local/windows-vm}")
+BASE=$(realpath -m -- "${WINDOWS_VM_BASE:-$VM_DIR/base.qcow2}")
 RAM=${WINDOWS_VM_RAM:-6G}
 CPUS=${WINDOWS_VM_CPUS:-4}
 CPU_MODEL=host,hv-relaxed,hv-vapic,hv-spinlocks=0x1fff,hv-time,hv-vpindex,hv-synic,hv-stimer,hv-frequencies
