@@ -150,6 +150,18 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
+    fun multiReferenceTitleIsCompactInBothToolbarAndOverlayTitle() {
+        val key = net.bible.service.sword.bookAndKeyListOf(listOf("Eccl.7.29", "Gen.1.26", "Gen.1.26").map {
+            net.bible.service.sword.BookAndKey(org.crosswire.jsword.passage.PassageKeyFactory.instance().getKey(kjvV11n, it))
+        })
+        val multiDocument = GlobalContext.get().get<net.bible.service.download.FakeBookFactory>().multiDocument
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(multiDocument, key)
+        service.refresh()
+        assertThat(service.toolbar.value.pageTitle, equalTo("Ecc 7:29, Gen 1:26"))
+        assertThat(net.bible.android.view.activity.page.pageTitleText(pageControl), equalTo("Ecc 7:29, Gen 1:26"))
+    }
+
+    @Test
     fun cloudSyncRunning_setsOnlySyncRunning() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
