@@ -56,4 +56,13 @@ class DesktopFilePickerTest {
             Files.deleteIfExists(path)
         }
     }
+
+    @Test fun fileDialogsUseAwtOnWindows() {
+        var connects = 0
+        val dbus = object : net.bible.sharedcore.platform.desktop.dbus.DesktopDbus("Windows 11") {
+            override fun connect(): org.freedesktop.dbus.connections.impl.DBusConnection { connects++; error("no D-Bus on Windows") }
+        }
+        kotlin.test.assertIs<AwtFileChooserBackend>(desktopFileChooser(dbus))
+        assertEquals(0, connects, "no D-Bus portal attempt on Windows")
+    }
 }

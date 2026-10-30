@@ -50,4 +50,14 @@ class CefNativesLocationTest {
         assertTrue(result.isFailure)
         assertTrue(empty.toString() in result.exceptionOrNull()!!.message!!)
     }
+
+    @Test
+    fun windowsNativesDirHasLibcefDll() {
+        // KCEF's Windows layout: the JBR package's lib/ merged with bin/ in one directory.
+        val dir = Files.createTempDirectory("natives-win")
+        listOf("libcef.dll", "jcef.dll", "jcef_helper.exe", "chrome_elf.dll", "icudtl.dat").forEach { Files.createFile(dir.resolve(it)) }
+        assertEquals(dir, CefNativesLocation.resolve(props("kcef.installDir" to dir.toString())).getOrThrow())
+        val message = CefNativesLocation.resolve(props("kcef.installDir" to Files.createTempDirectory("e").toString())).exceptionOrNull()!!.message!!
+        assertTrue("libcef.dll" in message && "libcef.so" in message, message)
+    }
 }

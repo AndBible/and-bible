@@ -3,7 +3,7 @@ package net.bible.desktop
 import java.nio.file.Files
 import java.nio.file.Path
 
-/** Finds the CEF natives directory (the one holding `libcef.so`) for [net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine]. */
+/** Finds the CEF natives directory (the one holding `libcef.so`, or `libcef.dll` on Windows) for [net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine]. */
 object CefNativesLocation {
     private const val DEV_PROPERTY = "kcef.installDir"
     private const val RESOURCES_PROPERTY = "compose.application.resources.dir"
@@ -22,8 +22,9 @@ object CefNativesLocation {
                         "(packaged app) is set",
                 ),
             )
-        if (!Files.isRegularFile(dir.resolve("libcef.so"))) {
-            return Result.failure(IllegalStateException("CEF natives dir $dir does not contain libcef.so"))
+        // libcef.so on Linux, libcef.dll on Windows (the JBR package's lib/ and bin/ merged into one directory).
+        if (listOf("libcef.so", "libcef.dll").none { Files.isRegularFile(dir.resolve(it)) }) {
+            return Result.failure(IllegalStateException("CEF natives dir $dir does not contain libcef.so (Linux) or libcef.dll (Windows)"))
         }
         return Result.success(dir)
     }

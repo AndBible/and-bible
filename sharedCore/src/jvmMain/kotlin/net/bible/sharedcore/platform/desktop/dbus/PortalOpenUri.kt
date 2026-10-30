@@ -26,6 +26,7 @@ class PortalOpenUri(private val dbus: DesktopDbus = DesktopDbus(), private val t
     }
     suspend fun open(uri: URI): PortalOpenResult {
         if (testResponse != null) return result(testResponse.invoke(uri))
+        if (!dbus.supportedOs) return PortalOpenResult.UNAVAILABLE
         return openPortal(uri)
     }
     private suspend fun openPortal(uri: URI): PortalOpenResult = withContext(Dispatchers.IO) {

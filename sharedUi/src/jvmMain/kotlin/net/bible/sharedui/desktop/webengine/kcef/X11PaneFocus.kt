@@ -106,9 +106,9 @@ internal class X11PaneFocus(
         }
 
         /** Resolves the JDK 17 X11 internals once; a disabled instance (one log line) when this is not X11 or access fails. */
-        fun create(log: (String) -> Unit): X11PaneFocus {
+        fun create(osName: String = System.getProperty("os.name", ""), log: (String) -> Unit): X11PaneFocus {
             fun off(why: String) = X11PaneFocus({ null }, { emptyList() }, {}, log).also { it.disable("X11 pane focus off: $why") }
-            if (!System.getProperty("os.name", "").startsWith("Linux")) return off("not Linux")
+            if (!osName.startsWith("Linux")) return off("not Linux")
             return try {
                 val toolkit = java.awt.Toolkit.getDefaultToolkit()
                 if (toolkit.javaClass.name != "sun.awt.X11.XToolkit") return off("toolkit is ${toolkit.javaClass.name}")

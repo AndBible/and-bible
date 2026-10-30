@@ -29,6 +29,7 @@ import net.bible.sharedcore.platform.AppDirectories
 import okio.Path
 import org.crosswire.common.util.KFiles
 import org.crosswire.common.util.KUri
+import org.crosswire.common.util.NetUtil
 import org.koin.mp.KoinPlatform
 import okio.FileSystem
 import net.bible.service.sword.isWritableFile
@@ -101,7 +102,7 @@ AndBibleMinimumVersion=892
     Log.i(TAG, "Creating TTF font module $moduleInitials, $fontName")
 
     val metadata = SwordBookMetaData(conf.encodeToByteArray(), moduleInitials)
-    metadata.location = KUri("file", null, "${file.parent!!}/", null)
+    metadata.location = NetUtil.fileKUri(file.parent!!, directory = true)
     metadata.setDriver(TtfSwordDriver())
     val backend = NullBackend()
     val book = SwordBook(metadata, backend)

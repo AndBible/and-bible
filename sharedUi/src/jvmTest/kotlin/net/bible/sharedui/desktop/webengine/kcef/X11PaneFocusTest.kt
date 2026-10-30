@@ -96,4 +96,33 @@ class X11PaneFocusTest {
     private class FakeHeavy : Canvas() {
         override fun isDisplayable() = true
     }
+
+    @Test fun x11OnlyCodeIsInertOnWindows() {
+        // X11 pane focus: a disabled instance that logs once and never touches a component.
+        val lines = mutableListOf<String>()
+        val focus = X11PaneFocus.create("Windows 11") { lines += it }
+        assertFalse(focus.enabled)
+        focus.focus(FakeHeavy())
+        assertEquals(1, lines.size, lines.toString())
+        assertTrue("not Linux" in lines.single())
+
+        // The key-code script is NOT X11-only: off-screen panes on Windows get an empty KeyboardEvent.code (measured
+        // live in W1), so it is injected there too; never for windowed panes.
+        assertTrue(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
+        assertTrue(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.X11.XToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Windowed, "sun.awt.X11.XToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Windowed, "sun.awt.windows.WToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.lwawt.macosx.LWCToolkit"))
+        val scripts = PaneFocusRequest.documentStartScripts("shim", listOf("page"), KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
+        assertTrue(OsrKeyCode.SCRIPT in scripts)
+
+        // Mouse back/forward: AWT reports 4/5 on Windows, 6/7 only on X11 (4/5 there are horizontal scroll).
+        val nav = net.bible.sharedui.desktop.reading.DesktopBackDispatcher
+        val back = net.bible.sharedui.desktop.reading.DesktopBackDispatcher.Navigation.Back
+        val forward = net.bible.sharedui.desktop.reading.DesktopBackDispatcher.Navigation.Forward
+        assertEquals(back, nav.navigationForAwtMouseButton(4, x11 = false))
+        assertEquals(forward, nav.navigationForAwtMouseButton(5, x11 = false))
+        assertEquals(null, nav.navigationForAwtMouseButton(6, x11 = false))
+        assertEquals(null, nav.navigationForAwtMouseButton(4, x11 = true))
+    }
 }

@@ -137,8 +137,7 @@ private val GZIP_MAGIC = "1f8b".decodeHex()
  * URIs. Used as the library root of newly extracted SWORD books.
  */
 @VisibleForTesting fun directoryKUri(dir: Path): KUri {
-    val spelling = dir.toString()
-    return KUri("file", null, if (spelling.endsWith("/")) spelling else "$spelling/", null)
+    return NetUtil.fileKUri(dir, directory = true)
 }
 
 
@@ -1276,7 +1275,7 @@ class BackupControl(
     val internalDbBackupDir: Path get() = (dirs.internalFilesDir / "backup").also { fileSystem.createDirectories(it) }
 
     suspend fun restoreFromLocalBackupFile(host: BackupHost, file: Path) {
-        restoreAppDatabaseFromSourceWithUI(host, PickedSource(KUri("file", null, file.toString(), null).toString(), file.name, null))
+        restoreAppDatabaseFromSourceWithUI(host, PickedSource(NetUtil.fileKUri(file).toString(), file.name, null))
     }
 
     suspend fun resetDatabase(

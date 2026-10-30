@@ -583,7 +583,114 @@ installRefusesExistingBase() {
   grep -qi 'base.*exist' "$TMP/install-existing.out" || fail 'install did not report existing base'
 }
 
-for test in relativePathsResolveBackingAndScreenshots installSuccessCleansStateAndPromotesBase installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+resetLogs() { rm -f "$WINDOWS_VM_TEST_LOG/qemu" "$WINDOWS_VM_TEST_LOG/qemu-img" "$WINDOWS_VM_TEST_LOG/ssh" "$WINDOWS_VM_TEST_LOG/scp" "$WINDOWS_VM_TEST_LOG/pushed.tar"; }
+installFakeSshScp() {
+  cat > "$FAKE/ssh" <<'SH'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$WINDOWS_VM_TEST_LOG/ssh"
+exit "${FAKE_SSH_EXIT:-0}"
+SH
+  cat > "$FAKE/scp" <<'SH'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$WINDOWS_VM_TEST_LOG/scp"
+for a in "$@"; do [[ "$a" == */src.tar && -f "$a" ]] && cp "$a" "$WINDOWS_VM_TEST_LOG/pushed.tar"; done
+exit 0
+SH
+  chmod +x "$FAKE/ssh" "$FAKE/scp"
+}
+removeFakeSshScp() { rm -f "$FAKE/ssh" "$FAKE/scp"; }
+
+devOverlayIsPersistentAndSeparate() {
+  resetLogs
+  local dev="$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.qcow2"
+  run dev-start
+  [[ -f "$dev" && -f "$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.vars" ]] || fail 'dev overlay or vars not created'
+  [[ $(grep -c . "$WINDOWS_VM_TEST_LOG/qemu-img") == 1 ]] || fail 'dev overlay not created exactly once'
+  grep -q -- "-b $WINDOWS_VM_BASE" "$WINDOWS_VM_TEST_LOG/qemu-img" || fail 'dev overlay not backed by base'
+  grep -q "file=$dev," "$WINDOWS_VM_TEST_LOG/qemu" || fail 'QEMU does not use the dev overlay'
+  grep -q "file=$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.vars" "$WINDOWS_VM_TEST_LOG/qemu" || fail 'QEMU does not use persistent vars'
+  [[ -d "$(<"$STATE_DIR/run-dir")" ]] || fail 'no run dir'
+  if run start >/dev/null 2>&1; then fail 'start allowed while dev VM running'; fi
+  run stop >/dev/null
+  [[ -f "$dev" ]] || fail 'stop deleted dev overlay'
+  : > "$WINDOWS_VM_TEST_LOG/qemu-img"
+  run dev-start
+  [[ ! -s "$WINDOWS_VM_TEST_LOG/qemu-img" ]] || fail 'dev overlay recreated on second dev-start'
+  run stop >/dev/null
+  : > "$WINDOWS_VM_TEST_LOG/qemu"
+  run start
+  grep -q 'overlay.qcow2' "$WINDOWS_VM_TEST_LOG/qemu" || fail 'plain start does not use a run overlay'
+  grep -q "dev-$WINDOWS_VM_ID" "$WINDOWS_VM_TEST_LOG/qemu" && fail 'plain start used the dev overlay'
+  run stop >/dev/null
+  rm -f "$dev" "$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.vars"
+  return 0
+}
+
+pushRepoExcludesBuildAndGit() {
+  resetLogs; installFakeSshScp
+  local repo="$TMP/pushrepo" sub
+  rm -rf "$repo"; mkdir -p "$repo"
+  git -C "$repo" init -q
+  git -C "$repo" config user.email t@t; git -C "$repo" config user.name t
+  mkdir -p "$repo/app/src" "$repo/build" "$repo/app/build" "$repo/app/bibleview-js/dist" "$repo/node_modules/x" "$repo/.local" "$repo/.gradle"
+  echo a > "$repo/app/src/A.kt"; echo b > "$repo/tracked name.txt"
+  echo '*.secret' > "$repo/.gitignore"; echo '/app/bibleview-js/dist/' >> "$repo/.gitignore"
+  git -C "$repo" add -A; git -C "$repo" commit -qm init
+  echo u > "$repo/untracked.txt"; echo s > "$repo/x.secret"
+  echo z > "$repo/build/out.bin"; echo z > "$repo/app/build/out.bin"
+  echo z > "$repo/node_modules/x/i.js"; echo z > "$repo/.local/l"; echo z > "$repo/.gradle/g"
+  echo js > "$repo/app/bibleview-js/dist/index.html"
+  for sub in jsword kdom; do
+    mkdir -p "$repo/$sub/src" "$repo/$sub/build"
+    git -C "$repo/$sub" init -q
+    echo j > "$repo/$sub/src/J.java"; echo ig > "$repo/$sub/.gitignore"; echo ig > "$repo/$sub/ig"
+    echo z > "$repo/$sub/build/o"
+    git -C "$repo/$sub" config user.email t@t; git -C "$repo/$sub" config user.name t
+    git -C "$repo/$sub" add src .gitignore; git -C "$repo/$sub" commit -qm i
+    echo n > "$repo/$sub/new.txt"
+  done
+  run push-repo "$repo" >/dev/null
+  [[ -s "$WINDOWS_VM_TEST_LOG/pushed.tar" ]] || fail 'no tarball was sent'
+  local list; list=$(tar -tf "$WINDOWS_VM_TEST_LOG/pushed.tar")
+  local want
+  for want in app/src/A.kt 'tracked name.txt' untracked.txt .gitignore jsword/src/J.java jsword/new.txt kdom/src/J.java kdom/new.txt app/bibleview-js/dist/index.html; do
+    grep -qxF "$want" <<<"$list" || fail "tarball lacks $want"
+  done
+  grep -qE '(^|/)(\.git|build|\.gradle|node_modules|\.local)(/|$)' <<<"$list" && fail 'tarball contains excluded directory'
+  grep -qE 'x\.secret|/ig$' <<<"$list" && fail 'tarball contains ignored file'
+  grep -q 'C:/abtest/src.tar' "$WINDOWS_VM_TEST_LOG/scp" || fail 'tarball not copied to guest'
+  grep -q 'tar.exe -xf' "$WINDOWS_VM_TEST_LOG/ssh" || fail 'guest unpack missing'
+  grep -q 'Remove-Item' "$WINDOWS_VM_TEST_LOG/ssh" && fail 'guest dir removed without --clean'
+  [[ ! -e "$WINDOWS_VM_DIR/out/$WINDOWS_VM_ID/src.tar" ]] || fail 'local tarball not removed'
+  run push-repo --clean "$repo" >/dev/null
+  grep -q 'Remove-Item -Recurse -Force' "$WINDOWS_VM_TEST_LOG/ssh" || fail '--clean did not remove guest dir'
+  removeFakeSshScp
+}
+
+devGradleQuotesArgsAndPropagatesExit() {
+  resetLogs; installFakeSshScp
+  local rc=0
+  FAKE_SSH_EXIT=3 run dev-gradle :desktopApp:test --tests "it's a test" >/dev/null 2>&1 || rc=$?
+  [[ $rc == 3 ]] || fail "dev-gradle exit code was $rc, expected 3"
+  grep -q "gradlew.bat ':desktopApp:test' '--tests' 'it''s a test'" "$WINDOWS_VM_TEST_LOG/ssh" || fail 'args not quoted for PowerShell'
+  grep -q 'JAVA_HOME' "$WINDOWS_VM_TEST_LOG/ssh" || fail 'JAVA_HOME not set'
+  grep -q 'build.compose.binaries' "$WINDOWS_VM_TEST_LOG/ssh" || fail 'artifacts not fetched after failure'
+  rc=0; run dev-gradle tasks >/dev/null 2>&1 || rc=$?
+  [[ $rc == 0 ]] || fail 'dev-gradle success exit code lost'
+  removeFakeSshScp
+}
+
+devResetRefusesWhileRunning() {
+  local dev="$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.qcow2"
+  run dev-start
+  if run dev-reset >/dev/null 2>&1; then fail 'dev-reset allowed while running'; fi
+  [[ -f "$dev" ]] || fail 'dev-reset deleted overlay while running'
+  run stop >/dev/null
+  run dev-reset >/dev/null
+  [[ ! -e "$dev" && ! -e "$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.vars" ]] || fail 'dev-reset did not delete overlay and vars'
+}
+
+for test in devOverlayIsPersistentAndSeparate pushRepoExcludesBuildAndGit devGradleQuotesArgsAndPropagatesExit devResetRefusesWhileRunning relativePathsResolveBackingAndScreenshots installSuccessCleansStateAndPromotesBase installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

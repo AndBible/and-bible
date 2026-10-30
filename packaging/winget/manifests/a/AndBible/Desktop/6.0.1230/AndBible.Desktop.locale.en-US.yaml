@@ -1,0 +1,12 @@
+PackageIdentifier: AndBible.Desktop
+PackageVersion: 6.0.1230
+PackageLocale: en-US
+Publisher: AndBible
+PublisherUrl: https://github.com/AndBible
+PackageName: AndBible Desktop
+PackageUrl: https://github.com/AndBible/and-bible
+License: GPL-3.0
+LicenseUrl: https://github.com/AndBible/and-bible/blob/ios/LICENSE.txt
+ShortDescription: Offline Bible study application for desktop.
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

@@ -30,6 +30,7 @@ import net.bible.service.sword.isWritableFile
 import okio.Path
 import org.crosswire.common.util.KFiles
 import org.crosswire.common.util.KUri
+import org.crosswire.common.util.NetUtil
 import org.koin.mp.KoinPlatform
 import net.bible.service.sword.epub.child
 
@@ -77,7 +78,7 @@ AndBibleMinimumVersion=892
     Log.i(TAG, "Creating CSV prompt module $moduleInitials")
 
     val metadata = SwordBookMetaData(conf.encodeToByteArray(), moduleInitials)
-    metadata.location = KUri("file", null, "${file.parent!!}/", null)
+    metadata.location = NetUtil.fileKUri(file.parent!!, directory = true)
     metadata.setDriver(CsvPromptSwordDriver())
     val book = SwordBook(metadata, NullBackend())
     Books.installed().addBook(book)

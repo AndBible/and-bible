@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.util.zip.GZIPInputStream
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bible.sharedcore.platform.files.DeliveryResult
@@ -123,5 +124,28 @@ class DesktopBugReportTest {
         DesktopBugReport(root, "1.2", { "log" },
             { _, _, _ -> DeliveryResult.CANCELLED }, { opened = true }).report(null)
         assertFalse(opened)
+    }
+
+    @Test
+    fun bugReportPathsAndMailtoOnWindows() = runBlocking {
+        // Report and crash-file paths under a profile with a space and an umlaut, and a mailto launch without xdg-open.
+        val root = Files.createTempDirectory("Jänis Ö")
+        val opened = mutableListOf<String>()
+        recoveryBugReport(root, "1.2", { "log" }, "Introduction", { opened += it }).report(null)
+        val file = Files.list(root.resolve("reports")).use { it.toList().single() }
+        val decoded = java.net.URLDecoder.decode(opened.single(), Charsets.UTF_8)
+        assertTrue(file.toString() in decoded && "Jänis Ö" in decoded, decoded)
+        java.net.URI(opened.single()) // the encoded mailto is a valid URI (spaces and backslashes are escaped)
+
+        val calls = mutableListOf<String>()
+        val uri = java.net.URI("mailto:errors.andbible@gmail.com?subject=Hi%20there")
+        openMailto(uri, "Windows 11", mail = { calls += "mail"; error("no mail client") }, browse = { calls += "browse:$it" }, xdg = { calls += "xdg" })
+        assertEquals(listOf("mail", "browse:$uri"), calls)
+        calls.clear()
+        openMailto(uri, "Windows 11", mail = { calls += "mail" }, browse = { calls += "browse" }, xdg = { calls += "xdg" })
+        assertEquals(listOf("mail"), calls)
+        calls.clear()
+        openMailto(uri, "Linux", mail = { error("none") }, browse = { calls += "browse" }, xdg = { calls += "xdg:$it" })
+        assertEquals(listOf("xdg:$uri"), calls)
     }
 }

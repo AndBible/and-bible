@@ -17,7 +17,7 @@ RUNS="$VM_DIR/runs/$VM_ID"
 QEMU=${QEMU:-qemu-system-x86_64}
 
 usage() {
-  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo}' >&2
+  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|mouse {move|click|down|up|wheel} x y [button|notches]|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|gui-run command|dev-gradle args...}' >&2
   exit 2
 }
 error() { printf 'windows-vm: %s\n' "$*" >&2; exit 1; }
@@ -109,7 +109,10 @@ cleanup_qmp_path() {
   rm -f "$run_dir/qmp-path"
 }
 
+# start_vm [dev]: without an argument the disk is a throwaway overlay in the run dir;
+# with "dev" it is the persistent per-container overlay dev-$VM_ID.qcow2 (+ .vars).
 start_vm() {
+  local mode=${1:-throwaway}
   mkdir -p "$VM_DIR" "$RUNS" "$STATE"
   exec 9>"$STATE/lock"
   flock 9
@@ -126,18 +129,26 @@ start_vm() {
   mkdir -p "$RUNS"
   run_dir="$RUNS/$id"
   mkdir -p "$run_dir"
-  cp "${BASE}.vars" "$run_dir/OVMF_VARS.ms.fd" 2>/dev/null || cp "$vars" "$run_dir/OVMF_VARS.ms.fd"
-  chmod u+w "$run_dir/OVMF_VARS.ms.fd"
-  qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$run_dir/overlay.qcow2" >/dev/null
+  local disk_file="$run_dir/overlay.qcow2" vars_file="$run_dir/OVMF_VARS.ms.fd"
+  if [[ "$mode" == dev ]]; then
+    disk_file=$(dev_overlay); vars_file=$(dev_vars)
+  fi
+  if [[ ! -e "$vars_file" ]]; then
+    cp "${BASE}.vars" "$vars_file" 2>/dev/null || cp "$vars" "$vars_file"
+    chmod u+w "$vars_file"
+  fi
+  if [[ ! -e "$disk_file" ]]; then
+    qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$disk_file" >/dev/null
+  fi
   touch "$run_dir/lock"
   create_qmp_path "$run_dir"
   local qmp_sock; qmp_sock=$(qmp_path "$run_dir")
   "$QEMU" -name windows-vm -machine q35,smm=on -cpu "$CPU_MODEL" -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
-    -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
-    -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
+    -drive "if=pflash,format=raw,file=$vars_file" \
+    -device ahci,id=sata0 -drive "file=$disk_file,if=none,id=disk0,format=qcow2" \
     -device ide-hd,drive=disk0,bus=sata0.0 -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" \
-    -device e1000e,netdev=net0 -display none -serial mon:stdio \
+    -device e1000e,netdev=net0 -device qemu-xhci,id=xhci -device usb-tablet,bus=xhci.0 -display none -serial mon:stdio \
     -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 8>&- 9>&- &
   local qpid=$!
   printf '%s\n' "$qpid" > "$STATE/qemu.pid"
@@ -156,6 +167,19 @@ start_vm() {
   stop_locked
   flock -u 9
   error 'timed out waiting for QEMU QMP socket'
+}
+
+dev_overlay() { printf '%s/dev-%s.qcow2\n' "$VM_DIR" "$VM_ID"; }
+dev_vars() { printf '%s/dev-%s.vars\n' "$VM_DIR" "$VM_ID"; }
+
+# dev-reset: the only way the persistent dev overlay goes away.
+dev_reset() {
+  mkdir -p "$STATE"
+  exec 9>"$STATE/lock"
+  flock 9
+  owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'VM is running; stop it before dev-reset'
+  rm -f -- "$(dev_overlay)" "$(dev_vars)"
+  echo 'Dev overlay removed'
 }
 
 stop_locked() {
@@ -184,6 +208,74 @@ stop_vm() {
 
 ssh_options() {
   SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=${1:-$VM_DIR/known_hosts}")
+}
+
+guest_target() { printf '%s@127.0.0.1' "${WINDOWS_VM_USER:-abtest}"; }
+# Single-quote one PowerShell argument, doubling embedded single quotes.
+ps_quote() { local a=${1//\'/\'\'}; printf "'%s'" "$a"; }
+guest_ssh() { ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "$(guest_target)" "$@"; }
+guest_scp_to() { ssh_options; scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "$(guest_target):$2"; }
+guest_scp_from() { ssh_options; scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$(guest_target):$1" "$2"; }
+
+# push-repo [--clean] [dir]: tar the working tree (tracked + untracked, not ignored; plus the
+# jsword and kdom submodules and the gitignored BibleView bundle) and unpack it into C:\abtest\src.
+push_repo() {
+  local clean=false dir
+  if [[ ${1:-} == --clean ]]; then clean=true; shift; fi
+  dir=$(cd "${1:-$ROOT}" && pwd) || error 'no such directory'
+  local out="$VM_DIR/out/$VM_ID" list
+  mkdir -p "$out"
+  list=$(mktemp "$out/files.XXXXXX")
+  {
+    emit_files "$dir" ''
+    local sub
+    for sub in jsword kdom; do
+      [[ -e "$dir/$sub/.git" ]] && emit_files "$dir/$sub" "$sub/"
+    done
+    if [[ -d "$dir/app/bibleview-js/dist" ]]; then
+      (cd "$dir" && find app/bibleview-js/dist -type f -print0)
+    fi
+  } > "$list"
+  tar -C "$dir" --null -T "$list" -cf "$out/src.tar" || { rm -f "$list" "$out/src.tar"; error 'could not build tarball'; }
+  rm -f "$list"
+  # :app's configuration runs `git rev-parse/describe/log`: the guest copy gets a stub repository with one empty commit.
+  # AGP's configuration needs an SDK location, but no Android task runs there: local.properties names an empty stub dir.
+  local rc=0 prep='New-Item -ItemType Directory -Force C:\abtest\src | Out-Null; tar.exe -xf C:\abtest\src.tar -C C:\abtest\src; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; if (-not (Test-Path C:\abtest\src\.git)) { git -C C:\abtest\src init -q; git -C C:\abtest\src -c user.name=abtest -c user.email=abtest@localhost commit -q --allow-empty -m "windows-vm push-repo" }; if (-not (Test-Path C:\abtest\src\local.properties)) { New-Item -ItemType Directory -Force C:\abtest\android-sdk-stub | Out-Null; Set-Content -Encoding ascii C:\abtest\src\local.properties "sdk.dir=C:/abtest/android-sdk-stub" }; exit $LASTEXITCODE'
+  if $clean; then prep='Remove-Item -Recurse -Force C:\abtest\src -ErrorAction SilentlyContinue; '"$prep"; fi
+  guest_scp_to "$out/src.tar" 'C:/abtest/src.tar' && guest_ssh "$prep" || rc=$?
+  rm -f "$out/src.tar"
+  return "$rc"
+}
+# emit_files repo prefix: NUL-separated existing non-directory files of a git work tree,
+# minus .git, build, .gradle, node_modules and .local paths.
+emit_files() {
+  local repo=$1 prefix=$2 f
+  git -C "$repo" ls-files -co --exclude-standard -z | while IFS= read -r -d '' f; do
+    [[ -e "$repo/$f" && ! -d "$repo/$f" ]] || continue
+    case "/$prefix$f" in */.git/*|*/build/*|*/.gradle/*|*/node_modules/*|*/.local/*) continue ;; esac
+    printf '%s\0' "$prefix$f"
+  done
+}
+
+# dev-gradle args...: run gradlew.bat in the guest, then fetch artifacts and reports.
+dev_gradle() {
+  local out="$VM_DIR/out/$VM_ID" jh=${WINDOWS_VM_JAVA_HOME:-'C:\Program Files\Eclipse Adoptium\jdk-17.0.20.1-hotspot'} args='' a rc=0
+  mkdir -p "$out/build"
+  for a in "$@"; do args+=" $(ps_quote "$a")"; done
+  guest_ssh "\$env:JAVA_HOME=$(ps_quote "$jh"); cd C:\\abtest\\src; .\\gradlew.bat$args; exit \$LASTEXITCODE" || rc=$?
+  local zips z
+  zips=$(guest_ssh 'Get-ChildItem -Recurse -Filter *.zip C:\abtest\src\desktopApp\build\compose\binaries -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }' 2>/dev/null || true)
+  while IFS= read -r z; do
+    z=${z%$'\r'}; [[ -n "$z" ]] || continue
+    guest_scp_from "${z//\\//}" "$out/" || printf 'windows-vm: could not fetch %s\n' "$z" >&2
+  done <<<"$zips"
+  if guest_ssh 'Remove-Item C:\abtest\results.tar -ErrorAction SilentlyContinue; $d = @("test-results","reports") | Where-Object { Test-Path "C:\abtest\src\desktopApp\build\$_" }; if (-not $d) { exit 1 }; tar.exe -cf C:\abtest\results.tar -C C:\abtest\src\desktopApp\build @d; exit $LASTEXITCODE' >/dev/null 2>&1; then
+    if guest_scp_from 'C:/abtest/results.tar' "$out/results.tar"; then
+      tar -xf "$out/results.tar" -C "$out/build" || true
+    fi
+    rm -f "$out/results.tar"
+  fi
+  return "$rc"
 }
 
 install_screenshot() {
@@ -323,11 +415,86 @@ cmd=$1; shift
 case "$cmd" in
   install) install_vm ;;
   start) start_vm ;;
+  dev-start) start_vm dev ;;
+  dev-reset) dev_reset ;;
+  push-repo) push_repo "$@" ;;
+  dev-gradle) dev_gradle "$@" ;;
+  gui-run) [[ $# -ge 1 ]] || usage; mkdir -p "$VM_DIR/out/$VM_ID"; id="g$(date -u +%Y%m%d%H%M%S)$RANDOM"; cmdfile="$VM_DIR/out/$VM_ID/$id.cmd"
+    # One task, script, log and exit file per run: cmd.exe reads a running batch file as it goes, so it must never be
+    # overwritten, and a still-running earlier run (the app) must not block the next one.
+    printf '@echo off\r\nchcp 65001 >nul\r\n%s > C:\\abtest\\gui\\%s.log 2>&1\r\n(echo %%ERRORLEVEL%%)> C:\\abtest\\gui\\%s.exit\r\n' "$*" "$id" "$id" > "$cmdfile"
+    guest_ssh 'New-Item -ItemType Directory -Force C:\abtest\gui | Out-Null' && guest_scp_to "$cmdfile" "C:/abtest/gui/$id.cmd" && guest_scp_to "$ROOT/scripts/windows-vm/gui-run.ps1" C:/abtest/gui-run.ps1 &&
+      guest_ssh "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\abtest\\gui-run.ps1 -Id $id" || rc=$?; rm -f "$cmdfile"; exit "${rc:-0}" ;;
+  dev-provision) guest_scp_to "$ROOT/scripts/windows-vm/dev-provision.ps1" C:/abtest/dev-provision.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\dev-provision.ps1' ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
   ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
   scp-to) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$2" ;;
   scp-from) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$1" "$2" ;;
+  mouse) [[ $# -ge 3 ]] || usage; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); python3 - "$qmp_sock" "${WINDOWS_VM_QMP_TIMEOUT:-3}" "${WINDOWS_VM_SCREEN:-}" "$VM_DIR" "$@" <<'PYMOUSE'
+# mouse {move|click|down|up|wheel} x y [button|notches]: absolute pointer (usb-tablet) through QMP input-send-event.
+# x, y are guest screen pixels; the screen size comes from WINDOWS_VM_SCREEN (WxH) or a fresh screendump.
+import json, os, socket, sys, tempfile, time
+path, timeout, screen, vm_dir, action, x, y, *rest = sys.argv[1:]
+timeout = float(timeout)
+def session(commands):
+    deadline = time.monotonic() + timeout
+    s = socket.socket(socket.AF_UNIX); s.settimeout(timeout); s.connect(path)
+    f = s.makefile("rwb", buffering=0)
+    def receive(wanted):
+        while True:
+            if time.monotonic() > deadline: raise TimeoutError("QMP response deadline exceeded")
+            line = f.readline()
+            if not line: raise RuntimeError("QMP closed")
+            row = json.loads(line)
+            if "event" in row or row.get("id") != wanted: continue
+            if "error" in row: raise RuntimeError(str(row["error"]))
+            return row
+    f.readline()
+    f.write(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
+    for i, (cmd, args, pause) in enumerate(commands):
+        f.write(json.dumps({"execute": cmd, "arguments": args, "id": str(i)}).encode() + b"\r\n")
+        result = receive(str(i)).get("return")
+        time.sleep(pause)
+    s.close()
+    return result
+if screen:
+    width, height = map(int, screen.lower().split("x"))
+else:
+    from PIL import Image
+    fd, raw = tempfile.mkstemp(suffix=".ppm", dir=vm_dir); os.close(fd)
+    try:
+        session([("screendump", {"filename": raw}, 0)])
+        width, height = Image.open(raw).size
+    finally:
+        os.unlink(raw)
+x, y = int(x), int(y)
+if not (0 <= x < width and 0 <= y < height): raise SystemExit(f"point outside the {width}x{height} screen")
+abs_move = [{"type": "abs", "data": {"axis": "x", "value": x * 32767 // (width - 1)}},
+            {"type": "abs", "data": {"axis": "y", "value": y * 32767 // (height - 1)}}]
+buttons = {"left": "left", "right": "right", "middle": "middle", "back": "side", "side": "side", "forward": "extra", "extra": "extra"}
+def btn(name, down): return {"type": "btn", "data": {"down": down, "button": buttons[name]}}
+send = lambda events, pause=0.05: ("input-send-event", {"events": events}, pause)
+if action == "move":
+    session([send(abs_move)])
+elif action in ("click", "down", "up"):
+    name = rest[0] if rest else "left"
+    if name not in buttons: raise SystemExit("unknown button: " + name)
+    steps = [send(abs_move)]
+    if action in ("click", "down"): steps.append(send([btn(name, True)], 0.08))
+    if action in ("click", "up"): steps.append(send([btn(name, False)]))
+    session(steps)
+elif action == "wheel":
+    notches = int(rest[0]) if rest else 1
+    wheel = "wheel-up" if notches > 0 else "wheel-down"
+    steps = [send(abs_move)]
+    for _ in range(abs(notches)):
+        steps += [send([{"type": "btn", "data": {"down": True, "button": wheel}}], 0.02), send([{"type": "btn", "data": {"down": False, "button": wheel}}], 0.08)]
+    session(steps)
+else:
+    raise SystemExit("mouse actions: move, click, down, up, wheel")
+PYMOUSE
+  ;;
   shot) [[ $# == 1 ]] || usage; mkdir -p "$VM_DIR/shots"; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); raw="$VM_DIR/shots/$1.ppm"; qmp "$qmp_sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}"; python3 - "$raw" "$VM_DIR/shots/$1.png" <<'PY'
 from PIL import Image
 import sys
@@ -341,7 +508,7 @@ timeout=float(timeout)
 if mode == "type" and (not text.isascii() or any(not ch.isprintable() for ch in text)): raise SystemExit("type accepts printable ASCII only")
 shift={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"minus","+":"equal",":":"semicolon","?":"slash","<":"comma",">":"dot","\"":"apostrophe","{":"bracket_left","}":"bracket_right","|":"backslash","~":"grave_accent"}
 plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon","'":"apostrophe","\\":"backslash","[":"bracket_left","]":"bracket_right","`":"grave_accent"}
-valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
+valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","alt_r","meta_l","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
 def qmp(keys):
     deadline=time.monotonic()+timeout
     sock=socket.socket(socket.AF_UNIX); sock.settimeout(max(0, deadline-time.monotonic())); sock.connect(path)
@@ -371,7 +538,7 @@ def qmp(keys):
     request={"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":k} for k in keys],"hold-time":10},"id":"key"}
     sock.sendall(json.dumps(request).encode()+b"\r\n"); receive("key"); sock.close()
 if mode == "key":
-    aliases={"enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
+    aliases={"altgr":"alt_r","win":"meta_l","enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
     valid_qcodes.update(plain.values())
     keys=[aliases.get(k,k) for k in text.replace("-", "+").split("+")]
     if not keys or any(k not in valid_qcodes for k in keys): raise SystemExit("unsupported QEMU key name")

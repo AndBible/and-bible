@@ -192,4 +192,10 @@ class KcefWebEngineTest {
 </html>
 """
     }
+
+    @Test fun helperExecutableNameFollowsTheOs() {
+        assertEquals("jcef_helper.exe", KcefWebEngine.helperExecutableName("Windows 11"))
+        assertEquals("jcef_helper", KcefWebEngine.helperExecutableName("Linux"))
+        assertEquals("jcef_helper", KcefWebEngine.helperExecutableName("Mac OS X"))
+    }
 }
