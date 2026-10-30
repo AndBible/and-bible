@@ -199,7 +199,7 @@ compose.desktop {
             licenseFile.set(rootProject.layout.projectDirectory.file("LICENSE.txt"))
             // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
             // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
-            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata")
+            modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata", "jdk.security.auth")
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
                 debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
@@ -387,6 +387,17 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         val work = layout.buildDirectory.dir("deb-fix").get().asFile.apply { deleteRecursively(); mkdirs() }
         val unpacked = File(work, "pkg")
         run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
+        // D3b: replace the jpackage-registered launcher, not a second desktop menu entry.
+        val desktopTemplate = layout.projectDirectory.file("packaging/linux/andbible.desktop").asFile
+        val desktopEntry = File(unpacked, "opt/andbible/lib/andbible-andbible.desktop")
+        check(desktopEntry.isFile) { "Missing jpackage desktop entry: $desktopEntry" }
+        desktopEntry.writeText(desktopTemplate.readText())
+        check("Exec=/opt/andbible/bin/andbible %F" in desktopEntry.readText())
+        check("MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;" in desktopEntry.readText())
+        check("Icon=/opt/andbible/lib/andbible.png" in desktopEntry.readText())
+        check(File(unpacked, "opt/andbible/lib/andbible.png").isFile)
+        check(unpacked.walkTopDown().count { it.isFile && it.extension == "desktop" } == 1)
+        check("andbible-andbible.desktop" in File(unpacked, "DEBIAN/postinst").readText())
         val natives = File(unpacked, "opt/andbible/lib/app/resources/kcef-natives")
         check(natives.isDirectory) { "No kcef-natives in the .deb ($natives)" }
         restoreNativeModes(kcefNativesDir.get().asFile, natives)

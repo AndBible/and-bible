@@ -90,7 +90,8 @@ class IosPortContractTest {
      */
     internal fun requiredPorts(): Set<KClass<*>> {
         val required = linkedSetOf<KClass<*>>()
-        val koin: Koin = koinApplication { modules(buildSharedBindings()) }.koin
+        val app = koinApplication { modules(buildSharedBindings()) }
+        val koin: Koin = app.koin
         // Definitions resolved against stubs may launch background work (e.g. SyncSettingsServiceImpl.refresh) that
         // throws on the stubbed ports. Contain it in this scope (handler swallows) so it can never surface as an
         // uncaught exception in a later runTest of the same JVM, and cancel it when the walk is done.
@@ -98,7 +99,7 @@ class IosPortContractTest {
         try {
             return walk(koin, required, scope)
         } finally {
-            scope.cancel()
+            try { app.close() } finally { scope.cancel() }
         }
     }
 

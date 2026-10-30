@@ -19,6 +19,8 @@ package net.bible.sharedui.desktop.assembly
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.service.cloudsync.desktop.desktopSyncModule
 import net.bible.sharedui.app.HostShell
@@ -190,6 +192,7 @@ class DesktopPortContractTest {
     }
 
     /** The wave-3 seams (D3a..D3d): each resolves from the core + stream modules and answers today's behaviour. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test fun everyWaveThreeSeamResolvesWithTodaysBehaviour() = withKoin { koin, _ ->
         val seams = listOf(
             net.bible.sharedui.desktop.webview.DesktopReadingInput::class,
@@ -204,14 +207,19 @@ class DesktopPortContractTest {
         if (failures.isNotEmpty()) fail("Unresolvable seam types:\n" + failures.joinToString("\n"))
 
         assertTrue(koin.get<net.bible.sharedui.desktop.webview.DesktopReadingInput>().documentStartScripts("w1").isEmpty())
-        assertEquals(false, koin.get<DesktopFileShare>().canShare)
+        assertTrue(koin.get<DesktopFileShare>().canShare)
         assertEquals(emptyList(), koin.get<DesktopLaunchArgs>().args)
         // The night-mode source is the graph's NightModeState, so the toolbar, the panes and the app agree.
         assertTrue(koin.get<DesktopNightModeSource>() === koin.get<net.bible.sharedlogic.platform.NightModeState>())
         // No incoming files: the port suspends until cancelled.
-        kotlinx.coroutines.runBlocking {
-            val result = kotlinx.coroutines.withTimeoutOrNull(200) { koin.get<DesktopIncomingFiles>().receive({ _, _ -> fail("no files") }, { fail("no failure") }) }
-            assertEquals(null, result)
+        kotlinx.coroutines.test.runTest {
+            kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+            try {
+                val result = kotlinx.coroutines.withTimeoutOrNull(200) { koin.get<DesktopIncomingFiles>().receive({ _, _ -> fail("no files") }, { fail("no failure") }) }
+                assertEquals(null, result)
+            } finally {
+                kotlinx.coroutines.Dispatchers.resetMain()
+            }
         }
         // No crash gate before Koin.
         val gate = desktopCrashGate(paths(Files.createTempDirectory("crash-gate")))
