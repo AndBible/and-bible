@@ -25,6 +25,11 @@ scripts/windows-vm.sh key ctrl+alt+delete
 scripts/windows-vm.sh type 'printable ASCII text'
 scripts/windows-vm.sh key enter
 scripts/windows-vm.sh stop
+# persistent dev overlay (JDK, repo copy, Gradle caches survive stop)
+scripts/windows-vm.sh dev-start
+scripts/windows-vm.sh push-repo [--clean] [dir]
+scripts/windows-vm.sh dev-gradle :desktopApp:packageWindowsZip
+scripts/windows-vm.sh dev-reset
 ```
 
 `start` returns when QMP is ready, not when Windows or SSH has finished booting. Retry SSH with a bounded timeout before using the guest; a successful `start` alone does not establish SSH readiness.
@@ -32,6 +37,12 @@ scripts/windows-vm.sh stop
 `install` refuses to overwrite an existing base or firmware, waits for guest readiness, requests a clean Windows shutdown and promotes the image only after QEMU exits successfully. It downloads the official Win32-OpenSSH `10.4.0.0p1-Preview` MSI from GitHub and verifies SHA-256 `788d8643464a01eb63640a2fd746f9ed23d106b5a901a35f88dc8cd40e446ac9`. The guest installs this preview locally from the answer media, without a Windows Update dependency. Internet access to the release is needed at installation time. Guest diagnostics are `C:\abtest\firstlogon.log` and `C:\abtest\openssh-install.log`.
 
 Each `start` creates a fresh ephemeral overlay and a firmware-variable copy; changes made in a run do not persist to the base. `stop` terminates QEMU rather than cleanly shutting down the guest: use it only knowing that the overlay is disposable. Initial base promotion, by contrast, requires clean shutdown. A run's files remain under `runs/`; do not assume `stop` removes them.
+
+### Dev overlay
+
+`dev-start` boots from a persistent per-container overlay `dev-<id>.qcow2` (plus `dev-<id>.vars` firmware variables) in the VM directory, created on top of the base on first use and reused afterwards. Use it for the guest JDK (Temurin 17; the script sets `JAVA_HOME` from `WINDOWS_VM_JAVA_HOME`, default `C:\Program Files\Eclipse Adoptium\jdk-17.0.20.1-hotspot`), the repo copy in `C:\abtest\src` and the Gradle caches. The same per-container lock applies: only one VM, throwaway or dev, runs at a time. `stop` never deletes the dev overlay; only `dev-reset` does, and it refuses while the VM runs. The plain `start` stays the throwaway overlay for clean test runs.
+
+`push-repo` tars the working tree (tracked and untracked-not-ignored files, the `jsword` and `kdom` submodules, and the gitignored `app/bibleview-js/dist/` bundle; never `.git`, `build/`, `.gradle/`, `node_modules/` or `.local/`) and unpacks it over `C:\abtest\src`, keeping guest build outputs; `--clean` removes the guest tree first. `dev-gradle` runs `gradlew.bat` with the given arguments (PowerShell-quoted), returns Gradle's exit code, and always fetches `*.zip` files from `desktopApp\build\compose\binaries` and the `test-results` and `reports` directories into `.local/windows-vm/out/<id>/` (reports under `build/`).
 
 GUI testing requires a manual `abtest` logon once per fresh overlay: automatic logon is disabled after provisioning. SSH is available at the login screen. If the screenshot is black, wake the display with a key before capturing it. QMP `type` sends printable US-ASCII key sequences, not clipboard text; the active guest keyboard layout affects the resulting characters. `key` sends QEMU key combinations such as `ctrl+alt+delete`.
 

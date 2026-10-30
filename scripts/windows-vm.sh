@@ -17,7 +17,7 @@ RUNS="$VM_DIR/runs/$VM_ID"
 QEMU=${QEMU:-qemu-system-x86_64}
 
 usage() {
-  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo}' >&2
+  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|dev-start|dev-reset|push-repo [--clean] [dir]|dev-gradle args...}' >&2
   exit 2
 }
 error() { printf 'windows-vm: %s\n' "$*" >&2; exit 1; }
@@ -109,7 +109,10 @@ cleanup_qmp_path() {
   rm -f "$run_dir/qmp-path"
 }
 
+# start_vm [dev]: without an argument the disk is a throwaway overlay in the run dir;
+# with "dev" it is the persistent per-container overlay dev-$VM_ID.qcow2 (+ .vars).
 start_vm() {
+  local mode=${1:-throwaway}
   mkdir -p "$VM_DIR" "$RUNS" "$STATE"
   exec 9>"$STATE/lock"
   flock 9
@@ -126,16 +129,24 @@ start_vm() {
   mkdir -p "$RUNS"
   run_dir="$RUNS/$id"
   mkdir -p "$run_dir"
-  cp "${BASE}.vars" "$run_dir/OVMF_VARS.ms.fd" 2>/dev/null || cp "$vars" "$run_dir/OVMF_VARS.ms.fd"
-  chmod u+w "$run_dir/OVMF_VARS.ms.fd"
-  qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$run_dir/overlay.qcow2" >/dev/null
+  local disk_file="$run_dir/overlay.qcow2" vars_file="$run_dir/OVMF_VARS.ms.fd"
+  if [[ "$mode" == dev ]]; then
+    disk_file=$(dev_overlay); vars_file=$(dev_vars)
+  fi
+  if [[ ! -e "$vars_file" ]]; then
+    cp "${BASE}.vars" "$vars_file" 2>/dev/null || cp "$vars" "$vars_file"
+    chmod u+w "$vars_file"
+  fi
+  if [[ ! -e "$disk_file" ]]; then
+    qemu-img create -f qcow2 -F qcow2 -b "$BASE" "$disk_file" >/dev/null
+  fi
   touch "$run_dir/lock"
   create_qmp_path "$run_dir"
   local qmp_sock; qmp_sock=$(qmp_path "$run_dir")
   "$QEMU" -name windows-vm -machine q35,smm=on -cpu "$CPU_MODEL" -enable-kvm -m "$RAM" -smp "$CPUS" \
     -drive "if=pflash,format=raw,readonly=on,file=$code" \
-    -drive "if=pflash,format=raw,file=$run_dir/OVMF_VARS.ms.fd" \
-    -device ahci,id=sata0 -drive "file=$run_dir/overlay.qcow2,if=none,id=disk0,format=qcow2" \
+    -drive "if=pflash,format=raw,file=$vars_file" \
+    -device ahci,id=sata0 -drive "file=$disk_file,if=none,id=disk0,format=qcow2" \
     -device ide-hd,drive=disk0,bus=sata0.0 -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" \
     -device e1000e,netdev=net0 -display none -serial mon:stdio \
     -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 8>&- 9>&- &
@@ -156,6 +167,19 @@ start_vm() {
   stop_locked
   flock -u 9
   error 'timed out waiting for QEMU QMP socket'
+}
+
+dev_overlay() { printf '%s/dev-%s.qcow2\n' "$VM_DIR" "$VM_ID"; }
+dev_vars() { printf '%s/dev-%s.vars\n' "$VM_DIR" "$VM_ID"; }
+
+# dev-reset: the only way the persistent dev overlay goes away.
+dev_reset() {
+  mkdir -p "$STATE"
+  exec 9>"$STATE/lock"
+  flock 9
+  owned_alive "$STATE/qemu.pid" "$STATE/qemu.start" && error 'VM is running; stop it before dev-reset'
+  rm -f -- "$(dev_overlay)" "$(dev_vars)"
+  echo 'Dev overlay removed'
 }
 
 stop_locked() {
@@ -184,6 +208,72 @@ stop_vm() {
 
 ssh_options() {
   SSH_OPTS=(-i "$VM_DIR/id_ed25519" -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -o "UserKnownHostsFile=${1:-$VM_DIR/known_hosts}")
+}
+
+guest_target() { printf '%s@127.0.0.1' "${WINDOWS_VM_USER:-abtest}"; }
+# Single-quote one PowerShell argument, doubling embedded single quotes.
+ps_quote() { local a=${1//\'/\'\'}; printf "'%s'" "$a"; }
+guest_ssh() { ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "$(guest_target)" "$@"; }
+guest_scp_to() { ssh_options; scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "$(guest_target):$2"; }
+guest_scp_from() { ssh_options; scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$(guest_target):$1" "$2"; }
+
+# push-repo [--clean] [dir]: tar the working tree (tracked + untracked, not ignored; plus the
+# jsword and kdom submodules and the gitignored BibleView bundle) and unpack it into C:\abtest\src.
+push_repo() {
+  local clean=false dir
+  if [[ ${1:-} == --clean ]]; then clean=true; shift; fi
+  dir=$(cd "${1:-$ROOT}" && pwd) || error 'no such directory'
+  local out="$VM_DIR/out/$VM_ID" list
+  mkdir -p "$out"
+  list=$(mktemp "$out/files.XXXXXX")
+  {
+    emit_files "$dir" ''
+    local sub
+    for sub in jsword kdom; do
+      [[ -e "$dir/$sub/.git" ]] && emit_files "$dir/$sub" "$sub/"
+    done
+    if [[ -d "$dir/app/bibleview-js/dist" ]]; then
+      (cd "$dir" && find app/bibleview-js/dist -type f -print0)
+    fi
+  } > "$list"
+  tar -C "$dir" --null -T "$list" -cf "$out/src.tar" || { rm -f "$list" "$out/src.tar"; error 'could not build tarball'; }
+  rm -f "$list"
+  local rc=0 prep='New-Item -ItemType Directory -Force C:\abtest\src | Out-Null; tar.exe -xf C:\abtest\src.tar -C C:\abtest\src; exit $LASTEXITCODE'
+  if $clean; then prep='Remove-Item -Recurse -Force C:\abtest\src -ErrorAction SilentlyContinue; '"$prep"; fi
+  guest_scp_to "$out/src.tar" 'C:/abtest/src.tar' && guest_ssh "$prep" || rc=$?
+  rm -f "$out/src.tar"
+  return "$rc"
+}
+# emit_files repo prefix: NUL-separated existing non-directory files of a git work tree,
+# minus .git, build, .gradle, node_modules and .local paths.
+emit_files() {
+  local repo=$1 prefix=$2 f
+  git -C "$repo" ls-files -co --exclude-standard -z | while IFS= read -r -d '' f; do
+    [[ -e "$repo/$f" && ! -d "$repo/$f" ]] || continue
+    case "/$prefix$f" in */.git/*|*/build/*|*/.gradle/*|*/node_modules/*|*/.local/*) continue ;; esac
+    printf '%s\0' "$prefix$f"
+  done
+}
+
+# dev-gradle args...: run gradlew.bat in the guest, then fetch artifacts and reports.
+dev_gradle() {
+  local out="$VM_DIR/out/$VM_ID" jh=${WINDOWS_VM_JAVA_HOME:-'C:\Program Files\Eclipse Adoptium\jdk-17.0.20.1-hotspot'} args='' a rc=0
+  mkdir -p "$out/build"
+  for a in "$@"; do args+=" $(ps_quote "$a")"; done
+  guest_ssh "\$env:JAVA_HOME=$(ps_quote "$jh"); cd C:\\abtest\\src; .\\gradlew.bat$args; exit \$LASTEXITCODE" || rc=$?
+  local zips z
+  zips=$(guest_ssh 'Get-ChildItem -Recurse -Filter *.zip C:\abtest\src\desktopApp\build\compose\binaries -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }' 2>/dev/null || true)
+  while IFS= read -r z; do
+    z=${z%$'\r'}; [[ -n "$z" ]] || continue
+    guest_scp_from "${z//\\//}" "$out/" || printf 'windows-vm: could not fetch %s\n' "$z" >&2
+  done <<<"$zips"
+  if guest_ssh 'Remove-Item C:\abtest\results.tar -ErrorAction SilentlyContinue; $d = @("test-results","reports") | Where-Object { Test-Path "C:\abtest\src\desktopApp\build\$_" }; if (-not $d) { exit 1 }; tar.exe -cf C:\abtest\results.tar -C C:\abtest\src\desktopApp\build @d; exit $LASTEXITCODE' >/dev/null 2>&1; then
+    if guest_scp_from 'C:/abtest/results.tar' "$out/results.tar"; then
+      tar -xf "$out/results.tar" -C "$out/build" || true
+    fi
+    rm -f "$out/results.tar"
+  fi
+  return "$rc"
 }
 
 install_screenshot() {
@@ -323,6 +413,10 @@ cmd=$1; shift
 case "$cmd" in
   install) install_vm ;;
   start) start_vm ;;
+  dev-start) start_vm dev ;;
+  dev-reset) dev_reset ;;
+  push-repo) push_repo "$@" ;;
+  dev-gradle) dev_gradle "$@" ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
   ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
