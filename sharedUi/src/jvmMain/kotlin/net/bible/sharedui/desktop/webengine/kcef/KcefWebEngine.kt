@@ -199,6 +199,9 @@ internal object SwingMainDispatcher : CoroutineDispatcher() {
     override fun isDispatchNeeded(context: CoroutineContext): Boolean = !SwingUtilities.isEventDispatchThread()
 }
 
+/** The X11 focus helper (reflection on the JDK's X11 internals), resolved once per process and shared by every pane. */
+private val sharedX11Focus: X11PaneFocus by lazy { X11PaneFocus.create { println("kcef: $it") } }
+
 /** Windowed pane: CEF's heavyweight component hosted in a Compose `SwingPanel`. Everything shared is in [KcefPaneCore]. */
 internal class KcefPane(
     override val id: String,
@@ -207,10 +210,9 @@ internal class KcefPane(
     onMessage: (String) -> Unit,
     private val log: (String) -> Unit,
 ) : DesktopWebPane {
-    private val x11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log) }
     private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = {
         core.browser.setFocus(true)
-        x11Focus.focus(core.browser.uiComponent)
+        sharedX11Focus.focus(core.browser.uiComponent)
     })
     private val browser: KCEFBrowser = core.createBrowser(CefRendering.DEFAULT)
 

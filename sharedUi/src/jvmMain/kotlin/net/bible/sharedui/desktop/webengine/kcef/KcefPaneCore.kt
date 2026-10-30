@@ -70,6 +70,10 @@ internal class KcefPaneCore(
     @Volatile
     private var onRendererGone: (() -> Unit)? = null
     private val evals = EvalReplies()
+
+    /** The pane's first focus press is logged once (see [PaneFocusRequest.handle]). */
+    private val focusPressLogged = java.util.concurrent.atomic.AtomicBoolean(false)
+
     private val client: KCEFClient = KCEF.newClientBlocking()
 
     private val router: CefMessageRouter = CefMessageRouter.create(
@@ -89,7 +93,7 @@ internal class KcefPaneCore(
                 val text = request ?: return true
                 // invokeLater: after AWT's own focus handling of the press.
                 SwingUtilities.invokeLater {
-                    if (!disposed && !PaneFocusRequest.handle(text, requestFocus, log) && !evals.consume(text)) onMessage(text)
+                    if (!disposed && !PaneFocusRequest.handle(text, requestFocus, log, focusPressLogged) && !evals.consume(text)) onMessage(text)
                 }
                 return true
             }

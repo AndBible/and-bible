@@ -36,7 +36,10 @@ class DesktopShortcutActionsImpl(
     private val dispatchBack: () -> Boolean = DesktopBackDispatcher::back,
     private val canGoBackInHistory: () -> Boolean = { KoinPlatform.getKoin().get<HistoryManager>().canGoBack() },
     private val goBackInHistory: () -> Unit = { KoinPlatform.getKoin().get<HistoryManager>().goBack() },
+    closeModals: ((String?) -> Boolean)? = null,
 ) : DesktopShortcutActions {
+    private val closeModalsSeam: (String?) -> Boolean = closeModals ?: { closePageModals(it) }
+
     private fun koin() = KoinPlatform.getKoin()
 
     override fun isOnReadingScreen() = HostRootLinks.isOnReadingScreen()
@@ -57,6 +60,13 @@ class DesktopShortcutActionsImpl(
         if (historyFallback && canGoBackInHistory()) goBackInHistory()
     }
 
+    override fun navigateBack(windowId: String?) {
+        // A Compose overlay (settings, a sheet) on top owns Back; the reading screen passes it through to the page modals.
+        if (dispatchBack()) return
+        if (closeModalsSeam(windowId)) return
+        if (canGoBackInHistory()) goBackInHistory()
+    }
+
     override fun bookmarkSelection(windowId: String, selectionJson: String) {
         // Without a selection menu the key still does something useful: the page's Ctrl+B, the key chooser.
         val menu = HostReadingWindows.selectionMenu ?: return goToReference(windowId)
@@ -64,10 +74,10 @@ class DesktopShortcutActionsImpl(
         menu.run(windowId, SelectionMenuItem.AddBookmarkSelection)
     }
 
-    override fun changeFontSize(change: FontSizeChange) {
+    override fun changeFontSize(change: FontSizeChange, steps: Int) {
         val settings = koin().get<AppSettings>()
         val current = settings.getInt(FONT_SIZE_KEY, FontSizeChange.FONT_DEFAULT)
-        val next = change.apply(current)
+        val next = change.apply(current, steps)
         if (next == current) return
         settings.setInt(FONT_SIZE_KEY, next)
         HostReadingWindows.nightModeChanged()
