@@ -17,6 +17,8 @@
 
 import {mount} from "@vue/test-utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
+import OpenAllLink from "@/components/OpenAllLink.vue";
+import {useReferenceCollector} from "@/composables";
 
 import test1Xml from "./testdata/eph.2-kjva.xml";
 import test1Result from "./testdata/eph.2-kjva-result.html";
@@ -37,7 +39,8 @@ import {
     modalKey,
     osisFragmentKey,
     stringsKey,
-    ordinalHighlightKey
+    ordinalHighlightKey,
+    referenceCollectorKey
 } from "@/types/constants";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
@@ -74,7 +77,8 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
 }
 
 function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, isNativeHtml = false,
-    strongsMode = strongsModes.hidden, ordinalHighlight = useOrdinalHighlight()} = {}) {
+    strongsMode = strongsModes.hidden, ordinalHighlight = useOrdinalHighlight(),
+    referenceCollector = useReferenceCollector()} = {}) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     config.showRedLetters = showRedLetters;
     config.strongsMode = strongsMode;
@@ -93,6 +97,7 @@ function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, 
         [androidKey]: android,
         [stringsKey]: useStrings(),
         [ordinalHighlightKey]: ordinalHighlight,
+        [referenceCollectorKey]: referenceCollector,
         [globalBookmarksKey]: useGlobalBookmarks(config),
         [modalKey]: useModal(android),
     };
@@ -195,6 +200,30 @@ describe("OsisSegment.vue", () => {
         expect(wrapper.get("a.strongs").attributes("href")).toBe(
             "ab-w://?lemma.TR=AbC&strong=H0430&strong=G0976&robinson=N-NSM");
         wrapper.unmount();
+    });
+
+    it("collects converted MyBible commentary links for Open all (#2520)", () => {
+        // The OSIS output of the SQLite commentary fixture in MyBibleBookReaderTest.
+        const referenceCollector = useReferenceCollector();
+        const wrapper = mountOsisSegment(
+            '<div>See <reference osisRef="Gen.1.1">Genesis</reference> and ' +
+            '<reference osisRef="John.3.16-John.3.17"><i>John</i> 3:16-17</reference>.</div>',
+            {referenceCollector});
+        const openAll = mount(OpenAllLink, {props: {v11n: "KJVA"}, global: {provide: {
+            [referenceCollectorKey]: referenceCollector,
+            [stringsKey]: useStrings(),
+        }}});
+        try {
+            expect(referenceCollector.references.map(reference => reference.value)).toEqual([
+                "Gen.1.1", "John.3.16-John.3.17",
+            ]);
+            expect(wrapper.findAll("a.reference")).toHaveLength(2);
+            expect(openAll.get("a").attributes("href")).toBe(
+                "multi://?osis=Gen.1.1&osis=John.3.16-John.3.17&v11n=KJVA");
+        } finally {
+            openAll.unmount();
+            wrapper.unmount();
+        }
     });
 
     it("renders MyBible J tags as red letters when enabled", () => {

@@ -120,6 +120,10 @@ outside the app, such as web or email links, are labeled **Open external link**.
 There is also experimental support for MyBible and MySword format modules, which can
 be loaded from your device’s filesystem.
 
+Bible verse links in MyBible commentaries work like other Scripture references.
+When an entry contains two or more references, **Open all** opens them together.
+Web links and Strong's dictionary links remain separate from this reference collection.
+
 ## Maps
 
 Map modules can be installed through the provided repositories.
