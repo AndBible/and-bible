@@ -31,7 +31,9 @@ import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
+import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
@@ -227,12 +229,14 @@ class MyBibleBookReaderTest {
     }
 
     @Test
-    fun commentaryMultiReferenceLinkBecomesOneReferencePerPassage() {
+    fun commentaryMultiReferenceLinkKeepsOneReferenceThatRoundTrips() {
         val b = backend(commentary("<a href='B:10 1:1; 2:3'>Gen 1:1; 2:3</a>"))
         val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
-        val refs = Regex("osisRef=\"([^\"]*)\"").findAll(raw).map { it.groupValues[1] }.toList()
-        assertEquals("one reference element per passage so tap and Open all work: $raw", listOf("Gen.1.1", "Gen.2.3"), refs)
-        assertTrue(raw, raw.contains(">Gen 1:1; 2:3</reference>"))
+        val refs = Regex("<reference osisRef=\"([^\"]*)\">([^<]*)</reference>").findAll(raw).toList()
+        assertEquals(raw, 1, refs.size)
+        assertEquals("Gen 1:1; 2:3", refs[0].groupValues[2])
+        val key = PassageKeyFactory.instance().getKey(KJVA, refs[0].groupValues[1])
+        assertEquals(listOf("Gen.1.1", "Gen.2.3"), key.iterator().asSequence().map { (it as Verse).getOsisID() }.toList())
     }
 
     @Test

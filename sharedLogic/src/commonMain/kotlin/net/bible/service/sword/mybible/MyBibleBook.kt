@@ -412,14 +412,10 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         } catch (_: NoSuchKeyException) {
             return anchor.value
         }
-        // A multi-passage href ("B:10 1:1; 2:3") gives a space-separated osisRef, which the link handler and
-        // "Open all" do not split: emit one <reference> per passage. The anchor text goes to the first one;
-        // the others have no text, so Reference.vue shows their osisRef.
-        val refs = osisRef.split(WHITESPACE_RE).filter { it.isNotEmpty() }
-        if (refs.isEmpty()) return anchor.value
-        return refs.mapIndexed { i, ref ->
-            "<reference osisRef=\"$ref\">${if (i == 0) anchor.groupValues[2] else ""}</reference>"
-        }.joinToString(" ")
+        // A multi-passage href ("B:10 1:1; 2:3") yields a space-separated osisRef; JSword parses that back
+        // (space is a passage delimiter), so one <reference> keeps the original anchor text.
+        if (osisRef.isEmpty()) return anchor.value
+        return "<reference osisRef=\"$osisRef\">${anchor.groupValues[2]}</reference>"
     }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
@@ -441,7 +437,6 @@ private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""
 private val attributeRe = Regex("""([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s]+))""")
 // JSword accepts trailing prose as a book reference; MyBible locations must be numeric.
 private val bibleLinkRe = Regex("""B:(\d+)\s+(\d[\d:,;\s-]*)""")
-private val WHITESPACE_RE = Regex("""\s+""")
 
 val myBibleBible = object: BookType("MyBibleBible", BookCategory.BIBLE, KeyType.VERSE) {
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {
