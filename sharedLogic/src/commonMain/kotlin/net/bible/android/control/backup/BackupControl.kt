@@ -91,6 +91,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import okio.Path.Companion.toPath
 import org.crosswire.common.util.NetUtil
 import org.crosswire.common.util.KUri
 import org.crosswire.jsword.book.Book
@@ -1172,6 +1173,36 @@ class BackupControl(
                     throw IOException("Could not write module files: ${errors.joinToString(", ")}")
                 }
             }
+            // Snapshot only the replaced SWORD module's own files, never the whole modules tree.
+            // Do this before publishing: its old DataPath may differ from the new version's.
+            val obsoleteFiles = linkedSetOf<Path>()
+            val dataRoot = (targetDirectory / SwordConstants.DIR_DATA).normalized()
+            val installed = Books.installed().getBooks()
+            for ((conf, bytes) in bufferedConfs) {
+                val incoming = SwordBookMetaData(bytes, conf.name)
+                val previous = installed.firstOrNull { it.initials == incoming.initials } ?: continue
+                if (previous.bookMetaData.driver !is SwordBookDriver) continue
+                val metadata = previous.bookMetaData as? SwordBookMetaData ?: continue
+                val oldDir = metadata.location?.getPath()?.let { it.toPath() }?.normalized()
+                // Restrict deletion to a private module directory beneath modules/, not a shared root or symlink.
+                if (oldDir != null && oldDir != dataRoot && oldDir.toString().startsWith("$dataRoot/") &&
+                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) == oldDir &&
+                    installed.none { other ->
+                        other.initials != previous.initials && other.bookMetaData.location?.getPath()?.let {
+                            val otherDir = it.toPath().normalized()
+                            otherDir == oldDir || otherDir.toString().startsWith("$oldDir/") ||
+                                oldDir.toString().startsWith("$otherDir/")
+                        } == true
+                    }
+                ) {
+                    obsoleteFiles.addAll(fileSystem.listRecursively(oldDir, followSymlinks = false)
+                        .filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
+                        .filter { it !in staged.keys && it !in staged.values })
+                }
+                metadata.configFile?.let { oldConf ->
+                    if (oldConf !in bufferedConfs && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
+                }
+            }
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
             // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
             // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
@@ -1198,6 +1229,9 @@ class BackupControl(
                 fileSystem.write(tmp) { write(bytes) }
                 fileSystem.atomicMove(tmp, file)
             }
+            // A failed staging/publish must never remove old files. Only prune after all new confs landed.
+            for (obsolete in obsoleteFiles) runCatching { fileSystem.delete(obsolete, mustExist = false) }
+                .onFailure { Log.w(TAG, "Could not remove obsolete module file $obsolete", it) }
             for (old in asides.values) runCatching { fileSystem.delete(old) }
             asides.clear()
             // One failing EPUB must not stop the others, nor the SWORD registration below: collect and rethrow later.

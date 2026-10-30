@@ -74,8 +74,11 @@ import java.util.zip.ZipInputStream
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ModuleBackupRoundTripTest {
+    private lateinit var originalDownloadDir: File
+
     @Before
     fun setUp() {
+        originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
@@ -92,6 +95,9 @@ class ModuleBackupRoundTripTest {
             Books.installed().removeBook(b)
         }
         File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
+        File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
+        File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
+        SwordBookPathJvm.setDownloadDir(originalDownloadDir)
     }
 
     /**
@@ -278,6 +284,72 @@ class ModuleBackupRoundTripTest {
             "Restored module content must be intact",
             restored!!.getRawText(restored!!.getKey("strong")).contains("The test definition body.")
         )
+    }
+
+    /** #3910: replacement must not reuse file handles for the unlinked archive version. */
+    @Test
+    fun swordArchiveReplacementReadsNewTextWithoutRestart() = runBlocking {
+        val original = registerMinimalRawLdDictionary()
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val initialArchive = File(CommonUtils.tmpDir, "rawld-initial.abmd.zip")
+        val archive = File(CommonUtils.tmpDir, "rawld-upgrade.abmd.zip")
+        backup.createSingleModuleZip(original, initialArchive.toOkioPath())
+        val root = SwordBookPathJvm.getSwordDownloadDir()
+        val dataFile = File(root, "modules/lexdict/rawld/testdict/test.dat")
+        // Equal byte lengths keep the hand-written RawLD index valid.
+        dataFile.writeText("strong\nThe next definition body.")
+        backup.createSingleModuleZip(original, archive.toOkioPath())
+        Books.installed().removeBook(original)
+        File(root, "mods.d/testdict.conf").delete()
+        dataFile.parentFile!!.deleteRecursively()
+        assertTrue(backup.installModuleArchive(initialArchive.toOkioPath(), "TestDict"))
+        val installed = Books.installed().getBook("TestDict")!!
+        assertTrue(installed.getRawText(installed.getKey("strong")).contains("The test definition body."))
+
+        assertTrue(backup.installModuleArchive(archive.toOkioPath(), "TestDict"))
+        val replacement = Books.installed().getBook("TestDict")!!
+        assertTrue(
+            "Replacement should read the new archive, not the old open file",
+            replacement.getRawText(replacement.getKey("strong")).contains("The next definition body.")
+        )
+    }
+
+    @Test
+    fun swordArchiveReplacementRemovesObsoleteDataFiles() = runBlocking {
+        val original = registerMinimalRawLdDictionary()
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val archive = File(CommonUtils.tmpDir, "rawld-cleanup.abmd.zip")
+        backup.createSingleModuleZip(original, archive.toOkioPath())
+        val obsolete = File(SwordBookPathJvm.getSwordDownloadDir(), "modules/lexdict/rawld/testdict/obsolete.dat")
+        obsolete.writeText("not in the new version")
+
+        assertTrue(backup.installModuleArchive(archive.toOkioPath(), "TestDict"))
+        assertFalse("Files absent from the replacement archive must not survive", obsolete.exists())
+        val replacement = Books.installed().getBook("TestDict")!!
+        assertTrue(replacement.getRawText(replacement.getKey("strong")).contains("The test definition body."))
+    }
+
+    @Test
+    fun swordArchiveReplacementPreservesFilesInASharedDataDirectory() = runBlocking {
+        val original = registerMinimalRawLdDictionary()
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        val archive = File(CommonUtils.tmpDir, "rawld-shared.abmd.zip")
+        backup.createSingleModuleZip(original, archive.toOkioPath())
+        val root = SwordBookPathJvm.getSwordDownloadDir()
+        val otherConf = File(root, "mods.d/otherdict.conf")
+        otherConf.writeText(File(root, "mods.d/testdict.conf").readText().replace("[TestDict]", "[OtherDict]"))
+        try {
+            SwordBookDriver.registerNewBook(SwordBookMetaDataJvm.create(otherConf, NetUtilJvm.getURI(root)).apply {
+                setDriver(SwordBookDriver.instance())
+            })
+            val sharedFile = File(root, "modules/lexdict/rawld/testdict/shared.dat")
+            sharedFile.writeText("belongs to another module")
+            assertTrue(backup.installModuleArchive(archive.toOkioPath(), "TestDict"))
+            assertEquals("belongs to another module", sharedFile.readText())
+        } finally {
+            Books.installed().getBook("OtherDict")?.let { Books.installed().removeBook(it) }
+            otherConf.delete()
+        }
     }
 
     /**
