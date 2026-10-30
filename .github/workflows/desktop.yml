@@ -67,7 +67,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   windows:
-    runs-on: windows-2022
+    runs-on: windows-latest
     timeout-minutes: 90
     steps:
       # v4
@@ -127,7 +127,10 @@ jobs:
               if ($files.Count -ne 1) { throw "Expected exactly one Windows $extension artifact" }
             }
           } finally {
-            Remove-Item -Force $certPath -ErrorAction SilentlyContinue
+            if (Test-Path -LiteralPath $certPath) {
+              Remove-Item -LiteralPath $certPath -Force -ErrorAction Stop
+              if (Test-Path -LiteralPath $certPath) { throw "Signing certificate cleanup failed" }
+            }
           }
       - name: Smoke test app image
         shell: pwsh
