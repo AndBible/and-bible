@@ -44,14 +44,35 @@ public static int CloseAll(uint target) {
     int n = 0; EnumWindows((h, p) => { uint pid; GetWindowThreadProcessId(h, out pid); if (pid == target && IsWindowVisible(h) && PostMessage(h, 0x10, IntPtr.Zero, IntPtr.Zero)) n++; return true; }, IntPtr.Zero); return n;
 }
 '@
+$owned = @{}
+function TrackOwned {
+    $all = @(Get-CimInstance Win32_Process)
+    $changed = $true
+    while ($changed) {
+        $changed = $false
+        foreach ($p in $all) {
+            if (-not $owned.ContainsKey([int]$p.ProcessId) -and $owned.ContainsKey([int]$p.ParentProcessId) -and $p.ExecutablePath -and $p.ExecutablePath.StartsWith($imageDir, [StringComparison]::OrdinalIgnoreCase)) {
+                $owned[[int]$p.ProcessId] = $p.CreationDate; $changed = $true
+            }
+        }
+    }
+}
 try {
     if ($AppId) { Start-Process explorer.exe -ArgumentList "shell:AppsFolder\$AppId" | Out-Null }
-    else { $launched = Start-Process -FilePath $exePath -PassThru; $null = $launched.Handle }
+    else {
+        $launched = Start-Process -FilePath $exePath -PassThru; $null = $launched.Handle
+        $root = Get-CimInstance Win32_Process -Filter "ProcessId = $($launched.Id)"
+        if ($root) { $owned[[int]$root.ProcessId] = $root.CreationDate }
+    }
     $proc = $null; $readyAt = $null
     for ($i = 0; $i -lt $TimeoutSec; $i++) {
+        TrackOwned
         if (-not $proc) {
             $candidate = @(ImageProcesses | Where-Object { $_.ExecutablePath -ieq $exePath } | Select-Object -First 1)
-            if ($candidate.Count) { $proc = Get-Process -Id $candidate[0].ProcessId -ErrorAction Stop; $null = $proc.Handle }
+            if ($candidate.Count) {
+                if ($AppId) { $owned[[int]$candidate[0].ProcessId] = $candidate[0].CreationDate }
+                $proc = Get-Process -Id $candidate[0].ProcessId -ErrorAction Stop; $null = $proc.Handle
+            }
         }
         $text = NewLog
         if ($text -match 'already running') { throw 'App reports already running.' }
@@ -77,6 +98,12 @@ try {
     if ($wer.Count -or $events.Count) { throw 'Windows Error Reporting process or crash event found.' }
     Write-Output 'OK: readiness, WM_CLOSE, exit 0, no image processes or WER'
 } finally {
+    TrackOwned
+    foreach ($p in @(ImageProcesses)) {
+        if ($owned.ContainsKey([int]$p.ProcessId) -and $owned[[int]$p.ProcessId] -eq $p.CreationDate) {
+            Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+    }
     $env:APPDATA = $oldAppData; $env:LOCALAPPDATA = $oldLocal
     if (Test-Path $tmp) { Remove-Item -LiteralPath $tmp -Recurse -Force }
 }

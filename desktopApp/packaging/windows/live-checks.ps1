@@ -56,9 +56,8 @@ switch ($Action) {
         $paths = @($InstanceExe | ForEach-Object { (Resolve-Path -LiteralPath $_).Path })
         if (@($paths | Select-Object -Unique).Count -ne $paths.Count) { throw 'Executable paths must be distinct.' }
         $processes = @(Get-CimInstance Win32_Process)
-        foreach ($path in $paths) {
-            if (-not @($processes | Where-Object { $_.ExecutablePath -ieq $path }).Count) { throw "No running instance: $path" }
-        }
-        Write-Output 'OK: each supplied installation has a running process; verify both windows and independent interaction manually.'
+        $running = @($paths | Where-Object { $path = $_; @($processes | Where-Object { $_.ExecutablePath -ieq $path }).Count -gt 0 })
+        if ($running.Count -ne 1) { throw "Expected exactly one installation running; found $($running.Count): $($running -join ', ')" }
+        Write-Output "OK: exactly one installation running: $($running[0]); manually verify the other launch exits successfully or hands off."
     }
 }
