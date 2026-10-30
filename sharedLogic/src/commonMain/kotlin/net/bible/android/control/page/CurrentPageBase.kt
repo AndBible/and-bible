@@ -45,6 +45,7 @@ import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -262,9 +263,12 @@ abstract class CurrentPageBase protected constructor(
                     _currentDocument = real
                 }
             }
-            _currentDocument?.takeIf { it.isEpub }?.let { previous ->
+            // A replaced module (EPUB or SWORD) registers a new Book under the same initials; windows must follow it, because
+            // the old Book keeps the old metadata and file handles.
+            _currentDocument?.takeIf { it.isEpub || it.bookMetaData.driver is SwordBookDriver }?.let { previous ->
                 Books.installed().getBook(previous.initials)?.let { installed ->
-                    if (installed !== previous) _currentDocument = installed
+                    // getBook also matches names/case-insensitively; only the same initials is a replacement.
+                    if (installed !== previous && installed.initials == previous.initials) _currentDocument = installed
                 }
             }
             // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.

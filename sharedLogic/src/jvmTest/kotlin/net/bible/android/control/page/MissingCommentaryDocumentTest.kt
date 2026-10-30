@@ -22,6 +22,7 @@ import java.lang.reflect.Proxy
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
@@ -108,6 +109,37 @@ class MissingCommentaryDocumentTest {
 
         assertSame(manager.currentCommentary, manager.currentPage)
         assertSame(factory.giveDoesNotExist("UninstalledCommentary"), manager.currentPassageDocument)
+    }
+
+    @Test
+    fun swordDocumentFollowsItsReplacementAfterTheModuleIsReinstalled() {
+        val root = java.nio.file.Files.createTempDirectory("sword-replace").toFile()
+        val initials = "ReplacedDict"
+        fun register(): Book {
+            val dir = java.io.File(root, "modules/lexdict/rawld/x").apply { mkdirs() }
+            java.io.File(dir, "test.dat").writeText("x")
+            java.io.File(dir, "test.idx").writeText("x")
+            val conf = java.io.File(root, "mods.d/replaced.conf").apply {
+                parentFile.mkdirs()
+                writeText("[$initials]\nDataPath=./modules/lexdict/rawld/x/test\nModDrv=RawLD\nEncoding=UTF-8\nDescription=Replaced\n")
+            }
+            org.crosswire.jsword.book.sword.SwordBookDriver.registerNewBook(
+                org.crosswire.jsword.book.sword.SwordBookMetaDataJvm.create(conf, root.toURI()).apply {
+                    setDriver(org.crosswire.jsword.book.sword.SwordBookDriver.instance())
+                })
+            return Books.installed().getBook(initials)!!
+        }
+        try {
+            val old = register()
+            manager.currentDictionary.onlySetCurrentDocument(old)
+            assertSame(old, manager.currentDictionary.currentDocument)
+            val replacement = register()
+            assertNotSame(old, replacement)
+            assertSame(replacement, manager.currentDictionary.currentDocument)
+        } finally {
+            Books.installed().getBooks().filter { it.initials == initials }.forEach { Books.installed().removeBook(it) }
+            root.deleteRecursively()
+        }
     }
 
     private fun savedCommentary(document: String? = null) = WorkspaceEntities.PageManager(
