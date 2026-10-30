@@ -21,7 +21,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import org.koin.mp.KoinPlatform
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.AppSettingsDialog
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbConfirmDialog
@@ -69,10 +71,26 @@ fun AppSettingsScreen(
 ) {
     val strings = LocalStrings.current
     val searchHint = strings.searchSettings
+    val updateSetting = remember { runCatching { KoinPlatform.getKoin() }.getOrNull()?.getOrNull<DesktopUpdateCheckSetting>() }
+    var updateEnabled by remember(updateSetting) { mutableStateOf(updateSetting?.enabled == true) }
+    DisposableEffect(updateSetting) {
+        val unsubscribe = updateSetting?.observeChanges { updateEnabled = updateSetting.enabled }
+        onDispose { unsubscribe?.invoke() }
+    }
+    val updateKey = "desktop_update_check"
+    val screenState = if (updateSetting == null) state else state.copy(items = state.items + SettingsItem.SwitchRow(
+        key = updateKey, title = strings.desktopUpdateSettingTitle,
+        summary = strings.desktopUpdateSettingSummary, checked = updateEnabled,
+    ))
     AbSettingsScreen(
-        state = state,
+        state = screenState,
         onUp = onUp,
-        onSwitch = onSwitch,
+        onSwitch = { key, value ->
+            if (key == updateKey && updateSetting != null) {
+                updateSetting.setEnabled(value)
+                updateEnabled = updateSetting.enabled
+            } else onSwitch(key, value)
+        },
         onListChoice = onListChoice,
         onTextInput = onTextInput,
         onNavigate = onNavigate,

@@ -22,10 +22,35 @@ MSIX and MSI are intended to use the real `%APPDATA%\\AndBible` data directory, 
 
 Windows reserves the `.ttf` association in MSIX and the SDK rejects it. Install fonts through AndBible's in-app font import instead. Other registered file associations should be verified in Explorer.
 
-Store distribution uses Store updates. The MSI/winget channel needs a separate update path: the D4b update checker has not been merged, so there is currently no in-app installer/winget update checker. Do not promise automatic MSI updates until that integration exists.
+Store distribution uses Store updates. Eligible GitHub MSI builds can, with consent, notify users of a newer version and open its GitHub release page. They do not install updates automatically.
 
 ### winget submission
 
 `packaging/winget/manifests/a/AndBible/Desktop/6.0.1230/` is an **unpublishable template**: its URL is a future-release placeholder and its all-zero SHA256 is not an installer hash. After publishing the actual signed MSI to a stable public release URL, copy the manifests into the target version directory, update all `PackageVersion` values, replace `InstallerUrl` with that exact release asset URL, and replace `InstallerSha256` with the SHA256 of the downloaded release MSI (`Get-FileHash -Algorithm SHA256 <file>`). Confirm publisher, identifier, license and metadata against the actual release.
 
 Run `winget validate --manifest <version-directory>` on Windows and resolve all errors. Then follow the current microsoft/winget-pkgs contribution instructions to submit the three manifests in a PR; validation alone does not publish anything. No public PR has been made.
+
+## Linux
+
+On Linux x86-64, JDK 17 and Node 24, build the packages with:
+
+```sh
+./gradlew -PdesktopReleaseKind=test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
+```
+
+The Flatpak manifest uses the freedesktop 25.08 runtime, OpenJDK 17 and Node 24. Regenerate its pinned npm and Gradle sources using `bash packaging/flatpak/update-sources.sh` after installing the generator and prerequisites described in `packaging/flatpak/README.md`. Review the source changes and validate a clean `--disable-download` build. The manifest application source commit must be updated to the intended release commit; CI overrides it with the exact workflow commit for its own build.
+
+For Flathub, submit the manifest, source lists and packaging files according to the current Flathub contribution instructions. Domain verification is a separate maintainer action: publish the token Flathub provides at `https://andbible.org/.well-known/org.flathub.VerifiedApps.txt`. Neither the CI bundle nor these instructions publish the app to Flathub.
+
+## Release train
+
+A push of `test-<build>` or `production-<build>` runs the desktop workflow. Linux and Windows packages receive `-PdesktopReleaseKind=test` or `production` from the tag; ordinary builds default to `dev`. Dev builds do not check for updates. Production checks only production tags; test builds can also see test tags. This selection uses the tag, not GitHub's prerelease flag. The Flatpak bundle is a CI artifact, not a GitHub release asset.
+
+The desktop release job waits up to 30 minutes for `build-apk.yml` to create the release, then uploads exactly these assets (`<tag>` is the full tag):
+
+- `andbible-desktop-<tag>-amd64.deb`
+- `andbible-desktop-<tag>-x86_64.AppImage`
+- `andbible-desktop-<tag>-linux-x64.tar.gz`
+- `andbible-desktop-<tag>-x64.msi`
+
+The update check is available only to eligible GitHub builds, not Flatpak or MSIX. It asks for consent before contacting GitHub, and can be changed in Settings. With consent, it requests GitHub releases at most once per 24 hours; GitHub sees the IP address and `AndBible-Desktop/<version>` user agent. No cookies or device identifier are sent. Failures are silent. A newer release opens a prompt linking to GitHub; installation remains manual.

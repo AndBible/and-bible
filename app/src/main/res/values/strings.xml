@@ -21,6 +21,8 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="desktop_update_setting_title">Check for updates</string>
+    <string name="desktop_update_setting_summary">Once a day, from github.com</string>
     <string name="desktop_update_consent_title">Check for updates?</string>
     <string name="desktop_update_consent_message">AndBible can check github.com once a day for a newer version. GitHub sees your IP address; nothing else is sent. You can change this later in Settings.</string>
     <string name="desktop_update_consent_yes">Check for updates</string>
