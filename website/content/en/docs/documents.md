@@ -151,8 +151,11 @@ To load a document from your device’s filesystem:
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
-Replacing an EPUB through a document backup (`.abmd.zip`) reloads its content and
-styles for subsequent reads without requiring you to force-stop the app.
+Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or
+document sync makes the new text available for subsequent reads without restarting
+the app. The old search index is removed; rebuild the index to search the new version.
+Replacing an EPUB through a document backup also reloads its content and styles
+without requiring you to force-stop the app.
 
 On Android, the installation screen keeps the orientation it had when opened,
 including landscape. Rotating the device during installation does not change the
