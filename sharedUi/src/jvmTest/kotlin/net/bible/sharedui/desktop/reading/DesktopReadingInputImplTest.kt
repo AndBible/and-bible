@@ -20,7 +20,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedui.host.reading.IosReadingGestures
+import net.bible.sharedui.host.reading.HostReadingGestures
 import net.bible.sharedui.reading.host.ReadingFullScreen
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -150,7 +150,7 @@ class DesktopReadingInputImplTest {
             }
         } as AppSettings
         val fullScreen = ReadingFullScreen()
-        val real = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = {})
+        val real = HostReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = {})
         val wheelInput = DesktopReadingInputImpl(
             DesktopShortcuts(rec) { false }, DesktopReadingGestures({ real }), {}, x11Toolkit = false, clockMillis = { now },
         )
