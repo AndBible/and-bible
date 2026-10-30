@@ -44,9 +44,17 @@ import org.jetbrains.skia.ImageInfo
  * A `<select>` popup is painted by CEF separately; it is kept in its own array and composited at [popupRect] when a frame
  * is published, so hiding it just republishes the main view.
  *
+ * Main-view paints whose size differs from the last [resize] are dropped. A streak of [MISMATCH_REPORT_AFTER] of them in a
+ * row (CEF never reaching the requested size, e.g. a float/double rounding difference) is reported once through
+ * [onPersistentMismatch]; a matching paint ends the streak.
+ *
  * @param publisher runs a publish on the thread that owns the Compose state
+ * @param onPersistentMismatch receives a one-line description of a size CEF keeps painting that is not the requested one
  */
-internal class OsrFrameBuffer(private val publisher: (Runnable) -> Unit = { SwingUtilities.invokeLater(it) }) {
+internal class OsrFrameBuffer(
+    private val publisher: (Runnable) -> Unit = { SwingUtilities.invokeLater(it) },
+    private val onPersistentMismatch: (String) -> Unit = {},
+) {
     private val lock = Any()
     private var width = 0
     private var height = 0
@@ -58,11 +66,18 @@ internal class OsrFrameBuffer(private val publisher: (Runnable) -> Unit = { Swin
     private var popupW = 0
     private var popupH = 0
     private var popupAt: Rectangle? = null
+    private var mismatchStreak = 0
+    private var mismatchReported = false
     private val pending = AtomicBoolean(false)
     private val state = mutableStateOf<ImageBitmap?>(null)
 
     /** The latest composed frame, or null before the first paint. Kept across [resize] until the next size is painted. */
     val frame: State<ImageBitmap?> get() = state
+
+    companion object {
+        /** Consecutive wrong-sized main-view paints after which the mismatch is reported (about half a second at 60 fps). */
+        const val MISMATCH_REPORT_AFTER = 30
+    }
 
     /** Sets the view size in pixels. Paints of any other size are dropped until CEF catches up; the shown frame is kept. */
     fun resize(widthPx: Int, heightPx: Int) {
@@ -71,6 +86,7 @@ internal class OsrFrameBuffer(private val publisher: (Runnable) -> Unit = { Swin
             width = widthPx
             height = heightPx
             hasPainted = false
+            mismatchStreak = 0
             if (widthPx > 0 && heightPx > 0) {
                 view = ByteArray(widthPx * heightPx * 4)
                 val bmp = Bitmap()
@@ -110,7 +126,14 @@ internal class OsrFrameBuffer(private val publisher: (Runnable) -> Unit = { Swin
                 popupW = width
                 popupH = height
             } else {
-                if (width != this.width || height != this.height) return
+                if (width != this.width || height != this.height) {
+                    if (++mismatchStreak >= MISMATCH_REPORT_AFTER && !mismatchReported) {
+                        mismatchReported = true
+                        onPersistentMismatch("CEF keeps painting ${width}x$height while the view is ${this.width}x${this.height} px")
+                    }
+                    return
+                }
+                mismatchStreak = 0
                 for (d in dirty) {
                     val x0 = maxOf(0, d.x)
                     val y0 = maxOf(0, d.y)

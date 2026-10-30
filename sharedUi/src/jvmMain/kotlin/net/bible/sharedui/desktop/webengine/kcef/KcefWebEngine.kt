@@ -6,37 +6,18 @@ import androidx.compose.ui.awt.SwingPanel
 import dev.datlag.kcef.KCEF
 import dev.datlag.kcef.KCEFBrowser
 import dev.datlag.kcef.KCEFBuilder
-import dev.datlag.kcef.KCEFClient
 import kotlinx.coroutines.CoroutineDispatcher
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
-import org.cef.browser.CefBrowser
-import org.cef.browser.CefFrame
 import org.cef.browser.CefMessageRouter
 import org.cef.browser.CefRendering
-import org.cef.callback.CefCallback
-import org.cef.callback.CefQueryCallback
-import org.cef.handler.CefLifeSpanHandlerAdapter
-import org.cef.handler.CefLoadHandlerAdapter
-import org.cef.handler.CefMessageRouterHandlerAdapter
-import org.cef.handler.CefRequestHandlerAdapter
-import org.cef.handler.CefResourceHandler
-import org.cef.handler.CefResourceHandlerAdapter
-import org.cef.handler.CefResourceRequestHandler
-import org.cef.handler.CefResourceRequestHandlerAdapter
-import org.cef.misc.BoolRef
-import org.cef.misc.IntRef
-import org.cef.misc.StringRef
-import org.cef.network.CefRequest
-import org.cef.network.CefResponse
 import java.awt.BorderLayout
 import java.awt.Component
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
-import javax.swing.Timer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -55,7 +36,8 @@ import kotlin.coroutines.CoroutineContext
  *   external links in the system browser belongs to a later desktop stage (D3b).
  * - Evaluate: every callback is answered exactly once, with `"null"` when no reply can come (pane disposed, main frame
  *   loading a new document, or [EVAL_TIMEOUT_MS] elapsed).
- * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`). No GPU switches: without a usable
+ * - Rendering: windowed (CEF's heavyweight component in a Compose `SwingPanel`, the default) or off-screen into a Compose
+ *   canvas (`-Dandbible.kcef.rendering=osr`, see [KcefRenderingMode]). No GPU switches: without a usable
  *   GPU, Chromium's GPU process fails and it falls back to software compositing by itself.
  */
 class KcefWebEngine(
@@ -76,7 +58,12 @@ class KcefWebEngine(
         init(installDir).getOrThrow()
         val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
         val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts)
-        return KcefPane(id, url, BundleRequestHandler(bundleDir, scripts), onMessage) { msg -> log("kcef[$id]: $msg") }
+        val handler = BundleRequestHandler(bundleDir, scripts)
+        val paneLog = { msg: String -> log("kcef[$id]: $msg") }
+        return when (KcefRenderingMode.current) {
+            KcefRenderingMode.Osr -> KcefOsrPane(id, url, handler, onMessage, paneLog)
+            KcefRenderingMode.Windowed -> KcefPane(id, url, handler, onMessage, paneLog)
+        }
     }
 
     companion object {
@@ -138,7 +125,7 @@ class KcefWebEngine(
                             val logPath = System.getProperty("kcef.logFile")
                             logSeverity = if (logPath == null) KCEFBuilder.Settings.LogSeverity.Disable else KCEFBuilder.Settings.LogSeverity.Info
                             if (logPath != null) logFile = logPath
-                            windowlessRenderingEnabled = false
+                            windowlessRenderingEnabled = KcefRenderingMode.current.windowless
                             if (cacheDir != null) cachePath = cacheDir.toAbsolutePath().toString()
                         }
                     },
@@ -212,79 +199,20 @@ internal object SwingMainDispatcher : CoroutineDispatcher() {
     override fun isDispatchNeeded(context: CoroutineContext): Boolean = !SwingUtilities.isEventDispatchThread()
 }
 
+/** Windowed pane: CEF's heavyweight component hosted in a Compose `SwingPanel`. Everything shared is in [KcefPaneCore]. */
 internal class KcefPane(
     override val id: String,
-    private val url: String,
-    private val bundle: BundleRequestHandler,
-    private val onMessage: (String) -> Unit,
+    url: String,
+    bundle: BundleRequestHandler,
+    onMessage: (String) -> Unit,
     private val log: (String) -> Unit,
 ) : DesktopWebPane {
-    @Volatile
-    private var disposed = false
-
-    @Volatile
-    private var backgroundArgb: Int? = null
-
-    @Volatile
-    private var onRendererGone: (() -> Unit)? = null
-    private val evals = EvalReplies()
-    private val client: KCEFClient = KCEF.newClientBlocking()
-
-    private val router: CefMessageRouter = CefMessageRouter.create(
-        CefMessageRouter.CefMessageRouterConfig("cefQuery", "cefQueryCancel"),
-        object : CefMessageRouterHandlerAdapter() {
-            override fun onQuery(
-                browser: CefBrowser?, frame: CefFrame?, queryId: Long, request: String?, persistent: Boolean,
-                callback: CefQueryCallback?,
-            ): Boolean {
-                if (frame?.isMain != true || !isAtBundleOrigin(frame.url)) {
-                    // Not our document (a subframe or a foreign page): no bridge access, no forged eval replies.
-                    callback?.failure(403, "refused")
-                    log("refused a bridge message from ${frame?.url}")
-                    return true
-                }
-                callback?.success("")
-                val text = request ?: return true
-                // invokeLater: after AWT's own focus handling of the press.
-                SwingUtilities.invokeLater {
-                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true); x11Focus.focus(this@KcefPane.browser.uiComponent) }, log) && !evals.consume(text)) onMessage(text)
-                }
-                return true
-            }
-        },
-    )
-
-    private val browser: KCEFBrowser
-
-    init {
-        // Everything the page needs (router, bundle + document-start scripts) is registered before loading starts.
-        client.addMessageRouter(router)
-        client.addRequestHandler(BundleCefRequestHandler(bundle, log) { status ->
-            log("renderer process gone: $status")
-            SwingUtilities.invokeLater { if (!disposed) onRendererGone?.invoke() }
-        })
-        client.addContextMenuHandler(SuppressChromiumMenuHandler())
-        client.addLoadHandler(object : CefLoadHandlerAdapter() {
-            override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
-                // A new main document cannot answer the old document's evaluations.
-                if (frame?.isMain == true) SwingUtilities.invokeLater { evals.failAll() }
-            }
-
-            override fun onLoadEnd(browser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
-                // The page's own style is gone after a (re)load: paint it again.
-                if (frame?.isMain == true) backgroundArgb?.let { applyPageBackground(it) }
-            }
-        })
-        client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
-            override fun onBeforePopup(browser: CefBrowser?, frame: CefFrame?, targetUrl: String?, targetFrameName: String?): Boolean {
-                log("blocked a popup to $targetUrl")
-                return true
-            }
-        })
-        browser = client.createBrowser(url, CefRendering.DEFAULT, false)
-    }
-
     private val x11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log) }
+    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log) {
+        core.browser.setFocus(true)
+        x11Focus.focus(core.browser.uiComponent)
+    }
+    private val browser: KCEFBrowser = core.createBrowser(CefRendering.DEFAULT)
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */
     val component: Component by lazy { JPanel(BorderLayout()).apply { add(browser.uiComponent, BorderLayout.CENTER) } }
@@ -294,140 +222,17 @@ internal class KcefPane(
         SwingPanel(factory = { component }, modifier = modifier)
     }
 
-    override fun setBackground(argb: Int) {
-        backgroundArgb = argb
-        SwingUtilities.invokeLater {
-            if (disposed) return@invokeLater
-            component.background = java.awt.Color(argb, true)
-            applyPageBackground(argb)
-        }
-    }
+    override fun setBackground(argb: Int) = core.setBackground(argb) { component.background = java.awt.Color(argb, true) }
 
-    override fun setOnRendererGone(listener: () -> Unit) {
-        onRendererGone = listener
-    }
-
-    /** BibleView-JS paints no page background of its own, so the root element gets the host colour (as `setBackgroundColor` on Android). */
-    private fun applyPageBackground(argb: Int) {
-        if (disposed) return
-        val css = "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${((argb shr 24) and 0xFF) / 255.0})"
-        SwingUtilities.invokeLater {
-            if (!disposed) browser.executeJavaScript("document.documentElement.style.background='$css';", browser.url ?: url, 0)
-        }
-    }
+    override fun setOnRendererGone(listener: () -> Unit) = core.setOnRendererGone(listener)
 
     override val isMainThread: Boolean get() = SwingUtilities.isEventDispatchThread()
-    override val isAttached: Boolean get() = !disposed
+    override val isAttached: Boolean get() = !core.isDisposed
     override val mainDispatcher: CoroutineDispatcher = SwingMainDispatcher
 
-    override fun post(block: () -> Unit) = SwingUtilities.invokeLater { if (!disposed) block() }
+    override fun post(block: () -> Unit) = SwingUtilities.invokeLater { if (!core.isDisposed) block() }
 
-    override fun evaluate(js: String, callback: ((String) -> Unit)?) {
-        if (disposed) {
-            callback?.invoke(EvalReplies.NO_RESULT)
-            return
-        }
-        if (!isMainThread) {
-            // Not through post(): that drops the block after dispose, and the callback must still be answered.
-            SwingUtilities.invokeLater { evaluate(js, callback) }
-            return
-        }
-        if (callback == null) {
-            browser.executeJavaScript(js, browser.url ?: url, 0)
-            return
-        }
-        val wrapped = evals.wrap(js, KcefWebEngine.CEF_POST_MESSAGE_JS, callback)
-        Timer(KcefWebEngine.EVAL_TIMEOUT_MS) { evals.expire(wrapped.id) }.apply { isRepeats = false }.start()
-        browser.executeJavaScript(wrapped.script, browser.url ?: url, 0)
-    }
+    override fun evaluate(js: String, callback: ((String) -> Unit)?) = core.evaluate(js, callback)
 
-    override fun dispose() {
-        if (disposed) return
-        disposed = true
-        // dispose() runs on the UI thread (DesktopBibleWebViews' owner), where the eval registry lives.
-        if (isMainThread) evals.failAll() else SwingUtilities.invokeLater { evals.failAll() }
-        runCatching { browser.close(true) }
-        runCatching { client.removeMessageRouter(router) }
-        runCatching { router.dispose() }
-        runCatching { client.dispose() }
-    }
-}
-
-/**
- * Serves [BUNDLE_ORIGIN] from the bundle (a refused or missing path gets a 404, never the network) and keeps the pane
- * on that origin: any navigation elsewhere is cancelled and logged.
- */
-private class BundleCefRequestHandler(
-    private val bundle: BundleRequestHandler,
-    private val log: (String) -> Unit,
-    private val onRenderProcessGone: (org.cef.handler.CefRequestHandler.TerminationStatus) -> Unit = {},
-) : CefRequestHandlerAdapter() {
-    override fun onRenderProcessTerminated(browser: CefBrowser?, status: org.cef.handler.CefRequestHandler.TerminationStatus?) {
-        if (status != null) onRenderProcessGone(status)
-    }
-
-    override fun onBeforeBrowse(
-        browser: CefBrowser?, frame: CefFrame?, request: CefRequest?, userGesture: Boolean, isRedirect: Boolean,
-    ): Boolean {
-        val target = request?.url
-        if (isAtBundleOrigin(target)) return false
-        log("blocked navigation to $target")
-        return true
-    }
-
-    override fun getResourceRequestHandler(
-        browser: CefBrowser?, frame: CefFrame?, request: CefRequest?, isNavigation: Boolean, isDownload: Boolean,
-        requestInitiator: String?, disableDefaultHandling: BoolRef?,
-    ): CefResourceRequestHandler? {
-        val url = request?.url ?: return null
-        if (!bundle.isBundleUrl(url)) return null
-        return object : CefResourceRequestHandlerAdapter() {
-            override fun getResourceHandler(browser: CefBrowser?, frame: CefFrame?, request: CefRequest?): CefResourceHandler {
-                val resource = bundle.resolve(url)
-                return if (resource == null) {
-                    BytesResourceHandler(404, "text/plain", "text/plain; charset=utf-8", "Not found".encodeToByteArray())
-                } else {
-                    BytesResourceHandler(200, resource.mimeType, resource.contentType, bundle.body(resource))
-                }
-            }
-        }
-    }
-}
-
-private class BytesResourceHandler(
-    private val status: Int,
-    private val mimeType: String,
-    private val contentType: String,
-    private val bytes: ByteArray,
-) :
-    CefResourceHandlerAdapter() {
-    private var offset = 0
-
-    override fun processRequest(request: CefRequest?, callback: CefCallback?): Boolean {
-        callback?.Continue()
-        return true
-    }
-
-    override fun getResponseHeaders(response: CefResponse?, responseLength: IntRef?, redirectUrl: StringRef?) {
-        response?.apply {
-            status = this@BytesResourceHandler.status
-            statusText = if (this@BytesResourceHandler.status == 200) "OK" else "Not Found"
-            mimeType = this@BytesResourceHandler.mimeType
-            setHeaderByName("Content-Type", contentType, true)
-            setHeaderByName("Cache-Control", "no-store", true)
-        }
-        responseLength?.set(bytes.size)
-    }
-
-    override fun readResponse(dataOut: ByteArray?, bytesToRead: Int, bytesRead: IntRef?, callback: CefCallback?): Boolean {
-        if (dataOut == null || offset >= bytes.size) {
-            bytesRead?.set(0)
-            return false
-        }
-        val n = minOf(bytesToRead, bytes.size - offset, dataOut.size)
-        System.arraycopy(bytes, offset, dataOut, 0, n)
-        offset += n
-        bytesRead?.set(n)
-        return true
-    }
+    override fun dispose() = core.dispose()
 }

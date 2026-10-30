@@ -158,4 +158,17 @@ class OsrFrameBufferTest {
         assertTrue(first !== fb.frame.value)
         assertEquals(2, blue(pixels(fb.frame.value!!)[0]))
     }
+
+    @Test fun persistentSizeMismatchIsReportedOnceAndATransientOneNot() {
+        val reports = mutableListOf<String>()
+        val fb = OsrFrameBuffer(publisher = { it.run() }, onPersistentMismatch = { reports += it })
+        fb.resize(4, 4)
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        fb.paint(false, arrayOf(Rectangle(0, 0, 4, 4)), solid(4, 4, 1), 4, 4)
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        assertTrue(reports.isEmpty(), "a matching paint resets the streak: $reports")
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER * 3) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        assertEquals(1, reports.size, "reported once, not per paint")
+        assertTrue("3x4" in reports[0] && "4x4" in reports[0], reports[0])
+    }
 }
