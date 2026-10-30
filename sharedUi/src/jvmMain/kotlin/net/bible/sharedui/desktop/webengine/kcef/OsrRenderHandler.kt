@@ -35,6 +35,7 @@ internal class OsrRenderHandler(
     private val onCursor: (Int) -> Unit,
 ) : CefRenderHandlerAdapter() {
     @Volatile private var popupDip: Rectangle? = null
+    @Volatile private var popupShown = false
 
     override fun getViewRect(browser: CefBrowser?): Rectangle = geometry().let { Rectangle(0, 0, it.widthDip, it.heightDip) }
 
@@ -49,16 +50,24 @@ internal class OsrRenderHandler(
 
     override fun getDeviceScaleFactor(browser: CefBrowser?): Double = geometry().scale
 
+    /** CEF reports the popup size after [onPopupShow](true), so the rect is applied here once the popup is shown. */
     override fun onPopupSize(browser: CefBrowser?, size: Rectangle) {
         popupDip = Rectangle(size)
+        if (popupShown) applyPopup()
     }
 
     override fun onPopupShow(browser: CefBrowser?, show: Boolean) {
-        val dip = popupDip
-        if (!show || dip == null) {
+        popupShown = show
+        if (show) {
+            applyPopup()
+        } else {
+            popupDip = null
             frames.popupRect(null)
-            return
         }
+    }
+
+    private fun applyPopup() {
+        val dip = popupDip ?: return
         val g = geometry()
         val origin = g.toViewPx(dip.x, dip.y)
         frames.popupRect(Rectangle(origin.x, origin.y, Math.round(dip.width * g.scale).toInt(), Math.round(dip.height * g.scale).toInt()))

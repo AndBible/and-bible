@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class OsrFrameBufferTest {
     private fun newBuffer() = OsrFrameBuffer(publisher = { it.run() })
@@ -126,10 +127,35 @@ class OsrFrameBufferTest {
     }
 
     @Test fun defaultPublisherUsesTheEdt() {
-        val fb = OsrFrameBuffer()
+        val ranOnEdt = java.util.concurrent.atomic.AtomicBoolean(false)
+        val fb = OsrFrameBuffer(publisher = { r -> SwingUtilities.invokeLater { ranOnEdt.set(SwingUtilities.isEventDispatchThread()); r.run() } })
         fb.resize(2, 2)
         fb.paint(false, arrayOf(Rectangle(0, 0, 2, 2)), solid(2, 2, 5), 2, 2)
         SwingUtilities.invokeAndWait {}
         assertEquals(2, fb.frame.value!!.width)
+        assertTrue(ranOnEdt.get())
+    }
+
+    @Test fun resizeKeepsTheLastFrameUntilTheNewSizeIsPainted() {
+        val fb = newBuffer()
+        fb.resize(4, 3)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 4, 3)), solid(4, 3, 10), 4, 3)
+        fb.resize(6, 5)
+        assertEquals(4, fb.frame.value!!.width)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 4, 3)), solid(4, 3, 10), 4, 3) // stale size
+        assertEquals(4, fb.frame.value!!.width)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 6, 5)), solid(6, 5, 30), 6, 5)
+        assertEquals(6, fb.frame.value!!.width)
+        assertEquals(30, blue(pixels(fb.frame.value!!)[0]))
+    }
+
+    @Test fun eachPublishIsANewStateValueOverTheSameStorage() {
+        val fb = newBuffer()
+        fb.resize(2, 2)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 2, 2)), solid(2, 2, 1), 2, 2)
+        val first = fb.frame.value!!
+        fb.paint(false, arrayOf(Rectangle(0, 0, 2, 2)), solid(2, 2, 2), 2, 2)
+        assertTrue(first !== fb.frame.value)
+        assertEquals(2, blue(pixels(fb.frame.value!!)[0]))
     }
 }

@@ -75,8 +75,8 @@ class OsrRenderHandlerTest {
             repeat(w * h2) { _ -> it.put(b.toByte()); it.put(0); it.put(0); it.put(0xFF.toByte()) }; it.rewind()
         }
         h.onPaint(null, false, arrayOf(Rectangle(0, 0, 8, 4)), solid(8, 4, 10), 8, 4)
+        h.onPopupShow(null, true) // CEF shows first, then sizes
         h.onPopupSize(null, Rectangle(1, 0, 2, 1)) // DIP -> px (2,0,4,2)
-        h.onPopupShow(null, true)
         h.onPaint(null, true, arrayOf(Rectangle(0, 0, 4, 2)), solid(4, 2, 150), 4, 2)
         val out = IntArray(32); fb.frame.value!!.readPixels(out)
         assertEquals(150, out[0 * 8 + 2] and 0xFF)
@@ -86,5 +86,40 @@ class OsrRenderHandlerTest {
         h.onPopupShow(null, false)
         fb.frame.value!!.readPixels(out)
         assertEquals(10, out[2] and 0xFF)
+    }
+
+    @Test fun secondPopupDoesNotReuseTheFirstRect() {
+        val (h, fb) = handler(OsrGeometry(8, 4, 1.0, Point(0, 0)))
+        fb.resize(8, 4)
+        fun solid(w: Int, h2: Int, b: Int) = ByteBuffer.allocateDirect(w * h2 * 4).also {
+            repeat(w * h2) { _ -> it.put(b.toByte()); it.put(0); it.put(0); it.put(0xFF.toByte()) }; it.rewind()
+        }
+        h.onPaint(null, false, arrayOf(Rectangle(0, 0, 8, 4)), solid(8, 4, 10), 8, 4)
+        h.onPopupShow(null, true); h.onPopupSize(null, Rectangle(0, 0, 2, 2))
+        h.onPopupShow(null, false)
+        h.onPopupShow(null, true) // size not yet reported: nothing may be drawn at the old rect
+        h.onPaint(null, true, arrayOf(Rectangle(0, 0, 2, 2)), solid(2, 2, 150), 2, 2)
+        val out = IntArray(32); fb.frame.value!!.readPixels(out)
+        assertEquals(setOf(10), out.map { it and 0xFF }.toSet())
+        h.onPopupSize(null, Rectangle(5, 2, 2, 2))
+        fb.frame.value!!.readPixels(out)
+        assertEquals(150, out[2 * 8 + 5] and 0xFF)
+        assertEquals(10, out[0] and 0xFF)
+    }
+
+    @Test fun bufferSizeMatchesWhatCefPaintsAtFractionalScales() {
+        for ((px, scale) in listOf(1001 to 1.5, 1001 to 1.25, 777 to 1.25, 999 to 1.5)) {
+            val g = OsrGeometry(px, px + 1, scale, Point(0, 0))
+            val r = Rectangle(0, 0, g.widthDip, g.heightDip)
+            assertEquals(Math.ceil(r.width * scale).toInt(), g.bufferWidthPx)
+            assertEquals(Math.ceil(r.height * scale).toInt(), g.bufferHeightPx)
+            assertTrue(g.bufferWidthPx >= px)
+            // the frame buffer accepts a paint of exactly that size
+            val fb = OsrFrameBuffer(publisher = { it.run() })
+            fb.resize(g.bufferWidthPx, g.bufferHeightPx)
+            val buf = ByteBuffer.allocateDirect(g.bufferWidthPx * g.bufferHeightPx * 4)
+            fb.paint(false, arrayOf(Rectangle(0, 0, g.bufferWidthPx, g.bufferHeightPx)), buf, g.bufferWidthPx, g.bufferHeightPx)
+            assertEquals(g.bufferWidthPx, fb.frame.value!!.width)
+        }
     }
 }
