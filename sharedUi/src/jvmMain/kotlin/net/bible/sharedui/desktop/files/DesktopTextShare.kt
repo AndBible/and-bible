@@ -13,14 +13,14 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.TextShare
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.assembly.DesktopFileShare
 import org.koin.mp.KoinPlatform
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DesktopTextShare(private val clipboard: ClipboardText, private val delivery: FileDelivery,
     private val dialogs: () -> AppDialogController = { KoinPlatform.getKoin().get() },
-    private val text: (String) -> String = { KoinPlatform.getKoin().get<IosStringTableHolder>().live.text(it) },
+    private val text: (String) -> String = { KoinPlatform.getKoin().get<HostStringTableHolder>().live.text(it) },
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : TextShare {
     override fun shareText(text: String, chooserTitle: String) {

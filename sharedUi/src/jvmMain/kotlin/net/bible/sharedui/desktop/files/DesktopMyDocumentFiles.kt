@@ -14,10 +14,10 @@ import net.bible.android.control.backup.BackupHost
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedui.app.ports.*
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import org.koin.mp.KoinPlatform
 
-class DesktopMyDocumentFiles(private val text: (String) -> String = { KoinPlatform.getKoin().get<IosStringTableHolder>().live.text(it) }) : MyDocumentFiles {
+class DesktopMyDocumentFiles(private val text: (String) -> String = { KoinPlatform.getKoin().get<HostStringTableHolder>().live.text(it) }) : MyDocumentFiles {
     private fun path(ref: DocumentRef): Path? = try {
         val uri = URI(ref.uri)
         if (uri.scheme != "file") null else Path.of(uri).takeIf { it.isAbsolute }
