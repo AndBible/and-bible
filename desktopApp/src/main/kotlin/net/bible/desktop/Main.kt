@@ -75,6 +75,8 @@ internal fun composeLayersTypeFor(windowed: Boolean): String? = if (windowed) "W
  * graph as `DesktopLaunchArgs` (read by D3b); the PoC ignores them.
  */
 fun main(args: Array<String>) {
+    // Developer self-test of the credential store (needs -Dandbible.selftest=true): before lock, windows, CEF.
+    SecretsSelfTest.runFromMain(args)?.let { exitProcess(it) }
     // Windowed panes are heavyweight components, so Compose dialogs and popups need their own windows to show above them
     // (D1 verified it). Off-screen panes paint into a Compose canvas: popups stay in-window, correctly placed and without
     // black corners. The mode is the engine's own one-time resolution. Before any Compose window and before KCEF init.

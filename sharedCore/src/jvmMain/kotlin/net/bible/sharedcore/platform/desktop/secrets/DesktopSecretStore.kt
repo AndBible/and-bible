@@ -52,10 +52,13 @@ class JavaKeyringBackend : KeyringBackend {
     }
 
     internal companion object {
+        /** Windows Credential Manager: ERROR_NOT_FOUND (1168), reported as `Error code 1168` (whole number only). */
+        private val WINDOWS_NOT_FOUND = Regex("""\berror code 1168(?!\d)""")
+
         /** java-keyring reports an absent entry only through the exception text (this and its causes). */
         internal fun isNotFound(e: PasswordAccessException): Boolean {
             val text = generateSequence<Throwable>(e) { it.cause }.mapNotNull { it.message }.joinToString(" ").lowercase()
-            return "no stored credentials" in text || "not found" in text || "no such" in text ||
+            return WINDOWS_NOT_FOUND.containsMatchIn(text) || "no stored credentials" in text || "not found" in text || "no such" in text ||
                 "could not be found" in text || "not exist" in text
         }
     }
