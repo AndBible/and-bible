@@ -41,6 +41,7 @@ import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
 import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingInput
+import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
 import java.awt.EventQueue
@@ -128,7 +129,11 @@ private fun runApp(launchArgs: List<String>) {
         val index = BibleViewBundle.extractTo(bundleRoot)
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
         val log: (String) -> Unit = { line -> println(line) }
-        val engine = KcefWebEngine(installDir, index.parent, log)
+        val engine = KcefWebEngine(
+            installDir, index.parent, log,
+            // Bound once the app graph exists (page requests start after it); nothing before that.
+            pageAssets = DesktopPageAssetRoutes.koinBound(),
+        )
         val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
         val webViews = DesktopBibleWebViews(engine, log)

@@ -7,6 +7,7 @@ import dev.datlag.kcef.KCEF
 import dev.datlag.kcef.KCEFBrowser
 import dev.datlag.kcef.KCEFBuilder
 import kotlinx.coroutines.CoroutineDispatcher
+import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
@@ -44,6 +45,8 @@ class KcefWebEngine(
     private val installDir: Path,
     private val bundleDir: Path,
     private val log: (String) -> Unit = ::println,
+    /** Page asset routes (module files, background images, ...) served beside the bundle; default: none. */
+    private val pageAssets: DesktopPageAssets = DesktopPageAssets.None,
 ) : DesktopWebEngine {
     @Volatile
     private var languagesSource: (() -> String)? = null
@@ -58,7 +61,7 @@ class KcefWebEngine(
         init(installDir).getOrThrow()
         val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
         val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts)
-        val handler = BundleRequestHandler(bundleDir, scripts)
+        val handler = BundleRequestHandler(bundleDir, scripts, pageAssets)
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
         return when (KcefRenderingMode.current(log)) {
             KcefRenderingMode.Osr -> KcefOsrPane(id, url, handler, onMessage, paneLog)

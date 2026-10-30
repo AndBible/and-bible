@@ -1,5 +1,7 @@
 package net.bible.sharedui.desktop.webengine.kcef
 
+import net.bible.sharedui.desktop.webengine.BundleResource
+import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,20 +22,6 @@ fun isAtBundleOrigin(url: String?): Boolean {
     return url.length == BUNDLE_ORIGIN.length || url[BUNDLE_ORIGIN.length] in "/?#"
 }
 
-/** One bundle file the handler serves. */
-data class BundleResource(val file: Path, val mimeType: String) {
-    /**
-     * The `Content-Type` header. Text is always UTF-8 and says so: the injected scripts can push the page's
-     * `<meta charset>` past the 1024-byte prescan window, and scripts without a charset inherit the document's.
-     */
-    val contentType: String
-        get() = if (mimeType.startsWith("text/") || mimeType == "application/json" || mimeType == "image/svg+xml") {
-            "$mimeType; charset=utf-8"
-        } else {
-            mimeType
-        }
-}
-
 /**
  * Maps requests at [BUNDLE_ORIGIN] to files under [bundleDir] (pure logic, no CEF types).
  *
@@ -42,13 +30,18 @@ data class BundleResource(val file: Path, val mimeType: String) {
  * whatever the engine. This is how the KCEF engine meets the [net.bible.sharedui.desktop.webengine.DesktopWebEngine]
  * ordering contract: the scripts are part of the document itself, not raced against it from the engine side.
  */
-class BundleRequestHandler(bundleDir: Path, private val documentStartScripts: List<String> = emptyList()) {
+class BundleRequestHandler(
+    bundleDir: Path,
+    private val documentStartScripts: List<String> = emptyList(),
+    /** Asked for a path no bundle file serves (module files, background images, ...); a bundle file always wins. */
+    private val pageAssets: DesktopPageAssets = DesktopPageAssets.None,
+) {
     private val root: Path = bundleDir.toAbsolutePath().normalize()
 
     /** Whether [url] is at [BUNDLE_ORIGIN] (so it must never reach the network, even when [resolve] refuses it). */
     fun isBundleUrl(url: String): Boolean = isAtBundleOrigin(url)
 
-    /** The file for [url], or null for another origin, a path escaping [bundleDir] or a missing file. */
+    /** The file for [url]: a bundle file, else a page asset; null for another origin, a path escaping [bundleDir] or a missing file. */
     fun resolve(url: String): BundleResource? {
         if (!url.startsWith("$BUNDLE_ORIGIN/")) return null
         val rawPath = url.substring(BUNDLE_ORIGIN.length).substringBefore('#').substringBefore('?')
@@ -64,14 +57,21 @@ class BundleRequestHandler(bundleDir: Path, private val documentStartScripts: Li
         val relative = decoded.trimStart('/').ifEmpty { "index.html" }
         if (relative.split('/').any { it == ".." || it == "." } || relative.contains('\\') || relative.contains('\u0000')) return null
         val file = root.resolve(relative).normalize()
-        if (!file.startsWith(root) || file == root || !Files.isRegularFile(file)) return null
-        return BundleResource(file, mimeTypeFor(file.fileName.toString()))
+        if (file.startsWith(root) && file != root && Files.isRegularFile(file)) {
+            return BundleResource(file, mimeTypeFor(file.fileName.toString()))
+        }
+        // Not a bundle file: a page asset route (its resolver does its own traversal checks on the decoded path).
+        return try {
+            pageAssets.resolve(decoded)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     /** The bytes served for [resource]; HTML documents get the document-start scripts injected. */
     fun body(resource: BundleResource): ByteArray {
         val bytes = Files.readAllBytes(resource.file)
-        if (resource.mimeType != "text/html" || documentStartScripts.isEmpty()) return bytes
+        if (!resource.fromBundle || resource.mimeType != "text/html" || documentStartScripts.isEmpty()) return bytes
         return injectDocumentStartScripts(bytes.decodeToString(), documentStartScripts).encodeToByteArray()
     }
 

@@ -1,6 +1,7 @@
 package net.bible.sharedui.desktop.webengine.kcef
 
 import dev.datlag.kcef.KCEFBuilder
+import net.bible.sharedui.desktop.webengine.BundleResource
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
 import java.io.File
 import java.nio.file.Files
