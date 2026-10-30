@@ -126,4 +126,38 @@ class DesktopIncomingFilesTest {
         newAcks.single()()
         assertEquals(listOf("a.zip", "b.zip"), seen.map { Paths.get(java.net.URI(it)).fileName.toString() })
     }
+
+    /** A second launch while the crash gate is up (no app graph yet) hands its file over; it is delivered once the graph attaches. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun filesHandedOverDuringCrashGateAreQueued() {
+        val main = java.util.concurrent.Executors.newSingleThreadExecutor { Thread(it, "incoming-test-main") }
+            .asCoroutineDispatcher()
+        kotlinx.coroutines.Dispatchers.setMain(main)
+        val dir = java.nio.file.Files.createTempDirectory("incoming-gate")
+        val window = object : net.bible.sharedui.desktop.assembly.DesktopWindowHandle {
+            override val sizeDp = androidx.compose.ui.unit.IntSize(1, 1)
+            override val density = 1f
+            override fun toFront() {}
+        }
+        val early = requireNotNull(DesktopEarlyIncomingFiles.install(dir))
+        var incoming: DesktopIncomingFilesImpl? = null
+        try {
+            val file = dir.resolve("book.zip")
+            // The gate is up: only the early listener exists.
+            assertTrue(net.bible.sharedcore.platform.desktop.files.InstanceHandOff.send(dir, listOf(file)))
+            // The app graph comes up and builds its facade over the same listener.
+            incoming = DesktopIncomingFilesImpl(dir, emptyList(), window, net.bible.sharedcore.platform.desktop.DesktopExitTasks())
+            val delivered = java.util.concurrent.LinkedBlockingQueue<String>()
+            kotlinx.coroutines.runBlocking {
+                val job = launch(main) { incoming.receive({ refs, done -> delivered.add(refs.single().uri); done() }, {}) }
+                assertEquals(file.toUri().toString(), delivered.poll(3, java.util.concurrent.TimeUnit.SECONDS))
+                job.cancel(); job.join()
+            }
+        } finally {
+            incoming?.close()
+            DesktopEarlyIncomingFiles.closeInstalled()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            main.close()
+        }
+    }
 }

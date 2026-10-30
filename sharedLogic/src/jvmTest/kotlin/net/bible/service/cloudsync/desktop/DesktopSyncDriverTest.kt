@@ -300,6 +300,47 @@ class DesktopSyncDriverTest {
         assertEquals(1, f.closePasses, "so the close pass still ran")
     }
 
+    @Test fun closeDuringStartingPassStillPushes() = runTest {
+        // The exit arrives while the first pass is only queued (not yet run): the final push must still happen.
+        val queue = ArrayDeque<Runnable>()
+        val manual = object : kotlinx.coroutines.CoroutineDispatcher() {
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { queue.add(block) }
+        }
+        fun drain() { while (queue.isNotEmpty()) queue.removeFirst().run() }
+        val f = fixture { CompletableDeferred(true) }
+        val ready = CompletableDeferred(Unit)
+        DesktopSyncDriver(
+            policy(f), { f.closePasses++; true }, f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
+            awaitReady = { ready.await() }, databasesReady = { true },
+        )
+        queue.removeFirst().run()
+        val exit = backgroundScope.launch { f.exitTasks.runAll(10_000) }
+        runCurrent(); drain(); runCurrent(); drain(); runCurrent()
+        exit.join()
+        assertEquals(1, f.closePasses + f.startedPasses, "exactly one push happened, from the pass or the close pass")
+    }
+
+    @Test fun closeWhileLockHeldByExitingPassRetries() = runTest {
+        val f = fixture { CompletableDeferred(true) }
+        val d = driver(f)
+        // A pass that is exiting on the stop still holds the lock when the close pass asks for it, and gives it up later.
+        d.passLock.lock()
+        backgroundScope.launch { delay(1_500); d.passLock.unlock() }
+        val before = currentTime
+        assertTrue(f.exitTasks.runAll(10_000))
+        assertEquals(1, f.closePasses, "the close pass retried the lock and pushed")
+        assertTrue(currentTime - before <= 2_000, "within the 2 s retry window")
+    }
+
+    @Test fun closeGivesUpWhenTheLockStaysTaken() = runTest {
+        val f = fixture { CompletableDeferred(true) }
+        val d = driver(f)
+        d.passLock.lock()
+        assertTrue(f.exitTasks.runAll(10_000))
+        assertEquals(0, f.closePasses)
+        assertTrue(currentTime <= 2_000, "bounded retries")
+    }
+
     @Test fun closePassSignsInWhenTheSessionIsNotSignedInYet() = runTest {
         var pushed = 0
         suspend fun run(signedIn: Boolean, signIn: Boolean?, changes: Boolean = true, enabled: Boolean = true) = runClosePass(

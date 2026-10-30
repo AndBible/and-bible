@@ -38,6 +38,7 @@ import net.bible.sharedui.desktop.assembly.DesktopHostLifecycle
 import net.bible.sharedui.desktop.assembly.DesktopStartupException
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.desktop.assembly.desktopCrashGate
+import net.bible.sharedui.desktop.files.DesktopEarlyIncomingFiles
 import net.bible.sharedui.desktop.assembly.desktopRendererRecovery
 import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
 import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
@@ -108,6 +109,8 @@ private fun runApp(launchArgs: List<String>) {
     }
     // The lock proved the data directory writable: from here on every failure (CEF, natives) reaches the log file too.
     if (lockFailure == null) configureDesktopLogFile(paths.data.resolve("logs"))
+    // Before the crash gate and the app graph: a second launch during the gate hands its files over and they are queued.
+    if (lockFailure == null) DesktopEarlyIncomingFiles.install(paths.data)
     requireDisplay()
 
     val windowHandle = AwtWindowHandle()
@@ -165,6 +168,7 @@ private fun runApp(launchArgs: List<String>) {
                 webViews.disposeAll()
                 KcefWebEngine.shutdown()
             } finally {
+                DesktopEarlyIncomingFiles.closeInstalled()
                 bundleRoot.toFile().deleteRecursively()
             }
         }
