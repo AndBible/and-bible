@@ -54,6 +54,8 @@ $stderr = Join-Path $tmp 'stderr.txt'
 $env:APPDATA = $appData
 $env:LOCALAPPDATA = $localAppData
 $proc = Start-Process -FilePath $exe -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+# Without a cached handle, Process.ExitCode stays empty after Start-Process -PassThru.
+$null = $proc.Handle
 function Read-Logs { (@($log, $stdout, $stderr) | Where-Object { Test-Path $_ } | ForEach-Object { Get-Content -Raw $_ }) -join "`n" }
 
 $ready = $false
@@ -90,7 +92,11 @@ public static int CloseAll(uint target) {
     return n;
 }
 '@
-    $closed = [AbSmoke.Win]::CloseAll([uint32]$proc.Id)
+    # The jpackage launcher re-starts itself: the window belongs to a child AndBible.exe, not to $proc.
+    $closed = 0
+    Get-CimInstance Win32_Process | Where-Object {
+        $_.ExecutablePath -and $_.ExecutablePath.StartsWith($imageDir, [StringComparison]::OrdinalIgnoreCase)
+    } | ForEach-Object { $closed += [AbSmoke.Win]::CloseAll([uint32]$_.ProcessId) }
     if ($closed -eq 0) { Fail "could not send WM_CLOSE (the process has no visible top-level window)" } else { Write-Output "sent WM_CLOSE to $closed window(s)" }
     if (-not $proc.WaitForExit(20000)) {
         Fail 'the app did not exit within 20 s of WM_CLOSE; killing it'

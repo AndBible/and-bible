@@ -17,7 +17,7 @@ RUNS="$VM_DIR/runs/$VM_ID"
 QEMU=${QEMU:-qemu-system-x86_64}
 
 usage() {
-  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|dev-gradle args...}' >&2
+  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|mouse {move|click|down|up|wheel} x y [button|notches]|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|gui-run command|dev-gradle args...}' >&2
   exit 2
 }
 error() { printf 'windows-vm: %s\n' "$*" >&2; exit 1; }
@@ -148,7 +148,7 @@ start_vm() {
     -drive "if=pflash,format=raw,file=$vars_file" \
     -device ahci,id=sata0 -drive "file=$disk_file,if=none,id=disk0,format=qcow2" \
     -device ide-hd,drive=disk0,bus=sata0.0 -netdev user,id=net0,hostfwd="tcp:127.0.0.1:${SSH_PORT}-:22" \
-    -device e1000e,netdev=net0 -display none -serial mon:stdio \
+    -device e1000e,netdev=net0 -device qemu-xhci,id=xhci -device usb-tablet,bus=xhci.0 -display none -serial mon:stdio \
     -qmp "unix:$qmp_sock,server=on,wait=off" >"$run_dir/qemu.log" 2>&1 8>&- 9>&- &
   local qpid=$!
   printf '%s\n' "$qpid" > "$STATE/qemu.pid"
@@ -419,12 +419,78 @@ case "$cmd" in
   dev-reset) dev_reset ;;
   push-repo) push_repo "$@" ;;
   dev-gradle) dev_gradle "$@" ;;
+  gui-run) [[ $# -ge 1 ]] || usage; mkdir -p "$VM_DIR/out/$VM_ID"; cmdfile="$VM_DIR/out/$VM_ID/gui-run.cmd"; printf '@echo off\r\nchcp 65001 >nul\r\ndel C:\\abtest\\gui-run.exit 2>nul\r\n%s > C:\\abtest\\gui-run.log 2>&1\r\n(echo %%ERRORLEVEL%%)> C:\\abtest\\gui-run.exit\r\n' "$*" > "$cmdfile"
+    guest_scp_to "$cmdfile" C:/abtest/gui-run.cmd && guest_scp_to "$ROOT/scripts/windows-vm/gui-run.ps1" C:/abtest/gui-run.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\gui-run.ps1' ;;
   dev-provision) guest_scp_to "$ROOT/scripts/windows-vm/dev-provision.ps1" C:/abtest/dev-provision.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\dev-provision.ps1' ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
   ssh) ssh_options; exec ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" "$@" ;;
   scp-to) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$1" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$2" ;;
   scp-from) [[ $# == 2 ]] || usage; ssh_options; exec scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1:$1" "$2" ;;
+  mouse) [[ $# -ge 3 ]] || usage; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); python3 - "$qmp_sock" "${WINDOWS_VM_QMP_TIMEOUT:-3}" "${WINDOWS_VM_SCREEN:-}" "$VM_DIR" "$@" <<'PYMOUSE'
+# mouse {move|click|down|up|wheel} x y [button|notches]: absolute pointer (usb-tablet) through QMP input-send-event.
+# x, y are guest screen pixels; the screen size comes from WINDOWS_VM_SCREEN (WxH) or a fresh screendump.
+import json, os, socket, sys, tempfile, time
+path, timeout, screen, vm_dir, action, x, y, *rest = sys.argv[1:]
+timeout = float(timeout)
+def session(commands):
+    deadline = time.monotonic() + timeout
+    s = socket.socket(socket.AF_UNIX); s.settimeout(timeout); s.connect(path)
+    f = s.makefile("rwb", buffering=0)
+    def receive(wanted):
+        while True:
+            if time.monotonic() > deadline: raise TimeoutError("QMP response deadline exceeded")
+            line = f.readline()
+            if not line: raise RuntimeError("QMP closed")
+            row = json.loads(line)
+            if "event" in row or row.get("id") != wanted: continue
+            if "error" in row: raise RuntimeError(str(row["error"]))
+            return row
+    f.readline()
+    f.write(b'{"execute":"qmp_capabilities","id":"cap"}\r\n'); receive("cap")
+    for i, (cmd, args, pause) in enumerate(commands):
+        f.write(json.dumps({"execute": cmd, "arguments": args, "id": str(i)}).encode() + b"\r\n")
+        result = receive(str(i)).get("return")
+        time.sleep(pause)
+    s.close()
+    return result
+if screen:
+    width, height = map(int, screen.lower().split("x"))
+else:
+    from PIL import Image
+    fd, raw = tempfile.mkstemp(suffix=".ppm", dir=vm_dir); os.close(fd)
+    try:
+        session([("screendump", {"filename": raw}, 0)])
+        width, height = Image.open(raw).size
+    finally:
+        os.unlink(raw)
+x, y = int(x), int(y)
+if not (0 <= x < width and 0 <= y < height): raise SystemExit(f"point outside the {width}x{height} screen")
+abs_move = [{"type": "abs", "data": {"axis": "x", "value": x * 32767 // (width - 1)}},
+            {"type": "abs", "data": {"axis": "y", "value": y * 32767 // (height - 1)}}]
+buttons = {"left": "left", "right": "right", "middle": "middle", "back": "side", "side": "side", "forward": "extra", "extra": "extra"}
+def btn(name, down): return {"type": "btn", "data": {"down": down, "button": buttons[name]}}
+send = lambda events, pause=0.05: ("input-send-event", {"events": events}, pause)
+if action == "move":
+    session([send(abs_move)])
+elif action in ("click", "down", "up"):
+    name = rest[0] if rest else "left"
+    if name not in buttons: raise SystemExit("unknown button: " + name)
+    steps = [send(abs_move)]
+    if action in ("click", "down"): steps.append(send([btn(name, True)], 0.08))
+    if action in ("click", "up"): steps.append(send([btn(name, False)]))
+    session(steps)
+elif action == "wheel":
+    notches = int(rest[0]) if rest else 1
+    wheel = "wheel-up" if notches > 0 else "wheel-down"
+    steps = [send(abs_move)]
+    for _ in range(abs(notches)):
+        steps += [send([{"type": "btn", "data": {"down": True, "button": wheel}}], 0.02), send([{"type": "btn", "data": {"down": False, "button": wheel}}], 0.08)]
+    session(steps)
+else:
+    raise SystemExit("mouse actions: move, click, down, up, wheel")
+PYMOUSE
+  ;;
   shot) [[ $# == 1 ]] || usage; mkdir -p "$VM_DIR/shots"; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); raw="$VM_DIR/shots/$1.ppm"; qmp "$qmp_sock" "{\"execute\":\"screendump\",\"arguments\":{\"filename\":\"$raw\"}}"; python3 - "$raw" "$VM_DIR/shots/$1.png" <<'PY'
 from PIL import Image
 import sys
