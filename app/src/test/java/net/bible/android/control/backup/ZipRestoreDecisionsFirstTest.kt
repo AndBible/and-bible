@@ -3,7 +3,10 @@ package net.bible.android.control.backup
 import net.bible.service.db.reset
 import okio.Path.Companion.toOkioPath
 import androidx.room3.useReaderConnection
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.coroutineContext
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -52,6 +55,7 @@ class ZipRestoreDecisionsFirstTest {
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the restore closes the databases only when they are ready
         runBlocking {
+            DatabaseContainer.instance.bookmarkDb.syncDao().setConfig("backup-device", "must be cleared")
             DatabaseContainer.instance.bookmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "backup-label"))
             DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(WorkspaceEntities.Workspace(name = "backup-ws"))
         }
@@ -120,6 +124,66 @@ class ZipRestoreDecisionsFirstTest {
         assertEquals(2, p.promptsOnLastFile)
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
+    }
+
+    @Test fun cancellationAfterReplacementStillClearsRestoredSyncConfiguration() {
+        cancelWhenRestoredContainerOpens(importWorkspaces = false)
+    }
+
+    @Test fun cancellationAfterReplacementStillFinishesImports() {
+        cancelWhenRestoredContainerOpens(importWorkspaces = true)
+    }
+
+    private fun cancelWhenRestoredContainerOpens(importWorkspaces: Boolean) {
+        if (importWorkspaces) runBlocking {
+            val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+            dao.allWorkspaces().filter { it.name == "backup-ws" }.forEach { dao.deleteWorkspace(it.id) }
+        }
+        val realFactory = DatabaseContainer.containerFactory
+        var cancelledAfterReplace = false
+        try {
+            runBlocking {
+                val restore = launch {
+                    val job = coroutineContext[Job]!!
+                    // This factory is reached only after copying the files and resetting the old container.
+                    DatabaseContainer.containerFactory = {
+                        realFactory().also {
+                            cancelledAfterReplace = true
+                            job.cancel()
+                        }
+                    }
+                    backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), prompts(!importWorkspaces))
+                }
+                restore.join()
+                assertTrue("the caller must still observe cancellation", restore.isCancelled)
+            }
+        } finally {
+            DatabaseContainer.containerFactory = realFactory
+        }
+        assertTrue("cancellation must happen after replacement", cancelledAfterReplace)
+        assertFalse("the restored file must be in place", "live-label" in labelNames)
+        assertTrue("the selected workspace restore or import must finish", "backup-ws" in workspaceNames)
+        assertEquals("afterRestore must clear the backup device's sync configuration", null, runBlocking {
+            DatabaseContainer.instance.bookmarkDb.syncDao().getConfig("backup-device")
+        })
+    }
+
+    @Test fun cancellationInTheLastPromptLeavesAllFilesUntouched() = runBlocking {
+        val restore = launch {
+            val job = coroutineContext[Job]!!
+            val p = object : BackupControl.RestorePrompts {
+                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path) = true
+                override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition): Boolean {
+                    if (category == SyncableDatabaseDefinition.WORKSPACES) job.cancel()
+                    return true
+                }
+            }
+            backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), p)
+        }
+        restore.join()
+        assertTrue(restore.isCancelled)
+        assertTrue("bookmarks must not be replaced before commit", "live-label" in labelNames)
+        assertTrue("workspaces must not be replaced before commit", "live-ws" in workspaceNames)
     }
 
     @Test fun importingTheLastFileMergesItAfterTheRestore() {

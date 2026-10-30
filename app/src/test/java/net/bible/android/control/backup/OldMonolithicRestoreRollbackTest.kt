@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -291,6 +292,36 @@ class OldMonolithicRestoreRollbackTest {
         val before = fingerprint()
         assertFalse(restore(fixture(version = 70)))
         assertEquals(before, fingerprint())
+    }
+
+    @Test fun cancellationAfterStagedCopyStillFinishesLegacyRestore() = runBlocking {
+        val source = fixture()
+        val realFactory = DatabaseContainer.containerFactory
+        var copied = false
+        var openedRestored = false
+        try {
+            DatabaseContainer.containerFactory = {
+                File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).delete() // stands in for the legacy splitter
+                realFactory().also { openedRestored = true }
+            }
+            val restore = launch(Dispatchers.IO) {
+                val job = kotlin.coroutines.coroutineContext[kotlinx.coroutines.Job]!!
+                backup.copyStagedDatabase = { from, to ->
+                    realCopy(from, to).also { copied = it; job.cancel() }
+                }
+                backup.restoreOldMonolithicDatabase(source.inputStream().source())
+            }
+            restore.join()
+            assertTrue(restore.isCancelled)
+        } finally {
+            DatabaseContainer.containerFactory = realFactory
+            backup.copyStagedDatabase = realCopy
+        }
+        assertTrue("cancellation must happen after the staged copy", copied)
+        assertTrue("the restored databases must be opened and finalized", openedRestored)
+        assertFalse("the completed restore must remove its rollback snapshot", rollbackDir.exists())
+        assertFalse(File(dbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging").exists())
+        assertEquals(null, DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id))
     }
 
     /** Review Focus 3. */

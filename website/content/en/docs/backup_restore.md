@@ -50,6 +50,12 @@ On the welcome screen, you can also choose *Restore database*. If the selected
 file cannot be read or the backup is damaged, an error dialog appears. Dismiss
 it to stay on the welcome screen and try again with a readable backup file.
 
+You can cancel before database replacement begins. Once replacement starts,
+AndBible finishes the selected restores and imports and clears the restored
+sync configuration, even if the screen is closed. This protects against a
+partly completed restore; it does not protect against the app process being
+stopped or the device losing power.
+
 To restore your *AndBible* data:
 
 1. From the main menu, tap *Backup & Restore*.
