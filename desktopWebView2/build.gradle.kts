@@ -38,3 +38,15 @@ val w2Dist by tasks.registering(Sync::class) {
     w2Loader?.let { from(it) { into("lib") } }
     into(layout.buildDirectory.dir("w2dist"))
 }
+
+/** The module's tests as a plain directory for the Windows VM: `lib/` plus `run-tests.cmd` (JUnit 4 runner). */
+val w2TestDist by tasks.registering(Sync::class) {
+    group = "verification"
+    val testSources = sourceSets.named("test")
+    from(testSources.map { it.output }) { into("classes") }
+    from(tasks.named("jar")) { into("lib") }
+    from(configurations.named("testRuntimeClasspath")) { into("lib") }
+    w2Loader?.let { from(it) { into("lib") } }
+    from(layout.projectDirectory.file("src/test/run-tests.cmd"))
+    into(layout.buildDirectory.dir("w2testdist"))
+}
