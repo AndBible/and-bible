@@ -159,7 +159,11 @@ export function useScroll(
                 highlightOrdinal(ordinal, bookInitials, osisRef);
             }
         }
-        let toElement = toId ? document.getElementById(toId) : null;
+        // Multi-reference source ordinals repeat across fragments; prefer their local anchor.
+        const multiOrdinal = toId?.match(/^o-(\d+)$/)?.[1];
+        let toElement = (multiOrdinal
+            ? document.querySelector<HTMLElement>(`[data-scroll-ordinal="${multiOrdinal}"]`)
+            : null) ?? (toId ? document.getElementById(toId) : null);
         if (onlyIfInvisible && toElement && isInViewport(toElement)) return;
 
         if (force && toElement == null) {
