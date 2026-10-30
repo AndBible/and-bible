@@ -212,6 +212,9 @@ internal object SwingMainDispatcher : CoroutineDispatcher() {
     override fun isDispatchNeeded(context: CoroutineContext): Boolean = !SwingUtilities.isEventDispatchThread()
 }
 
+/** The X11 focus helper (reflection on the JDK's X11 internals), resolved once per process and shared by every pane. */
+private val sharedX11Focus: X11PaneFocus by lazy { X11PaneFocus.create { println("kcef: $it") } }
+
 internal class KcefPane(
     override val id: String,
     private val url: String,
@@ -247,7 +250,7 @@ internal class KcefPane(
                 val text = request ?: return true
                 // invokeLater: after AWT's own focus handling of the press.
                 SwingUtilities.invokeLater {
-                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true); x11Focus.focus(this@KcefPane.browser.uiComponent) }, log) && !evals.consume(text)) onMessage(text)
+                    if (!disposed && !PaneFocusRequest.handle(text, { this@KcefPane.browser.setFocus(true); sharedX11Focus.focus(this@KcefPane.browser.uiComponent) }, log, focusPressLogged) && !evals.consume(text)) onMessage(text)
                 }
                 return true
             }
@@ -284,7 +287,7 @@ internal class KcefPane(
         browser = client.createBrowser(url, CefRendering.DEFAULT, false)
     }
 
-    private val x11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log) }
+    private val focusPressLogged = java.util.concurrent.atomic.AtomicBoolean(false)
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */
     val component: Component by lazy { JPanel(BorderLayout()).apply { add(browser.uiComponent, BorderLayout.CENTER) } }

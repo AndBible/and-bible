@@ -130,7 +130,7 @@ window.addEventListener('keydown', function (e) {
     requestAnimationFrame(function () {
       pending = false;
       var x = dx, y = dy; dx = 0; dy = 0;
-      if (x !== 0 || y !== 0) window.__abDesktop.post({type: 'wheel', dx: x, dy: y, t: performance.now()});
+      if (x !== 0 || y !== 0) window.__abDesktop.post({type: 'wheel', dx: x, dy: y});
     });
   }, {passive: true, capture: true});
 })();

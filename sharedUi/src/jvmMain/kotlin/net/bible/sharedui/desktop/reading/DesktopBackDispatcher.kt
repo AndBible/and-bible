@@ -32,6 +32,10 @@ import androidx.navigationevent.NavigationEventInput
  * focus while the user reads, so their keys arrive through the page script and need [back] explicitly. The
  * dispatcher knows every scene's NavigationEventDispatcher that has composed back handlers (see [Attach]); [back]
  * completes a back event in the most recently attached one that has an enabled handler.
+ *
+ * Threading: [back] and [passThrough] are Swing (AWT event) thread only; the `unhandled` flag is not synchronized. A
+ * pass-through can reach an older attachment (another window's scene) when the topmost one has none left; harmless
+ * with the single main window.
  */
 object DesktopBackDispatcher {
     /** A navigation request produced by a key or a mouse button. */
@@ -69,7 +73,9 @@ object DesktopBackDispatcher {
         val a = attachments.firstOrNull { it.dispatcher === dispatcher } ?: return@synchronized
         if (--a.refs <= 0) {
             attachments.remove(a)
+            // Can fail when the scene was already disposed (its dispatcher is gone with it); nothing is left to clean up then.
             runCatching { dispatcher.removeInput(a.input) }
+                .onFailure { System.err.println("desktop back dispatcher: removeInput failed (scene already disposed?): $it") }
         }
     }
 
@@ -153,14 +159,22 @@ object DesktopBackDispatcher {
         else -> null
     }
 
+    /** Whether the AWT toolkit is the X11 one, whose button numbering differs (see [navigationForAwtMouseButton]). */
+    fun isX11Toolkit(): Boolean = java.awt.Toolkit.getDefaultToolkit().javaClass.name == "sun.awt.X11.XToolkit"
+
     /**
-     * AWT `MouseEvent.getButton()`: Windows and macOS report the back button as 4 and the forward button as 5; on
-     * Linux/X11 the X buttons 8 and 9 arrive as 6 and 7 (the X wheel buttons 4-7 never come as button events, they
-     * become wheel events).
+     * AWT `MouseEvent.getButton()`. On X11 ([x11] = true) AWT numbers X buttons 6/7 (horizontal scroll/tilt) as presses
+     * 4/5 and the X back/forward buttons 8/9 as 6/7, so only 6 = back and 7 = forward count (4/5 do nothing, or a
+     * horizontal scroll would go back). Elsewhere (Windows, macOS) 4 = back and 5 = forward.
      */
-    fun navigationForAwtMouseButton(button: Int): Navigation? = when (button) {
-        4, 6 -> Navigation.Back
-        5, 7 -> Navigation.Forward
-        else -> null
-    }
+    fun navigationForAwtMouseButton(button: Int, x11: Boolean = isX11Toolkit()): Navigation? =
+        if (x11) when (button) {
+            6 -> Navigation.Back
+            7 -> Navigation.Forward
+            else -> null
+        } else when (button) {
+            4 -> Navigation.Back
+            5 -> Navigation.Forward
+            else -> null
+        }
 }

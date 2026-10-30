@@ -32,8 +32,9 @@ class DesktopShortcutsTest {
         override fun search(windowId: String) { log += "search:$windowId" }
         override fun goToReference(windowId: String) { log += "goto:$windowId" }
         override fun back(historyFallback: Boolean) { log += "back:$historyFallback" }
+        override fun navigateBack(windowId: String?) { log += "navBack:${windowId ?: "active"}" }
         override fun bookmarkSelection(windowId: String, selectionJson: String) { log += "bookmark:$windowId:$selectionJson" }
-        override fun changeFontSize(change: FontSizeChange) { log += "font:$change" }
+        override fun changeFontSize(change: FontSizeChange, steps: Int) { log += if (steps == 1) "font:$change" else "font:$change*$steps" }
         override fun focusNextWindow() { log += "next" }
         override fun focusPreviousWindow() { log += "previous" }
         override fun toggleFullScreen() { log += "fullscreen" }
@@ -68,20 +69,20 @@ class DesktopShortcutsTest {
     @Test fun altLeftIsBackWithHistoryFallbackAndAltRightForwardNoop() {
         assertTrue(shortcuts.onChord(Chord("ArrowLeft", alt = true), null))
         assertTrue(shortcuts.onChord(Chord("ArrowRight", alt = true), null))
-        assertEquals(listOf("back:true"), actions.log)
+        assertEquals(listOf("navBack:active"), actions.log)
     }
 
     @Test fun altArrowsSwapInRightToLeft() {
         rtl = true
         shortcuts.onChord(Chord("ArrowRight", alt = true), null)
         shortcuts.onChord(Chord("ArrowLeft", alt = true), null)
-        assertEquals(listOf("back:true"), actions.log)
+        assertEquals(listOf("navBack:active"), actions.log)
     }
 
     @Test fun mouseBackAndForwardButtons() {
         assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Back))
         assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Forward))
-        assertEquals(listOf("back:true"), actions.log)
+        assertEquals(listOf("navBack:active"), actions.log)
     }
 
     @Test fun escFromThePaneIsBackWithoutHistoryFallback() {
@@ -95,22 +96,24 @@ class DesktopShortcutsTest {
         assertEquals(listOf("closeModals:w1"), actions.log)
     }
 
-    @Test fun backNavigationClosesAnOpenPageModalFirst() {
-        actions.modalOpen = true
+    @Test fun backNavigationGoesThroughNavigateBack() {
         assertTrue(shortcuts.onChord(Chord("ArrowLeft", alt = true), null))
         assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Back, "w2"))
         assertTrue(shortcuts.onNavigation(DesktopBackDispatcher.Navigation.Forward))
-        assertEquals(listOf("closeModals:active", "closeModals:w2"), actions.log)
+        assertEquals(listOf("navBack:active", "navBack:w2"), actions.log)
+    }
+
+    @Test fun ctrlAltChordsAreAltGrAndNeverShortcuts() {
+        for (k in listOf("l", "0", "+", "b", "f", ",", "Tab")) {
+            assertFalse(shortcuts.onChord(Chord(k, ctrl = true, alt = true, fromPane = true), "w1"), k)
+            assertFalse(shortcuts.onChord(Chord(k, ctrl = true, alt = true), null), k)
+        }
+        assertFalse(shortcuts.onChord(Chord("ArrowLeft", ctrl = true, alt = true), null))
+        assertEquals(emptyList(), actions.log)
     }
 
     @Test fun escIsIgnoredWhileAPageEditorIsEditing() {
         actions.modalOpen = true
-        actions.escapeAllowed = false
-        assertFalse(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
-        assertEquals(emptyList(), actions.log)
-    }
-
-    @Test fun escIsIgnoredWhileAPageModalOrEditorIsOpen() {
         actions.escapeAllowed = false
         assertFalse(shortcuts.onChord(Chord("Escape", fromPane = true), "w1"))
         assertEquals(emptyList(), actions.log)
@@ -185,7 +188,7 @@ class DesktopShortcutsTest {
         assertEquals(emptyList(), actions.log)
         // Back still works there.
         assertTrue(shortcuts.onChord(Chord("ArrowLeft", alt = true), null))
-        assertEquals(listOf("back:true"), actions.log)
+        assertEquals(listOf("navBack:active"), actions.log)
     }
 
     @Test fun textInputInPageIsNotIntercepted() {
@@ -217,6 +220,18 @@ class DesktopShortcutsTest {
         assertFalse(shortcuts.onZoom(0.0))
         actions.reading = false
         assertFalse(shortcuts.onZoom(-120.0))
-        assertEquals(listOf("font:Larger", "font:Smaller", "font:Larger", "font:Larger"), actions.log)
+        assertEquals(listOf("font:Larger", "font:Smaller", "font:Larger*2"), actions.log)
+    }
+
+    @Test fun zoomStepsAreAppliedAtOnceAndCapped() {
+        assertTrue(shortcuts.onZoom(1.0, steps = 50))
+        assertEquals(listOf("font:Smaller*10"), actions.log)
+    }
+
+    @Test fun fontSizeChangeAppliesStepsAtOnceWithClamping() {
+        assertEquals(130, FontSizeChange.Larger.apply(100, 3))
+        assertEquals(10, FontSizeChange.Smaller.apply(30, 10))
+        assertEquals(500, FontSizeChange.Larger.apply(480, 10))
+        assertEquals(100, FontSizeChange.Reset.apply(250, 4))
     }
 }
