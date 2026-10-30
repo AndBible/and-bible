@@ -21,6 +21,14 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="desktop_update_consent_title">Check for updates?</string>
+    <string name="desktop_update_consent_message">AndBible can check github.com once a day for a newer version. GitHub sees your IP address; nothing else is sent. You can change this later in Settings.</string>
+    <string name="desktop_update_consent_yes">Check for updates</string>
+    <string name="desktop_update_consent_no">Don\'t check</string>
+    <string name="desktop_update_available_title">New version available</string>
+    <string name="desktop_update_available_message">AndBible %1$s is available. You have %2$s.</string>
+    <string name="desktop_update_download">Download</string>
+    <string name="desktop_update_later">Later</string>
     <string name="app_name_andbible">AndBible</string>
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>

@@ -1247,6 +1247,15 @@ interface Strings {
     val legacyImportTitle: String                      // R.string.legacy_import_title
     val legacyImportSummary: String                    // R.string.legacy_import_summary
 
+    val desktopUpdateConsentTitle: String // R.string.desktop_update_consent_title
+    val desktopUpdateConsentMessage: String // R.string.desktop_update_consent_message
+    val desktopUpdateConsentYes: String // R.string.desktop_update_consent_yes
+    val desktopUpdateConsentNo: String // R.string.desktop_update_consent_no
+    val desktopUpdateAvailableTitle: String // R.string.desktop_update_available_title
+    fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
+    val desktopUpdateDownload: String // R.string.desktop_update_download
+    val desktopUpdateLater: String // R.string.desktop_update_later
+
     // I2c-B
     val customRepositoryHttpsRequired: String          // R.string.custom_repository_https_required
     fun customRepositoryHttpsRequiredOnRefresh(name: String): String  // R.string.custom_repository_https_required_refresh

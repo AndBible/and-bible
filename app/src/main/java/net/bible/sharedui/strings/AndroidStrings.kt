@@ -1169,6 +1169,15 @@ class AndroidStrings(private val context: Context) : Strings {
     override val legacyImportTitle: String get() = context.getString(R.string.legacy_import_title)
     override val legacyImportSummary: String get() = context.getString(R.string.legacy_import_summary)
 
+    override val desktopUpdateConsentTitle: String get() = context.getString(R.string.desktop_update_consent_title)
+    override val desktopUpdateConsentMessage: String get() = context.getString(R.string.desktop_update_consent_message)
+    override val desktopUpdateConsentYes: String get() = context.getString(R.string.desktop_update_consent_yes)
+    override val desktopUpdateConsentNo: String get() = context.getString(R.string.desktop_update_consent_no)
+    override val desktopUpdateAvailableTitle: String get() = context.getString(R.string.desktop_update_available_title)
+    override fun desktopUpdateAvailableMessage(available: String, current: String): String = context.getString(R.string.desktop_update_available_message, available, current)
+    override val desktopUpdateDownload: String get() = context.getString(R.string.desktop_update_download)
+    override val desktopUpdateLater: String get() = context.getString(R.string.desktop_update_later)
+
     // I2c-B
     override val customRepositoryHttpsRequired: String get() = context.getString(R.string.custom_repository_https_required)
     override fun customRepositoryHttpsRequiredOnRefresh(name: String): String = context.getString(R.string.custom_repository_https_required_refresh, name)
