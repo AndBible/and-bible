@@ -88,7 +88,7 @@ class IosReadingHostTest {
             // hostState reads the active window through its WindowControl and HistoryManager.
             host.hostState.historyEntriesForActiveWindow()
             assertTrue(deps.state === host.hostState)
-            assertEquals("Bible Study", host.navDeps {}.windowTitle)
+            assertEquals("Bible Study", net.bible.sharedui.host.reading.hostReadingNavDeps(host, shell, net.bible.sharedui.assembly.HostStartup.stringTable) {}.windowTitle)
 
             // Every toolbar callback is safe to invoke before a window exists on screen, and none is a logged pending
             // (see toolbarCallbacksAreWiredAndNoneIsPending for what each one does).
