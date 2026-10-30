@@ -142,7 +142,7 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     private val _resetLocalDb: () -> T,
     val localDbPath: String,
     val category: SyncableDatabaseDefinition,
-    val _reactToUpdates: ((entries: List<LogEntry>) -> Unit)? = null,
+    val _reactToUpdates: (suspend (entries: List<LogEntry>) -> Unit)? = null,
     val deviceId: String,
     private val resetOwned: ((net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T)? = null,
 ) {
