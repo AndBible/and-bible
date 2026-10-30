@@ -39,6 +39,7 @@ import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
+import net.bible.service.cloudsync.normalizeSyncServerUrl
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
@@ -93,7 +94,8 @@ class NextCloudAdapter(
     override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
         val activity = net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity ?: return@withContext false
         try {
-            val serverUri = Uri.parse(serverUrl)
+            // Normalize here too: existing credentials may predate settings normalization.
+            val serverUri = Uri.parse(serverUrl?.let(::normalizeSyncServerUrl))
             _client = OwnCloudClientFactory.createOwnCloudClient(serverUri, activity, true).apply {
                 credentials = OwnCloudCredentialsFactory.newBasicCredentials(username, password)
                 userId = username

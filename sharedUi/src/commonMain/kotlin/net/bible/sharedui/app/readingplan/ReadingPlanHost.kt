@@ -134,6 +134,12 @@ class ReadingPlanHost(
     var planCodeLoaded: String? = null
         internal set // test seam: ReadingPlanHostTest seeds the loaded plan
 
+    /**
+     * The plan's current day as of the last load or sync. A synced current day moves the screen only when
+     * [dayLoaded] is still this day, so a day the user opened explicitly stays open.
+     */
+    private var currentDayAtLoad: Int = 0
+
     /** Classic's "the selector was already offered once" memory, see [offerReadingPlanSelector]. */
     private var readingPlanSelectorOffered = false
 
@@ -339,7 +345,8 @@ class ReadingPlanHost(
                 if (!current()) throw CancellationException("Superseded reading day")
                 return DailyReadingLoad.NO_PLAN
             }
-            val loadedDay = day ?: readingPlanControl.currentPlanDay(code)
+            val currentDay = readingPlanControl.currentPlanDay(code)
+            val loadedDay = day ?: currentDay
             val dto = readingPlanControl.getDaysReading(loadedDay, code)
             val status = readingPlanControl.getReadingStatus(loadedDay, code)
             val ui = readingPlanUi(dto, status)
@@ -347,6 +354,7 @@ class ReadingPlanHost(
             if (!current()) throw CancellationException("Superseded reading day")
             readingPlanControl.setReadingPlan(code)
             dayLoaded = loadedDay
+            currentDayAtLoad = currentDay
             planCodeLoaded = code
             readingsDto = dto
             dailyReadingController?.setUi(ui)
@@ -383,8 +391,13 @@ class ReadingPlanHost(
     /** Classic's `pushUi()`: the DTO + ReadingStatus snapshot, passage names formatted host-side. */
     private suspend fun pushReadingPlanUi() {
         val dto = readingsDto ?: return
-        val status = readingPlanControl.getReadingStatus(dayLoaded)
-        dailyReadingController?.setUi(readingPlanUi(dto, status))
+        val code = planCodeLoaded ?: return
+        val generation = readingDayLoadGeneration
+        val controller = dailyReadingController
+        val status = readingPlanControl.getReadingStatus(dayLoaded, code)
+        if (generation == readingDayLoadGeneration && readingsDto === dto && dailyReadingController === controller) {
+            controller?.setUi(readingPlanUi(dto, status))
+        }
     }
 
     private fun readingPlanUi(dto: OneDaysReadingsDto, status: ReadingStatus): DailyReadingUi {
@@ -518,12 +531,34 @@ class ReadingPlanHost(
     /**
      * Classic `DailyReadingComposeActivity`'s bus `register(this) { ... }` pair (now the `SpeakChanges` state
      * subscription plus `DatabaseContainer.readingPlansSynced`), registered per DESTINATION rather than per host
-     * (see [DailyReadingDeps.subscribeEvents]). `recreate()` is classic's own reaction to a plan sync, it now
-     * recreates the whole host, which is the documented consequence (plan D5).
+     * (see [DailyReadingDeps.subscribeEvents]). Sync pushes fresh state into the visible controller; host
+     * recreation is neither necessary nor sufficient on platforms that keep the navigation destination alive.
      */
     private fun subscribeDailyReadingEvents(): () -> Unit {
         val speak = SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) pushReadingPlanSpeakState() }
-        val unsubscribePlans = subscribeToReadingPlanSync { shell.recreateHost() }
+        val unsubscribePlans = subscribeToReadingPlanSync {
+            shell.hostScope.launch {
+                val code = planCodeLoaded ?: return@launch
+                // The reading-plan reconcile has already cleared the selection of a reset plan before this fires.
+                if (readingPlanControl.currentPlanCode.isEmpty()) {
+                    forgetResetReadingPlan(code)
+                    navController?.navigate(NavRoutes.READING_PLAN_SELECTOR)
+                } else try {
+                    val current = readingPlanControl.currentPlanDay(code)
+                    if (dayLoaded == currentDayAtLoad && current != dayLoaded) {
+                        // Another device moved the plan on while the user was on its current day: follow it.
+                        loadReadingPlanDay(code, null)
+                    } else {
+                        currentDayAtLoad = current
+                        pushReadingPlanUi()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG_READING_PLAN, "Error refreshing daily readings after a sync", e)
+                }
+            }
+        }
         // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
         // Activity (and its controller) merely paused behind the selector / day list, so the state
         // pushed by the last SpeakChanges notification was still there on return. Here the arm's composition is
@@ -537,7 +572,15 @@ class ReadingPlanHost(
 
     /** The day list's / selector's reaction to `DatabaseContainer.readingPlansSynced` (`controller.load()`). */
     private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
-        subscribeToReadingPlanSync(onReadingPlansChanged)
+        subscribeToReadingPlanSync {
+            // A child destination may cover the day when its plan is reset elsewhere. Back must not
+            // reload the old route arguments and select that reset plan again. This relies on the sync
+            // reconcile having cleared the selection before readingPlansSynced is emitted.
+            if (readingPlanControl.currentPlanCode.isEmpty()) {
+                planCodeLoaded?.let { forgetResetReadingPlan(it) }
+            }
+            onReadingPlansChanged()
+        }
 
     /**
      * The plan import seam, ported from classic `:268-271`. The picked file goes straight to the InstallZip

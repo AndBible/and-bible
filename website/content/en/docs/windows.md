@@ -16,6 +16,10 @@ When you scroll a synchronised commentary window, its title follows the verse
 range of the entry in view, including when you return to an already-loaded entry.
 The synchronised Bible windows follow that entry, too.
 
+When a links window shows several references together, it remembers the fragment
+and verse or paragraph you scrolled to. Closing and restarting the app restores
+that reading position instead of returning to the first reference.
+
 https://www.youtube.com/watch?v=mKxEuQX-oX0
 
 ## Creating and configuring windows

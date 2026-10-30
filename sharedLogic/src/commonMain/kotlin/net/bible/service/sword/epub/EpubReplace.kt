@@ -21,6 +21,7 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.service.db.deleteAppDatabase
 import net.bible.sharedlogic.sync.withMonitor
 import okio.FileSystem
 import okio.Path
@@ -61,25 +62,35 @@ internal fun releaseEpubStagingDir(dir: Path) {
 
 /**
  * Cleans up after installs that crashed below [modulesRoot]; trees of installs still running are kept. Staging trees
- * are removed. An aside tree holds an old module that was moved out for a replacement: it is put back when its module
- * folder is missing (the app died before the new module was moved in), otherwise it is stale and removed.
+ * are removed. An aside tree holds an old module from a replacement that has not committed: restore it even when
+ * failed new files remain in its module folder, after dropping the app database of the new module that may have
+ * registered. Keep the aside if recovery fails, so a later sweep can retry.
  */
 internal fun sweepStaleEpubStagingDirs(modulesRoot: Path) {
     val fileSystem = FileSystem.SYSTEM
     val active = withMonitor(activeStagingDirs) { activeStagingDirs.toSet() }
     val stale = fileSystem.listOrNull(modulesRoot)?.filter { it.name !in active } ?: return
     for (aside in stale.filter { it.name.startsWith(EPUB_ASIDE_PREFIX) }) {
-        for (old in fileSystem.listOrNull(aside).orEmpty()) {
+        val oldTrees = fileSystem.listOrNull(aside) ?: continue
+        var restored = true
+        for (old in oldTrees) {
             val dir = modulesRoot / "epub" / old.name
-            if (fileSystem.exists(dir)) continue
+            // A new module that had already registered (crash before the aside was dropped) left its app database; the
+            // restored old module would reuse it. A failure here must not block the restore.
+            runCatching { deleteAppDatabase("epub-${epubInitials(old.name)}.sqlite3") }
+                .onFailure { Log.e("EpubReplace", "Could not drop the app database of the EPUB ${old.name}", it) }
             runCatching {
                 fileSystem.createDirectories(dir.parent!!)
-                fileSystem.atomicMove(old, dir)
+                restoreEpubAside(dir, aside, modulesRoot)
                 Log.w("EpubReplace", "Restored the EPUB ${old.name} set aside by an interrupted replacement")
-            }.onFailure { Log.e("EpubReplace", "Could not restore the EPUB ${old.name} from $aside", it) }
+            }.onFailure {
+                restored = false
+                Log.e("EpubReplace", "Could not restore the EPUB ${old.name} from $aside", it)
+            }
         }
+        if (restored) runCatching { fileSystem.deleteRecursively(aside, mustExist = false) }
     }
-    stale.filter { it.name.startsWith(EPUB_STAGING_PREFIX) || it.name.startsWith(EPUB_ASIDE_PREFIX) }
+    stale.filter { it.name.startsWith(EPUB_STAGING_PREFIX) }
         .forEach { runCatching { fileSystem.deleteRecursively(it, mustExist = false) } }
 }
 
@@ -136,6 +147,15 @@ internal suspend fun publishStagedEpub(
                 replaced = true
                 addOwnedEpubBook(dir, strings, environment)
                 check(Books.installed().getBook(epubInitials(dir.name)) != null) { "EPUB registration failed: ${dir.name}" }
+                if (setAside) {
+                    val trash = newEpubStagingDir(modulesRoot)
+                    try {
+                        // Commit before cleanup: only staging trees may be discarded without recovery at startup.
+                        fileSystem.atomicMove(aside, trash)
+                    } finally {
+                        releaseEpubStagingDir(trash)
+                    }
+                }
                 true
             } catch (e: Exception) {
                 // Only the new files are removed; a failure before they were moved in leaves the old module in place.
@@ -152,8 +172,7 @@ internal suspend fun publishStagedEpub(
             }
         }
     } finally {
-        // Kept (with its protection dropped) only if the old module could not be moved back: the next sweep puts it back
-        // if its module folder is gone, or drops it.
+        // A failed restore keeps the old tree (without active-install protection) for the next sweep to retry.
         if (asideRestoreFailed) withMonitor(activeStagingDirs) { activeStagingDirs.remove(aside.name) }
         else releaseEpubStagingDir(aside)
     }

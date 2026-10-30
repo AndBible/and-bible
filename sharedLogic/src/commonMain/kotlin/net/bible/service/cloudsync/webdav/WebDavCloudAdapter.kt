@@ -12,6 +12,7 @@ import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.normalizeSyncServerUrl
 import net.bible.service.common.asyncMap
 import net.bible.service.common.createTempFile
 import net.bible.sharedcore.webdav.*
@@ -43,13 +44,14 @@ private const val WEBDAV_FOLDER_MIMETYPE = "DIR"
  * consistently against what this adapter returns.
  */
 class WebDavCloudAdapter(
-    private val config: WebDavConfig,
+    config: WebDavConfig,
     private val state: WebDavStateStore,
     private val ui: WebDavSignInUi,
     private val deviceId: String,
     private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient,
     private val nowMs: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) : CloudAdapter {
+    private val config = config.copy(serverUrl = normalizeSyncServerUrl(config.serverUrl))
     private var _client: WebDavClient? = null
     private val client get() = _client ?: throw IllegalStateException("WebDAV adapter not signed in")
     private val base get() = config.baseFolder

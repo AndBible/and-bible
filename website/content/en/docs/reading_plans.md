@@ -198,4 +198,6 @@ Example reading plans can be found
 
 Your reading plans and their progress can be synchronized across devices using
 [cloud sync](cloud_sync.md). Enable the **Reading Plans** toggle in the cloud
-sync settings.
+sync settings. When a sync finishes, an open daily reading screen updates its
+completion ticks automatically. Resetting a plan on another device also clears
+it as the current plan on this device; choose a plan again to start reading.

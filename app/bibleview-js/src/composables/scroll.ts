@@ -34,6 +34,14 @@ export function useScroll(
     const {highlightOrdinal, resetHighlights} = highlight;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
+    // Window position right after our last programmatic scroll. A scroll event at any other
+    // position was made by the user (see the scroll anchor below).
+    let lastProgrammaticScrollY: number | null = null;
+
+    function scrollWindowTo(y: number) {
+        window.scrollTo(0, y);
+        lastProgrammaticScrollY = window.scrollY;
+    }
 
     const touchStartHandler = () => stopScrolling();
 
@@ -84,7 +92,7 @@ export function useScroll(
         let start: number;
 
         if (noScrolling) {
-            window.scrollTo(0, elementY);
+            scrollWindowTo(elementY);
             return;
         }
 
@@ -97,7 +105,7 @@ export function useScroll(
             // Get percent of completion in range [0, 1].
             const percent = Math.min(time / duration, 1);
 
-            window.scrollTo(0, startingY + diff * percent);
+            scrollWindowTo(startingY + diff * percent);
 
             // Proceed with animation as long as we wanted it to.
             if (time < duration) {
@@ -159,7 +167,11 @@ export function useScroll(
                 highlightOrdinal(ordinal, bookInitials, osisRef);
             }
         }
-        let toElement = toId ? document.getElementById(toId) : null;
+        // Multi-reference source ordinals repeat across fragments; prefer their local anchor.
+        const multiOrdinal = toId?.match(/^o-(\d+)$/)?.[1];
+        let toElement = (multiOrdinal
+            ? document.querySelector<HTMLElement>(`[data-multi-root] [data-scroll-ordinal="${multiOrdinal}"]`)
+            : null) ?? (toId ? document.getElementById(toId) : null);
         if (onlyIfInvisible && toElement && isInViewport(toElement)) return;
 
         if (force && toElement == null) {
@@ -179,7 +191,7 @@ export function useScroll(
             delta += 0.5 * (lineHeight - fontSize);
             if (now) {
                 currentScrollAnimation.value = -1;
-                window.scrollTo(0, elementTop - delta);
+                scrollWindowTo(elementTop - delta);
                 setTimeout(() => {
                     if (currentScrollAnimation.value === -1) {
                         currentScrollAnimation.value = null;
@@ -243,12 +255,18 @@ export function useScroll(
     setupEventBusListener("scroll_to_verse", scrollToId)
     setupEventBusListener("setup_content", setupContent)
 
-    // Scroll anchor: preserves clicked element visibility when viewport shrinks (e.g. links window opens)
+    // Scroll anchor: keeps a tapped link visible when the viewport shrinks right after the tap
+    // (e.g. the links window opens below this window, #3043). The link itself is the anchor, not its
+    // whole verse: a long verse can stay partly visible while the link at its end is hidden. The
+    // anchor lives for a short time window and survives several resize events, as the split can
+    // settle in more than one layout pass.
     let scrollAnchorElement: HTMLElement | null = null;
+    let scrollAnchorFallback: HTMLElement | null = null;
     let scrollAnchorCleanupTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function clearScrollAnchor() {
         scrollAnchorElement = null;
+        scrollAnchorFallback = null;
         if (scrollAnchorCleanupTimeout) {
             clearTimeout(scrollAnchorCleanupTimeout);
             scrollAnchorCleanupTimeout = null;
@@ -257,26 +275,50 @@ export function useScroll(
 
     function setScrollAnchor(element: HTMLElement) {
         clearScrollAnchor();
-        scrollAnchorElement = (element.closest('.ordinal') as HTMLElement) || element;
+        scrollAnchorElement = element;
+        // Used if the tapped element is re-rendered away before the resize arrives.
+        scrollAnchorFallback = element.closest('.ordinal') as HTMLElement | null;
         scrollAnchorCleanupTimeout = setTimeout(clearScrollAnchor, 3000);
+    }
+
+    function currentScrollAnchor(): HTMLElement | null {
+        if (scrollAnchorElement?.isConnected) return scrollAnchorElement;
+        if (scrollAnchorFallback?.isConnected) return scrollAnchorFallback;
+        return null;
     }
 
     setupEventBusListener("set_scroll_anchor", setScrollAnchor);
 
+    // The user taking over (touch, wheel, or a scroll we did not make) ends the anchor, so a later
+    // resize does not yank the view back. The tap itself sets the anchor on click, after touchstart.
+    setupWindowEventListener('touchstart', clearScrollAnchor, {passive: true});
+    setupWindowEventListener('wheel', clearScrollAnchor, {passive: true});
+    setupWindowEventListener('scroll', () => {
+        if (scrollAnchorCleanupTimeout !== null && window.scrollY !== lastProgrammaticScrollY) {
+            clearScrollAnchor();
+        }
+    });
+
     setupWindowEventListener('resize', async () => {
         if (!scrollAnchorElement) return;
         await waitNextAnimationFrame();
-        if (!scrollAnchorElement) return;
-        const rect = scrollAnchorElement.getBoundingClientRect();
+        const anchor = currentScrollAnchor();
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
         const viewTop = calculatedConfig.value.topOffset;
-        const viewBottom = window.innerHeight;
+        const viewBottom = window.innerHeight - appSettings.bottomOffset;
+        const fitsInView = rect.top >= viewTop && rect.bottom <= viewBottom;
+        // An anchor taller than the view cannot fit; once any part of it is in view it counts as
+        // visible, instead of being re-scrolled on every resize.
+        const tallAndOverlapping = rect.height > viewBottom - viewTop
+            && rect.bottom > viewTop && rect.top < viewBottom;
+        if (fitsInView || tallAndOverlapping) return;
 
-        if (rect.bottom < viewTop || rect.top > viewBottom) {
-            const elementTop = rect.top + window.scrollY;
-            const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
-            window.scrollTo(0, Math.max(0, targetY));
-        }
-        clearScrollAnchor();
+        // Our own animation would fight the anchor scroll; the anchor wins.
+        if (isScrolling.value) stopScrolling();
+        const elementTop = rect.top + window.scrollY;
+        const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
+        scrollWindowTo(Math.max(0, targetY));
     });
 
     return {scrollToId, isScrolling, doScrolling, scrollY}

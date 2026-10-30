@@ -1,6 +1,12 @@
 package net.bible.android.control.backup
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.platform.files.PickedSource
 import okio.IOException
@@ -35,6 +41,31 @@ class PickedBackupRestoreTest {
         }
         assertSame(cancellation, thrown)
         assertEquals(emptyList(), events)
+    }
+
+    @Test fun cancelledCallerWaitsForCommittedRestoreWithoutReturningToReading() = runTest {
+        val events = mutableListOf<String>()
+        val caller = launch {
+            val job = coroutineContext[Job]!!
+            restorePickedBackup(
+                pick = { source },
+                restore = {
+                    withContext(NonCancellable) {
+                        events += "replace"
+                        job.cancel()
+                        coroutineContext.ensureActive()
+                        events += "finalize database"
+                    }
+                    // A restore on the same dispatcher can finish without an implicit cancellation check.
+                    true
+                },
+                reportError = { _, _ -> events += "error" }, fallbackError = { "restore failed" },
+                afterRestore = { events += "return gate" },
+            )
+        }
+        caller.join()
+        assertEquals(true, caller.isCancelled)
+        assertEquals(listOf("replace", "finalize database"), events)
     }
 
     @Test fun pickerFailureIsReportedWithTranslatedFallback() = runTest {

@@ -4,7 +4,10 @@ import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import androidx.room3.useWriterConnection
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.coroutineContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
@@ -95,6 +98,39 @@ class CloudSyncInitialSwapTest {
             }
             assertEquals("the outer replace owns the release: the swap itself emitted nothing", 0, streamed.size)
         } finally { streamSub.cancel() }
+    }
+
+    @Test fun cancellationAfterCopyStillInitializesRestoredSyncState() = runBlocking {
+        val downloaded = downloadNamed("C")
+        var cancelledAfterCopy = false
+        val restore = launch {
+            val job = coroutineContext[Job]!!
+            val accessor = SyncableDatabaseAccessor(
+                localDb = workspaces.localDb,
+                dbFactory = workspaces.dbFactory,
+                _resetLocalDb = {
+                    workspaces.resetLocalDb()
+                    cancelledAfterCopy = true
+                    job.cancel()
+                    workspaces.localDb
+                },
+                localDbPath = workspaces.localDbPath,
+                category = workspaces.category,
+                deviceId = workspaces.deviceId,
+            )
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(accessor, downloaded.toOkioPath()) {
+                accessor.dao.setConfig("new-device", "initialized")
+            }
+        }
+        try {
+            restore.join()
+            org.junit.Assert.assertTrue(restore.isCancelled)
+            org.junit.Assert.assertTrue(cancelledAfterCopy)
+            assertEquals("C", dao.workspace(repo.id)!!.name)
+            assertEquals("initialized", workspaces.dao.getString("new-device"))
+        } finally {
+            downloaded.delete()
+        }
     }
 
     /** The post is what triggers `loadFromDb` and ends the save freeze: a lone swap must release exactly once. */

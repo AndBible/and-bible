@@ -17,6 +17,8 @@
 
 package net.bible.android.control.backup
 
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import net.bible.sharedcore.platform.files.PickedSource
 
 /**
@@ -40,5 +42,7 @@ suspend fun restorePickedBackup(
         reportError(e.message ?: fallbackError(), e)
         false
     }
+    // A committed restore can finish non-cancellably, but a destroyed host must not navigate afterward.
+    currentCoroutineContext().ensureActive()
     if (restored) afterRestore()
 }

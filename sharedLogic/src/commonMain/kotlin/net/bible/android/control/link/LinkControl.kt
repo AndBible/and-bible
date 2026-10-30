@@ -102,7 +102,6 @@ class LinkControl constructor(
                 else -> throw Exception("Unknown key type: ${k::class}")
             }
         }
-        key.setName(key.joinToString(", ") { (it as BookAndKey).key.getName() })
         showLink(fakeBookFactory.multiDocument, key)
         return true
     }

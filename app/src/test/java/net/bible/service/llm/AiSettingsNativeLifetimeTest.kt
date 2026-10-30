@@ -184,7 +184,10 @@ class AiSettingsNativeLifetimeTest {
         val probe = CleanupProbe()
         try {
             val failure = runCatching { exerciseNativeBoundary("unexpected", probe) }.exceptionOrNull()
-            assertSame("preserve original async child failure", probe.failure, failure)
+            // kotlinx stack-trace recovery (on under -ea) may rethrow a copy whose cause is the original
+            // once the failure crosses the swap's NonCancellable boundary.
+            val original = if (failure !== probe.failure && failure?.cause === probe.failure) failure.cause else failure
+            assertSame("preserve original async child failure", probe.failure, original)
             val admission = AiDatabaseLifetime::class.java.getDeclaredField("admission").apply { isAccessible = true }
             assertSame("cancelled fixture finally must restore the original global mutex",
                 probe.originalAdmission, admission.get(DatabaseContainer.aiLifetime))
@@ -275,6 +278,9 @@ class AiSettingsNativeLifetimeTest {
             assertTrue("actual native SELECT entered", withContext(Dispatchers.IO) { boundary.entered.await(5, TimeUnit.SECONDS) })
             if (path == "ownerCancel") owner.cancel()
             val replacementEntered = CompletableDeferred<Unit>()
+            // The replacement body runs NonCancellable once the live file is touched (#3912), so the
+            // "cancel" path requests cancellation while the body runs and then lets the body finish.
+            val cancelRequested = CompletableDeferred<Unit>()
             swap = async(Dispatchers.IO + boundary.ownerLabel.asContextElement("replacement")) {
                 if (path == "backup") {
                     val folder = File(env.tmpDir, "native-ai-restore").apply { mkdirs() }
@@ -306,7 +312,7 @@ class AiSettingsNativeLifetimeTest {
                             replacementEntered.complete(Unit)
                             if (path == "unexpected") throw probe!!.failure
                             if (path == "failure") throw IllegalArgumentException("afterReset failure")
-                            if (path == "cancel") awaitCancellation()
+                            if (path == "cancel") cancelRequested.await()
                             if (path == "concurrent") {
                                 val second = File.createTempFile("ai-second-swap-", ".sqlite3")
                                 target.localDbFile.copyTo(second, overwrite = true)
@@ -338,7 +344,10 @@ class AiSettingsNativeLifetimeTest {
             assertNotNull("replacement attempted while the same statement is held", boundary.active)
             boundary.release.countDown()
             trigger?.await()
-            if (path == "cancel") { replacementEntered.await(); swap.cancelAndJoin() }
+            if (path == "cancel") {
+                replacementEntered.await(); swap.cancel(); cancelRequested.complete(Unit); swap.join()
+                assertTrue("cancellation reaches the swap after its replacement body", swap.isCancelled)
+            }
             else swap.await()
             laterSwap?.await()
             if (path == "concurrent") assertTrue(boundary.events.indexOf("first-replacement-body-end") <

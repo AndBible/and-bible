@@ -317,11 +317,12 @@ class DefaultInstallCommitterTest {
         val lock = manager.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(manager)!!
         synchronized(lock) {
             @Suppress("UNCHECKED_CAST")
-            val states = field.get(manager) as MutableMap<org.crosswire.jsword.book.BookMetaData,
-                ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>
-            states.entries.filter { it.key.initials == initials }.forEach { (_, pooled) ->
-                pooled.forEach { it.releaseResources() }
-                pooled.clear()
+            val states = field.get(manager) as MutableMap<Any, ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>
+            // The pool is keyed by metadata identity; match on the pooled states' own metadata.
+            states.values.forEach { pooled ->
+                pooled.removeAll { state ->
+                    (state.getBookMetaData().initials == initials).also { if (it) state.releaseResources() }
+                }
             }
         }
     }

@@ -17,7 +17,11 @@ issue-management for tracker rules. This skill only adds the AndBible-specific c
 
 1. Open bugs with board fields: `docs/superpowers/triage/snapshot/index.tsv` + `board.json`
    (`Type: Bug`, not Done). Re-check live state with `gh issue view <n>`.
-2. Drop issues the branch already touches: `git log --oneline -E --grep="#<n>\b"`.
+2. Drop issues an earlier round already handled. Fixed issues stay open until they reach the
+   default branch, so check all three: `git log --all --oneline --grep="<n>"` (a fix commit
+   may not name the issue with `#`), the `docs/superpowers` log, and the issue comments
+   (`gh issue view <n> --json comments`: a "Fixed: ..." / "already fixed" comment or a
+   `_— bug-fix round_` signature means it is done).
 3. Keep a bug only when it is **self-contained**: concrete repro or stack trace, an identifiable
    code area, and a test that can show it red. Skip design debates (e.g. "Psalm vs Psalms"),
    feature requests disguised as bugs, and "maybe just my phone" reports without repro steps.
@@ -63,7 +67,15 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
   device behaviour, several modules) use Anthropic Opus: `RUNNER="--agent claude --model opus"
   MODEL_NAME="Claude Opus"`.
 - Waiting, reading the inbox, answering questions, statuses and cleanup: follow
-  **jailbee-orchestration**; this skill adds nothing to that protocol.
+  **jailbee-orchestration**. Watching children:
+  - Use `jailbee-inbox wait` directly and read every message, notes included. Do not wrap it in a
+    filter that marks notes read: a restarted child reports its recovery as a note.
+  - Run exactly one wait loop, and never while a `send ... --wait` is pending (they race for
+    the same status message).
+  - A child silent for over an hour may have lost its agent (no `blocked` arrives when the agent
+    dies by a signal or exits 0). Send it a status message; if it stays silent, `import` it to
+    see its commits and ask the user to check the container before a `stop` + `restart`.
+  - Tell each child to commit early (WIP commits are fine), so a dead agent loses little.
 
 ## 4. Review, fix and merge each `done`
 
@@ -72,9 +84,13 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
 
 1. **Review with a subagent** (superpowers:requesting-code-review; reviewer model sonnet or opus,
    never fable). Give it the issue file, the child's report and `git diff HEAD...<imported_ref>`,
-   not your conclusion. Ask: is the fix at the root cause, are other entry points (a gesture
-   path, another caller, other platforms) covered, does a test go red without the fix, any
-   regression risk. For a larger or riskier diff, also ask the container's other Claude process
+   not your conclusion. Ask: is the fix at the root cause and in the layer that owns the
+   behaviour (bibleview-js vs Kotlin `:app` vs the shared modules), or is it a narrow ad hoc
+   patch for the reported symptom; are other entry points (a gesture path, another caller, other
+   platforms) covered; does a test go red without the fix; any regression risk.
+   Several reviews at once may each run in their own git worktree of this container (`isolation:
+   "worktree"` on the Agent call), so a reviewer can check out the import and run tests without
+   touching the orchestrator tree; this is the one exception to the no-worktrees rule. For a larger or riskier diff, also ask the container's other Claude process
    (different model family) for a read-only review.
 2. **Read the production diff yourself** too, and verify every finding against the code
    (superpowers:receiving-code-review) before acting on it.
@@ -91,13 +107,19 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
    earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
    report it to the user, no comment.
 
-## 5. Stage a comment per fixed issue
+## 5. Stage a comment and a close per fixed issue
 
 One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` action per issue
 (regenerate it as fixes land; start a new NNN once the user has applied it). Comment shape:
 "Fixed: <what the user sees now>. <one sentence why, if useful>. The fix will be in an upcoming
-version." Read the issue title first so the comment matches what was reported. Do not close
-issues: `Fixes #<n>` commits close them when they reach the default branch. Tell the user to run
+version." End every comment with a signature as its final line, separated by a blank line:
+`_— bug-fix round, <Mon YYYY>_` (e.g. `_— bug-fix round, Oct 2026_`), so the maintainer's own
+comments are never confused with session-written ones (same idea as the triage marker in
+issue-management). Read the issue title first so the comment matches what was reported. Close each fixed
+issue in the same manifest, right after its comment: a `state` action with `"state": "closed"`,
+`"reason": "completed"` (the maintainer wants fixed issues closed when the fix is merged here,
+not only when the `Fixes #<n>` commit reaches the default branch). An issue found already fixed is
+closed too; one the round did not fix (nothing merged, or not reproducible) is not. Tell the user to run
 `jb issue apply <container>` on the host.
 
 ## 6. Final gate and report

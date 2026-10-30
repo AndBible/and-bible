@@ -26,7 +26,7 @@ class BookmarkSyncSubscriptionTest {
         val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
             .map { it() }
             .single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
-        accessor._reactToUpdates!!.invoke(emptyList())
+        kotlinx.coroutines.runBlocking { accessor._reactToUpdates!!.invoke(emptyList()) }
     }
 
     @Test

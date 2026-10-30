@@ -30,14 +30,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
@@ -97,8 +95,7 @@ import net.bible.sharedcore.window.shouldShowPinIndicator
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
-import net.bible.sharedui.reading.ReadingDrawerContent
-import net.bible.sharedui.reading.ReadingDrawerWidth
+import net.bible.sharedui.reading.ReadingDrawerSheet
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -367,16 +364,14 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         drawerContent = {
             // Classic's `NavigationView` is `wrap_content` (~300dp); M3's default is a fixed 360dp. See
             // `ReadingDrawerWidth`'s kdoc.
-            ModalDrawerSheet(modifier = Modifier.width(ReadingDrawerWidth)) {
-                ReadingDrawerContent(
-                    state = deps.drawerMenu.value,
-                    icon = deps.drawerIcon,
-                    onItemClick = { id ->
-                        drawerOpen.value = false
-                        deps.onDrawerItemClick(id)
-                    },
-                )
-            }
+            ReadingDrawerSheet(
+                state = deps.drawerMenu.value,
+                icon = deps.drawerIcon,
+                onItemClick = { id ->
+                    drawerOpen.value = false
+                    deps.onDrawerItemClick(id)
+                },
+            )
         },
     ) {
         // The search sheet's scaffold: UNCONDITIONALLY present and ENCLOSING `key(gen)`, the same "outer

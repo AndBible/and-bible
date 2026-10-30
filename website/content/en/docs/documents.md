@@ -48,6 +48,10 @@ When enabled, cross-references appear as small orange superscript markers in the
 Bible text. Tap a marker to open a dialog listing the related passages. If inline
 expansion is enabled, the references are shown directly in the text instead.
 
+Choose **Open all references** to view the listed passages together in the links
+window. Its title uses localized abbreviated book names (for example,
+**Ecc 7:29, Gen 1:26** in English) and lists each reference only once.
+
 **Treasury of Scripture Knowledge (TSK)**
 
 For comprehensive cross-references covering every verse in the Bible, install the
@@ -68,6 +72,10 @@ Some commentaries cover only selected passages. At a passage without a note,
 the module may display its own notice instead of commentary. Very long runs of
 identical entries are displayed at the selected verse without expanding the
 entry's verse range, so these notices do not keep the page loading.
+When a commentary window is [synchronized](windows.md) with a Bible, scrolling
+updates it to the current verse. If that verse has no commentary entry, a single
+not-found notice replaces the previous entry rather than accumulating notices
+for earlier verses.
 
 ## Dictionaries
 
@@ -116,6 +124,10 @@ outside the app, such as web or email links, are labeled **Open external link**.
 There is also experimental support for MyBible and MySword format modules, which can
 be loaded from your device’s filesystem.
 
+Bible verse links in MyBible commentaries work like other Scripture references.
+When an entry contains two or more references, **Open all** opens them together.
+Web links and Strong's dictionary links remain separate from this reference collection.
+
 ## Maps
 
 Map modules can be installed through the provided repositories.
@@ -151,8 +163,20 @@ To load a document from your device’s filesystem:
 4. Click *Load Document From Files*.
 5. Click *Proceed* and select a document from your device’s file browser.
 
-Replacing an EPUB through a document backup (`.abmd.zip`) reloads its content and
-styles for subsequent reads without requiring you to force-stop the app.
+Replacing a SWORD module through a zip file, document backup (`.abmd.zip`), or
+document sync makes the new text available for subsequent reads without restarting
+the app. The old search index is removed; rebuild the index to search the new version.
+Replacing an EPUB through a document backup also reloads its content and styles
+without requiring you to force-stop the app.
+
+If an EPUB replacement fails, AndBible restores the previous version. If a storage
+error also prevents that recovery, it keeps the previous version separately and
+retries recovery on the next startup. The saved version is not discarded just
+because the failed replacement's files are still present.
+
+If AndBible is stopped right after an EPUB replacement succeeded but before it was
+finalized, the previous version can come back the next time the app starts.
+Replace the EPUB again in that case.
 
 On Android, the installation screen keeps the orientation it had when opened,
 including landscape. Rotating the device during installation does not change the

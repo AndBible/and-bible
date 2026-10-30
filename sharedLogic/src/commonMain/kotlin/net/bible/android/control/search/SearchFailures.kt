@@ -43,12 +43,18 @@ internal fun ftsIndexManager(): FtsIndexManager? = IndexManagerFactory.getIndexM
 
 /**
  * True when [book] has a search index file that can be opened by the current engine and matches the book.
- * `IndexManager.isIndexed` is only a file-exists check: a file written with an older schema counts as indexed
- * but cannot be opened, so [FtsIndexManager.needsReindexing] is consulted as well.
+ * Delegates to the manager's usability check, shared with SWORD startup status detection.
  */
 @VisibleForTesting fun hasUsableSearchIndex(book: Book): Boolean {
     // A book without a driver (a fake or synthetic book) has no index location: its status is all there is.
     if (book.bookMetaData.driverName == null) return book.indexStatus == IndexStatus.DONE
-    val manager = ftsIndexManager() ?: return IndexManagerFactory.getIndexManager().isIndexed(book)
-    return manager.isIndexed(book) && !manager.needsReindexing(book)
+    return IndexManagerFactory.getIndexManager().hasUsableIndex(book)
 }
+
+/**
+ * The full check of the search index of every installed document, for a background thread after startup. Startup
+ * marks a document `DONE` from the existence of its index file only (it runs on Main on Android); this resets the
+ * ones whose index is empty, corrupt, stale or of another engine to `UNDONE`. Returns how many were reset.
+ */
+fun revalidateSearchIndexStatuses(): Int =
+    ftsIndexManager()?.revalidateIndexStatuses(org.crosswire.jsword.book.Books.installed().getBooks()) ?: 0

@@ -695,8 +695,8 @@ class ReadingSearchState(
     private fun onSearchIndexWorkEvent(job: Any, isFinished: () -> Boolean) {
         scope.launch {
             refreshSearchIndexJobs()
-            // The feed is GLOBAL: `job` is any job (a module download finishing mid-build must not
-            // resolve the index build early), so the gate is "no job is still running".
+            // Events are global, but the completion gate considers only index jobs: a module
+            // download must neither resolve a running index early nor keep a failed build alive.
             if (stopIndexFeed == null || searchIndexResolution?.isActive == true) return@launch
             val alreadyDone = isSearchIndexDone()
             if (!alreadyDone && !shouldResolveIndexBuild(isFinished(), indexJobs.isEveryJobFinished())) return@launch

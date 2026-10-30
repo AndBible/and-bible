@@ -200,6 +200,11 @@ egress_allow:
   - codeload.github.com:443
   - "*.actions.githubusercontent.com"
   - "*.blob.core.windows.net"
+  # Screenshots and attachments in issues (bug triage and fixing): old inline images,
+  # private rendered images, and github.com/user-attachments redirects to S3
+  - user-images.githubusercontent.com:443
+  - private-user-images.githubusercontent.com:443
+  - github-production-user-asset-6210df.s3.amazonaws.com:443
   # Website (website/): Python packages for uv, YouTube catalog + thumbnails, shop link check
   - pypi.org:443
   - files.pythonhosted.org:443

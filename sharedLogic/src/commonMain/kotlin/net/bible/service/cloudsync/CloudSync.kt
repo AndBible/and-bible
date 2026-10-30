@@ -35,6 +35,8 @@ import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -468,12 +470,16 @@ class CloudSync(
             // freshly created triggers would then log it for upload. The epoch bump freezes saving until
             // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases(replacement) { token ->
-                dbDef.localDb.close()
-                FileSystem.SYSTEM.delete(dbDef.localDbPath.toPath(), mustExist = false) // replace the file, not rewrite it in place
-                FileSystem.SYSTEM.copy(downloaded, dbDef.localDbPath.toPath())
-                runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
-                dbDef.resetLocalDbOwned(token)
-                afterReset()
+                currentCoroutineContext().ensureActive()
+                // Once the live file is touched, reopening and sync-state initialization must finish too.
+                withContext(NonCancellable) {
+                    dbDef.localDb.close()
+                    FileSystem.SYSTEM.delete(dbDef.localDbPath.toPath(), mustExist = false) // replace the file, not rewrite it in place
+                    FileSystem.SYSTEM.copy(downloaded, dbDef.localDbPath.toPath())
+                    runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
+                    dbDef.resetLocalDbOwned(token)
+                    afterReset()
+                }
             }
         } finally {
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a

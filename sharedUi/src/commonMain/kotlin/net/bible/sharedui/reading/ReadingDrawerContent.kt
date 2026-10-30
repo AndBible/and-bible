@@ -27,15 +27,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -76,6 +83,27 @@ private val DrawerHeaderMinHeight = 100.dp
 private val DrawerHeaderTopPadding = 24.dp
 
 /**
+ * The reading view's drawer sheet: [ModalDrawerSheet] at [ReadingDrawerWidth] around [ReadingDrawerContent].
+ * `ReadingHost` mounts exactly this, and the inset tests mount it too, so they see the production layout.
+ *
+ * #3892: the sheet takes no insets itself and hands [windowInsets] to the content instead. As the sheet's
+ * own padding, the status-bar inset sat outside the scrolling column, so a scrolled menu was clipped below an
+ * empty band of the inset's height.
+ */
+@Composable
+fun ReadingDrawerSheet(
+    state: DrawerMenuState,
+    icon: @Composable (iconKey: String) -> Painter?,
+    onItemClick: (id: String) -> Unit,
+    modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+) {
+    ModalDrawerSheet(modifier = modifier.width(ReadingDrawerWidth), windowInsets = WindowInsets(0)) {
+        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick, windowInsets = windowInsets)
+    }
+}
+
+/**
  * The reading view's main navigation drawer content — the Compose port of classic
  * `navigation_drawer_with_footer.xml` (`NavigationView` over `R.menu.main_bible_drawer_menu`
  * + `nav_header_main.xml` header + version-text footer).
@@ -93,13 +121,22 @@ fun ReadingDrawerContent(
     icon: @Composable (iconKey: String) -> Painter?,
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = WindowInsets(0),
 ) {
-    Column(modifier.fillMaxWidth()) {
+    // The top inset is a spacer INSIDE the scrolling column: it clears the status bar at rest and scrolls
+    // away with the header, so rows can move up into the band (#3892). Bottom and side insets stay outside:
+    // the footer must stay above the navigation bar (#3872).
+    Column(
+        modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+    ) {
         Column(
             Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(Modifier.windowInsetsTopHeight(windowInsets))
             ReadingDrawerHeader(appName = state.appName, logo = icon("ic_logo"))
             state.groups.forEachIndexed { index, group ->
                 val title = group.title

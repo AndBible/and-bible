@@ -20,6 +20,8 @@ import org.crosswire.jsword.passage.Key
 import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
 
 class SearchHostTest {
@@ -136,7 +138,7 @@ class SearchHostTest {
 
     @Test
     fun progressSubscriptionWhileAJobIsRunningWaitsForTheRealFinishedEvent() {
-        val job = org.crosswire.common.progress.JobManager.createJob("issue-2632-running-job")
+        val job = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-2632", "Indexing", null)
         var completions = 0
         val stop = host().observeIndexJobs(onJobs = {}, onJobFinished = { completions++ })
         try {
@@ -144,6 +146,28 @@ class SearchHostTest {
         } finally {
             stop()
             job.done()
+        }
+    }
+
+    @Test
+    fun indexObserverExcludesDownloadsButGenericProgressKeepsThem() {
+        val download = org.crosswire.common.progress.JobManager.createJob("Downloading files")
+        val index = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-3911", "Indexing", null)
+        val h = host()
+        var indexLabels = emptyList<String>()
+        var allLabels = emptyList<String>()
+        val stopIndex = h.observeIndexJobs(onJobs = { indexLabels = it.map { row -> row.label } }, onJobFinished = {})
+        val stopAll = h.observeProgressStatusJobs { allLabels = it.map { row -> row.label } }
+        try {
+            // JobManager is a JVM-global registry: jobs left by other tests may be listed too, so assert membership.
+            assertTrue("Indexing" in indexLabels, "index observer must list the index job: $indexLabels")
+            assertFalse("Downloading files" in indexLabels, "index observer must exclude downloads: $indexLabels")
+            assertTrue("Downloading files" in allLabels && "Indexing" in allLabels, "generic progress keeps both: $allLabels")
+        } finally {
+            stopIndex()
+            stopAll()
+            download.done()
+            index.done()
         }
     }
 

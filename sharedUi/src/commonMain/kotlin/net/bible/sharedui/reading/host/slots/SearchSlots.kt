@@ -220,7 +220,7 @@ suspend fun awaitIndexDone(
 /**
  * Whether a job-feed event may resolve the index build the sheet is waiting on. The feed is global
  * (an event fires for EVERY job, a module download included), so the gate is "this job finished AND
- * no job is still running anywhere", not the build's own identity (which no caller ever sees). It
+ * no search-index job is still running", not the event's identity (which may be unrelated). It
  * sits BEFORE the poll because the ~12 s budget lives in one `IndexPollDecision` per build.
  */
 @kotlin.native.HiddenFromObjC

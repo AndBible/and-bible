@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
+  <div ref="scrollRoot" data-multi-root class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
     <div class="strongs-column" v-if="strongsEntries.length > 0">
       <TabNavigation
           v-if="strongsDictionaries.size > 1"
@@ -28,7 +28,7 @@
         <div class="strongs-header">
           <span class="strongs-number">{{ strongsKey }}</span>
         </div>
-        <div v-for="frag in fragments" :key="frag.key" class="strongs-entry">
+        <div v-for="frag in fragments" :key="frag.key" class="strongs-entry" data-multi-fragment>
           <div v-if="fragments.length > 1" class="dict-label">{{ frag.bookAbbreviation }}</div>
           <OsisFragment hide-titles :fragment="frag"/>
         </div>
@@ -46,7 +46,7 @@
           :active-tab="selectedMorphDict ?? ''"
           @tab-change="handleMorphDictChange"
       />
-      <div v-for="frag in filteredMorphFragments" :key="frag.key" class="morph-entry">
+      <div v-for="frag in filteredMorphFragments" :key="frag.key" class="morph-entry" data-multi-fragment>
         <div class="morph-header">
           <span class="morph-code">{{ frag.keyName }}</span>
         </div>
@@ -62,8 +62,12 @@ import OsisFragment from "@/components/documents/OsisFragment.vue";
 import TabNavigation from "@/components/tabs/TabNavigation.vue";
 import type {Tab} from "@/components/tabs/TabContainer.vue";
 import {computed, ref, watch} from "vue";
+import {useMultiDocumentScroll} from "@/composables/multi-document-scroll";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
+
+const scrollRoot = ref<HTMLElement | null>(null);
+useMultiDocumentScroll(scrollRoot);
 
 const props = defineProps<{ document: MultiFragmentDocument }>();
 

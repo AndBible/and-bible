@@ -177,9 +177,12 @@ class CommonUtilsUnlockDocumentTest {
         val lock = manager.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(manager)!!
         synchronized(lock) {
             @Suppress("UNCHECKED_CAST")
-            val states = field.get(manager) as MutableMap<org.crosswire.jsword.book.BookMetaData,
-                ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>
-            states.remove(book.bookMetaData)?.forEach { it.releaseResources() }
+            val states = field.get(manager) as MutableMap<Any, ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>
+            states.values.forEach { pooled ->
+                pooled.removeAll { state ->
+                    (state.getBookMetaData() === book.bookMetaData).also { if (it) state.releaseResources() }
+                }
+            }
         }
     }
 

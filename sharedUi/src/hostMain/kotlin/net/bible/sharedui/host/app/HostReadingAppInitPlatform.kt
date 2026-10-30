@@ -19,6 +19,9 @@
 package net.bible.sharedui.host.app
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import net.bible.android.control.search.revalidateSearchIndexStatuses
 import kotlinx.coroutines.Dispatchers
 import net.bible.service.startup.ExampleLabelNames
 import net.bible.service.startup.ReadingAppInitPlatform
@@ -43,5 +46,8 @@ class HostReadingAppInitPlatform(private val table: StringTable) : ReadingAppIni
 
     override fun workspaceName(n: Int): String = table.fmt("workspace_number", n)
 
-    override fun sweepOrphanSearchIndexes() = Unit
+    /** Nothing to sweep here; the full check of the search indexes of installed documents runs in the background. */
+    override fun sweepOrphanSearchIndexes() {
+        CoroutineScope(Dispatchers.Default).launch { revalidateSearchIndexStatuses() }
+    }
 }

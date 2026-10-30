@@ -38,6 +38,9 @@ import net.bible.android.control.document.DocumentChanges
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
@@ -91,6 +94,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import okio.Path.Companion.toPath
 import org.crosswire.common.util.NetUtil
 import org.crosswire.common.util.KUri
 import org.crosswire.jsword.book.Book
@@ -279,7 +283,13 @@ class BackupControl(
             if (!unpackOldMonolithicDatabase(source, tmpFile)) return@withContext false
             // A running sync may need replacement admission to finish. Never wait for it while owning that gate.
             for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
-            reloadingAfterReplace { DatabaseContainer.replacingDatabases { token -> swapInOldMonolithicDatabase(tmpFile, token) } }
+            reloadingAfterReplace {
+                DatabaseContainer.replacingDatabases { token ->
+                    currentCoroutineContext().ensureActive()
+                    // From the first move aside, either finish or roll back with an active coroutine.
+                    withContext(NonCancellable) { swapInOldMonolithicDatabase(tmpFile, token) }
+                }
+            }
         } finally {
             deleteQuietly(tmpFile)
         }
@@ -997,7 +1007,8 @@ class BackupControl(
      * The zip restore after the user picked the sections: asks every question first ([collectRestoreDecisions]),
      * then closes and overwrites every file to restore in one stretch with no user prompt in between, calls
      * [DatabaseContainer.reset] at once, runs the imports (they need the new container) and finally clears the
-     * restored categories' sync state ([afterRestore]).
+     * restored categories' sync state ([afterRestore]). After replacement admission, cancellation cannot split
+     * this commit or release the replacement gate before finalization; prompts and admission remain cancellable.
      */
     @VisibleForTesting suspend fun restoreSelectedFiles(
         selection: List<String>,
@@ -1006,21 +1017,30 @@ class BackupControl(
     ) = reloadingAfterReplace {
         val plan = collectRestoreDecisions(selection, unzipFolder, prompts)
         DatabaseContainer.replacingDatabases { token ->
-            for ((fileName, f) in plan.toRestore) {
-                Log.i(TAG, "Restoring $fileName")
-                if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
-                val targetFilePath = env.databasePath(fileName)
-                fileSystem.copy(f, targetFilePath.toPath())
-                for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
-                    deleteQuietly("$targetFilePath$leftover".toPath())
+            currentCoroutineContext().ensureActive()
+            withContext(NonCancellable) {
+                try {
+                    for ((fileName, f) in plan.toRestore) {
+                        Log.i(TAG, "Restoring $fileName")
+                        if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
+                        val targetFilePath = env.databasePath(fileName)
+                        fileSystem.copy(f, targetFilePath.toPath())
+                        for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
+                            deleteQuietly("$targetFilePath$leftover".toPath())
+                        }
+                    }
+                    DatabaseContainer.resetOwned(token)
+                    for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance
+                        afterRestore(plan.restoredSelection)
+                    }
+                } catch (e: Throwable) {
+                    // The host may already be destroyed when this fails; the log is the only trace of the half-done commit.
+                    Log.e(TAG, "Zip restore failed while committing ${plan.toRestore.map { it.first }}", e)
+                    throw e
                 }
             }
-            DatabaseContainer.resetOwned(token)
-            for ((category, f) in plan.toImport) importDatabaseFile(category, f)
-        }
-        if (DatabaseContainer.ready) {
-            DatabaseContainer.instance
-            afterRestore(plan.restoredSelection)
         }
     }
 
@@ -1171,6 +1191,42 @@ class BackupControl(
                     throw IOException("Could not write module files: ${errors.joinToString(", ")}")
                 }
             }
+            // Snapshot only the replaced SWORD module's own files, never the whole modules tree.
+            // Do this before publishing: its old DataPath may differ from the new version's.
+            val obsoleteFiles = linkedSetOf<Path>()
+            // Case-insensitive storage (Android external files, macOS, Windows) makes "KJV.conf" and "kjv.conf" one file,
+            // so a path that equals any published path ignoring case is never obsolete.
+            val publishedKeys = HashSet<String>().apply {
+                (staged.keys + staged.values + bufferedConfs.keys).forEach { add(it.toString().lowercase()) }
+            }
+            fun isPublished(path: Path) = path.toString().lowercase() in publishedKeys
+            val dataRoot = (targetDirectory / SwordConstants.DIR_DATA).normalized()
+            val installed = Books.installed().getBooks()
+            for ((conf, bytes) in bufferedConfs) {
+                val incoming = SwordBookMetaData(bytes, conf.name)
+                val previous = installed.firstOrNull { it.initials == incoming.initials } ?: continue
+                if (previous.bookMetaData.driver !is SwordBookDriver) continue
+                val metadata = previous.bookMetaData as? SwordBookMetaData ?: continue
+                val oldDir = metadata.location?.getPath()?.let { it.toPath() }?.normalized()
+                // Restrict deletion to a private module directory beneath modules/, not a shared root or symlink.
+                if (oldDir != null && oldDir != dataRoot && oldDir.toString().startsWith("$dataRoot/") &&
+                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) == oldDir &&
+                    installed.none { other ->
+                        other.initials != previous.initials && other.bookMetaData.location?.getPath()?.let {
+                            val otherDir = it.toPath().normalized()
+                            otherDir == oldDir || otherDir.toString().startsWith("$oldDir/") ||
+                                oldDir.toString().startsWith("$otherDir/")
+                        } == true
+                    }
+                ) {
+                    obsoleteFiles.addAll(fileSystem.listRecursively(oldDir, followSymlinks = false)
+                        .filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
+                        .filter { !isPublished(it) })
+                }
+                metadata.configFile?.let { oldConf ->
+                    if (!isPublished(oldConf) && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
+                }
+            }
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
             // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
             // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
@@ -1197,6 +1253,9 @@ class BackupControl(
                 fileSystem.write(tmp) { write(bytes) }
                 fileSystem.atomicMove(tmp, file)
             }
+            // A failed staging/publish must never remove old files. Only prune after all new confs landed.
+            for (obsolete in obsoleteFiles) runCatching { fileSystem.delete(obsolete, mustExist = false) }
+                .onFailure { Log.w(TAG, "Could not remove obsolete module file $obsolete", it) }
             for (old in asides.values) runCatching { fileSystem.delete(old) }
             asides.clear()
             // One failing EPUB must not stop the others, nor the SWORD registration below: collect and rethrow later.
@@ -1290,17 +1349,21 @@ class BackupControl(
             reloadingAfterReplace {
                 if (syncCategory != null) beforeRestore(syncCategory)
                 DatabaseContainer.replacingDatabases { token ->
-                    if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance.closeForReplaceOwned(dbFileName, token)
-                    }
+                    // Prompts and admission stay cancellable; once the file is deleted the reset must be finished.
+                    currentCoroutineContext().ensureActive()
+                    withContext(NonCancellable) {
+                        if (DatabaseContainer.ready) {
+                            DatabaseContainer.instance.closeForReplaceOwned(dbFileName, token)
+                        }
 
-                    deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
+                        deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
 
-                    DatabaseContainer.resetOwned(token)
-                    if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance
-                        if (syncCategory != null) {
-                            afterRestore(listOf(syncCategory))
+                        DatabaseContainer.resetOwned(token)
+                        if (DatabaseContainer.ready) {
+                            DatabaseContainer.instance
+                            if (syncCategory != null) {
+                                afterRestore(listOf(syncCategory))
+                            }
                         }
                     }
                 }

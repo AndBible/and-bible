@@ -44,6 +44,7 @@ import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.NotificationPermission
+import net.bible.sharedui.search.isSearchIndexJob
 import net.bible.sharedui.search.nav.EpubSearchFormDeps
 import net.bible.sharedui.search.nav.EpubSearchResultsDeps
 import net.bible.sharedui.search.nav.EpubSearchSetup
@@ -349,16 +350,17 @@ class SearchHost(
         shell.hostScope.launch(Dispatchers.Main) {
             onJobs(indexJobSnapshot())
             val job = ev.job
-            if (job.isFinished && finishedIndexJobs.add(job)) onJobFinished()
+            if (job.isSearchIndexJob() && job.isFinished && finishedIndexJobs.add(job)) onJobFinished()
         }
     }
 
-    /** Classic's `refreshJobs()` snapshot. */
-    private fun indexJobSnapshot(): List<ProgressJob> {
+    /** The index sheet filters the generic feed; the download status screen keeps other running jobs. */
+    private fun indexJobSnapshot(indexOnly: Boolean = true): List<ProgressJob> {
         val snapshot = ArrayList<ProgressJob>()
         val it = JobManager.iterator()
         while (it.hasNext()) {
             val job = it.next()
+            if (job.isFinished || (indexOnly && !job.isSearchIndexJob())) continue
             snapshot.add(
                 ProgressJob(
                     id = job.hashCode().toString(),
@@ -380,13 +382,13 @@ class SearchHost(
      * from the activity until its own lift.
      */
     fun observeProgressStatusJobs(onJobs: (List<ProgressJob>) -> Unit): () -> Unit {
-        onJobs(indexJobSnapshot())
+        onJobs(indexJobSnapshot(indexOnly = false))
         val listener = object : WorkListener {
             override fun workProgressed(ev: WorkEvent) {
-                shell.hostScope.launch(Dispatchers.Main) { onJobs(indexJobSnapshot()) }
+                shell.hostScope.launch(Dispatchers.Main) { onJobs(indexJobSnapshot(indexOnly = false)) }
             }
             override fun workStateChanged(ev: WorkEvent) {
-                shell.hostScope.launch(Dispatchers.Main) { onJobs(indexJobSnapshot()) }
+                shell.hostScope.launch(Dispatchers.Main) { onJobs(indexJobSnapshot(indexOnly = false)) }
             }
         }
         JobManager.addWorkListener(listener)
@@ -397,7 +399,10 @@ class SearchHost(
     private val isAllIndexJobsFinished: Boolean
         get() {
             val it = JobManager.iterator()
-            while (it.hasNext()) if (!it.next().isFinished) return false
+            while (it.hasNext()) {
+                val job = it.next()
+                if (job.isSearchIndexJob() && !job.isFinished) return false
+            }
             return true
         }
 

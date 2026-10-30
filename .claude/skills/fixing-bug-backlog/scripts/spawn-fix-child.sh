@@ -20,9 +20,11 @@ Context:
 - Read CLAUDE.md and .jailbee/AGENT-GUIDE.md before builds/tests. Judge against this branch, not current-stable.
 - Before any :app test run: scripts/check-test-sword-modules.sh; if modules are missing, extract .local/testmods.zip into ~/.sword. Never add other modules to ~/.sword.
 - Work: superpowers systematic-debugging -> test-driven-development. Find the root cause first, verify it in the code at HEAD. Write a test that fails before the fix (red), then fix (green). If the bug is already fixed at HEAD or cannot be fixed safely, say so with evidence instead of forcing a change.
-- Keep the change minimal and focused on this issue; no unrelated refactoring. English strings only. If user-visible behaviour changes, update the matching website/content/en/docs page.
+- Fix the root cause in the layer that owns the behaviour (bibleview-js vs Kotlin :app vs the shared modules sharedLogic/sharedUi/sharedCore/jsword). No narrow ad hoc patch for the one reported symptom: check the other entry points and callers that share the root cause.
+- Keep the change focused on this issue; no unrelated refactoring. English strings only. If user-visible behaviour changes, update the matching website/content/en/docs page.
 - Do not re-record Roborazzi goldens; if your change could move a golden, say so in the report (the orchestrator runs the full verify gate).
 - Do not run the full :app verify gate; run only the tests relevant to your change.
+- Independent code review happens on the orchestrator side after your \`done\` (you cannot dispatch reviewers). Do not wait for or ask for a review before sending \`done\`.
 
 Acceptance: $tests
 

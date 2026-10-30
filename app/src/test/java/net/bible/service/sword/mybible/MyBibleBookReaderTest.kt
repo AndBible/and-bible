@@ -25,10 +25,15 @@ import net.bible.service.db.ReadOnlyWalFixture
 import net.bible.service.db.WAL_ONLY_VERSE
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
+import fi.sykero.kdom.Element
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookData
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
+import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
@@ -191,6 +196,105 @@ class MyBibleBookReaderTest {
         assertEquals("<div>first</div>, <div>second</div>", b.readRawContent(state, verse(BibleBook.GEN, 1, 2)))
         assertEquals(1, b.indexOf(verse(BibleBook.GEN, 1, 2)))
         assertEquals(-1, b.indexOf(verse(BibleBook.GEN, 3, 3)))
+    }
+
+    private fun commentary(text: String) = module(
+        "links.commentaries.SQLite3",
+        "CREATE TABLE info (name TEXT, value TEXT)",
+        "CREATE TABLE commentaries (book_number INTEGER, chapter_number_from INTEGER, verse_number_from INTEGER, chapter_number_to INTEGER, verse_number_to INTEGER, text TEXT)",
+        "INSERT INTO commentaries VALUES ($genesis, 1, 1, NULL, NULL, '${text.replace("'", "''")}')",
+    )
+
+    @Test
+    fun commentaryVerseLinksBecomeOsisReferences() {
+        val b = backend(commentary(
+            "See <a href='B:10 1:1'>Genesis</a> and " +
+                "<a class=\"verse\" href = \"B:500 3:16-17\"><i>John</i> 3:16-17</a>.",
+        ))
+        assertEquals(
+            "<div>See <reference osisRef=\"Gen.1.1\">Genesis</reference> and " +
+                "<reference osisRef=\"John.3.16-John.3.17\"><i>John</i> 3:16-17</reference>.</div>",
+            b.readRawContent(state, verse(BibleBook.GEN, 1, 1)),
+        )
+    }
+
+    @Test
+    fun commentaryReferencesSurviveTheBookDataPipeline() {
+        val b = backend(commentary("<a href='B:10 1:1'>Genesis</a> <a href='B:500 3:16-17'>John</a>"))
+        val book = SwordBook(state.getBookMetaData(), b)
+        val fragment = BookData(book, verse(BibleBook.GEN, 1, 1)).osisFragment
+        val references = (fragment.descendants as Iterable<*>).asSequence().filterIsInstance<Element>()
+            .filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") }.toList()
+        assertEquals(listOf("Gen.1.1", "John.3.16-John.3.17"), references)
+    }
+
+    @Test
+    fun commentaryMultiReferenceLinkKeepsOneReferenceThatRoundTrips() {
+        val b = backend(commentary("<a href='B:10 1:1; 2:3'>Gen 1:1; 2:3</a>"))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        val refs = Regex("<reference osisRef=\"([^\"]*)\">([^<]*)</reference>").findAll(raw).toList()
+        assertEquals(raw, 1, refs.size)
+        assertEquals("Gen 1:1; 2:3", refs[0].groupValues[2])
+        val key = PassageKeyFactory.instance().getKey(KJVA, refs[0].groupValues[1])
+        assertEquals(listOf("Gen.1.1", "Gen.2.3"), key.iterator().asSequence().map { (it as Verse).getOsisID() }.toList())
+    }
+
+    @Test
+    fun commentaryMalformedLinkNeverBlanksTheEntry() {
+        // Odd numbers or punctuation must fall back to the plain anchor, whatever the parser throws.
+        val text = "<a href='B:10 99999999999999999999:1'>huge</a> <a href='B:10 1:1-'>dangling</a> <a href='B:10 :::'>colons</a>"
+        val b = backend(commentary(text))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        assertTrue(raw, raw.startsWith("<div>") && raw.contains("huge") && raw.contains("dangling") && raw.contains("colons"))
+    }
+
+    @Test
+    fun commentaryWithoutAnchorsIsReturnedUnchanged() {
+        val b = backend(commentary("plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr>"))
+        assertEquals("<div>plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr></div>", b.readRawContent(state, verse(BibleBook.GEN, 1, 1)))
+    }
+
+    @Test
+    fun commentaryChapterAndCrossChapterLinksBecomeReferences() {
+        val b = backend(commentary(
+            "<A HREF='B:10 1'>chapter</A> <a href='B:10 1:31-2:1'>range</a> " +
+                "<a href='B:170 1:1'>Tobit</a>",
+        ))
+        assertEquals(
+            "<div><reference osisRef=\"Gen.1\">chapter</reference> " +
+                "<reference osisRef=\"Gen.1.31-Gen.2.1\">range</reference> " +
+                "<reference osisRef=\"Tob.1.1\">Tobit</reference></div>",
+            b.readRawContent(state, verse(BibleBook.GEN, 1, 1)),
+        )
+    }
+
+    @Test
+    fun commentaryNonVerseAndInvalidLinksStayUntouched() {
+        val text = "<a href='https://example.org'>web</a> <a href='S:H123'>strong</a> " +
+            "<a href='B:99999 1:1'>unknown book</a> <a href='B:10 nonsense'>invalid</a> " +
+            "<a href='B:10'>incomplete</a> <a data-href='B:10 1:1' href='https://example.org'>data</a> " +
+            "<a title=\"href='B:10 1:1'\" href='https://example.org'>title</a>"
+        val b = backend(commentary(text))
+        assertEquals("<div>$text</div>", b.readRawContent(state, verse(BibleBook.GEN, 1, 1)))
+    }
+
+    @Test
+    fun bibleAndDictionaryVerseLinksUseTheSameConversion() {
+        val bible = backend(bible("UPDATE verses SET text = '<a href=\"B:500 3:16\">John</a>' WHERE verse = 2"))
+        assertEquals(
+            "<reference osisRef=\"John.3.16\">John</reference>",
+            bible.readRawContent(state, verse(BibleBook.GEN, 1, 2)),
+        )
+        val dictionary = backend(module(
+            "links.dictionary.SQLite3",
+            "CREATE TABLE info (name TEXT, value TEXT)",
+            "CREATE TABLE dictionary (topic TEXT, definition TEXT)",
+            "INSERT INTO dictionary VALUES ('love', '<a href=\"B:500 3:16\">John</a>')",
+        ))
+        assertEquals(
+            "<reference osisRef=\"John.3.16\">John</reference>",
+            dictionary.readRawContent(state, DefaultLeafKeyList("love")),
+        )
     }
 
     @Test

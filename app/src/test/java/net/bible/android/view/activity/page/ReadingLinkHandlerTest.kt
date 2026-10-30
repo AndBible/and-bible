@@ -180,6 +180,14 @@ class ReadingLinkHandlerTest {
         assertEquals(listOf("John 3:16", "Romans 5:8"), key.map { (it as BookAndKey).key.getName() })
     }
 
+    @Test fun multiReferenceTitleIsAbbreviatedCompleteAndDeduplicated() {
+        assertTrue(handler.handle("multi://?osis=Eccl.7.29&osis=Gen.1.26&osis=Gen.1.26&v11n=KJV"))
+        val key = shownKey as BookAndKeyList
+        assertEquals("Ecc 7:29, Gen 1:26", key.getName())
+        assertEquals(listOf("Eccl.7.29", "Gen.1.26", "Gen.1.26"),
+            key.map { (it as BookAndKey).key.getOsisRef() })
+    }
+
     @Test fun encodedSpacesInOsisAreDecoded() {
         assertTrue(handler.handle("osis://?osis=%20Gen.1.2%20&v11n=KJV"))
         assertEquals("Genesis 1:2", repo.activeWindow.pageManager.currentPage.singleKey?.getName())

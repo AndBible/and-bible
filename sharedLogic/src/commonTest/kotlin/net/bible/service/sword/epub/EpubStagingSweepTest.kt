@@ -1,9 +1,14 @@
 package net.bible.service.sword.epub
 
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabaseHost
+import net.bible.service.db.FakeDatabaseHost
+import net.bible.service.db.newTestDir
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -13,7 +18,21 @@ class EpubStagingSweepTest {
     private val fs = FileSystem.SYSTEM
     private val root = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "epub-staging-sweep-${kotlin.random.Random.nextLong().toULong()}"
 
-    @AfterTest fun cleanUp() = fs.deleteRecursively(root, mustExist = false)
+    private var previousHost: DatabaseHost? = null
+    private lateinit var dbDir: String
+
+    /** The sweep drops app databases through the global [DatabaseContainer.host]; put back what was installed. */
+    @BeforeTest fun installHost() {
+        previousHost = try { DatabaseContainer.host } catch (_: IllegalStateException) { null }
+        dbDir = newTestDir()
+        DatabaseContainer.installHost(FakeDatabaseHost(dbDir))
+    }
+
+    @AfterTest fun cleanUp() {
+        previousHost?.let { DatabaseContainer.installHost(it) }
+        fs.deleteRecursively(dbDir.toPath(), mustExist = false)
+        fs.deleteRecursively(root, mustExist = false)
+    }
 
     private fun write(file: Path, text: String) {
         fs.createDirectories(file.parent!!)
@@ -77,15 +96,63 @@ class EpubStagingSweepTest {
         assertEquals(emptyList(), leftovers())
     }
 
-    /** A crash after the new module was moved in: the aside is stale and only removed. */
-    @Test fun sweepDropsACrashedAsideWhenItsModuleIsPresent() {
+    /** A storage error during a sweep must not remove the old module it could not restore. */
+    @Test fun sweepKeepsAnAsideWhenItsRestoreFails() {
+        val aside = root / "${EPUB_ASIDE_PREFIX}crashed"
+        write(aside / "book.epub" / "content.opf", "old")
+        write(root / "epub", "not a directory")
+
+        sweepStaleEpubStagingDirs(root)
+
+        assertEquals("old", read(aside / "book.epub" / "content.opf"))
+        fs.delete(root / "epub")
+        sweepStaleEpubStagingDirs(root)
+        assertEquals("old", read(root / "epub" / "book.epub" / "content.opf"))
+        assertEquals(emptyList(), leftovers())
+    }
+
+    /** A crash after moving the new tree in is not proof that its registration succeeded. */
+    @Test fun sweepRestoresAnUncommittedAsideEvenWhenItsModuleIsPresent() {
         write(root / "${EPUB_ASIDE_PREFIX}crashed" / "book.epub" / "content.opf", "old")
+        write(root / "epub" / "book.epub" / "content.opf", "new")
+
+        sweepStaleEpubStagingDirs(root)
+
+        assertEquals("old", read(root / "epub" / "book.epub" / "content.opf"))
+        assertEquals(emptyList(), leftovers())
+    }
+
+    /** Once registration committed, a crash during cleanup must not undo the successful update. */
+    @Test fun sweepDropsACommittedOldTree() {
+        // Successful publication moves the obsolete aside into a staging-named trash tree atomically.
+        val trash = root / "${EPUB_STAGING_PREFIX}committed"
+        write(trash / "book.epub" / "content.opf", "old")
         write(root / "epub" / "book.epub" / "content.opf", "new")
 
         sweepStaleEpubStagingDirs(root)
 
         assertEquals("new", read(root / "epub" / "book.epub" / "content.opf"))
         assertEquals(emptyList(), leftovers())
+    }
+
+    /**
+     * #3914 review: a crash after the new module registered but before the aside was dropped leaves the new module's app
+     * database behind. The restored old module would reuse it, so the sweep drops it first.
+     */
+    @Test fun sweepDropsTheNewModulesAppDatabaseBeforeRestoringTheAside() {
+        val appDb = "$dbDir/epub-${epubInitials("book.epub")}.sqlite3".toPath()
+        val unrelatedDb = "$dbDir/epub-${epubInitials("other.epub")}.sqlite3".toPath()
+        for (db in listOf(appDb, unrelatedDb)) fs.write(db) { writeUtf8("new module data") }
+        fs.write("$appDb-wal".toPath()) { writeUtf8("wal") }
+        write(root / "${EPUB_ASIDE_PREFIX}crashed" / "book.epub" / "content.opf", "old")
+        write(root / "epub" / "book.epub" / "content.opf", "new")
+
+        sweepStaleEpubStagingDirs(root)
+
+        assertEquals("old", read(root / "epub" / "book.epub" / "content.opf"))
+        assertFalse(fs.exists(appDb), "the new module's app database must not be reused by the restored module")
+        assertFalse(fs.exists("$appDb-wal".toPath()))
+        assertTrue(fs.exists(unrelatedDb), "other modules' databases are untouched")
     }
 
     /** #3005 review: a rollback whose delete of the new files failed must still put the old module back. */
