@@ -42,3 +42,15 @@ class EvalProbeEngine(private val inner: DesktopWebEngine, private val dir: Path
         }
     }
 }
+
+/**
+ * Live-check helper (`andbible.w2.inputScript=true`): adds the D3a reading-input page script, which the PoC root does not
+ * pass, and prints every bridge message it posts (`[input] <pane> <message>`), so the D3a contract can be checked on the PoC.
+ */
+class InputScriptEngine(private val inner: DesktopWebEngine) : DesktopWebEngine by inner {
+    override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane =
+        inner.createPane(id, url, documentStartScripts + net.bible.sharedui.desktop.reading.DesktopInputScript.compose()) { text ->
+            if (text.contains("desktop")) println("[input] $id ${text.take(200)}")
+            onMessage(text)
+        }
+}

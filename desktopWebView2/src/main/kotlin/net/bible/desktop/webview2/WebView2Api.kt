@@ -104,6 +104,12 @@ object Wv2 {
     object ResourceArgs {
         const val get_Request = 3
         const val put_Response = 5
+        const val GetDeferral = 6
+    }
+
+    /** ICoreWebView2Deferral. */
+    object Deferral {
+        const val Complete = 3
     }
 
     object Request {

@@ -80,17 +80,39 @@ internal class WebView2Pane(
     private var rendererGone: (() -> Unit)? = null
     private var cursor by mutableStateOf<PointerIcon>(PointerIcon.Default)
 
-    private val evalTimer by lazy { Timer("webview2-eval-$id", true) }
     private val replies = EvalReplies(
         deliver = { SwingUtilities.invokeLater(it) },
         scheduleTimeout = { delay, task -> evalTimer.schedule(object : TimerTask() { override fun run() = task.run() }, delay) },
     )
 
+    /** The Compose density, applied as the rasterization scale (also when the controller is created later). */
+    @Volatile
+    private var scale = 1.0
+
     private data class Bounds(val x: Int, val y: Int, val w: Int, val h: Int)
 
     init {
         backgroundArgb = if (url.contains("night=true")) NIGHT_BACKGROUND else null
-        sta.post { create() }
+        sta.post { guarded("create") { create() } }
+    }
+
+    /**
+     * Runs a creation step; a failure leaves the pane unusable, so it is reported like a renderer loss (the owner recreates
+     * the pane) and pending evaluates are answered, instead of a blank pane that only logs.
+     */
+    private fun guarded(what: String, block: () -> Unit) {
+        try {
+            block()
+        } catch (t: Throwable) {
+            failCreation("$what failed: $t")
+        }
+    }
+
+    private fun failCreation(reason: String) {
+        log(reason)
+        whenReady.clear()
+        replies.failAll()
+        rendererGone?.let { l -> SwingUtilities.invokeLater { if (!disposed) l() } }
     }
 
     private fun create() {
@@ -108,11 +130,11 @@ internal class WebView2Pane(
             ComCallback(Wv2.Iids.CreateCompositionControllerCompleted) { hr, ptr ->
                 val code = ComCallback.hresult(hr)
                 if (code < 0 || ptr == null) {
-                    log("composition controller failed: ${hresultString(code)}")
+                    failCreation("composition controller failed: ${hresultString(code)}")
                 } else if (disposed) {
                     ComPtr(ptr).query(Wv2.Iids.Controller2)?.let { it.call(Wv2.Controller.Close); it.release() }
                 } else {
-                    onControllerCreated(ComPtr(ptr).also { it.addRef() })
+                    guarded("controller setup") { onControllerCreated(ComPtr(ptr).also { it.addRef() }) }
                 }
                 S_OK
             }.use { handler -> env3.check(Wv2.Env.CreateCoreWebView2CompositionController, "CreateCoreWebView2CompositionController", h.pointer, handler) }
@@ -125,8 +147,12 @@ internal class WebView2Pane(
         composition = comp
         comp.check(Wv2.Composition.put_RootVisualTarget, "put_RootVisualTarget", visual!!.ptr)
         dcomp!!.check(Wv2.Dcomp.Commit, "IDCompositionDevice::Commit")
-        val ctl = comp.query(Wv2.Iids.Controller3) ?: comp.query(Wv2.Iids.Controller2) ?: error("ICoreWebView2Controller2 missing")
+        // Runtime >= RuntimeCheck.MIN_MAJOR always has Controller3 (the rasterization scale lives there).
+        val ctl = comp.query(Wv2.Iids.Controller3) ?: error("ICoreWebView2Controller3 missing")
         controller = ctl
+        // The scale is Compose's density, not the monitor's as WebView2 would track it on its own.
+        ctl.call(Wv2.Controller.put_ShouldDetectMonitorScaleChanges, 0)
+        ctl.call(Wv2.Controller.put_RasterizationScale, scale)
         backgroundArgb?.let { applyBackground(ctl, it) }
         applyBounds()
         // Created while the host was parked (hidden): the page starts hidden. attach() may have run before the controller
@@ -226,18 +252,35 @@ internal class WebView2Pane(
         }.use { comp.check(Wv2.Composition.add_CursorChanged, "add_CursorChanged", it, token) }
     }
 
+    /**
+     * Answers a resource request with a deferral: the file is read on a worker thread (a slow disk must not stall the STA
+     * thread, nor through the attached input queues the AWT thread), the response is built and completed on the STA thread.
+     */
     private fun serve(args: ComPtr) {
         val request = args.getPtr(Wv2.ResourceArgs.get_Request) ?: return
         val uri = try { request.getString(Wv2.Request.get_Uri) } finally { request.release() } ?: return
-        val response = router.respond(uri) ?: return
-        val stream = Win32.memStream(response.body)
-        try {
-            val out = runtime.environment.getPtr(
-                Wv2.Env.CreateWebResourceResponse, stream.ptr, response.status, WString(response.reason), WString(response.headers),
-            ) ?: return
-            try { args.call(Wv2.ResourceArgs.put_Response, out.ptr) } finally { out.release() }
-        } finally {
-            stream.release()
+        val deferral = args.getPtr(Wv2.ResourceArgs.GetDeferral) ?: return
+        args.addRef()
+        resourceReader.execute {
+            val response = try { router.respond(uri) } catch (t: Throwable) { log("serving $uri failed: $t"); null }
+            sta.post {
+                try {
+                    if (response != null) {
+                        val stream = Win32.memStream(response.body)
+                        try {
+                            runtime.environment.getPtr(
+                                Wv2.Env.CreateWebResourceResponse, stream.ptr, response.status, WString(response.reason), WString(response.headers),
+                            )?.let { out -> try { args.call(Wv2.ResourceArgs.put_Response, out.ptr) } finally { out.release() } }
+                        } finally {
+                            stream.release()
+                        }
+                    }
+                } finally {
+                    deferral.call(Wv2.Deferral.Complete)
+                    deferral.release()
+                    args.release()
+                }
+            }
         }
     }
 
@@ -267,10 +310,21 @@ internal class WebView2Pane(
         DisposableEffect(window) {
             val frame = window?.let { WinDef.HWND(Native.getComponentPointer(it)) }
             if (frame != null) sta.post { attach(frame) }
-            onDispose { sta.post { detach() } }
+            // A moved frame changes no Compose layout, but WebView2 needs it for IME candidate and accessibility positions.
+            val moves = object : java.awt.event.ComponentAdapter() {
+                override fun componentMoved(e: java.awt.event.ComponentEvent?) {
+                    sta.post { controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged) }
+                }
+            }
+            window?.addComponentListener(moves)
+            onDispose {
+                window?.removeComponentListener(moves)
+                sta.post { detach() }
+            }
         }
         DisposableEffect(density) {
-            sta.post { controller?.call(Wv2.Controller.put_RasterizationScale, density.toDouble()) }
+            scale = density.toDouble()
+            sta.post { controller?.call(Wv2.Controller.put_RasterizationScale, scale) }
             onDispose { }
         }
         Box(
@@ -416,7 +470,7 @@ internal class WebView2Pane(
     override fun dispose() {
         if (disposed) return
         disposed = true
-        replies.failAll()
+        replies.close()
         sta.post {
             whenReady.clear()
             controller?.call(Wv2.Controller.Close)
@@ -426,13 +480,20 @@ internal class WebView2Pane(
             parking?.let { Win32.destroyWindow(it) }
             host = null; parking = null
         }
-        evalTimer.cancel()
     }
 
     /** The browser process id (for measurements), or null before creation. */
     fun browserProcessId(): Int? = runCatching { sta.call { webView?.getInt(Wv2.WebView.get_BrowserProcessId) } }.getOrNull()
 
     private companion object {
+        /** Evaluate timeouts of all panes; never cancelled (a pane's dispose answers its own pending calls). */
+        val evalTimer = Timer("webview2-eval", true)
+
+        /** Reads bundle files and page assets off the STA thread. */
+        val resourceReader: java.util.concurrent.ExecutorService = java.util.concurrent.Executors.newFixedThreadPool(2) { r ->
+            Thread(r, "webview2-resources").apply { isDaemon = true }
+        }
+
         const val WHEEL_DELTA = 120
         const val IDC_IBEAM = 32513
         const val IDC_HAND = 32649

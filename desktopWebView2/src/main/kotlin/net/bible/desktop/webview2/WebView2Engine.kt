@@ -93,6 +93,10 @@ class WebView2Engine private constructor(
             pageAssets: DesktopPageAssets = DesktopPageAssets.None,
             browserArguments: String? = null,
         ): Result<WebView2Engine> {
+            // The by-value struct marshalling (RECT by hidden pointer, POINT in one register) is the x64 ABI's.
+            if (System.getProperty("os.arch") !in setOf("amd64", "x86_64")) {
+                return Result.failure(WebView2UnavailableException("the WebView2 engine supports Windows x64 only"))
+            }
             val loader = try {
                 Native.load("WebView2Loader", WebView2LoaderLibrary::class.java)
             } catch (t: Throwable) {
@@ -108,8 +112,8 @@ class WebView2Engine private constructor(
                     Files.createDirectories(folder)
                     ComCallback(Wv2.Iids.CreateEnvironmentCompleted) { hr, env ->
                         val code = ComCallback.hresult(hr)
-                        env?.let { ComPtr(it).addRef() }
-                        done(code, env?.let(::ComPtr))
+                        if (code >= 0) env?.let { ComPtr(it).addRef() }
+                        done(code, if (code >= 0) env?.let(::ComPtr) else null)
                         S_OK
                     }.use { handler -> loader.CreateCoreWebView2EnvironmentWithOptions(null, WString(folder.toString()), null, handler) }
                 }.start { result.complete(it) }

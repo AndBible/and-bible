@@ -40,6 +40,7 @@ object Win32 {
     private const val WS_VISIBLE = 0x10000000
     private const val WS_CLIPSIBLINGS = 0x04000000
     private const val WS_POPUP = 0x80000000.toInt()
+    private const val WS_EX_NOPARENTNOTIFY = 0x4
     private const val COINIT_APARTMENTTHREADED = 0x2
     const val SWP_NOACTIVATE = 0x0010
     const val SWP_NOZORDER = 0x0004
@@ -84,8 +85,9 @@ object Win32 {
             registerClass(HOST_CLASS, defProc)
             hostClassRegistered = true
         }
+        // WS_EX_NOPARENTNOTIFY: no synchronous WM_PARENTNOTIFY to the AWT thread when the host is created or destroyed.
         val hwnd = user32.CreateWindowEx(
-            0, HOST_CLASS, "", WS_CHILD or WS_CLIPSIBLINGS, 0, 0, 1, 1, parent, null, Kernel32.INSTANCE.GetModuleHandle(null), null,
+            WS_EX_NOPARENTNOTIFY, HOST_CLASS, "", WS_CHILD or WS_CLIPSIBLINGS, 0, 0, 1, 1, parent, null, Kernel32.INSTANCE.GetModuleHandle(null), null,
         ) ?: error("CreateWindowEx(host) failed: ${Kernel32.INSTANCE.GetLastError()}")
         return hwnd
     }

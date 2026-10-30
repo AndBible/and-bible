@@ -158,6 +158,9 @@ class ComCallback(private val iid: Iid, private val onInvoke: (a: Pointer?, b: P
     companion object {
         private val live: MutableSet<ComCallback> = Collections.synchronizedSet(HashSet())
 
+        /** Whether [callback] is still kept reachable (its reference count is above zero). */
+        internal fun isLive(callback: ComCallback): Boolean = callback in live
+
         /** An HRESULT passed in a pointer-sized argument. */
         fun hresult(p: Pointer?): Int = Pointer.nativeValue(p).toInt()
     }

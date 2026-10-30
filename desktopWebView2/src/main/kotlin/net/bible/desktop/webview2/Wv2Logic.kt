@@ -132,14 +132,30 @@ class EvalReplies(
     private val lock = Any()
     private val pending = HashMap<Long, (String) -> Unit>()
     private val nextId = AtomicLong(1)
+    private var closed = false
 
     val pendingCount: Int get() = synchronized(lock) { pending.size }
 
+    /** Registers [callback]; after [close] it is answered with [NO_RESULT] at once (an evaluate racing dispose). */
     fun register(callback: (String) -> Unit): Long {
         val id = nextId.getAndIncrement()
-        synchronized(lock) { pending[id] = callback }
-        scheduleTimeout(timeoutMs, Runnable { answer(id, NO_RESULT) })
+        val open = synchronized(lock) { if (!closed) pending[id] = callback; !closed }
+        if (!open) {
+            dispatch(callback, NO_RESULT)
+            return id
+        }
+        try {
+            scheduleTimeout(timeoutMs, Runnable { answer(id, NO_RESULT) })
+        } catch (t: Throwable) {
+            answer(id, NO_RESULT)
+        }
         return id
+    }
+
+    /** Dispose: answers everything pending and every later [register] with [NO_RESULT]. */
+    fun close() {
+        synchronized(lock) { closed = true }
+        failAll()
     }
 
     /** `ExecuteScript` completed: a failed [hr] or a null result gives [NO_RESULT]. */

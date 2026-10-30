@@ -40,6 +40,7 @@ import kotlin.system.exitProcess
 /**
  * Starts the desktop PoC on the WebView2 engine (W2 experiment, Windows only). The scenario, theme and spike diagnostics come
  * from the `andbible.poc.*` properties ([PocLaunchOptions]), as in `:desktopApp`. Extra W2 switches:
+ * - `andbible.w2.app=true`: the real app instead of the PoC ([appMain]);
  * - `andbible.w2.drawer=true`: an in-window Compose "drawer" over the left pane, with a text field and a click counter
  *   (the overlay-input check);
  * - `andbible.w2.userData=<dir>`: the user data folder (default `%LOCALAPPDATA%\AndBible\cache\webview2`);
@@ -48,6 +49,7 @@ import kotlin.system.exitProcess
  * `WebView2Loader.dll` must be on the JNA library path (`-Djna.library.path=<dir>`).
  */
 fun main() {
+    if (System.getProperty("andbible.w2.app") == "true") return appMain()
     if (!System.getProperty("os.name").startsWith("Windows")) fail("the WebView2 engine runs on Windows only")
     // Compose renders its canvas with alpha, so the cleared pane areas show the WebView2 visuals below it.
     System.setProperty("compose.interop.blending", "true")
@@ -61,6 +63,7 @@ fun main() {
     if (options.spikeLog) spikeLog("webview2 environment ready, runtime ${engine.version}")
     val session = DesktopWebSession(
         engine = (if (options.spikeLog) SpikeTimingEngine(engine) else engine)
+            .let { e -> if (System.getProperty("andbible.w2.inputScript") == "true") InputScriptEngine(e) else e }
             .let { e -> System.getProperty("andbible.w2.evalDir")?.let { EvalProbeEngine(e, Paths.get(it)) } ?: e },
         shutdownEngine = engine::shutdown,
         cleanUp = { bundleRoot.toFile().deleteRecursively() },

@@ -204,6 +204,54 @@ class WebView2EngineLogicTest {
         )
         assertEquals(0, replies.pendingCount)
         assertNotNull(pendingAtNavigation)
+
+        // Dispose racing an evaluate: after close() a registration is answered at once, without a timer.
+        val timersBefore = timeouts.size
+        val beforeClose = replies.register(cb("beforeClose"))
+        replies.close()
+        replies.register(cb("afterClose"))
+        replies.complete(beforeClose, S_OK, "1")
+        flush()
+        assertEquals<List<String>?>(listOf(EvalReplies.NO_RESULT), answers["beforeClose"])
+        assertEquals<List<String>?>(listOf(EvalReplies.NO_RESULT), answers["afterClose"])
+        assertEquals(timersBefore + 1, timeouts.size)
+
+        // A timer that cannot be scheduled (cancelled) answers instead of throwing to the caller.
+        val broken = EvalReplies(deliver = { it.run() }, scheduleTimeout = { _, _ -> throw IllegalStateException("Timer already cancelled.") })
+        var got: String? = null
+        broken.register { got = it }
+        assertEquals(EvalReplies.NO_RESULT, got)
+    }
+
+    // ---- COM objects implemented in Kotlin (JNA callbacks work on Linux too) ----
+
+    @Test
+    fun comCallbackAnswersOnlyItsInterfacesAndLivesUntilReleased() {
+        val iid = Iid("57213f19-00e6-49fa-8e07-898ea01ecbd2")
+        val seen = ArrayList<Long>()
+        val callback = ComCallback(iid) { a, b ->
+            seen += com.sun.jna.Pointer.nativeValue(a)
+            seen += ComCallback.hresult(b).toLong()
+            S_OK
+        }
+        val obj = ComPtr(callback.pointer)
+
+        // QueryInterface: IUnknown and its own IID (each adds a reference), nothing else.
+        val asUnknown = obj.query(Iid.IUnknown)
+        val asOwn = obj.query(iid)
+        assertNotNull(asUnknown)
+        assertNotNull(asOwn)
+        assertEquals(com.sun.jna.Pointer.nativeValue(callback.pointer), com.sun.jna.Pointer.nativeValue(asOwn.ptr))
+        assertNull(obj.query(Iid("00000003-0000-0000-C000-000000000046"))) // IMarshal: never
+        assertEquals(S_OK, obj.call(3, com.sun.jna.Pointer(1234), com.sun.jna.Pointer(0x80070005L)))
+        assertEquals(listOf(1234L, 0x80070005.toInt().toLong()), seen)
+
+        // Creator's reference + 2 from QueryInterface + AddRef: alive until the last release.
+        callback.use { }
+        obj.addRef()
+        repeat(2) { obj.release(); assertTrue(ComCallback.isLive(callback)) }
+        obj.release()
+        assertFalse(ComCallback.isLive(callback))
     }
 
     // ---- Resources ----
