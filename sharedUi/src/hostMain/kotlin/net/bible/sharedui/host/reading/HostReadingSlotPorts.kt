@@ -39,6 +39,7 @@ import net.bible.sharedui.reading.host.slots.ReadingKeyChooserPage
 import net.bible.sharedui.reading.host.slots.ReadingQuickActions
 import net.bible.sharedui.reading.host.slots.ReadingSearchPlatform
 import net.bible.sharedui.reading.host.slots.SearchIndexJobs
+import net.bible.sharedui.search.isSearchIndexJob
 import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
@@ -184,7 +185,7 @@ internal class HostReadingSearchPlatform(
     }
 }
 
-/** iOS [SearchIndexJobs]: JSword's global `JobManager`, keyed by the job's own id (there is no identity hash). */
+/** iOS/desktop [SearchIndexJobs]: running index jobs, keyed by the job's own id. */
 internal class HostSearchIndexJobs : SearchIndexJobs {
     override fun subscribe(onEvent: (job: Any, isFinished: () -> Boolean) -> Unit): () -> Unit {
         val listener = object : WorkListener {
@@ -200,6 +201,7 @@ internal class HostSearchIndexJobs : SearchIndexJobs {
         val it = JobManager.iterator()
         while (it.hasNext()) {
             val job = it.next()
+            if (job.isFinished || !job.isSearchIndexJob()) continue
             jobs.add(ProgressJob(id = job.jobID, label = job.jobName, percent = job.work, indeterminate = job.work == 0))
         }
         return jobs
@@ -207,7 +209,10 @@ internal class HostSearchIndexJobs : SearchIndexJobs {
 
     override fun isEveryJobFinished(): Boolean {
         val it = JobManager.iterator()
-        while (it.hasNext()) if (!it.next().isFinished) return false
+        while (it.hasNext()) {
+            val job = it.next()
+            if (job.isSearchIndexJob() && !job.isFinished) return false
+        }
         return true
     }
 }

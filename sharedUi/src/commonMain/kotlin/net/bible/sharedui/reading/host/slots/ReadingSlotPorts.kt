@@ -121,9 +121,9 @@ interface SearchIndexJobs {
     /** Starts delivering work events to [onEvent]; the returned function stops it. */
     fun subscribe(onEvent: (job: Any, isFinished: () -> Boolean) -> Unit): () -> Unit
 
-    /** A snapshot of every running job as progress rows. */
+    /** A snapshot of running search-index jobs (SWORD or EPUB), excluding unrelated downloads. */
     fun snapshot(): List<ProgressJob>
 
-    /** Whether no job is running anywhere. */
+    /** Whether no search-index job is running; unrelated downloads do not keep an index build alive. */
     fun isEveryJobFinished(): Boolean
 }

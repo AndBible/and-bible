@@ -130,7 +130,9 @@ background and shows a notification until it has finished. You can leave Search 
 continues. Opening Search again for the same document shows the indexing progress rather than
 asking you to create the index again. This also applies when the document's index is queued behind
 another build, or when you start a search from selected text. If the index has already finished,
-Search continues to the search form or runs the query you were waiting for.
+Search continues to the search form or runs the query you were waiting for. The progress sheet
+shows only running search-index jobs and updates as they progress; unrelated downloads and
+finished jobs are not listed.
 
 An empty, damaged or outdated SWORD search index is treated as needing a rebuild, including when
 searching from links or AI tools. If any verse cannot be read during indexing, the incomplete new

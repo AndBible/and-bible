@@ -43,6 +43,40 @@ class ReadingSearchHostLogicTest {
         SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, isEpub = false, indexDone = false)
 
     @Test
+    fun realJobFeedShowsOnlyRunningIndexJobsAndRefreshesTheSheetOnWorkEvents() {
+        val feed = net.bible.sharedui.host.reading.HostSearchIndexJobs()
+        val download = org.crosswire.common.progress.JobManager.createJob("Downloading files")
+        val index = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-KJV", "Indexing KJV", null)
+        val finished = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-OLD", "Old index", null)
+        val epub = org.crosswire.common.progress.JobManager.createJob("index-creation-/tmp/epub", "Indexing EPUB", null)
+        val f = SearchFixture(indexJobs = feed)
+        try {
+            download.beginJob("Download")
+            finished.isNotifyUser = false
+            finished.done()
+            index.beginJob("Indexing")
+            index.work = 12
+            f.platform.info = unindexedBible
+            f.platform.current!!.indexStatus = IndexStatus.CREATING
+            f.platform.documents["KJV"] = f.platform.current!!
+            f.state.openSearch()
+            assertEquals(listOf("Indexing KJV", "Indexing EPUB"), f.state.searchIndexProgress.jobs.value.map { it.label })
+            assertEquals(12, f.state.searchIndexProgress.jobs.value.first().percent)
+
+            index.work = 64
+            assertEquals(64, f.state.searchIndexProgress.jobs.value.first().percent)
+            epub.done()
+            // Completion listeners run before JobManager removes a job: the feed must filter isFinished too.
+            index.done()
+            assertTrue(f.state.searchIndexProgress.jobs.value.isEmpty())
+            assertTrue(feed.isEveryJobFinished(), "a download must not count as an active index build")
+        } finally {
+            f.state.dispose()
+            listOf(download, index, finished, epub).forEach { it.isNotifyUser = true; it.done() }
+        }
+    }
+
+    @Test
     fun reopeningSearchKeepsTheRunningIndexAndItsWaitingQuery() {
         val f = SearchFixture()
         f.platform.info = unindexedBible
