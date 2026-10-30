@@ -60,10 +60,10 @@ class DesktopSyncDriverTest {
         startSync = { f.startedPasses++; f.startSync() },
     )
 
-    private fun driver(f: Fixture, closeWaitMs: Long = 9_000) = DesktopSyncDriver(
+    private fun driver(f: Fixture, closeWaitMs: Long = 9_000, external: () -> kotlinx.coroutines.Job? = { null }) = DesktopSyncDriver(
         policy = policy(f), closePass = { f.closePasses++; f.closeResult }, exitTasks = f.exitTasks, events = f.events,
         scope = f.scope.backgroundScope, awaitReady = { f.ready.await() }, closeWaitMs = closeWaitMs,
-        databasesReady = { f.databasesReady },
+        databasesReady = { f.databasesReady }, externalPass = external,
     )
 
     @Test fun startPassRunsOnceAfterReady() = runTest {
@@ -263,5 +263,53 @@ class DesktopSyncDriverTest {
         advanceTimeBy(150); runCurrent()
         assertTrue(returned)
         assertEquals(2, opens)
+    }
+
+    @Test fun closeAlsoWaitsForAPassStartedOutsideTheDriver() = runTest {
+        val external = CompletableDeferred<Boolean>()
+        val f = fixture { CompletableDeferred(true) }
+        driver(f, external = { external.takeIf { it.isActive } }); f.ready.complete(Unit)
+        runCurrent()
+        backgroundScope.launch { delay(3_000); external.complete(true) }
+        val before = currentTime
+        assertTrue(f.exitTasks.runAll(10_000))
+        assertEquals(3_000L, currentTime - before, "waited for the external pass")
+        assertEquals(1, f.closePasses, "then the close pass ran")
+    }
+
+    @Test fun aPassThatSawTheStopBeforeItBeganDoesNotCountAsTheRunningPass() = runTest {
+        // A scope whose work is queued by hand, so the exit can arrive between launching a pass and its taking the lock.
+        val queue = ArrayDeque<Runnable>()
+        val manual = object : kotlinx.coroutines.CoroutineDispatcher() {
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { queue.add(block) }
+        }
+        fun drain() { while (queue.isNotEmpty()) queue.removeFirst().run() }
+        val f = fixture { CompletableDeferred(true) }
+        val ready = CompletableDeferred(Unit)
+        DesktopSyncDriver(
+            policy(f), { f.closePasses++; true }, f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
+            awaitReady = { ready.await() }, databasesReady = { true },
+        )
+        queue.removeFirst().run()     // only the loop starts: it launches its first pass, which is queued, not yet run
+        f.events.emit(DesktopLifecycleEvent.Background)
+        val exit = backgroundScope.launch { f.exitTasks.runAll(10_000) }
+        runCurrent()                  // the exit task joins the queued pass
+        drain(); runCurrent(); drain(); runCurrent()
+        exit.join()
+        assertEquals(0, f.startedPasses, "the pass saw the stop and did nothing")
+        assertEquals(1, f.closePasses, "so the close pass still ran")
+    }
+
+    @Test fun closePassSignsInWhenTheSessionIsNotSignedInYet() = runTest {
+        var pushed = 0
+        suspend fun run(signedIn: Boolean, signIn: Boolean?, changes: Boolean = true, enabled: Boolean = true) = runClosePass(
+            enabled = { enabled }, signedIn = { signedIn }, signIn = { signIn }, hasChanges = { changes }, push = { pushed++; true },
+        )
+        assertEquals(true, run(signedIn = false, signIn = true)); assertEquals(1, pushed)
+        assertEquals(true, run(signedIn = true, signIn = null)); assertEquals(2, pushed, "no sign-in needed when signed in")
+        assertEquals(null, run(signedIn = false, signIn = false)); assertEquals(null, run(signedIn = false, signIn = null))
+        assertEquals(null, run(signedIn = true, signIn = true, changes = false))
+        assertEquals(null, run(signedIn = true, signIn = true, enabled = false))
+        assertEquals(2, pushed)
     }
 }

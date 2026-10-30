@@ -43,6 +43,8 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.secrets.DesktopSecretStore
+import net.bible.sharedcore.platform.desktop.secrets.JavaKeyringBackend
+import net.bible.sharedcore.platform.desktop.secrets.KeyringBackend
 import net.bible.sharedcore.platform.desktop.sync.DesktopBackgroundRefresh
 import net.bible.sharedcore.platform.desktop.sync.DesktopSyncScheduler
 import net.bible.sharedcore.platform.files.FileDelivery
@@ -83,6 +85,24 @@ fun desktopSyncNamespace(versionName: String?, suffixOverride: String?): String 
 }
 
 /**
+ * The on-close push: only when sync is on, the session is signed in (non-interactive sign-in is attempted first: a quick restart
+ * skips the start pass's sign-in because the last sync is within the interval) and there are local changes. Null means "nothing
+ * done".
+ */
+internal suspend fun runClosePass(
+    enabled: () -> Boolean,
+    signedIn: () -> Boolean,
+    signIn: suspend () -> Boolean?,
+    hasChanges: suspend () -> Boolean,
+    push: suspend () -> Boolean,
+): Boolean? {
+    if (!enabled()) return null
+    if (!signedIn() && signIn() != true) return null
+    if (!hasChanges()) return null
+    return push()
+}
+
+/**
  * Suspends until sync can really work. `DatabaseContainer.ready` is set BEFORE the container is built and migrated, so it is
  * not enough: [open] (reading `DatabaseContainer.instance`) must also succeed, and [isReady] must still hold after it. The
  * binding's [isReady] also requires the app to be initialised, because the desktop `AppSettings` booleans answer their
@@ -107,11 +127,11 @@ internal fun desktopCertificateDate(epochMs: Long): String =
  * on-close passes. `BackupHost` is the hoisted [IosBackupHost] over the `FilePicker` and `FileDelivery` ports that the
  * document stream (D3b) binds. A NEW module is built per call. Everything that needs the open databases is resolved lazily.
  */
-fun desktopSyncModule(): Module = module {
+fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend() }): Module = module {
     single {
         CloudSyncNamespace(desktopSyncNamespace(System.getProperty("andbible.version"), System.getProperty("andbible.syncNamespaceSuffix")))
     }
-    single<SecretStore> { DesktopSecretStore.create(get<DeviceLocalPrefs>()) }
+    single<SecretStore> { DesktopSecretStore.create(get<DeviceLocalPrefs>(), secretBackend) }
     single<SyncSettingsPlatform> {
         DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), get<IosSyncStrings>().webDavServerUrlHint)
     }
@@ -149,6 +169,8 @@ fun desktopSyncModule(): Module = module {
         val scheduler = get<SyncScheduler>() as DesktopSyncScheduler
         // Databases open AND the app initialised: before that the settings booleans answer their defaults (sync looks off).
         fun appReady() = DatabaseContainer.ready && get<AppEnvironment>().isInitialized
+        // The close path also stays away while a backup restore swaps the databases.
+        fun closeReady() = appReady() && !DatabaseContainer.replacing
         fun syncEnabled() = SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(get<AppSettings>()) }
         DesktopSyncDriver(
             policy = BackgroundSyncPolicy(
@@ -165,18 +187,24 @@ fun desktopSyncModule(): Module = module {
                 stopSync = { result -> scheduler.stop(result) },
             ),
             closePass = {
-                // Push local changes only: no interactive sign-in at exit, and nothing unless sync is on and already signed in.
-                val cloud = if (appReady() && syncEnabled()) get<CloudSync>() else null
-                if (cloud == null || !cloud.signedIn || !cloud.hasChanges()) null
-                else scheduler.startBackgroundDatabaseSync {
-                    runDatabaseSyncJob(cloud, get<AppSettings>(), allowInteraction = false)
-                }.await()
+                runClosePass(
+                    enabled = { closeReady() && syncEnabled() },
+                    signedIn = { get<CloudSync>().signedIn },
+                    signIn = { get<CloudSync>().signIn(background = true) },
+                    hasChanges = { get<CloudSync>().hasChanges() },
+                    push = {
+                        scheduler.startBackgroundDatabaseSync {
+                            runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
+                        }.await()
+                    },
+                )
             },
             exitTasks = get<DesktopExitTasks>(),
             events = get<DesktopLifecycleEvents>(),
             scope = get<AppCoroutineScope>(),
             awaitReady = { awaitDatabasesOpen(::appReady, { DatabaseContainer.instance }) },
-            databasesReady = ::appReady,
+            databasesReady = ::closeReady,
+            externalPass = { scheduler.runningPass },
         )
     }
     single(createdAtStart = true) { DesktopUserMessagesPresenter({ get<UserNotifier>() }) } onClose { it?.close() }

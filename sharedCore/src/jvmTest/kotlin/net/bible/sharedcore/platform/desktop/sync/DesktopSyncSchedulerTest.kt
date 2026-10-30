@@ -57,4 +57,15 @@ class DesktopSyncSchedulerTest {
         scheduler.stop(pass)
         assertFalse(pass.await())
     }
+
+    @Test fun runningPassShowsAPassStartedByAnyoneAndClearsWhenItEnds() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val scheduler = DesktopSyncScheduler(backgroundScope, { gate.await(); true })
+        assertEquals(null, scheduler.runningPass)
+        val pass = scheduler.startDatabaseSync()
+        assertSame(pass, scheduler.runningPass)
+        gate.complete(Unit)
+        pass.await()
+        assertEquals(null, scheduler.runningPass)
+    }
 }

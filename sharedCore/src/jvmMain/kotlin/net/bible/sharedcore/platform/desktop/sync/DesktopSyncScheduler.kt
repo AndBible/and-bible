@@ -28,10 +28,15 @@ import net.bible.sharedcore.platform.sync.SyncScheduler
 class DesktopSyncScheduler(scope: CoroutineScope, sync: suspend () -> Boolean) : SyncScheduler {
     private val runner = IosSyncRunner(scope, sync, begin = { 0uL }, end = {})
 
-    override fun startDatabaseSync(): Deferred<Boolean> = runner.startDatabaseSync()
+    @Volatile private var last: Deferred<Boolean>? = null
+
+    /** The latest pass started through this scheduler while it is still running, whoever started it; null when idle. */
+    val runningPass: Deferred<Boolean>? get() = last?.takeIf { it.isActive }
+
+    override fun startDatabaseSync(): Deferred<Boolean> = runner.startDatabaseSync().also { last = it }
 
     /** The creator fixes the interaction policy of the pass; a coalescing caller cannot change it. */
-    fun startBackgroundDatabaseSync(action: suspend () -> Boolean): Deferred<Boolean> = runner.startDatabaseSync(action)
+    fun startBackgroundDatabaseSync(action: suspend () -> Boolean): Deferred<Boolean> = runner.startDatabaseSync(action).also { last = it }
 
     fun stop() = runner.stop()
 

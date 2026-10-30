@@ -100,7 +100,7 @@ class DesktopSyncBindingsContractTest {
                     single { DesktopExitTasks() }
                     single { DesktopLifecycleEvents() }
                 },
-                desktopSyncModule(),
+                desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
             )
         }
         try {
@@ -206,7 +206,7 @@ class DesktopSyncBindingsContractTest {
                     single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
                     single { IosSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
                 },
-                desktopSyncModule(),
+                desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
             )
         }
         try {

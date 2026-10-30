@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.atomic.AtomicBoolean
 import net.bible.service.cloudsync.BackgroundSyncPolicy
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.desktop.DesktopExitTasks
@@ -46,6 +47,8 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
  *
  * @param closePass the on-close work (push local changes when signed in); null result means "nothing to do".
  * @param databasesReady false when the databases are closed or being replaced; the exit task then returns at once.
+ * @param externalPass a database pass started outside the driver (for example from the settings screen) that is still
+ *   running; the exit task waits for it within the same bound.
  */
 class DesktopSyncDriver(
     private val policy: BackgroundSyncPolicy,
@@ -56,12 +59,18 @@ class DesktopSyncDriver(
     awaitReady: suspend () -> Unit,
     private val closeWaitMs: Long = DEFAULT_CLOSE_WAIT_MS,
     private val databasesReady: () -> Boolean = { true },
+    private val externalPass: () -> Job? = { null },
 ) {
     /** Held for the whole of a pass: a second pass (periodic or on-close) waits for it instead of overlapping. */
     private val passLock = Mutex()
     @Volatile private var stopped = false
-    /** The latest periodic pass job; the exit task joins it instead of starting a second pass. */
-    @Volatile private var current: Job? = null
+    /** A periodic pass: its job and whether it actually ran (a pass that found `stopped` set never did). */
+    private class Pass { lateinit var job: Job; val ran = AtomicBoolean(false) }
+
+    /** The latest periodic pass; the exit task joins it instead of starting a second pass. */
+    @Volatile private var current: Pass? = null
+    @Volatile private var closeJob: Job? = null
+    private val closeBegan = AtomicBoolean(false)
     private val loop: Job
 
     init {
@@ -89,36 +98,60 @@ class DesktopSyncDriver(
         loop.cancel()
     }
 
-    /** A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. */
-    private fun launchPass(): Job = scope.launch {
-        passLock.withLock {
-            if (stopped) return@launch // no new pass once the exit has begun
-            try {
-                if (!policy.runOnce()) Log.i(TAG, "Sync pass did not complete (sign-in or sync failed)")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                Log.w(TAG, "Sync pass failed: ${e.message}", e)
+    /**
+     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts only
+     * after [current] points at it, so the exit task never sees a stale finished pass while a new one holds the lock.
+     */
+    private fun launchPass(): Job {
+        val pass = Pass()
+        pass.job = scope.launch(start = CoroutineStart.LAZY) {
+            passLock.withLock {
+                if (stopped) return@launch // no new pass once the exit has begun
+                pass.ran.set(true)
+                try {
+                    if (!policy.runOnce()) Log.i(TAG, "Sync pass did not complete (sign-in or sync failed)")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Sync pass failed: ${e.message}", e)
+                }
             }
         }
-    }.also { current = it }
+        current = pass
+        pass.job.start()
+        return pass.job
+    }
 
     private suspend fun closeSync() {
         stop()
         if (!databasesReady()) return
-        val running = current?.takeIf { it.isActive }
-        if (running != null) {
-            // A pass is running: only wait for it. It is never cancelled, and no second pass starts behind it.
-            waitBounded(running)
+        val finished = withTimeoutOrNull(closeWaitMs) {
+            // A pass that is running is only waited for: never cancelled, and no second pass starts behind it.
+            val pass = current
+            if (pass != null && pass.job.isActive) {
+                pass.job.join()
+                if (pass.ran.get()) { externalPass()?.join(); return@withTimeoutOrNull true }
+                // It saw the stop before it began: it did nothing, so the close pass is still owed.
+            }
+            externalPass()?.join()
+            runClosePass()
+            true
+        }
+        if (finished == null) {
+            Log.w(TAG, "Cloud sync did not finish within $closeWaitMs ms; leaving it to the next start")
+            // A close pass that has not even started when the wait ends is dropped; one that is running is left alone.
+            if (!closeBegan.get()) closeJob?.cancel()
+        }
+    }
+
+    /** The on-close pass in its own job under [passLock]; waits for [current] first when it holds the lock. */
+    private suspend fun runClosePass() {
+        if (!passLock.tryLock()) { // a pass slipped in: wait for it, nothing more
+            current?.job?.join()
             return
         }
-        if (!passLock.tryLock()) { // a pass slipped in between the check and here
-            current?.let { waitBounded(it) }
-            return
-        }
-        val began = java.util.concurrent.atomic.AtomicBoolean(false)
         val close = scope.launch(start = CoroutineStart.LAZY) {
-            began.set(true)
+            closeBegan.set(true)
             try {
                 closePass()
             } catch (e: CancellationException) {
@@ -127,17 +160,10 @@ class DesktopSyncDriver(
                 Log.w(TAG, "Close pass failed: ${e.message}", e)
             }
         }
+        closeJob = close
         close.invokeOnCompletion { passLock.unlock() }
         close.start()
-        // A close pass that has not even started when the wait ends is dropped; one that is running is left alone.
-        if (!waitBounded(close) && !began.get()) close.cancel()
-    }
-
-    /** True when [job] completed within the close bound. Timing out does not cancel [job]. */
-    private suspend fun waitBounded(job: Job): Boolean {
-        val done = withTimeoutOrNull(closeWaitMs) { job.join(); true } == true
-        if (!done) Log.w(TAG, "Cloud sync did not finish within $closeWaitMs ms; leaving it to the next start")
-        return done
+        close.join()
     }
 
     companion object {
