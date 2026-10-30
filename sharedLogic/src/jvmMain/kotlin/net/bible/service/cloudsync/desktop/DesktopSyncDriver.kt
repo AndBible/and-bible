@@ -35,8 +35,8 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 /**
  * Runs the desktop's background sync: one pass when startup is ready, then one every [BackgroundSyncPolicy.nextEarliestSeconds],
  * all in [scope] (never on the UI thread). Passes never overlap. On the exit it stops the periodic loop and, as an exit
- * task, waits for the pass that is not yet completed (or runs [closePass], retrying the lock 3 times over 2 s) for at most [closeWaitMs]; the exit-task runner's own bound is
- * 10 s, so the default 9 s lets this task finish inside it.
+ * task, waits for the pass that is not yet completed (or runs [closePass], retrying the lock 3 times over 2 s) for at
+ * most [closeWaitMs]; the exit-task runner's own bound is 10 s, so the default 9 s lets this task finish inside it.
  *
  * Every failure (offline, sign-in, exceptions) is logged and swallowed: the app stays usable and the loop continues. When the
  * wait runs out the pass is NOT cancelled (database work cannot always be cancelled cleanly); the process exits and the
@@ -73,6 +73,11 @@ class DesktopSyncDriver(
     private val closeBegan = AtomicBoolean(false)
     private val loop: Job
 
+    /** Test seam: runs between publishing [current] and starting its job, the window where the pass is still New. */
+    internal var beforePassStart: () -> Unit = {}
+    /** Test seam: the job of the latest periodic pass. */
+    internal val currentPassJob: Job? get() = current?.job
+
     init {
         events.observe { if (it == DesktopLifecycleEvent.Background) stop() }
         exitTasks.register("cloud-sync") { closeSync() }
@@ -99,8 +104,9 @@ class DesktopSyncDriver(
     }
 
     /**
-     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts only
-     * after [current] points at it, so the exit task never misses a pass that is still Starting while it holds (or is about to take) the lock.
+     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts
+     * only after [current] points at it, so the exit task never misses a pass that is still Starting while it holds (or is
+     * about to take) the lock.
      */
     private fun launchPass(): Job {
         val pass = Pass()
@@ -118,6 +124,7 @@ class DesktopSyncDriver(
             }
         }
         current = pass
+        beforePassStart()
         pass.job.start()
         return pass.job
     }
@@ -153,13 +160,14 @@ class DesktopSyncDriver(
         var attempt = 1
         while (!passLock.tryLock()) {
             val pass = current
-            if (pass != null && !pass.job.isCompleted) pass.job.join()
+            val joined = pass != null && !pass.job.isCompleted
+            if (joined) pass!!.job.join()
             if (pass?.ran?.get() == true) return // it did the sync work; nothing more is owed
             if (attempt++ >= CLOSE_LOCK_TRIES) {
                 Log.w(TAG, "Close pass could not get the sync lock; leaving the push to the next start")
                 return
             }
-            delay(CLOSE_LOCK_RETRY_MS)
+            if (!joined) delay(CLOSE_LOCK_RETRY_MS) // after a join the holder is gone: try the lock at once
         }
         val close = scope.launch(start = CoroutineStart.LAZY) {
             closeBegan.set(true)

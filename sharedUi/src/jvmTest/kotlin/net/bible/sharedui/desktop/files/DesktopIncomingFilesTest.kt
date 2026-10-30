@@ -158,6 +158,7 @@ class DesktopIncomingFilesTest {
             DesktopEarlyIncomingFiles.closeInstalled()
             kotlinx.coroutines.Dispatchers.resetMain()
             main.close()
+            dir.toFile().deleteRecursively()
         }
     }
 }

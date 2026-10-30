@@ -301,23 +301,42 @@ class DesktopSyncDriverTest {
     }
 
     @Test fun closeDuringStartingPassStillPushes() = runTest {
-        // The exit arrives while the first pass is only queued (not yet run): the final push must still happen.
+        // The exit arrives in the real New window: [current] is published but the pass job is not started yet.
         val queue = ArrayDeque<Runnable>()
         val manual = object : kotlinx.coroutines.CoroutineDispatcher() {
             override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { queue.add(block) }
         }
         fun drain() { while (queue.isNotEmpty()) queue.removeFirst().run() }
         val f = fixture { CompletableDeferred(true) }
-        val ready = CompletableDeferred(Unit)
-        DesktopSyncDriver(
-            policy(f), { f.closePasses++; true }, f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
-            awaitReady = { ready.await() }, databasesReady = { true },
+        var driver: DesktopSyncDriver? = null
+        var passDoneWhenClosePushed: Boolean? = null
+        driver = DesktopSyncDriver(
+            policy(f), { f.closePasses++; passDoneWhenClosePushed = driver!!.currentPassJob!!.isCompleted; true },
+            f.exitTasks, f.events, kotlinx.coroutines.CoroutineScope(manual),
+            awaitReady = { }, databasesReady = { true },
         )
+        var exit: kotlinx.coroutines.Job? = null
+        driver.beforePassStart = {
+            exit = backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { f.exitTasks.runAll(10_000) }
+        }
         queue.removeFirst().run()
-        val exit = backgroundScope.launch { f.exitTasks.runAll(10_000) }
-        runCurrent(); drain(); runCurrent(); drain(); runCurrent()
-        exit.join()
-        assertEquals(1, f.closePasses + f.startedPasses, "exactly one push happened, from the pass or the close pass")
+        repeat(6) { drain(); runCurrent() }
+        exit!!.join()
+        assertEquals(1, f.closePasses, "the final push happened")
+        assertEquals(true, passDoneWhenClosePushed, "the close pass waited for the starting pass instead of running beside it")
+    }
+
+    @Test fun closeAfterJoiningAnExitingPassTriesTheLockAtOnce() = runTest {
+        val f = fixture { CompletableDeferred(true) }
+        val d = driver(f)
+        d.passLock.lock() // the start pass queues behind this lock
+        f.ready.complete(Unit); runCurrent()
+        backgroundScope.launch { delay(1_500); d.passLock.unlock() }
+        val before = currentTime
+        assertTrue(f.exitTasks.runAll(10_000))
+        assertEquals(1, f.closePasses, "the pass saw the stop and did nothing; the close pass still pushed")
+        assertEquals(0, f.startedPasses)
+        assertEquals(1_500L, currentTime - before, "no extra 1 s delay after the join")
     }
 
     @Test fun closeWhileLockHeldByExitingPassRetries() = runTest {

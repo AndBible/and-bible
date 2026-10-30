@@ -85,24 +85,31 @@ class DesktopEarlyIncomingFiles private constructor(private val listener: AutoCl
     private var pending = ArrayList<Path>()
     private var sink: ((List<Path>) -> Unit)? = null
 
+    // Delivery happens under [lock] (the sinks only enqueue), so files queued before attaching are always handed over
+    // before any file accepted afterwards: FIFO across the hand-over.
     private fun accept(files: List<Path>) {
-        val target = synchronized(lock) {
-            sink ?: run { pending.addAll(files); null }
+        synchronized(lock) {
+            val target = sink
+            if (target == null) pending.addAll(files) else target(files)
         }
-        target?.invoke(files)
     }
 
     /** The `listen` seam of [DesktopIncomingFilesImpl]: attaches [onFiles], first handing it everything queued so far. */
     fun listen(@Suppress("UNUSED_PARAMETER") dataDir: Path, onFiles: (List<Path>) -> Unit): AutoCloseable {
-        val queued = synchronized(lock) {
+        synchronized(lock) {
             sink = onFiles
-            pending.also { pending = ArrayList() }
+            val queued = pending
+            pending = ArrayList()
+            if (queued.isNotEmpty()) onFiles(queued)
         }
-        if (queued.isNotEmpty()) onFiles(queued)
         return AutoCloseable { synchronized(lock) { if (sink === onFiles) sink = null } }
     }
 
-    override fun close() = listener.close()
+    override fun close() {
+        listener.close()
+        val dropped = synchronized(lock) { pending.size.also { pending.clear() } }
+        if (dropped > 0) Log.w("DesktopIncomingFiles", "Dropped $dropped incoming file(s) queued before the app graph came up (quit at the crash gate)")
+    }
 
     companion object {
         @Volatile private var installed: DesktopEarlyIncomingFiles? = null
