@@ -157,6 +157,11 @@ the app. The old search index is removed; rebuild the index to search the new ve
 Replacing an EPUB through a document backup also reloads its content and styles
 without requiring you to force-stop the app.
 
+If an EPUB replacement fails, AndBible restores the previous version. If a storage
+error also prevents that recovery, it keeps the previous version separately and
+retries recovery on the next startup. The saved version is not discarded just
+because the failed replacement's files are still present.
+
 On Android, the installation screen keeps the orientation it had when opened,
 including landscape. Rotating the device during installation does not change the
 screen orientation or restart the installation. The previous orientation setting

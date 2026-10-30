@@ -553,6 +553,105 @@ class EpubBackendStateTest {
         }
     }
 
+    /** A successful replacement must not be rolled back if deleting the obsolete old tree fails. */
+    @Test
+    fun successfulReplacementCommitsBeforeOldTreeCleanup() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-cleanup-failure.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) {}
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {
+                if (ev.book?.initials != epubInitials(name)) return
+                SharedConstants.modulesDir.listFiles()!!.filter { it.name.startsWith(".epub-old-") }.forEach { aside ->
+                    aside.walkTopDown().filter { it.isDirectory }.forEach { check(it.setWritable(false)) }
+                }
+            }
+        }
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name))
+            val replacement = epubArchive(name, "quartz")
+            books.addBooksListener(listener)
+            try {
+                assertTrue(committer().commitEpub(replacement, name))
+            } finally {
+                books.removeBooksListener(listener)
+            }
+            assertTrue("cleanup left the old files on disk",
+                SharedConstants.modulesDir.listFiles()!!.any { it.name.startsWith(".epub-") })
+            SharedConstants.modulesDir.walkTopDown().filter { it.isDirectory }.forEach { it.setWritable(true) }
+            Class.forName("net.bible.service.sword.epub.EpubReplaceKt")
+                .getDeclaredMethod("sweepStaleEpubStagingDirs", okio.Path::class.java)
+                .invoke(null, SharedConstants.modulesDir.toOkioPath())
+            val book = books.getBook(epubInitials(name))!!
+            assertTrue("the successful replacement stays readable",
+                book.getRawText(book.epubBackend!!.state.keys.first()).contains("quartz"))
+            assertTrue("the successful replacement stays on disk",
+                File(epubRoot, "$name/optimized").listFiles()!!.isNotEmpty())
+            assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
+        } finally {
+            SharedConstants.modulesDir.walkTopDown().filter { it.isDirectory }.forEach { it.setWritable(true) }
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+            SharedConstants.modulesDir.listFiles()!!.filter { it.name.startsWith(".epub-") }.forEach { it.deleteRecursively() }
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+        }
+    }
+
+    /** #3914: neither a failed rollback nor a later startup sweep may discard the only working copy. */
+    @Test
+    fun failedRegistrationAndRemovalKeepTheOldEpubThroughSweep() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-double-failure.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val dir = File(epubRoot, name)
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) {}
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {
+                if (ev.book?.initials != epubInitials(name)) return
+                // Fail registration after the new tree is in place. Its files cannot be deleted, and its parent
+                // prevents restoreEpubAside from moving it to trash, so rollback must leave the old tree aside.
+                dir.walkTopDown().filter { it.isDirectory }.forEach { check(it.setWritable(false)) }
+                check(epubRoot.setWritable(false))
+                throw java.io.IOException("registration failed with an unwritable module folder")
+            }
+        }
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name))
+            val replacement = epubArchive(name, "quartz")
+            books.addBooksListener(listener)
+            try {
+                assertFalse("registration fails", committer().commitEpub(replacement, name))
+            } finally {
+                books.removeBooksListener(listener)
+            }
+            assertTrue("the failed delete left new files", dir.exists())
+            assertEquals("the failed rollback kept the old tree aside", 1,
+                SharedConstants.modulesDir.listFiles()!!.count { it.name.startsWith(".epub-old-") })
+
+            // Sweep once while recovery still cannot move the new folder, then again after storage recovers.
+            Class.forName("net.bible.service.sword.epub.EpubReplaceKt")
+                .getDeclaredMethod("sweepStaleEpubStagingDirs", okio.Path::class.java)
+                .invoke(null, SharedConstants.modulesDir.toOkioPath())
+            assertEquals("a failed sweep must preserve the old tree for the next recovery attempt", 1,
+                SharedConstants.modulesDir.listFiles()!!.count { it.name.startsWith(".epub-old-") })
+            epubRoot.setWritable(true)
+            dir.walkTopDown().filter { it.isDirectory }.forEach { it.setWritable(true) }
+            addManuallyInstalledEpubBooks(testCoreStrings(), AndroidAppEnvironment(application))
+
+            val book = books.getBook(epubInitials(name))
+            assertTrue("startup recovers the old EPUB", book != null)
+            assertTrue("the old EPUB remains readable after the sweep",
+                book!!.getRawText(book.epubBackend!!.state.keys.first()).contains("quiet"))
+            assertTrue("no staging or aside trees", SharedConstants.modulesDir.listFiles()!!.none { it.name.startsWith(".epub-") })
+        } finally {
+            epubRoot.setWritable(true)
+            SharedConstants.modulesDir.walkTopDown().filter { it.isDirectory }.forEach { it.setWritable(true) }
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+            SharedConstants.modulesDir.listFiles()!!.filter { it.name.startsWith(".epub-") }.forEach { it.deleteRecursively() }
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+        }
+    }
+
     /** #3005 review: a replacement that fails before the old module was moved aside re-registers the old module. */
     @Test
     fun replacementFailingToSetTheOldEpubAsideKeepsItRegistered() = kotlinx.coroutines.runBlocking<Unit> {
