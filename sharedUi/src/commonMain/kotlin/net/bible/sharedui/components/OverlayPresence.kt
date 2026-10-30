@@ -27,19 +27,34 @@ import androidx.compose.runtime.DisposableEffect
  * Main (composition) thread only; the counter is not synchronized.
  */
 object OverlayPresence {
-    /** Called when the count drops to zero. */
+    /** Called when the count rises from zero to one (the first overlay opens). */
+    var onFirstOpened: (() -> Unit)? = null
+
+    /** Called when the count drops to zero and [restoreAllowed] agrees. */
     var onAllClosed: (() -> Unit)? = null
+
+    /** Asked before [onAllClosed]; false vetoes the platform's focus restore (e.g. while the search field keeps the focus). */
+    var restoreAllowed: () -> Boolean = { true }
 
     var count: Int = 0
         private set
 
     fun opened() {
+        if (count == 0) onFirstOpened?.invoke()
         count++
+    }
+
+    /** Test hook: back to the initial state (no overlays, no listener). */
+    fun resetForTests() {
+        count = 0
+        onAllClosed = null
+        onFirstOpened = null
+        restoreAllowed = { true }
     }
 
     fun closed() {
         if (count == 0) return
-        if (--count == 0) onAllClosed?.invoke()
+        if (--count == 0 && restoreAllowed()) onAllClosed?.invoke()
     }
 }
 

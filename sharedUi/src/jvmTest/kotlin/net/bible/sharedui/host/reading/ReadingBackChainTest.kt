@@ -86,12 +86,12 @@ class ReadingBackChainTest {
 
     @Test fun escClosesTopmostOverlayFirst() = runComposeUiTest {
         // A Compose sheet (its own back handler) over the open drawer: the first Esc closes the sheet, the second the drawer.
-        val f = Fake(drawer = true)
+        val log = mutableListOf<String>()
         var sheetOpen by mutableStateOf(true)
         var drawerOpen by mutableStateOf(true)
         val chain = ReadingBackChain(
             isDrawerOpen = { drawerOpen },
-            closeDrawer = { drawerOpen = false; f.log += "drawer" },
+            closeDrawer = { drawerOpen = false; log += "drawer" },
             isSearchSheetVisible = { false },
             closeSearchSheet = {},
             isSearchBarOpen = { false },
@@ -99,16 +99,16 @@ class ReadingBackChainTest {
         )
         setContent {
             PassThroughBackHandler(enabled = true) { passThrough -> chain.onBack(passThrough) }
-            if (sheetOpen) PlatformBackHandler(enabled = true) { sheetOpen = false; f.log += "sheet" }
+            if (sheetOpen) PlatformBackHandler(enabled = true) { sheetOpen = false; log += "sheet" }
         }
         waitForIdle()
         assertTrue(DesktopBackDispatcher.back())
         waitForIdle()
-        assertEquals(listOf("sheet"), f.log)
+        assertEquals(listOf("sheet"), log)
         assertTrue(drawerOpen)
         assertTrue(DesktopBackDispatcher.back())
         waitForIdle()
-        assertEquals(listOf("sheet", "drawer"), f.log)
+        assertEquals(listOf("sheet", "drawer"), log)
         assertFalse(drawerOpen)
         // Nothing left: the press passes through and is reported unhandled.
         assertFalse(DesktopBackDispatcher.back())

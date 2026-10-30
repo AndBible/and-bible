@@ -61,7 +61,13 @@ internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusCh
      * pane would leave the keys going to the page behind it.
      */
     fun onWindowPress(inside: Boolean) {
-        if (!inside && isFocused) clearFocus()
+        if (inside) return
+        if (isFocused) {
+            DesktopWebPaneKeys.pressTookFocus(this)
+            clearFocus()
+        } else {
+            DesktopWebPaneKeys.pressElsewhere()
+        }
     }
 
     /** The pane leaves the composition or is disposed: give the keys back. */

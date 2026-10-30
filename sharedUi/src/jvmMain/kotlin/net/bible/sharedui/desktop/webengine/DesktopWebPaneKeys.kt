@@ -38,12 +38,27 @@ interface FocusRestorable {
 object DesktopWebPaneKeys {
     private val owner = AtomicReference<Any?>(null)
 
-    /** The pane that held the focus last (kept after it lost it), the one [restoreAfterOverlay] returns it to. */
-    private val lastOwner = AtomicReference<Any?>(null)
+    /**
+     * A pane whose focus a primary press outside it just took (see [pressTookFocus]); the press that opens an overlay
+     * clears the pane's focus before the overlay is composed. Dropped by the next press elsewhere ([pressElsewhere]).
+     */
+    private val pressCleared = AtomicReference<Any?>(null)
+
+    /** The pane that had the keys when the first overlay opened: the only one [restoreAfterOverlay] gives them back to. */
+    private val beforeOverlay = AtomicReference<Any?>(null)
 
     init {
-        // An overlay (sheet, dialog, drawer) takes Compose focus from the pane and nothing gives it back. Posted to the
-        // event thread so the overlay's window is gone by then.
+        installOverlayHooks()
+    }
+
+    /**
+     * An overlay (sheet, dialog, drawer) takes Compose focus from the pane and nothing gives it back. The pane that held
+     * it when the first overlay opens is remembered; when the last one closes it gets it back, posted to the event thread
+     * so the overlay's window is gone by then. A user who was in a Compose text field before the overlay opened has no
+     * pane to return to, so that focus is never overridden.
+     */
+    private fun installOverlayHooks() {
+        OverlayPresence.onFirstOpened = { beforeOverlay.set(owner.get() ?: pressCleared.get()) }
         OverlayPresence.onAllClosed = { SwingUtilities.invokeLater { restoreAfterOverlay() } }
     }
 
@@ -53,17 +68,33 @@ object DesktopWebPaneKeys {
     /** [pane] gained keyboard focus; it replaces any earlier owner. */
     fun focusGained(pane: Any) {
         owner.set(pane)
-        lastOwner.set(pane)
+        pressCleared.set(null)
     }
+
+    /** A primary press outside [pane] is about to take its focus away. */
+    fun pressTookFocus(pane: Any) = pressCleared.set(pane)
+
+    /** A primary press outside every pane that took no pane's focus (the focus is, or goes, somewhere else). */
+    fun pressElsewhere() = pressCleared.set(null)
 
     /** [pane] lost focus or left the composition; clears the claim only when [pane] is still the owner. */
     fun focusLost(pane: Any) {
         owner.compareAndSet(pane, null)
     }
 
+    /** Test hook: no owner, no remembered pane, no pending press; reinstalls the overlay listener. */
+    fun resetForTests() {
+        owner.set(null)
+        pressCleared.set(null)
+        beforeOverlay.set(null)
+        OverlayPresence.resetForTests()
+        installOverlayHooks()
+    }
+
     /** [pane] left the composition for good: it is never given the focus back. */
     fun forget(pane: Any) {
-        lastOwner.compareAndSet(pane, null)
+        pressCleared.compareAndSet(pane, null)
+        beforeOverlay.compareAndSet(pane, null)
     }
 
     /**
@@ -71,8 +102,8 @@ object DesktopWebPaneKeys {
      * already. Returns whether a pane was asked.
      */
     fun restoreAfterOverlay(): Boolean {
+        val pane = beforeOverlay.getAndSet(null) as? FocusRestorable ?: return false
         if (owner.get() != null) return false
-        val pane = lastOwner.get() as? FocusRestorable ?: return false
         pane.requestFocus()
         return true
     }

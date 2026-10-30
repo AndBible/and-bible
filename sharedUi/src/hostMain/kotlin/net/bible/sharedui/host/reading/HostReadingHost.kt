@@ -40,6 +40,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
+import net.bible.sharedui.components.OverlayPresence
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.reading.toolbar.ReadingDrawerMenu
 import net.bible.sharedui.reading.toolbar.ReadingOverflowController
@@ -780,8 +781,23 @@ class HostReadingHost(
         closeSearchBar = { searchState.leaveSearch() },
     )
 
+    init {
+        // The platform's "an overlay closed: give the keys back to the pane" (desktop) obeys the drawer rule: not while the
+        // search field is open and keeps the focus. [restorePaneFocus] is the same rule for the drawer on every platform.
+        OverlayPresence.restoreAllowed = {
+            shouldRestorePaneFocusOnDrawerClose(searchBarOpen = searchState.searchBar.value != null)
+        }
+    }
+
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
-        hostReadingNavDeps(this, shell, HostStartup.stringTable, readingResults?.collectors() ?: emptyList(), backChain::onBack, content)
+        hostReadingNavDeps(
+            this,
+            shell,
+            HostStartup.stringTable,
+            readingResults?.collectors() ?: emptyList(),
+            backChain::onBack,
+            content,
+        )
 
     internal companion object {
         /** The production answer: the prompt service's configured flag; false while the service is not available yet. */

@@ -27,6 +27,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -46,11 +47,11 @@ class PaneFocusAfterOverlayTest {
         override fun sendKey(e: java.awt.event.KeyEvent) {}
     }
 
+    /** Runs [body] with the restore running synchronously (production posts it to the event thread). */
     private inline fun withRestoreListener(body: () -> Unit) {
-        DesktopWebPaneKeys.ownsKeys // initialises the object, which installs its own (EDT-posted) listener
-        val saved = OverlayPresence.onAllClosed
+        DesktopWebPaneKeys.resetForTests()
         OverlayPresence.onAllClosed = { DesktopWebPaneKeys.restoreAfterOverlay() }
-        try { body() } finally { OverlayPresence.onAllClosed = saved }
+        try { body() } finally { DesktopWebPaneKeys.resetForTests() }
     }
 
     @Test fun paneRegainsFocusAfterOverlayCloses() = runComposeUiTest {
@@ -106,6 +107,107 @@ class PaneFocusAfterOverlayTest {
                 runOnIdle { assertEquals(listOf(true, false), sink.focus) }
                 runOnIdle { first = false }
                 runOnIdle { assertEquals(listOf(true, false, true), sink.focus) }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun aComposeFieldThatHadFocusBeforeTheOverlayIsNotOverridden() = runComposeUiTest {
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        val field = FocusRequester()
+        var overlay by mutableStateOf(false)
+        withRestoreListener {
+            try {
+                setContent {
+                    Column {
+                        Box(Modifier.size(20.dp).osrKeyboard(pane))
+                        Box(Modifier.size(20.dp).focusRequester(field).focusable())
+                        if (overlay) TrackOverlay()
+                    }
+                }
+                // The pane had the focus earlier; the user then went to a Compose text field.
+                runOnIdle { pane.requester.requestFocus() }
+                runOnIdle { field.requestFocus() }
+                runOnIdle { overlay = true }
+                runOnIdle { overlay = false }
+                runOnIdle {
+                    assertEquals(listOf(true, false), sink.focus)
+                    assertFalse(DesktopWebPaneKeys.ownsKeys)
+                }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun aPressThatTookTheFocusFromThePaneBeforeTheOverlayOpenedStillRestores() = runComposeUiTest {
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        var overlay by mutableStateOf(false)
+        withRestoreListener {
+            try {
+                setContent {
+                    val fm = LocalFocusManager.current
+                    pane.clearFocus = { fm.clearFocus(force = true) }
+                    Column { Box(Modifier.size(20.dp).osrKeyboard(pane)); if (overlay) TrackOverlay() }
+                }
+                runOnIdle { pane.requester.requestFocus() }
+                // The press on the toolbar button that opens the overlay clears the pane's focus first.
+                runOnIdle { pane.onWindowPress(inside = false) }
+                runOnIdle { overlay = true }
+                runOnIdle { overlay = false }
+                runOnIdle { assertEquals(listOf(true, false, true), sink.focus) }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun aLaterPressElsewhereDropsThePendingRestore() = runComposeUiTest {
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        var overlay by mutableStateOf(false)
+        withRestoreListener {
+            try {
+                setContent {
+                    val fm = LocalFocusManager.current
+                    pane.clearFocus = { fm.clearFocus(force = true) }
+                    Column { Box(Modifier.size(20.dp).osrKeyboard(pane)); if (overlay) TrackOverlay() }
+                }
+                runOnIdle { pane.requester.requestFocus() }
+                runOnIdle { pane.onWindowPress(inside = false) } // clears the pane
+                runOnIdle { pane.onWindowPress(inside = false) } // e.g. a click into a Compose text field
+                runOnIdle { overlay = true }
+                runOnIdle { overlay = false }
+                runOnIdle { assertEquals(listOf(true, false), sink.focus) }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun theHostCanVetoTheRestore() = runComposeUiTest {
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        val other = FocusRequester()
+        var overlay by mutableStateOf(false)
+        withRestoreListener {
+            try {
+                OverlayPresence.restoreAllowed = { false } // e.g. the search field is open and keeps the focus
+                setContent {
+                    Column {
+                        Box(Modifier.size(20.dp).osrKeyboard(pane))
+                        Box(Modifier.size(20.dp).focusRequester(other).focusable())
+                        if (overlay) TrackOverlay()
+                    }
+                }
+                runOnIdle { pane.requester.requestFocus() }
+                runOnIdle { overlay = true }
+                runOnIdle { other.requestFocus() }
+                runOnIdle { overlay = false }
+                runOnIdle { assertEquals(listOf(true, false), sink.focus) }
             } finally {
                 pane.release()
             }
