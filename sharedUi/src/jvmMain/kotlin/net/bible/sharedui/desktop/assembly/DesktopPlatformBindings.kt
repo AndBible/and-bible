@@ -103,8 +103,9 @@ import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.assembly.HostDebugArgs
 import net.bible.sharedui.assembly.HostStartup
 import net.bible.sharedui.assembly.HostWindowMetrics
-import net.bible.sharedui.assembly.HostStringTableHolder
-import net.bible.sharedui.assembly.hostStringTable
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.iosSyncStrings
 import net.bible.sharedui.components.AppToasts
 import net.bible.sharedui.host.app.HostRootLinks
 import net.bible.sharedui.host.ports.HostDocumentInstallStarter
@@ -203,11 +204,12 @@ fun desktopPlatformModule(
             val language = uiLanguage ?: DesktopUiLanguage.resolve(get<DesktopDeviceSettings>())
             HostStringTableHolder(hostStringTable(language, ::classpathRawResource))
         }
-        single<CoreStrings> { KeyedCoreStrings { get<HostStringTableHolder>().current } }
-        single<LlmStrings> { KeyedLlmStrings { get<HostStringTableHolder>().current } }
-        single<LabelNameStrings> { KeyedLabelNameStrings { get<HostStringTableHolder>().current } }
-        single<SettingLabels> { KeyedSettingLabels { get<HostStringTableHolder>().current } }
-        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<HostStringTableHolder>().current } }
+        single<CoreStrings> { KeyedCoreStrings { get<IosStringTableHolder>().current } }
+        single<net.bible.service.cloudsync.host.IosSyncStrings> { iosSyncStrings(get<IosStringTableHolder>().current) }
+        single<LlmStrings> { KeyedLlmStrings { get<IosStringTableHolder>().current } }
+        single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
+        single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
+        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
         single<TextDisplayPrefItems> {
             SharedTextDisplayPrefItems(
                 strings = { get<HostStringTableHolder>().live },

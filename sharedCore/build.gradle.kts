@@ -51,6 +51,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)   // desktop HTTP engine (DesktopHttpClients)
             implementation(libs.dbus.java.core)
             runtimeOnly(libs.dbus.java.transport.native.unixsocket)
+            implementation(libs.java.keyring)   // desktop OS secret store (DesktopSecretStore)
         }
         jvmTest {
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
