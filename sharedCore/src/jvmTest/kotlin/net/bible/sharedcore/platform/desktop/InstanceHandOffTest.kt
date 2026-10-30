@@ -131,7 +131,8 @@ class InstanceHandOffTest {
             val buffer = java.nio.ByteBuffer.allocate(1)
             var result = 0
             while (result == 0 && System.nanoTime() < until) {
-                result = peer.read(buffer)
+                // The listener's close shows up as end-of-stream or, depending on timing, as a connection reset (RST).
+                result = try { peer.read(buffer) } catch (e: java.net.SocketException) { -1 }
                 if (result == 0) Thread.sleep(10)
             }
             assertEquals(-1, result)
