@@ -38,6 +38,9 @@ import net.bible.android.control.document.DocumentChanges
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
@@ -281,7 +284,13 @@ class BackupControl(
             if (!unpackOldMonolithicDatabase(source, tmpFile)) return@withContext false
             // A running sync may need replacement admission to finish. Never wait for it while owning that gate.
             for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
-            reloadingAfterReplace { DatabaseContainer.replacingDatabases { token -> swapInOldMonolithicDatabase(tmpFile, token) } }
+            reloadingAfterReplace {
+                DatabaseContainer.replacingDatabases { token ->
+                    currentCoroutineContext().ensureActive()
+                    // From the first move aside, either finish or roll back with an active coroutine.
+                    withContext(NonCancellable) { swapInOldMonolithicDatabase(tmpFile, token) }
+                }
+            }
         } finally {
             deleteQuietly(tmpFile)
         }
@@ -999,7 +1008,8 @@ class BackupControl(
      * The zip restore after the user picked the sections: asks every question first ([collectRestoreDecisions]),
      * then closes and overwrites every file to restore in one stretch with no user prompt in between, calls
      * [DatabaseContainer.reset] at once, runs the imports (they need the new container) and finally clears the
-     * restored categories' sync state ([afterRestore]).
+     * restored categories' sync state ([afterRestore]). After replacement admission, cancellation cannot split
+     * this commit or release the replacement gate before finalization; prompts and admission remain cancellable.
      */
     @VisibleForTesting suspend fun restoreSelectedFiles(
         selection: List<String>,
@@ -1008,21 +1018,24 @@ class BackupControl(
     ) = reloadingAfterReplace {
         val plan = collectRestoreDecisions(selection, unzipFolder, prompts)
         DatabaseContainer.replacingDatabases { token ->
-            for ((fileName, f) in plan.toRestore) {
-                Log.i(TAG, "Restoring $fileName")
-                if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
-                val targetFilePath = env.databasePath(fileName)
-                fileSystem.copy(f, targetFilePath.toPath())
-                for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
-                    deleteQuietly("$targetFilePath$leftover".toPath())
+            currentCoroutineContext().ensureActive()
+            withContext(NonCancellable) {
+                for ((fileName, f) in plan.toRestore) {
+                    Log.i(TAG, "Restoring $fileName")
+                    if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
+                    val targetFilePath = env.databasePath(fileName)
+                    fileSystem.copy(f, targetFilePath.toPath())
+                    for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
+                        deleteQuietly("$targetFilePath$leftover".toPath())
+                    }
+                }
+                DatabaseContainer.resetOwned(token)
+                for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+                if (DatabaseContainer.ready) {
+                    DatabaseContainer.instance
+                    afterRestore(plan.restoredSelection)
                 }
             }
-            DatabaseContainer.resetOwned(token)
-            for ((category, f) in plan.toImport) importDatabaseFile(category, f)
-        }
-        if (DatabaseContainer.ready) {
-            DatabaseContainer.instance
-            afterRestore(plan.restoredSelection)
         }
     }
 
