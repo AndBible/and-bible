@@ -357,8 +357,21 @@ stopEscalatesAndHandlesSpacedComm() {
   [[ $(<"/proc/$pid/comm") == 'qemu test' ]] || fail 'fake process name did not contain a space'
   run stop >"$TMP/stop-escalate.out"
   [[ ! -e "$STATE_DIR/qemu.pid" ]] || fail 'SIGKILL stop retained state'
-  state=$(ps -o stat= -p "$pid" | tr -d ' ' || true)
-  [[ -z "$state" || "$state" == Z* ]] || fail 'SIGKILL did not terminate QEMU'
+  state=$(python3 - "$pid" <<'PY'
+import sys
+try:
+    with open(f"/proc/{sys.argv[1]}/stat") as proc:
+        data = proc.read()
+except FileNotFoundError:
+    print("gone")
+else:
+    end = data.rfind(")")
+    if end < 0:
+        raise ValueError("invalid process stat")
+    print(data[end + 2:].split()[0])
+PY
+  ) || fail 'could not inspect QEMU process state'
+  [[ "$state" == gone || "$state" == Z ]] || fail 'SIGKILL did not terminate QEMU'
 }
 
 staleRestartDoesNotHoldRunLock() {
