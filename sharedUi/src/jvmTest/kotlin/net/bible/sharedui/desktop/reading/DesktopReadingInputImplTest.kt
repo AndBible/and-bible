@@ -19,6 +19,9 @@ package net.bible.sharedui.desktop.reading
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedui.host.reading.IosReadingGestures
+import net.bible.sharedui.reading.host.ReadingFullScreen
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -34,8 +37,9 @@ class DesktopReadingInputImplTest {
         override fun search(windowId: String) { log += "search:$windowId" }
         override fun goToReference(windowId: String) { log += "goto:$windowId" }
         override fun back(historyFallback: Boolean) { log += "back:$historyFallback" }
+        override fun navigateBack(windowId: String?) { modalChecks += windowId; log += "back:true" }
         override fun bookmarkSelection(windowId: String, selectionJson: String) { log += "bookmark:$windowId" }
-        override fun changeFontSize(change: FontSizeChange) { log += "font:$change" }
+        override fun changeFontSize(change: FontSizeChange, steps: Int) { log += if (steps == 1) "font:$change" else "font:$change*$steps" }
         override fun focusNextWindow() { log += "next" }
         override fun focusPreviousWindow() { log += "prev" }
         override fun toggleFullScreen() { log += "fs" }
@@ -46,7 +50,10 @@ class DesktopReadingInputImplTest {
 
     private val rec = Rec()
     private var installs = 0
-    private val input = DesktopReadingInputImpl(DesktopShortcuts(rec) { false }, DesktopReadingGestures({ null }), { installs++ })
+    private var now = 1_000L
+    private val input = DesktopReadingInputImpl(
+        DesktopShortcuts(rec) { false }, DesktopReadingGestures({ null }), { installs++ }, x11Toolkit = false, clockMillis = { now },
+    )
 
     private fun ev(key: Key, ctrl: Boolean = false, alt: Boolean = false) =
         KeyEvent(key, KeyEventType.KeyDown, isCtrlPressed = ctrl, isAltPressed = alt)
@@ -99,18 +106,67 @@ class DesktopReadingInputImplTest {
 
     @Test fun awtBackAndForwardButtonsAcceptWindowsAndX11NumberingOnPressOnly() {
         fun ev(id: Int, button: Int) = id to button // headless AWT cannot build extra-button MouseEvents
-        for (b in listOf(4, 6)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
-        for (b in listOf(5, 7)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
+        for (b in listOf(4)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
+        for (b in listOf(5)) input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, b).second)
         input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_RELEASED, 4).first, ev(java.awt.event.MouseEvent.MOUSE_RELEASED, 4).second)
         input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_CLICKED, 4).first, ev(java.awt.event.MouseEvent.MOUSE_CLICKED, 4).second)
         input.onAwtMouse(ev(java.awt.event.MouseEvent.MOUSE_PRESSED, 1).first, ev(java.awt.event.MouseEvent.MOUSE_PRESSED, 1).second)
-        assertEquals(listOf("back:true", "back:true"), rec.log)
+        assertEquals(listOf("back:true"), rec.log)
+    }
+
+    @Test fun x11NumberingTakesOnlyButtons6And7() {
+        val x11 = DesktopReadingInputImpl(DesktopShortcuts(rec) { false }, DesktopReadingGestures({ null }), {}, x11Toolkit = true)
+        val p = java.awt.event.MouseEvent.MOUSE_PRESSED
+        x11.onAwtMouse(p, 4) // horizontal scroll on X11
+        x11.onAwtMouse(p, 5)
+        assertEquals(emptyList(), rec.log)
+        x11.onAwtMouse(p, 6)
+        x11.onAwtMouse(p, 7)
+        assertEquals(listOf("back:true"), rec.log)
+    }
+
+    @Test fun altGrChordsAreNotConsumedNorTheirTypedCharacter() {
+        // Windows AltGr = Ctrl+Alt: AltGr+L (ł), AltGr+0 (}) must reach the text field.
+        for (key in listOf(Key.L, Key.Zero)) {
+            val down = KeyEvent(key, KeyEventType.KeyDown, isCtrlPressed = true, isAltPressed = true)
+            val typed = KeyEvent(key, KeyEventType.Unknown, codePoint = 'ł'.code, isCtrlPressed = true, isAltPressed = true)
+            assertFalse(input.onPreviewKeyEvent(down))
+            assertFalse(input.onPreviewKeyEvent(typed))
+        }
+        assertEquals(emptyList(), rec.log)
+    }
+
+    @Test fun wheelFramesAreStampedWithTheKotlinClockNotThePageClock() {
+        // Two panes with unrelated page clocks (a fresh document starts near 0) feed one gesture object. With the Kotlin
+        // clock the 200 frames form one gesture (80 px, past the full screen threshold); with the page's `t` the
+        // alternating clocks would restart the gesture every frame.
+        val settings = java.lang.reflect.Proxy.newProxyInstance(
+            AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java),
+        ) { _, m, a ->
+            when (m.name) {
+                "getBoolean" -> if (a[0] == "auto_fullscreen_pref") true else a[1]
+                "getString", "getLong", "getInt", "getDouble", "getFloat" -> a[1]
+                else -> null
+            }
+        } as AppSettings
+        val fullScreen = ReadingFullScreen()
+        val real = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = {})
+        val wheelInput = DesktopReadingInputImpl(
+            DesktopShortcuts(rec) { false }, DesktopReadingGestures({ real }), {}, x11Toolkit = false, clockMillis = { now },
+        )
+        for (i in 0 until 200) {
+            now = 10_000L + i * 4L
+            val (id, pageClock) = if (i % 2 == 0) "w1" to 50_000.0 + i else "w2" to 100.0 + i
+            wheelInput.handleMessage(id, msg("{\"type\":\"wheel\",\"dx\":0,\"dy\":0.4,\"t\":$pageClock}"))
+        }
+        assertTrue(fullScreen.state.value)
+        assertFalse("performance.now" in DesktopInputScript.WHEEL_PART)
     }
 
     @Test fun zoomMessagesChangeFontSize() {
         input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":-100}"))
         input.handleMessage("w1", msg("{\"type\":\"zoom\",\"dy\":1,\"steps\":2}"))
-        assertEquals(listOf("font:Larger", "font:Smaller", "font:Smaller"), rec.log)
+        assertEquals(listOf("font:Larger", "font:Smaller*2"), rec.log)
     }
 
     @Test fun scriptKeepsFieldKeysFromThePageWithoutBlockingTheTarget() {

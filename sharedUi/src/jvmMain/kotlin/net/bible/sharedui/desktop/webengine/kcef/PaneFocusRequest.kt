@@ -20,7 +20,8 @@ package net.bible.sharedui.desktop.webengine.kcef
  * Moves CEF's native keyboard focus into a pane when the user presses in it. Under a window manager the X focus stays on
  * the AWT frame's focus proxy and KCEF forwards no native mouse presses to AWT listeners, so the page itself reports the
  * press: [SCRIPT] (a document-start script) sends the reserved query [REQUEST] on every `mousedown`, and the pane's
- * router answers it with [handle] (CEF `setFocus(true)`), never passing it on to the bridge.
+ * router answers it with [handle] (CEF `setFocus(true)`), never passing it on to the bridge. Only the first press of a
+ * pane is logged.
  */
 internal object PaneFocusRequest {
     /** The reserved `cefQuery` request; starts with NUL, so no bridge message can equal it. */
@@ -34,10 +35,13 @@ internal object PaneFocusRequest {
     /** The engine's document-start scripts: the bridge [shim], the focus script once, then the page's own [scripts]. */
     fun documentStartScripts(shim: String, scripts: List<String>): List<String> = listOf(shim, SCRIPT) + scripts
 
-    /** Handles [text] when it is the focus request (calls [setFocus], logs once) and returns true; false for anything else. */
-    fun handle(text: String, setFocus: () -> Unit, log: (String) -> Unit): Boolean {
+    /**
+     * Handles [text] when it is the focus request (calls [setFocus]) and returns true; false for anything else. The press
+     * is logged only while [logged] (one per pane) is not yet set.
+     */
+    fun handle(text: String, setFocus: () -> Unit, log: (String) -> Unit, logged: java.util.concurrent.atomic.AtomicBoolean = java.util.concurrent.atomic.AtomicBoolean(false)): Boolean {
         if (text != REQUEST) return false
-        log("press: focus to pane")
+        if (logged.compareAndSet(false, true)) log("press: focus to pane")
         setFocus()
         return true
     }

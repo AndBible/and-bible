@@ -179,7 +179,7 @@ class DesktopPortContractTest {
         }
         if (failures.isNotEmpty()) fail("Unresolvable seam types:\n" + failures.joinToString("\n"))
 
-        assertTrue(koin.get<net.bible.sharedui.desktop.webview.DesktopReadingInput>().documentStartScripts("w1").size == 1)
+        assertEquals(1, koin.get<net.bible.sharedui.desktop.webview.DesktopReadingInput>().documentStartScripts("w1").size)
         assertEquals(false, koin.get<DesktopFileShare>().canShare)
         assertEquals(emptyList(), koin.get<DesktopLaunchArgs>().args)
         // The night-mode source is the graph's NightModeState, so the toolbar, the panes and the app agree.

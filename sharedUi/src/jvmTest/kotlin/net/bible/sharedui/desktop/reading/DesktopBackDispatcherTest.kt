@@ -90,13 +90,18 @@ class DesktopBackDispatcherTest {
         waitForIdle()
         assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForDomMouseButton(3))
         assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForDomMouseButton(4))
-        assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(4))
-        assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(5))
-        // Linux/X11: X buttons 8 and 9 arrive as AWT buttons 6 and 7.
-        assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(6))
-        assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(7))
+        // Windows/macOS numbering.
+        assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(4, x11 = false))
+        assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(5, x11 = false))
+        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(6, x11 = false))
+        // Linux/X11: X buttons 8 and 9 arrive as AWT buttons 6 and 7; 4/5 are horizontal scroll and do nothing.
+        assertEquals(DesktopBackDispatcher.Navigation.Back, DesktopBackDispatcher.navigationForAwtMouseButton(6, x11 = true))
+        assertEquals(DesktopBackDispatcher.Navigation.Forward, DesktopBackDispatcher.navigationForAwtMouseButton(7, x11 = true))
+        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(4, x11 = true))
+        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(5, x11 = true))
         assertNull(DesktopBackDispatcher.navigationForDomMouseButton(0))
-        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(1))
+        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(1, x11 = false))
+        assertNull(DesktopBackDispatcher.navigationForAwtMouseButton(1, x11 = true))
         assertTrue(DesktopBackDispatcher.perform(DesktopBackDispatcher.navigationForDomMouseButton(3)!!))
         assertEquals(1, hits)
         // Forward has no history on desktop: consumed, nothing dispatched.

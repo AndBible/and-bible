@@ -47,7 +47,7 @@ import java.awt.event.MouseEvent
  * Page messages are `{"desktopInput": {"type": T, ...}}` posted by [DesktopInputScript]:
  * - `key`: `key`, `ctrl`, `alt`, `shift`, `editable`, optional `selection` (JSON string of the page selection) -> [DesktopShortcuts]
  * - `mouse`: `button` (DOM 3 = back, 4 = forward)
- * - `wheel`: `dx`, `dy` (pixels), `t` (page clock, ms) -> [DesktopReadingGestures]
+ * - `wheel`: `dx`, `dy` (pixels), stamped with [clockMillis] when handled (the page clocks are per document) -> [DesktopReadingGestures]
  * - `zoom`: `dy` (Ctrl+wheel step; negative = larger) -> the font size shortcut
  * - `click` -> [DesktopReadingGestures.onClick]
  * Other types go to [extensions] (a handler per type name: `(windowId, message) -> Unit`); a message with the envelope
@@ -64,6 +64,8 @@ class DesktopReadingInputImpl(
     private val gestures: DesktopReadingGestures = DesktopReadingGestures(),
     private val installMouseListener: ((AWTEventListener) -> Unit) = ::installAwtListener,
     private val selectionMenu: DesktopSelectionMenu = DesktopSelectionMenu(),
+    private val x11Toolkit: Boolean = DesktopBackDispatcher.isX11Toolkit(),
+    private val clockMillis: () -> Long = { System.nanoTime() / 1_000_000 },
 ) : DesktopReadingInput {
     /** The page script parts every pane gets. */
     val scriptParts: MutableList<String> = DesktopInputScript.DEFAULT_PARTS.toMutableList()
@@ -125,7 +127,7 @@ class DesktopReadingInputImpl(
                 windowId,
                 m["dx"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
                 m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
-                (m["t"]?.jsonPrimitive?.doubleOrNull ?: System.nanoTime() / 1_000_000.0).toLong(),
+                clockMillis(),
             )
             "zoom" -> shortcuts.onZoom(m["dy"]?.jsonPrimitive?.doubleOrNull ?: 0.0, m["steps"]?.jsonPrimitive?.intOrNull ?: 1)
             "click" -> gestures.onClick(windowId)
@@ -175,7 +177,7 @@ class DesktopReadingInputImpl(
 
     internal fun onAwtMouse(eventId: Int, button: Int) {
         if (eventId == MouseEvent.MOUSE_PRESSED) {
-            DesktopBackDispatcher.navigationForAwtMouseButton(button)?.let { shortcuts.onNavigation(it) }
+            DesktopBackDispatcher.navigationForAwtMouseButton(button, x11Toolkit)?.let { shortcuts.onNavigation(it) }
         }
     }
 

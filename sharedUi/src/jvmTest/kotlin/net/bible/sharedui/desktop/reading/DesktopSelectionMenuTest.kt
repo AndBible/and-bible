@@ -192,8 +192,9 @@ class DesktopSelectionMenuTest {
         override fun search(windowId: String) {}
         override fun goToReference(windowId: String) {}
         override fun back(historyFallback: Boolean) {}
+        override fun navigateBack(windowId: String?) {}
         override fun bookmarkSelection(windowId: String, selectionJson: String) {}
-        override fun changeFontSize(change: FontSizeChange) {}
+        override fun changeFontSize(change: FontSizeChange, steps: Int) {}
         override fun focusNextWindow() {}
         override fun focusPreviousWindow() {}
         override fun toggleFullScreen() {}

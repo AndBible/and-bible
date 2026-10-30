@@ -30,6 +30,15 @@ class PaneFocusRequestTest {
         assertEquals(listOf("press: focus to pane"), lines)
     }
 
+    @Test fun onlyTheFirstPressOfAPaneIsLogged() {
+        var focus = 0
+        val lines = mutableListOf<String>()
+        val logged = java.util.concurrent.atomic.AtomicBoolean(false)
+        repeat(3) { assertTrue(PaneFocusRequest.handle(PaneFocusRequest.REQUEST, { focus++ }, { lines += it }, logged)) }
+        assertEquals(3, focus)
+        assertEquals(listOf("press: focus to pane"), lines)
+    }
+
     @Test fun otherRequestsAreLeftToTheBridge() {
         var focus = 0
         for (t in listOf("{\"method\":\"x\"}", "kcef:focus", "")) {

@@ -23,9 +23,9 @@ enum class FontSizeChange {
     Larger, Smaller, Reset;
 
     /** The new `font_size_multiplier` percent for [current], within the settings slider's 10..500. */
-    fun apply(current: Int): Int = when (this) {
-        Larger -> current + FONT_STEP
-        Smaller -> current - FONT_STEP
+    fun apply(current: Int, steps: Int = 1): Int = when (this) {
+        Larger -> current + FONT_STEP * steps
+        Smaller -> current - FONT_STEP * steps
         Reset -> FONT_DEFAULT
     }.coerceIn(FONT_MIN, FONT_MAX)
 
@@ -64,10 +64,17 @@ interface DesktopShortcutActions {
     fun search(windowId: String)
     fun goToReference(windowId: String)
 
-    /** Back: a Compose back handler first; when none takes it and [historyFallback], the reading history. */
+    /** Esc from a pane: a Compose back handler; when none takes it and [historyFallback], the reading history. */
     fun back(historyFallback: Boolean)
+
+    /**
+     * Back from Alt+Left or the mouse button: a Compose back handler first (an overlay on top owns Back), then the
+     * page modals of [windowId] (null = the active window), then the reading history.
+     */
+    fun navigateBack(windowId: String?)
     fun bookmarkSelection(windowId: String, selectionJson: String)
-    fun changeFontSize(change: FontSizeChange)
+    /** Applies [change] [steps] times at once (one setting write, one config resend); the result stays within 10..500. */
+    fun changeFontSize(change: FontSizeChange, steps: Int = 1)
     fun focusNextWindow()
     fun focusPreviousWindow()
     fun toggleFullScreen()
@@ -99,11 +106,11 @@ class DesktopShortcuts(
     private val isRtl: () -> Boolean = { DesktopLayoutDirection.isRtl() },
 ) {
     /**
-     * Handles a mouse or key navigation; forward is consumed without effect. Back closes an open page modal first, else
-     * goes back. Returns true (always consumed).
+     * Handles a mouse or key navigation; forward is consumed without effect. Back goes through
+     * [DesktopShortcutActions.navigateBack] (Compose back handler, page modals, history). Returns true (always consumed).
      */
     fun onNavigation(navigation: Navigation, windowId: String? = null): Boolean {
-        if (navigation == Navigation.Back && !actions.closePageModals(windowId)) actions.back(historyFallback = true)
+        if (navigation == Navigation.Back) actions.navigateBack(windowId)
         return true
     }
 
@@ -111,9 +118,7 @@ class DesktopShortcuts(
     fun onZoom(deltaY: Double, steps: Int = 1): Boolean {
         if (deltaY == 0.0 || steps < 1) return false
         return reading {
-            repeat(steps.coerceAtMost(MAX_ZOOM_STEPS)) {
-                actions.changeFontSize(if (deltaY < 0) FontSizeChange.Larger else FontSizeChange.Smaller)
-            }
+            actions.changeFontSize(if (deltaY < 0) FontSizeChange.Larger else FontSizeChange.Smaller, steps.coerceAtMost(MAX_ZOOM_STEPS))
         }
     }
 
@@ -121,7 +126,9 @@ class DesktopShortcuts(
     fun onChord(chord: Chord, windowId: String?): Boolean {
         if (chord.composing) return false
         val key = if (chord.key.length == 1) chord.key.lowercase() else chord.key
-        if (chord.alt && !chord.ctrl) {
+        // Ctrl+Alt is AltGr on Windows (AltGr+L = ł, AltGr+0 = }): never a shortcut, its character is typed.
+        if (chord.ctrl && chord.alt) return false
+        if (chord.alt) {
             if (chord.editable) return false
             val nav = DesktopBackDispatcher.navigationForDomKey(key, alt = true, isRtl = isRtl()) ?: return false
             return onNavigation(nav, windowId)
