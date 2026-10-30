@@ -69,6 +69,10 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupHost
+import net.bible.android.control.backup.IncomingBackupDetector
+import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostErrorReportHooks
 import net.bible.service.startup.ReadingAppInit
@@ -507,14 +511,38 @@ private fun HostAppContent(
     LaunchedEffect(appHosts, navController) {
         // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
         navController.currentBackStackEntryFlow.first()
-        platform.receiveIncomingFiles(
-            open = { refs, complete ->
+        val router = IncomingFileRouter(
+            scope = scope,
+            isBackup = { ref ->
+                val path = incomingFilePath(ref) ?: return@IncomingFileRouter false
+                val source = PickedSource(path, path.substringAfterLast('/'), null)
+                val host = koin.get<BackupHost>()
+                withContext(Dispatchers.Default) {
+                    IncomingBackupDetector.isDatabaseBackup(source.displayName) { host.openInput(source) }
+                }
+            },
+            restore = { ref ->
+                val path = checkNotNull(incomingFilePath(ref))
+                val host = koin.get<BackupHost>()
+                val source = PickedSource(path, path.substringAfterLast('/'), null)
+                // The Welcome screen's restore, minus its picker: errors are reported the same way.
+                net.bible.android.control.backup.restorePickedBackup(
+                    pick = { source },
+                    restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
+                    reportError = { message, cause -> host.showErrorReport(message, cause) },
+                    fallbackError = { koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred },
+                )
+            },
+            install = { refs, complete ->
                 appHosts.installZip.open(
                     action = net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW,
                     uris = refs,
                     onResult = { complete() },
                 )
             },
+        )
+        platform.receiveIncomingFiles(
+            open = { refs, complete -> router.route(refs, complete) },
             onFailure = {
                 koin.get<net.bible.sharedcore.platform.UserNotifier>()
                     .showError(koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred)
