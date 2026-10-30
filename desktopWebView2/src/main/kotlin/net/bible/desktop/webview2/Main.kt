@@ -60,7 +60,8 @@ fun main() {
     }
     if (options.spikeLog) spikeLog("webview2 environment ready, runtime ${engine.version}")
     val session = DesktopWebSession(
-        engine = if (options.spikeLog) SpikeTimingEngine(engine) else engine,
+        engine = (if (options.spikeLog) SpikeTimingEngine(engine) else engine)
+            .let { e -> System.getProperty("andbible.w2.evalDir")?.let { EvalProbeEngine(e, Paths.get(it)) } ?: e },
         shutdownEngine = engine::shutdown,
         cleanUp = { bundleRoot.toFile().deleteRecursively() },
     )

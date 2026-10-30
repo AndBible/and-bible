@@ -129,6 +129,10 @@ internal class WebView2Pane(
         controller = ctl
         backgroundArgb?.let { applyBackground(ctl, it) }
         applyBounds()
+        // Created while the host was parked (hidden): the page starts hidden. attach() may have run before the controller
+        // existed, so apply the current state now.
+        ctl.call(Wv2.Controller.put_IsVisible, if (attachedTo != null) 1 else 0)
+        if (attachedTo != null) ctl.call(Wv2.Controller.NotifyParentWindowPositionChanged)
         val wv = ctl.getPtr(Wv2.Controller.get_CoreWebView2) ?: error("get_CoreWebView2 failed")
         webView = wv
         configureSettings(wv)
