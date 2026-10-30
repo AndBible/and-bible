@@ -34,6 +34,14 @@ export function useScroll(
     const {highlightOrdinal, resetHighlights} = highlight;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
+    // Window position right after our last programmatic scroll. A scroll event at any other
+    // position was made by the user (see the scroll anchor below).
+    let lastProgrammaticScrollY: number | null = null;
+
+    function scrollWindowTo(y: number) {
+        window.scrollTo(0, y);
+        lastProgrammaticScrollY = window.scrollY;
+    }
 
     const touchStartHandler = () => stopScrolling();
 
@@ -84,7 +92,7 @@ export function useScroll(
         let start: number;
 
         if (noScrolling) {
-            window.scrollTo(0, elementY);
+            scrollWindowTo(elementY);
             return;
         }
 
@@ -97,7 +105,7 @@ export function useScroll(
             // Get percent of completion in range [0, 1].
             const percent = Math.min(time / duration, 1);
 
-            window.scrollTo(0, startingY + diff * percent);
+            scrollWindowTo(startingY + diff * percent);
 
             // Proceed with animation as long as we wanted it to.
             if (time < duration) {
@@ -179,7 +187,7 @@ export function useScroll(
             delta += 0.5 * (lineHeight - fontSize);
             if (now) {
                 currentScrollAnimation.value = -1;
-                window.scrollTo(0, elementTop - delta);
+                scrollWindowTo(elementTop - delta);
                 setTimeout(() => {
                     if (currentScrollAnimation.value === -1) {
                         currentScrollAnimation.value = null;
@@ -277,6 +285,16 @@ export function useScroll(
 
     setupEventBusListener("set_scroll_anchor", setScrollAnchor);
 
+    // The user taking over (touch, wheel, or a scroll we did not make) ends the anchor, so a later
+    // resize does not yank the view back. The tap itself sets the anchor on click, after touchstart.
+    setupWindowEventListener('touchstart', clearScrollAnchor, {passive: true});
+    setupWindowEventListener('wheel', clearScrollAnchor, {passive: true});
+    setupWindowEventListener('scroll', () => {
+        if (scrollAnchorCleanupTimeout !== null && window.scrollY !== lastProgrammaticScrollY) {
+            clearScrollAnchor();
+        }
+    });
+
     setupWindowEventListener('resize', async () => {
         if (!scrollAnchorElement) return;
         await waitNextAnimationFrame();
@@ -285,12 +303,18 @@ export function useScroll(
         const rect = anchor.getBoundingClientRect();
         const viewTop = calculatedConfig.value.topOffset;
         const viewBottom = window.innerHeight - appSettings.bottomOffset;
+        const fitsInView = rect.top >= viewTop && rect.bottom <= viewBottom;
+        // An anchor taller than the view cannot fit; once any part of it is in view it counts as
+        // visible, instead of being re-scrolled on every resize.
+        const tallAndOverlapping = rect.height > viewBottom - viewTop
+            && rect.bottom > viewTop && rect.top < viewBottom;
+        if (fitsInView || tallAndOverlapping) return;
 
-        if (rect.top < viewTop || rect.bottom > viewBottom) {
-            const elementTop = rect.top + window.scrollY;
-            const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
-            window.scrollTo(0, Math.max(0, targetY));
-        }
+        // Our own animation would fight the anchor scroll; the anchor wins.
+        if (isScrolling.value) stopScrolling();
+        const elementTop = rect.top + window.scrollY;
+        const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
+        scrollWindowTo(Math.max(0, targetY));
     });
 
     return {scrollToId, isScrolling, doScrolling, scrollY}
