@@ -96,7 +96,10 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
 One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` action per issue
 (regenerate it as fixes land; start a new NNN once the user has applied it). Comment shape:
 "Fixed: <what the user sees now>. <one sentence why, if useful>. The fix will be in an upcoming
-version." Read the issue title first so the comment matches what was reported. Do not close
+version." End every comment with a signature as its final line, separated by a blank line:
+`_— bug-fix round, <Mon YYYY>_` (e.g. `_— bug-fix round, Oct 2026_`), so the maintainer's own
+comments are never confused with session-written ones (same idea as the triage marker in
+issue-management). Read the issue title first so the comment matches what was reported. Do not close
 issues: `Fixes #<n>` commits close them when they reach the default branch. Tell the user to run
 `jb issue apply <container>` on the host.
 
