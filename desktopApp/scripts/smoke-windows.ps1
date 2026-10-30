@@ -28,7 +28,10 @@ $rc = 0
 $started = Get-Date
 $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("absmoke-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
 New-Item -ItemType Directory -Force $tmp | Out-Null
-Expand-Archive -LiteralPath $Zip -DestinationPath (Join-Path $tmp 'image')
+# The system bsdtar unpacks the 370 MB image in seconds; Expand-Archive takes minutes on a fresh VM.
+New-Item -ItemType Directory -Force (Join-Path $tmp 'image') | Out-Null
+& "$env:SystemRoot\System32\tar.exe" -xf $Zip -C (Join-Path $tmp 'image')
+if ($LASTEXITCODE -ne 0) { Write-Output "FAIL: could not unpack $Zip"; exit 1 }
 $exe = Join-Path $tmp 'image\AndBible\AndBible.exe'
 if (-not (Test-Path $exe)) { Write-Output "FAIL: no AndBible\AndBible.exe in $Zip"; exit 1 }
 $imageDir = Split-Path $exe
