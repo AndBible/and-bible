@@ -22,17 +22,20 @@ import java.nio.ByteBuffer
 import org.cef.browser.CefBrowser
 import org.cef.handler.CefRenderHandlerAdapter
 import org.cef.handler.CefScreenInfo
+import org.cef.misc.CefRange
 
 /**
  * Off-screen render handler: reports the view geometry from [geometry] (read on every call, so it follows resizes) and feeds
  * paints into [frames]. Popup rectangles arrive in DIP and are stored in view pixels.
  *
  * @param onCursor receives the CEF cursor type constant when the page changes the cursor
+ * @param onImeRange receives the composition range and its character rectangles (view DIP) when CEF reports them
  */
 internal class OsrRenderHandler(
     private val geometry: () -> OsrGeometry,
     private val frames: OsrFrameBuffer,
     private val onCursor: (Int) -> Unit,
+    private val onImeRange: (CefRange?, Array<Rectangle>?) -> Unit = { _, _ -> },
 ) : CefRenderHandlerAdapter() {
     @Volatile private var popupDip: Rectangle? = null
     @Volatile private var popupShown = false
@@ -80,5 +83,9 @@ internal class OsrRenderHandler(
     override fun onCursorChange(browser: CefBrowser?, cursorType: Int): Boolean {
         onCursor(cursorType)
         return true
+    }
+
+    override fun OnImeCompositionRangeChanged(browser: CefBrowser?, selectionRange: CefRange?, characterBounds: Array<Rectangle>?) {
+        onImeRange(selectionRange, characterBounds)
     }
 }

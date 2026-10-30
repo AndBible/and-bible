@@ -176,11 +176,13 @@ internal class OsrInput(
     }
 }
 
-/** Forwards every pointer event over the node to [input] and consumes what it forwarded. */
-internal fun Modifier.osrPointerInput(input: OsrInput): Modifier = pointerInput(input) {
+/** Forwards every pointer event over the node to [input] and consumes what it forwarded; a primary press also calls [onPress]. */
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun Modifier.osrPointerInput(input: OsrInput, onPress: () -> Unit = {}): Modifier = pointerInput(input) {
     awaitPointerEventScope {
         while (true) {
             val event = awaitPointerEvent(PointerEventPass.Main)
+            if (event.type == PointerEventType.Press && event.button == PointerButton.Primary) onPress()
             if (input.onPointerEvent(event)) event.changes.forEach { it.consume() }
         }
     }

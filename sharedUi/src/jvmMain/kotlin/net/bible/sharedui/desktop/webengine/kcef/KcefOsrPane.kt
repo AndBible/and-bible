@@ -32,13 +32,17 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
 import dev.datlag.kcef.KCEFBrowser
 import kotlinx.coroutines.CoroutineDispatcher
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import org.cef.browser.CefRendering
+import org.cef.input.CefCompositionUnderline
+import org.cef.misc.CefRange
 import java.awt.Point
+import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.JPanel
@@ -50,7 +54,8 @@ import javax.swing.SwingUtilities
  * The browser is created once and survives leaving and re-entering composition. Everything shared with the windowed pane is
  * in [KcefPaneCore].
  *
- * Mouse, wheel and cursor are handled here ([OsrInput]); keyboard and IME are not yet.
+ * Mouse, wheel and cursor are handled here ([OsrInput]); keyboard and focus through [OsrFocus] (every key goes to the page,
+ * which owns the shortcuts) and composed text through [OsrIme].
  */
 internal class KcefOsrPane(
     override val id: String,
@@ -58,7 +63,7 @@ internal class KcefOsrPane(
     bundle: BundleRequestHandler,
     onMessage: (String) -> Unit,
     private val log: (String) -> Unit,
-) : DesktopWebPane, OsrBrowserSink {
+) : DesktopWebPane, OsrBrowserSink, OsrKeyboardSink, OsrImeSink {
     /** Invisible lightweight anchor JCEF holds for the browser; it is never shown or added to a container. */
     private val hostComponent = JPanel().apply { isOpaque = false; isVisible = false }
 
@@ -68,15 +73,19 @@ internal class KcefOsrPane(
     private var background by mutableStateOf<Color?>(null)
     private val frames = OsrFrameBuffer(onPersistentMismatch = { log("off-screen: $it") })
     private val input = OsrInput(this, { geometry }, hostComponent)
-    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = { core.browser.setFocus(true) }) {
+    private val focus = OsrFocus(this)
+    private val ime = OsrIme(this)
+
+    // The page's mousedown asks for focus: in off-screen mode that is Compose focus (which then focuses CEF), not X11.
+    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = { focus.requestFocus() }) {
         // Only the native browser takes a frame rate; before onAfterCreated the call is silently lost (CEF default 30 fps).
         it.setWindowlessFrameRate(FRAME_RATE)
     }
     private val browser: KCEFBrowser = core.createBrowser(
-        CefRendering.CefRenderingWithHandler(OsrRenderHandler({ geometry }, frames) { type ->
+        CefRendering.CefRenderingWithHandler(OsrRenderHandler({ geometry }, frames, onCursor = { type ->
             // CEF calls this on its UI thread; Compose state is written on the EDT.
             SwingUtilities.invokeLater { if (!core.isDisposed) cursor = OsrInput.pointerIconFor(type) }
-        }, hostComponent),
+        }, onImeRange = ime::onCompositionRangeChanged), hostComponent),
     ).also {
         it.createImmediately()
     }
@@ -87,18 +96,22 @@ internal class KcefOsrPane(
         val frame by frames.frame
         DisposableEffect(scale) {
             // A new device scale reaches CEF through the next layout size and this notification.
+            ime.scale = scale
             update(geometry.widthPx, geometry.heightPx, scale, geometry.screenOrigin)
             onDispose {}
         }
+        DisposableEffect(Unit) { onDispose { focus.release() } }
         Canvas(
             modifier
                 .onSizeChanged { update(it.width, it.height, scale, geometry.screenOrigin) }
                 .onGloballyPositioned { coords ->
                     val p = coords.positionOnScreen()
+                    coords.positionInRoot().let { if (it.isSpecified) ime.originInRootPx = it }
                     if (p.isSpecified) geometry = geometry.copy(screenOrigin = Point((p.x / scale).toInt(), (p.y / scale).toInt()))
                 }
                 .pointerHoverIcon(cursor)
-                .osrPointerInput(input)
+                .osrPointerInput(input, onPress = focus::requestFocus)
+                .osrKeyboard(focus, ime)
                 .clipToBounds(),
         ) {
             background?.let { drawRect(it) }
@@ -123,6 +136,20 @@ internal class KcefOsrPane(
 
     override fun sendWheel(e: MouseWheelEvent) { if (!core.isDisposed) browser.sendMouseWheelEvent(e) }
 
+    override fun setFocus(focused: Boolean) { if (!core.isDisposed) browser.setFocus(focused) }
+
+    override fun sendKey(e: KeyEvent) { if (!core.isDisposed) browser.sendKeyEvent(e) }
+
+    override fun setComposition(text: String, underlines: List<CefCompositionUnderline>, replacement: CefRange, selection: CefRange) {
+        if (!core.isDisposed) browser.ImeSetComposition(text, underlines, replacement, selection)
+    }
+
+    override fun commitText(text: String, replacement: CefRange) { if (!core.isDisposed) browser.ImeCommitText(text, replacement, 0) }
+
+    override fun cancelComposing() { if (!core.isDisposed) browser.ImeCancelComposing() }
+
+    override fun finishComposing() { if (!core.isDisposed) browser.ImeFinishComposingText(false) }
+
     override fun setBackground(argb: Int) {
         background = Color(argb)
         core.setBackground(argb)
@@ -138,7 +165,10 @@ internal class KcefOsrPane(
 
     override fun evaluate(js: String, callback: ((String) -> Unit)?) = core.evaluate(js, callback)
 
-    override fun dispose() = core.dispose()
+    override fun dispose() {
+        focus.release()
+        core.dispose()
+    }
 
     private companion object {
         const val FRAME_RATE = 60

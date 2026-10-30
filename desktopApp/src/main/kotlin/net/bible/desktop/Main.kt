@@ -38,6 +38,7 @@ import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.desktop.assembly.desktopCrashGate
 import net.bible.sharedui.desktop.assembly.desktopRendererRecovery
 import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
+import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingInput
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
@@ -176,8 +177,9 @@ private fun runApp(launchArgs: List<String>) {
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
             onCloseRequest = requestClose,
             // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
-            onPreviewKeyEvent = { DesktopReadingInput.current().onPreviewKeyEvent(it) },
-            onKeyEvent = { DesktopReadingInput.current().onKeyEvent(it) },
+            // An off-screen web pane that has focus takes every key itself (the page's script owns the shortcuts).
+            onPreviewKeyEvent = { DesktopWebPaneKeys.windowKey { DesktopReadingInput.current().onPreviewKeyEvent(it) } },
+            onKeyEvent = { DesktopWebPaneKeys.windowKey { DesktopReadingInput.current().onKeyEvent(it) } },
         ) {
             val awtWindow = window
             DisposableEffect(awtWindow) {
