@@ -113,6 +113,10 @@ class DocumentLoaderTest {
         CommonUtils.windowControl.windowRepository = repo
         repo.initializeAtEdge()
         window = repo.activeWindow
+        setUpReloadedSession()
+    }
+
+    private fun setUpReloadedSession() {
         val channel = BibleViewJsChannel(host) {}
         channel.markClientReady()
         session = BibleWindowSession(
@@ -179,6 +183,32 @@ class DocumentLoaderTest {
 
     private suspend fun awaitEvaluated(predicate: (List<String>) -> Boolean) = withContext(Dispatchers.IO) {
         withTimeout(10_000) { while (!predicate(synchronized(host.evaluated) { host.evaluated.toList() })) Thread.sleep(10) }
+    }
+
+    @Test
+    fun reloadedMultiReferencePositionIsSentToTheClient() = runBlocking {
+        val factory = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.download.FakeBookFactory>()
+        val kjv = Books.installed().getBook("KJV")!!
+        val refs = net.bible.service.sword.bookAndKeyListOf(listOf(
+            Verse(KJVA, BibleBook.JOHN, 6, 35), Verse(KJVA, BibleBook.JOHN, 6, 58),
+            Verse(KJVA, BibleBook.JOHN, 11, 26)
+        ).map { net.bible.service.sword.BookAndKey(it, kjv) })
+        window.pageManager.setCurrentDocumentAndKey(factory.multiDocument, refs)
+        session.firstDocument = window.pageManager.currentPage.currentPageContent()
+        net.bible.sharedui.reading.bridge.ReadingBridge(session).scrolledToOrdinal("", 5)
+        val windowId = window.id
+        repo.saveIntoDb(false)
+        repo.persistence.awaitPersisted()
+        repo.loadFromDb(repo.id)
+        window = repo.getWindow(windowId)!!
+        session.dispose()
+        // The new session owns the reloaded window, just as after process restart.
+        setUpReloadedSession()
+        val page = window.pageManager.currentPage
+        loader.loadDocument(page.currentPageContent(), true, page.key, null, null, null)
+        awaitEvaluated { calls -> calls.any { it.contains("setup_content") } }
+        val setup = host.evaluated.first { it.contains("setup_content") }
+        assertTrue(setup, setup.contains("\"jumpToAnchor\": 5"))
     }
 
     @Test

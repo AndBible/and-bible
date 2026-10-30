@@ -16,35 +16,37 @@
   -->
 
 <template>
-  <h2 v-if="document.compare">{{ osisFragments[0].keyName }}</h2>
-  <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key">
-    <div class="ref-link">
-      <div class="flex">
-        <a :href="link(fragment, document.compare)">
-          <template v-if="document.compare">{{ fragment.bookAbbreviation }}</template>
-          <template v-else>{{ sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation) }}
-          </template>
-        </a>
-        <div v-if="document.compare && !exportMode" class="hide-button"
-             @click="android.toggleCompareDocument(fragment.bookInitials)">
-          <FontAwesomeIcon icon="eye-slash"/>
+  <div ref="scrollRoot">
+    <h2 v-if="document.compare">{{ osisFragments[0].keyName }}</h2>
+    <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key" data-multi-fragment>
+      <div class="ref-link">
+        <div class="flex">
+          <a :href="link(fragment, document.compare)">
+            <template v-if="document.compare">{{ fragment.bookAbbreviation }}</template>
+            <template v-else>{{ sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation) }}
+            </template>
+          </a>
+          <div v-if="document.compare && !exportMode" class="hide-button"
+               @click="android.toggleCompareDocument(fragment.bookInitials)">
+            <FontAwesomeIcon icon="eye-slash"/>
+          </div>
         </div>
       </div>
+      <OsisFragment hide-titles :fragment="fragment"/>
+      <FeaturesLink :fragment="fragment"/>
+      <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
     </div>
-    <OsisFragment hide-titles :fragment="fragment"/>
-    <FeaturesLink :fragment="fragment"/>
-    <div v-if="index < filteredOsisFragments.length - 1" class="separator"/>
-  </div>
-  <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0 && !exportMode">
-    <div class="separator"/>
-    <div class="flex2">
-      <div class="restore-button">
-        <FontAwesomeIcon icon="eye"/>
+    <div class="restore" v-if="document.compare && hiddenOsisFragments.length > 0 && !exportMode">
+      <div class="separator"/>
+      <div class="flex2">
+        <div class="restore-button">
+          <FontAwesomeIcon icon="eye"/>
+        </div>
+        <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments"
+           :key="fragment.key">
+          {{ fragment.bookAbbreviation }} &nbsp;
+        </a>
       </div>
-      <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments"
-         :key="fragment.key">
-        {{ fragment.bookAbbreviation }} &nbsp;
-      </a>
     </div>
   </div>
 </template>
@@ -59,6 +61,10 @@ import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
 import {formatExportLink} from "@/utils";
+import {useMultiDocumentScroll} from "@/composables/multi-document-scroll";
+
+const scrollRoot = ref<HTMLElement | null>(null);
+useMultiDocumentScroll(scrollRoot);
 
 const props = defineProps<{ document: MultiFragmentDocument }>();
 

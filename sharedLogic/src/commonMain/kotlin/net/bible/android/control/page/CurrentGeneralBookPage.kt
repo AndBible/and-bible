@@ -225,6 +225,7 @@ class CurrentGeneralBookPage internal constructor(
                 }
                 doSetKey(key)
                 localSetCurrentDocument(fakeBookFactory.multiDocument)
+                anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
             }
             else -> {
                 super.restoreFrom(entity)

@@ -129,6 +129,37 @@ class ReadingBridgeNavigationFamilyTest {
         assertEquals(Verse(KJVA, 5).ordinal, bible.singleKey.ordinal)
     }
 
+    @Test fun multiReferenceScrollSurvivesWorkspaceReload() = kotlinx.coroutines.runBlocking {
+        val manager = repo.activeWindow.pageManager
+        val factory = GlobalContext.get().get<net.bible.service.download.FakeBookFactory>()
+        val refs = net.bible.service.sword.bookAndKeyListOf(listOf(
+            Verse(KJVA, BibleBook.JOHN, 6, 35), Verse(KJVA, BibleBook.JOHN, 6, 58),
+            Verse(KJVA, BibleBook.JOHN, 11, 26)
+        ).map { net.bible.service.sword.BookAndKey(it, kjv) })
+        manager.setCurrentDocumentAndKey(factory.multiDocument, refs)
+        val view = newView()
+        view.firstDocument = manager.currentPage.currentPageContent()
+        val windowId = repo.activeWindow.id
+        val bridge = BibleJavascriptInterface(view)
+        // The third fragment's verse has a document-local scroll ordinal, not a Bible ordinal.
+        bridge.scrolledToOrdinal("", 5)
+        assertEquals(5, manager.currentPage.anchorOrdinal?.start)
+        repo.saveIntoDb(false)
+        repo.persistence.awaitPersisted()
+        repo.loadFromDb(repo.id)
+        val restored = repo.getWindow(windowId)!!.pageManager.currentGeneralBook
+        assertEquals(refs.getOsisRef(), restored.key?.getOsisRef())
+        assertEquals(5, restored.anchorOrdinal?.start)
+    }
+
+    @Test fun multiReferenceRestoreReadsAnAlreadyPersistedAnchor() {
+        val manager = repo.activeWindow.pageManager
+        val factory = GlobalContext.get().get<net.bible.service.download.FakeBookFactory>()
+        manager.currentGeneralBook.restoreFrom(net.bible.android.database.WorkspaceEntities.Page(
+            factory.multiDocument.initials, "KJV:John.6.35||KJV:John.6.58||KJV:John.11.26", 5))
+        assertEquals(5, manager.currentGeneralBook.anchorOrdinal?.start)
+    }
+
     @Test fun parseRefAnswersOsisOrNull() {
         val view = newView(attach = true)
         val bridge = BibleJavascriptInterface(view)

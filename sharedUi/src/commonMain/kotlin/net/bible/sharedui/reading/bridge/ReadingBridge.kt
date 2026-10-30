@@ -27,6 +27,7 @@ import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
@@ -124,7 +125,7 @@ class ReadingBridge(
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 }, session.window)
-        } else if (doc is OsisDocument || doc is StudyPadDocument) {
+        } else if (doc is OsisDocument || doc is StudyPadDocument || doc is MultiFragmentDocument) {
             val curPage = currentPageManager.currentPage
             // Commentaries and general books are addressed by a single osisRef key. When infinite
             // scroll brings a new block/entry into view its document carries a different osisRef, so

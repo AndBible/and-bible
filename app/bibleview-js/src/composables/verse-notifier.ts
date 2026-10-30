@@ -84,7 +84,7 @@ export function useVerseNotifier(
                 for (const x of iterate(lastDirection)) {
                     element = document.elementFromPoint(x, y) as Nullable<HTMLElement>
                     if (element) {
-                        element = element.closest(".ordinal") as Nullable<HTMLElement>;
+                        element = element.closest("[data-scroll-ordinal], .ordinal") as Nullable<HTMLElement>;
                         if (element) {
                             const direction = window.getComputedStyle(element).getPropertyValue("direction");
                             if (direction !== lastDirection) {
@@ -92,7 +92,7 @@ export function useVerseNotifier(
                                 lastDirection = direction;
                                 break;
                             }
-                            const newVerse = parseInt(element.dataset.ordinal!)
+                            const newVerse = parseInt(element.dataset.scrollOrdinal ?? element.dataset.ordinal!)
                             const doc = element.closest(".document") as Nullable<HTMLElement>
                             const newKey = doc?.dataset.osisRef || ""
                             // While scrolling up, the detected verse must never advance past the
