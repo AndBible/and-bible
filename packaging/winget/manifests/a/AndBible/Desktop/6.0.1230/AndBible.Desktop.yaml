@@ -1,0 +1,6 @@
+# Unpublishable template: replace installer URL and SHA256 before submission.
+PackageIdentifier: AndBible.Desktop
+PackageVersion: 6.0.1230
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.6.0
