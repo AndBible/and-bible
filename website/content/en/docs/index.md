@@ -39,6 +39,7 @@ shows how to find your way around the app.
 | [Getting Started](getting_started.md) | Installing the app, Linux and Windows 11 setup, and running it on any computer |
 | [Navigation](navigation.md) | Opening Bible references, moving between documents and workspaces, gestures and shortcuts |
 | [Usage](usage.md) | Suggested setups for Bible study, topical and word study, devotions, sermon notes and original languages |
+| [Desktop beta](desktop.md) | Installation, update checks and data locations on Linux and Windows |
 
 ### Bible Documents
 

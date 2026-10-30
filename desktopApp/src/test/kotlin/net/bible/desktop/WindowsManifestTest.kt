@@ -51,7 +51,7 @@ class WindowsManifestTest {
             "image/jpeg" to setOf(".jpg", ".jpeg"), "image/png" to setOf(".png"),
             "image/webp" to setOf(".webp"), "application/vnd.sqlite3" to setOf(".sqlite3"),
         )
-        val mimeLine = File("packaging/linux/andbible.desktop").readLines().single { it.startsWith("MimeType=") }
+        val mimeLine = File("packaging/linux/org.andbible.AndBible.desktop").readLines().single { it.startsWith("MimeType=") }
         val mimeTypes = mimeLine.substringAfter('=').split(';').filter { it.isNotEmpty() }.toSet()
         assertEquals(emptySet(), mimeTypes - mapping.keys, "Unmapped Linux MIME types")
         val extensions = elements("FileType").map { it.textContent }.toSet()

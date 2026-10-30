@@ -1,0 +1,49 @@
+initscript {
+    repositories { mavenCentral(); gradlePluginPortal() }
+    dependencies { classpath 'io.github.jwharm.flatpak-gradle-generator:plugin:1.8.0' }
+}
+
+allprojects { project ->
+    project.pluginManager.apply(io.github.jwharm.flatpakgradlegenerator.FlatpakGradleGeneratorPlugin)
+    project.gradle.projectsEvaluated {
+        if (project.path == ':desktopApp') {
+            // Compose creates this detached dependency only when packaging tasks are realized.
+            def packagingTools = project.configurations.create('flatpakPackagingClasspath')
+            project.dependencies.add(packagingTools.name,
+                "org.jetbrains.compose:gradle-plugin-internal-jdk-version-probe:${project.libs.plugins.compose.get().version}")
+        }
+        if (project.path == ':sharedData') {
+            // KSP registers its processor classpath lazily with the JVM task.
+            project.tasks.named('kspKotlinJvm').get()
+            // KspAATask wraps a detached nontransitive runtime in an ArtifactView.
+            // Read the plugin's own versions rather than freezing a second version table.
+            def versions = project.plugins.findPlugin('com.google.devtools.ksp').class.classLoader
+                .loadClass('com.google.devtools.ksp.gradle.KSPVersionsKt')
+            def kspVersion = versions.getMethod('getKSP_VERSION').invoke(null)
+            def coroutinesVersion = versions.getMethod('getKSP_COROUTINES_VERSION').invoke(null)
+            def kspRuntime = project.configurations.create('flatpakKspRuntimeClasspath')
+            kspRuntime.transitive = false
+            ['symbol-processing-api', 'symbol-processing-common-deps', 'symbol-processing-aa-embeddable'].each {
+                project.dependencies.add(kspRuntime.name, "com.google.devtools.ksp:${it}:${kspVersion}")
+            }
+            project.dependencies.add(kspRuntime.name, "org.jetbrains.kotlin:kotlin-stdlib:${project.libs.versions.kotlin.get()}")
+            project.dependencies.add(kspRuntime.name, "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${coroutinesVersion}")
+        }
+        def productionProjects = [':', ':desktopApp', ':sharedUi', ':sharedLogic', ':sharedData',
+                                  ':sharedCore', ':jsword', ':strings-gen']
+        def includeProduction = project.rootProject.name == 'kdom' || productionProjects.contains(project.path)
+        def selected = project.configurations.findAll { c ->
+            def n = c.name.toLowerCase(Locale.ROOT)
+            includeProduction && c.canBeResolved && !n.contains('test') && !n.contains('android') &&
+                !n.contains('ios') && !n.contains('native') && !n.contains('metadata') &&
+                (n.contains('jvm') || n.contains('desktop') || n.contains('classpath') ||
+                 n.contains('compiler') || n.contains('ksp') || n.contains('proguard'))
+        }.collect { it.name }
+        project.logger.lifecycle("Flatpak sources ${project.path}: ${selected.sort()}")
+        project.tasks.named('flatpakGradleGenerator') {
+            includeConfigurations.set(selected as Set)
+            outputFile.set(project.layout.buildDirectory.file('flatpak/gradle-sources.json'))
+            downloadDirectory.set('offline-repository')
+        }
+    }
+}

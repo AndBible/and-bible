@@ -1018,6 +1018,8 @@ interface Strings {
     val memorizeCalendar: String                            // memorize_calendar
 
     // Batch 10-remainder — preference search (main Settings screen)
+    val desktopUpdateSettingTitle: String
+    val desktopUpdateSettingSummary: String
     val searchSettings: String                              // R.string.search_settings
     val help: String                                        // help
 
@@ -1246,6 +1248,15 @@ interface Strings {
     val legacyMigrationStartFreshConfirm: String       // R.string.legacy_migration_start_fresh_confirm
     val legacyImportTitle: String                      // R.string.legacy_import_title
     val legacyImportSummary: String                    // R.string.legacy_import_summary
+
+    val desktopUpdateConsentTitle: String // R.string.desktop_update_consent_title
+    val desktopUpdateConsentMessage: String // R.string.desktop_update_consent_message
+    val desktopUpdateConsentYes: String // R.string.desktop_update_consent_yes
+    val desktopUpdateConsentNo: String // R.string.desktop_update_consent_no
+    val desktopUpdateAvailableTitle: String // R.string.desktop_update_available_title
+    fun desktopUpdateAvailableMessage(available: String, current: String): String // R.string.desktop_update_available_message
+    val desktopUpdateDownload: String // R.string.desktop_update_download
+    val desktopUpdateLater: String // R.string.desktop_update_later
 
     // I2c-B
     val customRepositoryHttpsRequired: String          // R.string.custom_repository_https_required

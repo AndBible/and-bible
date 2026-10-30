@@ -86,6 +86,7 @@ val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--a
 abstract class PrepareKcefNatives : DefaultTask() {
     @get:Input abstract val packageUrl: Property<String>
     @get:Input @get:Optional abstract val expectedDigest: Property<String>
+    @get:InputFile @get:Optional @get:PathSensitive(PathSensitivity.NONE) abstract val localArchive: RegularFileProperty
     @get:Internal abstract val installDir: DirectoryProperty
     @get:Internal abstract val downloadDir: DirectoryProperty
     /** True for the Windows layout (`bin/` merged into `lib/`, `libcef.dll`) and the Windows `tar.exe`. */
@@ -97,10 +98,12 @@ abstract class PrepareKcefNatives : DefaultTask() {
     fun prepare() {
         val url = packageUrl.get()
         val downloads = downloadDir.get().asFile.apply { mkdirs() }
-        val archive = File(downloads, url.substringAfterLast('/'))
+        val archive = localArchive.orNull?.asFile ?: File(downloads, url.substringAfterLast('/'))
         val checksumFile = File(downloads, archive.name + ".checksum")
-        val cached = runCatching { pinMatches(checksumFile) && checksumMatches(archive, checksumFile) }.getOrDefault(false)
-        if (!cached) {
+        if (localArchive.isPresent) {
+            val pin = expectedDigest.orNull ?: throw GradleException("A pinned digest is required for a local KCEF archive")
+            if (!digestMatches(archive, pin)) throw GradleException("Checksum mismatch for local KCEF archive $archive")
+        } else if (!runCatching { pinMatches(checksumFile) && checksumMatches(archive, checksumFile) }.getOrDefault(false)) {
             curl("$url.checksum", checksumFile)
             if (!pinMatches(checksumFile)) {
                 throw GradleException(
@@ -163,11 +166,15 @@ abstract class PrepareKcefNatives : DefaultTask() {
     /** Whether [file] hashes to the digest in [checksumFile] (algorithm chosen by the digest's length). */
     private fun checksumMatches(file: File, checksumFile: File): Boolean {
         if (!file.isFile || !checksumFile.isFile) return false
-        val expected = digestIn(checksumFile)
+        return digestMatches(file, digestIn(checksumFile))
+    }
+
+    private fun digestMatches(file: File, expected: String): Boolean {
+        if (!file.isFile) return false
         val algorithm = when (expected.length) {
             64 -> "SHA-256"
             128 -> "SHA-512"
-            else -> throw GradleException("Unknown digest length ${expected.length} in $checksumFile")
+            else -> throw GradleException("Unknown digest length ${expected.length}")
         }
         val digest = MessageDigest.getInstance(algorithm)
         file.inputStream().use { input ->
@@ -194,6 +201,7 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
             "unsupported:$hostTarget"
         },
     )
+    providers.gradleProperty("andbible.kcefArchive").orNull?.let { localArchive.set(rootProject.file(it)) }
     windowsLayout.set(isWindowsHost)
     installDir.set(kcefNativesDir)
     kcefNativesDigests[hostTarget]?.let { expectedDigest.set(it) }
@@ -251,6 +259,8 @@ version = desktopVersion
 compose.desktop {
     application {
         mainClass = "net.bible.desktop.MainKt"
+        // The desktop runtime uses JNI and reflection (CEF, Room and Koin); keep the same unshrunk jars as the .deb.
+        buildTypes.release.proguard.isEnabled.set(false)
         nativeDistributions {
             appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
             targetFormats(if (isWindowsHost) TargetFormat.Msi else TargetFormat.Deb)
@@ -275,7 +285,8 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
-                debMaintainer = "AndBible <help.andbible@gmail.com>"
+                // jpackage combines the vendor with this email to form the Maintainer field.
+                debMaintainer = "help.andbible@gmail.com"
                 menuGroup = "Education"
                 appCategory = "Education"
             }
@@ -286,6 +297,8 @@ compose.desktop {
         jvmArgs += kcefJvmArgs
         // The version the app reports (DesktopAppEnvironment.versionName): `run` and the packaged launcher (.cfg) alike.
         jvmArgs += "-Dandbible.version=$desktopVersion"
+        jvmArgs += "-Dandbible.versionCode=${rootVersionProperties.getProperty("versionCode").trim()}"
+        jvmArgs += "-Dandbible.releaseKind=${providers.gradleProperty("desktopReleaseKind").orElse("dev").get()}"
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }
@@ -431,18 +444,124 @@ fun restoreNativeModes(source: File, target: File) {
 
 // The jpackage app image layout differs per OS: <name>/lib/app on Linux, <name>/app on Windows.
 val appImageAppDir = if (isWindowsHost) "compose/binaries/main/app/AndBible/app" else "compose/binaries/main/app/andbible/lib/app"
-val appImageNatives = layout.buildDirectory.dir("$appImageAppDir/resources/kcef-natives")
-val appImageCfg = layout.buildDirectory.file(if (isWindowsHost) "$appImageAppDir/AndBible.cfg" else "$appImageAppDir/andbible.cfg")
 tasks.matching { it.name == "createDistributable" || it.name == "createReleaseDistributable" }.configureEach {
     doLast {
+        val release = name == "createReleaseDistributable"
+        val appDir = if (release) appImageAppDir.replace("binaries/main/", "binaries/main-release/") else appImageAppDir
+        val natives = layout.buildDirectory.dir("$appDir/resources/kcef-natives").get().asFile
+        val config = layout.buildDirectory.file("$appDir/${if (isWindowsHost) "AndBible" else "andbible"}.cfg").get().asFile
         // Windows has no executable bit: jcef_helper.exe runs as it is.
-        if (!isWindowsHost) restoreNativeModes(kcefNativesDir.get().asFile, appImageNatives.get().asFile)
-        val helper = File(appImageNatives.get().asFile, if (isWindowsHost) "jcef_helper.exe" else "jcef_helper")
+        if (!isWindowsHost) restoreNativeModes(kcefNativesDir.get().asFile, natives)
+        val helper = File(natives, if (isWindowsHost) "jcef_helper.exe" else "jcef_helper")
         check(helper.isFile && helper.canExecute()) { "jcef_helper is missing or not executable in the app image ($helper)" }
-        val cfg = appImageCfg.get().asFile
+        val cfg = config
         check(cfg.isFile) { "No app image .cfg at $cfg" }
         // A build-machine path here would beat the resources dir on the user's machine (CefNativesLocation).
         check("kcef.installDir" !in cfg.readText()) { "$cfg must not contain kcef.installDir" }
+    }
+}
+
+val linuxMetadata = layout.projectDirectory.file("packaging/linux/org.andbible.AndBible.metainfo.xml")
+val linuxDesktop = layout.projectDirectory.file("packaging/linux/org.andbible.AndBible.desktop")
+val appImageToolUrl = "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage"
+// Verified against the downloaded 1.9.1 release asset and its GitHub release digest.
+val appImageToolSha256 = "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
+val appImageTool = layout.buildDirectory.file("appimage-tools/appimagetool-1.9.1-x86_64.AppImage")
+fun runLinuxPackagingTool(command: List<String>, environment: Map<String, String> = emptyMap()) {
+    val builder = ProcessBuilder(command).redirectErrorStream(true)
+    builder.environment().putAll(environment)
+    val process = builder.start()
+    val output = process.inputStream.bufferedReader().use { it.readText() }
+    check(process.waitFor() == 0) { "${command.first()} failed:\n$output" }
+    if (output.isNotBlank()) logger.lifecycle(output.trimEnd())
+}
+val appImageRuntimeUrl = "https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64"
+// Verified against the downloaded 20251108 release asset and its GitHub release digest.
+val appImageRuntimeSha256 = "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
+val appImageRuntime = layout.buildDirectory.file("appimage-tools/runtime-20251108-x86_64")
+fun downloadPinned(url: String, expected: String, output: File) {
+    output.parentFile.mkdirs()
+    val partial = File(output.parentFile, output.name + ".part")
+    try {
+        runLinuxPackagingTool(listOf("curl", "-fsSL", "--retry", "2", "-o", partial.absolutePath, url))
+        val digest = MessageDigest.getInstance("SHA-256")
+        partial.inputStream().use { input ->
+            val buffer = ByteArray(65536)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                digest.update(buffer, 0, count)
+            }
+        }
+        check(digest.digest().joinToString("") { "%02x".format(it) } == expected) { "SHA-256 mismatch for $url" }
+        Files.move(partial.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        check(output.setExecutable(true, false)) { "Cannot make $output executable" }
+    } finally {
+        partial.delete()
+    }
+}
+val downloadAppImageTool by tasks.registering {
+    inputs.property("url", appImageToolUrl)
+    inputs.property("sha256", appImageToolSha256)
+    outputs.file(appImageTool)
+    doLast { downloadPinned(appImageToolUrl, appImageToolSha256, appImageTool.get().asFile) }
+}
+val downloadAppImageRuntime by tasks.registering {
+    inputs.property("url", appImageRuntimeUrl)
+    inputs.property("sha256", appImageRuntimeSha256)
+    outputs.file(appImageRuntime)
+    doLast { downloadPinned(appImageRuntimeUrl, appImageRuntimeSha256, appImageRuntime.get().asFile) }
+}
+
+tasks.register("validateLinuxMetadata") {
+    group = "verification"
+    inputs.files(linuxMetadata, linuxDesktop)
+    doLast {
+        runLinuxPackagingTool(listOf("appstreamcli", "validate", "--no-net", linuxMetadata.asFile.absolutePath))
+        runLinuxPackagingTool(listOf("desktop-file-validate", linuxDesktop.asFile.absolutePath))
+    }
+}
+
+tasks.register("packageAppImage") {
+    group = "distribution"
+    dependsOn("createReleaseDistributable", downloadAppImageTool, downloadAppImageRuntime, "validateLinuxMetadata")
+    inputs.files(appImageRuntime, appImageTool)
+    val releaseImage = layout.buildDirectory.dir("compose/binaries/main-release/app/andbible")
+    inputs.dir(releaseImage).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(linuxMetadata, linuxDesktop, layout.projectDirectory.file("packaging/linux/AppRun"),
+        layout.projectDirectory.file("packaging/linux/andbible.png"))
+    inputs.property("version", desktopVersion)
+    val output = layout.buildDirectory.file("appimage/andbible-desktop-$desktopVersion-x86_64.AppImage")
+    outputs.file(output)
+    doLast {
+        check(hostTarget == "linux-x64") { "AppImage requires Linux x64 (this host is $hostTarget)" }
+        val stage = layout.buildDirectory.dir("appimage/AppDir").get().asFile
+        val image = releaseImage.get().asFile
+        check(File(image, "bin/andbible").isFile) { "Release distributable missing at $image" }
+        // Earlier runs may have copied read-only runtime files; make the owned staging tree removable.
+        if (stage.exists()) {
+            stage.walkTopDown().forEach { check(it.setWritable(true, true)) { "Cannot make $it writable" } }
+            check(stage.deleteRecursively()) { "Cannot remove previous AppDir $stage" }
+        }
+        sync {
+            from(image) { into("usr/lib/andbible") }
+            from(linuxMetadata) { into("usr/share/metainfo") }
+            from(layout.projectDirectory.file("packaging/linux/andbible.png")) { rename { "org.andbible.AndBible.png" } }
+            from(layout.projectDirectory.file("packaging/linux/AppRun"))
+            into(stage)
+            eachFile { if (file.canExecute()) permissions { unix("rwxr-xr-x") } }
+        }
+        stage.walkTopDown().forEach { check(it.setWritable(true, true)) { "Cannot make $it writable" } }
+        File(stage, "org.andbible.AndBible.desktop").writeText(linuxDesktop.asFile.readText()
+            .replace("Exec=/opt/andbible/bin/andbible %F", "Exec=andbible %F")
+            .replace("Icon=/opt/andbible/lib/andbible.png", "Icon=org.andbible.AndBible"))
+        check(File(stage, "AppRun").setExecutable(true, false))
+        output.get().asFile.parentFile.mkdirs()
+        runLinuxPackagingTool(
+            listOf(appImageTool.get().asFile.absolutePath, "--appimage-extract-and-run", "--runtime-file",
+                appImageRuntime.get().asFile.absolutePath, stage.absolutePath, output.get().asFile.absolutePath),
+            mapOf("ARCH" to "x86_64"),
+        )
     }
 }
 
@@ -463,7 +582,7 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         val unpacked = File(work, "pkg")
         run("dpkg-deb", "-R", deb.absolutePath, unpacked.absolutePath)
         // D3b: replace the jpackage-registered launcher, not a second desktop menu entry.
-        val desktopTemplate = layout.projectDirectory.file("packaging/linux/andbible.desktop").asFile
+        val desktopTemplate = layout.projectDirectory.file("packaging/linux/org.andbible.AndBible.desktop").asFile
         val desktopEntry = File(unpacked, "opt/andbible/lib/andbible-andbible.desktop")
         check(desktopEntry.isFile) { "Missing jpackage desktop entry: $desktopEntry" }
         desktopEntry.writeText(desktopTemplate.readText())
@@ -487,6 +606,8 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         work.deleteRecursively()
         val version = run("dpkg-deb", "-f", finalDeb.absolutePath, "Version")
         check(version == desktopVersion) { "The .deb Version is $version, expected $desktopVersion" }
+        val maintainer = run("dpkg-deb", "-f", finalDeb.absolutePath, "Maintainer")
+        check(maintainer == "AndBible <help.andbible@gmail.com>") { "Unexpected .deb Maintainer: $maintainer" }
         val helperLine = run("dpkg-deb", "-c", finalDeb.absolutePath).lines().singleOrNull { it.endsWith("/kcef-natives/jcef_helper") }
         check(helperLine != null && helperLine.startsWith("-rwxr-xr-x")) { "jcef_helper is not executable in the .deb: $helperLine" }
     }

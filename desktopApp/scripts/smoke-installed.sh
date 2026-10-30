@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Smoke test for an installed (or unpacked) AndBible desktop package.
-# Usage: smoke-installed.sh <launcher-path>   (needs DISPLAY; SMOKE_TIMEOUT seconds, default 60)
+# Usage: smoke-installed.sh [--appimage] <launcher-path> (needs DISPLAY; SMOKE_TIMEOUT defaults to 60)
 #
 # The launcher starts the real app by default. Each run uses a fresh temporary profile
 # (XDG_DATA_HOME/CONFIG/CACHE under mktemp -d), so the user's real data is never touched.
@@ -17,7 +17,9 @@
 # Fails on a log line "already running" (another instance holds the lock) and on a jcef_helper left
 # behind. Stops the app with SIGTERM, then SIGKILL after 10 s. Exit 0 only if all of that held.
 set -u
-launcher="${1:?usage: smoke-installed.sh <launcher-path>}"
+appimage=0
+if [ "${1:-}" = "--appimage" ]; then appimage=1; shift; fi
+launcher="${1:?usage: smoke-installed.sh [--appimage] <launcher-path>}"
 timeout_s="${SMOKE_TIMEOUT:-60}"
 sword_dir="${SMOKE_SWORD_DIR:-}"
 poc="${SMOKE_POC:-0}"
@@ -57,7 +59,11 @@ fi
 
 # The subshell execs the launcher, so $! is the launcher's own pid.
 ( export XDG_DATA_HOME="$data" XDG_CONFIG_HOME="$config" XDG_CACHE_HOME="$cache"
-  exec "$launcher" ) >"$log" 2>&1 &
+  if [ "$appimage" = 1 ]; then
+    exec "$launcher" --appimage-extract-and-run
+  else
+    exec "$launcher"
+  fi ) >"$log" 2>&1 &
 pid=$!
 
 rc=1

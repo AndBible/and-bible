@@ -471,6 +471,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
     override val searchIndex: String get() = context.getString(R.string.search_index)
+    override val desktopUpdateSettingTitle: String get() = context.getString(R.string.desktop_update_setting_title)
+    override val desktopUpdateSettingSummary: String get() = context.getString(R.string.desktop_update_setting_summary)
     override val searchSettings: String get() = context.getString(R.string.search_settings)
     override val allWords: String get() = context.getString(R.string.search_all_words)
     override val anyWord: String get() = context.getString(R.string.search_any_word)
@@ -1168,6 +1170,15 @@ class AndroidStrings(private val context: Context) : Strings {
     override val legacyMigrationStartFreshConfirm: String get() = context.getString(R.string.legacy_migration_start_fresh_confirm)
     override val legacyImportTitle: String get() = context.getString(R.string.legacy_import_title)
     override val legacyImportSummary: String get() = context.getString(R.string.legacy_import_summary)
+
+    override val desktopUpdateConsentTitle: String get() = context.getString(R.string.desktop_update_consent_title)
+    override val desktopUpdateConsentMessage: String get() = context.getString(R.string.desktop_update_consent_message)
+    override val desktopUpdateConsentYes: String get() = context.getString(R.string.desktop_update_consent_yes)
+    override val desktopUpdateConsentNo: String get() = context.getString(R.string.desktop_update_consent_no)
+    override val desktopUpdateAvailableTitle: String get() = context.getString(R.string.desktop_update_available_title)
+    override fun desktopUpdateAvailableMessage(available: String, current: String): String = context.getString(R.string.desktop_update_available_message, available, current)
+    override val desktopUpdateDownload: String get() = context.getString(R.string.desktop_update_download)
+    override val desktopUpdateLater: String get() = context.getString(R.string.desktop_update_later)
 
     // I2c-B
     override val customRepositoryHttpsRequired: String get() = context.getString(R.string.custom_repository_https_required)

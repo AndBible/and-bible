@@ -42,6 +42,7 @@ import org.koin.dsl.module
 import org.koin.dsl.onClose
 import net.bible.sharedcore.log.recentLogSnapshot
 import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.desktop.DesktopAppEnvironment
 import net.bible.sharedcore.platform.files.FileDelivery
 import net.bible.sharedcore.platform.files.SaveOrShare
@@ -53,6 +54,11 @@ import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
 import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
 import net.bible.sharedui.desktop.misc.DesktopCrashTracker
+import net.bible.sharedui.desktop.update.DesktopUpdatePrompts
+import net.bible.sharedui.desktop.update.checksForUpdates
+import net.bible.sharedui.desktop.update.desktopBuildNumber
+import net.bible.sharedui.desktop.update.detectDistribution
+import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import java.nio.file.Path
 
 // OWNER: plan D3d (desktop misc: night mode, notification permission, system screens, debug actions, bug report, text
@@ -130,6 +136,17 @@ object DesktopNoSentenceBreaker : SentenceBreaker {
 }
 
 fun desktopMiscModule(): Module = module {
+    val distribution = detectDistribution(
+        System.getenv(), System.getProperty("compose.application.resources.dir"), System.getProperty("jpackage.app-path"),
+    )
+    val releaseKind = System.getProperty("andbible.releaseKind")
+    val version = System.getProperty("andbible.version") ?: "dev"
+    val build = desktopBuildNumber(version)
+    if (distribution.checksForUpdates && releaseKind in setOf("test", "production") && build != null) {
+        single<DesktopUpdateCheckSetting>(createdAtStart = true) {
+            DesktopUpdatePrompts(get(), get<AppCoroutineScope>(), get(), version, build, releaseKind == "production", get(), get(), get())
+        } onClose { (it as? DesktopUpdatePrompts)?.close() }
+    }
     single<DesktopNightModeSource> { DesktopNightModeAdapter(net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState(get())) }
     single<NightModeState> { get<DesktopNightModeSource>() }
     single<NotificationPermission> { net.bible.sharedui.desktop.misc.DesktopNotificationPermission() }
