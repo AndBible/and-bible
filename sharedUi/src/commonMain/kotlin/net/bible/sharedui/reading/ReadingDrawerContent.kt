@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,6 +75,22 @@ private val DrawerGroupSpacing = 4.dp
 private val DrawerGroupHeadingSpacing = 8.dp
 private val DrawerHeaderMinHeight = 100.dp
 private val DrawerHeaderTopPadding = 24.dp
+
+/**
+ * The reading view's drawer sheet: [ModalDrawerSheet] at [ReadingDrawerWidth] around [ReadingDrawerContent].
+ * `ReadingHost` mounts exactly this, and the inset tests mount it too, so they see the production layout.
+ */
+@Composable
+fun ReadingDrawerSheet(
+    state: DrawerMenuState,
+    icon: @Composable (iconKey: String) -> Painter?,
+    onItemClick: (id: String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ModalDrawerSheet(modifier = modifier.width(ReadingDrawerWidth)) {
+        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick)
+    }
+}
 
 /**
  * The reading view's main navigation drawer content — the Compose port of classic
