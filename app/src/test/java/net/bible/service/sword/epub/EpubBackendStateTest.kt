@@ -17,6 +17,9 @@
 
 package net.bible.service.sword.epub
 
+import fi.sykero.kdom.input.KdomBuilder
+import fi.sykero.kdom.query.findAll
+import net.bible.service.common.XmlQueries
 import okio.Path.Companion.toOkioPath
 import okio.buffer
 import kotlinx.coroutines.test.runTest
@@ -138,6 +141,68 @@ class EpubBackendStateTest {
     }
 
     private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+
+    /** #3568: exercise the real installer optimizer with many files and references, without a private attachment. */
+    @Test
+    fun largeReferenceHeavyEpubOptimizesEveryChapter() = runTest {
+        val dir = buildEpub("issue-3568-large")
+        val oebps = File(dir, "OEBPS")
+        val chapterCount = 24
+        fun linksInChapter(chapter: Int) = if (chapter == 1) 8192 else 256
+        val manifest = (1..chapterCount).joinToString("\n") {
+            "<item id=\"ch$it\" href=\"ch$it.xhtml\" media-type=\"application/xhtml+xml\"/>"
+        }
+        val spine = (1..chapterCount).joinToString("\n") { "<itemref idref=\"ch$it\"/>" }
+        File(oebps, "content.opf").writeText("""
+            <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <dc:title>Reference-heavy EPUB</dc:title><dc:language>en</dc:language>
+              </metadata>
+              <manifest>$manifest</manifest><spine>$spine</spine>
+            </package>
+        """.trimIndent())
+        for (chapter in 1..chapterCount) {
+            val next = chapter % chapterCount + 1
+            val references = buildString {
+                repeat(linksInChapter(chapter)) { link ->
+                    append("<a href=\"ch$next.xhtml#target\" id=\"link$link\"/>")
+                    append("<img src=\"images/picture.png\"/>")
+                    append("<svg:image xlink:href=\"images/picture.svg\"/>")
+                }
+            }
+            File(oebps, "ch$chapter.xhtml").writeText("""
+                <html xmlns="http://www.w3.org/1999/xhtml"
+                      xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <head><title>Chapter $chapter</title></head>
+                  <body><p id="target">Chapter $chapter has readable prose.</p>$references<a href="https://example.org/"/></body>
+                </html>
+            """.trimIndent())
+        }
+        val state = newState(dir)
+        try {
+            val keys = state.keys
+            assertEquals(chapterCount, keys.size)
+            for (chapter in 1..chapterCount) {
+                val key = requireNotNull(state.getKey("ch$chapter", "target"))
+                val linksPerChapter = linksInChapter(chapter)
+                val text = state.read(key)
+                val doc = KdomBuilder().build("<html xmlns=\"http://www.w3.org/1999/xhtml\">$text</html>")
+                val refs = doc.findAll("epubRef", xhtmlNamespace)
+                assertEquals(linksPerChapter, refs.size)
+                assertTrue(refs.all { it.getAttributeValue("to-key") == "ch${chapter % chapterCount + 1}" })
+                assertTrue(refs.all { it.getAttributeValue("to-id") == "target" })
+                assertEquals(1, doc.findAll("epubA", xhtmlNamespace).size)
+                assertEquals(linksPerChapter, XmlQueries.imgs(doc.rootElement, xhtmlNamespace).count {
+                    it.getAttributeValue("src") == "/epub/images/picture.png"
+                })
+                assertEquals(linksPerChapter, XmlQueries.svgImagesWithHref(doc.rootElement, svgNamespace, xlinkNamespace).count {
+                    it.getAttributeValue("href", xlinkNamespace) == "/epub/images/picture.svg"
+                })
+            }
+        } finally {
+            state.close()
+        }
+    }
 
     @Test
     fun dotDotInContainerFullPathStillRelativizesResources() {
