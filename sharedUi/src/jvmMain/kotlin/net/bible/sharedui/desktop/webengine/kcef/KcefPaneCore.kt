@@ -132,7 +132,11 @@ internal class KcefPaneCore(
         })
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
             override fun onAfterCreated(browser: CefBrowser?) {
-                if (browser != null) onBrowserCreated(browser)
+                if (browser == null || disposed) return
+                // `this.browser` is assigned after createBrowser returns, which can be after this callback: guard only once known
+                val ours = this@KcefPaneCore.takeIf { it::browser.isInitialized }?.browser
+                if (ours != null && ours.identifier != browser.identifier) return
+                onBrowserCreated(browser)
             }
 
             override fun onBeforePopup(browser: CefBrowser?, frame: CefFrame?, targetUrl: String?, targetFrameName: String?): Boolean {
@@ -165,7 +169,7 @@ internal class KcefPaneCore(
         onRendererGone = listener
     }
 
-    /** BibleView-JS paints no page background of its own, so the root element gets the host colour (as \`setBackgroundColor\` on Android). */
+    /** BibleView-JS paints no page background of its own, so the root element gets the host colour (as `setBackgroundColor` on Android). */
     private fun applyPageBackground(argb: Int) {
         if (disposed) return
         val css = "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${((argb shr 24) and 0xFF) / 255.0})"
