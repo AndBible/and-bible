@@ -23,6 +23,8 @@ scripts/windows-vm.sh scp-from 'C:/abtest/file' /path/to/local-copy
 scripts/windows-vm.sh shot desktop
 scripts/windows-vm.sh key ctrl+alt+delete
 scripts/windows-vm.sh type 'printable ASCII text'
+scripts/windows-vm.sh mouse click 640 400 [left|right|middle|back|forward]   # also move, down, up, wheel x y notches
+scripts/windows-vm.sh gui-run 'set "APPDATA=C:\p\Roaming" && C:\abtest\app\AndBible\AndBible.exe'
 scripts/windows-vm.sh key enter
 scripts/windows-vm.sh stop
 # persistent dev overlay (JDK, repo copy, Gradle caches survive stop)
@@ -50,6 +52,12 @@ Each `start` creates a fresh ephemeral overlay and a firmware-variable copy; cha
 The guest copy is not a git checkout: `push-repo` gives it a stub repository with one empty commit (for `:app`'s `git rev-parse`) and a `local.properties` naming an empty `C:\abtest\android-sdk-stub` (AGP wants an SDK location while configuring `:app`, but no Android task runs). Build the BibleView bundle in the container (`cd app/bibleview-js && npm run build-production`) before `push-repo`; the guest has no Node, and `copy-bibleview.sh` only copies an up-to-date `dist/`. A cold `:desktopApp:packageWindowsZip` in the guest took about 25 minutes (4 vCPUs), an incremental one 5 minutes.
 
 GUI testing requires a manual `abtest` logon once per fresh overlay: automatic logon is disabled after provisioning. SSH is available at the login screen. If the screenshot is black, wake the display with a key before capturing it. QMP `type` sends printable US-ASCII key sequences, not clipboard text; the active guest keyboard layout affects the resulting characters. `key` sends QEMU key combinations such as `ctrl+alt+delete`.
+
+### GUI runs
+
+A process started over SSH lives on a non-interactive window station: its windows are invisible, get no input, and the app's Skia finds no Direct3D/OpenGL device there (`Direct3DRedrawer_initSwapChain` access violation, then a blank window). `gui-run <cmd>` instead starts the command in the logged-on user's desktop through a one-shot scheduled task (`/IT`), so log on at the console first (`type` the password from `credentials`, then `key enter`). Each run gets its own task and its own `C:\abtest\gui\<id>.cmd`, `.log` (the command's stdout and stderr) and `.exit` (its exit code, written when it ends); `gui-run` prints the id. The command line is cmd.exe syntax in UTF-8 (code page 65001), so `set "NAME=value" && ...` sets environment variables, and non-ASCII paths work. `mouse` drives the absolute pointer (a `usb-tablet` on its own xHCI controller) through QMP `input-send-event`; coordinates are guest screen pixels (the screen size comes from a screendump, or `WINDOWS_VM_SCREEN=WxH`); `back`/`forward` are the side buttons. `key` also knows `altgr` and `win` (`win+spc` switches the keyboard layout). Disable the display timeout once (`powercfg /change monitor-timeout-ac 0`), or screenshots come out black.
+
+Display scaling: set `HKCU\Control Panel\Desktop` `LogPixels` (120 = 125 %, 144 = 150 %) and `Win8DpiScaling` = 1, then log off (`gui-run 'shutdown /l'`) and log on again. A folder created over SSH under `C:\Users` belongs to the elevated Administrators token and is read-only for the UAC-filtered desktop session; `icacls <dir> /grant abtest:(OI)(CI)F /T` before using it as a test profile.
 
 ## Files and configuration
 

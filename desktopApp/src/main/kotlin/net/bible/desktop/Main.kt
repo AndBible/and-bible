@@ -14,6 +14,8 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -183,9 +185,19 @@ private fun runApp(launchArgs: List<String>) {
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
         if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine, watchdog) }
+        val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
+        val workArea = remember { AwtWindowHandle.screenWorkArea() }
+        val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
         Window(
             title = "AndBible",
-            state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
+            // Shrunk to the work area when the default does not fit (HiDPI laptops), and then placed on it with the title
+            // bar on screen.
+            state = rememberWindowState(
+                size = initialSize.let { DpSize(it.width.dp, it.height.dp) },
+                position = AwtWindowHandle.initialPositionDp(workArea, initialSize)
+                    ?.takeIf { initialSize != defaultSize }
+                    ?.let { WindowPosition(it.x.dp, it.y.dp) } ?: WindowPosition.PlatformDefault,
+            ),
             onCloseRequest = requestClose,
             // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
             // An off-screen web pane that has focus takes every key itself (the page's script owns the shortcuts).

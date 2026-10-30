@@ -10,7 +10,8 @@
 #
 # Fails on: no readiness, an "already running" line, a close that does not end the process within 20 s, any
 # AndBible.exe / java.exe / jcef_helper.exe from the unzipped image left afterwards, and a Windows Error Reporting
-# crash (WerFault.exe, or an Application Error / Windows Error Reporting event for these executables since the start).
+# crash (WerFault.exe, or an Application Error / Windows Error Reporting event for these executables since the start;
+# not RADAR_PRE_LEAK, a memory heuristic).
 # Exit 0 only if all of that held. Needs an interactive or SSH session of the test user; no Java on the PATH.
 param(
     [Parameter(Mandatory = $true)][string]$Zip,
@@ -119,8 +120,10 @@ if ($left) {
     $left | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 } else { Write-Output 'OK: no AndBible.exe / java.exe / jcef_helper.exe left' }
 $wer = Get-Process -Name WerFault -ErrorAction SilentlyContinue
+# RADAR_PRE_LEAK_64 is Windows' memory-growth heuristic (seen for AndBible.exe and the Gradle JVM in W1): no crash, no dialog.
 $events = Get-WinEvent -FilterHashtable @{ LogName = 'Application'; StartTime = $started } -ErrorAction SilentlyContinue |
-    Where-Object { ($_.ProviderName -in 'Application Error', 'Windows Error Reporting') -and ($_.Message -match 'AndBible|jcef_helper|java\.exe') }
+    Where-Object { ($_.ProviderName -in 'Application Error', 'Windows Error Reporting') -and ($_.Message -match 'AndBible|jcef_helper|java\.exe') } |
+    Where-Object { $_.Message -notmatch 'RADAR_PRE_LEAK' }
 if ($wer -or $events) {
     Fail ("Windows Error Reporting: " + (@($events | ForEach-Object { $_.Message.Split("`n")[0] }) + @($wer | ForEach-Object { "WerFault.exe ($($_.Id))" }) -join ' | '))
 } else { Write-Output 'OK: no Windows Error Reporting crash' }
