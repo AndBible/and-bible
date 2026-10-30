@@ -22,7 +22,9 @@ import java.security.KeyPairGenerator
 import java.security.Signature
 import java.util.Base64
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class FeatureSignatureVerifierTest {
@@ -55,7 +57,12 @@ class FeatureSignatureVerifierTest {
         assertFalse(FeatureSignatureVerifier(pem).verify(f, sf))
     }
 
-    @Test fun otherKeyRefusedAndBundledKeyParses() {
+    @Test fun bundledPublicKeyParses() {
+        val key = assertNotNull(FeatureSignatureVerifier().publicKey, "bundled publickey.pem must parse")
+        assertEquals(2048, key.modulus.bitLength())
+    }
+
+    @Test fun otherKeyRefused() {
         val (f, sf) = signed("hello")
         assertFalse(FeatureSignatureVerifier().verify(f, sf))
     }

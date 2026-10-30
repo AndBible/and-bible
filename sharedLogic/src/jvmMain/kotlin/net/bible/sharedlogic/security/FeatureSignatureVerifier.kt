@@ -34,7 +34,7 @@ import java.util.Base64
  * (the same key as Android's `R.raw.publickey`).
  */
 class FeatureSignatureVerifier(publicKeyPem: String = bundledPublicKeyPem()) {
-    private val publicKey: RSAPublicKey? = runCatching {
+    internal val publicKey: RSAPublicKey? = runCatching {
         val body = publicKeyPem.lineSequence().filter { it.isNotBlank() && !it.startsWith("-----") }.joinToString("")
         KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(body))) as RSAPublicKey
     }.getOrNull()

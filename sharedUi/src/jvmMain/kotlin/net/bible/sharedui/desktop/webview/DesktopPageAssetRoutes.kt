@@ -42,7 +42,7 @@ class DesktopPageAssetRoutes(
         val module = parts.getOrNull(1).orEmpty()
         val rest = parts.getOrNull(2)
         return when (route) {
-            "background" -> if (parts.size == 2) background(module) else null
+            "background" -> if (parts.size == 2 || (parts.size == 3 && rest.isNullOrEmpty())) background(module) else null
             "module" -> inBook(module, rest, signed = false)
             "fonts" -> if (rest == "fonts.css") unsupported(route, "no desktop font catalog") else inBook(module, rest, signed = false)
             "features" -> inBook(module, rest, signed = true)
@@ -81,6 +81,8 @@ class DesktopPageAssetRoutes(
         val target = if (relative == "style.css") styleFile else within(styleFile.parent ?: return null, relative) ?: return null
         // The stylesheet's directory may be the book's subdirectory; the file must still be inside the book.
         if (!target.normalize().startsWith(base.toAbsolutePath().normalize()) || !Files.isRegularFile(target)) return null
+        val real = try { target.toRealPath() } catch (_: Exception) { return null }
+        if (!real.startsWith(base.toRealPath())) return null
         return BundleResource(target, mimeFor(relative), fromBundle = false)
     }
 
@@ -92,7 +94,12 @@ class DesktopPageAssetRoutes(
             val root = base.toAbsolutePath().normalize()
             val file = root.resolve(relative).normalize()
             if (!file.startsWith(root) || file == root) return null
-            if (mustExist && !Files.isRegularFile(file)) return null
+            if (mustExist) {
+                if (!Files.isRegularFile(file)) return null
+                // A symlink inside the book must not lead out of it.
+                val real = try { file.toRealPath() } catch (_: Exception) { return null }
+                if (!real.startsWith(base.toRealPath())) return null
+            }
             return file
         }
 

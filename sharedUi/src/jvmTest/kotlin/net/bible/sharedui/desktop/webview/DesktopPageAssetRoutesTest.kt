@@ -128,6 +128,32 @@ class DesktopPageAssetRoutesTest {
         assertEquals("<html><head></head></html>", asset.second.decodeToString())
     }
 
+    @Test fun backgroundAcceptsTrailingSlash() {
+        assertEquals(image, assertNotNull(routes().resolve("/background/D3DBackground/")).file)
+    }
+
+    @Test fun symlinkLeavingTheBookRefused() {
+        Files.createSymbolicLink(book.resolve("link.txt"), secret)
+        Files.createSymbolicLink(book.resolve("linkdir"), tmp)
+        Files.createSymbolicLink(book.resolve("css/style-link.css"), secret)
+        val r = routes()
+        assertNull(r.resolve("/module/KJV/link.txt"))
+        assertNull(r.resolve("/module/KJV/linkdir/secret.txt"))
+        assertNull(r.resolve("/module-style/KJV/style-link.css"))
+        assertNotNull(r.resolve("/module/KJV/pic.png"))
+    }
+
+    @Test fun pageAssetsHaveNoForcedCharset() {
+        val r = assertNotNull(routes().resolve("/module/KJV/css/my.css"))
+        assertEquals("text/css", r.contentType)
+        assertEquals("text/css; charset=utf-8", net.bible.sharedui.desktop.webengine.BundleResource(r.file, "text/css").contentType)
+    }
+
+    @Test fun koinBoundAnswersNullBeforeKoinStarts() {
+        org.koin.mp.KoinPlatform.getKoinOrNull()?.let { return } // another test owns a running Koin; skip
+        assertNull(DesktopPageAssetRoutes.koinBound().resolve("/module/KJV/pic.png"))
+    }
+
     @Test fun nonePagesAssetsServesNothing() {
         assertNull(DesktopPageAssets.None.resolve("/module/KJV/pic.png"))
     }
