@@ -27,6 +27,9 @@ import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.PassageKeyFactory
 import net.bible.service.sword.isRtlLanguage
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -379,14 +382,37 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         ) { it.getText(0) }.joinToString {"<div>$it</div>"}
     }
 
+    // Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
+    private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+    private val attributeRe = Regex("""([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s]+))""")
+    // JSword accepts trailing prose as a book reference; MyBible locations must be numeric.
+    private val bibleLinkRe = Regex("""B:(\d+)\s+(\d[\d:,;\s-]*)""")
+
+    /** Normalize at the source so rendering, reference collection and exports see the same Scripture links. */
+    private fun transformVerseLinks(text: String): String = anchorRe.replace(text) { anchor ->
+        val href = attributeRe.findAll(anchor.groupValues[1])
+            .firstOrNull { it.groupValues[1].equals("href", ignoreCase = true) }
+            ?.let { it.groups[2]?.value ?: it.groups[3]?.value ?: it.groups[4]?.value }
+            ?: return@replace anchor.value
+        val link = bibleLinkRe.matchEntire(href) ?: return@replace anchor.value
+        val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return@replace anchor.value
+        val osisRef = try {
+            PassageKeyFactory.instance().getKey(KJVA, "${book.osis} ${link.groupValues[2]}").getOsisRef()
+        } catch (_: NoSuchKeyException) {
+            return@replace anchor.value
+        }
+        if (osisRef.isEmpty()) anchor.value
+        else "<reference osisRef=\"$osisRef\">${anchor.groupValues[2]}</reference>"
+    }
+
     override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
         try {
-            when (bookMetaData.bookCategory) {
+            transformVerseLinks(when (bookMetaData.bookCategory) {
                 BookCategory.BIBLE -> readBible(state, key!!)
                 BookCategory.COMMENTARY -> readCommentary(state, key!!)
                 BookCategory.DICTIONARY -> readDictionary(state, key!!)
                 else -> ""
-            }
+            })
         } catch (e: SQLiteException) {
             Log.e(TAG, "Error in readRawContent", e)
             throw IOException("Error in readRawContent", e)
