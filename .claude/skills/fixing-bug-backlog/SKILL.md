@@ -72,9 +72,13 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
 
 1. **Review with a subagent** (superpowers:requesting-code-review; reviewer model sonnet or opus,
    never fable). Give it the issue file, the child's report and `git diff HEAD...<imported_ref>`,
-   not your conclusion. Ask: is the fix at the root cause, are other entry points (a gesture
-   path, another caller, other platforms) covered, does a test go red without the fix, any
-   regression risk. For a larger or riskier diff, also ask the container's other Claude process
+   not your conclusion. Ask: is the fix at the root cause and in the layer that owns the
+   behaviour (bibleview-js vs Kotlin `:app` vs the shared modules), or is it a narrow ad hoc
+   patch for the reported symptom; are other entry points (a gesture path, another caller, other
+   platforms) covered; does a test go red without the fix; any regression risk.
+   Several reviews at once may each run in their own git worktree of this container (`isolation:
+   "worktree"` on the Agent call), so a reviewer can check out the import and run tests without
+   touching the orchestrator tree; this is the one exception to the no-worktrees rule. For a larger or riskier diff, also ask the container's other Claude process
    (different model family) for a read-only review.
 2. **Read the production diff yourself** too, and verify every finding against the code
    (superpowers:receiving-code-review) before acting on it.
