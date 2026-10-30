@@ -67,7 +67,15 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
   device behaviour, several modules) use Anthropic Opus: `RUNNER="--agent claude --model opus"
   MODEL_NAME="Claude Opus"`.
 - Waiting, reading the inbox, answering questions, statuses and cleanup: follow
-  **jailbee-orchestration**; this skill adds nothing to that protocol.
+  **jailbee-orchestration**. Watching children:
+  - Use `jailbee-inbox wait` directly and read every message, notes included. Do not wrap it in a
+    filter that marks notes read: a restarted child reports its recovery as a note.
+  - Run exactly one wait loop, and never while a `send ... --wait` is pending (they race for
+    the same status message).
+  - A child silent for over an hour may have lost its agent (no `blocked` arrives when the agent
+    dies by a signal or exits 0). Send it a status message; if it stays silent, `import` it to
+    see its commits and ask the user to check the container before a `stop` + `restart`.
+  - Tell each child to commit early (WIP commits are fine), so a dead agent loses little.
 
 ## 4. Review, fix and merge each `done`
 
