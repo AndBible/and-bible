@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.andbible.AndBible</id>
+  <name>AndBible</name>
+  <summary>Offline Bible study</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer id="org.andbible"><name>AndBible</name></developer>
+  <update_contact>help.andbible@gmail.com</update_contact>
+  <description>
+    <p>AndBible is a free, open-source Bible study tool for reading and in-depth research, available offline and without ads.</p>
+    <p>Compare translations and commentaries in split views, organize studies in workspaces, search documents, and add bookmarks, highlights and notes.</p>
+    <p>Explore a library of Bible translations, commentaries, dictionaries and books from SWORD repositories.</p>
+  </description>
+  <launchable type="desktop-id">org.andbible.AndBible.desktop</launchable>
+  <url type="homepage">https://andbible.org</url>
+  <url type="bugtracker">https://github.com/AndBible/and-bible/issues</url>
+  <content_rating type="oars-1.1" />
+  <screenshots>
+    <screenshot type="default"><image>https://andbible.org/media/desktop/d4b-reading.png</image></screenshot>
+    <screenshot><image>https://andbible.org/media/desktop/d4b-workspaces.png</image></screenshot>
+    <screenshot><image>https://andbible.org/media/desktop/d4b-study.png</image></screenshot>
+  </screenshots>
+  <releases><release version="6.0.1230" date="2026-10-30" /></releases>
+</component>
