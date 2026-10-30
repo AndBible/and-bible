@@ -285,7 +285,8 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
-                debMaintainer = "AndBible <help.andbible@gmail.com>"
+                // jpackage combines the vendor with this email to form the Maintainer field.
+                debMaintainer = "help.andbible@gmail.com"
                 menuGroup = "Education"
                 appCategory = "Education"
             }
@@ -605,6 +606,8 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
         work.deleteRecursively()
         val version = run("dpkg-deb", "-f", finalDeb.absolutePath, "Version")
         check(version == desktopVersion) { "The .deb Version is $version, expected $desktopVersion" }
+        val maintainer = run("dpkg-deb", "-f", finalDeb.absolutePath, "Maintainer")
+        check(maintainer == "AndBible <help.andbible@gmail.com>") { "Unexpected .deb Maintainer: $maintainer" }
         val helperLine = run("dpkg-deb", "-c", finalDeb.absolutePath).lines().singleOrNull { it.endsWith("/kcef-natives/jcef_helper") }
         check(helperLine != null && helperLine.startsWith("-rwxr-xr-x")) { "jcef_helper is not executable in the .deb: $helperLine" }
     }
