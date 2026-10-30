@@ -8,7 +8,7 @@ For installing and everyday use, see the desktop page of the documentation (AndB
 
 On Linux the beta was tried by hand on the installed `.deb` package: installing modules from the
 catalogue, reading and navigating, selecting text (copy, bookmark, note), StudyPads, search, several windows,
-workspaces, exporting and importing a backup, opening a backup file from the file manager, night mode,
+workspaces, synchronising with a Nextcloud server (WebDAV) together with the Android app, exporting and importing a backup, opening a backup file from the file manager, night mode,
 text options, the Finnish and Hebrew (right-to-left) interface, and closing and reopening the app with
 your position, windows and settings kept.
 
@@ -16,8 +16,8 @@ your position, windows and settings kept.
 
 These setups may work, but they were not checked for the beta:
 
-- **Wayland-native sessions.** On Wayland the app runs through XWayland.
-- **GNOME and KDE specifics.** For example how file dialogs, window decorations and the system tray look and behave.
+- **Wayland-native sessions.** On Wayland the app runs through XWayland. It was started and a chapter was read in a test setup, but nothing beyond that was checked.
+- **GNOME and KDE specifics.** For example how file dialogs and window decorations look and behave.
 - **Input methods (IME), including Chinese, Japanese and Korean input.**
 - **Fractional display scaling** (for example 125% or 150%).
 - **Touchpads.** Smooth and horizontal scrolling and pinch gestures.
@@ -29,6 +29,7 @@ If you use one of these and something looks wrong, please [report it](#reporting
 - Printing.
 - Find in the current page. Use the search in the app to search in a Bible instead.
 - Desktop notifications.
+- Google Drive sync. Use Nextcloud (WebDAV) for synchronising on desktop.
 - Speak (text to speech).
 - Images and styles of EPUB books are not shown.
 - Fonts that come with some modules are not used.
@@ -52,6 +53,6 @@ If you use one of these and something looks wrong, please [report it](#reporting
 
 ## Reporting a bug
 
-In the app open *Help & tips*, then *Feedback / bug report*, and choose the bug report. Please
-tell us your operating system and version, whether you use Wayland or X11 on Linux, and what you were
-doing when the problem happened.
+In the app open the navigation menu, then *Help & tips*, then *Feedback / bug report*. The same
+item is also in the toolbar of the *Application preferences* screen. Please tell us your operating
+system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.

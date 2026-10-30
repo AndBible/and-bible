@@ -11,6 +11,7 @@ same Bible text view, bookmarks, notes, StudyPads, search and workspaces.
 - StudyPads.
 - Search, including building the search index.
 - Several windows with synchronised scrolling, and switching workspaces.
+- Synchronising with a Nextcloud server (WebDAV), also with the Android app. Google Drive sync is not available on desktop.
 - Backup export and import; opening a backup file from the file manager restores it.
 - Night mode and the text options.
 - Finnish and Hebrew (right-to-left) interface, among the other languages of the app.
@@ -29,7 +30,7 @@ touchpads have not been tested. Full list: <https://andbible.org/docs/desktop-be
 
 ## Reporting a bug
 
-In the app: *Help & tips*, then *Feedback / bug report*.
+In the app: navigation menu, *Help & tips*, then *Feedback / bug report*.
 
 ## Checksums
 
