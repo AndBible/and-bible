@@ -27,11 +27,11 @@ import net.bible.service.cloudsync.DEFAULT_CLOUD_SYNC_INTERVAL_SECONDS
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.cloudsync.host.IosBackupHost
-import net.bible.service.cloudsync.host.IosCloudAdapterFactory
-import net.bible.service.cloudsync.host.IosDocumentSyncStarter
-import net.bible.service.cloudsync.host.IosSyncStrings
-import net.bible.service.cloudsync.host.IosWebDavCertificatePrompt
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostDocumentSyncStarter
+import net.bible.service.cloudsync.host.HostSyncStrings
+import net.bible.service.cloudsync.host.HostWebDavCertificatePrompt
 import net.bible.service.cloudsync.runDatabaseSyncJob
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.cloud.DocumentSyncStarter
@@ -124,7 +124,7 @@ internal fun desktopCertificateDate(epochMs: Long): String =
 /**
  * The sync stack of the desktop graph (plan D3c): the OS secret store, the hoisted sync runner and adapter factory over the
  * WebDAV client with certificate pinning, the settings platform, and the [DesktopSyncDriver] that runs the periodic and the
- * on-close passes. `BackupHost` is the hoisted [IosBackupHost] over the `FilePicker` and `FileDelivery` ports that the
+ * on-close passes. `BackupHost` is the hoisted [HostBackupHost] over the `FilePicker` and `FileDelivery` ports that the
  * document stream (D3b) binds. A NEW module is built per call. Everything that needs the open databases is resolved lazily.
  */
 fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend() }): Module = module {
@@ -133,29 +133,29 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
     }
     single<SecretStore> { DesktopSecretStore.create(get<DeviceLocalPrefs>(), secretBackend) }
     single<SyncSettingsPlatform> {
-        DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), get<IosSyncStrings>().webDavServerUrlHint)
+        DesktopSyncSettingsPlatform(get<DeviceLocalPrefs>(), get<SecretStore>(), get<HostSyncStrings>().webDavServerUrlHint)
     }
     single<CloudAdapterFactory> {
         val clientFactory = DesktopWebDavClientFactory()
         DesktopCloudAdapterFactory(
-            IosCloudAdapterFactory(
+            HostCloudAdapterFactory(
                 platform = get<SyncSettingsPlatform>(),
                 deviceId = get<AppEnvironment>().deviceIdentifier,
-                displayName = get<IosSyncStrings>().adapterDisplayName,
+                displayName = get<HostSyncStrings>().adapterDisplayName,
                 iCloudStore = { error("iCloud Drive is not available on desktop") },
-                signInUi = IosWebDavCertificatePrompt({ get<AppDialogController>() }, get<CoreStrings>(), ::desktopCertificateDate),
+                signInUi = HostWebDavCertificatePrompt({ get<AppDialogController>() }, get<CoreStrings>(), ::desktopCertificateDate),
                 tempDir = get<AppEnvironment>().tmpDir.toPath(),
                 clientFactory = clientFactory::create,
             ),
         )
     }
     single<DocumentSyncStarter> {
-        IosDocumentSyncStarter(
+        HostDocumentSyncStarter(
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
             notifier = get<UserNotifier>(),
-            syncErrorMessage = get<IosSyncStrings>().syncError,
+            syncErrorMessage = get<HostSyncStrings>().syncError,
             begin = { 0uL },
             end = {},
             invalidTask = ULong.MAX_VALUE,
@@ -211,7 +211,7 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
     single<BackupHost> {
         HostBackupHost(
             get<FilePicker>(), get<FileDelivery>(), { get<AppDialogController>() },
-            get<IosSyncStrings>().ok,
+            get<HostSyncStrings>().ok,
             { get<CoreStrings>().errorReport }, { get<CoreStrings>().errorBackup }, { get<CoreStrings>().errorSkip },
         )
     }

@@ -18,15 +18,15 @@ package net.bible.sharedcore.platform.desktop.sync
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import net.bible.sharedcore.platform.sync.IosSyncRunner
+import net.bible.sharedcore.platform.sync.HostSyncRunner
 import net.bible.sharedcore.platform.sync.SyncScheduler
 
 /**
- * The desktop [SyncScheduler]: the hoisted, application-owned [IosSyncRunner] (one coalesced pass at a time) with no
+ * The desktop [SyncScheduler]: the hoisted, application-owned [HostSyncRunner] (one coalesced pass at a time) with no
  * OS execution-allowance hooks, because a desktop process needs none. Mirrors the iOS scheduler's surface.
  */
 class DesktopSyncScheduler(scope: CoroutineScope, sync: suspend () -> Boolean) : SyncScheduler {
-    private val runner = IosSyncRunner(scope, sync, begin = { 0uL }, end = {})
+    private val runner = HostSyncRunner(scope, sync, begin = { 0uL }, end = {})
 
     @Volatile private var last: Deferred<Boolean>? = null
 

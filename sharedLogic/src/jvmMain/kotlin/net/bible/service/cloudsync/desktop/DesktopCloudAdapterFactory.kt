@@ -18,13 +18,13 @@ package net.bible.service.cloudsync.desktop
 
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudAdapterFactory
-import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 
 /**
  * The desktop cloud back ends: Nextcloud and generic WebDAV only (no iCloud, no Google Drive). Everything else is the hoisted
- * [IosCloudAdapterFactory]; an id outside [available] is refused here so the factory's iCloud branch is never reached.
+ * [HostCloudAdapterFactory]; an id outside [available] is refused here so the factory's iCloud branch is never reached.
  */
-class DesktopCloudAdapterFactory(private val inner: IosCloudAdapterFactory) : CloudAdapterFactory by inner {
+class DesktopCloudAdapterFactory(private val inner: HostCloudAdapterFactory) : CloudAdapterFactory by inner {
     override val available: List<String> = listOf("NEXT_CLOUD", "WEBDAV")
 
     override fun create(id: String): CloudAdapter = inner.create(checked(id))

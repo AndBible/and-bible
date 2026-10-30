@@ -22,9 +22,9 @@ import net.bible.android.control.backup.BackupHost
 import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.SyncNamespace
 import net.bible.service.cloudsync.SyncSettingsPlatform
-import net.bible.service.cloudsync.host.IosBackupHost
-import net.bible.service.cloudsync.host.IosDocumentSyncStarter
-import net.bible.service.cloudsync.host.IosSyncStrings
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.service.cloudsync.host.HostDocumentSyncStarter
+import net.bible.service.cloudsync.host.HostSyncStrings
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -87,7 +87,7 @@ class DesktopSyncBindingsContractTest {
                     single<AppSettings> { appSettings }
                     single<CoreStrings> { inert() }
                     single {
-                        IosSyncStrings(
+                        HostSyncStrings(
                             adapterDisplayName = { "name:$it" }, webDavServerUrlHint = { "hint" }, syncError = { "err" },
                             webDavMessage = { "msg" }, ok = { "ok" },
                         )
@@ -118,9 +118,9 @@ class DesktopSyncBindingsContractTest {
         assertIs<DesktopSyncScheduler>(koin.get<SyncScheduler>())
         assertIs<DesktopCloudAdapterFactory>(koin.get<CloudAdapterFactory>())
         assertIs<DesktopSyncSettingsPlatform>(koin.get<SyncSettingsPlatform>())
-        assertIs<IosDocumentSyncStarter>(koin.get<DocumentSyncStarter>())
+        assertIs<HostDocumentSyncStarter>(koin.get<DocumentSyncStarter>())
         assertIs<DesktopBackgroundRefresh>(koin.get<BackgroundRefresh>())
-        assertIs<IosBackupHost>(koin.get<BackupHost>())
+        assertIs<HostBackupHost>(koin.get<BackupHost>())
         assertIs<DesktopSyncDriver>(koin.get<DesktopSyncDriver>())
         assertSame(koin.get<SyncScheduler>(), koin.get<SyncScheduler>())
     }
@@ -204,7 +204,7 @@ class DesktopSyncBindingsContractTest {
                     single<CoreStrings> { inert() }; single<UserNotifier> { notifier }; single<FilePicker> { inert() }
                     single<FileDelivery> { inert() }; single { AppDialogController() }; single { scope }
                     single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
-                    single { IosSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
+                    single { HostSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
                 },
                 desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
             )

@@ -22,7 +22,7 @@ import com.sun.net.httpserver.HttpsServer
 import kotlinx.coroutines.runBlocking
 import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.SyncSettingsPlatform
-import net.bible.service.cloudsync.host.IosCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
 import net.bible.service.cloudsync.host.PlainHttpRefusedException
 import net.bible.service.cloudsync.webdav.CertPin
 import net.bible.sharedcore.platform.desktop.sync.desktopDefaultHostnameVerifier
@@ -216,7 +216,7 @@ class DesktopWebDavClientFactoryTest {
         }
         val ui = FakeUi(false)
         val built = mutableListOf<WebDavConfig>()
-        val f = IosCloudAdapterFactory(
+        val f = HostCloudAdapterFactory(
             platform, "dev", { it }, { error("no iCloud") }, ui, tmp.path.toPath(),
             clientFactory = { c, s -> built += c; factory.create(c, s) },
         )
