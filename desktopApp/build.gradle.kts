@@ -529,6 +529,7 @@ val generateWindowsManifest by tasks.registering {
     inputs.property("timestamp", windowsTimestampUrl)
     inputs.property("testSigning", windowsTestSigning)
     outputs.dir(windowsMsixStage)
+    outputs.file(layout.buildDirectory.file("windows-msix/packaging-policy.properties"))
     doLast {
         val stage = windowsMsixStage.get().asFile.apply { mkdirs() }
         var manifest = template.asFile.readText()
