@@ -60,10 +60,12 @@ class KcefWebEngine(
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         init(installDir).getOrThrow()
         val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
-        val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts)
+        val mode = KcefRenderingMode.current(log)
+        val osrOnX11 = mode == KcefRenderingMode.Osr && runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name == "sun.awt.X11.XToolkit" }.getOrDefault(false)
+        val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts, osrOnX11)
         val handler = BundleRequestHandler(bundleDir, scripts, pageAssets)
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
-        return when (KcefRenderingMode.current(log)) {
+        return when (mode) {
             KcefRenderingMode.Osr -> KcefOsrPane(id, url, handler, onMessage, paneLog)
             KcefRenderingMode.Windowed -> KcefPane(id, url, handler, onMessage, paneLog)
         }
