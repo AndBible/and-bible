@@ -22,6 +22,8 @@ function Get-Verified([string]$url, [string]$sha256, [string]$out) {
 }
 
 New-Item -ItemType Directory -Force C:\abtest\dl | Out-Null
+# Defender scanning every class and native under C:\abtest makes the Gradle build and each JVM start crawl.
+Add-MpPreference -ExclusionPath C:\abtest
 if (-not (Test-Path "$jdkHome\bin\jpackage.exe")) {
     Get-Verified $jdkUrl $jdkSha256 C:\abtest\dl\jdk.msi
     $p = Start-Process msiexec.exe -Wait -PassThru -ArgumentList "/i C:\abtest\dl\jdk.msi /qn /norestart ADDLOCAL=FeatureMain INSTALLDIR=`"$jdkHome`""

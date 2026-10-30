@@ -61,8 +61,8 @@ class KcefWebEngine(
         init(installDir).getOrThrow()
         val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
         val mode = KcefRenderingMode.current(log)
-        val osrOnX11 = osrOnX11(mode, runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name }.getOrDefault(""))
-        val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts, osrOnX11)
+        val keyCodeFix = osrKeyCodeFix(mode, runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name }.getOrDefault(""))
+        val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts, keyCodeFix)
         val handler = BundleRequestHandler(bundleDir, scripts, pageAssets)
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
         return when (mode) {
@@ -189,9 +189,12 @@ class KcefWebEngine(
         internal fun helperExecutableName(osName: String = System.getProperty("os.name").orEmpty()): String =
             if (osName.lowercase().startsWith("windows")) "jcef_helper.exe" else "jcef_helper"
 
-        /** Whether the X11-only key-code workaround applies: an off-screen pane on AWT's X11 toolkit. */
-        internal fun osrOnX11(mode: KcefRenderingMode, toolkitClassName: String): Boolean =
-            mode == KcefRenderingMode.Osr && toolkitClassName == "sun.awt.X11.XToolkit"
+        /**
+         * Whether the [OsrKeyCode] workaround applies: an off-screen pane on AWT's X11 toolkit (a wrong `code`) or on
+         * Windows (an empty `code`, measured live in W1). Windowed panes get Chromium's own key events.
+         */
+        internal fun osrKeyCodeFix(mode: KcefRenderingMode, toolkitClassName: String): Boolean =
+            mode == KcefRenderingMode.Osr && toolkitClassName in setOf("sun.awt.X11.XToolkit", "sun.awt.windows.WToolkit")
 
         /** Why [dir] cannot serve as the CEF install dir, or null when it holds the natives. */
         internal fun nativesProblem(dir: Path): String? {

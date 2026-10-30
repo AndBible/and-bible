@@ -419,8 +419,12 @@ case "$cmd" in
   dev-reset) dev_reset ;;
   push-repo) push_repo "$@" ;;
   dev-gradle) dev_gradle "$@" ;;
-  gui-run) [[ $# -ge 1 ]] || usage; mkdir -p "$VM_DIR/out/$VM_ID"; cmdfile="$VM_DIR/out/$VM_ID/gui-run.cmd"; printf '@echo off\r\nchcp 65001 >nul\r\ndel C:\\abtest\\gui-run.exit 2>nul\r\n%s > C:\\abtest\\gui-run.log 2>&1\r\n(echo %%ERRORLEVEL%%)> C:\\abtest\\gui-run.exit\r\n' "$*" > "$cmdfile"
-    guest_scp_to "$cmdfile" C:/abtest/gui-run.cmd && guest_scp_to "$ROOT/scripts/windows-vm/gui-run.ps1" C:/abtest/gui-run.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\gui-run.ps1' ;;
+  gui-run) [[ $# -ge 1 ]] || usage; mkdir -p "$VM_DIR/out/$VM_ID"; id="g$(date -u +%Y%m%d%H%M%S)$RANDOM"; cmdfile="$VM_DIR/out/$VM_ID/$id.cmd"
+    # One task, script, log and exit file per run: cmd.exe reads a running batch file as it goes, so it must never be
+    # overwritten, and a still-running earlier run (the app) must not block the next one.
+    printf '@echo off\r\nchcp 65001 >nul\r\n%s > C:\\abtest\\gui\\%s.log 2>&1\r\n(echo %%ERRORLEVEL%%)> C:\\abtest\\gui\\%s.exit\r\n' "$*" "$id" "$id" > "$cmdfile"
+    guest_ssh 'New-Item -ItemType Directory -Force C:\abtest\gui | Out-Null' && guest_scp_to "$cmdfile" "C:/abtest/gui/$id.cmd" && guest_scp_to "$ROOT/scripts/windows-vm/gui-run.ps1" C:/abtest/gui-run.ps1 &&
+      guest_ssh "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\abtest\\gui-run.ps1 -Id $id"; rc=$?; rm -f "$cmdfile"; exit "$rc" ;;
   dev-provision) guest_scp_to "$ROOT/scripts/windows-vm/dev-provision.ps1" C:/abtest/dev-provision.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\dev-provision.ps1' ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
@@ -504,7 +508,7 @@ timeout=float(timeout)
 if mode == "type" and (not text.isascii() or any(not ch.isprintable() for ch in text)): raise SystemExit("type accepts printable ASCII only")
 shift={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"minus","+":"equal",":":"semicolon","?":"slash","<":"comma",">":"dot","\"":"apostrophe","{":"bracket_left","}":"bracket_right","|":"backslash","~":"grave_accent"}
 plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon","'":"apostrophe","\\":"backslash","[":"bracket_left","]":"bracket_right","`":"grave_accent"}
-valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
+valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","alt_r","meta_l","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}
 def qmp(keys):
     deadline=time.monotonic()+timeout
     sock=socket.socket(socket.AF_UNIX); sock.settimeout(max(0, deadline-time.monotonic())); sock.connect(path)
@@ -534,7 +538,7 @@ def qmp(keys):
     request={"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":k} for k in keys],"hold-time":10},"id":"key"}
     sock.sendall(json.dumps(request).encode()+b"\r\n"); receive("key"); sock.close()
 if mode == "key":
-    aliases={"enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
+    aliases={"altgr":"alt_r","win":"meta_l","enter":"ret","return":"ret","space":"spc","pageup":"pgup","pagedown":"pgdn","grave":"grave_accent","bracketleft":"bracket_left","bracketright":"bracket_right","del":"delete"}
     valid_qcodes.update(plain.values())
     keys=[aliases.get(k,k) for k in text.replace("-", "+").split("+")]
     if not keys or any(k not in valid_qcodes for k in keys): raise SystemExit("unsupported QEMU key name")

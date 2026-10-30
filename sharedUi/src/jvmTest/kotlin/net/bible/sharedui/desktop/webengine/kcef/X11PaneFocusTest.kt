@@ -106,12 +106,15 @@ class X11PaneFocusTest {
         assertEquals(1, lines.size, lines.toString())
         assertTrue("not Linux" in lines.single())
 
-        // The X11 key-code workaround script is only injected off-screen on the X11 toolkit.
-        assertFalse(KcefWebEngine.osrOnX11(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
-        assertTrue(KcefWebEngine.osrOnX11(KcefRenderingMode.Osr, "sun.awt.X11.XToolkit"))
-        assertFalse(KcefWebEngine.osrOnX11(KcefRenderingMode.Windowed, "sun.awt.X11.XToolkit"))
-        val scripts = PaneFocusRequest.documentStartScripts("shim", listOf("page"), KcefWebEngine.osrOnX11(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
-        assertFalse(OsrKeyCode.SCRIPT in scripts)
+        // The key-code script is NOT X11-only: off-screen panes on Windows get an empty KeyboardEvent.code (measured
+        // live in W1), so it is injected there too; never for windowed panes.
+        assertTrue(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
+        assertTrue(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.X11.XToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Windowed, "sun.awt.X11.XToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Windowed, "sun.awt.windows.WToolkit"))
+        assertFalse(KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.lwawt.macosx.LWCToolkit"))
+        val scripts = PaneFocusRequest.documentStartScripts("shim", listOf("page"), KcefWebEngine.osrKeyCodeFix(KcefRenderingMode.Osr, "sun.awt.windows.WToolkit"))
+        assertTrue(OsrKeyCode.SCRIPT in scripts)
 
         // Mouse back/forward: AWT reports 4/5 on Windows, 6/7 only on X11 (4/5 there are horizontal scroll).
         val nav = net.bible.sharedui.desktop.reading.DesktopBackDispatcher

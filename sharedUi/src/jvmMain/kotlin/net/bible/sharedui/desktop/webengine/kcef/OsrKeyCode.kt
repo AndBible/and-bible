@@ -19,10 +19,11 @@ package net.bible.sharedui.desktop.webengine.kcef
 /**
  * Workaround for a JCEF upstream bug: on Linux an off-screen browser's `sendKeyEvent` puts the key's keysym/char into CEF's
  * `native_key_code`, which Chromium decodes as an XKB keycode, so `KeyboardEvent.code` is wrong (`-` reports `KeyK`, `f`
- * `NonConvert`) while `keyCode` and `key` are right. The page's shortcut scripts match chords on `code`. [SCRIPT] redefines
+ * `NonConvert`) while `keyCode` and `key` are right; on Windows `code` is empty for every key (W1). The page's shortcut
+ * scripts match chords on `code`. [SCRIPT] redefines
  * `KeyboardEvent.prototype.code` to derive the US-positional DOM code from `keyCode` (and `location` for left/right
  * modifiers, numpad and numpad Enter); keys it does not know fall through to the original getter. Installed only for
- * off-screen panes on the X11 toolkit ([PaneFocusRequest.documentStartScripts]).
+ * off-screen panes on the X11 and Windows toolkits ([KcefWebEngine.osrKeyCodeFix]).
  */
 internal object OsrKeyCode {
     private val simple: Map<Int, String> = buildMap {
