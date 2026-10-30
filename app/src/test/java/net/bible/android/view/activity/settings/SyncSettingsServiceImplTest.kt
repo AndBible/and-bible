@@ -352,6 +352,22 @@ class SyncSettingsServiceImplTest {
         assertEquals("https://example.com", CommonUtils.realSharedPreferences.getString("cloud_sync_server_url", null))
     }
 
+    @Test fun serverUrls_areNormalizedBeforeStorageForBothBackends() {
+        val service = impl()
+        for ((adapter, key) in listOf("NEXT_CLOUD" to "cloud_sync_server_url", "WEBDAV" to "webdav_sync_server_url")) {
+            service.setAdapter(adapter)
+            for ((input, expected) in listOf(
+                "  https://example.com///\n" to "https://example.com",
+                "https://example.com/nextcloud/" to "https://example.com/nextcloud",
+                "https://example.com/remote.php/dav/files/me/" to "https://example.com/remote.php/dav/files/me",
+                "https://example.com/already-normalized" to "https://example.com/already-normalized",
+            )) {
+                assertTrue(service.setText("cloud_sync_server_url", input))
+                assertEquals("$adapter: $input", expected, CommonUtils.realSharedPreferences.getString(key, null))
+            }
+        }
+    }
+
     @Test fun serverUrl_invalid_returnsFalse_notPersisted() {
         val service = impl()
         assertFalse(service.setText("cloud_sync_server_url", "not a url"))
