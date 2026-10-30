@@ -43,7 +43,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/AndBible/and-bible.git
-        commit: 9bb066a353
+        commit: f3ddc3b2e68cf298992e911bca435d02ee329fda
         disable-submodules: true
       - type: git
         url: https://github.com/AndBible/jsword.git
