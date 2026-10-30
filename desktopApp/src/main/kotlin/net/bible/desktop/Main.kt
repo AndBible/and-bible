@@ -123,7 +123,7 @@ private fun runApp(launchArgs: List<String>) {
     } else {
         val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
         val crashGate = desktopCrashGate(paths)
-        val cefCache = paths.cache.resolve("cef")
+        val cefCache = paths.cefCache
         requireWritableDirectory(cefCache, "the cache directory")
         val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
         val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }

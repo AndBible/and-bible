@@ -123,4 +123,26 @@ class DesktopPortsTest {
             assertFailsWith<IllegalArgumentException> { port.read(DocumentRef("https://example.org/a.csv")) }
         } finally { Files.deleteIfExists(file); Files.deleteIfExists(dir) }
     }
+
+    @Test fun externalLinksUseDesktopBrowseOnWindows() = runTest {
+        val calls = mutableListOf<String>()
+        val links = DesktopExternalLinks({ calls += "portal"; PortalOpenResult.OPENED }, { calls += "desktop:$it"; true }, { calls += "xdg"; true }, this, "Windows 11")
+        links.open("https://example.org/a b".replace(" ", "%20"))
+        links.open("mailto:user@example.org")
+        runCurrent()
+        assertEquals(listOf("desktop:https://example.org/a%20b", "desktop:mailto:user@example.org"), calls)
+
+        // Even when Desktop.browse fails there is no xdg-open on Windows.
+        calls.clear()
+        DesktopExternalLinks({ calls += "portal"; PortalOpenResult.OPENED }, { calls += "desktop"; false }, { calls += "xdg"; true }, this, "Windows 11")
+            .open("https://example.org/")
+        runCurrent()
+        assertEquals(listOf("desktop"), calls)
+
+        // PortalOpenUri itself never touches D-Bus on Windows.
+        val dbus = net.bible.sharedcore.platform.desktop.dbus.DesktopDbus("Windows 11")
+        assertFalse(dbus.supportedOs)
+        assertFalse(dbus.portalAvailable())
+        assertEquals(PortalOpenResult.UNAVAILABLE, PortalOpenUri(dbus).open(java.net.URI("https://example.org/")))
+    }
 }

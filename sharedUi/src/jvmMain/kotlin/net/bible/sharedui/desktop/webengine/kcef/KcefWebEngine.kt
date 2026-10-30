@@ -61,7 +61,7 @@ class KcefWebEngine(
         init(installDir).getOrThrow()
         val shim = androidBridgeShim(CEF_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))
         val mode = KcefRenderingMode.current(log)
-        val osrOnX11 = mode == KcefRenderingMode.Osr && runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name == "sun.awt.X11.XToolkit" }.getOrDefault(false)
+        val osrOnX11 = osrOnX11(mode, runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name }.getOrDefault(""))
         val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts, osrOnX11)
         val handler = BundleRequestHandler(bundleDir, scripts, pageAssets)
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
@@ -129,7 +129,7 @@ class KcefWebEngine(
                         settings {
                             // Explicit, because KCEF seeds these from JCefAppConfig, which (outside the JetBrains
                             // Runtime) points them at the running JDK's java.home/lib; KCEF fills only empty ones.
-                            browserSubProcessPath = dir.resolve("jcef_helper").toString()
+                            browserSubProcessPath = dir.resolve(helperExecutableName()).toString()
                             resourcesDirPath = dir.toString()
                             localesDirPath = dir.resolve("locales").toString()
                             noSandbox = System.getProperty("kcef.sandbox") != "true"
@@ -185,6 +185,14 @@ class KcefWebEngine(
             terminalFailure = null
         }
 
+        /** The CEF helper executable inside the natives dir: `jcef_helper.exe` on Windows, `jcef_helper` elsewhere. */
+        internal fun helperExecutableName(osName: String = System.getProperty("os.name").orEmpty()): String =
+            if (osName.lowercase().startsWith("windows")) "jcef_helper.exe" else "jcef_helper"
+
+        /** Whether the X11-only key-code workaround applies: an off-screen pane on AWT's X11 toolkit. */
+        internal fun osrOnX11(mode: KcefRenderingMode, toolkitClassName: String): Boolean =
+            mode == KcefRenderingMode.Osr && toolkitClassName == "sun.awt.X11.XToolkit"
+
         /** Why [dir] cannot serve as the CEF install dir, or null when it holds the natives. */
         internal fun nativesProblem(dir: Path): String? {
             val hint = "build them with ./gradlew :desktopApp:prepareKcefNatives (CEF natives are never downloaded at run time)"
@@ -212,7 +220,7 @@ internal object SwingMainDispatcher : CoroutineDispatcher() {
 }
 
 /** The X11 focus helper (reflection on the JDK's X11 internals), resolved once per process and shared by every pane. */
-private val sharedX11Focus: X11PaneFocus by lazy { X11PaneFocus.create { println("kcef: $it") } }
+private val sharedX11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log = { println("kcef: $it") }) }
 
 /** Windowed pane: CEF's heavyweight component hosted in a Compose `SwingPanel`. Everything shared is in [KcefPaneCore]. */
 internal class KcefPane(
