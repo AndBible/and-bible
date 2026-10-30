@@ -94,7 +94,13 @@ try {
     $left = @(ImageProcesses)
     if ($left.Count) { throw "Image processes left: $($left.ProcessId -join ', ')" }
     $wer = @(Get-Process -Name WerFault -ErrorAction SilentlyContinue)
-    $events = @(Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$started} -ErrorAction SilentlyContinue | Where-Object { $_.ProviderName -in 'Application Error','Windows Error Reporting' -and $_.Message -match 'AndBible|jcef_helper|java\.exe' -and $_.Message -notmatch 'RADAR_PRE_LEAK' })
+    try {
+        $eventLog = @(Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$started} -ErrorAction Stop)
+    } catch {
+        if ($_.FullyQualifiedErrorId -notmatch '^NoMatchingEventsFound(?:,|$)') { throw }
+        $eventLog = @()
+    }
+    $events = @($eventLog | Where-Object { $_.ProviderName -in 'Application Error','Windows Error Reporting' -and $_.Message -match 'AndBible|jcef_helper|java\.exe' -and $_.Message -notmatch 'RADAR_PRE_LEAK' })
     if ($wer.Count -or $events.Count) { throw 'Windows Error Reporting process or crash event found.' }
     Write-Output 'OK: readiness, WM_CLOSE, exit 0, no image processes or WER'
 } finally {
