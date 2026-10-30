@@ -313,6 +313,7 @@ golden:
     - qemu-system-x86
     - qemu-utils
     - ovmf
+    - python3-pil   # scripts/windows-vm.sh shot: QMP screendump (PPM) -> PNG
     - php-curl
     - php-intl
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
