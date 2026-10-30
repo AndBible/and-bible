@@ -131,12 +131,11 @@ class ReadingPlanControl constructor(
     /** User has chosen to start a plan
      */
     suspend fun startReadingPlan(plan: ReadingPlanInfoDto) {
-        // set default plan
-        setReadingPlan(plan.planCode)
-
-        // tell the plan to set a start date
+        // Create the row first: a sync reconcile treats "selected but no row" as a synced reset and deselects.
         if (readingPlanRepo.getStartDate(plan.planCode) == null)
             readingPlanRepo.startPlan(plan.planCode)
+
+        setReadingPlan(plan.planCode)
     }
 
     /** Adjust the plan start date
