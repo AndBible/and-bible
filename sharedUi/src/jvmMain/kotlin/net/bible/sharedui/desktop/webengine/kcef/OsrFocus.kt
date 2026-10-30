@@ -50,6 +50,19 @@ internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusCh
         if (isFocused) sink.setFocus(true) else runCatching { requester.requestFocus() }
     }
 
+    /** Drops Compose focus from the pane; set by the pane's composition (`LocalFocusManager.clearFocus(force = true)`). */
+    @Volatile
+    var clearFocus: () -> Unit = {}
+
+    /**
+     * A primary press somewhere in the pane's window ([inside] the pane or not). A press outside while the pane has focus
+     * takes the focus away, as the windowed pane lost X focus to such a click: otherwise a drawer or toolbar opened over the
+     * pane would leave the keys going to the page behind it.
+     */
+    fun onWindowPress(inside: Boolean) {
+        if (!inside && isFocused) clearFocus()
+    }
+
     /** The pane leaves the composition or is disposed: give the keys back. */
     fun release() = onFocusChanged(false)
 

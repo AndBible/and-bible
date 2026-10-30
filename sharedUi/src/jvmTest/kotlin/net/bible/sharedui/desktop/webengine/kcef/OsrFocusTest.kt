@@ -144,6 +144,31 @@ class OsrFocusTest {
         assertFalse(pane.isFocused)
     }
 
+    @Test fun pressOutsideThePaneClearsItsFocus() = runComposeUiTest {
+        setContent {
+            val fm = androidx.compose.ui.platform.LocalFocusManager.current
+            androidx.compose.runtime.SideEffect { pane.clearFocus = { fm.clearFocus(force = true) } }
+            Box(Modifier.size(20.dp).testTag("pane").osrKeyboard(pane))
+        }
+        runOnIdle { pane.requester.requestFocus() }
+        runOnIdle { assertTrue(DesktopWebPaneKeys.ownsKeys) }
+        runOnIdle { pane.onWindowPress(inside = true) }
+        runOnIdle { assertTrue(pane.isFocused); assertTrue(DesktopWebPaneKeys.ownsKeys); assertEquals(listOf(true), sink.focus) }
+        runOnIdle { pane.onWindowPress(inside = false) }
+        runOnIdle {
+            assertFalse(pane.isFocused)
+            assertFalse(DesktopWebPaneKeys.ownsKeys)
+            assertEquals(listOf(true, false), sink.focus)
+        }
+    }
+
+    @Test fun pressOutsideWhileUnfocusedDoesNothing() = runComposeUiTest {
+        var cleared = 0
+        pane.clearFocus = { cleared++ }
+        pane.onWindowPress(inside = false)
+        assertEquals(0, cleared)
+    }
+
     private fun androidx.compose.ui.test.ComposeUiTest.onNodeWithTagPane() = onNodeWithTag("pane")
     private fun androidx.compose.ui.test.ComposeUiTest.onNodeWithTag(t: String) = onNode(androidx.compose.ui.test.hasTestTag(t))
 }

@@ -19,6 +19,7 @@ package net.bible.sharedui.desktop.webengine.kcef
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import dev.datlag.kcef.KCEFBrowser
 import kotlinx.coroutines.CoroutineDispatcher
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
@@ -42,6 +44,7 @@ import org.cef.browser.CefRendering
 import org.cef.input.CefCompositionUnderline
 import org.cef.misc.CefRange
 import java.awt.Point
+import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
@@ -100,7 +103,16 @@ internal class KcefOsrPane(
             update(geometry.widthPx, geometry.heightPx, scale, geometry.screenOrigin)
             onDispose {}
         }
-        DisposableEffect(Unit) { onDispose { focus.release() } }
+        val focusManager = LocalFocusManager.current
+        SideEffect { focus.clearFocus = { focusManager.clearFocus(force = true) } }
+        DisposableEffect(Unit) {
+            val outsidePress = OsrOutsidePress(focus, ::paneScreenRect) { OsrOutsidePress.windowOf(paneScreenRect()) }
+            outsidePress.install()
+            onDispose {
+                outsidePress.uninstall()
+                focus.release()
+            }
+        }
         Canvas(
             modifier
                 .onSizeChanged { update(it.width, it.height, scale, geometry.screenOrigin) }
@@ -119,6 +131,9 @@ internal class KcefOsrPane(
             frame?.let { drawImage(it, Offset.Zero) }
         }
     }
+
+    /** The pane's bounds on screen in AWT units, from the last layout. */
+    private fun paneScreenRect(): Rectangle? = geometry.let { g -> Rectangle(g.screenOrigin.x, g.screenOrigin.y, g.widthDip, g.heightDip) }
 
     /** Applies a new view size or scale: the frame buffer gets the size CEF will paint, CEF is told. */
     private fun update(widthPx: Int, heightPx: Int, scale: Double, origin: Point) {
