@@ -114,7 +114,30 @@ describe("multi-reference reading position", () => {
         document.elementFromPoint = () => wrapper.findAll(".verse")[3].element;
         window.dispatchEvent(new Event("scroll"));
         await flushPromises();
-        expect(scrolledToOrdinal).toHaveBeenCalledWith("", 5);
+        expect(scrolledToOrdinal).toHaveBeenCalledWith("", 6);
         delete document.elementFromPoint;
+    });
+
+    it("keeps the compare heading visible on a fresh load (jumpToAnchor 0)", async () => {
+        const doc = {id: "compare0", type: "multi", compare: true, osisFragments: [
+            fragment("John.6.35", 100), {...fragment("John.6.35", 100), bookInitials: "ESV", key: "ESV:John.6.35"},
+        ]};
+        const {wrapper} = mountReader(doc);
+        const heading = wrapper.find("h2").element;
+        const firstFragment = wrapper.find("[data-multi-fragment]").element;
+        for (const el of [heading, firstFragment]) {
+            el.innerText = "x";
+            el.style.lineHeight = "20px";
+            el.style.fontSize = "16px";
+        }
+        vi.spyOn(heading, "getBoundingClientRect").mockReturnValue({top: 0});
+        vi.spyOn(firstFragment, "getBoundingClientRect").mockReturnValue({top: 60});
+        vi.stubGlobal("scrollY", 0);
+        const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+        emit("setup_content", {jumpToAnchor: 0, topOffset: 0, bottomOffset: 0});
+        await flushPromises();
+        expect(scrollTo).toHaveBeenCalled();
+        const lastY = scrollTo.mock.calls.at(-1)[1];
+        expect(lastY).toBeLessThanOrEqual(0);
     });
 });

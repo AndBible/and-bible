@@ -170,7 +170,7 @@ export function useScroll(
         // Multi-reference source ordinals repeat across fragments; prefer their local anchor.
         const multiOrdinal = toId?.match(/^o-(\d+)$/)?.[1];
         let toElement = (multiOrdinal
-            ? document.querySelector<HTMLElement>(`[data-scroll-ordinal="${multiOrdinal}"]`)
+            ? document.querySelector<HTMLElement>(`[data-multi-root] [data-scroll-ordinal="${multiOrdinal}"]`)
             : null) ?? (toId ? document.getElementById(toId) : null);
         if (onlyIfInvisible && toElement && isInViewport(toElement)) return;
 

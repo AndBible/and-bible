@@ -16,8 +16,8 @@
   -->
 
 <template>
-  <div ref="scrollRoot">
-    <h2 v-if="document.compare">{{ osisFragments[0].keyName }}</h2>
+  <div ref="scrollRoot" data-multi-root>
+    <h2 v-if="document.compare" data-multi-heading>{{ osisFragments[0].keyName }}</h2>
     <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key" data-multi-fragment>
       <div class="ref-link">
         <div class="flex">
