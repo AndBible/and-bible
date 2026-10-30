@@ -107,12 +107,11 @@ enum class DailyReadingLoad {
  *   composition so a day chosen through the day list is not silently reverted to the route's
  *   original (usually argument-free) day. Host-owned, because it must outlive this destination's
  *   composition for exactly the reason given under [controllerFor].
- * - [subscribeEvents] subscribes to `DatabaseContainer.readingPlansSynced` to recreate the host
+ * - [subscribeEvents] subscribes to `DatabaseContainer.readingPlansSynced` to refresh the open day
  *   and `SpeakChanges.changes.subscribeOnMain` to push speak state, and returns the unsubscribe.
  *   Route-scoped (a `DisposableEffect` in this destination's arm), not host-wide, following
  *   [net.bible.sharedui.ai.nav.AiModelsDeps.onResume]'s established convention: one host now serves
- *   several clusters, and a plan sync must not `recreate()` the host while an unrelated cluster's
- *   destination is the one showing.
+ *   several clusters, and only the visible reading-plan destination needs a refresh.
  * - [onImportPlan] is the one remaining hard platform dependency: a SAF `GetContent()` launcher
  *   chained into `Screen.InstallZip` (`:103`, `:268-271`). It stays host-side as a plain lambda,
  *   exactly like slice 1's `AiPromptsDeps.onImportCsv`/`onExportCsv`, and this graph binds the

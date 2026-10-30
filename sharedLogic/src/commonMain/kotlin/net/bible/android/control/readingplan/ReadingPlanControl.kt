@@ -53,6 +53,7 @@ class ReadingPlanControl constructor(
 {
 
     private var readingStatus: ReadingStatus? = null
+    private val currentPlan = CurrentReadingPlan(settings)
 
     /** allow front end to determine if a plan needs has been selected
      */
@@ -123,9 +124,7 @@ class ReadingPlanControl constructor(
     /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
      */
     val currentPlanCode: String
-        get() {
-            return settings.getString(READING_PLAN, "") as String
-        }
+        get() = currentPlan.code
 
     val currentPageManager: CurrentPageManager get() = windowControl.activeWindowPageManager
 
@@ -151,7 +150,7 @@ class ReadingPlanControl constructor(
      */
     fun setReadingPlan(planCode: String) {
         // set default plan to this
-        settings.setString(READING_PLAN, planCode)
+        currentPlan.select(planCode)
     }
 
     /** get read status of this days readings. The day's instance is kept, but its status is reloaded on every
@@ -319,11 +318,7 @@ class ReadingPlanControl constructor(
     }
 
     fun reset(planCode: String) {
-        // if resetting default plan then remove default
-        if (planCode == currentPlanCode) {
-            settings.removeString(READING_PLAN)
-        }
-
+        currentPlan.forgetReset(planCode)
         readingPlanRepo.resetPlan(planCode)
     }
 
@@ -339,8 +334,6 @@ class ReadingPlanControl constructor(
     }
 
     companion object {
-
-        private const val READING_PLAN = "reading_plan"
 
         private const val TAG = "ReadingPlanControl"
     }

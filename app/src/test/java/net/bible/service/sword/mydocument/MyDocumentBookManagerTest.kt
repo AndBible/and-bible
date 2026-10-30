@@ -723,7 +723,7 @@ class MyDocumentBookManagerTest {
             deliveryLooper = Looper.myLooper()
         }
         try {
-            val worker = Thread { accessor._reactToUpdates!!.invoke(entries) }
+            val worker = Thread { kotlinx.coroutines.runBlocking { accessor._reactToUpdates!!.invoke(entries) } }
             worker.start()
             worker.join()
             assertTrue("sync must wait for main before refreshing registrations", seen.isEmpty())

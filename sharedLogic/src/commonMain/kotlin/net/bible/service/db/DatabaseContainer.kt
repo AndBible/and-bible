@@ -55,6 +55,8 @@ import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.android.database.temporaryMigrations
+import net.bible.android.control.readingplan.CurrentReadingPlan
+import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.createTriggers
@@ -609,7 +611,12 @@ class DatabaseContainer private constructor() {
                     _resetLocalDb = { resetReadingPlanDb() },
                     localDbPath = host.databasePath(ReadingPlanDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.READINGPLANS,
-                    _reactToUpdates = { _readingPlansSynced.emit(it) },
+                    _reactToUpdates = {
+                        CurrentReadingPlan(
+                            DatabaseAppSettings({ settingsStore }, { true }),
+                        ).reconcile(readingPlanDb.readingPlanDao())
+                        _readingPlansSynced.emit(it)
+                    },
                 )
                 },
                 { SyncableDatabaseAccessor(
