@@ -17,7 +17,11 @@ issue-management for tracker rules. This skill only adds the AndBible-specific c
 
 1. Open bugs with board fields: `docs/superpowers/triage/snapshot/index.tsv` + `board.json`
    (`Type: Bug`, not Done). Re-check live state with `gh issue view <n>`.
-2. Drop issues the branch already touches: `git log --oneline -E --grep="#<n>\b"`.
+2. Drop issues an earlier round already handled. Fixed issues stay open until they reach the
+   default branch, so check all three: `git log --all --oneline --grep="<n>"` (a fix commit
+   may not name the issue with `#`), the `docs/superpowers` log, and the issue comments
+   (`gh issue view <n> --json comments`: a "Fixed: ..." / "already fixed" comment or a
+   `_— bug-fix round_` signature means it is done).
 3. Keep a bug only when it is **self-contained**: concrete repro or stack trace, an identifiable
    code area, and a test that can show it red. Skip design debates (e.g. "Psalm vs Psalms"),
    feature requests disguised as bugs, and "maybe just my phone" reports without repro steps.
