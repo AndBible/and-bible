@@ -111,6 +111,7 @@ import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.search.readingSheetInsetPadding
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.AbSheetDragHandle
+import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -219,6 +220,18 @@ class ReadingHostDeps(
     val quickSheetContent: @Composable (ReadingQuickSheet) -> Unit = {},
     val readingDialogSlot: @Composable () -> Unit = {},
 )
+
+/**
+ * Registers the reading view's own overlays with [net.bible.sharedui.components.OverlayPresence], so the platform can give
+ * the keyboard back to the pane when the last one closes: an open (or opening) drawer, a sheet closing over it must not
+ * hand the keys back; and the in-reading search bar, whose field takes the focus while it is up and which leaves it
+ * nowhere when it closes.
+ */
+@Composable
+internal fun ReadingOverlayTracking(drawerActive: Boolean, searchBarOpen: Boolean) {
+    TrackOverlay(active = drawerActive)
+    TrackOverlay(active = searchBarOpen)
+}
 
 /**
  * The reading view: the toolbar, the panes and the window rail, with the drawer around them and
@@ -334,6 +347,11 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             if (latch.observe(value == DrawerValue.Open)) deps.onDrawerClosed()
         }
     }
+
+    ReadingOverlayTracking(
+        drawerActive = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open,
+        searchBarOpen = searchBar != null,
+    )
 
     ModalNavigationDrawer(
         modifier = modifier,

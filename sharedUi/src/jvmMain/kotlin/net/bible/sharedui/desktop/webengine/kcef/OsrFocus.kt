@@ -24,13 +24,14 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
+import net.bible.sharedui.desktop.webengine.FocusRestorable
 
 /**
  * Compose focus of one off-screen pane and the keys that follow it. Gaining focus gives CEF its keyboard focus and claims
  * the window's keys ([DesktopWebPaneKeys]); losing it (or [release]) undoes both. Keys reach [onKey] only through the
  * focus chain, so none arrive while something else (the drawer, a dialog) has focus.
  */
-internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusChange: (Boolean) -> Unit = {}) {
+internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusChange: (Boolean) -> Unit = {}) : FocusRestorable {
     val requester = FocusRequester()
 
     @Volatile
@@ -46,7 +47,7 @@ internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusCh
     }
 
     /** Moves Compose focus into the pane (on the EDT); a pane that has no focus target in the composition yet ignores it. */
-    fun requestFocus() {
+    override fun requestFocus() {
         if (isFocused) sink.setFocus(true) else runCatching { requester.requestFocus() }
     }
 
@@ -60,11 +61,20 @@ internal class OsrFocus(private val sink: OsrKeyboardSink, private val onFocusCh
      * pane would leave the keys going to the page behind it.
      */
     fun onWindowPress(inside: Boolean) {
-        if (!inside && isFocused) clearFocus()
+        if (inside) return
+        if (isFocused) {
+            DesktopWebPaneKeys.pressTookFocus(this)
+            clearFocus()
+        } else {
+            DesktopWebPaneKeys.pressElsewhere()
+        }
     }
 
     /** The pane leaves the composition or is disposed: give the keys back. */
-    fun release() = onFocusChanged(false)
+    fun release() {
+        onFocusChanged(false)
+        DesktopWebPaneKeys.forget(this)
+    }
 
     /** Forwards a key to the page and consumes it, Tab included, so Compose never moves focus out of the pane. */
     fun onKey(e: KeyEvent): Boolean = isFocused && OsrKeys.forward(e, sink)

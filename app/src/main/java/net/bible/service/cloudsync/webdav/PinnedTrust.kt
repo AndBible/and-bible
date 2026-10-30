@@ -7,7 +7,6 @@ import net.bible.sharedcore.webdav.WebDavClient
 import net.bible.sharedcore.webdav.createWebDavHttpClient
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.security.KeyStore
-import java.security.MessageDigest
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
@@ -17,8 +16,9 @@ import javax.net.ssl.SSLSession
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
-fun sha256Hex(bytes: ByteArray): String =
-    MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02X".format(it) }
+// Not shared with the desktop's PinningTrustManager (sharedLogic jvmMain): that one is an X509ExtendedTrustManager (peer
+// host from the handshake session), which is API 24 and :app's minSdk is 23. The pin decision and the hash are shared.
+fun sha256Hex(bytes: ByteArray): String = sha256HexUpper(bytes)
 
 fun X509Certificate.toCertInfo(host: String) = DavCertificateInfo(
     host = host, sha256 = sha256Hex(encoded),

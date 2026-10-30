@@ -58,9 +58,9 @@ class DesktopSyncSettingsPlatformTest {
     }
 
     @Test fun syncSettingsFormatsBytesAndDates() = withLocale(Locale.US, "UTC") {
-        assertEquals("0 bytes", platform.formatFileSize(0))
-        assertEquals("999 bytes", platform.formatFileSize(999))
-        assertEquals("1 KB", platform.formatFileSize(1_000))
+        assertEquals("0 B", platform.formatFileSize(0))
+        assertEquals("999 B", platform.formatFileSize(999))
+        assertEquals("1 kB", platform.formatFileSize(1_000))
         assertEquals("1.5 MB", platform.formatFileSize(1_500_000))
         assertEquals("12 MB", platform.formatFileSize(12_000_000))
         assertEquals("2.3 GB", platform.formatFileSize(2_340_000_000))
@@ -73,6 +73,14 @@ class DesktopSyncSettingsPlatformTest {
     @Test fun decimalsFollowTheLocale() = withLocale(Locale.forLanguageTag("fi-FI")) {
         assertEquals("1,50", platform.formatDecimal2(1.5))
         assertEquals("1,5 MB", platform.formatFileSize(1_500_000))
+    }
+
+    @Test fun sizesFormattedPerLocale() {
+        val fi = withLocale(Locale.forLanguageTag("fi-FI")) { platform.formatFileSize(12_345_000) }
+        val us = withLocale(Locale.US) { platform.formatFileSize(12_345_000) }
+        assertEquals("12,3 MB", fi)
+        assertEquals("12.3 MB", us)
+        assertEquals("999 B", withLocale(Locale.forLanguageTag("fi-FI")) { platform.formatFileSize(999) })
     }
 
     @Test fun passwordsGoToTheSecretStoreAndTheRestToThePrefs() {

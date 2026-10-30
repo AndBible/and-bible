@@ -22,6 +22,7 @@ fun AbAlertDialog(
     text: (@Composable () -> Unit)? = null,
     properties: DialogProperties = DialogProperties(),
 ) {
+    TrackOverlay()
     val mono = isPureMonochrome()
     AlertDialog(
         onDismissRequest = onDismissRequest,

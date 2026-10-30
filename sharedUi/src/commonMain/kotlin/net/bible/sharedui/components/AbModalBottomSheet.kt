@@ -51,6 +51,7 @@ fun AbModalBottomSheet(
     dragHandleDescription: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    TrackOverlay()
     val mono = isPureMonochrome()
     val handleDescription = dragHandleDescription ?: LocalSheetDragHandleDescription.current
     val scope = rememberCoroutineScope()

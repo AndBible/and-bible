@@ -31,7 +31,7 @@ internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
     fun accept(files: List<Path>) {
         val entries = files.mapNotNull { file ->
             if (file.fileName?.toString()?.substringAfterLast('.', "")?.lowercase() !in
-                setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3", "mybible", "bblx", "bbli")) {
+                setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3", "mybible", "bblx", "bbli", "abdb")) {
                 log("Unsupported incoming file: $file")
                 null
             } else Entry(DocumentRef(file.toUri().toString()))
@@ -74,12 +74,81 @@ internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
     }
 }
 
+/**
+ * The second-launch hand-off listener that starts before the crash gate and the app graph exist. Files handed over
+ * while nobody is attached are queued (the second instance gets its "delivered" answer and may exit), and the app graph's
+ * [DesktopIncomingFilesImpl] attaches later through [listen] and receives them all. [DesktopIncomingFilesImpl] then
+ * hands them to the shared receive path (`AppHostPlatform.receiveIncomingFiles`).
+ */
+class DesktopEarlyIncomingFiles private constructor() : AutoCloseable {
+    private var listener: AutoCloseable = AutoCloseable {}
+    private val lock = Any()
+    private var pending = ArrayList<Path>()
+    private var sink: ((List<Path>) -> Unit)? = null
+
+    // Delivery happens under [lock] (the sinks only enqueue), so files queued before attaching are always handed over
+    // before any file accepted afterwards: FIFO across the hand-over.
+    private fun accept(files: List<Path>) {
+        synchronized(lock) {
+            val target = sink
+            if (target == null) pending.addAll(files) else target(files)
+        }
+    }
+
+    /** The `listen` seam of [DesktopIncomingFilesImpl]: attaches [onFiles], first handing it everything queued so far. */
+    fun listen(@Suppress("UNUSED_PARAMETER") dataDir: Path, onFiles: (List<Path>) -> Unit): AutoCloseable {
+        synchronized(lock) {
+            sink = onFiles
+            val queued = pending
+            pending = ArrayList()
+            if (queued.isNotEmpty()) onFiles(queued)
+        }
+        return AutoCloseable { synchronized(lock) { if (sink === onFiles) sink = null } }
+    }
+
+    override fun close() {
+        listener.close()
+        val dropped = synchronized(lock) { pending.size.also { pending.clear() } }
+        if (dropped > 0) Log.w("DesktopIncomingFiles", "Dropped $dropped incoming file(s) queued before the app graph came up (quit at the crash gate)")
+    }
+
+    companion object {
+        @Volatile private var installed: DesktopEarlyIncomingFiles? = null
+
+        /**
+         * Starts listening in [dataDir] and makes the listener the one [DesktopIncomingFilesImpl] attaches to. A socket
+         * that cannot be bound costs only the second-launch hand-off, never the app start.
+         */
+        fun install(
+            dataDir: Path,
+            listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = InstanceHandOff::listen,
+        ): DesktopEarlyIncomingFiles? {
+            // Created before listening: a connection that arrives as listen() returns always has a queue to land in.
+            val early = DesktopEarlyIncomingFiles()
+            early.listener = try {
+                listen(dataDir) { files -> early.accept(files) }
+            } catch (e: Exception) {
+                Log.w("DesktopIncomingFiles", "Second-launch file hand-off unavailable: ${e.message}")
+                return null
+            }
+            installed = early
+            return early
+        }
+
+        /** The `listen` function for [DesktopIncomingFilesImpl]: the installed early listener, else a fresh one. */
+        internal fun listenFunction(): (Path, (List<Path>) -> Unit) -> AutoCloseable =
+            installed?.let { it::listen } ?: InstanceHandOff::listen
+
+        fun closeInstalled() { installed?.close(); installed = null }
+    }
+}
+
 internal class DesktopIncomingFilesImpl(
     dataDir: Path,
     args: List<String>,
     private val window: DesktopWindowHandle,
     exitTasks: DesktopExitTasks,
-    listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = InstanceHandOff::listen,
+    listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = DesktopEarlyIncomingFiles.listenFunction(),
 ) : DesktopIncomingFiles, AutoCloseable {
     private val queue = DesktopIncomingFileQueue { Log.w("DesktopIncomingFiles", it) }.apply {
         offer(resolveIncomingArgs(args))

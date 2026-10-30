@@ -56,12 +56,23 @@ class DesktopPageAssetRoutesTest {
         assertNull(routes().resolve("/module/KJV/sub"))
     }
 
-    @Test fun fontFileServedAndFontsCssIs404() {
+    @Test fun fontFileServed() {
+        assertEquals("font/woff2", assertNotNull(routes().resolve("/fonts/KJV/css/extra.woff2")).mimeType)
+    }
+
+    @Test fun fontsCssSurvivesTmpCleaning() {
         val r = routes()
-        assertEquals("font/woff2", assertNotNull(r.resolve("/fonts/KJV/css/extra.woff2")).mimeType)
-        assertNull(r.resolve("/fonts/KJV/fonts.css"))
-        assertNull(r.resolve("/fonts/KJV/fonts.css"))
-        assertEquals(1, logs.size, "one log line per unsupported route: $logs")
+        Files.delete(assertNotNull(r.resolve("/fonts/KJV/fonts.css")).file) // tmp cleaning in a long session
+        assertTrue(Files.isRegularFile(assertNotNull(r.resolve("/fonts/KJV/fonts.css")).file))
+    }
+
+    @Test fun fontsCssAnswers200() {
+        val r = routes()
+        val css = assertNotNull(r.resolve("/fonts/KJV/fonts.css"))
+        assertEquals("text/css", css.mimeType)
+        assertEquals(0L, Files.size(css.file))
+        assertNull(r.resolve("/fonts/NOPE/fonts.css"))
+        assertEquals(emptyList(), logs, "fonts.css is not an error: $logs")
     }
 
     @Test fun signedFeatureServed() {
@@ -79,7 +90,8 @@ class DesktopPageAssetRoutesTest {
         assertNull(routes().resolve("/module-style/KJV/../../../secret.txt"))
     }
 
-    @Test fun epubRoutesAre404WithOneLogLine() {
+    /** EPUB resources need the Android-only current-book lookup and a stream body (BundleResource is a file): 404, documented. */
+    @Test fun epubResourceServedOrDocumented() {
         val r = routes()
         assertNull(r.resolve("/epub/KJV/x.xhtml"))
         assertNull(r.resolve("/epub/KJV/y.xhtml"))

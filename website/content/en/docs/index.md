@@ -83,6 +83,12 @@ shows how to find your way around the app.
 | [Cloud Sync](cloud_sync.md) | Syncing bookmarks, notes and workspaces through Google Drive or Nextcloud |
 | [Document Sync](document_sync.md) | Syncing your installed Bibles and other documents across devices |
 
+### Desktop
+
+| Doc | What's inside |
+|---|---|
+| [Desktop beta](desktop-beta.md) | Known limitations of the desktop beta, untested setups and how to report a bug |
+
 ### Customisation & Advanced
 
 | Doc | What's inside |

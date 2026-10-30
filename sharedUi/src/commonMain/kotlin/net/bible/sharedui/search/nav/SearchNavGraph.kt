@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.search.nav
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,6 +51,7 @@ import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedui.PassThroughBackHandler
+import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.search.EpubSearchResultsScreen
 import net.bible.sharedui.search.EpubSearchScreen
@@ -538,6 +540,15 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
 /**
+ * Back (Esc on desktop) on the index prompt declines it, like its Cancel button. The sibling routes route back through
+ * the history; this one has none, so without a handler the press only reached the NavHost's own callback.
+ */
+@Composable
+internal fun SearchIndexPromptBack(onCancel: () -> Unit) {
+    PlatformBackHandler(enabled = true, onBack = onCancel)
+}
+
+/**
  * The search cluster's destinations. Registered into the app's single `NavHost` by the host
  * Activity, alongside the AI and reading-plan clusters.
  *
@@ -709,6 +720,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         val d = deps.searchIndex
         val args = backStackEntry.searchArgs()
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+        SearchIndexPromptBack { navController.popOrExit(deps.exitHost) }
 
         val target = remember(args.searchDocument) { d.resolve(args.searchDocument) }
         if (target == null) {

@@ -35,8 +35,8 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 /**
  * Runs the desktop's background sync: one pass when startup is ready, then one every [BackgroundSyncPolicy.nextEarliestSeconds],
  * all in [scope] (never on the UI thread). Passes never overlap. On the exit it stops the periodic loop and, as an exit
- * task, waits for the running pass (or runs [closePass]) for at most [closeWaitMs]; the exit-task runner's own bound is
- * 10 s, so the default 9 s lets this task finish inside it.
+ * task, waits for the pass that is not yet completed (or runs [closePass], retrying the lock 3 times over 2 s) for at
+ * most [closeWaitMs]; the exit-task runner's own bound is 10 s, so the default 9 s lets this task finish inside it.
  *
  * Every failure (offline, sign-in, exceptions) is logged and swallowed: the app stays usable and the loop continues. When the
  * wait runs out the pass is NOT cancelled (database work cannot always be cancelled cleanly); the process exits and the
@@ -62,7 +62,7 @@ class DesktopSyncDriver(
     private val externalPass: () -> Job? = { null },
 ) {
     /** Held for the whole of a pass: a second pass (periodic or on-close) waits for it instead of overlapping. */
-    private val passLock = Mutex()
+    internal val passLock = Mutex()
     @Volatile private var stopped = false
     /** A periodic pass: its job and whether it actually ran (a pass that found `stopped` set never did). */
     private class Pass { lateinit var job: Job; val ran = AtomicBoolean(false) }
@@ -72,6 +72,11 @@ class DesktopSyncDriver(
     @Volatile private var closeJob: Job? = null
     private val closeBegan = AtomicBoolean(false)
     private val loop: Job
+
+    /** Test seam: runs between publishing [current] and starting its job, the window where the pass is still New. */
+    internal var beforePassStart: () -> Unit = {}
+    /** Test seam: the job of the latest periodic pass. */
+    internal val currentPassJob: Job? get() = current?.job
 
     init {
         events.observe { if (it == DesktopLifecycleEvent.Background) stop() }
@@ -99,8 +104,9 @@ class DesktopSyncDriver(
     }
 
     /**
-     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts only
-     * after [current] points at it, so the exit task never sees a stale finished pass while a new one holds the lock.
+     * A periodic pass in its own job, so cancelling the loop never cancels database work that is under way. The job starts
+     * only after [current] points at it, so the exit task never misses a pass that is still Starting while it holds (or is
+     * about to take) the lock.
      */
     private fun launchPass(): Job {
         val pass = Pass()
@@ -118,6 +124,7 @@ class DesktopSyncDriver(
             }
         }
         current = pass
+        beforePassStart()
         pass.job.start()
         return pass.job
     }
@@ -128,7 +135,7 @@ class DesktopSyncDriver(
         val finished = withTimeoutOrNull(closeWaitMs) {
             // A pass that is running is only waited for: never cancelled, and no second pass starts behind it.
             val pass = current
-            if (pass != null && pass.job.isActive) {
+            if (pass != null && !pass.job.isCompleted) { // also a pass that is still Starting or being cancelled
                 pass.job.join()
                 if (pass.ran.get()) { externalPass()?.join(); return@withTimeoutOrNull true }
                 // It saw the stop before it began: it did nothing, so the close pass is still owed.
@@ -144,11 +151,23 @@ class DesktopSyncDriver(
         }
     }
 
-    /** The on-close pass in its own job under [passLock]; waits for [current] first when it holds the lock. */
+    /**
+     * The on-close pass in its own job under [passLock]. A pass that is exiting on the stop may still hold the lock for a
+     * moment: retry the lock (3 tries over 2 s) instead of dropping the final push. A holder that really ran a pass is
+     * only waited for.
+     */
     private suspend fun runClosePass() {
-        if (!passLock.tryLock()) { // a pass slipped in: wait for it, nothing more
-            current?.job?.join()
-            return
+        var attempt = 1
+        while (!passLock.tryLock()) {
+            val pass = current
+            val joined = pass != null && !pass.job.isCompleted
+            if (joined) pass!!.job.join()
+            if (pass?.ran?.get() == true) return // it did the sync work; nothing more is owed
+            if (attempt++ >= CLOSE_LOCK_TRIES) {
+                Log.w(TAG, "Close pass could not get the sync lock; leaving the push to the next start")
+                return
+            }
+            if (!joined) delay(CLOSE_LOCK_RETRY_MS) // after a join the holder is gone: try the lock at once
         }
         val close = scope.launch(start = CoroutineStart.LAZY) {
             closeBegan.set(true)
@@ -168,6 +187,8 @@ class DesktopSyncDriver(
 
     companion object {
         const val DEFAULT_CLOSE_WAIT_MS = 9_000L
+        private const val CLOSE_LOCK_TRIES = 3
+        private const val CLOSE_LOCK_RETRY_MS = 1_000L
         private const val TAG = "DesktopSyncDriver"
     }
 }

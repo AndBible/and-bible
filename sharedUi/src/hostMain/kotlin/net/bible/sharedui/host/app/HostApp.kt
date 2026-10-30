@@ -69,6 +69,11 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupHost
+import net.bible.android.control.backup.IncomingBackupDetector
+import net.bible.android.control.backup.restorePickedBackup
+import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostErrorReportHooks
 import net.bible.service.startup.ReadingAppInit
@@ -77,6 +82,7 @@ import net.bible.service.sword.hasUsableBible
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
@@ -99,6 +105,7 @@ import net.bible.sharedui.host.reading.HostReadingResults
 import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.host.reading.askedByActiveWindow
 import net.bible.sharedui.host.reading.hostChooserTarget
+import net.bible.sharedui.host.reading.ReadingBackRoute
 import net.bible.sharedui.host.reading.hostReadingNavDeps
 import net.bible.sharedui.host.reading.rememberIosPaneIcons
 import net.bible.sharedui.host.reading.rememberIosReadingIcons
@@ -470,7 +477,7 @@ private fun HostAppContent(
         startRoute = route,
         graphs = graphs,
         readingGraph = {
-            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors()) {
+            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors(), readingHostHolder.backRoute::onBack) {
                 if (nightObserver != null) HostReadingDestination(platform, shell, table, strings, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
             })
         },
@@ -507,14 +514,42 @@ private fun HostAppContent(
     LaunchedEffect(appHosts, navController) {
         // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
         navController.currentBackStackEntryFlow.first()
-        platform.receiveIncomingFiles(
-            open = { refs, complete ->
+        val io = net.bible.sharedui.host.ports.installPipelineIo()
+        fun sourceOf(ref: DocumentRef): PickedSource {
+            val path = io.filePath(ref.uri)
+            return PickedSource(path, path.substringAfterLast('/'), null)
+        }
+        val router = IncomingFileRouter(
+            scope = scope,
+            isBackup = { ref ->
+                val source = sourceOf(ref)
+                val host = koin.get<BackupHost>()
+                withContext(Dispatchers.Default) {
+                    IncomingBackupDetector.isDatabaseBackup(source.displayName) { host.openInput(source) }
+                }
+            },
+            restore = { ref ->
+                val source = sourceOf(ref)
+                val host = koin.get<BackupHost>()
+                // The Welcome screen's restore, minus its picker: errors are reported and Welcome is released the same way.
+                restorePickedBackup(
+                    pick = { source },
+                    restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
+                    reportError = { message, cause -> host.showErrorReport(message, cause) },
+                    fallbackError = { koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred },
+                    afterRestore = { afterIncomingRestore(navController.currentDestination?.route, welcome.afterRestore) },
+                )
+            },
+            install = { refs, complete ->
                 appHosts.installZip.open(
                     action = net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW,
                     uris = refs,
                     onResult = { complete() },
                 )
             },
+        )
+        platform.receiveIncomingFiles(
+            open = { refs, complete -> router.route(refs, complete) },
             onFailure = {
                 koin.get<net.bible.sharedcore.platform.UserNotifier>()
                     .showError(koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred)
@@ -529,6 +564,9 @@ private class ReadingHostHolder(
     private val readingResults: HostReadingResults,
 ) {
     private var host: HostReadingHost? = null
+
+    /** The destination's back press, routed to the host's back chain once the host exists. */
+    val backRoute = ReadingBackRoute()
 
     /** The app's current strings: the host reads them per use, so a language change shows without rebuilding the host. */
     private var currentStrings: Strings? = null
@@ -547,6 +585,7 @@ private class ReadingHostHolder(
             readingResults = readingResults,
         ).also {
             host = it
+            backRoute.chain = it.backChain
             HostRootLinks.attachReading(it.navigator, it::openSearchStrongs)
             HostReadingWindows.bind(it, HostReadingReady.scope, koin, koin.get<NightModeState>(), platform.paneEngine)
         }

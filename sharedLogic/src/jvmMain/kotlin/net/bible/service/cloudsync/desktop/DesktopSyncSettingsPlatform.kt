@@ -21,8 +21,6 @@ import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import java.net.URI
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -53,14 +51,15 @@ class DesktopSyncSettingsPlatform(
 
     override fun plainHttpAllowed(url: String): Boolean = desktopPlainHttpAllowed(url)
 
-    /** File-style sizes with decimal units, like NSByteCountFormatter: "999 bytes", "12 KB", "1.5 MB". */
+    /** File-style sizes with SI unit symbols and locale digits: "999 B", "12 kB", "1.5 MB" ("1,5 MB" in Finnish). */
     override fun formatFileSize(bytes: Long): String {
-        if (bytes < 1000) return NumberFormat.getIntegerInstance().format(bytes) + " bytes"
-        val units = listOf("KB", "MB", "GB", "TB", "PB")
+        val locale = Locale.getDefault()
+        if (bytes < 1000) return NumberFormat.getIntegerInstance(locale).format(bytes) + " B"
+        val units = listOf("kB", "MB", "GB", "TB", "PB")
         var value = bytes / 1000.0
         var unit = 0
         while (value >= 1000 && unit < units.lastIndex) { value /= 1000; unit++ }
-        val format = DecimalFormat(if (unit == 0) "0" else "0.#", DecimalFormatSymbols.getInstance())
+        val format = NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = if (unit == 0) 0 else 1 }
         return format.format(value) + " " + units[unit]
     }
 

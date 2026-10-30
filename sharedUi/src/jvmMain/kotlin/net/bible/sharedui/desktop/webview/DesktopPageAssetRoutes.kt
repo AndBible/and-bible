@@ -16,8 +16,9 @@ import java.nio.file.Paths
  *
  * - `/background/<module>`: the add-on background image of that module ([backgrounds]).
  * - `/module/<initials>/<path>`: a file under the installed book's location.
- * - `/fonts/<initials>/<path>`: a file under the book's location (`fonts.css` needs the add-on font catalog, which
- *   desktop does not have yet: 404).
+ * - `/fonts/<initials>/<path>`: a file under the book's location. `fonts.css` is Android's add-on font list
+ *   (`AndBibleAddons.fontsByModule`, Android-only code): desktop answers `200 text/css` with an empty body for an
+ *   installed book, so the page's stylesheet link succeeds; no add-on fonts load (known limitation).
  * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]).
  * - `/module-style/<initials>/<path>`: the book's `AndBibleCSS` stylesheet (`style.css`) or a file beside it.
  *   EPUB stylesheets need the EPUB backend's resources: 404.
@@ -44,7 +45,7 @@ class DesktopPageAssetRoutes(
         return when (route) {
             "background" -> if (parts.size == 2 || (parts.size == 3 && rest.isNullOrEmpty())) background(module) else null
             "module" -> inBook(module, rest, signed = false)
-            "fonts" -> if (rest == "fonts.css") unsupported(route, "no desktop font catalog") else inBook(module, rest, signed = false)
+            "fonts" -> if (rest == "fonts.css") emptyFontsCss(module) else inBook(module, rest, signed = false)
             "features" -> inBook(module, rest, signed = true)
             "module-style" -> moduleStyle(module, rest)
             "epub" -> unsupported(route, "no desktop EPUB resource source")
@@ -55,6 +56,11 @@ class DesktopPageAssetRoutes(
     private fun unsupported(route: String, why: String): BundleResource? {
         if (logged.add(route)) log("page asset route /$route/ is not served on desktop: $why")
         return null
+    }
+
+    private fun emptyFontsCss(module: String): BundleResource? {
+        if (module.isEmpty() || bookLocation(module) == null) return null
+        return BundleResource(emptyCssFile(), "text/css", fromBundle = false)
     }
 
     private fun background(module: String): BundleResource? {
@@ -87,6 +93,15 @@ class DesktopPageAssetRoutes(
     }
 
     companion object {
+        /** The one empty stylesheet every `fonts.css` answer shares (a [BundleResource] needs a file). */
+        @Volatile private var emptyCss: Path? = null
+
+        /** The shared empty stylesheet, recreated when tmp cleaning removed it during a long session. */
+        internal fun emptyCssFile(): Path = synchronized(this) {
+            emptyCss?.takeIf { Files.isRegularFile(it) }
+                ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); emptyCss = it }
+        }
+
         /** Resolves [relative] under [base], null when it would leave [base] or is not a regular file. */
         internal fun within(base: Path, relative: String, mustExist: Boolean = true): Path? {
             if (relative.isEmpty() || relative.startsWith("/") || relative.contains('\\') || relative.contains('\u0000')) return null

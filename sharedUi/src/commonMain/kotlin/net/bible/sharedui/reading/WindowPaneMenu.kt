@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.strings.LocalStrings
 
@@ -66,6 +67,8 @@ fun WindowPaneMenu(
     modifier: Modifier = Modifier,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
+    // Closing the menu (Esc) leaves the focus nowhere: the platform returns the keys to the pane that had them.
+    TrackOverlay(active = expanded)
     var path by remember { mutableStateOf(listOf<WindowPaneMenuItem>()) }
     LaunchedEffect(expanded) {
         if (!expanded) path = emptyList()
