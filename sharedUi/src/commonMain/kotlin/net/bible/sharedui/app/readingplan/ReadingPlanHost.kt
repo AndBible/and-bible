@@ -134,6 +134,12 @@ class ReadingPlanHost(
     var planCodeLoaded: String? = null
         internal set // test seam: ReadingPlanHostTest seeds the loaded plan
 
+    /**
+     * The plan's current day as of the last load or sync. A synced current day moves the screen only when
+     * [dayLoaded] is still this day, so a day the user opened explicitly stays open.
+     */
+    private var currentDayAtLoad: Int = 0
+
     /** Classic's "the selector was already offered once" memory, see [offerReadingPlanSelector]. */
     private var readingPlanSelectorOffered = false
 
@@ -339,7 +345,8 @@ class ReadingPlanHost(
                 if (!current()) throw CancellationException("Superseded reading day")
                 return DailyReadingLoad.NO_PLAN
             }
-            val loadedDay = day ?: readingPlanControl.currentPlanDay(code)
+            val currentDay = readingPlanControl.currentPlanDay(code)
+            val loadedDay = day ?: currentDay
             val dto = readingPlanControl.getDaysReading(loadedDay, code)
             val status = readingPlanControl.getReadingStatus(loadedDay, code)
             val ui = readingPlanUi(dto, status)
@@ -347,6 +354,7 @@ class ReadingPlanHost(
             if (!current()) throw CancellationException("Superseded reading day")
             readingPlanControl.setReadingPlan(code)
             dayLoaded = loadedDay
+            currentDayAtLoad = currentDay
             planCodeLoaded = code
             readingsDto = dto
             dailyReadingController?.setUi(ui)
@@ -531,11 +539,23 @@ class ReadingPlanHost(
         val unsubscribePlans = subscribeToReadingPlanSync {
             shell.hostScope.launch {
                 val code = planCodeLoaded ?: return@launch
+                // The reading-plan reconcile has already cleared the selection of a reset plan before this fires.
                 if (readingPlanControl.currentPlanCode.isEmpty()) {
                     forgetResetReadingPlan(code)
                     navController?.navigate(NavRoutes.READING_PLAN_SELECTOR)
-                } else {
-                    pushReadingPlanUi()
+                } else try {
+                    val current = readingPlanControl.currentPlanDay(code)
+                    if (dayLoaded == currentDayAtLoad && current != dayLoaded) {
+                        // Another device moved the plan on while the user was on its current day: follow it.
+                        loadReadingPlanDay(code, null)
+                    } else {
+                        currentDayAtLoad = current
+                        pushReadingPlanUi()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG_READING_PLAN, "Error refreshing daily readings after a sync", e)
                 }
             }
         }
@@ -554,7 +574,8 @@ class ReadingPlanHost(
     private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
         subscribeToReadingPlanSync {
             // A child destination may cover the day when its plan is reset elsewhere. Back must not
-            // reload the old route arguments and select that reset plan again.
+            // reload the old route arguments and select that reset plan again. This relies on the sync
+            // reconcile having cleared the selection before readingPlansSynced is emitted.
             if (readingPlanControl.currentPlanCode.isEmpty()) {
                 planCodeLoaded?.let { forgetResetReadingPlan(it) }
             }

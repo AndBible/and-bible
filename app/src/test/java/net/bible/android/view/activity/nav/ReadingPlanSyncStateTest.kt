@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -158,6 +159,79 @@ class ReadingPlanSyncStateTest {
         dao.deletePlanInfo("other")
         syncCompleted()
         assertEquals(PLAN, control.currentPlanCode)
+    }
+
+    @Test fun syncDuringPlanStartDoesNotDeselectThePickedPlan() = runBlocking {
+        // runBlocking owns the Robolectric main thread, so nothing here may need Dispatchers.Main.
+        val bg = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val real = dao
+        val inserting = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val slow = object : net.bible.android.database.readingplan.ReadingPlanDao by real {
+            override suspend fun updatePlan(plan: ReadingPlan) {
+                inserting.complete(Unit)
+                gate.await()
+                real.updatePlan(plan)
+            }
+        }
+        val koin = GlobalContext.get()
+        val slowControl = ReadingPlanControl(
+            koin.get(), koin.get(),
+            net.bible.service.db.readingplan.ReadingPlanRepository(
+                { slow }, net.bible.sharedcore.platform.AppCoroutineScope(bg.coroutineContext),
+                net.bible.android.platform.AndroidLocalCalendar(),
+            ),
+            koin.get(), net.bible.service.common.CommonUtils.settings,
+            net.bible.android.platform.AndroidLocalCalendar(),
+        )
+        val starting = bg.launch { slowControl.startReadingPlan(net.bible.service.readingplan.ReadingPlanInfoDto(PLAN)) }
+        inserting.await()
+        // An incoming sync lands after the user picked the plan but before its row exists.
+        syncCompleted()
+        gate.complete(Unit)
+        starting.join()
+        assertNotNull(real.getPlan(PLAN))
+        assertEquals("the sync must not deselect the plan the user just started", PLAN, slowControl.currentPlanCode)
+        bg.cancel()
+    }
+
+    private lateinit var openController: net.bible.sharedcore.readingplan.DailyReadingController
+
+    private fun openDay(): ReadingPlanHost {
+        runBlocking { start() }
+        val host = host()
+        val deps = host.navDeps(NavHostController(ApplicationProvider.getApplicationContext())).dailyReading
+        openController = deps.controllerFor({}, {})
+        runBlocking { host.loadReadingPlanDay(PLAN, null) }
+        unsubscribe = deps.subscribeEvents()
+        return host
+    }
+
+    @Test fun syncedCurrentDayMovesTheScreenThatWasOnTheCurrentDay() {
+        val host = openDay()
+        assertEquals(1, host.dayLoaded)
+        runBlocking {
+            dao.updatePlan(dao.getPlan(PLAN)!!.apply { planCurrentDay = 2 })
+            syncCompleted()
+        }
+        awaitHostUntil("another device finished day 1, so the open current day must follow") { host.dayLoaded == 2 }
+    }
+
+    @Test fun syncedCurrentDayKeepsADayTheUserOpenedExplicitly() {
+        val host = openDay()
+        runBlocking { host.loadReadingPlanDay(PLAN, 5) }
+        runBlocking {
+            dao.updatePlan(dao.getPlan(PLAN)!!.apply { planCurrentDay = 2 })
+            syncCompleted()
+            dao.addPlanStatus(ReadingPlanStatus(PLAN, 5,
+                """{"chapterReadArray":[{"readingNumber":1,"isRead":true}]}"""))
+            syncCompleted()
+        }
+        // The tick on day 5 arrives only if the day-5 screen was refreshed, not replaced by the current day.
+        awaitHostUntil("the explicitly opened day 5 shows the synced tick") {
+            openController.ui.value.readings.first().isRead
+        }
+        assertEquals(5, host.dayLoaded)
     }
 
     companion object { private const val PLAN = "y1ot1nt1_OTandNT" }
