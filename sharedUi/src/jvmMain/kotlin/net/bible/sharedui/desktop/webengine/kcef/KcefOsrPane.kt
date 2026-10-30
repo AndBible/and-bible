@@ -68,12 +68,17 @@ internal class KcefOsrPane(
     private var background by mutableStateOf<Color?>(null)
     private val frames = OsrFrameBuffer(onPersistentMismatch = { log("off-screen: $it") })
     private val input = OsrInput(this, { geometry }, hostComponent)
-    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log) { core.browser.setFocus(true) }
+    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = { core.browser.setFocus(true) }) {
+        // Only the native browser takes a frame rate; before onAfterCreated the call is silently lost (CEF default 30 fps).
+        it.setWindowlessFrameRate(FRAME_RATE)
+    }
     private val browser: KCEFBrowser = core.createBrowser(
-        CefRendering.CefRenderingWithHandler(OsrRenderHandler({ geometry }, frames) { type -> cursor = OsrInput.pointerIconFor(type) }, hostComponent),
+        CefRendering.CefRenderingWithHandler(OsrRenderHandler({ geometry }, frames) { type ->
+            // CEF calls this on its UI thread; Compose state is written on the EDT.
+            SwingUtilities.invokeLater { if (!core.isDisposed) cursor = OsrInput.pointerIconFor(type) }
+        }, hostComponent),
     ).also {
         it.createImmediately()
-        it.setWindowlessFrameRate(FRAME_RATE)
     }
 
     @Composable
@@ -114,9 +119,9 @@ internal class KcefOsrPane(
         browser.wasResized(g.widthDip, g.heightDip)
     }
 
-    override fun sendMouse(e: MouseEvent) = browser.sendMouseEvent(e)
+    override fun sendMouse(e: MouseEvent) { if (!core.isDisposed) browser.sendMouseEvent(e) }
 
-    override fun sendWheel(e: MouseWheelEvent) = browser.sendMouseWheelEvent(e)
+    override fun sendWheel(e: MouseWheelEvent) { if (!core.isDisposed) browser.sendMouseWheelEvent(e) }
 
     override fun setBackground(argb: Int) {
         background = Color(argb)

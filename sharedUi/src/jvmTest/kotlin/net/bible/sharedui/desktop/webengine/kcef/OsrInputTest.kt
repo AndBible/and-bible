@@ -16,6 +16,9 @@
  */
 package net.bible.sharedui.desktop.webengine.kcef
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import java.awt.Cursor
 import java.awt.Point
@@ -112,5 +115,49 @@ class OsrInputTest {
         assertSame(PointerIcon.Default, OsrInput.pointerIconFor(-5), "an unknown type falls back to the default arrow")
         assertSame(PointerIcon.Default, OsrInput.pointerIconFor(99))
         assertEquals(Cursor.E_RESIZE_CURSOR, OsrInput.awtCursorFor(Cursor.E_RESIZE_CURSOR).type)
+    }
+
+    @Test fun pixelsMapToTheDipThatContainsThem() {
+        assertEquals(Point(100, 50), OsrGeometry(400, 200, 2.0, Point(0, 0)).toViewDip(201f, 101f))
+        assertEquals(Point(0, 0), OsrGeometry(400, 200, 2.0, Point(0, 0)).toViewDip(1.9f, 1.9f))
+    }
+
+    @Test fun composeScrollOnTheHorizontalAxisBecomesShiftWheel() {
+        assertTrue(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, 0, 3f, 1f))
+        val e = sink.wheel.single()
+        assertTrue(e.modifiersEx and InputEvent.SHIFT_DOWN_MASK != 0)
+        assertEquals(3.0, e.preciseWheelRotation, 0.0)
+        // Vertical dominates: no shift, and the sign is kept.
+        assertTrue(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, InputEvent.CTRL_DOWN_MASK, 1f, -2f))
+        val v = sink.wheel[1]
+        assertEquals(0, v.modifiersEx and InputEvent.SHIFT_DOWN_MASK)
+        assertTrue(v.modifiersEx and InputEvent.CTRL_DOWN_MASK != 0)
+        assertEquals(-2.0, v.preciseWheelRotation, 0.0)
+        assertFalse(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, 0, 0f, 0f), "a zero scroll sends nothing")
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test fun composeBackAndForwardButtonsAreRejectedPrimaryMapsToButton1() {
+        assertFalse(input.handle(PointerEventType.Press, PointerButton.Back, 10f, 10f, null, 0, 0f, 0f))
+        assertFalse(input.handle(PointerEventType.Release, PointerButton.Forward, 10f, 10f, null, 0, 0f, 0f))
+        assertTrue(sink.mouse.isEmpty())
+        assertTrue(input.handle(PointerEventType.Press, PointerButton.Primary, 10f, 10f, null, InputEvent.BUTTON1_DOWN_MASK, 0f, 0f))
+        assertTrue(input.handle(PointerEventType.Press, PointerButton.Secondary, 10f, 10f, null, InputEvent.BUTTON3_DOWN_MASK, 0f, 0f))
+        assertEquals(listOf(MouseEvent.BUTTON1, MouseEvent.BUTTON3), sink.mouse.map { it.button })
+        assertEquals(1, sink.mouse[0].clickCount)
+    }
+
+    @Test fun moveWithAButtonHeldIsADragAndAnAwtOriginalWins() {
+        assertTrue(input.handle(PointerEventType.Move, null, 10f, 10f, null, InputEvent.BUTTON1_DOWN_MASK, 0f, 0f))
+        assertTrue(input.handle(PointerEventType.Move, null, 10f, 10f, null, 0, 0f, 0f))
+        assertEquals(listOf(MouseEvent.MOUSE_DRAGGED, MouseEvent.MOUSE_MOVED), sink.mouse.map { it.id })
+        // The AWT original supplies button, modifiers and click count; only the position is re-targeted.
+        val original = MouseEvent(source, MouseEvent.MOUSE_PRESSED, 0L, InputEvent.BUTTON3_DOWN_MASK or InputEvent.ALT_DOWN_MASK, 999, 999, 3, true, MouseEvent.BUTTON3)
+        assertTrue(input.handle(PointerEventType.Press, PointerButton.Primary, 40f, 60f, original, 0, 0f, 0f))
+        val e = sink.mouse[2]
+        assertEquals(MouseEvent.BUTTON3, e.button)
+        assertEquals(3, e.clickCount)
+        assertEquals(InputEvent.BUTTON3_DOWN_MASK or InputEvent.ALT_DOWN_MASK, e.modifiersEx)
+        assertEquals(Point(20, 30), Point(e.x, e.y))
     }
 }

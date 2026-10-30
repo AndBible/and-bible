@@ -18,6 +18,7 @@ package net.bible.sharedui.desktop.webengine.kcef
 
 import java.awt.Point
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -44,8 +45,8 @@ internal data class OsrGeometry(val widthPx: Int, val heightPx: Int, val scale: 
     /** Pixel height CEF paints, see [bufferWidthPx]. */
     val bufferHeightPx: Int get() = ceil(heightDip * scale).toInt()
 
-    /** Maps a Compose pixel offset inside the view to view DIP. */
-    fun toViewDip(xPx: Float, yPx: Float): Point = Point((xPx / scale).roundToInt(), (yPx / scale).roundToInt())
+    /** Maps a Compose pixel offset inside the view to the view DIP that contains it (floored, as AWT does). */
+    fun toViewDip(xPx: Float, yPx: Float): Point = Point(floor(xPx / scale).toInt(), floor(yPx / scale).toInt())
 
     /** Maps a view DIP coordinate to view pixels. */
     fun toViewPx(xDip: Int, yDip: Int): Point = Point((xDip * scale).roundToInt(), (yDip * scale).roundToInt())

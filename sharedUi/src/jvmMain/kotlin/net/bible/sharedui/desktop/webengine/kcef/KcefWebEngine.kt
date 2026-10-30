@@ -60,7 +60,7 @@ class KcefWebEngine(
         val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts)
         val handler = BundleRequestHandler(bundleDir, scripts)
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
-        return when (KcefRenderingMode.current) {
+        return when (KcefRenderingMode.current(log)) {
             KcefRenderingMode.Osr -> KcefOsrPane(id, url, handler, onMessage, paneLog)
             KcefRenderingMode.Windowed -> KcefPane(id, url, handler, onMessage, paneLog)
         }
@@ -98,7 +98,7 @@ class KcefWebEngine(
          * null keeps the KCEF default.
          */
         @Synchronized
-        fun init(installDir: Path, extraArgs: List<String> = emptyList(), cacheDir: Path? = null): Result<Unit> {
+        fun init(installDir: Path, extraArgs: List<String> = emptyList(), cacheDir: Path? = null, log: (String) -> Unit = ::println): Result<Unit> {
             if (initialized) return Result.success(Unit)
             terminalFailure?.let { return Result.failure(it) }
             nativesProblem(installDir)?.let { return Result.failure(IllegalStateException(it)) }
@@ -125,7 +125,7 @@ class KcefWebEngine(
                             val logPath = System.getProperty("kcef.logFile")
                             logSeverity = if (logPath == null) KCEFBuilder.Settings.LogSeverity.Disable else KCEFBuilder.Settings.LogSeverity.Info
                             if (logPath != null) logFile = logPath
-                            windowlessRenderingEnabled = KcefRenderingMode.current.windowless
+                            windowlessRenderingEnabled = KcefRenderingMode.current(log).windowless
                             if (cacheDir != null) cachePath = cacheDir.toAbsolutePath().toString()
                         }
                     },
@@ -208,10 +208,10 @@ internal class KcefPane(
     private val log: (String) -> Unit,
 ) : DesktopWebPane {
     private val x11Focus: X11PaneFocus by lazy { X11PaneFocus.create(log) }
-    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log) {
+    private val core: KcefPaneCore = KcefPaneCore(url, bundle, onMessage, log, requestFocus = {
         core.browser.setFocus(true)
         x11Focus.focus(core.browser.uiComponent)
-    }
+    })
     private val browser: KCEFBrowser = core.createBrowser(CefRendering.DEFAULT)
 
     /** The AWT host of the browser; created once, re-parented by every [Content]. */

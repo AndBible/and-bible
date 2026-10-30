@@ -96,13 +96,27 @@ internal class OsrInput(
     @OptIn(ExperimentalComposeUiApi::class)
     fun onPointerEvent(event: PointerEvent): Boolean {
         val change = event.changes.firstOrNull() ?: return false
-        val awt = event.awtEventOrNull
-        val x = change.position.x
-        val y = change.position.y
-        val modifiers = awt?.modifiersEx ?: synthesizedModifiers(event)
-        return when (event.type) {
-            PointerEventType.Press -> mouse(MouseEvent.MOUSE_PRESSED, awt?.button ?: awtButton(event.button), modifiers, x, y, awt?.clickCount ?: 1)
-            PointerEventType.Release -> mouse(MouseEvent.MOUSE_RELEASED, awt?.button ?: awtButton(event.button), modifiers, x, y, awt?.clickCount ?: 1)
+        return handle(
+            event.type, event.button, change.position.x, change.position.y, event.awtEventOrNull,
+            synthesizedModifiers(event), change.scrollDelta.x, change.scrollDelta.y,
+        )
+    }
+
+    /**
+     * The conversion behind [onPointerEvent], on plain values. [awt] is the toolkit original when Compose has one: its button,
+     * modifiers, click count and wheel data win, only the position is re-targeted. Without it, [composeButton] and
+     * [synthModifiers] stand in, and a scroll comes from ([scrollX], [scrollY]): the dominant axis wins, horizontal goes
+     * as shift-wheel.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun handle(
+        type: PointerEventType, composeButton: PointerButton?, x: Float, y: Float, awt: MouseEvent?,
+        synthModifiers: Int, scrollX: Float, scrollY: Float,
+    ): Boolean {
+        val modifiers = awt?.modifiersEx ?: synthModifiers
+        return when (type) {
+            PointerEventType.Press -> mouse(MouseEvent.MOUSE_PRESSED, awt?.button ?: awtButton(composeButton), modifiers, x, y, awt?.clickCount ?: 1)
+            PointerEventType.Release -> mouse(MouseEvent.MOUSE_RELEASED, awt?.button ?: awtButton(composeButton), modifiers, x, y, awt?.clickCount ?: 1)
             PointerEventType.Move, PointerEventType.Enter -> {
                 val dragging = modifiers and BUTTON_DOWN_MASKS != 0
                 mouse(if (dragging) MouseEvent.MOUSE_DRAGGED else MouseEvent.MOUSE_MOVED, MouseEvent.NOBUTTON, modifiers, x, y, 0)
@@ -112,9 +126,8 @@ internal class OsrInput(
                 if (awt is MouseWheelEvent) {
                     wheel(x, y, modifiers, awt.preciseWheelRotation, awt.scrollType, awt.scrollAmount)
                 } else {
-                    val d = change.scrollDelta
-                    val horizontal = abs(d.x) > abs(d.y)
-                    wheel(x, y, if (horizontal) modifiers or InputEvent.SHIFT_DOWN_MASK else modifiers, (if (horizontal) d.x else d.y).toDouble())
+                    val horizontal = abs(scrollX) > abs(scrollY)
+                    wheel(x, y, if (horizontal) modifiers or InputEvent.SHIFT_DOWN_MASK else modifiers, (if (horizontal) scrollX else scrollY).toDouble())
                 }
             }
             else -> false

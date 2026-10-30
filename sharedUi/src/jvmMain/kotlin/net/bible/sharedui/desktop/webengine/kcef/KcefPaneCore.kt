@@ -43,37 +43,14 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 
 /**
- * How the pane's browser is rendered. Read once per process (CEF initialises once, and its windowless setting is global):
- * windowed is a heavyweight CEF component in a \`SwingPanel\`, off-screen ([Osr]) paints into a Compose canvas.
- */
-internal enum class KcefRenderingMode(val windowless: Boolean) {
-    Windowed(false),
-    Osr(true),
-    ;
-
-    companion object {
-        /** System property that selects the mode: \`osr\` or \`windowed\` (default). */
-        const val PROPERTY = "andbible.kcef.rendering"
-
-        /** The mode named by [value]: null or \`windowed\` is [Windowed], \`osr\` is [Osr]; anything else is [Windowed] with one [log] line. */
-        fun parse(value: String?, log: (String) -> Unit): KcefRenderingMode = when (value) {
-            null, "windowed" -> Windowed
-            "osr" -> Osr
-            else -> Windowed.also { log("unknown $PROPERTY=\"$value\" (expected osr or windowed): using windowed") }
-        }
-
-        /** The process-wide mode from the system property, parsed on first use. */
-        val current: KcefRenderingMode by lazy { parse(System.getProperty(PROPERTY), ::println) }
-    }
-}
-
-/**
  * What both pane kinds ([KcefPane] windowed, [KcefOsrPane] off-screen) share: the CEF client with the bridge message router
  * and its trust check, the bundle request handler, popup blocking, context-menu suppression, evaluation, the page background
  * and renderer-gone handling, and the disposal of client and router. Hosting, input and focus stay with the pane.
  *
  * Call [createBrowser] once; the rest is usable afterwards.
  *
+ * @param onBrowserCreated runs on CEF's UI thread when the native browser exists (`onAfterCreated`); settings that need the
+ *   native browser, such as the windowless frame rate, belong there
  * @param requestFocus moves keyboard focus into the pane when the page reports a press (see [PaneFocusRequest]); runs on the UI thread
  */
 internal class KcefPaneCore(
@@ -82,6 +59,7 @@ internal class KcefPaneCore(
     private val onMessage: (String) -> Unit,
     private val log: (String) -> Unit,
     private val requestFocus: () -> Unit,
+    private val onBrowserCreated: (CefBrowser) -> Unit = {},
 ) {
     @Volatile
     private var disposed = false
@@ -144,6 +122,10 @@ internal class KcefPaneCore(
             }
         })
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
+            override fun onAfterCreated(browser: CefBrowser?) {
+                if (browser != null) onBrowserCreated(browser)
+            }
+
             override fun onBeforePopup(browser: CefBrowser?, frame: CefFrame?, targetUrl: String?, targetFrameName: String?): Boolean {
                 log("blocked a popup to $targetUrl")
                 return true
