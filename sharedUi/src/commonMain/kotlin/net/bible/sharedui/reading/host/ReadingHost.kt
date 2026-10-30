@@ -111,6 +111,7 @@ import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.search.readingSheetInsetPadding
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.AbSheetDragHandle
+import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.LocalSheetDragHandleDescription
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -334,6 +335,9 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             if (latch.observe(value == DrawerValue.Open)) deps.onDrawerClosed()
         }
     }
+
+    // An open (or opening) drawer is an overlay too: a sheet closing over it must not hand the keys back to the pane.
+    TrackOverlay(active = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open)
 
     ModalNavigationDrawer(
         modifier = modifier,

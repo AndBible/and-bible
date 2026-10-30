@@ -770,8 +770,18 @@ class HostReadingHost(
         onLlmDismiss = llmDialogs::dismiss,
     )
 
+    /** Back (Esc on desktop) closes the drawer, the search sheet and the search bar before it passes on; see [ReadingBackChain]. */
+    private val backChain = ReadingBackChain(
+        isDrawerOpen = { hostState.isDrawerOpen },
+        closeDrawer = { hostState.closeDrawer() },
+        isSearchSheetVisible = { searchState.controller.sheetVisible.value },
+        closeSearchSheet = { searchState.controller.closeSheet() },
+        isSearchBarOpen = { searchState.searchBar.value != null },
+        closeSearchBar = { searchState.leaveSearch() },
+    )
+
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
-        hostReadingNavDeps(this, shell, HostStartup.stringTable, readingResults?.collectors() ?: emptyList(), content)
+        hostReadingNavDeps(this, shell, HostStartup.stringTable, readingResults?.collectors() ?: emptyList(), backChain::onBack, content)
 
     internal companion object {
         /** The production answer: the prompt service's configured flag; false while the service is not available yet. */
@@ -787,11 +797,12 @@ fun hostReadingNavDeps(
     shell: HostNavShell,
     table: net.bible.sharedui.strings.keyed.StringTable,
     results: List<ReadingResultCollector<*>> = emptyList(),
+    onBack: (passThrough: () -> Unit) -> Unit = { passThrough -> passThrough() },
     content: @Composable () -> Unit,
 ): ReadingNavDeps = ReadingNavDeps(
     host = hostToken,
     windowTitle = table.text("app_name_short"),
-    onBack = { passThrough -> passThrough() },
+    onBack = onBack,
     content = content,
     onKey = { false },
     onScreenTurnedOn = {},
