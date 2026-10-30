@@ -199,4 +199,77 @@ describe("scroll anchor of a tapped link (#3043)", () => {
         expect(rect.top).toBeGreaterThanOrEqual(TOP_OFFSET);
         expect(rect.top).toBeLessThan(500);
     });
+
+    describe("user interaction after the tap", () => {
+        it.each([
+            ["touchstart", () => window.dispatchEvent(new Event("touchstart"))],
+            ["wheel", () => window.dispatchEvent(new Event("wheel"))],
+            ["a user scroll", () => {
+                scrollY = 300;
+                window.dispatchEvent(new Event("scroll"));
+            }],
+        ])("does not scroll on resize after %s", async (_name, interact) => {
+            wrapper = mountScroll(appSettings);
+            const {link} = buildLongVerse();
+
+            emit("set_scroll_anchor", link);
+            interact();
+            await resize(500);
+
+            expect(window.scrollTo).not.toHaveBeenCalled();
+        });
+
+        it("keeps the anchor through its own programmatic scroll", async () => {
+            wrapper = mountScroll(appSettings);
+            const {link} = buildLongVerse();
+
+            emit("set_scroll_anchor", link);
+            await resize(500); // scrolls the link into view
+            expect(window.scrollTo).toHaveBeenCalledTimes(1);
+            // The browser reports the scroll we caused; that must not count as a user scroll.
+            window.dispatchEvent(new Event("scroll"));
+            await resize(200); // link now sticks out of a smaller view again
+
+            expect(window.scrollTo).toHaveBeenCalledTimes(2);
+            expectLinkVisible(link, {bottomOffset: 0});
+        });
+    });
+
+    it("does not scroll a tall anchor that overlaps the safe zone on every resize", async () => {
+        wrapper = mountScroll(appSettings);
+        // 600px tall, spans document y 400..1000; the safe zone at height 500 is 50..500 (450px).
+        const tall = document.createElement("div");
+        document.body.appendChild(tall);
+        placeElement(tall, 400, 600);
+
+        emit("set_scroll_anchor", tall);
+        await resize(500);
+        await resize(480);
+
+        expect(window.scrollTo).not.toHaveBeenCalled();
+    });
+
+    it("stops a running scroll animation before the anchor scroll", async () => {
+        wrapper = mountScroll(appSettings);
+        const {link} = buildLongVerse();
+        const cancelSpy = vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
+        // The first frame request is the animation bootstrap; keep it pending. Later requests run.
+        let firstFrame = true;
+        window.requestAnimationFrame.mockImplementation(cb => {
+            if (firstFrame) {
+                firstFrame = false;
+                return 42;
+            }
+            cb(0);
+            return 1;
+        });
+
+        // A toolbar offset change starts an animated scroll; its first frame stays pending.
+        emit("set_offsets", 0, 0);
+        emit("set_scroll_anchor", link);
+        await resize(500);
+
+        expect(cancelSpy).toHaveBeenCalledWith(42);
+        expectLinkVisible(link, appSettings);
+    });
 });
