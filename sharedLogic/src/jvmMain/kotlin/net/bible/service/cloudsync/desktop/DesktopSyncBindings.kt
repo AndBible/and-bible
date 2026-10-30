@@ -57,6 +57,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -178,6 +179,7 @@ fun desktopSyncModule(): Module = module {
             databasesReady = ::appReady,
         )
     }
+    single(createdAtStart = true) { DesktopUserMessagesPresenter({ get<UserNotifier>() }) } onClose { it?.close() }
     single<BackupHost> {
         IosBackupHost(
             get<FilePicker>(), get<FileDelivery>(), { get<AppDialogController>() },

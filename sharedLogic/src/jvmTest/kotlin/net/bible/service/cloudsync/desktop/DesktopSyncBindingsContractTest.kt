@@ -188,4 +188,36 @@ class DesktopSyncBindingsContractTest {
         assertEquals("net.bible.android.activity.debug", desktopSyncNamespace(" dev ", null))
         assertEquals("net.bible.android.activity", SyncNamespace.forAppId(desktopSyncNamespace("1.2.3", null)))
     }
+
+    /** Created eagerly with the graph, and unsubscribed when the graph closes (UserMessages is a global object). */
+    @Test fun userMessagesArePresentedWhileTheGraphLivesAndNotAfter() {
+        val shown = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val notifier = object : net.bible.sharedcore.platform.UserNotifier {
+            override fun showInfo(message: String, long: Boolean) { shown += message }
+            override fun showError(message: String, cause: Throwable?) { shown += message }
+        }
+        val scope = AppCoroutineScope()
+        val app = koinApplication {
+            modules(
+                module {
+                    single<DeviceLocalPrefs> { MapPrefs() }; single<AppEnvironment> { inert() }; single<AppSettings> { inert() }
+                    single<CoreStrings> { inert() }; single<UserNotifier> { notifier }; single<FilePicker> { inert() }
+                    single<FileDelivery> { inert() }; single { AppDialogController() }; single { scope }
+                    single { DesktopExitTasks() }; single { DesktopLifecycleEvents() }
+                    single { IosSyncStrings({ it }, { "" }, { "" }, { "" }, { "" }) }
+                },
+                desktopSyncModule(),
+            )
+        }
+        try {
+            app.createEagerInstances()
+            net.bible.android.control.event.UserMessages.toast("while open")
+            assertEquals(listOf("while open"), shown)
+        } finally {
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            app.close()
+        }
+        net.bible.android.control.event.UserMessages.toast("after close")
+        assertEquals(listOf("while open"), shown, "the presenter unsubscribed when the graph closed")
+    }
 }
