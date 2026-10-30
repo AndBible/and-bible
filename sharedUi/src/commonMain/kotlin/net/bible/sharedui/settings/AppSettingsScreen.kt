@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
+import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.AppSettingsDialog
@@ -68,10 +69,11 @@ fun AppSettingsScreen(
     askBeforeOpeningLink: Boolean = false,
     onOpenExternal: (String) -> Unit = {},
     onReportBug: (() -> Unit)? = null,
+    settingsKoin: Koin? = KoinPlatform.getKoinOrNull(),
 ) {
     val strings = LocalStrings.current
     val searchHint = strings.searchSettings
-    val updateSetting = remember { runCatching { KoinPlatform.getKoin() }.getOrNull()?.getOrNull<DesktopUpdateCheckSetting>() }
+    val updateSetting = remember(settingsKoin) { settingsKoin?.getOrNull<DesktopUpdateCheckSetting>() }
     var updateEnabled by remember(updateSetting) { mutableStateOf(updateSetting?.enabled == true) }
     DisposableEffect(updateSetting) {
         val unsubscribe = updateSetting?.observeChanges { updateEnabled = updateSetting.enabled }

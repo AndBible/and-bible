@@ -8,8 +8,7 @@ import net.bible.sharedui.settings.DesktopUpdateCheckSetting
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -18,26 +17,31 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class DesktopUpdateSettingsTest {
     @Test fun updateRowOnlyWithBinding() {
-        runComposeUiTest {
-            setContent {
-                CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
-                    AbTheme(darkTheme = false) {
-                        AppSettingsScreen(SettingsScreenState("Settings", emptyList()), null, { _, _ -> }, { _, _ -> },
-                            { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, "Reset")
-                    }
-                }
-            }
-            onNodeWithText("Check for updates").assertDoesNotExist()
-        }
-        val setting = TestUpdateSetting()
-        startKoin { modules(module { single<DesktopUpdateCheckSetting> { setting } }) }
+        val emptyKoin = koinApplication {}
         try {
             runComposeUiTest {
                 setContent {
                     CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
                         AbTheme(darkTheme = false) {
                             AppSettingsScreen(SettingsScreenState("Settings", emptyList()), null, { _, _ -> }, { _, _ -> },
-                                { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, "Reset")
+                                { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, "Reset", settingsKoin = emptyKoin.koin)
+                        }
+                    }
+                }
+                onNodeWithText("Check for updates").assertDoesNotExist()
+            }
+        } finally {
+            emptyKoin.close()
+        }
+        val setting = TestUpdateSetting()
+        val boundKoin = koinApplication { modules(module { single<DesktopUpdateCheckSetting> { setting } }) }
+        try {
+            runComposeUiTest {
+                setContent {
+                    CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                        AbTheme(darkTheme = false) {
+                            AppSettingsScreen(SettingsScreenState("Settings", emptyList()), null, { _, _ -> }, { _, _ -> },
+                                { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, "Reset", settingsKoin = boundKoin.koin)
                         }
                     }
                 }
@@ -49,7 +53,7 @@ class DesktopUpdateSettingsTest {
                 onNodeWithText("Check for updates").assertIsOn()
             }
         } finally {
-            stopKoin()
+            boundKoin.close()
         }
     }
 
