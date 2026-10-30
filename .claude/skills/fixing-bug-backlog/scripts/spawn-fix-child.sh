@@ -24,6 +24,7 @@ Context:
 - Keep the change focused on this issue; no unrelated refactoring. English strings only. If user-visible behaviour changes, update the matching website/content/en/docs page.
 - Do not re-record Roborazzi goldens; if your change could move a golden, say so in the report (the orchestrator runs the full verify gate).
 - Do not run the full :app verify gate; run only the tests relevant to your change.
+- Independent code review happens on the orchestrator side after your \`done\` (you cannot dispatch reviewers). Do not wait for or ask for a review before sending \`done\`.
 
 Acceptance: $tests
 
