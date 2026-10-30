@@ -77,9 +77,37 @@ class EpubStagingSweepTest {
         assertEquals(emptyList(), leftovers())
     }
 
-    /** A crash after the new module was moved in: the aside is stale and only removed. */
-    @Test fun sweepDropsACrashedAsideWhenItsModuleIsPresent() {
+    /** A storage error during a sweep must not remove the old module it could not restore. */
+    @Test fun sweepKeepsAnAsideWhenItsRestoreFails() {
+        val aside = root / "${EPUB_ASIDE_PREFIX}crashed"
+        write(aside / "book.epub" / "content.opf", "old")
+        write(root / "epub", "not a directory")
+
+        sweepStaleEpubStagingDirs(root)
+
+        assertEquals("old", read(aside / "book.epub" / "content.opf"))
+        fs.delete(root / "epub")
+        sweepStaleEpubStagingDirs(root)
+        assertEquals("old", read(root / "epub" / "book.epub" / "content.opf"))
+        assertEquals(emptyList(), leftovers())
+    }
+
+    /** A crash after moving the new tree in is not proof that its registration succeeded. */
+    @Test fun sweepRestoresAnUncommittedAsideEvenWhenItsModuleIsPresent() {
         write(root / "${EPUB_ASIDE_PREFIX}crashed" / "book.epub" / "content.opf", "old")
+        write(root / "epub" / "book.epub" / "content.opf", "new")
+
+        sweepStaleEpubStagingDirs(root)
+
+        assertEquals("old", read(root / "epub" / "book.epub" / "content.opf"))
+        assertEquals(emptyList(), leftovers())
+    }
+
+    /** Once registration committed, a crash during cleanup must not undo the successful update. */
+    @Test fun sweepDropsACommittedOldTree() {
+        // Successful publication moves the obsolete aside into a staging-named trash tree atomically.
+        val trash = root / "${EPUB_STAGING_PREFIX}committed"
+        write(trash / "book.epub" / "content.opf", "old")
         write(root / "epub" / "book.epub" / "content.opf", "new")
 
         sweepStaleEpubStagingDirs(root)
