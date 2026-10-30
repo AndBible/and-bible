@@ -140,6 +140,21 @@ class InstallInspectorBackslashTest {
         assertFalse(dest.walkTopDown().any { '\\' in it.name }, "no file name may contain a literal backslash")
     }
 
+    /** Windows PowerShell 5.1 `Compress-Archive` writes directory entries as `mods.d\\` (no trailing `/`). */
+    @Test fun backslashDirectoryEntriesInstall() {
+        val dirs = listOf("mods.d\\", "modules\\", "modules\\$INITIALS\\").map { it to ByteArray(0) }
+        val archive = zip(dirs + fixtureEntries())
+        val scan = scanSwordZip(archive.absolutePath.toPath())
+        assertFalse(scan.invalid)
+
+        runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }, scan.totalEntries) }
+
+        assertTrue(File(dest, "mods.d").isDirectory, "mods.d must be a directory, not a file")
+        assertTrue(File(dest, "mods.d/$INITIALS.conf").isFile)
+        assertTrue(File(dest, "modules/$INITIALS").isDirectory)
+        assertTrue(File(dest, "modules/$INITIALS").listFiles()!!.isNotEmpty())
+    }
+
     @Test fun backslashTraversalRefused() {
         val archive = zip(fixtureEntries() + ("..\\..\\evil" to "x".toByteArray()))
         assertTrue(scanSwordZip(archive.absolutePath.toPath()).invalid, "scan must refuse ..\\ traversal")
