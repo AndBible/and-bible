@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mybible
 
+import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import androidx.sqlite.SQLiteConnection
@@ -382,27 +383,39 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         ) { it.getText(0) }.joinToString {"<div>$it</div>"}
     }
 
-    // Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
-    private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
-    private val attributeRe = Regex("""([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s]+))""")
-    // JSword accepts trailing prose as a book reference; MyBible locations must be numeric.
-    private val bibleLinkRe = Regex("""B:(\d+)\s+(\d[\d:,;\s-]*)""")
-
     /** Normalize at the source so rendering, reference collection and exports see the same Scripture links. */
-    private fun transformVerseLinks(text: String): String = anchorRe.replace(text) { anchor ->
+    private fun transformVerseLinks(text: String): String {
+        // Most entries have no links at all; skip the regexes for them.
+        if (!text.contains("<a", ignoreCase = true)) return text
+        return anchorRe.replace(text) { anchor ->
+            try {
+                convertAnchor(anchor)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A malformed link must never blank the entry: keep the original anchor.
+                Log.w(TAG, "Cannot convert MyBible link ${anchor.value}", e)
+                anchor.value
+            }
+        }
+    }
+
+    private fun convertAnchor(anchor: MatchResult): String {
         val href = attributeRe.findAll(anchor.groupValues[1])
             .firstOrNull { it.groupValues[1].equals("href", ignoreCase = true) }
             ?.let { it.groups[2]?.value ?: it.groups[3]?.value ?: it.groups[4]?.value }
-            ?: return@replace anchor.value
-        val link = bibleLinkRe.matchEntire(href) ?: return@replace anchor.value
-        val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return@replace anchor.value
+            ?: return anchor.value
+        val link = bibleLinkRe.matchEntire(href) ?: return anchor.value
+        val book = myBibleIntToBibleBook[link.groupValues[1].toIntOrNull()] ?: return anchor.value
         val osisRef = try {
             PassageKeyFactory.instance().getKey(KJVA, "${book.osis} ${link.groupValues[2]}").getOsisRef()
         } catch (_: NoSuchKeyException) {
-            return@replace anchor.value
+            return anchor.value
         }
-        if (osisRef.isEmpty()) anchor.value
-        else "<reference osisRef=\"$osisRef\">${anchor.groupValues[2]}</reference>"
+        // A multi-passage href ("B:10 1:1; 2:3") yields a space-separated osisRef; JSword parses that back
+        // (space is a passage delimiter), so one <reference> keeps the original anchor text.
+        if (osisRef.isEmpty()) return anchor.value
+        return "<reference osisRef=\"$osisRef\">${anchor.groupValues[2]}</reference>"
     }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
@@ -418,6 +431,12 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             throw IOException("Error in readRawContent", e)
         }
 }
+
+// Match whole anchors and tokenize attributes so quoted text or data-href cannot masquerade as href.
+private val anchorRe = Regex("""<a\b((?:[^>"']|"[^"]*"|'[^']*')*)>(.*?)</a\s*>""", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+private val attributeRe = Regex("""([^\s=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s]+))""")
+// JSword accepts trailing prose as a book reference; MyBible locations must be numeric.
+private val bibleLinkRe = Regex("""B:(\d+)\s+(\d[\d:,;\s-]*)""")
 
 val myBibleBible = object: BookType("MyBibleBible", BookCategory.BIBLE, KeyType.VERSE) {
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book {

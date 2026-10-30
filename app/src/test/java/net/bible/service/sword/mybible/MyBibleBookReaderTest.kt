@@ -31,7 +31,9 @@ import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
+import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
@@ -224,6 +226,32 @@ class MyBibleBookReaderTest {
         val references = (fragment.descendants as Iterable<*>).asSequence().filterIsInstance<Element>()
             .filter { it.name == "reference" }.map { it.getAttributeValue("osisRef") }.toList()
         assertEquals(listOf("Gen.1.1", "John.3.16-John.3.17"), references)
+    }
+
+    @Test
+    fun commentaryMultiReferenceLinkKeepsOneReferenceThatRoundTrips() {
+        val b = backend(commentary("<a href='B:10 1:1; 2:3'>Gen 1:1; 2:3</a>"))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        val refs = Regex("<reference osisRef=\"([^\"]*)\">([^<]*)</reference>").findAll(raw).toList()
+        assertEquals(raw, 1, refs.size)
+        assertEquals("Gen 1:1; 2:3", refs[0].groupValues[2])
+        val key = PassageKeyFactory.instance().getKey(KJVA, refs[0].groupValues[1])
+        assertEquals(listOf("Gen.1.1", "Gen.2.3"), key.iterator().asSequence().map { (it as Verse).getOsisID() }.toList())
+    }
+
+    @Test
+    fun commentaryMalformedLinkNeverBlanksTheEntry() {
+        // Odd numbers or punctuation must fall back to the plain anchor, whatever the parser throws.
+        val text = "<a href='B:10 99999999999999999999:1'>huge</a> <a href='B:10 1:1-'>dangling</a> <a href='B:10 :::'>colons</a>"
+        val b = backend(commentary(text))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        assertTrue(raw, raw.startsWith("<div>") && raw.contains("huge") && raw.contains("dangling") && raw.contains("colons"))
+    }
+
+    @Test
+    fun commentaryWithoutAnchorsIsReturnedUnchanged() {
+        val b = backend(commentary("plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr>"))
+        assertEquals("<div>plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr></div>", b.readRawContent(state, verse(BibleBook.GEN, 1, 1)))
     }
 
     @Test

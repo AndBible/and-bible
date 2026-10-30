@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.search
 
+import net.bible.service.sword.epub.EPUB_INDEX_JOB_PREFIX
 import org.crosswire.common.progress.Progress
 
 /** SWORD builds, downloaded indexes and EPUB builds use distinct producer-owned job IDs. */
@@ -9,4 +10,4 @@ import org.crosswire.common.progress.Progress
 fun Progress.isSearchIndexJob(): Boolean =
     jobID.startsWith(Progress.CREATE_INDEX.substringBefore("%s")) ||
         jobID.startsWith(Progress.DOWNLOAD_SEARCH_INDEX.substringBefore("%s")) ||
-        jobID.startsWith("index-creation-")
+        jobID.startsWith(EPUB_INDEX_JOB_PREFIX)

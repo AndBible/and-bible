@@ -48,7 +48,7 @@ class ReadingSearchHostLogicTest {
         val download = org.crosswire.common.progress.JobManager.createJob("Downloading files")
         val index = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-KJV", "Indexing KJV", null)
         val finished = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-OLD", "Old index", null)
-        val epub = org.crosswire.common.progress.JobManager.createJob("index-creation-/tmp/epub", "Indexing EPUB", null)
+        val epub = org.crosswire.common.progress.JobManager.createJob("${net.bible.service.sword.epub.EPUB_INDEX_JOB_PREFIX}/tmp/epub", "Indexing EPUB", null)
         val f = SearchFixture(indexJobs = feed)
         try {
             download.beginJob("Download")
