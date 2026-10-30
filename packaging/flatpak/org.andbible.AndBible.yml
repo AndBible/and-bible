@@ -1,0 +1,72 @@
+app-id: org.andbible.AndBible
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk17
+  - org.freedesktop.Sdk.Extension.node24
+command: andbible
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=x11
+  - --socket=pulseaudio
+  - --device=dri
+  - --talk-name=org.freedesktop.secrets
+build-options:
+  append-path: /usr/lib/sdk/openjdk17/bin:/usr/lib/sdk/node24/bin
+  env:
+    JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    npm_config_offline: 'true'
+    npm_config_cache: /run/build/andbible/flatpak-node/npm-cache
+    FLATPAK_GRADLE_REPOSITORY: /run/build/andbible/offline-repository
+    ANDROID_HOME: /run/build/andbible/android-sdk
+    ANDROID_SDK_ROOT: /run/build/andbible/android-sdk
+modules:
+  - name: andbible
+    buildsystem: simple
+    build-commands:
+      - mkdir -p android-sdk/platforms android-sdk/build-tools
+      - unzip -q android-platform.zip -d android-sdk/platforms
+      - unzip -q android-build-tools.zip -d android-sdk/build-tools
+      - mv android-sdk/build-tools/android-16 android-sdk/build-tools/36.0.0
+      - sed -i 's|^distributionUrl=.*|distributionUrl=file\:///run/build/andbible/gradle-9.5.1-all.zip|' gradle/wrapper/gradle-wrapper.properties
+      - ./gradlew --offline -I packaging/flatpak/offline-repositories.init.gradle -Pandbible.kcefArchive=/run/build/andbible/jbr-jcef.tar.gz :desktopApp:createReleaseDistributable
+      - mkdir -p /app/andbible /app/bin
+      - cp -a desktopApp/build/compose/binaries/main-release/app/andbible/. /app/andbible/
+      - install -Dm755 packaging/flatpak/andbible /app/bin/andbible
+      - install -Dm644 desktopApp/packaging/linux/org.andbible.AndBible.desktop /app/share/applications/org.andbible.AndBible.desktop
+      - sed -i -e 's|^Exec=.*|Exec=andbible %F|' -e 's|^Icon=.*|Icon=org.andbible.AndBible|' /app/share/applications/org.andbible.AndBible.desktop
+      - install -Dm644 desktopApp/packaging/linux/org.andbible.AndBible.metainfo.xml /app/share/metainfo/org.andbible.AndBible.metainfo.xml
+      - install -Dm644 desktopApp/packaging/linux/andbible.png /app/share/icons/hicolor/512x512/apps/org.andbible.AndBible.png
+    sources:
+      - type: git
+        url: https://github.com/AndBible/and-bible.git
+        commit: 9bb066a353
+        disable-submodules: true
+      - type: git
+        url: https://github.com/AndBible/jsword.git
+        commit: aeb830f031f91e40a98e4d527c4ce73323061bb3
+        dest: jsword
+      - type: git
+        url: https://github.com/Sykero-Software/kdom.git
+        commit: 15cc4a5836224b50e3a2716c5de82ef11a1e790c
+        dest: kdom
+      - type: file
+        url: https://services.gradle.org/distributions/gradle-9.5.1-all.zip
+        sha256: c72fb9991f6025cbe337d52ba77e531b3faf62bdd3e348fe1ccee9f51c71adb0
+      - type: file
+        url: https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz
+        sha256: 496e9a8b4bec55741b3f6cf1111ca3fab870aa6a176d62d870629e5c675a199e
+        dest-filename: jbr-jcef.tar.gz
+      - type: file
+        url: https://dl.google.com/android/repository/platform-36_r02.zip
+        sha256: 37607369a28c5b640b3a7998868d45898ebcb777565a0e85f9acf36f29631d2e
+        dest-filename: android-platform.zip
+      - type: file
+        url: https://dl.google.com/android/repository/build-tools_r36_linux.zip
+        sha256: 5d9ac77fb6ff43d9da518a337b4fcf8f9097113df531d99ccefe80ef7ce8250b
+        dest-filename: android-build-tools.zip
+      - gradle-sources.json
+      - node-sources.json

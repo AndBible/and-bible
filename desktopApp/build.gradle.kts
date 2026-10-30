@@ -86,6 +86,7 @@ val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--a
 abstract class PrepareKcefNatives : DefaultTask() {
     @get:Input abstract val packageUrl: Property<String>
     @get:Input @get:Optional abstract val expectedDigest: Property<String>
+    @get:InputFile @get:Optional @get:PathSensitive(PathSensitivity.NONE) abstract val localArchive: RegularFileProperty
     @get:Internal abstract val installDir: DirectoryProperty
     @get:Internal abstract val downloadDir: DirectoryProperty
     /** True for the Windows layout (`bin/` merged into `lib/`, `libcef.dll`) and the Windows `tar.exe`. */
@@ -97,10 +98,12 @@ abstract class PrepareKcefNatives : DefaultTask() {
     fun prepare() {
         val url = packageUrl.get()
         val downloads = downloadDir.get().asFile.apply { mkdirs() }
-        val archive = File(downloads, url.substringAfterLast('/'))
+        val archive = localArchive.orNull?.asFile ?: File(downloads, url.substringAfterLast('/'))
         val checksumFile = File(downloads, archive.name + ".checksum")
-        val cached = runCatching { pinMatches(checksumFile) && checksumMatches(archive, checksumFile) }.getOrDefault(false)
-        if (!cached) {
+        if (localArchive.isPresent) {
+            val pin = expectedDigest.orNull ?: throw GradleException("A pinned digest is required for a local KCEF archive")
+            if (!digestMatches(archive, pin)) throw GradleException("Checksum mismatch for local KCEF archive $archive")
+        } else if (!runCatching { pinMatches(checksumFile) && checksumMatches(archive, checksumFile) }.getOrDefault(false)) {
             curl("$url.checksum", checksumFile)
             if (!pinMatches(checksumFile)) {
                 throw GradleException(
@@ -163,11 +166,15 @@ abstract class PrepareKcefNatives : DefaultTask() {
     /** Whether [file] hashes to the digest in [checksumFile] (algorithm chosen by the digest's length). */
     private fun checksumMatches(file: File, checksumFile: File): Boolean {
         if (!file.isFile || !checksumFile.isFile) return false
-        val expected = digestIn(checksumFile)
+        return digestMatches(file, digestIn(checksumFile))
+    }
+
+    private fun digestMatches(file: File, expected: String): Boolean {
+        if (!file.isFile) return false
         val algorithm = when (expected.length) {
             64 -> "SHA-256"
             128 -> "SHA-512"
-            else -> throw GradleException("Unknown digest length ${expected.length} in $checksumFile")
+            else -> throw GradleException("Unknown digest length ${expected.length}")
         }
         val digest = MessageDigest.getInstance(algorithm)
         file.inputStream().use { input ->
@@ -194,6 +201,7 @@ val prepareKcefNatives by tasks.registering(PrepareKcefNatives::class) {
             "unsupported:$hostTarget"
         },
     )
+    providers.gradleProperty("andbible.kcefArchive").orNull?.let { localArchive.set(rootProject.file(it)) }
     windowsLayout.set(isWindowsHost)
     installDir.set(kcefNativesDir)
     kcefNativesDigests[hostTarget]?.let { expectedDigest.set(it) }
@@ -288,6 +296,8 @@ compose.desktop {
         jvmArgs += kcefJvmArgs
         // The version the app reports (DesktopAppEnvironment.versionName): `run` and the packaged launcher (.cfg) alike.
         jvmArgs += "-Dandbible.version=$desktopVersion"
+        jvmArgs += "-Dandbible.versionCode=${rootVersionProperties.getProperty("versionCode").trim()}"
+        jvmArgs += "-Dandbible.releaseKind=${providers.gradleProperty("desktopReleaseKind").orElse("dev").get()}"
     }
 }
 tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }

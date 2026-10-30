@@ -1,0 +1,15 @@
+def root = new File(System.getenv('FLATPAK_GRADLE_REPOSITORY'))
+def repositories = [root] + (root.parentFile.listFiles()?.findAll {
+    it.isDirectory() && it.name.startsWith(root.name + '-alternate-')
+}?.sort { it.name } ?: [])
+gradle.beforeSettings { settings ->
+    repositories.each { repository ->
+        settings.pluginManagement.repositories { maven { url = repository.toURI() } }
+        settings.dependencyResolutionManagement.repositories { maven { url = repository.toURI() } }
+    }
+}
+gradle.beforeProject { project ->
+    repositories.each { repository ->
+        project.buildscript.repositories { maven { url = repository.toURI() } }
+    }
+}
