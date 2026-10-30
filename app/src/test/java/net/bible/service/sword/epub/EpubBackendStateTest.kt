@@ -553,9 +553,22 @@ class EpubBackendStateTest {
         }
     }
 
+    /** Skips the test where read-only folders do not apply (e.g. root): `setWritable(false)` then succeeds but blocks nothing. */
+    private fun assumeReadOnlyFoldersBlockWrites() {
+        val probe = java.nio.file.Files.createTempDirectory("readonly-probe").toFile()
+        try {
+            probe.setWritable(false)
+            org.junit.Assume.assumeFalse("needs a user that read-only folders apply to", File(probe, "probe").mkdir())
+        } finally {
+            probe.setWritable(true)
+            probe.deleteRecursively()
+        }
+    }
+
     /** A successful replacement must not be rolled back if deleting the obsolete old tree fails. */
     @Test
     fun successfulReplacementCommitsBeforeOldTreeCleanup() = kotlinx.coroutines.runBlocking<Unit> {
+        assumeReadOnlyFoldersBlockWrites()
         val name = "ep3-cleanup-failure.epub"
         val books = org.crosswire.jsword.book.Books.installed()
         createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
@@ -600,6 +613,7 @@ class EpubBackendStateTest {
     /** #3914: neither a failed rollback nor a later startup sweep may discard the only working copy. */
     @Test
     fun failedRegistrationAndRemovalKeepTheOldEpubThroughSweep() = kotlinx.coroutines.runBlocking<Unit> {
+        assumeReadOnlyFoldersBlockWrites()
         val name = "ep3-double-failure.epub"
         val books = org.crosswire.jsword.book.Books.installed()
         val dir = File(epubRoot, name)

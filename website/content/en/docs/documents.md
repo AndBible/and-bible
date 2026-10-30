@@ -166,6 +166,10 @@ error also prevents that recovery, it keeps the previous version separately and
 retries recovery on the next startup. The saved version is not discarded just
 because the failed replacement's files are still present.
 
+If AndBible is stopped right after an EPUB replacement succeeded but before it was
+finalized, the previous version can come back the next time the app starts.
+Replace the EPUB again in that case.
+
 On Android, the installation screen keeps the orientation it had when opened,
 including landscape. Rotating the device during installation does not change the
 screen orientation or restart the installation. The previous orientation setting

@@ -1020,20 +1020,26 @@ class BackupControl(
         DatabaseContainer.replacingDatabases { token ->
             currentCoroutineContext().ensureActive()
             withContext(NonCancellable) {
-                for ((fileName, f) in plan.toRestore) {
-                    Log.i(TAG, "Restoring $fileName")
-                    if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
-                    val targetFilePath = env.databasePath(fileName)
-                    fileSystem.copy(f, targetFilePath.toPath())
-                    for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
-                        deleteQuietly("$targetFilePath$leftover".toPath())
+                try {
+                    for ((fileName, f) in plan.toRestore) {
+                        Log.i(TAG, "Restoring $fileName")
+                        if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
+                        val targetFilePath = env.databasePath(fileName)
+                        fileSystem.copy(f, targetFilePath.toPath())
+                        for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
+                            deleteQuietly("$targetFilePath$leftover".toPath())
+                        }
                     }
-                }
-                DatabaseContainer.resetOwned(token)
-                for ((category, f) in plan.toImport) importDatabaseFile(category, f)
-                if (DatabaseContainer.ready) {
-                    DatabaseContainer.instance
-                    afterRestore(plan.restoredSelection)
+                    DatabaseContainer.resetOwned(token)
+                    for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance
+                        afterRestore(plan.restoredSelection)
+                    }
+                } catch (e: Throwable) {
+                    // The host may already be destroyed when this fails; the log is the only trace of the half-done commit.
+                    Log.e(TAG, "Zip restore failed while committing ${plan.toRestore.map { it.first }}", e)
+                    throw e
                 }
             }
         }
@@ -1344,17 +1350,21 @@ class BackupControl(
             reloadingAfterReplace {
                 if (syncCategory != null) beforeRestore(syncCategory)
                 DatabaseContainer.replacingDatabases { token ->
-                    if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance.closeForReplaceOwned(dbFileName, token)
-                    }
+                    // Prompts and admission stay cancellable; once the file is deleted the reset must be finished.
+                    currentCoroutineContext().ensureActive()
+                    withContext(NonCancellable) {
+                        if (DatabaseContainer.ready) {
+                            DatabaseContainer.instance.closeForReplaceOwned(dbFileName, token)
+                        }
 
-                    deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
+                        deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
 
-                    DatabaseContainer.resetOwned(token)
-                    if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance
-                        if (syncCategory != null) {
-                            afterRestore(listOf(syncCategory))
+                        DatabaseContainer.resetOwned(token)
+                        if (DatabaseContainer.ready) {
+                            DatabaseContainer.instance
+                            if (syncCategory != null) {
+                                afterRestore(listOf(syncCategory))
+                            }
                         }
                     }
                 }
