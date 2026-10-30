@@ -24,7 +24,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.SelectionMenuItem
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.kcef.SuppressChromiumMenuHandler
-import net.bible.sharedui.host.reading.IosSelectionMenu
+import net.bible.sharedui.host.reading.HostSelectionMenu
 import net.bible.sharedui.host.reading.SelectionMenuEnvironment
 import net.bible.sharedui.host.reading.SelectionMenuWindow
 import net.bible.sharedui.strings.keyed.KeyedSelectionMenuStrings
@@ -78,7 +78,7 @@ class DesktopSelectionMenuTest {
     private val table = StringTable.of("en", { if (it == "search_what") "Find \"%s\"" else it }, { n, _ -> n }, { emptyList() })
     private val window = FakeWindow()
     private val env = FakeEnvironment()
-    private val logic = IosSelectionMenu({ if (it == "w1") window else null }, env, { KeyedSelectionMenuStrings(table) })
+    private val logic = HostSelectionMenu({ if (it == "w1") window else null }, env, { KeyedSelectionMenuStrings(table) })
     private val pane = FakePane()
     private var night = false
     private val menu = DesktopSelectionMenu({ logic }, { night })

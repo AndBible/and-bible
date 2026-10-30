@@ -16,7 +16,7 @@
  */
 package net.bible.sharedui.desktop.reading
 
-import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import org.koin.mp.KoinPlatform
 
@@ -24,7 +24,7 @@ import org.koin.mp.KoinPlatform
 object DesktopLayoutDirection {
     /** Whether the current UI language (the bound string table, English when nothing is bound) is right to left. */
     fun isRtl(): Boolean =
-        isRtl(KoinPlatform.getKoinOrNull()?.getOrNull<IosStringTableHolder>()?.current?.tag ?: "en")
+        isRtl(KoinPlatform.getKoinOrNull()?.getOrNull<HostStringTableHolder>()?.current?.tag ?: "en")
 
     /** Whether [languageTag] is written right to left. */
     fun isRtl(languageTag: String): Boolean = DesktopUiLanguage.isRtl(languageTag)

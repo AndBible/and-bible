@@ -16,17 +16,17 @@
  */
 package net.bible.sharedui.desktop.reading
 
-import net.bible.sharedui.host.reading.IosReadingGestures
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.reading.HostReadingGestures
+import net.bible.sharedui.host.reading.HostReadingWindows
 import kotlin.math.abs
 
 /**
- * Maps the page's wheel and click messages onto the hoisted [IosReadingGestures] (full screen on scroll, pane touched,
+ * Maps the page's wheel and click messages onto the hoisted [HostReadingGestures] (full screen on scroll, pane touched,
  * swipe mode), the desktop's stand-in for the finger gestures of iOS. Chromium scrolls the page itself; this only
  * mirrors the movement for the gesture rules.
  *
  * A wheel gesture is a run of wheel frames with gaps of at most [GESTURE_GAP_MILLIS]. Vertical movement goes to
- * [IosReadingGestures.onScroll] as a Float, never rounded, so fractional wheel deltas add up. Horizontal movement is
+ * [HostReadingGestures.onScroll] as a Float, never rounded, so fractional wheel deltas add up. Horizontal movement is
  * summed per gesture; it becomes at most one swipe per gesture, and only when it is clearly horizontal.
  *
  * Swing thread only.
@@ -34,7 +34,7 @@ import kotlin.math.abs
  * @param gestures the gestures of a window, null when no reading host is bound
  */
 class DesktopReadingGestures(
-    private val gestures: (windowId: String) -> IosReadingGestures? = { IosReadingWindows.gesturesFor(it) },
+    private val gestures: (windowId: String) -> HostReadingGestures? = { HostReadingWindows.gesturesFor(it) },
 ) {
     private class Gesture(var lastMillis: Long, var sumX: Double = 0.0, var sumY: Double = 0.0, var swiped: Boolean = false)
 

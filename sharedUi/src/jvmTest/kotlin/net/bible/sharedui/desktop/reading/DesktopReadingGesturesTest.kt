@@ -18,7 +18,7 @@ package net.bible.sharedui.desktop.reading
 
 import net.bible.android.view.activity.page.SwipeAction
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedui.host.reading.IosReadingGestures
+import net.bible.sharedui.host.reading.HostReadingGestures
 import net.bible.sharedui.reading.host.ReadingFullScreen
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -47,7 +47,7 @@ class DesktopReadingGesturesTest {
     private val settings = MemorySettings()
     private val swipes = mutableListOf<Pair<String, SwipeAction>>()
     private var touched = 0
-    private val real = IosReadingGestures(fullScreen, settings, { false }, { id, a -> swipes += id to a }, onPaneTouched = { touched++ })
+    private val real = HostReadingGestures(fullScreen, settings, { false }, { id, a -> swipes += id to a }, onPaneTouched = { touched++ })
     private val gestures = DesktopReadingGestures({ real })
 
     @Test fun fractionalWheelDeltasAccumulate() {

@@ -22,13 +22,13 @@ import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedui.host.app.IosRootLinks
-import net.bible.sharedui.host.reading.IosReadingWindows
+import net.bible.sharedui.host.app.HostRootLinks
+import net.bible.sharedui.host.reading.HostReadingWindows
 import org.koin.mp.KoinPlatform
 
 /**
  * The production [DesktopShortcutActions]: the active window and settings come from Koin, the reading actions go through
- * the hoisted [IosReadingWindows] (only for windows that have an assembly, so a shortcut never assembles one).
+ * the hoisted [HostReadingWindows] (only for windows that have an assembly, so a shortcut never assembles one).
  *
  * The back and history seams are parameters so the fallback logic is testable without a Compose scene.
  */
@@ -39,12 +39,12 @@ class DesktopShortcutActionsImpl(
 ) : DesktopShortcutActions {
     private fun koin() = KoinPlatform.getKoin()
 
-    override fun isOnReadingScreen() = IosRootLinks.isOnReadingScreen()
+    override fun isOnReadingScreen() = HostRootLinks.isOnReadingScreen()
 
     override fun activeWindowId(): String? = runCatching { koin().get<WindowControl>().activeWindow.id.toString() }.getOrNull()
 
     private fun key(windowId: String, name: String) {
-        if (IosReadingWindows.hasAssembly(windowId)) IosReadingWindows.bridgeFor(windowId).onKeyDown(name)
+        if (HostReadingWindows.hasAssembly(windowId)) HostReadingWindows.bridgeFor(windowId).onKeyDown(name)
     }
 
     override fun search(windowId: String) = key(windowId, "CtrlKeyF")
@@ -59,7 +59,7 @@ class DesktopShortcutActionsImpl(
 
     override fun bookmarkSelection(windowId: String, selectionJson: String) {
         // Without a selection menu the key still does something useful: the page's Ctrl+B, the key chooser.
-        val menu = IosReadingWindows.selectionMenu ?: return goToReference(windowId)
+        val menu = HostReadingWindows.selectionMenu ?: return goToReference(windowId)
         menu.cacheSelection(windowId, selectionJson)
         menu.run(windowId, SelectionMenuItem.AddBookmarkSelection)
     }
@@ -70,7 +70,7 @@ class DesktopShortcutActionsImpl(
         val next = change.apply(current)
         if (next == current) return
         settings.setInt(FONT_SIZE_KEY, next)
-        IosReadingWindows.nightModeChanged()
+        HostReadingWindows.nightModeChanged()
     }
 
     override fun focusNextWindow() = koin().get<WindowControl>().focusNextWindow()
@@ -79,18 +79,18 @@ class DesktopShortcutActionsImpl(
 
     override fun toggleFullScreen() {
         val id = activeWindowId() ?: return
-        IosReadingWindows.gesturesFor(id)?.onDoubleTap()
+        HostReadingWindows.gesturesFor(id)?.onDoubleTap()
     }
 
-    override fun openSettings() = IosRootLinks.openRoute(NavRoutes.SETTINGS)
+    override fun openSettings() = HostRootLinks.openRoute(NavRoutes.SETTINGS)
 
     override fun escapeAllowed(windowId: String): Boolean =
-        !IosReadingWindows.hasAssembly(windowId) || !IosReadingWindows.sessionFor(windowId).editingTextInJs
+        !HostReadingWindows.hasAssembly(windowId) || !HostReadingWindows.sessionFor(windowId).editingTextInJs
 
     override fun closePageModals(windowId: String?): Boolean {
         val id = windowId ?: activeWindowId() ?: return false
-        if (!IosReadingWindows.hasAssembly(id)) return false
-        val session = IosReadingWindows.sessionFor(id)
+        if (!HostReadingWindows.hasAssembly(id)) return false
+        val session = HostReadingWindows.sessionFor(id)
         if (!session.modalOpen) return false
         session.emit(BibleViewEvents.closeModals())
         return true

@@ -31,13 +31,13 @@ import kotlinx.serialization.json.put
 import net.bible.android.view.activity.page.SelectionMenuItem
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.host.reading.CachedSelection
-import net.bible.sharedui.host.reading.IosReadingWindows
-import net.bible.sharedui.host.reading.IosSelectionMenu
+import net.bible.sharedui.host.reading.HostReadingWindows
+import net.bible.sharedui.host.reading.HostSelectionMenu
 import net.bible.sharedui.host.reading.SelectionMenuRow
 
 /**
  * AndBible's selection menu on a right-click in a desktop reading pane (D3a). The menu is a DOM menu drawn by the page at
- * the pointer ([PART]); this class is the Kotlin side. The logic is the hoisted [IosSelectionMenu] (same rows, labels and
+ * the pointer ([PART]); this class is the Kotlin side. The logic is the hoisted [HostSelectionMenu] (same rows, labels and
  * actions as iOS).
  *
  * Messages (envelope of [DesktopReadingInputImpl]): `contextmenu` {x, y, selection} (CSS px; selection = JSON text of
@@ -50,8 +50,8 @@ import net.bible.sharedui.host.reading.SelectionMenuRow
  * @param nightMode whether to draw the dark variant
  */
 class DesktopSelectionMenu(
-    private val menu: () -> IosSelectionMenu? = { IosReadingWindows.selectionMenu },
-    private val nightMode: () -> Boolean = { IosReadingWindows.nightMode },
+    private val menu: () -> HostSelectionMenu? = { HostReadingWindows.selectionMenu },
+    private val nightMode: () -> Boolean = { HostReadingWindows.nightMode },
 ) {
     private val panes = mutableMapOf<String, DesktopWebPane>()
     private val snapshots = mutableMapOf<String, CachedSelection>()
