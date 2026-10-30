@@ -21,6 +21,7 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.service.db.deleteAppDatabase
 import net.bible.sharedlogic.sync.withMonitor
 import okio.FileSystem
 import okio.Path
@@ -62,7 +63,8 @@ internal fun releaseEpubStagingDir(dir: Path) {
 /**
  * Cleans up after installs that crashed below [modulesRoot]; trees of installs still running are kept. Staging trees
  * are removed. An aside tree holds an old module from a replacement that has not committed: restore it even when
- * failed new files remain in its module folder. Keep the aside if recovery fails, so a later sweep can retry.
+ * failed new files remain in its module folder, after dropping the app database of the new module that may have
+ * registered. Keep the aside if recovery fails, so a later sweep can retry.
  */
 internal fun sweepStaleEpubStagingDirs(modulesRoot: Path) {
     val fileSystem = FileSystem.SYSTEM
@@ -73,6 +75,10 @@ internal fun sweepStaleEpubStagingDirs(modulesRoot: Path) {
         var restored = true
         for (old in oldTrees) {
             val dir = modulesRoot / "epub" / old.name
+            // A new module that had already registered (crash before the aside was dropped) left its app database; the
+            // restored old module would reuse it. A failure here must not block the restore.
+            runCatching { deleteAppDatabase("epub-${epubInitials(old.name)}.sqlite3") }
+                .onFailure { Log.e("EpubReplace", "Could not drop the app database of the EPUB ${old.name}", it) }
             runCatching {
                 fileSystem.createDirectories(dir.parent!!)
                 restoreEpubAside(dir, aside, modulesRoot)
