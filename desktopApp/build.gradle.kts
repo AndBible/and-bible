@@ -531,7 +531,10 @@ val generateWindowsManifest by tasks.registering {
         }
     }
 }
-tasks.named<Test>("test") { dependsOn(generateWindowsManifest) }
+tasks.named<Test>("test") {
+    dependsOn(generateWindowsManifest)
+    systemProperty("windowsPackageVersion", windowsPackageVersion)
+}
 
 fun windowsSdkTool(name: String): String {
     val sdk = System.getenv("WindowsSdkDir")?.let(::File)
@@ -544,8 +547,10 @@ fun windowsSdkTool(name: String): String {
 }
 
 fun runWindowsTool(command: List<String>) {
-    val process = ProcessBuilder(command).inheritIO().start()
-    check(process.waitFor() == 0) { "Windows packaging tool failed: ${command.first()}" }
+    val process = ProcessBuilder(command).redirectErrorStream(true).start()
+    val output = process.inputStream.bufferedReader().use { it.readText() }
+    check(process.waitFor() == 0) { "Windows packaging tool failed: ${command.first()}\n$output" }
+    if (output.isNotBlank()) logger.lifecycle(output)
 }
 
 fun signWindowsArtifact(file: File) {
@@ -584,6 +589,8 @@ tasks.register("packageWindowsMsi") {
         val dir = layout.buildDirectory.dir("compose/binaries/main/msi").get().asFile
         val msi = dir.listFiles { f -> f.extension.equals("msi", true) }?.singleOrNull()
             ?: throw GradleException("Expected exactly one MSI in $dir")
-        signWindowsArtifact(msi)
+        val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msi").get().asFile
+        Files.copy(msi.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        signWindowsArtifact(output)
     }
 }

@@ -23,9 +23,9 @@
         <uap:Extension Category="windows.fileTypeAssociation">
           <uap3:FileTypeAssociation Name="andbible" Parameters="&quot;%1&quot;">
             <uap:SupportedFileTypes>
-              <uap:FileType>.zip</uap:FileType><uap:FileType>.epub</uap:FileType><uap:FileType>.ttf</uap:FileType><uap:FileType>.csv</uap:FileType><uap:FileType>.jpg</uap:FileType><uap:FileType>.jpeg</uap:FileType><uap:FileType>.png</uap:FileType><uap:FileType>.webp</uap:FileType><uap:FileType>.sqlite3</uap:FileType>
+              <uap:FileType>.zip</uap:FileType><uap:FileType>.epub</uap:FileType><uap:FileType>.csv</uap:FileType><uap:FileType>.jpg</uap:FileType><uap:FileType>.jpeg</uap:FileType><uap:FileType>.png</uap:FileType><uap:FileType>.webp</uap:FileType><uap:FileType>.sqlite3</uap:FileType>
             </uap:SupportedFileTypes>
-            <uap2:SupportedVerbs><uap3:Verb Id="open" Parameters="&quot;%1&quot;" uap7:Default="true" /></uap2:SupportedVerbs>
+            <uap2:SupportedVerbs><uap3:Verb Id="open" Parameters="&quot;%1&quot;" uap7:Default="true">Open</uap3:Verb></uap2:SupportedVerbs>
           </uap3:FileTypeAssociation>
         </uap:Extension>
       </Extensions>
