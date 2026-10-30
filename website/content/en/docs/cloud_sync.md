@@ -55,6 +55,10 @@ If using Nextcloud instead of Google Drive:
 3. Optionally specify a folder path on the server.
 4. Toggle on the data categories you want to sync.
 
+Nextcloud and WebDAV server addresses work with or without a trailing `/`.
+AndBible removes trailing slashes and surrounding whitespace when saving the
+address, and also handles trailing slashes in previously saved addresses.
+
 On iOS, public Nextcloud servers require an `https://` address. Plain `http://`
 is allowed only for local hosts: `localhost`, names ending in `.local`, loopback
 addresses, private IPv4 addresses, and link-local IPv4 or IPv6 addresses. For

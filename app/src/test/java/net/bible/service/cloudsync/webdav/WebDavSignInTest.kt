@@ -52,6 +52,24 @@ class WebDavSignInTest {
         server.failWith = { if (state.certPin == null) IOException("handshake", DavUntrustedCertificateException(info)) else null }
     }
 
+    @Test fun storedServerUrlIsNormalizedBeforeClientCreation() = runBlocking {
+        val prefs = ApplicationProvider.getApplicationContext<android.content.Context>()
+            .getSharedPreferences("stored-webdav-url", android.content.Context.MODE_PRIVATE)
+        try {
+            prefs.edit().putString(WebDavPrefKeys.SERVER_URL, "  https://h/dav///\n").commit()
+            val adapter = WebDavCloudAdapter(
+                WebDavConfig.fromPreferences(prefs), state, ui, deviceId = "test-device",
+                clientFactory = { c, _ ->
+                    assertEquals("https://h/dav", c.serverUrl)
+                    WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer })
+                },
+            )
+            assertTrue(adapter.signIn())
+        } finally {
+            prefs.edit().clear().commit()
+        }
+    }
+
     @Test fun untrustedCertificate_trusted_pinsAndConnects() = runBlocking {
         untrustedUntilPinned()
         assertTrue(adapter().signIn())
