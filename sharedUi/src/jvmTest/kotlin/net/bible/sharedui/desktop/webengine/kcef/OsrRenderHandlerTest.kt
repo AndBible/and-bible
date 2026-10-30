@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedui.desktop.webengine.kcef
+
+import java.awt.Point
+import java.awt.Rectangle
+import java.nio.ByteBuffer
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class OsrRenderHandlerTest {
+    private fun handler(geo: OsrGeometry, cursor: (Int) -> Unit = {}): Pair<OsrRenderHandler, OsrFrameBuffer> {
+        val fb = OsrFrameBuffer(publisher = { it.run() })
+        return OsrRenderHandler({ geo }, fb, cursor) to fb
+    }
+
+    @Test fun deviceScaleFollowsDensity() {
+        val (h, _) = handler(OsrGeometry(1500, 900, 1.5, Point(0, 0)))
+        assertEquals(1.5, h.getDeviceScaleFactor(null))
+        val r = h.getViewRect(null)
+        assertEquals(Rectangle(0, 0, 1000, 600), r)
+    }
+
+    @Test fun viewRectIsNeverEmpty() {
+        val (h, _) = handler(OsrGeometry(0, 0, 2.0, Point(0, 0)))
+        val r = h.getViewRect(null)
+        assertTrue(r.width >= 1 && r.height >= 1)
+    }
+
+    @Test fun pointerMappedToViewCoordinates() {
+        val g = OsrGeometry(1500, 900, 1.5, Point(0, 0))
+        assertEquals(Point(100, 200), g.toViewDip(150f, 300f))
+        assertEquals(Point(150, 300), g.toViewPx(100, 200))
+    }
+
+    @Test fun screenPointAddsWindowOrigin() {
+        val (h, _) = handler(OsrGeometry(1000, 600, 2.0, Point(300, 200)))
+        assertEquals(Point(310, 220), h.getScreenPoint(null, Point(10, 20)))
+    }
+
+    @Test fun screenInfoCarriesScale() {
+        val (h, _) = handler(OsrGeometry(1000, 600, 2.0, Point(0, 0)))
+        val info = org.cef.handler.CefScreenInfo()
+        assertTrue(h.getScreenInfo(null, info))
+        assertEquals(2.0, info.device_scale_factor)
+        assertEquals(500, info.width)
+    }
+
+    @Test fun cursorForwarded() {
+        var seen = -1
+        val (h, _) = handler(OsrGeometry(10, 10, 1.0, Point(0, 0))) { seen = it }
+        assertTrue(h.onCursorChange(null, 12))
+        assertEquals(12, seen)
+    }
+
+    @Test fun popupRectIsScaledToViewPixels() {
+        val (h, fb) = handler(OsrGeometry(8, 4, 2.0, Point(0, 0)))
+        fb.resize(8, 4)
+        fun solid(w: Int, h2: Int, b: Int) = ByteBuffer.allocateDirect(w * h2 * 4).also {
+            repeat(w * h2) { _ -> it.put(b.toByte()); it.put(0); it.put(0); it.put(0xFF.toByte()) }; it.rewind()
+        }
+        h.onPaint(null, false, arrayOf(Rectangle(0, 0, 8, 4)), solid(8, 4, 10), 8, 4)
+        h.onPopupShow(null, true) // CEF shows first, then sizes
+        h.onPopupSize(null, Rectangle(1, 0, 2, 1)) // DIP -> px (2,0,4,2)
+        h.onPaint(null, true, arrayOf(Rectangle(0, 0, 4, 2)), solid(4, 2, 150), 4, 2)
+        val out = IntArray(32); fb.frame.value!!.readPixels(out)
+        assertEquals(150, out[0 * 8 + 2] and 0xFF)
+        assertEquals(150, out[1 * 8 + 5] and 0xFF)
+        assertEquals(10, out[0 * 8 + 1] and 0xFF)
+        assertEquals(10, out[2 * 8 + 2] and 0xFF)
+        h.onPopupShow(null, false)
+        fb.frame.value!!.readPixels(out)
+        assertEquals(10, out[2] and 0xFF)
+    }
+
+    @Test fun secondPopupDoesNotReuseTheFirstRect() {
+        val (h, fb) = handler(OsrGeometry(8, 4, 1.0, Point(0, 0)))
+        fb.resize(8, 4)
+        fun solid(w: Int, h2: Int, b: Int) = ByteBuffer.allocateDirect(w * h2 * 4).also {
+            repeat(w * h2) { _ -> it.put(b.toByte()); it.put(0); it.put(0); it.put(0xFF.toByte()) }; it.rewind()
+        }
+        h.onPaint(null, false, arrayOf(Rectangle(0, 0, 8, 4)), solid(8, 4, 10), 8, 4)
+        h.onPopupShow(null, true); h.onPopupSize(null, Rectangle(0, 0, 2, 2))
+        h.onPopupShow(null, false)
+        h.onPopupShow(null, true) // size not yet reported: nothing may be drawn at the old rect
+        h.onPaint(null, true, arrayOf(Rectangle(0, 0, 2, 2)), solid(2, 2, 150), 2, 2)
+        val out = IntArray(32); fb.frame.value!!.readPixels(out)
+        assertEquals(setOf(10), out.map { it and 0xFF }.toSet())
+        h.onPopupSize(null, Rectangle(5, 2, 2, 2))
+        fb.frame.value!!.readPixels(out)
+        assertEquals(150, out[2 * 8 + 5] and 0xFF)
+        assertEquals(10, out[0] and 0xFF)
+    }
+
+    @Test fun bufferSizeMatchesWhatCefPaintsAtFractionalScales() {
+        for ((px, scale) in listOf(1001 to 1.5, 1001 to 1.25, 777 to 1.25, 999 to 1.5)) {
+            val g = OsrGeometry(px, px + 1, scale, Point(0, 0))
+            val r = Rectangle(0, 0, g.widthDip, g.heightDip)
+            assertEquals(Math.ceil(r.width * scale).toInt(), g.bufferWidthPx)
+            assertEquals(Math.ceil(r.height * scale).toInt(), g.bufferHeightPx)
+            assertTrue(g.bufferWidthPx >= px)
+            // the frame buffer accepts a paint of exactly that size
+            val fb = OsrFrameBuffer(publisher = { it.run() })
+            fb.resize(g.bufferWidthPx, g.bufferHeightPx)
+            val buf = ByteBuffer.allocateDirect(g.bufferWidthPx * g.bufferHeightPx * 4)
+            fb.paint(false, arrayOf(Rectangle(0, 0, g.bufferWidthPx, g.bufferHeightPx)), buf, g.bufferWidthPx, g.bufferHeightPx)
+            assertEquals(g.bufferWidthPx, fb.frame.value!!.width)
+        }
+    }
+
+    @Test fun bufferSizeIsComputedInFloatLikeChromium() {
+        // double ceil(50 * 1.1) = 56 but Chromium's float ScaleToCeiledSize gives 55; at 1.2, 25 DIP is 30 in double and 31 in float
+        val g = OsrGeometry(54, 29, 1.1, Point(0, 0))
+        assertEquals(50, g.widthDip)
+        assertEquals(55, g.bufferWidthPx)
+        val g2 = OsrGeometry(29, 29, 1.2, Point(0, 0))
+        assertEquals(25, g2.widthDip)
+        assertEquals(31, g2.bufferWidthPx)
+    }
+}

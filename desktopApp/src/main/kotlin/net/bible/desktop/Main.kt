@@ -38,8 +38,10 @@ import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.desktop.assembly.desktopCrashGate
 import net.bible.sharedui.desktop.assembly.desktopRendererRecovery
 import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
+import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingInput
+import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
 import java.awt.EventQueue
@@ -62,6 +64,9 @@ private val startupScope = CoroutineScope(
     SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, e -> Log.e(TAG, "uncaught in startup scope", e) },
 )
 
+/** The `compose.layers.type` for the pane rendering mode: `WINDOW` when [windowed], else null (Compose's in-window default). */
+internal fun composeLayersTypeFor(windowed: Boolean): String? = if (windowed) "WINDOW" else null
+
 /**
  * Starts the desktop app: the real AndBible app by default, the D1 PoC when `andbible.poc.scenario` is set
  * ([PocLaunchOptions]). The CEF natives come from [CefNativesLocation]: `kcef.installDir` (set by
@@ -70,9 +75,10 @@ private val startupScope = CoroutineScope(
  * graph as `DesktopLaunchArgs` (read by D3b); the PoC ignores them.
  */
 fun main(args: Array<String>) {
-    // Compose dialogs and popups in their own heavyweight windows, so they show above the CEF panes (D1 verified it).
-    // Before any Compose window.
-    System.setProperty("compose.layers.type", "WINDOW")
+    // Windowed panes are heavyweight components, so Compose dialogs and popups need their own windows to show above them
+    // (D1 verified it). Off-screen panes paint into a Compose canvas: popups stay in-window, correctly placed and without
+    // black corners. The mode is the engine's own one-time resolution. Before any Compose window and before KCEF init.
+    composeLayersTypeFor(KcefWebEngine.isWindowedRendering())?.let { System.setProperty("compose.layers.type", it) }
     if (System.getProperty("andbible.poc.scenario") != null) runPoc() else runApp(args.toList())
 }
 
@@ -127,7 +133,11 @@ private fun runApp(launchArgs: List<String>) {
         val index = BibleViewBundle.extractTo(bundleRoot)
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
         val log: (String) -> Unit = { line -> println(line) }
-        val engine = KcefWebEngine(installDir, index.parent, log)
+        val engine = KcefWebEngine(
+            installDir, index.parent, log,
+            // Bound once the app graph exists (page requests start after it); nothing before that.
+            pageAssets = DesktopPageAssetRoutes.koinBound(),
+        )
         val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
         val webViews = DesktopBibleWebViews(engine, log)
@@ -176,15 +186,16 @@ private fun runApp(launchArgs: List<String>) {
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
             onCloseRequest = requestClose,
             // Keys and back (D3a): the bound reading input, the no-op until the graph exists.
-            onPreviewKeyEvent = { DesktopReadingInput.current().onPreviewKeyEvent(it) },
-            onKeyEvent = { DesktopReadingInput.current().onKeyEvent(it) },
+            // An off-screen web pane that has focus takes every key itself (the page's script owns the shortcuts).
+            onPreviewKeyEvent = { DesktopWebPaneKeys.windowKey { DesktopReadingInput.current().onPreviewKeyEvent(it) } },
+            onKeyEvent = { DesktopWebPaneKeys.windowKey { DesktopReadingInput.current().onKeyEvent(it) } },
         ) {
             val awtWindow = window
             DisposableEffect(awtWindow) {
                 awtWindow.minimumSize = Dimension(AwtWindowHandle.MIN_WIDTH_DP, AwtWindowHandle.MIN_HEIGHT_DP)
                 windowHandle.attach(awtWindow)
                 // Active / ResignActive for the app as a whole: a Compose dialog or popup is a window of its own
-                // (layers=WINDOW) owned by this one, so moving the focus into it is not leaving the app.
+                // owned by this one in windowed mode (layers=WINDOW; in-window and no window at all in off-screen mode), so moving the focus into it is not leaving the app.
                 val tracker = DesktopAppFocusTracker(
                     isAppWindow = DesktopAppFocusTracker.ownedBy(awtWindow),
                     onActive = lifecycle::onWindowActivated,

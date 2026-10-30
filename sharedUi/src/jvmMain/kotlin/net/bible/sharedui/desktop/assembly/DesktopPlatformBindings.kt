@@ -221,6 +221,10 @@ fun desktopPlatformModule(
             )
         }
         single<BackgroundImageCatalog> { get<AddonCatalog>() as SharedAddonCatalog }
+        // Page asset routes of the BibleView origin (`/background/`, `/module/`, ...), asked by the web engine.
+        single<net.bible.sharedui.desktop.webengine.DesktopPageAssets> {
+            net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes.fromKoin { println("[desktop] $it") }
+        }
 
         // --- locale, calendar, text
         single<DateTimeFormats> { DesktopDateTimeFormats() }

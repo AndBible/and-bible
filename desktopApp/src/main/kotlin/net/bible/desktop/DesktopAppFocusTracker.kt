@@ -23,8 +23,9 @@ import java.awt.event.AWTEventListener
 import java.awt.event.WindowEvent
 
 /**
- * Whether the app as a whole has the focus. Under `compose.layers.type=WINDOW` every Compose dialog and popup is its
- * own window owned by the main window, so the main window's own activation flips each time one opens; only a change
+ * Whether the app as a whole has the focus. In windowed pane mode (`compose.layers.type=WINDOW`) every Compose dialog and
+ * popup is its own window owned by the main window, so the main window's own activation flips each time one opens; in
+ * off-screen mode they stay in-window and no extra window appears (the logic is then idle but harmless). Only a change
  * between "some app window is active" and "none is" reaches [onActive] / [onInactive]. Windows are typed `Any` so the
  * logic runs without AWT; [isAppWindow] tells the app's windows (the main window and those it owns) from the rest
  * (null: focus left the JVM).
