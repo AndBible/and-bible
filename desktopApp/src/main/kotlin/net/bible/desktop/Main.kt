@@ -182,6 +182,8 @@ private fun runApp(launchArgs: List<String>) {
         var closing by remember { mutableStateOf(false) }
         val requestClose: () -> Unit = {
             if (!closing) {
+                // Stop acknowledging hand-offs: the sync push below can take seconds, and a file acked now would be dropped.
+                DesktopEarlyIncomingFiles.closeInstalled()
                 // ResignActive and Background reach every observer (the workspace save) before the content goes away.
                 lifecycle.onExit()
                 closing = true

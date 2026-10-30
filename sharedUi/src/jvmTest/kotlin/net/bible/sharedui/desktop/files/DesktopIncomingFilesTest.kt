@@ -107,7 +107,7 @@ class DesktopIncomingFilesTest {
         val queue = DesktopIncomingFileQueue {}
         val seen = mutableListOf<String>()
         queue.bind({ refs, done -> seen.add(Paths.get(java.net.URI(refs.single().uri)).fileName.toString()); done() }, {})
-        val names = listOf("a.zip", "a.epub", "a.ttf", "a.csv", "a.jpg", "a.jpeg", "a.png", "a.webp", "a.sqlite3", "a.mybible", "a.bblx", "a.bbli")
+        val names = listOf("a.zip", "a.epub", "a.ttf", "a.csv", "a.jpg", "a.jpeg", "a.png", "a.webp", "a.sqlite3", "a.mybible", "a.bblx", "a.bbli", "a.abdb")
         queue.offer(names.map { Paths.get("/tmp", it) })
         assertEquals(names, seen)
     }
@@ -159,6 +159,19 @@ class DesktopIncomingFilesTest {
             kotlinx.coroutines.Dispatchers.resetMain()
             main.close()
             dir.toFile().deleteRecursively()
+        }
+    }
+
+    /** A connection arriving while listen() is still returning must not hit an uninitialised instance. */
+    @Test fun aFileArrivingBeforeListenReturnsIsQueued() {
+        val file = Paths.get("/tmp/early.zip")
+        try {
+            val early = requireNotNull(DesktopEarlyIncomingFiles.install(Paths.get("/tmp")) { _, cb -> cb(listOf(file)); AutoCloseable {} })
+            val got = mutableListOf<java.nio.file.Path>()
+            early.listen(Paths.get("/tmp")) { got.addAll(it) }
+            assertEquals(listOf(file), got)
+        } finally {
+            DesktopEarlyIncomingFiles.closeInstalled()
         }
     }
 }

@@ -58,7 +58,9 @@ object DesktopWebPaneKeys {
      * pane to return to, so that focus is never overridden.
      */
     private fun installOverlayHooks() {
-        OverlayPresence.onFirstOpened = { beforeOverlay.set(owner.get() ?: pressCleared.get()) }
+        // A menu item closes its menu and opens a sheet in one frame: the menu's disposal runs first, so by now neither
+        // owner nor pressCleared names the pane; never overwrite the pane remembered for the menu with null.
+        OverlayPresence.onFirstOpened = { (owner.get() ?: pressCleared.get())?.let { beforeOverlay.set(it) } }
         OverlayPresence.onAllClosed = { SwingUtilities.invokeLater { restoreAfterOverlay() } }
     }
 
@@ -103,8 +105,10 @@ object DesktopWebPaneKeys {
      */
     fun restoreAfterOverlay(): Boolean {
         // Posted to the event thread: a menu item may have opened a sheet in the meantime.
+        // Not consumed: the pane is restored at the real zero.
         if (OverlayPresence.count > 0) return false
         val pane = beforeOverlay.getAndSet(null) as? FocusRestorable ?: return false
+        if (!OverlayPresence.restoreAllowed()) return false
         if (owner.get() != null) return false
         pane.requestFocus()
         return true

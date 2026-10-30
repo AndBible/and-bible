@@ -60,7 +60,7 @@ class DesktopPageAssetRoutes(
 
     private fun emptyFontsCss(module: String): BundleResource? {
         if (module.isEmpty() || bookLocation(module) == null) return null
-        return BundleResource(emptyCss, "text/css", fromBundle = false)
+        return BundleResource(emptyCssFile(), "text/css", fromBundle = false)
     }
 
     private fun background(module: String): BundleResource? {
@@ -94,8 +94,12 @@ class DesktopPageAssetRoutes(
 
     companion object {
         /** The one empty stylesheet every `fonts.css` answer shares (a [BundleResource] needs a file). */
-        private val emptyCss: Path by lazy {
-            Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit() }
+        @Volatile private var emptyCss: Path? = null
+
+        /** The shared empty stylesheet, recreated when tmp cleaning removed it during a long session. */
+        internal fun emptyCssFile(): Path = synchronized(this) {
+            emptyCss?.takeIf { Files.isRegularFile(it) }
+                ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); emptyCss = it }
         }
 
         /** Resolves [relative] under [base], null when it would leave [base] or is not a regular file. */

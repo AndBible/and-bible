@@ -31,7 +31,7 @@ internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
     fun accept(files: List<Path>) {
         val entries = files.mapNotNull { file ->
             if (file.fileName?.toString()?.substringAfterLast('.', "")?.lowercase() !in
-                setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3", "mybible", "bblx", "bbli")) {
+                setOf("zip", "epub", "ttf", "csv", "jpg", "jpeg", "png", "webp", "sqlite3", "mybible", "bblx", "bbli", "abdb")) {
                 log("Unsupported incoming file: $file")
                 null
             } else Entry(DocumentRef(file.toUri().toString()))
@@ -80,7 +80,8 @@ internal class DesktopIncomingFileQueue(private val log: (String) -> Unit) {
  * [DesktopIncomingFilesImpl] attaches later through [listen] and receives them all. [DesktopIncomingFilesImpl] then
  * hands them to the shared receive path (`AppHostPlatform.receiveIncomingFiles`).
  */
-class DesktopEarlyIncomingFiles private constructor(private val listener: AutoCloseable) : AutoCloseable {
+class DesktopEarlyIncomingFiles private constructor() : AutoCloseable {
+    private var listener: AutoCloseable = AutoCloseable {}
     private val lock = Any()
     private var pending = ArrayList<Path>()
     private var sink: ((List<Path>) -> Unit)? = null
@@ -122,14 +123,14 @@ class DesktopEarlyIncomingFiles private constructor(private val listener: AutoCl
             dataDir: Path,
             listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = InstanceHandOff::listen,
         ): DesktopEarlyIncomingFiles? {
-            lateinit var early: DesktopEarlyIncomingFiles
-            val listener = try {
+            // Created before listening: a connection that arrives as listen() returns always has a queue to land in.
+            val early = DesktopEarlyIncomingFiles()
+            early.listener = try {
                 listen(dataDir) { files -> early.accept(files) }
             } catch (e: Exception) {
                 Log.w("DesktopIncomingFiles", "Second-launch file hand-off unavailable: ${e.message}")
                 return null
             }
-            early = DesktopEarlyIncomingFiles(listener)
             installed = early
             return early
         }

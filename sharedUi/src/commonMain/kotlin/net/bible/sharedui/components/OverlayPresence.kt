@@ -30,10 +30,10 @@ object OverlayPresence {
     /** Called when the count rises from zero to one (the first overlay opens). */
     var onFirstOpened: (() -> Unit)? = null
 
-    /** Called when the count drops to zero and [restoreAllowed] agrees. */
+    /** Called when the count drops to zero; the platform's restore consults [restoreAllowed] itself. */
     var onAllClosed: (() -> Unit)? = null
 
-    /** Asked before [onAllClosed]; false vetoes the platform's focus restore (e.g. while the search field keeps the focus). */
+    /** Asked by the platform's restore after [onAllClosed]; false vetoes the platform's focus restore (e.g. while the search field keeps the focus). */
     var restoreAllowed: () -> Boolean = { true }
 
     var count: Int = 0
@@ -54,7 +54,7 @@ object OverlayPresence {
 
     fun closed() {
         if (count == 0) return
-        if (--count == 0 && restoreAllowed()) onAllClosed?.invoke()
+        if (--count == 0) onAllClosed?.invoke()
     }
 }
 

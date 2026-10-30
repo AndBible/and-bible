@@ -60,6 +60,12 @@ class DesktopPageAssetRoutesTest {
         assertEquals("font/woff2", assertNotNull(routes().resolve("/fonts/KJV/css/extra.woff2")).mimeType)
     }
 
+    @Test fun fontsCssSurvivesTmpCleaning() {
+        val r = routes()
+        Files.delete(assertNotNull(r.resolve("/fonts/KJV/fonts.css")).file) // tmp cleaning in a long session
+        assertTrue(Files.isRegularFile(assertNotNull(r.resolve("/fonts/KJV/fonts.css")).file))
+    }
+
     @Test fun fontsCssAnswers200() {
         val r = routes()
         val css = assertNotNull(r.resolve("/fonts/KJV/fonts.css"))

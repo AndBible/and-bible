@@ -269,8 +269,12 @@ class PaneFocusAfterOverlayTest {
                 runOnIdle { other.requestFocus() }
                 // The menu closes as its item opens a sheet: the count never settles at zero for the restore.
                 runOnIdle { sheet = true; menu = false }
-                runOnIdle { if (pending) DesktopWebPaneKeys.restoreAfterOverlay() }
+                runOnIdle { if (pending) DesktopWebPaneKeys.restoreAfterOverlay(); pending = false }
                 runOnIdle { assertEquals(listOf(true, false), sink.focus) }
+                // Closing the sheet finally settles at zero: the pane must get the keys back.
+                runOnIdle { sheet = false }
+                runOnIdle { if (pending) DesktopWebPaneKeys.restoreAfterOverlay() }
+                runOnIdle { assertEquals(listOf(true, false, true), sink.focus) }
             } finally {
                 pane.release()
             }
