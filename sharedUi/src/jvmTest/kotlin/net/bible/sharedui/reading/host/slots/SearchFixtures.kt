@@ -170,13 +170,14 @@ class SearchFixture(
     val settings: MapSearchSettings = MapSearchSettings(),
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined),
     val pollPause: suspend () -> Unit = {},
+    indexJobs: SearchIndexJobs = jobs,
 ) {
     var leftFullScreen = 0
     val state = ReadingSearchState(
         settings = settings,
         scope = scope,
         platform = platform,
-        indexJobs = jobs,
+        indexJobs = indexJobs,
         services = ReadingSearchServices(bible, FakeEpubSearch(), SearchResultsCache(), index),
         onLeaveFullScreen = { leftFullScreen++ },
         pollPause = pollPause,

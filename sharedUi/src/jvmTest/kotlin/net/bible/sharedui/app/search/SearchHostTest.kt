@@ -136,7 +136,7 @@ class SearchHostTest {
 
     @Test
     fun progressSubscriptionWhileAJobIsRunningWaitsForTheRealFinishedEvent() {
-        val job = org.crosswire.common.progress.JobManager.createJob("issue-2632-running-job")
+        val job = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-2632", "Indexing", null)
         var completions = 0
         val stop = host().observeIndexJobs(onJobs = {}, onJobFinished = { completions++ })
         try {
@@ -144,6 +144,26 @@ class SearchHostTest {
         } finally {
             stop()
             job.done()
+        }
+    }
+
+    @Test
+    fun indexObserverExcludesDownloadsButGenericProgressKeepsThem() {
+        val download = org.crosswire.common.progress.JobManager.createJob("Downloading files")
+        val index = org.crosswire.common.progress.JobManager.createJob("CREATE_INDEX-3911", "Indexing", null)
+        val h = host()
+        var indexLabels = emptyList<String>()
+        var allLabels = emptyList<String>()
+        val stopIndex = h.observeIndexJobs(onJobs = { indexLabels = it.map { row -> row.label } }, onJobFinished = {})
+        val stopAll = h.observeProgressStatusJobs { allLabels = it.map { row -> row.label } }
+        try {
+            assertEquals(listOf("Indexing"), indexLabels)
+            assertEquals(listOf("Downloading files", "Indexing"), allLabels)
+        } finally {
+            stopIndex()
+            stopAll()
+            download.done()
+            index.done()
         }
     }
 

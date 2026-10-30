@@ -33,6 +33,7 @@ import net.bible.sharedui.reading.host.slots.ReadingKeyChooserPage
 import net.bible.sharedui.reading.host.slots.ReadingQuickActions
 import net.bible.sharedui.reading.host.slots.ReadingSearchPlatform
 import net.bible.sharedui.reading.host.slots.SearchIndexJobs
+import net.bible.sharedui.search.isSearchIndexJob
 import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
@@ -134,7 +135,7 @@ class AndroidReadingSearchPlatform(
     }
 }
 
-/** Android [SearchIndexJobs]: JSword's global `JobManager`, exactly as the Activity path read it. */
+/** Android [SearchIndexJobs]: running index jobs from JSword's global `JobManager`. */
 class AndroidSearchIndexJobs : SearchIndexJobs {
     override fun subscribe(onEvent: (job: Any, isFinished: () -> Boolean) -> Unit): () -> Unit {
         val listener = object : WorkListener {
@@ -150,6 +151,7 @@ class AndroidSearchIndexJobs : SearchIndexJobs {
         val it = JobManager.iterator()
         while (it.hasNext()) {
             val job = it.next()
+            if (job.isFinished || !job.isSearchIndexJob()) continue
             snapshot.add(
                 ProgressJob(
                     id = System.identityHashCode(job).toString(),
@@ -164,7 +166,10 @@ class AndroidSearchIndexJobs : SearchIndexJobs {
 
     override fun isEveryJobFinished(): Boolean {
         val it = JobManager.iterator()
-        while (it.hasNext()) if (!it.next().isFinished) return false
+        while (it.hasNext()) {
+            val job = it.next()
+            if (job.isSearchIndexJob() && !job.isFinished) return false
+        }
         return true
     }
 }
