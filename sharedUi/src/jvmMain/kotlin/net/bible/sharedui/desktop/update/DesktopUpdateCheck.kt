@@ -22,6 +22,7 @@ class DesktopUpdateCheck(
     private val scope: CoroutineScope,
     private val announce: (DesktopRelease) -> Unit,
     private val consent: suspend () -> Boolean? = { null },
+    private val announceAndAwait: suspend (DesktopRelease) -> Boolean = { announce(it); true },
 ) {
     private var running: Job? = null
 
@@ -51,8 +52,7 @@ class DesktopUpdateCheck(
         try {
             val release = newestOffered(parseDesktopReleases(fetch()), ownBuild, ownIsProduction, settings.getInt(ANNOUNCED_KEY, 0))
             if (release != null && settings.getString(CONSENT_KEY) == "yes") {
-                settings.putInt(ANNOUNCED_KEY, release.build)
-                announce(release)
+                if (announceAndAwait(release)) settings.putInt(ANNOUNCED_KEY, release.build)
             }
         } catch (e: CancellationException) {
             throw e

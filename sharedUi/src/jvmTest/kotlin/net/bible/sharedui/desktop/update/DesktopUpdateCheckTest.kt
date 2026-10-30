@@ -3,6 +3,11 @@ package net.bible.sharedui.desktop.update
 import java.io.IOException
 import java.nio.file.Files
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -82,6 +87,30 @@ class DesktopUpdateCheckTest {
         checker.start(); runCurrent()
         assertNull(prefs.getString("desktop_update_check"))
         assertEquals(0, requests)
+    }
+
+    @Test fun withdrawnQueuedAnnouncementCanBeOfferedOnNextLaunch() = runTest {
+        val prefs = settings().apply { putString("desktop_update_check", "yes") }
+        val dialogs = AppDialogController()
+        val blocking = dialogs.post(AppDialogRequest.Message("Busy", "Other dialog", "OK"))
+        var now = 100000000L
+        val firstJob = Job(backgroundScope.coroutineContext[Job])
+        val firstScope = CoroutineScope(backgroundScope.coroutineContext + firstJob)
+        val first = DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, true, firstScope, {},
+            announceAndAwait = {
+                dialogs.await(AppDialogRequest.Confirm("Update", "New release", "Download", "Later")) == AppDialogResult.Ok
+            })
+        first.start(); runCurrent()
+        assertEquals(blocking, dialogs.pending.value?.id)
+        firstJob.cancel(); runCurrent()
+        dialogs.respond(blocking, AppDialogResult.Ok); runCurrent()
+        assertNull(dialogs.pending.value)
+        now += 86400000L
+        val offered = mutableListOf<Int>()
+        DesktopUpdateCheck(prefs, { now }, { release(1240) }, 1239, true, backgroundScope, { offered += it.build })
+            .start()
+        runCurrent()
+        assertEquals(listOf(1240), offered)
     }
 
     @Test fun revokedConsentSuppressesPendingResult() = runTest {

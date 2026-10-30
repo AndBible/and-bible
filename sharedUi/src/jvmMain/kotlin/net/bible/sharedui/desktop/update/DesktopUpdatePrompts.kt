@@ -35,12 +35,14 @@ class DesktopUpdatePrompts(
     private val strings: HostStringTableHolder,
     private val links: ExternalLinks,
     private val appReady: () -> Boolean = { DatabaseContainer.ready && environment.isInitialized },
+    clock: () -> Long = System::currentTimeMillis,
+    fetchOverride: (suspend () -> String)? = null,
 ) : DesktopUpdateCheckSetting, AutoCloseable {
     private val lifetime = Job(scope.coroutineContext[Job])
     private val updateScope = CoroutineScope(scope.coroutineContext + lifetime)
     private val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
-    private val checker = DesktopUpdateCheck(settings, System::currentTimeMillis, {
-        withContext(Dispatchers.IO) {
+    private val checker = DesktopUpdateCheck(settings, clock, {
+        fetchOverride?.invoke() ?: withContext(Dispatchers.IO) {
             val url = System.getProperty("andbible.updateUrl") ?: RELEASES_URL
             val request = HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(20))
                 .header("Accept", "application/vnd.github+json")
@@ -49,17 +51,7 @@ class DesktopUpdatePrompts(
             check(response.statusCode() in 200..299) { "Update request failed" }
             response.body()
         }
-    }, build, production, updateScope, { release ->
-        updateScope.launch {
-            val result = dialogs.await(AppDialogRequest.Localized {
-                val table = strings.current
-                AppDialogRequest.Confirm(table.text("desktop_update_available_title"),
-                    table.fmt("desktop_update_available_message", release.tag, version),
-                    table.text("desktop_update_download"), table.text("desktop_update_later"))
-            })
-            if (result == AppDialogResult.Ok) links.open(release.htmlUrl)
-        }
-    }, consent = {
+    }, build, production, updateScope, {}, consent = {
         when (val result = dialogs.await(AppDialogRequest.Localized {
             val table = strings.current
             AppDialogRequest.Options(table.text("desktop_update_consent_title"), table.text("desktop_update_consent_message"),
@@ -69,6 +61,20 @@ class DesktopUpdatePrompts(
         })) {
             is AppDialogResult.Selected -> when (result.value) { "yes" -> true; "no" -> false; else -> null }
             else -> null
+        }
+    }, announceAndAwait = { release ->
+        val result = dialogs.await(AppDialogRequest.Localized {
+            val table = strings.current
+            AppDialogRequest.Options(table.text("desktop_update_available_title"),
+                table.fmt("desktop_update_available_message", release.tag, version),
+                listOf(SettingsItem.Choice("download", table.text("desktop_update_download")),
+                    SettingsItem.Choice("later", table.text("desktop_update_later"))),
+                dismissText = null, asActionSheet = false, cancellable = false)
+        })
+        when (result) {
+            AppDialogResult.Selected("download") -> { links.open(release.htmlUrl); true }
+            AppDialogResult.Selected("later") -> true
+            else -> false
         }
     })
 
