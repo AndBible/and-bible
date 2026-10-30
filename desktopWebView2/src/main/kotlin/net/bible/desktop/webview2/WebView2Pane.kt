@@ -308,6 +308,11 @@ internal class WebView2Pane(
         val window = hostWindow()
         val density = LocalDensity.current.density
         DisposableEffect(window) {
+            // Only Skiko's Direct3D path composes the canvas with alpha: with SOFTWARE or OPENGL the cleared hole is black
+            // and the page invisible (seen in the VM). A real integration must fall back to KCEF then.
+            (window as? androidx.compose.ui.awt.ComposeWindow)?.renderApi?.let { api ->
+                if (api != org.jetbrains.skiko.GraphicsApi.DIRECT3D) log("Compose renders with $api: the page below the canvas is hidden")
+            }
             val frame = window?.let { WinDef.HWND(Native.getComponentPointer(it)) }
             if (frame != null) sta.post { attach(frame) }
             // A moved frame changes no Compose layout, but WebView2 needs it for IME candidate and accessibility positions.
