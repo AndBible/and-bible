@@ -132,4 +132,9 @@ asking you to create the index again. This also applies when the document's inde
 another build, or when you start a search from selected text. If the index has already finished,
 Search continues to the search form or runs the query you were waiting for.
 
+An empty, damaged or outdated SWORD search index is treated as needing a rebuild, including when
+searching from links or AI tools. If any verse cannot be read during indexing, the incomplete new
+index is not used and the affected references are reported. Try reinstalling the document before
+building its index again if the read errors persist.
+
 <span id="fallback"></span><span id="search-results"></span>

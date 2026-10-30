@@ -17,6 +17,17 @@
 package net.bible.android.control.search
 
 import okio.Path.Companion.toOkioPath
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import net.bible.android.database.IdType
+import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.read.SearchBibleTool
+import org.crosswire.common.activate.Activator
+import org.crosswire.jsword.book.sword.SwordBookDriver
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.sharedcore.search.SearchIndexService
@@ -97,19 +108,44 @@ class SearchIndexServiceImplLegacyTest {
         assertFalse(hasUsableSearchIndex(fake(IndexStatus.UNDONE)))
     }
 
-    /**
-     * #3876 gap 3: `isIndexed` is only "the file exists", so startup marks a book with an empty or corrupt index file
-     * DONE. The search path must still treat such a file as no index, so the user is asked to build one.
-     */
+    /** File presence alone is not enough, even when a caller holds an obsolete DONE status. */
     @Test fun anEmptyOrCorruptIndexFileIsNotAUsableIndex() {
         val file = FtsTestSupport.indexFile(kjv)
         file.parentFile.mkdirs()
         for (content in listOf(ByteArray(0), "not a sqlite file".toByteArray())) {
             file.writeBytes(content)
-            kjv.indexStatus = IndexStatus.DONE // what SwordBookDriver sets at startup for an existing file
+            kjv.indexStatus = IndexStatus.DONE // stale status from before the file became unreadable
             assertTrue(FtsTestSupport.manager.isIndexed(kjv))
             assertTrue(FtsTestSupport.manager.needsReindexing(kjv))
             assertFalse(hasUsableSearchIndex(kjv))
+        }
+    }
+
+    @Test fun corruptIndexAtStartupTakesTheAiToolsCreateIndexPath() = runBlocking {
+        val file = FtsTestSupport.indexFile(kjv)
+        file.parentFile.mkdirs()
+        for (content in listOf("", "not a sqlite file")) {
+            file.writeText(content)
+            // The real startup loader sets status; do not emulate its decision in the test.
+            val loaded = SwordBookDriver.instance().getBooks().first { it.initials == "KJV" }
+            assertEquals(IndexStatus.UNDONE, loaded.indexStatus)
+            val original = kjv
+            Books.installed().addBook(loaded)
+            try {
+                assertFalse(service.hasIndex("KJV"))
+                val args = buildJsonObject {
+                    put("query", "love")
+                    put("books", buildJsonArray { add("KJV") })
+                }
+                val result = SearchBibleTool.execute(args, AgentContext(promptId = IdType()))
+                assertTrue(result is ToolResult.Error)
+                val error = result as ToolResult.Error
+                assertEquals("NOT_INDEXED", error.code)
+                assertTrue(error.message.contains("Please index first"))
+            } finally {
+                Books.installed().addBook(original)
+                Activator.deactivate(loaded)
+            }
         }
     }
 
