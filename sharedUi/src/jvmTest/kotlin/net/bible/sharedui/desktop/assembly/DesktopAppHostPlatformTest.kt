@@ -52,20 +52,30 @@ class DesktopAppHostPlatformTest {
         }
     }
 
+    @Test fun windowHandleIsNotFocusedAndVisibleByDefault() {
+        val window = object : DesktopWindowHandle {
+            override val sizeDp = IntSize(1200, 800)
+            override val density = 1f
+            override fun toFront() = Unit
+        }
+
+        assertFalse(window.isFocusedAndVisible)
+    }
+
     @Test fun toolbarReadsTheNightModeStoreOfTheKoinGraph() = withKoin { koin ->
         val toolbar = DesktopReadingHostPlatform(FakeWindow(IntSize(1200, 800))) { koin }.newToolbarDeviceState()
         val prefs = koin.get<DeviceLocalPrefs>()
         val night = koin.get<NightModeState>()
-        prefs.setString(DesktopNightModeStub.NIGHT_MODE_MODE_KEY, "manual")
-        prefs.setBoolean(DesktopNightModeStub.NIGHT_MODE_KEY, true)
+        prefs.setString("night_mode_pref3", "manual")
+        prefs.setBoolean("night_mode_pref", true)
         assertTrue(night.nightMode)
         assertTrue(toolbar.nightModeOn())
         assertTrue(toolbar.nightModeManual())
         // The toolbar writes through the same store the Koin graph reads.
-        toolbar.deviceSettings.setBoolean(DesktopNightModeStub.NIGHT_MODE_KEY, false)
+        toolbar.deviceSettings.setBoolean("night_mode_pref", false)
         assertFalse(night.nightMode)
         assertFalse(toolbar.nightModeOn())
-        prefs.setString(DesktopNightModeStub.NIGHT_MODE_MODE_KEY, "system")
+        prefs.setString("night_mode_pref3", "system")
         assertFalse(toolbar.nightModeManual())
     }
 

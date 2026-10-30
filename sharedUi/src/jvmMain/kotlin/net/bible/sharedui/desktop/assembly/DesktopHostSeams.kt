@@ -90,4 +90,6 @@ interface DesktopNightModeSource : NightModeState {
 class DesktopCrashGate(
     val recoveryRequired: () -> Boolean = { false },
     val reportBug: suspend () -> Unit = {},
+    val onStartupReady: () -> Unit = {},
+    val onCleanExit: () -> Unit = {},
 )

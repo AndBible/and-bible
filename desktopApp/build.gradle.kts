@@ -292,6 +292,20 @@ sourceSets.main {
     resources.srcDir(prepareDesktopRawResources)
 }
 
+// Reading plans and a deterministic index, available from directories and packaged jars.
+val desktopReadingPlans = layout.buildDirectory.dir("generated/desktop-readingplans")
+val prepareDesktopReadingPlans by tasks.registering(Sync::class) {
+    from(rootProject.layout.projectDirectory.dir("app/src/main/assets/readingplan")) { include("*.properties"); into("readingplan") }
+    into(desktopReadingPlans)
+    doLast {
+        val dir = desktopReadingPlans.get().dir("readingplan").asFile
+        dir.mkdirs()
+        File(dir, "index.txt").writeText(dir.listFiles().orEmpty().filter { it.name.endsWith(".properties") }
+            .map { it.name.removeSuffix(".properties") }.sorted().joinToString("\n", postfix = "\n"))
+    }
+}
+sourceSets.main { resources.srcDir(prepareDesktopReadingPlans) }
+
 tasks.named("check") { dependsOn("verifyDesktopVersion") }
 tasks.register("verifyDesktopVersion") {
     group = "verification"

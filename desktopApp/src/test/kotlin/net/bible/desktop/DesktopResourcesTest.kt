@@ -31,6 +31,13 @@ class DesktopResourcesTest {
         assertTrue(text("repositories.txt").contains("CrossWire"), "repositories.txt does not list CrossWire")
     }
 
+    @Test fun bundledReadingPlansArePackaged() {
+        val plans = net.bible.sharedcore.platform.desktop.misc.DesktopReadingPlanSource(javaClass.classLoader)
+        val codes = plans.builtInPlanCodes()
+        assertTrue(codes.size == 7, "Expected seven bundled reading plans: $codes")
+        codes.forEach { assertTrue(!plans.openBuiltInPlan(it).isNullOrBlank(), it) }
+    }
+
     @Test fun licenseAndPromptsArePackaged() {
         assertTrue(text("license.html").isNotBlank())
         assertTrue(text("llm_agent_system_prompt.md").isNotBlank())
