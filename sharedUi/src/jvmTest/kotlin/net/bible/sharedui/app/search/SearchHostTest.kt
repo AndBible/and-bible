@@ -20,6 +20,8 @@ import org.crosswire.jsword.passage.Key
 import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
 
 class SearchHostTest {
@@ -157,8 +159,10 @@ class SearchHostTest {
         val stopIndex = h.observeIndexJobs(onJobs = { indexLabels = it.map { row -> row.label } }, onJobFinished = {})
         val stopAll = h.observeProgressStatusJobs { allLabels = it.map { row -> row.label } }
         try {
-            assertEquals(listOf("Indexing"), indexLabels)
-            assertEquals(listOf("Downloading files", "Indexing"), allLabels)
+            // JobManager is a JVM-global registry: jobs left by other tests may be listed too, so assert membership.
+            assertTrue("Indexing" in indexLabels, "index observer must list the index job: $indexLabels")
+            assertFalse("Downloading files" in indexLabels, "index observer must exclude downloads: $indexLabels")
+            assertTrue("Downloading files" in allLabels && "Indexing" in allLabels, "generic progress keeps both: $allLabels")
         } finally {
             stopIndex()
             stopAll()

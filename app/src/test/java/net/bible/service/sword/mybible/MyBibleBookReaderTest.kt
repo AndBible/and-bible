@@ -227,6 +227,30 @@ class MyBibleBookReaderTest {
     }
 
     @Test
+    fun commentaryMultiReferenceLinkBecomesOneReferencePerPassage() {
+        val b = backend(commentary("<a href='B:10 1:1; 2:3'>Gen 1:1; 2:3</a>"))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        val refs = Regex("osisRef=\"([^\"]*)\"").findAll(raw).map { it.groupValues[1] }.toList()
+        assertEquals("one reference element per passage so tap and Open all work: $raw", listOf("Gen.1.1", "Gen.2.3"), refs)
+        assertTrue(raw, raw.contains(">Gen 1:1; 2:3</reference>"))
+    }
+
+    @Test
+    fun commentaryMalformedLinkNeverBlanksTheEntry() {
+        // Odd numbers or punctuation must fall back to the plain anchor, whatever the parser throws.
+        val text = "<a href='B:10 99999999999999999999:1'>huge</a> <a href='B:10 1:1-'>dangling</a> <a href='B:10 :::'>colons</a>"
+        val b = backend(commentary(text))
+        val raw = b.readRawContent(state, verse(BibleBook.GEN, 1, 1))
+        assertTrue(raw, raw.startsWith("<div>") && raw.contains("huge") && raw.contains("dangling") && raw.contains("colons"))
+    }
+
+    @Test
+    fun commentaryWithoutAnchorsIsReturnedUnchanged() {
+        val b = backend(commentary("plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr>"))
+        assertEquals("<div>plain <b>text</b> with B:10 1:1 and a <abbr>tag</abbr></div>", b.readRawContent(state, verse(BibleBook.GEN, 1, 1)))
+    }
+
+    @Test
     fun commentaryChapterAndCrossChapterLinksBecomeReferences() {
         val b = backend(commentary(
             "<A HREF='B:10 1'>chapter</A> <a href='B:10 1:31-2:1'>range</a> " +

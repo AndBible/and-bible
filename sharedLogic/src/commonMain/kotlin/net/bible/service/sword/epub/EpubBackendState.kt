@@ -63,6 +63,9 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import fi.sykero.kdom.Namespace
 
+/** Job id prefix of EPUB index builds (`EPUB_INDEX_JOB_PREFIX + epubDir`); the search-index job predicate matches it. */
+const val EPUB_INDEX_JOB_PREFIX = "index-creation-"
+
 
 private val re = Regex("[^a-zA-z0-9]")
 private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
@@ -332,7 +335,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             var job: Progress? = null
             try {
                 val jobName = strings.creatingIndexFor(getBookMetaData().name)
-                job = JobManager.createJob("index-creation-$epubDir", jobName, null)
+                job = JobManager.createJob("$EPUB_INDEX_JOB_PREFIX$epubDir", jobName, null)
                 job.isNotifyUser = true
                 job.beginJob(jobName)
                 search.createTable()
