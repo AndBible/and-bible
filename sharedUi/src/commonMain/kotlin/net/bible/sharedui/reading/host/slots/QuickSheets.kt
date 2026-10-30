@@ -152,12 +152,15 @@ fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitl
         onBack = { if (!controller.back()) onClose() },
         canScrollForward = { gridState.canScrollForward },
         dismissRoutesToBack = false,
-        actions = if (ui?.step == GridStep.BOOK) {
+        // Captures this composition's value: the lambda may run in another composition (a separate popup window
+        // under desktop `compose.layers.type=WINDOW`) after `ui` went null for the next step's build, before this
+        // composition replaces it.
+        actions = rendered?.takeIf { it.step == GridStep.BOOK }?.let { bookUi ->
             {
                 // The options are functional: DEUTEROCANONICAL rebuilds the book list.
-                GridOptionsOverflow(requireNotNull(ui), options) { controller.toggle(it) }
+                GridOptionsOverflow(bookUi, options) { controller.toggle(it) }
             }
-        } else null,
+        },
     ) {
         PlatformBackHandler(enabled = step != GridStep.BOOK) { controller.back() }
         GridChoosePassageContent(
