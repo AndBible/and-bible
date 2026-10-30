@@ -4,6 +4,7 @@ import net.bible.service.db.reset
 import okio.Path.Companion.toOkioPath
 import androidx.room3.useReaderConnection
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
@@ -18,6 +19,8 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.queryLong
 import net.bible.test.DatabaseResetter
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -165,6 +168,47 @@ class ZipRestoreDecisionsFirstTest {
         assertTrue("the selected workspace restore or import must finish", "backup-ws" in workspaceNames)
         assertEquals("afterRestore must clear the backup device's sync configuration", null, runBlocking {
             DatabaseContainer.instance.bookmarkDb.syncDao().getConfig("backup-device")
+        })
+    }
+
+    /** #3912 review: a database reset cancelled after the file was deleted must still finish like a restore. */
+    @Test fun cancellationAfterResetStillClearsSyncStateOfTheNewDatabase() {
+        val dialogs = AppDialogController()
+        val koin = org.koin.core.context.GlobalContext.get()
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val resetter = BackupControl(
+            dialogs, net.bible.android.platform.AndroidCoreStrings(context), net.bible.android.platform.AndroidAppEnvironment(context),
+            net.bible.test.testAppSettings(), koin.get(), koin.get(), koin.get(),
+        )
+        val realFactory = DatabaseContainer.containerFactory
+        var cancelledAfterReset = false
+        try {
+            runBlocking {
+                val reset = launch {
+                    val job = coroutineContext[Job]!!
+                    // Reached only after the file was deleted and the old container reset; the stale row stands for
+                    // what afterRestore() must clear from the new database.
+                    DatabaseContainer.containerFactory = {
+                        realFactory().also { container ->
+                            runBlocking { container.bookmarkDb.syncDao().setConfig("stale", "must be cleared") }
+                            cancelledAfterReset = true
+                            job.cancel()
+                        }
+                    }
+                    resetter.resetDatabase(BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS)
+                }
+                while (dialogs.pending.value == null) delay(10)
+                dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+                reset.join()
+                assertTrue("the caller must still observe cancellation", reset.isCancelled)
+            }
+        } finally {
+            DatabaseContainer.containerFactory = realFactory
+        }
+        assertTrue("cancellation must happen after the reset", cancelledAfterReset)
+        assertFalse("the reset database must be in place", "live-label" in labelNames)
+        assertEquals("afterRestore must clear the new database's sync configuration", null, runBlocking {
+            DatabaseContainer.instance.bookmarkDb.syncDao().getConfig("stale")
         })
     }
 
