@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div ref="scrollRoot" class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
+  <div ref="scrollRoot" data-multi-root class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
     <div class="strongs-column" v-if="strongsEntries.length > 0">
       <TabNavigation
           v-if="strongsDictionaries.size > 1"
