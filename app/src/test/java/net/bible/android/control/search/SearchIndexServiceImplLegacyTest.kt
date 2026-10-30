@@ -126,12 +126,15 @@ class SearchIndexServiceImplLegacyTest {
         file.parentFile.mkdirs()
         for (content in listOf("", "not a sqlite file")) {
             file.writeText(content)
-            // The real startup loader sets status; do not emulate its decision in the test.
+            // The real startup loader sets status; it only checks that the file exists (it runs on Main).
             val loaded = SwordBookDriver.instance().getBooks().first { it.initials == "KJV" }
-            assertEquals(IndexStatus.UNDONE, loaded.indexStatus)
+            assertEquals(IndexStatus.DONE, loaded.indexStatus)
             val original = kjv
             Books.installed().addBook(loaded)
             try {
+                // The background check after startup finds the unusable file.
+                revalidateSearchIndexStatuses()
+                assertEquals(IndexStatus.UNDONE, loaded.indexStatus)
                 assertFalse(service.hasIndex("KJV"))
                 val args = buildJsonObject {
                     put("query", "love")

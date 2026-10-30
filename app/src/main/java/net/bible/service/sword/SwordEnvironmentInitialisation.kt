@@ -122,6 +122,9 @@ object SwordEnvironmentInitialisation {
                 if (emptied > 0) Log.i(tag, "Freed the disk space of $emptied legacy Lucene indexes of installed documents")
                 val orphanIndexes = manager.deleteOrphanIndexes(installed)
                 if (orphanIndexes > 0) Log.i(tag, "Deleted the search index files of $orphanIndexes uninstalled documents")
+                // Startup trusts the existence of an index file (it runs on Main); the full check belongs here.
+                val reset = net.bible.android.control.search.revalidateSearchIndexStatuses()
+                if (reset > 0) Log.i(tag, "Marked $reset documents with an unusable search index as not indexed")
             } catch (e: Exception) {
                 Log.e(tag, "Legacy Lucene index sweep failed", e)
             }
