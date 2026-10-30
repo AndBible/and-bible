@@ -32,6 +32,7 @@ while (($#)); do
   if [[ "$1" == -qmp ]]; then
     socket_path=${2#unix:}; socket_path=${socket_path%%,*}
     exec python3 -c 'import json,socket,sys,os,signal,ctypes; signal.signal(signal.SIGTERM, signal.SIG_IGN if os.environ.get("FAKE_QEMU_IGNORE_TERM") else (lambda *_: sys.exit(0))) if os.environ.get("FAKE_QEMU_IGNORE_TERM") or os.environ.get("FAKE_QEMU_CLEAN_EXIT") else None; ctypes.CDLL(None).prctl(15, b"qemu test", 0, 0, 0) if os.environ.get("FAKE_QEMU_IGNORE_TERM") else None; p=sys.argv[1]; s=socket.socket(socket.AF_UNIX); s.bind(p); s.listen();
+if os.environ.get("FAKE_QEMU_IGNORE_TERM"): open(os.environ["WINDOWS_VM_TEST_LOG"]+"/ignore-term-ready", "w").close()
 while True:
  c,_=s.accept(); f=c.makefile("rwb",buffering=0);
  if __import__("os").path.exists(__import__("os").environ["WINDOWS_VM_TEST_LOG"]+"/silent-greeting"):
@@ -345,12 +346,19 @@ stoppingAfterQemuExitCleansState() {
 
 
 stopEscalatesAndHandlesSpacedComm() {
+  rm -f "$WINDOWS_VM_TEST_LOG/ignore-term-ready"
   FAKE_QEMU_IGNORE_TERM=1 run start
-  local pid; pid=$(<"$STATE_DIR/qemu.pid")
+  local pid state; pid=$(<"$STATE_DIR/qemu.pid")
+  for _ in {1..100}; do
+    [[ -e "$WINDOWS_VM_TEST_LOG/ignore-term-ready" ]] && break
+    sleep .01
+  done
+  [[ -e "$WINDOWS_VM_TEST_LOG/ignore-term-ready" ]] || fail 'fake QEMU did not become ready'
   [[ $(<"/proc/$pid/comm") == 'qemu test' ]] || fail 'fake process name did not contain a space'
   run stop >"$TMP/stop-escalate.out"
   [[ ! -e "$STATE_DIR/qemu.pid" ]] || fail 'SIGKILL stop retained state'
-  [[ ! -e /proc/$pid/stat || $(ps -o stat= -p "$pid" | tr -d ' ') == Z* ]] || fail 'SIGKILL did not terminate QEMU'
+  state=$(ps -o stat= -p "$pid" | tr -d ' ' || true)
+  [[ -z "$state" || "$state" == Z* ]] || fail 'SIGKILL did not terminate QEMU'
 }
 
 staleRestartDoesNotHoldRunLock() {
