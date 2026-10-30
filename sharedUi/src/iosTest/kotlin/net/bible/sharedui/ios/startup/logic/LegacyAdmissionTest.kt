@@ -5,6 +5,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.startup.HostStartupGates
+import net.bible.sharedui.host.startup.StartupGate
+import net.bible.sharedui.host.startup.StartupGateResult
+import net.bible.sharedui.host.startup.productionStartupGates
 
 class LegacyAdmissionTest {
     private class MapPrefs(val booleans: MutableMap<String, Boolean> = mutableMapOf()) : DeviceLocalPrefs {
@@ -45,18 +49,18 @@ class LegacyAdmissionTest {
         val latch = StartupLatch()
         val required = { legacyGateRequired(legacySettled(prefs), latch.began) }
         prefs.setBoolean(LEGACY_SETTLED_KEY, true)
-        val firstHost = IosStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
+        val firstHost = HostStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
         assertEquals(StartupGateResult.Continue, firstHost.result)
         latch.markBegan() // startup opened the databases
         prefs.remove(LEGACY_SETTLED_KEY) // requestImport() cleared the flag
-        val recreated = IosStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
+        val recreated = HostStartupGates(productionStartupGates({ false }, required, { false })).apply { advance() }
         assertEquals(null, recreated.current, "the legacy gate must not run in this process")
         assertEquals(StartupGateResult.Continue, recreated.result)
     }
 
     @Test fun coldLaunchWithRequestedImportStillEntersTheGate() {
         val latch = StartupLatch()
-        val gates = IosStartupGates(productionStartupGates({ false }, { legacyGateRequired(false, latch.began) }, { false })).apply { advance() }
+        val gates = HostStartupGates(productionStartupGates({ false }, { legacyGateRequired(false, latch.began) }, { false })).apply { advance() }
         assertTrue(gates.current is StartupGate.LegacyMigration)
     }
 }

@@ -34,6 +34,7 @@ import okio.IOException
 import okio.Path
 import org.koin.mp.KoinPlatform
 import platform.Foundation.*
+import net.bible.sharedui.host.ports.lastPathComponent
 
 /** File URL I/O matching Android's My Documents naming and export rules. Dependencies resolve only when used. */
 @kotlin.native.HiddenFromObjC

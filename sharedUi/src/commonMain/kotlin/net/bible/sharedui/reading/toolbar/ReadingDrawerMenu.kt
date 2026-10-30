@@ -25,7 +25,7 @@ import net.bible.sharedcore.reading.DrawerMenu
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 
-/** What the drawer's rows do on the platform; the iOS implementation is `IosReadingToolbarHost`. */
+/** What the drawer's rows do on the platform; the iOS implementation is `HostReadingToolbarHost`. */
 @kotlin.native.HiddenFromObjC
 interface ReadingDrawerHost {
     fun openChooseDocument()
@@ -184,7 +184,7 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
         const val NEED_HELP_LINK = "https://github.com/AndBible/and-bible/wiki/Support"
         const val CONTRIBUTE_LINK = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
 
-        /** Rows whose destination the platform supplies through [ReadingDrawerHost.runExtraRow] (`IosReadingExtras`). */
+        /** Rows whose destination the platform supplies through [ReadingDrawerHost.runExtraRow] (`HostReadingExtras`). */
         val EXTRA_ROWS: Set<String> = setOf(ID_HELP, ID_LICENCE, ID_BUG_REPORT, ID_TELL_FRIEND, ID_RATE, ID_BUY_DEVELOPMENT)
 
         /** The ids of every row [build] can emit, in Android's order (an extra row only when the host offers it). */

@@ -25,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedlogic.platform.host.HostSwordEnvironment
 
 class IosSwordEnvironmentTest {
     private val fs = FileSystem.SYSTEM
@@ -36,7 +37,7 @@ class IosSwordEnvironmentTest {
         val modules = root / "Documents" / "sword"
         assertFalse(fs.exists(root), "the temp root starts empty")
 
-        IosSwordEnvironment.createModuleFolders(modules)
+        HostSwordEnvironment.createModuleFolders(modules)
 
         assertEquals(
             setOf("mods.d", "modules", "search"),
@@ -50,8 +51,8 @@ class IosSwordEnvironmentTest {
         fs.createDirectories(modules / "mods.d")
         fs.write(modules / "mods.d" / "x.conf") { writeUtf8("[X]") }
 
-        IosSwordEnvironment.createModuleFolders(modules)
-        IosSwordEnvironment.createModuleFolders(modules) // idempotent
+        HostSwordEnvironment.createModuleFolders(modules)
+        HostSwordEnvironment.createModuleFolders(modules) // idempotent
 
         assertEquals("[X]", fs.read(modules / "mods.d" / "x.conf") { readUtf8() })
     }

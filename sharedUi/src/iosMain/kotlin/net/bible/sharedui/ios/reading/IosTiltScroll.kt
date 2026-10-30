@@ -44,6 +44,7 @@ import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.UIKit.UIWindowScene
 import kotlin.math.max
+import net.bible.sharedui.host.reading.TiltScrollSession
 
 /** The app's one `CMMotionManager` (Apple: create a single instance per app; the overflow menu probes it too). */
 internal val iosMotionManager: CMMotionManager by lazy { CMMotionManager() }
@@ -107,17 +108,17 @@ class IosTiltSensor(
  * background. Android parity gap: no touch-to-recalibrate yet (Android resets the neutral pose on touch).
  */
 @kotlin.native.HiddenFromObjC
-class IosTiltScroll(private val koin: Koin, sensor: TiltSensor = IosTiltSensor()) {
+class IosTiltScroll(private val koin: Koin, sensor: TiltSensor = IosTiltSensor()) : TiltScrollSession {
     private val control = PageTiltScrollControl(sensor) {
         koin.get<WindowControl>().windowRepository.workspaceSettings.enableTiltToScroll
     }
     private val driver = TiltScrollDriver(control, ::scrollActiveWindow)
     private var job: Job? = null
 
-    fun setAppActive(active: Boolean) = driver.setAppActive(active)
+    override fun setAppActive(active: Boolean) = driver.setAppActive(active)
 
     /** Starts the polling loop on [scope] (the main dispatcher). */
-    fun start(scope: CoroutineScope) {
+    override fun start(scope: CoroutineScope) {
         job?.cancel()
         driver.setAppActive(UIApplication.sharedApplication.applicationState == UIApplicationState.UIApplicationStateActive)
         job = scope.launch {
@@ -135,7 +136,7 @@ class IosTiltScroll(private val koin: Koin, sensor: TiltSensor = IosTiltSensor()
         }
     }
 
-    fun stop() {
+    override fun stop() {
         job?.cancel()
         job = null
         driver.setAppActive(false)

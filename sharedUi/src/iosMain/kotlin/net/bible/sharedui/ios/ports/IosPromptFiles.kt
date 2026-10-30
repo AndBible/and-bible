@@ -46,6 +46,7 @@ import platform.Foundation.NSTimeZone
 import platform.Foundation.NSURL
 import platform.Foundation.defaultTimeZone
 import platform.Foundation.localeWithLocaleIdentifier
+import net.bible.sharedui.host.ports.lastPathComponent
 
 /** Security-scoped UTF-8 prompt I/O; default dependencies resolve when used, not during host construction. */
 @kotlin.native.HiddenFromObjC

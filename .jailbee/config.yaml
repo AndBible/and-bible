@@ -298,6 +298,21 @@ golden:
     - php-mbstring
     - php-gd
     - php-zip
+    # Desktop app (:desktopApp, :desktopWebkitGtk) live checks: Xvfb + Openbox (a real window manager for
+    # keyboard focus; Xwayland crashes on XTest clicks), the WebKitGTK engine's runtime, xdg-utils (the .deb
+    # depends on it), and input/clipboard drivers.
+    - xvfb
+    - openbox
+    - libwebkitgtk-6.0-4
+    - libgtk-4-1
+    - xdg-utils
+    - xdotool
+    - xclip
+    # Windows test VM for the desktop Windows work (scripts/windows-vm.sh, KVM-accelerated, UEFI). No swtpm:
+    # AppArmor blocks it in the container, so the VM uses the LabConfig TPM bypass instead.
+    - qemu-system-x86
+    - qemu-utils
+    - ovmf
     - php-curl
     - php-intl
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)

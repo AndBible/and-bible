@@ -23,8 +23,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.HostReadingGestures
 
-/** [IosReadingGestures]: the same decisions as Android's `BibleGestureListener`, without UIKit. */
+/** [HostReadingGestures]: the same decisions as Android's `BibleGestureListener`, without UIKit. */
 class IosReadingGesturesTest {
     private class MemorySettings : AppSettings {
         private val values = mutableMapOf<String, Any?>()
@@ -46,7 +47,7 @@ class IosReadingGesturesTest {
     private val settings = MemorySettings()
     private val swipes = mutableListOf<Pair<String, SwipeAction>>()
     private var rtl = false
-    private val gestures = IosReadingGestures(fullScreen, settings, { rtl }, { id, action -> swipes += id to action })
+    private val gestures = HostReadingGestures(fullScreen, settings, { rtl }, { id, action -> swipes += id to action })
 
     /** Scrolls forward (finger up) in steps; the first step of a fresh tracker is spent by the direction rule. */
     private fun scrollForward(steps: Int, stepPoints: Float = 30f, startMillis: Long = 100L) {
@@ -55,7 +56,7 @@ class IosReadingGesturesTest {
 
     @Test fun touchesAndScrollStartsReportPaneTouched() {
         var touched = 0
-        val g = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = { touched++ })
+        val g = HostReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneTouched = { touched++ })
         g.onTouched()
         assertEquals(1, touched)
         g.onScrollGestureBegan(10L)
@@ -66,7 +67,7 @@ class IosReadingGesturesTest {
 
     @Test fun onlyActualScrollMovementReportsPaneScrolled() {
         var scrolled = 0
-        val g = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneScrolled = { scrolled++ })
+        val g = HostReadingGestures(fullScreen, settings, { false }, { _, _ -> }, onPaneScrolled = { scrolled++ })
         g.onTouched()
         g.onScrollGestureBegan(10L)
         g.onScroll(0f, 20L)
@@ -134,7 +135,7 @@ class IosReadingGesturesTest {
 
     @Test fun fullScreenChangesGoThroughTheHostFunction() {
         val applied = mutableListOf<Pair<Boolean, Boolean>>()
-        val g = IosReadingGestures(fullScreen, settings, { false }, { _, _ -> }) { v, d -> applied += v to d; fullScreen.set(v, d) }
+        val g = HostReadingGestures(fullScreen, settings, { false }, { _, _ -> }) { v, d -> applied += v to d; fullScreen.set(v, d) }
         g.onDoubleTap()
         assertEquals(listOf(true to true), applied)
     }

@@ -2,6 +2,7 @@ package net.bible.service.cloudsync.ios
 
 import kotlin.io.encoding.Base64
 import kotlin.test.*
+import net.bible.service.cloudsync.host.certificateDetails
 
 class CertificateDetailsTest {
     @Test fun realCertificateIssuerAndValidity() {

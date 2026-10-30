@@ -36,7 +36,7 @@ class IosTextDisplayPlatformTest {
     }
 
     @Test fun detachedRouteReturnsRealEditsAndResetWithoutSharingBundleState() {
-        val table = net.bible.sharedui.assembly.iosStringTable("en")
+        val table = net.bible.sharedui.assembly.hostStringTable("en")
         val source = object : net.bible.service.sword.ContentSource {
             override fun openSource(uri: String): okio.Source? = null
             override fun displayName(uri: String): String? = null

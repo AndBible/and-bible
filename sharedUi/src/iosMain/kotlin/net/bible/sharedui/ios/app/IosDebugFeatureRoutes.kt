@@ -27,18 +27,16 @@ import net.bible.sharedui.app.DebugFeatureOnce
 import net.bible.sharedui.app.DebugFeatureScenario
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.ios.reading.ChooserKind
-import net.bible.sharedui.ios.reading.ChooserRequests
-import net.bible.sharedui.ios.reading.askedByActiveWindow
 import org.koin.core.Koin
+import net.bible.sharedui.host.app.HostReadingReady
 
 /** Real graph only: no production reading callbacks, arbitrary routes, or replacement feature UI. */
 @Composable
-internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts, chooserRequests: ChooserRequests) {
+internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, channels: AppResultChannels, koin: Koin, hosts: net.bible.sharedui.app.AppHosts, askBookmarks: () -> Unit) {
     val scenario = remember { IosDebugLaunchArgs.featureScenario() } ?: return
     val once = remember { DebugFeatureOnce() }
     LaunchedEffect(ready) {
-        if (!once.take(ready && IosReadingReady.isReady, IosDebugLaunchArgs.referenceApplied)) return@LaunchedEffect
+        if (!once.take(ready && HostReadingReady.isReady, IosDebugLaunchArgs.referenceApplied)) return@LaunchedEffect
         val route = when (scenario) {
             DebugFeatureScenario.CHOOSER -> NavRoutes.chooseDocument("BIBLE")
             DebugFeatureScenario.PLAN_SETTINGS -> NavRoutes.dailyReading()
@@ -46,7 +44,7 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
             DebugFeatureScenario.SETTINGS -> NavRoutes.SETTINGS
             DebugFeatureScenario.BOOKMARKS -> {
                 // Ask exactly as the drawer's Bookmarks row does, or the reading destination drops the answer as unasked.
-                chooserRequests.askedByActiveWindow(ChooserKind.Bookmarks)
+                askBookmarks()
                 NavRoutes.bookmarks()
             }
             DebugFeatureScenario.LABELS -> {
@@ -65,7 +63,7 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
         nav.navigate(route)
     }
     // This DEBUG scenario consumes the document chooser output for the fixture routes; in production the reading destination's
-    // ReadingResultCollector (IosReadingResults) consumes the same channel.
+    // ReadingResultCollector (HostReadingResults) consumes the same channel.
     val pending by channels.document.pending.collectAsState()
     LaunchedEffect(pending, ready) {
         net.bible.sharedui.app.consumeDebugDocument(scenario, ready, channels.document::consume) { initials ->

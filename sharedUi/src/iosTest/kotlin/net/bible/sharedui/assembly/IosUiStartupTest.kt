@@ -9,7 +9,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
-import net.bible.sharedui.ios.startup.IosStartupOwner
+import net.bible.sharedui.host.startup.HostStartupOwner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,13 +22,13 @@ class IosUiStartupTest {
         val entered = CompletableDeferred<Unit>()
         var starts = 0
         var opens = 0
-        val owner = IosStartupOwner(processScope, {
+        val owner = HostStartupOwner(processScope, {
             starts++
             entered.complete(Unit)
             withTimeout(5_000) { gate.await() }
             Unit
         }, { opens++ })
-        val state = IosAppStartupState(open = { owner.openDatabases() })
+        val state = HostAppStartupState(open = { owner.openDatabases() })
         suspend fun attach() = awaitIosUiStartup(
             ensureStarted = { owner.ensureStarted() }, state = state, processScope = processScope,
             recoveryBackup = false, recoveryReady = { error("not a recovery backup") },

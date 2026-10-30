@@ -23,7 +23,7 @@ class IosBackgroundRefresh(
     override fun register(handler: suspend () -> Boolean) {
         val registered = BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(identifier, null) { task ->
             if (task != null) {
-                IosBackgroundWork(scope, handler) { ok ->
+                HostBackgroundWork(scope, handler) { ok ->
                     task.expirationHandler = null
                     task.setTaskCompletedWithSuccess(ok)
                 }.start { expire -> task.expirationHandler = expire }

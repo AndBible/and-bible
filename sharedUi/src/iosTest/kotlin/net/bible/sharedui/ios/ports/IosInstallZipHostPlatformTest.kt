@@ -4,16 +4,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bible.sharedui.host.ports.HostInstallZipHostPlatform
 
 class IosInstallZipHostPlatformTest {
     @Test fun formatsTextFollowsLanguageSwitch() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-        var table = iosStringTable("en")
+        var table = hostStringTable("en")
         try {
-            val platform = IosInstallZipHostPlatform(table = { table }, scope = scope)
+            val platform = HostInstallZipHostPlatform(table = { table }, scope = scope, notificationPermission = IosNotificationPermission())
             assertEquals(
                 "You have to choose the file that you want to load to AndBible.  \n\n" +
                     "Supported formats for loading documents from a file: " +
@@ -23,7 +24,7 @@ class IosInstallZipHostPlatformTest {
                     "AI prompt add-ons (*.csv), StudyPads from AndBible databases (*.abdb)",
                 platform.formatsText(),
             )
-            table = iosStringTable("fi")
+            table = hostStringTable("fi")
             assertEquals(
                 "Sinun pitää valita tiedosto jonka haluat ladata AndBibleen. \n\n" +
                     "Voit ladata tiedostosta näitä tiedostoformaatteja: " +

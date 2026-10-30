@@ -33,15 +33,10 @@ import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.dateWithTimeIntervalSince1970
-
-/** Localized texts the iOS sync classes need; supplied by the host (`:sharedLogic` cannot see `Strings`). */
-data class IosSyncStrings(
-    val adapterDisplayName: (String) -> String,
-    val webDavServerUrlHint: () -> String,
-    val syncError: () -> String,
-    val webDavMessage: (WebDavMessage) -> String,
-    val ok: () -> String,
-)
+import net.bible.service.cloudsync.host.HostBackupHost
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
+import net.bible.service.cloudsync.host.HostDocumentSyncStarter
+import net.bible.service.cloudsync.host.HostSyncStrings
 
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
@@ -56,13 +51,13 @@ internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDate
  * `SecretStore`, `UserNotifier`, `AppDialogController`, `AppCoroutineScope`, `CloudSync` and
  * `DocumentSync` from the host/shared bindings; all are resolved lazily.
  *
- * The starter and scheduler use their default UIKit background-task calls directly, with no main-queue
- * hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
+ * The starter and scheduler get explicit `UiKitBackgroundTask` begin/end lambdas that call UIKit directly, with no
+ * main-queue hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
  * blocking `dispatch_sync` to main from inside the scheduler lock could deadlock against a main-thread
  * caller waiting for that lock.
  */
 @OptIn(ExperimentalForeignApi::class)
-fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
+fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
     single { IosDevicePrefs() }
     // ONE container for the whole module: its lookup runs once and signIn() awaits that same lookup.
     single { IosUbiquityContainer().also { it.prefetch() } }
@@ -70,23 +65,27 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
     single<CloudAdapterFactory> {
-        IosCloudAdapterFactory(
-            platform = get<SyncSettingsPlatform>() as IosSyncSettingsPlatform,
+        HostCloudAdapterFactory(
+            platform = get<SyncSettingsPlatform>(),
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
             iCloudStore = { iCloudDriveStore(get<IosUbiquityContainer>()) },
             signInUi = IosWebDavSignInUi({ get<AppDialogController>() }, get()),
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
+            clientFactory = { c, s -> createIosWebDavClient(c, s, ::nowMs) },
             awaitReady = { get<IosUbiquityContainer>().awaitReady() },
         )
     }
     single<DocumentSyncStarter> {
-        IosDocumentSyncStarter(
+        HostDocumentSyncStarter(
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
             notifier = get<UserNotifier>(),
             syncErrorMessage = strings.syncError,
+            begin = UiKitBackgroundTask.begin("document-sync"),
+            end = UiKitBackgroundTask.end,
+            invalidTask = UiKitBackgroundTask.invalid,
         )
     }
     single<SyncScheduler> {
@@ -96,7 +95,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
     single<BackupHost> {
-        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
+        HostBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
             { get<net.bible.sharedcore.platform.CoreStrings>().errorReport },
             { get<net.bible.sharedcore.platform.CoreStrings>().errorBackup },
             { get<net.bible.sharedcore.platform.CoreStrings>().errorSkip })

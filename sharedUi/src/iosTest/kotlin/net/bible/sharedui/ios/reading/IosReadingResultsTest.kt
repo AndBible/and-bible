@@ -28,8 +28,11 @@ import net.bible.sharedui.nav.NavResultChannel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.ChooserKind
+import net.bible.sharedui.host.reading.ChooserTarget
+import net.bible.sharedui.host.reading.HostReadingResults
 
-/** Chooser answers reach the window that asked ([IosReadingResults]); the target stands in for that window's page manager. */
+/** Chooser answers reach the window that asked ([HostReadingResults]); the target stands in for that window's page manager. */
 class IosReadingResultsTest {
     private class Target(val name: String, val calls: MutableList<String>) : ChooserTarget {
         override fun applyDocument(bookInitials: String?) { calls += "$name:document:$bookInitials" }
@@ -55,7 +58,7 @@ class IosReadingResultsTest {
     private val progress = NavResultChannel<ReadingProgressResult> { }
     private val workspace = NavResultChannel<net.bible.sharedcore.nav.WorkspaceResult> { }
 
-    private val results = IosReadingResults(
+    private val results = HostReadingResults(
         keyChooser, passage, document, pages, myDocuments, bookmark, progress, workspace,
         targetFor = { targets[it] },
         activeAskerProvider = { active },

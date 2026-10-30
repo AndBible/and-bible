@@ -94,7 +94,7 @@ fun <T> blockingDb(block: suspend () -> T): T = TODO()' > "$T4/app/src/main/java
 # jvmMain/androidMain/commonTest, KDoc lines and trailing // comments are allowed.
 T5="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4" "$T5"' EXIT
 mkdir -p "$T5/scripts" "$T5/app/src/main/java/net/bible"
-for sd in commonMain iosMain jvmMain androidMain commonTest; do mkdir -p "$T5/mod/src/$sd/kotlin"; done
+for sd in commonMain hostMain iosMain jvmMain androidMain commonTest; do mkdir -p "$T5/mod/src/$sd/kotlin"; done
 : > "$T5/scripts/l1-readiness-domains.txt"; : > "$T5/scripts/l1-readiness-platform.txt"; : > "$T5/scripts/l1-readiness-done.txt"
 echo 'fun a() = runBlocking { 1 }' > "$T5/mod/src/commonMain/kotlin/A.kt"
 echo 'fun b() = blockingAtEdge { 2 }' > "$T5/mod/src/iosMain/kotlin/B.kt"
@@ -112,6 +112,21 @@ set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=
 rm "$T5/mod/src/commonMain/kotlin/A.kt" "$T5/mod/src/iosMain/kotlin/B.kt"
 "$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
   || { echo "FAIL: @no-common-blocking failed on allowed uses"; exit 1; }
+# hostMain is scanned too: an unmarked bridge there fails, and the moved IosEdges path is an allowed edge file.
+echo 'fun g() = runBlocking { 6 }' > "$T5/mod/src/hostMain/kotlin/G.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] && echo "$err" | grep -q 'G.kt:1:' \
+  || { echo "FAIL: @no-common-blocking did not catch a blocking call in hostMain: $err"; exit 1; }
+rm "$T5/mod/src/hostMain/kotlin/G.kt"
+HEDGE="$T5/sharedLogic/src/hostMain/kotlin/net/bible/sharedlogic/platform/host"; mkdir -p "$HEDGE"
+printf 'fun i() = runBlocking { 7 } // L1-edge: test reason\n' > "$HEDGE/IosEdges.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: a marked runBlocking in the hostMain IosEdges.kt was flagged"; exit 1; }
+printf 'fun j() = runBlocking { 8 }\n' >> "$HEDGE/IosEdges.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] && echo "$err" | grep -q 'IosEdges.kt:2:' \
+  || { echo "FAIL: an unmarked runBlocking in the hostMain IosEdges.kt was not caught: $err"; exit 1; }
+rm "$HEDGE/IosEdges.kt"
 # The edge-file exemption is per LINE: a marked runBlocking in IosDatabaseHost.kt passes, an unmarked one fails.
 EDGE="$T5/sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios"; mkdir -p "$EDGE"
 printf 'import kotlinx.coroutines.runBlocking\nfun h() = runBlocking { 1 } // L1-edge: test reason\n' > "$EDGE/IosDatabaseHost.kt"

@@ -163,7 +163,7 @@ class ReadingDrawerMenuTest {
 
     /** H2's report: Find and Speak were missing on a portrait iPhone. With every iOS extra offered, both rows are present and live. */
     @Test fun searchAndSpeakRowsAlwaysPresent() {
-        // IosReadingExtrasImpl offers exactly these rows.
+        // HostReadingExtrasImpl offers exactly these rows.
         host.offered = setOf("helpButton", "appLicence", "bugReport", "tellFriend")
         val items = menu.build().groups.flatMap { it.items }.associateBy { it.id }
         assertTrue(ReadingDrawerMenu.ID_SEARCH in items, "Find row present")

@@ -10,6 +10,7 @@ import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.ios.report.IosBugReport
 import kotlin.test.*
+import net.bible.sharedui.host.ports.HostReadingExtrasImpl
 
 class IosReadingExtrasImplTest {
     private class Boundary {
@@ -18,7 +19,7 @@ class IosReadingExtrasImplTest {
         val causes = mutableListOf<Throwable?>()
         var currentTable = task4Table()
         fun extras(scope: CoroutineScope, report: suspend (Throwable?) -> Unit = { causes += it }) =
-            IosReadingExtrasImpl(
+            HostReadingExtrasImpl(
                 helpDialogs = object : HelpDialogs { override fun show(topic: HelpTopic) { help += topic } },
                 textShare = object : TextShare {
                     override fun shareText(text: String, chooserTitle: String) { shared += text to chooserTitle }

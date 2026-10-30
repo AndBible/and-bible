@@ -33,10 +33,6 @@ import platform.darwin.dispatch_get_main_queue
 
 private const val BUNDLE_DIR = "bibleview-js"
 
-/** The JS that sets `window.__activeLanguages__` (the iOS counterpart of Android's `getActiveLanguages`) to [json]. */
-internal fun activeLanguagesScript(json: String): String =
-    "window.__activeLanguages__ = '" + json.replace("\\", "\\\\").replace("'", "\\'") + "';"
-
 /** Reloads the page when WebKit kills the content process; the marker lets CI count terminations. */
 internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {

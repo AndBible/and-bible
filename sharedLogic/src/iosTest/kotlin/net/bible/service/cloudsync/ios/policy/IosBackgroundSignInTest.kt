@@ -5,6 +5,7 @@ import net.bible.service.cloudsync.webdav.WebDavSignInUi
 import net.bible.service.cloudsync.webdav.WebDavMessage
 import net.bible.sharedcore.webdav.DavCertificateInfo
 import kotlin.test.*
+import net.bible.service.cloudsync.host.HostBackgroundSignInUi
 
 class IosBackgroundSignInTest {
     @Test fun backgroundSignInNeverShowsADialog() = runTest {
@@ -13,7 +14,7 @@ class IosBackgroundSignInTest {
             override suspend fun confirmCertificate(info: DavCertificateInfo): Boolean { dialogs++; return true }
             override fun message(kind: WebDavMessage) = "localized"
         }
-        val background = IosBackgroundSignInUi(foreground)
+        val background = HostBackgroundSignInUi(foreground)
         assertFalse(background.confirmCertificate(DavCertificateInfo("host", "AA", "subject", "issuer", 1, 2)))
         assertEquals(0, dialogs)
         assertEquals("localized", background.message(WebDavMessage.WRONG_CREDENTIALS))

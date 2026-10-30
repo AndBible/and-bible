@@ -6,13 +6,17 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.startup.HostStartupGates
+import net.bible.sharedui.host.startup.StartupGate
+import net.bible.sharedui.host.startup.StartupGateResult
+import net.bible.sharedui.host.startup.productionStartupGates
 
 class IosStartupGatesTest {
     @Test fun gatesRunInOrderAndBackupStartsUninitialised() {
         val calls = mutableListOf<String>()
         val calculator = StartupGate.Calculator { calls += "calculator"; true }
         val recovery = StartupGate.CrashRecovery { calls += "crash"; true }
-        val gates = IosStartupGates(listOf(calculator, recovery))
+        val gates = HostStartupGates(listOf(calculator, recovery))
         gates.advance()
         assertEquals(listOf("calculator"), calls)
         assertEquals(calculator, gates.current)
@@ -30,7 +34,7 @@ class IosStartupGatesTest {
     @Test fun backupUpReturnsToRecoveryWithoutRecheckingOrStartingDatabases() {
         var checks = 0
         val recovery = StartupGate.CrashRecovery { checks++; true }
-        val gates = IosStartupGates(listOf(recovery))
+        val gates = HostStartupGates(listOf(recovery))
         gates.advance()
         gates.advance(StartupGateResult.OpenBackup)
         gates.returnFromBackup()
@@ -43,7 +47,7 @@ class IosStartupGatesTest {
 
     @Test fun skippedGatesAndContinueFinishOnce() {
         var checked = 0
-        val gates = IosStartupGates(listOf(StartupGate.Calculator { checked++; false }))
+        val gates = HostStartupGates(listOf(StartupGate.Calculator { checked++; false }))
         gates.advance()
         assertNull(gates.current)
         assertEquals(StartupGateResult.Continue, gates.result)
@@ -52,7 +56,7 @@ class IosStartupGatesTest {
     }
 
     @Test fun exitDoesNotEvaluateFollowingGate() {
-        val gates = IosStartupGates(listOf(
+        val gates = HostStartupGates(listOf(
             StartupGate.Calculator { true },
             StartupGate.CrashRecovery { error("must not run") },
         ))
@@ -66,7 +70,7 @@ class IosStartupGatesTest {
         val calculator = StartupGate.Calculator { true }
         val legacy = StartupGate.LegacyMigration { true }
         val recovery = StartupGate.CrashRecovery { true }
-        val gates = IosStartupGates(listOf(calculator, legacy, recovery))
+        val gates = HostStartupGates(listOf(calculator, legacy, recovery))
         gates.advance()
         assertEquals(calculator, gates.current)
         gates.advance()
@@ -80,7 +84,7 @@ class IosStartupGatesTest {
 
     @Test fun legacyGateSkippedWhenSettled() {
         val recovery = StartupGate.CrashRecovery { true }
-        val gates = IosStartupGates(listOf(StartupGate.Calculator { false }, StartupGate.LegacyMigration { false }, recovery))
+        val gates = HostStartupGates(listOf(StartupGate.Calculator { false }, StartupGate.LegacyMigration { false }, recovery))
         gates.advance()
         assertEquals(recovery, gates.current)
     }
@@ -88,7 +92,7 @@ class IosStartupGatesTest {
     @Test fun returnFromBackupAdvancesPastAnUnrequiredGate() {
         var settled = false
         val legacy = StartupGate.LegacyMigration { !settled }
-        val gates = IosStartupGates(listOf(legacy))
+        val gates = HostStartupGates(listOf(legacy))
         gates.advance()
         assertEquals(legacy, gates.current)
         gates.advance(StartupGateResult.OpenBackup)
@@ -100,7 +104,7 @@ class IosStartupGatesTest {
 
     @Test fun returnFromBackupStillShowsLegacyGateWhenRequired() {
         val legacy = StartupGate.LegacyMigration { true }
-        val gates = IosStartupGates(listOf(legacy))
+        val gates = HostStartupGates(listOf(legacy))
         gates.advance()
         gates.advance(StartupGateResult.OpenBackup)
         gates.returnFromBackup()
@@ -111,7 +115,7 @@ class IosStartupGatesTest {
     @Test fun returnFromBackupKeepsCrashRecoveryLatched() {
         var latched = true
         val recovery = StartupGate.CrashRecovery { latched }
-        val gates = IosStartupGates(listOf(recovery))
+        val gates = HostStartupGates(listOf(recovery))
         gates.advance()
         gates.advance(StartupGateResult.OpenBackup)
         latched = false // would skip the gate if it were re-evaluated
@@ -127,7 +131,7 @@ class IosStartupGatesTest {
         assertTrue(list[1] is StartupGate.LegacyMigration)
         assertTrue(list[2] is StartupGate.CrashRecovery)
         // And the chain walks them in that order.
-        val gates = IosStartupGates(list)
+        val gates = HostStartupGates(list)
         gates.advance()
         assertEquals(list[0], gates.current)
         gates.advance()
@@ -139,7 +143,7 @@ class IosStartupGatesTest {
     @Test fun productionGateListWiresEachPredicateToItsOwnGate() {
         val calls = mutableListOf<String>()
         val list = productionStartupGates({ calls += "calc"; false }, { calls += "legacy"; false }, { calls += "crash"; false })
-        IosStartupGates(list).advance()
+        HostStartupGates(list).advance()
         assertEquals(listOf("calc", "legacy", "crash"), calls)
     }
 }

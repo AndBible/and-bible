@@ -25,6 +25,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.HostSelectionMenu
+import net.bible.sharedui.host.reading.SelectionMenuEnvironment
+import net.bible.sharedui.host.reading.SelectionMenuWindow
 
 /** The selection menu's cache, policy wiring and dispatch, over fake windows (the production wiring is Koin and WebKit bound). */
 class IosSelectionMenuTest {
@@ -60,13 +63,13 @@ class IosSelectionMenuTest {
     private fun verseJson(text: String, ordinal: Int = 1) =
         """{"bookInitials":"KJV","startOrdinal":$ordinal,"startOffset":0,"endOrdinal":$ordinal,"endOffset":5,"bookmarks":[],"text":"$text"}"""
 
-    private class Fixture(val windows: Map<String, FakeWindow>, val env: FakeEnvironment, val menu: IosSelectionMenu, val llm: MutableList<String>)
+    private class Fixture(val windows: Map<String, FakeWindow>, val env: FakeEnvironment, val menu: HostSelectionMenu, val llm: MutableList<String>)
 
     private fun fixture(vararg ids: String, bible: Boolean = true): Fixture {
         val windows = ids.associateWith { FakeWindow(bible) }
         val env = FakeEnvironment()
         val llm = mutableListOf<String>()
-        val menu = IosSelectionMenu(
+        val menu = HostSelectionMenu(
             windows = { windows[it] }, environment = env, strings = { KeyedSelectionMenuStrings(table) },
             onLlmAction = { id, sel -> llm += "$id:${sel.text}" },
         )

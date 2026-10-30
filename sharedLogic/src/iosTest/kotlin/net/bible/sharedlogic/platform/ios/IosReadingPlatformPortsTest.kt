@@ -50,6 +50,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedlogic.platform.host.HostHistoryPlatform
+import net.bible.sharedlogic.platform.host.HostLinkPlatform
+import net.bible.sharedlogic.platform.host.HostUserNotifier
+import net.bible.sharedlogic.platform.host.HostWindowSettingsPicker
 
 class IosReadingPlatformPortsTest {
     private val logs = mutableListOf<Triple<LogLevel, String, String>>()
@@ -60,7 +64,7 @@ class IosReadingPlatformPortsTest {
 
     @Test fun linkPlatformRoutesEachCallToItsLambda() {
         val seen = mutableListOf<String>()
-        val p = IosLinkPlatform(
+        val p = HostLinkPlatform(
             openRoute = { seen += "route:$it" },
             searchStrongs = { ref, docs -> seen += "strongs:$ref:$docs"; ref == "H1" },
             reportError = { seen += "report" },
@@ -75,7 +79,7 @@ class IosReadingPlatformPortsTest {
     @Test fun historyPlatformAsksTheShellWhetherReadingIsShownAndLeavesThroughIt() {
         var onReading = true
         var left = 0
-        val p = IosHistoryPlatform(isOnReading = { onReading }, leave = { left++ })
+        val p = HostHistoryPlatform(isOnReading = { onReading }, leave = { left++ })
         assertTrue(p.isOnReadingScreen())
         onReading = false
         assertFalse(p.isOnReadingScreen())
@@ -84,7 +88,7 @@ class IosReadingPlatformPortsTest {
     }
 
     @Test fun historyPlatformDefaultsStayOnTheReadingScreen() {
-        val p = IosHistoryPlatform()
+        val p = HostHistoryPlatform()
         assertTrue(p.isOnReadingScreen())
         p.leaveCurrentScreen()
     }
@@ -96,7 +100,7 @@ class IosReadingPlatformPortsTest {
     )
     private val types = listOf(TextDisplaySettings.Types.FONTSIZE, TextDisplaySettings.Types.JUSTIFY, TextDisplaySettings.Types.STRONGS)
 
-    private fun picker(dialogs: AppDialogController) = IosWindowSettingsPicker(dialogs, { _, t -> t.name }, { texts.getValue(it) })
+    private fun picker(dialogs: AppDialogController) = HostWindowSettingsPicker(dialogs, { _, t -> t.name }, { texts.getValue(it) })
 
     @Test fun windowSettingsResultApplies() = runTest {
         val dialogs = AppDialogController()
@@ -124,11 +128,11 @@ class IosReadingPlatformPortsTest {
         assertEquals(emptyList(), none.await())
     }
 
-    // --- IosUserNotifier / IosAgentPlatform 
+    // --- HostUserNotifier / IosAgentPlatform 
 
     @Test fun errorsBecomeAnOwnerlessMessageRequestAndInfoOnlyLogs() {
         val dialogs = AppDialogController()
-        val n: UserNotifier = IosUserNotifier(dialogs) { "Okay!" }
+        val n: UserNotifier = HostUserNotifier(dialogs) { "Okay!" }
         n.showInfo("hello")
         assertNull(dialogs.pending.value)
         n.showError("boom")
@@ -141,7 +145,7 @@ class IosReadingPlatformPortsTest {
 
     @Test fun infoReachesTheInfoSinkWithItsDuration() {
         val shown = mutableListOf<Pair<String, Boolean>>()
-        val n: UserNotifier = IosUserNotifier(AppDialogController(), onInfo = { m, l -> shown += m to l })
+        val n: UserNotifier = HostUserNotifier(AppDialogController(), onInfo = { m, l -> shown += m to l })
         n.showInfo("short", false)
         n.showInfo("long", true)
         assertEquals(listOf("short" to false, "long" to true), shown)

@@ -15,7 +15,7 @@ import net.bible.service.installzip.InstallError
 import net.bible.sharedui.app.ports.CompletingDocumentInstallStarter
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import net.bible.service.cloudsync.ios.IosBackupHost
+import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.installzip.DecisionRequest
@@ -50,6 +50,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.ports.HostDocumentInstallStarter
+import net.bible.sharedui.host.ports.HostInstallZipHostPlatform
+import net.bible.sharedui.host.ports.lastPathComponent
 
 class IosInstallZipTest {
     @Test fun startEnqueuesOneJobPerRef() = withInstallScope { scope ->
@@ -80,12 +83,12 @@ class IosInstallZipTest {
                 swordZipScan = { error("unused") },
                 epubUpgradeCheck = { false },
             )
-            val starter = IosDocumentInstallStarter(
+            val starter = HostDocumentInstallStarter(
                 controller = { controller },
                 deps = { deps },
                 scope = scope,
             )
-            val platform = IosInstallZipHostPlatform(controller = { controller })
+            val platform = HostInstallZipHostPlatform(controller = { controller }, notificationPermission = IosNotificationPermission())
             val refs = listOf(ref(dir / "My module.zip"), ref(dir / "Pilgrim.epub"))
             starter.start(refs, "android.intent.action.SEND_MULTIPLE")
             withTimeout(5_000) { entered.await() }
@@ -123,7 +126,7 @@ class IosInstallZipTest {
                 release.await()
                 InstallPhase.Error(InstallError.GENERIC, null)
             }
-            val starter: CompletingDocumentInstallStarter = IosDocumentInstallStarter(
+            val starter: CompletingDocumentInstallStarter = HostDocumentInstallStarter(
                 controller = { controller }, deps = { waiterDeps(dir) }, scope = scope,
             )
             val waiter = scope.async { starter.startAndAwait(listOf(ref(dir / "invalid.zip")), "android.intent.action.VIEW") }
@@ -155,7 +158,7 @@ class IosInstallZipTest {
                 release.await()
                 InstallPhase.Done
             }
-            val starter: CompletingDocumentInstallStarter = IosDocumentInstallStarter(
+            val starter: CompletingDocumentInstallStarter = HostDocumentInstallStarter(
                 controller = { controller }, deps = { waiterDeps(dir) }, scope = scope,
             )
             val waiter = scope.launch { starter.startAndAwait(listOf(ref(dir / "module.zip")), null) }
@@ -230,7 +233,7 @@ class IosInstallZipTest {
                 isStudyPadExport = { false }, studyPadStats = { error("CSV has no StudyPad statistics") },
                 swordZipScan = { error("CSV is not an archive") }, epubUpgradeCheck = { false },
             )
-            val starter = IosDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
+            val starter = HostDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
             val registry = org.crosswire.jsword.book.Books.installed()
             val booksBefore = registry.getBooks().toSet()
             val decisions = scope.launch {
@@ -291,8 +294,8 @@ class IosInstallZipTest {
                 acquireDir = dir, openStream = { error("unused") }, isStudyPadExport = { false },
                 studyPadStats = { error("unused") }, swordZipScan = { error("unused") }, epubUpgradeCheck = { false },
             )
-            val platform = IosInstallZipHostPlatform(controller = { controller })
-            IosDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
+            val platform = HostInstallZipHostPlatform(controller = { controller }, notificationPermission = IosNotificationPermission())
+            HostDocumentInstallStarter(controller = { controller }, deps = { deps }, scope = scope)
                 .start(listOf(ref(dir / "module.zip")), null)
             withTimeout(5_000) { entered.await() }
             assertEquals(InstallPhase.AwaitingDecision(DecisionRequest.Overwrite(listOf("mods.d/kjv.conf"))),
@@ -314,7 +317,7 @@ class IosInstallZipTest {
             ZipWriter(FileSystem.SYSTEM.sink(ordinary)).use { zip ->
                 zip.putEntry("notes.txt") { it.writeUtf8("not an AndBible export") }
             }
-            val platform = IosInstallZipHostPlatform()
+            val platform = HostInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
             assertTrue(platform.isStudyPadExport(ref(studyPad)))
             assertFalse(platform.isStudyPadExport(ref(modules)))
             assertFalse(platform.isStudyPadExport(ref(ordinary)))
@@ -322,12 +325,12 @@ class IosInstallZipTest {
     }
 
     @Test fun displayNameDecodesTheLastFileUrlComponent() {
-        val platform = IosInstallZipHostPlatform()
+        val platform = HostInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
         assertEquals("My module.zip", platform.displayName(DocumentRef("file:///tmp/nested/My%20module.zip")))
     }
 
     @Test fun mapPhasePreservesDecisionPayloadsAndProgress() {
-        val platform = IosInstallZipHostPlatform()
+        val platform = HostInstallZipHostPlatform(notificationPermission = IosNotificationPermission())
         fun map(phase: InstallPhase) = platform.mapPhase(InstallJobState("job", "module.zip", phase))
         assertEquals(InstallUiState.Overwrite(listOf("mods.d/kjv.conf")),
             map(InstallPhase.AwaitingDecision(DecisionRequest.Overwrite(listOf("mods.d/kjv.conf")))))
@@ -347,7 +350,8 @@ class IosInstallZipTest {
         val release = CompletableDeferred<Unit>()
         val finished = CompletableDeferred<Unit>()
         try {
-            val platform = IosInstallZipHostPlatform(
+            val platform = HostInstallZipHostPlatform(
+                notificationPermission = IosNotificationPermission(),
                 scope = scope,
                 initialise = {
                     entered.complete(NSThread.isMainThread)
@@ -374,12 +378,12 @@ class IosInstallZipTest {
             override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String,
                 saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult = error("unused")
         }
-        val host = IosBackupHost(picker, delivery, { AppDialogController() }, { "OK" })
+        val host = HostBackupHost(picker, delivery, { AppDialogController() }, { "OK" })
         var opens = 0
         host.onRestoreModules = { opens++ }
         host.restoreModules()
         assertEquals(1, opens)
-        // IosApp must clear this hook on disposal, so a stale appHosts instance cannot be retained or invoked.
+        // HostApp must clear this hook on disposal, so a stale appHosts instance cannot be retained or invoked.
         host.onRestoreModules = {}
         host.restoreModules()
         assertEquals(1, opens)

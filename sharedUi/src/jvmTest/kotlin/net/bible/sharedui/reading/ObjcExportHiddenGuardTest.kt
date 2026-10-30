@@ -49,7 +49,8 @@ class ObjcExportHiddenGuardTest {
         val common = File(src, "commonMain/kotlin/net/bible")
         val reading = File(common, "sharedui/reading")
         val page = File(common, "android/view/activity/page")
-        val ios = File(src, "iosMain/kotlin/net/bible/sharedui/webview")
+        // The iOS reading files live in iosMain and, since the desktop hoist (D2a), in hostMain (shared with the JVM).
+        val iosDirs = listOf("iosMain", "hostMain").map { File(src, "$it/kotlin/net/bible/sharedui/webview") }
         // Stream A's shared app root: hosts, sessions and ports Swift never calls (I2 merge, same link failure).
         val appRoot = File(common, "sharedui/app").walkTopDown().filter { it.isFile }.toList() +
             listOf(
@@ -80,7 +81,7 @@ class ObjcExportHiddenGuardTest {
             File(reading, it).walkTopDown().filter { f -> f.isFile && f.extension == "kt" }.toList()
         } + appRoot +
             listOf(File(page, "Selection.kt"), File(page, "FavouriteLabelIdsCache.kt"), File(page, "screen/ReadingHostHelpers.kt")) +
-            ios.listFiles().orEmpty().filter { it.name.contains("Reading") || it.name == "WkWebViewJsHost.kt" }
+            iosDirs.flatMap { it.listFiles().orEmpty().toList() }.filter { it.name.contains("Reading") || it.name == "WkWebViewJsHost.kt" }
     }
 
     /** `file:line declaration` for each public top-level declaration lacking the annotation. */
@@ -129,6 +130,7 @@ class ObjcExportHiddenGuardTest {
         val names = files.map { it.name }.toSet()
         assertTrue("ReadingHostSlots.kt" in names && "QuickSheets.kt" in names && "GridPassageHostSupport.kt" in names,
             "scope must include the recursive slots tree and the moved grid support, got $names")
+        assertTrue("HostReadingWindowSurface.kt" in names, "scope must include the hoisted hostMain webview files, got $names")
         assertTrue("TiltAxis.kt" in names && "WorkspaceResultTarget.kt" in names, "scope must include the top-level reading files, got $names")
         val (missing, publicCount) = violations(files)
         assertTrue(publicCount > 30, "scanner must see the public declarations, saw $publicCount")

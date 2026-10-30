@@ -23,7 +23,7 @@ import kotlin.math.roundToLong
 
 /**
  * One locale's string resources as a set of lookups keyed by the Android resource names. The `Keyed*` classes are
- * written against this so they can be tested on the JVM; iOS builds it over the generated tables (`iosStringTable`).
+ * written against this so they can be tested on the JVM; iOS builds it over the generated tables (`hostStringTable`).
  *
  * [text] answers the key itself for an unknown key (the generated tables' behaviour); [array] answers an empty list.
  * [raw] reads a raw text resource (the LLM system prompts); platforms without one leave the default, which fails

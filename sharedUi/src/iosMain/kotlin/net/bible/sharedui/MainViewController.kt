@@ -16,6 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.host.startup.CrashRecoveryScreen
+import net.bible.sharedui.host.startup.HostStartupGates
+import net.bible.sharedui.host.startup.StartupGate
+import net.bible.sharedui.host.startup.StartupGateResult
+import net.bible.sharedui.host.startup.productionStartupGates
 import net.bible.sharedui.ios.startup.legacy.LegacyMigrationGateHost
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
@@ -27,13 +32,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
-import net.bible.sharedui.ios.app.IosApp
+import net.bible.sharedui.host.app.HostApp
+import net.bible.sharedui.ios.app.IosAppHostPlatform
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.assembly.IosAppStartupState
+import net.bible.sharedui.assembly.HostAppStartupState
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
-import net.bible.sharedui.assembly.IosUiLanguage
+import net.bible.sharedui.assembly.HostUiLanguage
 import net.bible.sharedui.assembly.StartupPhase
+import net.bible.sharedui.assembly.iosPreferredLanguages
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
@@ -43,7 +50,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.launch
 import net.bible.sharedui.ios.report.IosBugReport
-import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.assembly.hostStringTable
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
@@ -80,11 +87,11 @@ private val startupScope = CoroutineScope(
 )
 
 /** One per process: the Swift host may build the view controller more than once. */
-private val startupState = IosAppStartupState()
+private val startupState = HostAppStartupState(open = { IosAppStartup.openDatabases() })
 private val crashTracker get() = IosPlatformBootstrap.crashTracker
 
 /**
- * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
+ * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([HostApp]) once
  * startup is Ready; with `SCREENSHOT_SCENARIO` set (XCUITest) it shows the I0 PoC app instead, and `POC_DARK` picks
  * that scenario's theme. The discrete check implements U7: hide content before PIN unlock;
  * ADR 0007 does not fake the app name.
@@ -109,8 +116,8 @@ fun MainViewController(): UIViewController {
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
     val settings = IosDeviceSettings()
-    val language = resolveDeviceUiLanguage(settings)
-    val layoutDirection = if (IosUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
+    val language = resolveDeviceUiLanguage(settings, ::iosPreferredLanguages)
+    val layoutDirection = if (HostUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
@@ -124,12 +131,12 @@ fun MainViewController(): UIViewController {
         }
         val strings = remember { iosStrings(language) }
         val reportScope = rememberCoroutineScope()
-        val reporter = remember { IosBugReport(iosStringTable(language)) }
+        val reporter = remember { IosBugReport(hostStringTable(language)) }
         var reporting by remember { mutableStateOf(false) }
         // Do not start either startup stage (or show a splash) behind the disguise.
         // Not saveable: a recreated host must pass the calculator gate again (the legacy gate is latched off once startup began).
         val gates = remember {
-            IosStartupGates(productionStartupGates(
+            HostStartupGates(productionStartupGates(
                 calculatorRequired = { requiresCalculator },
                 // Never after startup began in this process: the migration renames Room files that may be open.
                 legacyMigrationRequired = { legacyGateRequired(legacySettled(settings), processStartupLatch.began) },
@@ -204,7 +211,7 @@ fun MainViewController(): UIViewController {
             if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
             else if (!recoveryBindingsReady) StartupSplash(splashDark)
             else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp(net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                HostApp(IosAppHostPlatform, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
                     gates.returnFromBackup()
                     gateRevision++
                 }
@@ -244,7 +251,7 @@ fun MainViewController(): UIViewController {
                 // Fills the cache behind the settings row's visibility (off Main); the row stays hidden until then.
                 (koin.getOrNull<LegacyDataImport>() as? IosLegacyDataImport)?.prime()
                 val (dialogs, appSettings) = withContext(Dispatchers.Default) { koin.get<AppDialogController>() to koin.get<AppSettings>() }
-                IosLegacyNotices.showPending(dialogs, appSettings, iosStringTable(language))
+                IosLegacyNotices.showPending(dialogs, appSettings, hostStringTable(language))
                 IosLegacyMigrationRunner.retryPostCommit()
             } catch (e: CancellationException) {
                 throw e
@@ -262,7 +269,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
-                IosApp()
+                HostApp(IosAppHostPlatform)
             }
             return@ComposeUIViewController
         }

@@ -35,7 +35,7 @@ import kotlin.native.Platform
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
-internal object IosDebugLaunchArgs {
+internal object IosDebugLaunchArgs : HostDebugArgs {
     private val arguments: List<String> get() = NSProcessInfo.processInfo.arguments.map { it.toString() }
 
     /** Seeds the persistent domain (not the read-only argument domain), before crash counting. Debug only. */
@@ -50,14 +50,17 @@ internal object IosDebugLaunchArgs {
      * `-installCommitDelayMs <ms>`: milliseconds the module-install commit sleeps after each extracted archive entry,
      * so a UI test can kill the process mid-extraction. 0 (no delay) in release binaries or without the argument.
      */
-    fun installCommitDelayMs(): Long {
+    override fun installCommitDelayMs(): Long {
         if (!Platform.isDebugBinary) return 0L
         val index = arguments.indexOf("-installCommitDelayMs")
         return if (index < 0) 0L else arguments.getOrNull(index + 1)?.toLongOrNull()?.coerceIn(0L, 60_000L) ?: 0L
     }
 
     /** X-owned debug controls, independent of the H-owned Settings implementation. */
-    fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+    override fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+
+    /** A flag among the process arguments; false in release binaries (the app root's `-task5Settings` etc.). */
+    override fun hasLaunchFlag(name: String): Boolean = Platform.isDebugBinary && name in arguments
 
     /** Explicit disposable-simulator reset, never a read-only argument-domain preference override. */
     fun resetTask6CrashState(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
@@ -158,7 +161,7 @@ internal object IosDebugLaunchArgs {
      * Opens `-openRef` once per process, off the main thread, by setting the key on the active window's page manager (not
      * `WindowControl.showLink`, which targets the links window and opens a new split window). Retries a few times while the window repository is still loading.
      */
-    suspend fun openRefOnce() {
+    override suspend fun openRefOnce() {
         val ref = openRef() ?: return
         if (openRefDone) return
         withContext(Dispatchers.Default) {

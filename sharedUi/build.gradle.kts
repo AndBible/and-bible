@@ -11,8 +11,9 @@ plugins {
 
 // Build-time generator output: the pure-Kotlin iOS Strings holder emitted from the Android
 // resources + AndroidStrings.kt mapping + the commonMain Strings interface. This dir is wired as an
-// iosMain source root (below), so the iOS compile type-checks the generated holder against the real
-// interface for all locales. Declared before `kotlin { }` because the iosMain srcDir references it.
+// hostMain source root (below; hostMain is shared by iOS and JVM), so those compiles type-check the
+// generated holder against the real interface for all locales. Declared before `kotlin { }` because the
+// hostMain srcDir references it.
 val iosStringsOutDir = layout.buildDirectory.dir("generated/iosStrings")
 
 compose.resources {
@@ -36,8 +37,9 @@ kotlin {
         withHostTest {}
     }
 
-    // jvm() exists ONLY for fast Linux shared-tests (./gradlew :sharedUi:jvmTest), as in :sharedCore:
-    // headless desktop Compose with real Skia, so iOS-host logic is tested without a Mac (I0 spec §2).
+    // jvm() is the desktop product target (consumed by :desktopApp) and also runs the fast Linux
+    // shared-tests (./gradlew :sharedUi:jvmTest): headless desktop Compose with real Skia, so
+    // iOS-host logic is tested without a Mac (I0 spec §2).
     jvm()
 
     // iOS targets: configure + compile-check on Linux; the framework LINK tasks run only
@@ -46,6 +48,18 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "SharedUi"
             isStatic = true
+        }
+    }
+
+    // Intermediate source set shared by the iOS targets and the JVM target (not Android): host code that
+    // iOS and the desktop app both use. See the desktop port audit, section 2.1.
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("host") {
+                withJvm()
+                group("ios")
+            }
         }
     }
 
@@ -71,6 +85,7 @@ kotlin {
             implementation(libs.jetbrains.lifecycle.runtime.compose)
             // JsonElement parsing for the BibleView bridge (no plugin needed):
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.atomicfu)
         }
         androidMain.dependencies {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
@@ -83,21 +98,39 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
-        iosMain { kotlin.srcDir(iosStringsOutDir) }
+        // The generated holder is pure Kotlin; iOS and the desktop app (and jvmTest) both compile it.
+        getByName("hostMain").kotlin.srcDir(iosStringsOutDir)
         iosTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.koin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+        jvmMain {
+            dependencies {
+                // Desktop D3a back handling: the jvm actuals of PlatformBackHandler/PassThroughBackHandler and
+                // DesktopBackDispatcher use the common BackHandler (ui-backhandler, version of the Compose plugin) and
+                // the navigationevent dispatcher it registers with (the version navigation-compose 2.9.2 resolves).
+                implementation("org.jetbrains.compose.ui:ui-backhandler:1.11.1")
+                implementation("androidx.navigationevent:navigationevent:1.0.1")
+                // Desktop D1 web engine (package net.bible.sharedui.desktop.webengine.kcef only). JOGL/gluegen are
+                // jcef's runtime deps for GL off-screen rendering; they are not on Maven Central (jogamp.org only)
+                // and the windowed rendering D1 uses does not need them.
+                // KCEF pulls ktor 3.0.0 modules (okhttp engine, content negotiation, kotlinx-json) next to the
+                // catalog's ktor core; the BOM aligns every ktor module on `ktor` so no 3.0.0/3.5.2 mix reaches the
+                // classpath. KCEFBuilder builds its (unused) HttpClient at construction, so linkage is exercised.
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:${libs.versions.ktor.get()}"))
+                implementation(libs.kcef.get().toString()) {
+                    exclude(group = "org.jogamp.gluegen")
+                    exclude(group = "org.jogamp.jogl")
+                }
+            }
+        }
         jvmTest {
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/report/logic")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/startup/logic")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/startup/logic")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
-            // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.
-            kotlin.srcDir(iosStringsOutDir)
             dependencies {
                 implementation(project(":strings-gen")) // Test-only access to the real resource/API mapping parsers.
                 implementation(compose.desktop.currentOs)
@@ -124,7 +157,7 @@ val generateIosStrings by tasks.registering(JavaExec::class) {
 }
 
 listOf("compileKotlinIosArm64", "compileKotlinIosSimulatorArm64", "compileIosMainKotlinMetadata",
-    "compileTestKotlinJvm")
+    "compileHostMainKotlinMetadata", "compileKotlinJvm", "compileTestKotlinJvm")
     .forEach { name -> tasks.matching { it.name == name }.configureEach { dependsOn(generateIosStrings) } }
 
 // The startup fixture (a real SWORD module as bytes) is generated by :sharedLogic; its tests and these share it.
@@ -148,4 +181,29 @@ providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
 tasks.matching { it.name == "jvmTest" }.configureEach {
     (this as Test).systemProperty("java.awt.headless", "true")
     systemProperty("repoRoot", rootProject.projectDir.absolutePath)
+}
+
+// Live KCEF tests (KcefLiveTest, in the jvmTest source set): a windowed Chromium needs a non-headless AWT, which the
+// headless jvmTest run above cannot give, so they run in their own task. `kcef.installDir` is passed only when the
+// natives that `:desktopApp:prepareKcefNatives` produces (desktopApp/build/kcef-natives/lib) exist at execution time (no task dependency on :desktopApp);
+// without them, or without DISPLAY, the tests skip themselves. In jvmTest they always skip (headless).
+val kcefNativesDir = rootProject.layout.projectDirectory.dir("desktopApp/build/kcef-natives/lib").asFile
+tasks.register<Test>("jvmKcefTest") {
+    group = "verification"
+    description = "Runs the live KCEF tests (needs desktopApp/build/kcef-natives and DISPLAY)."
+    val testCompilation = kotlin.jvm().compilations.getByName("test")
+    testClassesDirs = testCompilation.output.classesDirs
+    classpath = testCompilation.output.allOutputs + testCompilation.runtimeDependencyFiles!!
+    filter { includeTestsMatching("net.bible.sharedui.desktop.webengine.kcef.KcefLiveTest") }
+    systemProperty("java.awt.headless", "false")
+    // The JCEF natives are JBR 17 builds: the test JVM must be the JDK 17 toolchain.
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+    jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+    // Extra Chromium switches for diagnosis (space-separated), e.g. -Pkcef.args="--enable-logging=stderr --v=1".
+    providers.gradleProperty("kcef.args").orNull?.let { systemProperty("kcef.args", it) }
+    providers.gradleProperty("kcef.logFile").orNull?.let { systemProperty("kcef.logFile", it) }
+    jvmArgumentProviders.add(CommandLineArgumentProvider {
+        if (File(kcefNativesDir, "install.lock").isFile) listOf("-Dkcef.installDir=${kcefNativesDir.absolutePath}") else emptyList()
+    })
+    outputs.upToDateWhen { false }
 }

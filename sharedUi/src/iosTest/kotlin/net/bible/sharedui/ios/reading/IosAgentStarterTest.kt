@@ -37,9 +37,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.reading.HostAgentStarter
 
 /**
- * The in-reader AI start on iOS: [IosAgentStarter] runs the same `executePrompt` call as Android's foreground service inside
+ * The in-reader AI start on iOS: [HostAgentStarter] runs the same `executePrompt` call as Android's foreground service inside
  * a background-task window, and the host's prompt selector hands a chosen prompt to it.
  */
 class IosAgentStarterTest {
@@ -61,10 +62,12 @@ class IosAgentStarterTest {
         scope: CoroutineScope,
         prompt: AgentPrompt?,
         currentWorkspace: () -> IdType = { workspace },
+        invalidTaskId: ULong = 0UL,
+        beginId: ULong = 7UL,
         execute: suspend (AgentPrompt, Selection, String?, IdType?) -> Boolean = { p, s, u, m ->
             r.events += "execute"; r.executed = listOf(p, s, u, m); true
         },
-    ) = IosAgentStarter(
+    ) = HostAgentStarter(
         scope = scope,
         windowRepositoryId = currentWorkspace,
         regenerate = { page, target, text, keep, fresh, model ->
@@ -73,8 +76,9 @@ class IosAgentStarterTest {
         promptById = { id -> r.events += "lookup"; if (id == promptId) prompt else null },
         execute = execute,
         stopAgent = { r.stopped += it; r.events += "stop" },
-        beginBackgroundTask = { onExpire -> r.events += "begin"; r.expire = onExpire; 7UL },
+        beginBackgroundTask = { onExpire -> r.events += "begin"; r.expire = onExpire; beginId },
         endBackgroundTask = { id -> r.events += "end:$id" },
+        invalidTaskId = invalidTaskId,
         runContext = EmptyCoroutineContext,
     )
 
@@ -94,6 +98,16 @@ class IosAgentStarterTest {
         // A run that already ended has nothing left to stop when iOS later fires the expiry handler.
         r.expire!!.invoke()
         assertEquals<List<IdType>>(emptyList(), r.stopped)
+        scope.cancel()
+    }
+
+    @Test
+    fun anInvalidTaskIdIsNeverEnded() {
+        val r = Recorder()
+        val scope = unconfined()
+        starter(r, scope, AgentPrompt(id = promptId), invalidTaskId = 0UL, beginId = 0UL)
+            .start(promptId, selection, null, null)
+        assertEquals(listOf("begin", "lookup", "execute"), r.events, "UIKit granted no task: nothing to end")
         scope.cancel()
     }
 

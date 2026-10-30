@@ -775,7 +775,11 @@ class ReadingHostSlotsTest {
      * A real controller over a three-step fake: BOOK (one button) -> CHAPTER (one button) -> done.
      * The sheet around it is the real [GridKeyChooserSheetFor].
      */
-    private fun gridController(scope: CoroutineScope, finished: MutableList<String>): net.bible.sharedcore.navigation.GridChoosePassageController {
+    private fun gridController(
+        scope: CoroutineScope,
+        finished: MutableList<String>,
+        chapterBuilt: kotlinx.coroutines.CompletableDeferred<Unit>? = null,
+    ): net.bible.sharedcore.navigation.GridChoosePassageController {
         fun ui(step: net.bible.sharedcore.navigation.GridStep, label: String) = net.bible.sharedcore.navigation.GridUi(
             step = step, title = "Step-$step", columns = 1, showLongNames = false, showProgress = false,
             showDeutToggle = false, buttons = listOf(net.bible.sharedcore.navigation.GridButton(0, label)),
@@ -783,7 +787,10 @@ class ReadingHostSlotsTest {
         return net.bible.sharedcore.navigation.GridChoosePassageController(
             scope = scope,
             initialOptions = net.bible.sharedcore.navigation.GridOptions(true, false, true, false, false, false),
-            buildStep = { step, _ -> ui(step, if (step == net.bible.sharedcore.navigation.GridStep.BOOK) "Genesis" else "Chapter 1") },
+            buildStep = { step, _ ->
+                if (step != net.bible.sharedcore.navigation.GridStep.BOOK) chapterBuilt?.await()
+                ui(step, if (step == net.bible.sharedcore.navigation.GridStep.BOOK) "Genesis" else "Chapter 1")
+            },
             onPersistOptions = {},
             onPickBook = { net.bible.sharedcore.navigation.BookPick.GoChapter },
             onPickChapter = { net.bible.sharedcore.navigation.ChapterPick.Finish("Gen.1.1") },
@@ -824,5 +831,34 @@ class ReadingHostSlotsTest {
         // ... and only at the root does the close button end the sheet.
         onNodeWithContentDescription(strings.settingsEditorClose).performClick()
         assertEquals(1, closed)
+    }
+
+    /**
+     * Picking a book clears the controller's `ui` while the chapter step builds (slow on desktop). The header
+     * actions built for the book step must not re-read that null state: the live desktop run crashed the app
+     * with `requireNotNull(ui)` in QuickSheets (D3a live checks, 2026-10-30). This single-scene test keeps the gap
+     * covered but does not reproduce the crash itself: that needed the actions to recompose in their own window
+     * (desktop layers), before the sheet's composition dropped them.
+     */
+    @Test
+    fun gridSheetSurvivesTheGapWhileTheNextStepBuilds() = runComposeUiTest {
+        val chapterBuilt = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val controller = gridController(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined), mutableListOf(), chapterBuilt)
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) {
+                    GridKeyChooserSheetFor(controller, "Fallback") {}
+                }
+            }
+        }
+        waitForIdle()
+        onNodeWithText("Genesis").performClick() // BOOK -> CHAPTER; the chapter build is still pending
+        waitForIdle()
+        assertEquals(null, controller.ui.value, "the gap under test: no step UI while the chapter builds")
+        onNodeWithText("Fallback").assertExists()
+
+        chapterBuilt.complete(Unit)
+        waitForIdle()
+        onNodeWithText("Chapter 1").assertExists()
     }
 }

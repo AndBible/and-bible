@@ -7,6 +7,7 @@ import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.StringTable
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUUID
+import net.bible.sharedui.host.ports.HostSettingsPlatform
 
 class IosSettingsPlatformTest {
     @Test fun resetClearsTheSameKeysOnBothPlatforms() {
@@ -16,14 +17,14 @@ class IosSettingsPlatformTest {
             val local = IosDeviceSettings(defaults)
             val db = MemorySettings()
             val strings = KeyedCoreStrings(StringTable.of("en", { it }, { key, _ -> key }, { emptyList() }))
-            val platform = IosSettingsPlatform(strings, db, local)
+            val platform = HostSettingsPlatform(strings, db, local)
             for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) local.putString(key, "stored")
             db.setBoolean("navigate_to_verse_pref", true)
             db.setString("night_mode_pref3", "manual")
             db.setString("eink_mode", "retained")
             platform.resetAllSettings()
-            for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode")) assertNull(local.getString(key), key)
-            assertEquals("stored", local.getString("night_mode_pref3"))
+            // RST-1: reset also clears the device-local night mode (SettingsReset.DEVICE_LOCAL_RESET_KEYS).
+            for (key in listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode", "night_mode_pref3")) assertNull(local.getString(key), key)
             assertFalse(db.getBoolean("navigate_to_verse_pref", false))
             assertNull(db.getString("night_mode_pref3"))
             assertEquals("retained", db.getString("eink_mode"))

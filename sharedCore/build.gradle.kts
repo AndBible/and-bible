@@ -26,6 +26,18 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    // Intermediate source set shared by the iOS targets and the JVM target (not Android): host code that
+    // iOS and the desktop app both use. See the desktop port audit, section 2.1.
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("host") {
+                withJvm()
+                group("ios")
+            }
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             api("com.squareup.okio:okio:3.9.0")
@@ -35,8 +47,13 @@ kotlin {
             api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
             implementation(libs.xmlutil.core)
         }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.okhttp)   // desktop HTTP engine (DesktopHttpClients)
+            implementation(libs.dbus.java.core)
+            runtimeOnly(libs.dbus.java.transport.native.unixsocket)
+            implementation(libs.java.keyring)   // desktop OS secret store (DesktopSecretStore)
+        }
         jvmTest {
-            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/sync/runner")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
             // Execute the platform-free iOS publication policy on Linux as well as Native.
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/speak/systemsurfaces")

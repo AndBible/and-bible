@@ -1,6 +1,7 @@
 package net.bible.service.cloudsync.ios
 
 import kotlinx.coroutines.test.runTest
+import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.filetree.FileTreeCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.webdav.WebDavMessage
@@ -25,6 +26,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import net.bible.service.cloudsync.host.HostCloudAdapterFactory
+import net.bible.service.cloudsync.host.PlainHttpRefusedException
 
 class IosCloudAdapterFactoryTest {
     private val suite = "i2-factory-${NSUUID().UUIDString}"
@@ -60,7 +63,7 @@ class IosCloudAdapterFactoryTest {
     private fun factory(
         iCloud: () -> CloudFileStore = { store(tmpRoot) },
         awaitReady: suspend () -> Unit = {},
-    ) = IosCloudAdapterFactory(
+    ) = HostCloudAdapterFactory(
         platform, "dev-1", { "name-$it" }, iCloud, ui, tmpRoot / "tmp",
         clientFactory = { c: WebDavConfig, _: WebDavStateStore ->
             recorded += c
@@ -157,5 +160,28 @@ class IosCloudAdapterFactoryTest {
 
     @Test fun unknownIdThrows() {
         assertFailsWith<IllegalStateException> { factory().create("GOOGLE_DRIVE") }
+    }
+
+    /** The factory reads only the common [SyncSettingsPlatform] contract: credentials, HTTP policy and the state store. */
+    @Test fun readsCredentialsPolicyAndStateFromAnySyncSettingsPlatform() = runTest {
+        val state = platform.webDavState
+        val seenStates = mutableListOf<WebDavStateStore>()
+        val fake = object : SyncSettingsPlatform by platform {
+            override fun credential(key: String) = when (key) {
+                "webdav_sync_server_url" -> "https://fake.example/dav/"
+                "webdav_sync_username" -> "u"
+                "webdav_sync_password" -> "p"
+                "webdav_sync_folder_path" -> "f"
+                else -> ""
+            }
+            override val webDavState: WebDavStateStore = state
+        }
+        val f = HostCloudAdapterFactory(
+            fake, "dev-1", { it }, { store(tmpRoot) }, ui, tmpRoot / "tmp",
+            clientFactory = { c: WebDavConfig, s: WebDavStateStore -> recorded += c; seenStates += s; error("I2-test: no network") },
+        )
+        runCatching { f.create("WEBDAV").signIn() }
+        assertEquals(listOf(WebDavConfig("https://fake.example/dav/", "u", "p", "f")), recorded)
+        assertTrue(seenStates.single() === state, "the client gets the platform's own state store")
     }
 }

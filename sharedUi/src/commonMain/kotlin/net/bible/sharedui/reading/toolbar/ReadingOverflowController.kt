@@ -26,7 +26,7 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedlogic.settings.PrefItemHandle
 import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 
-/** What the reading view's overflow menu reads and does on the platform; the iOS implementation is `IosReadingToolbarHost`. */
+/** What the reading view's overflow menu reads and does on the platform; the iOS implementation is `HostReadingToolbarHost`. */
 @kotlin.native.HiddenFromObjC
 interface ReadingOverflowHost {
     /** Flips full-screen reading (Android: `SharedActivityState.toggleFullScreen`). */

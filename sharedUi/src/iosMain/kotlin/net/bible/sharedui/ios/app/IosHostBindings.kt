@@ -36,10 +36,10 @@ import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedui.ios.ports.IosClipboardText
 import net.bible.sharedui.ios.ports.IosDebugActions
-import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
+import net.bible.sharedui.host.ports.HostDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosExternalLinks
 import net.bible.sharedui.ios.ports.IosPlatformText
-import net.bible.sharedui.ios.ports.IosSettingsPlatform
+import net.bible.sharedui.host.ports.HostSettingsPlatform
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -55,13 +55,13 @@ fun buildIosHostBindings(): Module = module {
     }
     single<ExternalLinks> { IosExternalLinks() }
     single<ClipboardText> { IosClipboardText() }
-    single<PlatformText> { IosPlatformText { get<net.bible.sharedui.assembly.IosStringTableHolder>().current } }
+    single<PlatformText> { IosPlatformText { get<net.bible.sharedui.assembly.HostStringTableHolder>().current } }
     single<DebugActions> { IosDebugActions(get(), get<CoreStrings>()) }
     single<DeviceLocalPrefs> { get<IosDeviceSettings>() }
-    single { IosSettingsPlatform(get<CoreStrings>(), get(), get()) }
-    single<SettingsPlatform> { get<IosSettingsPlatform>() }
-    single<SettingsPlatformFlags> { get<IosSettingsPlatform>() }
+    single { HostSettingsPlatform(get<CoreStrings>(), get(), get()) }
+    single<SettingsPlatform> { get<HostSettingsPlatform>() }
+    single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }
-    single<DocumentInstallStarter> { IosDocumentInstallStarter() }
+    single<DocumentInstallStarter> { HostDocumentInstallStarter() }
     factory<AppSettingsService> { AppSettingsServiceImpl() }
 }

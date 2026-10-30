@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.HostWelcomeReturnGate
 
 /** Unconfined scope: a launched check runs eagerly up to its first real suspension and resumes inline, deterministically. */
 class IosWelcomeReturnGateTest {
@@ -16,7 +17,7 @@ class IosWelcomeReturnGateTest {
         var opened = 0
         var refreshed = 0
         var ensured = 0
-        val gate = IosWelcomeReturnGate(
+        val gate = HostWelcomeReturnGate(
             scope = CoroutineScope(Dispatchers.Unconfined),
             usableBible = { usable },
             ensureReading = { ensured++; ensureGate?.await() },
@@ -36,7 +37,7 @@ class IosWelcomeReturnGateTest {
             var prompts = 0
             var opened = 0
             var refreshed = 0
-            val gate = IosWelcomeReturnGate(
+            val gate = HostWelcomeReturnGate(
                 scope = CoroutineScope(Dispatchers.Unconfined), usableBible = { usable },
                 unlockIfNeeded = { prompts++; usable = accept },
                 ensureReading = { assertTrue(usable) }, currentRoute = { NavRoutes.WELCOME },

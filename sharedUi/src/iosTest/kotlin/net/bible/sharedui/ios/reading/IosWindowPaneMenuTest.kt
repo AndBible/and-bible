@@ -45,6 +45,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.reading.IOS_IMPLEMENTED_PANE_MENU_ROWS
+import net.bible.sharedui.host.reading.IOS_OMITTED_PANE_MENU_ROWS
+import net.bible.sharedui.host.reading.HostWindowPaneMenuPlatform
+import net.bible.sharedui.host.reading.hostDrawerIcon
+import net.bible.sharedui.host.reading.windowMenuSelection
 
 /** The iOS omit list and implemented list partition the dispatcher's platform rows: nothing shown that does nothing. */
 class IosWindowPaneMenuTest {
@@ -101,13 +107,15 @@ class IosWindowPaneMenuTest {
             val book = org.crosswire.jsword.book.Books.installed().getBook("K4RawText")!!
             window.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
             val page = window.pageManager.currentPage
-            val platform = IosWindowPaneMenuPlatform(
-                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+            val platform = HostWindowPaneMenuPlatform(
+                shell = HostNavShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
                 windowControl = { KoinPlatform.getKoin().get() },
                 slots = { host.slots },
                 clipboard = KoinPlatform.getKoin().get(),
                 toast = {}, copiedMessage = { "" }, bridgeFor = { null },
                 openPromptSelector = { s, c, k -> opened += Triple(s, c, k) },
+                newDocumentPicker = { net.bible.sharedui.ios.ports.IosDocumentPicker() },
+                newCsvSinkOpener = { { null } }, csvTimestamp = { "" },
             )
 
             platform.llmActions(window)
@@ -159,19 +167,21 @@ class IosWindowPaneMenuTest {
 
     /** The platform over recording fakes, run synchronously (an unconfined scope), plus the real dispatcher over it. */
     private fun withExportPlatform(
-        block: (platform: IosWindowPaneMenuPlatform, dispatcher: WindowPaneMenuDispatcher, window: Window, rec: Recorder) -> Unit,
+        block: (platform: HostWindowPaneMenuPlatform, dispatcher: WindowPaneMenuDispatcher, window: Window, rec: Recorder) -> Unit,
     ) {
         withIosReadingHost { host, _ ->
             val koin = KoinPlatform.getKoin()
             val control = koin.get<WindowControl>()
             val rec = Recorder()
-            val platform = IosWindowPaneMenuPlatform(
-                shell = net.bible.sharedui.ios.app.IosHostShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
+            val platform = HostWindowPaneMenuPlatform(
+                shell = HostNavShell(kotlinx.coroutines.MainScope(), NoNavigatorForHostTests),
                 windowControl = { control },
                 slots = { host.slots },
                 clipboard = koin.get(),
                 toast = {}, copiedMessage = { "" }, bridgeFor = { null },
                 openPromptSelector = { _, _, _ -> },
+                newDocumentPicker = { net.bible.sharedui.ios.ports.IosDocumentPicker() },
+                newCsvSinkOpener = { { null } }, csvTimestamp = { "" },
                 emitEvent = { id, call -> rec.events += id to call.js },
                 studyPadExport = object : StudyPadExportPlatform {
                     override suspend fun export(labels: List<BookmarkEntities.Label>, chooseDestination: suspend () -> SaveOrShare?) {
@@ -308,12 +318,12 @@ class IosWindowPaneMenuTest {
             override fun extraRowOffered(id: String) = true
             override fun runExtraRow(id: String) {}
         }
-        val table = net.bible.sharedui.assembly.iosStringTable("en")
+        val table = net.bible.sharedui.assembly.hostStringTable("en")
         val state = net.bible.sharedui.reading.toolbar.ReadingDrawerMenu(host) {
             net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings(table)
         }.build()
         val items = state.groups.flatMap { it.items }
         assertEquals(net.bible.sharedui.reading.toolbar.ReadingDrawerMenu.ROW_IDS, items.map { it.id })
-        assertEquals(emptyList(), items.filter { iosDrawerIcon(it.iconKey) == null }.map { it.id + ":" + it.iconKey })
+        assertEquals(emptyList(), items.filter { hostDrawerIcon(it.iconKey) == null }.map { it.id + ":" + it.iconKey })
     }
 }

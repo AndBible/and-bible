@@ -20,6 +20,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.sharedcore.platform.files.FilePresentation
 import net.bible.sharedcore.platform.files.IosPresenter
 import net.bible.service.llm.agent.RawLlmLog
+import net.bible.sharedui.host.report.Attachment
+import net.bible.sharedui.host.report.ReportDevice
+import net.bible.sharedui.host.report.aiReportEligible
+import net.bible.sharedui.host.report.reportAttachments
+import net.bible.sharedui.host.report.reportDetails
+import net.bible.sharedui.host.report.reportSafely
 
 internal class IosBugReport(
     private val table: StringTable,

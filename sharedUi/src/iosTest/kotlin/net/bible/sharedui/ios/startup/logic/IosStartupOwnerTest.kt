@@ -3,6 +3,7 @@ package net.bible.sharedui.ios.startup
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import kotlin.test.*
+import net.bible.sharedui.host.startup.HostStartupOwner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosStartupOwnerTest {
@@ -17,7 +18,7 @@ class IosStartupOwnerTest {
         val gate = CompletableDeferred<Unit>()
         var starts = 0
         var opens = 0
-        val owner = IosStartupOwner(scope, {
+        val owner = HostStartupOwner(scope, {
             starts++
             if (!database && starts == 1) { withTimeout(5_000) { gate.await() }; error("orphan startup failed") }
             "ready"
@@ -71,7 +72,7 @@ class IosStartupOwnerTest {
         val gate = CompletableDeferred<Unit>()
         var starts = 0
         var opens = 0
-        val owner = IosStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; gate.await(); "parts" }, { opens++ })
+        val owner = HostStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; gate.await(); "parts" }, { opens++ })
         val foreground = async { owner.openDatabases() }
         val background = async { owner.openDatabases() }
         try {
@@ -87,7 +88,7 @@ class IosStartupOwnerTest {
         val gate = CompletableDeferred<Unit>()
         var starts = 0
         var finishes = 0
-        val owner = IosStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; gate.await(); finishes++; "ready" }, {})
+        val owner = HostStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; gate.await(); finishes++; "ready" }, {})
         val background = async { owner.ensureStarted() }
         val foreground = async { owner.ensureStarted() }
         try {
@@ -104,7 +105,7 @@ class IosStartupOwnerTest {
         val gate = CompletableDeferred<Unit>()
         var opens = 0
         var finished = 0
-        val owner = IosStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { "ready" }, { opens++; gate.await(); finished++ })
+        val owner = HostStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { "ready" }, { opens++; gate.await(); finished++ })
         val foreground = async { owner.openDatabases() }
         val background = async { owner.openDatabases() }
         try {
@@ -120,7 +121,7 @@ class IosStartupOwnerTest {
     @Test fun failedAttemptCanRetryAndSuccessfulAttemptIsRetained() = runTest {
         var starts = 0
         var opens = 0
-        val owner = IosStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; if (starts == 1) error("partial startup"); "ready" }, { opens++ })
+        val owner = HostStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; if (starts == 1) error("partial startup"); "ready" }, { opens++ })
         assertFailsWith<IllegalStateException> { owner.ensureStarted() }
         assertEquals("ready", owner.ensureStarted())
         assertEquals("ready", owner.ensureStarted())
@@ -132,7 +133,7 @@ class IosStartupOwnerTest {
     @Test fun databaseOpenFailureRetriesWithoutRepeatingStartup() = runTest {
         var starts = 0
         var opens = 0
-        val owner = IosStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; "ready" }, { opens++; if (opens == 1) error("database locked") })
+        val owner = HostStartupOwner(CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job])), { starts++; "ready" }, { opens++; if (opens == 1) error("database locked") })
         assertFailsWith<IllegalStateException> { owner.openDatabases() }
         owner.openDatabases()
         assertEquals(1, starts)

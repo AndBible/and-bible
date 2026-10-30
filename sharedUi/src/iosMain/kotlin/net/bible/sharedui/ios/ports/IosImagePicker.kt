@@ -31,6 +31,7 @@ import platform.PhotosUI.*
 import platform.UIKit.UIViewController
 import platform.UniformTypeIdentifiers.UTTypeImage
 import platform.darwin.NSObject
+import net.bible.sharedui.host.ports.lastPathComponent
 
 @kotlin.native.HiddenFromObjC
 class IosImagePicker(

@@ -42,14 +42,15 @@ import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.ios.app.IosHostShell
-import net.bible.sharedui.ios.app.IosNavigator
-import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.host.app.HostNavShell
+import net.bible.sharedui.host.app.HostNavigator
+import net.bible.sharedui.host.app.HostReadingReady
 import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
+import net.bible.sharedui.webview.IosReadingPaneEngine
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSDate
 import platform.Foundation.NSRunLoop
@@ -60,10 +61,16 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
+import net.bible.sharedui.host.app.HostWorkspaceSaver
+import net.bible.sharedui.host.reading.HostDocumentLoaderPlatform
+import net.bible.sharedui.host.reading.HostNightModeObserver
+import net.bible.sharedui.host.reading.HostReadingHost
+import net.bible.sharedui.host.reading.HostReadingKeyActions
+import net.bible.sharedui.host.reading.HostReadingWindows
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {
-    private object NoNavigator : IosNavigator {
+    private object NoNavigator : HostNavigator {
         override fun navigate(route: String) = Unit
         override fun popBackStack(): Boolean = false
         override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
@@ -89,7 +96,7 @@ class IosReadingWindowsTest {
         }
     }
 
-    private var currentHost: IosReadingHost? = null
+    private var currentHost: HostReadingHost? = null
 
     private fun withWindows(night: FakeNight = FakeNight(false), body: (windowId: String) -> Unit) {
         try {
@@ -101,25 +108,25 @@ class IosReadingWindowsTest {
             ) }
             awaitStartupOnMain { IosAppStartup.openDatabases() }
             // The production step (initialise, prepareData, window repository), not a hand-ordered copy of it.
-            awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
-            val scope: CoroutineScope = IosReadingReady.scope
+            awaitOnMain { HostReadingReady.ensure(IosAppStartup.stringTable) }
+            val scope: CoroutineScope = HostReadingReady.scope
             val koin = KoinPlatform.getKoin()
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            val host = HostReadingHost(scope, HostNavShell(scope, NoNavigator), koin, IosReadingHostPlatform, night)
             currentHost = host
-            IosReadingWindows.bind(host, scope, koin, night)
+            HostReadingWindows.bind(host, scope, koin, night, IosReadingPaneEngine)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
         } finally {
-            IosReadingWindows.resetForTest()
+            HostReadingWindows.resetForTest()
             IosReadingWebViews.resetForTest()
-            IosReadingReady.resetForTest()
+            HostReadingReady.resetForTest()
             ReadingAppInit.resetForTest()
             awaitStartupOnMain { IosAppStartup.resetForTest() }
         }
     }
 
     private fun attach(id: String, night: () -> Boolean = { false }) = attachReadingPane(
-        id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, night, IosReadingWindows::isOpen,
+        id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, night, HostReadingWindows::isOpen,
     )
 
     /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area (and sheets) at the bottom pane's foot. */
@@ -128,7 +135,7 @@ class IosReadingWindowsTest {
         val koin = KoinPlatform.getKoin()
         val windowControl = koin.get<WindowControl>()
         val offsets = ReadingOffsets()
-        val platform = IosDocumentLoaderPlatform(
+        val platform = HostDocumentLoaderPlatform(
             window = { windowControl.activeWindow }, windowControl = { windowControl }, settings = { koin.get() },
             nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { true },
         )
@@ -147,7 +154,7 @@ class IosReadingWindowsTest {
         val first = windowControl.windowRepository.activeWindow
         val second = windowControl.addNewWindow(first)
         val offsets = ReadingOffsets().also { it.setSystemTopInset(59f) }
-        fun platform(window: net.bible.android.control.page.window.Window, portrait: Boolean) = IosDocumentLoaderPlatform(
+        fun platform(window: net.bible.android.control.page.window.Window, portrait: Boolean) = HostDocumentLoaderPlatform(
             window = { window }, windowControl = { windowControl }, settings = { koin.get() },
             nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { portrait },
         )
@@ -175,10 +182,10 @@ class IosReadingWindowsTest {
     /** The session's key actions and verse chooser are the real ones: Alt+M opens the drawer, Ctrl+W the workspace sheet, and the chooser answers through the Grid sheet. */
     @Test
     fun sessionKeyActionsAndVerseChooserAreWired() = withWindows { id ->
-        val session = IosReadingWindows.sessionFor(id)
+        val session = HostReadingWindows.sessionFor(id)
         val hostState = currentHost!!.hostState
         val keys = session.keyActions
-        assertTrue(keys is IosReadingKeyActions, "key actions: $keys")
+        assertTrue(keys is HostReadingKeyActions, "key actions: $keys")
         assertTrue(keys.showWorkspaceSheetIfHosted())
         keys.openDrawer()
         assertTrue(hostState.drawerOpen.value, "Alt+M opens the drawer")
@@ -205,15 +212,15 @@ class IosReadingWindowsTest {
         val windowControl = KoinPlatform.getKoin().get<WindowControl>()
         val second = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
         val secondId = second.id.toString()
-        IosReadingWindows.sessionFor(secondId)
-        assertTrue(IosReadingWindows.hasAssembly(secondId))
+        HostReadingWindows.sessionFor(secondId)
+        assertTrue(HostReadingWindows.hasAssembly(secondId))
         windowControl.closeWindow(second)
         // The subscription posts the release to Main; keep the run loop spinning until it ran.
         var spins = 0
-        while (IosReadingWindows.hasAssembly(secondId) && spins++ < 100) { // up to ~5 s
+        while (HostReadingWindows.hasAssembly(secondId) && spins++ < 100) { // up to ~5 s
             NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
         }
-        assertFalse(IosReadingWindows.hasAssembly(secondId), "closing the window must release its assembly")
+        assertFalse(HostReadingWindows.hasAssembly(secondId), "closing the window must release its assembly")
         assertFalse(IosReadingWebViews.hasEntry(secondId))
         assertTrue(firstId.isNotEmpty())
     }
@@ -230,7 +237,7 @@ class IosReadingWindowsTest {
         val third = windowControl.addNewWindow(second)
         val ids = listOf(firstId, second.id.toString(), third.id.toString())
         assertEquals(3, ids.toSet().size)
-        val sessions = ids.map { id -> attach(id); IosReadingWindows.sessionFor(id) }
+        val sessions = ids.map { id -> attach(id); HostReadingWindows.sessionFor(id) }
         assertEquals(3, sessions.toSet().size, "one session per window")
         assertEquals(3, ids.map { IosReadingWebViews.entry(it).webView }.toSet().size, "one WebView per window")
         ids.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
@@ -239,15 +246,15 @@ class IosReadingWindowsTest {
 
         windowControl.closeWindow(second)
         var spins = 0
-        while (IosReadingWindows.hasAssembly(ids[1]) && spins++ < 100) {
+        while (HostReadingWindows.hasAssembly(ids[1]) && spins++ < 100) {
             NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
         }
-        assertFalse(IosReadingWindows.hasAssembly(ids[1]), "the closed middle window is released")
+        assertFalse(HostReadingWindows.hasAssembly(ids[1]), "the closed middle window is released")
         assertFalse(IosReadingWebViews.hasEntry(ids[1]))
         assertTrue(sessions[1].isDisposed)
         assertFalse(sessions[0].isDisposed || sessions[2].isDisposed, "the other windows keep their sessions")
-        assertSame(sessions[0], IosReadingWindows.sessionFor(ids[0]))
-        assertSame(sessions[2], IosReadingWindows.sessionFor(ids[2]))
+        assertSame(sessions[0], HostReadingWindows.sessionFor(ids[0]))
+        assertSame(sessions[2], HostReadingWindows.sessionFor(ids[2]))
         assertSame(firstView, IosReadingWebViews.entry(ids[0]).webView)
         assertSame(thirdView, IosReadingWebViews.entry(ids[2]).webView)
 
@@ -256,7 +263,7 @@ class IosReadingWindowsTest {
         assertFalse(reopenedId in ids, "a reopened window is a new window")
         attach(reopenedId)
         assertEquals(1, IosReadingWebViews.bridgeHandlerCount(reopenedId))
-        assertFalse(sessions.any { it === IosReadingWindows.sessionFor(reopenedId) })
+        assertFalse(sessions.any { it === HostReadingWindows.sessionFor(reopenedId) })
         ids.filterNot { it == ids[1] }.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
     }
 
@@ -273,7 +280,7 @@ class IosReadingWindowsTest {
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
         assertTrue(before != live, "precondition: the stored passage differs from the changed one")
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin) }
+        runBlocking { HostWorkspaceSaver.saveNow(koin) }
         assertEquals(live, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse)
     }
 
@@ -288,9 +295,9 @@ class IosReadingWindowsTest {
         val sync = koin.get<WindowControl>().windowSync
         val before = sync.lastForceSyncAll
         NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
-        val scope = IosReadingReady.scope
+        val scope = HostReadingReady.scope
         val night = FakeNight(false)
-        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night), scope, koin, night)
+        HostReadingWindows.bind(HostReadingHost(scope, HostNavShell(scope, NoNavigator), koin, IosReadingHostPlatform, night), scope, koin, night, IosReadingPaneEngine)
         assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
     }
 
@@ -303,7 +310,7 @@ class IosReadingWindowsTest {
         pageManager.setCurrentDocumentAndKey(null, key)
         val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
         val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
-        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, ready = { false }) }
+        runBlocking { HostWorkspaceSaver.saveNow(koin, ready = { false }) }
         assertEquals(before, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse, "not ready: nothing is saved")
     }
 
@@ -321,8 +328,8 @@ class IosReadingWindowsTest {
             active--
         }
         runBlocking {
-            val a = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
-            val b = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val a = async(Dispatchers.Default) { HostWorkspaceSaver.saveNow(koin, { true }, save) }
+            val b = async(Dispatchers.Default) { HostWorkspaceSaver.saveNow(koin, { true }, save) }
             a.await(); b.await()
         }
         assertEquals(2, calls)
@@ -331,10 +338,10 @@ class IosReadingWindowsTest {
 
     @Test
     fun sessionForIsCachedPerWindow() = withWindows { id ->
-        val a = IosReadingWindows.sessionFor(id)
-        assertSame(a, IosReadingWindows.sessionFor(id))
-        IosReadingWindows.release(id)
-        assertNotSame(a, IosReadingWindows.sessionFor(id))
+        val a = HostReadingWindows.sessionFor(id)
+        assertSame(a, HostReadingWindows.sessionFor(id))
+        HostReadingWindows.release(id)
+        assertNotSame(a, HostReadingWindows.sessionFor(id))
     }
 
     /**
@@ -343,12 +350,12 @@ class IosReadingWindowsTest {
      */
     @Test
     fun releaseDisposesAndStopsTheRelay() = withWindows { id ->
-        val session = IosReadingWindows.sessionFor(id)
-        val platform = checkNotNull(IosReadingWindows.relayPlatformFor(id))
+        val session = HostReadingWindows.sessionFor(id)
+        val platform = checkNotNull(HostReadingWindows.relayPlatformFor(id))
         val windowService = KoinPlatform.getKoin().get<WindowStateServiceImpl>()
         windowService.notify(WindowChange.LayoutConfigurationChanged)
         assertEquals(1, platform.windowsCheckMarks, "a live relay forwards the change")
-        IosReadingWindows.release(id)
+        HostReadingWindows.release(id)
         windowService.notify(WindowChange.LayoutConfigurationChanged)
         assertEquals(1, platform.windowsCheckMarks, "a released window's relay must not forward")
         assertTrue(session.isDisposed)
@@ -367,7 +374,7 @@ class IosReadingWindowsTest {
         attach(id)
         assertEquals(1, IosReadingWebViews.bridgeHandlerCount(id))
         val released = IosReadingWebViews.entry(id).webView
-        IosReadingWindows.release(id)
+        HostReadingWindows.release(id)
         val controller = released.configuration.userContentController
         val probe = NoopHandler()
         controller.addScriptMessageHandler(probe, "bridge")
@@ -383,10 +390,10 @@ class IosReadingWindowsTest {
         val seen = mutableListOf<Boolean>()
         withWindows(night) { id ->
             IosReadingWebViews.bundleLoader = { _, _, dark -> seen += dark }
-            attach(id) { IosReadingWindows.nightMode }
-            IosReadingWindows.release(id)
+            attach(id) { HostReadingWindows.nightMode }
+            HostReadingWindows.release(id)
             night.dark = false
-            attach(id) { IosReadingWindows.nightMode }
+            attach(id) { HostReadingWindows.nightMode }
         }
         assertEquals(listOf(true, false), seen)
         val index = NSURL.fileURLWithPath("/x/index.html")
@@ -398,7 +405,7 @@ class IosReadingWindowsTest {
     fun nightObserverFollowsStateAndReportsChanges() {
         val night = FakeNight(false)
         var changes = 0
-        val observer = IosNightModeObserver(night) { changes++ }
+        val observer = HostNightModeObserver(night, IosDisplayModeSignals) { changes++ }
         assertFalse(observer.dark.value)
         night.dark = true
         assertTrue(observer.refresh())
@@ -415,22 +422,22 @@ class IosReadingWindowsTest {
         val missing = IdType().toString()
         attach(missing)
         assertFalse(IosReadingWebViews.hasEntry(missing))
-        assertFalse(IosReadingWindows.hasAssembly(missing))
-        assertFails { IosReadingWindows.sessionFor(missing) }
+        assertFalse(HostReadingWindows.hasAssembly(missing))
+        assertFails { HostReadingWindows.sessionFor(missing) }
         assertFalse(IosReadingWebViews.hasEntry(missing))
-        assertFalse(IosReadingWindows.hasAssembly(missing))
+        assertFalse(HostReadingWindows.hasAssembly(missing))
 
-        IosReadingWindows.sessionFor(id)
+        HostReadingWindows.sessionFor(id)
         attach(id)
         val window = KoinPlatform.getKoin().get<WindowControl>().windowRepository.getWindow(IdType(id))!!
         val before = window.windowState
         try {
             window.windowState = WindowLayout.WindowState.CLOSED
-            IosReadingWindows.release(id)
+            HostReadingWindows.release(id)
             attach(id) // a recomposition after the release
             assertFalse(IosReadingWebViews.hasEntry(id), "no WebView entry for a closed window")
-            assertFalse(IosReadingWindows.hasAssembly(id), "no session for a closed window")
-            assertFails { IosReadingWindows.sessionFor(id) }
+            assertFalse(HostReadingWindows.hasAssembly(id), "no session for a closed window")
+            assertFails { HostReadingWindows.sessionFor(id) }
             assertFalse(IosReadingWebViews.hasEntry(id))
         } finally {
             window.windowState = before
@@ -449,25 +456,25 @@ class IosReadingWindowsTest {
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
             ) }
-            IosReadingReady.initialise = { order += "initialise" }
-            IosReadingReady.prepareData = { order += "prepareData" }
-            IosReadingReady.createRepository = {
+            HostReadingReady.initialise = { order += "initialise" }
+            HostReadingReady.prepareData = { order += "prepareData" }
+            HostReadingReady.createRepository = {
                 order += "createRepository"
                 scopes += it
                 if (failFirst) { failFirst = false; error("boom") }
             }
             val table = IosAppStartup.stringTable
-            assertFails { awaitOnMain { IosReadingReady.ensure(table) } }
-            awaitOnMain { IosReadingReady.ensure(table) }
-            awaitOnMain { IosReadingReady.ensure(table) } // once only
+            assertFails { awaitOnMain { HostReadingReady.ensure(table) } }
+            awaitOnMain { HostReadingReady.ensure(table) }
+            awaitOnMain { HostReadingReady.ensure(table) } // once only
             assertEquals(
                 listOf("initialise", "prepareData", "createRepository", "initialise", "prepareData", "createRepository"),
                 order,
             )
             assertNotSame(scopes[0], scopes[1], "a retry builds its repository on a fresh scope")
-            assertSame(scopes[1], IosReadingReady.scope)
+            assertSame(scopes[1], HostReadingReady.scope)
         } finally {
-            IosReadingReady.resetForTest()
+            HostReadingReady.resetForTest()
             awaitStartupOnMain { IosAppStartup.resetForTest() }
         }
     }
