@@ -37,13 +37,13 @@ internal data class OsrGeometry(val widthPx: Int, val heightPx: Int, val scale: 
     val heightDip: Int get() = ceil(heightPx / scale).toInt().coerceAtLeast(1)
 
     /**
-     * Pixel size CEF actually paints for the DIP view rect, \`ceil(dip * scale)\`. It can exceed [widthPx] at fractional
+     * Pixel size CEF actually paints for the DIP view rect, `ceil(dip * scale)` evaluated in Float like Chromium's ScaleToCeiledSize (double rounding differs by 1 px for some sizes). It can exceed [widthPx] at fractional
      * scales (1001 px at 1.5 gives 668 DIP and a 1002 px paint). [OsrFrameBuffer.resize] must use these, not [widthPx].
      */
-    val bufferWidthPx: Int get() = ceil(widthDip * scale).toInt()
+    val bufferWidthPx: Int get() = ceil(widthDip.toFloat() * scale.toFloat()).toInt()
 
     /** Pixel height CEF paints, see [bufferWidthPx]. */
-    val bufferHeightPx: Int get() = ceil(heightDip * scale).toInt()
+    val bufferHeightPx: Int get() = ceil(heightDip.toFloat() * scale.toFloat()).toInt()
 
     /** Maps a Compose pixel offset inside the view to the view DIP that contains it (floored, as AWT does). */
     fun toViewDip(xPx: Float, yPx: Float): Point = Point(floor(xPx / scale).toInt(), floor(yPx / scale).toInt())

@@ -122,4 +122,14 @@ class OsrRenderHandlerTest {
             assertEquals(g.bufferWidthPx, fb.frame.value!!.width)
         }
     }
+
+    @Test fun bufferSizeIsComputedInFloatLikeChromium() {
+        // double ceil(50 * 1.1) = 56 but Chromium's float ScaleToCeiledSize gives 55; at 1.2, 25 DIP is 30 in double and 31 in float
+        val g = OsrGeometry(54, 29, 1.1, Point(0, 0))
+        assertEquals(50, g.widthDip)
+        assertEquals(55, g.bufferWidthPx)
+        val g2 = OsrGeometry(29, 29, 1.2, Point(0, 0))
+        assertEquals(25, g2.widthDip)
+        assertEquals(31, g2.bufferWidthPx)
+    }
 }

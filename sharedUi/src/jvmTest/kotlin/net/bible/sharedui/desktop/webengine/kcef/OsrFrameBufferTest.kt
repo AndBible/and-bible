@@ -163,12 +163,32 @@ class OsrFrameBufferTest {
         val reports = mutableListOf<String>()
         val fb = OsrFrameBuffer(publisher = { it.run() }, onPersistentMismatch = { reports += it })
         fb.resize(4, 4)
-        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 2, 4)), solid(2, 4, 1), 2, 4) }
         fb.paint(false, arrayOf(Rectangle(0, 0, 4, 4)), solid(4, 4, 1), 4, 4)
-        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER - 1) { fb.paint(false, arrayOf(Rectangle(0, 0, 2, 4)), solid(2, 4, 1), 2, 4) }
         assertTrue(reports.isEmpty(), "a matching paint resets the streak: $reports")
-        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER * 3) { fb.paint(false, arrayOf(Rectangle(0, 0, 3, 4)), solid(3, 4, 1), 3, 4) }
+        repeat(OsrFrameBuffer.MISMATCH_REPORT_AFTER * 3) { fb.paint(false, arrayOf(Rectangle(0, 0, 2, 4)), solid(2, 4, 1), 2, 4) }
         assertEquals(1, reports.size, "reported once, not per paint")
-        assertTrue("3x4" in reports[0] && "4x4" in reports[0], reports[0])
+        assertTrue("2x4" in reports[0] && "4x4" in reports[0], reports[0])
+    }
+
+    @Test fun aPaintOnePixelOffIsAdoptedAndPublishedAtItsOwnSize() {
+        val fb = newBuffer()
+        fb.resize(12, 5)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 11, 5)), solid(11, 5, 40), 11, 5)
+        val img = fb.frame.value!!
+        assertEquals(11, img.width); assertEquals(5, img.height)
+        assertEquals(setOf(40), pixels(img).map { blue(it) }.toSet())
+        // later paints of the adopted size keep working, also with a repeated resize to the requested size
+        fb.resize(12, 5)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 11, 5)), solid(11, 5, 50), 11, 5)
+        assertEquals(50, blue(pixels(fb.frame.value!!)[0]))
+    }
+
+    @Test fun aPaintFivePixelsOffIsStillDropped() {
+        val fb = newBuffer()
+        fb.resize(12, 5)
+        fb.paint(false, arrayOf(Rectangle(0, 0, 7, 5)), solid(7, 5, 40), 7, 5)
+        assertNull(fb.frame.value)
     }
 }

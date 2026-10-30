@@ -34,7 +34,7 @@ import org.jetbrains.skia.ImageInfo
  * result as [frame]. `paint` runs on CEF's UI thread; the copy happens under a lock and the publish to the Compose state is
  * done through [publisher] (the AWT thread by default), coalesced so at most one publish is pending. Pixel arrays and the
  * front Skia bitmap are only reallocated when the view size changes; a publish copies into the existing front bitmap and
- * hands Compose a fresh lightweight \`ImageBitmap\` wrapper over it so the state changes and redraws. Publish and drawing both
+ * hands Compose a fresh lightweight `ImageBitmap` wrapper over it so the state changes and redraws. Publish and drawing both
  * run on the AWT thread, so the front bitmap is never written while drawn.
  *
  * [resize] must be given [OsrGeometry.bufferWidthPx] x [OsrGeometry.bufferHeightPx], the size CEF paints at. After a resize
@@ -44,7 +44,9 @@ import org.jetbrains.skia.ImageInfo
  * A `<select>` popup is painted by CEF separately; it is kept in its own array and composited at [popupRect] when a frame
  * is published, so hiding it just republishes the main view.
  *
- * Main-view paints whose size differs from the last [resize] are dropped. A streak of [MISMATCH_REPORT_AFTER] of them in a
+ * A main-view paint at most 1 px off the last [resize] size in each dimension (CEF rounding differently from us) is adopted:
+ * the storage is reallocated once to that size and the frame is drawn at its own size, top-left, clipped, never stretched.
+ * Larger mismatches (stale frames during a resize storm) are dropped. A streak of [MISMATCH_REPORT_AFTER] of them in a
  * row (CEF never reaching the requested size, e.g. a float/double rounding difference) is reported once through
  * [onPersistentMismatch]; a matching paint ends the streak.
  *
@@ -56,6 +58,8 @@ internal class OsrFrameBuffer(
     private val onPersistentMismatch: (String) -> Unit = {},
 ) {
     private val lock = Any()
+    private var requestedW = 0
+    private var requestedH = 0
     private var width = 0
     private var height = 0
     private var view = ByteArray(0)
@@ -79,25 +83,32 @@ internal class OsrFrameBuffer(
         const val MISMATCH_REPORT_AFTER = 30
     }
 
-    /** Sets the view size in pixels. Paints of any other size are dropped until CEF catches up; the shown frame is kept. */
+    /** Sets the view size in pixels. Paints of a clearly other size are dropped until CEF catches up; the shown frame is kept. */
     fun resize(widthPx: Int, heightPx: Int) {
         synchronized(lock) {
-            if (widthPx == width && heightPx == height) return
-            width = widthPx
-            height = heightPx
-            hasPainted = false
-            mismatchStreak = 0
-            if (widthPx > 0 && heightPx > 0) {
-                view = ByteArray(widthPx * heightPx * 4)
-                val bmp = Bitmap()
-                bmp.allocPixels(ImageInfo(widthPx, heightPx, ColorType.BGRA_8888, ColorAlphaType.PREMUL))
-                front = bmp
-                frontAddr = bmp.peekPixels()?.takeIf { it.rowBytes == widthPx * 4 }?.addr ?: 0L
-            } else {
-                view = ByteArray(0)
-                front = null
-                frontAddr = 0L
-            }
+            if (widthPx == requestedW && heightPx == requestedH) return
+            requestedW = widthPx
+            requestedH = heightPx
+            allocate(widthPx, heightPx)
+        }
+    }
+
+    /** Reallocates the pixel storage for a [widthPx] x [heightPx] view; the caller holds [lock]. */
+    private fun allocate(widthPx: Int, heightPx: Int) {
+        width = widthPx
+        height = heightPx
+        hasPainted = false
+        mismatchStreak = 0
+        if (widthPx > 0 && heightPx > 0) {
+            view = ByteArray(widthPx * heightPx * 4)
+            val bmp = Bitmap()
+            bmp.allocPixels(ImageInfo(widthPx, heightPx, ColorType.BGRA_8888, ColorAlphaType.PREMUL))
+            front = bmp
+            frontAddr = bmp.peekPixels()?.takeIf { it.rowBytes == widthPx * 4 }?.addr ?: 0L
+        } else {
+            view = ByteArray(0)
+            front = null
+            frontAddr = 0L
         }
     }
 
@@ -127,11 +138,13 @@ internal class OsrFrameBuffer(
                 popupH = height
             } else {
                 if (width != this.width || height != this.height) {
-                    if (++mismatchStreak >= MISMATCH_REPORT_AFTER && !mismatchReported) {
+                    if (this.width > 0 && kotlin.math.abs(width - this.width) <= 1 && kotlin.math.abs(height - this.height) <= 1) {
+                        allocate(width, height) // CEF rounds the size differently from us: follow it
+                    } else if (++mismatchStreak >= MISMATCH_REPORT_AFTER && !mismatchReported) {
                         mismatchReported = true
                         onPersistentMismatch("CEF keeps painting ${width}x$height while the view is ${this.width}x${this.height} px")
                     }
-                    return
+                    if (this.width != width || this.height != height) return
                 }
                 mismatchStreak = 0
                 for (d in dirty) {

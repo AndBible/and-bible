@@ -19,7 +19,7 @@ package net.bible.sharedui.desktop.webengine.kcef
 /**
  * How the pane's browser is rendered. Read once per process (CEF initialises once, and its windowless setting is global):
  * off-screen ([Osr], the default) paints into a Compose canvas, so Compose popups and dialogs stay in-window; windowed is a
- * heavyweight CEF component in a \`SwingPanel\` (the fallback; it needs Compose layers as own windows to show above the pane).
+ * heavyweight CEF component in a `SwingPanel` (the fallback; it needs Compose layers as own windows to show above the pane).
  */
 internal enum class KcefRenderingMode(val windowless: Boolean) {
     Windowed(false),
@@ -27,10 +27,10 @@ internal enum class KcefRenderingMode(val windowless: Boolean) {
     ;
 
     companion object {
-        /** System property that selects the mode: \`osr\` (default) or \`windowed\`. */
+        /** System property that selects the mode: `osr` (default) or `windowed`. */
         const val PROPERTY = "andbible.kcef.rendering"
 
-        /** The mode named by [value]: null or \`osr\` is [Osr], \`windowed\` is [Windowed]; anything else is [Osr] with one [log] line. */
+        /** The mode named by [value]: null or `osr` is [Osr], `windowed` is [Windowed]; anything else is [Osr] with one [log] line. */
         fun parse(value: String?, log: (String) -> Unit): KcefRenderingMode = when (value) {
             null, "osr" -> Osr
             "windowed" -> Windowed
