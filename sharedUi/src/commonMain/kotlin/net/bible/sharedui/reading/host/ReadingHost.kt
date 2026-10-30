@@ -222,6 +222,18 @@ class ReadingHostDeps(
 )
 
 /**
+ * Registers the reading view's own overlays with [net.bible.sharedui.components.OverlayPresence], so the platform can give
+ * the keyboard back to the pane when the last one closes: an open (or opening) drawer, a sheet closing over it must not
+ * hand the keys back; and the in-reading search bar, whose field takes the focus while it is up and which leaves it
+ * nowhere when it closes.
+ */
+@Composable
+internal fun ReadingOverlayTracking(drawerActive: Boolean, searchBarOpen: Boolean) {
+    TrackOverlay(active = drawerActive)
+    TrackOverlay(active = searchBarOpen)
+}
+
+/**
  * The reading view: the toolbar, the panes and the window rail, with the drawer around them and
  * every overlay as a sibling, all driven from [deps].
  *
@@ -336,8 +348,10 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         }
     }
 
-    // An open (or opening) drawer is an overlay too: a sheet closing over it must not hand the keys back to the pane.
-    TrackOverlay(active = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open)
+    ReadingOverlayTracking(
+        drawerActive = md3DrawerState.currentValue == DrawerValue.Open || md3DrawerState.targetValue == DrawerValue.Open,
+        searchBarOpen = searchBar != null,
+    )
 
     ModalNavigationDrawer(
         modifier = modifier,

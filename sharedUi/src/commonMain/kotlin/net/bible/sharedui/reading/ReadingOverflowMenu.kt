@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.UncappedFontScale
 
 /**
@@ -57,6 +58,8 @@ fun ReadingOverflowMenu(
     modifier: Modifier = Modifier,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
+    // Closing the menu (Esc) leaves the focus nowhere: the platform returns the keys to the pane that had them.
+    TrackOverlay(active = expanded)
     val mono = isPureMonochrome()
     UncappedFontScale {
         DropdownMenu(

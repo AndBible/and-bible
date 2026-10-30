@@ -102,6 +102,8 @@ object DesktopWebPaneKeys {
      * already. Returns whether a pane was asked.
      */
     fun restoreAfterOverlay(): Boolean {
+        // Posted to the event thread: a menu item may have opened a sheet in the meantime.
+        if (OverlayPresence.count > 0) return false
         val pane = beforeOverlay.getAndSet(null) as? FocusRestorable ?: return false
         if (owner.get() != null) return false
         pane.requestFocus()

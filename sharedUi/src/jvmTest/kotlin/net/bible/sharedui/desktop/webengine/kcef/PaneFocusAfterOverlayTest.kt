@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.OverlayPresence
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
+import net.bible.sharedui.reading.host.ReadingOverlayTracking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -207,6 +208,68 @@ class PaneFocusAfterOverlayTest {
                 runOnIdle { overlay = true }
                 runOnIdle { other.requestFocus() }
                 runOnIdle { overlay = false }
+                runOnIdle { assertEquals(listOf(true, false), sink.focus) }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun paneRegainsFocusWhenTheSearchBarCloses() = runComposeUiTest {
+        // Ctrl+F in the pane opens the search bar, whose field takes the focus; closing the bar leaves the focus nowhere.
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        val field = FocusRequester()
+        var bar by mutableStateOf(false)
+        withRestoreListener {
+            try {
+                setContent {
+                    ReadingOverlayTracking(drawerActive = false, searchBarOpen = bar)
+                    Column {
+                        Box(Modifier.size(20.dp).osrKeyboard(pane))
+                        if (bar) Box(Modifier.size(20.dp).focusRequester(field).focusable())
+                    }
+                }
+                runOnIdle { pane.requester.requestFocus() }
+                runOnIdle { bar = true }
+                runOnIdle { field.requestFocus() }
+                runOnIdle { assertFalse(DesktopWebPaneKeys.ownsKeys) }
+                runOnIdle { bar = false }
+                runOnIdle {
+                    assertEquals(listOf(true, false, true), sink.focus)
+                    assertTrue(DesktopWebPaneKeys.ownsKeys)
+                }
+            } finally {
+                pane.release()
+            }
+        }
+    }
+
+    @Test fun aMenuItemThatOpensASheetDoesNotRestoreBetweenThem() = runComposeUiTest {
+        val sink = Sink()
+        val pane = OsrFocus(sink)
+        val other = FocusRequester()
+        var menu by mutableStateOf(false)
+        var sheet by mutableStateOf(false)
+        withRestoreListener {
+            // Production posts the restore to the event thread; run it after the composition has settled, as it does.
+            var pending = false
+            OverlayPresence.onAllClosed = { pending = true }
+            try {
+                setContent {
+                    Column {
+                        Box(Modifier.size(20.dp).osrKeyboard(pane))
+                        Box(Modifier.size(20.dp).focusRequester(other).focusable())
+                        TrackOverlay(active = menu)
+                        TrackOverlay(active = sheet)
+                    }
+                }
+                runOnIdle { pane.requester.requestFocus() }
+                runOnIdle { menu = true }
+                runOnIdle { other.requestFocus() }
+                // The menu closes as its item opens a sheet: the count never settles at zero for the restore.
+                runOnIdle { sheet = true; menu = false }
+                runOnIdle { if (pending) DesktopWebPaneKeys.restoreAfterOverlay() }
                 runOnIdle { assertEquals(listOf(true, false), sink.focus) }
             } finally {
                 pane.release()
