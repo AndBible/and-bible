@@ -82,20 +82,49 @@ class OsrInputTest {
         assertEquals(Point(2, 3), Point(sink.mouse[0].x, sink.mouse[0].y))
     }
 
-    @Test fun wheelDeltaKeepsPreciseRotation() {
-        assertTrue(input.wheel(100f, 100f, 0, 0.25))
-        assertTrue(input.wheel(100f, 100f, 0, -2.5))
-        assertEquals(0.25, sink.wheel[0].preciseWheelRotation, 0.0)
-        assertEquals(1, sink.wheel[0].wheelRotation, "a fractional step still scrolls in its direction")
-        assertEquals(-2.5, sink.wheel[1].preciseWheelRotation, 0.0)
+    /** What CEF receives: rotation sign is inverted (CEF scrolls up on positive) and amount carries 120 px per notch. */
+    private fun assertWheel(e: MouseWheelEvent, rotation: Int, amount: Int) {
+        assertEquals(rotation, e.wheelRotation)
+        assertEquals(rotation.toDouble(), e.preciseWheelRotation, 0.0)
+        assertEquals(MouseWheelEvent.WHEEL_UNIT_SCROLL, e.scrollType)
+        assertEquals(amount, e.scrollAmount)
+    }
+
+    @Test fun oneNotchDownReachesCefAsMinusOneTimes120() {
+        assertTrue(input.wheel(100f, 100f, 0, 1.0))
+        assertWheel(sink.wheel.single(), -1, OsrInput.WHEEL_PIXELS_PER_NOTCH)
+        assertEquals(120, OsrInput.WHEEL_PIXELS_PER_NOTCH)
         assertEquals(Point(50, 50), Point(sink.wheel[0].x, sink.wheel[0].y))
-        // Horizontal wheel arrives from the toolkit as shift-wheel and stays that way.
-        assertTrue(input.wheel(0f, 0f, InputEvent.SHIFT_DOWN_MASK, 3.0))
-        assertTrue(sink.wheel[2].modifiersEx and InputEvent.SHIFT_DOWN_MASK != 0)
+    }
+
+    @Test fun halfANotchAndUpAndManyNotches() {
+        input.wheel(0f, 0f, 0, 0.5)
+        input.wheel(0f, 0f, 0, -1.0)
+        input.wheel(0f, 0f, 0, 2.5)
+        assertWheel(sink.wheel[0], -1, 60)
+        assertWheel(sink.wheel[1], 1, 120)
+        assertWheel(sink.wheel[2], -1, 300)
+        assertTrue(!input.wheel(0f, 0f, 0, 0.0))
+    }
+
+    @Test fun horizontalStaysShiftWheelWithTheSameMagnitude() {
+        assertTrue(input.wheel(0f, 0f, InputEvent.SHIFT_DOWN_MASK, 1.0))
+        val e = sink.wheel.single()
+        assertTrue(e.modifiersEx and InputEvent.SHIFT_DOWN_MASK != 0)
+        assertWheel(e, -1, 120)
     }
 
     @Test fun ctrlWheelForwardedWithModifier() {
         assertTrue(input.wheel(10f, 10f, InputEvent.CTRL_DOWN_MASK, -1.0))
+        val e = sink.wheel.single()
+        assertTrue(e.modifiersEx and InputEvent.CTRL_DOWN_MASK != 0)
+        assertWheel(e, 1, 120)
+    }
+
+    @Test fun anAwtWheelOriginalIsResynthesised() {
+        val original = MouseWheelEvent(source, MouseEvent.MOUSE_WHEEL, 0L, InputEvent.CTRL_DOWN_MASK, 9, 9, 9, 9, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 3, 1, 1.0)
+        assertTrue(input.handle(PointerEventType.Scroll, null, 20f, 20f, original, 0, 0f, 0f))
+        assertWheel(sink.wheel.single(), -1, 120)
         assertTrue(sink.wheel.single().modifiersEx and InputEvent.CTRL_DOWN_MASK != 0)
     }
 
@@ -126,13 +155,13 @@ class OsrInputTest {
         assertTrue(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, 0, 3f, 1f))
         val e = sink.wheel.single()
         assertTrue(e.modifiersEx and InputEvent.SHIFT_DOWN_MASK != 0)
-        assertEquals(3.0, e.preciseWheelRotation, 0.0)
+        assertWheel(e, -1, 360)
         // Vertical dominates: no shift, and the sign is kept.
         assertTrue(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, InputEvent.CTRL_DOWN_MASK, 1f, -2f))
         val v = sink.wheel[1]
         assertEquals(0, v.modifiersEx and InputEvent.SHIFT_DOWN_MASK)
         assertTrue(v.modifiersEx and InputEvent.CTRL_DOWN_MASK != 0)
-        assertEquals(-2.0, v.preciseWheelRotation, 0.0)
+        assertWheel(v, 1, 240)
         assertFalse(input.handle(PointerEventType.Scroll, null, 10f, 10f, null, 0, 0f, 0f), "a zero scroll sends nothing")
     }
 

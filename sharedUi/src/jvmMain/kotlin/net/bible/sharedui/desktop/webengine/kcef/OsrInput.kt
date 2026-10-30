@@ -78,17 +78,24 @@ internal class OsrInput(
     }
 
     /**
-     * Forwards a wheel turn of [preciseRotation] notches (positive scrolls down), keeping the fraction. Horizontal scrolling
-     * is expected as shift-wheel in [modifiersEx], as AWT delivers it.
+     * Forwards a wheel turn of [preciseRotation] notches (positive scrolls down). Horizontal scrolling is expected as
+     * shift-wheel in [modifiersEx], as AWT delivers it. The event is always synthesised so that CEF receives
+     * -(notches * [WHEEL_PIXELS_PER_NOTCH]) pixels on the dominant axis, see [WHEEL_PIXELS_PER_NOTCH].
      */
-    fun wheel(xPx: Float, yPx: Float, modifiersEx: Int, preciseRotation: Double, scrollType: Int = MouseWheelEvent.WHEEL_UNIT_SCROLL, scrollAmount: Int = 1): Boolean {
+    fun wheel(xPx: Float, yPx: Float, modifiersEx: Int, preciseRotation: Double): Boolean {
         if (preciseRotation == 0.0) return false
         val g = geometry()
         val p = g.toViewDip(xPx, yPx)
         val screen = g.toScreen(p)
-        // The integer rotation never rounds a real turn down to nothing.
-        val whole = preciseRotation.roundToInt().let { if (it == 0) if (preciseRotation > 0) 1 else -1 else it }
-        sink.sendWheel(MouseWheelEvent(source, MouseEvent.MOUSE_WHEEL, clock(), modifiersEx, p.x, p.y, screen.x, screen.y, 0, false, scrollType, scrollAmount, whole, preciseRotation))
+        // Rotation is the same +-1 as an integer and as a double, so whichever JCEF multiplies gives the same sign.
+        val rotation = if (preciseRotation > 0) -1 else 1
+        val amount = maxOf(1, (abs(preciseRotation) * WHEEL_PIXELS_PER_NOTCH).roundToInt())
+        sink.sendWheel(
+            MouseWheelEvent(
+                source, MouseEvent.MOUSE_WHEEL, clock(), modifiersEx, p.x, p.y, screen.x, screen.y, 0, false,
+                MouseWheelEvent.WHEEL_UNIT_SCROLL, amount, rotation, rotation.toDouble(),
+            ),
+        )
         return true
     }
 
@@ -124,7 +131,7 @@ internal class OsrInput(
             PointerEventType.Exit -> { exited(x, y, modifiers); true }
             PointerEventType.Scroll -> {
                 if (awt is MouseWheelEvent) {
-                    wheel(x, y, modifiers, awt.preciseWheelRotation, awt.scrollType, awt.scrollAmount)
+                    wheel(x, y, modifiers, awt.preciseWheelRotation)
                 } else {
                     val horizontal = abs(scrollX) > abs(scrollY)
                     wheel(x, y, if (horizontal) modifiers or InputEvent.SHIFT_DOWN_MASK else modifiers, (if (horizontal) scrollX else scrollY).toDouble())
@@ -135,6 +142,14 @@ internal class OsrInput(
     }
 
     companion object {
+        /**
+         * Pixels CEF scrolls per wheel notch, the amount the windowed pane's page sees as DOM `deltaY` (120 per notch, which
+         * the page's scripts and gestures expect). Measured live: JCEF's off-screen wheel path takes rotation times
+         * scrollAmount as the CEF delta, with CEF's sign (positive scrolls up), so a plain AWT notch (rotation 1, amount 3)
+         * arrived as deltaY = -3. The pane therefore sends rotation `-sign` and amount `|notches| * 120`.
+         */
+        const val WHEEL_PIXELS_PER_NOTCH = 120
+
         private const val BUTTON_DOWN_MASKS = InputEvent.BUTTON1_DOWN_MASK or InputEvent.BUTTON2_DOWN_MASK or InputEvent.BUTTON3_DOWN_MASK
 
         /** AWT button number of a Compose button; back and forward are 4 and 5, null is [MouseEvent.NOBUTTON]. */
