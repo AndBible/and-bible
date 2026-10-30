@@ -4,10 +4,10 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.ports.DocumentRef
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class HostAppIncomingFilesTest {
     private val events = mutableListOf<String>()
@@ -50,11 +50,12 @@ class HostAppIncomingFilesTest {
         assertEquals(listOf("restore file:///x.abdb.zip", "install [file:///odd.zip]", "complete"), events)
     }
 
-    @Test fun filePathIsDecodedFromFileUri() {
-        assertEquals("/home/u/My Files/ä.abdb.zip", incomingFilePath(DocumentRef("file:///home/u/My%20Files/%C3%A4.abdb.zip")))
-        assertEquals("/tmp/x.zip", incomingFilePath(DocumentRef("/tmp/x.zip")))
-        assertEquals("/tmp/x.zip", incomingFilePath(DocumentRef("file:/tmp/x.zip")))
-        assertNull(incomingFilePath(DocumentRef("content://x/y")))
-        assertNull(incomingFilePath(DocumentRef("file://host/x")))
+    @Test fun successfulRestoreReleasesWelcomeOnlyOnWelcome() {
+        var released = 0
+        afterIncomingRestore(NavRoutes.WELCOME) { released++ }
+        afterIncomingRestore(NavRoutes.WELCOME + "?x=1") { released++ }
+        afterIncomingRestore("reading") { released++ }
+        afterIncomingRestore(null) { released++ }
+        assertEquals(2, released)
     }
 }

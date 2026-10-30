@@ -18,6 +18,8 @@
 package net.bible.android.control.backup
 
 import kotlinx.coroutines.runBlocking
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
 import okio.Buffer
 import okio.source
 import java.io.ByteArrayOutputStream
@@ -31,9 +33,13 @@ import kotlin.test.assertTrue
 class IncomingBackupDetectorTest {
     private val fixture = File("../app/src/test/resources/l1b-g2/db-backup.abdb.zip")
 
-    private fun zipOf(vararg names: String): ByteArray {
+    private fun zipOf(vararg names: String, manifest: BackupType? = null): ByteArray {
         val bytes = ByteArrayOutputStream()
         ZipOutputStream(bytes).use { z ->
+            if (manifest != null) {
+                z.putNextEntry(ZipEntry("AndBibleBackupManifest.json"))
+                z.write(AndBibleBackupManifest(manifest).toJson().toByteArray()); z.closeEntry()
+            }
             for (n in names) { z.putNextEntry(ZipEntry(n)); z.write("x".toByteArray()); z.closeEntry() }
         }
         return bytes.toByteArray()
@@ -44,20 +50,39 @@ class IncomingBackupDetectorTest {
     @Test fun realBackupZipIsDetectedByContentUnderAnyName() {
         assertTrue(fixture.isFile, "fixture missing: ${fixture.absolutePath}")
         assertTrue(runBlocking { IncomingBackupDetector.isDatabaseBackup("copy of backup.zip") { fixture.source() } })
+        assertTrue(runBlocking { IncomingBackupDetector.isDatabaseBackup("db$DATABASE_BACKUP_SUFFIX") { fixture.source() } })
     }
 
-    @Test fun backupNamesNeedNoReading() {
-        assertTrue(runBlocking { IncomingBackupDetector.isDatabaseBackup("a.abdb") { error("must not open") } })
-        assertTrue(runBlocking { IncomingBackupDetector.isDatabaseBackup("A.ABDB.ZIP") { error("must not open") } })
+    @Test fun studyPadExportNamedAsBackupIsNotARestore() {
+        // StudyPad exports are named <pad>.abdb.zip and carry db/bookmarks.sqlite3: InstallZip imports them.
+        val pad = zipOf("db/bookmarks.sqlite3", manifest = BackupType.STUDYPAD_EXPORT)
+        assertFalse(detect("x$DATABASE_BACKUP_SUFFIX", pad))
+        assertFalse(detect("StudyPads$DATABASE_BACKUP_SUFFIX", pad))
+    }
+
+    @Test fun moduleBackupIsNotARestore() {
+        assertFalse(detect("AndBibleModulesBackup.abmd.zip", zipOf("modules/x", manifest = BackupType.MODULE_BACKUP)))
+        assertFalse(detect("m$DATABASE_BACKUP_SUFFIX", zipOf("db/bookmarks.sqlite3", manifest = BackupType.MODULE_BACKUP)))
+    }
+
+    @Test fun nameAloneNeverDecides() {
+        assertFalse(detect("a$DATABASE_BACKUP_SUFFIX", zipOf("mods.d/kjv.conf")))
+    }
+
+    @Test fun manifestedDbBackupIsARestore() {
+        assertTrue(detect("x.zip", zipOf("db/bookmarks.sqlite3", manifest = BackupType.DB_BACKUP)))
+    }
+
+    @Test fun manifestlessLegacyBackupFallsBackToDbEntries() {
+        assertTrue(detect("old.zip", zipOf("db/bookmarks.sqlite3")))
     }
 
     @Test fun moduleZipIsNotABackup() {
         assertFalse(detect("KJV.zip", zipOf("mods.d/kjv.conf", "modules/texts/ztext/kjv/ot.bzs")))
     }
 
-    @Test fun zipWithOnlyUnknownDbEntryOrNoNameIsNotABackup() {
+    @Test fun zipWithOnlyUnknownDbEntryOrManifestlessNonDbIsNotABackup() {
         assertFalse(detect("x.zip", zipOf("db/unrelated.sqlite3")))
-        assertFalse(detect(null, zipOf("AndBibleBackupManifest.json")))
     }
 
     @Test fun nonZipAndBrokenFilesAreNotBackups() {
@@ -66,7 +91,8 @@ class IncomingBackupDetectorTest {
         assertFalse(detect("broken.zip", "not a zip at all".toByteArray()))
     }
 
-    @Test fun manifestEntryAloneMarksABackup() {
-        assertTrue(detect("x.zip", zipOf("AndBibleBackupManifest.json")))
+    @Test fun legacyMonolithicAbdbIsABackupOnlyWithSqliteHeader() {
+        assertTrue(detect("old.abdb", "SQLite format 3\u0000rest".toByteArray()))
+        assertFalse(detect("old.abdb", "nope".toByteArray()))
     }
 }

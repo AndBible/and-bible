@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.sharedui.host.app
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.ports.DocumentRef
 
 /**
@@ -40,29 +58,7 @@ internal class IncomingFileRouter(
     private companion object { const val TAG = "IncomingFileRouter" }
 }
 
-/**
- * The absolute path of a `file:` document reference (the `PickedSource` token of the file pickers), percent-decoded;
- * a reference that is already a plain absolute path is returned as is; null for any other scheme.
- */
-internal fun incomingFilePath(ref: DocumentRef): String? {
-    val uri = ref.uri
-    val raw = when {
-        uri.startsWith("file://") -> uri.removePrefix("file://").substringBefore('?').substringBefore('#')
-        uri.startsWith("file:/") -> uri.removePrefix("file:").substringBefore('?').substringBefore('#')
-        uri.startsWith("/") -> return uri.takeIf { '\u0000' !in it }
-        else -> return null
-    }
-    val path = raw.let { if (it.startsWith("localhost/")) it.removePrefix("localhost") else it }
-    if (!path.startsWith("/")) return null
-    val bytes = ArrayList<Byte>(path.length)
-    var i = 0
-    while (i < path.length) {
-        val c = path[i]
-        if (c == '%' && i + 2 < path.length) {
-            val v = path.substring(i + 1, i + 3).toIntOrNull(16)
-            if (v != null) { bytes.add(v.toByte()); i += 3; continue }
-        }
-        bytes.addAll(c.toString().encodeToByteArray().toList()); i++
-    }
-    return bytes.toByteArray().decodeToString().takeIf { '\u0000' !in it }
+/** Only [NavRoutes.WELCOME] is stale after a restore: elsewhere nothing waits for it ([afterWelcomeRestore] is Welcome's `afterRestore`). */
+internal fun afterIncomingRestore(currentRoute: String?, afterWelcomeRestore: () -> Unit) {
+    if (currentRoute?.substringBefore('?') == NavRoutes.WELCOME) afterWelcomeRestore()
 }

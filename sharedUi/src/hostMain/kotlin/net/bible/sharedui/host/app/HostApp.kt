@@ -72,6 +72,7 @@ import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupHost
 import net.bible.android.control.backup.IncomingBackupDetector
+import net.bible.android.control.backup.restorePickedBackup
 import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.service.cloudsync.host.HostBackupHost
 import net.bible.service.cloudsync.host.HostErrorReportHooks
@@ -81,6 +82,7 @@ import net.bible.service.sword.hasUsableBible
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
@@ -511,26 +513,30 @@ private fun HostAppContent(
     LaunchedEffect(appHosts, navController) {
         // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
         navController.currentBackStackEntryFlow.first()
+        val io = net.bible.sharedui.host.ports.installPipelineIo()
+        fun sourceOf(ref: DocumentRef): PickedSource {
+            val path = io.filePath(ref.uri)
+            return PickedSource(path, path.substringAfterLast('/'), null)
+        }
         val router = IncomingFileRouter(
             scope = scope,
             isBackup = { ref ->
-                val path = incomingFilePath(ref) ?: return@IncomingFileRouter false
-                val source = PickedSource(path, path.substringAfterLast('/'), null)
+                val source = sourceOf(ref)
                 val host = koin.get<BackupHost>()
                 withContext(Dispatchers.Default) {
                     IncomingBackupDetector.isDatabaseBackup(source.displayName) { host.openInput(source) }
                 }
             },
             restore = { ref ->
-                val path = checkNotNull(incomingFilePath(ref))
+                val source = sourceOf(ref)
                 val host = koin.get<BackupHost>()
-                val source = PickedSource(path, path.substringAfterLast('/'), null)
-                // The Welcome screen's restore, minus its picker: errors are reported the same way.
-                net.bible.android.control.backup.restorePickedBackup(
+                // The Welcome screen's restore, minus its picker: errors are reported and Welcome is released the same way.
+                restorePickedBackup(
                     pick = { source },
                     restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
                     reportError = { message, cause -> host.showErrorReport(message, cause) },
                     fallbackError = { koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred },
+                    afterRestore = { afterIncomingRestore(navController.currentDestination?.route, welcome.afterRestore) },
                 )
             },
             install = { refs, complete ->
