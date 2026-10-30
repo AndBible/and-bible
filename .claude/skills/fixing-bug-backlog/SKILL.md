@@ -99,7 +99,7 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
    earlier fix commit in the issue comment. A child that could not fix it safely: merge nothing,
    report it to the user, no comment.
 
-## 5. Stage a comment per fixed issue
+## 5. Stage a comment and a close per fixed issue
 
 One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` action per issue
 (regenerate it as fixes land; start a new NNN once the user has applied it). Comment shape:
@@ -107,8 +107,11 @@ One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` ac
 version." End every comment with a signature as its final line, separated by a blank line:
 `_— bug-fix round, <Mon YYYY>_` (e.g. `_— bug-fix round, Oct 2026_`), so the maintainer's own
 comments are never confused with session-written ones (same idea as the triage marker in
-issue-management). Read the issue title first so the comment matches what was reported. Do not close
-issues: `Fixes #<n>` commits close them when they reach the default branch. Tell the user to run
+issue-management). Read the issue title first so the comment matches what was reported. Close each fixed
+issue in the same manifest, right after its comment: a `state` action with `"state": "closed"`,
+`"reason": "completed"` (the maintainer wants fixed issues closed when the fix is merged here,
+not only when the `Fixes #<n>` commit reaches the default branch). An issue found already fixed is
+closed too; one the round did not fix (nothing merged, or not reproducible) is not. Tell the user to run
 `jb issue apply <container>` on the host.
 
 ## 6. Final gate and report
