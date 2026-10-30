@@ -87,8 +87,11 @@ class EncipheredReadGateTest {
                 val lock = manager.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(manager)!!
                 synchronized(lock) {
                     @Suppress("UNCHECKED_CAST")
-                    (field.get(manager) as MutableMap<org.crosswire.jsword.book.BookMetaData, ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>)
-                        .remove(book.bookMetaData)?.forEach { it.releaseResources() }
+                    (field.get(manager) as MutableMap<Any, ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>).values.forEach { pooled ->
+                        pooled.removeAll { state ->
+                            (state.getBookMetaData() === book.bookMetaData).also { if (it) state.releaseResources() }
+                        }
+                    }
                 }
                 withoutInstallWatcher { Books.installed().removeBook(book) }
             }
