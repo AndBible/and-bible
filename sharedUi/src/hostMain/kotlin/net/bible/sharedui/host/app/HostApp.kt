@@ -105,6 +105,7 @@ import net.bible.sharedui.host.reading.HostReadingResults
 import net.bible.sharedui.host.reading.HostReadingWindows
 import net.bible.sharedui.host.reading.askedByActiveWindow
 import net.bible.sharedui.host.reading.hostChooserTarget
+import net.bible.sharedui.host.reading.ReadingBackRoute
 import net.bible.sharedui.host.reading.hostReadingNavDeps
 import net.bible.sharedui.host.reading.rememberIosPaneIcons
 import net.bible.sharedui.host.reading.rememberIosReadingIcons
@@ -476,7 +477,7 @@ private fun HostAppContent(
         startRoute = route,
         graphs = graphs,
         readingGraph = {
-            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors()) {
+            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors(), readingHostHolder.backRoute::onBack) {
                 if (nightObserver != null) HostReadingDestination(platform, shell, table, strings, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
             })
         },
@@ -564,6 +565,9 @@ private class ReadingHostHolder(
 ) {
     private var host: HostReadingHost? = null
 
+    /** The destination's back press, routed to the host's back chain once the host exists. */
+    val backRoute = ReadingBackRoute()
+
     /** The app's current strings: the host reads them per use, so a language change shows without rebuilding the host. */
     private var currentStrings: Strings? = null
 
@@ -581,6 +585,7 @@ private class ReadingHostHolder(
             readingResults = readingResults,
         ).also {
             host = it
+            backRoute.chain = it.backChain
             HostRootLinks.attachReading(it.navigator, it::openSearchStrongs)
             HostReadingWindows.bind(it, HostReadingReady.scope, koin, koin.get<NightModeState>(), platform.paneEngine)
         }

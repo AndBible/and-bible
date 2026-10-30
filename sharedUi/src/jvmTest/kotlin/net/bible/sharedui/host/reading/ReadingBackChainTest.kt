@@ -114,3 +114,31 @@ class ReadingBackChainTest {
         assertFalse(DesktopBackDispatcher.back())
     }
 }
+
+/** The late binding between the reading destination's deps (built before the host exists) and the host's back chain. */
+class ReadingBackRouteTest {
+    private fun chain(log: MutableList<String>, drawer: Boolean) = ReadingBackChain(
+        isDrawerOpen = { drawer },
+        closeDrawer = { log += "drawer" },
+        isSearchSheetVisible = { false },
+        closeSearchSheet = {},
+        isSearchBarOpen = { false },
+        closeSearchBar = {},
+    )
+
+    @Test fun passesThroughUntilTheHostExists() {
+        var passed = 0
+        ReadingBackRoute().onBack { passed++ }
+        assertEquals(1, passed)
+    }
+
+    @Test fun routesToTheHostChainOnceItIsBound() {
+        val log = mutableListOf<String>()
+        var passed = 0
+        val route = ReadingBackRoute()
+        route.chain = chain(log, drawer = true)
+        route.onBack { passed++ }
+        assertEquals(listOf("drawer"), log)
+        assertEquals(0, passed)
+    }
+}

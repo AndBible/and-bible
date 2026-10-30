@@ -40,3 +40,18 @@ internal class ReadingBackChain(
         }
     }
 }
+
+/**
+ * The reading destination's `onBack`, bound late: the destination's deps are built before the [HostReadingHost] exists
+ * (it is created on first composition of the destination), so they call this route, which passes the press through until
+ * the host has set [chain].
+ */
+internal class ReadingBackRoute {
+    @kotlin.concurrent.Volatile
+    var chain: ReadingBackChain? = null
+
+    fun onBack(passThrough: () -> Unit) {
+        val c = chain
+        if (c == null) passThrough() else c.onBack(passThrough)
+    }
+}
