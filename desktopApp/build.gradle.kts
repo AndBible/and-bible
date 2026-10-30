@@ -1,3 +1,5 @@
+import java.awt.image.BufferedImage
+import java.awt.RenderingHints
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
@@ -221,6 +223,14 @@ val rootVersionProperties = Properties().apply {
     rootProject.layout.projectDirectory.file("version.properties").asFile.inputStream().use { load(it) }
 }
 val desktopVersion = desktopPackageVersion(rootVersionProperties)
+val windowsIdentity = mapOf("NAME" to "AndBible.Desktop", "PUBLISHER" to "CN=AndBible-Unsigned")
+val windowsUpgradeUuid = "8D66BF6B-67E6-4EFD-88AA-6C2C20D794A8"
+val windowsPackageVersion = providers.gradleProperty("windowsPackageVersion").orElse(desktopVersion).get()
+val windowsVersionParts = windowsPackageVersion.split('.')
+require(windowsVersionParts.size == 3 && windowsVersionParts.all { it.matches(Regex("0|[1-9][0-9]*")) && (it.toIntOrNull() ?: -1) in 0..65535 }) {
+    "windowsPackageVersion must have three numeric components in 0..65535"
+}
+require(windowsVersionParts[0].toInt() in 1..255 && windowsVersionParts[1].toInt() <= 255) { "MSI major/minor exceed 255" }
 // Compose passes the project version to jpackage as `--app-version` (packageVersion/debPackageVersion do not reach it
 // for Linux); unset it would be 1.0.0.
 version = desktopVersion
@@ -231,16 +241,23 @@ compose.desktop {
         mainClass = "net.bible.desktop.MainKt"
         nativeDistributions {
             appResourcesRootDir.set(layout.buildDirectory.dir("desktop-resources"))
-            targetFormats(TargetFormat.Deb)
+            targetFormats(if (isWindowsHost) TargetFormat.Msi else TargetFormat.Deb)
             // The launcher's name: /opt/andbible/bin/andbible on Linux, AndBible.exe on Windows.
             packageName = if (isWindowsHost) "AndBible" else "andbible"
-            packageVersion = desktopVersion
+            packageVersion = if (isWindowsHost) windowsPackageVersion else desktopVersion
             description = "Offline Bible study app"
             vendor = "AndBible"
             licenseFile.set(rootProject.layout.projectDirectory.file("LICENSE.txt"))
             // jlink module set: the suggestRuntimeModules result plus what TLS (jdk.crypto.ec) and HTTP clients
             // (java.net.http) need at run time, and jdk.localedata the non-English locales, which static analysis cannot see.
             modules("java.instrument", "java.management", "jdk.unsupported", "jdk.crypto.ec", "java.net.http", "jdk.localedata", "jdk.security.auth")
+            windows {
+                upgradeUuid = windowsUpgradeUuid
+                msiPackageVersion = windowsPackageVersion
+                menu = true
+                shortcut = true
+                perUserInstall = true
+            }
             linux {
                 iconFile.set(project.file("packaging/linux/andbible.png"))
                 debMaintainer = "AndBible <and-bible-support@googlegroups.com>"
@@ -482,5 +499,91 @@ val packageWindowsZip by tasks.registering(Zip::class) {
             "AndBible/app/resources/kcef-natives/jcef_helper.exe", "AndBible/runtime/bin/java.dll")) {
             check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
         }
+    }
+}
+
+
+val windowsMsixStage = layout.buildDirectory.dir("windows-msix/staging")
+val generateWindowsManifest by tasks.registering {
+    val template = layout.projectDirectory.file("packaging/windows/AppxManifest.xml.template")
+    val icon = layout.projectDirectory.file("packaging/linux/andbible.png")
+    inputs.files(template, icon)
+    inputs.property("identity", windowsIdentity)
+    inputs.property("version", windowsPackageVersion)
+    outputs.dir(windowsMsixStage)
+    doLast {
+        val stage = windowsMsixStage.get().asFile.apply { mkdirs() }
+        var manifest = template.asFile.readText()
+        (windowsIdentity + ("VERSION" to "$windowsPackageVersion.0")).forEach { (key, value) ->
+            val escaped = value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;")
+            manifest = manifest.replace("@$key@", escaped)
+        }
+        File(stage, "AppxManifest.xml").writeText(manifest)
+        val source = javax.imageio.ImageIO.read(icon.asFile) ?: error("Cannot read app icon")
+        val assets = File(stage, "Assets").apply { mkdirs() }
+        for ((name, size) in listOf("StoreLogo" to 50, "Square150x150Logo" to 150, "Square44x44Logo" to 44)) {
+            val image = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+            val graphics = image.createGraphics()
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
+            graphics.drawImage(source, 0, 0, size, size, null)
+            graphics.dispose()
+            check(javax.imageio.ImageIO.write(image, "png", File(assets, "$name.png")))
+        }
+    }
+}
+tasks.named<Test>("test") { dependsOn(generateWindowsManifest) }
+
+fun windowsSdkTool(name: String): String {
+    val sdk = System.getenv("WindowsSdkDir")?.let(::File)
+        ?: File(System.getenv("ProgramFiles(x86)") ?: "C:\\Program Files (x86)", "Windows Kits\\10")
+    val bin = File(sdk, "bin")
+    return bin.listFiles().orEmpty().filter { it.isDirectory && it.name.matches(Regex("[0-9]+(\\.[0-9]+)+")) }
+        .sortedByDescending { it.name.split('.').joinToString("") { part -> part.padStart(8, '0') } }
+        .map { File(it, "x64/$name.exe") }.firstOrNull { it.isFile }?.absolutePath
+        ?: throw GradleException("Windows SDK $name.exe not found under $bin; install Windows SDK desktop tools")
+}
+
+fun runWindowsTool(command: List<String>) {
+    val process = ProcessBuilder(command).inheritIO().start()
+    check(process.waitFor() == 0) { "Windows packaging tool failed: ${command.first()}" }
+}
+
+fun signWindowsArtifact(file: File) {
+    val cert = System.getenv("ANDBIBLE_WIN_CERT")
+    val password = System.getenv("ANDBIBLE_WIN_CERT_PASSWORD")
+    if (cert.isNullOrBlank() && password.isNullOrBlank()) {
+        logger.lifecycle("${file.name}: unsigned")
+    } else {
+        require(!cert.isNullOrBlank() && !password.isNullOrBlank()) { "Both ANDBIBLE_WIN_CERT and ANDBIBLE_WIN_CERT_PASSWORD are required" }
+        runWindowsTool(listOf(windowsSdkTool("signtool"), "sign", "/fd", "SHA256", "/f", cert, "/p", password, file.absolutePath))
+    }
+}
+
+tasks.register("packageWindowsMsix") {
+    group = "distribution"
+    dependsOn("createWindowsAppImage", generateWindowsManifest)
+    doLast {
+        check(hostTarget == "windows-x64") { "Windows x64 is required" }
+        val stage = layout.buildDirectory.dir("windows-msix/package").get().asFile
+        sync {
+            from(windowsMsixStage)
+            from(layout.buildDirectory.dir("compose/binaries/main/app/AndBible"))
+            into(stage)
+        }
+        val output = layout.buildDirectory.file("compose/binaries/main/andbible-$windowsPackageVersion-windows-x64.msix").get().asFile
+        output.parentFile.mkdirs()
+        runWindowsTool(listOf(windowsSdkTool("makeappx"), "pack", "/o", "/d", stage.absolutePath, "/p", output.absolutePath))
+        signWindowsArtifact(output)
+    }
+}
+tasks.register("packageWindowsMsi") {
+    group = "distribution"
+    dependsOn("packageMsi")
+    doLast {
+        check(hostTarget == "windows-x64") { "Windows x64 is required" }
+        val dir = layout.buildDirectory.dir("compose/binaries/main/msi").get().asFile
+        val msi = dir.listFiles { f -> f.extension.equals("msi", true) }?.singleOrNull()
+            ?: throw GradleException("Expected exactly one MSI in $dir")
+        signWindowsArtifact(msi)
     }
 }
