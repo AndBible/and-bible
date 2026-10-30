@@ -79,17 +79,25 @@ internal class DesktopIncomingFilesImpl(
     args: List<String>,
     private val window: DesktopWindowHandle,
     exitTasks: DesktopExitTasks,
+    listen: (Path, (List<Path>) -> Unit) -> AutoCloseable = InstanceHandOff::listen,
 ) : DesktopIncomingFiles, AutoCloseable {
     private val queue = DesktopIncomingFileQueue { Log.w("DesktopIncomingFiles", it) }.apply {
         offer(resolveIncomingArgs(args))
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val listener = InstanceHandOff.listen(dataDir) { files ->
-        queue.accept(files)
-        scope.launch {
-            queue.deliverPending()
-            window.toFront()
+    // A socket that cannot be bound (a path too long for AF_UNIX, a stale socket Windows keeps locked) costs only the
+    // second-launch hand-off, never the app start (W1 review).
+    private val listener: AutoCloseable = try {
+        listen(dataDir) { files ->
+            queue.accept(files)
+            scope.launch {
+                queue.deliverPending()
+                window.toFront()
+            }
         }
+    } catch (e: Exception) {
+        Log.w("DesktopIncomingFiles", "Second-launch file hand-off unavailable: ${e.message}")
+        AutoCloseable {}
     }
     private val unregister = exitTasks.register("incoming files") { close() }
 

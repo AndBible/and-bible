@@ -424,7 +424,7 @@ case "$cmd" in
     # overwritten, and a still-running earlier run (the app) must not block the next one.
     printf '@echo off\r\nchcp 65001 >nul\r\n%s > C:\\abtest\\gui\\%s.log 2>&1\r\n(echo %%ERRORLEVEL%%)> C:\\abtest\\gui\\%s.exit\r\n' "$*" "$id" "$id" > "$cmdfile"
     guest_ssh 'New-Item -ItemType Directory -Force C:\abtest\gui | Out-Null' && guest_scp_to "$cmdfile" "C:/abtest/gui/$id.cmd" && guest_scp_to "$ROOT/scripts/windows-vm/gui-run.ps1" C:/abtest/gui-run.ps1 &&
-      guest_ssh "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\abtest\\gui-run.ps1 -Id $id"; rc=$?; rm -f "$cmdfile"; exit "$rc" ;;
+      guest_ssh "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\abtest\\gui-run.ps1 -Id $id" || rc=$?; rm -f "$cmdfile"; exit "${rc:-0}" ;;
   dev-provision) guest_scp_to "$ROOT/scripts/windows-vm/dev-provision.ps1" C:/abtest/dev-provision.ps1 && guest_ssh 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\abtest\dev-provision.ps1' ;;
   stop) stop_vm ;;
   status) if owned_alive "$STATE/qemu.pid" "$STATE/qemu.start"; then echo "running (PID $(<"$STATE/qemu.pid"))"; ssh_options; ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "${WINDOWS_VM_USER:-abtest}@127.0.0.1" 'cscript.exe //Nologo C:\Windows\System32\slmgr.vbs /dlv' || echo 'Evaluation status unavailable over SSH'; else echo 'stopped (evaluation status unavailable until running)'; fi ;;
