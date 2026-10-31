@@ -52,6 +52,7 @@ const val CANONICAL_MARKER_PENDING_KEY = "canonicalMarkerPending"
  */
 data class CanonicalKey(val key: NaturalKey, val idOf: (List<String>) -> IdType)
 
+// The argument order follows key.keyColumns; the tests pin it against the typed helpers of CanonicalIds.kt.
 private val CANONICAL_ID_FUNCTIONS: Map<String, (List<String>) -> IdType> = mapOf(
     "ReadingPlan" to { k -> canonicalId("ReadingPlan", *k.toTypedArray()) },
     "ReadingPlanStatus" to { k -> canonicalId("ReadingPlanStatus", *k.toTypedArray()) },
@@ -108,6 +109,9 @@ suspend fun rekeyToCanonical(conn: SQLiteConnection, category: SyncableDatabaseD
             if (newId != oldId) mapping[oldId] = newId
         }
         if (mapping.isEmpty()) continue
+        check(mapping.values.toSet().size == mapping.size) {
+            "Cannot re-key ${key.table} to canonical ids: two rows share one natural key (duplicate canonical id)"
+        }
         // The unique natural-key index makes this impossible; a clash would overwrite another row.
         val blocked = rows.map { it.first }.filter { it !in mapping && it in mapping.values }
         check(blocked.isEmpty()) { "Cannot re-key ${key.table} to canonical ids: id ${blocked.first()} is held by another row" }
@@ -129,43 +133,64 @@ suspend fun rekeyToCanonical(conn: SQLiteConnection, category: SyncableDatabaseD
  * rows with random ids back).
  *
  * The work runs on a second raw connection (as `mergeSnapshotIntoLocal` does) while the Room writer is held, so
- * other Room writes wait. Room's invalidation does not see the change; callers heal before loading the data.
+ * other Room writes wait. Room's invalidation tracker only sees changes made through its own connections, so after
+ * the commit the touched tables get a no-op UPDATE through the Room writer (sync triggers off) followed by
+ * `invalidationTracker.refresh`; flows over these tables (e.g. `GlobalAiSettings`) emit again. Must not be called
+ * inside an open transaction of the same database: the raw `BEGIN IMMEDIATE` would wait out `busy_timeout` and fail.
  *
  * @return the number of moved parent rows
  */
 suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean = false): Int {
     if (!force && dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L) return 0
     val keys = CANONICAL_KEYS[dbDef.category].orEmpty()
-    return dbDef.localDb.useWriterConnectionMarked {
-        openSqlite(dbDef.localDbPath).use { conn ->
+    // table -> a column of it to touch (its id column, or the foreign key column of a child table)
+    val touch = LinkedHashMap<String, String>()
+    for (c in keys) {
+        touch[c.key.table] = c.key.idColumn
+        c.key.children.forEach { (child, column) -> touch.putIfAbsent(child, column) }
+    }
+    val tables = touch.keys.toList()
+    val moved = dbDef.localDb.useWriterConnectionMarked { room ->
+        val moved = openSqlite(dbDef.localDbPath).use { conn ->
+            // foreign_keys is per connection; this one is closed right after, the Room connection is untouched.
             conn.exec("PRAGMA busy_timeout = 10000")
             conn.exec("PRAGMA foreign_keys = OFF")
-            try {
-                conn.inTransaction {
-                    setConfig(TRIGGERS_DISABLED_KEY, boolean = true)
-                    val moved = rekeyToCanonical(this, dbDef.category)
-                    canonicalHealFailureInjector?.invoke()
-                    for (canonical in keys) {
-                        val t = canonical.key.table
-                        exec(
-                            "DELETE FROM LogEntry WHERE tableName = ? AND type = 'UPSERT' " +
-                                "AND entityId1 NOT IN (SELECT ${canonical.key.idColumn} FROM $t)", t,
-                        )
-                    }
-                    setConfig(CANONICAL_IDS_VERSION_KEY, long = 1L)
-                    if (moved > 0) {
-                        setConfig(CANONICAL_HEAL_MOVED_ROWS_KEY, boolean = true)
-                        setConfig(LAST_PATCH_WRITTEN_KEY, long = 0L)
-                    }
-                    setConfig(CANONICAL_MARKER_PENDING_KEY, boolean = true)
-                    setConfig(TRIGGERS_DISABLED_KEY, boolean = false)
-                    moved
+            conn.inTransaction {
+                setConfig(TRIGGERS_DISABLED_KEY, boolean = true)
+                val moved = rekeyToCanonical(this, dbDef.category)
+                for (canonical in keys) {
+                    val t = canonical.key.table
+                    exec(
+                        "DELETE FROM LogEntry WHERE tableName = ? AND type = 'UPSERT' " +
+                            "AND entityId1 NOT IN (SELECT ${canonical.key.idColumn} FROM $t)", t,
+                    )
                 }
-            } finally {
-                runCatching { conn.exec("PRAGMA foreign_keys = ON") }
+                setConfig(CANONICAL_IDS_VERSION_KEY, long = 1L)
+                if (moved > 0) {
+                    setConfig(CANONICAL_HEAL_MOVED_ROWS_KEY, boolean = true)
+                    setConfig(LAST_PATCH_WRITTEN_KEY, long = 0L)
+                }
+                setConfig(CANONICAL_MARKER_PENDING_KEY, boolean = true)
+                setConfig(TRIGGERS_DISABLED_KEY, boolean = false)
+                canonicalHealFailureInjector?.invoke()
+                moved
             }
         }
+        if (moved > 0) {
+            // Room's change tracking works through triggers on its own connections; make it see the rewrite.
+            room.exec("UPDATE SyncConfiguration SET booleanValue = 1 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
+            try {
+                for ((t, column) in touch) {
+                    room.exec("UPDATE $t SET $column = $column WHERE rowid = (SELECT min(rowid) FROM $t)")
+                }
+            } finally {
+                room.exec("UPDATE SyncConfiguration SET booleanValue = 0 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
+            }
+        }
+        moved
     }
+    if (moved > 0) dbDef.localDb.invalidationTracker.refresh(*tables.toTypedArray())
+    return moved
 }
 
 private fun SQLiteConnection.setConfig(key: String, long: Long? = null, boolean: Boolean? = null) =

@@ -21,7 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.database.DbDate
@@ -260,10 +263,34 @@ class CanonicalHealTest {
         canonicalHealFailureInjector = null
         assertEquals(doc.id, db.myDocumentDb.myDocumentDao().allDocuments().single().id)
         assertNull(docs.dao.getLong("canonicalIdsVersion"))
+        assertNull(docs.dao.getBoolean("canonicalMarkerPending"))
+        assertNull(docs.dao.getBoolean("canonicalHealMovedRows"))
+        assertNull(docs.dao.getLong(LAST_PATCH_WRITTEN_KEY))
         assertFalse(docs.dao.getBoolean("triggersDisabled") == true)
         assertEquals(logBefore, docs.dao.allLogEntries())
         // The writer and foreign_keys are usable afterwards, and a retry succeeds.
         assertEquals(1, healCanonicalIds(docs))
+    }
+
+    @Test fun healMakesRoomFlowsEmit() = runBlocking {
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        db.aiSettingsDb.llmProviderConfigDao().insert(provider)
+        val model = LlmConfiguredModel(providerConfigId = provider.id, modelId = "my-model")
+        db.aiSettingsDb.llmConfiguredModelDao().insert(model)
+        db.aiSettingsDb.globalAiSettingsDao().set(GlobalAiSettings(defaultModelId = model.id))
+        val emissions = java.util.concurrent.atomic.AtomicInteger()
+        val job = launch(Dispatchers.Default) {
+            db.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").collect { emissions.incrementAndGet() }
+        }
+        try {
+            delay(1000)
+            val before = emissions.get()
+            assertEquals(1, healCanonicalIds(ai))
+            withTimeout(10_000) { while (emissions.get() <= before) delay(50) }
+            assertTrue(emissions.get() > before)
+            // The sync triggers were only off for the touch.
+            assertEquals(false, ai.dao.getBoolean("triggersDisabled"))
+        } finally { job.cancel() }
     }
 
     @Test fun rekeyToCanonicalToleratesMissingTables() = runBlocking {
