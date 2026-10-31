@@ -49,7 +49,7 @@
     "@vue/reactivity": "~3.5.17",
     "@vue/test-utils": "~2.4.6",
     "@vue/tsconfig": "~0.9.1",
-    "cross-env": "~7.0.3",
+    "cross-env": "~10.1.0",
     "eslint": "~10.14.0",
     "eslint-plugin-vue": "~10.12.0",
     "globals": "~17.13.0",
