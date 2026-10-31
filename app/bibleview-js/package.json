@@ -38,8 +38,8 @@
   "devDependencies": {
     "@eslint/js": "~10.0.1",
     "@types/jsdom": "~30.0.0",
-    "@types/lodash": "~4.17.20",
-    "@types/node": "~24.0.13",
+    "@types/lodash": "~4.17.27",
+    "@types/node": "~24.19.2",
     "@types/sprintf-js": "~1.1.4",
     "@typescript-eslint/eslint-plugin": "~8.72.1",
     "@typescript-eslint/parser": "~8.72.1",
