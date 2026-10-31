@@ -15,6 +15,7 @@ import net.bible.sharedcore.platform.UserNotifier
  * delivery waits for [attach] without needing Koin or a UI host. The notifier's dialog queue and
  * toast state retain messages until the UI mounts. [close] belongs to app teardown, not composition.
  */
+@OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
 class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage> = UserMessages.messages) : AutoCloseable {
     private val pending = Channel<UserMessage>(Channel.UNLIMITED)
