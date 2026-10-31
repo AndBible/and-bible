@@ -304,8 +304,9 @@ class BookmarksManageLabelsCollectorTest {
     /**
      * A WORKSPACE-mode label manager has no business with the active window. It read it anyway (for a
      * STUDYPAD-only highlight), so composing it while the window repository could not answer
-     * `activeWindow` (here: mid-load, the state behind this class's order-dependent full-suite failures)
-     * threw in composition: the collector never ran and the answer stayed pending.
+     * `activeWindow` (here: mid-load) threw in composition: the collector never ran and the answer stayed
+     * pending. (This class's order-dependent full-suite failures had another cause: see
+     * [aWorkspaceAnswerSurvivesTheFirstLoadOfTheWorkspace].)
      */
     @Test
     fun aWorkspaceAnswerIsAppliedWhileTheWindowRepositoryCannotNameAnActiveWindow() {
@@ -333,6 +334,81 @@ class BookmarksManageLabelsCollectorTest {
             assertEquals(setOf(marker), midLoad.workspaceSettings.autoAssignLabels)
         } finally {
             windowControl.windowRepository = previous
+        }
+    }
+
+    /**
+     * Swaps an UNLOADED repository in as the shared one for [block], the state a host is in before anything
+     * read `activeWindow`: `WindowControl`'s lazy fallback (a host that started off the reading route). The list's
+     * own first load is awaited first, so nothing of the controller's is still on its way to the repository.
+     */
+    private fun withUnloadedRepository(
+        controller: net.bible.sharedcore.bookmark.BookmarksController,
+        block: (net.bible.android.control.page.window.WindowRepository) -> Unit,
+    ) {
+        idleUntil("the list's first load") { !controller.loading.value }
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        val previous = windowControl.windowRepository
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main)
+        val unloaded = net.bible.android.control.page.window.WindowRepository(scope)
+        windowControl.windowRepository = unloaded
+        try {
+            assertTrue("fixture: the swapped-in repository is not loaded", !unloaded.initialized)
+            block(unloaded)
+        } finally {
+            windowControl.windowRepository = previous
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+        }
+    }
+
+    /**
+     * The flake behind this class's order-dependent failures, made deterministic. A WORKSPACE answer written
+     * into a repository that has not loaded its workspace yet went into the placeholder settings; the first
+     * `activeWindow` read afterwards (in the suite: the list's own first `loadRows`, finishing its IO hop
+     * just after the answer) loaded the workspace and replaced those settings wholesale, dropping the answer.
+     */
+    @Test
+    fun aWorkspaceAnswerSurvivesTheFirstLoadOfTheWorkspace() {
+        val activity = host()
+        idle()
+        val controller = realController(activity, mutableListOf())
+        withUnloadedRepository(controller) { repository ->
+            setAwaiting(bookmarksSession(activity), true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+            assertEquals("the claimed answer must leave the channel", null, channel(activity).pending.value)
+
+            repository.activeWindow // whatever reads it first loads the workspace
+            assertEquals("the load must not drop the answer", setOf(marker), repository.workspaceSettings.autoAssignLabels)
+        }
+    }
+
+    /**
+     * The other end of the same defect: the label manager is opened with the workspace's STORED settings, not
+     * with the placeholder an unloaded repository holds.
+     */
+    @Test
+    fun theManageLabelsRequestCarriesTheStoredWorkspaceSettings() {
+        val activity = host()
+        idle()
+        val marker = IdType()
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        windowControl.windowRepository.apply {
+            activeWindow // loaded, so the save below writes the workspace
+            workspaceSettings.autoAssignLabels = mutableSetOf(marker)
+            saveIntoDb(stopSpeak = false)
+        }
+        val navigated = mutableListOf<String>()
+        val controller = realController(activity, navigated)
+        withUnloadedRepository(controller) {
+            controller.manageLabels()
+            idleUntil("requestManageLabels to navigate") { navigated.isNotEmpty() }
+            val sent = ManageLabelsContract.ManageLabelsData.fromJSON(navigated.single())
+            assertEquals(setOf(marker), sent.autoAssignLabels)
         }
     }
 
