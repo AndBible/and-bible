@@ -61,4 +61,9 @@ class CanonicalIdsTest {
             actual,
         )
     }
+
+    /** The length prefix counts UTF-16 units and the hash input is UTF-8, so a non-ASCII key is pinned too. */
+    @Test fun goldenIdOfANonAsciiKey() {
+        assertEquals("0207c44c-4988-8e45-912a-d33548b54753", canonicalReadingPlanId("ääkkönen✓").toString())
+    }
 }
