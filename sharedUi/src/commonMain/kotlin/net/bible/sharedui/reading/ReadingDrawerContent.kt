@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.ui.graphics.ColorFilter
@@ -36,8 +37,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerDefaults
@@ -86,9 +88,9 @@ private val DrawerHeaderTopPadding = 24.dp
  * The reading view's drawer sheet: [ModalDrawerSheet] at [ReadingDrawerWidth] around [ReadingDrawerContent].
  * `ReadingHost` mounts exactly this, and the inset tests mount it too, so they see the production layout.
  *
- * #3892: the sheet takes no insets itself and hands [windowInsets] to the content instead. As the sheet's
- * own padding, the status-bar inset sat outside the scrolling column, so a scrolled menu was clipped below an
- * empty band of the inset's height.
+ * Insets are the sheet's own padding, outside the scrolling column, so a scrolled menu is clipped below a
+ * visible status bar instead of drawing under the clock (#3892 follow-up). See [readingDrawerWindowInsets]
+ * for why the default is not Material's.
  */
 @Composable
 fun ReadingDrawerSheet(
@@ -96,12 +98,27 @@ fun ReadingDrawerSheet(
     icon: @Composable (iconKey: String) -> Painter?,
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = DrawerDefaults.windowInsets,
+    windowInsets: WindowInsets = readingDrawerWindowInsets(),
 ) {
-    ModalDrawerSheet(modifier = modifier.width(ReadingDrawerWidth), windowInsets = WindowInsets(0)) {
-        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick, windowInsets = windowInsets)
+    ModalDrawerSheet(modifier = modifier.width(ReadingDrawerWidth), windowInsets = windowInsets) {
+        ReadingDrawerContent(state = state, icon = icon, onItemClick = onItemClick)
     }
 }
+
+/**
+ * Material's [DrawerDefaults.windowInsets] (system bars union display cutout, vertical and start), except that
+ * while the host hides the status bar (`hide_status_bar`) the top display cutout is dropped, as the top bars do
+ * ([topBarCutoutTop]). With the bar hidden `statusBars` is 0, but the camera-hole cutout is about as tall, so
+ * Material's default kept an empty band of the status bar's height at the top of the menu (#3892). With no
+ * host state (iOS, desktop, previews) this equals Material's default. The bottom inset keeps the footer above
+ * the navigation bar (#3872).
+ */
+@Composable
+fun readingDrawerWindowInsets(): WindowInsets =
+    WindowInsets.systemBars
+        .union(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+        .union(topBarCutoutTop())
+        .only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
 
 /**
  * The reading view's main navigation drawer content — the Compose port of classic
@@ -121,22 +138,13 @@ fun ReadingDrawerContent(
     icon: @Composable (iconKey: String) -> Painter?,
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = WindowInsets(0),
 ) {
-    // The top inset is a spacer INSIDE the scrolling column: it clears the status bar at rest and scrolls
-    // away with the header, so rows can move up into the band (#3892). Bottom and side insets stay outside:
-    // the footer must stay above the navigation bar (#3872).
-    Column(
-        modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
-    ) {
+    Column(modifier.fillMaxWidth()) {
         Column(
             Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(Modifier.windowInsetsTopHeight(windowInsets))
             ReadingDrawerHeader(appName = state.appName, logo = icon("ic_logo"))
             state.groups.forEachIndexed { index, group ->
                 val title = group.title
