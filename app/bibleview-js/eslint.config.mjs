@@ -13,6 +13,7 @@ export default defineConfigWithVueTs(
       'ios/webkit/last-run.png',
     ],
   },
+  { files: ['**/*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}'] },
   js.configs.recommended,
   ...vue.configs['flat/essential'],
   // Match the old base preset, rather than introducing opinionated TS rules.
@@ -20,6 +21,7 @@ export default defineConfigWithVueTs(
   vueTsConfigs.eslintRecommended,
   { languageOptions: { globals: { ...globals.node, ...globals.browser } } },
   { files: ['**/*.cjs'], languageOptions: { sourceType: 'commonjs' } },
+  { files: ['**/*.jsx'], languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
   {
     files: ['**/*.{ts,cts,mts,tsx,vue}'],
     rules: {
