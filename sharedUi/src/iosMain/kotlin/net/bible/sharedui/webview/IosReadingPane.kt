@@ -186,6 +186,7 @@ object IosReadingWebViews {
         entry.gestureRecognisers = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
+        entry.webView.bibleSchemeHandler?.currentDocument = { null }
     }
 
     internal fun resetForTest() {
@@ -228,6 +229,8 @@ object IosReadingWebViews {
         )
         val handler = IosBridgeMessageHandler(dispatcher)
         entry.webView.onAttached = { session.jsChannel.flush() }
+        // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).
+        entry.webView.bibleSchemeHandler?.currentDocument = { session.firstDocument }
         entry.handler = handler // strong reference: WebKit holds the handler weakly
         entry.webView.configuration.userContentController.addScriptMessageHandler(handler, "bridge")
         entry.handlerCount++

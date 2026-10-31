@@ -13,11 +13,14 @@ import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.poc.LocalPocPaneCreated
 import net.bible.sharedui.poc.PocBibleViewController
+import okio.Path
+import okio.Path.Companion.toPath
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSBundle
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLComponents
 import platform.Foundation.NSURLQueryItem
+import platform.Foundation.NSURLRequest
 import platform.Foundation.setValue
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
@@ -60,7 +63,8 @@ internal fun createBibleWkWebView(
     newWebView: (WKWebViewConfiguration) -> WKWebView = { WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = it) },
 ): WKWebView {
     val config = WKWebViewConfiguration()
-    config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
+    // The page and its add-on assets come from bibleview://app (#3918); the configuration keeps the handler.
+    config.setURLSchemeHandler(IosBibleSchemeHandler(bibleBundleDir()), forURLScheme = BIBLE_SCHEME)
     config.userContentController.apply {
         addUserScript(
             WKUserScript(
@@ -104,16 +108,20 @@ internal fun bibleBundleUrl(index: NSURL, lang: String, dark: Boolean): NSURL {
     return components.URL ?: index
 }
 
-/** Loads the bundled BibleView page (`index.html?lang=..&night=..`) into [webView]. */
-@OptIn(ExperimentalForeignApi::class)
+/** The app bundle's `bibleview-js` folder, or null (test binaries have none). */
+internal fun bibleBundleDir(): Path? = NSBundle.mainBundle.resourcePath?.let { "$it/$BUNDLE_DIR".toPath() }
+
+/** The window's [IosBibleSchemeHandler] (registered by [createBibleWkWebView]), or null for another WebView. */
+internal val WKWebView.bibleSchemeHandler: IosBibleSchemeHandler?
+    get() = configuration.urlSchemeHandlerForURLScheme(BIBLE_SCHEME) as? IosBibleSchemeHandler
+
+/**
+ * Loads the bundled BibleView page (`bibleview://app/index.html?lang=..&night=..`) into [webView]. The page is served
+ * by [IosBibleSchemeHandler], not from `file://`, so its root-relative add-on asset URLs reach the page asset routes.
+ */
 internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
-    val folder = NSBundle.mainBundle.resourceURL?.URLByAppendingPathComponent(BUNDLE_DIR, isDirectory = true)
-    val index = folder?.URLByAppendingPathComponent("index.html")
-    if (folder == null || index == null) {
-        nsLog("bridge: bibleview-js bundle folder missing")
-        return
-    }
-    webView.loadFileURL(bibleBundleUrl(index, lang, dark), allowingReadAccessToURL = folder)
+    val index = NSURL.URLWithString("$BIBLE_ORIGIN/index.html") ?: return
+    webView.loadRequest(NSURLRequest.requestWithURL(bibleBundleUrl(index, lang, dark)))
 }
 
 /** One window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
