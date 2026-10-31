@@ -99,7 +99,7 @@ fun getGitCommitDate(): String =
         commandLine("git", "log", "-1", "--format=%ad", "--date=format:%d/%m/%y %H:%M:%S")
     }.standardOutput.asText.get().trim()
 
-val npmVersion = "11"
+val npmVersion = "12"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
     inputs.file("$jsDir/package-lock.json")
