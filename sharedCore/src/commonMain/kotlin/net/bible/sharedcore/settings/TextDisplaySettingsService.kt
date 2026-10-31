@@ -34,7 +34,10 @@ sealed interface TextSettingRowValue {
         val min: Int,
         val max: Int,
         val displayText: String,
-        /** Formats an uncommitted slider value with the same localized units as [displayText]. */
+        /**
+         * Formats an uncommitted slider value with the same localized units as [displayText]. A lambda makes
+         * `equals` identity-based for rows built by the service: compare fields, not whole [Numeric] values.
+         */
         val valueLabelFor: ((Int) -> String)? = null,
     ) : TextSettingRowValue
     data class Margins(val left: Int, val right: Int, val maxWidth: Int,
