@@ -887,6 +887,7 @@ class CloudSync(
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.size()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
+        clearCanonicalMarkerPending(dbDef)
         dbDef.dao.addStatus(SyncStatus(syncDeviceName, count, file.size(), result.createdTime))
         runCatching { FileSystem.SYSTEM.delete(file) }
     }

@@ -75,7 +75,8 @@ suspend fun mergeSnapshotIntoLocal(dbDef: SyncableDatabaseAccessor<*>, env: AppE
     val gz = createTempFile(env.tmpDir.toPath(), "merge-snapshot-${dbDef.categoryName}-", ".sqlite3.gz")
     try {
         ArchiveUtils.gzipFile(snapshot, gz)
-        applyPatchesForDatabase(dbDef, env, gz)
+        // The snapshot was already re-keyed to the local ids above; a canonical re-key here would undo that.
+        applyPatchesForDatabase(dbDef, env, gz, canonical = false)
     } finally {
         FileSystem.SYSTEM.delete(gz)
     }

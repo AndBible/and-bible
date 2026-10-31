@@ -181,7 +181,9 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     }
     suspend fun hasChanges(): Boolean {
         val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
-        return dao.countNewLogEntries(lastSynchronized, deviceId) > 0
+        // A healed device still has to announce itself (marker-only patch) even without own changes (#3906).
+        return dao.countNewLogEntries(lastSynchronized, deviceId) > 0 ||
+            dao.getBoolean(net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY) == true
     }
 
     val categoryName get() = category.name.lowercase()
