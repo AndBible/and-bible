@@ -63,12 +63,22 @@ private val CANONICAL_ID_FUNCTIONS: Map<String, (List<String>) -> IdType> = mapO
 )
 
 /**
+ * Local, unsynced child columns that still hold a canonical table's id and so follow its heal. They are not in
+ * [NATURAL_KEYS]: the merge never touches them (the snapshot has no such table), and they have no log entries.
+ */
+private val LOCAL_ONLY_CHILDREN: Map<String, List<Pair<String, String>>> = mapOf(
+    "LlmConfiguredModel" to listOf("LlmRawLogRecord" to "configuredModelId"),
+)
+
+/**
  * The tables whose rows get canonical ids, per category, with the child columns that follow. Taken from
  * [NATURAL_KEYS] restricted to the five canonical tables (`MyDocumentPage` and `LlmUsageRecord` keep their ids).
  */
 val CANONICAL_KEYS: Map<SyncableDatabaseDefinition, List<CanonicalKey>> =
     NATURAL_KEYS.mapValues { (_, keys) ->
-        keys.mapNotNull { k -> CANONICAL_ID_FUNCTIONS[k.table]?.let { CanonicalKey(k, it) } }
+        keys.mapNotNull { k ->
+            CANONICAL_ID_FUNCTIONS[k.table]?.let { CanonicalKey(k.copy(children = k.children + LOCAL_ONLY_CHILDREN[k.table].orEmpty()), it) }
+        }
     }.filterValues { it.isNotEmpty() }
 
 /** Test seam: when set, [healCanonicalIds] calls it after the rename and before commit (to prove the rollback). */
@@ -133,7 +143,7 @@ suspend fun rekeyToCanonical(conn: SQLiteConnection, category: SyncableDatabaseD
  * `lastUpdated` and `sourceDevice`: the sync triggers are off during the heal. All of it is one transaction; a
  * failure leaves the database as it was.
  *
- * Skipped (returns 0) when already healed, unless [force] is set (after a cloud fetch or a merge, which can bring
+ * Skipped (returns 0, nothing written) for a category without canonical tables, and when already healed, unless [force] is set (after a cloud fetch or a merge, which can bring
  * rows with random ids back).
  *
  * The work runs on a second raw connection (as `mergeSnapshotIntoLocal` does) while the Room writer is held, so
@@ -145,6 +155,8 @@ suspend fun rekeyToCanonical(conn: SQLiteConnection, category: SyncableDatabaseD
  * @return the number of moved parent rows
  */
 suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean = false): Int {
+    // No canonical tables (bookmarks, workspaces): no version and no marker patch, so no marker-only traffic.
+    if (dbDef.category !in CANONICAL_KEYS) return 0
     if (!force && dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L) return 0
     val keys = CANONICAL_KEYS[dbDef.category].orEmpty()
     // table -> a column of it to touch (its id column, or the foreign key column of a child table)

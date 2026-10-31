@@ -32,6 +32,7 @@ import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 import net.bible.service.cloudsync.canonical.CANONICAL_HEAL_MOVED_ROWS_KEY
+import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
 import net.bible.service.cloudsync.canonical.CANONICAL_IDS_VERSION_KEY
 import net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY
 import net.bible.service.cloudsync.canonical.rekeyToCanonical
@@ -82,7 +83,7 @@ private suspend fun writePatchData(
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
-    canonical: Boolean = false,
+    canonical: Boolean = false, // callers pass it already limited to categories with canonical tables
 ) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
@@ -156,11 +157,14 @@ private suspend fun readPatchData(
               WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND me.type = 'UPSERT'
               AND pe.lastUpdated = me.lastUpdated AND pe.sourceDevice = me.sourceDevice)
             """.trimIndent())
-        exec("""
-            DELETE FROM $table
-            WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
-            """.trimIndent()
-        )
+        // Nothing restored: nothing new can violate a foreign key either.
+        if (queryLong("SELECT changes()") != 0L) {
+            exec("""
+                DELETE FROM $table
+                WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
+                """.trimIndent()
+            )
+        }
     }
 
     // Restore carried children whose parents exist here, unless they were deleted on their own.
@@ -208,6 +212,7 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
     val patchDbFile = createTempFile(env.tmpDir.toPath(), "created-patch-${dbDef.categoryName}-", ".sqlite3")
 
     val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
+    // The version and the pending flag are only ever written by healCanonicalIds, which skips categories without canonical tables.
     val markerPending = canonical && dbDef.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY) == true
     val writeMarker = canonical && dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L
     val writeMovedMarker = writeMarker && dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true
@@ -291,7 +296,7 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
                     db.inTransaction<Unit> {
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef, canonical)
+                            readPatchData(this, tableDef, canonical && dbDef.category in CANONICAL_KEYS)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }
@@ -340,7 +345,8 @@ private suspend fun rekeyIncomingPatch(dbDef: SyncableDatabaseAccessor<*>, patch
 
 /**
  * Records healed peers seen for the first time and lowers the watermark (re-send) when this device's heal moved rows
- * or the peer's marker says its heal did.
+ * or the peer's marker says its heal did. A lowered watermark also sets the marker-pending flag, so a patch is written
+ * even when this device has no log entries of its own.
  */
 private suspend fun noteHealedPeers(dbDef: SyncableDatabaseAccessor<*>, markers: PatchMarkers) {
     for (peer in markers.healed.distinct()) {
@@ -350,6 +356,9 @@ private suspend fun noteHealedPeers(dbDef: SyncableDatabaseAccessor<*>, markers:
         dbDef.dao.setConfig(seenKey, 1L)
         if (peer in markers.moved || dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true) {
             dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+            // The re-send is built only when a patch is produced, and with no own log entries (`countNewLogEntries` counts
+            // this device's own only) just a pending marker makes one; the patch then carries the whole log from 0.
+            dbDef.dao.setConfig(CANONICAL_MARKER_PENDING_KEY, true)
         }
     }
 }

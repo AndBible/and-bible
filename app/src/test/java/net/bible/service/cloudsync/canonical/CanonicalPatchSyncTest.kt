@@ -47,7 +47,9 @@ import net.bible.service.cloudsync.createTriggers
 import net.bible.service.cloudsync.dropTriggers
 import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.queryLong
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmConfiguredModel
@@ -433,6 +435,58 @@ class CanonicalPatchSyncTest {
         val canonical = canonicalLlmConfiguredModelId(provider.id, "m")
         assertEquals(canonical, b.localDb.agentPromptDao().promptById(prompt.id)?.configuredModelId)
         assertEquals(canonical, b.localDb.llmConfiguredModelDao().getByProvider(provider.id).single().id)
+    }
+
+    /**
+     * Lowering the watermark for a re-send is not enough when this device has no entries of its own: only the pending
+     * marker makes it write a patch, and the patch then carries the whole log, entries of other devices included.
+     */
+    @Test fun resendWithoutOwnLogEntriesStillProducesAPatch() = run {
+        val a = docDevice()
+        val b = docDevice()
+        val c = docDevice()
+        // A holds only C's entries (C is an old version): the book and page arrive with random ids and C's source device.
+        c.addPage(c.addBook(), "c")
+        sync(c, a, fromCanonical = false, toCanonical = false)
+        assertEquals(0L, a.dao.countNewLogEntries(0L, a.deviceId))
+        assertEquals(1, healCanonicalIds(a)) // rows moved: re-send is owed
+        assertNotNull(createPatchForDatabase(a, env))
+        clearCanonicalMarkerPending(a) // the first announcement was uploaded
+        assertNull(createPatchForDatabase(a, env))
+
+        b.addBook()
+        healCanonicalIds(b)
+        sync(b, a) // a new healed peer: A lowers its watermark
+
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        val patch = createPatchForDatabase(a, env)
+        assertNotNull("a re-send needs a patch even with no own log entries", patch)
+        assertTrue("the patch carries the entries of the other device", logCountOfPatch(patch!!) > 0)
+    }
+
+    /** The generic restore only brings back rows whose local entry is an UPSERT: a local delete stays a delete. */
+    @Test fun genericRestoreDoesNotResurrectALocallyDeletedRow() = run {
+        val a = docDevice()
+        val b = docDevice()
+        val book = a.addCanonicalBook()
+        val page = a.addPage(book, "p")
+        healCanonicalIds(a)
+        healCanonicalIds(b)
+        sync(a, b)
+        assertEquals(setOf("p=content p"), b.pageKeysWithContent())
+
+        b.md.delete(b.md.pagesForDocument(book.id).single { it.id == page.id })
+        // The same timestamp as the incoming UPSERT: a tie must not undo the local delete.
+        val upsertTime = a.dao.allLogEntries().single { it.tableName == "MyDocumentPage" && it.type.name == "UPSERT" }.lastUpdated
+        b.localDb.useWriterConnectionMarked {
+            it.exec("UPDATE LogEntry SET lastUpdated = ?, sourceDevice = ? WHERE tableName = 'MyDocumentPage' AND type = 'DELETE'", upsertTime, a.deviceId)
+        }
+        a.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        a.dao.setConfig("canonicalMarkerPending", true)
+
+        sync(a, b)
+
+        assertEquals(emptySet<String>(), b.md.pagesForDocument(book.id).map { it.pageKey }.toSet())
     }
 
     @Test fun canonicalFalseReproducesTheOldBehaviour() = run {

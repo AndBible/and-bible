@@ -53,6 +53,7 @@ import net.bible.service.llm.BuiltinPromptOverride
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.LlmUsageRecord
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -220,6 +221,25 @@ class CanonicalHealTest {
         assertEquals(7L, moved.inputTokens)
         // The model is now found under the canonical id in the log; the usage record is keyed by its own id.
         assertEquals(listOf(canonical), logOf(ai, "LlmConfiguredModel").map { it.entityId1 })
+    }
+
+    /** `LlmRawLogRecord` is local and unsynced, but its `configuredModelId` still names the model: it follows the heal. */
+    @Test fun healOfModelMovesRawLogRecords() = runBlocking {
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        db.aiSettingsDb.llmProviderConfigDao().insert(provider)
+        val model = LlmConfiguredModel(providerConfigId = provider.id, modelId = "raw-model")
+        db.aiSettingsDb.llmConfiguredModelDao().insert(model)
+        val record = LlmRawLogRecord(configuredModelId = model.id, modelName = "raw-model", logData = ByteArray(3) { 1 })
+        db.aiSettingsDb.llmRawLogRecordDao().insert(record)
+        val unrelated = LlmRawLogRecord(configuredModelId = null, logData = ByteArray(1))
+        db.aiSettingsDb.llmRawLogRecordDao().insert(unrelated)
+
+        assertEquals(1, healCanonicalIds(ai))
+
+        val canonical = canonicalLlmConfiguredModelId(provider.id, "raw-model")
+        assertEquals(canonical, db.aiSettingsDb.llmRawLogRecordDao().getById(record.id)!!.configuredModelId)
+        assertNull(db.aiSettingsDb.llmRawLogRecordDao().getById(unrelated.id)!!.configuredModelId)
+        assertTrue("the local table never enters the sync log", logOf(ai, "LlmRawLogRecord").isEmpty())
     }
 
     @Test fun healMovesPlansStatusesAndVerses() = runBlocking {

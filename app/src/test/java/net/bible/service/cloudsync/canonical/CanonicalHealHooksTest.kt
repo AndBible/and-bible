@@ -112,9 +112,15 @@ class CanonicalHealHooksTest {
         DatabaseResetter.resetDatabase() // before setMain: the reset itself hops to Main
         Dispatchers.setMain(testDispatcher)
         originalAdapter = adapterField.get(cloud)
+        // finishReplace re-registers the books on this dispatcher; the test Main would only run when the test advances it.
+        previousBookDispatcher = MyDocumentBookManager.mainDispatcher
+        MyDocumentBookManager.mainDispatcher = Dispatchers.Unconfined
     }
 
+    private var previousBookDispatcher: kotlinx.coroutines.CoroutineDispatcher? = null
+
     @After fun tearDown() {
+        previousBookDispatcher?.let { MyDocumentBookManager.mainDispatcher = it }
         cloud.mergeStageHookForTest = null
         DatabaseContainer.openHealInTests = false
         DatabaseContainer.openStepHookForTest = null
@@ -205,7 +211,11 @@ class CanonicalHealHooksTest {
         val settingsLoad = steps.indexOf("settingsLoad")
         assertTrue("settings load is reached: $steps", settingsLoad >= 0)
         val heals = steps.filter { it.startsWith("heal:") }
-        assertEquals("every synced database is healed: $steps", SyncableDatabaseDefinition.ALL.map { "heal:${it.name}" }.toSet(), heals.toSet())
+        assertEquals("every database with canonical tables is healed: $steps", CANONICAL_KEYS.keys.map { "heal:${it.name}" }.toSet(), heals.toSet())
+        for (other in SyncableDatabaseDefinition.ALL.filter { it !in CANONICAL_KEYS.keys }) {
+            assertNull("${other.name} has no canonical tables: no version", other.accessor.dao.getConfig(CANONICAL_IDS_VERSION_KEY))
+            assertNull("${other.name} has no canonical tables: no marker", other.accessor.dao.getConfig(CANONICAL_MARKER_PENDING_KEY))
+        }
         assertTrue("all heals before the settings load: $steps", steps.indexOfLast { it.startsWith("heal:") } < settingsLoad)
         assertEquals(1L, config(CANONICAL_IDS_VERSION_KEY))
     }
@@ -234,6 +244,25 @@ class CanonicalHealHooksTest {
         assertAllCanonical()
         assertEquals(1, docDao.allDocuments().size)
         assertTrue(doc.id != docDao.allDocuments().single().id)
+    }
+
+    /**
+     * A file from an older version holds its book under a random id. The import's `INSERT OR IGNORE` drops that book when
+     * the device already has the canonical one, so the pages must be re-keyed first or they would be left without a parent.
+     */
+    @Test fun importedPagesOfARandomIdBookJoinTheLocalCanonicalBook() = runBlocking {
+        val (oldBook, page) = addBook("AIDocuments", pageKey = "imported")
+        assertTrue(oldBook.id != canonicalMyDocumentId("AIDocuments"))
+        val file = copyOfDb()
+        docs.localDb.useWriterConnectionMarked { it.exec("DELETE FROM MyDocumentPage"); it.exec("DELETE FROM MyDocument") }
+        docDao.insert(MyDocument(id = canonicalMyDocumentId("AIDocuments"), name = "AIDocuments", initials = "AIDocuments"))
+
+        importDatabaseFile(category, file.toOkioPath())
+
+        assertAllCanonical()
+        assertEquals(listOf(page.id), docDao.pagesForDocument(canonicalMyDocumentId("AIDocuments")).map { it.id })
+        val idInFile = net.bible.service.db.openSqlite(file.absolutePath).use { c -> c.queryRows("SELECT quote(id) FROM MyDocument") { it.getText(0) } }
+        assertEquals("the chosen file is never re-keyed", listOf("X'${oldBook.id.toHex().uppercase()}'"), idInFile)
     }
 
     /** A book registered before a forced heal keeps the old id; re-registering after it reads the canonical one. */
@@ -310,10 +339,14 @@ class CanonicalHealHooksTest {
 
     @Test fun mergeResultIsCanonical() = runTest(testDispatcher, timeout = 120.seconds) {
         val (pageA, pageB) = divergedRandomIdBooks()
+        // A book only this device has: the merge keeps its random id (nothing clashes), so only the post-merge heal fixes it.
+        val (deviceOnly, _) = addBook("DeviceOnly")
+        assertTrue(deviceOnly.id != canonicalMyDocumentId("DeviceOnly"))
 
         syncAnswering(choiceIndex = 0)
 
         assertAllCanonical()
+        assertEquals(setOf("AIDocuments", "DeviceOnly"), docDao.allDocuments().map { it.initials }.toSet())
         val pages = docDao.pagesForDocument(canonicalMyDocumentId("AIDocuments")).map { it.id }.toSet()
         assertEquals("the cloud's page and the device's page are both under the canonical book", setOf(pageA.id, pageB.id), pages)
         assertEquals(1L, config(CANONICAL_IDS_VERSION_KEY))

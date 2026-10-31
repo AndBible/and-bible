@@ -59,6 +59,7 @@ import net.bible.android.control.readingplan.CurrentReadingPlan
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
 import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.service.cloudsync.createTriggers
 import net.bible.service.cloudsync.dropTriggers
@@ -301,6 +302,8 @@ class DatabaseContainer private constructor() {
         @VisibleForTesting
         internal suspend fun healAllAtOpen(container: DatabaseContainer) {
             for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
+                // Databases without canonical tables (bookmarks, workspaces) get no version and no marker patch.
+                if (dbDef.category !in CANONICAL_KEYS) continue
                 openStepHookForTest?.invoke("heal:${dbDef.category.name}")
                 // A failed heal rolled back as one transaction; the app must still open, and the next open retries.
                 try { healCanonicalIds(dbDef) }

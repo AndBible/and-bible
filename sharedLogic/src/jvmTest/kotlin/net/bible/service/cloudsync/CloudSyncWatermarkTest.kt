@@ -14,6 +14,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.FakeDatabaseHost
 import net.bible.service.db.newTestDir
 import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.service.cloudsync.canonical.CANONICAL_IDS_VERSION_KEY
 import net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY
 import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.sharedcore.platform.AppEnvironment
@@ -190,9 +191,24 @@ class CloudSyncWatermarkTest {
         assertTrue(checkNotNull(f.db.dao.getLong(LAST_SYNCHRONIZED_KEY)) > 200L)
     }
 
+    /**
+     * The fixture's category (bookmarks) has no canonical tables, so the heal skips it; this is the state a healed
+     * category is in, set directly (what the marker upload logic reads).
+     */
+    private suspend fun markHealed(db: SyncableDatabaseAccessor<*>) {
+        db.dao.setConfig(CANONICAL_IDS_VERSION_KEY, 1L)
+        db.dao.setConfig(CANONICAL_MARKER_PENDING_KEY, true)
+    }
+
+    @Test fun healSkipsACategoryWithoutCanonicalTables() = withFixture { f ->
+        assertEquals(0, healCanonicalIds(f.db, force = true))
+        assertNull(f.db.dao.getLong(CANONICAL_IDS_VERSION_KEY))
+        assertNull(f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
+    }
+
     @Test fun markerOnlyPatchIsUploadedAndThePendingFlagClearedAfterIt() = withFixture { f ->
         f.adapter.allowUpload = true
-        healCanonicalIds(f.db)
+        markHealed(f.db)
         assertEquals(true, f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
         assertTrue(f.db.hasChanges())
 
@@ -205,7 +221,7 @@ class CloudSyncWatermarkTest {
     @Test fun failedUploadKeepsTheMarkerPending() = withFixture { f ->
         f.adapter.allowUpload = true
         f.adapter.failUpload = true
-        healCanonicalIds(f.db)
+        markHealed(f.db)
 
         f.cloud.synchronize()
 
