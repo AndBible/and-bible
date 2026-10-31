@@ -192,33 +192,6 @@ object MyDocumentBookManager {
     }
 
     /**
-     * Registers every MyDocument again from the database. For after the canonical-id heal (#3906) re-keyed the
-     * MyDocument rows of a live database: a registered book keeps the id it was created with (the `AndBibleMyDocumentId`
-     * property and its backend's `documentId`), so it would read pages of a document id that no longer exists.
-     * Unlike [refreshRegistrations] this replaces the book instances. Does nothing when no book is registered yet
-     * (startup registration reads the healed ids).
-     *
-     * The caller must post the workspace refresh afterwards (as `CloudSync.finishReplace` does): windows, the history
-     * stack and `CurrentPage` keep references to the old book instances, which this call removes.
-     */
-    suspend fun reregisterAllDocuments() {
-        // Checked on the main dispatcher, where registrations change.
-        val anyRegistered = withContext(mainDispatcher) {
-            if (registeredBooks.isEmpty()) return@withContext false
-            for (initials in registeredBooks.keys.toList()) unregisterDocument(initials)
-            true
-        }
-        if (!anyRegistered) return
-        registerAllDocuments()
-        withContext(mainDispatcher) {
-            for (initials in registeredInitials) {
-                SwordContentFacade.evictBook(initials)
-                changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
-            }
-        }
-    }
-
-    /**
      * Bring the registered books in line with the database after an external
      * change (currently: cloud sync).
      *
@@ -249,7 +222,8 @@ object MyDocumentBookManager {
                 val book = registeredBooks[document.initials]
                 when {
                     book == null -> registerDocument(document)
-                    book.bookMetaData.name != document.name -> {
+                    // A merge re-keys a local document to the cloud's id: the registered book reads pages by its id.
+                    book.bookMetaData.name != document.name || book.myDocumentId != document.id -> {
                         unregisterDocument(document.initials)
                         registerDocument(document)
                     }

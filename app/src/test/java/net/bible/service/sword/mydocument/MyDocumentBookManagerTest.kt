@@ -160,6 +160,18 @@ class MyDocumentBookManagerTest {
         assertNotNull(Books.installed().getBook(other.initials))
     }
 
+    /** A merge re-keys a document to the cloud's id (#3906 notes): the registered book must follow the row id. */
+    @Test
+    fun syncRefreshReregistersABookWhoseDocumentIdChanged() = runTest {
+        val moved = document.copy(id = IdType())
+        dao.deleteDocumentWithPages(document)
+        dao.insert(moved)
+        addPage("page_one", "First page", documentId = moved.id)
+        MyDocumentBookManager.handleSyncEvent(emptyList())
+        val book = Books.installed().getBook(document.initials)
+        assertEquals(moved.id, book!!.myDocumentId)
+    }
+
     @Test
     fun registerAllDocumentsAndGenerateInitialsHonorDatabaseCollisions() = runTest {
         MyDocumentBookManager.clear()

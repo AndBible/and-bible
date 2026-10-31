@@ -14,9 +14,6 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.FakeDatabaseHost
 import net.bible.service.db.newTestDir
 import net.bible.sharedcore.cloud.DocumentSyncStarter
-import net.bible.service.cloudsync.canonical.CANONICAL_IDS_VERSION_KEY
-import net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY
-import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.cloud.CloudFile
@@ -62,9 +59,6 @@ class CloudSyncWatermarkTest {
         var files = emptyList<CloudFile>()
         var patch: Path? = null
         var failDownload = false
-        var allowUpload = false
-        var failUpload = false
-        val uploads = mutableListOf<String>()
         var corruptPatch = false
         var onList: () -> Unit = {}
         val downloads = mutableListOf<String>()
@@ -87,12 +81,7 @@ class CloudSyncWatermarkTest {
         }
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = error("already initialized")
         override suspend fun get(id: String): CloudFile = error("unused")
-        override suspend fun upload(name: String, file: Path, parentId: String): CloudFile {
-            check(allowUpload) { "no local changes" }
-            if (failUpload) throw IOException("Interrupted upload")
-            uploads += name
-            return CloudFile("uploaded-$name", name, 1L, 300L, parentId)
-        }
+        override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = error("no local changes")
         override suspend fun delete(id: String) = error("unused")
         override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) = true
         override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) {}
@@ -189,44 +178,6 @@ class CloudSyncWatermarkTest {
         assertEquals(listOf("pending", "pending"), f.adapter.downloads)
         assertEquals(1L, f.db.dao.lastPatchNum("remote-device"))
         assertTrue(checkNotNull(f.db.dao.getLong(LAST_SYNCHRONIZED_KEY)) > 200L)
-    }
-
-    /**
-     * The fixture's category (bookmarks) has no canonical tables, so the heal skips it; this is the state a healed
-     * category is in, set directly (what the marker upload logic reads).
-     */
-    private suspend fun markHealed(db: SyncableDatabaseAccessor<*>) {
-        db.dao.setConfig(CANONICAL_IDS_VERSION_KEY, 1L)
-        db.dao.setConfig(CANONICAL_MARKER_PENDING_KEY, true)
-    }
-
-    @Test fun healSkipsACategoryWithoutCanonicalTables() = withFixture { f ->
-        assertEquals(0, healCanonicalIds(f.db, force = true))
-        assertNull(f.db.dao.getLong(CANONICAL_IDS_VERSION_KEY))
-        assertNull(f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
-    }
-
-    @Test fun markerOnlyPatchIsUploadedAndThePendingFlagClearedAfterIt() = withFixture { f ->
-        f.adapter.allowUpload = true
-        markHealed(f.db)
-        assertEquals(true, f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
-        assertTrue(f.db.hasChanges())
-
-        f.cloud.synchronize()
-
-        assertEquals(1, f.adapter.uploads.size)
-        assertEquals(false, f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
-    }
-
-    @Test fun failedUploadKeepsTheMarkerPending() = withFixture { f ->
-        f.adapter.allowUpload = true
-        f.adapter.failUpload = true
-        markHealed(f.db)
-
-        f.cloud.synchronize()
-
-        assertEquals(emptyList(), f.adapter.uploads)
-        assertEquals(true, f.db.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY))
     }
 
     @Test fun failedApplyDoesNotHideTheMissedPatchOnRetry() = withFixture { f ->

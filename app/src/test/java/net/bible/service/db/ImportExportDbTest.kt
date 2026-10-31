@@ -117,6 +117,34 @@ class ImportExportDbTest {
         assertEquals(1L to false, connectionState())
     }
 
+    /** #3906: a page of the same-initials document under another id lands under the local document, not orphaned. */
+    @Test fun importedPagesOfADivergedDocumentLandUnderTheLocalDocument() = run {
+        val localDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val localDoc = net.bible.android.database.mydocument.MyDocument(name = "Doc", initials = "MyDoc_import3906")
+        localDao.insert(localDoc)
+        val file = tmp()
+        val db = Room.databaseBuilder(application, net.bible.android.database.mydocument.MyDocumentDatabase::class.java, file.absolutePath)
+            .addMigrations(*net.bible.android.database.migrations.myDocumentMigrations)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .setDriver(BundledSQLiteDriver())
+            .build()
+        val page: net.bible.android.database.mydocument.MyDocumentPage
+        try {
+            val d = db.myDocumentDao()
+            val other = net.bible.android.database.mydocument.MyDocument(name = "Doc", initials = "MyDoc_import3906")
+            d.insert(other)
+            page = net.bible.android.database.mydocument.MyDocumentPage(documentId = other.id, title = "t", pageKey = "k", orderNumber = 1)
+            d.insert(page)
+            d.insertOrUpdateContent(net.bible.android.database.mydocument.MyDocumentPageContent(page.id, "c"))
+        } finally { db.close() }
+
+        importDatabaseFile(SyncableDatabaseDefinition.MYDOCUMENTS, file.toOkioPath())
+
+        assertEquals(listOf(localDoc.id), localDao.allDocuments().filter { it.initials == "MyDoc_import3906" }.map { it.id })
+        assertEquals(localDoc.id, localDao.pageById(page.id)?.documentId)
+        assertEquals("c", localDao.getContent(page.id))
+    }
+
     @Test fun anImportThatFailsHalfwayLeavesNothingImported() = run {
         val importedLabel = BookmarkEntities.Label(name = "Imported")
         val file = bookmarkFile { it.insert(importedLabel) }

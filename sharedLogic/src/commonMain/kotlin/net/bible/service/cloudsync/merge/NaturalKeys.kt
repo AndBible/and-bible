@@ -108,7 +108,7 @@ suspend fun rekeyNaturalKeys(category: SyncableDatabaseDefinition, snapshot: Pat
     }
 }
 
-internal fun SQLiteConnection.hasTable(name: String): Boolean =
+private fun SQLiteConnection.hasTable(name: String): Boolean =
     queryRows("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", name) { 1 }.isNotEmpty()
 
 /**
@@ -142,20 +142,6 @@ private fun rekeyTable(
     check(blocked.isEmpty()) {
         "Cannot re-key ${key.table}: id ${blocked.first()} of the cloud row is used by a snapshot row with another natural key"
     }
-    snap.renameIds(key, tableDefs, mapping)
-}
-
-/**
- * Renames the rows of [key] by [mapping] (old id literal -> new id literal, both `quote()` literals) in two phases so that
- * swaps and chains cannot collide on the primary key or a unique index: every renamed row (with its children and
- * log entries) first gets a temporary id, then its final id. Used by [rekeyNaturalKeys] and by the canonical heal.
- */
-internal fun SQLiteConnection.renameIds(
-    key: NaturalKey,
-    tableDefs: Map<String, SyncableDatabaseDefinition.Table>,
-    mapping: Map<String, String>,
-) {
-    val snap = this
     val temporary = mapping.keys.associateWith { snap.queryRows("SELECT quote(randomblob(16))") { it.getText(0) }.single() }
     fun move(from: String, to: String, last: Boolean) {
         snap.exec("UPDATE ${key.table} SET ${key.idColumn} = $to WHERE ${key.idColumn} = $from")
