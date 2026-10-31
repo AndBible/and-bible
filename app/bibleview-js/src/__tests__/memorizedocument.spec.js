@@ -36,7 +36,7 @@ import { MemorizeStateModeEnum } from "@/types/documents";
 import { memorizationKey } from "@/types/constants";
 
 // Mock ResizeObserver (not available in jsdom)
- 
+
 globalThis.ResizeObserver = vi.fn().mockImplementation(function () {
   this.observe = vi.fn();
   this.unobserve = vi.fn();
@@ -115,7 +115,7 @@ describe("MemorizeDocument.vue", () => {
   it("renders the mode selector buttons", () => {
     const wrapper = createWrapper();
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
-    
+
     expect(buttons.length).toBe(3);
     expect(buttons[0].text()).toBe("Word Blur");
     expect(buttons[1].text()).toBe("Word Scramble");
@@ -137,19 +137,19 @@ describe("MemorizeDocument.vue", () => {
 
   it("switches to scramble mode when button is clicked", async () => {
     const wrapper = createWrapper();
-    
+
     // Initially in blur mode
     expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
-    
+
     // Click on the scramble mode button
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     if (buttons.length > 1) {
       await buttons[1].trigger("click");
-      
+
       // Should switch to scramble mode
       expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
       expect(wrapper.findComponent(WordScramble).exists()).toBe(true);
-      
+
       // Check panel visibility
       const blurPanel = wrapper.find('[id="tabpanel-blur"]');
       const scramblePanel = wrapper.find('[id="tabpanel-scramble"]');
@@ -186,15 +186,15 @@ describe("MemorizeDocument.vue", () => {
 
   it("saves state when mode is changed", async () => {
     const wrapper = createWrapper();
-    
+
     // Get the mock save function
     const mockSaveState = wrapper.vm.android.saveState;
-    
+
     // Change mode
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     if (buttons.length > 1) {
       await buttons[1].trigger("click");
-      
+
       // Should save state
       expect(mockSaveState).toHaveBeenCalled();
     }
@@ -203,18 +203,18 @@ describe("MemorizeDocument.vue", () => {
   it("handles the save-mode-config event from child components", async () => {
     const wrapper = createWrapper();
     const childComponent = wrapper.findComponent(WordBlur);
-    
+
     // Emit save-mode-config from child
     const newConfig = { blurConfig: { blurLevel: 2, revealedWords: {} } };
     await childComponent.vm.$emit('save-mode-config', newConfig);
-    
+
     // Parent should update its modeConfig
     // We can't directly check the refs, but we can verify it handles the event
     // by checking if the saveState function was called
     const mockAndroid = wrapper.vm.android;
     expect(mockAndroid.saveState).toHaveBeenCalled();
   });
-  
+
   it("restores previous mode from document state", () => {
     // Create document with scramble mode selected
     const wrapper = createWrapper({
@@ -225,17 +225,17 @@ describe("MemorizeDocument.vue", () => {
         }
       }
     });
-    
+
     // Should start in scramble mode
     expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
     expect(wrapper.findComponent(WordScramble).exists()).toBe(true);
-    
+
     // Check panel visibility for scramble mode
     const blurPanel = wrapper.find('[id="tabpanel-blur"]');
     const scramblePanel = wrapper.find('[id="tabpanel-scramble"]');
     if (blurPanel.exists()) expect(blurPanel.isVisible()).toBe(false);
     expect(scramblePanel.isVisible()).toBe(true);
-    
+
     // The scramble button should be active (not toggled since we're using TabContainer)
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     if (buttons.length > 1) {

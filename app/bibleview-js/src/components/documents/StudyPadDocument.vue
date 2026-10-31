@@ -106,7 +106,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import Color, {type ColorInstance} from "color";
+import {type ColorInstance} from "color";
 import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();

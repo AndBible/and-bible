@@ -614,7 +614,7 @@ export function createDoubleClickDetector(waitMs = 300) {
         if (counter > 1) return true;
         await sleep(waitMs);
         const manyClicks = counter > 1
-         
+
         counter = 0;
         return manyClicks;
     }

@@ -44,10 +44,10 @@ async function loadStrings() {
     let translations: Partial<TranslatedStrings>;
     try {
         translations = (await import(`@/lang/${langTag}.yaml`)).default;
-    } catch (e) {
+    } catch {
         try {
             translations = (await import(`@/lang/${langShort}.yaml`)).default;
-        } catch (e) {
+        } catch {
             console.error(`Language ${langTag} not found, falling back to English!`)
             return;
         }
