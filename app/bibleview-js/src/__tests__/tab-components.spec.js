@@ -6,11 +6,11 @@ import TabPanel from '@/components/tabs/TabPanel.vue'
 
 // Mock ResizeObserver (not available in jsdom)
 // eslint-disable-next-line no-undef
-globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+globalThis.ResizeObserver = vi.fn().mockImplementation(function () {
+  this.observe = vi.fn()
+  this.unobserve = vi.fn()
+  this.disconnect = vi.fn()
+})
 
 // Mock FontAwesome components
 vi.mock('@fortawesome/vue-fontawesome', () => ({

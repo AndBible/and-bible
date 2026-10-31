@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
-    "test:unit": "vitest --root src/",
+    "test:unit": "vitest --config ../vitest.config.mts --root src/",
     "build-only": "vite build",
     "type-check": "vue-tsc -p tsconfig.json",
     "type-check:ci": "vue-tsc -p tsconfig.json",
@@ -17,7 +17,7 @@
     "build-development": "cross-env NODE_ENV=development vite build --mode development",
     "lint:ci": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore --no-color",
     "lint:silent": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore --no-color",
-    "test:ci": "vitest --root src/ --run",
+    "test:ci": "vitest --config ../vitest.config.mts --root src/ --run",
     "test:ios-webkit": "node ios/webkit/run-webkit-test.mjs"
   },
   "dependencies": {
@@ -63,7 +63,7 @@
     "tosource": "~2.0.0-alpha.3",
     "typescript": "~5.8.3",
     "vite": "~7.3.7",
-    "vitest": "~3.2.4",
+    "vitest": "~5.0.5",
     "vue-tsc": "~3.0.1"
   }
 }
