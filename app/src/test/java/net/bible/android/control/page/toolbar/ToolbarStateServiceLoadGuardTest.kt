@@ -67,16 +67,12 @@ class ToolbarStateServiceLoadGuardTest {
     private val syncRunning = net.bible.sharedcore.event.EventSource<Boolean>()
     private val windowStateService = WindowStateServiceImpl()
 
-    /**
-     * `ToolbarStateServiceImpl`'s `init` subscribes to [PassageChangeMediator.changes], the window
-     * state service's `windowChanges`, [WorkspaceChanges.changes], [CloudSync.runningChanged] and
-     * [SpeakChanges.changes] with no matching unsubscribe — by design, it is normally a
-     * process-lifetime singleton. This test constructs one directly under plain
-     * `android.app.Application`, so `TestBibleApplication.onTerminate()`'s owner resets never run for
-     * it, and the subscribers would otherwise leak into later tests sharing this JVM.
-     */
+    private var service: ToolbarStateServiceImpl? = null
+
+    /** Directly constructed services are not closed by Koin or TestBibleApplication. */
     @After
     fun tearDown() {
+        service?.close()
         PassageChangeMediator.resetSubscribersForTest()
         windowStateService.resetSubscribersForTest()
         WorkspaceChanges.resetSubscribersForTest()
@@ -99,7 +95,7 @@ class ToolbarStateServiceLoadGuardTest {
             neverTouched(),
             windowStateService,
             syncRunning,
-        )
+        ).also { this.service = it }
 
         // Without the guard this reaches windowControl.activeWindowPageManager -> activeWindow ->
         // initialize() -> loadFromDb(), i.e. the re-entrant load (here it blows up instead, since

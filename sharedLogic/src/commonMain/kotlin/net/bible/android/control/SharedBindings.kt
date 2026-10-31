@@ -219,7 +219,8 @@ fun buildSharedBindings() = module {
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
-    single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<CloudSync>().runningChanged) } bind ToolbarStateService::class
+    single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<CloudSync>().runningChanged) }
+        .onClose { it?.close() } bind ToolbarStateService::class
     singleOf(::LinkControl)
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
@@ -236,7 +237,7 @@ fun buildSharedBindings() = module {
     // to results doesn't re-run the Lucene search.
     single { SearchResultsCache() }
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
-    singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() }
+    singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() } onClose { it?.close() }
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() } onClose { it?.close() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }

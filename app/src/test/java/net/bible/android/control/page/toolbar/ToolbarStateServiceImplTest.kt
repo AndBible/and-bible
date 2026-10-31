@@ -93,6 +93,7 @@ class ToolbarStateServiceImplTest {
 
     @After
     fun tearDown() {
+        service.close()
         PassageChangeMediator.resetSubscribersForTest()
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }

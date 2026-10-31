@@ -300,7 +300,9 @@ open class TestBibleApplication : BibleApplication() {
         cleanup { GlobalContext.getOrNull()?.getOrNull<DocumentSync>()?.resetSubscribersForTest() }
         cleanup { GlobalContext.getOrNull()?.getOrNull<CloudSync>()?.resetSubscribersForTest() }
         cleanup { InstallZipProgress.resetSubscribersForTest() }
-        // Their subscriptions die with the reset below; drop (release) them so the next test builds subscribed ones.
+        // Their subscriptions die with the stream resets; drop them so the next test builds subscribed ones.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.page.toolbar.ToolbarStateServiceImpl::class) }
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakSettingsServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakTransportServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakControl::class) }
         cleanup { SpeakChanges.resetSubscribersForTest() }

@@ -47,9 +47,11 @@ class SpeakSettingsServiceImpl(private val advancedSpeakSettings: AdvancedSpeakS
     private val _advanced = MutableStateFlow(readAdvanced())
     override val advanced: StateFlow<AdvancedSpeakVd> = _advanced.asStateFlow()
 
-    init {
-        // Process lifetime: never cancelled.
-        SpeakSettingsChanges.changes.subscribeOnMain { _playback.value = readPlayback() }
+    private val subscription = SpeakSettingsChanges.changes.subscribeOnMain { _playback.value = readPlayback() }
+
+    /** Koin closes this single; callers constructing it directly must also release its subscription. */
+    fun close() {
+        subscription.cancel()
     }
 
     private fun readPlayback(): SpeakPlaybackVd {

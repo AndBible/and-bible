@@ -1046,19 +1046,15 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
 private fun withRecordingToolbar(block: (RecordingToolbarStateService) -> Unit) {
     val fakeToolbar = RecordingToolbarStateService()
+    val original = net.bible.test.KoinFactorySnapshot.of<ToolbarStateService>()
     val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
     loadKoinModules(overrideModule)
     try {
         block(fakeToolbar)
     } finally {
-        // `unloadKoinModules` removes the override but does not restore the replaced CoreModule binding.
         unloadKoinModules(overrideModule)
-        loadKoinModules(module {
-            single<ToolbarStateService> {
-                ToolbarStateServiceImpl(get(), get(), get(), get(), get(),
-                    get<net.bible.service.cloudsync.CloudSync>().runningChanged)
-            }
-        })
+        // Restore the exact production factory, including its onClose callback and concrete-type alias.
+        original.restore()
         assertTrue(
             GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
             "must not leak the fake ToolbarStateService binding into later tests",
