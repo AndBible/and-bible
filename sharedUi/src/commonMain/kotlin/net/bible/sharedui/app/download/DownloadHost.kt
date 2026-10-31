@@ -65,6 +65,7 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
+import net.bible.sharedlogic.platform.PlatformLocales
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.installzip.InstallZipOpener
@@ -87,6 +88,7 @@ import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.common.util.KUri
+import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -148,6 +150,7 @@ class DownloadHost(
     private val fakeBookFactoryProvider: () -> FakeBookFactory,
     private val customRepositoryServiceProvider: () -> CustomRepositoryService,
     private val documentSyncSettingsProvider: () -> DocumentSyncSettings,
+    private val platformLocalesProvider: () -> PlatformLocales,
 ) {
     private val appSettings: AppSettings by lazy(appSettingsProvider)
     private val userNotifier: UserNotifier by lazy(userNotifierProvider)
@@ -172,6 +175,8 @@ class DownloadHost(
      */
     private class DownloadSession {
         lateinit var controller: DocumentSelectionController
+        var languageInitialized = false
+        var applyingInitialLanguage = false
         lateinit var downloadManager: DownloadManager
         lateinit var repoFactory: RepoFactory
         lateinit var genericFileDownloader: GenericFileDownloader
@@ -362,7 +367,7 @@ class DownloadHost(
      * Classic `DownloadComposeActivity`'s `controller` (`:196-227`) and the `onCreate` setup around it
      * (`:229-231`), memoised on [session].
      */
-    private fun downloadControllerFor(initialTypeFilter: DocTypeFilter): DocumentSelectionController {
+    internal fun downloadControllerFor(initialTypeFilter: DocTypeFilter): DocumentSelectionController {
         session?.let { return it.controller }
 
         val session = DownloadSession()
@@ -396,7 +401,10 @@ class DownloadHost(
             onConfirmDeleteIndex = { docId -> handleDownloadDeleteIndexConfirmed(session, docId) },
             onAbout = { docId -> handleDownloadAbout(docId) },
             onUnlock = { docId -> handleDownloadUnlock(docId) },
-            onStickyLanguage = { lang -> appSettings.setString("selected_language_code", lang?.code) },
+            onStickyLanguage = { lang ->
+                session.languageInitialized = true
+                if (!session.applyingInitialLanguage) appSettings.setString("selected_language_code", lang?.code)
+            },
             // Every key applies here: this list is the only one with an install size, and the only one that loads
             // the recommended-documents config.
             applicableSortKeys = DocSortKey.entries.toSet(),
@@ -567,10 +575,36 @@ class DownloadHost(
             // the bridge's repoIdentity -> docId map is the identity.
             session.bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
             session.currentRows = rows
-            session.controller.setDocuments(rows)
+            setDownloadDocuments(rows)
         } catch (e: Exception) {
             Log.e(TAG_DOWNLOAD, "Error loading download documents", e)
             session.controller.showError()
+        }
+    }
+
+    /** Resolve the initial filter against the catalogue once; refreshes must preserve even an explicit All pick. */
+    internal fun setDownloadDocuments(rows: List<DocRow>) {
+        val session = session ?: return
+        val controller = session.controller
+        controller.setDocuments(rows)
+        if (session.languageInitialized || rows.isEmpty()) return
+
+        val locales = platformLocalesProvider()
+        val languages = controller.languages.value
+        val grouping = LanguageGrouping(languages.map { Language(it.code) }, locales)
+        fun findLanguage(code: String?): LangOption? {
+            if (code.isNullOrBlank()) return null
+            val key = grouping.key(Language(code))
+            return languages.firstOrNull { grouping.key(Language(it.code)) == key }
+        }
+        val initial = findLanguage(appSettings.getString("selected_language_code", null))
+            ?: findLanguage(locales.defaultLanguage)
+        // Only explicit picks are sticky: a locale fallback must not replace an unavailable saved language.
+        session.applyingInitialLanguage = true
+        try {
+            controller.setLanguage(initial)
+        } finally {
+            session.applyingInitialLanguage = false
         }
     }
 

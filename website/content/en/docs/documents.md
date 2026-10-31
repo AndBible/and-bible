@@ -143,6 +143,12 @@ To download a document from the provided repositories:
 2. Click *Download documents*.
 3. Search for, and click on a document to install it.
 
+The language filter starts with your last picked language when it is available in
+the catalogue, otherwise your system language. If neither is available, it shows
+*All*. This also applies after *Easy Start* and when downloading your first Bible.
+Use the language filter to choose another language or *All*; refreshing the
+catalogue keeps your current choice.
+
 Tap the information icon next to a document to view its description and module
 version history, when provided. Version history is listed newest first, using
 numeric version order (for example, 1.10 comes before 1.9).

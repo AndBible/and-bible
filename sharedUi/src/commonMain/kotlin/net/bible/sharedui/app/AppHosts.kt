@@ -342,6 +342,7 @@ class AppHosts(
             fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
             customRepositoryServiceProvider = { koin.get<CustomRepositoryService>() },
             documentSyncSettingsProvider = { koin.get<DocumentSyncSettings>() },
+            platformLocalesProvider = { koin.get() },
         )
     }
 
