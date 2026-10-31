@@ -792,12 +792,14 @@ class CloudSync(
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
         Log.i(TAG, "This device $syncDeviceName (id: ${deviceSyncFolder})")
 
-        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, Clock.System.now().toEpochMilliseconds())
+        // Only commit this watermark after processing the listing, so failures leave patches visible on retry.
+        val synchronizedAt = Clock.System.now().toEpochMilliseconds()
 
         val devicePatchFolders = adapter.getFolders(syncFolder)
 
         if (devicePatchFolders.isEmpty()) {
             Log.i(TAG, "No patch folders yet")
+            dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
             return@withContext
         }
         Log.i(TAG, "Folders \n${devicePatchFolders.joinToString("\n") { "${it.id} ${it.name}" }}")
@@ -826,8 +828,6 @@ class CloudSync(
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
             if(versionNumber(it.name) > localVersion) {
-                // We need to load next time also last set of patches.
-                dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, lastSynchronized)
                 throw IncompatiblePatchVersion()
             }
             val existing = dbDef.dao.syncStatus(folderWithMeta.folder.name, patchNumber(it.name))
@@ -838,6 +838,7 @@ class CloudSync(
 
         if(patches.isEmpty()) {
             Log.i(TAG, "No patches, returning")
+            dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
             return@withContext
         }
 
@@ -867,6 +868,7 @@ class CloudSync(
         downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
         dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
+        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, synchronizedAt)
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
