@@ -345,13 +345,25 @@ golden:
 # Autostart
 # ---------------------------------------------------------------------------
 
-# No autostart steps. The docs/superpowers checkout is jailbee's own submodule
+# on_start restores the :app unit suite's test Sword modules into ~/.sword (the
+# container overlay; a desktop run or a test can empty it) from the shared
+# .local/testmods.zip. Each container keeps its own copy on purpose: a shared
+# ~/.sword mount would let one container's module installs/removals break
+# another container's running suite. `unzip -n` only adds missing files; extras
+# stay for scripts/check-test-sword-modules.sh --fix. No zip = no-op.
+autostart:
+  step_timeout: 600
+  on_start:
+    - stage: test-sword-modules
+      steps:
+        - name: extract-testmods
+          run: "if [ -f .local/testmods.zip ]; then mkdir -p ~/.sword && unzip -qn -d ~/.sword .local/testmods.zip; fi"
+
+# The docs/superpowers checkout is jailbee's own submodule
 # support, and its memory index reaches Claude through an @import in
 # docs/superpowers/CLAUDE.md, so no per-project memory symlink is needed.
 #
-# Steps you could add, e.g. a one-time Vue.js install:
-# autostart:
-#   step_timeout: 600
+# Other steps you could add, e.g. a one-time Vue.js install:
 #   on_create:
 #     - stage: bibleview-install
 #       network: loose
