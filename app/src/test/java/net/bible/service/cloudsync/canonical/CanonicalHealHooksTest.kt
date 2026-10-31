@@ -270,6 +270,9 @@ class CanonicalHealHooksTest {
         val previous = MyDocumentBookManager.mainDispatcher
         MyDocumentBookManager.mainDispatcher = Dispatchers.Unconfined
         try {
+            // The registry is JVM-wide and other test classes (getOrCreateAIDocument) leave an AIDocuments book in it;
+            // registerDocument would then return that one instead of registering this test's book.
+            MyDocumentBookManager.unregisterDocument("AIDocuments")
             val (doc, _) = addBook()
             MyDocumentBookManager.registerDocument(doc)
             assertEquals(doc.id, MyDocumentBookManager.getBook("AIDocuments")!!.myDocumentId)

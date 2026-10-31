@@ -99,6 +99,7 @@ class CanonicalHealTest {
 
     @After fun tearDown() {
         canonicalHealFailureInjector = null
+        MyDocumentBookManager.unregisterDocument("AIDocuments") // getOrCreateAIDocument registers it in the JVM-wide registry
         canonicalHealTouchFailureInjector = null
         MyDocumentBookManager.mainDispatcher = previousDispatcher
         MyDocumentBookManager.launcher = previousLauncher

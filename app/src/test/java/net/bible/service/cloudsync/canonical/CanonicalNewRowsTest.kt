@@ -71,6 +71,7 @@ class CanonicalNewRowsTest {
     }
 
     @After fun tearDown() {
+        MyDocumentBookManager.unregisterDocument("AIDocuments") // getOrCreateAIDocument registers it in the JVM-wide registry
         MyDocumentBookManager.mainDispatcher = previousDispatcher
         MyDocumentBookManager.launcher = previousLauncher
         syncScope.cancel()
