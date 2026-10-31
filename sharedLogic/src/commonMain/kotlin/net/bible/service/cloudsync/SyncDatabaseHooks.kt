@@ -39,10 +39,17 @@ const val LAST_SYNCHRONIZED_KEY = "lastSynchronized"
 
 enum class SyncableDatabaseDefinition {
     BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS;
+    /**
+     * @param parents Tables whose delete cascades to this one, each mapped to the column that
+     * holds the parent's id. A row deleted by that cascade is not logged, and patches carry
+     * the row with its parent. If the parent's delete loses to a newer edit on another device,
+     * the row comes back with the parent. Parents must come before this table in [tables].
+     */
     class Table(
         val tableName: String,
         val idField1: String = "id",
         val idField2: String? = null,
+        val parents: Map<String, String> = emptyMap(),
     )
     val filename get() = when(this) {
         BOOKMARKS -> BookmarkDatabase.dbFileName
@@ -63,38 +70,45 @@ enum class SyncableDatabaseDefinition {
             ),
             Table(
                 tableName = "BibleBookmarkNotes",
-                idField1 = "bookmarkId"
+                idField1 = "bookmarkId",
+                parents = mapOf("BibleBookmark" to "bookmarkId"),
             ),
             Table(
                 tableName = "BibleBookmarkToLabel",
                 idField1 = "bookmarkId",
-                idField2 = "labelId"
+                idField2 = "labelId",
+                parents = mapOf("BibleBookmark" to "bookmarkId", "Label" to "labelId"),
             ),
             Table(
                 tableName = "GenericBookmark"
             ),
             Table(
                 tableName = "GenericBookmarkNotes",
-                idField1 = "bookmarkId"
+                idField1 = "bookmarkId",
+                parents = mapOf("GenericBookmark" to "bookmarkId"),
             ),
             Table(
                 tableName = "GenericBookmarkToLabel",
                 idField1 = "bookmarkId",
-                idField2 = "labelId"
+                idField2 = "labelId",
+                parents = mapOf("GenericBookmark" to "bookmarkId", "Label" to "labelId"),
             ),
             Table(
-                tableName = "StudyPadTextEntry"
+                tableName = "StudyPadTextEntry",
+                parents = mapOf("Label" to "labelId"),
             ),
             Table(
                 tableName = "StudyPadTextEntryText",
-                idField1 = "studyPadTextEntryId"
+                idField1 = "studyPadTextEntryId",
+                parents = mapOf("StudyPadTextEntry" to "studyPadTextEntryId"),
             ),
         )
         WORKSPACES -> listOf(
             Table(tableName = "Workspace"),
-            Table(tableName = "Window"),
-            Table(tableName = "PageManager", idField1 = "windowId"),
-            Table(tableName = "WorkspaceLabelOverride", idField1 = "workspaceId", idField2 = "labelId"),
+            Table(tableName = "Window", parents = mapOf("Workspace" to "workspaceId")),
+            Table(tableName = "PageManager", idField1 = "windowId", parents = mapOf("Window" to "windowId")),
+            Table(tableName = "WorkspaceLabelOverride", idField1 = "workspaceId", idField2 = "labelId",
+                parents = mapOf("Workspace" to "workspaceId")),
             Table(tableName = "GlobalTextDisplaySettings"),
         )
         READINGPLANS -> listOf(
@@ -103,13 +117,14 @@ enum class SyncableDatabaseDefinition {
         )
         MYDOCUMENTS -> listOf(
             Table(tableName = "MyDocument"),
-            Table(tableName = "MyDocumentPage"),
-            Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
+            Table(tableName = "MyDocumentPage", parents = mapOf("MyDocument" to "documentId")),
+            Table(tableName = "MyDocumentPageContent", idField1 = "pageId", parents = mapOf("MyDocumentPage" to "pageId")),
+            // A cache: not worth carrying with every page edit.
             Table(tableName = "AiPageCacheEntry", idField1 = "pageId"),
         )
         AI_SETTINGS -> listOf(
             Table(tableName = "LlmProviderConfig"),
-            Table(tableName = "LlmConfiguredModel"),
+            Table(tableName = "LlmConfiguredModel", parents = mapOf("LlmProviderConfig" to "providerConfigId")),
             Table(tableName = "AgentPrompt"),
             Table(tableName = "GlobalAiSettings"),
             Table(tableName = "LlmUsageRecord"),
@@ -199,6 +214,10 @@ private suspend fun createTriggersForTable(
     val whenCondition = """
             WHEN (SELECT count(*) FROM SyncConfiguration WHERE keyName='${TRIGGERS_DISABLED_KEY}' AND booleanValue = 1 LIMIT 1) = 0
             """.trimIndent()
+    // A cascade runs after its parent row is gone, so this skips cascaded deletes only.
+    val parentsExist = parents.entries.joinToString("") { (parent, column) ->
+        " AND EXISTS (SELECT 1 FROM $parent WHERE id = OLD.$column)"
+    }
 
     db.exec("""
             CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition 
@@ -215,7 +234,7 @@ private suspend fun createTriggersForTable(
         """.trimIndent()
     )
     db.exec("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition$parentsExist 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
             END;

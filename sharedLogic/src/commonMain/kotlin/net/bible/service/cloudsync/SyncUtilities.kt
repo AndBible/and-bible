@@ -63,6 +63,14 @@ private suspend fun writePatchData(
             INSERT INTO patch.LogEntry SELECT * FROM LogEntry 
             WHERE tableName = '$table' AND lastUpdated > $lastPatchWritten
             """.trimIndent())
+    // Carry the children of the parent rows in this patch, without their log entries, so a
+    // device that deleted the parent can restore them if this edit wins.
+    for ((parent, column) in tableDef.parents) {
+        exec("""
+            INSERT OR IGNORE INTO patch.$table ($cols) SELECT $cols FROM $table
+            WHERE $column IN (SELECT id FROM patch.$parent)
+            """.trimIndent())
+    }
 }
 
 private suspend fun readPatchData(
@@ -127,6 +135,20 @@ private suspend fun readPatchData(
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
             """.trimIndent()
     )
+
+    // Restore carried children whose parents exist here, unless they were deleted on their own.
+    // This brings back the children of a parent whose delete lost to a newer edit.
+    if (tableDef.parents.isNotEmpty()) {
+        val parentsExist = tableDef.parents.entries.joinToString(" AND ") { (parent, column) ->
+            "$column IN (SELECT id FROM $parent)"
+        }
+        exec("""
+            INSERT OR IGNORE INTO $table ($cols)
+            SELECT $cols FROM patch.$table
+            WHERE $parentsExist AND $idFields NOT IN
+            (SELECT $select FROM LogEntry pe WHERE pe.tableName = '$table' AND pe.type = 'DELETE')
+            """.trimIndent())
+    }
 }
 
 /**
