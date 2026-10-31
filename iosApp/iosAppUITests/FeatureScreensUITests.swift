@@ -422,8 +422,19 @@ final class FeatureScreensUITests: RealAppUITestCase {
 
     private func dayLabel(_ app: XCUIApplication) -> String? {
         // Measured: "Day N" is a Button (clickable subtitle), not a StaticText.
-        let day = app.buttons.matching(NSPredicate(format: "label MATCHES %@", #"^Day \d+$"#)).firstMatch
-        return day.exists ? day.label : nil
+        // One snapshot, not `exists` then `label`: after Done the screen changes, and a button that existed for the first
+        // query can be gone for the second, which XCTest records as a failure ("Failed to get matching snapshot").
+        guard let root = try? app.snapshot() else { return nil }
+        let pattern = try! NSRegularExpression(pattern: #"^Day \d+$"#)
+        func find(_ node: XCUIElementSnapshot) -> String? {
+            if node.elementType == .button,
+               pattern.firstMatch(in: node.label, range: NSRange(node.label.startIndex..., in: node.label)) != nil {
+                return node.label
+            }
+            for child in node.children { if let hit = find(child) { return hit } }
+            return nil
+        }
+        return find(root)
     }
 
     private func loadPlan(_ app: XCUIApplication) {
