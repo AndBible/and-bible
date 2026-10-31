@@ -216,7 +216,8 @@ class SyncPatchTransactionTest {
         applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!)
         dao2.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark2.bookmarkEntity, label1))
         dao1.delete(label1)
-        assertEquals(1, dbDef1.dao.findLogEntries("BibleBookmarkToLabel", "DELETE").size)
+        // The cascaded link delete is not logged (PR #3889): the label's delete covers it.
+        assertEquals(0, dbDef1.dao.findLogEntries("BibleBookmarkToLabel", "DELETE").size)
 
         val patch1b = createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
         val patch2 = createPatchForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
