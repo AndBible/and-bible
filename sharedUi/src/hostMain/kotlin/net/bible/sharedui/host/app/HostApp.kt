@@ -27,9 +27,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +45,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -111,9 +107,7 @@ import net.bible.sharedui.host.reading.hostReadingNavDeps
 import net.bible.sharedui.host.reading.rememberIosPaneIcons
 import net.bible.sharedui.host.reading.rememberIosReadingIcons
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalDrawerRowsGrowWithText
-import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.reading.host.LocalReadingPane
 import net.bible.sharedui.reading.host.ReadingHost
@@ -206,8 +200,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
                 LocalSheetDragHandleDescription provides strings.sheetDragHandle,
                 LocalLiveSettingsLanguage provides true,
                 net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
-                LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
-                LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+                *hostIconLocals(),
             ) {
                 AbTheme(darkTheme = recoveryDark) {
                     check(!HostStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
@@ -259,8 +252,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
             LocalDrawerRowsGrowWithText provides true,
             LocalLiveSettingsLanguage provides true,
             net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
-            LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
-            LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+            *hostIconLocals(),
         ) {
             HostTheme(dark, koin, modesVersion) {
                 val route = startRoute
