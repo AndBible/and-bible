@@ -290,8 +290,9 @@ private fun hostSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
     }
 
 /**
- * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and, after a database restore replaced the
- * databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
+ * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and
+ * [net.bible.service.cloudsync.CloudSync.workspaceRefreshRequired] (the "Copy from Cloud" join's database swap, #3919)
+ * and, after either replaced the databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
  * `ReadingCommands.applyRestoredDatabase`): reloads the repository from the restored database (lifting the restore
  * save freeze), stores the loaded workspace id under `current_workspace_id`, releases the old window assemblies so
  * the panes re-assemble on the new Window objects, and forces a full reload.
@@ -301,7 +302,8 @@ private fun hostSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
  * Call once per app composition; cancel the returned subscription on dispose.
  */
 internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.sharedcore.event.Subscription {
-    val subscription = net.bible.service.db.DatabaseContainer.databaseRestored.subscribeOnMain {
+    // Both replaces bump the restore epoch, which freezes `WindowRepository.saveIntoDb` until the repository reloads.
+    val reload: (Unit) -> Unit = {
         scope.launch(Dispatchers.Main) {
             if (!HostReadingReady.isReady) return@launch
             try {
@@ -317,7 +319,9 @@ internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.
             }
         }
     }
-    return subscription
+    val restored = net.bible.service.db.DatabaseContainer.databaseRestored.subscribeOnMain(reload)
+    val copiedFromCloud = koin.get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired.subscribeOnMain(reload)
+    return net.bible.sharedcore.event.Subscription { restored.cancel(); copiedFromCloud.cancel() }
 }
 
 /** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
