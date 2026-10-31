@@ -74,8 +74,29 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
     the same status message).
   - A child silent for over an hour may have lost its agent (no `blocked` arrives when the agent
     dies by a signal or exits 0). Send it a status message; if it stays silent, `import` it to
-    see its commits and ask the user to check the container before a `stop` + `restart`.
+    see its commits and park a note for the user (see "Decisions") before a `stop` + `restart`.
   - Tell each child to commit early (WIP commits are fine), so a dead agent loses little.
+
+## Decisions: park them, never block the run on the user
+
+The run is autonomous and may go on overnight with nobody at the keyboard. **Never interrupt it
+with an `AskUserQuestion`** for a decision a child or a review raises (a design choice, a product
+question, "merge or rework?"): a pending question stops the orchestrator, and every queued
+child, merge and gate waits behind it until morning.
+
+- **Park it.** Write the question, the options and your recommendation into a decision list in the
+  batch folder (`$BATCH/decisions.md`), and keep the affected work in a safe state: leave the
+  import unmerged (or preserve it as a local branch, e.g. `wip/issue-<n>-v1`), or merge only the
+  safe default. Then carry on with everything else.
+- **Remind, don't ask.** In your normal progress messages, say how many decisions are pending
+  (one line, e.g. "2 decisions parked in decisions.md"). Present them as an `AskUserQuestion`
+  only when the user asks for them, or when the user is evidently present (they just wrote to
+  you) and the rest of the batch is done.
+- **The only exception** is a blocker that makes the whole run pointless (e.g. no egress, the grant
+  revoked, the disk full): report it as a plain message and stop cleanly.
+- A child's own `question` is answered by you from the issue, the code and the spec; forward
+  it to the user's decision list only if it truly needs the user, and give the child a safe
+  interim instruction (skip that part, take the conservative option) so it is not left waiting.
 
 ## 4. Review, fix and merge each `done`
 
@@ -139,5 +160,6 @@ closed too; one the round did not fix (nothing merged, or not reproducible) is n
 |---|---|
 | Spawning a bug that is already fixed on the branch | grep the log for `#<n>` first |
 | Queueing many spawns at once | 1–2 queued; later picks benefit from merged fixes |
+| Asking the user mid-run (`AskUserQuestion` at night) | park it in `decisions.md`, remind, ask when asked |
 | Merging on the child's word | subagent review + your own read of the diff, every time |
 | Child cannot reach a download/osTicket | put the file in the shared batch folder |
