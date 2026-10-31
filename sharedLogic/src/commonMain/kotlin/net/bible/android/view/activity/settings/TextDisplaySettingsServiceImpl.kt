@@ -210,14 +210,23 @@ class TextDisplaySettingsServiceImpl(
     private fun iconKeyFor(item: PrefItemHandle): String? =
         item.iconKey
 
+    private fun numeric(value: Int, min: Int, max: Int, format: (Int) -> String) =
+        TextSettingRowValue.Numeric(value, min, max, format(value), valueLabelFor = format)
+
     private fun valueFor(t: TextSettingType, item: PrefItemHandle): TextSettingRowValue = when (t) {
         TextSettingType.STRONGS -> choice((item.value as Int).toString(), strongsEntries())
         TextSettingType.PAGE_SCROLL_AMOUNT -> choice((item.value as Int).toString(), pageScrollEntries())
         TextSettingType.SCROLL_HELPER_LINE_STYLE -> choice((item.value as Int).toString(), scrollHelperStyleEntries())
         TextSettingType.FONTFAMILY -> choice(item.value as String, fontFamilyEntries())
-        TextSettingType.FONTSIZE -> TextSettingRowValue.Numeric(item.value as Int, 1, 60, prefItems.string(TextDisplayString.FONT_SIZE_PT, item.value as Int))
-        TextSettingType.TOPMARGIN -> TextSettingRowValue.Numeric(item.value as Int, 0, 60, prefItems.string(TextDisplayString.VALUE_MM, item.value as Int))
-        TextSettingType.LINE_SPACING -> TextSettingRowValue.Numeric(item.value as Int, 10, 30, prefItems.string(TextDisplayString.LINE_SPACING_PT, (item.value as Int).toFloat() / 10))
+        TextSettingType.FONTSIZE -> numeric(item.value as Int, 1, 60) {
+            prefItems.string(TextDisplayString.FONT_SIZE_PT, it)
+        }
+        TextSettingType.TOPMARGIN -> numeric(item.value as Int, 0, 60) {
+            prefItems.string(TextDisplayString.VALUE_MM, it)
+        }
+        TextSettingType.LINE_SPACING -> numeric(item.value as Int, 10, 30) {
+            prefItems.string(TextDisplayString.LINE_SPACING_PT, it.toFloat() / 10)
+        }
         TextSettingType.MARGINSIZE -> {
             val m = item.value as WorkspaceEntities.MarginSize
             val def = TextDisplaySettings.default.marginSize!!

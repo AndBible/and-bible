@@ -250,6 +250,10 @@ its windows. These settings are synced across devices.
 
 **Text Appearance**
 
+The font size, top margin, and line spacing sliders show the current value
+as you drag, including its unit. Tap **OK** to apply the value or **Cancel**
+to discard the change.
+
 - **Colors:** Adjust text color, background color, and background noise
     (a subtle texture overlay on the background). The texture also extends behind
     the window buttons bar, using the same day or night noise setting as the reading area.

@@ -29,7 +29,14 @@ sealed interface SettingsScope {
 sealed interface TextSettingRowValue {
     data class Bool(val checked: Boolean) : TextSettingRowValue
     data class Choice(val selectedValue: String, val entries: List<SettingsItem.Choice>) : TextSettingRowValue
-    data class Numeric(val value: Int, val min: Int, val max: Int, val displayText: String) : TextSettingRowValue
+    data class Numeric(
+        val value: Int,
+        val min: Int,
+        val max: Int,
+        val displayText: String,
+        /** Formats an uncommitted slider value with the same localized units as [displayText]. */
+        val valueLabelFor: ((Int) -> String)? = null,
+    ) : TextSettingRowValue
     data class Margins(val left: Int, val right: Int, val maxWidth: Int,
                        val leftMax: Int, val rightMax: Int, val maxWidthMax: Int,
                        val displayText: String) : TextSettingRowValue
