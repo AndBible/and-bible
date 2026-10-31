@@ -59,6 +59,7 @@ import net.bible.android.control.readingplan.CurrentReadingPlan
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.service.cloudsync.createTriggers
 import net.bible.service.cloudsync.dropTriggers
 import kotlinx.coroutines.CoroutineScope
@@ -277,8 +278,35 @@ class DatabaseContainer private constructor() {
                     createTriggers(dbDef)
                 }
             }
+            if (!host.isRunningTests || openHealInTests) healAllAtOpen(container)
+            openStepHookForTest?.invoke("settingsLoad")
             container.settingsStore.load()
             return container
+        }
+
+        /** Test seam: unit tests skip the open-time work above; a test of the canonical-id heal at open turns it on. */
+        @VisibleForTesting
+        var openHealInTests = false
+
+        /** Test seam: called with "heal:<category>" and "settingsLoad" in the order [create] reaches them. */
+        @VisibleForTesting
+        var openStepHookForTest: ((String) -> Unit)? = null
+
+        /**
+         * The #3906 heal at open: re-keys rows that older versions created with random ids to their canonical ids,
+         * once per synced database (a no-op when it already ran). It must run before anything reads the databases
+         * or registers MyDocument SWORD books (a book keeps the id it was registered with), so [create] calls it
+         * right before the settings load, and no sync can have started yet.
+         */
+        @VisibleForTesting
+        internal suspend fun healAllAtOpen(container: DatabaseContainer) {
+            for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
+                openStepHookForTest?.invoke("heal:${dbDef.category.name}")
+                // A failed heal rolled back as one transaction; the app must still open, and the next open retries.
+                try { healCanonicalIds(dbDef) }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (e: Exception) { Log.e(TAG, "Canonical-id heal of ${dbDef.category.name} failed; retried at the next open", e) }
+            }
         }
 
         private fun getOldDatabase(): OldMonolithicAppDatabase =

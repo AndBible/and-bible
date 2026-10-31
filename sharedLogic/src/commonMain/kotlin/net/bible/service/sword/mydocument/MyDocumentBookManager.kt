@@ -192,6 +192,27 @@ object MyDocumentBookManager {
     }
 
     /**
+     * Registers every MyDocument again from the database. For after the canonical-id heal (#3906) re-keyed the
+     * MyDocument rows of a live database: a registered book keeps the id it was created with (the `AndBibleMyDocumentId`
+     * property and its backend's `documentId`), so it would read pages of a document id that no longer exists.
+     * Unlike [refreshRegistrations] this replaces the book instances. Does nothing when no book is registered yet
+     * (startup registration reads the healed ids).
+     */
+    suspend fun reregisterAllDocuments() {
+        if (registeredBooks.isEmpty()) return
+        withContext(mainDispatcher) {
+            for (initials in registeredBooks.keys.toList()) unregisterDocument(initials)
+        }
+        registerAllDocuments()
+        withContext(mainDispatcher) {
+            for (initials in registeredInitials) {
+                SwordContentFacade.evictBook(initials)
+                changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
+            }
+        }
+    }
+
+    /**
      * Bring the registered books in line with the database after an external
      * change (currently: cloud sync).
      *

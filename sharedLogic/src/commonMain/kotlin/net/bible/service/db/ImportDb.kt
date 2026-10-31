@@ -21,6 +21,8 @@ import kotlinx.coroutines.IO
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
+import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
@@ -78,4 +80,7 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
             }
         }
     }
+    // INSERT OR IGNORE brings the file's rows with their own ids: a file made by an older version holds random ids in the
+    // canonical tables. Outside the transaction above (the heal opens its own); categories without canonical tables are left alone.
+    if (category in CANONICAL_KEYS) healCanonicalIds(dbDef, force = true)
 }

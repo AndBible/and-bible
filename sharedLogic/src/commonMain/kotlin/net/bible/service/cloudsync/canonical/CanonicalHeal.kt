@@ -20,6 +20,7 @@ import androidx.sqlite.SQLITE_DATA_BLOB
 import androidx.sqlite.SQLITE_DATA_INTEGER
 import androidx.sqlite.SQLiteConnection
 import net.bible.android.database.IdType
+import net.bible.service.cloudsync.CANONICAL_PEER_SEEN_PREFIX
 import net.bible.service.cloudsync.LAST_PATCH_WRITTEN_KEY
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -195,6 +196,21 @@ suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean 
     }
     if (moved > 0) dbDef.localDb.invalidationTracker.refresh(*tables.toTypedArray())
     return moved
+}
+
+/**
+ * Removes the canonical-id state of another device from [dbDef]: the cloud's initial file is a whole database of the
+ * device that uploaded it, so after a fetch it carries that device's [CANONICAL_IDS_VERSION_KEY],
+ * [CANONICAL_HEAL_MOVED_ROWS_KEY], [CANONICAL_MARKER_PENDING_KEY] and its `canonicalPeerSeen:<id>` records. None of
+ * it describes this device; the following forced [healCanonicalIds] writes it again from this device's own result.
+ */
+suspend fun resetCanonicalSyncState(dbDef: SyncableDatabaseAccessor<*>) {
+    dbDef.localDb.useWriterConnectionMarked { room ->
+        room.exec(
+            "DELETE FROM SyncConfiguration WHERE keyName IN (?, ?, ?) OR keyName LIKE ?",
+            CANONICAL_IDS_VERSION_KEY, CANONICAL_HEAL_MOVED_ROWS_KEY, CANONICAL_MARKER_PENDING_KEY, "$CANONICAL_PEER_SEEN_PREFIX%",
+        )
+    }
 }
 
 private fun SQLiteConnection.setConfig(key: String, long: Long? = null, boolean: Boolean? = null) =

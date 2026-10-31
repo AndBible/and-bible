@@ -21,6 +21,11 @@ import kotlinx.coroutines.IO
 import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem
+import net.bible.android.database.SyncConfiguration
+import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
+import net.bible.service.cloudsync.canonical.healCanonicalIds
+import net.bible.service.cloudsync.canonical.resetCanonicalSyncState
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.platform.cloud.CloudFile
 import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
@@ -439,22 +444,65 @@ class CloudSync(
             throw CancelStartedSync()
         } else {
             swapInInitialDb(dbDef, tmpFile, replacement) {
-                dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
-                dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
-                dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, Clock.System.now().toEpochMilliseconds())
-                dbDef.dao.setConfig(adapterConfigs)
-                dropTriggers(dbDef)
-                createTriggers(dbDef)
-                dbDef.dao.addStatus(
-                    SyncStatus(
-                        syncDeviceName,
-                        0,
-                        initialFile.size,
-                        initialFile.createdTime
-                    )
-                )
+                finishInitialFetch(dbDef, syncFolderId, deviceFolderId, adapterConfigs, initialFile)
             }
         }
+    }
+
+    /**
+     * The sync-state initialization that follows the swap-in of the cloud's initial file: this device's folder ids,
+     * watermark and adapter keys, fresh triggers and the first [SyncStatus].
+     */
+    @VisibleForTesting suspend fun finishInitialFetch(
+        dbDef: SyncableDatabaseAccessor<*>,
+        syncFolderId: String,
+        deviceFolderId: String,
+        adapterConfigs: List<SyncConfiguration>,
+        initialFile: CloudFile,
+    ) {
+        dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
+        dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
+        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, Clock.System.now().toEpochMilliseconds())
+        dbDef.dao.setConfig(adapterConfigs)
+        dropTriggers(dbDef)
+        createTriggers(dbDef)
+        dbDef.dao.addStatus(
+            SyncStatus(
+                syncDeviceName,
+                0,
+                initialFile.size,
+                initialFile.createdTime
+            )
+        )
+        // The file is another device's whole database: drop its canonical-id state, then heal it (the cloud copy may
+        // predate the canonical ids) and record this device's own result. Last, so the lowered watermark of a heal
+        // that moved rows is the one that stays.
+        resetCanonicalSyncState(dbDef)
+        healAfterReplace(dbDef)
+    }
+
+    /**
+     * Forced canonical-id heal ([healCanonicalIds]) for a database that a fetch or a merge just filled with rows of
+     * unknown origin. Never inside an open transaction of [dbDef]. Remembers when MyDocument rows were re-keyed:
+     * [finishReplace] then registers the books again, once the outermost replace has ended.
+     */
+    private suspend fun healAfterReplace(dbDef: SyncableDatabaseAccessor<*>) {
+        val moved = healCanonicalIds(dbDef, force = true)
+        if (moved > 0 && dbDef.category == SyncableDatabaseDefinition.MYDOCUMENTS) myDocumentIdsMoved.value = true
+    }
+
+    private val myDocumentIdsMoved = atomic(false)
+
+    /** The end of a replace by sync: books registered with old ids are registered again, then the workspace reloads. */
+    private suspend fun finishReplace() {
+        if (DatabaseContainer.replacing) return
+        if (myDocumentIdsMoved.compareAndSet(true, false)) {
+            withContext(NonCancellable) {
+                runCatching { MyDocumentBookManager.reregisterAllDocuments() }
+                    .onFailure { Log.e(TAG, "Re-registering the MyDocument books after the canonical-id heal failed", it) }
+            }
+        }
+        notifyWorkspaceRefreshRequired()
     }
 
     /** The initial-download swap: close, copy the downloaded file over the local one, reopen. */
@@ -485,7 +533,7 @@ class CloudSync(
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
-            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+            finishReplace()
         }
     }
 
@@ -567,12 +615,15 @@ class CloudSync(
                     val watermark = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: 0L
                     val mergeTime = maxOf(Clock.System.now().toEpochMilliseconds(), watermark + 1)
                     mergeSnapshotIntoLocal(dbDef, env, snapshot, mergeTime)
+                    // The merge keeps the cloud's ids, and the cloud may be a pre-canonical device: heal, outside the
+                    // merge's own transaction (finished), inside the replace and before the failure restore can see "done".
+                    healAfterReplace(dbDef)
                     mergeStageHookForTest?.invoke("afterMerge")
                 } catch (t: Throwable) {
                     Log.e(TAG, "Merge failed for ${dbDef.categoryName}, restoring the device's database", t)
                     try {
                         withContext(NonCancellable) {
-                            if (pristineReady) swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) }
+                            if (pristineReady) restoreOriginal(dbDef, original, token)
                             else removeSyncState(dbDef) // the live database was never touched: only forget the keys initializeSync wrote
                         }
                     } catch (restoreFailure: Throwable) {
@@ -595,7 +646,20 @@ class CloudSync(
             runCatching { FileSystem.SYSTEM.delete(partial, mustExist = false) }
             if (!restoreFailed) runCatching { FileSystem.SYSTEM.delete(original, mustExist = false) }
             runCatching { FileSystem.SYSTEM.delete(snapshot) }
-            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+            finishReplace()
+        }
+    }
+
+    /**
+     * Swaps the device's own pristine pre-merge copy back in and forgets the sync state a join wrote. The copy can
+     * predate the canonical ids (a merge interrupted by an app update is recovered by the new version), so a category
+     * that has canonical tables is healed again. Others are left byte-for-byte as they were: there is nothing to
+     * re-key, and the next open records the version.
+     */
+    private suspend fun restoreOriginal(dbDef: SyncableDatabaseAccessor<*>, original: Path, token: AiDatabaseLifetime.Replacement) {
+        swapInInitialDb(dbDef, original, token) {
+            if (dbDef.category in CANONICAL_KEYS) healAfterReplace(dbDef)
+            removeSyncState(dbDef)
         }
     }
 
@@ -627,9 +691,9 @@ class CloudSync(
         try {
             if (hasOriginal) {
                 try {
-                    DatabaseContainer.replacingDatabases { token -> swapInInitialDb(dbDef, original, token) { removeSyncState(dbDef) } }
+                    DatabaseContainer.replacingDatabases { token -> restoreOriginal(dbDef, original, token) }
                 } finally {
-                    if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+                    finishReplace()
                 }
             } else {
                 removeSyncState(dbDef)
