@@ -388,6 +388,60 @@ class BookmarksManageLabelsCollectorTest {
     }
 
     /**
+     * The ASSIGN answer's workspace half (recent labels, auto-assign) for an assignment restored after process
+     * death: the host is recreated on the lazy fallback, and the restored ids take the background branch. Its
+     * writes into the placeholder settings were dropped by the first load the same way.
+     */
+    @Test
+    fun aRestoredAssignAnswerKeepsItsWorkspaceSettingsAcrossTheFirstLoad() {
+        val activity = host()
+        idle()
+        val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
+        val bookmark = kotlinx.coroutines.runBlocking { control.addOrUpdateBibleBookmark(
+            net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
+                org.crosswire.jsword.passage.VerseRangeFactory.fromString(
+                    org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"),
+                    "Psalms 119:1",
+                ),
+                // Its own book: reading its text then does not reach for the active window's (which would load the
+                // workspace before the answer's settings write, hiding the defect).
+                null, true, org.crosswire.jsword.book.Books.installed().getBook("KJV") as org.crosswire.jsword.book.sword.SwordBook,
+            ),
+            null,
+        ) }
+        val label = kotlinx.coroutines.runBlocking { control.insertOrUpdateLabel(
+            net.bible.android.database.bookmarks.BookmarkEntities.Label(new = true).apply { name = "X" },
+        ) }
+        val controller = realController(activity, mutableListOf())
+        withUnloadedRepository(controller) { repository ->
+            val session = bookmarksSession(activity)
+            session.javaClass.getDeclaredField("restoredAssignIds").apply { isAccessible = true }
+                .set(session, listOf(bookmark.id.toString()))
+            setAwaiting(session, true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.ASSIGN,
+                selectedLabels = mutableSetOf(label.id),
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+            idleUntil("the assigned label to reach the bookmark") {
+                kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.id } == listOf(label.id)
+            }
+            // The workspace half follows the bookmark write; let it land.
+            idleUntil("the workspace settings to be written") { repository.initialized || marker in repository.workspaceSettings.autoAssignLabels }
+            idle()
+
+            repository.activeWindow // whatever reads it first loads the workspace
+            assertEquals("the load must not drop the answer", setOf(marker), repository.workspaceSettings.autoAssignLabels)
+            assertTrue(
+                "the assigned label is recent",
+                repository.workspaceSettings.recentLabels.any { it.labelId == label.id },
+            )
+        }
+    }
+
+    /**
      * The other end of the same defect: the label manager is opened with the workspace's STORED settings, not
      * with the placeholder an unloaded repository holds.
      */
