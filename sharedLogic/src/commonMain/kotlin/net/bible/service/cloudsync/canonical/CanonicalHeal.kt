@@ -73,6 +73,9 @@ val CANONICAL_KEYS: Map<SyncableDatabaseDefinition, List<CanonicalKey>> =
 /** Test seam: when set, [healCanonicalIds] calls it after the rename and before commit (to prove the rollback). */
 var canonicalHealFailureInjector: (() -> Unit)? = null
 
+/** Test seam: when set, [healCanonicalIds] calls it inside the invalidation touch transaction (to prove its rollback). */
+var canonicalHealTouchFailureInjector: (() -> Unit)? = null
+
 /**
  * Re-keys every row of the canonical tables of [category] in the main schema of [conn] to the id derived from its
  * natural key, with its child rows and `LogEntry` entries ([renameIds]; timestamps and source devices of the log
@@ -178,13 +181,14 @@ suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean 
         }
         if (moved > 0) {
             // Room's change tracking works through triggers on its own connections; make it see the rewrite.
-            room.exec("UPDATE SyncConfiguration SET booleanValue = 1 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
-            try {
+            // One transaction: a failure, kill or cancellation can never leave the sync triggers disabled.
+            room.inTransaction<Unit> {
+                exec("UPDATE SyncConfiguration SET booleanValue = 1 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
                 for ((t, column) in touch) {
-                    room.exec("UPDATE $t SET $column = $column WHERE rowid = (SELECT min(rowid) FROM $t)")
+                    exec("UPDATE $t SET $column = $column WHERE rowid = (SELECT min(rowid) FROM $t)")
                 }
-            } finally {
-                room.exec("UPDATE SyncConfiguration SET booleanValue = 0 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
+                canonicalHealTouchFailureInjector?.invoke()
+                exec("UPDATE SyncConfiguration SET booleanValue = 0 WHERE keyName = ?", TRIGGERS_DISABLED_KEY)
             }
         }
         moved

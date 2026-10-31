@@ -98,6 +98,7 @@ class CanonicalHealTest {
 
     @After fun tearDown() {
         canonicalHealFailureInjector = null
+        canonicalHealTouchFailureInjector = null
         MyDocumentBookManager.mainDispatcher = previousDispatcher
         MyDocumentBookManager.launcher = previousLauncher
         syncScope.cancel()
@@ -291,6 +292,25 @@ class CanonicalHealTest {
             // The sync triggers were only off for the touch.
             assertEquals(false, ai.dao.getBoolean("triggersDisabled"))
         } finally { job.cancel() }
+    }
+
+    @Test fun failingTouchNeverLeavesTriggersDisabled() = runBlocking {
+        addAiBook()
+        canonicalHealTouchFailureInjector = { error("touch boom") }
+        try {
+            healCanonicalIds(docs)
+            fail("expected the injected failure")
+        } catch (e: IllegalStateException) {
+            assertEquals("touch boom", e.message)
+        }
+        canonicalHealTouchFailureInjector = null
+        assertFalse(docs.dao.getBoolean("triggersDisabled") == true)
+        // The sync triggers still log edits.
+        val doc = db.myDocumentDb.myDocumentDao().allDocuments().single()
+        Thread.sleep(10)
+        db.myDocumentDb.myDocumentDao().update(doc.copy(name = "renamed"))
+        assertTrue(logOf(docs, "MyDocument").single().lastUpdated > 0)
+        assertEquals("renamed", db.myDocumentDb.myDocumentDao().allDocuments().single().name)
     }
 
     @Test fun rekeyToCanonicalToleratesMissingTables() = runBlocking {
