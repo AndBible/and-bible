@@ -295,7 +295,7 @@ class DatabaseContainer private constructor() {
 
         /**
          * The #3906 heal at open: re-keys rows that older versions created with random ids to their canonical ids,
-         * once per synced database (a no-op when it already ran). It must run before anything reads the databases
+         * once per synced database that has canonical tables (a no-op when it already ran; other categories are skipped). It must run before anything reads the databases
          * or registers MyDocument SWORD books (a book keeps the id it was registered with), so [create] calls it
          * right before the settings load, and no sync can have started yet.
          */

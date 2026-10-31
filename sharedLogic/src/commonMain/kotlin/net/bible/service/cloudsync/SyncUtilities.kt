@@ -212,7 +212,8 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
     val patchDbFile = createTempFile(env.tmpDir.toPath(), "created-patch-${dbDef.categoryName}-", ".sqlite3")
 
     val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
-    // The version and the pending flag are only ever written by healCanonicalIds, which skips categories without canonical tables.
+    // The version is only written by healCanonicalIds and the pending flag by it or by a re-send in noteHealedPeers;
+    // both skip categories without canonical tables, so those never carry a marker.
     val markerPending = canonical && dbDef.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY) == true
     val writeMarker = canonical && dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L
     val writeMovedMarker = writeMarker && dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true
@@ -275,8 +276,9 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * device has healed (so a patch written before the sender or this device healed lines up with the local rows), and the healed-device
  * markers of the patch are read from its `SyncConfiguration`. After the patch is applied, a marker device that is
  * not this device and not yet recorded (`canonicalPeerSeen:<id>`) is recorded; when this device's heal moved rows
- * (`canonicalHealMovedRows`), `LAST_PATCH_WRITTEN_KEY` is lowered to 0 so the next patch carries the whole log
- * again (the re-send; the entries keep their timestamps and are never re-stamped). `canonical = false` is the
+ * (`canonicalHealMovedRows`) or the peer's marker says its heal moved rows (`canonicalHealMovedRowsDevice:<id>`),
+ * `LAST_PATCH_WRITTEN_KEY` is lowered to 0 and `canonicalMarkerPending` set, so the next patch carries the whole log
+ * again even without own new entries (the re-send; the entries keep their timestamps and are never re-stamped). `canonical = false` is the
  * previous behaviour exactly: no re-key and no marker handling.
  */
 suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, canonical: Boolean = true) {

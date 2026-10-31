@@ -657,7 +657,7 @@ class CloudSync(
      * Swaps the device's own pristine pre-merge copy back in and forgets the sync state a join wrote. The copy can
      * predate the canonical ids (a merge interrupted by an app update is recovered by the new version), so a category
      * that has canonical tables is healed again. Others are left byte-for-byte as they were: there is nothing to
-     * re-key, and the next open records the version.
+     * re-key, and such categories never get a canonical version or marker.
      */
     private suspend fun restoreOriginal(dbDef: SyncableDatabaseAccessor<*>, original: Path, token: AiDatabaseLifetime.Replacement) {
         swapInInitialDb(dbDef, original, token) {
