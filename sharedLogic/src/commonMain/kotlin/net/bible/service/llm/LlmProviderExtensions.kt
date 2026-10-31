@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.service.cloudsync.canonical.canonicalLlmConfiguredModelId
 import net.bible.android.database.IdType
 
 fun LlmProviderConfig.resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
@@ -44,6 +45,7 @@ fun LlmConfiguredModel.Companion.create(
     val pricing = LlmProvider.findPricing(modelId)
         ?: DynamicModelService.getPricingForModel(modelId)
     return LlmConfiguredModel(
+        id = canonicalLlmConfiguredModelId(providerConfigId, modelId),
         providerConfigId = providerConfigId,
         modelId = modelId,
         orderNumber = orderNumber,

@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.cloudsync.canonical.canonicalLlmConfiguredModelId
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.llm.collectOwned
@@ -190,6 +191,7 @@ class LlmModelServiceImpl : LlmModelService, KoinComponent {
                     LlmConfiguredModel.create(providerConfigId, trimmedModelId, orderNumber)
                 } else {
                     LlmConfiguredModel(
+                        id = canonicalLlmConfiguredModelId(providerConfigId, trimmedModelId),
                         providerConfigId = providerConfigId,
                         modelId = trimmedModelId,
                         orderNumber = orderNumber,

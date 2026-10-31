@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.app.mydocuments
 
+import net.bible.service.cloudsync.canonical.canonicalMyDocumentId
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -547,7 +548,7 @@ class MyDocumentsHost(
     private fun createMyDocument(session: MyDocumentsSession, name: String) {
         MyDocumentBookManager.launcher.launch("mydocument-create") {
             val initials = MyDocumentBookManager.generateInitials(name)
-            val newDoc = MyDocument(name = name, initials = initials, orderNumber = withContext(Dispatchers.Main) { session.controller.totalCount.value })
+            val newDoc = MyDocument(id = canonicalMyDocumentId(initials), name = name, initials = initials, orderNumber = withContext(Dispatchers.Main) { session.controller.totalCount.value })
             myDocumentDao.insert(newDoc)
             withContext(Dispatchers.Main) {
                 MyDocumentBookManager.registerDocument(newDoc)
@@ -633,6 +634,7 @@ class MyDocumentsHost(
 
                 val initials = MyDocumentBookManager.generateInitials(documentName)
                 val newDocument = MyDocument(
+                    id = canonicalMyDocumentId(initials),
                     name = documentName,
                     initials = initials,
                     orderNumber = session.controller.totalCount.value,
