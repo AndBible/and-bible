@@ -6,6 +6,10 @@ across multiple devices using Google Drive, Nextcloud or your own WebDAV server.
 Sync is automatic — once set up, changes are synchronized in the background
 while the app is open, as well as when opening or exiting the app.
 
+On iOS, sync errors and recovery notices appear as in-app messages. If a message
+asks you to update AndBible to keep syncing, update the app before trying again.
+Errors raised during startup remain queued until the app can display them.
+
 ## Requirements
 
 - Android 5.1 or newer

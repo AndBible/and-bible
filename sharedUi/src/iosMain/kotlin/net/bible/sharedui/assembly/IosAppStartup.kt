@@ -25,6 +25,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import net.bible.android.control.event.UserMessagesPresenter
 import net.bible.service.cloudsync.ios.buildIosSyncBindings
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedui.ios.app.buildIosHostBindings
@@ -147,6 +148,7 @@ object IosAppStartup {
     // Selected on Main, used only by the process-owned initialization operation on IO.
     private var selectedParts: IosPlatformParts? = null
     private var owner: HostStartupOwner<IosPlatformParts>? = null
+    private var userMessages: UserMessagesPresenter? = null
 
     @kotlin.concurrent.Volatile
     private var opened = false
@@ -181,9 +183,14 @@ object IosAppStartup {
      */
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
+            // Subscribe before JSword/Koin initialization: neither the notifier nor a UI exists yet.
+            if (userMessages == null) userMessages = UserMessagesPresenter(processScope)
             owner ?: HostStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
+                    if (IosDebugLaunchArgs.hasLaunchFlag("-startupUserMessage")) {
+                        net.bible.android.control.event.UserMessages.errorNotification(p.strings.text("debug_test_error"), false)
+                    }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
                     else if (IosDebugLaunchArgs.resetDatabases()) IosDebugLaunchArgs.resetAppDatabases()
                     DatabaseContainer.installHost(IosDatabaseHost(p.environment, p.databaseRoot))
@@ -204,7 +211,10 @@ object IosAppStartup {
                         isSwordLoaded = { HostSwordEnvironment.isLoaded },
                         isolateKoinPublication = true,
                     ))
-                    withContext(Dispatchers.Main.immediate) { parts = p }
+                    withContext(Dispatchers.Main.immediate) {
+                        userMessages?.attach(KoinPlatform.getKoin().get<UserNotifier>())
+                        parts = p
+                    }
                     p
                 },
                 open = {
@@ -258,6 +268,10 @@ object IosAppStartup {
     internal suspend fun resetForTest() {
         val previousOwner = withContext(Dispatchers.Main.immediate) { owner }
         previousOwner?.joinInFlight()
+        withContext(Dispatchers.Main.immediate) {
+            userMessages?.close()
+            userMessages = null
+        }
         // Stop the app scope first: coroutines of a finished test (store collectors, ordered launches) must not run
         // into the next test's databases.
         runCatching {

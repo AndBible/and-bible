@@ -270,6 +270,35 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun userMessagesDuringKoinStartupSurviveUntilTheDialogHostExists() {
+        ownsAppGraph = true
+        awaitStartupOnMain {
+            IosAppStartup.ensureStarted(config(), extraModules = listOf(org.koin.dsl.module {
+                single<StartupMessageProbe>(createdAtStart = true) {
+                    net.bible.android.control.event.UserMessages.errorNotification("early sync failure", false)
+                    StartupMessageProbe()
+                }
+            }))
+            kotlinx.coroutines.yield()
+        }
+        val dialogs = KoinPlatform.getKoin().get<AppDialogController>()
+        val first = assertNotNull(dialogs.pending.value, "startup UserMessages must reach the app dialog queue")
+        assertEquals("early sync failure", kotlin.test.assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(first.request).message)
+        dialogs.dismiss(first.id)
+        startApp()
+        awaitStartupOnMain {
+            net.bible.android.control.event.UserMessages.errorNotification("later sync failure", false)
+            kotlinx.coroutines.yield()
+        }
+        val second = assertNotNull(dialogs.pending.value)
+        assertEquals("later sync failure", kotlin.test.assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(second.request).message)
+        dialogs.dismiss(second.id)
+        assertNull(dialogs.pending.value, "repeated startup must not add a second subscriber")
+    }
+
+    private class StartupMessageProbe
+
+    @Test
     fun startIsIdempotent() {
         startApp()
         val koin = KoinPlatform.getKoin()
