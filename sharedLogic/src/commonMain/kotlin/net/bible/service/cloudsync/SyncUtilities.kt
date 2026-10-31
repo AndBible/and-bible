@@ -82,6 +82,7 @@ private suspend fun writePatchData(
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
+    canonical: Boolean = false,
 ) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
@@ -142,6 +143,26 @@ private suspend fun readPatchData(
             """.trimIndent()
     )
 
+    // A row an old receiver dropped in the foreign key clean-up above keeps its log entry, so a re-send with the same
+    // timestamp is skipped by the upsert. Put back every patch row whose UPSERT entry equals the local one (same
+    // lastUpdated and sourceDevice) and that is missing here, then clean up again (#3906). `parents` is not used:
+    // it also drives the delete triggers. A natural-key clash is ignored (INSERT OR IGNORE).
+    if (canonical) {
+        exec("""
+            INSERT OR IGNORE INTO $table ($cols)
+            SELECT $cols FROM patch.$table WHERE $idFields IN
+            (SELECT $select FROM patch.LogEntry pe
+              JOIN LogEntry me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+              WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND me.type = 'UPSERT'
+              AND pe.lastUpdated = me.lastUpdated AND pe.sourceDevice = me.sourceDevice)
+            """.trimIndent())
+        exec("""
+            DELETE FROM $table
+            WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
+            """.trimIndent()
+        )
+    }
+
     // Restore carried children whose parents exist here, unless they were deleted on their own.
     // This brings back the children of a parent whose delete lost to a newer edit.
     if (tableDef.parents.isNotEmpty()) {
@@ -159,6 +180,13 @@ private suspend fun readPatchData(
 
 /** Prefix of the `SyncConfiguration` keys in a patch file that tell the receiver which devices have healed (#3906). */
 const val CANONICAL_HEALED_DEVICE_PREFIX = "canonicalIdsHealedDevice:"
+
+/**
+ * Prefix of the patch-file keys that say the sender's heal moved rows. A receiver that holds the same natural key under
+ * a non-canonical id drops the sender's children, which is exactly when its own heal moves rows, so the receiver
+ * of such a marker must send its rows again.
+ */
+const val CANONICAL_MOVED_ROWS_DEVICE_PREFIX = "canonicalHealMovedRowsDevice:"
 
 /** Prefix of the local `SyncConfiguration` keys that record the healed peers already seen (#3906). */
 const val CANONICAL_PEER_SEEN_PREFIX = "canonicalPeerSeen:"
@@ -182,6 +210,7 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
     val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
     val markerPending = canonical && dbDef.dao.getBoolean(CANONICAL_MARKER_PENDING_KEY) == true
     val writeMarker = canonical && dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L
+    val writeMovedMarker = writeMarker && dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true
     if(amountUpdated == 0L && !markerPending) {
         Log.i(TAG, "No new entries ${dbDef.categoryName}")
         return null
@@ -199,10 +228,13 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
                 for (tableDef in dbDef.tableDefinitions) {
                     writePatchData(this, tableDef, lastPatchWritten)
                 }
-                if (writeMarker) {
+                for (key in listOfNotNull(
+                    CANONICAL_HEALED_DEVICE_PREFIX.takeIf { writeMarker },
+                    CANONICAL_MOVED_ROWS_DEVICE_PREFIX.takeIf { writeMovedMarker },
+                )) {
                     exec(
                         "INSERT OR REPLACE INTO patch.SyncConfiguration (keyName, stringValue, longValue, booleanValue) " +
-                            "VALUES (?, NULL, 1, NULL)", CANONICAL_HEALED_DEVICE_PREFIX + dbDef.deviceId,
+                            "VALUES (?, NULL, 1, NULL)", key + dbDef.deviceId,
                     )
                 }
             }
@@ -249,7 +281,7 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
         ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
         createWithSchema(dbDef, patchDbFile)
-        val healedPeers = if (canonical) rekeyIncomingPatch(dbDef, patchDbFile) else emptyList()
+        val healedPeers = if (canonical) rekeyIncomingPatch(dbDef, patchDbFile) else PatchMarkers()
         dbDef.localDb.useWriterConnectionMarked { db ->
             // ATTACH inside the protected region, as in createPatchForDatabase.
             db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
@@ -259,7 +291,7 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
                     db.inTransaction<Unit> {
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef)
+                            readPatchData(this, tableDef, canonical)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }
@@ -277,23 +309,27 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
     }
 }
 
+/** The healed-device markers of a patch: [healed] devices, and those of them whose heal [moved] rows. */
+private class PatchMarkers(val healed: List<String> = emptyList(), val moved: Set<String> = emptySet())
+
 /**
  * Opens the downloaded patch [patchDbFile] (already migrated to the current schema) on its own connection, where it
  * is the main schema, reads its healed-device markers and, when this device has healed, re-keys its canonical tables
  * to canonical ids in one transaction ([rekeyToCanonical]; the log entries of the moved rows follow with their timestamps). The patch's
  * sync triggers are switched off for the re-key through its own `SyncConfiguration`, so nothing is logged into it.
  *
- * @return the device ids named by the patch's markers
+ * @return the markers of the patch
  */
-private suspend fun rekeyIncomingPatch(dbDef: SyncableDatabaseAccessor<*>, patchDbFile: Path): List<String> =
+private suspend fun rekeyIncomingPatch(dbDef: SyncableDatabaseAccessor<*>, patchDbFile: Path): PatchMarkers =
     openSqlite(patchDbFile.toString()).use { conn ->
         conn.exec("PRAGMA foreign_keys = OFF")
         // A device that has not healed yet keeps its random ids, so a canonical id from the patch would not line up
         // with its rows; its later heal re-keys the lot (and lowers the watermark itself).
         val rekey = dbDef.dao.getLong(CANONICAL_IDS_VERSION_KEY) == 1L
-        val markers = conn.queryRows(
-            "SELECT keyName FROM SyncConfiguration WHERE keyName LIKE ? AND longValue = 1", "$CANONICAL_HEALED_DEVICE_PREFIX%",
-        ) { it.getText(0).removePrefix(CANONICAL_HEALED_DEVICE_PREFIX) }
+        fun markers(prefix: String) = conn.queryRows(
+            "SELECT keyName FROM SyncConfiguration WHERE keyName LIKE ? AND longValue = 1", "$prefix%",
+        ) { it.getText(0).removePrefix(prefix) }
+        val markers = PatchMarkers(markers(CANONICAL_HEALED_DEVICE_PREFIX), markers(CANONICAL_MOVED_ROWS_DEVICE_PREFIX).toSet())
         conn.inTransaction {
             exec("INSERT OR REPLACE INTO SyncConfiguration (keyName, stringValue, longValue, booleanValue) VALUES (?, NULL, NULL, 1)", TRIGGERS_DISABLED_KEY)
             if (rekey) rekeyToCanonical(this, dbDef.category)
@@ -302,14 +338,19 @@ private suspend fun rekeyIncomingPatch(dbDef: SyncableDatabaseAccessor<*>, patch
         markers
     }
 
-/** Records healed peers seen for the first time and, when this device's heal moved rows, lowers the watermark (re-send). */
-private suspend fun noteHealedPeers(dbDef: SyncableDatabaseAccessor<*>, peers: List<String>) {
-    for (peer in peers.distinct()) {
+/**
+ * Records healed peers seen for the first time and lowers the watermark (re-send) when this device's heal moved rows
+ * or the peer's marker says its heal did.
+ */
+private suspend fun noteHealedPeers(dbDef: SyncableDatabaseAccessor<*>, markers: PatchMarkers) {
+    for (peer in markers.healed.distinct()) {
         if (peer == dbDef.deviceId) continue
         val seenKey = CANONICAL_PEER_SEEN_PREFIX + peer
         if (dbDef.dao.getLong(seenKey) == 1L) continue
         dbDef.dao.setConfig(seenKey, 1L)
-        if (dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true) dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        if (peer in markers.moved || dbDef.dao.getBoolean(CANONICAL_HEAL_MOVED_ROWS_KEY) == true) {
+            dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        }
     }
 }
 

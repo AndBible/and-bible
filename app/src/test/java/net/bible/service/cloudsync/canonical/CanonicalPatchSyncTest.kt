@@ -24,9 +24,11 @@ import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.DbDate
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
+import net.bible.android.database.migrations.aiSettingsMigrations
 import net.bible.android.database.migrations.myDocumentMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.mydocument.MyDocument
@@ -47,6 +49,9 @@ import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryLong
+import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmProviderConfig
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.test.DatabaseResetter
 import okio.Path
@@ -116,6 +121,10 @@ class CanonicalPatchSyncTest {
         build(MyDocumentDatabase::class.java, it, myDocumentMigrations)
     }
 
+    private suspend fun aiDevice() = newDevice(SyncableDatabaseDefinition.AI_SETTINGS) {
+        build(AiSettingsDatabase::class.java, it, aiSettingsMigrations)
+    }
+
     private suspend fun planDevice() = newDevice(SyncableDatabaseDefinition.READINGPLANS) {
         build(ReadingPlanDatabase::class.java, it, readingPlanMigrations)
     }
@@ -142,6 +151,10 @@ class CanonicalPatchSyncTest {
     private suspend fun SyncableDatabaseAccessor<MyDocumentDatabase>.addBook(): MyDocument =
         MyDocument(name = "AI", initials = "AIDocuments").also { md.insert(it) }
 
+    /** A book as the new code creates it: with its canonical id from the start. */
+    private suspend fun SyncableDatabaseAccessor<MyDocumentDatabase>.addCanonicalBook(): MyDocument =
+        MyDocument(id = canonicalMyDocumentId("AIDocuments"), name = "AI", initials = "AIDocuments").also { md.insert(it) }
+
     private suspend fun SyncableDatabaseAccessor<MyDocumentDatabase>.addPage(book: MyDocument, key: String): MyDocumentPage {
         val page = MyDocumentPage(documentId = book.id, title = key, pageKey = key, orderNumber = 1)
         md.insert(page)
@@ -154,6 +167,7 @@ class CanonicalPatchSyncTest {
         return md.pagesForDocument(book.id).map { "${it.pageKey}=${md.getContent(it.id)}" }.toSet()
     }
 
+    /** Also guards the Task 3 heal itself: after the bug exchange only the heal and a re-send can bring the pages back. */
     @Test fun bothHealedAiPagesReachBothDevices() = run {
         val a = docDevice()
         val b = docDevice()
@@ -164,6 +178,9 @@ class CanonicalPatchSyncTest {
         // The bug: random ids, so the pages are dropped on the way.
         sync(a, b, fromCanonical = false, toCanonical = false)
         sync(b, a, fromCanonical = false, toCanonical = false)
+        // The fixture reproduces the bug: each device dropped the other's page.
+        assertEquals(setOf("a=content a"), a.pageKeysWithContent())
+        assertEquals(setOf("b=content b"), b.pageKeysWithContent())
 
         healCanonicalIds(a)
         healCanonicalIds(b)
@@ -313,8 +330,9 @@ class CanonicalPatchSyncTest {
         val b = docDevice()
         healCanonicalIds(a) // nothing to move
         assertNull(a.dao.getBoolean("canonicalHealMovedRows"))
-        b.addPage(b.addBook(), "b")
-        healCanonicalIds(b)
+        b.addPage(b.addCanonicalBook(), "b")
+        healCanonicalIds(b) // nothing to move either: its book was canonical from creation
+        assertNull(b.dao.getBoolean("canonicalHealMovedRows"))
         a.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 12345L)
 
         sync(b, a)
@@ -358,6 +376,63 @@ class CanonicalPatchSyncTest {
 
         // B has not healed: no re-key of the incoming patch, B's rows keep their random ids until B heals.
         assertEquals(bookB.id, b.md.allDocuments().single().id)
+    }
+
+    @Test fun canonicalFromCreationDeviceResendsWhenAnOldPeerHeals() = run {
+        val a = docDevice()
+        val b = docDevice()
+        a.addPage(a.addCanonicalBook(), "a")
+        b.addBook()
+        healCanonicalIds(a) // moves nothing
+        assertNull(a.dao.getBoolean("canonicalHealMovedRows"))
+
+        sync(a, b, toCanonical = false) // B (old) drops A's page: its book has a random id
+        assertEquals(emptySet<String>(), b.md.pagesForDocument(b.md.allDocuments().single().id).map { it.pageKey }.toSet())
+        healCanonicalIds(b) // moves rows
+        sync(b, a) // B's marker says its heal moved rows
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        sync(a, b)
+
+        assertEquals(setOf("a=content a"), b.pageKeysWithContent())
+    }
+
+    @Test fun peerThatMovedNothingDoesNotTriggerAResend() = run {
+        val a = docDevice()
+        val b = docDevice()
+        a.addCanonicalBook()
+        b.addPage(b.addCanonicalBook(), "b")
+        healCanonicalIds(a)
+        healCanonicalIds(b)
+        a.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 4242L)
+
+        sync(b, a)
+
+        assertEquals(4242L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        assertEquals(1L, a.dao.getLong("canonicalPeerSeen:${b.deviceId}"))
+    }
+
+    @Test fun rowsAnOldReceiverDroppedAreRestoredWithoutParents() = run {
+        val a = aiDevice()
+        val b = aiDevice()
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        a.localDb.llmProviderConfigDao().insert(provider)
+        sync(a, b)
+        val modelA = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m")
+        a.localDb.llmConfiguredModelDao().insert(modelA)
+        b.localDb.llmConfiguredModelDao().insert(LlmConfiguredModel(providerConfigId = provider.id, modelId = "m"))
+        val prompt = AgentPrompt(name = "p").also { it.configuredModelId = modelA.id }
+        a.localDb.agentPromptDao().insert(prompt)
+
+        // B is old: it keeps its own model id, drops the prompt (foreign key) but keeps the prompt's log entry.
+        sync(a, b, toCanonical = false)
+        assertNull(b.localDb.agentPromptDao().promptById(prompt.id))
+        healCanonicalIds(a)
+        healCanonicalIds(b)
+        sync(a, b)
+
+        val canonical = canonicalLlmConfiguredModelId(provider.id, "m")
+        assertEquals(canonical, b.localDb.agentPromptDao().promptById(prompt.id)?.configuredModelId)
+        assertEquals(canonical, b.localDb.llmConfiguredModelDao().getByProvider(provider.id).single().id)
     }
 
     @Test fun canonicalFalseReproducesTheOldBehaviour() = run {

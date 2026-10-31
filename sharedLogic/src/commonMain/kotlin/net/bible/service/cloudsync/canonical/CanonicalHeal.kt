@@ -150,7 +150,7 @@ suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean 
     val touch = LinkedHashMap<String, String>()
     for (c in keys) {
         touch[c.key.table] = c.key.idColumn
-        c.key.children.forEach { (child, column) -> touch.putIfAbsent(child, column) }
+        c.key.children.forEach { (child, column) -> if (child !in touch) touch[child] = column }
     }
     val tables = touch.keys.toList()
     val moved = dbDef.localDb.useWriterConnectionMarked { room ->

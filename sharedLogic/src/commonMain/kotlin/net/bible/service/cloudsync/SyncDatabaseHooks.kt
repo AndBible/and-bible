@@ -18,6 +18,7 @@
 
 package net.bible.service.cloudsync
 
+import net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY
 import androidx.room3.PooledConnection
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
@@ -181,9 +182,13 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     }
     suspend fun hasChanges(): Boolean {
         val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
-        // A healed device still has to announce itself (marker-only patch) even without own changes (#3906).
-        return dao.countNewLogEntries(lastSynchronized, deviceId) > 0 ||
-            dao.getBoolean(net.bible.service.cloudsync.canonical.CANONICAL_MARKER_PENDING_KEY) == true
+        if (dao.countNewLogEntries(lastSynchronized, deviceId) > 0) return true
+        // A category the sync is disabled for (a newer peer version) has nothing to send.
+        if (dao.getLong("disabledForVersion") == version().toLong()) return false
+        // A lowered watermark (the re-send after a peer's heal, #3906) leaves own entries newer than it unsent; and a
+        // healed device still has to announce itself (marker-only patch) even without own changes.
+        return dao.countNewLogEntries(dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: 0, deviceId) > 0 ||
+            dao.getBoolean(CANONICAL_MARKER_PENDING_KEY) == true
     }
 
     val categoryName get() = category.name.lowercase()
