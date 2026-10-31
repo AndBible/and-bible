@@ -200,7 +200,7 @@ function close() {
 
 function updateHighlight() {
     resetHighlights();
-    for (let o of ordinalRange()) {
+    for (const o of ordinalRange()) {
         if(ordinalInfo.value != null) {
             highlightOrdinal(o, ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef);
         } else {

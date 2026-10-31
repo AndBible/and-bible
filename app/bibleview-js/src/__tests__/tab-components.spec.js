@@ -5,7 +5,7 @@ import TabNavigation from '@/components/tabs/TabNavigation.vue'
 import TabPanel from '@/components/tabs/TabPanel.vue'
 
 // Mock ResizeObserver (not available in jsdom)
-// eslint-disable-next-line no-undef
+ 
 globalThis.ResizeObserver = vi.fn().mockImplementation(function () {
   this.observe = vi.fn()
   this.unobserve = vi.fn()

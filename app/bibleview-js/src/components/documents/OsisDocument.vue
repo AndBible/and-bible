@@ -73,7 +73,6 @@ import {enhanceMyDocumentTasks} from "@/composables/mydocument-tasks.mts";
 
 const props = defineProps<{ document: OsisDocument }>();
 
-// eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
 const {
     id,
     ordinalRange,

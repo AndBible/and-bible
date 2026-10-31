@@ -68,7 +68,6 @@ useMultiDocumentScroll(scrollRoot);
 
 const props = defineProps<{ document: MultiFragmentDocument }>();
 
-// eslint-disable-next-line vue/no-setup-props-destructure
 const {osisFragments} = props.document;
 const exportMode = inject(exportModeKey, ref(false));
 const appSettings = inject(appSettingsKey)!;

@@ -258,7 +258,7 @@ describe("useBookmark tests", () => {
         expect(rs[i].bookmarks).toEqual([1]);
         expect(rs[i++].ordinalAndOffsetRange).toEqual([[15, 5], [15, null]]);
         expect(rs[i].bookmarks).toEqual([1]);
-        expect(rs[i++].ordinalAndOffsetRange).toEqual([[16, 0], [17, null]]);
+        expect(rs[i].ordinalAndOffsetRange).toEqual([[16, 0], [17, null]]);
         expect(rs.length).toBe(7);
     });
     it("stylerange 11", () => {
@@ -279,7 +279,7 @@ describe("useBookmark tests", () => {
         expect(rs[i].bookmarks).toEqual([1]);
         expect(rs[i++].ordinalAndOffsetRange).toEqual([[14, 5], [14, null]]);
         expect(rs[i].bookmarks).toEqual([1]);
-        expect(rs[i++].ordinalAndOffsetRange).toEqual([[15, 0], [16, null]]);
+        expect(rs[i].ordinalAndOffsetRange).toEqual([[15, 0], [16, null]]);
         expect(rs.length).toBe(7);
 
     });
@@ -302,7 +302,7 @@ describe("useBookmark tests", () => {
         expect(rs[i].bookmarks).toEqual([1]);
         expect(rs[i++].ordinalAndOffsetRange).toEqual([[14, 5], [14, null]]);
         expect(rs[i].bookmarks).toEqual([1]);
-        expect(rs[i++].ordinalAndOffsetRange).toEqual([[15, 0], [20, null]]);
+        expect(rs[i].ordinalAndOffsetRange).toEqual([[15, 0], [20, null]]);
         expect(rs.length).toBe(7);
 
     });

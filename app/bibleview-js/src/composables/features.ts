@@ -30,7 +30,7 @@ export function useCustomFeatures(android: UseAndroid) {
     const featuresLoadedPromise = ref(defer.wait());
     const {parse, initialize} = useParsers(android);
 
-    // eslint-disable-next-line no-unused-vars
+     
     async function reloadFeatures(featureModuleNames: string[]) {
         features.clear();
         if (featureModuleNames.includes("RefParser")) {

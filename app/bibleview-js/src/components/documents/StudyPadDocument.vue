@@ -111,7 +111,6 @@ import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();
 
-// eslint-disable-next-line vue/no-setup-props-destructure
 const {
     bookmarks,
     genericBookmarks,
