@@ -255,6 +255,7 @@ fun NumericSliderContent(
         onValueChange = { current = it; onValueChange(it) },
         valueRange = numeric.min.toFloat()..numeric.max.toFloat(),
         valueLabel = numeric.displayText,
+        valueLabelFor = numeric.valueLabelFor,
         modifier = modifier,
     )
 }
