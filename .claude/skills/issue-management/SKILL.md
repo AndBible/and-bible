@@ -70,8 +70,11 @@ starts its own superpowers chain: brainstorming → spec/plan → SDD, with the 
 
 ### 4. Close the loop
 
-Fix commits start `Fixes #NNN (short description)`. When work is in a PR: Status In review; after
-merge, the board automation moves it to Done. Check after each release with flow 5.
+Fix commits start `Fixes #NNN (short description)`. **Close an issue as soon as its fix is merged
+into a development branch** (here: the container branch the orchestrator merges into, e.g. `ios`/`dev`
+lines), even if it is not yet in `current-stable`, the default branch, or a release (maintainer,
+2026-10-31). The closing comment says it is fixed on the development branch and will be in an
+upcoming version. Work that is only in an open PR stays open (Status In review) until merged.
 
 ### 5. Drift check
 
@@ -145,9 +148,11 @@ drafting an area.
   probably fixed old problems. Little bug-fixing goes into current-stable any more; a Compose beta
   from dev is next. Verify every "still there" and "done" claim in dev. Phrase comments for the
   current or upcoming version, never "fixed in stable".
-- **Implemented but unreleased** (on dev, not an ancestor of `origin/current-stable`) is not `done`.
-  It is `keep` + `status: In review` + a short comment ("implemented, being tested, closed when it
-  ships"). Drop `Sponsor me!` from it. Example: #3837 WebDAV. Close it with flow 5 after the release.
+- **Implemented but unreleased** (merged on dev, not yet in `origin/current-stable` or a release) **is
+  `done`**: close it with a comment ("implemented on the development branch, will be in the next
+  release"). Do not leave it open "until it ships" (maintainer, 2026-10-31; the old In-review-until-
+  release rule is retired, e.g. #3837 WebDAV was closed this way). Only work still in an unmerged PR
+  stays open with Status In review.
 - The maintainer reviews from a Finnish summary. For each item it gives **what the issue is about**
   in one sentence, then the verdict and why, so nobody needs to open the tickets. Lead with the
   ranking principle (P1/P2/P3/Someday) and end with a "look at these first" list (low/medium
@@ -222,7 +227,8 @@ good ones: `enrich/3135-body.md` (crash with fixed and unfixed entry points) and
 
 ### Common mistakes caught in calibration
 
-- Claiming `done` from a commit on dev without checking it is released. Use `In review` instead.
+- Claiming `done` without checking the fix is really merged on dev (a commit on an unmerged branch or
+  an open PR is not done). Released or not does not matter.
 - Getting a function's owner wrong in an enriched body: `determineFileType` is `CommonUtils`, not
   `BackupControl`. Grep every symbol you name.
 - Taking the area from the snapshot as a given. Read what the issue is actually about: "sync" can
@@ -243,7 +249,8 @@ good ones: `enrich/3135-body.md` (crash with fixed and unfixed entry points) and
 - History: `git log -S'<symbol>' --format='%h %ad %s' --date=short -- app/src/main/java | tail -1`
   finds when a symbol was introduced. `git log --grep='#NNN'` finds commits that name the issue
   (fix commits start with `Fixes #NNN`).
-- Released or not: the `merge-base` and `tag --contains` commands under `done` above.
+- Released or not (only for the comment wording, not for the verdict): `git merge-base
+  --is-ancestor <commit> origin/current-stable` and `git tag --contains <commit>`.
 - User docs (`website/content/en/docs/*.md`, live at `https://andbible.org/docs/<page>/`) give a
   link for the closing comment. A docs page for a dev-only feature is not live yet.
 - Closed issues: grep `snapshot/closed-index.tsv` for the exception or feature name. A crash
