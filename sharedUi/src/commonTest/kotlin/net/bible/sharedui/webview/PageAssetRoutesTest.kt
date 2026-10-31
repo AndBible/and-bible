@@ -3,6 +3,7 @@ package net.bible.sharedui.webview
 import okio.Buffer
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 import okio.Source
 import okio.buffer
 import okio.use
@@ -136,6 +137,16 @@ class PageAssetRoutesTest {
         assertNull(r.resolve("/module/KJV/linkdir/secret.txt"))
         assertNull(r.resolve("/module-style/KJV/style-link.css"))
         assertNotNull(r.resolve("/module/KJV/pic.png"))
+    }
+
+    @Test fun symlinkInsideTheBookServed() {
+        fs.createSymlink(book / "alias.png", "pic.png".toPath())
+        assertEquals(book / "alias.png", routes().resolve("/module/KJV/alias.png").file())
+    }
+
+    @Test fun volumeLikeSegmentRefusedAndDoubleSlashTolerated() {
+        assertNull(routes().resolve("/module/KJV/C:pic.png"))
+        assertEquals(book / "sub/a.js", routes().resolve("/module/KJV/sub//a.js").file())
     }
 
     @Test fun unknownModuleAndRoute404() {

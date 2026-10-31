@@ -55,6 +55,9 @@ class IosBibleSchemeRequestsTest {
             assertEquals(404, answer.status, path)
             assertEquals(0, answer.body.size, path)
         }
+        fs.createSymlink(bundle / "leak.txt", secret)
+        assertEquals(404, requests.answer("app", "/leak.txt").status, "symlink out of the bundle")
+        assertEquals(404, requests.answer("app", "/C:secret.txt").status)
         assertEquals(404, requests.answer("evil", "/index.html").status)
         assertEquals(404, requests.answer("app", null).status)
     }

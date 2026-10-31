@@ -63,8 +63,8 @@ private val epubLineHeightRe = Regex("""\bline-height:[^;]*;""")
  * - `/module-style/epub/<initials>/<key>/style.css` and `/module-style/epub/<initials>/<path>`, `/epub/<path>`: EPUB
  *   stylesheets and resources through [epub]; with no [epub] source these are a 404 logged once per route.
  *
- * [resolve] takes the decoded path. Every relative part must stay inside its base: segments `..` or `.`, empty
- * segments, backslashes, NULs and absolute paths are refused, and a file reached through a symlink must still be inside
+ * [resolve] takes the decoded path. Every relative part must stay inside its base: segments `..` or `.`,
+ * backslashes, colons, NULs and absolute paths are refused, and a file reached through a symlink must still be inside
  * the book. Unknown module, missing file or unknown route: null (404).
  */
 class PageAssetRoutes(
@@ -152,15 +152,19 @@ class PageAssetRoutes(
         if (relative.isEmpty()) return null
         val segments = relative.split('/')
         if (segments.size == 2 && segments[1] == "style.css") {
-            source.styleSheet(initials, segments[0])?.let { css ->
-                val cleaned = css.replace(epubColorRe, "").replace(epubBodyRe, "").replace(epubLineHeightRe, "")
-                return PageAsset.Bytes(cleaned.encodeToByteArray(), "text/css")
-            }
+            // Android `ModuleStylesAssetHandler`: a page stylesheet request is answered by the page's stylesheets or 404.
+            val css = source.styleSheet(initials, segments[0]) ?: return null
+            val cleaned = css.replace(epubColorRe, "").replace(epubBodyRe, "").replace(epubLineHeightRe, "")
+            return PageAsset.Bytes(cleaned.encodeToByteArray(), "text/css")
         }
         return source.openBookResource(initials, relative)?.let { PageAsset.Stream(it, mimeType(relative)) }
     }
 
-    private fun isRegularFile(path: Path): Boolean = fs.metadataOrNull(path)?.isRegularFile == true
+    /** Whether [path] is a regular file, following symlinks (okio's metadata does not follow them). */
+    private fun isRegularFile(path: Path): Boolean {
+        val real = try { fs.canonicalize(path) } catch (_: Exception) { return false }
+        return fs.metadataOrNull(real)?.isRegularFile == true
+    }
 
     /** [relative] resolved under [base], or null when it would leave [base] (also through a symlink) or is no regular file. */
     private fun within(base: Path, relative: String): Path? {
@@ -180,9 +184,13 @@ class PageAssetRoutes(
     }
 
     companion object {
-        /** A relative path with no traversal: no `..`/`.`/empty segments, no backslash, NUL, or leading `/`. */
+        /**
+         * A relative path with no traversal: no `..` or `.` segment, no backslash, NUL, leading `/`, or `:` (okio reads
+         * `X:name` as a volume path that drops the base). Empty inner segments (`a//b`) are allowed, as the old desktop
+         * resolver normalised them.
+         */
         fun isSafeRelative(relative: String): Boolean =
             relative.isNotEmpty() && !relative.startsWith("/") && '\\' !in relative && '\u0000' !in relative &&
-                relative.split('/').none { it.isEmpty() || it == ".." || it == "." }
+                ':' !in relative && relative.split('/').none { it == ".." || it == "." }
     }
 }

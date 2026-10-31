@@ -61,11 +61,15 @@ internal class IosBibleSchemeRequests(
     }
 
     private fun bundleFile(path: String): SchemeAnswer? {
-        val dir = bundleDir ?: return null
         val relative = path.trimStart('/').ifEmpty { "index.html" }
+        val dir = bundleDir ?: return null.also { if (relative == "index.html") nsLog("bibleview scheme: bibleview-js bundle folder missing") }
         if (!PageAssetRoutes.isSafeRelative(relative)) return null
         val file = dir / relative
-        if (fs.metadataOrNull(file)?.isRegularFile != true) return null
+        // Followed through symlinks, the file must still be inside the bundle.
+        val real = try { fs.canonicalize(file) } catch (_: Exception) { return null }
+        val realDir = try { fs.canonicalize(dir) } catch (_: Exception) { return null }
+        if (real.segments.size <= realDir.segments.size || real.segments.subList(0, realDir.segments.size) != realDir.segments) return null
+        if (fs.metadataOrNull(real)?.isRegularFile != true) return null
         val mime = pageAssetMimeType(relative)
         // Bundle text is UTF-8 and says so (as on desktop): scripts without a charset inherit the document's.
         val type = if (mime.startsWith("text/") || mime == "application/json" || mime == "image/svg+xml") "$mime; charset=utf-8" else mime

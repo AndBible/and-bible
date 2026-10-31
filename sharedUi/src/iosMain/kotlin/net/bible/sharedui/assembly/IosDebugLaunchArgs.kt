@@ -3,6 +3,7 @@ package net.bible.sharedui.assembly
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.KJVA
@@ -174,7 +175,10 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
                 .onFailure { nsLog("PAGE-ASSETS-SEED clear FAILED: ${it.stackTraceToString()}") }
         }
         openRefOnceInner()
-        if (Platform.isDebugBinary && "-probePageAssets" in arguments) net.bible.sharedui.ios.debug.IosPageAssetsDebugSeed.probe()
+        // Launched, not awaited: the caller signals debug-ready right after this returns.
+        if (Platform.isDebugBinary && "-probePageAssets" in arguments) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.Default).launch { net.bible.sharedui.ios.debug.IosPageAssetsDebugSeed.probe() }
+        }
     }
 
     @kotlin.concurrent.Volatile
