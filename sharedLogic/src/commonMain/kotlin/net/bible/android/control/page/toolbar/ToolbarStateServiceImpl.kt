@@ -31,6 +31,7 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.android.control.versification.wholeChapter
 import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
@@ -51,8 +52,7 @@ import org.crosswire.jsword.passage.Verse
  * [SpeakChanges] state rebuild the full snapshot from the active window's current page;
  * [CloudSync.runningChanged] only flips [ToolbarState.syncRunning], preserving every other field.
  *
- * Registered as a Koin single (lives for the process), like
- * [net.bible.android.control.speak.SpeakSettingsServiceImpl]. Subscriptions are never cancelled.
+ * Registered as a Koin single; [close] cancels its subscriptions when the owning container closes.
  */
 class ToolbarStateServiceImpl(
     private val windowControl: WindowControl,
@@ -68,21 +68,24 @@ class ToolbarStateServiceImpl(
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
 
+    private val subscriptions = Subscriptions()
+
     init {
-        // Process lifetime: never cancelled.
-        PassageChangeMediator.changes.subscribeOnMain { change ->
+        subscriptions.add(PassageChangeMediator.changes.subscribeOnMain { change ->
             if (change is PageChange.VerseChanged || change == PageChange.ContentLoaded) refresh()
-        }
-        // Process lifetime: never cancelled.
-        windowStateService.windowChanges.subscribeOnMain { change ->
+        })
+        subscriptions.add(windowStateService.windowChanges.subscribeOnMain { change ->
             if (change is WindowChange.ActiveWindowChanged) refresh()
-        }
-        // Process lifetime: never cancelled. A/B batch 4a F1: the workspace colour feeds
-        // ToolbarState.workspaceColorArgb, and no other trigger fires when it is written.
-        WorkspaceChanges.changes.subscribeOnMain { if (it == WorkspaceChange.ColorEdited) refresh() }
-        syncRunning.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) }
-        // Process lifetime: never cancelled.
-        SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) refresh() }
+        })
+        // The workspace colour feeds ToolbarState.workspaceColorArgb; no other trigger fires when it is written.
+        subscriptions.add(WorkspaceChanges.changes.subscribeOnMain { if (it == WorkspaceChange.ColorEdited) refresh() })
+        subscriptions.add(syncRunning.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) })
+        subscriptions.add(SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) refresh() })
+    }
+
+    /** Koin closes this single; callers constructing it directly must also release its subscriptions. */
+    fun close() {
+        subscriptions.cancelAll()
     }
 
     /**
