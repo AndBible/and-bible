@@ -64,6 +64,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
@@ -290,8 +291,9 @@ private fun hostSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
     }
 
 /**
- * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and, after a database restore replaced the
- * databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
+ * Subscribes to [net.bible.service.db.DatabaseContainer.databaseRestored] and
+ * [net.bible.service.cloudsync.CloudSync.workspaceRefreshRequired] (the "Copy from Cloud" join's database swap, #3919)
+ * and, after either replaced the databases under the live window repository, runs [reloadAfterRestore] (iOS twin of Android's
  * `ReadingCommands.applyRestoredDatabase`): reloads the repository from the restored database (lifting the restore
  * save freeze), stores the loaded workspace id under `current_workspace_id`, releases the old window assemblies so
  * the panes re-assemble on the new Window objects, and forces a full reload.
@@ -300,24 +302,45 @@ private fun hostSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
  * a host and never calls `switchToWorkspace`; a failure is logged and swallowed so it cannot break the restore.
  * Call once per app composition; cancel the returned subscription on dispose.
  */
-internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.sharedcore.event.Subscription {
-    val subscription = net.bible.service.db.DatabaseContainer.databaseRestored.subscribeOnMain {
-        scope.launch(Dispatchers.Main) {
-            if (!HostReadingReady.isReady) return@launch
-            try {
-                val repository = koin.get<WindowControl>().windowRepository
-                val settings = koin.get<AppSettings>()
-                net.bible.android.control.backup.reloadAfterRestore(
-                    target = net.bible.android.control.backup.restoreReloadTarget(repository),
-                    releaseWindow = { HostReadingWindows.release(it) },
-                    setCurrentWorkspaceId = { settings.setString("current_workspace_id", it) },
-                )
-            } catch (e: Exception) {
-                nsLog("IosApp: reload after restore failed: ${e.stackTraceToString()}")
-            }
+internal fun installRestoreReload(koin: Koin, scope: CoroutineScope): net.bible.sharedcore.event.Subscription =
+    installRestoreReload(
+        // Both replaces bump the restore epoch, which freezes `WindowRepository.saveIntoDb` until the repository reloads.
+        events = listOf(
+            net.bible.service.db.DatabaseContainer.databaseRestored,
+            koin.get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+        ),
+        scope = scope,
+    ) {
+        if (!HostReadingReady.isReady) return@installRestoreReload
+        try {
+            val repository = koin.get<WindowControl>().windowRepository
+            val settings = koin.get<AppSettings>()
+            net.bible.android.control.backup.reloadAfterRestore(
+                target = net.bible.android.control.backup.restoreReloadTarget(repository),
+                releaseWindow = { HostReadingWindows.release(it) },
+                setCurrentWorkspaceId = { settings.setString("current_workspace_id", it) },
+            )
+        } catch (e: Exception) {
+            nsLog("IosApp: reload after restore failed: ${e.stackTraceToString()}")
         }
     }
-    return subscription
+
+/**
+ * Runs [reload] on Main for every event of [events], one run at a time. A swap of several categories posts one event
+ * per category milliseconds apart, and the settings enable flow posts both streams: two overlapping
+ * [reloadAfterRestore] runs would both capture the pre-reload window ids, and the second load would leave the panes
+ * assembled on the first load's discarded Window objects.
+ */
+internal fun installRestoreReload(
+    events: List<net.bible.sharedcore.event.Events<Unit>>,
+    scope: CoroutineScope,
+    reload: suspend () -> Unit,
+): net.bible.sharedcore.event.Subscription {
+    val serial = kotlinx.coroutines.sync.Mutex()
+    val subscriptions = events.map { stream ->
+        stream.subscribeOnMain { scope.launch(Dispatchers.Main) { serial.withLock { reload() } } }
+    }
+    return net.bible.sharedcore.event.Subscription { subscriptions.forEach { it.cancel() } }
 }
 
 /** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
