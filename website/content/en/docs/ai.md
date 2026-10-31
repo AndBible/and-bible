@@ -286,11 +286,6 @@ see:
 
 You can cancel a running prompt at any time by tapping the cancel button.
 
-The collapsed panel reserves space below the reading panes. On desktop and
-iOS, the document ends just above the window-button rail when it is shown,
-without an extra blank band for the panel. Expanding the panel overlays the
-reading pane instead of resizing it.
-
 ## AI Tools
 
 AI prompts can use *tools* – specialized functions that let the AI read data
