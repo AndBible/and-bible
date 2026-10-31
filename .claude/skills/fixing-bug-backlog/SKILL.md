@@ -92,6 +92,12 @@ child, merge and gate waits behind it until morning.
   (one line, e.g. "2 decisions parked in decisions.md"). Present them as an `AskUserQuestion`
   only when the user asks for them, or when the user is evidently present (they just wrote to
   you) and the rest of the batch is done.
+- **Why:** the orchestrator's job is to keep many things moving at once; one item waiting on the
+  user must never stall the rest.
+- **Brainstorming with the user is the opposite case.** While a brainstorming (or similar live
+  conversation) with the user is under way, it has priority: answer and ask there, one question at
+  a time, and do not start new work (spawns, merges, gates) in between. Children keep running on
+  their own; handle their reports after the brainstorming reaches its next stopping point.
 - **The only exception** is a blocker that makes the whole run pointless (e.g. no egress, the grant
   revoked, the disk full): report it as a plain message and stop cleanly.
 - A child's own `question` is answered by you from the issue, the code and the spec; forward
