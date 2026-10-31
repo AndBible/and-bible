@@ -57,19 +57,64 @@ class ReadingSessionSupportTest {
 
         offsets.setSearchSheet(visible = true, heightPx = 600, density = 3f) // 200 css px
         assertEquals(34f + 200f, offsets.bottom)
-        offsets.setAgentLog(visible = true, heightDp = 48f)
-        assertEquals(34f + 200f + 48f, offsets.bottom)
+        offsets.setAgentLog(visible = true)
+        assertEquals(200f, offsets.bottom)
         // The speak bar sits below the panes and pads the safe area itself.
         offsets.setSpeakBarVisible(true)
-        assertEquals(200f + 48f, offsets.bottom)
+        assertEquals(200f, offsets.bottom)
         offsets.setSearchSheet(visible = false, heightPx = 600, density = 3f)
-        offsets.setAgentLog(visible = false, heightDp = 48f)
+        offsets.setAgentLog(visible = false)
         restore = true // minimised-window restore row (Android's windowButtonHeight, 40dp)
         assertEquals(40f, offsets.bottom)
         restore = false
         assertEquals(0f, offsets.bottom)
         offsets.setSpeakBarVisible(false)
         assertEquals(34f, offsets.bottom)
+    }
+
+    @Test
+    fun visibleAgentPanelReservesOnlyTheRail() {
+        for (inset in listOf(0f, 34f)) {
+            for (restore in listOf(false, true)) {
+                val offsets = ReadingOffsets(restoreButtonsVisible = { restore })
+                offsets.setSystemBottomInset(inset)
+                offsets.setAgentLog(visible = true)
+                assertEquals(if (restore) 40f else 0f, offsets.bottom, "inset=$inset, restore=$restore")
+                offsets.setAgentLog(visible = false)
+                assertEquals(if (restore) inset + 40f else inset, offsets.bottom, "hidden panel restores the inset")
+            }
+        }
+    }
+
+    @Test
+    fun eitherBottomBarOwnsTheSafeAreaWhileSearchStillOverlaysThePanes() {
+        val offsets = ReadingOffsets(restoreButtonsVisible = { true })
+        offsets.setSystemBottomInset(34f)
+        offsets.setSearchSheet(visible = true, heightPx = 600, density = 3f)
+        offsets.setAgentLog(visible = true)
+        offsets.setSpeakBarVisible(true)
+        assertEquals(240f, offsets.bottom)
+        offsets.setSpeakBarVisible(false)
+        assertEquals(240f, offsets.bottom, "the agent panel takes inset ownership from the speak bar")
+        offsets.setSpeakBarVisible(true)
+        offsets.setAgentLog(visible = false)
+        assertEquals(240f, offsets.bottom, "the speak bar owns the inset without the agent panel")
+        offsets.setSpeakBarVisible(false)
+        assertEquals(274f, offsets.bottom, "without either bar the pane must clear the safe area")
+    }
+
+    @Test
+    fun agentVisibilityChangesRefreshOffsetsWithoutSpuriousRecompositionUpdates() {
+        var changes = 0
+        val offsets = ReadingOffsets(onChanged = { changes++ })
+        offsets.setAgentLog(visible = true)
+        assertEquals(1, changes)
+        offsets.setAgentLog(visible = true)
+        assertEquals(1, changes)
+        offsets.setAgentLog(visible = false)
+        assertEquals(2, changes)
+        offsets.setAgentLog(visible = false)
+        assertEquals(2, changes)
     }
 
     @Test
