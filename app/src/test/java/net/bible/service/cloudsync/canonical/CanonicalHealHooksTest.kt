@@ -46,6 +46,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exec
 import net.bible.service.db.importDatabaseFile
+import net.bible.service.db.queryRows
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.myDocumentId
@@ -316,6 +317,38 @@ class CanonicalHealHooksTest {
         val pages = docDao.pagesForDocument(canonicalMyDocumentId("AIDocuments")).map { it.id }.toSet()
         assertEquals("the cloud's page and the device's page are both under the canonical book", setOf(pageA.id, pageB.id), pages)
         assertEquals(1L, config(CANONICAL_IDS_VERSION_KEY))
+    }
+
+    /**
+     * The initial file a healed device uploads is a copy of its whole database. An old app version fetches it without any
+     * reset, so it must carry none of the canonical state keys: otherwise the old version would count as healed after its update.
+     */
+    @Test fun uploadedInitialFileCarriesNoCanonicalState() = runTest(testDispatcher, timeout = 120.seconds) {
+        addBook()
+        assertEquals(1, healCanonicalIds(docs, force = true))
+        docs.dao.setConfig("canonicalPeerSeen:X", 1L)
+        val (_, adapterA) = signedInAdapters()
+        category.setSyncEnabled(settings, true)
+
+        syncAnswering(choiceIndex = 0)
+
+        val folder = adapterA.listFiles(name = folderName).first().id
+        val initial = adapterA.listFiles(parentsIds = listOf(folder), name = INITIAL_BACKUP_FILENAME).first()
+        val gz = File.createTempFile("dl-", ".gz", CommonUtils.tmpDir).also { files += it }
+        adapterA.download(initial.id, okio.FileSystem.SYSTEM.sink(gz.toOkioPath()))
+        val raw = File.createTempFile("dl-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        ArchiveUtils.gunzipFile(gz.toOkioPath(), raw.toOkioPath())
+        val keys = net.bible.service.db.openSqlite(raw.absolutePath).use { conn ->
+            conn.queryRows("SELECT keyName FROM SyncConfiguration WHERE keyName LIKE 'canonical%'") { it.getText(0) }
+        }
+        assertEquals("the uploaded initial file carries canonical keys", emptyList<String>(), keys)
+
+        // An old version fetches it with no reset; after its update the open heal must still heal it.
+        cloud.swapInInitialDb(docs, raw.toOkioPath()) {}
+        val (stale, _) = addBook("OldVersionBook")
+        assertTrue(stale.id != canonicalMyDocumentId("OldVersionBook"))
+        assertEquals(1, healCanonicalIds(docs))
+        assertAllCanonical()
     }
 
     @Test fun failedMergeRestoreIsHealed() = runTest(testDispatcher, timeout = 120.seconds) {

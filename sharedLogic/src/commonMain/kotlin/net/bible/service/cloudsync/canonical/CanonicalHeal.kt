@@ -205,12 +205,21 @@ suspend fun healCanonicalIds(dbDef: SyncableDatabaseAccessor<*>, force: Boolean 
  * it describes this device; the following forced [healCanonicalIds] writes it again from this device's own result.
  */
 suspend fun resetCanonicalSyncState(dbDef: SyncableDatabaseAccessor<*>) {
-    dbDef.localDb.useWriterConnectionMarked { room ->
-        room.exec(
-            "DELETE FROM SyncConfiguration WHERE keyName IN (?, ?, ?) OR keyName LIKE ?",
-            CANONICAL_IDS_VERSION_KEY, CANONICAL_HEAL_MOVED_ROWS_KEY, CANONICAL_MARKER_PENDING_KEY, "$CANONICAL_PEER_SEEN_PREFIX%",
-        )
-    }
+    dbDef.localDb.useWriterConnectionMarked { room -> room.exec(DELETE_CANONICAL_SYNC_STATE_SQL, *canonicalSyncStateKeys()) }
+}
+
+private const val DELETE_CANONICAL_SYNC_STATE_SQL = "DELETE FROM SyncConfiguration WHERE keyName IN (?, ?, ?) OR keyName LIKE ?"
+
+private fun canonicalSyncStateKeys(): Array<Any> =
+    arrayOf(CANONICAL_IDS_VERSION_KEY, CANONICAL_HEAL_MOVED_ROWS_KEY, CANONICAL_MARKER_PENDING_KEY, "$CANONICAL_PEER_SEEN_PREFIX%")
+
+/**
+ * Deletes the canonical-id state keys from the `SyncConfiguration` of [this] database: the version, moved-rows and
+ * marker-pending keys and every `canonicalPeerSeen:<id>` record. Also used on the copy of the database that becomes the
+ * cloud's initial file, so a device that fetches it (an old app version included) starts without this device's state.
+ */
+fun SQLiteConnection.deleteCanonicalSyncState() {
+    exec(DELETE_CANONICAL_SYNC_STATE_SQL, *canonicalSyncStateKeys())
 }
 
 private fun SQLiteConnection.setConfig(key: String, long: Long? = null, boolean: Boolean? = null) =

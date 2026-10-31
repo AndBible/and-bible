@@ -23,6 +23,7 @@ import okio.Path
 import okio.FileSystem
 import net.bible.android.database.SyncConfiguration
 import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
+import net.bible.service.cloudsync.canonical.deleteCanonicalSyncState
 import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.service.cloudsync.canonical.resetCanonicalSyncState
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -399,6 +400,8 @@ class CloudSync(
         val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         val gzippedTmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), tmpFile)
+        // The copy is another device's starting point: it must not carry this device's canonical-id state (#3906).
+        openSqlite(tmpFile.toString()).use { it.deleteCanonicalSyncState() }
         net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
         FileSystem.SYSTEM.delete(tmpFile)
 
