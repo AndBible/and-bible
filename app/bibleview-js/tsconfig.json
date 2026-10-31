@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "Node16",
+    "module": "ESNext",
     "strict": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,

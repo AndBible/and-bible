@@ -26,7 +26,7 @@
     "@fortawesome/free-solid-svg-icons": "~7.3.1",
     "@fortawesome/vue-fontawesome": "~3.3.3",
     "@vue/runtime-core": "~3.5.17",
-    "color": "~3.2.1",
+    "color": "~5.0.3",
     "dompurify": "~3.4.17",
     "lodash": "~4.18.1",
     "marked": "~17.0.1",
@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "@eslint/js": "~10.0.1",
-    "@types/color": "~3.0.6",
     "@types/js-yaml": "~4.0.9",
     "@types/jsdom": "~28.0.1",
     "@types/lodash": "~4.17.20",

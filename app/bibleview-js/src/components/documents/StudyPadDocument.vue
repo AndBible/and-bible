@@ -106,7 +106,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import Color from "color";
+import Color, {type ColorInstance} from "color";
 import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();
@@ -262,7 +262,7 @@ function appendNewEntry() {
 const labelNameStyle = computed(() => {
     if (exportMode.value) return;
     if (appSettings.monochromeMode) return;
-    const color: Color = adjustedColorOrig(liveLabel.value.style.color)!;
+    const color: ColorInstance = adjustedColorOrig(liveLabel.value.style.color)!;
     const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
     return `background-color: ${color.string()}; color: ${textColor};`;
 });

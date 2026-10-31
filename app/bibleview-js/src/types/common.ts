@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import Color from "color";
+import {type ColorInstance} from "color";
 import {OrdinalRange} from "@/types/client-objects";
 import {Ref} from "vue";
 import {EventOrdinalInfo, EventVerseInfo} from "@/utils";
@@ -40,7 +40,7 @@ export type ReadingSource = "MANUAL" | "AUTO_SCROLL" | "AUTO_TTS"
 
 export type ColorInt = number
 export type ColorString = string
-export type ColorParam = Color | ColorString | ArrayLike<number> | ColorInt | { [key: string]: any };
+export type ColorParam = ColorInstance | ColorString | ArrayLike<number> | ColorInt | { [key: string]: any };
 export type BibleDocumentInfo = {
     bibleBookName: string,
     bookInitials: string,
