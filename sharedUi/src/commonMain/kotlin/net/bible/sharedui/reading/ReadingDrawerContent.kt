@@ -30,16 +30,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerDefaults
@@ -111,7 +111,9 @@ fun ReadingDrawerSheet(
  * ([topBarCutoutTop]). With the bar hidden `statusBars` is 0, but the camera-hole cutout is about as tall, so
  * Material's default kept an empty band of the status bar's height at the top of the menu (#3892). With no
  * host state (iOS, desktop, previews) this equals Material's default. The bottom inset keeps the footer above
- * the navigation bar (#3872).
+ * the navigation bar (#3872). Unlike the top bars (`topBarCutoutSides()`) a top corner cutout is not cleared
+ * sideways: with the bar hidden it may overlap the header's top padding, as in the legacy drawer, which padded
+ * `systemBars()` only.
  */
 @Composable
 fun readingDrawerWindowInsets(): WindowInsets =
