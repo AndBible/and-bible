@@ -573,6 +573,22 @@ class IncomingIdAliasSyncTest {
         assertEquals(emptySet<String>(), a.pages())
     }
 
+    /** Pre-#3906, B merged A's status onto its own row in place; B then deleted it. A's re-send must not bring it back. */
+    @Test fun resendDoesNotRestoreARowThatWasMergedInPlaceAndDeleted() = run {
+        val a = planDevice()
+        val b = planDevice()
+        for (d in listOf(a, b)) {
+            d.rp.updatePlan(ReadingPlan("y1ot", DbDate(1000L)))
+            d.rp.addPlanStatus(ReadingPlanStatus("y1ot", 1, "READ"))
+            tick()
+        }
+        sync(a, b, toNew = false)
+        b.rp.deleteStatusesForPlan("y1ot")
+
+        syncNew(a, b)
+        assertNull(b.rp.getStatus("y1ot", 1))
+    }
+
     /**
      * Known limit (spec §5, accepted 2026-10-31): diverged ids, B old, A updated. A maps B's page under its own book; when A
      * then edits that page, its patch names A's book id, which B does not have, and old B's clean-up drops its own page.

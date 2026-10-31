@@ -44,6 +44,16 @@ private val ALIASED_TABLES = setOf("ReadingPlan", "ReadingPlanStatus", "MyDocume
 private val ALIASED_KEYS: Map<SyncableDatabaseDefinition, List<NaturalKey>> =
     NATURAL_KEYS.mapValues { (_, keys) -> keys.filter { it.table in ALIASED_TABLES } }.filterValues { it.isNotEmpty() }
 
+/**
+ * The child tables of the aliased tables of [this] category (`MyDocumentPage`, `AgentPrompt`, `GlobalAiSettings`, ...):
+ * their rows are the ones the foreign-key clean-up dropped while the parent ids diverged, so only they are restored from
+ * a re-send (`readPatchData` `restoreDropped`). An aliased table itself is never restored that way: before #3906 an
+ * incoming row of it merged in place onto the local row of the same key, leaving an equal log entry for an id that
+ * never had a row here, and a later local delete is logged under the local id only.
+ */
+val SyncableDatabaseDefinition.idAliasChildTables: Set<String>
+    get() = ALIASED_KEYS[this].orEmpty().flatMap { k -> k.children.map { it.first } }.toSet() - ALIASED_TABLES
+
 /** Whether the category has tables whose incoming ids are aliased ([aliasIncomingIds]). */
 val SyncableDatabaseDefinition.hasIdAliases: Boolean get() = this in ALIASED_KEYS
 

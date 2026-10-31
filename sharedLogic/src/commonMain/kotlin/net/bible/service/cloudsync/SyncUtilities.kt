@@ -141,6 +141,7 @@ private suspend fun readPatchData(
     // entry, so the one-time re-send of the row arrives with the same timestamp and the upsert skips it. Put back every
     // patch row that is missing here although its UPSERT entry equals the local one (same lastUpdated and source device;
     // a local DELETE or a newer local entry never matches), then clean up again. Covers tables without `parents`.
+    // Only for the child tables of aliased parents (`idAliasChildTables`).
     if (restoreDropped) {
         exec("""
             INSERT OR IGNORE INTO $table ($cols)
@@ -227,8 +228,8 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
  *
  * Before the rows are read, incoming ids of natural-key rows that this device holds under another id are mapped to
- * the local ids ([aliasIncomingIds], #3906), and in those categories rows dropped earlier are restored from a re-send
- * (`readPatchData` `restoreDropped`). [mapIncomingIds] false is the behaviour of older app versions; tests use
+ * the local ids ([aliasIncomingIds], #3906), and child rows dropped earlier are restored from a re-send
+ * (`readPatchData` `restoreDropped`, [idAliasChildTables]). [mapIncomingIds] false is the behaviour of older app versions; tests use
  * it to stand for one.
  */
 suspend fun applyPatchesForDatabase(
@@ -249,9 +250,10 @@ suspend fun applyPatchesForDatabase(
                     db.inTransaction<Unit> {
                         val aliased = mapIncomingIds && dbDef.category.hasIdAliases
                         if (aliased) aliasIncomingIds(dbDef.category, "patch")
+                        val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef, restoreDropped = aliased)
+                            readPatchData(this, tableDef, restoreDropped = tableDef.tableName in restorable)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }
