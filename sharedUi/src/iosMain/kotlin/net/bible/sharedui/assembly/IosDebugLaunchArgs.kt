@@ -3,6 +3,7 @@ package net.bible.sharedui.assembly
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.KJVA
@@ -33,6 +34,8 @@ import kotlin.native.Platform
  * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
  * - `-clearLegacySeed`: [clearLegacySeed], undoes the seed so other suites do not inherit it.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
+ * - `-seedPageAssets` / `-probePageAssets` / `-clearPageAssets`: page asset route fixture and probe (#3918), see `IosPageAssetsDebugSeed`.
+ *   `-openDocument` may then name a non-Bible book (the EPUB): `-openRef` is looked up in that book, else its first key.
  */
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 internal object IosDebugLaunchArgs : HostDebugArgs {
@@ -162,15 +165,39 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
      * `WindowControl.showLink`, which targets the links window and opens a new split window). Retries a few times while the window repository is still loading.
      */
     override suspend fun openRefOnce() {
+        if (Platform.isDebugBinary && "-seedPageAssets" in arguments && !pageAssetsSeeded) {
+            pageAssetsSeeded = true
+            runCatching { net.bible.sharedui.ios.debug.IosPageAssetsDebugSeed.seed() }
+                .onFailure { nsLog("PAGE-ASSETS-SEED FAILED: ${it.stackTraceToString()}") }
+        }
+        if (Platform.isDebugBinary && "-clearPageAssets" in arguments) {
+            runCatching { net.bible.sharedui.ios.debug.IosPageAssetsDebugSeed.clear() }
+                .onFailure { nsLog("PAGE-ASSETS-SEED clear FAILED: ${it.stackTraceToString()}") }
+        }
+        openRefOnceInner()
+        // Launched, not awaited: the caller signals debug-ready right after this returns.
+        if (Platform.isDebugBinary && "-probePageAssets" in arguments) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.Default).launch { net.bible.sharedui.ios.debug.IosPageAssetsDebugSeed.probe() }
+        }
+    }
+
+    @kotlin.concurrent.Volatile
+    private var pageAssetsSeeded = false
+
+    private suspend fun openRefOnceInner() {
         val ref = openRef() ?: return
         if (openRefDone) return
         withContext(Dispatchers.Default) {
             repeat(10) { attempt ->
                 try {
-                    val key = PassageKeyFactory.instance().getKey(KJVA, ref)
                     // A null document keeps the window's own (a fresh workspace's is the first installed Bible).
                     val document = openDocument()?.let { initials ->
                         checkNotNull(Books.installed().getBook(initials)) { "-openDocument $initials is not installed" }
+                    }
+                    val key = if (document == null || document.bookCategory == org.crosswire.jsword.book.BookCategory.BIBLE) {
+                        PassageKeyFactory.instance().getKey(KJVA, ref)
+                    } else {
+                        runCatching { document.getKey(ref) }.getOrNull() ?: document.getGlobalKeyList().first()
                     }
                     // The active window itself (showLink opens the links window, i.e. a NEW split window for a fresh workspace).
                     KoinPlatform.getKoin().get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(document, key)
