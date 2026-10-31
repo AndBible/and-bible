@@ -14,13 +14,12 @@
     "sourceMap": true,
     "noEmit": true,
     "composite": false,
-    "baseUrl": ".",
     "types": [
       "node",
     ],
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     },
     "lib": [
