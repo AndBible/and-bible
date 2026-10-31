@@ -45,7 +45,7 @@
     "@types/sprintf-js": "~1.1.4",
     "@typescript-eslint/eslint-plugin": "~7.18.0",
     "@typescript-eslint/parser": "~7.18.0",
-    "@vitejs/plugin-vue": "~6.0.0",
+    "@vitejs/plugin-vue": "~6.0.10",
     "@vue/compiler-sfc": "~3.5.17",
     "@vue/eslint-config-typescript": "~13.0.0",
     "@vue/reactivity": "~3.5.17",
@@ -62,7 +62,7 @@
     "sass": "~1.89.2",
     "tosource": "~2.0.0-alpha.3",
     "typescript": "~5.8.3",
-    "vite": "~7.3.7",
+    "vite": "~8.3.5",
     "vitest": "~5.0.5",
     "vue-tsc": "~3.0.1"
   }
