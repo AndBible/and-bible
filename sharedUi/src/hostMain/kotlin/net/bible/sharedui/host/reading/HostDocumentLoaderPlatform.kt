@@ -37,7 +37,7 @@ import org.koin.mp.KoinPlatform
  *
  * Offsets come from the real layout ([ReadingOffsets], CSS px): at the top only the top safe-area inset in full screen (the
  * toolbar is an in-flow row otherwise), for the topmost pane of the split; at the bottom of the bottom pane the safe-area
- * inset plus the search sheet / agent log (Android's `BibleView.topOffset` / `bottomOffset`; a pane that is not at the
+ * inset (unless a bottom bar pads it), window-button rail and search sheet (Android's `BibleView.topOffset` / `bottomOffset`; a pane that is not at the
  * top / bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
  *
  * `themeColors` is `"null"` (BibleView's own palette): `themeColorsJson` lives in `:app`; moving it is Stream R/X.

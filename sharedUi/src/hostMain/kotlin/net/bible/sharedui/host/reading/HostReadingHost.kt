@@ -236,9 +236,6 @@ class HostReadingHost(
         }
     }
 
-    /** The agent log's last measured collapsed height in dp (the offsets need it while the panel is visible). */
-    private var agentLogHeightDp = 0f
-
     /** The navigator every window session and the toolbar use; shares [hostState] and the label result channel. */
     internal val navigator: HostReadingNavigator by lazy {
         HostReadingNavigator(
@@ -715,17 +712,13 @@ class HostReadingHost(
         onDrawerClosed = ::restorePaneFocus,
         paneBackground = ::paneBackgroundFor,
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
-            slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp) { height ->
-                agentLogHeightDp = height
-                offsets.setAgentLog(agentLog.state.value.visible, height)
-                onCollapsedHeightMeasured(height)
-            }
+            slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured)
         },
         speakBarSlot = { applyNavBarInset -> slots.SpeakBar(applyNavBarInset) },
         agentLogVisible = {
             val agentLogState = agentLog.state.collectAsState()
             val visible = remember { derivedStateOf { agentLogState.value.visible } }
-            SideEffect { offsets.setAgentLog(visible.value, agentLogHeightDp) }
+            SideEffect { offsets.setAgentLog(visible.value) }
             visible.value
         },
         speakBarVisible = {
