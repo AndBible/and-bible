@@ -102,6 +102,19 @@ duplicate older ones. Stage fixes as a batch.
   target enrichment and board setup, not just issue creation. No already-candidate
   shortcut is implemented. Reconcile partial new-issue creation after board failure.
 
+## osTicket replies
+
+Support tickets are answered with `ostickethelper` (rules in the maintainer's global instructions:
+read-only freely, every write confirmed, all replies of a session in one `batch` file, dry-run first).
+
+- **No signature or greeting line at the end** ("God bless, AndBible team" etc.): osTicket appends
+  the signature automatically.
+- Reply in the reporter's language (the ticket's own language).
+- Link the GitHub issue that tracks or fixed the report; say "fixed on our development branch, will
+  be in an upcoming version" for fixes that are not released yet.
+- An old app version: name the version and ask the user to update.
+- Never suggest clearing app data or reinstalling without warning that it deletes personal data.
+
 ## Calibration notes (O7, area sync-backup, 2026-10-16)
 
 Learned from the calibration area: 43 items, maintainer-reviewed. Decision file:
