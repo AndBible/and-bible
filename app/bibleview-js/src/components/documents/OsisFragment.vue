@@ -64,7 +64,7 @@ function refreshHighlight() {
             if (undoFunc) {
                 undo = undoFunc
             }
-        } catch (e) {
+        } catch {
             console.error("Highlight failed for ", osisRef.value);
         }
     }

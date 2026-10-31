@@ -16,7 +16,7 @@
  */
 
 import {onBeforeUnmount, onMounted, onUnmounted, Ref, watch} from "vue";
-import Color from "color";
+import Color, {type ColorInstance} from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
 import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
@@ -324,13 +324,13 @@ export function cancellableTimer(ms: number) {
 
 }
 
-export function mixColors(...colors: Color[]) {
+export function mixColors(...colors: ColorInstance[]) {
     const hexColors = colors.map(v => v.rgb().hex());
     const mixed = rybColorMixer.mix(...hexColors, {result: "ryb", hex: true});
     return Color.rgb("#" + mixed);
 }
 
-export function colorLightness(color: Color) {
+export function colorLightness(color: ColorInstance) {
     // YIQ equation from Color.isDark()
     const rgb = color.rgb().array();
     const yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
@@ -556,10 +556,10 @@ export function isInViewport(el: Element) {
     );
 }
 
-export function adjustedColorOrig(color: ColorParam, ratio = 0.2): Color {
+export function adjustedColorOrig(color: ColorParam, ratio = 0.2): ColorInstance {
     const col = Color(color);
     let cont = true;
-    let rv: Color;
+    let rv: ColorInstance;
     let loops = 0;
     while (cont) {
         cont = false;
@@ -614,7 +614,7 @@ export function createDoubleClickDetector(waitMs = 300) {
         if (counter > 1) return true;
         await sleep(waitMs);
         const manyClicks = counter > 1
-        // eslint-disable-next-line require-atomic-updates
+
         counter = 0;
         return manyClicks;
     }

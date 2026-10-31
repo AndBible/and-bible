@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-/* eslint-disable no-undef */
+
 import {emit} from "@/eventbus";
 import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from "@/utils";
 import {onMounted, reactive, Ref} from "vue";

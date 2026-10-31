@@ -5,12 +5,12 @@ import TabNavigation from '@/components/tabs/TabNavigation.vue'
 import TabPanel from '@/components/tabs/TabPanel.vue'
 
 // Mock ResizeObserver (not available in jsdom)
-// eslint-disable-next-line no-undef
-globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+
+globalThis.ResizeObserver = vi.fn().mockImplementation(function () {
+  this.observe = vi.fn()
+  this.unobserve = vi.fn()
+  this.disconnect = vi.fn()
+})
 
 // Mock FontAwesome components
 vi.mock('@fortawesome/vue-fontawesome', () => ({
@@ -54,7 +54,7 @@ describe('TabContainer.vue', () => {
 
   it('initializes with first non-disabled tab as active', async () => {
     expect(wrapper.vm.getActiveTab()).toBe('tab1')
-    
+
     // Check that the first tab panel is visible
     const tab1Panel = wrapper.find('.tab1-content')
     expect(tab1Panel.exists()).toBe(true)
@@ -62,28 +62,28 @@ describe('TabContainer.vue', () => {
 
   it('switches tabs when tab is clicked', async () => {
     const tabNavigation = wrapper.findComponent(TabNavigation)
-    
+
     // Simulate tab change event
     await tabNavigation.vm.$emit('tab-change', 'tab2')
-    
+
     expect(wrapper.vm.getActiveTab()).toBe('tab2')
   })
 
   it('does not switch to disabled tabs', async () => {
     const tabNavigation = wrapper.findComponent(TabNavigation)
-    
+
     // Try to switch to disabled tab
     await tabNavigation.vm.$emit('tab-change', 'tab3')
-    
+
     // Should still be on first tab
     expect(wrapper.vm.getActiveTab()).toBe('tab1')
   })
 
   it('emits tabChange event when tab changes', async () => {
     const tabNavigation = wrapper.findComponent(TabNavigation)
-    
+
     await tabNavigation.vm.$emit('tab-change', 'tab2')
-    
+
     expect(wrapper.emitted('tabChange')).toBeTruthy()
     expect(wrapper.emitted('tabChange')[0]).toEqual(['tab2', mockTabs[1]])
   })
@@ -183,7 +183,7 @@ describe('TabContainer.vue', () => {
   it('programmatically sets active tab', () => {
     wrapper.vm.setActiveTab('tab2')
     expect(wrapper.vm.getActiveTab()).toBe('tab2')
-    
+
     // Should not set disabled tab
     wrapper.vm.setActiveTab('tab3')
     expect(wrapper.vm.getActiveTab()).toBe('tab2') // Still tab2
@@ -239,33 +239,33 @@ describe('TabNavigation.vue', () => {
   it('shows icons when provided', () => {
     const firstButton = wrapper.findAll('.tab-button')[0]
     expect(firstButton.find('.fa-icon').exists()).toBe(true)
-    
+
     const secondButton = wrapper.findAll('.tab-button')[1]
     expect(secondButton.find('.fa-icon').exists()).toBe(false)
   })
 
   it('emits tab-change when non-disabled tab is clicked', async () => {
     const buttons = wrapper.findAll('.tab-button')
-    
+
     await buttons[1].trigger('click')
-    
+
     expect(wrapper.emitted('tab-change')).toBeTruthy()
     expect(wrapper.emitted('tab-change')[0]).toEqual(['tab2'])
   })
 
   it('does not emit tab-change when disabled tab is clicked', async () => {
     const buttons = wrapper.findAll('.tab-button')
-    
+
     await buttons[2].trigger('click')
-    
+
     expect(wrapper.emitted('tab-change')).toBeFalsy()
   })
 
   it('does not emit tab-change when active tab is clicked', async () => {
     const buttons = wrapper.findAll('.tab-button')
-    
+
     await buttons[0].trigger('click') // Click active tab
-    
+
     expect(wrapper.emitted('tab-change')).toBeFalsy()
   })
 

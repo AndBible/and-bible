@@ -46,7 +46,7 @@ import {
     OrdinalRange,
 } from "@/types/client-objects";
 import {ColorParam} from "@/types/common";
-import Color from "color";
+import Color, {type ColorInstance} from "color";
 import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
 import {EditActionMode} from "@/types/client-objects";
 
@@ -146,7 +146,7 @@ export function verseHighlighting(
         highlightLabelCount: LabelCountMap,
         underlineLabels: LabelAndId[],
         underlineLabelCount: LabelCountMap,
-        highlightColorFn: (label: LabelAndStyle, count: number) => Color,
+        highlightColorFn: (label: LabelAndStyle, count: number) => ColorInstance,
         appSettings: AppSettings,
     }): string
 {
@@ -210,7 +210,7 @@ export function verseHighlighting(
     return `linear-gradient(to bottom, ${gradientCSS})`;
 }
 
-export function bookmarkHighlightColor(label: LabelAndStyle, count: number, appSettings: AppSettings): Color {
+export function bookmarkHighlightColor(label: LabelAndStyle, count: number, appSettings: AppSettings): ColorInstance {
     if (appSettings.pureMonochromeMode) return Color.rgb(0, 0, 0).alpha(0);
     if (appSettings.monochromeMode && !appSettings.colorEinkMode) {
         return appSettings.nightMode ? Color.rgb(180, 180, 180) : Color.rgb(210, 210, 210);
@@ -395,7 +395,7 @@ export function useBookmarks(
     key: string|null,
     isBibleDocument: boolean,
     documentReady: Ref<boolean>,
-    {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
+    {adjustedColor}: { adjustedColor: (color: ColorParam) => ColorInstance },
     config: Config,
     appSettings: AppSettings)
 {
@@ -664,7 +664,7 @@ export function useBookmarks(
         });
     }
 
-    function highlightColor(label: LabelAndStyle, count: number): Color {
+    function highlightColor(label: LabelAndStyle, count: number): ColorInstance {
         return bookmarkHighlightColor(label, count, appSettings);
     }
 

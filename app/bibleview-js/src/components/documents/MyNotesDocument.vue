@@ -46,7 +46,6 @@ import {MyNotesDocument} from "@/types/documents";
 import {isBibleBookmark} from "@/composables/bookmarks";
 
 const props = defineProps<{ document: MyNotesDocument }>()
-// eslint-disable-next-line vue/no-setup-props-destructure
 const {bookmarks, ordinalRange} = props.document;
 
 const {config, strings} = useCommon()
@@ -56,7 +55,7 @@ const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
 const notes = computed<BibleBookmark[]>(() => {
-    let bs1 = globalBookmarks.bookmarks.value;
+    const bs1 = globalBookmarks.bookmarks.value;
 
     const hideLabels = new Set(config.bookmarksHideLabels);
     let bs = bs1.filter(v =>
