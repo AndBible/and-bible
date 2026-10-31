@@ -46,6 +46,8 @@ import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.installzip.moduleArchiveTargetName
+import net.bible.service.cloudsync.canonical.CANONICAL_KEYS
+import net.bible.service.cloudsync.canonical.healCanonicalIds
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
@@ -858,6 +860,14 @@ class BackupControl(
             if(db != null) {
                 db.syncDao().clearSyncStatus()
                 db.syncDao().clearSyncConfiguration()
+            }
+            // clearSyncConfiguration also removed the canonical-id version (#3906). Sync is off for the category now, but the
+            // next app start would otherwise be the first heal: do it here, outside any transaction and before sync can run.
+            // A failed heal rolled back as one transaction and is retried at the next open; the restore itself stands.
+            if (db != null && s in CANONICAL_KEYS) {
+                try { healCanonicalIds(s.accessor) }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (e: Exception) { Log.e(TAG, "Canonical-id heal of ${s.name} after the restore failed; retried at the next open", e) }
             }
         }
     }
