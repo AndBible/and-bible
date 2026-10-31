@@ -46,34 +46,22 @@ class HistoryManager constructor(
     private val platform: HistoryPlatform,
 ) {
 
+    // One monitor owns the map, every stack and the back-navigation guard. Never expose a live stack.
+    private val historyLock = Any()
     private val windowHistoryStackMap = HashMap<IdType, ArrayList<HistoryItem>>()
-
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    fun getHistory(windowId: IdType): List<HistoryItem> {
-        val allHistory = ArrayList(getHistoryStack(windowId))
-        allHistory.reverse()
-        return allHistory
-    }
+    fun getHistory(windowId: IdType): List<HistoryItem> = historySnapshot(windowId).asReversed()
 
-    private fun getHistoryStack(windowNo: IdType): ArrayList<HistoryItem> {
-        var historyStack = windowHistoryStackMap[windowNo]
-        if (historyStack == null) {
-            withMonitor(windowHistoryStackMap) {
-                historyStack = windowHistoryStackMap[windowNo]
-                if (historyStack == null) {
-                    historyStack = ArrayList()
-                    windowHistoryStackMap[windowNo] = historyStack!!
-                }
-            }
-        }
-        return historyStack!!
+    private fun historySnapshot(windowId: IdType): List<HistoryItem> = withMonitor(historyLock) {
+        windowHistoryStackMap[windowId]?.toList() ?: emptyList()
     }
 
     fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
-        return windowHistoryStackMap[windowId]?.mapNotNull {
+        // Key/document access may be expensive: only copying the stack needs the history monitor.
+        return historySnapshot(windowId).mapNotNull {
             if (it is KeyHistoryItem) {
                 if(it.document == lastItem?.document && it.key == lastItem?.key) {
                     null
@@ -85,7 +73,7 @@ class HistoryManager constructor(
                     )
                 }
             } else null
-        } ?: emptyList()
+        }
     }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
@@ -104,10 +92,12 @@ class HistoryManager constructor(
             }
             stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
         }
-        windowHistoryStackMap[window.id] = stack
+        withMonitor(historyLock) {
+            windowHistoryStackMap[window.id] = stack
+        }
     }
 
-    fun clear() {
+    fun clear() = withMonitor(historyLock) {
         windowHistoryStackMap.clear()
     }
 
@@ -117,7 +107,8 @@ class HistoryManager constructor(
     }
 
     fun canGoBack(): Boolean {
-        return getHistoryStack(windowControl.activeWindow.id).size > 0
+        val windowId = windowControl.activeWindow.id
+        return withMonitor(historyLock) { windowHistoryStackMap[windowId]?.isNotEmpty() == true }
     }
 
     /**
@@ -128,14 +119,18 @@ class HistoryManager constructor(
     fun addHistoryItem(window: Window?, screenToken: Any? = null) {
         // if we cause the change by requesting Back then ignore it
         val activeWindow = window ?: windowControl.activeWindow
-        if (!isGoingBack) {
-            val item = createHistoryItem(activeWindow, screenToken)
-            add(getHistoryStack(activeWindow.id), item)
-        }
+        if (withMonitor(historyLock) { isGoingBack }) return
+        val item = createHistoryItem(activeWindow, screenToken)
+        add(activeWindow.id, item)
     }
 
     fun popHistoryItem() {
-        getHistoryStack(windowControl.activeWindow.id).let { it.removeAt(it.lastIndex) }
+        val windowId = windowControl.activeWindow.id
+        withMonitor(historyLock) {
+            windowHistoryStackMap[windowId]?.let { stack ->
+                if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex)
+            }
+        }
     }
 
     private fun createHistoryItem(window: Window, screenToken: Any?): HistoryItem? {
@@ -168,40 +163,40 @@ class HistoryManager constructor(
     }
 
     fun goBack() {
-        val historyStack = getHistoryStack(windowControl.activeWindow.id)
-        if (historyStack.size > 0) {
-            try {
-                Log.i(TAG, "History size:" + historyStack.size)
-                isGoingBack = true
+        val windowId = windowControl.activeWindow.id
+        val previousItem = withMonitor(historyLock) {
+            if (isGoingBack) return@withMonitor null
+            val stack = windowHistoryStackMap[windowId]
+            if (stack.isNullOrEmpty()) return@withMonitor null
+            isGoingBack = true
+            stack.removeAt(stack.lastIndex)
+        } ?: return
 
-                // pop the previous item
-                val previousItem = historyStack.removeAt(historyStack.lastIndex)
+        try {
+            // Navigation can re-enter history recording; never call it while holding the monitor.
+            Log.i(TAG, "Going back to:$previousItem")
+            previousItem.revertTo()
 
-                if (previousItem != null) {
-                    Log.i(TAG, "Going back to:$previousItem")
-                    previousItem.revertTo()
-
-                    // Leave the screen on top when it is not the reading view. Both questions are asked
-                    // of the platform: leaving is a HOST operation (a classic Activity finishes, the
-                    // nav host pops its back stack -- finishing it would close the app, finding M4),
-                    // and isOnReadingScreen is the same predicate createHistoryItem records on
-                    // (Android: ReadingViewVisibility, keyed by host and gated on ReadingHostPresence
-                    // (R7b), so a destination composed under a backgrounded host does not count).
-                    if (!platform.isOnReadingScreen()) {
-                        platform.leaveCurrentScreen()
-                    }
-                }
-            } finally {
-                isGoingBack = false
+            // Leave the screen on top when it is not the reading view. Both questions are asked
+            // of the platform: leaving is a HOST operation (a classic Activity finishes, the
+            // nav host pops its back stack -- finishing it would close the app, finding M4),
+            // and isOnReadingScreen is the same predicate createHistoryItem records on
+            // (Android: ReadingViewVisibility, keyed by host and gated on ReadingHostPresence
+            // (R7b), so a destination composed under a backgrounded host does not count).
+            if (!platform.isOnReadingScreen()) {
+                platform.leaveCurrentScreen()
             }
+        } finally {
+            withMonitor(historyLock) { isGoingBack = false }
         }
     }
 
     /**
      * Add item and check size of stack
      */
-    private fun add(stack: ArrayList<HistoryItem>, item: HistoryItem?) = withMonitor(this) {
-        if (item != null) {
+    private fun add(windowId: IdType, item: HistoryItem?) = withMonitor(historyLock) {
+        if (!isGoingBack && item != null) {
+            val stack = windowHistoryStackMap.getOrPut(windowId) { ArrayList() }
             if (stack.isEmpty() || item != stack.last()) {
                 Log.i(TAG, "Adding $item to history")
                 Log.i(TAG, "Stack size:" + stack.size)
