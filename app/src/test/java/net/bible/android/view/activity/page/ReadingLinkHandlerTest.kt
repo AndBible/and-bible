@@ -179,7 +179,7 @@ class ReadingLinkHandlerTest {
         val key = shownKey as BookAndKeyList
         // OSIS refs, not getName(): names follow the process-global BookName flag, which other code flips to short names
         // under bookNameMonitor (e.g. a BookAndKeyList title built on another thread), so an unguarded read races.
-        assertEquals(listOf("John.3.16", "Rom.5.8"), key.map { (it as BookAndKey).key.osisRef })
+        assertEquals(listOf("John.3.16", "Rom.5.8"), key.map { (it as BookAndKey).key.getOsisRef() })
     }
 
     @Test fun multiReferenceTitleIsAbbreviatedCompleteAndDeduplicated() {
