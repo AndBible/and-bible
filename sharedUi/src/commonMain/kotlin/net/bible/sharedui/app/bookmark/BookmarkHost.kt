@@ -491,6 +491,17 @@ class BookmarkHost(
         }
     }
 
+    /**
+     * The shared repository's workspace settings, after loading its workspace if nothing has yet. A host that
+     * started off the reading route holds `WindowControl`'s lazy fallback, whose settings are a placeholder
+     * until the first `activeWindow` read loads the workspace and replaces them wholesale: read before that, the
+     * label manager opened with defaults; written before that, the answer was silently dropped by the load (the
+     * list's own first `loadRows` is such a read, and can land just after the answer). Main thread only, like
+     * the load's apply phase; a failing first read throws here as it would in `loadRows`.
+     */
+    private fun loadedWorkspaceSettings(): WorkspaceEntities.WorkspaceSettings =
+        windowControl.windowRepository.apply { initializeAtEdge() }.workspaceSettings
+
     /** Classic `manageLabels` (`:257-265`): the WORKSPACE-mode payload, and no pending assignment. */
     private fun requestManageLabels(
         session: BookmarksSession,
@@ -499,7 +510,7 @@ class BookmarkHost(
         shell.hostScope.launch(Dispatchers.Main) {
             val payload = ManageLabelsContract.ManageLabelsData(
                 mode = ManageLabelsContract.Mode.WORKSPACE,
-            ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+            ).applyFrom(loadedWorkspaceSettings()).toJSON()
             session.pendingAssign = null
             session.restoredAssignIds = null
             session.awaitingManageLabels = true
@@ -533,12 +544,16 @@ class BookmarkHost(
                 }
                 // The owner hydrates each bookmark and announces the batch once (F54).
                 bookmarkControl.changeLabelsForBookmarks(targets, resultData.selectedLabels.toList())
-                windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
-                windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-                withContext(Dispatchers.Main) { session.controller.refresh() }
+                // The workspace half on Main, where the repository's state lives and its first load may apply.
+                withContext(Dispatchers.Main) {
+                    val settings = loadedWorkspaceSettings()
+                    windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
+                    settings.updateFrom(resultData)
+                    session.controller.refresh()
+                }
             }
         } else {
-            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+            loadedWorkspaceSettings().updateFrom(resultData)
             session.controller.refresh()
         }
     }

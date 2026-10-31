@@ -304,8 +304,9 @@ class BookmarksManageLabelsCollectorTest {
     /**
      * A WORKSPACE-mode label manager has no business with the active window. It read it anyway (for a
      * STUDYPAD-only highlight), so composing it while the window repository could not answer
-     * `activeWindow` (here: mid-load, the state behind this class's order-dependent full-suite failures)
-     * threw in composition: the collector never ran and the answer stayed pending.
+     * `activeWindow` (here: mid-load) threw in composition: the collector never ran and the answer stayed
+     * pending. (This class's order-dependent full-suite failures had another cause: see
+     * [aWorkspaceAnswerSurvivesTheFirstLoadOfTheWorkspace].)
      */
     @Test
     fun aWorkspaceAnswerIsAppliedWhileTheWindowRepositoryCannotNameAnActiveWindow() {
@@ -333,6 +334,135 @@ class BookmarksManageLabelsCollectorTest {
             assertEquals(setOf(marker), midLoad.workspaceSettings.autoAssignLabels)
         } finally {
             windowControl.windowRepository = previous
+        }
+    }
+
+    /**
+     * Swaps an UNLOADED repository in as the shared one for [block], the state a host is in before anything
+     * read `activeWindow`: `WindowControl`'s lazy fallback (a host that started off the reading route). The list's
+     * own first load is awaited first, so nothing of the controller's is still on its way to the repository.
+     */
+    private fun withUnloadedRepository(
+        controller: net.bible.sharedcore.bookmark.BookmarksController,
+        block: (net.bible.android.control.page.window.WindowRepository) -> Unit,
+    ) {
+        idleUntil("the list's first load") { !controller.loading.value }
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        val previous = windowControl.windowRepository
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main)
+        val unloaded = net.bible.android.control.page.window.WindowRepository(scope)
+        windowControl.windowRepository = unloaded
+        try {
+            assertTrue("fixture: the swapped-in repository is not loaded", !unloaded.initialized)
+            block(unloaded)
+        } finally {
+            windowControl.windowRepository = previous
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+        }
+    }
+
+    /**
+     * The flake behind this class's order-dependent failures, made deterministic. A WORKSPACE answer written
+     * into a repository that has not loaded its workspace yet went into the placeholder settings; the first
+     * `activeWindow` read afterwards (in the suite: the list's own first `loadRows`, finishing its IO hop
+     * just after the answer) loaded the workspace and replaced those settings wholesale, dropping the answer.
+     */
+    @Test
+    fun aWorkspaceAnswerSurvivesTheFirstLoadOfTheWorkspace() {
+        val activity = host()
+        idle()
+        val controller = realController(activity, mutableListOf())
+        withUnloadedRepository(controller) { repository ->
+            setAwaiting(bookmarksSession(activity), true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+            assertEquals("the claimed answer must leave the channel", null, channel(activity).pending.value)
+
+            repository.activeWindow // whatever reads it first loads the workspace
+            assertEquals("the load must not drop the answer", setOf(marker), repository.workspaceSettings.autoAssignLabels)
+        }
+    }
+
+    /**
+     * The ASSIGN answer's workspace half (recent labels, auto-assign) for an assignment restored after process
+     * death: the host is recreated on the lazy fallback, and the restored ids take the background branch. Its
+     * writes into the placeholder settings were dropped by the first load the same way.
+     */
+    @Test
+    fun aRestoredAssignAnswerKeepsItsWorkspaceSettingsAcrossTheFirstLoad() {
+        val activity = host()
+        idle()
+        val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
+        val bookmark = kotlinx.coroutines.runBlocking { control.addOrUpdateBibleBookmark(
+            net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
+                org.crosswire.jsword.passage.VerseRangeFactory.fromString(
+                    org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"),
+                    "Psalms 119:1",
+                ),
+                // Its own book: reading its text then does not reach for the active window's (which would load the
+                // workspace before the answer's settings write, hiding the defect).
+                null, true, org.crosswire.jsword.book.Books.installed().getBook("KJV") as org.crosswire.jsword.book.sword.SwordBook,
+            ),
+            null,
+        ) }
+        val label = kotlinx.coroutines.runBlocking { control.insertOrUpdateLabel(
+            net.bible.android.database.bookmarks.BookmarkEntities.Label(new = true).apply { name = "X" },
+        ) }
+        val controller = realController(activity, mutableListOf())
+        withUnloadedRepository(controller) { repository ->
+            val session = bookmarksSession(activity)
+            session.javaClass.getDeclaredField("restoredAssignIds").apply { isAccessible = true }
+                .set(session, listOf(bookmark.id.toString()))
+            setAwaiting(session, true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.ASSIGN,
+                selectedLabels = mutableSetOf(label.id),
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+            idleUntil("the assigned label to reach the bookmark") {
+                kotlinx.coroutines.runBlocking { control.labelsForBookmark(bookmark) }.map { it.id } == listOf(label.id)
+            }
+            // The workspace half follows the bookmark write; let it land.
+            idleUntil("the workspace settings to be written") { repository.initialized || marker in repository.workspaceSettings.autoAssignLabels }
+            idle()
+
+            repository.activeWindow // whatever reads it first loads the workspace
+            assertEquals("the load must not drop the answer", setOf(marker), repository.workspaceSettings.autoAssignLabels)
+            assertTrue(
+                "the assigned label is recent",
+                repository.workspaceSettings.recentLabels.any { it.labelId == label.id },
+            )
+        }
+    }
+
+    /**
+     * The other end of the same defect: the label manager is opened with the workspace's STORED settings, not
+     * with the placeholder an unloaded repository holds.
+     */
+    @Test
+    fun theManageLabelsRequestCarriesTheStoredWorkspaceSettings() {
+        val activity = host()
+        idle()
+        val marker = IdType()
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        windowControl.windowRepository.apply {
+            activeWindow // loaded, so the save below writes the workspace
+            workspaceSettings.autoAssignLabels = mutableSetOf(marker)
+            saveIntoDb(stopSpeak = false)
+        }
+        val navigated = mutableListOf<String>()
+        val controller = realController(activity, navigated)
+        withUnloadedRepository(controller) {
+            controller.manageLabels()
+            idleUntil("requestManageLabels to navigate") { navigated.isNotEmpty() }
+            val sent = ManageLabelsContract.ManageLabelsData.fromJSON(navigated.single())
+            assertEquals(setOf(marker), sent.autoAssignLabels)
         }
     }
 
