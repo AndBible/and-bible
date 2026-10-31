@@ -76,6 +76,7 @@ private suspend fun writePatchData(
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
+    restoreDropped: Boolean = false,
 ) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
@@ -135,6 +136,24 @@ private suspend fun readPatchData(
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
             """.trimIndent()
     )
+
+    // A row this device dropped earlier in the foreign key clean-up (its parent had another id here, #3906) kept its log
+    // entry, so the one-time re-send of the row arrives with the same timestamp and the upsert skips it. Put back every
+    // patch row that is missing here although its UPSERT entry equals the local one (same lastUpdated and source device;
+    // a local DELETE or a newer local entry never matches), then clean up again. Covers tables without `parents`.
+    if (restoreDropped) {
+        exec("""
+            INSERT OR IGNORE INTO $table ($cols)
+            SELECT $cols FROM patch.$table WHERE $idFields IN
+            (SELECT $select FROM patch.LogEntry pe
+              JOIN LogEntry me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+              WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND me.type = 'UPSERT'
+              AND pe.lastUpdated = me.lastUpdated AND pe.sourceDevice = me.sourceDevice)
+            """.trimIndent())
+        if (queryLong("SELECT changes()") != 0L) {
+            exec("DELETE FROM $table WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'))")
+        }
+    }
 
     // Restore carried children whose parents exist here, unless they were deleted on their own.
     // This brings back the children of a parent whose delete lost to a newer edit.
@@ -208,7 +227,8 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
  *
  * Before the rows are read, incoming ids of natural-key rows that this device holds under another id are mapped to
- * the local ids ([aliasIncomingIds], #3906). [mapIncomingIds] false is the behaviour of older app versions; tests use
+ * the local ids ([aliasIncomingIds], #3906), and in those categories rows dropped earlier are restored from a re-send
+ * (`readPatchData` `restoreDropped`). [mapIncomingIds] false is the behaviour of older app versions; tests use
  * it to stand for one.
  */
 suspend fun applyPatchesForDatabase(
@@ -227,10 +247,11 @@ suspend fun applyPatchesForDatabase(
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
                     db.inTransaction<Unit> {
-                        if (mapIncomingIds) aliasIncomingIds(dbDef.category, "patch")
+                        val aliased = mapIncomingIds && dbDef.category.hasIdAliases
+                        if (aliased) aliasIncomingIds(dbDef.category, "patch")
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef)
+                            readPatchData(this, tableDef, restoreDropped = aliased)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }

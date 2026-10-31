@@ -34,12 +34,31 @@ const val ID_ALIAS_PREFIX = "syncIdAlias:"
 
 private const val ALIAS_TAG = "IncomingIdAliases"
 
+/** `SyncConfiguration` key: this device has started its one-time full re-send for the id aliases ([startIdAliasResendOnce]). */
+const val ID_ALIAS_RESEND_DONE_KEY = "idAliasResendDone"
+
 /** The natural-key tables whose foreign ids are aliased to the local row of the same key. */
 private val ALIASED_TABLES = setOf("ReadingPlan", "ReadingPlanStatus", "MyDocument", "MemorizedVerse", "LlmConfiguredModel")
 
 /** [NATURAL_KEYS] restricted to [ALIASED_TABLES], per category (`MyDocumentPage` and `LlmUsageRecord` never collide). */
 private val ALIASED_KEYS: Map<SyncableDatabaseDefinition, List<NaturalKey>> =
     NATURAL_KEYS.mapValues { (_, keys) -> keys.filter { it.table in ALIASED_TABLES } }.filterValues { it.isNotEmpty() }
+
+/** Whether the category has tables whose incoming ids are aliased ([aliasIncomingIds]). */
+val SyncableDatabaseDefinition.hasIdAliases: Boolean get() = this in ALIASED_KEYS
+
+/**
+ * R1 of #3906: once per device and category (persisted in [ID_ALIAS_RESEND_DONE_KEY]), lowers `LAST_PATCH_WRITTEN_KEY`
+ * to 0 so the next patch carries the whole log again, with the original timestamps. Devices that diverged before this
+ * version exchanged their rows long ago and the children were dropped on arrival; the re-send lets an updated peer
+ * learn the aliases and restore those rows (`readPatchData` `restoreDropped`). Old peers skip it: every entry is equal
+ * to one they have. Called before the patch of a sync is created.
+ */
+suspend fun startIdAliasResendOnce(dbDef: SyncableDatabaseAccessor<*>) {
+    if (!dbDef.category.hasIdAliases || dbDef.dao.getBoolean(ID_ALIAS_RESEND_DONE_KEY) == true) return
+    dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+    dbDef.dao.setConfig(ID_ALIAS_RESEND_DONE_KEY, true)
+}
 
 /**
  * Receive-side id mapping of #3906. Two devices that each created "the same" natural-key row (an AI Documents book, a
@@ -54,17 +73,25 @@ private val ALIASED_KEYS: Map<SyncableDatabaseDefinition, List<NaturalKey>> =
  *
  * Local rows are never re-keyed and outgoing patches are unchanged, so peers on older versions see exactly what they
  * saw before. Skipped, leaving the rows as they come: an incoming id that exists locally (a shared id always wins), a
- * pair where the incoming file also carries the local id itself, and a stored alias whose local row now has another
+ * pair where the incoming file also carries the local id itself (its row or a delete), and a stored alias whose local row now has another
  * natural key than the incoming row (the alias is dropped: the rows are no longer the same).
+ *
+ * @param persist false (an import of a backup file) uses the stored aliases but stores no new ones: a backup is not a
+ * peer, and may even be an older copy of this device whose rows were since deleted and re-created.
  */
-suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefinition, schema: String) {
+suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefinition, schema: String, persist: Boolean = true) {
+    val keys = ALIASED_KEYS[category] ?: return
     val tableDefs = category.tables.associateBy { it.tableName }
-    for (key in ALIASED_KEYS[category].orEmpty()) {
+    // A merge snapshot or a backup is a whole database with its own sync triggers: the rewrite must not log into it.
+    setTriggersDisabled(schema, true)
+    for (key in keys) {
         val t = key.table
         val id = key.idColumn
         val keyMatch = key.keyColumns.joinToString(" AND ") { "p.$it IS m.$it" }
-        // The incoming file names the local id itself (its row or a log entry): leave the pair alone.
-        val carried = "SELECT $id FROM $schema.$t UNION SELECT entityId1 FROM $schema.LogEntry WHERE tableName = '$t'"
+        // The incoming file carries the local id itself (its row, or a delete of it): leave the pair alone. An UPSERT
+        // entry without a row is only an echo of this device's own entry (the sender merged the row in place) and does
+        // not count.
+        val carried = "SELECT $id FROM $schema.$t UNION SELECT entityId1 FROM $schema.LogEntry WHERE tableName = '$t' AND type = 'DELETE'"
         val fresh = queryRows(
             """
             SELECT quote(p.$id), quote(m.$id) FROM $schema.$t p JOIN main.$t m ON $keyMatch
@@ -74,56 +101,92 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
             """.trimIndent(),
         ) { it.getText(0) to it.getText(1) }.toMap()
         val prefix = "$ID_ALIAS_PREFIX$t:"
-        for ((foreign, local) in fresh) {
+        val storedBefore = queryRows(
+            "SELECT keyName, stringValue FROM main.SyncConfiguration WHERE keyName LIKE ?", "$prefix%",
+        ) { "X'${it.getText(0).removePrefix(prefix)}'" to "X'${it.getText(1)}'" }.toMap()
+        val learned = fresh.filter { (foreign, local) -> storedBefore[foreign] != local }
+        if (persist) for ((foreign, local) in learned) {
             exec(
                 "INSERT OR REPLACE INTO main.SyncConfiguration (keyName, stringValue, longValue, booleanValue) " +
                     "VALUES ('$prefix' || hex($foreign), hex($local), NULL, NULL)",
             )
         }
-        val stored = queryRows(
-            "SELECT keyName, stringValue FROM main.SyncConfiguration WHERE keyName LIKE ?", "$prefix%",
-        ) { "X'${it.getText(0).removePrefix(prefix)}'" to "X'${it.getText(1)}'" }
+        if (persist && learned.isNotEmpty()) {
+            // R2: the peer may have dropped this device's rows of the pair before (it was not mapping yet): send the whole
+            // log once more. Bounded: a pair is learned once, a re-send of a known pair learns nothing.
+            exec(
+                "INSERT OR REPLACE INTO main.SyncConfiguration (keyName, stringValue, longValue, booleanValue) VALUES (?, NULL, 0, NULL)",
+                LAST_PATCH_WRITTEN_KEY,
+            )
+        }
+        val stored = (storedBefore + learned).toList()
         val mapping = LinkedHashMap(fresh)
-        for ((foreign, local) in stored) {
-            if (foreign in mapping) continue
-            // A shared id wins; a target that is itself a foreign id would make a chain.
-            if (exists("SELECT 1 FROM main.$t WHERE $id = $foreign")) continue
-            if (stored.any { it.first == local }) continue
-            if (exists("SELECT 1 FROM ($carried) WHERE $id = $local")) continue
-            val incomingRow = exists("SELECT 1 FROM $schema.$t WHERE $id = $foreign")
-            if (incomingRow && exists("SELECT 1 FROM main.$t WHERE $id = $local")) {
-                // Same key would have been a fresh match: the local row's natural key changed. Not the same row any more.
-                Log.i(ALIAS_TAG, "Dropping the id alias $foreign -> $local of $t: the natural keys differ now")
-                exec("DELETE FROM main.SyncConfiguration WHERE keyName = '$prefix' || hex($foreign)")
-                continue
+        if (stored.isNotEmpty()) {
+            val storedForeign = stored.mapTo(HashSet()) { it.first }
+            // Only the stored aliases this file names at all (its rows, its log entries, a child column).
+            val mentioned = HashSet<String>()
+            val sources = listOf("SELECT quote($id) FROM $schema.$t", "SELECT quote(entityId1) FROM $schema.LogEntry WHERE tableName = '$t'") +
+                key.children.map { (child, column) -> "SELECT quote($column) FROM $schema.$child WHERE $column IS NOT NULL" }
+            for (sql in sources) queryRows(sql) { it.getText(0) }.filterTo(mentioned) { it in storedForeign }
+            for ((foreign, local) in stored) {
+                if (foreign in mapping || foreign !in mentioned) continue
+                // A shared id wins; a target that is itself a foreign id would make a chain.
+                if (local in storedForeign) continue
+                if (exists("SELECT 1 FROM main.$t WHERE $id = $foreign")) continue
+                if (exists("SELECT 1 FROM ($carried) WHERE $id = $local")) continue
+                val incomingRow = exists("SELECT 1 FROM $schema.$t WHERE $id = $foreign")
+                if (incomingRow && exists("SELECT 1 FROM main.$t WHERE $id = $local")) {
+                    // Same key would have been a fresh match: the local row's natural key changed. Not the same row any more.
+                    Log.i(ALIAS_TAG, "Dropping the id alias $foreign -> $local of $t: the natural keys differ now")
+                    if (persist) exec("DELETE FROM main.SyncConfiguration WHERE keyName = '$prefix' || hex($foreign)")
+                    continue
+                }
+                mapping[foreign] = local
             }
-            mapping[foreign] = local
         }
         if (mapping.isEmpty()) continue
-        Log.i(ALIAS_TAG, "Aliasing ${mapping.size} incoming $t ids to local ids (${fresh.size} new)")
+        Log.i(ALIAS_TAG, "Aliasing ${mapping.size} incoming $t ids to local ids (${learned.size} newly learned)")
         for ((foreign, local) in mapping) {
             exec("UPDATE $schema.$t SET $id = $local WHERE $id = $foreign")
             followLog(schema, tableDefs[t], t, id, foreign, local)
             for ((child, column) in key.children) {
-                // A unique index over the column (LlmUsageRecord) keeps the row already at the local id.
+                // A unique index over the column (LlmUsageRecord) keeps the row already at the local id; the clashing
+                // row is dropped rather than left naming the foreign id.
                 exec("UPDATE OR IGNORE $schema.$child SET $column = $local WHERE $column = $foreign")
+                exec("DELETE FROM $schema.$child WHERE $column = $foreign")
                 followLog(schema, tableDefs[child], child, column, foreign, local)
             }
         }
     }
+    setTriggersDisabled(schema, false)
 }
+
+private suspend fun PooledConnection.setTriggersDisabled(schema: String, disabled: Boolean) = exec(
+    "INSERT OR REPLACE INTO $schema.SyncConfiguration (keyName, stringValue, longValue, booleanValue) VALUES (?, NULL, NULL, ?)",
+    TRIGGERS_DISABLED_KEY, disabled,
+)
 
 private suspend fun PooledConnection.exists(sql: String): Boolean = queryLong("SELECT EXISTS ($sql)") == 1L
 
-/** Moves the incoming `LogEntry` rows of [table] that name [from] through [column] (its id field 1 and/or 2) to [to]. */
+/**
+ * Moves the incoming `LogEntry` rows of [table] that name [from] through [column] (its id field 1 and/or 2) to [to].
+ * Two incoming entries can land on one id (a delete of the foreign row and an upsert of a re-created row that maps to
+ * the same local row): the newer one is kept, as the log keeps one entry per id.
+ */
 private suspend fun PooledConnection.followLog(
     schema: String, def: SyncableDatabaseDefinition.Table?, table: String, column: String, from: String, to: String,
 ) {
     if (def == null) return
-    if (def.idField1 == column) {
-        exec("UPDATE OR REPLACE $schema.LogEntry SET entityId1 = $to WHERE tableName = '$table' AND entityId1 = $from")
-    }
-    if (def.idField2 == column) {
-        exec("UPDATE OR REPLACE $schema.LogEntry SET entityId2 = $to WHERE tableName = '$table' AND entityId2 = $from")
+    for ((field, other) in listOfNotNull(
+        ("entityId1" to "entityId2").takeIf { def.idField1 == column },
+        ("entityId2" to "entityId1").takeIf { def.idField2 == column },
+    )) {
+        val log = "$schema.LogEntry"
+        exec(
+            "DELETE FROM $log WHERE tableName = '$table' AND $field = $to AND lastUpdated < " +
+                "(SELECT max(o.lastUpdated) FROM $log o WHERE o.tableName = '$table' AND o.$field = $from AND o.$other = $log.$other)",
+        )
+        exec("UPDATE OR IGNORE $log SET $field = $to WHERE tableName = '$table' AND $field = $from")
+        exec("DELETE FROM $log WHERE tableName = '$table' AND $field = $from")
     }
 }

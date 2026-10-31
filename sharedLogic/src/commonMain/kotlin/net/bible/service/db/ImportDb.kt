@@ -68,7 +68,7 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
             db.exec("PRAGMA foreign_keys=OFF;")
             try {
                 db.inTransaction<Unit> {
-                    aliasIncomingIds(category, "import")
+                    aliasIncomingIds(category, "import", persist = false)
                     for (tableDef in dbDef.tableDefinitions) {
                         val table = tableDef.tableName
                         val cols = columnNamesJoined(table)

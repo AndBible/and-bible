@@ -368,6 +368,41 @@ class IncomingIdAliasSyncTest {
         assertNull(a.rp.getStatus("y1ot", 2))
     }
 
+    /** #3902's reset-and-restart in one patch: DELETE of B's old id and UPSERT of its new id both map to A's row. */
+    @Test fun divergedReadingPlanResetAndRestartInOnePatchKeepsTheRestart() = run {
+        val a = planDevice()
+        val b = planDevice()
+        for (d in listOf(a, b)) {
+            d.rp.updatePlan(ReadingPlan("y1ot", DbDate(1000L)))
+            d.rp.addPlanStatus(ReadingPlanStatus("y1ot", 1, "READ"))
+            tick()
+        }
+        syncBoth(a, b)
+
+        b.rp.deleteStatusesForPlan("y1ot")
+        b.rp.deletePlanInfo("y1ot")
+        tick()
+        b.rp.updatePlan(ReadingPlan("y1ot", DbDate(2000L)))
+        b.rp.addPlanStatus(ReadingPlanStatus("y1ot", 1, "RESTARTED"))
+        sync(b, a)
+
+        assertEquals(DbDate(2000L), a.rp.getPlan("y1ot")?.planStartDate)
+        assertEquals("RESTARTED", a.rp.getStatus("y1ot", 1)?.readingStatus)
+    }
+
+    @Test fun divergedBookDeletedAndRecreatedOnPeerKeepsLocalPages() = run {
+        val (a, b) = divergedBooks()
+        syncBoth(a, b)
+        b.md.delete(b.book())
+        tick()
+        b.addPage(b.addBook().id, "b2")
+        sync(b, a)
+
+        // The re-created book is newer than the delete, so A's book stays with its pages; B's old page went with B's book by
+        // cascade, which is never logged, so A keeps its copy (as the merged row it is).
+        assertEquals(setOf("a/a=content a", "b/b=content b", "b2/b2=content b2"), a.pages())
+    }
+
     @Test fun divergedModelDefaultAndPromptsMapToTheLocalModel() = run {
         val a = aiDevice()
         val b = aiDevice()
@@ -457,5 +492,98 @@ class IncomingIdAliasSyncTest {
         b.md.delete(b.book())
         sync(b, a)
         assertEquals(emptyList<MyDocument>(), a.md.allDocuments())
+    }
+
+    // ---------------------------------------------------------------- historic convergence (R1-R3) and known limits
+
+    /** A sync of the new version: the one-time re-send (R1) runs before the patch is created, as in CloudSync. */
+    private suspend fun <T : SyncableRoomDatabase> syncNew(from: SyncableDatabaseAccessor<T>, to: SyncableDatabaseAccessor<T>) {
+        startIdAliasResendOnce(from)
+        sync(from, to)
+    }
+
+    @Test fun historicDivergedPagesConvergeAfterBothUpdate() = run {
+        val (a, b) = divergedBooks()
+        // Before the update: each device dropped the other's page.
+        sync(a, b, toNew = false)
+        sync(b, a, toNew = false)
+        assertEquals(setOf("a/a=content a"), a.pages())
+        assertEquals(setOf("b/b=content b"), b.pages())
+
+        // A updates first; B is still old when A's re-send arrives, and drops A's page again.
+        startIdAliasResendOnce(a)
+        sync(a, b, toNew = false)
+        assertEquals(setOf("b/b=content b"), b.pages())
+        // B updates: its re-send teaches A the alias (A restores B's page and re-sends once more, R2).
+        startIdAliasResendOnce(b)
+        sync(b, a)
+        assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        syncNew(a, b)
+        assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
+
+        // Bounded: a couple more rounds and nobody has anything left to send.
+        repeat(2) { syncBoth(a, b) }
+        assertNull(createPatchForDatabase(a, env))
+        assertNull(createPatchForDatabase(b, env))
+        assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
+        assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
+    }
+
+    @Test fun resendOnceIsOncePerDevice() = run {
+        val a = docDevice()
+        a.addPage(a.addBook().id, "a")
+        createPatchForDatabase(a, env)
+        val watermark = a.dao.getLong(LAST_PATCH_WRITTEN_KEY)!!
+        startIdAliasResendOnce(a)
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        createPatchForDatabase(a, env)
+        startIdAliasResendOnce(a)
+        assert(a.dao.getLong(LAST_PATCH_WRITTEN_KEY)!! >= watermark)
+    }
+
+    /** R3 for a table without `parents`: a prompt of the other device's model, dropped before the update, comes back. */
+    @Test fun droppedRowWithoutParentsIsRestoredFromTheResend() = run {
+        val a = aiDevice()
+        val b = aiDevice()
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        a.localDb.llmProviderConfigDao().insert(provider)
+        sync(a, b, toNew = false)
+        val modelA = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { a.localDb.llmConfiguredModelDao().insert(it) }
+        val modelB = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { b.localDb.llmConfiguredModelDao().insert(it) }
+        val promptB = AgentPrompt(name = "b").also { it.configuredModelId = modelB.id }
+        b.localDb.agentPromptDao().insert(promptB)
+        sync(b, a, toNew = false)
+        assertNull(a.localDb.agentPromptDao().promptById(promptB.id)) // dropped as before #3906
+
+        syncNew(b, a)
+        assertEquals(modelA.id, a.localDb.agentPromptDao().promptById(promptB.id)?.configuredModelId)
+    }
+
+    @Test fun resendDoesNotRestoreARowDeletedLocallyLater() = run {
+        val a = docDevice()
+        val b = docDevice()
+        val book = a.addBook()
+        a.addPage(book.id, "p")
+        sync(a, b, toNew = false)
+        sync(b, a, toNew = false)
+        a.md.delete(a.md.pagesForDocument(book.id).single())
+
+        syncNew(b, a) // B's whole log again, with the page's older UPSERT entry
+        assertEquals(emptySet<String>(), a.pages())
+    }
+
+    /**
+     * Known limit (spec §5, accepted 2026-10-31): diverged ids, B old, A updated. A maps B's page under its own book; when A
+     * then edits that page, its patch names A's book id, which B does not have, and old B's clean-up drops its own page.
+     * Pinned so that a change here is deliberate.
+     */
+    @Test fun knownLimitOldPeerLosesItsPageWhenAnUpdatedDeviceEditsIt() = run {
+        val (a, b) = divergedBooks()
+        sync(b, a)
+        assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
+        a.editPage("b", "b-a", "edited on a")
+        sync(a, b, toNew = false)
+        assertEquals(emptySet<String>(), b.pages())
     }
 }
