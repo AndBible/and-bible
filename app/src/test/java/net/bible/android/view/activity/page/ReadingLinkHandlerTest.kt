@@ -177,7 +177,9 @@ class ReadingLinkHandlerTest {
         assertTrue(handler.handle("multi://?osis=John.3.16&osis=Rom.5.8&v11n=KJV"))
         assertEquals(fakeBooks.multiDocument, shownDocument)
         val key = shownKey as BookAndKeyList
-        assertEquals(listOf("John 3:16", "Romans 5:8"), key.map { (it as BookAndKey).key.getName() })
+        // OSIS refs, not getName(): names follow the process-global BookName flag, which other code flips to short names
+        // under bookNameMonitor (e.g. a BookAndKeyList title built on another thread), so an unguarded read races.
+        assertEquals(listOf("John.3.16", "Rom.5.8"), key.map { (it as BookAndKey).key.osisRef })
     }
 
     @Test fun multiReferenceTitleIsAbbreviatedCompleteAndDeduplicated() {

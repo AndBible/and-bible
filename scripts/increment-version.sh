@@ -56,6 +56,8 @@ fi
 . "$(dirname "$0")/lib-version.sh"
 VERSION_FILE_REL="version.properties"
 CHANGELOG_DIR="fastlane/metadata/android/en-US/changelogs"
+# The desktop AppStream file carries the current release (LinuxPackagingMetadataTest checks it).
+METAINFO_REL="desktopApp/packaging/linux/org.andbible.AndBible.metainfo.xml"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 if [[ "$BUILD_MODE" == true ]]; then
@@ -121,6 +123,9 @@ if [[ "$(version_code)" != "$NEW_VERSION_CODE" ]] || [[ "$(version_name)" != "$N
 fi
 
 echo -e "${GREEN}✓ $VERSION_FILE_REL updated successfully${NC}"
+
+sed -i -E "s|<release version=\"[^\"]*\" date=\"[^\"]*\"|<release version=\"$NEW_VERSION_NAME\" date=\"$(date +%F)\"|" "$METAINFO_REL"
+grep -q "<release version=\"$NEW_VERSION_NAME\"" "$METAINFO_REL" || { echo -e "${RED}Error: release update failed in $METAINFO_REL${NC}"; exit 1; }
 
 # Generate changelog with auto-summarized release notes
 # For production builds, diff against the latest production-* tag
@@ -213,7 +218,7 @@ fi
 
 # Add files to git
 echo "Adding files to git..."
-git add "$VERSION_FILE_REL" "$NEW_CHANGELOG"
+git add "$VERSION_FILE_REL" "$METAINFO_REL" "$NEW_CHANGELOG"
 
 # Commit changes
 COMMIT_MESSAGE="Increment version to $NEW_VERSION_NAME"

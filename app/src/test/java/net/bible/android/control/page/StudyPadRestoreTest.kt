@@ -103,7 +103,9 @@ class StudyPadRestoreTest {
         var reads = 0
         val countingDao = object : BookmarkDao by originalDb.bookmarkDao() {
             override suspend fun labelById(id: net.bible.android.database.IdType): BookmarkEntities.Label? {
-                reads++
+                // Count only this label: bookmarkDb is process-global, and background work left by other tests in the
+                // same JVM may look up their own labels while the counting DAO is installed.
+                if (id == label.id) reads++
                 return originalDb.bookmarkDao().labelById(id)
             }
         }
