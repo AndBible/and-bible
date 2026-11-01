@@ -18,6 +18,7 @@ package net.bible.android.view.compose
 
 import android.view.KeyEvent
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.core.graphics.Insets
 import androidx.test.core.app.ApplicationProvider
 import kotlin.test.assertFailsWith
 import androidx.lifecycle.lifecycleScope
@@ -1241,42 +1242,47 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    // ---- Step 3: the search sheet's WebView bottom-offset term ----------------------------------
+    // ---- Search sheets overlay the panes without changing document offsets --------------------
 
-    @Test fun bottomOffsetForWebViewIncludesTheSearchSheetHeightOnlyWhileVisible() {
-        val before = activity.readingInsets.bottomOffsetForWebView
-
-        activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 250)
-        assertEquals(before + 250, activity.readingInsets.bottomOffsetForWebView)
-
-        activity.readingInsets.updateSearchSheetOffsets(visible = false, heightPx = 250)
-        assertEquals(before, activity.readingInsets.bottomOffsetForWebView, "hidden: the height must not be reserved")
-    }
-
-    /**
-     * Review item B: only the arithmetic was covered above — nothing asserted that
-     * [ReadingInsets.updateSearchSheetOffsets] actually emits on
-     * [ReadingInsets.offsetsChanged], which is the ONLY thing that makes
-     * [BibleView.updateOffsets] re-read [ReadingInsets.bottomOffsetForWebView] and push it to
-     * the Vue side at runtime. `subscribe` dispatches synchronously — no coroutine/dispatcher wait needed.
-     */
-    @Test fun updateSearchSheetOffsetsPostsTheEventOnlyWhenSomethingActuallyChanged() {
-        var updates = 0
-        val subscription = activity.readingInsets.offsetsChanged.subscribe { if (it.immediate) updates++ }
+    @Test fun showingAndHidingTheSearchSheetLeavesTheWebViewBottomOffsetUnchanged() {
+        val previousFirstTime = firstTime
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
         try {
-            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 100)
-            assertEquals(1, updates, "a real change must post")
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            val host = assertNotNull(readingHost.composeReadingViewHost)
+            readingHost.readingAppBootstrap.windowRepository.apply {
+                workspaceSettings.restoreButtonsVisible = false
+                activeWindow.pageManager.setCurrentDocument(Books.installed().getBook("KJV")!!)
+            }
+            readingHost.readingInsets.onWindowInsetsApplied(
+                Insets.of(0, 0, 0, 39),
+                Insets.NONE,
+            )
+            compose.waitForIdle()
+            assertEquals(39, readingHost.readingInsets.bottomOffsetForWebView)
 
-            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 100)
-            assertEquals(1, updates, "an unchanged (visible, height) pair must not repost")
+            host.openSearch()
+            compose.waitForIdle()
 
-            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 150)
-            assertEquals(2, updates, "a height-only change must still post")
+            assertTrue(host.searchController.sheetVisible.value, "the unindexed KJV opens the index sheet")
+            assertEquals(39, readingHost.readingInsets.bottomOffsetForWebView, "a sheet overlays every pane")
 
-            activity.readingInsets.updateSearchSheetOffsets(visible = false, heightPx = 150)
-            assertEquals(3, updates, "a visibility-only change must still post")
+            assertTrue(host.closeSearchIfOpen())
+            compose.waitForIdle()
+            assertFalse(host.searchController.sheetVisible.value)
+            assertEquals(39, readingHost.readingInsets.bottomOffsetForWebView)
         } finally {
-            subscription.cancel()
+            net.bible.test.closeReadingHostsBeforeReset(
+                mutableListOf(controller), reset = {}, restoreBeforeReset = { firstTime = previousFirstTime },
+            )
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
         }
     }
 

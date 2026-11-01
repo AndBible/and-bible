@@ -51,8 +51,6 @@ object IosReadingHostPlatform : ReadingHostPlatform {
 
     override fun isRightToLeft(): Boolean = iosIsRightToLeft()
 
-    override fun screenScale(): Float = iosScreenScale()
-
     override fun versionName(): String = iosBundleVersionName()
 
     override fun tiltAvailable(): Boolean = iosMotionManager.deviceMotionAvailable

@@ -49,9 +49,6 @@ interface ReadingHostPlatform {
     /** True when the app's UI is laid out right to left; read per swipe. */
     fun isRightToLeft(): Boolean
 
-    /** Device pixels per point of the screen. */
-    fun screenScale(): Float
-
     /** The app's version name, shown in the toolbar host's About rows. */
     fun versionName(): String
 

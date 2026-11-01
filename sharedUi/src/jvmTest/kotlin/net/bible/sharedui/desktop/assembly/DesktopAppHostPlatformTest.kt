@@ -85,7 +85,6 @@ class DesktopAppHostPlatformTest {
         assertFalse(host.isPortrait())
         window.sizeDp = IntSize(500, 900)
         assertTrue(host.isPortrait())
-        assertEquals(2f, host.screenScale())
         assertFalse(host.isRightToLeft())
         assertFalse(host.tiltAvailable())
         assertEquals("dev", host.versionName())

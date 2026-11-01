@@ -204,8 +204,6 @@ class DesktopReadingHostPlatform(
     override fun isRightToLeft(): Boolean =
         DesktopUiLanguage.isRtl(koin().getOrNull<HostStringTableHolder>()?.current?.tag ?: "en")
 
-    override fun screenScale(): Float = window.density
-
     override fun versionName(): String = koin().get<DesktopAppEnvironment>().versionName
 
     override fun tiltAvailable(): Boolean = false
