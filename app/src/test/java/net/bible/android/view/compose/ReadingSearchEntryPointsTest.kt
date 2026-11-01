@@ -1007,12 +1007,8 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    /**
-     * F100 (fix batch 3 §2.1.3): the persisted selection is searched too, and JSword silently skips
-     * a translation without an index. Classic validated every selected translation
-     * (`BibleSearchServiceImpl.validateIndex`); a submit must prompt for the first unindexed one.
-     */
-    @Test fun submittingWithAnUnindexedTranslationInTheSelectionPromptsForItsIndex() {
+    /** A remembered unindexed Bible must not prompt, but an explicit settings choice must. */
+    @Test fun submittingWithAnExplicitUnindexedTranslationInTheSelectionPromptsForItsIndex() {
         val fakeBook = indexedFakeBible("FAKE")
         Books.installed().addBook(fakeBook)
         try {
@@ -1023,6 +1019,8 @@ class ReadingSearchEntryPointsTest {
             val host = host()
             host.openSearch()
             assertEquals(ReadingSearchPhase.Form("FAKE", forEpub = false), host.searchController.phase.value, "sanity")
+            assertEquals(listOf("FAKE"), host.searchState.searchTranslations.value)
+            host.searchState.setSearchTranslations(listOf("KJV"))
 
             host.searchController.queries.setQuery("light")
             host.searchController.submit()
@@ -1086,6 +1084,7 @@ class ReadingSearchEntryPointsTest {
                 hostJob = assertNotNull(ownedScope.coroutineContext[Job])
                 assertTrue(hostJob!!.isActive, "sanity: the real host owns a live scope")
                 host.openSearch()
+                host.searchState.setSearchTranslations(listOf("KJV"))
                 host.searchController.queries.setQuery("lord")
                 host.searchController.submit()
                 assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
@@ -1170,6 +1169,7 @@ class ReadingSearchEntryPointsTest {
             CommonUtils.settings.setString("search_selected_translations", "KJV")
             val host = host()
             host.openSearch()
+            host.searchState.setSearchTranslations(listOf("KJV"))
             host.searchController.queries.setQuery("lord")
             host.searchController.submit()
             assertEquals(listOf("KJV"), host.searchSelectorPendingIdsForTest, "sanity: the prompt armed the chain")

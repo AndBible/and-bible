@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.search.BibleSearchServiceImpl
+import net.bible.android.control.search.SearchControl
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
@@ -207,6 +208,29 @@ class ReadingSearchHostTest {
             Versification=KJV
         """.trimIndent()
         return SwordBook(SwordBookMetaData(conf.toByteArray(), initials), NullBackend())
+    }
+
+    @Test
+    fun savedUnindexedBibleIsNotSeededButExplicitlyAddingItStillPrompts() {
+        val other = unindexedFakeBible("Ticket3497Unindexed")
+        val key = SearchControl.SEARCH_TRANSLATIONS_PREF
+        val saved = CommonUtils.settings.getString(key, null)
+        Books.installed().addBook(other)
+        CommonUtils.settings.setString(key, other.initials)
+        try {
+            val host = host()
+            host.openSearch()
+
+            assertEquals(listOf("KJV"), host.searchState.searchTranslations.value)
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value)
+            assertEquals(other.initials, CommonUtils.settings.getString(key, null))
+
+            host.onSearchTranslationsChosen(listOf(other.initials))
+            assertEquals(ReadingSearchPhase.NeedsIndex(other.initials, forEpub = false), host.searchController.phase.value)
+        } finally {
+            CommonUtils.settings.setString(key, saved)
+            Books.installed().removeBook(other)
+        }
     }
 
     // ---- Step 1: Book -> SearchDocumentInfo ----------------------------------------------------

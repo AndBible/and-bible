@@ -523,6 +523,40 @@ class ReadingSearchHostLogicTest {
         assertEquals("KJV", f.settings.strings["search_selected_translations"])
     }
 
+    @Test
+    fun bibleSearchDropsUnindexedSavedTranslationsWithoutRewritingThePreference() = runTest {
+        val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("FinARK")), scope = backgroundScope)
+        f.platform.bibles = listOf("KJV" to "KJV", "FinARK" to "FinARK", "ESV" to "ESV")
+        f.settings.setString("search_selected_translations", "FinARK,ESV")
+
+        f.state.openSearch("light")
+
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), f.state.controller.phase.value)
+        assertEquals(listOf("ESV", "KJV"), f.state.searchTranslations.value)
+        assertEquals(listOf("ESV", "KJV"), f.state.lastSearchRequestForTest?.translationIds)
+        assertNull(f.state.searchSelectorPendingIds)
+        assertEquals("FinARK,ESV", f.settings.strings["search_selected_translations"])
+
+        // Dropping a remembered id must not prevent deliberately adding it back this session.
+        f.state.onSearchTranslationsChosen(listOf("KJV", "FinARK"))
+        assertEquals(ReadingSearchPhase.NeedsIndex("FinARK", forEpub = false), f.state.controller.phase.value)
+        assertEquals(listOf("KJV", "FinARK"), f.state.searchSelectorPendingIds)
+    }
+
+    @Test
+    fun unindexedActiveBibleIsRetainedAndPromptsEvenWithAnIndexedSavedSelection() = runTest {
+        val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("KJV", "FinARK")), scope = backgroundScope)
+        f.platform.bibles = listOf("KJV" to "KJV", "FinARK" to "FinARK", "ESV" to "ESV")
+        f.platform.info = unindexedBible
+        f.settings.setString("search_selected_translations", "FinARK,ESV")
+
+        f.state.openSearch("light")
+
+        assertEquals(listOf("ESV", "KJV"), f.state.searchTranslations.value)
+        assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), f.state.controller.phase.value)
+        assertEquals("FinARK,ESV", f.settings.strings["search_selected_translations"])
+    }
+
     // ---- selector chain -------------------------------------------------------------------------
 
     @Test

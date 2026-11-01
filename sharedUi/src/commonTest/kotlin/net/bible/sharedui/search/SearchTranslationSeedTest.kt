@@ -23,8 +23,20 @@ class SearchTranslationSeedTest {
     private val installed = setOf("KJV", "ESV", "NASB")
 
     @Test
-    fun bibleSearchStartsFromTheSavedSelection() {
-        assertEquals(listOf("ESV", "KJV"), seedSearchTranslations("NASB", isBible = true, saved = "ESV,KJV", installed))
+    fun bibleSearchIncludesTheActiveBibleAlongsideTheSavedSelection() {
+        assertEquals(listOf("ESV", "KJV", "NASB"), seedSearchTranslations("NASB", isBible = true, saved = "ESV,KJV", installed))
+    }
+
+    @Test
+    fun unindexedSavedBiblesAreDroppedButTheUnindexedActiveBibleIsAlwaysIncluded() {
+        val indexed = setOf("KJV")
+        assertEquals(listOf("KJV", "NASB"), seedSearchTranslations("NASB", true, "ESV,KJV", indexed))
+        assertEquals(listOf("NASB"), seedSearchTranslations("NASB", true, "ESV", indexed))
+    }
+
+    @Test
+    fun activeBibleAlreadyInTheSavedSelectionIsNotDuplicated() {
+        assertEquals(listOf("KJV", "ESV"), seedSearchTranslations("KJV", true, "KJV,ESV", installed))
     }
 
     @Test
@@ -34,7 +46,7 @@ class SearchTranslationSeedTest {
 
     @Test
     fun staleInitialsAreDropped() {
-        assertEquals(listOf("KJV", "ESV"), seedSearchTranslations("NASB", isBible = true, saved = "KJV,GONE,ESV", installed))
+        assertEquals(listOf("KJV", "ESV", "NASB"), seedSearchTranslations("NASB", isBible = true, saved = "KJV,GONE,ESV", installed))
     }
 
     @Test

@@ -8,6 +8,8 @@ import net.bible.sharedui.search.nav.IndexOutcome
 import net.bible.android.control.search.SearchControl
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedui.reading.host.slots.MapSearchSettings
+import net.bible.sharedui.reading.host.slots.FakeBibleSearch
+import net.bible.sharedcore.search.BibleSearchService
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import net.bible.sharedui.app.HostShell
@@ -63,6 +65,7 @@ class SearchHostTest {
     private fun host(
         books: Map<String, Book> = emptyMap(),
         settings: AppSettings? = null,
+        bible: BibleSearchService? = null,
     ) = SearchHost(
         shell = shell,
         strings = strings,
@@ -76,7 +79,7 @@ class SearchHostTest {
             override fun open(url: String) = Unit
         },
         searchControlProvider = { error("searchControl must stay lazy") },
-        bibleSearchServiceProvider = { error("bibleSearchService must stay lazy") },
+        bibleSearchServiceProvider = { bible ?: error("bibleSearchService must stay lazy") },
         searchIndexServiceProvider = { error("searchIndexService must stay lazy") },
         windowControlProvider = { error("windowControl must stay lazy") },
         pageControlProvider = { error("pageControl must stay lazy") },
@@ -112,13 +115,19 @@ class SearchHostTest {
         Books.installed().addBook(bible)
         Books.installed().addBook(secondBible)
         try {
-            val host = host(settings = settings)
+            val host = host(settings = settings, bible = FakeBibleSearch(unindexed = setOf(secondBible.initials)))
             assertEquals(listOf("Issue3873Commentary"), host.loadSearchTranslations(commentary).selected)
             assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
             assertEquals(
-                listOf("Issue3873Bible", "Issue3873SecondBible"),
+                listOf("Issue3873Bible"),
                 host.loadSearchTranslations(bible).selected,
             )
+            assertEquals(
+                listOf("Issue3873Bible", "Issue3873SecondBible"),
+                host.loadSearchTranslations(secondBible).selected,
+                "the active Bible remains selected even without an index",
+            )
+            assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
         } finally {
             Books.installed().removeBook(secondBible)
             Books.installed().removeBook(bible)
