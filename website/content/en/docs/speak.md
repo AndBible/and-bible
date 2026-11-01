@@ -38,6 +38,12 @@ When a commentary has no entry for a verse, speech skips that verse and continue
 at the next verse with text. Empty verses are not announced, even when
 **Chapter Changes** is enabled.
 
+Bible passage links in Bible text, commentaries and books are spoken using their full
+reference, including the book name, chapter and verse, when the module supplies a valid
+Bible link target. For example, a link labelled `v. 9` that points to Matthew 2:9 is
+spoken as `Matthew 2:9`. Links inside Bible footnotes are only spoken when those
+footnotes are enabled. If a link has no valid Bible target, its visible text is used.
+
 ## Speak Settings
 
 The *Speak* dialog can be accessed from:
