@@ -93,8 +93,8 @@ fun AbModalBottomSheet(
         scrimColor = if (mono) Color.Transparent else BottomSheetDefaults.ScrimColor,
         // M3 1.4.0 defaults tonalElevation to 0.dp and Surface's shadowElevation to 0.dp.
         tonalElevation = 0.dp,
-        // With a description the handle is drawn by us as the first row of the content (same place, same pixels as
-        // M3's wrapper) so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
+        // With a description the compact handle is drawn by us as the first row of the content
+        // so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
         // empty label on iOS (audit: "Element has no description" on the 32x48 handle).
         dragHandle = if (!showDragHandle || handleDescription != null) null
             else ({ AbSheetDragHandle(description = null, mono = mono) }),

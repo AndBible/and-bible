@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import net.bible.sharedui.components.AbModalBottomSheet
+import net.bible.sharedui.components.AbSheetHeader
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,7 +44,17 @@ fun SearchSettingsSheet(open: Boolean, onDismiss: () -> Unit, content: @Composab
     if (!open) return
     // skipPartiallyExpanded (round 14b §7.a / spec D4) — uniform with every other sheet.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) { content() }
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
+        SearchSettingsSheetContent(onClose = onDismiss, content = content)
+    }
+}
+
+/** The reading search settings header and body, separate from the modal window for golden coverage. */
+@Composable
+fun SearchSettingsSheetContent(onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val strings = LocalStrings.current
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = strings.searchOptions, onClose = onClose)
+        content()
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
@@ -88,7 +89,13 @@ fun SearchSheetContent(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(if (loading) "" else countLabel, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text(
+                if (loading) "" else countLabel,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
             actions()
             IconButton(onClick = onClose) {
                 Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)

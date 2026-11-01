@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -46,6 +47,26 @@ class ReadingSheetDragHandleTest {
         }
         rule.onNodeWithContentDescription("Dismiss sheet handle").assertDoesNotExist()
         rule.onNodeWithContentDescription(closeDescription).assertHasClickAction().performClick()
+        rule.runOnIdle { assertEquals(1, closed) }
+    }
+
+    @Test fun searchSettingsHasAccessibleCloseInsteadOfDragHandle() {
+        var closed = 0
+        var closeDescription = ""
+        rule.setContent {
+            ProvideAppLocals {
+                AbTheme(disableAnimations = true) {
+                    CompositionLocalProvider(LocalSheetDragHandleDescription provides "Dismiss sheet handle") {
+                        closeDescription = LocalStrings.current.settingsEditorClose
+                        SearchSettingsSheet(open = true, onDismiss = { closed++ }) {
+                            Box(Modifier.height(80.dp))
+                        }
+                    }
+                }
+            }
+        }
+        rule.onNodeWithContentDescription(closeDescription).assertHasClickAction().performClick()
+        rule.onNodeWithContentDescription("Dismiss sheet handle").assertDoesNotExist()
         rule.runOnIdle { assertEquals(1, closed) }
     }
 

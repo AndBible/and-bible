@@ -1,6 +1,12 @@
 package net.bible.android.view.compose
 
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -52,6 +58,29 @@ class SearchSheetContentCountTest {
         show(loading = false)
         compose.onNodeWithContentDescription("Close").assertHasClickAction().performClick()
         compose.runOnIdle { assertEquals(1, closed) }
+    }
+
+    @Test fun longCountDoesNotTurnTheHeaderIntoATallColumn() {
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(disableAnimations = true) {
+                    Box(Modifier.width(320.dp)) {
+                        SearchSheetContent(
+                            countLabel = label,
+                            loading = false,
+                            error = null,
+                            empty = false,
+                            listState = rememberLazyListState(),
+                            onDismissError = {},
+                            onClose = {},
+                            // The result actions plus Close leave only a narrow strip at 320dp.
+                            actions = { Box(Modifier.width(216.dp).height(48.dp)) },
+                        ) {}
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText(label).assertHeightIsEqualTo(40.dp)
     }
 
     @Test fun theCountIsHiddenWhileLoading() {
