@@ -159,7 +159,7 @@ private fun PromptSelectorSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         PromptSelectorSheetContent(
             groups = groups,
             // NOT wrapped in a dismiss, unlike AbChoiceSheet's onSelect. Choosing a prompt does not
@@ -290,7 +290,7 @@ private fun ModelSelectionSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         ModelSelectionSheetContent(
             models = models,
             allowSetDefault = allowSetDefault,

@@ -9,9 +9,16 @@ Its availability follows the active window's document. If Find is greyed out for
 non-searchable document, select a Bible window or choose a searchable document;
 Find becomes available again.
 
-The search results sheet opens on top of the reading text, like a dialog; it does not
+Search results appear in a sheet on top of the reading text, like a dialog; it does not
 add a bottom margin to the reading windows. Tap a result to close the sheet and open
 the passage. Press Back to return to the results list.
+
+Tap the **X in the results
+sheet** to hide the results without leaving search mode; the **X in the search
+toolbar** leaves search mode. You can also swipe the sheet down to dismiss it.
+The results sheet has no drag bar: it fits its content rather than offering
+multiple sizes. Search options have their own close button too. While an index is
+being created, the progress sheet's **X** hides progress without cancelling indexing.
 
 ## Bible searches
 

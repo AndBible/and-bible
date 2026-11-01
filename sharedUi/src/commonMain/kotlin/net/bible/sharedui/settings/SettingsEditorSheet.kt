@@ -86,7 +86,7 @@ fun SettingsEditorSheet(
     // height. Setting it HERE covers ColorSettingsEditorSheet, TextSettingRowEditorSheet and
     // GenericSettingsEditorSheet at once — all three reach Material3's sheet only through this shell.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp),

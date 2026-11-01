@@ -59,6 +59,7 @@ class SearchIndexPanelGoldenTest {
             onCreate = {},
             onCancel = {},
             onDismissError = {},
+            onClose = {},
         )
     }
 

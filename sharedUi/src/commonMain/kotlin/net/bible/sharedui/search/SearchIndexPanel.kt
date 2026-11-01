@@ -25,6 +25,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,6 +63,7 @@ import net.bible.sharedui.strings.LocalStrings
  *   the index must be created again.
  * @param indexing switches the panel from the prompt to progress; the caller owns that transition
  *   because it also owns the JSword job it started.
+ * @param onClose hides progress without cancelling the index build or leaving search mode.
  * @param error non-null shows the failure dialog **over a sheet that stays open** — the "job says
  *   finished but `indexStatus` never reached DONE" case that `IndexPollDecision` gives up on.
  */
@@ -71,12 +77,22 @@ fun SearchIndexPanel(
     onCreate: () -> Unit,
     onCancel: () -> Unit,
     onDismissError: () -> Unit,
+    onClose: () -> Unit,
     engineChanged: Boolean = false,
 ) {
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth().padding(16.dp)) {
         if (indexing) {
-            Text(text = strings.searchIndexingThenSearch, style = MaterialTheme.typography.bodyMedium)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = strings.searchIndexingThenSearch,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = onClose) {
+                    Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
+                }
+            }
             // ProgressRow carries its own 16.dp horizontal padding, as it does inside
             // SearchIndexProgressScreen's equally-padded Column; the rows are meant to sit inset
             // from the paragraph above them.

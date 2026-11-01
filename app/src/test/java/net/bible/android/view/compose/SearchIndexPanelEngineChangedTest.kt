@@ -18,6 +18,10 @@ package net.bible.android.view.compose
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
@@ -37,15 +41,35 @@ import org.robolectric.annotation.GraphicsMode
 class SearchIndexPanelEngineChangedTest {
     @get:Rule val compose = createComposeRule()
 
-    private fun show(engineChanged: Boolean) = compose.setContent {
+    private var closed = 0
+    private var cancelled = 0
+
+    private fun show(engineChanged: Boolean, indexing: Boolean = false) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 SearchIndexPanel(
-                    documentName = "ESV", isRebuild = false, indexing = false, jobs = emptyList(), error = null,
-                    onCreate = {}, onCancel = {}, onDismissError = {}, engineChanged = engineChanged,
+                    documentName = "ESV", isRebuild = false, indexing = indexing, jobs = emptyList(), error = null,
+                    onCreate = {}, onCancel = { cancelled++ }, onDismissError = {},
+                    onClose = { closed++ }, engineChanged = engineChanged,
                 )
             }
         }
+    }
+
+    @Test fun indexingHasAnAccessibleCloseAction() {
+        show(engineChanged = false, indexing = true)
+        compose.onNodeWithContentDescription("Close").assertHasClickAction().performClick()
+        compose.onNodeWithText("Cancel").assertDoesNotExist()
+        compose.runOnIdle {
+            assertEquals(1, closed)
+            assertEquals(0, cancelled)
+        }
+    }
+
+    @Test fun promptHasCancelWithoutARedundantClose() {
+        show(engineChanged = false)
+        compose.onNodeWithText("Cancel").assertHasClickAction()
+        compose.onNodeWithContentDescription("Close").assertDoesNotExist()
     }
 
     @Test fun engineChangedAppendsTheExplanation() {

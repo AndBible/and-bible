@@ -109,7 +109,7 @@ fun SpeakSettingsSheet(
     // VISIBILITY, which the expansion mode does not touch, and `show()` now animates to Expanded —
     // the state the sheet already opens in. Still device-pass-only; it has no automated coverage.
     LaunchedEffect(sheetState.isVisible) { if (!sheetState.isVisible) sheetState.show() }
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp),

@@ -69,17 +69,17 @@ class AbModalBottomSheetBorderTest {
             try {
                 val ink = if (dark.value) 0xFFFFFF else 0x000000
                 val x = root.width / 2
-                // Stock handle is 4dp with 22dp top/bottom padding. Check above it, not
+                // Compact handle is 4dp with 8dp top/bottom padding. Check above it, not
                 // a content-only rectangle; side sample is below the 28dp rounded corner.
-                val top = (contentPosition.y - 48 * density).toInt()
+                val top = (contentPosition.y - 20 * density).toInt()
                 assertTrue("Sheet must have translated away from dialog top", top > 0)
                 val nearTop = (top..top + (2 * density).toInt()).any {
                     (bitmap.getPixel(x, it) and 0xFFFFFF) == ink
                 }
                 assertTrue("Top outline follows actual sheet: dark=${dark.value} top=$top", nearTop)
-                assertEquals("Side outline includes the drag handle area", ink,
+                assertEquals("Side outline follows the sheet below its rounded corner", ink,
                     bitmap.getPixel((contentPosition.x + 0.5f * density).toInt(),
-                        (contentPosition.y - 8 * density).toInt()) and 0xFFFFFF)
+                        (contentPosition.y + 12 * density).toInt()) and 0xFFFFFF)
                 assertNotEquals("No static outline remains at dialog top", ink or 0xFF000000.toInt(),
                     bitmap.getPixel(x, 0))
             } finally { bitmap.recycle() }

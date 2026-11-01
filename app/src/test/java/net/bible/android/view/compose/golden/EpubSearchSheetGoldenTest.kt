@@ -69,6 +69,7 @@ class EpubSearchSheetGoldenTest {
             empty = empty,
             listState = rememberLazyListState(),
             onDismissError = {},
+            onClose = {},
             actions = {},
         ) {
             epubResultRows(rows = rows, onSelect = { _, _ -> })

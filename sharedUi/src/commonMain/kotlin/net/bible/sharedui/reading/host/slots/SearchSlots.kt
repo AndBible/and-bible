@@ -115,6 +115,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             // could do with a document Lucene cannot read.
             onCancel = { state.leaveSearch() },
             onDismissError = state.searchIndexProgress::dismissError,
+            onClose = { controller.closeSheet() },
             engineChanged = state.searchIndexService.hasLegacyIndex(indexDocId),
         )
         return
@@ -140,6 +141,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             empty = !loading && rows.isEmpty(),
             listState = state.searchResultsListState.value,
             onDismissError = state.epubSearchResults::dismissError,
+            onClose = { controller.closeSheet() },
             actions = {},
         ) {
             epubResultRows(rows = rows, onSelect = state.epubSearchResults::select)
@@ -164,6 +166,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
         empty = !loading && rows.isEmpty(),
         listState = state.searchResultsListState.value,
         onDismissError = searchResults::dismissError,
+        onClose = { controller.closeSheet() },
         actions = {
             BibleResultsActions(
                 candidates = candidates,

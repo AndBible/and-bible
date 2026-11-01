@@ -106,6 +106,7 @@ class SearchSheetGoldenTest {
             empty = empty,
             listState = rememberLazyListState(),
             onDismissError = {},
+            onClose = {},
             actions = {
                 BibleResultsActions(
                     candidates = candidates,
