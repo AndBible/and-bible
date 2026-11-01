@@ -243,9 +243,9 @@ class ReadingSearchState(
         onStartIndexing = { docId -> startSearchIndexing(docId) },
         // Every document type reaches here: an EPUB runs `runEpubSearch`, everything else the SWORD `runSearch`.
         onRunSearch = { docId, query, forEpub -> if (forEpub) runEpubSearch(docId, query) else runSearch(docId, query) },
-        // F100: an unindexed translation in the persisted selection prompts, and arms the Task 11
-        // chain ([searchSelectorPendingIds]) for the whole selection, so every unindexed one is built
-        // before the search runs, exactly as a results-selector choice does.
+        // F100: validate explicit choices (or an index that became unusable during this session).
+        // Seeding drops remembered unindexed Bibles; deliberately choosing one still arms the
+        // Task 11 chain so every unindexed choice is built before the search runs.
         firstUnindexedInSelection = {
             val selection = searchTranslations.value
             bibleSearchService.unindexedAmong(selection).firstOrNull()?.also { searchSelectorPendingIds = selection }
@@ -430,18 +430,22 @@ class ReadingSearchState(
 
     /**
      * Reloads the Bibles offered by the settings sheet and re-seeds the selection from the
-     * persisted choice, falling back to the document being read. Called on every [openSearch],
+     * indexed persisted choices plus the document being read. Called on every [openSearch],
      * since the read document changes.
      */
     private fun refreshSearchTranslations() {
         val bibles = platform.installedBibles()
         searchAvailableTranslations.value = bibles
         val current = platform.currentDocument()
+        val isBible = platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE
+        val saved = settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
+        val remembered = parseSavedSearchTranslations(saved, bibles.map { it.first }.toSet())
+        val unindexed = if (isBible) bibleSearchService.unindexedAmong(remembered).toSet() else emptySet()
         searchTranslations.value = seedSearchTranslations(
             currentInitials = current?.initials,
-            isBible = platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE,
-            saved = settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null),
-            installedBibles = bibles.map { it.first }.toSet(),
+            isBible = isBible,
+            saved = saved,
+            indexedBibles = remembered.toSet() - unindexed,
         )
     }
 
