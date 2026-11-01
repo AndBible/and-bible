@@ -9,6 +9,10 @@ Its availability follows the active window's document. If Find is greyed out for
 non-searchable document, select a Bible window or choose a searchable document;
 Find becomes available again.
 
+The search results sheet opens on top of the reading text, like a dialog; it does not
+add a bottom margin to the reading windows. Tap a result to close the sheet and open
+the passage. Press Back to return to the results list.
+
 ## Bible searches
 
 To search for a specific word in any Bible module tap on the burger menu located at the top left, then tap on "Find" . Then enter the word you are looking to find.

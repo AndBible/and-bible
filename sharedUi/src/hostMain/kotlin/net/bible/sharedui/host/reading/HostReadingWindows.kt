@@ -142,7 +142,7 @@ object HostReadingWindows {
     private fun installedLanguagesJson(): String =
         activeLanguagesJson(SwordDocumentFacade.bibles.map { it.bookMetaData.language.code })
 
-    /** The document offsets changed (safe area, search sheet, agent log, speak bar): re-send `set_offsets` to every window. */
+    /** The document offsets changed (safe area, agent log, speak bar): re-send `set_offsets` to every window. */
     fun offsetsChanged() {
         for (a in assemblies.values) {
             a.session.emit(BibleViewEvents.setOffsets(a.platform.topOffset, a.platform.bottomOffset, true, false))

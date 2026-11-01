@@ -33,9 +33,6 @@ import androidx.compose.ui.Modifier
  * window insets of its own and the reading tree is edge-to-edge, so without this the last result and
  * the snackbar sit under a 3-button nav bar, and in landscape the sheet runs under a side one.
  * Union (max), never a sum. `@Composable` because the inset getters are.
- *
- * The measured sheet height that feeds `bottomOffsetForWebView` deliberately does NOT include this
- * padding: the inset ledger adds the nav bar itself, so counting it here would reserve it twice.
  */
 @Composable
 fun Modifier.readingSheetInsetPadding(): Modifier =

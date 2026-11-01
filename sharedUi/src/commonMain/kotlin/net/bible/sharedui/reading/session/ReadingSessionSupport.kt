@@ -35,8 +35,9 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * notch / Dynamic Island safe area stays, so [setSystemTopInset] makes it the top offset then. [bottom] is what overlays the panes' lower edge: the
  * system bottom inset (home indicator) unless the speak bar or agent panel is visible (both reserve space below
  * the panes, and the bottom-most bar pads that inset itself), the minimised-window restore row (40dp, Android's theme
- * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on; read live) and the search sheet's
- * height. The agent panel's collapsed height is already reserved in-flow by `ReadingViewScreen`.
+ * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on; read live).
+ * Sheets overlay the panes without reserving document space. The agent panel's collapsed height is already
+ * reserved in-flow by `ReadingViewScreen`.
  *
  * Every setter fires [onChanged] only when its value really changed, so a benign recomposition does not spam `set_offsets`.
  */
@@ -46,7 +47,6 @@ class ReadingOffsets(
     private val onChanged: () -> Unit = {},
 ) {
     private var systemBottomInset = 0f
-    private var searchSheet = 0f
     private var agentLogVisible = false
     private var speakBarVisible = false
     private var containerSize: Pair<Int, Int>? = null
@@ -60,14 +60,9 @@ class ReadingOffsets(
 
     val bottom: Float get() =
         (if (speakBarVisible || agentLogVisible) 0f else systemBottomInset) +
-            (if (restoreButtonsVisible()) WINDOW_BUTTON_HEIGHT_DP else 0f) + searchSheet
+            (if (restoreButtonsVisible()) WINDOW_BUTTON_HEIGHT_DP else 0f)
 
     fun setSystemBottomInset(dp: Float) = change { if (systemBottomInset != dp) { systemBottomInset = dp; true } else false }
-
-    fun setSearchSheet(visible: Boolean, heightPx: Int, density: Float) {
-        val value = if (visible && density > 0f) heightPx / density else 0f
-        change { if (searchSheet != value) { searchSheet = value; true } else false }
-    }
 
     fun setAgentLog(visible: Boolean) = change { if (agentLogVisible != visible) { agentLogVisible = visible; true } else false }
 

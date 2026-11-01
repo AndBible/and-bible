@@ -672,7 +672,7 @@ private fun HostReadingDestination(
 
 /**
  * Feeds the real layout into the document offsets: the bottom safe-area inset (home indicator) in dp = CSS px, read from
- * the same `WindowInsets.navigationBars` the reading rail pads itself with. The other terms (search sheet, agent log,
+ * the same `WindowInsets.navigationBars` the reading rail pads itself with. The other terms (agent log,
  * speak bar) are reported by the host's own slots; the host pushes `set_offsets` to every window when the sum changes,
  * and when the container size changes (rotation: the bottom window can change while the inset stays the same).
  */

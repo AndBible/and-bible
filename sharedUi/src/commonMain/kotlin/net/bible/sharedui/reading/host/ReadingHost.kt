@@ -61,7 +61,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -196,8 +195,6 @@ class ReadingHostDeps(
     val searchBarCallbacks: ReadingSearchBarCallbacks? = null,
     val searchSheetVisible: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow(),
     val onSearchSheetDismissed: () -> Unit = {},
-    /** The search sheet's live (visible, measured height in px), for the host's WebView bottom offset. */
-    val onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit = { _, _ -> },
     val searchUnavailableDocName: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow(),
     val onSearchUnavailableMessageShown: () -> Unit = {},
 
@@ -401,18 +398,6 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             strings = LocalStrings.current,
             onShown = deps.onSearchUnavailableMessageShown,
         )
-        // The sheet is self-sizing, so its height for the host's WebView bottom offset must be MEASURED
-        // off the real content. The on-screen sheet is the CONTENT plus M3's drag-handle band, which
-        // `BottomSheetScaffold` renders as a SEPARATE composable; rather than hardcode the default
-        // handle's height, `sheetDragHandle` is supplied explicitly so its real height is measured too.
-        var searchSheetContentHeightPx by remember { mutableIntStateOf(0) }
-        var searchSheetHandleHeightPx by remember { mutableIntStateOf(0) }
-        LaunchedEffect(searchSheetVisible, searchSheetContentHeightPx, searchSheetHandleHeightPx) {
-            deps.onSearchSheetOffsetsChanged(
-                searchSheetVisible,
-                searchSheetContentHeightPx + searchSheetHandleHeightPx,
-            )
-        }
         val searchHandleDescription = LocalSheetDragHandleDescription.current
         BottomSheetScaffold(
             scaffoldState = searchSheetState,
@@ -425,18 +410,14 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             // R3: with a drag-handle description (iOS) the handle is ONE named node drawn as the first row of the
             // sheet content (the scaffold's own handle wrapper is an unlabelled element; see AbSheetDragHandle).
             sheetDragHandle = if (searchHandleDescription != null) null else ({
-                Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
-                    BottomSheetDefaults.DragHandle()
-                }
+                BottomSheetDefaults.DragHandle()
             }),
             sheetContent = {
                 if (searchHandleDescription != null) {
                     AbSheetDragHandle(
                         description = searchHandleDescription,
                         mono = false,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .onSizeChanged { size -> searchSheetHandleHeightPx = size.height },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
                 }
                 // Exactly as tall as its content, but never taller than [SearchSheetMaxHeightFraction]
@@ -447,10 +428,6 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                 // The 1.dp FLOOR is load-bearing: an empty sheet measures to zero, and M3 publishes no
                 // `Expanded` anchor for a zero-height sheet at all, so an `expand()` landing before the
                 // first layout pass would be a silent no-op.
-                //
-                // The nav-bar/cutout padding is OUTSIDE the measured Box on purpose:
-                // `searchSheetContentHeightPx` feeds the host's bottom offset, which already adds the
-                // nav bar, so measuring it here would reserve it twice.
                 BoxWithConstraints(Modifier.fillMaxWidth().readingSheetInsetPadding()) {
                     Box(
                         Modifier
@@ -458,7 +435,6 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                                 min = 1.dp,
                                 max = maxHeight * SearchSheetMaxHeightFraction,
                             )
-                            .onSizeChanged { size -> searchSheetContentHeightPx = size.height }
                     ) { deps.searchSheetSlot() }
                 }
             },

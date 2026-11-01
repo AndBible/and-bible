@@ -1509,8 +1509,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         searchBarCallbacks = searchState.searchBarCallbacks,
         searchSheetVisible = searchController.sheetVisible,
         onSearchSheetDismissed = { searchController.closeSheet() },
-        // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
-        onSearchSheetOffsetsChanged = { visible, heightPx -> activity.readingInsets.updateSearchSheetOffsets(visible, heightPx) },
         // Task 10: the "<document> cannot be searched" snackbar.
         searchUnavailableDocName = searchUnavailableDocName,
         onSearchUnavailableMessageShown = { searchUnavailableMessageShown() },

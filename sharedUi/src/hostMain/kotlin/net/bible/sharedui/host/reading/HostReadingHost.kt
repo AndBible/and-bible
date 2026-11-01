@@ -179,7 +179,7 @@ class HostReadingHost(
 
     /**
      * The document offsets of every window ([ReadingOffsets]): the destination reports the safe-area inset, the slots below
-     * report the search sheet, agent log and speak bar; a change is pushed to each window as `set_offsets`.
+     * report the agent log and speak bar; a change is pushed to each window as `set_offsets`.
      */
     internal val offsets = ReadingOffsets(
         restoreButtonsVisible = { windowControl.windowRepository.workspaceSettings.restoreButtonsVisible },
@@ -738,7 +738,6 @@ class HostReadingHost(
         onSearchSheetDismissed = { searchState.controller.closeSheet() },
         searchUnavailableDocName = searchState.searchUnavailableDocName,
         onSearchUnavailableMessageShown = searchState::searchUnavailableMessageShown,
-        onSearchSheetOffsetsChanged = { visible, heightPx -> offsets.setSearchSheet(visible, heightPx, platform.screenScale()) },
         searchSheetSlot = { slots.SearchSheet() },
         searchSettingsSlot = { slots.SearchSettings() },
         textSettingsEditorSlot = { slots.TextSettingsEditor() },

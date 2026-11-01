@@ -128,13 +128,6 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     private var bottomOffset1 = 0
     private var bottomOffset1WithoutIme = 0  // Always excludes IME (keyboard) height
 
-    // F6 Task 8b Step 3: the Compose reading-view search sheet's (visible, measured-height-in-px)
-    // pair, fed by ComposeReadingViewHost.install() — see updateSearchSheetOffsets. Mirrors
-    // MainBibleActivity's agentLogVisible/agentLogHeight (Compose-only; always false/0 before the
-    // host is installed).
-    private var searchSheetVisible = false
-    private var searchSheetHeight = 0
-
     // Bottom offset with navigation bar, transport bar and agent log.
     // The term is dropped when the mainBibleView padding is handling the keyboard, and is the
     // IME-FREE offset otherwise — `bottomOffset1` includes the keyboard height while it is up, so
@@ -143,7 +136,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
         (if (host.transportBarVisible()) host.transportBarHeight() else 0) +
         (if (host.agentLogVisible()) host.agentLogHeight() else 0)
 
-    // WebView bottom offset: navigation bar (unless transport bar up) + buttons + agent log + search sheet.
+    // WebView bottom offset: navigation bar (unless transport bar up) + buttons + agent log.
+    // Sheets overlay the reading text like dialogs; they do not reserve document space.
     // Same three cases as above: padding applied -> 0; no keyboard -> system bars; keyboard up with
     // the padding suppressed -> system bars, because the keyboard overlays and nothing should move.
     // `bottomOffset1WithoutIme` equals `bottomOffset1` whenever the keyboard is hidden, so the two
@@ -153,8 +147,7 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     val bottomOffsetForWebView get() =
         (if (host.transportBarVisible()) 0 else (if (imePaddingApplied) 0 else bottomOffset1WithoutIme)) +
             (if (host.restoreButtonsVisible()) host.windowButtonHeight() else 0) +
-            (if (host.agentLogVisible()) host.agentLogHeight() else 0) +
-            (if (searchSheetVisible) searchSheetHeight else 0)
+            (if (host.agentLogVisible()) host.agentLogHeight() else 0)
 
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
@@ -187,21 +180,6 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     private val imePaddingApplied: Boolean get() = imeHeight > 0 && !composeSearchFieldFocused
 
     /**
-     * F6 Task 8b Step 3: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.install]'s
-     * report of the search sheet's live (visible, measured-height-in-px) state — the fourth term in
-     * [bottomOffsetForWebView], mirroring `MainBibleActivity`'s agentLogVisible/agentLogHeight. Emits
-     * [offsetsChanged] (a "recompute and push to the WebView" event) so
-     * [net.bible.android.view.activity.page.BibleView.updateOffsets] picks up the new value; a no-op when nothing actually changed, so a benign recomposition doesn't
-     * spam `set_offsets` calls.
-     */
-    fun updateSearchSheetOffsets(visible: Boolean, heightPx: Int) {
-        if (searchSheetVisible == visible && searchSheetHeight == heightPx) return
-        searchSheetVisible = visible
-        searchSheetHeight = heightPx
-        _offsetsChanged.emit(OffsetsChange(immediate = true))
-    }
-
-    /**
      * The reading host calls this alongside `setTransportVisible` when the Speak bar is shown or
      * hidden. The bar's height is read live through [ReadingInsetsHostCallbacks], so this only asks
      * BibleView to recompute and push its offsets now.
@@ -231,8 +209,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     /**
      * The Compose search field gained or lost focus, which changes [imePaddingApplied] without
      * changing any inset — so the insets listener never fires and both the padding and the WebView's
-     * offsets would go stale. Same "recompute and push to the WebView" idiom as
-     * [updateSearchSheetOffsets] and the agent log's.
+     * offsets would go stale. Uses the same "recompute and push to the WebView" event as the other
+     * layout changes.
      */
     fun onComposeSearchFieldFocusChanged() {
         applyImePadding()

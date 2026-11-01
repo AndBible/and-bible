@@ -68,7 +68,6 @@ object ReadingHostDepsFields {
         "searchBarCallbacks",
         "searchSheetVisible",
         "onSearchSheetDismissed",
-        "onSearchSheetOffsetsChanged",
         "searchUnavailableDocName",
         "onSearchUnavailableMessageShown",
         "agentLogSlot",

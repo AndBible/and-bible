@@ -37,6 +37,3 @@ internal val iosOpenSettingsUrl: String get() = UIApplicationOpenSettingsURLStri
 
 /** Whether the screen is taller than wide (the passage grid lays out differently in portrait). */
 internal fun iosIsPortrait(): Boolean = UIScreen.mainScreen.bounds.useContents { size.height >= size.width }
-
-/** The screen scale (px per dp = CSS px), Compose's density on iOS. */
-internal fun iosScreenScale(): Float = UIScreen.mainScreen.scale.toFloat()

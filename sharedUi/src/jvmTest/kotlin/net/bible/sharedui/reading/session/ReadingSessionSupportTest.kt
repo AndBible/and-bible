@@ -55,14 +55,11 @@ class ReadingSessionSupportTest {
         offsets.setSystemBottomInset(34f) // unchanged: no spurious set_offsets
         assertEquals(1, changes)
 
-        offsets.setSearchSheet(visible = true, heightPx = 600, density = 3f) // 200 css px
-        assertEquals(34f + 200f, offsets.bottom)
         offsets.setAgentLog(visible = true)
-        assertEquals(200f, offsets.bottom)
+        assertEquals(0f, offsets.bottom)
         // The speak bar sits below the panes and pads the safe area itself.
         offsets.setSpeakBarVisible(true)
-        assertEquals(200f, offsets.bottom)
-        offsets.setSearchSheet(visible = false, heightPx = 600, density = 3f)
+        assertEquals(0f, offsets.bottom)
         offsets.setAgentLog(visible = false)
         restore = true // minimised-window restore row (Android's windowButtonHeight, 40dp)
         assertEquals(40f, offsets.bottom)
@@ -87,20 +84,19 @@ class ReadingSessionSupportTest {
     }
 
     @Test
-    fun eitherBottomBarOwnsTheSafeAreaWhileSearchStillOverlaysThePanes() {
+    fun eitherBottomBarOwnsTheSafeArea() {
         val offsets = ReadingOffsets(restoreButtonsVisible = { true })
         offsets.setSystemBottomInset(34f)
-        offsets.setSearchSheet(visible = true, heightPx = 600, density = 3f)
         offsets.setAgentLog(visible = true)
         offsets.setSpeakBarVisible(true)
-        assertEquals(240f, offsets.bottom)
+        assertEquals(40f, offsets.bottom)
         offsets.setSpeakBarVisible(false)
-        assertEquals(240f, offsets.bottom, "the agent panel takes inset ownership from the speak bar")
+        assertEquals(40f, offsets.bottom, "the agent panel takes inset ownership from the speak bar")
         offsets.setSpeakBarVisible(true)
         offsets.setAgentLog(visible = false)
-        assertEquals(240f, offsets.bottom, "the speak bar owns the inset without the agent panel")
+        assertEquals(40f, offsets.bottom, "the speak bar owns the inset without the agent panel")
         offsets.setSpeakBarVisible(false)
-        assertEquals(274f, offsets.bottom, "without either bar the pane must clear the safe area")
+        assertEquals(74f, offsets.bottom, "without either bar the pane must clear the safe area")
     }
 
     @Test

@@ -129,7 +129,7 @@ class IosReadingWindowsTest {
         id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, night, HostReadingWindows::isOpen,
     )
 
-    /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area (and sheets) at the bottom pane's foot. */
+    /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area at the bottom pane's foot. */
     @Test
     fun offsetsFollowTheToolbarAndSafeArea() = withWindows { _ ->
         val koin = KoinPlatform.getKoin()

@@ -173,7 +173,6 @@ class IosReadingHostTest {
             "searchBarCallbacks" to (deps.searchBarCallbacks === search.searchBarCallbacks),
             "searchSheetVisible" to (deps.searchSheetVisible === search.controller.sheetVisible),
             "onSearchSheetDismissed" to (deps.onSearchSheetDismissed !== d1.onSearchSheetDismissed),
-            "onSearchSheetOffsetsChanged" to (deps.onSearchSheetOffsetsChanged !== d1.onSearchSheetOffsetsChanged),
             "searchUnavailableDocName" to (deps.searchUnavailableDocName === search.searchUnavailableDocName),
             "onSearchUnavailableMessageShown" to (deps.onSearchUnavailableMessageShown !== d1.onSearchUnavailableMessageShown),
             // the in-reader AI dialogs (Task 4): the host's own controller drives them
