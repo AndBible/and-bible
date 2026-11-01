@@ -1626,9 +1626,40 @@ class BibleView(
         emit(BibleViewEvents.exportHtml())
     }
 
+    /** True while [requestFocus] runs for a request made when no view of the window had focus. */
+    private var focusRequestWithoutPreviousFocus = false
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        focusRequestWithoutPreviousFocus = rootView.findFocus() == null
+        try {
+            return super.requestFocus(direction, previouslyFocusedRect)
+        } finally {
+            focusRequestWithoutPreviousFocus = false
+        }
+    }
+
+    /**
+     * Gaining view focus makes this window the active one, so that keyboard / D-pad navigation
+     * between the panes (and focus in touch mode, e.g. by accessibility services) selects a window.
+     *
+     * Except for a focus hand-over: out of touch mode (mouse, hardware keyboard, Waydroid) Android
+     * gives focus to the first focusable view whenever the focused one lets go of it with nothing
+     * to pass it to (`View.clearFocus` -> `rootViewRequestFocus`; the Compose search field or the
+     * search-index sheet leaving the composition) or when leaving touch mode with nothing focused
+     * (`restoreDefaultFocus`). That view is usually window 1's BibleView, and a search made in
+     * window 3 then made window 1 active. Such a gain, with no view focused before it, is not the
+     * user's choice of window: keep the active window and hand focus back to its pane.
+     */
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         if(focused && windowRepository.activeWindow.id != window.id) {
-            windowRepository.activeWindow = window
+            if (focusRequestWithoutPreviousFocus && !isInTouchMode) {
+                post {
+                    val activeView = windowRepository.activeWindow.bibleView
+                    if (hasFocus() && activeView !== this) activeView?.requestFocus()
+                }
+            } else {
+                windowRepository.activeWindow = window
+            }
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect)
     }
