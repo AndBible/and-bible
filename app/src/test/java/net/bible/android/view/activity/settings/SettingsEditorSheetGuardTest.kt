@@ -187,12 +187,17 @@ class SettingsEditorSheetGuardTest {
             // rather than in a separate edit. "PromptFilterSheet(" is this plan's own new sheet.
             "RetentionSheet(", "PromptFilterSheet(",
         )
+        val goldenCaptureCalls = listOf("captureRoboImage", "captureGolden(", "captureRtl(", "captureMatrix(")
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it
             // now sees its own source, and `sheetComposables` above is a list of STRING LITERALS
             // that are themselves exact substrings of "...Sheet(" -- so without this exclusion the
             // guard would always report itself as an offender, self-defeating the whole check.
             .filterNot { it.name == "SettingsEditorSheetGuardTest.kt" }
+            // Only files that capture goldens: a plain compose-rule test may open a sheet (e.g.
+            // ReadingSheetDragHandleTest asserts a sheet's close X and handle semantics); the hazard is
+            // a Roborazzi capture of an open sheet.
+            .filter { file -> file.path.contains("/golden/") || goldenCaptureCalls.any { file.readText().contains(it) } }
             .filter { file -> sheetComposables.any { file.readText().contains(it) } }
             .map { it.name }.toList()
         assertEquals(
