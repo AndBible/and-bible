@@ -140,6 +140,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             empty = !loading && rows.isEmpty(),
             listState = state.searchResultsListState.value,
             onDismissError = state.epubSearchResults::dismissError,
+            onClose = { controller.closeSheet() },
             actions = {},
         ) {
             epubResultRows(rows = rows, onSelect = state.epubSearchResults::select)
@@ -164,6 +165,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
         empty = !loading && rows.isEmpty(),
         listState = state.searchResultsListState.value,
         onDismissError = searchResults::dismissError,
+        onClose = { controller.closeSheet() },
         actions = {
             BibleResultsActions(
                 candidates = candidates,

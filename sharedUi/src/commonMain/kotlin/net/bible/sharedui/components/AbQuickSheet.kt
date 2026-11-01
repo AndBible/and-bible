@@ -127,6 +127,7 @@ fun AbQuickSheet(
             }
         },
         sheetState = sheetState,
+        showDragHandle = false,
         modifier = Modifier.testTag(AbQuickSheetTag),
     ) {
         AbQuickSheetContent(

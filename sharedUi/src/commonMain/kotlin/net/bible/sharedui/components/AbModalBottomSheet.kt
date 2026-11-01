@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -38,6 +39,8 @@ import net.bible.sharedui.theme.monoInk
  * window whose bars default to visible, so `hide_status_bar` and fullscreen leaked through every sheet.
  * This mirrors the host's bar state into that window. `SheetSystemBarsGuardTest` keeps every sheet on it.
  * It does not touch `contentWindowInsets` (`SheetImeInsetGuardTest`, fix batch 2 C1).
+ * [showDragHandle] only controls the handle, not swipe dismissal. Disable it when the content has an
+ * accessible close button and no partial/expanded resize states. Such headers provide their own top spacing.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +52,7 @@ fun AbModalBottomSheet(
     // R3: the screen-reader name of the drag handle (iOS audit: "Element has no description"). Null keeps the
     // library default; callers that have `LocalStrings` pass `strings.sheetDragHandle`.
     dragHandleDescription: String? = null,
+    showDragHandle: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     TrackOverlay()
@@ -92,9 +96,10 @@ fun AbModalBottomSheet(
         // With a description the handle is drawn by us as the first row of the content (same place, same pixels as
         // M3's wrapper) so that ONE node carries both the name and the dismiss action; M3's wrapper node merged an
         // empty label on iOS (audit: "Element has no description" on the 32x48 handle).
-        dragHandle = if (handleDescription != null) null else ({ AbSheetDragHandle(description = null, mono = mono) }),
+        dragHandle = if (!showDragHandle || handleDescription != null) null
+            else ({ AbSheetDragHandle(description = null, mono = mono) }),
     ) {
-        if (handleDescription != null) {
+        if (showDragHandle && handleDescription != null) {
             AbSheetDragHandle(
                 description = handleDescription,
                 mono = mono,
@@ -113,7 +118,8 @@ fun AbModalBottomSheet(
 /**
  * The sheet's drag handle. With a [description] the stock M3 handle is wrapped in ONE node that replaces its
  * semantics (`clearAndSetSemantics`): the screen-reader name plus the dismiss action M3's own wrapper offers
- * ([onDismiss]). Pixels are identical to the stock handle. See the call site for why the wrapper is ours.
+ * ([onDismiss]). The stock 32x4dp bar and localized semantics are retained, with 8dp vertical padding
+ * instead of M3's 22dp. See the call site for why the semantics wrapper is ours.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,8 +130,18 @@ fun AbSheetDragHandle(
     onDismiss: (() -> Unit)? = null,
 ) {
     val handle: @Composable () -> Unit = {
-        if (mono) BottomSheetDefaults.DragHandle(color = monoInk(LocalIsDarkTheme.current))
-        else BottomSheetDefaults.DragHandle()
+        // Keep M3's localized handle node and bar, but trim 14dp from each padding edge.
+        val compact = Modifier.layout { measurable, constraints ->
+            val trim = 14.dp.roundToPx()
+            val placeable = measurable.measure(constraints.copy(
+                maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight + 2 * trim else constraints.maxHeight,
+            ))
+            layout(placeable.width, (placeable.height - 2 * trim).coerceAtLeast(0)) {
+                placeable.placeRelative(0, -trim)
+            }
+        }
+        if (mono) BottomSheetDefaults.DragHandle(modifier = compact, color = monoInk(LocalIsDarkTheme.current))
+        else BottomSheetDefaults.DragHandle(modifier = compact)
     }
     if (description == null) handle()
     else Box(modifier.clearAndSetSemantics {

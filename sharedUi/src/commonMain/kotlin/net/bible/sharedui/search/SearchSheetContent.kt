@@ -27,6 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +44,7 @@ import net.bible.sharedui.strings.LocalStrings
 
 /**
  * What goes **inside** the reading view's search sheet: a header row (result count on the left, a
- * type-specific [actions] slot on the right) and then, depending on state, the loading indicator,
+ * type-specific [actions] slot and an accessible close button on the right) and then the loading indicator,
  * the empty-list message, or the result list.
  *
  * Type-agnostic on purpose — the Bible and EPUB result lists differ in their rows and their
@@ -48,7 +52,7 @@ import net.bible.sharedui.strings.LocalStrings
  * so `:sharedUi` needs no `:sharedCore` results type.
  *
  * Deliberately **not** a scaffold and deliberately **without a drag handle**:
- * - the sheet's own chrome (the handle, the peek height, the drag) belongs to the host's
+ * - the sheet's peek height and swipe dismissal belong to the host's
  *   `BottomSheetScaffold`;
  * - `AbTopAppBar` would be wrong for the header, because it calls
  *   `SyncSystemBars(container, fillWindowBackground = true)` and applies Material's real
@@ -62,6 +66,7 @@ import net.bible.sharedui.strings.LocalStrings
  * @param empty passed in rather than derived from the list, because "no rows" and "nothing searched
  *   yet" are different states to the caller.
  * @param listState hoisted so the host can restore the scroll position across a search (F25).
+ * @param onClose hides only the result sheet; it must not leave the toolbar's search mode.
  * @param error non-null shows a dialog **over a sheet that stays open**: unlike the old
  *   `SearchResultsComposeActivity`, which toasted and then `finish()`ed, there is nothing to finish.
  */
@@ -73,6 +78,7 @@ fun SearchSheetContent(
     empty: Boolean,
     listState: LazyListState,
     onDismissError: () -> Unit,
+    onClose: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
     listContent: LazyListScope.() -> Unit,
 ) {
@@ -84,6 +90,9 @@ fun SearchSheetContent(
         ) {
             Text(if (loading) "" else countLabel, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             actions()
+            IconButton(onClick = onClose) {
+                Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
+            }
         }
         when {
             loading -> AbLoadingIndicator(Modifier.fillMaxWidth().padding(horizontal = 16.dp))

@@ -3,6 +3,10 @@ package net.bible.android.view.compose
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
@@ -26,6 +30,7 @@ class SearchSheetContentCountTest {
     @get:Rule val compose = createComposeRule()
 
     private val label = "5001 verses in 1 translations"
+    private var closed = 0
 
     private fun show(loading: Boolean) = compose.setContent {
         ProvideAppLocals {
@@ -37,9 +42,16 @@ class SearchSheetContentCountTest {
                     empty = false,
                     listState = rememberLazyListState(),
                     onDismissError = {},
+                    onClose = { closed++ },
                 ) {}
             }
         }
+    }
+
+    @Test fun resultsHeaderHasAccessibleClose() {
+        show(loading = false)
+        compose.onNodeWithContentDescription("Close").assertHasClickAction().performClick()
+        compose.runOnIdle { assertEquals(1, closed) }
     }
 
     @Test fun theCountIsHiddenWhileLoading() {

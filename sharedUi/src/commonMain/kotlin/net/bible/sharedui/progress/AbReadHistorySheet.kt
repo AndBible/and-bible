@@ -100,7 +100,7 @@ fun AbReadHistorySheet(
     }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = ::commit, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = ::commit, sheetState = sheetState, showDragHandle = false) {
         AbReadHistorySheetContent(
             title = title,
             rows = rows,
