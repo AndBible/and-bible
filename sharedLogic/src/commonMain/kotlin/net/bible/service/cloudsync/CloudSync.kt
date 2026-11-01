@@ -393,6 +393,9 @@ class CloudSync(
         dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
         val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         val gzippedTmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
+        // The file is a copy of the whole local database, SyncConfiguration included: a device that joins from it inherits
+        // idAliasResendPending, the idAliasResendDone flag and the stored id aliases of this one. Its first sync may then
+        // re-send its log once more; that is bounded (once per device) and harmless (peers hold equal entries).
         FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), tmpFile)
         net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
         FileSystem.SYSTEM.delete(tmpFile)

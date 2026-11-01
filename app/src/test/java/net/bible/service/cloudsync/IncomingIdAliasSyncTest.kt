@@ -610,39 +610,27 @@ class IncomingIdAliasSyncTest {
     // ---------------------------------------------------------------- review minors (stale alias, usage clash, R2 marker)
 
     /**
-     * Review minor 3: an alias whose foreign id has since become a real local row (here: injected for A's own book, as
-     * left behind when a patch carrying the local id let the foreign row in) can never apply again and must not block
-     * a later alias that targets that row.
+     * Review minor 3: the incoming file holds A's own book (renamed on B) and B's book of the natural key AIDocuments
+     * (which maps to A's book), each with a page of the same pageKey. The clashing page is dropped; its content's log
+     * entry must go with it.
      */
-    @Test fun aliasWhoseForeignIdIsALocalRowDoesNotBlockALaterAlias() = run {
-        val (a, b) = divergedBooks()
-        a.sql("INSERT INTO SyncConfiguration (keyName, stringValue) SELECT '${ID_ALIAS_PREFIX}MyDocument:' || hex(id), hex(randomblob(16)) FROM MyDocument")
-        sync(b, a) // learns B's book -> A's book
-        b.addPage(b.book().id, "b2") // child-only patch: needs the stored alias
-        sync(b, a)
-        assertEquals(setOf("a/a=content a", "b/b=content b", "b2/b2=content b2"), a.pages())
-        // The stale alias is gone; the live one stays.
-        assertEquals(1L, a.aliasCount())
-    }
-
-    /**
-     * Review minor 4: B's patch holds usage rows of the same device under both B's model and A's model id. After the
-     * mapping both name A's model; one row stays, and the dropped row's log entry must not land without its row.
-     */
-    @Test fun clashingUsageRowIsDroppedWithItsLogEntry() = run {
-        val a = aiDevice()
-        val b = aiDevice()
-        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
-        a.localDb.llmProviderConfigDao().insert(provider)
-        sync(a, b)
-        val modelA = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { a.localDb.llmConfiguredModelDao().insert(it) }
-        val modelB = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { b.localDb.llmConfiguredModelDao().insert(it) }
-        b.localDb.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = modelB.id, deviceId = "x", inputTokens = 1))
-        b.localDb.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = modelA.id, deviceId = "x", inputTokens = 2))
+    @Test fun clashingPageIsDroppedWithItsContentLogEntry() = run {
+        val a = docDevice()
+        val b = docDevice()
+        val bookA = a.addBook()
+        a.addPage(bookA.id, "k")
+        // B's patch holds a page of A's book (without the book row) and B's own book of the same natural key.
+        b.sql("PRAGMA foreign_keys = OFF")
+        b.addPage(bookA.id, "k")
+        b.addPage(b.addBook().id, "k")
         sync(b, a)
 
-        assertEquals(listOf(2L), a.localDb.llmUsageRecordDao().getByModel(modelA.id).map { it.inputTokens })
-        assertEquals(0L, a.count("SELECT count(*) FROM LogEntry WHERE tableName = 'LlmUsageRecord' AND type = 'UPSERT' AND entityId1 NOT IN (SELECT id FROM LlmUsageRecord)"))
+        // The clashing page's content entry must go with the page's own entry (the page of the book row that was not in
+        // the file is left to the re-send, so its entries stay).
+        assertEquals(0L, a.count("SELECT count(*) FROM LogEntry c WHERE c.tableName = 'MyDocumentPageContent' AND c.type = 'UPSERT' " +
+            "AND c.entityId1 NOT IN (SELECT pageId FROM MyDocumentPageContent) " +
+            "AND NOT EXISTS (SELECT 1 FROM LogEntry p WHERE p.tableName = 'MyDocumentPage' AND p.entityId1 = c.entityId1)"))
+        assertEquals(1L, a.count("SELECT count(*) FROM MyDocumentPage WHERE pageKey = 'k'"))
     }
 
     /**

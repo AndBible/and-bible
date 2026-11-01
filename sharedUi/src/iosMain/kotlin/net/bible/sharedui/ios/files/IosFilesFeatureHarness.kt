@@ -2,7 +2,7 @@
 
 package net.bible.sharedui.ios.files
 
-import net.bible.service.cloudsync.canonical.canonicalMyDocumentId
+import net.bible.service.cloudsync.canonical.newMyDocumentId
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -58,7 +58,7 @@ internal object IosFilesFeatureHarness {
         if (mode == "mydocs") {
             val dao = database.myDocumentDb.myDocumentDao()
             val initials = "F_${token.replace("-", "")}"
-            val document = MyDocument(id = canonicalMyDocumentId(initials), name = "F Documents $token", initials = initials)
+            val document = MyDocument(id = dao.newMyDocumentId(initials), name = "F Documents $token", initials = initials)
             dao.insert(document)
             dao.insertPageWithContent(MyDocumentPage(documentId = document.id, title = pageTitle,
                 pageKey = "f-page", orderNumber = 0), pagePayload)

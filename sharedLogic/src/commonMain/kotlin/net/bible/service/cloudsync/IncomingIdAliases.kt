@@ -184,7 +184,7 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
                 // A unique index over the column (LlmUsageRecord) keeps the row already at the local id; the clashing
                 // row is dropped rather than left naming the foreign id.
                 exec("UPDATE OR IGNORE $schema.$child SET $column = $local WHERE $column = $foreign")
-                dropClashingChildLog(schema, tableDefs[child], child, column, foreign)
+                dropClashingChildLog(category, schema, tableDefs, child, column, foreign)
                 exec("DELETE FROM $schema.$child WHERE $column = $foreign")
                 followLog(schema, tableDefs[child], child, column, foreign, local)
             }
@@ -196,16 +196,36 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
 /**
  * The child rows that still name [foreign] after the `UPDATE OR IGNORE` clash with a row already at the local id and are
  * dropped from the incoming file: their own `UPSERT` entries go too, or the local log would take over a version whose
- * row never arrived. Only for a child whose log is keyed by its own id (not by [column]: `followLog` moves those).
+ * row never arrived. So do the entries of their own children (a `MyDocumentPage`'s content and cache rows): the
+ * foreign-key clean-up removes those rows with the page, and an entry would stay without its row. Only for a child whose
+ * log is keyed by its own id (not by [column]: `followLog` moves those).
+ *
+ * For `LlmUsageRecord` the row already at the local id is the one that is kept, not the newer one: acceptable for a
+ * cache-like usage counter.
  */
 private suspend fun PooledConnection.dropClashingChildLog(
-    schema: String, def: SyncableDatabaseDefinition.Table?, child: String, column: String, foreign: String,
+    category: SyncableDatabaseDefinition, schema: String, tableDefs: Map<String, SyncableDatabaseDefinition.Table>,
+    child: String, column: String, foreign: String,
 ) {
+    val def = tableDefs[child]
     if (def == null || def.idField1 == column || def.idField2 == column) return
+    dropLogOfRows(schema, def, child, column, foreign)
+    val childKey = NATURAL_KEYS[category].orEmpty().firstOrNull { it.table == child } ?: return
+    for ((grandchild, grandColumn) in childKey.children) {
+        val gdef = tableDefs[grandchild] ?: continue
+        dropLogOfRows(schema, gdef, grandchild, grandColumn, "(SELECT ${childKey.idColumn} FROM $schema.$child WHERE $column = $foreign)", inList = true)
+    }
+}
+
+/** Deletes the incoming `UPSERT` entries of the [table] rows whose [column] equals [value] (or is in the [value] subquery). */
+private suspend fun PooledConnection.dropLogOfRows(
+    schema: String, def: SyncableDatabaseDefinition.Table, table: String, column: String, value: String, inList: Boolean = false,
+) {
     val (ids, fields) = if (def.idField2 == null) "entityId1" to def.idField1 else "entityId1, entityId2" to "${def.idField1}, ${def.idField2}"
+    val cond = if (inList) "$column IN $value" else "$column = $value"
     exec(
-        "DELETE FROM $schema.LogEntry WHERE tableName = '$child' AND type = 'UPSERT' AND ($ids) IN " +
-            "(SELECT $fields FROM $schema.$child WHERE $column = $foreign)",
+        "DELETE FROM $schema.LogEntry WHERE tableName = '$table' AND type = 'UPSERT' AND ($ids) IN " +
+            "(SELECT $fields FROM $schema.$table WHERE $cond)",
     )
 }
 
