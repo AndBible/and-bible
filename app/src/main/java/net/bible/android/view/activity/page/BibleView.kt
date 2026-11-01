@@ -370,6 +370,12 @@ class BibleView(
         }
         settings.allowFileAccess = false
         settings.allowContentAccess = false
+        // osTicket 3496: out of touch mode (hardware keyboard, mouse, Waydroid) Android hands focus
+        // to the first focusable view whenever the focused one lets go (the search field's release,
+        // the search toolbar closing). With the default `true`, a WebView gaining focus that way makes
+        // Chromium focus the page's first focusable node and scroll it into view, so a StudyPad in
+        // another window jumped to its top. The page keeps its own scroll position; focus must not move it.
+        settings.setNeedInitialFocus(false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             defaultFocusHighlightEnabled = false
         }
