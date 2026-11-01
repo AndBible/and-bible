@@ -18,6 +18,7 @@ package net.bible.service.cloudsync.canonical
 
 import net.bible.android.database.IdType
 import net.bible.android.database.MyUUID
+import net.bible.android.database.mydocument.MyDocumentDao
 import okio.ByteString.Companion.encodeUtf8
 
 /**
@@ -56,3 +57,21 @@ fun canonicalMemorizedVerseId(kjvOrdinal: Int): IdType = canonicalId("MemorizedV
 /** Canonical id of the `LlmConfiguredModel` row for [providerConfigId] and [modelId]. */
 fun canonicalLlmConfiguredModelId(providerConfigId: IdType, modelId: String): IdType =
     canonicalId("LlmConfiguredModel", providerConfigId.toString(), modelId)
+
+/**
+ * Id for a new `MyDocument` row with [initials]: its canonical id ([canonicalMyDocumentId]), unless the sync log holds a
+ * delete of that id; then a fresh random id, as before #3906.
+ *
+ * A document's pages are deleted with it by cascade, and cascaded deletes are not logged (the parent's `DELETE` entry
+ * stands for them). Re-creating the document under the same id would replace that `DELETE` entry with an `UPSERT`
+ * (the log keeps one entry per id), so a peer that has not applied the delete yet would keep the old pages under the
+ * re-created document, and later send them back (carried children, the one-time re-send). A fresh id keeps the delete
+ * in the log for every peer, old or new. Any logged delete counts, also one received from a peer: patches of different
+ * devices are applied in creation-time order, not per device, so a re-creation here could still overtake it elsewhere.
+ * The re-created document then has a random id; two devices that do the same diverge again and the receive-side
+ * mapping handles that.
+ */
+suspend fun MyDocumentDao.newMyDocumentId(initials: String): IdType {
+    val canonical = canonicalMyDocumentId(initials)
+    return if (hasLoggedDelete(canonical)) IdType() else canonical
+}

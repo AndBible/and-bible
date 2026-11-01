@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
-import net.bible.service.cloudsync.canonical.canonicalMyDocumentId
+import net.bible.service.cloudsync.canonical.newMyDocumentId
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.Serializable
@@ -376,7 +376,7 @@ object MyDocumentBookManager {
 
         // Create new AI Documents
         val aiDocument = MyDocument(
-            id = canonicalMyDocumentId(AI_DOCUMENTS_INITIALS),
+            id = dao.newMyDocumentId(AI_DOCUMENTS_INITIALS),
             name = "AI Documents",
             description = "Automatically generated documents from AI",
             initials = AI_DOCUMENTS_INITIALS,

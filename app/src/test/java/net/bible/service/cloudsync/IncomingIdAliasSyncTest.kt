@@ -38,13 +38,19 @@ import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
+import net.bible.service.cloudsync.canonical.canonicalMyDocumentId
+import net.bible.service.cloudsync.canonical.newMyDocumentId
+import net.bible.service.cloudsync.merge.mergeSnapshotIntoLocal
+import net.bible.service.cloudsync.merge.prepareMergeSnapshot
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.exec
 import net.bible.service.db.queryLong
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmUsageRecord
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -53,6 +59,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import okio.Path.Companion.toOkioPath
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
 import org.robolectric.RobolectricTestRunner
@@ -92,12 +99,15 @@ class IncomingIdAliasSyncTest {
 
     private suspend fun <T : SyncableRoomDatabase> newDevice(
         category: SyncableDatabaseDefinition,
+        copyOf: File? = null,
+        deviceId: String = UUID.randomUUID().toString(),
         open: (String) -> T,
     ): SyncableDatabaseAccessor<T> {
         val file = File.createTempFile("${category.name.lowercase()}-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        copyOf?.copyTo(file, overwrite = true)
         var db = open(file.absolutePath)
         val dbDef = SyncableDatabaseAccessor(db, open, { db.close(); db = open(file.absolutePath); db },
-            file.path, category, deviceId = UUID.randomUUID().toString())
+            file.path, category, deviceId = deviceId)
         dropTriggers(dbDef)
         createTriggers(dbDef)
         dbDef.localDb.syncDao().getLong("x") // opens the database
@@ -111,7 +121,8 @@ class IncomingIdAliasSyncTest {
             .setDriver(BundledSQLiteDriver())
             .build()
 
-    private suspend fun docDevice() = newDevice(SyncableDatabaseDefinition.MYDOCUMENTS) {
+    private suspend fun docDevice(copyOf: File? = null, deviceId: String = UUID.randomUUID().toString()) =
+        newDevice(SyncableDatabaseDefinition.MYDOCUMENTS, copyOf, deviceId) {
         build(MyDocumentDatabase::class.java, it, myDocumentMigrations)
     }
 
@@ -165,6 +176,10 @@ class IncomingIdAliasSyncTest {
         md.update(page.apply { this.title = title })
         md.insertOrUpdateContent(MyDocumentPageContent(page.id, content))
     }
+
+    private suspend fun SyncableDatabaseAccessor<*>.sql(sql: String) = localDb.useWriterConnectionMarked { it.exec(sql) }
+
+    private suspend fun SyncableDatabaseAccessor<*>.count(sql: String): Long = localDb.useWriterConnectionMarked { it.queryLong(sql) }!!
 
     private suspend fun SyncableDatabaseAccessor<*>.aliasCount(): Long =
         localDb.useWriterConnectionMarked { it.queryLong("SELECT count(*) FROM SyncConfiguration WHERE keyName LIKE '$ID_ALIAS_PREFIX%'") }!!
@@ -494,6 +509,165 @@ class IncomingIdAliasSyncTest {
         assertEquals(emptyList<MyDocument>(), a.md.allDocuments())
     }
 
+    // ---------------------------------------------------------------- canonical id re-created after a delete
+
+    /** A shared canonical AI Documents book with a page from each device, on two devices. */
+    private suspend fun sharedCanonicalBook(): Pair<SyncableDatabaseAccessor<MyDocumentDatabase>, SyncableDatabaseAccessor<MyDocumentDatabase>> {
+        val a = docDevice()
+        val b = docDevice()
+        val book = MyDocument(id = a.md.newMyDocumentId("AIDocuments"), name = "AI", initials = "AIDocuments").also { a.md.insert(it) }
+        assertEquals(canonicalMyDocumentId("AIDocuments"), book.id)
+        a.addPage(book.id, "a")
+        sync(a, b)
+        b.addPage(b.book().id, "b")
+        syncBoth(b, a)
+        assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
+        assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
+        return a to b
+    }
+
+    /** As the app does: a document deleted on [this] device is re-created (AI Documents on the next AI action). */
+    private suspend fun SyncableDatabaseAccessor<MyDocumentDatabase>.deleteAndRecreateBook(page: String) {
+        md.delete(book())
+        tick()
+        val book = MyDocument(id = md.newMyDocumentId("AIDocuments"), name = "AI", initials = "AIDocuments").also { md.insert(it) }
+        addPage(book.id, page)
+    }
+
+    /**
+     * Review finding 1: a canonical id re-created before the next upload must not replace the delete in the log, or the
+     * peers keep the old pages (cascaded deletes are not logged) and send them back later.
+     */
+    @Test fun canonicalBookDeletedAndRecreatedBeforeUploadDoesNotKeepOldPages() = run {
+        val (a, b) = sharedCanonicalBook()
+        a.deleteAndRecreateBook("a2")
+        sync(a, b)
+        assertEquals(setOf("a2/a2=content a2"), b.pages())
+        assertEquals(setOf("a2/a2=content a2"), a.pages())
+
+        // B edits the book (carries its children) and re-sends its whole log (R1): nothing old comes back to A.
+        b.md.update(b.book().apply { name = "AI renamed" })
+        b.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
+        sync(b, a)
+        assertEquals(setOf("a2/a2=content a2"), a.pages())
+        assertEquals("AI renamed", a.book().name)
+    }
+
+    @Test fun canonicalBookDeletedAndRecreatedBeforeUploadReachesAnOldPeer() = run {
+        val (a, b) = sharedCanonicalBook()
+        a.deleteAndRecreateBook("a2")
+        sync(a, b, toNew = false)
+        assertEquals(setOf("a2/a2=content a2"), b.pages())
+        b.md.update(b.book().apply { name = "AI renamed" })
+        sync(b, a)
+        assertEquals(setOf("a2/a2=content a2"), a.pages())
+    }
+
+    /** The other direction: B deleted the book; A, having applied that delete, re-creates it, and so does B later. */
+    @Test fun bookRecreatedAfterAReceivedDeleteGetsAFreshId() = run {
+        val (a, b) = sharedCanonicalBook()
+        b.md.delete(b.book())
+        sync(b, a)
+        assertEquals(emptyList<MyDocument>(), a.md.allDocuments())
+        assert(a.md.newMyDocumentId("AIDocuments") != canonicalMyDocumentId("AIDocuments"))
+        a.addPage(MyDocument(id = a.md.newMyDocumentId("AIDocuments"), name = "AI", initials = "AIDocuments").also { a.md.insert(it) }.id, "a2")
+        syncBoth(a, b)
+        assertEquals(setOf("a2/a2=content a2"), a.pages())
+        assertEquals(setOf("a2/a2=content a2"), b.pages())
+    }
+
+    /** Without a logged delete the canonical id is used, so two devices that create the same document still share its id. */
+    @Test fun canonicalIdOfANeverDeletedDocumentIsReused() = run {
+        val a = docDevice()
+        assertEquals(canonicalMyDocumentId("Foo"), a.md.newMyDocumentId("Foo"))
+    }
+
+    // ---------------------------------------------------------------- review minors (stale alias, usage clash, R2 marker)
+
+    /**
+     * Review minor 3: an alias whose foreign id has since become a real local row (here: injected for A's own book, as
+     * left behind when a patch carrying the local id let the foreign row in) can never apply again and must not block
+     * a later alias that targets that row.
+     */
+    @Test fun aliasWhoseForeignIdIsALocalRowDoesNotBlockALaterAlias() = run {
+        val (a, b) = divergedBooks()
+        a.sql("INSERT INTO SyncConfiguration (keyName, stringValue) SELECT '${ID_ALIAS_PREFIX}MyDocument:' || hex(id), hex(randomblob(16)) FROM MyDocument")
+        sync(b, a) // learns B's book -> A's book
+        b.addPage(b.book().id, "b2") // child-only patch: needs the stored alias
+        sync(b, a)
+        assertEquals(setOf("a/a=content a", "b/b=content b", "b2/b2=content b2"), a.pages())
+        // The stale alias is gone; the live one stays.
+        assertEquals(1L, a.aliasCount())
+    }
+
+    /**
+     * Review minor 4: B's patch holds usage rows of the same device under both B's model and A's model id. After the
+     * mapping both name A's model; one row stays, and the dropped row's log entry must not land without its row.
+     */
+    @Test fun clashingUsageRowIsDroppedWithItsLogEntry() = run {
+        val a = aiDevice()
+        val b = aiDevice()
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        a.localDb.llmProviderConfigDao().insert(provider)
+        sync(a, b)
+        val modelA = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { a.localDb.llmConfiguredModelDao().insert(it) }
+        val modelB = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { b.localDb.llmConfiguredModelDao().insert(it) }
+        b.localDb.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = modelB.id, deviceId = "x", inputTokens = 1))
+        b.localDb.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = modelA.id, deviceId = "x", inputTokens = 2))
+        sync(b, a)
+
+        assertEquals(listOf(2L), a.localDb.llmUsageRecordDao().getByModel(modelA.id).map { it.inputTokens })
+        assertEquals(0L, a.count("SELECT count(*) FROM LogEntry WHERE tableName = 'LlmUsageRecord' AND type = 'UPSERT' AND entityId1 NOT IN (SELECT id FROM LlmUsageRecord)"))
+    }
+
+    /**
+     * Review minor 5: the re-send for a newly learned pair (R2) must survive an upload that finishes after the apply and
+     * writes its own watermark.
+     */
+    @Test fun learnedPairResendSurvivesAnOverlappingUploadWatermark() = run {
+        val (a, b) = divergedBooks()
+        startIdAliasResendOnce(a)
+        createPatchForDatabase(a, env)
+        sync(b, a) // A learns B's book id: R2
+        a.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis()) // an overlapping upload finishes
+        tick()
+        assert(a.hasChanges())
+        startIdAliasResendOnce(a) // the next upload
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        startIdAliasResendOnce(a) // consumed: once per learned pair
+        createPatchForDatabase(a, env)
+        startIdAliasResendOnce(a)
+        assert(a.dao.getLong(LAST_PATCH_WRITTEN_KEY)!! > 0L)
+    }
+
+    /**
+     * Review finding 6: the merge (join) path applies the snapshot through `applyPatchesForDatabase`, so the aliasing, R2
+     * and R3 run there too. B leaves sync and joins again: its database becomes a copy of the cloud (A's, with A's stored
+     * alias of B's book), and B's own data (its diverged book, re-keyed by the merge) is merged in.
+     */
+    @Test fun mergeOfADivergedSnapshotLandsUnderTheCloudBookAndLearnsNothing() = run {
+        val (a, b) = divergedBooks()
+        syncBoth(a, b)
+        b.addPage(b.book().id, "b2")
+        b.editPage("a", "a-b", "a edited on b")
+        tick()
+        val m = docDevice(copyOf = File(a.localDbPath), deviceId = b.deviceId)
+        m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+        m.dao.removeConfig(ID_ALIAS_RESEND_PENDING_KEY) // A's own pending R2 came with the copy
+        val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        prepareMergeSnapshot(b, snapshot.toOkioPath())
+        tick()
+        mergeSnapshotIntoLocal(m, env, snapshot.toOkioPath(), System.currentTimeMillis() + 10_000)
+
+        val expected = setOf("a/a-b=a edited on b", "b/b=content b", "b2/b2=content b2")
+        assertEquals(a.book().id, m.book().id)
+        assertEquals(expected, m.pages())
+        assertEquals(1L, m.aliasCount()) // A's alias, nothing new learned
+        assertNull(m.dao.getBoolean(ID_ALIAS_RESEND_PENDING_KEY))
+        sync(m, a)
+        assertEquals(expected, a.pages())
+    }
+
     // ---------------------------------------------------------------- historic convergence (R1-R3) and known limits
 
     /** A sync of the new version: the one-time re-send (R1) runs before the patch is created, as in CloudSync. */
@@ -518,7 +692,7 @@ class IncomingIdAliasSyncTest {
         startIdAliasResendOnce(b)
         sync(b, a)
         assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
-        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        assert(a.hasChanges()) // R2 pending: the next upload (syncNew) re-sends the whole log
         syncNew(a, b)
         assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
 

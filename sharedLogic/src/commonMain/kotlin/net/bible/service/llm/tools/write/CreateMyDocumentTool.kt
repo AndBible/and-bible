@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
-import net.bible.service.cloudsync.canonical.canonicalMyDocumentId
+import net.bible.service.cloudsync.canonical.newMyDocumentId
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
@@ -105,7 +105,7 @@ object CreateMyDocumentTool : Tool, KoinComponent {
             val maxOrder = dao.maxDocumentOrderNumber() ?: -1
 
             val document = MyDocument(
-                id = canonicalMyDocumentId(initials),
+                id = dao.newMyDocumentId(initials),
                 name = args.name,
                 description = args.description,
                 initials = initials,

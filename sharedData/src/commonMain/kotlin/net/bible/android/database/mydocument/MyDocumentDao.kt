@@ -54,6 +54,10 @@ interface MyDocumentDao {
     @Query("SELECT * FROM MyDocument WHERE name = :name")
     suspend fun documentByName(name: String): MyDocument?
 
+    /** Whether the sync log holds a delete of the document [id] (#3906: a deleted canonical id is not reused). */
+    @Query("SELECT EXISTS (SELECT 1 FROM LogEntry WHERE tableName = 'MyDocument' AND entityId1 = :id AND type = 'DELETE')")
+    suspend fun hasLoggedDelete(id: IdType): Boolean
+
     @Query("SELECT MAX(orderNumber) FROM MyDocument")
     suspend fun maxDocumentOrderNumber(): Int?
 

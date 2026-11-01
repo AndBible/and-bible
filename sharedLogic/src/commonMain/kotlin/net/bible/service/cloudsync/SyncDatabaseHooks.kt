@@ -181,9 +181,11 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     }
     suspend fun hasChanges(): Boolean {
         val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
-        // A lowered watermark (the one-time re-send of #3906) leaves own entries unsent although they are synchronized.
+        // A lowered watermark (the re-sends of #3906) leaves own entries unsent although they are synchronized.
         return dao.countNewLogEntries(lastSynchronized, deviceId) > 0 ||
-            dao.countNewLogEntries(dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: Long.MAX_VALUE, deviceId) > 0
+            dao.countNewLogEntries(dao.getLong(LAST_PATCH_WRITTEN_KEY) ?: Long.MAX_VALUE, deviceId) > 0 ||
+            // A re-send asked for by a newly learned alias pair (R2), not started yet.
+            (dao.getBoolean(ID_ALIAS_RESEND_PENDING_KEY) == true && dao.countNewLogEntries(0, deviceId) > 0)
     }
 
     val categoryName get() = category.name.lowercase()

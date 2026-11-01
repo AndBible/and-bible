@@ -37,6 +37,13 @@ private const val ALIAS_TAG = "IncomingIdAliases"
 /** `SyncConfiguration` key: this device has started its one-time full re-send for the id aliases ([startIdAliasResendOnce]). */
 const val ID_ALIAS_RESEND_DONE_KEY = "idAliasResendDone"
 
+/**
+ * `SyncConfiguration` key: an apply learned a new alias pair (R2), so the next upload re-sends the whole log
+ * ([startIdAliasResendOnce] consumes it). A flag rather than lowering `LAST_PATCH_WRITTEN_KEY` in the apply: an upload
+ * that overlaps the apply writes its own watermark when it finishes and would undo the lowering.
+ */
+const val ID_ALIAS_RESEND_PENDING_KEY = "idAliasResendPending"
+
 /** The natural-key tables whose foreign ids are aliased to the local row of the same key. */
 private val ALIASED_TABLES = setOf("ReadingPlan", "ReadingPlanStatus", "MyDocument", "MemorizedVerse", "LlmConfiguredModel")
 
@@ -62,12 +69,18 @@ val SyncableDatabaseDefinition.hasIdAliases: Boolean get() = this in ALIASED_KEY
  * to 0 so the next patch carries the whole log again, with the original timestamps. Devices that diverged before this
  * version exchanged their rows long ago and the children were dropped on arrival; the re-send lets an updated peer
  * learn the aliases and restore those rows (`readPatchData` `restoreDropped`). Old peers skip it: every entry is equal
- * to one they have. Called before the patch of a sync is created.
+ * to one they have. Called before the patch of a sync is created. Also starts the
+ * re-send that an apply asked for when it learned a new pair (R2, [ID_ALIAS_RESEND_PENDING_KEY]).
  */
 suspend fun startIdAliasResendOnce(dbDef: SyncableDatabaseAccessor<*>) {
-    if (!dbDef.category.hasIdAliases || dbDef.dao.getBoolean(ID_ALIAS_RESEND_DONE_KEY) == true) return
+    if (!dbDef.category.hasIdAliases) return
+    val first = dbDef.dao.getBoolean(ID_ALIAS_RESEND_DONE_KEY) != true
+    val pending = dbDef.dao.getBoolean(ID_ALIAS_RESEND_PENDING_KEY) == true
+    if (!first && !pending) return
+    // Lowered before the flags are cleared: a failed upload leaves the watermark at 0 and the next one retries.
     dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, 0L)
-    dbDef.dao.setConfig(ID_ALIAS_RESEND_DONE_KEY, true)
+    if (first) dbDef.dao.setConfig(ID_ALIAS_RESEND_DONE_KEY, true)
+    if (pending) dbDef.dao.removeConfig(ID_ALIAS_RESEND_PENDING_KEY)
 }
 
 /**
@@ -123,14 +136,18 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
         }
         if (persist && learned.isNotEmpty()) {
             // R2: the peer may have dropped this device's rows of the pair before (it was not mapping yet): send the whole
-            // log once more. Bounded: a pair is learned once, a re-send of a known pair learns nothing.
+            // log once more, at the next upload. Bounded: a pair is learned once, a re-send of a known pair learns nothing.
             exec(
-                "INSERT OR REPLACE INTO main.SyncConfiguration (keyName, stringValue, longValue, booleanValue) VALUES (?, NULL, 0, NULL)",
-                LAST_PATCH_WRITTEN_KEY,
+                "INSERT OR REPLACE INTO main.SyncConfiguration (keyName, stringValue, longValue, booleanValue) VALUES (?, NULL, NULL, 1)",
+                ID_ALIAS_RESEND_PENDING_KEY,
             )
         }
-        val stored = (storedBefore + learned).toList()
         val mapping = LinkedHashMap(fresh)
+        // A stored foreign id that is a local row now can never map again (a shared id always wins): drop it, so that it
+        // does not block a later alias whose target is that row (no-chain rule below).
+        val stale = storedBefore.keys.filter { it !in learned && exists("SELECT 1 FROM main.$t WHERE $id = $it") }
+        if (persist) for (foreign in stale) exec("DELETE FROM main.SyncConfiguration WHERE keyName = '$prefix' || hex($foreign)")
+        val stored = (storedBefore - stale.toSet() + learned).toList()
         if (stored.isNotEmpty()) {
             val storedForeign = stored.mapTo(HashSet()) { it.first }
             // Only the stored aliases this file names at all (its rows, its log entries, a child column).
@@ -163,12 +180,29 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
                 // A unique index over the column (LlmUsageRecord) keeps the row already at the local id; the clashing
                 // row is dropped rather than left naming the foreign id.
                 exec("UPDATE OR IGNORE $schema.$child SET $column = $local WHERE $column = $foreign")
+                dropClashingChildLog(schema, tableDefs[child], child, column, foreign)
                 exec("DELETE FROM $schema.$child WHERE $column = $foreign")
                 followLog(schema, tableDefs[child], child, column, foreign, local)
             }
         }
     }
     setTriggersDisabled(schema, false)
+}
+
+/**
+ * The child rows that still name [foreign] after the `UPDATE OR IGNORE` clash with a row already at the local id and are
+ * dropped from the incoming file: their own `UPSERT` entries go too, or the local log would take over a version whose
+ * row never arrived. Only for a child whose log is keyed by its own id (not by [column]: `followLog` moves those).
+ */
+private suspend fun PooledConnection.dropClashingChildLog(
+    schema: String, def: SyncableDatabaseDefinition.Table?, child: String, column: String, foreign: String,
+) {
+    if (def == null || def.idField1 == column || def.idField2 == column) return
+    val (ids, fields) = if (def.idField2 == null) "entityId1" to def.idField1 else "entityId1, entityId2" to "${def.idField1}, ${def.idField2}"
+    exec(
+        "DELETE FROM $schema.LogEntry WHERE tableName = '$child' AND type = 'UPSERT' AND ($ids) IN " +
+            "(SELECT $fields FROM $schema.$child WHERE $column = $foreign)",
+    )
 }
 
 private suspend fun PooledConnection.setTriggersDisabled(schema: String, disabled: Boolean) = exec(
