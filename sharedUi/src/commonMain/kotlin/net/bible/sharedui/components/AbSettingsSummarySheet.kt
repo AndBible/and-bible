@@ -49,8 +49,8 @@ import androidx.compose.ui.unit.dp
  *
  * Fully portable (commonMain, no Android APIs) so it compiles for iOS too.
  *
- * @param initiallyOpen open the sheet on first composition (deterministic golden capture only;
- *   mirrors the existing `initiallyChooserOpen`/`initiallyExpanded` patterns).
+ * @param initiallyOpen open on first composition for interaction tests, never for golden capture;
+ *   capture [AbSettingsSummarySheetContent] instead.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +58,7 @@ fun AbSettingsSummarySheet(
     summary: String,
     modifier: Modifier = Modifier,
     initiallyOpen: Boolean = false,
+    title: String = "",
     sheetContent: @Composable ColumnScope.(close: () -> Unit) -> Unit,
 ) {
     var open by remember { mutableStateOf(initiallyOpen) }
@@ -81,10 +82,25 @@ fun AbSettingsSummarySheet(
         // skipPartiallyExpanded (round 14b §7.a / spec D4) — uniform with every other sheet.
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val close = { open = false }
-        AbModalBottomSheet(onDismissRequest = close, sheetState = sheetState) {
-            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-                sheetContent(close)
-            }
+        AbModalBottomSheet(onDismissRequest = close, sheetState = sheetState, showDragHandle = false) {
+            AbSettingsSummarySheetContent(onClose = close, title = title) { sheetContent(close) }
+        }
+    }
+}
+
+/** Separate from the modal so golden captures never open a platform sheet window. */
+@Composable
+fun AbSettingsSummarySheetContent(
+    onClose: () -> Unit,
+    title: String = "",
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        if (title.isNotBlank()) {
+            AbSheetHeader(title = title, onClose = onClose)
+            content()
+        } else {
+            AbSheetCloseOverlay(onClose) { Column { content() } }
         }
     }
 }

@@ -113,11 +113,27 @@ fun AbSheetHeader(
             modifier = Modifier.padding(horizontal = 8.dp).weight(1f),
         )
         if (actions != null) actions()
-        if (showClose) {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
-            }
-        }
+        if (showClose) AbSheetCloseButton(onClose)
+    }
+}
+
+/** The same localized close affordance in headers and compact, title-less sheet rows. */
+@Composable
+fun AbSheetCloseButton(onClose: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClose, modifier = modifier) {
+        Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.settingsEditorClose)
+    }
+}
+
+/**
+ * Title-less sheets share their first content row with the close button. Reserve the trailing
+ * touch target rather than covering a selectable row; start/end padding and alignment follow RTL.
+ */
+@Composable
+fun AbSheetCloseOverlay(onClose: () -> Unit, content: @Composable () -> Unit) {
+    Box(Modifier.fillMaxWidth()) {
+        Box(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(end = 56.dp)) { content() }
+        AbSheetCloseButton(onClose, Modifier.align(Alignment.TopEnd).padding(end = 8.dp))
     }
 }
 

@@ -657,7 +657,7 @@ private fun PermissionsTabContent(
 
     if (sheetOpen) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        AbModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState) {
+        AbModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState, showDragHandle = false) {
             PromptPermissionSheetContent(
                 choices = permissionModeChoices,
                 selectedValue = selectedMode,
@@ -850,7 +850,7 @@ private fun AdvancedTabContent(
 
     if (maxIterationsSheetOpen) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        AbModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState) {
+        AbModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState, showDragHandle = false) {
             MaxIterationsSheetContent(
                 current = state.maxIterations,
                 globalLabel = globalMaxIterationsLabel,

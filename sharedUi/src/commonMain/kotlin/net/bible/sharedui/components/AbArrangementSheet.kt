@@ -95,7 +95,7 @@ fun AbArrangementSheet(
     extraContent: (@Composable () -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         AbArrangementSheetContent(
             labels = labels, sort = sort, groupBy = groupBy, groupKeys = groupKeys,
             repositories = repositories, selectedRepository = selectedRepository,

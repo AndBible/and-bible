@@ -135,6 +135,7 @@ fun SearchScreen(
             AbSettingsSummarySheet(
                 summary = settingsSummary,
                 initiallyOpen = initiallySettingsOpen,
+                title = strings.searchOptions,
             ) { _ ->
                 BibleSearchSettings(
                     searchType = searchType,

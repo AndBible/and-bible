@@ -21,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -41,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
@@ -138,12 +140,13 @@ fun <T> AbSearchableOptionSheet(
     // default — and its body is a LazyColumn capped at 480dp, i.e. exactly the bounded-scroll shape
     // §7.a is about. skipPartiallyExpanded = true makes it open at content height like the rest.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         AbSearchableOptionSheetContent(
             options = options,
             selected = selected,
             optionLabel = optionLabel,
             onSelect = onSelect,
+            onClose = onDismiss,
             searchPlaceholder = searchPlaceholder,
             leadingIcon = leadingIcon,
         )
@@ -168,49 +171,56 @@ fun <T> AbSearchableOptionSheetContent(
     modifier: Modifier = Modifier,
     searchPlaceholder: String? = null,
     leadingIcon: (@Composable (T) -> Unit)? = null,
+    onClose: () -> Unit = {},
 ) {
     var query by remember { mutableStateOf("") }
     val filtered = if (searchPlaceholder == null) options else filterPickerOptions(options, query, optionLabel)
 
     Column(modifier = modifier.fillMaxWidth()) {
         if (searchPlaceholder != null) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                singleLine = true,
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                placeholder = { Text(searchPlaceholder) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-        }
-        // heightIn(max) keeps the incoming constraint bounded (a ModalBottomSheet column is
-        // otherwise unbounded → an unconstrained LazyColumn would crash), while still wrapping
-        // to content for short filtered lists.
-        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
-            // No label-derived key: LazyColumn requires unique keys, but two options can
-            // share a display name (e.g. same-named languages), which would throw
-            // "Key ... was already used" and crash the picker. The filtered list is not
-            // reordered by stable identity, so the default positional key is correct here.
-            items(filtered) { opt ->
-                ListItem(
-                    headlineContent = { Text(optionLabel(opt)) },
-                    leadingContent = leadingIcon?.let { icon -> { icon(opt) } },
-                    trailingContent = if (opt == selected) {
-                        // Test-only hook (no visual/accessibility effect): tagged per-option so a
-                        // test can assert the check renders on the selected row and only on it.
-                        {
-                            Icon(
-                                Icons.Filled.Check,
-                                contentDescription = null,
-                                modifier = Modifier.testTag("ab-searchable-option-check-${optionLabel(opt)}"),
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                    modifier = Modifier.fillMaxWidth().clickable { onSelect(opt) },
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    placeholder = { Text(searchPlaceholder) },
+                    modifier = Modifier.weight(1f).padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
                 )
+                AbSheetCloseButton(onClose, Modifier.padding(end = 8.dp))
             }
         }
+        val optionsContent: @Composable () -> Unit = {
+            // heightIn(max) keeps the incoming constraint bounded (a ModalBottomSheet column is
+            // otherwise unbounded → an unconstrained LazyColumn would crash), while still wrapping
+            // to content for short filtered lists.
+            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
+                // No label-derived key: LazyColumn requires unique keys, but two options can
+                // share a display name (e.g. same-named languages), which would throw
+                // "Key ... was already used" and crash the picker. The filtered list is not
+                // reordered by stable identity, so the default positional key is correct here.
+                items(filtered) { opt ->
+                    ListItem(
+                        headlineContent = { Text(optionLabel(opt)) },
+                        leadingContent = leadingIcon?.let { icon -> { icon(opt) } },
+                        trailingContent = if (opt == selected) {
+                            // Test-only hook (no visual/accessibility effect): tagged per-option so a
+                            // test can assert the check renders on the selected row and only on it.
+                            {
+                                Icon(
+                                    Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.testTag("ab-searchable-option-check-${optionLabel(opt)}"),
+                                )
+                            }
+                        } else {
+                            null
+                        },
+                        modifier = Modifier.fillMaxWidth().clickable { onSelect(opt) },
+                    )
+                }
+            }
+        }
+        if (searchPlaceholder == null) AbSheetCloseOverlay(onClose, optionsContent) else optionsContent()
     }
 }

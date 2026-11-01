@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbColorPickerDialog
+import net.bible.sharedui.components.AbSheetCloseButton
 import net.bible.sharedui.components.ColorPickerPresetsPage
 import net.bible.sharedui.strings.LocalStrings
 
@@ -90,7 +92,7 @@ fun LabelIdentitySheet(
     iconSlot: @Composable (String?, Color) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp)) {
             LabelIdentitySheetContent(
                 name = name,
@@ -102,6 +104,7 @@ fun LabelIdentitySheet(
                 onName = onName,
                 onColor = onColor,
                 onCustomIcon = onCustomIcon,
+                onClose = onDismiss,
                 iconSlot = iconSlot,
             )
         }
@@ -122,6 +125,7 @@ fun LabelIdentitySheetContent(
     onColor: (Int) -> Unit,
     onCustomIcon: (String?) -> Unit,
     modifier: Modifier = Modifier,
+    onClose: () -> Unit = {},
     iconSlot: @Composable (String?, Color) -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -129,14 +133,17 @@ fun LabelIdentitySheetContent(
     val nameText = rememberControllerText(name)
 
     Column(modifier) {
-        OutlinedTextField(
-            value = nameText.text,
-            onValueChange = { nameText.edit(it, onName) },
-            enabled = nameEditable,
-            singleLine = true,
-            label = { Text(strings.labelNameHint) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = nameText.text,
+                onValueChange = { nameText.edit(it, onName) },
+                enabled = nameEditable,
+                singleLine = true,
+                label = { Text(strings.labelNameHint) },
+                modifier = Modifier.weight(1f),
+            )
+            AbSheetCloseButton(onClose)
+        }
 
         Text(
             strings.colorPickerTitle,

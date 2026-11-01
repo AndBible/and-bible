@@ -120,6 +120,18 @@ class SheetExpansionGuardTest {
         ).forEach { assertTrue("$it is no longer being scanned", it in names) }
     }
 
+    @Test fun sheetsWithoutResizeStatesDoNotAdvertiseDragging() {
+        val offenders = sheetFiles().flatMap { file ->
+            callArgLists(stripComments(file.readText()), "AbModalBottomSheet")
+                .filterNot { Regex("""\bshowDragHandle\s*=\s*false\b""").containsMatchIn(it) }
+                .map { file.name }
+        }.sorted()
+        assertEquals(
+            "These sheets skip the partial state: use an in-sheet close button, not a resize handle",
+            emptyList<String>(), offenders,
+        )
+    }
+
     @Test fun noSheetUsesTheDefaultPartiallyExpandedState() {
         val offenders = sheetFiles()
             .filter { Regex("""rememberModalBottomSheetState\s*\(\s*\)""")
