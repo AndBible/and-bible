@@ -28,6 +28,17 @@ strong:h3068
 
 strong:G11
 
+## Translation selection
+
+When you open a Bible search, the active Bible is always selected, together with any
+previously selected translations that have a usable search index. Saved translations without
+an index are left out of this search without changing your saved selection. This prevents an
+unrelated translation from asking to be indexed just because it was selected in an earlier search.
+
+If the active Bible needs an index, AndBible asks to create it. You can also deliberately add
+another unindexed translation in the translation selector; AndBible then asks to index it
+before searching it. Confirming a translation choice saves that selection for future searches.
+
 ## Commentary searches
 
 Commentaries can also be searched using the same search dialog. To search a commentary,
