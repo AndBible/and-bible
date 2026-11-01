@@ -17,6 +17,7 @@
 
 package net.bible.android.control.progress
 
+import net.bible.service.cloudsync.canonical.canonicalMemorizedVerseId
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.android.common.toV11n
 import net.bible.android.control.versification.Scripture
@@ -107,7 +108,7 @@ object ProgressControl {
         val added = mutableListOf<Int>()
         for (ordinal in kjvRange.start.ordinal..kjvRange.end.ordinal) {
             if (!dao.isVerseMemorized(ordinal)) {
-                dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = ordinal))
+                dao.insertMemorizedVerse(MemorizedVerse(id = canonicalMemorizedVerseId(ordinal), kjvOrdinal = ordinal))
                 added.add(ordinal)
             }
         }

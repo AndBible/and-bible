@@ -76,6 +76,7 @@ private suspend fun writePatchData(
 private suspend fun readPatchData(
     db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
+    restoreDropped: Boolean = false,
 ) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
@@ -135,6 +136,25 @@ private suspend fun readPatchData(
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
             """.trimIndent()
     )
+
+    // A row this device dropped earlier in the foreign key clean-up (its parent had another id here, #3906) kept its log
+    // entry, so the one-time re-send of the row arrives with the same timestamp and the upsert skips it. Put back every
+    // patch row that is missing here although its UPSERT entry equals the local one (same lastUpdated and source device;
+    // a local DELETE or a newer local entry never matches), then clean up again. Covers tables without `parents`.
+    // Only for the child tables of aliased parents (`idAliasChildTables`).
+    if (restoreDropped) {
+        exec("""
+            INSERT OR IGNORE INTO $table ($cols)
+            SELECT $cols FROM patch.$table WHERE $idFields IN
+            (SELECT $select FROM patch.LogEntry pe
+              JOIN LogEntry me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+              WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND me.type = 'UPSERT'
+              AND pe.lastUpdated = me.lastUpdated AND pe.sourceDevice = me.sourceDevice)
+            """.trimIndent())
+        if (queryLong("SELECT changes()") != 0L) {
+            exec("DELETE FROM $table WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'))")
+        }
+    }
 
     // Restore carried children whose parents exist here, unless they were deleted on their own.
     // This brings back the children of a parent whose delete lost to a newer edit.
@@ -206,8 +226,15 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: P
  * than the local one are upserted or deleted, and the log entries are taken over. The sync triggers are
  * disabled (through SyncConfiguration, inside the same transaction) while the rows are written, so the merge is
  * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
+ *
+ * Before the rows are read, incoming ids of natural-key rows that this device holds under another id are mapped to
+ * the local ids ([aliasIncomingIds], #3906), and child rows dropped earlier are restored from a re-send
+ * (`readPatchData` `restoreDropped`, [idAliasChildTables]). [mapIncomingIds] false is the behaviour of older app versions; tests use
+ * it to stand for one.
  */
-suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?) {
+suspend fun applyPatchesForDatabase(
+    dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?, mapIncomingIds: Boolean = true,
+) {
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
         val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
         Log.i(TAG, "Applying patch file ${patchDbFile.name}")
@@ -221,9 +248,12 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
                     db.inTransaction<Unit> {
+                        val aliased = mapIncomingIds && dbDef.category.hasIdAliases
+                        if (aliased) aliasIncomingIds(dbDef.category, "patch")
+                        val restorable = if (aliased) dbDef.category.idAliasChildTables else emptySet()
                         for (tableDef in dbDef.tableDefinitions) {
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                            readPatchData(this, tableDef)
+                            readPatchData(this, tableDef, restoreDropped = tableDef.tableName in restorable)
                             dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                         }
                     }

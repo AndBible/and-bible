@@ -28,13 +28,19 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.migrations.aiSettingsMigrations
 import net.bible.android.database.migrations.bookmarkMigrations
+import net.bible.service.cloudsync.ID_ALIAS_PREFIX
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmUsageRecord
 import net.bible.test.DatabaseResetter
 import net.bible.test.testCoreStrings
 import okio.Path.Companion.toOkioPath
@@ -115,6 +121,72 @@ class ImportExportDbTest {
         assertEquals("Imported", dao.labelById(importedLabel.id)?.name)
         assertEquals(listOf(importedLabel.id), dao.getBookmarkToLabelsForBookmark(bookmark.id).map { it.labelId })
         assertEquals(1L to false, connectionState())
+    }
+
+    /** #3906: a page of the same-initials document under another id lands under the local document, not orphaned. */
+    @Test fun importedPagesOfADivergedDocumentLandUnderTheLocalDocument() = run {
+        val localDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val localDoc = net.bible.android.database.mydocument.MyDocument(name = "Doc", initials = "MyDoc_import3906")
+        localDao.insert(localDoc)
+        val file = tmp()
+        val db = Room.databaseBuilder(application, net.bible.android.database.mydocument.MyDocumentDatabase::class.java, file.absolutePath)
+            .addMigrations(*net.bible.android.database.migrations.myDocumentMigrations)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .setDriver(BundledSQLiteDriver())
+            .build()
+        val page: net.bible.android.database.mydocument.MyDocumentPage
+        try {
+            val d = db.myDocumentDao()
+            val other = net.bible.android.database.mydocument.MyDocument(name = "Doc", initials = "MyDoc_import3906")
+            d.insert(other)
+            page = net.bible.android.database.mydocument.MyDocumentPage(documentId = other.id, title = "t", pageKey = "k", orderNumber = 1)
+            d.insert(page)
+            d.insertOrUpdateContent(net.bible.android.database.mydocument.MyDocumentPageContent(page.id, "c"))
+        } finally { db.close() }
+
+        importDatabaseFile(SyncableDatabaseDefinition.MYDOCUMENTS, file.toOkioPath())
+
+        assertEquals(listOf(localDoc.id), localDao.allDocuments().filter { it.initials == "MyDoc_import3906" }.map { it.id })
+        assertEquals(localDoc.id, localDao.pageById(page.id)?.documentId)
+        assertEquals("c", localDao.getContent(page.id))
+    }
+
+    /**
+     * #3906, review finding 6: an import uses the aliases sync learned (a usage row naming the other device's model id
+     * lands under the local model) and maps a fresh natural-key match without storing it (a backup is not a peer).
+     */
+    @Test fun importUsesStoredAliasesAndStoresNoNewOnes() = run {
+        val ai = DatabaseContainer.instance.aiSettingsDb
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
+        ai.llmProviderConfigDao().insert(provider)
+        val model = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m").also { ai.llmConfiguredModelDao().insert(it) }
+        val model2 = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m2").also { ai.llmConfiguredModelDao().insert(it) }
+        val foreign = IdType() // the other device's id of model "m", learned by sync
+        fun IdType.hex() = toString().replace("-", "").uppercase()
+        ai.syncDao().setConfig("${ID_ALIAS_PREFIX}LlmConfiguredModel:${foreign.hex()}", model.id.hex())
+
+        val file = tmp()
+        val db = Room.databaseBuilder(application, AiSettingsDatabase::class.java, file.absolutePath)
+            .addMigrations(*aiSettingsMigrations)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .setDriver(BundledSQLiteDriver())
+            .build()
+        try {
+            db.llmProviderConfigDao().insert(provider)
+            val other2 = LlmConfiguredModel(providerConfigId = provider.id, modelId = "m2").also { db.llmConfiguredModelDao().insert(it) }
+            db.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = foreign, deviceId = "x", inputTokens = 5))
+            db.llmUsageRecordDao().upsert(LlmUsageRecord(configuredModelId = other2.id, deviceId = "y", inputTokens = 7))
+        } finally { db.close() }
+
+        importDatabaseFile(SyncableDatabaseDefinition.AI_SETTINGS, file.toOkioPath())
+
+        assertEquals(listOf(5L), ai.llmUsageRecordDao().getByModel(model.id).map { it.inputTokens })
+        assertEquals(listOf(7L), ai.llmUsageRecordDao().getByModel(model2.id).map { it.inputTokens })
+        assertEquals(setOf(model.id, model2.id), ai.llmConfiguredModelDao().all().map { it.id }.toSet())
+        val aliases = ai.useWriterConnection { t ->
+            t.usePrepared("SELECT count(*) FROM SyncConfiguration WHERE keyName LIKE '$ID_ALIAS_PREFIX%'") { it.step(); it.getLong(0) }
+        }
+        assertEquals(1L, aliases)
     }
 
     @Test fun anImportThatFailsHalfwayLeavesNothingImported() = run {

@@ -17,6 +17,8 @@
 
 package net.bible.service.db.readingplan
 
+import net.bible.service.cloudsync.canonical.canonicalReadingPlanStatusId
+import net.bible.service.cloudsync.canonical.canonicalReadingPlanId
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
@@ -83,7 +85,7 @@ class ReadingPlanRepository(
 
     fun setReadingStatus(planCode: String, dayNo: Int, status: String) = writes.launch(WRITE_KEY) {
         readingPlanDao.addPlanStatus(
-            ReadingPlanStatus(planCode, dayNo, status)
+            ReadingPlanStatus(planCode, dayNo, status, canonicalReadingPlanStatusId(planCode, dayNo))
         )
     }
 
@@ -92,7 +94,7 @@ class ReadingPlanRepository(
         writes.join(WRITE_KEY)
         planMutex.withLock {
             var readPlan = readingPlanDao.getPlan(planCode)
-            readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
+            readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date, id = canonicalReadingPlanId(planCode))
 
             readingPlanDao.updatePlan(readPlan)
         }
@@ -112,7 +114,7 @@ class ReadingPlanRepository(
         planMutex.withLock {
             var readPlan = readingPlanDao.getPlan(planCode)
             readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
-                ReadingPlan(planCode, today(), dayNo)
+                ReadingPlan(planCode, today(), dayNo, canonicalReadingPlanId(planCode))
 
             readingPlanDao.updatePlan(readPlan)
         }

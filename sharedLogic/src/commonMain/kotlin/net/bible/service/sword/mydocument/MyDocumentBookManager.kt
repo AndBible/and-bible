@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
+import net.bible.service.cloudsync.canonical.newMyDocumentId
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.Serializable
@@ -221,7 +222,8 @@ object MyDocumentBookManager {
                 val book = registeredBooks[document.initials]
                 when {
                     book == null -> registerDocument(document)
-                    book.bookMetaData.name != document.name -> {
+                    // A merge re-keys a local document to the cloud's id: the registered book reads pages by its id.
+                    book.bookMetaData.name != document.name || book.myDocumentId != document.id -> {
                         unregisterDocument(document.initials)
                         registerDocument(document)
                     }
@@ -374,6 +376,7 @@ object MyDocumentBookManager {
 
         // Create new AI Documents
         val aiDocument = MyDocument(
+            id = dao.newMyDocumentId(AI_DOCUMENTS_INITIALS),
             name = "AI Documents",
             description = "Automatically generated documents from AI",
             initials = AI_DOCUMENTS_INITIALS,

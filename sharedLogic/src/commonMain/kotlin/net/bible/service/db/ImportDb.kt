@@ -22,6 +22,7 @@ import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.aliasIncomingIds
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 import okio.Path
@@ -51,6 +52,10 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path,
  * Copies every synced table of [dbFile] (a database of [category]'s kind, migrated to the current schema first)
  * into the local database with `INSERT OR IGNORE`: rows already present locally win. One transaction; a failure
  * rolls the whole import back and is rethrown.
+ *
+ * Natural-key rows of [dbFile] that exist locally under another id are first mapped to the local id with their
+ * children ([aliasIncomingIds], #3906), so an imported page of the other AI Documents book lands under the local book
+ * instead of being left without a parent. This rewrites [dbFile] (an unzipped temporary file, already migrated in place).
  */
 suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Path) = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
@@ -63,6 +68,7 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Pat
             db.exec("PRAGMA foreign_keys=OFF;")
             try {
                 db.inTransaction<Unit> {
+                    aliasIncomingIds(category, "import", persist = false)
                     for (tableDef in dbDef.tableDefinitions) {
                         val table = tableDef.tableName
                         val cols = columnNamesJoined(table)

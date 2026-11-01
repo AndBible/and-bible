@@ -872,6 +872,7 @@ class CloudSync(
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
+        startIdAliasResendOnce(dbDef)
         val file = createPatchForDatabase(dbDef, env, false)?: return@withContext
         val syncDeviceFolderId = requireDeviceFolderId(dbDef)
         val count = (dbDef.dao.lastPatchNum(syncDeviceName)?: 0) + 1
