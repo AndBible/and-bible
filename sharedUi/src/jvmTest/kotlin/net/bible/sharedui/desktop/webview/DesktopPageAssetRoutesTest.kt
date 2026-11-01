@@ -5,7 +5,9 @@ import net.bible.sharedui.desktop.webengine.kcef.BundleRequestHandler
 import net.bible.sharedui.desktop.webengine.kcef.BUNDLE_ORIGIN
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.writeText
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -40,8 +42,12 @@ class DesktopPageAssetRoutesTest {
             log = { logs.add(it) },
         )
 
+    // Path.deleteRecursively does not follow symbolic links. java.io.File.deleteRecursively did, and the
+    // `linkdir -> tmp` cycle of symlinkLeavingTheBookRefused then made its walk re-enter the directory it was
+    // deleting (FileTreeWalk AssertionError "rootDir must be verified to be directory beforehand", order-dependent).
+    @OptIn(ExperimentalPathApi::class)
     @AfterTest
-    fun cleanUp() { tmp.toFile().deleteRecursively() }
+    fun cleanUp() { tmp.deleteRecursively() }
 
     @Test fun backgroundServed() {
         val r = assertNotNull(routes().resolve("/background/D3DBackground"))
