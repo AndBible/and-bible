@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.android.control.page.window
 
 import kotlinx.coroutines.CoroutineScope
@@ -23,23 +39,16 @@ class RecentLabelsConcurrencyTest {
         val second = IdType()
         val newLabels = List(50) { IdType() }
         val executor = Executors.newSingleThreadExecutor()
-        // Stop the real deepCopy iterator after its first element, not the writer's iterator.
+        // Pause the real deepCopy while it copies the list (toList() copies via toArray()), not the writer.
         val copyingThread = Thread.currentThread()
         repository.workspaceSettings.recentLabels = object : ArrayList<RecentLabel>() {
-            override fun iterator(): MutableIterator<RecentLabel> {
-                val delegate = super.iterator()
-                var firstElement = true
-                return object : MutableIterator<RecentLabel> by delegate {
-                    override fun next(): RecentLabel {
-                        val value = delegate.next()
-                        if (Thread.currentThread() === copyingThread && firstElement) {
-                            firstElement = false
-                            copying.countDown()
-                            assertTrue(updated.await(10, TimeUnit.SECONDS), "Recent-label updates did not finish")
-                        }
-                        return value
-                    }
+            override fun toArray(): Array<Any?> {
+                val snapshot = super.toArray()
+                if (Thread.currentThread() === copyingThread) {
+                    copying.countDown()
+                    assertTrue(updated.await(10, TimeUnit.SECONDS), "Recent-label updates did not finish")
                 }
+                return snapshot
             }
         }.apply {
             add(RecentLabel(first, 1))
@@ -138,5 +147,36 @@ class RecentLabelsConcurrencyTest {
         assertEquals(listOf(RecentLabel(first, 1), RecentLabel(second, 2)), snapshot)
         assertEquals(listOf(second, first), repository.workspaceSettings.recentLabels.map { it.labelId })
         assertTrue(repository.workspaceSettings.recentLabels.last().lastAccess > 2)
+    }
+
+    @Test
+    fun concurrentCursorIncrementsAreNotLost() {
+        val repository = WindowRepository(CoroutineScope(Dispatchers.Unconfined))
+        val label = IdType()
+        repository.workspaceSettings.setStudyPadCursor(label, 0)
+        val threads = 8
+        val executor = Executors.newFixedThreadPool(threads)
+        val start = CountDownLatch(1)
+        try {
+            val writers = List(threads) { executor.submit {
+                assertTrue(start.await(10, TimeUnit.SECONDS))
+                repeat(500) { repository.workspaceSettings.updateStudyPadCursor(label) { (it ?: 0) + 1 } }
+            } }
+            start.countDown()
+            writers.forEach { it.get(20, TimeUnit.SECONDS) }
+            assertEquals(threads * 500, repository.workspaceSettings.studyPadCursors[label])
+        } finally {
+            start.countDown()
+            executor.shutdownNow()
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS))
+        }
+    }
+
+    @Test
+    fun cursorUpdateReturningNullLeavesCursorUnchanged() {
+        val repository = WindowRepository(CoroutineScope(Dispatchers.Unconfined))
+        val label = IdType()
+        assertEquals(false, repository.workspaceSettings.updateStudyPadCursor(label) { null })
+        assertEquals(emptyMap(), repository.workspaceSettings.studyPadCursors)
     }
 }

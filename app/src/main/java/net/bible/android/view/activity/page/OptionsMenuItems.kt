@@ -558,7 +558,7 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
             if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if (resultData.reset) {
-                    workspaceSettings.autoAssignLabels = mutableSetOf()
+                    workspaceSettings.autoAssignLabels = emptySet()
                     workspaceSettings.autoAssignPrimaryLabel = null
                     onReset?.invoke()
                 } else {

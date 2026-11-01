@@ -31,6 +31,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.window.setStudyPadCursor
+import net.bible.android.control.page.window.updateStudyPadCursor
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
@@ -986,9 +987,10 @@ open class BookmarkControl constructor(
 
     private suspend fun updateStudyPadCursorIfNeeded(labelId: IdType, orderNumber: Int) {
         val workspaceSettings = windowControl.windowRepository?.workspaceSettings ?: return
-        val cursor = workspaceSettings.studyPadCursors[labelId] ?: return
-        if (cursor >= orderNumber) {
-            workspaceSettings.setStudyPadCursor(labelId, cursor + 1)
+        val changed = workspaceSettings.updateStudyPadCursor(labelId) { cursor ->
+            if (cursor != null && cursor >= orderNumber) cursor + 1 else null
+        }
+        if (changed) {
             afterBridge { WorkspaceChanges.notifySettingsEdited() }
         }
     }

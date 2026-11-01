@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.link.BibleLink
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.sharedlogic.sync.withMonitor
+import net.bible.android.control.page.window.update
 import net.bible.android.database.IdType
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
@@ -186,7 +186,7 @@ internal class LinkBridgeFamily(
     fun toggleCompareDocument(documentId: String) {
         Log.i(TAG, "toggleCompareDocument")
         val settings = session.workspaceSettings
-        withMonitor(settings) {
+        settings.update {
             val hideDocs = settings.hideCompareDocuments
             settings.hideCompareDocuments = if (documentId in hideDocs) hideDocs - documentId else hideDocs + documentId
         }

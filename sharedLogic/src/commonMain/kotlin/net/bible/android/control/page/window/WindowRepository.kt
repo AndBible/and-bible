@@ -709,7 +709,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         // Main/bridge and bookmark-service callers can overlap. Serialize the read/replace,
         // but publish once so readers never see the intermediate add/trim/sort states.
         val settings = workspaceSettings
-        withMonitor(settings) {
+        settings.update {
             val labels = settings.recentLabels.toMutableList()
             for (labelId in labelIds) {
                 val index = labels.indexOfFirst { it.labelId == labelId }
