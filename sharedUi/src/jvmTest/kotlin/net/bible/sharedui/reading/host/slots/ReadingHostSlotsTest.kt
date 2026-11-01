@@ -830,6 +830,8 @@ class ReadingHostSlotsTest {
 
         // ... and only at the root does the close button end the sheet.
         onNodeWithContentDescription(strings.settingsEditorClose).performClick()
+        // The X slides the modal sheet out before it reports (LocalAbSheetAnimatedClose).
+        waitForIdle()
         assertEquals(1, closed)
     }
 
