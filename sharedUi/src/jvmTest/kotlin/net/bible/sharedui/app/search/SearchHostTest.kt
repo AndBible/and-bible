@@ -112,10 +112,13 @@ class SearchHostTest {
         val commentary = book("Issue3873Commentary", "RawCom")
         val saved = "Issue3873Bible,Issue3873Gone,Issue3873SecondBible"
         val settings = MapSearchSettings(mutableMapOf(SearchControl.SEARCH_TRANSLATIONS_PREF to saved))
+        // Seeding reads the cheap in-memory status; the (here contradicting) full validation must not matter.
+        bible.indexStatus = IndexStatus.DONE
+        secondBible.indexStatus = IndexStatus.UNDONE
         Books.installed().addBook(bible)
         Books.installed().addBook(secondBible)
         try {
-            val host = host(settings = settings, bible = FakeBibleSearch(unindexed = setOf(secondBible.initials)))
+            val host = host(settings = settings, bible = FakeBibleSearch(unindexed = setOf(bible.initials)))
             assertEquals(listOf("Issue3873Commentary"), host.loadSearchTranslations(commentary).selected)
             assertEquals(saved, settings.strings[SearchControl.SEARCH_TRANSLATIONS_PREF])
             assertEquals(

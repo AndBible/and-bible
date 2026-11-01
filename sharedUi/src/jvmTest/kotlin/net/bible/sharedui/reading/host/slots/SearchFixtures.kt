@@ -101,7 +101,13 @@ class FakeSearchPlatform : ReadingSearchPlatform {
 
     override fun currentDocument() = current
     override fun currentBookName() = "Genesis"
-    override fun documentInfo(book: Book?) = if (book == null) null else info
+    /** Documents whose cheap in-memory status is "not indexed" whatever [info] says. */
+    val notMarkedIndexed = mutableSetOf<String>()
+    override fun documentInfo(book: Book?) = when {
+        book == null -> null
+        book.initials in notMarkedIndexed -> info?.copy(indexDone = false)
+        else -> info
+    }
     override fun documentByInitials(initials: String) = documents[initials]
     override fun swordBookByInitials(initials: String) = documents[initials]
     override fun installedBibles() = bibles
@@ -140,6 +146,8 @@ class FakeSearchIndexJobs : SearchIndexJobs {
 
 class FakeBibleSearch(var unindexed: Set<String> = emptySet()) : BibleSearchService {
     val persisted = mutableListOf<List<String>>()
+    /** Every argument [unindexedAmong] (the full index validation) was asked about. */
+    val unindexedQueries = mutableListOf<List<String>>()
     override fun validateIndex(request: SearchRequest) = true
     override fun decorate(request: SearchRequest) = request.query
     override suspend fun searchMulti(request: SearchRequest) = MultiSearchResults.EMPTY
@@ -147,7 +155,10 @@ class FakeBibleSearch(var unindexed: Set<String> = emptySet()) : BibleSearchServ
     override fun isCurrentlyShowingScripture() = true
     override fun candidateBibles(): List<BibleOption> = emptyList()
     override fun persistSelection(translationIds: List<String>, strongsSearch: Boolean) { persisted += translationIds }
-    override fun unindexedAmong(translationIds: List<String>) = translationIds.filter { it in unindexed }
+    override fun unindexedAmong(translationIds: List<String>): List<String> {
+        unindexedQueries += translationIds
+        return translationIds.filter { it in unindexed }
+    }
 }
 
 class FakeEpubSearch : EpubSearchService {

@@ -233,14 +233,18 @@ class SearchHost(
         val isBible = currentDoc?.bookCategory == BookCategory.BIBLE
         val saved = appSettings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
         val remembered = parseSavedSearchTranslations(saved, bibles.map { it.initials }.toSet())
-        val unindexed = if (isBible) bibleSearchService.unindexedAmong(remembered).toSet() else emptySet()
+        // The cheap in-memory index status, not a validation of the index store (this runs on the main
+        // thread for every remembered translation); `submitSearch` still validates the whole selection.
+        val indexed = if (isBible) {
+            bibles.filter { it.initials in remembered && it.indexStatus == IndexStatus.DONE }.map { it.initials }.toSet()
+        } else emptySet()
         return TranslationSelection(
             available = bibles.map { it.initials to it.abbreviation },
             selected = seedSearchTranslations(
                 currentInitials = currentDoc?.initials,
                 isBible = isBible,
                 saved = saved,
-                indexedBibles = remembered.toSet() - unindexed,
+                indexedBibles = indexed,
             ),
         )
     }

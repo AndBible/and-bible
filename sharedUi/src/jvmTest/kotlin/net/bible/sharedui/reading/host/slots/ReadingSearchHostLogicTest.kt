@@ -470,6 +470,7 @@ class ReadingSearchHostLogicTest {
     fun commentarySearchIgnoresSavedBiblesAndPreservesThemForTheNextBibleSearch() = runTest {
         val f = SearchFixture(scope = backgroundScope)
         f.platform.bibles = listOf("KJV" to "KJV", "ESV" to "ESV")
+        f.install("KJV", "ESV")
         f.settings.setString("search_selected_translations", "KJV,ESV")
         val commentary = fakeSearchBook("Kingcomments")
         f.platform.current = commentary
@@ -523,10 +524,16 @@ class ReadingSearchHostLogicTest {
         assertEquals("KJV", f.settings.strings["search_selected_translations"])
     }
 
+    private fun SearchFixture.install(vararg ids: String) {
+        ids.forEach { platform.documents[it] = fakeSearchBook(it) }
+    }
+
     @Test
     fun bibleSearchDropsUnindexedSavedTranslationsWithoutRewritingThePreference() = runTest {
         val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("FinARK")), scope = backgroundScope)
         f.platform.bibles = listOf("KJV" to "KJV", "FinARK" to "FinARK", "ESV" to "ESV")
+        f.install("KJV", "FinARK", "ESV")
+        f.platform.notMarkedIndexed += "FinARK"
         f.settings.setString("search_selected_translations", "FinARK,ESV")
 
         f.state.openSearch("light")
@@ -547,7 +554,11 @@ class ReadingSearchHostLogicTest {
     fun unindexedActiveBibleIsRetainedAndPromptsEvenWithAnIndexedSavedSelection() = runTest {
         val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("KJV", "FinARK")), scope = backgroundScope)
         f.platform.bibles = listOf("KJV" to "KJV", "FinARK" to "FinARK", "ESV" to "ESV")
+        f.install("KJV", "FinARK", "ESV")
         f.platform.info = unindexedBible
+        f.platform.notMarkedIndexed += "FinARK"
+        f.platform.info = unindexedBible.copy(indexDone = true)
+        f.platform.notMarkedIndexed += "KJV"
         f.settings.setString("search_selected_translations", "FinARK,ESV")
 
         f.state.openSearch("light")
@@ -555,6 +566,26 @@ class ReadingSearchHostLogicTest {
         assertEquals(listOf("ESV", "KJV"), f.state.searchTranslations.value)
         assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), f.state.controller.phase.value)
         assertEquals("FinARK,ESV", f.settings.strings["search_selected_translations"])
+    }
+
+    @Test
+    fun seedingTrustsTheCheapIndexStatusAndNeverRunsTheFullIndexValidation() = runTest {
+        // The document is marked indexed (cheap, in-memory) but the full validation says its index is
+        // unusable (stale schema): seeding keeps it WITHOUT running the full validation, and the submit
+        // still prompts for it.
+        val f = SearchFixture(bible = FakeBibleSearch(unindexed = setOf("FinARK")), scope = backgroundScope)
+        f.platform.bibles = listOf("KJV" to "KJV", "FinARK" to "FinARK")
+        f.install("KJV", "FinARK")
+        f.settings.setString("search_selected_translations", "FinARK")
+
+        f.state.openSearch()
+
+        assertEquals(listOf("FinARK", "KJV"), f.state.searchTranslations.value)
+        assertEquals(emptyList(), f.bible.unindexedQueries, "seeding must not run the full index validation")
+
+        f.state.controller.queries.setQuery("light")
+        f.state.controller.submit()
+        assertEquals(ReadingSearchPhase.NeedsIndex("FinARK", forEpub = false), f.state.controller.phase.value)
     }
 
     // ---- selector chain -------------------------------------------------------------------------

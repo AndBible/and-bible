@@ -375,7 +375,7 @@ class ReadingSearchState(
         val current = platform.currentDocument()
         if (platform.documentInfo(current)?.isEpub == true) return false
         if (searchKindFor(platform.documentInfo(current)) == SearchKind.Unavailable) return false
-        refreshSearchTranslations()
+        refreshAvailableTranslations()
         queries.reloadRecentTerms()
         searchTranslations.value = translationIds
         val query = "strong:$ref"
@@ -428,24 +428,33 @@ class ReadingSearchState(
         searchFieldFocused.value = false
     }
 
+    /** Reloads the Bibles offered by the settings sheet; returns them. */
+    private fun refreshAvailableTranslations(): List<Pair<String, String>> =
+        platform.installedBibles().also { searchAvailableTranslations.value = it }
+
     /**
      * Reloads the Bibles offered by the settings sheet and re-seeds the selection from the
-     * indexed persisted choices plus the document being read. Called on every [openSearch],
-     * since the read document changes.
+     * remembered choices that are marked indexed plus the document being read. Called on every
+     * [openSearch], since the read document changes.
+     *
+     * The index check is the document's in-memory status ([SearchDocumentInfo.indexDone]), not a
+     * validation of the index store: this runs on the main thread once per remembered translation, and
+     * the full validation still happens at submit ([ReadingSearchState]'s `firstUnindexedInSelection`).
      */
     private fun refreshSearchTranslations() {
-        val bibles = platform.installedBibles()
-        searchAvailableTranslations.value = bibles
+        val bibles = refreshAvailableTranslations()
         val current = platform.currentDocument()
         val isBible = platform.documentInfo(current)?.category == SearchDocumentCategory.BIBLE
         val saved = settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
         val remembered = parseSavedSearchTranslations(saved, bibles.map { it.first }.toSet())
-        val unindexed = if (isBible) bibleSearchService.unindexedAmong(remembered).toSet() else emptySet()
+        val indexed = if (isBible) {
+            remembered.filter { platform.documentInfo(platform.documentByInitials(it))?.indexDone == true }.toSet()
+        } else emptySet()
         searchTranslations.value = seedSearchTranslations(
             currentInitials = current?.initials,
             isBible = isBible,
             saved = saved,
-            indexedBibles = remembered.toSet() - unindexed,
+            indexedBibles = indexed,
         )
     }
 
