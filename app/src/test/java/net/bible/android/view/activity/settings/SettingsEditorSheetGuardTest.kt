@@ -186,6 +186,7 @@ class SettingsEditorSheetGuardTest {
             // AiConnectionSettingsScreen.kt) predates this diff -- an earlier round's gap closed here
             // rather than in a separate edit. "PromptFilterSheet(" is this plan's own new sheet.
             "RetentionSheet(", "PromptFilterSheet(",
+            "AbCreateItemSheet(", "AbSearchableOptionSheet(", "LabelIdentitySheet(",
         )
         val goldenCaptureCalls = listOf("captureRoboImage", "captureGolden(", "captureRtl(", "captureMatrix(")
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
@@ -198,7 +199,11 @@ class SettingsEditorSheetGuardTest {
             // ReadingSheetDragHandleTest asserts a sheet's close X and handle semantics); the hazard is
             // a Roborazzi capture of an open sheet.
             .filter { file -> file.path.contains("/golden/") || goldenCaptureCalls.any { file.readText().contains(it) } }
-            .filter { file -> sheetComposables.any { file.readText().contains(it) } }
+            .filter { file ->
+                val source = file.readText()
+                sheetComposables.any { source.contains(it) } ||
+                    Regex("""initiallySettingsOpen\s*=\s*true""").containsMatchIn(source)
+            }
             .map { it.name }.toList()
         assertEquals(
             "Capture the page's *Content composable in a plain Column instead -- an open " +
