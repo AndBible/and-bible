@@ -29,7 +29,8 @@ import fi.sykero.kdom.sax.DefaultHandler
 
 val PARAGRAPH_TYPE_LIST = listOf("paragraph", "x-p", "x-end-paragraph")
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy) : DefaultHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy, locale: org.crosswire.common.util.KLocale = org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale()) : DefaultHandler() {
+    private val referenceText = SpeakReferenceText(locale)
     val speakCommands = SpeakCommandArray(maxSpeechInputLength)
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
@@ -77,7 +78,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                 elementStack.add(StackEntry(false))
             }
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            elementStack.add(StackEntry(false))
+            val expanded = referenceText.expand(attrs.getValue(OSISUtil.OSIS_ATTR_REF))
+            if (peekVisible && expanded != null) addText(expanded)
+            elementStack.add(StackEntry(peekVisible && expanded == null))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.add(StackEntry(peekVisible, TagType.DIVINE_NAME))
             divineNameLevel ++

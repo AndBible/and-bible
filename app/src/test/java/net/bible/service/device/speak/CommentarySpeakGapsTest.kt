@@ -41,10 +41,10 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
     private val v11n = Versifications.instance().getVersification("KJV")!!
     private fun verse(number: Int) = Verse(v11n, BibleBook.OBAD, 1, number)
 
-    private fun sparseCommentary(): SwordBook {
+    private fun sparseCommentary(firstEntry: String = "<p>First entry.</p>", sourceType: String = "OSIS"): SwordBook {
         val root = temporaryFolder.newFolder("commentary")
         val data = File(root, "modules/sparse").apply { mkdirs() }
-        val first = "<p>First entry.</p>".toByteArray()
+        val first = firstEntry.toByteArray()
         val next = "<p>Next entry.</p>".toByteArray()
         val index = ByteBuffer.allocate((v11n.getTestamentOrdinal(verse(4).ordinal) + 1) * 6)
             .order(ByteOrder.LITTLE_ENDIAN)
@@ -63,7 +63,7 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
                 [SpeakGaps]
                 DataPath=./modules/sparse/
                 ModDrv=RawCom
-                SourceType=OSIS
+                SourceType=$sourceType
                 Encoding=UTF-8
                 Lang=en
                 Description=Synthetic sparse commentary for speech
@@ -110,6 +110,31 @@ class CommentarySpeakGapsTest : AbstractSpeakTests() {
             }
         }
         throw AssertionError("Next non-empty commentary entry was not spoken: $texts")
+    }
+
+    @Test
+    fun `commentary speech expands references without changing displayed text or ordinals`() {
+        val doc = sparseCommentary("<p>See <reference osisRef='Matt.2.6'>2:6</reference> and <reference osisRef='Matt.2.9'>Matthew 2:9</reference>.</p>")
+        val key = BookAndKey(verse(1), doc, OrdinalRange(0))
+        val original = SwordContentFacade.getTextWithinOrdinalsAsString(doc, key.key, 0..3, testCoreStrings())
+        val spoken = SpeakCommandArray(4000).apply {
+            for (ordinal in 0..4) addAll(testSwordContentFacade().getGenBookSpeakCommands(
+                BookAndKey(verse(1), doc, OrdinalRange(ordinal))
+            ))
+        }
+        assertEquals("See Matthew 2:6 and Matthew 2:9.", spoken.filterIsInstance<TextCommand>().joinToString("") { it.text })
+        assertEquals(original, SwordContentFacade.getTextWithinOrdinalsAsString(doc, key.key, 0..3, testCoreStrings()))
+        assertEquals(listOf("See ", "2:6", " and ", "Matthew 2:9"), original)
+        assertEquals("Matthew 2:6", testSwordContentFacade().getGenBookSpeakCommands(
+            BookAndKey(verse(1), doc, OrdinalRange(1))
+        ).filterIsInstance<TextCommand>().joinToString("") { it.text }.trim())
+    }
+
+    @Test
+    fun `TSK style ThML passage links speak their target instead of numeric labels`() {
+        val doc = sparseCommentary("<scripRef passage=\"Mt 2:9\">9</scripRef>", sourceType = "ThML")
+        val commands = testSwordContentFacade().getGenBookSpeakCommands(BookAndKey(verse(1), doc, OrdinalRange(0)))
+        assertEquals("Matthew 2:9", commands.filterIsInstance<TextCommand>().joinToString("") { it.text })
     }
 
     @Test

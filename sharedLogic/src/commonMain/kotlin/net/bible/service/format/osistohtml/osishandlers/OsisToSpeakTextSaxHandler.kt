@@ -23,14 +23,25 @@ import fi.sykero.kdom.sax.Attributes
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
+class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy, locale: org.crosswire.common.util.KLocale = org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale()) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
+    private val referenceText = SpeakReferenceText(locale)
+    private var referenceDepth = 0
     private var writingRef = false
     override fun startElement(namespaceURI: String, sName: String, qName: String, attrs: Attributes) {
         val name = getName(sName, qName) // element name
         debug(name, attrs, true)
-        if (sayReferences && name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            writeContent(true)
+        if (referenceDepth > 0) {
+            referenceDepth++
+            writeContent(false)
+        } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE &&
+            (sayReferences || writeContentStack.last() == CONTENT_STATE.WRITE)) {
             writingRef = true
+            val expanded = referenceText.expand(attrs.getValue(OSISUtil.OSIS_ATTR_REF))
+            if (expanded != null) {
+                write(expanded)
+                referenceDepth = 1
+            }
+            writeContent(expanded == null)
         } else {
             super.startElement(namespaceURI, sName, qName, attrs)
         }
@@ -46,9 +57,8 @@ class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: 
     ) {
         val name = getName(sName, qName)
         debug(name, null, false)
-        if (sayReferences && name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            // A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
-            // which looks bad and confuses TTS
+        if (referenceDepth > 0) referenceDepth--
+        if (name == OSISUtil.OSIS_ELEMENT_REFERENCE && referenceDepth == 0) {
             writingRef = false
         }
         super.endElement(namespaceURI, sName, qName)

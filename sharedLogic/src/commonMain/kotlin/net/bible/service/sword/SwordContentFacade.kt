@@ -411,8 +411,8 @@ class SwordContentFacade(
         }
 
 
-        private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = withMonitor(this) {
-            val cacheKey = renderCacheKey(book, key)
+        private fun cachedText(book: Book, key: Key, strings: CoreStrings, forSpeech: Boolean = false): Map<Int, String> = withMonitor(this) {
+            val cacheKey = renderCacheKey(book, key) + if (forSpeech) "-speech" else ""
             plainTextCache.get(cacheKey) ?: run {
                 val frag = try {
                     readOsisFragment(book, key, strings)
@@ -420,7 +420,10 @@ class SwordContentFacade(
                     Log.e(TAG, "Could not read fragment", e)
                     return@run emptyMap()
                 }
-                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate { it.getAttribute("ordinal")!!.value.toInt() to getTextRecursively(it) }
+                val references = if (forSpeech) net.bible.service.format.osistohtml.osishandlers.SpeakReferenceText(KLocale(book.language.code)) else null
+                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate {
+                    it.getAttribute("ordinal")!!.value.toInt() to (references?.forAnchor(it) ?: getTextRecursively(it))
+                }
                 plainTextCache.put(cacheKey, texts)
                 texts
             }
@@ -486,7 +489,7 @@ class SwordContentFacade(
                 val data = BookData(book, key)
                 val osissep = data.getSAXEventProvider()
                 val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences, saxTextPolicy)
+                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences, saxTextPolicy, KLocale(book.language.code))
                 osissep.provideSAXEvents(osisHandler)
                 osisHandler.toString()
             } catch (e: Exception) {
@@ -808,7 +811,7 @@ class SwordContentFacade(
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
         val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, speakPlatform.phrasesFor(book.language.code), advancedSpeakSettings, speakPlatform.maxSpeechInputLength, saxTextPolicy)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, speakPlatform.phrasesFor(book.language.code), advancedSpeakSettings, speakPlatform.maxSpeechInputLength, saxTextPolicy, KLocale(book.language.code))
         osissep.provideSAXEvents(osisHandler)
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {
@@ -839,14 +842,9 @@ class SwordContentFacade(
             actualKey = actualKey.start
         }
         val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
-        arr.addAll(
-            getTextWithinOrdinalsAsString(book,
-                actualKey,
-                key.ordinal!!.start .. key.ordinal.start, strings
-            )
-                .map {
-                    TextCommand(it.replace("\n", " "))
-                })
+        cachedText(book, actualKey, strings, forSpeech = true)[key.ordinal!!.start]?.let {
+            arr.add(TextCommand(it.replace("\n", " ")))
+        }
         return arr
     }
 
