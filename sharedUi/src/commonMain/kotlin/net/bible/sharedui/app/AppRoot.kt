@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
+import net.bible.sharedui.components.AbNavHost
 import net.bible.sharedui.ai.nav.AiNavDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
 import net.bible.sharedui.backup.nav.BackupNavDeps
@@ -68,7 +68,7 @@ fun AppRoot(
     readingGraph: NavGraphBuilder.() -> Unit,
     overlays: @Composable () -> Unit,
 ) {
-    NavHost(
+    AbNavHost(
         navController = navController,
         startDestination = startRoute,
         // Paint an opaque themed ground BEHIND the graph. navigation-compose's default

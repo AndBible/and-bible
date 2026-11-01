@@ -10,7 +10,18 @@ import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.MotionDurationScale
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.withContext
+import net.bible.sharedui.theme.LocalDisableAnimations
+import net.bible.sharedui.theme.NoMotionDurationScale
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -52,6 +63,10 @@ fun AbModalBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     TrackOverlay()
+    val instantMotion = LocalDisableAnimations.current
+    // With animations off, the library's own dismiss and ours both end in the takeover below; report it once.
+    val dismissOnce = rememberDismissOnce(sheetState, onDismissRequest)
+    val dismiss = if (instantMotion) dismissOnce else onDismissRequest
     val mono = isPureMonochrome()
     val handleDescription = dragHandleDescription ?: LocalSheetDragHandleDescription.current
     val scope = rememberCoroutineScope()
@@ -81,7 +96,7 @@ fun AbModalBottomSheet(
         }
     } else Modifier
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = dismiss,
         modifier = modifier.then(outlineModifier),
         sheetState = sheetState,
         properties = properties,
@@ -99,7 +114,7 @@ fun AbModalBottomSheet(
                 description = handleDescription,
                 mono = mono,
                 onDismiss = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) onDismissRequest() }
+                    scope.launch { sheetState.hide() }.invokeOnCompletion { if (!sheetState.isVisible) dismiss() }
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
@@ -107,6 +122,66 @@ fun AbModalBottomSheet(
         MirrorHostSystemBars()
         if (mono) NoDialogNavigationContrast()
         content()
+    }
+    if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
+}
+
+/** Holds whether the current showing of a sheet has reported its dismiss. Not snapshot state: never read to draw. */
+private class DismissReported(var value: Boolean = false)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun rememberDismissOnce(sheetState: SheetState, onDismissRequest: () -> Unit): () -> Unit {
+    val latest by rememberUpdatedState(onDismissRequest)
+    val reported = remember(sheetState) { DismissReported() }
+    // A sheet shown again with the same state may be dismissed again.
+    if (sheetState.targetValue != SheetValue.Hidden) reported.value = false
+    return remember(sheetState) {
+        {
+            if (!reported.value) {
+                reported.value = true
+                latest()
+            }
+        }
+    }
+}
+
+/**
+ * "Disable animations" for the sheet where the platform gives the composition no zero motion-duration scale (iOS and
+ * desktop; osTicket 3499). Android's `AppWindowRecomposer` puts one into every effect context, so there this is a
+ * no-op.
+ *
+ * Material runs the sheet's slide from its own coroutines (show on entry; hide on a scrim tap, back or a drag settling
+ * to hidden), whose context the app cannot reach. Whenever one of them starts, this takes the sheet over: it moves it
+ * to the same target from a coroutine whose context has a zero [MotionDurationScale], so it arrives on the next frame.
+ * The sheet's drag mutex cancels the library's animation, which also cancels the library's own dismiss report; so
+ * a takeover that ends hidden reports the dismiss itself ([dismiss] is the once-only callback).
+ * The scrim's short fade is the library's own and stays.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InstantSheetMotion(sheetState: SheetState, dismiss: () -> Unit) {
+    LaunchedEffect(sheetState) {
+        if (coroutineContext[MotionDurationScale]?.scaleFactor == 0f) return@LaunchedEffect
+        withContext(NoMotionDurationScale) {
+            var takingOver = false
+            snapshotFlow { sheetState.isAnimationRunning && !takingOver }
+                .filter { it }
+                .collect {
+                    val target = sheetState.targetValue
+                    takingOver = true
+                    try {
+                        when (target) {
+                            SheetValue.Hidden -> sheetState.hide()
+                            SheetValue.Expanded -> sheetState.expand()
+                            SheetValue.PartiallyExpanded -> sheetState.partialExpand()
+                        }
+                    } finally {
+                        takingOver = false
+                    }
+                    if (target == SheetValue.Hidden && !sheetState.isVisible) dismiss()
+                }
+        }
     }
 }
 

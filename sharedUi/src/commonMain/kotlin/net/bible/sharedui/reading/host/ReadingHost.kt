@@ -65,6 +65,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.withContext
+import net.bible.sharedui.theme.LocalDisableAnimations
+import net.bible.sharedui.theme.noMotionIf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -667,15 +670,19 @@ private fun DriveSearchSheet(
     onDismissedByUser: () -> Unit,
 ) {
     val sheet = scaffoldState.bottomSheetState
+    // "Disable animations" on iOS/desktop (osTicket 3499): no slide when opened or closed from here.
+    val noMotion = noMotionIf(LocalDisableAnimations.current)
     LaunchedEffect(visible) {
-        if (visible) {
-            repeat(SearchSheetExpandAttempts) {
-                if (sheet.currentValue == SheetValue.Expanded) return@LaunchedEffect
-                sheet.expand()
-                if (sheet.currentValue != SheetValue.Expanded) delay(SearchSheetExpandRetryMillis)
+        withContext(noMotion) {
+            if (visible) {
+                repeat(SearchSheetExpandAttempts) {
+                    if (sheet.currentValue == SheetValue.Expanded) return@withContext
+                    sheet.expand()
+                    if (sheet.currentValue != SheetValue.Expanded) delay(SearchSheetExpandRetryMillis)
+                }
+            } else if (sheet.currentValue != SheetValue.Hidden) {
+                sheet.hide()
             }
-        } else if (sheet.currentValue != SheetValue.Hidden) {
-            sheet.hide()
         }
     }
     // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true, the effect
