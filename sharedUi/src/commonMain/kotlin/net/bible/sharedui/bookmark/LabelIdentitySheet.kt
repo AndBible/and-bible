@@ -125,7 +125,7 @@ fun LabelIdentitySheetContent(
     onColor: (Int) -> Unit,
     onCustomIcon: (String?) -> Unit,
     modifier: Modifier = Modifier,
-    onClose: () -> Unit = {},
+    onClose: () -> Unit,
     iconSlot: @Composable (String?, Color) -> Unit,
 ) {
     val strings = LocalStrings.current

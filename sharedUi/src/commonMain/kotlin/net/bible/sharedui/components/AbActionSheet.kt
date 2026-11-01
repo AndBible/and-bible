@@ -117,7 +117,9 @@ fun AbActionSheetContent(
     showClose: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    // No header, no ✕ and no drag handle (non-cancellable, untitled): keep the first row off the rounded corners.
+    val topPadding = if (title.isBlank() && !showClose) 16.dp else 0.dp
+    Column(Modifier.fillMaxWidth().padding(top = topPadding, bottom = 16.dp)) {
         if (title.isNotBlank()) AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
         val body: @Composable () -> Unit = {
             Column {

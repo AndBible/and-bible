@@ -120,7 +120,9 @@ fun AbSheetHeader(
 /** The same localized close affordance in headers and compact, title-less sheet rows. */
 @Composable
 fun AbSheetCloseButton(onClose: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClose, modifier = modifier) {
+    // Inside a modal sheet the X slides it out first (like scrim/back); elsewhere it reports directly.
+    val animatedClose = LocalAbSheetAnimatedClose.current
+    IconButton(onClick = { if (animatedClose != null) animatedClose(onClose) else onClose() }, modifier = modifier) {
         Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.settingsEditorClose)
     }
 }

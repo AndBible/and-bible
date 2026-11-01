@@ -21,21 +21,21 @@ import org.robolectric.annotation.GraphicsMode
 class AppWideSheetChromeGoldenTest {
     @Test fun createRtl() = captureRtl("AppWideSheetChrome", "create", heightDp = 360) {
         SheetSurface {
-            AbCreateItemSheetContent("Create new document with a long title", "Name", "Create", "Import", {}, {})
+            AbCreateItemSheetContent("Create new document with a long title", "Name", "Create", "Import", {}, {}, onClose = {})
         }
     }
 
     @Test fun labelIdentity() = captureMatrix("AppWideSheetChrome", "labelIdentity", heightDp = 500) {
         SheetSurface {
             LabelIdentitySheetContent("Study", true, 0xff808080.toInt(), null, emptyList(), false,
-                {}, {}, {}, iconSlot = { _, _ -> })
+                {}, {}, {}, onClose = {}, iconSlot = { _, _ -> })
         }
     }
 
     @Test fun labelIdentityRtl() = captureRtl("AppWideSheetChrome", "labelIdentity", heightDp = 500) {
         SheetSurface {
             LabelIdentitySheetContent("Study", true, 0xff808080.toInt(), null, emptyList(), false,
-                {}, {}, {}, iconSlot = { _, _ -> })
+                {}, {}, {}, onClose = {}, iconSlot = { _, _ -> })
         }
     }
 

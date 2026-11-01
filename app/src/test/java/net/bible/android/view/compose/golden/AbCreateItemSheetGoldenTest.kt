@@ -44,7 +44,7 @@ class AbCreateItemSheetGoldenTest {
         initialName = "Document 3",
         confirmText = "OK",
         importText = "Import document",
-        onCreate = {}, onImport = {},
+        onCreate = {}, onImport = {}, onClose = {},
         extraContent = extra,
     )
 

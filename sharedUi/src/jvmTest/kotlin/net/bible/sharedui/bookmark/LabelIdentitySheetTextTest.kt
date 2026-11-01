@@ -37,7 +37,7 @@ class LabelIdentitySheetTextTest {
                 LabelIdentitySheetContent(
                     name = h.shown, nameEditable = true, colorArgb = 0xFF2196F3.toInt(), customIcon = null,
                     iconKeys = emptyList(), iconVisible = false,
-                    onName = h::onName, onColor = {}, onCustomIcon = {},
+                    onName = h::onName, onColor = {}, onCustomIcon = {}, onClose = {},
                     iconSlot = { _, _ -> },
                 )
             }

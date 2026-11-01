@@ -88,7 +88,7 @@ fun AbCreateItemSheetContent(
     onCreate: (String) -> Unit,
     onImport: () -> Unit,
     extraContent: (@Composable () -> Unit)? = null,
-    onClose: () -> Unit = {},
+    onClose: () -> Unit,
 ) {
     // Mirrors AbTextInputContent's own contract: it owns the text and reports every keystroke, which
     // is what lets this sheet disable its confirm button on a blank name (the dialog it replaces

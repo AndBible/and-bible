@@ -12,6 +12,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -82,6 +84,11 @@ fun AbModalBottomSheet(
     val mono = isPureMonochrome()
     val handleDescription = dragHandleDescription ?: LocalSheetDragHandleDescription.current
     val scope = rememberCoroutineScope()
+    // The close X hides the sheet (slide-down) before reporting; with instant motion it just reports (see
+    // [LocalAbSheetAnimatedClose]).
+    val animatedClose = remember(sheetState, instantMotion) {
+        if (instantMotion) null else sheetAnimatedClose(scope, sheetState)
+    }
     val ink = monoInk(LocalIsDarkTheme.current)
     val shape = BottomSheetDefaults.ExpandedShape
     val outlineModifier = if (mono) Modifier.drawWithContent {
@@ -134,9 +141,32 @@ fun AbModalBottomSheet(
         }
         MirrorHostSystemBars()
         if (mono) NoDialogNavigationContrast()
-        content()
+        CompositionLocalProvider(LocalAbSheetAnimatedClose provides animatedClose) { content() }
     }
     if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
+}
+
+/**
+ * Set by [AbModalBottomSheet] for its content: runs the given action after the sheet has slid out of view, like a
+ * scrim tap or back does. Null outside a modal sheet (goldens, reading-view sheets) and with "Disable animations",
+ * where the close X calls its `onClose` directly: the caller removing the sheet is instant anyway, and going through
+ * `hide()` would let [InstantSheetMotion] report the dismiss a second time.
+ */
+val LocalAbSheetAnimatedClose = staticCompositionLocalOf<((() -> Unit) -> Unit)?> { null }
+
+/** Hide-then-run for [LocalAbSheetAnimatedClose]; a tap while the hide is in progress is ignored. */
+@OptIn(ExperimentalMaterial3Api::class)
+private fun sheetAnimatedClose(scope: CoroutineScope, sheetState: SheetState): (() -> Unit) -> Unit {
+    var closing = false
+    return { action ->
+        if (!closing) {
+            closing = true
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                closing = false
+                if (!sheetState.isVisible) action()
+            }
+        }
+    }
 }
 
 /** Holds whether the current showing of a sheet has reported its dismiss. Not snapshot state: never read to draw. */

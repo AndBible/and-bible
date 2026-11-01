@@ -62,7 +62,7 @@ class MyDocumentPagesGoldenTest {
             AbCreateItemSheetContent(
                 title = "New page", initialName = "Page 4",
                 confirmText = "OK", importText = "Import page",
-                onCreate = {}, onImport = {},
+                onCreate = {}, onImport = {}, onClose = {},
                 extraContent = { Text("Content type: MARKDOWN") },
             )
         }

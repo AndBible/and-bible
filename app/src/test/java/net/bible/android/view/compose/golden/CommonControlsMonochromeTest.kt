@@ -25,7 +25,7 @@ class CommonControlsMonochromeTest {
     @Test fun blankNameDisablesConfirm() = captureMatrix("CommonControls", "blankName") {
         AbCreateItemSheetContent(
             title = "Create", initialName = "", confirmText = "OK", importText = "Import",
-            onCreate = {}, onImport = {},
+            onCreate = {}, onImport = {}, onClose = {},
         )
     }
 }

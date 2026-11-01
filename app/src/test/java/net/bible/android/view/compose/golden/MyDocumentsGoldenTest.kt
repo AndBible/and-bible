@@ -60,7 +60,7 @@ class MyDocumentsGoldenTest {
             AbCreateItemSheetContent(
                 title = "Create new document", initialName = "Document 4",
                 confirmText = "OK", importText = "Import document",
-                onCreate = {}, onImport = {},
+                onCreate = {}, onImport = {}, onClose = {},
             )
         }
     }

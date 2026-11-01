@@ -197,7 +197,7 @@ class LabelEditGoldenTest {
                     customIcon = null,
                     iconKeys = listOf("book", "cross", "star", "question", "robot", null),
                     iconVisible = true,
-                    onName = {}, onColor = {}, onCustomIcon = {},
+                    onName = {}, onColor = {}, onCustomIcon = {}, onClose = {},
                     iconSlot = { key, tint -> Icon(standInIconFor(key), contentDescription = null, tint = tint) },
                 )
             },

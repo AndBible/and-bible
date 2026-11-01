@@ -187,5 +187,51 @@ class AppWideSheetChromeTest {
         }
         rule.onNodeWithContentDescription(closeLabel).assertDoesNotExist()
         rule.onNodeWithContentDescription("Sheet handle").assertDoesNotExist()
+        // Back must not dismiss a non-cancellable sheet either.
+        androidx.test.espresso.Espresso.pressBack()
+        rule.waitForIdle()
+        rule.onNodeWithText("Continue").assertExists()
+    }
+
+    private fun showHeaderSheet(animations: Boolean, onClose: () -> Unit): SheetState {
+        lateinit var state: SheetState
+        rule.setContent {
+            ProvideAppLocals {
+                AbTheme(disableAnimations = !animations) {
+                    state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    AbModalBottomSheet(onDismissRequest = {}, sheetState = state, showDragHandle = false) {
+                        AbSheetHeader(title = "Header", onClose = onClose)
+                    }
+                }
+            }
+        }
+        return state
+    }
+
+    @Test fun closeButtonHidesSheetBeforeReporting() {
+        var closed = 0
+        val state = showHeaderSheet(animations = true) { closed++ }
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(2_000)
+        rule.runOnIdle { org.junit.Assert.assertTrue(state.isVisible) }
+        val closeLabel = "Close"
+        rule.onNodeWithContentDescription(closeLabel).performClick()
+        rule.onNodeWithContentDescription(closeLabel).performClick() // double tap while hiding
+        rule.mainClock.advanceTimeByFrame()
+        assertEquals("Reported before the slide-down finished", 0, closed)
+        rule.mainClock.advanceTimeBy(5_000)
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle {
+            org.junit.Assert.assertFalse(state.isVisible)
+            assertEquals(1, closed)
+        }
+    }
+
+    @Test fun closeButtonReportsOnceWithAnimationsOff() {
+        var closed = 0
+        showHeaderSheet(animations = false) { closed++ }
+        rule.onNodeWithContentDescription("Close").performClick()
+        rule.mainClock.advanceTimeBy(5_000)
+        rule.runOnIdle { assertEquals(1, closed) }
     }
 }
