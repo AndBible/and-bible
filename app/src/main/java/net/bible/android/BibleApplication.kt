@@ -113,6 +113,8 @@ open class BibleApplication : Application() {
         DatabaseContainer.installHost(AndroidDatabaseHost(this))
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
+        // Before any Compose host is created: every Compose root then honours "Disable animations".
+        net.bible.android.view.compose.AppWindowRecomposer.install()
         CommonUtils.tmpDir.deleteRecursively()
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

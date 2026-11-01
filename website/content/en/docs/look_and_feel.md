@@ -114,7 +114,8 @@ settings hierarchy described above.
     Window buttons keep a paper background and ink text: the active window has
     a thicker outline, while minimised windows use solid grey text and a dashed
     outline.
-- **Disable animations:** Turns off smooth scrolling and transition animations.
+- **Disable animations:** Turns off smooth scrolling and transition animations,
+    including sliding bottom sheets, dialogs and other animated controls.
     Improves responsiveness on e-ink screens and very old devices. This is a
     separate setting; choosing a Color mode does not toggle it.
 
