@@ -58,11 +58,24 @@ class SettingsStoreIntegrationTest {
         assertEquals("v1", runBlocking { DatabaseContainer.instance.settingsDb.stringSettingDao().byKey("d1-key") }?.value)
     }
 
+    /**
+     * Closes the container and runs [rawSql] on the closed file while the replacement still holds AI admission, as a
+     * real restore does (`replacingDatabases`). A plain `reset()` followed by the raw write raced the AI settings
+     * observer, which reopens the container on a background thread as soon as the replacement ends: its
+     * `recoverIfCorrupt` read (bundled SQLite) overlapped the write (Robolectric's own SQLite copy, whose locks it
+     * does not reliably see), got SQLITE_CORRUPT and moved the settings file aside, so the restored value was gone.
+     */
+    private fun rawSqlOnClosedContainer(sql: String) = blockingAtEdge {
+        DatabaseContainer.aiLifetime.replace { token ->
+            DatabaseContainer.resetOwned(token)
+            rawSql(sql)
+        }
+    }
+
     @Test fun restoredSettingsFileIsReadAfterReset() {
         CommonUtils.settings.setString("d1-key", "before")
-        DatabaseContainer.reset()
-        // simulate a restore: write a different value straight into the file
-        rawSql("UPDATE StringSetting SET value='after' WHERE `key`='d1-key'")
+        // simulate a restore: write a different value straight into the closed file
+        rawSqlOnClosedContainer("UPDATE StringSetting SET value='after' WHERE `key`='d1-key'")
         DatabaseContainer.reset()
         assertEquals("after", CommonUtils.settings.getString("d1-key", null))
     }
