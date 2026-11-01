@@ -61,6 +61,20 @@ class SpeakReferencesTest {
     }
 
     @Test
+    fun workPrefixesAndGrainsAreIgnored() {
+        val formatter = SpeakReferenceText(KLocale.ENGLISH)
+        for ((target, expected) in listOf(
+            "Bible:Matt.2.9" to "Matthew 2:9",
+            "KJV:Matt.2.9" to "Matthew 2:9",
+            "Matt.2.9!crossReference.a" to "Matthew 2:9",
+            "Matt.2.9@s[x]" to "Matthew 2:9",
+            "Bible:Matt.2.9!a-Bible:Matt.2.12!b" to "Matthew 2:9-2:12",
+            "Matt.2.9!a-Luke.2.12@s[x]" to "Matthew 2:9-Luke 2:12",
+            "KJV:Matt.2.9!a Bible:Luke.2.9@s[x]" to "Matthew 2:9; Luke 2:9",
+        )) assertEquals(expected, formatter.expand(target), target)
+    }
+
+    @Test
     fun invalidAndNonBibleLinksKeepTheirVisibleLabels() {
         for (target in listOf("", "bad.target", "https://example.org", "Matt.2.bad", "Matt.2.9 bad")) {
             val xml = "<verse>See <reference osisRef='$target'>the introduction</reference>.</verse>"

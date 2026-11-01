@@ -17,6 +17,7 @@
 package net.bible.service.sword
 
 import androidx.annotation.VisibleForTesting
+import net.bible.service.format.osistohtml.osishandlers.SpeakReferenceText
 import org.crosswire.common.util.KLocale
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import net.bible.sharedlogic.sync.bookNameMonitor
@@ -420,7 +421,7 @@ class SwordContentFacade(
                     Log.e(TAG, "Could not read fragment", e)
                     return@run emptyMap()
                 }
-                val references = if (forSpeech) net.bible.service.format.osistohtml.osishandlers.SpeakReferenceText(KLocale(book.language.code)) else null
+                val references = if (forSpeech) SpeakReferenceText(KLocale(book.language.code)) else null
                 val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate {
                     it.getAttribute("ordinal")!!.value.toInt() to (references?.forAnchor(it) ?: getTextRecursively(it))
                 }
@@ -842,7 +843,7 @@ class SwordContentFacade(
             actualKey = actualKey.start
         }
         val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
-        cachedText(book, actualKey, strings, forSpeech = true)[key.ordinal!!.start]?.let {
+        cachedText(book, actualKey, strings, forSpeech = true)[key.ordinal!!.start]?.takeIf { it.isNotBlank() }?.let {
             arr.add(TextCommand(it.replace("\n", " ")))
         }
         return arr

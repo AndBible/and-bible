@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.service.format.osistohtml.osishandlers
 
 import fi.sykero.kdom.Element
@@ -35,18 +52,23 @@ internal class SpeakReferenceText(private val locale: KLocale = LocaleProviderMa
         }
     }
 
+    /** Drops a leading `Work:` prefix and any `!grain` / `@grain` suffix from one osisRef endpoint. */
+    private fun stripWorkAndGrain(id: String): String =
+        id.substringBefore('@').substringBefore('!').substringAfter(':')
+
     fun expand(osisRef: String?): String? {
         if (osisRef.isNullOrBlank()) return null
         return try {
             val names = ResourceBundles.get("BibleNames", locale) ?: return null
-            osisRef.trim().split(Regex("\\s+")).map { target ->
+            osisRef.trim().split(Regex("\\s+")).map { rawTarget ->
+                val ids = rawTarget.split('-').map(::stripWorkAndGrain)
+                val target = ids.joinToString("-")
                 val range = parser.parseOsisRef(Versifications.instance().getVersification("KJVA"), target)
                     ?: return null
-                val ids = target.split('-')
                 fun endpoint(id: String, includeBook: Boolean): String {
                     val parts = id.split('.')
                     val book = if (includeBook) names.getString("${parts[0]}.Full") ?: return "" else ""
-                    val location = parts.drop(1).joinToString(":") { it.substringBefore('!') }
+                    val location = parts.drop(1).joinToString(":")
                     return listOf(book, location).filter { it.isNotEmpty() }.joinToString(" ")
                 }
                 val start = endpoint(ids[0], true).takeIf { it.isNotEmpty() } ?: return null

@@ -18,6 +18,8 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.android.control.speak.SpeakPhrases
+import org.crosswire.common.util.KLocale
+import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import net.bible.service.format.SaxTextPolicy
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
@@ -29,7 +31,7 @@ import fi.sykero.kdom.sax.DefaultHandler
 
 val PARAGRAPH_TYPE_LIST = listOf("paragraph", "x-p", "x-end-paragraph")
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy, locale: org.crosswire.common.util.KLocale = org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale()) : DefaultHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy, locale: KLocale = LocaleProviderManager.getLocale()) : DefaultHandler() {
     private val referenceText = SpeakReferenceText(locale)
     val speakCommands = SpeakCommandArray(maxSpeechInputLength)
 

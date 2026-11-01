@@ -17,13 +17,15 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.format.SaxTextPolicy
+import org.crosswire.common.util.KLocale
+import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.crosswire.jsword.book.OSISUtil
 import fi.sykero.kdom.sax.Attributes
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy, locale: org.crosswire.common.util.KLocale = org.crosswire.jsword.internationalisation.LocaleProviderManager.getLocale()) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
+class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy, locale: KLocale = LocaleProviderManager.getLocale()) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
     private val referenceText = SpeakReferenceText(locale)
     private var referenceDepth = 0
     private var writingRef = false
