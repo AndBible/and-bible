@@ -9,23 +9,20 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.MotionDurationScale
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.withContext
-import net.bible.sharedui.theme.LocalDisableAnimations
-import net.bible.sharedui.theme.NoMotionDurationScale
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
@@ -39,8 +36,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.NoMotionDurationScale
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoInk
 
@@ -49,6 +52,10 @@ import net.bible.sharedui.theme.monoInk
  * window whose bars default to visible, so `hide_status_bar` and fullscreen leaked through every sheet.
  * This mirrors the host's bar state into that window. `SheetSystemBarsGuardTest` keeps every sheet on it.
  * It does not touch `contentWindowInsets` (`SheetImeInsetGuardTest`, fix batch 2 C1).
+ *
+ * With "Disable animations" on (`LocalDisableAnimations`) a caller's own `sheetState.hide()` ends in
+ * [onDismissRequest] (the sheet's slide is taken over, see [InstantSheetMotion]), and code after that `hide()` in the
+ * same coroutine may not run: the takeover cancels the caller's animation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +72,7 @@ fun AbModalBottomSheet(
     TrackOverlay()
     val instantMotion = LocalDisableAnimations.current
     // With animations off, the library's own dismiss and ours both end in the takeover below; report it once.
-    val dismissOnce = rememberDismissOnce(sheetState, onDismissRequest)
+    val dismissOnce = rememberDismissOnce(sheetState, onDismissRequest, instantMotion)
     val dismiss = if (instantMotion) dismissOnce else onDismissRequest
     val mono = isPureMonochrome()
     val handleDescription = dragHandleDescription ?: LocalSheetDragHandleDescription.current
@@ -131,11 +138,12 @@ private class DismissReported(var value: Boolean = false)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun rememberDismissOnce(sheetState: SheetState, onDismissRequest: () -> Unit): () -> Unit {
+private fun rememberDismissOnce(sheetState: SheetState, onDismissRequest: () -> Unit, active: Boolean): () -> Unit {
     val latest by rememberUpdatedState(onDismissRequest)
     val reported = remember(sheetState) { DismissReported() }
     // A sheet shown again with the same state may be dismissed again.
-    if (sheetState.targetValue != SheetValue.Hidden) reported.value = false
+    // Read only while instant motion is active: with the setting off this adds no recomposition.
+    if (active && sheetState.targetValue != SheetValue.Hidden) reported.value = false
     return remember(sheetState) {
         {
             if (!reported.value) {
@@ -164,23 +172,26 @@ private fun InstantSheetMotion(sheetState: SheetState, dismiss: () -> Unit) {
     LaunchedEffect(sheetState) {
         if (coroutineContext[MotionDurationScale]?.scaleFactor == 0f) return@LaunchedEffect
         withContext(NoMotionDurationScale) {
-            var takingOver = false
-            snapshotFlow { sheetState.isAnimationRunning && !takingOver }
-                .filter { it }
-                .collect {
-                    val target = sheetState.targetValue
-                    takingOver = true
-                    try {
-                        when (target) {
-                            SheetValue.Hidden -> sheetState.hide()
-                            SheetValue.Expanded -> sheetState.expand()
-                            SheetValue.PartiallyExpanded -> sheetState.partialExpand()
-                        }
-                    } finally {
-                        takingOver = false
+            while (true) {
+                // Re-evaluated every round: an animation already running when this is reached (one that started during
+                // the previous takeover) is taken over at once, not missed.
+                snapshotFlow { sheetState.isAnimationRunning }.first { it }
+                val target = sheetState.targetValue
+                try {
+                    when (target) {
+                        SheetValue.Hidden -> sheetState.hide()
+                        SheetValue.Expanded -> sheetState.expand()
+                        SheetValue.PartiallyExpanded -> sheetState.partialExpand()
                     }
-                    if (target == SheetValue.Hidden && !sheetState.isVisible) dismiss()
+                } catch (e: CancellationException) {
+                    // Another sheet-state user (a finger down, the library's own show) cancelled this takeover: carry
+                    // on with the next animation. Only the effect's own cancellation ends the loop.
+                    coroutineContext.ensureActive()
                 }
+                if (target == SheetValue.Hidden && !sheetState.isVisible) dismiss()
+                // Never spin on an animation that outlives its takeover.
+                if (sheetState.isAnimationRunning) withFrameNanos { }
+            }
         }
     }
 }

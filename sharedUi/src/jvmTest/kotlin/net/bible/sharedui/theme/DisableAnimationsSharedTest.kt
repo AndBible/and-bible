@@ -24,6 +24,12 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -137,6 +143,68 @@ class DisableAnimationsSharedTest {
         assertEquals(0, state.dismissCalls)
     }
 
+    /**
+     * A takeover cancelled by another sheet-state user (a finger down, the library's own show) must not end the
+     * takeover for good: the sheet's later animations are still instant.
+     */
+    @Test fun cancelledTakeoverDoesNotEndInstantMotion() {
+        val probe = SheetProbe()
+        runComposeUiTest {
+            mainClock.autoAdvance = false
+            setContent {
+                AbTheme(darkTheme = false, disableAnimations = true) {
+                    probe.state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    probe.scope = rememberCoroutineScope()
+                    AbModalBottomSheet(onDismissRequest = { probe.dismissCalls++ }, sheetState = probe.state) {
+                        Text("sheet", Modifier.size(200.dp))
+                    }
+                }
+            }
+            mainClock.advanceTimeBy(5_000)
+            assertEquals(SheetValue.Expanded, probe.state.currentValue)
+            // A slow hide starts; once the takeover is running it, another user cancels the takeover's hide.
+            runOnIdle { probe.scope.launch { probe.state.hide() } }
+            var frames = 0
+            while (!probe.state.isAnimationRunning && frames++ < FEW_FRAMES) mainClock.advanceTimeByFrame()
+            runOnIdle { probe.scope.launch { probe.state.expand() } }
+            repeat(FEW_FRAMES) { mainClock.advanceTimeByFrame() }
+            assertEquals(SheetValue.Expanded, probe.state.currentValue)
+            assertFalse(probe.state.isAnimationRunning, "the interrupting expand must be instant too")
+            // The later close is still instant.
+            runOnIdle { probe.scope.launch { probe.state.hide() } }
+            repeat(FEW_FRAMES) { mainClock.advanceTimeByFrame() }
+            assertEquals(SheetValue.Hidden, probe.state.currentValue)
+            assertFalse(probe.state.isAnimationRunning)
+        }
+    }
+
+    /** The drag handle's dismiss action (screen readers) is instant and reports the dismiss exactly once. */
+    @Test fun dragHandleDismissIsInstantAndOnceWhenAnimationsAreDisabled() {
+        val probe = SheetProbe()
+        runComposeUiTest {
+            mainClock.autoAdvance = false
+            setContent {
+                AbTheme(darkTheme = false, disableAnimations = true) {
+                    probe.state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    AbModalBottomSheet(
+                        onDismissRequest = { probe.dismissCalls++ },
+                        sheetState = probe.state,
+                        dragHandleDescription = "Handle",
+                    ) { Text("sheet", Modifier.size(200.dp)) }
+                }
+            }
+            mainClock.advanceTimeBy(5_000)
+            assertEquals(SheetValue.Expanded, probe.state.currentValue)
+            onNodeWithContentDescription("Handle", useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.Dismiss)
+            repeat(FEW_FRAMES) { mainClock.advanceTimeByFrame() }
+            assertEquals(SheetValue.Hidden, probe.state.currentValue)
+            assertEquals(1, probe.dismissCalls)
+            mainClock.advanceTimeBy(5_000)
+            assertEquals(1, probe.dismissCalls, "still once after settling")
+        }
+    }
+
     // --- Navigation between screens ------------------------------------------------------------------------------
 
     private fun previousScreenGoneAfterFewFrames(disableAnimations: Boolean): Boolean {
@@ -176,6 +244,32 @@ class DisableAnimationsSharedTest {
 
     @Test fun navigationStillCrossfadesWhenAnimationsAreEnabled() {
         assertFalse(previousScreenGoneAfterFewFrames(disableAnimations = false), "the old screen must still fade out")
+    }
+
+    /** Toggling the setting at runtime must keep the nav graph (and the settings screen the user toggles it in). */
+    @Test fun togglingTheSettingKeepsTheDestinationState() {
+        var created = 0
+        runComposeUiTest {
+            var disable by mutableStateOf(false)
+            setContent {
+                AbTheme(darkTheme = false, disableAnimations = disable) {
+                    val nav = rememberNavController()
+                    AbNavHost(nav, startDestination = "a") {
+                        composable("a") {
+                            remember { created++ }
+                            Text("Screen A")
+                        }
+                    }
+                }
+            }
+            waitForIdle()
+            assertEquals(1, created)
+            runOnIdle { disable = true }
+            waitForIdle()
+            runOnIdle { disable = false }
+            waitForIdle()
+            assertEquals(1, created, "the destination was recreated")
+        }
     }
 
     private companion object {

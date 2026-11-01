@@ -19,11 +19,18 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import net.bible.sharedui.theme.LocalDisableAnimations
@@ -32,7 +39,12 @@ import net.bible.sharedui.theme.LocalDisableAnimations
  * The app's [NavHost]: navigation-compose's default crossfade between screens, or none while "Disable animations"
  * ([LocalDisableAnimations]) is on, so the new screen replaces the old one at once (osTicket 3499). Android's zero
  * motion-duration scale would also end the crossfade; iOS and desktop have no such scale, hence the explicit
- * transitions. With animations on the call is the plain library default, unchanged.
+ * transitions.
+ *
+ * ONE [NavHost] call whose transition lambdas read the setting when a transition starts: toggling it at runtime must
+ * not rebuild the graph (the settings screen where it is toggled lives inside it). With animations on the lambdas
+ * equal the library's own defaults (navigation-compose 2.9.2 `StandardDefaultNavTransitions`: 700 ms fade in and out,
+ * the pop transitions reuse them, no size transform).
  */
 @Composable
 @kotlin.native.HiddenFromObjC
@@ -42,19 +54,24 @@ fun AbNavHost(
     modifier: Modifier = Modifier,
     builder: NavGraphBuilder.() -> Unit,
 ) {
-    if (LocalDisableAnimations.current) {
-        NavHost(
-            navController = navController,
-            startDestination = startDestination,
-            modifier = modifier,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None },
-            sizeTransform = null,
-            builder = builder,
-        )
-    } else {
-        NavHost(navController = navController, startDestination = startDestination, modifier = modifier, builder = builder)
+    val disabled by rememberUpdatedState(LocalDisableAnimations.current)
+    val enter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        if (disabled) EnterTransition.None else fadeIn(animationSpec = tween(LIBRARY_FADE_MS))
     }
+    val exit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        if (disabled) ExitTransition.None else fadeOut(animationSpec = tween(LIBRARY_FADE_MS))
+    }
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier,
+        enterTransition = enter,
+        exitTransition = exit,
+        popEnterTransition = enter,
+        popExitTransition = exit,
+        sizeTransform = null,
+        builder = builder,
+    )
 }
+
+private const val LIBRARY_FADE_MS = 700
