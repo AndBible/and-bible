@@ -27,8 +27,10 @@ const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
  * The translations a search session starts with, shared by the search screen and the in-reading search:
  * the saved multi-selection belongs to Bible searches only, so it applies when the current document
  * [isBible]; a commentary (or any other) search targets just that document and leaves the saved Bible
- * selection alone. Saved initials no longer in [installedBibles] are dropped; when nothing usable is left,
- * the current document ([currentInitials]) is the selection.
+ * selection alone. Only saved initials in [indexedBibles] (installed Bibles with a usable search index)
+ * are restored. The current document ([currentInitials]) is always included, even without an index:
+ * searching it is deliberate, whereas a remembered unindexed translation must not trigger a prompt.
+ * Seeding does not rewrite the saved preference; explicit selector choices still allow unindexed Bibles.
  *
  * [saved] is the value stored under `SearchControl.SEARCH_TRANSLATIONS_PREF`.
  */
@@ -36,11 +38,11 @@ fun seedSearchTranslations(
     currentInitials: String?,
     isBible: Boolean,
     saved: String?,
-    installedBibles: Set<String>,
+    indexedBibles: Set<String>,
 ): List<String> {
-    val fallback = listOfNotNull(currentInitials)
-    if (!isBible) return fallback
-    return parseSavedSearchTranslations(saved, installedBibles).ifEmpty { fallback }
+    val current = listOfNotNull(currentInitials)
+    if (!isBible) return current
+    return (parseSavedSearchTranslations(saved, indexedBibles) + current).distinct()
 }
 
 /** The comma-joined saved selection, restricted to [installedBibles] initials; empty when none is saved. */

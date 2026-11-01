@@ -14,6 +14,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.sharedui.search.SEARCH_RECENT_TERMS_KEY
 import net.bible.sharedui.search.seedSearchTranslations
+import net.bible.sharedui.search.parseSavedSearchTranslations
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
@@ -222,20 +223,24 @@ class SearchHost(
 
     /**
      * Classic's `onCreate` seed AND its `onResume` re-seed in one call (they read the same two things): every
-     * installed Bible as `initials to abbreviation` sorted by abbreviation, and the persisted selection falling
-     * back to the current document.
+     * installed Bible as `initials to abbreviation` sorted by abbreviation, and the indexed persisted
+     * selection plus the current document (which may itself need an index).
      */
     internal fun loadSearchTranslations(currentDoc: Book? = currentSearchDocument): TranslationSelection {
         val bibles = SwordDocumentFacade.bibles
             .filterIsInstance<SwordBook>()
             .sortedBy { it.abbreviation }
+        val isBible = currentDoc?.bookCategory == BookCategory.BIBLE
+        val saved = appSettings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
+        val remembered = parseSavedSearchTranslations(saved, bibles.map { it.initials }.toSet())
+        val unindexed = if (isBible) bibleSearchService.unindexedAmong(remembered).toSet() else emptySet()
         return TranslationSelection(
             available = bibles.map { it.initials to it.abbreviation },
             selected = seedSearchTranslations(
                 currentInitials = currentDoc?.initials,
-                isBible = currentDoc?.bookCategory == BookCategory.BIBLE,
-                saved = appSettings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null),
-                installedBibles = bibles.map { it.initials }.toSet(),
+                isBible = isBible,
+                saved = saved,
+                indexedBibles = remembered.toSet() - unindexed,
             ),
         )
     }

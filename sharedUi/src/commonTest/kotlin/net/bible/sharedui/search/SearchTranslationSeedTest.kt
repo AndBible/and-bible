@@ -32,6 +32,8 @@ class SearchTranslationSeedTest {
         val indexed = setOf("KJV")
         assertEquals(listOf("KJV", "NASB"), seedSearchTranslations("NASB", true, "ESV,KJV", indexed))
         assertEquals(listOf("NASB"), seedSearchTranslations("NASB", true, "ESV", indexed))
+        assertEquals(listOf("NASB"), seedSearchTranslations("NASB", true, "NASB,ESV", indexed))
+        assertEquals(listOf("KJV"), seedSearchTranslations("KJV", true, "ESV,KJV", indexed))
     }
 
     @Test
