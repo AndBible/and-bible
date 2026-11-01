@@ -96,7 +96,7 @@ suspend fun startIdAliasResendOnce(dbDef: SyncableDatabaseAccessor<*>) {
  *
  * Local rows are never re-keyed and outgoing patches are unchanged, so peers on older versions see exactly what they
  * saw before. Skipped, leaving the rows as they come: an incoming id that exists locally (a shared id always wins), a
- * pair where the incoming file also carries the local id itself (its row or a delete), and a stored alias whose local row now has another
+ * pair where the incoming file also carries the local id itself (its row or a delete that wins), and a stored alias whose local row now has another
  * natural key than the incoming row (the alias is dropped: the rows are no longer the same).
  *
  * @param persist false (an import of a backup file) uses the stored aliases but stores no new ones: a backup is not a
@@ -111,10 +111,14 @@ suspend fun PooledConnection.aliasIncomingIds(category: SyncableDatabaseDefiniti
         val t = key.table
         val id = key.idColumn
         val keyMatch = key.keyColumns.joinToString(" AND ") { "p.$it IS m.$it" }
-        // The incoming file carries the local id itself (its row, or a delete of it): leave the pair alone. An UPSERT
-        // entry without a row is only an echo of this device's own entry (the sender merged the row in place) and does
-        // not count.
-        val carried = "SELECT $id FROM $schema.$t UNION SELECT entityId1 FROM $schema.LogEntry WHERE tableName = '$t' AND type = 'DELETE'"
+        // The incoming file carries the local id itself (its row, or a delete of it that wins here): leave the pair alone.
+        // An UPSERT entry without a row is only an echo of this device's own entry (the sender merged the row in place)
+        // and does not count. Nor does a delete that loses to a newer local entry: the local row stays, and a re-creation
+        // of it under a fresh id in the same file (a deleted MyDocument is re-created under a random id) must still map.
+        val carried = "SELECT $id FROM $schema.$t UNION SELECT pe.entityId1 FROM $schema.LogEntry pe " +
+            "WHERE pe.tableName = '$t' AND pe.type = 'DELETE' AND NOT EXISTS (SELECT 1 FROM main.LogEntry me " +
+            "WHERE me.tableName = pe.tableName AND me.entityId1 = pe.entityId1 AND me.entityId2 = pe.entityId2 " +
+            "AND me.lastUpdated >= pe.lastUpdated)"
         val fresh = queryRows(
             """
             SELECT quote(p.$id), quote(m.$id) FROM $schema.$t p JOIN main.$t m ON $keyMatch

@@ -563,6 +563,31 @@ class IncomingIdAliasSyncTest {
         assertEquals(setOf("a2/a2=content a2"), a.pages())
     }
 
+    /**
+     * v3 review: A's patch carries the delete of the canonical book and its re-creation under a fresh id. B edited the book
+     * after A's delete, so the delete loses there and B keeps it; the lost delete must not stop B from aliasing A's new book
+     * to its own, or A's new pages are dropped on B at every patch, re-sends included.
+     */
+    @Test fun recreatedBookWhoseDeleteLosesOnThePeerIsAliased() = run {
+        val (a, b) = sharedCanonicalBook()
+        a.deleteAndRecreateBook("a2")
+        b.md.update(b.book().apply { name = "AI renamed on b" })
+        tick()
+        sync(a, b)
+        sync(b, a)
+
+        // The newer edit of the book beat the delete, so its pages stay (as for any parent delete that loses).
+        val expected = setOf("a/a=content a", "b/b=content b", "a2/a2=content a2")
+        assertEquals(expected, b.pages())
+        assertEquals(expected, a.pages())
+        assertEquals("AI renamed on b", b.book().name)
+        assertEquals("AI renamed on b", a.book().name)
+        // Later child-only patches follow too.
+        a.addPage(a.book().id, "a3")
+        sync(a, b)
+        assert("a3/a3=content a3" in b.pages())
+    }
+
     /** The other direction: B deleted the book; A, having applied that delete, re-creates it, and so does B later. */
     @Test fun bookRecreatedAfterAReceivedDeleteGetsAFreshId() = run {
         val (a, b) = sharedCanonicalBook()
@@ -630,8 +655,9 @@ class IncomingIdAliasSyncTest {
         createPatchForDatabase(a, env)
         sync(b, a) // A learns B's book id: R2
         a.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis()) // an overlapping upload finishes
+        a.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
         tick()
-        assert(a.hasChanges())
+        assert(a.hasChanges()) // only the pending re-send says so
         startIdAliasResendOnce(a) // the next upload
         assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
         startIdAliasResendOnce(a) // consumed: once per learned pair
@@ -653,7 +679,9 @@ class IncomingIdAliasSyncTest {
         tick()
         val m = docDevice(copyOf = File(a.localDbPath), deviceId = b.deviceId)
         m.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-        m.dao.removeConfig(ID_ALIAS_RESEND_PENDING_KEY) // A's own pending R2 came with the copy
+        // A's own pending R2 came with the copy (harmless: the flag only re-sends this device's own entries, and this
+        // copy has none yet); cleared so the assertion below sees what the merge itself does.
+        m.dao.removeConfig(ID_ALIAS_RESEND_PENDING_KEY)
         val snapshot = File.createTempFile("snapshot-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         prepareMergeSnapshot(b, snapshot.toOkioPath())
         tick()
@@ -692,6 +720,7 @@ class IncomingIdAliasSyncTest {
         startIdAliasResendOnce(b)
         sync(b, a)
         assertEquals(setOf("a/a=content a", "b/b=content b"), a.pages())
+        a.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
         assert(a.hasChanges()) // R2 pending: the next upload (syncNew) re-sends the whole log
         syncNew(a, b)
         assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
