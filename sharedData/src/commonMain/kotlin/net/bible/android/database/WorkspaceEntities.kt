@@ -27,6 +27,7 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlin.concurrent.Volatile
 import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
@@ -593,7 +594,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: IdType, var lastAccess: Long)
+    data class RecentLabel(val labelId: IdType, val lastAccess: Long)
 
     @Serializable
     data class WorkspaceSettings(
@@ -602,11 +603,13 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
+        // Published snapshots: writers replace these collections, never mutate a shared instance.
+        // Background saves, Room converters and BibleView readers can safely iterate an older value.
+        @Volatile @ColumnInfo(defaultValue = "NULL") var recentLabels: List<RecentLabel> = emptyList(),
+        @Volatile @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: Set<IdType> = emptySet(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
-        @ColumnInfo(defaultValue = "NULL") var studyPadCursors: MutableMap<IdType, Int> = mutableMapOf(),
-        @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
+        @Volatile @ColumnInfo(defaultValue = "NULL") var studyPadCursors: Map<IdType, Int> = emptyMap(),
+        @Volatile @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: Set<String> = emptySet(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
         @ColumnInfo(defaultValue = "1") var restoreButtonsVisible: Boolean = true,

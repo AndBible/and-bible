@@ -210,8 +210,8 @@ class BookmarkControlSideEffectsTest {
         assertEquals(saved.id, seen.filterIsInstance<BookmarkChange.BookmarksUpserted>().single().bookmarks.single().id)
     }
 
-    private class ThrowingList : ArrayList<WorkspaceEntities.RecentLabel>() {
-        override fun iterator(): MutableIterator<WorkspaceEntities.RecentLabel> = throw IllegalStateException("recentLabels boom")
-        override fun add(element: WorkspaceEntities.RecentLabel): Boolean = throw IllegalStateException("recentLabels boom")
+    private class ThrowingList : AbstractList<WorkspaceEntities.RecentLabel>() {
+        override val size: Int get() = throw IllegalStateException("recentLabels boom")
+        override fun get(index: Int): WorkspaceEntities.RecentLabel = throw IllegalStateException("recentLabels boom")
     }
 }

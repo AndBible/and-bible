@@ -30,6 +30,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.page.window.setStudyPadCursor
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
@@ -301,7 +302,7 @@ open class BookmarkControl constructor(
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
                             incrementOrderNumbersFrom(labelId, orderNumber)
-                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
+                            workspaceSettings.setStudyPadCursor(labelId, orderNumber + 1)
                         }
                         BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
@@ -314,7 +315,7 @@ open class BookmarkControl constructor(
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
                             incrementOrderNumbersFrom(labelId, orderNumber)
-                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
+                            workspaceSettings.setStudyPadCursor(labelId, orderNumber + 1)
                         }
                         GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
@@ -987,7 +988,7 @@ open class BookmarkControl constructor(
         val workspaceSettings = windowControl.windowRepository?.workspaceSettings ?: return
         val cursor = workspaceSettings.studyPadCursors[labelId] ?: return
         if (cursor >= orderNumber) {
-            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+            workspaceSettings.setStudyPadCursor(labelId, cursor + 1)
             afterBridge { WorkspaceChanges.notifySettingsEdited() }
         }
     }

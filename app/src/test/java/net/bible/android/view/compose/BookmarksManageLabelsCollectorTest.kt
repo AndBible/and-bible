@@ -82,7 +82,8 @@ class BookmarksManageLabelsCollectorTest {
         DatabaseResetter.resetDatabase()
         // WindowControl is a Koin singleton, so the workspace settings one test wrote survive into
         // the next. Reset them, or "wrote nothing" reads the previous test's write.
-        (autoAssignLabels() as MutableSet<*>).clear()
+        GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
+            .windowRepository.workspaceSettings.autoAssignLabels = emptySet()
     }
 
     private fun host(): NavHostComposeActivity {

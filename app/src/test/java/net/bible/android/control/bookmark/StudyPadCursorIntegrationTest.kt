@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.window.setStudyPadCursor
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
@@ -99,7 +100,7 @@ class StudyPadCursorIntegrationTest {
         val cursorPosition = 5
 
         // Set cursor
-        workspaceSettings.studyPadCursors[label.id] = cursorPosition
+        workspaceSettings.setStudyPadCursor(label.id, cursorPosition)
 
         // Get cursor
         val retrievedPosition = workspaceSettings.studyPadCursors[label.id]
@@ -123,10 +124,10 @@ class StudyPadCursorIntegrationTest {
         val label = createTestLabel()
 
         // Set initial cursor
-        workspaceSettings.studyPadCursors[label.id] = 5
+        workspaceSettings.setStudyPadCursor(label.id, 5)
 
         // Update cursor
-        workspaceSettings.studyPadCursors[label.id] = 10
+        workspaceSettings.setStudyPadCursor(label.id, 10)
 
         // Verify update
         val cursorPosition = workspaceSettings.studyPadCursors[label.id]
@@ -154,7 +155,7 @@ class StudyPadCursorIntegrationTest {
         assertBookmarkOrder(bookmark3, label, 2)
 
         // Set cursor to position 1 (between bookmark1 and bookmark2)
-        workspaceSettings.studyPadCursors[label.id] = 1
+        workspaceSettings.setStudyPadCursor(label.id, 1)
 
         // Add new bookmark - should be inserted at cursor position
         val newBookmark = createTestBookmark()
@@ -181,7 +182,7 @@ class StudyPadCursorIntegrationTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label))
 
         // Set cursor to position 0 (start)
-        workspaceSettings.studyPadCursors[label.id] = 0
+        workspaceSettings.setStudyPadCursor(label.id, 0)
 
         // Add new bookmark
         val newBookmark = createTestBookmark()
@@ -207,7 +208,7 @@ class StudyPadCursorIntegrationTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label))
 
         // Set cursor to position 2 (after all items)
-        workspaceSettings.studyPadCursors[label.id] = 2
+        workspaceSettings.setStudyPadCursor(label.id, 2)
 
         // Add new bookmark
         val newBookmark = createTestBookmark()
@@ -256,7 +257,7 @@ class StudyPadCursorIntegrationTest {
         bookmarks.forEach { bookmarkControl!!.setLabelsForBookmark(it, listOf(label)) }
 
         // Set cursor to middle position
-        workspaceSettings.studyPadCursors[label.id] = 2
+        workspaceSettings.setStudyPadCursor(label.id, 2)
 
         // Add new bookmark
         val newBookmark = createTestBookmark()
@@ -276,7 +277,7 @@ class StudyPadCursorIntegrationTest {
         val label = createTestLabel()
 
         // Set cursor to 0
-        workspaceSettings.studyPadCursors[label.id] = 0
+        workspaceSettings.setStudyPadCursor(label.id, 0)
 
         // Add 3 bookmarks consecutively
         val bookmark1 = createTestBookmark()
@@ -313,8 +314,8 @@ class StudyPadCursorIntegrationTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label2))
 
         // Set different cursors
-        workspaceSettings.studyPadCursors[label1.id] = 0
-        workspaceSettings.studyPadCursors[label2.id] = 1
+        workspaceSettings.setStudyPadCursor(label1.id, 0)
+        workspaceSettings.setStudyPadCursor(label2.id, 1)
 
         // Add bookmark to both labels
         val newBookmark = createTestBookmark()
@@ -341,7 +342,7 @@ class StudyPadCursorIntegrationTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label1, label2))
 
         // Set cursor only for label1
-        workspaceSettings.studyPadCursors[label1.id] = 1
+        workspaceSettings.setStudyPadCursor(label1.id, 1)
 
         // Add new bookmark to both labels
         val newBookmark = createTestBookmark()
@@ -368,9 +369,9 @@ class StudyPadCursorIntegrationTest {
         bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label1, label2, label3))
 
         // Set different cursors for each label
-        workspaceSettings.studyPadCursors[label1.id] = 0
-        workspaceSettings.studyPadCursors[label2.id] = 1
-        workspaceSettings.studyPadCursors[label3.id] = 2
+        workspaceSettings.setStudyPadCursor(label1.id, 0)
+        workspaceSettings.setStudyPadCursor(label2.id, 1)
+        workspaceSettings.setStudyPadCursor(label3.id, 2)
 
         // Add new bookmark to all labels at once
         // NOTE: setLabelsForBookmark with multiple labels processes each label independently
@@ -396,7 +397,7 @@ class StudyPadCursorIntegrationTest {
         val cursorPosition = 5
 
         // Set cursor
-        workspaceSettings.studyPadCursors[label.id] = cursorPosition
+        workspaceSettings.setStudyPadCursor(label.id, cursorPosition)
 
         // Save to database
         windowRepository.saveIntoDb()
@@ -421,9 +422,9 @@ class StudyPadCursorIntegrationTest {
         val label3 = createTestLabel()
 
         // Set multiple cursors
-        workspaceSettings.studyPadCursors[label1.id] = 5
-        workspaceSettings.studyPadCursors[label2.id] = 10
-        workspaceSettings.studyPadCursors[label3.id] = 0
+        workspaceSettings.setStudyPadCursor(label1.id, 5)
+        workspaceSettings.setStudyPadCursor(label2.id, 10)
+        workspaceSettings.setStudyPadCursor(label3.id, 0)
 
         // Save
         windowRepository.saveIntoDb()
@@ -453,7 +454,7 @@ class StudyPadCursorIntegrationTest {
         val label = createTestLabel()
 
         // Set cursor in empty study pad
-        workspaceSettings.studyPadCursors[label.id] = 0
+        workspaceSettings.setStudyPadCursor(label.id, 0)
 
         // Add first bookmark
         val bookmark = createTestBookmark()
@@ -478,7 +479,7 @@ class StudyPadCursorIntegrationTest {
 
         // Set cursor beyond current length (10, when only 2 items exist)
         // NOTE: This is an edge case - normally UI would prevent this, but we test the behavior
-        workspaceSettings.studyPadCursors[label.id] = 10
+        workspaceSettings.setStudyPadCursor(label.id, 10)
 
         // Add new bookmark
         val newBookmark = createTestBookmark()
@@ -499,11 +500,11 @@ class StudyPadCursorIntegrationTest {
         val label = createTestLabel()
 
         // Set cursor
-        workspaceSettings.studyPadCursors[label.id] = 5
+        workspaceSettings.setStudyPadCursor(label.id, 5)
         Assert.assertNotNull("Cursor should be set", workspaceSettings.studyPadCursors[label.id])
 
         // Remove cursor
-        workspaceSettings.studyPadCursors.remove(label.id)
+        workspaceSettings.studyPadCursors -= label.id
 
         // Verify cursor removed
         Assert.assertNull("Cursor should be removed", workspaceSettings.studyPadCursors[label.id])
