@@ -23,6 +23,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +32,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +41,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -56,18 +60,22 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
+import org.robolectric.shadows.ShadowSystemClock
 import java.time.Duration
 
 /**
  * osTicket 3499: the "Disable animations" setting must also make Compose animations instant, through the window
- * recomposer every Android Compose root gets (installed in `BibleApplication`), not per component.
+ * recomposer every Android Compose root gets ([AppWindowRecomposer], installed in `BibleApplication`), not per
+ * component.
  *
  * Deliberately no Compose test rule: the rule installs its own recomposer (and with it its own clock and motion scale)
  * through `WindowRecomposerPolicy.withFactory`, which would hide the production wiring. The activity runs on
- * Robolectric's paused main looper, so [step] advances real (shadow) time frame by frame, like a device would.
+ * Robolectric's paused main looper and [step] advances it frame by frame.
  *
- * Each animation lasts 1-2 s; [FEW_FRAMES] (about 50 ms) is far too short for it to finish unless the duration scale
- * is zero, and far too long for a zero-scale animation not to have finished (it ends on the next frame).
+ * Robolectric's frame times jump (a 2 s tween was 96 % done after three frames), so the timing probes use
+ * [LONG_MILLIS] (60 s) specs: far longer than any such jump, yet ended on the next frame by a zero duration scale.
+ * The library's own sheet animation cannot be lengthened, so the sheet is covered by the scale its window's effects
+ * see and by the hide-then-dismiss flow, not by timing.
  */
 @RunWith(RobolectricTestRunner::class)
 @LooperMode(LooperMode.Mode.PAUSED)
@@ -80,7 +88,7 @@ class DisableAnimationsMotionScaleTest {
         controllers.forEach { it.pause().stop().destroy() }
     }
 
-    private fun launch(content: @androidx.compose.runtime.Composable () -> Unit): ComponentActivity {
+    private fun launch(content: @Composable () -> Unit): ComponentActivity {
         val controller = Robolectric.buildActivity(ComponentActivity::class.java).also { controllers += it }
         controller.create().start().resume().visible()
         controller.get().setContent { content() }
@@ -88,10 +96,53 @@ class DisableAnimationsMotionScaleTest {
         return controller.get()
     }
 
-    /** Publishes state writes made outside composition and lets [millis] of frames run. */
+    /**
+     * Publishes state writes made outside composition and lets [millis] of frames run.
+     *
+     * Not `ShadowLooper.idleFor`: with an open `ModalBottomSheet` (a Popup) the paused looper is never idle, so
+     * `idle()` spins forever (memory robolectric-open-sheet-idle-hang). Time advances one frame at a time instead,
+     * and only the tasks due by then run, with a cap per frame.
+     */
     private fun step(millis: Long = FEW_FRAMES) {
         Snapshot.sendApplyNotifications()
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(millis))
+        val looper = shadowOf(Looper.getMainLooper())
+        repeat((millis / FRAME_MILLIS).toInt().coerceAtLeast(1)) {
+            ShadowSystemClock.advanceBy(Duration.ofMillis(FRAME_MILLIS))
+            var tasks = 0
+            while (!looper.isIdle && tasks++ < MAX_TASKS_PER_FRAME) looper.runOneTask()
+            Snapshot.sendApplyNotifications()
+        }
+    }
+
+    // --- The duration scale the effects see ---------------------------------------------------------------------
+
+    private class ScaleProbe {
+        var scope: CoroutineScope? = null
+        val scale: Float? get() = scope?.coroutineContext?.get(MotionDurationScale)?.scaleFactor
+    }
+
+    @Test fun rootEffectsSeeZeroScaleWhileTheSettingIsOnAndFollowItLive() {
+        CommonUtils.settings.setBoolean("disable_animations", true)
+        val probe = ScaleProbe()
+        launch { probe.scope = rememberCoroutineScope() }
+        assertEquals(0f, probe.scale)
+        CommonUtils.settings.setBoolean("disable_animations", false)
+        assertEquals("the same window follows the setting without a rebuild", 1f, probe.scale)
+        CommonUtils.settings.setBoolean("disable_animations", true)
+        assertEquals(0f, probe.scale)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test fun bottomSheetWindowInheritsTheZeroScale() {
+        CommonUtils.settings.setBoolean("disable_animations", true)
+        val probe = ScaleProbe()
+        launch {
+            ModalBottomSheet(onDismissRequest = {}) {
+                probe.scope = rememberCoroutineScope()
+                Text("sheet", Modifier.size(200.dp))
+            }
+        }
+        assertEquals("the sheet composes in its own window, through the parent composition context", 0f, probe.scale)
     }
 
     // --- AnimatedVisibility (Transition-based) ---------------------------------------------------------------
@@ -101,7 +152,7 @@ class DisableAnimationsMotionScaleTest {
         var visible by mutableStateOf(true)
         var contentPresent = false
         launch {
-            AnimatedVisibility(visible) {
+            AnimatedVisibility(visible, exit = fadeOut(tween(LONG_MILLIS))) {
                 DisposableEffect(Unit) {
                     contentPresent = true
                     onDispose { contentPresent = false }
@@ -130,7 +181,7 @@ class DisableAnimationsMotionScaleTest {
         var target by mutableStateOf(0f)
         var current = -1f
         launch {
-            val value by animateFloatAsState(target, tween(durationMillis = 2_000), label = "probe")
+            val value by animateFloatAsState(target, tween(durationMillis = LONG_MILLIS), label = "probe")
             current = value
         }
         target = 1f
@@ -147,75 +198,45 @@ class DisableAnimationsMotionScaleTest {
         assertTrue("expected an intermediate value, was $value", value < 1f)
     }
 
-    // --- ModalBottomSheet show/hide (SheetState animations from rememberCoroutineScope, in the sheet's own window) --
+    // --- ModalBottomSheet hide-then-dismiss still completes with a zero scale ----------------------------------
 
     @OptIn(ExperimentalMaterial3Api::class)
-    private class SheetProbe {
+    @Test fun sheetHideThenDismissStillCompletesWhenAnimationsAreDisabled() {
+        CommonUtils.settings.setBoolean("disable_animations", true)
         var state: SheetState? = null
-        var showRequested by mutableStateOf(false)
         var hideRequested by mutableStateOf(false)
-        var dismissed = false
         var open by mutableStateOf(true)
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    private fun sheetProbe(animationsOff: Boolean): SheetProbe {
-        CommonUtils.settings.setBoolean("disable_animations", animationsOff)
-        val probe = SheetProbe()
+        var dismissed = false
         launch {
-            if (probe.open) {
-                val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-                probe.state = state
+            if (open) {
+                val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                state = sheetState
                 val scope = rememberCoroutineScope()
-                LaunchedEffect(probe.hideRequested) {
+                LaunchedEffect(hideRequested) {
                     // The production hide-then-dismiss pattern (memory compose-modalbottomsheet-hide-before-dismiss).
-                    if (probe.hideRequested) scope.launch { state.hide() }.invokeOnCompletion {
-                        if (!state.isVisible) {
-                            probe.dismissed = true
-                            probe.open = false
+                    if (hideRequested) scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            dismissed = true
+                            open = false
                         }
                     }
                 }
-                ModalBottomSheet(onDismissRequest = { probe.open = false }, sheetState = state) {
+                ModalBottomSheet(onDismissRequest = { open = false }, sheetState = sheetState) {
                     Text("sheet", Modifier.size(200.dp))
                 }
             }
         }
-        return probe
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Test fun sheetShowsAndHidesInstantlyWhenAnimationsAreDisabled() {
-        val probe = sheetProbe(animationsOff = true)
-        assertEquals("shown within a few frames", SheetValue.Expanded, probe.state!!.currentValue)
-        probe.hideRequested = true
+        assertEquals("shown within a few frames", SheetValue.Expanded, state!!.currentValue)
+        hideRequested = true
         step()
-        assertTrue("hide finished and the dismiss callback ran", probe.dismissed)
-        assertEquals(SheetValue.Hidden, probe.state!!.currentValue)
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Test fun sheetStillAnimatesWhenAnimationsAreEnabled() {
-        val probe = sheetProbe(animationsOff = false)
-        assertEquals("still sliding in after a few frames", SheetValue.Hidden, probe.state!!.currentValue)
-        step(5_000)
-        assertEquals(SheetValue.Expanded, probe.state!!.currentValue)
-        probe.hideRequested = true
-        step()
-        assertFalse("still sliding out after a few frames", probe.dismissed)
-        step(5_000)
-        assertTrue("dismissed once the slide-out ends", probe.dismissed)
-    }
-
-    @Test fun diagnostic() {
-        var scale: Float? = -2f
-        launch { scale = rememberCoroutineScope().coroutineContext[androidx.compose.ui.MotionDurationScale]?.scaleFactor }
-        println("DIAG scale=$scale settings=" + android.provider.Settings.Global.getFloat(
-            androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>().contentResolver,
-            android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, -1f) + " va=" + android.animation.ValueAnimator.getDurationScale())
+        assertTrue("hide finished and the dismiss callback ran", dismissed)
+        assertEquals(SheetValue.Hidden, state!!.currentValue)
     }
 
     private companion object {
         const val FEW_FRAMES = 50L
+        const val FRAME_MILLIS = 16L
+        const val MAX_TASKS_PER_FRAME = 1_000
+        const val LONG_MILLIS = 60_000
     }
 }
