@@ -115,6 +115,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             // could do with a document Lucene cannot read.
             onCancel = { state.leaveSearch() },
             onDismissError = state.searchIndexProgress::dismissError,
+            onClose = { controller.closeSheet() },
             engineChanged = state.searchIndexService.hasLegacyIndex(indexDocId),
         )
         return

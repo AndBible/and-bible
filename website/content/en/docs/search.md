@@ -13,7 +13,8 @@ Search results appear in a sheet over the reading view. Tap the **X in the resul
 sheet** to hide the results without leaving search mode; the **X in the search
 toolbar** leaves search mode. You can also swipe the sheet down to dismiss it.
 The results sheet has no drag bar: it fits its content rather than offering
-multiple sizes. Search options have their own close button too.
+multiple sizes. Search options have their own close button too. While an index is
+being created, the progress sheet's **X** hides progress without cancelling indexing.
 
 ## Bible searches
 
