@@ -1,10 +1,10 @@
 package net.bible.android.view.compose
 
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.performSemanticsAction
+import net.bible.android.activity.R
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -126,10 +126,10 @@ class BookmarkRecreationStateTest {
         awaitHostRoute(activity, NavRoutes.LABEL_EDIT_PATTERN, ::advance)
         compose.onNodeWithText("Label 1").performClick()
         compose.onNode(hasSetTextAction()).performTextReplacement("BM13 unsaved assigned label")
-        // Close only the identity sheet. The name is a live controller edit, not a submitted dialog.
-        // ModalBottomSheet owns a separate dialog window; the Activity's dispatcher is not its Back owner.
-        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
-            .performSemanticsAction(SemanticsActions.Dismiss)
+        // Close only the identity sheet (its X, next to the name field). The name is a live controller edit, not a
+        // submitted dialog. ModalBottomSheet owns a separate dialog window; the Activity's dispatcher is not its Back owner.
+        compose.onNode(hasContentDescription(activity.getString(R.string.close)) and hasClickAction())
+            .performClick()
         awaitHostCondition("identity sheet finishes dismissing before recreation", ::advance) {
             compose.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty()
         }
