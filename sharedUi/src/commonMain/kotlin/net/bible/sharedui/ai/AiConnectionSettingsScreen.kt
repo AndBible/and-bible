@@ -457,7 +457,7 @@ private fun RetentionSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         RetentionSheetContent(title = title, currentDays = currentDays, onSave = onSave, onClose = onDismiss)
     }
 }

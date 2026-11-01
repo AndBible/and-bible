@@ -90,7 +90,7 @@ fun ManageLabelsSearchOptionsSheet(
 ) {
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         ManageLabelsSearchOptionsSheetContent(
             mode = mode,
             searchMode = searchMode,

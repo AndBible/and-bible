@@ -88,6 +88,7 @@ fun AbActionSheet(
     AbModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        showDragHandle = false,
         properties = ModalBottomSheetProperties(shouldDismissOnBackPress = cancellable),
     ) {
         AbActionSheetContent(
@@ -117,19 +118,24 @@ fun AbActionSheetContent(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
-        if (message != null) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            )
+        if (title.isNotBlank()) AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
+        val body: @Composable () -> Unit = {
+            Column {
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    )
+                }
+                content()
+                if (dismissText != null) {
+                    AbActionSheetRow(label = dismissText, onClick = onClose)
+                }
+            }
         }
-        content()
-        if (dismissText != null) {
-            AbActionSheetRow(label = dismissText, onClick = onClose)
-        }
+        if (title.isBlank() && showClose) AbSheetCloseOverlay(onClose, body) else body()
     }
 }
 

@@ -57,17 +57,18 @@ class SearchGoldenTest {
 
     @Test fun search_settings_open() {
         captureGolden("Search", "settings_open", EDGE_MODE) {
-            SearchScreen(
-                title = "Search",
-                query = "in the beginning",
-                searchType = SearchType.PHRASE,
-                bibleSection = SearchBibleSection.OLD_TESTAMENT,
-                availableTranslations = translations,
-                selectedTranslationIds = listOf("esv"),
-                onQueryChange = {}, onSearchType = {}, onBibleSection = {},
-                onTranslations = {}, onSubmit = {}, onNavigateUp = {},
-                initiallySettingsOpen = true,
-            )
+            net.bible.sharedui.components.AbSettingsSummarySheetContent(
+                onClose = {}, title = net.bible.sharedui.strings.LocalStrings.current.searchOptions,
+            ) {
+                net.bible.sharedui.search.BibleSearchSettings(
+                    searchType = SearchType.PHRASE,
+                    bibleSection = SearchBibleSection.OLD_TESTAMENT,
+                    availableTranslations = translations,
+                    selectedTranslationIds = listOf("esv"),
+                    currentBookName = "Genesis",
+                    onSearchType = {}, onBibleSection = {}, onTranslations = {},
+                )
+            }
         }
     }
 

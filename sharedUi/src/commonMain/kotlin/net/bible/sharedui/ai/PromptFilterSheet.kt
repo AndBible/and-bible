@@ -71,7 +71,7 @@ internal fun PromptFilterSheet(
 ) {
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         PromptFilterSheetContent(
             filter = filter,
             categories = categories,

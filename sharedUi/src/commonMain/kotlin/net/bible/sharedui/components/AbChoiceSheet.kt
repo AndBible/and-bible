@@ -62,7 +62,7 @@ fun AbChoiceSheet(
 ) {
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         AbChoiceSheetContent(
             title = title,
             choices = choices,
@@ -94,19 +94,22 @@ fun AbChoiceSheetContent(
     scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        AbSheetHeader(title = title, onClose = onClose)
-        AbSheetScrollBound(canScrollForward = { scrollState.canScrollForward }) {
-            AbListChoiceContent(
-                choices = choices,
-                selectedValue = selectedValue,
-                onSelect = onSelect,
-                // Horizontal padding only. `AbListChoiceContent`'s CAUTION kdoc is about a HEIGHT
-                // bound landing inside its `verticalScroll` — padding is unaffected by that
-                // mechanism, and the height bound is supplied by `AbSheetScrollBound` above,
-                // exactly as that kdoc requires.
-                modifier = Modifier.padding(horizontal = 16.dp),
-                scrollState = scrollState,
-            )
+        if (title.isNotBlank()) AbSheetHeader(title = title, onClose = onClose)
+        val choicesContent: @Composable () -> Unit = {
+            AbSheetScrollBound(canScrollForward = { scrollState.canScrollForward }) {
+                AbListChoiceContent(
+                    choices = choices,
+                    selectedValue = selectedValue,
+                    onSelect = onSelect,
+                    // Horizontal padding only. `AbListChoiceContent`'s CAUTION kdoc is about a HEIGHT
+                    // bound landing inside its `verticalScroll` — padding is unaffected by that
+                    // mechanism, and the height bound is supplied by `AbSheetScrollBound` above,
+                    // exactly as that kdoc requires.
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    scrollState = scrollState,
+                )
+            }
         }
+        if (title.isBlank()) AbSheetCloseOverlay(onClose, choicesContent) else choicesContent()
     }
 }

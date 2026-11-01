@@ -65,7 +65,7 @@ fun AbCreateItemSheet(
     extraContent: (@Composable () -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, showDragHandle = false) {
         AbCreateItemSheetContent(
             title = title,
             initialName = initialName,
@@ -73,6 +73,7 @@ fun AbCreateItemSheet(
             importText = importText,
             onCreate = onCreate,
             onImport = onImport,
+            onClose = onDismiss,
             extraContent = extraContent,
         )
     }
@@ -87,41 +88,40 @@ fun AbCreateItemSheetContent(
     onCreate: (String) -> Unit,
     onImport: () -> Unit,
     extraContent: (@Composable () -> Unit)? = null,
+    onClose: () -> Unit = {},
 ) {
     // Mirrors AbTextInputContent's own contract: it owns the text and reports every keystroke, which
     // is what lets this sheet disable its confirm button on a blank name (the dialog it replaces
     // silently swallowed a blank confirm instead).
     var current by remember(initialName) { mutableStateOf(initialName) }
-    Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 12.dp),
-        )
-        AbTextInputContent(
-            initial = initialName,
-            onValueChange = { current = it },
-            extraContent = extraContent,
-        )
-        Button(
-            onClick = { onCreate(current.trim()) },
-            enabled = current.isNotBlank(),
-            colors = if (isPureMonochrome()) ButtonDefaults.buttonColors(
-                disabledContainerColor = MaterialTheme.colorScheme.surface,
-                disabledContentColor = LocalAbColors.current.monoDisabled,
-            ) else ButtonDefaults.buttonColors(),
-            border = if (isPureMonochrome() && current.isBlank()) {
-                BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)
-            } else null,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-        ) { Text(confirmText) }
-        HorizontalDivider(Modifier.padding(vertical = 12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onImport).padding(vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Filled.FileDownload, contentDescription = null, modifier = Modifier.padding(end = 16.dp))
-            Text(importText, style = MaterialTheme.typography.bodyLarge)
+    Column(Modifier.fillMaxWidth()) {
+        AbSheetHeader(title = title, onClose = onClose)
+        Column(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 24.dp)) {
+            AbTextInputContent(
+                initial = initialName,
+                onValueChange = { current = it },
+                extraContent = extraContent,
+            )
+            Button(
+                onClick = { onCreate(current.trim()) },
+                enabled = current.isNotBlank(),
+                colors = if (isPureMonochrome()) ButtonDefaults.buttonColors(
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = LocalAbColors.current.monoDisabled,
+                ) else ButtonDefaults.buttonColors(),
+                border = if (isPureMonochrome() && current.isBlank()) {
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)
+                } else null,
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            ) { Text(confirmText) }
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onImport).padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Filled.FileDownload, contentDescription = null, modifier = Modifier.padding(end = 16.dp))
+                Text(importText, style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }

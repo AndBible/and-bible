@@ -154,7 +154,7 @@ class AppWideSheetChromeTest {
         }
         val close = rule.onNodeWithContentDescription(closeLabel).fetchSemanticsNode().boundsInRoot
         val action = rule.onNodeWithText("First action", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        org.junit.Assert.assertTrue("Close must share the first action row", close.top < action.bottom)
+        org.junit.Assert.assertTrue("Close must share the first action row", close.top < action.bottom && close.bottom > action.top)
     }
 
     @Test fun untitledChoiceSharesFirstRowWithClose() {
@@ -169,7 +169,7 @@ class AppWideSheetChromeTest {
         }
         val close = rule.onNodeWithContentDescription(closeLabel).fetchSemanticsNode().boundsInRoot
         val choice = rule.onNodeWithText("Alpha", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        org.junit.Assert.assertTrue("Close must share the first choice row", close.top < choice.bottom)
+        org.junit.Assert.assertTrue("Close must share the first choice row", close.top < choice.bottom && close.bottom > choice.top)
     }
 
     @Test fun nonCancellableActionHasNeitherCloseNorHandle() {
