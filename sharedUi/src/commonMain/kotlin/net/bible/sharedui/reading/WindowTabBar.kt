@@ -17,6 +17,12 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -181,7 +187,13 @@ fun WindowTabBar(
                 onToggleCollapse = onToggleCollapse,
             )
 
-            AnimatedVisibility(visible = model.showButtons, modifier = Modifier.weight(1f, fill = false)) {
+            AnimatedVisibility(
+                visible = model.showButtons,
+                modifier = Modifier.weight(1f, fill = false),
+                // The library's RowScope defaults, or none with "Disable animations" (osTicket 3499).
+                enter = if (disableAnimations) EnterTransition.None else fadeIn() + expandHorizontally(),
+                exit = if (disableAnimations) ExitTransition.None else fadeOut() + shrinkHorizontally(),
+            ) {
                 LazyRow(
                     state = listState,
                     horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End),
