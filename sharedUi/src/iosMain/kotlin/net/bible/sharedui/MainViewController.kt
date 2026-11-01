@@ -1,5 +1,6 @@
 package net.bible.sharedui
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -290,7 +291,7 @@ fun MainViewController(): UIViewController {
 private fun StartupSplash(dark: Boolean) {
     AbTheme(darkTheme = dark) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            AbIndeterminateCircularProgress()
         }
     }
 }

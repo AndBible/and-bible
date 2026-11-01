@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.download
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -134,7 +135,7 @@ fun CustomRepositoryEditorScreen(
                             Icon(Icons.Filled.ContentPaste, contentDescription = strings.pasteFromClipboard)
                         }
                         when (state.validation) {
-                            Validation.Validating -> CircularProgressIndicator(
+                            Validation.Validating -> AbIndeterminateCircularProgress(
                                 modifier = Modifier.size(20.dp).padding(end = 8.dp),
                                 strokeWidth = 2.dp,
                             )

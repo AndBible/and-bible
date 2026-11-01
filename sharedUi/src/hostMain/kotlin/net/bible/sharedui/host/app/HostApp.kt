@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.app
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -258,7 +259,7 @@ fun HostApp(platform: AppHostPlatform, recoveryStartRoute: String? = null, recov
                 val route = startRoute
                 if (route == null) {
                     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        AbIndeterminateCircularProgress()
                         platform.DebugFontScaleProbe()
                     }
                 } else {
@@ -639,7 +640,7 @@ private fun HostReadingDestination(
     }
     if (ready != true) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            AbIndeterminateCircularProgress()
         }
         return
     }

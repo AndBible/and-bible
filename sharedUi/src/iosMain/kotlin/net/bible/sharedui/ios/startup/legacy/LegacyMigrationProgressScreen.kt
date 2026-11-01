@@ -1,5 +1,6 @@
 package net.bible.sharedui.ios.startup.legacy
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +46,7 @@ internal fun LegacyMigrationProgressScreen(neutral: Boolean) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                CircularProgressIndicator()
+                AbIndeterminateCircularProgress()
                 Text(
                     if (neutral) strings.legacyMigrationProgressNeutral else strings.legacyMigrationProgress,
                     color = MaterialTheme.colorScheme.onBackground,

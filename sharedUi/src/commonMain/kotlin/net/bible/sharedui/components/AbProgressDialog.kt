@@ -37,7 +37,7 @@ fun AbProgressDialog(message: String, title: String? = null) {
         text = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 // A running indicator never settles, so goldens freeze it (AbLoadingOverlay does the same).
-                if (LocalInspectionMode.current) CircularProgressIndicator(progress = { 0f }) else CircularProgressIndicator()
+                if (LocalInspectionMode.current) CircularProgressIndicator(progress = { 0f }) else AbIndeterminateCircularProgress()
                 Text(message)
             }
         },

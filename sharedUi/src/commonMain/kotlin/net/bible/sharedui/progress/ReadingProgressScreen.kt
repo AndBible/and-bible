@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.progress
 
+import net.bible.sharedui.components.AbLoadingIndicator
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -123,7 +124,7 @@ fun ReadingProgressScreen(
                 }
             }
             if (loading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
             }
             when (model.tab) {
                 ReadingTab.READING -> ReadingTabBody(

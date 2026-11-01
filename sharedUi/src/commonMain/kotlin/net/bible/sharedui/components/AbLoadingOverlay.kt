@@ -68,7 +68,7 @@ fun AbLoadingOverlay(message: String? = null, modifier: Modifier = Modifier) {
                 // The pure paper track is invisible at zero; show a stable ink arc in previews.
                 CircularProgressIndicator(progress = { if (mono) 0.5f else 0f })
             } else {
-                CircularProgressIndicator()
+                AbIndeterminateCircularProgress()
             }
             if (message != null) {
                 Spacer(Modifier.height(12.dp))

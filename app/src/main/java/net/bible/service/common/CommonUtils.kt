@@ -388,7 +388,11 @@ object CommonUtils : CommonUtilsBase() {
         override fun setString(key: String, value: String?) = store.setString(key, value)
         override fun setLong(key: String, value: Long?) = store.setLong(key, value)
         override fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
-        override fun setBoolean(key: String, value: Boolean?) = store.setBoolean(key, value)
+        override fun setBoolean(key: String, value: Boolean?) {
+            store.setBoolean(key, value)
+            // The Compose motion scale is observable state; tell it so frozen infinite transitions resume (osTicket 3499).
+            if (key == "disable_animations") net.bible.android.view.compose.AppWindowRecomposer.motionDurationScale.refresh()
+        }
         override fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
         override fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
 

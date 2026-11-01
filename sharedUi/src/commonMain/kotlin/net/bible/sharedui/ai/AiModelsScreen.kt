@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.layout.Column
@@ -314,7 +315,7 @@ private fun ModelFormDialog(
                 if (state.id == null) {
                     // Add flow: full model picker.
                     if (state.loadingModels) {
-                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+                        AbIndeterminateCircularProgress(modifier = Modifier.padding(8.dp))
                     } else {
                         if (categories.isNotEmpty()) {
                             AbDropdownField(

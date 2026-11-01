@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings.nav
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -596,7 +597,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             memorizeTabContent = {
                 val m = model.memorize
                 if (m == null) {
-                    Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+                    Box(Modifier.fillMaxSize(), Alignment.Center) { AbIndeterminateCircularProgress() }
                 } else {
                     MemorizeTabBody(
                         memorize = m,

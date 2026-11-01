@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.theme
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.MotionDurationScale
 
 /**
@@ -33,6 +34,12 @@ import androidx.compose.ui.MotionDurationScale
  * Both inputs are read on every query, so a changed setting applies to the next animation without rebuilding any
  * window, and a failing settings read never breaks an animation (it counts as "animations on").
  *
+ * [scaleFactor] is also observable: it reads a snapshot-state revision that [refresh] bumps. An `InfiniteTransition`
+ * that started at scale 0 jumps to its end state and then waits in a `snapshotFlow` on this value for a scale above 0;
+ * without a state read it would stay frozen after the setting is turned back off. Whoever changes the setting calls
+ * [refresh] (Android: `CommonUtils.AndBibleSettings`, on every write of `disable_animations`). The platform scale
+ * stays read-through, as the platform has no change signal here.
+ *
  * @param animationsDisabled the live value of the app setting.
  * @param systemScale the platform's own scale, used while the app setting is off (Android: the developer-option
  *   "Animator duration scale"; 1 where the platform has none).
@@ -41,6 +48,13 @@ class AppMotionDurationScale(
     private val animationsDisabled: () -> Boolean,
     private val systemScale: () -> Float = { 1f },
 ) : MotionDurationScale {
+    private val revision = mutableIntStateOf(0)
+
+    /** Tells observers (snapshot readers of [scaleFactor]) that the setting may have changed. Cheap; any thread. */
+    fun refresh() {
+        revision.intValue++
+    }
+
     override val scaleFactor: Float
-        get() = if (runCatching(animationsDisabled).getOrDefault(false)) 0f else systemScale()
+        get() = revision.intValue.let { if (runCatching(animationsDisabled).getOrDefault(false)) 0f else systemScale() }
 }

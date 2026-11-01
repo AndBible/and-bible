@@ -22,13 +22,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.theme.LocalDisableAnimations
 
 /**
  * An indeterminate linear progress bar for loading states.
@@ -39,13 +43,38 @@ import androidx.compose.ui.unit.dp
  * `InfiniteTransition`, so a real indeterminate `LinearProgressIndicator` captures a bistable
  * animation frame → non-deterministic golden verify. `LocalInspectionMode` is FALSE in
  * production, so this branch is inert at runtime (zero behavior change).
+ *
+ * With "Disable animations" on ([LocalDisableAnimations]) the app's zero motion-duration scale freezes an
+ * indeterminate bar at an arbitrary (often empty) frame, so a static half-filled bar is drawn instead.
  */
 @Composable
 fun AbLoadingIndicator(modifier: Modifier = Modifier) {
     if (LocalInspectionMode.current) {
         LinearProgressIndicator(progress = { 0f }, modifier = modifier)
+    } else if (LocalDisableAnimations.current) {
+        LinearProgressIndicator(progress = { STATIC_INDETERMINATE_FRACTION }, modifier = modifier)
     } else {
         LinearProgressIndicator(modifier = modifier)
+    }
+}
+
+/** The fill of the static stand-in drawn for an indeterminate indicator while animations are disabled. */
+internal const val STATIC_INDETERMINATE_FRACTION = 0.5f
+
+/**
+ * An indeterminate circular spinner for loading states. While "Disable animations" is on it draws a static half arc
+ * (the zero motion scale would freeze the real spinner at an arbitrary arc). Unlike [AbLoadingIndicator] it has no
+ * inspection branch: callers that need a golden-stable frame keep their own `LocalInspectionMode` check.
+ */
+@Composable
+fun AbIndeterminateCircularProgress(
+    modifier: Modifier = Modifier,
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
+) {
+    if (LocalDisableAnimations.current) {
+        CircularProgressIndicator(progress = { STATIC_INDETERMINATE_FRACTION }, modifier = modifier, strokeWidth = strokeWidth)
+    } else {
+        CircularProgressIndicator(modifier = modifier, strokeWidth = strokeWidth)
     }
 }
 

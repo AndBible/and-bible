@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -178,7 +179,7 @@ private fun EasySetupKeyDialog(
                     state.testing -> {
                         Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                            AbIndeterminateCircularProgress(modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(strings.easySetupTesting, style = MaterialTheme.typography.bodySmall)
                         }

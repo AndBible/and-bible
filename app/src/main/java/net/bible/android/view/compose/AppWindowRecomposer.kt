@@ -34,7 +34,8 @@ import net.bible.sharedui.theme.AppMotionDurationScale
  * context is the effect context of the whole composition, so `LaunchedEffect`, `rememberCoroutineScope`,
  * `animate*AsState`, transitions and the `ModalBottomSheet`/dialog/popup windows (which compose through the parent's
  * composition context) all see a zero duration scale while the setting is on. The setting is read live, so toggling
- * it needs no window rebuild.
+ * it needs no window rebuild, and `CommonUtils.AndBibleSettings.setBoolean` calls [AppMotionDurationScale.refresh] on
+ * every write of the setting so infinite transitions frozen at scale 0 resume.
  *
  * Providing our own scale replaces Compose's built-in observer of the system "Animator duration scale"; while the
  * app setting is off the system scale is still followed through [ValueAnimator.getDurationScale] (API 26+).

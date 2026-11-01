@@ -21,7 +21,12 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -172,6 +177,31 @@ class DisableAnimationsMotionScaleTest {
 
     @Test fun animatedVisibilityExitStillAnimatesWhenAnimationsAreEnabled() {
         assertFalse("the exit transition must still be running", animatedVisibilityExitFinished(animationsOff = false))
+    }
+
+    // --- InfiniteTransition frozen at scale 0 must resume when animations come back --------------------------
+
+    @Test fun infiniteTransitionStartedWhileDisabledResumesWhenAnimationsAreEnabledAgain() {
+        CommonUtils.settings.setBoolean("disable_animations", true)
+        var current = -1f
+        launch {
+            val value by rememberInfiniteTransition(label = "probe").animateFloat(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing), RepeatMode.Restart),
+                label = "probe",
+            )
+            current = value
+        }
+        step()
+        val frozen = current
+        step()
+        assertEquals("frozen while disabled", frozen, current, 0f)
+        CommonUtils.settings.setBoolean("disable_animations", false)
+        step()
+        val seen = mutableSetOf<Float>()
+        repeat(6) { step(FRAME_MILLIS); seen += current }
+        assertTrue("the transition must run again after re-enabling, saw $seen", seen.size > 1)
     }
 
     // --- animate*AsState (LaunchedEffect-launched Animatable) --------------------------------------------------

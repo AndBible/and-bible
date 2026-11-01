@@ -17,6 +17,12 @@
 
 package net.bible.sharedui.theme
 
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -42,5 +48,22 @@ class AppMotionDurationScaleTest {
 
     @Test fun aFailingSettingsReadKeepsAnimationsOn() {
         assertEquals(1f, AppMotionDurationScale({ error("settings not ready") }).scaleFactor)
+    }
+
+    @Test fun refreshMakesTheScaleObservableThroughSnapshotFlow() = runTest {
+        var off = false
+        val scale = AppMotionDurationScale({ off })
+        val seen = mutableListOf<Float>()
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) { snapshotFlow { scale.scaleFactor }.toList(seen) }
+        assertEquals(listOf(1f), seen)
+        off = true
+        scale.refresh()
+        Snapshot.sendApplyNotifications()
+        assertEquals(listOf(1f, 0f), seen)
+        off = false
+        scale.refresh()
+        Snapshot.sendApplyNotifications()
+        assertEquals(listOf(1f, 0f, 1f), seen)
+        job.cancel()
     }
 }
