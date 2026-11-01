@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.page.window.setStudyPadCursor
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
@@ -126,7 +127,7 @@ internal class BookmarkBridgeFamily(
     fun setStudyPadCursor(labelId: String, orderNumber: Int) {
         val windowRepository = bookmarkControl.windowControl.windowRepository
         val workspaceSettings = windowRepository.workspaceSettings
-        workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
+        workspaceSettings.setStudyPadCursor(IdType(labelId), orderNumber)
         WorkspaceChanges.notifySettingsEdited()
     }
 

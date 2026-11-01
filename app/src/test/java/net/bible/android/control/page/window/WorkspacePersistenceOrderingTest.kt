@@ -130,11 +130,11 @@ class WorkspacePersistenceOrderingTest {
     @Test fun entityMutatedAfterSaveDoesNotLeakIntoTheWrite() {
         val labelId = IdType()
         repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 7)
-        repo.workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, 1L))
+        repo.workspaceSettings.recentLabels += WorkspaceEntities.RecentLabel(labelId, 1L)
         gate.hold()
         repo.saveIntoDb(false)
         assertEquals("the write must still be queued", true, gate.pending > 0)
-        repo.workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(IdType(), 2L))
+        repo.workspaceSettings.recentLabels += WorkspaceEntities.RecentLabel(IdType(), 2L)
         repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 9)
         gate.release()
         runBlocking { persistence.awaitPersisted() }

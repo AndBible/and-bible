@@ -706,17 +706,23 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     fun updateRecentLabels(labelIds: List<IdType>) {
         Log.i(TAG, "updateRecentLabels")
-        for(labelId in labelIds) {
-            val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
-            if (existingLabel != null) {
-                existingLabel.lastAccess = currentTimeMillis()
-                workspaceSettings.recentLabels.sortBy { it.lastAccess }
-            } else {
-                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, currentTimeMillis()))
-                while (workspaceSettings.recentLabels.size > 15) {
-                    workspaceSettings.recentLabels.removeAt(0)
+        // Main/bridge and bookmark-service callers can overlap. Serialize the read/replace,
+        // but publish once so readers never see the intermediate add/trim/sort states.
+        val settings = workspaceSettings
+        withMonitor(settings) {
+            val labels = settings.recentLabels.toMutableList()
+            for (labelId in labelIds) {
+                val index = labels.indexOfFirst { it.labelId == labelId }
+                val recent = WorkspaceEntities.RecentLabel(labelId, currentTimeMillis())
+                if (index >= 0) {
+                    labels[index] = recent
+                    labels.sortBy { it.lastAccess }
+                } else {
+                    labels.add(recent)
+                    while (labels.size > 15) labels.removeAt(0)
                 }
             }
+            settings.recentLabels = labels
         }
         WorkspaceChanges.notifySettingsEdited()
     }

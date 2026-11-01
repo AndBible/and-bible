@@ -294,11 +294,12 @@ class ReadingBridgeProgressLinkFamilyTest {
     }
 
     @Test fun toggleCompareDocumentTogglesTheHiddenSet() {
-        val hidden = session.workspaceSettings.hideCompareDocuments
-        hidden.remove("KJV")
+        session.workspaceSettings.hideCompareDocuments -= "KJV"
+        val previous = session.workspaceSettings.hideCompareDocuments
         bridge.toggleCompareDocument("KJV")
-        assertTrue(hidden.contains("KJV"))
+        assertTrue(session.workspaceSettings.hideCompareDocuments.contains("KJV"))
+        assertTrue(!previous.contains("KJV"))
         bridge.toggleCompareDocument("KJV")
-        assertTrue(!hidden.contains("KJV"))
+        assertTrue(!session.workspaceSettings.hideCompareDocuments.contains("KJV"))
     }
 }

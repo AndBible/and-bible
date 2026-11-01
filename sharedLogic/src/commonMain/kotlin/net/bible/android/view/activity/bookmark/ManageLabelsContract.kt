@@ -101,7 +101,7 @@ object ManageLabelsContract {
 
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabelsContract.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
-    autoAssignLabels = resultData.autoAssignLabels
+    autoAssignLabels = resultData.autoAssignLabels.toSet()
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
     WorkspaceChanges.notifySettingsEdited()
 }
