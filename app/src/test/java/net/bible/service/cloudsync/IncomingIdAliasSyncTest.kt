@@ -704,6 +704,33 @@ class IncomingIdAliasSyncTest {
         assertEquals(setOf("a/a=content a", "b/b=content b"), b.pages())
     }
 
+    /**
+     * Review finding 6: the one-time re-send (R1) reaching an old peer whose log lacks entries. The log is never pruned,
+     * except that the first device clears it before uploading the cloud's initial file, so a peer that joined from that
+     * file holds rows without entries. The re-send must not overwrite its newer edits, resurrect its deletes or move rows.
+     */
+    @Test fun resendToAnOldPeerThatJoinedFromTheInitialFileChangesNothing() = run {
+        val u = docDevice()
+        val book = u.addBook()
+        for (k in listOf("p1", "p2", "p3")) u.addPage(book.id, k)
+        u.dao.clearLog() // createAndUploadInitial
+        val initial = File(u.localDbPath)
+        val a = docDevice(copyOf = initial)
+        val c = docDevice(copyOf = initial)
+        a.editPage("p1", "p1-a", "p1 edited on a")
+        a.md.deletePageWithContent(a.md.pagesForDocument(book.id).single { it.pageKey == "p2" })
+        sync(a, c, toNew = false)
+        c.editPage("p1", "p1-c", "p1 edited on c")
+        c.md.deletePageWithContent(c.md.pagesForDocument(book.id).single { it.pageKey == "p3" })
+        val before = c.pages()
+        assertEquals(setOf("p1/p1-c=p1 edited on c"), before)
+
+        startIdAliasResendOnce(a)
+        assertEquals(0L, a.dao.getLong(LAST_PATCH_WRITTEN_KEY))
+        sync(a, c, toNew = false)
+        assertEquals(before, c.pages())
+    }
+
     @Test fun resendOnceIsOncePerDevice() = run {
         val a = docDevice()
         a.addPage(a.addBook().id, "a")
