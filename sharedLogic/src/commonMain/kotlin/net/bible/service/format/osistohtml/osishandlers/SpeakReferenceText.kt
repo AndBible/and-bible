@@ -24,6 +24,8 @@ import org.crosswire.common.util.KLocale
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.crosswire.common.util.ResourceBundles
 import org.crosswire.jsword.passage.OsisParser
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.system.Versifications
 
 /** Expands link targets rather than trusting labels such as "v. 9". Invalid/non-Bible links keep their label. */
@@ -56,12 +58,24 @@ internal class SpeakReferenceText(private val locale: KLocale = LocaleProviderMa
     private fun stripWorkAndGrain(id: String): String =
         id.substringBefore('@').substringBefore('!').substringAfter(':')
 
+    /**
+     * Rewrites the book part of one endpoint to its canonical OSIS id. Modules write ids such as
+     * `ps.89.39`, `Deu.18.15` or `Genesis.1.1`, which [OsisParser] (exact OSIS only) rejects.
+     * Unknown books are left alone, so the reference still fails and keeps its label.
+     */
+    private fun canonicalBook(id: String): String {
+        val book = id.substringBefore('.')
+        if (BibleBook.fromExactOSIS(book) != null) return id
+        val match = BibleBook.fromOSIS(book) ?: BibleNames.instance().getBook(book) ?: return id
+        return match.osis + id.removePrefix(book)
+    }
+
     fun expand(osisRef: String?): String? {
         if (osisRef.isNullOrBlank()) return null
         return try {
             val names = ResourceBundles.get("BibleNames", locale) ?: return null
             osisRef.trim().split(Regex("\\s+")).map { rawTarget ->
-                val ids = rawTarget.split('-').map(::stripWorkAndGrain)
+                val ids = rawTarget.split('-').map { canonicalBook(stripWorkAndGrain(it)) }
                 val target = ids.joinToString("-")
                 val range = parser.parseOsisRef(Versifications.instance().getVersification("KJVA"), target)
                     ?: return null

@@ -17,6 +17,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandle
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class SpeakReferencesTest {
     private val phrases = SpeakPhrases("first", "second", "third", "fourth", "fifth", "book", "chapter")
@@ -72,6 +73,24 @@ class SpeakReferencesTest {
             "Matt.2.9!a-Luke.2.12@s[x]" to "Matthew 2:9-Luke 2:12",
             "KJV:Matt.2.9!a Bible:Luke.2.9@s[x]" to "Matthew 2:9; Luke 2:9",
         )) assertEquals(expected, formatter.expand(target), target)
+    }
+
+    /** Modules such as HCB write osisRef book ids in any case or as short names ("ps.89.39", "Deu.18.15"). */
+    @Test
+    fun nonCanonicalBookIdsAreResolvedToTheirBook() {
+        val formatter = SpeakReferenceText(KLocale.ENGLISH)
+        for ((target, expected) in listOf(
+            "ps.89.39" to "Psalms 89:39",
+            "Deu.18.15-Deu.18.19" to "Deuteronomy 18:15-18:19",
+            "Exo.13.2" to "Exodus 13:2",
+            "Genesis.1.1" to "Genesis 1:1",
+            "1Chro.24.1" to "1 Chronicles 24:1",
+            "Jam.1.5 Hosea.6.6" to "James 1:5; Hosea 6:6",
+            "MATT.2.9" to "Matthew 2:9",
+        )) assertEquals(expected, formatter.expand(target), target)
+        // Matt 2:23 in HCB, as the reporter heard it.
+        val spoken = bible("<verse>a Nazarite {see <reference osisRef=\"ps.89.39\">ps 89:39</reference>,<reference osisRef=\"ps.132.18\">ps 132:18</reference>}.</verse>")
+        assertTrue("Psalms 89:39" in spoken && "Psalms 132:18" in spoken && "ps " !in spoken, spoken)
     }
 
     @Test
