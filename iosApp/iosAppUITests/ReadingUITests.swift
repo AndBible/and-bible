@@ -1618,6 +1618,39 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app2, "pane-menu-studypad")
     }
 
+    // MARK: New pane background
+
+    /// Samples immediately after a split is opened, before waiting for Bible text. Native tests separately pin
+    /// the background before attachment: XCTest screenshots alone cannot guarantee capture of every display frame.
+    func testNewSplitPaneStartsWithDayBackground() throws {
+        let app = try launchReading(extraArguments: ["-night_mode_pref3", "manual", "-night_mode_pref", "NO"])
+        let previousPanes = Set(paneIds(app))
+        let plus = app.buttons["New window"]
+        XCTAssertTrue(plus.waitForExistence(timeout: 10))
+        plus.tap()
+        let panes = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+        var newPane: XCUIElement?
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            newPane = panes.allElementsBoundByIndex.first(where: { !previousPanes.contains($0.identifier) })
+            return newPane != nil
+        }, "the new split pane is missing")
+        guard let newPane = newPane else { return }
+        var samples: [Double] = []
+        for index in 0..<8 {
+            let f = newPane.frame
+            XCTAssertGreaterThan(f.width, 40); XCTAssertGreaterThan(f.height, 80)
+            let area = CGRect(x: f.minX + f.width * 0.03, y: f.minY + f.height * 0.25,
+                              width: f.width * 0.03, height: f.height * 0.5)
+            guard let brightness = screenLuminance(app, area) else { return XCTFail("cannot sample new pane") }
+            samples.append(brightness)
+            shot(app, "new-pane-day-\(index)")
+            XCTAssertGreaterThan(brightness, 0.65, "black backing in new day pane, sample \(index): \(samples)")
+        }
+        assertTextOncePerPane(app, panes: 2, "day split background")
+        let note = XCTAttachment(string: "new day split luminance: \(samples)")
+        note.name = "new-pane-day-luminance"; note.lifetime = .keepAlways; add(note)
+    }
+
     // MARK: Night mode live switch (close-out Review Focus 2 probe)
 
     /// With the night preference on manual, the overflow 'Night mode' toggle must darken the PAGE (the WebView), not

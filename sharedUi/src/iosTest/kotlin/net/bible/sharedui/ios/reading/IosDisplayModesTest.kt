@@ -16,6 +16,11 @@
  */
 package net.bible.sharedui.ios.reading
 
+import kotlinx.cinterop.DoubleVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import net.bible.service.common.DisplayColorMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,7 +34,10 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.startup.ReadingAppInit
 import net.bible.sharedcore.settings.store.SettingWrite
 import net.bible.sharedcore.settings.store.SettingsBackend
@@ -50,6 +58,7 @@ import net.bible.sharedui.webview.attachReadingPane
 import org.koin.mp.KoinPlatform
 import net.bible.sharedlogic.platform.ios.IosNightModeState
 import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedcore.platform.AppSettings
 import platform.Foundation.NSDate
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSUUID
@@ -143,6 +152,123 @@ class IosDisplayModesTest {
         }
     }
 
+    /** A pane must already have its page colour before a session, bundle load or first set_config exists. */
+    @Test
+    fun newPaneHasDayBackgroundBeforeSessionAssembly() {
+        withWindows(FakeNight(false)) { id ->
+            val webView = IosReadingWebViews.webViewFor(id)
+            assertFalse(HostReadingWindows.hasAssembly(id), "test must inspect the pre-session WebView")
+            assertBackground(webView, -1, "new day pane")
+            assertFalse(webView.opaque, "WebKit must not paint an opaque backing before the first page")
+            assertUnderPageComponents(webView, 1.0)
+        }
+    }
+
+    @Test
+    fun newPaneHasNightBackgroundBeforeSessionAssembly() {
+        withWindows(FakeNight(true)) { id ->
+            val webView = IosReadingWebViews.webViewFor(id)
+            assertFalse(HostReadingWindows.hasAssembly(id))
+            assertBackground(webView, 0xFF000000.toInt(), "new night pane")
+            assertFalse(webView.opaque)
+            assertUnderPageComponents(webView, 0.0)
+        }
+    }
+
+    @Test
+    fun recreatedPaneUsesCurrentColoursAndMonochromeBeforeLoading() {
+        val night = FakeNight(false)
+        withWindows(night) { id ->
+            val koin = KoinPlatform.getKoin()
+            val window = koin.get<WindowControl>().activeWindow
+            val previousColors = window.pageManager.textDisplaySettings.colors
+            window.pageManager.textDisplaySettings.colors = WorkspaceEntities.TextDisplaySettings.default.colors!!.copy(
+                dayBackground = 0xFFFFE8CC.toInt(), nightBackground = 0xFF182432.toInt(),
+            )
+            val settings = koin.get<AppSettings>()
+            val previousMode = settings.getString("display_color_mode", null)
+            try {
+                settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
+                assertBackground(IosReadingWebViews.webViewFor(id), 0xFFFFE8CC.toInt(), "custom day")
+                IosReadingWebViews.release(id)
+                night.dark = true
+                assertBackground(IosReadingWebViews.webViewFor(id), 0xFF182432.toInt(), "custom night after recreation")
+                IosReadingWebViews.release(id)
+                settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
+                assertBackground(IosReadingWebViews.webViewFor(id), 0xFF000000.toInt(), "monochrome night")
+                IosReadingWebViews.release(id)
+                night.dark = false
+                assertBackground(IosReadingWebViews.webViewFor(id), -1, "monochrome day")
+            } finally {
+                window.pageManager.textDisplaySettings.colors = previousColors
+                settings.setString("display_color_mode", previousMode)
+            }
+        }
+    }
+
+    @Test
+    fun secondPaneInheritsWorkspaceColourInsteadOfSourceWindowOverride() {
+        withWindows(FakeNight(false)) { id ->
+            val control = KoinPlatform.getKoin().get<WindowControl>()
+            val source = control.activeWindow
+            val repository = control.windowRepository
+            val previousWorkspaceColors = repository.textDisplaySettings.colors
+            val previousWindowColors = source.pageManager.textDisplaySettings.colors
+            var second: Window? = null
+            try {
+                repository.textDisplaySettings.colors = WorkspaceEntities.TextDisplaySettings.default.colors!!.copy(
+                    dayBackground = 0xFFFFE8CC.toInt(),
+                )
+                source.pageManager.textDisplaySettings.colors = WorkspaceEntities.TextDisplaySettings.default.colors!!.copy(
+                    dayBackground = 0xFFCCEEFF.toInt(),
+                )
+                val added = repository.addNewWindow(source)
+                second = added
+                val secondId = added.id.toString()
+                assertBackground(IosReadingWebViews.webViewFor(id), 0xFFCCEEFF.toInt(), "source override")
+                assertBackground(IosReadingWebViews.webViewFor(secondId), 0xFFFFE8CC.toInt(), "split workspace inheritance")
+                assertFalse(HostReadingWindows.hasAssembly(secondId), "colour must not need a session or set_config")
+            } finally {
+                repository.textDisplaySettings.colors = previousWorkspaceColors
+                source.pageManager.textDisplaySettings.colors = previousWindowColors
+                second?.let { repository.close(it) }
+                awaitOnMain { repository.persistence.awaitPersisted() }
+            }
+        }
+    }
+
+    @Test
+    fun workspaceSwitchSeedsNewPaneBeforeAnySessionExists() {
+        withWindows(FakeNight(false)) { originalId ->
+            val repository = KoinPlatform.getKoin().get<WindowControl>().windowRepository
+            val originalWorkspace = repository.id
+            val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+            val workspace = WorkspaceEntities.Workspace(
+                name = "Background test", contentsText = null, orderNumber = 0,
+                textDisplaySettings = WorkspaceEntities.TextDisplaySettings().apply {
+                    colors = WorkspaceEntities.TextDisplaySettings.default.colors!!.copy(
+                        dayBackground = 0xFFFFE8CC.toInt(),
+                    )
+                },
+            )
+            awaitOnMain {
+                repository.saveIntoDb()
+                repository.persistence.awaitPersisted()
+                dao.insertWorkspace(workspace)
+                try {
+                    repository.loadFromDb(workspace.id)
+                    val newId = repository.activeWindow.id.toString()
+                    assertTrue(newId != originalId)
+                    assertFalse(HostReadingWindows.hasAssembly(newId))
+                    assertBackground(IosReadingWebViews.webViewFor(newId), 0xFFFFE8CC.toInt(), "switched workspace")
+                } finally {
+                    repository.loadFromDb(originalWorkspace)
+                    dao.deleteWorkspace(workspace.id)
+                }
+            }
+        }
+    }
+
     /**
      * NM-1: BibleView-JS paints no page background, so the WKWebView and its scroll view carry the colour (Android's
      * `BibleView.setBackgroundColor`). It follows the first `set_config` and every night switch, in both directions.
@@ -165,6 +291,20 @@ class IosDisplayModesTest {
             HostReadingWindows.nightModeChanged()
             assertBackground(webView, READING_BACKGROUND_DAY, "back to day")
         }
+    }
+
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    private fun assertUnderPageComponents(webView: platform.WebKit.WKWebView, component: Double) = memScoped {
+        // WebKit round-trips through CGColor/sRGB; UIColor.isEqual rejects visually identical colour spaces.
+        val red = alloc<DoubleVar>()
+        val green = alloc<DoubleVar>()
+        val blue = alloc<DoubleVar>()
+        val alpha = alloc<DoubleVar>()
+        assertTrue(webView.underPageBackgroundColor.getRed(red.ptr, green.ptr, blue.ptr, alpha.ptr))
+        assertEquals(component, red.value, 0.001, "under-page red")
+        assertEquals(component, green.value, 0.001, "under-page green")
+        assertEquals(component, blue.value, 0.001, "under-page blue")
+        assertEquals(1.0, alpha.value, 0.001, "under-page opacity")
     }
 
     private fun assertBackground(webView: platform.WebKit.WKWebView, argb: Int, label: String) {
