@@ -642,6 +642,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         searchState = searchState,
         textDisplaySettingsService = { textDisplaySettingsService },
         scope = hostScope,
+        workspaceWriteScope = CoroutineScope(
+            getKoin().get<net.bible.sharedcore.platform.AppCoroutineScope>().coroutineContext + Dispatchers.Main,
+        ),
         imagePicker = object : ImagePicker {
             override suspend fun pickImage(): String? = activity.readingCommands.textSettingsImagePicker()
         },

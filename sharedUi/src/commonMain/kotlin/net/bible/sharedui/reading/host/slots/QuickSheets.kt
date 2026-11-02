@@ -65,6 +65,7 @@ import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
+import net.bible.sharedui.workspaces.WorkspaceCreateAction
 import org.crosswire.jsword.passage.Key
 
 /**
@@ -262,7 +263,7 @@ private fun HistorySheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet) {
 private fun WorkspacesSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet) {
     val strings = slots.strings()
     val controller = remember(sheet) {
-        WorkspaceQuickController(slots.workspaceService(), slots.scope) { id ->
+        WorkspaceQuickController(slots.workspaceService(), slots.scope, slots.workspaceWriteScope) { id ->
             slots.hostState.closeQuickSheet()
             // The quick sheet never pauses the activity, so nothing else flushes the outgoing
             // workspace's windows/page-managers/history before switching: the platform's quick
@@ -270,15 +271,20 @@ private fun WorkspacesSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet) {
             slots.quickActions.quickSwitchToWorkspace(id)
         }
     }
+    androidx.compose.runtime.DisposableEffect(controller) {
+        onDispose { controller.dispose() }
+    }
     val rows by controller.rows.collectAsState()
     val listState = rememberLazyListState()
     AbQuickSheet(
         open = true,
         title = strings.switchToWorkspace,
-        onDismiss = { slots.hostState.closeQuickSheet() },
+        actions = { WorkspaceCreateAction(rows.size, controller::createNew) },
+        onDismiss = { controller.dispose(); slots.hostState.closeQuickSheet() },
         canScrollForward = { listState.canScrollForward },
         footer = {
             AbQuickSheetFooterRow(text = strings.manageWorkspaces) {
+                controller.dispose()
                 slots.hostState.closeQuickSheet()
                 slots.navigator.openWorkspaceSelector()
             }

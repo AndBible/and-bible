@@ -106,6 +106,7 @@ class ReadingHostSlots(
     internal val workspaceName: () -> String,
     internal val activeWindowPosition: () -> Int,
     internal val currentDocumentInitials: () -> String?,
+    internal val workspaceWriteScope: CoroutineScope = scope,
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,

@@ -49,8 +49,8 @@ import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The workspace QUICK switch list (spec §4.4): colour dot + name, current row bold and inert.
- * No reorder handle, no row overflow, no create — the full selector owns all of that and is one
- * footer row away ([net.bible.sharedui.components.AbQuickSheetFooterRow]).
+ * No reorder handle or row overflow: the full manager owns those and is one footer row away
+ * ([net.bible.sharedui.components.AbQuickSheetFooterRow]). The host header offers workspace creation.
  *
  * Row height is governed by `Modifier.heightIn(min = 48.dp)`, a hard floor for the Material touch
  * target — NOT by tightening the 12dp vertical padding to fit under

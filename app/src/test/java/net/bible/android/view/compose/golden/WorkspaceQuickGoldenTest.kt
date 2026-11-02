@@ -1,12 +1,12 @@
 package net.bible.android.view.compose.golden
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.Modifier
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
-import net.bible.sharedui.components.AbSheetContentMaxHeight
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
+import net.bible.sharedui.workspaces.WorkspaceCreateAction
+import net.bible.sharedui.components.AbQuickSheetContent
+import net.bible.sharedui.components.AbQuickSheetFooterRow
+import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,7 +32,13 @@ class WorkspaceQuickGoldenTest {
     // is visible against a painted surface instead of invisible on the harness's bare background.
     @Test fun workspaceQuick_populated() = captureMatrix("WorkspaceQuick", "populated") {
         SheetSurface {
-            Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
+            val strings = LocalStrings.current
+            AbQuickSheetContent(
+                title = strings.switchToWorkspace,
+                onClose = {},
+                actions = { WorkspaceCreateAction(rows().size, {}) },
+                footer = { AbQuickSheetFooterRow(strings.manageWorkspaces) {} },
+            ) {
                 WorkspaceQuickContent(rows = rows(), onSelect = {})
             }
         }

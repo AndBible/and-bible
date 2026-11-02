@@ -30,6 +30,8 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.runComposeUiTest
 import java.lang.reflect.Proxy
@@ -301,11 +303,22 @@ class ReadingHostSlotsTest {
             override fun write(label: String, text: String) { clips += label to text }
         }
 
+        val createdWorkspaces = mutableListOf<net.bible.sharedcore.workspaces.WorkspaceRowVd>()
+        val workspaceWrites = mutableListOf<String>()
         val workspaceService: net.bible.sharedcore.workspaces.WorkspaceService = Proxy.newProxyInstance(
             net.bible.sharedcore.workspaces.WorkspaceService::class.java.classLoader,
             arrayOf(net.bible.sharedcore.workspaces.WorkspaceService::class.java),
-        ) { _, m, _ -> if (m.name == "loadAll") workspaceRows else error("unexpected ${m.name}") } as
-            net.bible.sharedcore.workspaces.WorkspaceService
+        ) { _, m, args ->
+            when (m.name) {
+                "loadAll" -> workspaceRows + createdWorkspaces
+                "saveCurrentIntoDb" -> { workspaceWrites += "save"; Unit }
+                "createWorkspace" -> net.bible.sharedcore.workspaces.WorkspaceRowVd(
+                    "new", args[0] as String, null, 0, false,
+                ).also { createdWorkspaces += it; workspaceWrites += "create" }
+                "applyChanges" -> { workspaceWrites += "apply"; Unit }
+                else -> error("unexpected ${m.name}")
+            }
+        } as net.bible.sharedcore.workspaces.WorkspaceService
     }
 
     private companion object {
@@ -700,6 +713,47 @@ class ReadingHostSlotsTest {
         onNodeWithText(strings.manageWorkspaces).performClick()
         assertEquals(1, quick.workspaceSelectorOpens.size)
         assertTrue(state.quickSheet.value == null)
+    }
+
+    @Test
+    fun workspaceAddCreatesThenSwitchesThroughTheSharedHost() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showWorkspaceSheet()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) {
+                    state.quickSheet.value?.let { slots.QuickSheet(it) }
+                }
+            }
+        }
+        onNodeWithContentDescription(strings.newItem).performClick()
+        onNode(hasSetTextAction()).performTextReplacement("  Sermon study  ")
+        onNodeWithText(strings.okay).performClick()
+        waitForIdle()
+        assertEquals(listOf("Sermon study"), quick.createdWorkspaces.map { it.name })
+        assertEquals(listOf("save", "create", "apply"), quick.workspaceWrites)
+        assertEquals(listOf("new"), quick.switched)
+        assertTrue(state.quickSheet.value == null, "creating closes the sheet")
+    }
+
+    @Test
+    fun workspaceAddCancelDoesNotWriteOrSwitch() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showWorkspaceSheet()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+            }
+        }
+        onNodeWithContentDescription(strings.newItem).performClick()
+        onNodeWithText(strings.cancel).performClick()
+        waitForIdle()
+        assertTrue(quick.createdWorkspaces.isEmpty())
+        assertTrue(quick.workspaceWrites.isEmpty())
+        assertTrue(quick.switched.isEmpty())
+        assertTrue(state.quickSheet.value != null, "cancel leaves the selector open")
     }
 
     @Test
