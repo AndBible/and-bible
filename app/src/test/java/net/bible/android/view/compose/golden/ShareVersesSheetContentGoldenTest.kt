@@ -65,7 +65,7 @@ class ShareVersesSheetContentGoldenTest {
         referenceFull = "Genesis 1:1-2",
         versionAbbreviation = "KJV",
         notesText = "A note on the opening verses.",
-        advertiseText = "Shared from AndBible Bible Study (https://andbible.github.io)",
+        advertiseText = "Shared from AndBible Bible Study (https://andbible.org)",
         hasRange = true,
     )
 
