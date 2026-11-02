@@ -32,6 +32,9 @@ private var current by mutableStateOf(WindowControlsInsets.None)
 @Composable
 internal actual fun platformWindowControls(): WindowControlsInsets = current
 
+/** The window controls' band (points) outside composition, for [MacWindowInsets]; a snapshot state read. */
+internal val iosWindowControlsTop: Double get() = current.top
+
 /**
  * The iOS app on a Mac ("Designed for iPad", macOS 26) gets a top safe-area band for the window controls (traffic
  * lights), which the top bars padded as an empty strip in the toolbar colour above the toolbar. The Swift host
