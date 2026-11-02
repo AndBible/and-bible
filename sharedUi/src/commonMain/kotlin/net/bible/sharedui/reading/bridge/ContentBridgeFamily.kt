@@ -109,8 +109,9 @@ internal class ContentBridgeFamily(
     }
 
     /**
-     * Copies the current native text selection (Ctrl+C), as `BibleView.copySelectionToClipboard`: asks the page for its
-     * selection (`bibleView.querySelection()`); nothing is copied when there is none or it cannot be read.
+     * Copies the current native text selection (Ctrl+C) on every platform: asks the page for its selection
+     * (`bibleView.querySelection()`) and copies what [selectionCopy] decides; nothing is copied when there is no
+     * selection or it cannot be read.
      */
     fun copyCurrentSelection() {
         if (session.isDisposed) return
@@ -123,13 +124,14 @@ internal class ContentBridgeFamily(
                 Log.e(TAG, "copyCurrentSelection failed", e)
                 return@launch
             }
-            if (result == "null" || session.isDisposed) return@launch
-            val selection = try {
-                AppJson.decodeFromString(kotlinx.serialization.serializer<Selection?>(), result)
-            } catch (e: kotlinx.serialization.SerializationException) {
-                null
-            } ?: return@launch
-            session.surface.copyText(selection.verseRange?.getName(), shareableSelectionText(selection, facade(), settings()))
+            if (session.isDisposed) return@launch
+            when (val copy = selectionCopy(result)) {
+                is SelectionCopy.Verses -> session.surface.copyText(
+                    copy.selection.verseRange?.getName(), shareableSelectionText(copy.selection, facade(), settings()),
+                )
+                is SelectionCopy.PlainText -> session.surface.copyText(null, copy.text)
+                null -> {}
+            }
         }
     }
 
