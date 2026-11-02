@@ -5,6 +5,7 @@ package net.bible.sharedui.components
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformWindowInsets
+import androidx.compose.ui.platform.safeDrawing
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ObjCAction
 import platform.Foundation.NSNotification
@@ -53,7 +54,7 @@ class IosAppOnMacInsetsTest {
         val insets = MacWindowInsets(MacLikePlatformInsets()) { 0 }
         assertEquals(0, insets.ime.bottom)
         // safeDrawing is built from ime too: the phantom keyboard must not come back through it.
-        assertEquals(20, maxOf(insets.ime.bottom, insets.systemBars.bottom))
+        assertEquals(20, insets.safeDrawing.bottom)
     }
 
     @Test fun everySafeAreaTopLosesTheBandAndOnlyTheTop() {
@@ -76,7 +77,7 @@ class IosAppOnMacInsetsTest {
         band = 52
         assertEquals(0, systemBars.top)
         raw.top = 70
-        assertEquals(18, systemBars.top)
+        assertEquals(18, MacWindowInsets(raw) { band }.systemBars.top)
     }
 
     @Test fun excludingKeepsTheCorrectionAndIsCached() {

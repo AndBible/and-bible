@@ -30,10 +30,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformWindowInsets
+import kotlinx.cinterop.ByteVar
+import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaquePointer
+import kotlinx.cinterop.COpaquePointerVar
+import kotlinx.cinterop.CPointed
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.interpretObjCPointerOrNull
+import kotlinx.cinterop.invoke
+import kotlinx.cinterop.rawValue
+import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCClass
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
@@ -52,7 +62,9 @@ import platform.objc.class_replaceMethod
 import platform.objc.method_getTypeEncoding
 import platform.objc.objc_copyClassList
 import platform.objc.sel_registerName
+import platform.posix.dlsym
 import platform.posix.free
+import platform.posix.strstr
 import kotlin.math.roundToInt
 
 /**
@@ -100,6 +112,11 @@ private class BandCorrectedInsets(private val insets: PlatformInsets, private va
 /**
  * CMP's [platform] window insets as they should read on a Mac: no keyboard overlap ([ime] zero), and every top inset
  * without the window controls' band ([bandPx], read whenever an inset is read, so it follows the window).
+ *
+ * Only `WindowInsets.*` (and what is built from them: `windowInsetsPadding`, Material's defaults) read this. CMP's
+ * inset modifiers (`Modifier.imePadding()`, `statusBarsPadding()`, `safeDrawingPadding()`, ...) and the insets rulers
+ * take the scene's raw insets from the root node instead, so shared UI must not use them for a top or IME inset
+ * (`InsetModifierGuardTest`).
  */
 internal class MacWindowInsets(
     private val platform: PlatformWindowInsets,
@@ -138,13 +155,29 @@ internal object CmpKeyboardOverlap {
 
     private val noop = staticCFunction { _: COpaquePointer?, _: COpaquePointer?, _: COpaquePointer? -> }
 
+    /**
+     * `class_getName` called through a plain C function pointer: the class list holds root classes that are not
+     * `NSObject`s (e.g. `Object`), and turning one into a Kotlin reference messages it, which aborts the process.
+     */
+    private val classGetName by lazy {
+        // Darwin's RTLD_DEFAULT is ((void *) -2).
+        dlsym((-2L).toCPointer<CPointed>(), "class_getName")
+            ?.reinterpret<CFunction<(COpaquePointer?) -> CPointer<ByteVar>?>>()
+    }
+
     /** The registered Objective-C class whose name contains [name] (Kotlin/Native decorates the Kotlin name). */
     fun findListenerClass(name: String = LISTENER_CLASS_NAME): ObjCClass? = memScoped {
+        val getName = classGetName ?: return@memScoped null
+        val needle = name.cstr.ptr
         val count = alloc<UIntVar>()
         val list = objc_copyClassList(count.ptr) ?: return@memScoped null
         try {
+            val raw = list.reinterpret<COpaquePointerVar>()
+            // Raw pointers and strstr on the C names: no Kotlin object or string per class (tens of thousands).
             (0 until count.value.toInt()).firstNotNullOfOrNull { i ->
-                list[i].value?.takeIf { class_getName(it)?.toKString()?.contains(name) == true }
+                val cls = raw[i] ?: return@firstNotNullOfOrNull null
+                val className = getName(cls) ?: return@firstNotNullOfOrNull null
+                if (strstr(className, needle) == null) null else interpretObjCPointerOrNull<ObjCClass>(cls.rawValue)
             }
         } finally {
             free(list)
