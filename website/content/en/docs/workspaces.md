@@ -20,7 +20,9 @@ Workspaces remember:
 - label display style overrides (see [Override Label Style per Workspace](labels.md#override-label-style-per-workspace))
 - and most other window settings
 
-Access the list of workspaces via the ‘dot’ menu or by swiping down on the verse selector. This list allows you to:
+Access the list of workspaces via the ‘dot’ menu or by swiping down on the verse selector.
+In the workspace selector sheet, tap **+**, enter a name and confirm to create a workspace and switch to it immediately. Cancelling leaves your current workspace unchanged.
+Choose **Manage workspaces** for the full list, which allows you to:
 
 - reorder workspaces
 - create new workspaces
