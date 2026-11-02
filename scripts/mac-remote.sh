@@ -23,9 +23,15 @@
 #                                               with the app log streamed, attachments (screenshots) exported,
 #                                               everything fetched into a per-run evidence directory (the old
 #                                               xcode/<name>-<device> paths are links to the latest run);
-#                                               extra args e.g. -only-testing:iosAppUITests/PocUITests
-#   scripts/mac-remote.sh xcode-build [iphone|ipad]
+#                                               extra args e.g. -only-testing:iosAppUITests/PocUITests.
+#                                               --release (right after the device): Release configuration (store
+#                                               identity org.andbible.ios, generated version), and the Release app is
+#                                               uninstalled first, so every run is a fresh install (Release ignores
+#                                               -resetData), e.g. xcode-test iphone --release
+#                                               -only-testing:iosAppUITests/OnboardingUITests
+#   scripts/mac-remote.sh xcode-build [iphone|ipad] [--release]
 #                                               build the app for the simulator, install it, launch it
+#                                               (--release: the Release configuration, uninstalled first as above)
 #   scripts/mac-remote.sh run [--no-sync] <shell command>
 #                                               lock, sync, then run a command in the remote tree. --no-sync keeps the
 #                                               Mac tree as it is (inspect or rerun what a previous run left there)
@@ -529,9 +535,13 @@ step_post_native_tests() {
     echo "mac-remote: native-tests exit $rc; XML under ${OUT#"$repo"/}/native-tests/<module>/test-results"
 }
 
-xcode_parse() {   # [iphone|ipad] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS
+xcode_parse() {   # [iphone|ipad] [--release] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP
     XC_WHICH="${1:-iphone}"; [ $# -gt 0 ] && shift
     case "$XC_WHICH" in iphone) XC_SIM="$SIM_IPHONE" ;; ipad) XC_SIM="$SIM_IPAD" ;; *) echo "mac-remote: device must be iphone or ipad" >&2; return 1 ;; esac
+    XC_CONFIG=Debug XC_APP_ID=$APP_ID XC_APP=$APP_PROCESS
+    if [ "${1:-}" = --release ]; then
+        shift; XC_CONFIG=Release XC_APP_ID=org.andbible.ios XC_APP=AndBible
+    fi
     XC_ARGS=("$@")
 }
 step_script_xcode() {   # <kind> <n> [dev] [args...]
@@ -545,16 +555,18 @@ mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
   stamp=node_modules/.mac-remote-lock-sha; sha=\$(shasum package-lock.json | cut -d' ' -f1)
   [ "\$(cat \$stamp 2>/dev/null)" = "\$sha" ] || { npm ci --no-audit --no-fund && echo \$sha > \$stamp; } &&
   npm run build-production ) > build/bibleview-$which.log 2>&1 || { tail -40 build/bibleview-$which.log; return 1; }
+$([ $XC_CONFIG = Release ] && echo 'scripts/ios-version-xcconfig.sh || return 1   # Release refuses the 0.0.0 fallback version')
 ( cd iosApp && xcodegen generate --quiet ) || return 1
 UDID=\$(sim_boot $(q "$XC_SIM")) || return 1
 echo "mac-remote: simulator \$UDID"
+$([ $XC_CONFIG = Release ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
 if [ $kind = xcode-test ]; then
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
-    xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == "$APP_PROCESS"' > build/app-$which.log 2>&1 &
+    xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == "$XC_APP"' > build/app-$which.log 2>&1 &
     LOGPID=\$!; sleep 2
     $(for v in $(compgen -v TEST_RUNNER_ || true); do printf 'export %s=%q\n' "$v" "${!v}"; done)
     tmo $t xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \\
-        -destination "platform=iOS Simulator,id=\$UDID" -resultBundlePath build/ios-$which.xcresult $(q "${XC_ARGS[@]}") \\
+        -destination "platform=iOS Simulator,id=\$UDID" -resultBundlePath build/ios-$which.xcresult -configuration $XC_CONFIG $(q "${XC_ARGS[@]}") \\
         > build/xcodebuild-$which.log 2>&1; rc=\$?
     [ \$rc = 142 ] && echo "mac-remote: TIMEOUT: xcodebuild killed after ${t}s" >&2
     sleep 2; kill \$LOGPID 2>/dev/null
@@ -565,12 +577,12 @@ if [ $kind = xcode-test ]; then
     return \$rc
 else
     tmo $t xcodebuild build -project iosApp/iosApp.xcodeproj -scheme iosApp \\
-        -destination "platform=iOS Simulator,id=\$UDID" -derivedDataPath build/dd-$which \\
+        -destination "platform=iOS Simulator,id=\$UDID" -derivedDataPath build/dd-$which -configuration $XC_CONFIG \\
         > build/xcodebuild-$which.log 2>&1; rc=\$?
     [ \$rc = 0 ] || { [ \$rc != 142 ] || echo "mac-remote: TIMEOUT: xcodebuild killed after ${t}s" >&2; grep -E 'error:|BUILD FAILED' build/xcodebuild-$which.log | tail -40; [ \$rc = 142 ] && return 142; return 1; }
-    APP=\$(ls -d build/dd-$which/Build/Products/Debug-iphonesimulator/$APP_PROCESS.app | sed -n 1p)
-    xcrun simctl install \$UDID "\$APP" && xcrun simctl terminate \$UDID $APP_ID 2>/dev/null
-    xcrun simctl launch \$UDID $APP_ID && sleep 5   # let the first render settle before a sim shot
+    APP=\$(ls -d build/dd-$which/Build/Products/$XC_CONFIG-iphonesimulator/$XC_APP.app | sed -n 1p)
+    xcrun simctl install \$UDID "\$APP" && xcrun simctl terminate \$UDID $XC_APP_ID 2>/dev/null
+    xcrun simctl launch \$UDID $XC_APP_ID && sleep 5   # let the first render settle before a sim shot
 fi
 EOF
 }
