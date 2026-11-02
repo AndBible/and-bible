@@ -60,6 +60,39 @@ final class MacWindowControlsHost: UIViewController {
         compose.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(compose.view)
         compose.didMove(toParent: self)
+        // Temporary diagnostics for the Mac report of bottom sheets floating ~5 cm above the window's bottom edge
+        // (Console.app, process AndBible, filter MAC-GEOMETRY / MAC-KEYBOARD): Compose lifts its dialogs by the
+        // keyboard overlap it computes from these notifications and UIScreen geometry.
+        for name in [UIResponder.keyboardWillShowNotification, UIResponder.keyboardWillHideNotification,
+                     UIResponder.keyboardWillChangeFrameNotification] {
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                let begin = (note.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
+                let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
+                NSLog("MAC-KEYBOARD %@ begin=%@ end=%@ %@", note.name.rawValue, NSCoder.string(for: begin),
+                      NSCoder.string(for: end), self?.geometry() ?? "")
+            }
+        }
+    }
+
+    private var lastGeometry = ""
+
+    /// Window, screen and safe-area geometry as Compose sees it (points).
+    private func geometry() -> String {
+        guard let window = view.window else { return "window=nil" }
+        let screen = window.screen
+        let frameInScreen = window.coordinateSpace.convert(window.bounds, to: screen.coordinateSpace)
+        let s = view.safeAreaInsets
+        return "window=\(NSCoder.string(for: window.bounds)) screen=\(NSCoder.string(for: screen.bounds)) " +
+            "scale=\(screen.scale) windowInScreen=\(NSCoder.string(for: frameInScreen)) " +
+            "safe=(t=\(s.top) l=\(s.left) b=\(s.bottom) r=\(s.right))"
+    }
+
+    private func logGeometry() {
+        let line = geometry()
+        if line != lastGeometry {
+            lastGeometry = line
+            NSLog("MAC-GEOMETRY %@", line)
+        }
     }
 
     override func viewSafeAreaInsetsDidChange() {
@@ -70,6 +103,7 @@ final class MacWindowControlsHost: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         updateWindowControls()
+        logGeometry()
     }
 
     private func updateWindowControls() {

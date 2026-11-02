@@ -409,6 +409,128 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 9 tests
 
+    /// A bottom sheet sits on the window's bottom edge (Mac report on TestFlight 6.0.1238: the Workspaces sheet floated
+    /// about 5 cm above it). Checked on a fresh launch and again after the search field had the keyboard: Compose
+    /// shortens a dialog by the keyboard overlap, so a stale keyboard frame would lift the sheet. On the iPad also after
+    /// resizing the (iPadOS 26) window, the closest the simulator gets to a Mac window. None of these reproduce the Mac
+    /// report; the Mac itself logs SHEET-GEOMETRY / MAC-GEOMETRY / MAC-KEYBOARD lines for it.
+    func testQuickSheetSitsOnWindowBottom() throws {
+        continueAfterFailure = true
+        if !isPad {
+            // Portrait iPhone has no room for the Find button (see testToolbarActionsOpenTheirDestinations).
+            let device = XCUIDevice.shared
+            addTeardownBlock { device.orientation = .portrait }
+            device.orientation = .landscapeLeft
+        }
+        let app = try launchReading()
+        if isPad {
+            // iPadOS 26 remembers an app's window size across launches: start from, and leave behind, a full-size
+            // window so the other suites on this shared simulator are not run in a small one.
+            maximizePadWindow(app)
+            addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
+        }
+
+        func checkWorkspacesSheet(_ step: String) {
+            // The toolbar button where it fits (iPad, landscape), else the overflow row.
+            let ws = byLabel(app, "Workspaces")
+            if ws.waitForExistence(timeout: 5) && ws.isHittable {
+                ws.tap()
+            } else {
+                let more = byLabel(app, "More options")
+                guard more.waitForExistence(timeout: 10) else {
+                    attachTree(app, "\(step)-no-overflow"); XCTFail("\(step): no 'More options' toolbar button"); return
+                }
+                more.tap()
+                let row = app.descendants(matching: .any)
+                    .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+                guard row.waitForExistence(timeout: 10) else {
+                    attachTree(app, "\(step)-no-row"); XCTFail("\(step): no 'Workspaces' overflow row"); return
+                }
+                row.tap()
+            }
+            guard quickSheetShown(app, timeout: 15) else {
+                attachTree(app, "\(step)-sheet-not-shown"); XCTFail("\(step): the workspaces sheet did not open"); return
+            }
+            // Let the slide-in settle before measuring.
+            _ = waitUntil(timeout: 3) { false }
+            // The sheet surface's own accessibility frame is not its drawn frame (Compose reports it unoffset), so
+            // measure the sheet's last row, the "Manage workspaces" footer.
+            let footer = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Manage workspaces'")).firstMatch
+            guard footer.waitForExistence(timeout: 10) else {
+                attachTree(app, "\(step)-no-footer"); XCTFail("\(step): the sheet has no 'Manage workspaces' row"); return
+            }
+            let window = app.windows.firstMatch.frame
+            let gap = window.maxY - footer.frame.maxY
+            NSLog("%@", "SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
+            shot(app, "\(step)-workspaces-sheet")
+            // Below the footer: at most the bottom safe area (34 pt home indicator) and the sheet's own padding. The
+            // Mac report was a gap of about 5 cm (well over 100 pt).
+            XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom \(window.maxY)")
+            XCTAssertGreaterThanOrEqual(gap, 0, "\(step): the sheet's last row ends below the window")
+            closeQuickSheet(app, step)
+        }
+
+        checkWorkspacesSheet("fresh")
+
+        let find = byLabel(app, "Find")
+        XCTAssertTrue(find.waitForExistence(timeout: 10), "no 'Find' toolbar button: the keyboard step is not tested")
+        if find.exists {
+            find.tap()
+            let field = element(app, "reading-search-field")
+            XCTAssertTrue(field.waitForExistence(timeout: 15), "the search field did not open")
+            if field.exists {
+                field.tap()
+                field.typeText("love")
+                _ = waitUntil(timeout: 2) { false }
+                shot(app, "search-keyboard")
+                // Leave the search the way a user does: back to the reading view.
+                let close = byLabel(app, "Close search")   // search_close: the search bar's back arrow
+                XCTAssertTrue(close.waitForExistence(timeout: 5), "no 'Close search' button")
+                if close.exists { close.tap() }
+                _ = waitUntil(timeout: 3) { false }
+            }
+        }
+        checkWorkspacesSheet("after-keyboard")
+
+        // iPadOS 26 windows are resizable (the grabber in the bottom-trailing corner), as the app's window on a Mac is:
+        // shrink the window after a sheet has been shown once, then show it again.
+        if isPad {
+            let before = app.windows.firstMatch.frame
+            let corner = screenPoint(before.maxX - 4, before.maxY - 4)
+            corner.press(forDuration: 0.6, thenDragTo: corner.withOffset(CGVector(dx: -250, dy: -350)))
+            _ = waitUntil(timeout: 3) { false }
+            let after = app.windows.firstMatch.frame
+            NSLog("%@", "SHEET-GEOMETRY-TEST resize: window \(before) -> \(after)")
+            XCTAssertNotEqual(before, after, "the corner drag did not resize the window")
+            shot(app, "resized-window")
+            checkWorkspacesSheet("resized")
+        }
+    }
+
+    /// A point in screen coordinates (SpringBoard's frame is the whole screen; the app's is its window).
+    private func screenPoint(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+        XCUIApplication(bundleIdentifier: "com.apple.springboard").coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: x, dy: y))
+    }
+
+    /// Makes the app's iPadOS 26 window full size: drags it by its top edge to the top-leading corner, then drags its
+    /// bottom-trailing resize grabber to the screen's corner. No-op when the window already fills the screen.
+    private func maximizePadWindow(_ app: XCUIApplication) {
+        let screen = XCUIApplication(bundleIdentifier: "com.apple.springboard").frame
+        var window = app.windows.firstMatch.frame
+        guard window.width < screen.width - 1 || window.height < screen.height - 1 else { return }
+        if window.minX > 1 || window.minY > 30 {
+            // The strip above the toolbar, clear of the window controls at its leading end.
+            let grab = screenPoint(window.midX + 60, window.minY + 8)
+            grab.press(forDuration: 0.6, thenDragTo: screenPoint(window.width / 2 + 60, 8))
+            _ = waitUntil(timeout: 2) { false }
+            window = app.windows.firstMatch.frame
+        }
+        screenPoint(window.maxX - 4, window.maxY - 4).press(forDuration: 0.6, thenDragTo: screenPoint(screen.maxX - 1, screen.maxY - 1))
+        _ = waitUntil(timeout: 2) { false }
+        NSLog("%@", "SHEET-GEOMETRY-TEST maximize: window \(app.windows.firstMatch.frame) screen \(screen)")
+    }
+
     /// Toolbar actions and where they lead. Labels are the toolbar's contentDescriptions (strings.xml): search is
     /// "Find" (NOT "Search"), speak "Speak", the workspace button "Workspaces", the overflow "More options".
     /// Each action runs in a fresh process and records its own failure (`continueAfterFailure` on), so one dead
