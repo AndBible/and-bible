@@ -1,9 +1,46 @@
 ---
 name: issue-management
-description: Use for AndBible issue and project-board work — triaging new issues or PRs, closing or relabelling issues, enriching an issue description, choosing what to work on next, moving board items, sponsorship labels, or checking the tracker for drift. Triggers: "triage issues", "käy läpi uudet tiketit", "mitä seuraavaksi", "päivitä board", "rikasta tiketti", "sulje duplikaatit", "issue triage", "pick next work", "board drift".
+description: Use for AndBible issue and project-board work — creating, commenting on or closing an issue, triaging new issues or PRs, closing or relabelling issues, enriching an issue description, choosing what to work on next, moving board items, sponsorship labels, or checking the tracker for drift. Triggers: "triage issues", "käy läpi uudet tiketit", "mitä seuraavaksi", "päivitä board", "rikasta tiketti", "sulje duplikaatit", "issue triage", "pick next work", "board drift".
 ---
 
 # AndBible issue and board management
+
+## Two write routes: pick the right one first
+
+- **Routine issue work → the JailBee issue outbox.** Creating an issue (a follow-up, a bug found
+  while working, an osTicket report), commenting, editing a title or body, adding or removing labels,
+  closing or reopening: write a manifest to `~/.jailbee/issue-outbox/` with the
+  `jailbee-issue-management` skill; the maintainer publishes it on the host with `jb issue apply`.
+  No submodule commit is involved. This is the default for everything in day-to-day work.
+- **Large triage runs → the triage batch toolchain** (`docs/superpowers/tools/triage/`,
+  `triage/batches/`, `apply.py`, below). It exists for whole-area or whole-tracker passes that also
+  change the project board, the label taxonomy or many items at once. **It is currently out of
+  use (maintainer, 2026-11-02):** use it only when the maintainer explicitly asks for a triage run.
+  Never stage a batch for a few issue creates or comments.
+- Board fields (Status, Priority, Size) have no routine write path: the outbox cannot touch
+  GitHub Projects. Automation adds new issues as Needs triage; when a routine item needs a board
+  change, tell the maintainer instead of staging a batch.
+
+The tracker rules apply on both routes: labels from `docs/superpowers/triage/taxonomy.yaml`, one `Type:` and
+one `Area:` label, short specific English text, no hour estimates, close an issue as soon as its fix is merged
+(Flow 4 below), and the osTicket reply rules. On the outbox route, end comments with a
+short marker line naming the context (for example `_— bug-fix round, Nov 2026_`) instead of the
+triage-run marker.
+
+## osTicket replies
+
+Support tickets are answered with `ostickethelper` (rules in the maintainer's global instructions:
+read-only freely, every write confirmed, all replies of a session in one `batch` file, dry-run first).
+
+- **No signature or greeting line at the end** ("God bless, AndBible team" etc.): osTicket appends
+  the signature automatically.
+- Reply in the reporter's language (the ticket's own language).
+- Link the GitHub issue that tracks or fixed the report; say "fixed on our development branch, will
+  be in an upcoming version" for fixes that are not released yet.
+- An old app version: name the version and ask the user to update.
+- Never suggest clearing app data or reinstalling without warning that it deletes personal data.
+
+# Triage runs (batch toolchain, currently out of use)
 
 Maintainer-only: if `docs/superpowers/tools/triage/` does not exist, stop and say so.
 
@@ -15,7 +52,7 @@ read-only archive, closed after the new board is verified and configured. Design
 
 ## Hard rules
 
-- The container never writes to GitHub. Every change is a batch file under `triage/batches/`, committed for the maintainer to review and apply on the host. The host dry-runs with `python3 docs/superpowers/tools/triage/apply.py docs/superpowers/triage/batches/<file>.json` (several files run in order; `--apply` stops at the first batch with skipped or failed ops), then may apply with the same command plus `--apply`, then commits `triage/applied/` and pulls it back. These commands do not authorize running them in the container.
+- The container never writes to GitHub. In a triage run every change is a batch file under `triage/batches/`, committed for the maintainer to review and apply on the host. The host dry-runs with `python3 docs/superpowers/tools/triage/apply.py docs/superpowers/triage/batches/<file>.json` (several files run in order; `--apply` stops at the first batch with skipped or failed ops), then may apply with the same command plus `--apply`, then commits `triage/applied/` and pulls it back. These commands do not authorize running them in the container.
 - Never write hour estimates. Suggest `Sponsor me!` + `Estimate needed`; the maintainer estimates.
 - Priority lives only on the board (Priority field). Never add `Prio:` labels.
 - Labels must be in `triage/taxonomy.yaml`. Never delete a label named by any file under `.github/`.
@@ -104,19 +141,6 @@ duplicate older ones. Stage fixes as a batch.
   its original-description details block. PR closure depends on completion of
   target enrichment and board setup, not just issue creation. No already-candidate
   shortcut is implemented. Reconcile partial new-issue creation after board failure.
-
-## osTicket replies
-
-Support tickets are answered with `ostickethelper` (rules in the maintainer's global instructions:
-read-only freely, every write confirmed, all replies of a session in one `batch` file, dry-run first).
-
-- **No signature or greeting line at the end** ("God bless, AndBible team" etc.): osTicket appends
-  the signature automatically.
-- Reply in the reporter's language (the ticket's own language).
-- Link the GitHub issue that tracks or fixed the report; say "fixed on our development branch, will
-  be in an upcoming version" for fixes that are not released yet.
-- An old app version: name the version and ask the user to update.
-- Never suggest clearing app data or reinstalling without warning that it deletes personal data.
 
 ## Calibration notes (O7, area sync-backup, 2026-10-16)
 
