@@ -73,6 +73,7 @@ import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.webview.IosBibleWebViewFactory
 import net.bible.sharedui.webview.LocalBibleWebView
+import net.bible.sharedui.components.ProvideIosAppOnMacInsets
 import platform.Foundation.NSBundle
 import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSString
@@ -120,7 +121,7 @@ fun MainViewController(): UIViewController {
     val language = resolveDeviceUiLanguage(settings, ::iosPreferredLanguages)
     val layoutDirection = if (HostUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr
     val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
-    return ComposeUIViewController {
+    val app: @Composable () -> Unit = app@{
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
         val dark = remember { (env["POC_DARK"] as? String) == "1" }
@@ -156,7 +157,7 @@ fun MainViewController(): UIViewController {
                 CompositionLocalProvider(LocalStrings provides strings) {
                     AbTheme(darkTheme = splashDark) { IosCalculatorGate(settings) { resolve(StartupGateResult.Continue) } }
                 }
-                return@ComposeUIViewController
+                return@app
             }
             is StartupGate.LegacyMigration -> {
                 CompositionLocalProvider(LocalStrings provides strings) {
@@ -168,7 +169,7 @@ fun MainViewController(): UIViewController {
                         )
                     }
                 }
-                return@ComposeUIViewController
+                return@app
             }
             is StartupGate.CrashRecovery -> {
                 CompositionLocalProvider(LocalStrings provides strings) {
@@ -187,11 +188,11 @@ fun MainViewController(): UIViewController {
                         )
                     }
                 }
-                return@ComposeUIViewController
+                return@app
             }
             null -> Unit
         }
-        if (gates.result == StartupGateResult.Exit) return@ComposeUIViewController
+        if (gates.result == StartupGateResult.Exit) return@app
         val recoveryBackup = gates.result == StartupGateResult.OpenBackup
         var recoveryBindingsReady by remember { mutableStateOf(false) }
         // Keyed on recoveryBackup: after a backup returns to a settled chain the effect must rerun to launch normal startup.
@@ -217,19 +218,19 @@ fun MainViewController(): UIViewController {
                     gateRevision++
                 }
             }
-            return@ComposeUIViewController
+            return@app
         }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)
-            return@ComposeUIViewController
+            return@app
         }
         val phase by startupState.phase.collectAsState()
         when (val p = phase) {
-            StartupPhase.Starting -> { StartupSplash(splashDark); return@ComposeUIViewController }
+            StartupPhase.Starting -> { StartupSplash(splashDark); return@app }
             is StartupPhase.Failed -> {
                 LaunchedEffect(p) { nsLog("startup failed: ${p.error.stackTraceToString()}") }
                 StartupFailed(splashDark, strings.errorOccurred)
-                return@ComposeUIViewController
+                return@app
             }
             StartupPhase.Ready -> Unit
         }
@@ -272,7 +273,7 @@ fun MainViewController(): UIViewController {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory, LocalLayoutDirection provides layoutDirection) {
                 HostApp(IosAppHostPlatform)
             }
-            return@ComposeUIViewController
+            return@app
         }
         val documentJson = remember {
             NSBundle.mainBundle.pathForResource("poc-document", "json", "bibleview-js")
@@ -285,6 +286,8 @@ fun MainViewController(): UIViewController {
             IosPocApp(scenario, documentJson, darkTheme = dark)
         }
     }
+    // The iOS app on a Mac: no phantom keyboard inset, no window-controls band in the top insets.
+    return ComposeUIViewController { ProvideIosAppOnMacInsets(app) }
 }
 
 @Composable

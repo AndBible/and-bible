@@ -507,6 +507,53 @@ final class ReadingUITests: RealAppUITestCase {
         }
     }
 
+    /// The keyboard overlap that every Compose dialog and sheet is shortened by, with and without the iOS-app-on-Mac
+    /// correction (`IosAppOnMacInsets.kt`). The Mac has no software keyboard, yet Compose computed an overlap there that
+    /// floated sheets ~5 cm above the window bottom; the correction silences Compose's keyboard listener. The simulator
+    /// keyboard is real, so it shows both sides with the "New workspace name" dialog (a Compose dialog with a text field):
+    /// - normally the dialog moves up when its field takes the keyboard, and the field ends above the keyboard;
+    /// - launched with `-simulateMacInsets` (the Mac path, debug builds only) the dialog stays where it was: the listener
+    ///   really is silenced (a renamed Compose class would leave it lifted, and this red).
+    func testMacInsetsKeepDialogOffTheKeyboard() throws {
+        continueAfterFailure = false
+        func measure(_ extra: [String], _ step: String) -> (shift: CGFloat, field: CGRect, keyboard: CGRect)? {
+            let app: XCUIApplication
+            do { app = try launchReading(extraArguments: extra) } catch { XCTFail("\(step): launch failed: \(error)"); return nil }
+            if isPad { maximizePadWindow(app) }
+            guard openWorkspaceSelector(app, step) else { return nil }
+            byLabel(app, "New").tap()
+            let field = app.textViews.firstMatch
+            guard field.waitForExistence(timeout: 10) else {
+                attachTree(app, "\(step)-no-field"); XCTFail("\(step): the name dialog has no text field"); return nil
+            }
+            _ = waitUntil(timeout: 5) { !app.keyboards.firstMatch.exists }
+            guard !app.keyboards.firstMatch.exists else {
+                XCTFail("\(step): the keyboard is already up before the field is tapped; nothing to compare"); return nil
+            }
+            _ = waitUntil(timeout: 1) { false }
+            let before = field.frame
+            field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let keyboard = app.keyboards.firstMatch
+            guard keyboard.waitForExistence(timeout: 10), keyboard.frame.height > 150 else {
+                attachTree(app, "\(step)-no-keyboard")
+                XCTFail("\(step): no software keyboard (simulator hardware keyboard connected?)"); return nil
+            }
+            _ = waitUntil(timeout: 2) { false }
+            let after = field.frame
+            shot(app, "\(step)-dialog-keyboard")
+            NSLog("%@", "MAC-INSETS-TEST \(step): field \(before) -> \(after) keyboard=\(keyboard.frame)")
+            if isPad { maximizePadWindow(app) }
+            return (before.midY - after.midY, after, keyboard.frame)
+        }
+
+        guard let normal = measure([], "normal") else { return }
+        XCTAssertGreaterThan(normal.shift, 60, "the dialog did not move up with the keyboard (shift \(normal.shift) pt)")
+        XCTAssertLessThanOrEqual(normal.field.maxY, normal.keyboard.minY + 1, "the dialog's field stays under the keyboard")
+
+        guard let mac = measure(["-simulateMacInsets"], "mac-path") else { return }
+        XCTAssertLessThan(abs(mac.shift), 20, "on the Mac path the dialog still moves with the keyboard (shift \(mac.shift) pt)")
+    }
+
     /// A point in screen coordinates (SpringBoard's frame is the whole screen; the app's is its window).
     private func screenPoint(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
         XCUIApplication(bundleIdentifier: "com.apple.springboard").coordinate(withNormalizedOffset: .zero)

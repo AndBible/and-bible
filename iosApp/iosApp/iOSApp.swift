@@ -7,8 +7,7 @@ struct iOSApp: App {
     init() {
         // macOS 26 shows an iOS app's NSLog text as <private>; log the app's own lines publicly instead
         // (Console.app / `log show --predicate 'subsystem == "org.andbible.ios"'`).
-        let logger = Logger(subsystem: "org.andbible.ios", category: "app")
-        IosPlatformBootstrap.shared.installLogSink { logger.log("\($0, privacy: .public)") }
+        IosPlatformBootstrap.shared.installLogSink { appLog($0) }
         IosPlatformBootstrap.shared.registerBackgroundTasks()
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()
@@ -29,6 +28,13 @@ struct iOSApp: App {
                 .onOpenURL { IosPlatformBootstrap.shared.openIncomingFile(url: $0.absoluteString) }
         }
     }
+}
+
+/// The app's own unified-log lines, public (macOS 26 shows an iOS app's NSLog text as <private>).
+private let appLogger = Logger(subsystem: "org.andbible.ios", category: "app")
+
+func appLog(_ line: String) {
+    appLogger.log("\(line, privacy: .public)")
 }
 
 /// Bridges the shared Compose UI (a Kotlin `UIViewController` exported by the SharedUi
@@ -73,8 +79,8 @@ final class MacWindowControlsHost: UIViewController {
             NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
                 let begin = (note.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
                 let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
-                NSLog("MAC-KEYBOARD %@ begin=%@ end=%@ %@", note.name.rawValue, NSCoder.string(for: begin),
-                      NSCoder.string(for: end), self?.geometry() ?? "")
+                appLog("MAC-KEYBOARD \(note.name.rawValue) begin=\(NSCoder.string(for: begin)) " +
+                       "end=\(NSCoder.string(for: end)) \(self?.geometry() ?? "")")
             }
         }
     }
@@ -96,7 +102,7 @@ final class MacWindowControlsHost: UIViewController {
         let line = geometry()
         if line != lastGeometry {
             lastGeometry = line
-            NSLog("MAC-GEOMETRY %@", line)
+            appLog("MAC-GEOMETRY \(line)")
         }
     }
 
