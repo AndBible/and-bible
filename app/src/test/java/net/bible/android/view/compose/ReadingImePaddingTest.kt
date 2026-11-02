@@ -122,8 +122,9 @@ class ReadingImePaddingTest {
 
     @After
     fun tearDown() {
-        hostControllers.forEach { it.close() }
-        hostControllers.clear()
+        // Joins the hosts' start-up work (DocumentSyncSettings.ensureLoaded holds dbMutex) before the DB reset;
+        // a plain close() left the mutex locked for the next class in the fork (settings-mutex leak).
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
     }
 
     // ——— fixtures, copied from ReadingViewScreenGoldenTest/ReadingSplitGoldenTest rather than
