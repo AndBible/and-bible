@@ -78,7 +78,10 @@ settings hierarchy described above.
     (original)* is the unmodified Material version; *Fidelity* uses the
     chosen color as is; *Neutral* and *Monochrome* are muted or grey; the
     other styles are more playful. Applies only when **Color mode** is
-    *Normal*. Reading-view controls also follow the workspace theme,
+    *Normal* and you have chosen a workspace color. Without a workspace color
+    (or after resetting it to default), the app uses the standard Material 3
+    violet theme in both light and dark mode, regardless of **Theme style**.
+    Reading-view controls also follow the workspace theme,
     including bookmark editing buttons, note separators, editor selections,
     study-pad drag highlights, and page and reading-progress badges. The active
     window is marked by rounded corners in the theme color; without a workspace

@@ -41,8 +41,8 @@ import org.robolectric.annotation.GraphicsMode
  * ([ToolbarState.deriveToolbarFromTheme], Task 4).
  *
  * [GoldenHarness]'s own `capture()` (used by [captureGolden]/[captureMatrix]) always wraps its
- * content in an `AbTheme` with `seedArgb = null`, which renders the default #444444 theme
- * (grey-safe Tonal spot) in NORMAL mode, exactly as the app does. These tests therefore nest
+ * content in an `AbTheme` with `seedArgb = null`, which renders Compose's stock Material 3
+ * scheme in NORMAL mode, exactly as an unset workspace colour does in the app. These tests therefore nest
  * their OWN `AbTheme(seedArgb = ...)` inside the `content` lambda passed to [captureGolden]; the
  * inner `AbTheme` simply supersedes the harness's outer (unseeded) one for everything inside it,
  * the same way a real host (`AbAppTheme`) supersedes it in the running app.
@@ -171,8 +171,8 @@ class WorkspaceThemeGoldenTest {
     // --- Derived toolbar with NO workspace colour at all (follow-up: derived became the default, --
     // --- 2026-08-01 commit 6aedac195) -------------------------------------------------------------
 
-    // No seedArgb (AbTheme renders the default #444444 theme (grey-safe Tonal spot)) AND no workspaceColorArgb.
-    // The derived bar uses the default grey primaryContainer rather than the old stock lilac.
+    // No seedArgb (AbTheme renders the stock Material 3 scheme) AND no workspaceColorArgb.
+    // The derived bar uses the stock baseline-violet primaryContainer.
     // Same base toolbarState as
     // toolbar_derived/toolbar_literal (only workspaceColorArgb and deriveToolbarFromTheme differ), so
     // this is a clean "seed present vs. absent" comparison against toolbar_derived, not a

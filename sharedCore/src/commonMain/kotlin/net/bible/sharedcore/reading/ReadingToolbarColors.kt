@@ -39,9 +39,9 @@ const val NIGHT_WORKSPACE_TINT_FRACTION: Float = 0.30f
  * [DEFAULT_WORKSPACE_COLOR_ARGB], so BOTH count as not set. Accepted side effect: a user who
  * deliberately picks `#444444` gets the untinted default look; in exchange "reset to default"
  * behaves correctly with no migration.
- * `abColorScheme` and the BibleView payload no longer consult this in NORMAL mode -- there the
- * default colour is a real seed (theme-style spec 2026-10-10); it still gates COLOR_EINK seeding
- * and the literal-toolbar path.
+ * `abColorScheme` uses this in NORMAL mode to select the stock Material 3 scheme and in
+ * COLOR_EINK to select its greyscaled counterpart. The literal-toolbar path likewise leaves
+ * the theme surface untinted when the colour is not set.
  */
 fun isWorkspaceColorSet(workspaceArgb: Int?): Boolean =
     workspaceArgb != null && workspaceArgb != DEFAULT_WORKSPACE_COLOR_ARGB

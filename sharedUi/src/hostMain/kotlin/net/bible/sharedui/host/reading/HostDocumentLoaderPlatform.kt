@@ -25,6 +25,8 @@ import net.bible.android.database.IdType
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.reading.isWorkspaceColorSet
+import net.bible.sharedui.theme.themeColorsJson
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.android.view.activity.page.screen.readingBackgroundArgb
 import net.bible.sharedui.reading.session.ConfigInputs
@@ -40,8 +42,9 @@ import org.koin.mp.KoinPlatform
  * inset (unless a bottom bar pads it) and window-button rail (Android's `BibleView.topOffset` / `bottomOffset`; a pane that is not at the
  * top / bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
  *
- * `themeColors` is `"null"` (BibleView's own palette): `themeColorsJson` lives in `:app`; moving it is Stream R/X.
- * Settings are read when `set_config` is built, never at construction.
+ * Default NORMAL-mode BibleView chrome uses Compose's stock palette via [themeColorsJson].
+ * Chosen workspace colours and e-ink retain the host's existing CSS palette until full seeded
+ * theme parity is implemented. Settings are read when `set_config` is built, never at construction.
  */
 @kotlin.native.HiddenFromObjC
 class HostDocumentLoaderPlatform(
@@ -118,7 +121,8 @@ class HostDocumentLoaderPlatform(
             disableAnimations = s.getBoolean("disable_animations", false),
             fontSizeMultiplier = s.getInt("font_size_multiplier", 100) / 100F,
             enabledExperimentalFeatures = s.getStringSet("experimental_features", emptySet()).toList(),
-            themeColors = "null",
+            themeColors = if (colorMode == DisplayColorMode.NORMAL && !isWorkspaceColorSet(workspaceSettings.workspaceColor))
+                themeColorsJson(workspaceSettings.workspaceColor, night, colorMode) else "null",
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
             notesContentType = s.getString("notes_content_type", "HTML") ?: "HTML",

@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.theme
 
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.common.ThemePaletteStyle
@@ -46,11 +48,17 @@ class ThemeColorsPayloadTest {
     }
 
     @Test
-    fun `the default colour's payload is the default scheme's roles`() {
-        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL)
-        val json = themeColorsJson(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL)
-        assertTrue(json, json.contains("\"primaryContainer\":\"#%06X\"".format(0xFFFFFF and s.primaryContainer.toArgb())))
-        assertTrue(json, json.contains("\"primary\":\"#%06X\"".format(0xFFFFFF and s.primary.toArgb())))
+    fun `unset workspace payload uses stock Material roles in light and dark`() {
+        for (dark in listOf(false, true)) {
+            val stock = if (dark) darkColorScheme() else lightColorScheme()
+            for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
+                for (style in ThemePaletteStyle.entries) {
+                    val json = themeColorsJson(seed, dark, DisplayColorMode.NORMAL, style)
+                    assertTrue(json, json.contains("\"primaryContainer\":\"#%06X\"".format(0xFFFFFF and stock.primaryContainer.toArgb())))
+                    assertTrue(json, json.contains("\"primary\":\"#%06X\"".format(0xFFFFFF and stock.primary.toArgb())))
+                }
+            }
+        }
     }
 
     @Test
