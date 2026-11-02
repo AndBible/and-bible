@@ -423,6 +423,12 @@ final class ReadingUITests: RealAppUITestCase {
             device.orientation = .landscapeLeft
         }
         let app = try launchReading()
+        if isPad {
+            // iPadOS 26 remembers an app's window size across launches: start from, and leave behind, a full-size
+            // window so the other suites on this shared simulator are not run in a small one.
+            maximizePadWindow(app)
+            addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
+        }
 
         func checkWorkspacesSheet(_ step: String) {
             // The toolbar button where it fits (iPad, landscape), else the overflow row.
@@ -490,8 +496,7 @@ final class ReadingUITests: RealAppUITestCase {
         // shrink the window after a sheet has been shown once, then show it again.
         if isPad {
             let before = app.windows.firstMatch.frame
-            let corner = app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
-                .withOffset(CGVector(dx: before.maxX - 4, dy: before.maxY - 4))
+            let corner = screenPoint(before.maxX - 4, before.maxY - 4)
             corner.press(forDuration: 0.6, thenDragTo: corner.withOffset(CGVector(dx: -250, dy: -350)))
             _ = waitUntil(timeout: 3) { false }
             let after = app.windows.firstMatch.frame
@@ -500,6 +505,30 @@ final class ReadingUITests: RealAppUITestCase {
             shot(app, "resized-window")
             checkWorkspacesSheet("resized")
         }
+    }
+
+    /// A point in screen coordinates (SpringBoard's frame is the whole screen; the app's is its window).
+    private func screenPoint(_ x: CGFloat, _ y: CGFloat) -> XCUICoordinate {
+        XCUIApplication(bundleIdentifier: "com.apple.springboard").coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: x, dy: y))
+    }
+
+    /// Makes the app's iPadOS 26 window full size: drags it by its top edge to the top-leading corner, then drags its
+    /// bottom-trailing resize grabber to the screen's corner. No-op when the window already fills the screen.
+    private func maximizePadWindow(_ app: XCUIApplication) {
+        let screen = XCUIApplication(bundleIdentifier: "com.apple.springboard").frame
+        var window = app.windows.firstMatch.frame
+        guard window.width < screen.width - 1 || window.height < screen.height - 1 else { return }
+        if window.minX > 1 || window.minY > 30 {
+            // The strip above the toolbar, clear of the window controls at its leading end.
+            let grab = screenPoint(window.midX + 60, window.minY + 8)
+            grab.press(forDuration: 0.6, thenDragTo: screenPoint(window.width / 2 + 60, 8))
+            _ = waitUntil(timeout: 2) { false }
+            window = app.windows.firstMatch.frame
+        }
+        screenPoint(window.maxX - 4, window.maxY - 4).press(forDuration: 0.6, thenDragTo: screenPoint(screen.maxX - 1, screen.maxY - 1))
+        _ = waitUntil(timeout: 2) { false }
+        NSLog("%@", "SHEET-GEOMETRY-TEST maximize: window \(app.windows.firstMatch.frame) screen \(screen)")
     }
 
     /// Toolbar actions and where they lead. Labels are the toolbar's contentDescriptions (strings.xml): search is
