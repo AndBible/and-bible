@@ -50,6 +50,22 @@ class DesktopReadingGesturesTest {
     private val real = HostReadingGestures(fullScreen, settings, { false }, { id, a -> swipes += id to a }, onPaneTouched = { touched++ })
     private val gestures = DesktopReadingGestures({ real })
 
+    @Test fun doubleTapDoesNotEnterFullscreenByDefaultOnDesktop() {
+        real.onDoubleTap()
+        assertFalse(fullScreen.state.value)
+    }
+
+    @Test fun storedDoubleTapChoiceOverridesTheDesktopDefaultAndIsReadLive() {
+        settings.setBoolean("double_tap_to_fullscreen", true)
+        real.onDoubleTap()
+        assertTrue(fullScreen.state.value)
+        real.onDoubleTap()
+        assertFalse(fullScreen.state.value)
+        settings.setBoolean("double_tap_to_fullscreen", false)
+        real.onDoubleTap()
+        assertFalse(fullScreen.state.value)
+    }
+
     @Test fun fractionalWheelDeltasAccumulate() {
         settings.setBoolean("auto_fullscreen_pref", true)
         // 0.4 px per frame would round to nothing; 200 frames in under a second (the gesture rules cap accumulation to a rolling second) are 80 px, past the 56 point threshold.

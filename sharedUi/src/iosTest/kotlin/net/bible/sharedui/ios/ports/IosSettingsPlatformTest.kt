@@ -1,7 +1,15 @@
 package net.bible.sharedui.ios.ports
 
 import kotlin.test.*
+import kotlinx.coroutines.test.runTest
+import net.bible.android.view.activity.settings.AppSettingsServiceImpl
+import net.bible.android.view.activity.settings.DictionaryOptionsProvider
+import net.bible.sharedcore.settings.AppSettingsController
+import net.bible.sharedcore.settings.AppSettingsLabels
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.platform.AppSettings
+import platform.Foundation.NSProcessInfo
+import platform.Foundation.isiOSAppOnMac
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.strings.keyed.KeyedCoreStrings
 import net.bible.sharedui.strings.keyed.StringTable
@@ -10,6 +18,35 @@ import platform.Foundation.NSUUID
 import net.bible.sharedui.host.ports.HostSettingsPlatform
 
 class IosSettingsPlatformTest {
+    @Test fun fullscreenRowFollowsActualIosHostAndStoredChoices() = runTest {
+        val domain = "fullscreen-default-" + NSUUID().UUIDString
+        val defaults = NSUserDefaults(suiteName = domain)
+        try {
+            val db = MemorySettings()
+            val local = IosDeviceSettings(defaults)
+            val strings = KeyedCoreStrings(StringTable.of("en", { it }, { key, _ -> key }, { emptyList() }))
+            val dictionaries = object : DictionaryOptionsProvider {
+                override val greekDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+                override val hebrewDictOptions = greekDictOptions
+                override val greekMorphOptions = greekDictOptions
+                override val wordLookupDictOptions = greekDictOptions
+            }
+            val service = AppSettingsServiceImpl(
+                dictionaries, db, local, strings, HostSettingsPlatform(strings, db, local, legacyImport = { null }),
+            )
+            val controller = AppSettingsController(service, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+            fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" } as SettingsItem.SwitchRow
+            assertEquals(!NSProcessInfo.processInfo.isiOSAppOnMac(), row().checked)
+            for (stored in listOf(true, false)) {
+                service.setBool("double_tap_to_fullscreen", stored)
+                testScheduler.runCurrent()
+                assertEquals(stored, row().checked)
+            }
+        } finally {
+            defaults.removePersistentDomainForName(domain)
+        }
+    }
+
     @Test fun resetClearsTheSameKeysOnBothPlatforms() {
         val domain = "settings-reset-" + NSUUID().UUIDString
         val defaults = NSUserDefaults(suiteName = domain)

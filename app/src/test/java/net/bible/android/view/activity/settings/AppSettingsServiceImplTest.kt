@@ -20,6 +20,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.DictOption
+import net.bible.sharedcore.settings.doubleTapToFullscreen
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -41,6 +42,29 @@ private class FakeDictionaryOptionsProvider(
 @Config(application = TestBibleApplication::class)
 class AppSettingsServiceImplTest {
     @After fun tearDown() = DatabaseResetter.resetDatabase()
+
+    @Test fun doubleTapDefaultStaysOnForAndroidAndStoredChoicesWin() {
+        CommonUtils.settings.removeBoolean("double_tap_to_fullscreen")
+        val service = AppSettingsServiceImpl(FakeDictionaryOptionsProvider())
+        val job = kotlinx.coroutines.Job()
+        try {
+            val controller = net.bible.sharedcore.settings.AppSettingsController(
+                service, kotlinx.coroutines.CoroutineScope(job + kotlinx.coroutines.Dispatchers.Unconfined),
+                net.bible.sharedcore.settings.AppSettingsLabels.forTest(), onNavigate = {},
+            )
+            fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" }
+                as net.bible.sharedcore.settings.SettingsItem.SwitchRow
+            assertTrue(CommonUtils.settings.doubleTapToFullscreen())
+            assertTrue(row().checked)
+            for (stored in listOf(false, true)) {
+                service.setBool("double_tap_to_fullscreen", stored)
+                assertEquals(stored, CommonUtils.settings.doubleTapToFullscreen())
+                assertEquals(stored, row().checked)
+            }
+        } finally {
+            job.cancel()
+        }
+    }
 
     @Test fun realReadersKeepOnyxDefaultAndPersistedChoices() {
         val originalBrand = android.os.Build.BRAND

@@ -20,6 +20,7 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
+import net.bible.sharedcore.settings.doubleTapToFullscreen
 import org.koin.mp.KoinPlatform
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -197,7 +198,7 @@ class AppSettingsServiceImpl(
             navigateToVerse = readBool("navigate_to_verse_pref", false),
             openLinksInSpecialWindow = readBool("open_links_in_special_window_pref", true),
             screenKeepOn = readBool("screen_keep_on_pref", false),
-            doubleTapToFullscreen = readBool("double_tap_to_fullscreen", true),
+            doubleTapToFullscreen = settings.doubleTapToFullscreen(),
             autoFullscreen = readBool("auto_fullscreen_pref", false),
             toolbarButtonActions = readString("toolbar_button_actions", "default").ifBlank { "default" },
             bibleViewSwipeMode = readString("bible_view_swipe_mode", "CHAPTER"),

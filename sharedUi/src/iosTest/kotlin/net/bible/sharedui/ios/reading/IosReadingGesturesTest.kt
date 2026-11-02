@@ -18,6 +18,7 @@ package net.bible.sharedui.ios.reading
 
 import net.bible.android.view.activity.page.SwipeAction
 import net.bible.sharedcore.platform.AppSettings
+import platform.Foundation.isiOSAppOnMac
 import net.bible.sharedui.reading.host.ReadingFullScreen
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -77,7 +78,15 @@ class IosReadingGesturesTest {
         assertEquals(2, scrolled)
     }
 
-    @Test fun doubleTapEntersAndLocks() {
+    @Test fun doubleTapDefaultFollowsTheActualIosHost() {
+        gestures.onDoubleTap()
+        val expected = !platform.Foundation.NSProcessInfo.processInfo.isiOSAppOnMac()
+        assertEquals(expected, fullScreen.state.value)
+        assertEquals(expected, fullScreen.lockedByDoubleTap)
+    }
+
+    @Test fun storedTrueEntersAndLocksEvenOnMac() {
+        settings.setBoolean("double_tap_to_fullscreen", true)
         gestures.onDoubleTap()
         assertTrue(fullScreen.state.value)
         assertTrue(fullScreen.lockedByDoubleTap)
@@ -127,6 +136,7 @@ class IosReadingGesturesTest {
     }
 
     @Test fun autoScrollDoesNotExitADoubleTapFullScreen() {
+        settings.setBoolean("double_tap_to_fullscreen", true)
         settings.setBoolean("auto_fullscreen_pref", true)
         gestures.onDoubleTap()
         for (i in 0 until 8) gestures.onScroll(30f, 200L + i * 10L)
@@ -134,6 +144,7 @@ class IosReadingGesturesTest {
     }
 
     @Test fun fullScreenChangesGoThroughTheHostFunction() {
+        settings.setBoolean("double_tap_to_fullscreen", true)
         val applied = mutableListOf<Pair<Boolean, Boolean>>()
         val g = HostReadingGestures(fullScreen, settings, { false }, { _, _ -> }) { v, d -> applied += v to d; fullScreen.set(v, d) }
         g.onDoubleTap()
