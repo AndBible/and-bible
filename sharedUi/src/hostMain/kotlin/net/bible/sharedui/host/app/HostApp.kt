@@ -18,13 +18,13 @@
 
 package net.bible.sharedui.host.app
 
+import net.bible.sharedui.components.fullScreenReadingTopInsets
 import net.bible.sharedui.components.AbIndeterminateCircularProgress
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import androidx.compose.foundation.layout.requiredSize
@@ -663,7 +663,7 @@ private fun HostReadingDestination(
     TiltScrollWhileReading(koin, platform)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         val density = LocalDensity.current
-        val topInset = if (host.fullScreen.state.value) with(density) { WindowInsets.safeDrawing.getTop(density).toDp() } else 0.dp
+        val topInset = if (host.fullScreen.state.value) with(density) { fullScreenReadingTopInsets().getTop(density).toDp() } else 0.dp
         CompositionLocalProvider(LocalReadingPane provides paneFactory, LocalReadingTopSafeInset provides topInset) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
         }
@@ -681,8 +681,9 @@ private fun MeasureReadingOffsets(host: HostReadingHost) {
     val density = LocalDensity.current
     val bottomPx = WindowInsets.navigationBars.getBottom(density)
     val containerSize = LocalWindowInfo.current.containerSize
-    // Full screen removes the toolbar that pads the top; the notch / island safe area stays (see ReadingOffsets.top).
-    val topPx = if (host.fullScreen.state.value) WindowInsets.safeDrawing.getTop(density) else 0
+    // Full screen removes the toolbar that pads the top; the notch / island safe area stays (see ReadingOffsets.top),
+    // and so does the Mac's window-controls band, which the iOS host moves out of the safe area for the toolbar.
+    val topPx = if (host.fullScreen.state.value) fullScreenReadingTopInsets().getTop(density) else 0
     SideEffect {
         host.offsets.setSystemTopInset(topPx / density.density)
         host.offsets.setSystemBottomInset(bottomPx / density.density)

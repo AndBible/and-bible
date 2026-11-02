@@ -70,4 +70,11 @@ class TopBarWindowControlsTest {
 
     @Test fun withoutWindowControlsTheReadingDrawerHasNoTopInset() =
         assertEquals(Triple(0f, 0f, 0f), measure(null) { readingDrawerWindowInsets() })
+
+    // Full-screen reading has no toolbar to clear the controls sideways, so the text and pane buttons keep the band.
+    @Test fun fullScreenReadingKeepsTheControlsBandOnTop() =
+        assertEquals(Triple(0f, 28f, 0f), measure(leftControls) { fullScreenReadingTopInsets() })
+
+    @Test fun withoutWindowControlsFullScreenReadingHasNoTopInset() =
+        assertEquals(Triple(0f, 0f, 0f), measure(null) { fullScreenReadingTopInsets() })
 }

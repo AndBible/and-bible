@@ -18,6 +18,10 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.dp
@@ -77,6 +81,15 @@ fun windowControlsSides(): WindowInsets = windowControls().let { WindowInsets(le
 @kotlin.native.HiddenFromObjC
 @Composable
 fun windowControlsBand(): WindowInsets = WindowInsets(top = windowControls().top.dp)
+
+/**
+ * The top inset full-screen reading clears (no toolbar there to clear the controls sideways): the safe area's top
+ * (a notch or Dynamic Island) and, on a Mac, the window controls' band.
+ */
+@kotlin.native.HiddenFromObjC
+@Composable
+fun fullScreenReadingTopInsets(): WindowInsets =
+    WindowInsets.safeDrawing.only(WindowInsetsSides.Top).union(windowControlsBand())
 
 /** The platform's window controls (see [WindowControlsInsets]); [WindowControlsInsets.None] where there are none. */
 @Composable
