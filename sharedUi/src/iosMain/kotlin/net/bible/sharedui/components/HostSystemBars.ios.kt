@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -27,27 +30,39 @@ import net.bible.sharedcore.log.nsLog
 actual fun MirrorHostSystemBars() {
     val window = LocalWindowInfo.current.containerSize
     val density = LocalDensity.current
-    val imeBottom = WindowInsets.ime.getBottom(density)
-    val safeBottom = WindowInsets.safeDrawing.getBottom(density)
-    val barsBottom = WindowInsets.systemBars.getBottom(density)
-    // [0] = latest geometry, [1] = last logged; logged from a slow loop so the slide-in does not log every frame.
-    val lines = remember { arrayOfNulls<String>(2) }
+    // Read in composition (insets are snapshot state), handed to the logging loop below as current values.
+    val bottoms by rememberUpdatedState(
+        Triple(
+            WindowInsets.ime.getBottom(density),
+            WindowInsets.safeDrawing.getBottom(density),
+            WindowInsets.systemBars.getBottom(density),
+        ),
+    )
+    val currentWindow by rememberUpdatedState(window)
+    // Latest content-column bounds in the window and root (dialog layer) height, written on layout, read by the loop.
+    val geometry = remember { arrayOfNulls<Any>(2) }
     LaunchedEffect(Unit) {
+        var logged: String? = null
+        // A slow loop rather than a line per layout pass: the slide-in would log every frame.
         while (true) {
             delay(500)
-            val line = lines[0]
-            if (line != null && line != lines[1]) {
-                lines[1] = line
+            val column = geometry[0] as? Rect ?: continue
+            val rootHeight = geometry[1] as? Int ?: continue
+            val (ime, safe, bars) = bottoms
+            // Sheet surface bottom = column bottom + the sheet's own bottom padding (safeDrawing); 0 = on the bottom.
+            val gapPx = rootHeight - column.bottom - safe
+            val line = "SHEET-GEOMETRY window=${currentWindow.width}x${currentWindow.height} rootHeight=$rootHeight " +
+                "column=$column gapPx=$gapPx ime=$ime safeDrawing=$safe systemBars=$bars density=${density.density}"
+            if (line != logged) {
+                logged = line
                 nsLog(line)
             }
         }
     }
     Spacer(
         Modifier.onGloballyPositioned { c ->
-            val column = c.parentLayoutCoordinates?.boundsInWindow()
-            val root = c.findRootCoordinates().size
-            lines[0] = "SHEET-GEOMETRY window=${window.width}x${window.height} root=${root.width}x${root.height} " +
-                "column=$column ime=$imeBottom safeDrawing=$safeBottom systemBars=$barsBottom density=${density.density}"
+            geometry[0] = c.parentLayoutCoordinates?.boundsInWindow()
+            geometry[1] = c.findRootCoordinates().size.height
         },
     )
 }

@@ -66,8 +66,10 @@ final class MacWindowControlsHost: UIViewController {
         for name in [UIResponder.keyboardWillShowNotification, UIResponder.keyboardWillHideNotification,
                      UIResponder.keyboardWillChangeFrameNotification] {
             NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                let begin = (note.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
                 let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
-                NSLog("MAC-KEYBOARD %@ end=%@ %@", note.name.rawValue, NSCoder.string(for: end), self?.geometry() ?? "")
+                NSLog("MAC-KEYBOARD %@ begin=%@ end=%@ %@", note.name.rawValue, NSCoder.string(for: begin),
+                      NSCoder.string(for: end), self?.geometry() ?? "")
             }
         }
     }
@@ -78,10 +80,10 @@ final class MacWindowControlsHost: UIViewController {
     private func geometry() -> String {
         guard let window = view.window else { return "window=nil" }
         let screen = window.screen
-        let bottomInScreen = screen.coordinateSpace.convert(CGPoint(x: 0, y: window.bounds.height), from: window.coordinateSpace)
+        let frameInScreen = window.coordinateSpace.convert(window.bounds, to: screen.coordinateSpace)
         let s = view.safeAreaInsets
         return "window=\(NSCoder.string(for: window.bounds)) screen=\(NSCoder.string(for: screen.bounds)) " +
-            "scale=\(screen.scale) windowBottomInScreen=\(bottomInScreen.y) " +
+            "scale=\(screen.scale) windowInScreen=\(NSCoder.string(for: frameInScreen)) " +
             "safe=(t=\(s.top) l=\(s.left) b=\(s.bottom) r=\(s.right))"
     }
 

@@ -416,6 +416,12 @@ final class ReadingUITests: RealAppUITestCase {
     /// report; the Mac itself logs SHEET-GEOMETRY / MAC-GEOMETRY / MAC-KEYBOARD lines for it.
     func testQuickSheetSitsOnWindowBottom() throws {
         continueAfterFailure = true
+        if !isPad {
+            // Portrait iPhone has no room for the Find button (see testToolbarActionsOpenTheirDestinations).
+            let device = XCUIDevice.shared
+            addTeardownBlock { device.orientation = .portrait }
+            device.orientation = .landscapeLeft
+        }
         let app = try launchReading()
 
         func checkWorkspacesSheet(_ step: String) {
@@ -449,28 +455,32 @@ final class ReadingUITests: RealAppUITestCase {
             }
             let window = app.windows.firstMatch.frame
             let gap = window.maxY - footer.frame.maxY
-            NSLog("SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
+            NSLog("%@", "SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
             shot(app, "\(step)-workspaces-sheet")
             // Below the footer: at most the bottom safe area (34 pt home indicator) and the sheet's own padding. The
             // Mac report was a gap of about 5 cm (well over 100 pt).
             XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom \(window.maxY)")
+            XCTAssertGreaterThanOrEqual(gap, 0, "\(step): the sheet's last row ends below the window")
             closeQuickSheet(app, step)
         }
 
         checkWorkspacesSheet("fresh")
 
         let find = byLabel(app, "Find")
-        if find.waitForExistence(timeout: 10) {
+        XCTAssertTrue(find.waitForExistence(timeout: 10), "no 'Find' toolbar button: the keyboard step is not tested")
+        if find.exists {
             find.tap()
             let field = element(app, "reading-search-field")
-            if field.waitForExistence(timeout: 15) {
+            XCTAssertTrue(field.waitForExistence(timeout: 15), "the search field did not open")
+            if field.exists {
                 field.tap()
                 field.typeText("love")
                 _ = waitUntil(timeout: 2) { false }
                 shot(app, "search-keyboard")
                 // Leave the search the way a user does: back to the reading view.
                 let close = byLabel(app, "Close search")   // search_close: the search bar's back arrow
-                if close.waitForExistence(timeout: 5) { close.tap() }
+                XCTAssertTrue(close.waitForExistence(timeout: 5), "no 'Close search' button")
+                if close.exists { close.tap() }
                 _ = waitUntil(timeout: 3) { false }
             }
         }
@@ -485,7 +495,8 @@ final class ReadingUITests: RealAppUITestCase {
             corner.press(forDuration: 0.6, thenDragTo: corner.withOffset(CGVector(dx: -250, dy: -350)))
             _ = waitUntil(timeout: 3) { false }
             let after = app.windows.firstMatch.frame
-            NSLog("SHEET-GEOMETRY-TEST resize: window \(before) -> \(after)")
+            NSLog("%@", "SHEET-GEOMETRY-TEST resize: window \(before) -> \(after)")
+            XCTAssertNotEqual(before, after, "the corner drag did not resize the window")
             shot(app, "resized-window")
             checkWorkspacesSheet("resized")
         }
