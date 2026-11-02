@@ -185,7 +185,7 @@ val IosBibleWebViewFactory: BibleWebViewFactory = { controller, modifier ->
         // Survival across re-parenting must be confirmed on the simulator in CI (Task 8/9): split 1->2->3->1
         // and reading -> bookmarks -> back, with no I0-WEBVIEW-TERMINATED.
         factory = { entry.webView.apply { removeFromSuperview() } },
-        modifier = modifier.testTag("pane-${controller.windowId}"),
+        modifier = modifier.testTag("pane-${controller.windowId}").wheelScrollsWebView(controller.windowId, entry.webView),
         update = {},
         onRelease = {}, // never destroy or detach the shared WKWebView; the holder owns it
         properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
