@@ -74,6 +74,7 @@
 #   MAC_HEARTBEAT    seconds between "heartbeat" lines a running step prints with the idle time of the newest
 #                    remote log (default 120), so a hang shows in output.log and `check`
 #   MAC_KEEP_RUNS    run directories (markers, logs, evidence) kept per container (default 20)
+#   MAC_RELEASE_KEEP_INSTALL  non-empty: `--release` does NOT uninstall org.andbible.ios first (a test over seeded app data)
 #   TEST_RUNNER_*    forwarded to `xcode-test`; xcodebuild hands them to the UI tests without the prefix
 #                    (e.g. TEST_RUNNER_FILES_TEST_PHOTO_LABEL for FilesUITests, see docs/ios-remote-mac.md)
 #   MAC_REPO_DIR, MAC_CONTAINER, MAC_LOCAL_DIR, MAC_SSH_BIN, MAC_RSYNC_BIN, MAC_LOCK_POLL, MAC_LOCK_MSG_EVERY
@@ -558,7 +559,7 @@ mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
 ( cd iosApp && xcodegen generate --quiet ) || return 1
 UDID=\$(sim_boot $(q "$XC_SIM")) || return 1
 echo "mac-remote: simulator \$UDID"
-$([ $XC_CONFIG = Release ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
+$([ $XC_CONFIG = Release ] && [ -z "${MAC_RELEASE_KEEP_INSTALL:-}" ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
 if [ $kind = xcode-test ]; then
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
     xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == "$XC_APP"' > build/app-$which.log 2>&1 &

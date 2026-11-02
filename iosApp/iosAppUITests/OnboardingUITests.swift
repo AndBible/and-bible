@@ -19,12 +19,25 @@ final class OnboardingUITests: RealAppUITestCase {
         return ["-AppleLanguages", "(\(language))", "-AppleLocale", language == "fi" ? "fi_FI" : language]
     }
 
+    /// Over migrated old-app data (seeded Release container) the app first shows one-off legacy notices (OK dialogs)
+    /// that hide Welcome from accessibility; acknowledge them like a user.
+    private func dismissNotices(_ app: XCUIApplication, until target: XCUIElement) {
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        for _ in 0..<5 {
+            if target.waitForExistence(timeout: 20) { return }
+            guard ok.exists && ok.isHittable else { continue }
+            shot(app, "onboarding-notice")
+            ok.tap()
+        }
+    }
+
     func testFreshInstallOnboardingOpensReading() {
         // Only -resetData (ignored by Release builds); no fixture, no feature scenario, no -openRef.
         let app = XCUIApplication()
         app.launchArguments = ["-resetData"] + languageArguments()
         app.launch()
         let welcome = element(app, "welcome-screen")
+        dismissNotices(app, until: welcome)
         if !welcome.waitForExistence(timeout: 60) { attachTree(app, "no-welcome") }
         shot(app, "onboarding-welcome")
         XCTAssertTrue(welcome.exists, "Welcome not shown on a fresh install")

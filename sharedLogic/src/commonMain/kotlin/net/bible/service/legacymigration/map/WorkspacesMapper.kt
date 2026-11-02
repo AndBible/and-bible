@@ -330,7 +330,11 @@ class WorkspacesMapper : CategoryMapper {
             isSynchronized = v.bool("isSynchronized") ?: false,
             isPinMode = v.bool("isPinMode") ?: false,
             isLinksWindow = v.bool("isLinksWindow") ?: false,
-            windowLayout = WorkspaceEntities.WindowLayout(v.text("layoutState") ?: "", v.float("layoutWeight") ?: 1.0f),
+            // The Swift app's own states (split, minimized, ...) become the Android WindowState names.
+            windowLayout = WorkspaceEntities.WindowLayout(
+                net.bible.android.control.page.window.WindowLayout.WindowState.fixedValueOf(v.text("layoutState") ?: "").name,
+                v.float("layoutWeight") ?: 1.0f,
+            ),
             id = id,
             orderNumber = v.int("orderNumber") ?: 0,
             targetLinksWindowId = v.id("targetLinksWindowId"),

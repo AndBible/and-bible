@@ -103,6 +103,15 @@ suspend fun compareWithOracle(
     approvedRows: Set<ApprovedRow> = emptySet(),
 ): List<String> = compareWithOracleDetailed(fixture, category, staging, approved, approvedRows).differences
 
+/**
+ * Deviations from the oracle every comparison accepts. The oracle is the Swift app's own "Android format" backup, and it
+ * keeps that app's raw window layout state (`split`, `minimized`), which `WindowLayout.WindowState` could not read; the
+ * migration writes the Android names instead (status 2026-11-02-ios-release-onboarding-loop).
+ */
+val ORACLE_KNOWN_DEVIATIONS = setOf(
+    ApprovedDifference("Window", "window_layout_state", "Swift layout states (split/minimized) are mapped to the Android WindowState names"),
+)
+
 /** [compareWithOracle] plus the per-table count of compared oracle rows. */
 suspend fun compareWithOracleDetailed(
     fixture: FixtureDir,
@@ -119,7 +128,7 @@ suspend fun compareWithOracleDetailed(
         val spec = CURRENT_DB_SPECS.first { it.fqn == source.database }
         val oracleDb = spec.open(file.parentFile.path, file.name)
         try {
-            return compareDatabases(category, oracleDb, staging.openedDatabase(source.fileName), approved, approvedRows)
+            return compareDatabases(category, oracleDb, staging.openedDatabase(source.fileName), approved + ORACLE_KNOWN_DEVIATIONS, approvedRows)
         } finally {
             oracleDb.close()
         }
