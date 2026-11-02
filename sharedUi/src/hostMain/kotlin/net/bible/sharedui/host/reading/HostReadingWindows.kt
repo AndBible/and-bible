@@ -22,6 +22,7 @@ package net.bible.sharedui.host.reading
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.bible.android.view.activity.page.screen.readingBackgroundArgb
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
@@ -160,6 +161,16 @@ object HostReadingWindows {
 
     /** The night parameter the next page load uses: the live [NightModeState], never a constant. */
     val nightMode: Boolean get() = binding?.nightModeState?.nightMode ?: false
+
+    /** Reads the page colour without assembling a session, so a native pane can paint before its first frame. */
+    fun pageBackgroundArgb(windowId: String): Int {
+        val b = binding
+        val colors = b?.koin?.get<WindowControl>()?.windowRepository
+            ?.getWindow(IdType(windowId))?.pageManager?.actualTextDisplaySettings?.colors
+        val colorMode = b?.koin?.get<AppSettings>()?.getString("display_color_mode", null)
+            ?.let(DisplayColorMode::fromValue) ?: DisplayColorMode.NORMAL
+        return readingBackgroundArgb(colors, nightMode, colorMode != DisplayColorMode.NORMAL)
+    }
 
     /** The window's session, assembled on first use. */
     fun sessionFor(windowId: String): BibleWindowSession = assembly(windowId).session

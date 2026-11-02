@@ -38,6 +38,11 @@ changes, such as a different font size or background color, are not copied.
 Later changes to workspace settings also apply to the new window unless you
 override them for that window.
 
+On iOS, a newly opened reading window uses its page background color while the
+text loads, including in split views and after switching workspaces. The background
+follows the current day or night colors; monochrome mode uses white by day and
+black at night.
+
 There are multiple ways to choose the document you want to show in the new window.
 
 1. You can choose a Bible by clicking the Bible-button at the top.

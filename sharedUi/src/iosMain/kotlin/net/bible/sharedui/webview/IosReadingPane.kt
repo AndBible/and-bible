@@ -96,7 +96,7 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
     /** The pane's gesture recognisers once attached (see [attachReadingGestures]); detached when the window is released. */
     var gestureRecognisers: IosReadingGestureRecognisers? = null
 
-    /** The page background last applied to the WebView (ARGB), or null before the first `set_config`. */
+    /** The page background last applied to the WebView (ARGB), seeded before the entry is published. */
     var backgroundArgb: Int? = null
 }
 
@@ -148,6 +148,10 @@ object IosReadingWebViews {
 
     private fun applyBackgroundNow(windowId: String, argb: Int) {
         val entry = entries[windowId] ?: return
+        applyBackground(entry, argb)
+    }
+
+    private fun applyBackground(entry: ReadingEntry, argb: Int) {
         if (entry.backgroundArgb == argb) return
         entry.backgroundArgb = argb
         val color = uiColorFromArgb(argb)
@@ -204,7 +208,11 @@ object IosReadingWebViews {
             val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {
                 ReadingWkWebView(CGRectMake(0.0, 0.0, 0.0, 0.0), it)
             } as ReadingWkWebView
-            ReadingEntry(webView, navDelegate)
+            ReadingEntry(webView, navDelegate).also {
+                // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
+                // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.
+                applyBackground(it, HostReadingWindows.pageBackgroundArgb(windowId))
+            }
         }
     }
 
