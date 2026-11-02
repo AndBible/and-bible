@@ -22,6 +22,7 @@ import net.bible.android.view.activity.page.SwipeAction
 import net.bible.android.view.activity.page.swipeAction
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.doubleTapToFullscreen
 import net.bible.sharedcore.reading.AutoFullscreenTracking
 import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
@@ -60,7 +61,7 @@ class HostReadingGestures(
     private var anchorInitialized = false
     private var gestureStartTime = 0L
 
-    private val doubleTapToFullscreen: Boolean get() = settings.getBoolean(DOUBLE_TAP_KEY, true)
+    private val doubleTapToFullscreen: Boolean get() = settings.doubleTapToFullscreen()
     private val autoFullScreen: Boolean get() = settings.getBoolean(AUTO_FULLSCREEN_KEY, false)
 
     /**
@@ -128,7 +129,6 @@ class HostReadingGestures(
     }
 
     internal companion object {
-        const val DOUBLE_TAP_KEY = "double_tap_to_fullscreen"
         const val AUTO_FULLSCREEN_KEY = "auto_fullscreen_pref"
         const val SWIPE_MODE_KEY = "bible_view_swipe_mode"
 

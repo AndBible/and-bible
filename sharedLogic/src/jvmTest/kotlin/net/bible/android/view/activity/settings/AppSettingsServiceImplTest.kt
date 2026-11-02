@@ -27,6 +27,20 @@ class AppSettingsServiceImplTest {
     } as CoreStrings
     private fun service() = AppSettingsServiceImpl(dictionaries, db, local, strings, flags)
 
+    @Test fun doubleTapSettingsRowDefaultsOffOnDesktopButKeepsStoredChoices() = kotlinx.coroutines.test.runTest {
+        val s = service()
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        fun row() = controller.state.value.items.single { it.key == "double_tap_to_fullscreen" } as SettingsItem.SwitchRow
+        assertFalse(s.snapshot.value.doubleTapToFullscreen)
+        assertFalse(row().checked)
+        for (stored in listOf(true, false)) {
+            s.setBool("double_tap_to_fullscreen", stored)
+            testScheduler.runCurrent()
+            assertEquals(stored, s.snapshot.value.doubleTapToFullscreen)
+            assertEquals(stored, row().checked)
+        }
+    }
+
     @Test fun deviceLocalRoutingAndDefaults() {
         val s = service()
         assertEquals("system", s.snapshot.value.nightMode)

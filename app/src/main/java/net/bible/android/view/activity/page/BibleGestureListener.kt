@@ -29,6 +29,7 @@ import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
 import net.bible.sharedcore.reading.reanchoredTracking
 import net.bible.sharedcore.reading.shouldReanchor
+import net.bible.sharedcore.settings.doubleTapToFullscreen
 import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
@@ -201,7 +202,7 @@ class BibleGestureListener(
         return super.onSingleTapUp(e)
     }
 
-    private val doubleTapToFullscreen get() = CommonUtils.settings.getBoolean("double_tap_to_fullscreen", true)
+    private val doubleTapToFullscreen get() = CommonUtils.settings.doubleTapToFullscreen()
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (mainBibleActivity.fullScreen) {
