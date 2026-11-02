@@ -22,7 +22,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 
-private fun Color.toCssHex(): String = "#%06X".format(0xFFFFFF and toArgb())
+private fun Color.toCssHex(): String = "#" + (0xFFFFFF and toArgb()).toString(16).uppercase().padStart(6, '0')
 
 /**
  * The Vue/BibleView layer's share of the workspace theme (A/B batch 4b, §7): the handful of scheme
@@ -45,8 +45,8 @@ fun themeColorsJson(
     style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
 ): String {
     // Grey-base modes ignore the seed, so Vue's own monochrome rules apply; COLOR_EINK ships only a
-    // set colour (unchanged). NORMAL always ships: the default colour is a real seed now, which is
-    // what keeps the Vue chrome and Compose on the same colours.
+    // set colour (unchanged). NORMAL always ships, including the stock default palette, to keep
+    // the Vue chrome and Compose on the same colours.
     if (colorMode.isGreyBase) return "null"
     if (colorMode == DisplayColorMode.COLOR_EINK && !isWorkspaceColorSet(seedArgb)) return "null"
     val s = abColorScheme(seedArgb, dark, colorMode, style)

@@ -71,9 +71,9 @@ class AbColorSchemeTest {
     }
 
     @Test
-    fun `NORMAL never uses the stock lilac scheme, even with no seed`() {
-        assertNotEquals(lightColorScheme().toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
-        assertNotEquals(darkColorScheme().toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
+    fun `NORMAL uses the stock lilac scheme with no seed`() {
+        assertEquals(lightColorScheme().toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
+        assertEquals(darkColorScheme().toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
     }
 
     @Test
@@ -99,7 +99,7 @@ class AbColorSchemeTest {
     @Test
     fun `black grey and white seeds stay achromatic under the grey-safe default`() {
         assertEquals(ThemePaletteStyle.TONAL_SPOT_GREY, ThemePaletteStyle.DEFAULT)
-        listOf(BLACK, DEFAULT_WORKSPACE_COLOR_ARGB, LIGHT_GREY, WHITE).forEach { seed ->
+        listOf(BLACK, LIGHT_GREY, WHITE).forEach { seed ->
             listOf(false, true).forEach { dark ->
                 val s = abColorScheme(seed, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
                 visibleRoles(s).forEach { (n, c) ->
@@ -116,7 +116,7 @@ class AbColorSchemeTest {
     /** Pins that the original TonalSpot is kept as is (the grey bug included), not silently fixed. */
     @Test
     fun `original TonalSpot still colours a grey seed`() {
-        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+        val s = abColorScheme(LIGHT_GREY, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
         assertTrue(rgbSpread(s.primaryContainer.toArgb()) > 40)
     }
 
@@ -159,8 +159,8 @@ class AbColorSchemeTest {
     /** Fidelity's defining property: the seed itself is primaryContainer. */
     @Test
     fun `Fidelity keeps the seed itself as primaryContainer`() {
-        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY)
-        assertEquals(DEFAULT_WORKSPACE_COLOR_ARGB, s.primaryContainer.toArgb())
+        val s = abColorScheme(LIGHT_GREY, false, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY)
+        assertEquals(LIGHT_GREY, s.primaryContainer.toArgb())
     }
 
     /** Catches a mapping slip (two enum entries wired to the same PaletteStyle). */
@@ -170,9 +170,9 @@ class AbColorSchemeTest {
         val materialStyles = ThemePaletteStyle.entries - ThemePaletteStyle.TONAL_SPOT_GREY
         val schemes = materialStyles.associateWith { schemeOf(ORANGE, false, DisplayColorMode.NORMAL, it) }
         assertEquals(materialStyles.size, schemes.values.toSet().size)
-        val greySafe = schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
+        val greySafe = schemeOf(LIGHT_GREY, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
         materialStyles.forEach {
-            assertNotEquals("$it", schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, it), greySafe)
+            assertNotEquals("$it", schemeOf(LIGHT_GREY, false, DisplayColorMode.NORMAL, it), greySafe)
         }
     }
 

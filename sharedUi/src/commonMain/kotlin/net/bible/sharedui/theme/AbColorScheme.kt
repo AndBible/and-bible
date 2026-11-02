@@ -32,7 +32,6 @@ import com.materialkolor.scheme.Variant
 import com.materialkolor.toColorScheme
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.common.ThemePaletteStyle
-import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.theme.toGrayscaleArgb
 
@@ -146,10 +145,11 @@ private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
  * pass in makes that drift impossible by construction rather than by a second condition that both
  * call sites must remember to write.
  *
- * - **NORMAL** -> a missing seed uses [DEFAULT_WORKSPACE_COLOR_ARGB], derived with [style].
- *   The default style is [ThemePaletteStyle.TONAL_SPOT_GREY] ([greySafeTonalSpot]): TonalSpot's soft
- *   look without its grey bug; Fidelity (the previous default) was too heavy. Goldens and previews
- *   with `seedArgb = null` render the default grey theme, exactly as the app does.
+ * - **NORMAL** -> an unset workspace colour (null or the stored `#444444` sentinel; see
+ *   [isWorkspaceColorSet]) uses Compose's stock Material 3 light/dark scheme, regardless of [style].
+ *   A chosen colour is derived with [style]; the default [ThemePaletteStyle.TONAL_SPOT_GREY]
+ *   ([greySafeTonalSpot]) keeps low-chroma seeds muted. Unseeded goldens and previews render the
+ *   same stock baseline-violet theme as the app.
  * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed and style ignored.
  * - **BW** -> the seed and style are ignored: the stock scheme is greyscaled so contrast is
  *   consistent across workspaces on black-and-white screens.
@@ -166,9 +166,9 @@ fun abColorScheme(
     val stock = if (dark) darkColorScheme() else lightColorScheme()
     return when (colorMode) {
         DisplayColorMode.NORMAL -> {
-            val seed = seedArgb ?: DEFAULT_WORKSPACE_COLOR_ARGB
-            if (style == ThemePaletteStyle.TONAL_SPOT_GREY) greySafeTonalSpot(seed, dark)
-            else seeded(seed, dark, style.toPaletteStyle())
+            if (!isWorkspaceColorSet(seedArgb)) stock
+            else if (style == ThemePaletteStyle.TONAL_SPOT_GREY) greySafeTonalSpot(seedArgb!!, dark)
+            else seeded(seedArgb!!, dark, style.toPaletteStyle())
         }
         DisplayColorMode.MONOCHROME -> monochromeScheme(dark)
         DisplayColorMode.BW -> stock.grayscale(colorMode)

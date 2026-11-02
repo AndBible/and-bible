@@ -39,6 +39,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +48,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import net.bible.service.common.DisplayColorMode
+import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.colorFor
@@ -56,6 +61,8 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.volumeVerticalScroll
+import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.LocalIsDarkTheme
 
 /**
  * Stateless port of the classic colours editor (`ColorSettingsFragment`/`colors_settings.xml`):
@@ -199,9 +206,14 @@ fun ColorSettingsContent(
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {
+            // Detached workspace editors can inherit a different workspace's active theme.
+            val stock = if (LocalIsDarkTheme.current) darkColorScheme() else lightColorScheme()
             ColorSwatchRow(
                 label = labels.workspaceColor,
-                color = colors.workspaceColor,
+                // The stored default is an unset sentinel, not the visible theme colour.
+                color = if (LocalDisplayColorMode.current == DisplayColorMode.NORMAL &&
+                    !isWorkspaceColorSet(colors.workspaceColor)
+                ) stock.primary.toArgb() else colors.workspaceColor,
                 onClick = onWorkspaceColorClick,
             )
         }

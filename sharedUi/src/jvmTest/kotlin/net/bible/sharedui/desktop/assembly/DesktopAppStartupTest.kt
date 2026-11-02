@@ -179,6 +179,37 @@ class DesktopAppStartupTest {
         assertTrue(errors.isEmpty(), "$errors")
     }
 
+    @Test fun readingConfigUsesStockThemeForUnsetWorkspace() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val koin = KoinPlatform.getKoin()
+        val control = koin.get<net.bible.android.control.page.window.WindowControl>()
+        kotlinx.coroutines.withContext(mainThread) { control.windowRepository.initialize() }
+        val settings = koin.get<net.bible.sharedcore.platform.AppSettings>()
+        for (seed in listOf(null, net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB, 0xFFFF8000.toInt())) {
+            control.windowRepository.workspaceSettings.workspaceColor = seed
+            for (dark in listOf(false, true)) for (mode in net.bible.service.common.DisplayColorMode.entries) {
+                settings.setString("display_color_mode", mode.value)
+                val platform = net.bible.sharedui.host.reading.HostDocumentLoaderPlatform(
+                    window = { control.activeWindow }, windowControl = { control }, settings = { settings },
+                    nightModeState = { object : net.bible.sharedlogic.platform.NightModeState { override val nightMode = dark } },
+                    isPortrait = { true }, isBeta = { false },
+                )
+                val json = kotlinx.coroutines.withContext(mainThread) { platform.configInputs(emptyList()).themeColors }
+                if (mode == net.bible.service.common.DisplayColorMode.NORMAL && seed != 0xFFFF8000.toInt()) {
+                    assertTrue(json.contains(if (dark) "\"primary\":\"#D0BCFF\"" else "\"primary\":\"#6750A4\""), json)
+                } else {
+                    assertEquals("null", json, "chosen colours and e-ink keep the existing host CSS palette")
+                }
+            }
+        }
+    }
+
     @Test fun startsWithStartupFixtureModule() {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
