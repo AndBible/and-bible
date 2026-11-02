@@ -1,9 +1,14 @@
 import SwiftUI
 import SharedUi
+import os
 
 @main
 struct iOSApp: App {
     init() {
+        // macOS 26 shows an iOS app's NSLog text as <private>; log the app's own lines publicly instead
+        // (Console.app / `log show --predicate 'subsystem == "org.andbible.ios"'`).
+        let logger = Logger(subsystem: "org.andbible.ios", category: "app")
+        IosPlatformBootstrap.shared.installLogSink { logger.log("\($0, privacy: .public)") }
         IosPlatformBootstrap.shared.registerBackgroundTasks()
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()

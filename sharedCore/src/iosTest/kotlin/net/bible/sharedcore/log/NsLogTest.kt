@@ -16,3 +16,26 @@ class NsLogTest {
         Log.e("NsLogTest", "äö %@", IllegalStateException("boom"))
     }
 }
+
+/**
+ * macOS 26 shows an iOS app's NSLog text as `<private>` in Console and `log show`, so the Mac diagnostics
+ * (WINDOW-CONTROLS, SHEET-GEOMETRY, ...) were unreadable. The Swift host installs a sink that logs publicly;
+ * [nsLog] must hand every line to it, verbatim, instead of NSLog.
+ */
+class NsLogSinkTest {
+    @Test fun nsLogGoesToTheInstalledSinkVerbatim() {
+        val seen = mutableListOf<String>()
+        val previous = IosLogSink.install { seen += it }
+        try {
+            nsLog("SHEET-GEOMETRY gapPx=12 äö 100% %@")
+            kotlin.test.assertEquals(listOf("SHEET-GEOMETRY gapPx=12 äö 100% %@"), seen)
+        } finally {
+            IosLogSink.install(previous)
+        }
+    }
+
+    @Test fun withoutASinkNsLogStillReturns() {
+        val previous = IosLogSink.install(null)
+        try { nsLog("no sink") } finally { IosLogSink.install(previous) }
+    }
+}

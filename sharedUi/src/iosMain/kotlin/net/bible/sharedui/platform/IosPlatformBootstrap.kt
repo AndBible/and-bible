@@ -21,6 +21,14 @@ object IosPlatformBootstrap {
         net.bible.sharedui.ios.files.IosFilesFeatureHarness.prepareLaunch()
     }
 
+    /**
+     * Routes the app's own log lines (`nsLog`, `Log.*`) to [sink]; the Swift host passes a `Logger` that logs them
+     * `.public`, because macOS 26 shows an iOS app's NSLog text only as `<private>`. Call once, at launch.
+     */
+    fun installLogSink(sink: (String) -> Unit) {
+        net.bible.sharedcore.log.IosLogSink.install(sink)
+    }
+
     /** Null on success; an explicit diagnostic otherwise, including unsupported release builds. */
     fun runFilesClipboardSelfTest(): String? = net.bible.sharedui.ios.files.IosFilesRuntimeHarness.clipboardSelfTest()
 
