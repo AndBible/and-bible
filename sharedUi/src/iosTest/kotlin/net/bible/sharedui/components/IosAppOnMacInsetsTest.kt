@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.safeDrawing
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ObjCAction
+import kotlinx.cinterop.toKString
 import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSSelectorFromString
@@ -18,7 +19,6 @@ import platform.darwin.NSObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -115,16 +115,23 @@ class IosAppOnMacInsetsTest {
         postAll()
         assertEquals(listOf(1, 1, 1), listOf(probe.shows, probe.changes, probe.hides), "the probe must see the notifications")
 
-        val cls = assertNotNull(CmpKeyboardOverlap.findListenerClass("ProbeKeyboardListenerForMacTest"),
-            "the probe's Objective-C class is not found by name")
+        val probeClass = probe.`class`()
+        val found = CmpKeyboardOverlap.findListenerClasses()
+        val cls = assertNotNull(found.firstOrNull { it == probeClass },
+            "the probe's class ${platform.objc.class_getName(probeClass)?.toKString()} is not found by its selectors")
         assertEquals(2, CmpKeyboardOverlap.silence(cls))
         postAll()
         assertEquals(listOf(1, 1, 2), listOf(probe.shows, probe.changes, probe.hides))
         center.removeObserver(probe)
     }
 
-    @Test fun anAbsentListenerClassIsNotFound() {
-        assertNull(CmpKeyboardOverlap.findListenerClass("NoSuchKeyboardListener-${'$'}x"))
-        assertTrue(CmpKeyboardOverlap.LISTENER_CLASS_NAME.isNotEmpty())
+    /** A Kotlin NSObject with only some of the keyboard selectors is not taken for the listener. */
+    private class PartialKeyboardObserverForMacTest : NSObject() {
+        @ObjCAction fun keyboardWillShow(arg: NSNotification) {}
+    }
+
+    @Test fun aClassWithoutAllThreeSelectorsIsNotTheListener() {
+        val partial = PartialKeyboardObserverForMacTest().`class`()
+        assertTrue(CmpKeyboardOverlap.findListenerClasses().none { it == partial })
     }
 }

@@ -148,36 +148,47 @@ internal class MacWindowInsets(
  * one process-wide Kotlin `NSObject` (`androidx.compose.ui.window.NativeKeyboardVisibilityListener`, CMP 1.11.1)
  * observing the UIKeyboard notifications; its show and frame-change handlers are replaced with no-ops, so its
  * keyboard frame stays empty. Its hide handler is kept (it only clears the frame).
+ *
+ * Kotlin/Native registers a Kotlin subclass of an Objective-C class under an anonymous name (`<module>_kobjc<N>`,
+ * measured: `Test_kobjc1`), so the listener is found by shape instead: a Kotlin class answering all three keyboard
+ * selectors ([LISTENER_SELECTORS]). Nothing else in the app or CMP implements them as Objective-C methods.
  */
 internal object CmpKeyboardOverlap {
-    const val LISTENER_CLASS_NAME = "NativeKeyboardVisibilityListener"
+    private const val KOTLIN_CLASS_MARK = "_kobjc"
+    val LISTENER_SELECTORS = listOf("keyboardWillShow:", "keyboardWillChangeFrame:", "keyboardWillHide:")
     private val SILENCED = listOf("keyboardWillShow:", "keyboardWillChangeFrame:")
 
     private val noop = staticCFunction { _: COpaquePointer?, _: COpaquePointer?, _: COpaquePointer? -> }
 
-    /**
-     * `class_getName` called through a plain C function pointer: the class list holds root classes that are not
-     * `NSObject`s (e.g. `Object`), and turning one into a Kotlin reference messages it, which aborts the process.
-     */
+    // The runtime's C functions through plain function pointers: the class list holds root classes that are not
+    // `NSObject`s (e.g. `Object`), and turning one into a Kotlin reference messages it, which aborts the process.
+    // Darwin's RTLD_DEFAULT is ((void *) -2).
     private val classGetName by lazy {
-        // Darwin's RTLD_DEFAULT is ((void *) -2).
         dlsym((-2L).toCPointer<CPointed>(), "class_getName")
             ?.reinterpret<CFunction<(COpaquePointer?) -> CPointer<ByteVar>?>>()
     }
+    private val classGetInstanceMethod by lazy {
+        dlsym((-2L).toCPointer<CPointed>(), "class_getInstanceMethod")
+            ?.reinterpret<CFunction<(COpaquePointer?, COpaquePointer?) -> COpaquePointer?>>()
+    }
 
-    /** The registered Objective-C class whose name contains [name] (Kotlin/Native decorates the Kotlin name). */
-    fun findListenerClass(name: String = LISTENER_CLASS_NAME): ObjCClass? = memScoped {
-        val getName = classGetName ?: return@memScoped null
-        val needle = name.cstr.ptr
+    /** Every registered Kotlin class that implements all of [LISTENER_SELECTORS] (CMP's listener; tests add probes). */
+    fun findListenerClasses(): List<ObjCClass> = memScoped {
+        val getName = classGetName ?: return@memScoped emptyList()
+        val getMethod = classGetInstanceMethod ?: return@memScoped emptyList()
+        val mark = KOTLIN_CLASS_MARK.cstr.ptr
+        val selectors = LISTENER_SELECTORS.map { sel_registerName(it) }
         val count = alloc<UIntVar>()
-        val list = objc_copyClassList(count.ptr) ?: return@memScoped null
+        val list = objc_copyClassList(count.ptr) ?: return@memScoped emptyList()
         try {
             val raw = list.reinterpret<COpaquePointerVar>()
             // Raw pointers and strstr on the C names: no Kotlin object or string per class (tens of thousands).
-            (0 until count.value.toInt()).firstNotNullOfOrNull { i ->
-                val cls = raw[i] ?: return@firstNotNullOfOrNull null
-                val className = getName(cls) ?: return@firstNotNullOfOrNull null
-                if (strstr(className, needle) == null) null else interpretObjCPointerOrNull<ObjCClass>(cls.rawValue)
+            (0 until count.value.toInt()).mapNotNull { i ->
+                val cls = raw[i] ?: return@mapNotNull null
+                val className = getName(cls) ?: return@mapNotNull null
+                if (strstr(className, mark) == null) return@mapNotNull null
+                if (selectors.any { getMethod(cls, it) == null }) return@mapNotNull null
+                interpretObjCPointerOrNull<ObjCClass>(cls.rawValue)
             }
         } finally {
             free(list)
@@ -197,10 +208,13 @@ internal object CmpKeyboardOverlap {
     /** Silences the listener once it exists (CMP creates it when the first scene appears); true when done. */
     fun silenceOnce(): Boolean {
         if (silenced) return true
-        val cls = findListenerClass() ?: return false
-        val replaced = silence(cls)
+        val classes = findListenerClasses()
+        if (classes.isEmpty()) return false
+        for (cls in classes) {
+            val replaced = silence(cls)
+            nsLog("MAC-IME silenced ${class_getName(cls)?.toKString()} ($replaced of ${SILENCED.size} handlers)")
+        }
         silenced = true
-        nsLog("MAC-IME silenced ${class_getName(cls)?.toKString()} ($replaced of ${SILENCED.size} handlers)")
         return true
     }
 }
@@ -227,7 +241,7 @@ fun ProvideIosAppOnMacInsets(content: @Composable () -> Unit) {
             if (CmpKeyboardOverlap.silenceOnce()) return@LaunchedEffect
             delay(100)
         }
-        nsLog("MAC-IME CMP keyboard listener ${CmpKeyboardOverlap.LISTENER_CLASS_NAME} not found: keyboard overlap stays on")
+        nsLog("MAC-IME CMP keyboard listener not found: keyboard overlap stays on")
     }
     LaunchedEffect(platform, corrected) {
         snapshotFlow {
