@@ -555,7 +555,6 @@ mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
   stamp=node_modules/.mac-remote-lock-sha; sha=\$(shasum package-lock.json | cut -d' ' -f1)
   [ "\$(cat \$stamp 2>/dev/null)" = "\$sha" ] || { npm ci --no-audit --no-fund && echo \$sha > \$stamp; } &&
   npm run build-production ) > build/bibleview-$which.log 2>&1 || { tail -40 build/bibleview-$which.log; return 1; }
-$([ $XC_CONFIG = Release ] && echo 'scripts/ios-version-xcconfig.sh || return 1   # Release refuses the 0.0.0 fallback version')
 ( cd iosApp && xcodegen generate --quiet ) || return 1
 UDID=\$(sim_boot $(q "$XC_SIM")) || return 1
 echo "mac-remote: simulator \$UDID"
