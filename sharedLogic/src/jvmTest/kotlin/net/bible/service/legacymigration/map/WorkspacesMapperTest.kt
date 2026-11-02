@@ -83,6 +83,38 @@ class WorkspacesMapperTest {
         assertEquals(0, fresh.comparedRows.getValue("Workspace"))
     }
 
+    /**
+     * The Swift app stored its own window layout states (`split`, `minimized`, ...), and so did its "Android format" backup
+     * (the oracle). The new app's `WindowLayout.WindowState` only knows VISIBLE/MINIMISED/CLOSED (+ the legacy "SPLIT"), so
+     * a raw copy made `Window(...)` throw when reading opened: on a device with the old app's data, onboarding looped back
+     * to Welcome (status 2026-11-02-ios-release-onboarding-loop). The migration maps them to the Android enum names.
+     */
+    @Test
+    fun swiftLayoutStatesAreMappedToTheAndroidEnum() {
+        val raw = listOf("split", "minimized", "minimised", "closed", "maximized", "VISIBLE", "MINIMISED", "SPLIT", "", "bogus")
+        val data = handBuilt(emptyMap()).let { base ->
+            val template = base.windows.first()
+            LegacyWorkspaceData(
+                workspaces = base.workspaces,
+                windows = raw.mapIndexed { i, state ->
+                    template.copy(
+                        values = template.values + ("id" to uuid("13000000-0000-0000-0000-0000000020%02d".format(i))) +
+                            ("layoutState" to LegacyValue.TextV(state)) + ("orderNumber" to LegacyValue.IntV(i.toLong())),
+                    )
+                },
+                pageManagers = emptyList(),
+                historyItems = emptyList(),
+                settings = emptyMap(),
+            )
+        }
+        val byId = build(data).windows.associate { it.id.toString() to it.windowLayout.state }
+        val mapped = raw.indices.map { byId.getValue("13000000-0000-0000-0000-0000000020%02d".format(it)) }
+        assertEquals(
+            listOf("VISIBLE", "MINIMISED", "MINIMISED", "CLOSED", "VISIBLE", "VISIBLE", "MINIMISED", "VISIBLE", "VISIBLE", "VISIBLE"),
+            mapped,
+        )
+    }
+
     @Test
     fun plantedDefectIsReported() {
         // Same effect as a schema map that points textDisplaySettings.fontSize at ZMARGINLEFT.

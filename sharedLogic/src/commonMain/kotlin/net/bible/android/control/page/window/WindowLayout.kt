@@ -36,10 +36,18 @@ class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
         MINIMISED,
         CLOSED;
         companion object {
+            /**
+             * The state stored in `Window.window_layout_state`. Besides the names above it accepts the legacy Android
+             * "SPLIT" and the states of the old Swift iOS app (`split`, `minimized`, `closed`, `maximized`; also in its
+             * "Android format" backups), in any case. An unknown value opens the window VISIBLE instead of throwing:
+             * a throw here fails the whole window repository load, so reading never opens.
+             */
             fun fixedValueOf(state: String) =
-                when(state) {
-                    "SPLIT" -> VISIBLE
-                    else -> valueOf(state)
+                when (state.uppercase()) {
+                    "VISIBLE", "SPLIT", "MAXIMIZED", "MAXIMISED" -> VISIBLE
+                    "MINIMISED", "MINIMIZED" -> MINIMISED
+                    "CLOSED" -> CLOSED
+                    else -> VISIBLE
                 }
         }
     }

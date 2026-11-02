@@ -41,6 +41,7 @@ is missing from egress: ask for `jailbee net egress add <mac-ip>:22 --repo`. Nev
 | Stop my own forgotten or hung run | `cancel` | seconds |
 | CI `ios` job (bibleview-js, xcodegen, XCUITests, screenshots) | `xcode-test iphone` | 9.5 min (first run) |
 | One UI test | `xcode-test iphone -only-testing:iosAppUITests/PocUITests/testEdgeSwipeBack` | |
+| Release configuration, fresh install (`org.andbible.ios` uninstalled first; Release ignores debug launch args) | `xcode-test iphone --release -only-testing:iosAppUITests/OnboardingUITests/testFreshInstallOnboardingOpensReading` | ~15 min cold (Release K/N link), ~2 min warm |
 | iPad screenshots (as CI) | `xcode-test ipad -only-testing:iosAppUITests/PocUITests/testScreenshotsAllScenarios` | |
 | Any Gradle task | `gradle :sharedUi:linkDebugFrameworkIosSimulatorArm64` | |
 | Build, install and launch the app by hand | `xcode-build iphone`, then `sim shot <name>` | 20 s warm |
