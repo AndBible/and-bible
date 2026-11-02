@@ -24,6 +24,13 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertEqual(info['CFBundleDisplayName'], '$(APP_DISPLAY_NAME)')
         self.assertEqual(info['AndBibleICloudContainer'], '$(ICLOUD_CONTAINER)')
 
+    def test_document_types_have_a_name(self):
+        # App Store Connect rejects an upload whose document type lacks CFBundleTypeName (ITMS-90149).
+        with (app / 'Info.plist').open('rb') as source:
+            info = plistlib.load(source)
+        for doc_type in info['CFBundleDocumentTypes']:
+            self.assertTrue(doc_type.get('CFBundleTypeName'), doc_type)
+
     def test_no_literal_icloud_container(self):
         self.assertNotIn('iCloud.org.andbible.ios', (app / 'Info.plist').read_text())
         text = (app / 'iosApp.entitlements').read_text()
