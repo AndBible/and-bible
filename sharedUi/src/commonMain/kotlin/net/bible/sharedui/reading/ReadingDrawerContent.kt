@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.components.windowControlsBand
 import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.isPureMonochrome
@@ -113,13 +114,15 @@ fun ReadingDrawerSheet(
  * host state (iOS, desktop, previews) this equals Material's default. The bottom inset keeps the footer above
  * the navigation bar (#3872). Unlike the top bars (`topBarCutoutSides()`) a top corner cutout is not cleared
  * sideways: with the bar hidden it may overlap the header's top padding, as in the legacy drawer, which padded
- * `systemBars()` only.
+ * `systemBars()` only. On a Mac the iOS host moves the window controls' band out of the safe area
+ * ([windowControlsBand]); the drawer opens under the controls' corner, so it keeps that band.
  */
 @Composable
 fun readingDrawerWindowInsets(): WindowInsets =
     WindowInsets.systemBars
         .union(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
         .union(topBarCutoutTop())
+        .union(windowControlsBand())
         .only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
 
 /**

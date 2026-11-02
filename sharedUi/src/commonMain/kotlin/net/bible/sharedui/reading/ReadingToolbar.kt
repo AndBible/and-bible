@@ -129,6 +129,7 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.topBarCutoutSides
+import net.bible.sharedui.components.windowControlsSides
 import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -409,6 +410,7 @@ fun ReadingToolbar(
                                 WindowInsets.systemBars.union(WindowInsets.displayCutout)
                                     .only(WindowInsetsSides.Horizontal)
                                     .union(topBarCutoutSides())
+                                    .union(windowControlsSides())
                             )
                             .height(ToolbarHeight),
                         verticalAlignment = Alignment.CenterVertically,
@@ -565,9 +567,11 @@ fun ReadingToolbar(
             .background(container)
             .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
             // #3900: with the cutout band not reserved, a top cutout over an edge button is cleared sideways.
+            // The window controls of the iOS app on a Mac, which the host moves out of the top inset, likewise.
             .windowInsetsPadding(
                 WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
                     .union(topBarCutoutSides())
+                    .union(windowControlsSides())
             )
             .height(ToolbarHeight),
     ) {

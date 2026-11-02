@@ -41,7 +41,8 @@ expect fun MirrorHostSystemBars()
  * to win back the status-bar strip, and the legacy app drew content up into the cutout there
  * (ActivityBase padded `systemBars()`, which excludes `displayCutout`); a top cutout over an edge
  * button is cleared sideways instead ([topBarCutoutSides], #3900). With no host state (goldens,
- * previews) the cutout is kept.
+ * previews) the cutout is kept. The window controls of the iOS app on a Mac are cleared sideways too
+ * ([windowControlsSides]).
  */
 @Composable
 fun topBarWindowInsets(): WindowInsets {
@@ -51,7 +52,7 @@ fun topBarWindowInsets(): WindowInsets {
     } else {
         WindowInsetsSides.Horizontal + WindowInsetsSides.Top
     }
-    return WindowInsets.systemBars.union(cutout.only(cutoutSides)).union(topBarCutoutSides())
+    return WindowInsets.systemBars.union(cutout.only(cutoutSides)).union(topBarCutoutSides()).union(windowControlsSides())
         .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
 }
 

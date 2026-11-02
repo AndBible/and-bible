@@ -54,3 +54,7 @@ internal actual fun platformTopCutoutRects(): List<IntRect> {
         rects.map { IntRect(it.left, it.top, it.right, it.bottom) }
     }
 }
+
+// Android has no window controls over the app's content.
+@Composable
+internal actual fun platformWindowControls(): WindowControlsInsets = WindowControlsInsets.None

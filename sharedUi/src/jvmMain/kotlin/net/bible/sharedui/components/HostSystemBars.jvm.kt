@@ -8,3 +8,6 @@ actual fun MirrorHostSystemBars() {}
 
 @Composable
 internal actual fun platformTopCutoutRects(): List<IntRect> = emptyList()
+
+@Composable
+internal actual fun platformWindowControls(): WindowControlsInsets = WindowControlsInsets.None

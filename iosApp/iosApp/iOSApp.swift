@@ -31,8 +31,55 @@ struct iOSApp: App {
 /// top-level `MainViewController()` in `sharedUi/iosMain`; it shows the AndBible I0 PoC app.
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
+        let compose = MainViewControllerKt.MainViewController()
+        // iPhone and iPad keep the Compose controller as it is; only the iOS app on a Mac gets the window-controls host.
+        return ProcessInfo.processInfo.isiOSAppOnMac ? MacWindowControlsHost(compose: compose) : compose
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
+/// The iOS app on a Mac (macOS 26) reserves a top safe-area band for the window controls (traffic lights), which the
+/// Compose top bars padded as an empty strip. This container measures its own safe area plainly and adapted
+/// horizontally around the controls' corner, and lets the Kotlin side (`IosWindowControls`, WindowControls.ios.kt)
+/// move the controls' band out of the Compose controller's safe area and into the top bars' leading/trailing padding.
+final class MacWindowControlsHost: UIViewController {
+    private let compose: UIViewController
+
+    init(compose: UIViewController) {
+        self.compose = compose
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addChild(compose)
+        compose.view.frame = view.bounds
+        compose.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(compose.view)
+        compose.didMove(toParent: self)
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        updateWindowControls()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateWindowControls()
+    }
+
+    private func updateWindowControls() {
+        guard #available(iOS 26.0, *) else { return }
+        let safe = view.safeAreaInsets
+        let adapted = view.edgeInsets(for: .safeArea(cornerAdaptation: .horizontal))
+        IosWindowControls.shared.update(
+            controller: compose,
+            safeTop: safe.top, safeLeft: safe.left, safeRight: safe.right,
+            adaptedTop: adapted.top, adaptedLeft: adapted.left, adaptedRight: adapted.right
+        )
+    }
 }
