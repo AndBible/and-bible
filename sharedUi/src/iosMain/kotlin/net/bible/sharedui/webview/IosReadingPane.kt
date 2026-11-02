@@ -321,7 +321,7 @@ fun iosReadingPaneFactory(
         UIKitView(
             // Detach from any previous (disposed) interop holder before re-parenting the cached view.
             factory = { entry.webView.apply { removeFromSuperview() } },
-            modifier = modifier.testTag("pane-$windowId"),
+            modifier = modifier.testTag("pane-$windowId").wheelScrollsWebView(windowId, entry.webView),
             update = {},
             onRelease = {}, // never destroy or detach the shared WKWebView; IosReadingWebViews owns it
             properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
