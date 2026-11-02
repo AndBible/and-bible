@@ -409,6 +409,88 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 9 tests
 
+    /// A bottom sheet sits on the window's bottom edge (Mac report on TestFlight 6.0.1238: the Workspaces sheet floated
+    /// about 5 cm above it). Checked on a fresh launch and again after the search field had the keyboard: Compose
+    /// shortens a dialog by the keyboard overlap, so a stale keyboard frame would lift the sheet. On the iPad also after
+    /// resizing the (iPadOS 26) window, the closest the simulator gets to a Mac window. None of these reproduce the Mac
+    /// report; the Mac itself logs SHEET-GEOMETRY / MAC-GEOMETRY / MAC-KEYBOARD lines for it.
+    func testQuickSheetSitsOnWindowBottom() throws {
+        continueAfterFailure = true
+        let app = try launchReading()
+
+        func checkWorkspacesSheet(_ step: String) {
+            // The toolbar button where it fits (iPad, landscape), else the overflow row.
+            let ws = byLabel(app, "Workspaces")
+            if ws.waitForExistence(timeout: 5) && ws.isHittable {
+                ws.tap()
+            } else {
+                let more = byLabel(app, "More options")
+                guard more.waitForExistence(timeout: 10) else {
+                    attachTree(app, "\(step)-no-overflow"); XCTFail("\(step): no 'More options' toolbar button"); return
+                }
+                more.tap()
+                let row = app.descendants(matching: .any)
+                    .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+                guard row.waitForExistence(timeout: 10) else {
+                    attachTree(app, "\(step)-no-row"); XCTFail("\(step): no 'Workspaces' overflow row"); return
+                }
+                row.tap()
+            }
+            guard quickSheetShown(app, timeout: 15) else {
+                attachTree(app, "\(step)-sheet-not-shown"); XCTFail("\(step): the workspaces sheet did not open"); return
+            }
+            // Let the slide-in settle before measuring.
+            _ = waitUntil(timeout: 3) { false }
+            // The sheet surface's own accessibility frame is not its drawn frame (Compose reports it unoffset), so
+            // measure the sheet's last row, the "Manage workspaces" footer.
+            let footer = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Manage workspaces'")).firstMatch
+            guard footer.waitForExistence(timeout: 10) else {
+                attachTree(app, "\(step)-no-footer"); XCTFail("\(step): the sheet has no 'Manage workspaces' row"); return
+            }
+            let window = app.windows.firstMatch.frame
+            let gap = window.maxY - footer.frame.maxY
+            NSLog("SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
+            shot(app, "\(step)-workspaces-sheet")
+            // Below the footer: at most the bottom safe area (34 pt home indicator) and the sheet's own padding. The
+            // Mac report was a gap of about 5 cm (well over 100 pt).
+            XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom \(window.maxY)")
+            closeQuickSheet(app, step)
+        }
+
+        checkWorkspacesSheet("fresh")
+
+        let find = byLabel(app, "Find")
+        if find.waitForExistence(timeout: 10) {
+            find.tap()
+            let field = element(app, "reading-search-field")
+            if field.waitForExistence(timeout: 15) {
+                field.tap()
+                field.typeText("love")
+                _ = waitUntil(timeout: 2) { false }
+                shot(app, "search-keyboard")
+                // Leave the search the way a user does: back to the reading view.
+                let close = byLabel(app, "Close search")   // search_close: the search bar's back arrow
+                if close.waitForExistence(timeout: 5) { close.tap() }
+                _ = waitUntil(timeout: 3) { false }
+            }
+        }
+        checkWorkspacesSheet("after-keyboard")
+
+        // iPadOS 26 windows are resizable (the grabber in the bottom-trailing corner), as the app's window on a Mac is:
+        // shrink the window after a sheet has been shown once, then show it again.
+        if isPad {
+            let before = app.windows.firstMatch.frame
+            let corner = app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+                .withOffset(CGVector(dx: before.maxX - 4, dy: before.maxY - 4))
+            corner.press(forDuration: 0.6, thenDragTo: corner.withOffset(CGVector(dx: -250, dy: -350)))
+            _ = waitUntil(timeout: 3) { false }
+            let after = app.windows.firstMatch.frame
+            NSLog("SHEET-GEOMETRY-TEST resize: window \(before) -> \(after)")
+            shot(app, "resized-window")
+            checkWorkspacesSheet("resized")
+        }
+    }
+
     /// Toolbar actions and where they lead. Labels are the toolbar's contentDescriptions (strings.xml): search is
     /// "Find" (NOT "Search"), speak "Speak", the workspace button "Workspaces", the overflow "More options".
     /// Each action runs in a fresh process and records its own failure (`continueAfterFailure` on), so one dead
