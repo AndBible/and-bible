@@ -31,7 +31,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
@@ -124,7 +123,6 @@ fun WorkspaceSelectorScreen(
 ) {
     val s = LocalStrings.current
     // Local dialog state (which text-input dialog is open + its target item). Not hoisted (pure UI).
-    var createOpen by remember { mutableStateOf(false) }
     var renameFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
     var cloneFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
 
@@ -145,7 +143,7 @@ fun WorkspaceSelectorScreen(
         actions = {
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
-                AbActionIcon(Icons.Filled.Add, s.newItem, { createOpen = true })
+                WorkspaceCreateAction(workspaces.size, onCreate)
                 AbActionIcon(Icons.AutoMirrored.Filled.HelpOutline, s.helpLabel, onHelp)
             }
         },
@@ -227,14 +225,6 @@ fun WorkspaceSelectorScreen(
         }
     }
 
-    if (createOpen) {
-        AbTextInputDialog(
-            title = s.giveNameWorkspace, initial = s.workspaceNumber(workspaces.size + 1),
-            confirmText = s.okay, dismissText = s.cancel,
-            onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
-            onDismiss = { createOpen = false },
-        )
-    }
     renameFor?.let { item ->
         AbTextInputDialog(
             title = s.giveNameWorkspace, initial = item.name, confirmText = s.okay, dismissText = s.cancel,

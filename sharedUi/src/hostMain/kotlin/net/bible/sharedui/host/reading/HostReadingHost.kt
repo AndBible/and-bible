@@ -535,6 +535,9 @@ class HostReadingHost(
         searchState = searchState,
         textDisplaySettingsService = { koin.get<TextDisplaySettingsService>() },
         scope = scope,
+        workspaceWriteScope = CoroutineScope(
+            koin.get<net.bible.sharedcore.platform.AppCoroutineScope>().coroutineContext + kotlinx.coroutines.Dispatchers.Main,
+        ),
         imagePicker = platform.newImagePicker(),
         thumbnailFor = { null },
         speakSettingsService = koin.get<SpeakSettingsService>(),

@@ -47,6 +47,101 @@ class WorkspaceQuickControllerTest {
         assertEquals(listOf("a", "b"), c.rows.value.map { it.id })
     }
 
+    @Test fun aPendingCreationIgnoresDuplicateCreatesAndRowSelection() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var inserts = 0
+        val svc = object : WorkspaceService by SpyWorkspaceService(rows) {
+            override suspend fun createWorkspace(name: String): WorkspaceRowVd {
+                inserts++
+                gate.await()
+                return WorkspaceRowVd("new", name, null, 0, false)
+            }
+        }
+        val switched = mutableListOf<String>()
+        val c = WorkspaceQuickController(svc, scope()) { switched += it }
+        c.createNew("First")
+        c.createNew("Duplicate")
+        assertEquals(1, inserts, "only one creation per opening")
+        c.select("a")
+        assertTrue(switched.isEmpty(), "do not race selection against creation")
+        gate.complete(Unit)
+        assertEquals(listOf("new"), switched)
+    }
+
+    @Test fun confirmingCreationSurvivesTheHostScopeButDoesNotNavigateIt() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var inserted = false
+        var applied = false
+        val host = scope()
+        val writes = scope()
+        val svc = object : WorkspaceService by SpyWorkspaceService(rows) {
+            override suspend fun createWorkspace(name: String): WorkspaceRowVd {
+                gate.await()
+                inserted = true
+                return WorkspaceRowVd("new", name, null, 0, false)
+            }
+            override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+                applied = true
+            }
+        }
+        val switched = mutableListOf<String>()
+        val c = WorkspaceQuickController(svc, host, writes) { switched += it }
+        c.createNew("Persisted")
+        host.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+        gate.complete(Unit)
+        assertTrue(inserted)
+        assertTrue(applied)
+        assertTrue(switched.isEmpty())
+    }
+
+    @Test fun cancellingTheHostWhileLoadingDoesNotBypassTheSaveBarrier() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var loads = 0
+        var inserted = false
+        var applied = false
+        val host = scope()
+        val writes = scope()
+        val svc = object : WorkspaceService by SpyWorkspaceService(rows) {
+            override suspend fun loadAll(): List<WorkspaceRowVd> {
+                if (++loads == 2) gate.await()
+                return rows
+            }
+            override suspend fun createWorkspace(name: String): WorkspaceRowVd {
+                inserted = true
+                return WorkspaceRowVd("new", name, null, 0, false)
+            }
+            override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+                assertEquals(listOf("a", "b", "new"), orderedIds)
+                applied = true
+            }
+        }
+        val switched = mutableListOf<String>()
+        val c = WorkspaceQuickController(svc, host, writes) { switched += it }
+        c.createNew("Persisted")
+        host.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+        assertTrue(!inserted, "creation must still wait for the outstanding save/load")
+        gate.complete(Unit)
+        assertTrue(inserted)
+        assertTrue(applied)
+        assertTrue(switched.isEmpty())
+    }
+
+    @Test fun dismissingDuringCreationSuppressesLateNavigation() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val svc = object : WorkspaceService by SpyWorkspaceService(rows) {
+            override suspend fun createWorkspace(name: String): WorkspaceRowVd {
+                gate.await()
+                return WorkspaceRowVd("new", name, null, 0, false)
+            }
+        }
+        val switched = mutableListOf<String>()
+        val c = WorkspaceQuickController(svc, scope()) { switched += it }
+        c.createNew("Persisted")
+        c.dispose()
+        gate.complete(Unit)
+        assertTrue(switched.isEmpty())
+    }
+
     @Test fun selectingHandsTheIdToTheHost() {
         var switched: String? = null
         val c = WorkspaceQuickController(SpyWorkspaceService(rows), scope()) { switched = it }

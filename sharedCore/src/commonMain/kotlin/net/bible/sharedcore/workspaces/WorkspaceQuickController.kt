@@ -4,15 +4,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Round 15b's workspace QUICK switch (spec §4.4): a read-only view of the workspace list plus
- * "switch to this one". Everything the full `WorkspaceSelectorController` does — staged deletes and
- * renames, reordering, cloning, copy-settings, the dirty/Save model — is deliberately absent; that
- * is the whole quick/full distinction, and [itNeverMutatesTheWorkspaceService] pins it.
+ * Workspace quick switch list plus immediate creation through [WorkspaceSelectorController].
+ * Staged deletes and renames, reordering, cloning, copy-settings and the dirty/Save model stay in
+ * the full manager. Listing and selecting existing workspaces are read-only; only [createNew]
+ * enters the manager's write path.
  *
  * The current workspace's row is inert rather than hidden — the same "visible but not selectable"
  * idiom `QuickDocPicker` applies to the current document.
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class WorkspaceQuickController(
     private val service: WorkspaceService,
     private val scope: CoroutineScope,
+    private val writeScope: CoroutineScope = scope,
     private val onSwitch: (String) -> Unit,
 ) {
     private val _rows = MutableStateFlow<List<WorkspaceRowVd>>(emptyList())
@@ -35,7 +37,36 @@ class WorkspaceQuickController(
         loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) { _rows.value = service.loadAll() }
     }
 
+    private var creating = false
+    private var disposed = false
+
+    /** Stop navigation from an in-flight creation when this opening leaves composition. */
+    fun dispose() { disposed = true }
+
+    /** Reuses management's immediate create-and-select path, including its save/load preparation. */
+    fun createNew(name: String) {
+        if (creating || disposed) return
+        creating = true
+        val selector = WorkspaceSelectorController(
+            service = service,
+            // Loading is part of the confirmed write: cancellation must not release its save barrier.
+            scope = writeScope,
+            writeScope = writeScope,
+            onResult = { id, _ ->
+                scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    if (isActive && !disposed && id != null) onSwitch(id)
+                }
+            },
+            onCancel = {},
+            onEditSettings = {},
+        )
+        service.saveCurrentIntoDb()
+        selector.load()
+        selector.createNew(name)
+    }
+
     fun select(id: String) {
+        if (creating || disposed) return
         if (_rows.value.firstOrNull { it.id == id }?.isCurrent == true) return
         onSwitch(id)
     }
