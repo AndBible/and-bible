@@ -23,12 +23,18 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
 import net.bible.sharedui.host.reading.HostReadingGestures
+import platform.Foundation.NSNumber
 import platform.Foundation.NSProcessInfo
+import platform.Foundation.isiOSAppOnMac
+import platform.Foundation.numberWithLong
 import platform.Foundation.NSSelectorFromString
 import platform.UIKit.UIGestureRecognizer
 import platform.UIKit.UIGestureRecognizerDelegateProtocol
 import platform.UIKit.UIGestureRecognizerStateBegan
 import platform.UIKit.UIGestureRecognizerStateChanged
+import platform.UIKit.UILongPressGestureRecognizer
+import platform.UIKit.UITouchTypeDirect
+import platform.UIKit.UITouchTypeIndirectPointer
 import platform.UIKit.UIPanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
@@ -66,6 +72,23 @@ internal class IosReadingGestureRecognisers(
         delaysTouchesEnded = false
         delegate = this@IosReadingGestureRecognisers
     }
+    /**
+     * Reports a press the moment it lands, for pointer clicks (and, on a Mac, whatever touch type the click arrives as).
+     * Compose's tap detector behind the interop view only sees a click that WebKit and Compose's own recogniser leave
+     * alone, which on a Mac is not every click; this one does not depend on that. It never consumes or delays the touch.
+     * On an iPhone or iPad a finger is not allowed here, so touch behaviour is unchanged.
+     */
+    private val press = UILongPressGestureRecognizer(target = this, action = NSSelectorFromString("pressed:")).apply {
+        minimumPressDuration = 0.0
+        allowableMovement = 10_000.0
+        cancelsTouchesInView = false
+        delaysTouchesBegan = false
+        delaysTouchesEnded = false
+        val types = mutableListOf(NSNumber.numberWithLong(UITouchTypeIndirectPointer))
+        if (NSProcessInfo.processInfo.isiOSAppOnMac()) types += NSNumber.numberWithLong(UITouchTypeDirect)
+        allowedTouchTypes = types
+        delegate = this@IosReadingGestureRecognisers
+    }
     private val swipeLeft = UISwipeGestureRecognizer(target = this, action = NSSelectorFromString("swipedLeft:")).apply {
         direction = UISwipeGestureRecognizerDirectionLeft
         delegate = this@IosReadingGestureRecognisers
@@ -83,6 +106,7 @@ internal class IosReadingGestureRecognisers(
         attached = true
         webView.addGestureRecognizer(doubleTap)
         webView.addGestureRecognizer(touch)
+        webView.addGestureRecognizer(press)
         webView.addGestureRecognizer(swipeLeft)
         webView.addGestureRecognizer(swipeRight)
         webView.scrollView.panGestureRecognizer.addTarget(this, NSSelectorFromString("scrollPanned:"))
@@ -94,6 +118,7 @@ internal class IosReadingGestureRecognisers(
         attached = false
         webView.removeGestureRecognizer(doubleTap)
         webView.removeGestureRecognizer(touch)
+        webView.removeGestureRecognizer(press)
         webView.removeGestureRecognizer(swipeLeft)
         webView.removeGestureRecognizer(swipeRight)
         webView.scrollView.panGestureRecognizer.removeTarget(this, NSSelectorFromString("scrollPanned:"))
@@ -108,7 +133,14 @@ internal class IosReadingGestureRecognisers(
     fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()
 
     @ObjCAction
-    fun touched(sender: UIGestureRecognizer) = gestures.onTouched()
+    fun touched(sender: UIGestureRecognizer) {
+        gestures.onPanePressed(windowId, "tap")
+    }
+
+    @ObjCAction
+    fun pressed(sender: UIGestureRecognizer) {
+        if (sender.state == UIGestureRecognizerStateBegan) gestures.onPanePressed(windowId, "press")
+    }
 
     @ObjCAction
     fun swipedLeft(sender: UIGestureRecognizer) = gestures.onSwipe(windowId, towardsNext = true)

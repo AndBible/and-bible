@@ -59,9 +59,12 @@ class DesktopReadingGestures(
         }
     }
 
-    /** A click in the page: a touch for the gestures (restarts the window buttons timer). The click itself is the page's. */
+    /**
+     * A click in the page: activates the window (as a touch does on Android) and restarts the window buttons timer.
+     * The click itself is the page's.
+     */
     fun onClick(windowId: String) {
-        gestures(windowId)?.onTouched()
+        gestures(windowId)?.onPanePressed(windowId, "desktop-click")
     }
 
     /** Forgets the window's gesture state. */
