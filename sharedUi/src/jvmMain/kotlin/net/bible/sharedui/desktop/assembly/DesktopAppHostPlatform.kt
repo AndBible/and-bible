@@ -108,6 +108,7 @@ class DesktopAppHostPlatform(
     override fun readingPaneFactory(): ReadingPaneFactory = desktopReadingPaneFactory(
         paneEngine, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen,
         input = { koin().get<DesktopReadingInput>() },
+        openLink = HostReadingWindows::openLink,
     )
 
     override fun setIdleTimerDisabled(disabled: Boolean) = Unit

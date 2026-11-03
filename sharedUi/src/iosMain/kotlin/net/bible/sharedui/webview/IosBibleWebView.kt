@@ -22,7 +22,10 @@ import platform.Foundation.NSURLComponents
 import platform.Foundation.NSURLQueryItem
 import platform.Foundation.NSURLRequest
 import platform.Foundation.setValue
+import net.bible.sharedui.host.reading.HostReadingWindows
 import platform.WebKit.WKNavigation
+import platform.WebKit.WKNavigationAction
+import platform.WebKit.WKNavigationActionPolicy
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
@@ -36,8 +39,60 @@ import platform.darwin.dispatch_get_main_queue
 
 private const val BUNDLE_DIR = "bibleview-js"
 
-/** Reloads the page when WebKit kills the content process; the marker lets CI count terminations. */
-internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
+/** Whether [url] is at [BIBLE_ORIGIN] exactly (path, query or fragment may follow; `bibleview://app.evil` is not). */
+internal fun isAtBibleOrigin(url: String?): Boolean {
+    if (url == null || !url.startsWith(BIBLE_ORIGIN)) return false
+    return url.length == BIBLE_ORIGIN.length || url[BIBLE_ORIGIN.length] in "/?#"
+}
+
+/**
+ * The link a navigation stands for, or null when it is none: a main-frame navigation of the bundle page
+ * ([documentUrl] at [BIBLE_ORIGIN]) to a [target] away from the bundle origin is a link click (BibleView-JS opens every
+ * link, `osis://`, `ab-w://`, `multi://`, `https://`..., with `window.location.assign`). A bundle load, a subframe
+ * navigation or a navigation of a foreign document is not.
+ */
+internal fun iosLinkNavigation(target: String?, isMainFrame: Boolean, documentUrl: String?): String? = when {
+    target.isNullOrEmpty() || isAtBibleOrigin(target) -> null
+    !isMainFrame || !isAtBibleOrigin(documentUrl) -> null
+    else -> target
+}
+
+/**
+ * Opens the page's link clicks and reloads the page when WebKit kills the content process; the marker lets CI count
+ * terminations. A link navigation ([iosLinkNavigation]) is cancelled and handed to [openLink] (Android's
+ * `shouldOverrideUrlLoading`): WebKit has no handler for `osis://` and the like, so without this a click did nothing.
+ */
+internal class IosNavDelegate(
+    private val windowId: String,
+    private val openLink: (String) -> Boolean = { url -> HostReadingWindows.openLink(windowId, url) },
+) : NSObject(), WKNavigationDelegateProtocol {
+    override fun webView(
+        webView: WKWebView,
+        decidePolicyForNavigationAction: WKNavigationAction,
+        decisionHandler: (WKNavigationActionPolicy) -> Unit,
+    ) {
+        val link = try {
+            iosLinkNavigation(
+                target = decidePolicyForNavigationAction.request.URL?.absoluteString,
+                isMainFrame = decidePolicyForNavigationAction.targetFrame?.mainFrame == true,
+                documentUrl = webView.URL?.absoluteString,
+            )
+        } catch (t: Throwable) {
+            nsLog("bridge[$windowId]: navigation policy failure $t")
+            null
+        }
+        if (link == null) {
+            decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
+            return
+        }
+        decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
+        try {
+            if (!openLink(link)) nsLog("bridge[$windowId]: unhandled link $link")
+        } catch (t: Throwable) {
+            nsLog("bridge[$windowId]: link handler failure for $link: $t")
+        }
+    }
+
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")

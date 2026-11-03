@@ -1669,6 +1669,36 @@ final class ReadingUITests: RealAppUITestCase {
 
     /// Samples immediately after a split is opened, before waiting for Bible text. Native tests separately pin
     /// the background before attachment: XCTest screenshots alone cannot guarantee capture of every display frame.
+    /// A link in the Bible text opens the link window (2026-11-03: no link opened on iOS or desktop). BibleView-JS opens
+    /// every link with `window.location.assign` (`ab-w://` for a Strong's word, `osis://` for a cross-reference);
+    /// `IosNavDelegate` must cancel that navigation and hand it to the window's `ReadingLinkHandler`. The provisioned
+    /// KJV has Strong's numbers but no cross-references, so the link here is a Strong's word: the toolbar's Strong's
+    /// button turns them on, a tap on "Nicodemus" (G3530) opens the links window as a second pane.
+    func testStrongsWordLinkOpensTheLinkWindow() throws {
+        if !isPad {
+            let device = XCUIDevice.shared
+            addTeardownBlock { device.orientation = .portrait }
+            device.orientation = .landscapeLeft
+        }
+        let app = try launchReading()
+        defer { app.terminate() }
+        XCTAssertEqual(paneIds(app).count, 1, "one window before the link tap")
+        let strongs = byLabel(app, "Strong's numbers")
+        guard strongs.waitForExistence(timeout: 10) else {
+            attachTree(app, "link-no-strongs-button"); XCTFail("no 'Strong's numbers' toolbar button"); return
+        }
+        strongs.tap()
+        // The page re-renders with the Strong's words as links; tap the word itself, not a verse number.
+        let word = app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
+        XCTAssertTrue(word.waitForExistence(timeout: 30), "John 3 re-rendered with Strong's")
+        sleep(2)
+        word.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let opened = waitUntil(timeout: 30) { self.paneIds(app).count == 2 }
+        shot(app, "strongs-link-window")
+        if !opened { attachTree(app, "link-window-not-opened") }
+        XCTAssertTrue(opened, "tapping a Strong's word did not open the link window (panes: \(paneIds(app)))")
+    }
+
     func testNewSplitPaneStartsWithDayBackground() throws {
         let app = try launchReading(extraArguments: ["-night_mode_pref3", "manual", "-night_mode_pref", "NO"])
         let previousPanes = Set(paneIds(app))

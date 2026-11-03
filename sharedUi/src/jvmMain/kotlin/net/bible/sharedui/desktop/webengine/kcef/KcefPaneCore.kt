@@ -71,6 +71,9 @@ internal class KcefPaneCore(
 
     @Volatile
     private var onRendererGone: (() -> Unit)? = null
+
+    @Volatile
+    private var onLinkNavigation: ((String) -> Unit)? = null
     private val evals = EvalReplies()
 
     /** The pane's first focus press is logged once (see [PaneFocusRequest.handle]). */
@@ -114,10 +117,16 @@ internal class KcefPaneCore(
     init {
         // Everything the page needs (router, bundle + document-start scripts) is registered before loading starts.
         client.addMessageRouter(router)
-        client.addRequestHandler(BundleCefRequestHandler(bundle, log) { status ->
-            log("renderer process gone: $status")
-            SwingUtilities.invokeLater { if (!disposed) onRendererGone?.invoke() }
-        })
+        client.addRequestHandler(
+            BundleCefRequestHandler(
+                bundle, log,
+                onRenderProcessGone = { status ->
+                    log("renderer process gone: $status")
+                    SwingUtilities.invokeLater { if (!disposed) onRendererGone?.invoke() }
+                },
+                onLinkNavigation = { link -> SwingUtilities.invokeLater { if (!disposed) onLinkNavigation?.invoke(link) } },
+            ),
+        )
         client.addContextMenuHandler(SuppressChromiumMenuHandler())
         client.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
@@ -169,6 +178,10 @@ internal class KcefPaneCore(
         onRendererGone = listener
     }
 
+    fun setOnLinkNavigation(listener: (String) -> Unit) {
+        onLinkNavigation = listener
+    }
+
     /** BibleView-JS paints no page background of its own, so the root element gets the host colour (as `setBackgroundColor` on Android). */
     private fun applyPageBackground(argb: Int) {
         if (disposed) return
@@ -213,12 +226,14 @@ internal class KcefPaneCore(
 
 /**
  * Serves [BUNDLE_ORIGIN] from the bundle (a refused or missing path gets a 404, never the network) and keeps the pane
- * on that origin: any navigation elsewhere is cancelled and logged.
+ * on that origin: any navigation elsewhere is cancelled; a link click of the bundle page ([linkNavigation]) goes to
+ * [onLinkNavigation] (on CEF's thread), anything else is logged.
  */
 internal class BundleCefRequestHandler(
     private val bundle: BundleRequestHandler,
     private val log: (String) -> Unit,
     private val onRenderProcessGone: (org.cef.handler.CefRequestHandler.TerminationStatus) -> Unit = {},
+    private val onLinkNavigation: (String) -> Unit = {},
 ) : CefRequestHandlerAdapter() {
     override fun onRenderProcessTerminated(browser: CefBrowser?, status: org.cef.handler.CefRequestHandler.TerminationStatus?) {
         if (status != null) onRenderProcessGone(status)
@@ -229,7 +244,8 @@ internal class BundleCefRequestHandler(
     ): Boolean {
         val target = request?.url
         if (isAtBundleOrigin(target)) return false
-        log("blocked navigation to $target")
+        val link = linkNavigation(target, isMainFrame = frame?.isMain == true, frameUrl = frame?.url)
+        if (link != null) onLinkNavigation(link) else log("blocked navigation to $target")
         return true
     }
 

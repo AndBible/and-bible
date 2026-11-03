@@ -250,6 +250,7 @@ internal class KcefPane(
     override fun setBackground(argb: Int) = core.setBackground(argb) { component.background = java.awt.Color(argb, true) }
 
     override fun setOnRendererGone(listener: () -> Unit) = core.setOnRendererGone(listener)
+    override fun setOnLinkNavigation(listener: (String) -> Unit) = core.setOnLinkNavigation(listener)
 
     override val isMainThread: Boolean get() = SwingUtilities.isEventDispatchThread()
     override val isAttached: Boolean get() = !core.isDisposed

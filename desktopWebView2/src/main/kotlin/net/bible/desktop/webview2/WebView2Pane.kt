@@ -78,6 +78,9 @@ internal class WebView2Pane(
 
     @Volatile
     private var rendererGone: (() -> Unit)? = null
+
+    @Volatile
+    private var linkNavigation: ((String) -> Unit)? = null
     private var cursor by mutableStateOf<PointerIcon>(PointerIcon.Default)
 
     private val replies = EvalReplies(
@@ -211,7 +214,12 @@ internal class WebView2Pane(
             val uri = a.getString(Wv2.NavigationStartingArgs.get_Uri)
             if (!Wv2Trust.allowNavigation(uri)) {
                 a.call(Wv2.NavigationStartingArgs.put_Cancel, 1)
-                log("navigation to $uri blocked")
+                val link = Wv2Trust.linkNavigation(uri, wv.getString(Wv2.WebView.get_Source))
+                if (link != null) {
+                    linkNavigation?.let { l -> SwingUtilities.invokeLater { if (!disposed) l(link) } }
+                } else {
+                    log("navigation to $uri blocked")
+                }
             } else {
                 // A new document: evaluate calls of the old one are never answered by it.
                 replies.failAll()
@@ -439,6 +447,10 @@ internal class WebView2Pane(
             backgroundArgb = argb
             controller?.let { applyBackground(it, argb) }
         }
+    }
+
+    override fun setOnLinkNavigation(listener: (String) -> Unit) {
+        linkNavigation = listener
     }
 
     override fun setOnRendererGone(listener: () -> Unit) {

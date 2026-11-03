@@ -138,6 +138,38 @@ class DesktopReadingPaneEngineTest {
     }
 
     @Test
+    fun linkNavigationsOfThePageReachTheWindowsLinkHandler() {
+        // BibleView-JS opens every link (cross-reference, footnote, Strong's, web) with window.location.assign; the
+        // engine cancels the navigation and reports it. Without this routing a link click did nothing (2026-11-03).
+        val opened = mutableListOf<String>()
+        engine.jsHostFor("w1")
+        engine.attach("w1", false, bridge, respondNull = {}, onAttached = {}, openLink = { url -> opened += "w1:$url"; true })
+        engine.jsHostFor("w2")
+        engine.attach("w2", false, bridge, respondNull = {}, onAttached = {}, openLink = { url -> opened += "w2:$url"; url.startsWith("osis") })
+        fake.pane("w1").navigate("osis://?osis=John.3.16&v11n=KJV")
+        fake.pane("w2").navigate("ab-w://?strong=G2316")
+        assertEquals(listOf("w1:osis://?osis=John.3.16&v11n=KJV", "w2:ab-w://?strong=G2316"), opened)
+        assertTrue(logs.any { "unhandled link ab-w://?strong=G2316" in it }, logs.toString())
+
+        // A recreated pane (renderer crash) keeps routing its links.
+        fake.pane("w1").crash()
+        fake.live("w1").navigate("multi://?osis=Gen.1.1&osis=Gen.1.2")
+        assertEquals("w1:multi://?osis=Gen.1.1&osis=Gen.1.2", opened.last())
+
+        // A handler that throws is logged, not propagated into the engine's callback thread.
+        engine.jsHostFor("w3")
+        engine.attach("w3", false, bridge, respondNull = {}, onAttached = {}, openLink = { error("boom") })
+        fake.pane("w3").navigate("osis://?osis=Gen.1.1")
+        assertTrue(logs.any { "boom" in it }, logs.toString())
+
+        // After release the old pane's late navigation goes nowhere.
+        val released = fake.pane("w2")
+        engine.release("w2")
+        released.navigate("osis://?osis=Rev.1.1")
+        assertFalse(opened.any { "Rev.1.1" in it })
+    }
+
+    @Test
     fun aFailingPaneCreationParksTheWindow() {
         val failing = object : net.bible.sharedui.desktop.webengine.DesktopWebEngine by fake {
             override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit) =

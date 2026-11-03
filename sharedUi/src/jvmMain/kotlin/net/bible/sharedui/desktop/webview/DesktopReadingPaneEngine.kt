@@ -97,6 +97,7 @@ class DesktopReadingPaneEngine(
         val dispatcher: BridgeDispatcher,
         val onAttached: () -> Unit,
         val input: DesktopReadingInput,
+        val openLink: (String) -> Boolean,
     )
 
     private val entries = ConcurrentHashMap<String, Entry>()
@@ -157,6 +158,7 @@ class DesktopReadingPaneEngine(
      * mode travels in `set_config`), wires the page's bridge messages to [bridge] and runs [onAttached] (the session's
      * `jsChannel.flush()`). A second call, or a call after a failure, does nothing; a failure is logged and parks the pane.
      * [respondNull] answers a deferred call whose handler threw. [input] is the window's reading input (D3a).
+     * [openLink] opens a link the page navigates to (the window's `ReadingLinkHandler.handle`; false: not handled).
      */
     fun attach(
         windowId: String,
@@ -165,11 +167,12 @@ class DesktopReadingPaneEngine(
         respondNull: (Long) -> Unit,
         onAttached: () -> Unit,
         input: DesktopReadingInput = DesktopReadingInput.None,
+        openLink: (String) -> Boolean = { false },
     ) {
         val e = entry(windowId)
         if (e.pane != null || e.failed) return
         val paneLog: (String) -> Unit = { msg -> log("bridge[$windowId]: $msg") }
-        e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, paneLog), onAttached, input)
+        e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, paneLog), onAttached, input, openLink)
         try {
             create(e)
         } catch (t: Throwable) {
@@ -191,6 +194,7 @@ class DesktopReadingPaneEngine(
         val scripts = w.input.documentStartScripts(e.windowId)
         val pane = engine.createPane(e.windowId, engine.bundleUrl(lang(), w.dark), scripts) { text -> onMessage(e, text) }
         pane.setOnRendererGone { rendererGone(e, pane) }
+        pane.setOnLinkNavigation { url -> linkNavigation(e, pane, url) }
         // The pane is published before the remembered background is applied, so a concurrent applyBackground (any
         // thread) either sees the pane or is seen here.
         e.pane = pane
@@ -229,6 +233,17 @@ class DesktopReadingPaneEngine(
             if (message != null) dispatcher.dispatch(message) else dispatcher.dispatch(text)
         } catch (t: Throwable) {
             log("bridge[${e.windowId}]: handler failure $t")
+        }
+    }
+
+    /** A link the page navigated to (UI thread): opened through the window's link handler; a stale pane's is dropped. */
+    private fun linkNavigation(e: Entry, from: DesktopWebPane, url: String) {
+        if (e.pane !== from || entries[e.windowId] !== e) return
+        val wiring = e.wiring ?: return
+        try {
+            if (!wiring.openLink(url)) log("bridge[${e.windowId}]: unhandled link $url")
+        } catch (t: Throwable) {
+            log("bridge[${e.windowId}]: link handler failure for $url: $t")
         }
     }
 

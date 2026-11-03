@@ -2,6 +2,7 @@ package net.bible.desktop.webview2
 
 import net.bible.sharedui.desktop.webengine.kcef.BundleRequestHandler
 import net.bible.sharedui.desktop.webengine.kcef.isAtBundleOrigin
+import net.bible.sharedui.desktop.webengine.kcef.linkNavigation
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicLong
 
@@ -92,6 +93,12 @@ object Wv2Trust {
     fun acceptMessage(source: String?): Boolean = isAtBundleOrigin(source)
 
     fun allowNavigation(uri: String?): Boolean = isAtBundleOrigin(uri)
+
+    /**
+     * The link a blocked `NavigationStarting` (main frame only) stands for: [uri] when the current document [source] is
+     * the bundle page and [uri] leaves the bundle origin (a BibleView-JS link click), else null.
+     */
+    fun linkNavigation(uri: String?, source: String?): String? = linkNavigation(uri, isMainFrame = true, frameUrl = source)
 }
 
 /** One response to a `WebResourceRequested` event. */
