@@ -91,6 +91,20 @@ class WindowsEngineProviderTest {
         assertEquals(1, webview.shutdowns)
     }
     @Test
+    fun `fallback failure propagates to readiness caller`() = runBlocking {
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = { Result.failure(IllegalStateException("runtime missing")) },
+            startKcef = { throw IllegalStateException("cef missing") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        val error = assertFailsWith<IllegalStateException> { deferred.initialize("DIRECT3D") }
+        assertEquals("cef missing", error.message)
+        deferred.shutdown()
+    }
+
+    @Test
     fun `only direct3d with an available runtime selects webview2`() {
         assertEquals(WindowsEngineChoice.WEBVIEW2, selectWindowsEngine("auto", "DIRECT3D", true))
         for (renderer in listOf("SOFTWARE", "OPENGL", "UNKNOWN", null)) {

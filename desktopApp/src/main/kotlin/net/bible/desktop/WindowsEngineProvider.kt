@@ -1,6 +1,7 @@
 package net.bible.desktop
 
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -85,12 +86,14 @@ internal class DeferredWindowsEngine(
 }
 
 class WindowsEngineProvider : DesktopEngineProvider {
-    private val kcef = KcefEngineProvider()
+    private val kcef = KcefEngineProvider { throw IllegalStateException(it) }
     private var deferred: DeferredWindowsEngine? = null
     private var window: ComposeWindow? = null
+    private var log: (String) -> Unit = {}
     override val windowedRendering: Boolean get() = false
 
     override fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine {
+        this.log = log
         val property = System.getProperty("andbible.windows.webEngine", "auto")
         selectWindowsEngine(property, null, false)
         return DeferredWindowsEngine(
@@ -108,12 +111,17 @@ class WindowsEngineProvider : DesktopEngineProvider {
 
     override suspend fun awaitWindowReady(window: ComposeWindow) {
         this.window = window
+        withFrameNanos { }
         var renderer: String? = null
         for (attempt in 0 until 100) {
             renderer = window.renderApi.toString()
             if (renderer != "UNKNOWN") break
             delay(10)
         }
+        val property = System.getProperty("andbible.windows.webEngine", "auto")
+        val choice = selectWindowsEngine(property, renderer, true)
+        log("desktop renderer: ${renderer ?: "UNKNOWN"}; engine: $choice" +
+            if (property == "kcef") " (forced)" else if (choice == WindowsEngineChoice.KCEF) " (renderer is not DIRECT3D)" else "")
         checkNotNull(deferred).initialize(renderer)
     }
     override fun shutdown() { deferred?.shutdown() }

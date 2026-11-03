@@ -41,6 +41,20 @@ class DesktopEngineProviderTest {
     }
 
     @Test
+    fun cefCacheFailureUsesInjectedHandler() {
+        val file = java.nio.file.Files.createTempFile("desktop-cache", ".tmp")
+        try {
+            val paths = DesktopPaths({ if (it == "XDG_CACHE_HOME") file.toString() else null }, "Linux", file.parent)
+            val failure = kotlin.test.assertFailsWith<IllegalStateException> {
+                KcefEngineProvider { throw IllegalStateException("handled: $it") }.create(file.parent, paths) {}
+            }
+            kotlin.test.assertTrue(failure.message.orEmpty().startsWith("handled: the cache directory"))
+        } finally {
+            java.nio.file.Files.deleteIfExists(file)
+        }
+    }
+
+    @Test
     fun defaultLauncherUsesKcefProvider() {
         assertIs<KcefEngineProvider>(defaultDesktopEngineProvider())
     }
