@@ -27,7 +27,7 @@ class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFac
     override fun create(id: String): CloudAdapter = when (id) {
         "GOOGLE_DRIVE" -> Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter").getDeclaredConstructor().newInstance() as CloudAdapter
         "NEXT_CLOUD" -> CommonUtils.realSharedPreferences.let { prefs ->
-            NextCloudAdapter(prefs.getString("cloud_sync_server_url", null), prefs.getString("cloud_sync_username", null), prefs.getString("cloud_sync_password", null), prefs.getString("cloud_sync_folder_path", null))
+            NextCloudAdapter(prefs.getString("cloud_sync_server_url", null), prefs.getString("cloud_sync_username", null), prefs.getString("cloud_sync_password", null), prefs.getString("cloud_sync_folder_path", null), context.getString(R.string.webdav_https_required))
         }
         "WEBDAV" -> CommonUtils.realSharedPreferences.let { prefs ->
             WebDavCloudAdapter(WebDavConfig.fromPreferences(prefs), PrefsWebDavStateStore(prefs), AndroidWebDavSignInUi(context), KoinJavaComponent.get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier, ::createWebDavClient)

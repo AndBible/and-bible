@@ -100,9 +100,6 @@ class DesktopSyncSettingsPlatformTest {
         assertFalse(platform.isValidUrl("ftp://example.org"))
         assertFalse(platform.isValidUrl("https://"))
         assertFalse(platform.isValidUrl("not a url"))
-        assertTrue(platform.plainHttpAllowed("https://cloud.example.org"))
-        assertTrue(platform.plainHttpAllowed("http://127.0.0.1:8080"))
-        assertFalse(platform.plainHttpAllowed("http://cloud.example.org"))
         assertEquals("https://cloud.example.org", platform.webDavServerUrlHint)
     }
 

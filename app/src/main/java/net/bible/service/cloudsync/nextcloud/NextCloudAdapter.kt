@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
@@ -64,7 +65,11 @@ class NextCloudAdapter(
     private val serverUrl: String?,
     private val username: String?,
     private val password: String?,
-    folderPath: String? = null
+    folderPath: String? = null,
+    /** Shown to the user when the saved address is not https (the factory passes the localized text). */
+    private val httpsRequiredMessage: String = "Sync requires a secure https:// address.",
+    /** Test seam only: lets a plain-http mock server be reached. Production always leaves it true. */
+    private val httpsOnly: Boolean = true,
 ) : CloudAdapter {
     private var _client: OwnCloudClient? = null
     private val client get() = _client!!
@@ -91,7 +96,16 @@ class NextCloudAdapter(
 
     override val signedIn: Boolean get() = _client != null
 
-    override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun signIn(): Boolean {
+        // Plain http is refused everywhere, also for a saved address and on the local network. The saved address is
+        // kept so the user can correct it; nothing is sent before this check.
+        if (httpsOnly && serverUrl?.trim()?.startsWith("https://", ignoreCase = true) != true) {
+            throw CloudSyncUserFacingException(httpsRequiredMessage, true)
+        }
+        return signInOverHttps()
+    }
+
+    private suspend fun signInOverHttps(): Boolean = withContext(Dispatchers.IO) {
         val activity = net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity ?: return@withContext false
         try {
             // Normalize here too: existing credentials may predate settings normalization.

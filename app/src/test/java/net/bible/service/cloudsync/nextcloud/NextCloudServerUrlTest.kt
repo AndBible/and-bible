@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import net.bible.android.TestBibleApplication
-import net.bible.android.platform.AndroidCloudAdapterFactory
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
@@ -52,7 +51,9 @@ class NextCloudServerUrlTest {
                     .putString("cloud_sync_username", "me")
                     .putString("cloud_sync_password", "pw")
                     .commit()
-                val adapter = AndroidCloudAdapterFactory(host.get()).create("NEXT_CLOUD")
+                // The mock server is plain http, so the https-only guard is bypassed through the adapter's test seam.
+                val prefs = CommonUtils.realSharedPreferences
+                val adapter = NextCloudAdapter(prefs.getString("cloud_sync_server_url", null), "me", "pw", httpsOnly = false)
                 val executor = Executors.newSingleThreadExecutor()
                 try {
                     // owncloud posts its completion callback to main; do not block that looper.

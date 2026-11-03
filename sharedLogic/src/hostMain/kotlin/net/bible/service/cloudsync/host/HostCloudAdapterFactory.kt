@@ -57,7 +57,7 @@ class HostCloudAdapterFactory(
                     platform.credential("cloud_sync_folder_path"),
                 ), ui,
                 beforeClient = {
-                    if (!platform.plainHttpAllowed(serverUrl)) {
+                    if (!serverUrl.startsWith("https://", ignoreCase = true)) {
                         val refusal = PlainHttpRefusedException(serverUrl)
                         throw net.bible.service.cloudsync.CloudSyncUserFacingException(
                             ui.message(net.bible.service.cloudsync.webdav.WebDavMessage.HTTPS_REQUIRED), true, refusal,
