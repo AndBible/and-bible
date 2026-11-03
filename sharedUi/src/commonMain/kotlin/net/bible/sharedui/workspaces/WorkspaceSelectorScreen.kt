@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.theme.accentArgbFor
@@ -199,6 +200,8 @@ fun WorkspaceSelectorScreen(
                                 Text(
                                     summary, style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    // Legacy parity (workspace_list_item.xml: lines=2, ellipsize=end).
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }

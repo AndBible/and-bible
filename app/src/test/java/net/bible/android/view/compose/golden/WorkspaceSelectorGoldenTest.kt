@@ -72,6 +72,14 @@ class WorkspaceSelectorGoldenTest {
         }
     }
 
+    // Summary with many windows: clamped to two lines with an ellipsis (legacy lines=2 parity).
+    @Test fun workspaceSelector_longSummary() {
+        val long = (1..40).joinToString(", ") { "Document $it" }
+        captureGolden("WorkspaceSelector", "longSummary", EDGE_MODE, heightDp = 900) {
+            screen(items = listOf(WorkspaceRowVd("1", "Study", long, 0xFF2E7D32.toInt(), isCurrent = true)) + rows.drop(1))
+        }
+    }
+
     @Test fun workspaceSelector_copySettings() {
         captureGolden("WorkspaceSelector", "copySettings", EDGE_MODE, heightDp = 900) {
             screen(copy = CopySettingsState.ChooseTypes("1", listOf("Font size", "Colors", "Margins")))
