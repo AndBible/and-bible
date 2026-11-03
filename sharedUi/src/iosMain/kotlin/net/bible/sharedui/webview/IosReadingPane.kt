@@ -203,6 +203,7 @@ object IosReadingWebViews {
 
     internal fun entry(windowId: String): ReadingEntry {
         checkMain()
+        IosWebContentKillHook.installIfRequested { entries.mapValues { it.value.webView } }
         return entries.getOrPut(windowId) {
             val navDelegate = IosNavDelegate(windowId)
             val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {

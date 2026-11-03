@@ -68,6 +68,15 @@ class BibleViewJsChannel(private val host: JsHost, private val log: (String) -> 
         loading = false
     }
 
+    /**
+     * The page is starting again (iOS: WebKit killed the WebContent process and the page reloads): calls are dropped
+     * again until the new page reports ready ([markClientReady]), instead of being evaluated in a page that has no
+     * bridge yet. Main thread.
+     */
+    fun markPageRestarting() {
+        loading = true
+    }
+
     /** Evaluates [js] on the main thread and returns its result; not gated (selection queries). */
     suspend fun evaluate(js: String): String {
         val result = CompletableDeferred<String>()

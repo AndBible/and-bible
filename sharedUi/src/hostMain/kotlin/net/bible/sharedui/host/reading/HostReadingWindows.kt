@@ -185,6 +185,20 @@ object HostReadingWindows {
      */
     fun openLink(windowId: String, url: String): Boolean = assemblies[windowId]?.linkHandler?.handle(url) ?: false
 
+    /**
+     * The window's page is starting again on its existing session (iOS: WebKit killed the WebContent process and the
+     * page reloads). Loads the window's text at its current position, as Android does after a renderer crash, so the
+     * restarted page does not fall back to where the last load began (infinite scroll may have moved far from it).
+     * Until the new page reports ready its JS channel drops calls (the old page is gone, the new one has no bridge
+     * yet); the restarted page gets the document in any case (`DocumentLoader.setClientReady`). Main thread; a window
+     * without an assembly is ignored.
+     */
+    fun pageRestarted(windowId: String) {
+        val session = assemblies[windowId]?.session ?: return
+        session.jsChannel.markPageRestarting()
+        session.windowOrNull?.loadText()
+    }
+
     /** The reading gestures of the bound host, for the pane factory; null while no host is bound. */
     fun gesturesFor(@Suppress("UNUSED_PARAMETER") windowId: String): HostReadingGestures? = binding?.host?.gestures
 
