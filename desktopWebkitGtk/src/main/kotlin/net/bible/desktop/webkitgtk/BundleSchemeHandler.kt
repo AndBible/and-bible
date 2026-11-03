@@ -1,6 +1,7 @@
 package net.bible.desktop.webkitgtk
 
 import java.nio.file.Path
+import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import net.bible.sharedui.desktop.webengine.kcef.BUNDLE_ORIGIN
 import net.bible.sharedui.desktop.webengine.kcef.BundleRequestHandler
 
@@ -17,8 +18,8 @@ fun isAtBundleBase(uri: String?): Boolean {
 }
 
 /** Maps `andbible://bibleview/...` requests to bundle files by reusing D1's [BundleRequestHandler] rules. */
-class BundleSchemeHandler(bundleDir: Path) {
-    private val delegate = BundleRequestHandler(bundleDir)
+class BundleSchemeHandler(bundleDir: Path, pageAssets: DesktopPageAssets = DesktopPageAssets.None) {
+    private val delegate = BundleRequestHandler(bundleDir, pageAssets = pageAssets)
 
     /** The file and MIME type for [uri], or null when it is not at [BUNDLE_BASE], escapes the bundle or is missing. */
     fun resolve(uri: String): Pair<Path, String>? {

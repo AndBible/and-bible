@@ -33,6 +33,21 @@ interface LoadChangedCallback : Callback {
     fun invoke(view: Pointer?, event: Int, userData: Pointer?)
 }
 
+/** `gboolean (*)(WebKitWebView*, WebKitPolicyDecision*, WebKitPolicyDecisionType, gpointer)` (decide-policy). */
+interface DecidePolicyCallback : Callback {
+    fun invoke(view: Pointer?, decision: Pointer?, type: Int, userData: Pointer?): Int
+}
+
+/** `gboolean (*)(WebKitWebView*, WebKitContextMenu*, WebKitHitTestResult*, gpointer)` (context-menu). */
+interface ContextMenuCallback : Callback {
+    fun invoke(view: Pointer?, menu: Pointer?, hitTest: Pointer?, userData: Pointer?): Int
+}
+
+/** `void (*)(WebKitWebView*, WebKitWebProcessTerminationReason, gpointer)` (web-process-terminated). */
+interface ProcessTerminatedCallback : Callback {
+    fun invoke(view: Pointer?, reason: Int, userData: Pointer?)
+}
+
 /** `void (*WebKitURISchemeRequestCallback)(WebKitURISchemeRequest*, gpointer)`. */
 /** `GtkGestureClick::pressed`: `void (GtkGestureClick*, gint n_press, gdouble x, gdouble y, gpointer)`. */
 interface ClickPressedCallback : Callback {
@@ -129,6 +144,12 @@ interface WebKit : Library {
     fun webkit_uri_scheme_response_set_content_type(response: Pointer, contentType: String)
     fun webkit_uri_scheme_request_finish_with_response(request: Pointer, response: Pointer)
     fun webkit_uri_scheme_request_finish_error(request: Pointer, error: Pointer)
+
+    fun webkit_navigation_policy_decision_get_navigation_action(decision: Pointer): Pointer?
+    fun webkit_navigation_action_get_request(action: Pointer): Pointer?
+    fun webkit_uri_request_get_uri(request: Pointer): String?
+    fun webkit_policy_decision_use(decision: Pointer)
+    fun webkit_policy_decision_ignore(decision: Pointer)
 }
 
 interface Jsc : Library {
@@ -199,10 +220,18 @@ internal object Gtk {
         x11.XChangeWindowAttributes(display, window, 1L shl 9, attributes)
     }
 
-    /** `g_object_new(WEBKIT_TYPE_WEB_VIEW, "web-context", context, NULL)`: a web view on [context]. */
-    fun newWebView(context: Pointer): Pointer {
+    /**
+     * `g_object_new(WEBKIT_TYPE_WEB_VIEW, "web-context", context, "default-content-security-policy", csp, NULL)`: a web
+     * view on [context]. The policy is construct-only (WebKitGTK 2.38+).
+     */
+    fun newWebView(context: Pointer, contentSecurityPolicy: String): Pointer {
         val f = NativeLibrary.getInstance("gobject-2.0").getFunction("g_object_new")
-        return f.invokePointer(arrayOf<Any?>(webkit.webkit_web_view_get_type(), "web-context", context, null))
+        return f.invokePointer(
+            arrayOf<Any?>(
+                webkit.webkit_web_view_get_type(), "web-context", context,
+                "default-content-security-policy", contentSecurityPolicy, null,
+            ),
+        )
     }
 
     /** The address of `g_free`, usable as a `GDestroyNotify`. */

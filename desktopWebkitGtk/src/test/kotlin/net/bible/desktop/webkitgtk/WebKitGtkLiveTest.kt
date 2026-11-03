@@ -61,6 +61,36 @@ class WebKitGtkLiveTest {
         assertNull(messagesB.poll(500, TimeUnit.MILLISECONDS))
     }
 
+    @Test
+    fun externalNavigationIsCancelledAndReportedOnEdt() {
+        val links = ArrayBlockingQueue<Pair<String, Boolean>>(4)
+        a!!.setOnLinkNavigation { links.offer(it to SwingUtilities.isEventDispatchThread()) }
+        evaluate(a, "window.location.assign('https://example.com/test'); 0")
+        assertEquals("https://example.com/test" to true, assertNotNull(links.poll(10, TimeUnit.SECONDS)))
+        assertEquals("\"andbible:\"", evaluate(a, "location.protocol"))
+    }
+
+    @Test
+    fun newWindowIsRoutedOnceWithoutLeavingBundle() {
+        val links = ArrayBlockingQueue<Pair<String, Boolean>>(4)
+        b!!.setOnLinkNavigation { links.offer(it to SwingUtilities.isEventDispatchThread()) }
+        evaluate(b, "window.open('https://example.com/popup', '_blank'); 0")
+        assertEquals("https://example.com/popup" to true, assertNotNull(links.poll(10, TimeUnit.SECONDS)))
+        assertNull(links.poll(500, TimeUnit.MILLISECONDS))
+        assertEquals("\"andbible:\"", evaluate(b, "location.protocol"))
+    }
+
+    @Test
+    fun iframeCannotExecuteOrReachBridge() {
+        messagesA.clear()
+        evaluate(a, """
+            var f = document.createElement('iframe');
+            f.srcdoc = `<script>parent.androidBridge.postMessage('iframe-escaped')<\/script>`;
+            document.body.appendChild(f); 0
+        """.trimIndent())
+        assertNull(messagesA.poll(2, TimeUnit.SECONDS))
+    }
+
     private fun evaluate(pane: WebKitGtkPane?, js: String): String {
         val result = ArrayBlockingQueue<String>(1)
         pane!!.evaluate(js) { result.offer(it) } // deliberately from this (non-EDT, non-GTK) thread
