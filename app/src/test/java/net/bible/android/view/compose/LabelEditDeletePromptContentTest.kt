@@ -65,8 +65,7 @@ class LabelEditDeletePromptContentTest {
                     deleteBothLabel = "Delete label and bookmarks",
                     deleteOnlyLabel = "Delete label only",
                     cancelLabel = "Cancel",
-                    confirmLabel = "Yes",
-                    dismissLabel = "No",
+                    confirmLabel = "Delete",
                     onConfirm = { confirmCalls.add(it) },
                     onDismiss = { dismissCalls++ },
                 )
@@ -113,16 +112,24 @@ class LabelEditDeletePromptContentTest {
         compose.onNodeWithText("Remove bookmark label \"Study\"?").assertExists()
     }
 
-    @Test fun confirm_yes_answersConfirmFalse() {
+    @Test fun confirm_buttonsAreActionVerbNotYesNo() {
         show(DeletePrompt.Confirm)
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Delete").assertExists()
+        compose.onNodeWithText("Cancel").assertExists()
+        compose.onNodeWithText("Yes").assertDoesNotExist()
+        compose.onNodeWithText("No").assertDoesNotExist()
+    }
+
+    @Test fun confirm_delete_answersConfirmFalse() {
+        show(DeletePrompt.Confirm)
+        compose.onNodeWithText("Delete").performClick()
         assertEquals(listOf(false), confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
-    @Test fun confirm_no_answersDismissOnly() {
+    @Test fun confirm_cancel_answersDismissOnly() {
         show(DeletePrompt.Confirm)
-        compose.onNodeWithText("No").performClick()
+        compose.onNodeWithText("Cancel").performClick()
         assertEquals(emptyList<Boolean>(), confirmCalls)
         assertEquals(1, dismissCalls)
     }

@@ -411,8 +411,8 @@ fun LabelEditScreen(
         AbConfirmDialog(
             title = null,
             message = strings.discardChangesConfirmation,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.discard,
+            dismissText = strings.cancel,
             onConfirm = onConfirmDiscard,
             onDismiss = onDismissDiscard,
         )

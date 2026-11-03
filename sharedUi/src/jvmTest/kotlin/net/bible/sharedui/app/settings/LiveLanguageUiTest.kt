@@ -136,10 +136,10 @@ class LiveLanguageUiTest {
                 }
             }
         }
-        onAllNodesWithText(iosStrings("en").yes).assertCountEquals(1)
+        onAllNodesWithText(iosStrings("en").cancel).assertCountEquals(1)
         language = "fi"
         waitForIdle()
-        onAllNodesWithText(iosStrings("fi").yes).assertCountEquals(1)
-        onAllNodesWithText(iosStrings("en").yes).assertCountEquals(0)
+        onAllNodesWithText(iosStrings("fi").cancel).assertCountEquals(1)
+        onAllNodesWithText(iosStrings("en").cancel).assertCountEquals(0)
     }
 }

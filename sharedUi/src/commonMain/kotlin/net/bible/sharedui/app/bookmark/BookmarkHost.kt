@@ -1179,8 +1179,7 @@ class BookmarkHost(
             deleteBothLabel = strings.deleteLabelAndBookmarks,
             deleteOnlyLabel = strings.deleteLabelOnly,
             cancelLabel = strings.cancel,
-            confirmLabel = strings.yes,
-            dismissLabel = strings.no,
+            confirmLabel = strings.delete,
             onConfirm = onConfirm,
             onDismiss = onDismiss,
         )

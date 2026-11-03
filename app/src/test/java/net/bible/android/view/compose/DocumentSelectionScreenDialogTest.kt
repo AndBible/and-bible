@@ -173,14 +173,14 @@ class DocumentSelectionScreenDialogTest {
     @Test fun confirmDelete_showsTheMessage_yesAnswersConfirm() {
         show(DocumentSelectionDialog.ConfirmDelete("Delete King James Version?"))
         compose.onNodeWithText("Delete King James Version?").assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Delete").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun confirmDelete_noAnswersDismiss() {
         show(DocumentSelectionDialog.ConfirmDelete("Delete these documents?\n\nKJV\nESV"))
-        compose.onNodeWithText("No").performClick()
+        compose.onNodeWithText("Cancel").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
     }

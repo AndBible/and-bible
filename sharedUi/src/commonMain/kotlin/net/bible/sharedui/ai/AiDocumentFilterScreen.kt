@@ -146,8 +146,8 @@ fun AiDocumentFilterScreen(
         AbConfirmDialog(
             title = null,
             message = strings.discardChangesConfirmation,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.discard,
+            dismissText = strings.cancel,
             onConfirm = { showDiscardConfirm = false; onUp() },
             onDismiss = { showDiscardConfirm = false },
         )

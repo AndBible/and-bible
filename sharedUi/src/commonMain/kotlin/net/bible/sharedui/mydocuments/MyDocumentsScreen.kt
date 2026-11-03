@@ -271,7 +271,7 @@ fun MyDocumentsScreen(
     deleteFor?.let { item ->
         AbConfirmDialog(
             title = null, message = s.deleteDocumentConfirmation(item.name),
-            confirmText = s.yes, dismissText = s.no,
+            confirmText = s.delete, dismissText = s.cancel,
             onConfirm = { deleteFor = null; onDelete(item.id) }, onDismiss = { deleteFor = null },
         )
     }
@@ -281,7 +281,7 @@ fun MyDocumentsScreen(
     if (confirmBatchDelete) {
         AbConfirmDialog(
             title = null, message = s.deleteDocumentsConfirmation,
-            confirmText = s.yes, dismissText = s.no,
+            confirmText = s.delete, dismissText = s.cancel,
             onConfirm = {
                 confirmBatchDelete = false
                 // Count the blocked rows BEFORE deleting. Safe to read from `documents`: a selection

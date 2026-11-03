@@ -197,7 +197,7 @@ class DownloadRecreationStateTest {
         awaitHostCondition("dirty draft asks to discard", ::advance) {
             compose.onAllNodes(hasText("Discard unsaved changes?", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Discard").performClick()
         awaitHostRoute(recreated, NavRoutes.DOWNLOAD_PATTERN, ::advance)
         assertTrue("nothing was saved", service.upserts.isEmpty())
     }

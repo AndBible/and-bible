@@ -191,8 +191,8 @@ fun DailyReadingScreen(
         AbConfirmDialog(
             title = null,
             message = message,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = if (confirm == ConfirmKind.RESET) strings.resetGeneric else strings.setCurrentDayAction,
+            dismissText = strings.cancel,
             onConfirm = onConfirm,
             onDismiss = onDismissConfirm,
         )

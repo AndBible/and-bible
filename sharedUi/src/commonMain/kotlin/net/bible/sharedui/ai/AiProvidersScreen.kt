@@ -288,8 +288,8 @@ private fun ProviderFormDialog(
         AbConfirmDialog(
             title = null,
             message = strings.providerDeleteConfirm(state.displayName),
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = {
                 showDeleteConfirm = false
                 onDelete(id)

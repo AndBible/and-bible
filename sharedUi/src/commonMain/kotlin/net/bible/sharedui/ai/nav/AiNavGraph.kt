@@ -514,8 +514,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             AbConfirmDialog(
                 title = null,
                 message = strings.discardChangesConfirmation,
-                confirmText = strings.yes,
-                dismissText = strings.no,
+                confirmText = strings.discard,
+                dismissText = strings.cancel,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
@@ -553,8 +553,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             AbConfirmDialog(
                 title = null,
                 message = strings.discardChangesConfirmation,
-                confirmText = strings.yes,
-                dismissText = strings.no,
+                confirmText = strings.discard,
+                dismissText = strings.cancel,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )
@@ -1098,8 +1098,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             AbConfirmDialog(
                 title = null,
                 message = strings.discardChangesConfirmation,
-                confirmText = strings.yes,
-                dismissText = strings.no,
+                confirmText = strings.discard,
+                dismissText = strings.cancel,
                 onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
                 onDismiss = { showDiscardConfirm = false },
             )

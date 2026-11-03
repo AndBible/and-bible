@@ -100,7 +100,7 @@ class BookmarksScreenDeleteDialogTest {
     @Test fun confirmDeleteShowsTheFormattedCountAndAnswersConfirm() {
         show(BookmarksDialog.ConfirmDelete(3))
         compose.onNodeWithText("Do you want to remove 3 bookmarks and their notes?").assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Remove").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }

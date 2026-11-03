@@ -96,7 +96,7 @@ class ManageLabelsScreenResetDialogTest {
     @Test fun workspaceKindShowsTheAutoAssignQuestion() {
         show(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.WORKSPACE))
         compose.onNodeWithText("Do you want to remove all auto-assign labels from this workspace?").assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Reset").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }

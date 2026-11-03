@@ -178,8 +178,8 @@ fun CustomRepositoryEditorScreen(
         AbConfirmDialog(
             title = null,
             message = strings.discardChangesConfirmation,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.discard,
+            dismissText = strings.cancel,
             onConfirm = { showDiscardConfirm = false; onUp() },
             onDismiss = { showDiscardConfirm = false },
         )
@@ -188,8 +188,8 @@ fun CustomRepositoryEditorScreen(
         AbConfirmDialog(
             title = null,
             message = strings.deleteCustomRepository(state.resolved?.name ?: ""),
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.remove,
+            dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },
             onDismiss = { showDeleteConfirm = false },
         )
