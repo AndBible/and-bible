@@ -32,7 +32,6 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.betaIntroVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ui.dialog.AppDialogController
@@ -40,6 +39,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -785,14 +785,33 @@ class ReadingAppBootstrapTest {
     }
 
     @Test
-    fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnounced() = runTest(timeout = 30.seconds) {
+    fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnouncedAtVersion4() = runTest(timeout = 30.seconds) {
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
-        CommonUtils.settings.setInt("beta-notice-displayed2", 3)
+        CommonUtils.settings.setInt("beta-notice-displayed2", 4)
         val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
             assertFalse(activity.readingAppBootstrap.showBetaNotice())
             assertNull(appDialogs.pending.value)
+        } finally {
+            controller.close()
+            CommonUtils.settings.setInt("beta-notice-displayed2", null)
+        }
+    }
+
+    @Test
+    fun showBetaNoticeShowsAgainForTestersWhoDismissedVersion3() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        CommonUtils.settings.setInt("beta-notice-displayed2", 3)
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            val done = async { activity.readingAppBootstrap.showBetaNotice() }
+            advanceUntilIdle()
+            assertNotNull(appDialogs.pending.value)
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
+            advanceUntilIdle()
+            assertFalse(done.await())
         } finally {
             controller.close()
             CommonUtils.settings.setInt("beta-notice-displayed2", null)
@@ -814,7 +833,9 @@ class ReadingAppBootstrapTest {
             assertTrue(request.showTitleLogo)
             assertEquals(1, request.blocks.size)
             val body = (request.blocks[0] as AppDialogRequest.NoticeBlock.Html).html
-            assertTrue("carries the beta intro video link", body.contains(betaIntroVideo))
+            assertFalse("no video link in the 6.0 beta notice", body.contains("youtu"))
+            assertTrue("carries the 6.0 text", body.contains("Welcome to the AndBible 6.0 beta!"))
+            assertTrue("carries the issues link", body.contains("https://github.com/AndBible/and-bible/issues/new/choose"))
             assertTrue("carries the sponsor link", body.contains(buyDevelopmentLink))
             assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
             assertEquals(activity.getString(R.string.dismiss), request.neutralText)
@@ -825,7 +846,7 @@ class ReadingAppBootstrapTest {
 
             assertTrue(done.isCompleted)
             assertTrue(done.await())
-            assertEquals(3, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
+            assertEquals(4, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
         } finally {
             controller.close()
             CommonUtils.settings.setInt("beta-notice-displayed2", null)

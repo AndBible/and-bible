@@ -48,7 +48,6 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.betaIntroVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -356,12 +355,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     internal suspend fun showBetaNotice(): Boolean {
         if (!shouldShowBetaNotice(CommonUtils.isBeta, CommonUtils.isDiscrete)) return false
 
-        val announceVersion = 3
+        val announceVersion = 4
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
         if (displayedVer >= announceVersion) return false
-
-        val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-        val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
 
         val par1 = host.getString(R.string.beta_notice_content_1)
         val par2 = host.getString(R.string.beta_notice_content_2,
@@ -374,18 +370,30 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
         )
         val extraMessage = """
-            |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (April 2026)</b><br><br>
-            |Welcome to the 5.1 beta! Many new features have landed, including:<br>
+            |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (November 2026)</b><br><br>
+            |Welcome to the AndBible 6.0 beta! This is the biggest change in AndBible's history.
+            | The whole app has been rewritten with a new user interface toolkit (Jetpack Compose),
+            | and the interface has been redesigned along the way: every screen was reviewed, and
+            | most of them got significant usability improvements on top of the refreshed
+            | Material 3 look.<br>
             |<br>
-            |• <b>AI assistant</b> with tool calling and support for multiple
-            | providers (Claude, Grok, OpenRouter, OpenAI-compatible and more).<br>
-            |• <b>Reading &amp; memorization progress tracking</b> with multiple
-            | modes: Word Scramble, Word Order, Word Blur and Type It.<br>
-            |• <b>My Documents</b>: your own editable, syncable pages.<br>
-            |• <b>Multi-translation search</b> across several Bibles at once.<br>
-            |• Many more improvements &mdash; see the "What's new" video above.<br>
+            |• <b>A redesigned interface</b>: clearer menus, settings and dialogs, more consistent
+            | navigation, and many small workflow improvements throughout the app. Your features,
+            | data and settings are all still there.<br>
+            |• <b>The same code now also runs AndBible on iOS and on desktop</b> (Linux, Windows,
+            | macOS), which are in testing too.<br>
+            |• Two smaller additions: <b>WebDAV synchronisation</b> (your own server, a NAS or any
+            | WebDAV service, besides Google Drive and Nextcloud), and a new search index that is
+            | rebuilt once, automatically, after the update.<br>
             |<br>
-            |Please test and report any bugs via
+            |Because so much has changed, please be on the lookout for anything that behaves
+            | differently from 5.x: missing options, screens that look wrong in dark, light or
+            | monochrome mode, or data that does not look right after the update. Feedback on the
+            | new design is just as welcome as bug reports: if something got harder to find or use,
+            | please tell us. Making a backup before testing is a good idea
+            | (Main Menu &rarr; Backup &amp; Restore).<br>
+            |<br>
+            |Please report bugs via
             |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
             | or Main Menu &rarr; Report a bug.<br>
             |<br>
@@ -395,7 +403,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             | <br><br>
             | (Standard beta notice below)
         """.trimMargin()
-        val htmlMessage = "$extraMessage<br><br>$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${host.getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
+        val htmlMessage = "$extraMessage<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${host.getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
         val result = appDialogs.await(
             AppDialogRequest.Notice(
