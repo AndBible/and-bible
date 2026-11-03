@@ -27,6 +27,7 @@ import net.bible.sharedcore.reading.AutoFullscreenTracking
 import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
 import net.bible.sharedcore.reading.reanchoredTracking
+import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.reading.shouldReanchor
 import net.bible.sharedui.reading.host.ReadingFullScreen
 
@@ -43,6 +44,7 @@ import net.bible.sharedui.reading.host.ReadingFullScreen
  *   constructor shape).
  * @param onPaneTouched a finger touched a pane (a tap, or the start of a scroll drag): the host restarts the window buttons
  *   timer, as Android's `BibleGestureListener` does through `onBibleViewTouched`.
+ * @param onPaneActivated a press landed on the pane of this window: the host makes it the active window.
  * @param onPaneScrolled actual scroll movement: reveals the full-screen reference independently of taps.
  * @param onSwipe receives the window the swipe was on and the decided action (never [SwipeAction.None]).
  */
@@ -54,6 +56,7 @@ class HostReadingGestures(
     private val onSwipe: (windowId: String, SwipeAction) -> Unit,
     private val onPaneTouched: () -> Unit = {},
     private val onPaneScrolled: () -> Unit = {},
+    private val onPaneActivated: (windowId: String) -> Unit = {},
     private val setFullScreen: (value: Boolean, byDoubleTap: Boolean) -> Unit = { value, byDoubleTap -> fullScreen.set(value, byDoubleTap) },
 ) {
     private var tracking = AutoFullscreenTracking()
@@ -78,6 +81,17 @@ class HostReadingGestures(
 
     /** A finger touched a pane (tap or start of a drag). Never consumes the touch. */
     fun onTouched() = onPaneTouched()
+
+    /**
+     * A press (a finger, or a pointer click on a Mac) landed on the pane of [windowId]; [source] names the native path that
+     * saw it, for the `MAC-ACTIVATE` log. Activates the window and counts as a touch for the window buttons. Activating an
+     * already active window is a no-op for the window repository.
+     */
+    fun onPanePressed(windowId: String, source: String) {
+        nsLog("MAC-ACTIVATE: native $source window=$windowId")
+        onPaneActivated(windowId)
+        onPaneTouched()
+    }
 
     /** A finger went down on the pane's scroll view: the next [onScroll] calls belong to a new gesture (Android's `e1`). */
     fun onScrollGestureBegan(timestampMillis: Long) {

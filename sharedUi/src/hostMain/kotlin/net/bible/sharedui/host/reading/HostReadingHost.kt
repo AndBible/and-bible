@@ -212,6 +212,7 @@ class HostReadingHost(
             onSwipe = HostReadingWindows::performSwipe,
             setFullScreen = ::setFullScreen,
             onPaneTouched = { hostState.onBibleViewTouched() },
+            onPaneActivated = { readingViewController.onWindowActivated(it) },
             onPaneScrolled = { hostState.onBibleViewScrolled() },
         )
     }
@@ -426,7 +427,9 @@ class HostReadingHost(
 
     /** ONE lazy instance shared by [deps] and the pane menu dispatcher, so every window command goes through one seam. */
     private val readingViewController: ReadingViewController by lazy {
-        ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>())
+        ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>()) { id ->
+            nsLog("MAC-ACTIVATE: controller.setActive window=$id")
+        }
     }
 
     private val agentSessionService: AgentSessionService = koin.get()

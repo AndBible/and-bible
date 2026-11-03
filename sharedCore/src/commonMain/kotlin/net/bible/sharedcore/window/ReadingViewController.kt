@@ -10,10 +10,15 @@ import kotlinx.coroutines.flow.StateFlow
 class ReadingViewController(
     windowState: WindowStateService,
     private val commands: WindowCommands,
+    /** Called with the window id before every activation (a diagnostic hook; the iOS host logs it). */
+    private val onActivating: (String) -> Unit = {},
 ) {
     val layout: StateFlow<WindowLayoutState> = windowState.layout
 
-    fun onWindowActivated(windowId: String) = commands.setActive(windowId)
+    fun onWindowActivated(windowId: String) {
+        onActivating(windowId)
+        commands.setActive(windowId)
+    }
 
     fun onSeparatorCommitted(id1: String, w1: Float, id2: String, w2: Float) =
         commands.commitWeights(id1, w1, id2, w2)

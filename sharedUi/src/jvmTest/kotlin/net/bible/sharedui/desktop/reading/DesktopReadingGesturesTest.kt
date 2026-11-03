@@ -47,8 +47,15 @@ class DesktopReadingGesturesTest {
     private val settings = MemorySettings()
     private val swipes = mutableListOf<Pair<String, SwipeAction>>()
     private var touched = 0
-    private val real = HostReadingGestures(fullScreen, settings, { false }, { id, a -> swipes += id to a }, onPaneTouched = { touched++ })
+    private val activated = mutableListOf<String>()
+    private val real = HostReadingGestures(fullScreen, settings, { false }, { id, a -> swipes += id to a }, onPaneTouched = { touched++ }, onPaneActivated = { activated += it })
     private val gestures = DesktopReadingGestures({ real })
+
+    @Test fun aClickInThePageActivatesItsWindowAndCountsAsATouch() {
+        gestures.onClick("w2")
+        assertEquals(listOf("w2"), activated)
+        assertEquals(1, touched)
+    }
 
     @Test fun doubleTapDoesNotEnterFullscreenByDefaultOnDesktop() {
         real.onDoubleTap()

@@ -46,6 +46,16 @@ class ReadingViewControllerTest {
         assertEquals(listOf("win-1"), cmds.activated)
     }
 
+    @Test fun activationReportsToTheObserverBeforeTheCommand() {
+        val order = mutableListOf<String>()
+        val cmds = object : WindowCommands by RecordingCommands() {
+            override fun setActive(windowId: String) { order += "command:$windowId" }
+        }
+        val ctl = ReadingViewController(FakeService(MutableStateFlow(WindowLayoutState.EMPTY)), cmds) { order += "observer:$it" }
+        ctl.onWindowActivated("w")
+        assertEquals(listOf("observer:w", "command:w"), order)
+    }
+
     @Test fun separatorCommitDelegatesToCommands() {
         val cmds = RecordingCommands()
         val ctl = ReadingViewController(FakeService(MutableStateFlow(WindowLayoutState.EMPTY)), cmds)
