@@ -6,9 +6,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.time.Instant
 
 private val recentJvmLog = RecentJvmLog()
 
@@ -22,11 +19,12 @@ internal class RecentJvmLog(private val limit: Int = 256 * 1024) {
 }
 
 internal actual fun platformLog(level: LogLevel, tag: String, msg: String, tr: Throwable?) {
-    val text = if (tr == null) msg else "$msg\n${tr.stackTraceToString()}"
-    recentJvmLog.append("${level.name.first()}/$tag: $text")
+    ensureJvmLogAliases()
+    val line = formatLogLineNow(level, tag, msg, tr)
+    recentJvmLog.append(line)
     System.err.println("${level.name.first()}/$tag: $msg")
     tr?.printStackTrace()
-    DesktopLogFile.write(level, tag, msg, tr)
+    DesktopLogFile.write(line)
 }
 
 /**
@@ -59,19 +57,15 @@ object DesktopLogFile {
     /** Stops file logging; later lines go to stderr only. */
     fun close() { sink = null }
 
-    internal fun write(level: LogLevel, tag: String, msg: String, tr: Throwable?) {
+    /** Writes an already formatted log line (see [formatLogLine]); the buffer holds the same text. */
+    internal fun write(line: String) {
         val current = sink ?: return
         try {
-            current.append(format(level, tag, msg, tr))
+            current.append(line + "\n")
         } catch (e: IOException) {
             System.err.println("W/DesktopLogFile: log file write failed, file logging stopped: $e")
             if (sink === current) sink = null
         }
-    }
-
-    private fun format(level: LogLevel, tag: String, msg: String, tr: Throwable?): String = buildString {
-        append(Instant.now()).append(' ').append(level.name.first()).append('/').append(tag).append(": ").append(msg).append('\n')
-        if (tr != null) append(StringWriter().also { tr.printStackTrace(PrintWriter(it)) }.toString())
     }
 
     private class Sink(private val file: Path, private val maxBytes: Long, private val keep: Int) {

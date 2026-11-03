@@ -100,7 +100,8 @@ class DesktopBugReport(
             .getOrElse { "Crash file could not be read: ${it.message}" }
         val time = runCatching { Files.getLastModifiedTime(crashFile).toMillis() }.getOrDefault(0L)
         return reportDetails(ReportDevice("net.bible.desktop", version,
-            "${System.getProperty("os.name")} ${System.getProperty("os.version")}", System.getProperty("os.arch")), time, stack, cause)
+            "${System.getProperty("os.name")} ${System.getProperty("os.version")}", System.getProperty("os.arch"),
+            desktopReportFacts()), time, stack, cause)
     }
 
     private fun encode(value: String) = URLEncoder.encode(value, Charsets.UTF_8).replace("+", "%20")
@@ -151,4 +152,15 @@ internal fun openMailto(
         val lower = osName.lowercase()
         if (lower.startsWith("windows") || lower.startsWith("mac")) browse(uri) else xdg(uri)
     }
+}
+
+/**
+ * The desktop report header's extra lines: build number, Java, locale, and whatever the app recorded in
+ * [net.bible.sharedcore.log.ReportFacts.global] (the chosen web engine and renderer).
+ */
+internal fun desktopReportFacts(): List<Pair<String, String>> = buildList {
+    System.getProperty("andbible.versionCode")?.takeIf { it.isNotBlank() }?.let { add("Build" to it) }
+    add("Java" to "${System.getProperty("java.vendor")} ${System.getProperty("java.version")}")
+    add("Locale" to java.util.Locale.getDefault().toLanguageTag())
+    addAll(net.bible.sharedcore.log.ReportFacts.global.snapshot().filter { (k, _) -> none { it.first == k } })
 }

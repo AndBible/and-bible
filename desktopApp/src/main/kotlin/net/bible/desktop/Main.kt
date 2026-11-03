@@ -147,6 +147,7 @@ internal class DesktopEngineCloseCoordinator(private val shutdown: () -> Unit) {
 internal fun desktopEngineLog(line: String) {
     println(line)
     Log.i("DesktopEngine", line)
+    if (line.startsWith("desktop renderer:")) net.bible.sharedcore.log.ReportFacts.global.set("Web engine", line.removePrefix("desktop renderer:").trim())
 }
 
 internal fun createDesktopEngine(
@@ -177,7 +178,10 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         exitProcess(1)
     }
     // The lock proved the data directory writable: from here on every failure (CEF, natives) reaches the log file too.
-    if (lockFailure == null) configureDesktopLogFile(paths.data.resolve("logs"))
+    if (lockFailure == null) {
+        configureDesktopLogFile(paths.data.resolve("logs"))
+        logDesktopStartupFacts()
+    }
     // Before the crash gate and the app graph: a second launch during the gate hands its files over and they are queued.
     if (lockFailure == null) DesktopEarlyIncomingFiles.install(paths.data)
     requireDisplay()
@@ -427,4 +431,15 @@ internal fun fail(message: String): Nothing {
     // Log.e writes stderr and, once main() configured it, the log file.
     Log.e(TAG, "AndBible desktop: $message")
     exitProcess(1)
+}
+
+/** The first lines of every desktop log: version, build, OS, Java and locale (the report header repeats them). */
+internal fun logDesktopStartupFacts() {
+    val facts = net.bible.sharedcore.log.ReportFacts.global
+    System.getProperty("andbible.version")?.takeIf { it.isNotBlank() }?.let { facts.set("Version", it) }
+    System.getProperty("andbible.versionCode")?.takeIf { it.isNotBlank() }?.let { facts.set("Build", it) }
+    facts.set("OS", "${System.getProperty("os.name")} ${System.getProperty("os.version")} ${System.getProperty("os.arch")}")
+    facts.set("Java", "${System.getProperty("java.vendor")} ${System.getProperty("java.version")}")
+    facts.set("Locale", java.util.Locale.getDefault().toLanguageTag())
+    facts.logAll("Startup")
 }
