@@ -120,6 +120,23 @@ internal fun DesktopEngineReadyGate(
     if (ready) content()
 }
 
+internal class DesktopEngineCloseCoordinator(private val shutdown: () -> Unit) {
+    private var finished = false
+
+    fun readinessCancelled() = Unit
+
+    suspend fun finish(persist: suspend () -> Unit, onShutdownFailure: (Throwable) -> Unit) {
+        if (finished) return
+        finished = true
+        persist()
+        try {
+            shutdown()
+        } catch (e: Throwable) {
+            onShutdownFailure(e)
+        }
+    }
+}
+
 internal fun createDesktopEngine(
     provider: DesktopEngineProvider,
     bundleDir: java.nio.file.Path,
@@ -157,13 +174,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     val lifecycle = DesktopHostLifecycle()
     val exitRequested = mutableStateOf(false)
     var shutdownEngine: () -> Unit = {}
-    var engineShutdown = false
-    val shutdownEngineOnce = {
-        if (!engineShutdown) {
-            engineShutdown = true
-            shutdownEngine()
-        }
-    }
+    val closeCoordinator = DesktopEngineCloseCoordinator { shutdownEngine() }
     var exitStatus = 0
     val state: DesktopStartupState
     if (lockFailure != null) {
@@ -228,7 +239,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
-        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngineOnce, watchdog) }
+        if (closing) LaunchedEffect(Unit) { shutDown(state, closeCoordinator, watchdog) }
         val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
         val workArea = remember { AwtWindowHandle.screenWorkArea() }
         val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
@@ -273,7 +284,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
                     exitStatus = 1
                     requestClose()
                 },
-                onCancelled = shutdownEngineOnce,
+                onCancelled = closeCoordinator::readinessCancelled,
             ) {
                 DesktopAppRoot(state)
             }
@@ -291,18 +302,16 @@ internal fun persistAndMarkClean(persist: () -> Unit, clean: () -> Unit) {
     clean()
 }
 
-private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdownEngine: () -> Unit, watchdog: ExitWatchdog) {
+private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, close: DesktopEngineCloseCoordinator, watchdog: ExitWatchdog) {
     withFrameNanos { } // the frame that applies the removal of the panes
     withFrameNanos { }
     repeat(2) { suspendCoroutine<Unit> { c -> SwingUtilities.invokeLater { c.resume(Unit) } } }
     // A close during the startup: let it finish (bounded), so nothing is persisted or shut down under a half-built graph.
     if (!state.awaitStartupSettled(STARTUP_SETTLE_TIMEOUT_MS)) Log.w(TAG, "closing while the startup still runs")
-    withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state::markCleanExit) }
-    try {
-        shutdownEngine()
-    } catch (e: Throwable) {
-        Log.e(TAG, "engine shutdown failed", e)
-    }
+    close.finish(
+        persist = { withContext(Dispatchers.IO) { persistAndMarkClean({ DesktopAppStartup.persistBeforeExit() }, state::markCleanExit) } },
+        onShutdownFailure = { Log.e(TAG, "engine shutdown failed", it) },
+    )
     watchdog.markPersisted()
     exitApplication()
 }
