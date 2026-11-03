@@ -2,6 +2,8 @@ package net.bible.desktop.webkitgtk
 
 import java.nio.file.Files
 import java.nio.file.Path
+import net.bible.sharedui.desktop.webengine.BundleResource
+import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -70,6 +72,20 @@ class BundleSchemeHandlerTest {
     }
 
     @Test
+    fun moduleAssetsAreResolvedOnlyThroughTrustedBundleOrigin() {
+        val module = Files.writeString(outer.resolve("module.dat"), "module bytes")
+        val assets = DesktopPageAssets { path ->
+            if (path == "/modules/book.dat") BundleResource(module, "application/octet-stream", false) else null
+        }
+        val withAssets = BundleSchemeHandler(dir, assets)
+        val resource = assertNotNull(withAssets.resolve("$BUNDLE_BASE/modules/book.dat?version=1"))
+        assertEquals(module, resource.first)
+        assertEquals("application/octet-stream", resource.second)
+        assertNull(withAssets.resolve("andbible://bibleview.evil/modules/book.dat"))
+        assertNull(withAssets.resolve("$BUNDLE_BASE/%2e%2e/modules/book.dat"))
+    }
+
+    @Test
     fun missingFileIsNull() {
         assertNull(handler.resolve("$BUNDLE_BASE/nope.js"))
     }
@@ -83,6 +99,8 @@ class BundleSchemeHandlerTest {
         assertFalse(isAtBundleBase(null))
         assertFalse(isAtBundleBase("andbible://bibleview.evil/"))
         assertFalse(isAtBundleBase("andbible://bibleview:8080/"))
+        assertFalse(isAtBundleBase("andbible://bibleview@evil/"))
+        assertFalse(isAtBundleBase("andbible://user@bibleview/"))
         assertFalse(isAtBundleBase("https://bibleview/"))
         assertFalse(isAtBundleBase("andbible2://bibleview/"))
     }

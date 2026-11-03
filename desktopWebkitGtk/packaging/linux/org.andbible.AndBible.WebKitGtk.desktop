@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=AndBible (WebKitGTK)
+Comment=Offline Bible study app
+Exec=/opt/andbible-webkitgtk/bin/andbible-webkitgtk %F
+Icon=/opt/andbible-webkitgtk/lib/andbible-webkitgtk.png
+StartupWMClass=net-bible-desktop-webkitgtk-AppMainKt
+Terminal=false
+Categories=Education;
+MimeType=application/zip;application/epub+zip;font/ttf;text/csv;image/jpeg;image/png;image/webp;application/vnd.sqlite3;

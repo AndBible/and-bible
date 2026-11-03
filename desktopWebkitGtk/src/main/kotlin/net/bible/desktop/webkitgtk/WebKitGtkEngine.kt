@@ -7,6 +7,7 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.ptr.PointerByReference
 import kotlinx.coroutines.CoroutineDispatcher
+import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
@@ -24,7 +25,7 @@ import javax.swing.Timer
 import kotlin.coroutines.CoroutineContext
 
 /**
- * [DesktopWebEngine] on WebKitGTK 6.0 (GTK 4) through JNA. D5 experiment, not shipped.
+ * [DesktopWebEngine] on WebKitGTK 6.0 (GTK 4) through JNA. Used by the real app (`AppMain.kt`) and the D5 PoC.
  *
  * - Threads: one [GtkThread] (a `GMainLoop`) per engine, started lazily by the first [createPane]. Every GTK, WebKit and
  *   X11 call runs inside `gtk.call`/`gtk.post`; the GTK thread never waits for the AWT event thread (that would deadlock
@@ -48,7 +49,9 @@ import kotlin.coroutines.CoroutineContext
 class WebKitGtkEngine(
     private val bundleDir: Path,
     private val log: (String) -> Unit = ::println,
-) : DesktopWebEngine, AutoCloseable {
+    /** Page asset routes (module files, background images, ...) served beside the bundle on the bundle origin. */
+    private val pageAssets: DesktopPageAssets = DesktopPageAssets.None,
+) : DesktopWebEngine, ExitableEngine, AutoCloseable {
     private val lock = Any()
     private var gtkThread: GtkThread? = null
     private var closed = false
@@ -58,13 +61,20 @@ class WebKitGtkEngine(
         gtkThread ?: GtkThread(GtkMainLoopDriver()).also { gtkThread = it }
     }
 
+    @Volatile
+    private var languagesSource: (() -> String)? = null
+
+    override fun setActiveLanguages(source: () -> String) {
+        languagesSource = source
+    }
+
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_BASE/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         val thread = gtk()
-        val handler = BundleSchemeHandler(bundleDir)
+        val handler = BundleSchemeHandler(bundleDir, pageAssets)
         thread.call { BundleScheme.install(handler, log) }
-        val scripts = listOf(androidBridgeShim(WEBKIT_POST_MESSAGE_JS, activeLanguagesJson(url))) + documentStartScripts
+        val scripts = listOf(androidBridgeShim(WEBKIT_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))) + documentStartScripts
         // Panes stay referenced for the process lifetime: their JNA callbacks may still fire (a late evaluate result or
         // signal) after dispose, and a collected callback crashes JNA. Experiment only: one engine per process.
         return WebKitGtkPane(id, url, thread, scripts, onMessage) { msg -> log("webkitgtk[$id]: $msg") }.also { retained += it }
@@ -87,7 +97,7 @@ class WebKitGtkEngine(
      * exit runs them on the JVM's VM thread: every window close ended in SIGABRT (exit 134). Calling `exit` on the GTK
      * thread runs them there; JVM shutdown hooks do not run (the caller must have released everything already).
      */
-    fun exitProcess(status: Int): Nothing {
+    override fun exitProcess(status: Int): Nothing {
         val thread = synchronized(lock) { gtkThread }
         if (thread != null && !thread.isClosed) {
             thread.post { LibC.exit(status) }
@@ -219,6 +229,11 @@ private class GtkHostCanvas(
     }
 }
 
+/** An engine whose process exit must run on its own native thread (see [WebKitGtkEngine.exitProcess]). */
+interface ExitableEngine : DesktopWebEngine {
+    fun exitProcess(status: Int): Nothing
+}
+
 internal class WebKitGtkPane(
     override val id: String,
     private val url: String,
@@ -229,6 +244,16 @@ internal class WebKitGtkPane(
 ) : DesktopWebPane {
     @Volatile
     private var disposed = false
+
+    @Volatile
+    private var linkListener: ((String) -> Unit)? = null
+
+    @Volatile
+    private var rendererGoneListener: (() -> Unit)? = null
+
+    /** True while the X input focus was handed to the GTK window by a press in the pane (see [awtPressListener]). */
+    @Volatile
+    private var gtkHasFocus = false
     private val evals = EvalBridge(
         deliver = { SwingUtilities.invokeLater(it) },
         scheduleTimeout = { ms, task -> Timer(ms.toInt()) { task.run() }.apply { isRepeats = false }.start() },
@@ -260,8 +285,65 @@ internal class WebKitGtkPane(
         override fun invoke(gesture: Pointer?, nPress: Int, x: Double, y: Double, userData: Pointer?) {
             val dpy = display ?: return
             if (gtkXid == 0L || canvasXid == 0L) return
+            gtkHasFocus = true
             val rc = Gtk.x11.XSetInputFocus(dpy, gtkXid, X_REVERT_TO_PARENT, 0L)
             if (System.getProperty("andbible.d5.focusLog") == "true") log("click n=$nPress: XSetInputFocus(${java.lang.Long.toHexString(gtkXid)}) = $rc")
+        }
+    }
+
+    /**
+     * Navigation policy ([decideNavigation]). `decide-policy` runs on the GTK thread; the owner hears about a blocked
+     * link on the EDT, never inside the signal.
+     */
+    private val decidePolicyCallback = object : DecidePolicyCallback {
+        override fun invoke(view: Pointer?, decision: Pointer?, type: Int, userData: Pointer?): Int {
+            if (decision == null) return 0
+            val uri = if (type == POLICY_NAVIGATION_ACTION || type == POLICY_NEW_WINDOW_ACTION) {
+                val wk = Gtk.webkit
+                wk.webkit_navigation_policy_decision_get_navigation_action(decision)
+                    ?.let { wk.webkit_navigation_action_get_request(it) }
+                    ?.let { wk.webkit_uri_request_get_uri(it) }
+            } else {
+                null
+            }
+            return when (val verdict = decideNavigation(type, uri)) {
+                NavigationVerdict.Default -> 0
+                NavigationVerdict.Allow -> { Gtk.webkit.webkit_policy_decision_use(decision); 1 }
+                NavigationVerdict.Block -> { Gtk.webkit.webkit_policy_decision_ignore(decision); 1 }
+                is NavigationVerdict.BlockAndReport -> {
+                    Gtk.webkit.webkit_policy_decision_ignore(decision)
+                    SwingUtilities.invokeLater { if (!disposed) linkListener?.invoke(verdict.uri) }
+                    1
+                }
+            }
+        }
+    }
+
+    /**
+     * `window.open` reaches the view through `create`, not `decide-policy`. No popup view is ever made: the request URI is
+     * reported once to the link listener (EDT) and NULL is returned.
+     */
+    private val createCallback = object : CreateCallback {
+        override fun invoke(view: Pointer?, action: Pointer?, userData: Pointer?): Pointer? {
+            val uri = action
+                ?.let { Gtk.webkit.webkit_navigation_action_get_request(it) }
+                ?.let { Gtk.webkit.webkit_uri_request_get_uri(it) }
+            (decideNavigation(POLICY_NEW_WINDOW_ACTION, uri) as? NavigationVerdict.BlockAndReport)?.let { verdict ->
+                SwingUtilities.invokeLater { if (!disposed) linkListener?.invoke(verdict.uri) }
+            }
+            return null
+        }
+    }
+
+    /** BibleView owns the selection menu: WebKit's own context menu is suppressed (returning TRUE cancels it). */
+    private val contextMenuCallback = object : ContextMenuCallback {
+        override fun invoke(view: Pointer?, menu: Pointer?, hitTest: Pointer?, userData: Pointer?): Int = 1
+    }
+
+    private val processTerminatedCallback = object : ProcessTerminatedCallback {
+        override fun invoke(view: Pointer?, reason: Int, userData: Pointer?) {
+            log("web process terminated (reason $reason)")
+            SwingUtilities.invokeLater { if (!disposed) rendererGoneListener?.invoke() }
         }
     }
 
@@ -298,6 +380,7 @@ internal class WebKitGtkPane(
 
     private val canvas = GtkHostCanvas(
         onAttach = { xid ->
+            installAwtPressListener()
             val (w, h) = pixelSize()
             gtk.post {
                 canvasXid = xid
@@ -307,6 +390,7 @@ internal class WebKitGtkPane(
             }
         },
         onDetach = {
+            uninstallAwtPressListener()
             // Synchronous: the GTK window must be out of the canvas before the canvas X window is destroyed.
             runCatching {
                 gtk.call {
@@ -337,6 +421,42 @@ internal class WebKitGtkPane(
         gtk.call { createWindow(scripts) }
     }
 
+    /**
+     * Reverse of [clickPressedCallback]: once a press in the pane gave the X input focus to the GTK window, a press on
+     * any AWT/Compose component outside the pane hands it back to the AWT top-level window (AWT would not re-request
+     * focus it believes it still has). Live-verify on Xvfb + openbox: whether the Compose chrome receives keys again.
+     */
+    private val awtPressListener: java.awt.event.AWTEventListener = java.awt.event.AWTEventListener { event ->
+        if (event.id != java.awt.event.MouseEvent.MOUSE_PRESSED) return@AWTEventListener
+        if (System.getProperty("andbible.d5.focusLog") == "true") log("awt press on ${event.source.javaClass.name}, gtkHasFocus=$gtkHasFocus")
+        if (!gtkHasFocus) return@AWTEventListener
+        val source = event.source as? Component ?: return@AWTEventListener
+        if (source === canvas || SwingUtilities.isDescendingFrom(source, component)) return@AWTEventListener
+        val top = SwingUtilities.getWindowAncestor(canvas) ?: return@AWTEventListener
+        // Compose popups and dialogs are their own (owned) windows in WINDOW layer mode: accept any window owned by `top`.
+        var owner: java.awt.Window? = SwingUtilities.getWindowAncestor(source)
+        while (owner != null && owner !== top) owner = owner.owner
+        if (owner == null) return@AWTEventListener
+        gtkHasFocus = false
+        val topXid = runCatching { Native.getComponentID(top) }.getOrDefault(0L)
+        if (topXid == 0L) return@AWTEventListener
+        // On the press, not later: the AWT window must be active again before the Compose control under the press (e.g. a
+        // search field) requests its focus when the button is released.
+        gtk.post {
+            val dpy = display ?: return@post
+            // AWT takes keys through its child "Focus-Proxy-Window"; focusing the frame itself leaves Compose deaf.
+            val target = Gtk.findChildByName(dpy, topXid, "FocusProxy") ?: topXid
+            val rc = Gtk.x11.XSetInputFocus(dpy, target, X_REVERT_TO_PARENT, 0L)
+            Gtk.x11.XSync(dpy, 0)
+            if (System.getProperty("andbible.d5.focusLog") == "true") log("hand-back: XSetInputFocus(${java.lang.Long.toHexString(target)}, top ${java.lang.Long.toHexString(topXid)}) = $rc")
+        }
+    }
+
+    private fun installAwtPressListener(): Unit =
+        java.awt.Toolkit.getDefaultToolkit().addAWTEventListener(awtPressListener, java.awt.AWTEvent.MOUSE_EVENT_MASK)
+
+    private fun uninstallAwtPressListener(): Unit = java.awt.Toolkit.getDefaultToolkit().removeAWTEventListener(awtPressListener)
+
     /** The AWT host; created once, re-parented by every [Content]. Exposed for tests. */
     internal val component: Component by lazy { JPanel(BorderLayout()).apply { add(canvas, BorderLayout.CENTER) } }
 
@@ -350,10 +470,16 @@ internal class WebKitGtkPane(
     private fun createWindow(scripts: List<String>) {
         val wk = Gtk.webkit
         val gtkLib = Gtk.gtk
-        val v = Gtk.newWebView(checkNotNull(BundleScheme.context) { "BundleScheme.install must run first" })
+        val v = Gtk.newWebView(checkNotNull(BundleScheme.context) { "BundleScheme.install must run first" }, FRAME_LOCKDOWN_CSP)
+        // Let window.open reach decide-policy (otherwise WebKit drops it silently); it is always cancelled and reported.
+        wk.webkit_settings_set_javascript_can_open_windows_automatically(wk.webkit_web_view_get_settings(v), 1)
         view = v
         val rgb = if (WebKitGtkEngine.isNight(url)) 0f else 1f
         wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1f))
+        Gtk.gobject.g_signal_connect_data(v, "decide-policy", decidePolicyCallback, null, null, 0)
+        Gtk.gobject.g_signal_connect_data(v, "create", createCallback, null, null, 0)
+        Gtk.gobject.g_signal_connect_data(v, "context-menu", contextMenuCallback, null, null, 0)
+        Gtk.gobject.g_signal_connect_data(v, "web-process-terminated", processTerminatedCallback, null, null, 0)
 
         val ucm = wk.webkit_web_view_get_user_content_manager(v)
         if (wk.webkit_user_content_manager_register_script_message_handler(ucm, "bridge", null) == 0) {
@@ -450,9 +576,29 @@ internal class WebKitGtkPane(
         Gtk.webkit.webkit_web_view_evaluate_javascript(v, js, -1L, null, null, null, evalFinished, Pointer.createConstant(evalId))
     }
 
+    override fun setOnLinkNavigation(listener: (String) -> Unit) {
+        linkListener = listener
+    }
+
+    override fun setOnRendererGone(listener: () -> Unit) {
+        rendererGoneListener = listener
+    }
+
+    /** Native background (visible until the page paints, and wherever BibleView paints none) and the AWT host. */
+    override fun setBackground(argb: Int) {
+        val rgba = argbToRgba(argb)
+        gtk.post {
+            val v = view ?: return@post
+            if (disposed) return@post
+            Gtk.webkit.webkit_web_view_set_background_color(v, GdkRGBA(rgba[0], rgba[1], rgba[2], rgba[3]))
+        }
+        SwingUtilities.invokeLater { if (!disposed) canvas.background = java.awt.Color(argb or (0xFF shl 24), true) }
+    }
+
     override fun dispose() {
         if (disposed) return
         disposed = true
+        uninstallAwtPressListener()
         evals.failAll()
         gtk.post {
             val win = window ?: return@post

@@ -5,6 +5,7 @@ on:
     tags: ["test-*", "production-*"]
     paths:
       - "desktopApp/**"
+      - "desktopWebkitGtk/**"
       - "sharedUi/**"
       - "sharedLogic/**"
       - "sharedCore/**"
@@ -19,6 +20,7 @@ on:
   pull_request:
     paths:
       - "desktopApp/**"
+      - "desktopWebkitGtk/**"
       - "sharedUi/**"
       - "sharedLogic/**"
       - "sharedCore/**"
@@ -71,6 +73,22 @@ jobs:
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
           ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
+      - name: WebKitGTK desktop tests and package
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          kind=dev
+          if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
+          if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
+          ./gradlew "-PdesktopReleaseKind=$kind" :desktopWebkitGtk:test :desktopWebkitGtk:packageDeb
+      # v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: andbible-desktop-webkitgtk-deb
+          path: desktopWebkitGtk/build/compose/binaries/main/deb/*.deb
+          if-no-files-found: error
+          retention-days: 14
       # v4
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -236,6 +254,7 @@ jobs:
             cp -- "${files[0]}" "release/$dest"
           }
           copy_one andbible-desktop-deb '*.deb' "andbible-desktop-$TAG-amd64.deb"
+          copy_one andbible-desktop-webkitgtk-deb '*.deb' "andbible-desktop-webkitgtk-$TAG-amd64.deb"
           copy_one andbible-desktop-appimage '*.AppImage' "andbible-desktop-$TAG-x86_64.AppImage"
           copy_one andbible-desktop-tarball '*.tar.gz' "andbible-desktop-$TAG-linux-x64.tar.gz"
           copy_one andbible-desktop-windows-x64 '*.msi' "andbible-desktop-$TAG-x64.msi"
