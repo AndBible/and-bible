@@ -1,5 +1,6 @@
 package net.bible.desktop.webkitgtk
 
+import net.bible.sharedcore.log.Log
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -47,7 +48,7 @@ class EvalBridge(
             try {
                 callback(json)
             } catch (t: Throwable) {
-                System.err.println("EvalBridge: callback failed: $t")
+                Log.e("WebKitGtk", "EvalBridge: callback failed", t)
             }
         })
     }

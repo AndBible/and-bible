@@ -1,5 +1,6 @@
 package net.bible.desktop.webview2
 
+import net.bible.sharedcore.log.Log
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
@@ -91,7 +92,7 @@ class StaThread(name: String, private val pump: MessagePump) {
             try {
                 task.run()
             } catch (t: Throwable) {
-                System.err.println("webview2: task on the STA thread failed: $t")
+                Log.e("WebView2", "webview2: task on the STA thread failed", t)
             }
         }
     }

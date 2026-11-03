@@ -11,7 +11,7 @@ class DesktopWebSession(
     engine: DesktopWebEngine,
     private val shutdownEngine: () -> Unit,
     private val cleanUp: () -> Unit = {},
-    log: (String) -> Unit = ::println,
+    log: (String) -> Unit = ::desktopEngineLog,
 ) {
     val webViews = DesktopBibleWebViews(engine, log)
     private var closed = false

@@ -1,5 +1,6 @@
 package net.bible.desktop.webkitgtk
 
+import net.bible.sharedcore.log.Log
 import com.sun.jna.Callback
 import com.sun.jna.Library
 import com.sun.jna.Native
@@ -308,7 +309,7 @@ class GtkMainLoopDriver : MainLoopDriver {
                 try {
                     task.run()
                 } catch (t: Throwable) {
-                    System.err.println("GtkMainLoopDriver: task failed: $t")
+                    Log.e("WebKitGtk", "GtkMainLoopDriver: task failed", t)
                 }
             }
             return 0

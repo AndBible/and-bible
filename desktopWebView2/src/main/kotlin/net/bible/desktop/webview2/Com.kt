@@ -1,5 +1,6 @@
 package net.bible.desktop.webview2
 
+import net.bible.sharedcore.log.Log
 import com.sun.jna.Callback
 import com.sun.jna.CallbackReference
 import com.sun.jna.Function
@@ -135,7 +136,7 @@ class ComCallback(private val iid: Iid, private val onInvoke: (a: Pointer?, b: P
         override fun invoke(self: Pointer?, a: Pointer?, b: Pointer?): Int = try {
             onInvoke(a, b)
         } catch (t: Throwable) {
-            System.err.println("webview2: callback failed: $t")
+            Log.e("WebView2", "webview2: callback failed", t)
             S_OK
         }
     }

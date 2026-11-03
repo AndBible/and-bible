@@ -139,6 +139,16 @@ internal class DesktopEngineCloseCoordinator(private val shutdown: () -> Unit) {
     }
 }
 
+/**
+ * The engine and pane log sink: each line goes to stdout (the smoke checks wait for `[desktop] reading ready` there) and
+ * through the shared logger, so it also reaches `andbible.log` and the bug report's recent-log snapshot. The log file is
+ * configured in [runApp] before any engine line can be written.
+ */
+internal fun desktopEngineLog(line: String) {
+    println(line)
+    Log.i("DesktopEngine", line)
+}
+
 internal fun createDesktopEngine(
     provider: DesktopEngineProvider,
     bundleDir: java.nio.file.Path,
@@ -194,7 +204,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         val bundleRoot = Files.createTempDirectory("andbible-bibleview")
         val index = BibleViewBundle.extractTo(bundleRoot)
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
-        val log: (String) -> Unit = { line -> println(line) }
+        val log: (String) -> Unit = ::desktopEngineLog
         val engine = createDesktopEngine(provider, index.parent, paths, log)
         val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
