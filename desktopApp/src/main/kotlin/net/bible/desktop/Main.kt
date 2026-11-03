@@ -88,7 +88,9 @@ fun main(args: Array<String>) {
         composeLayersTypeFor(KcefWebEngine.isWindowedRendering())?.let { System.setProperty("compose.layers.type", it) }
         runPoc()
     } else {
-        runDesktopApp(args, defaultDesktopEngineProvider())
+        val provider = defaultDesktopEngineProvider()
+        if (provider is WindowsEngineProvider) System.setProperty("compose.interop.blending", "true")
+        runDesktopApp(args, provider)
     }
 }
 

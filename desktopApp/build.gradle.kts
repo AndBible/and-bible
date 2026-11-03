@@ -4,7 +4,9 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.Properties
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import javax.inject.Inject
 
@@ -19,6 +21,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":desktopWebView2"))
+    implementation(libs.jna) // NativeLibrary.addSearchPath for the WebView2 loader (WindowsEngineProvider)
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
     implementation(compose.desktop.currentOs)
@@ -329,6 +333,180 @@ stageKcefNatives.configure {
 }
 tasks.matching { it.name in packagingTaskNames }.configureEach { dependsOn(stageKcefNatives) }
 
+// ---- WebView2 loader (Windows engine, #3933) --------------------------------------------------------------------
+// WebView2Loader.dll (x64) and its licence come from the Microsoft.Web.WebView2 NuGet SDK, pinned by SHA-256 of the
+// archive and of the extracted DLL. Only those two ZIP members are read; the app never downloads anything at run time.
+val webView2Version = "1.0.4191.47"
+val webView2ArchiveUrl = "https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/$webView2Version/microsoft.web.webview2.$webView2Version.nupkg"
+val webView2ArchiveSha256 = "f492bbf547d0da329553b6727435b677579b1e9f91cc9e4a1ad029366d5f23d0"
+val webView2LoaderSha256 = "c66e4a92fdc7a216118e43b7a5024ea2200e8c43f9310bf20d96a0084f82c5bc"
+val webView2LoaderSize = 163680L
+val webView2LoaderMember = "build/native/x64/WebView2Loader.dll"
+val webView2LicenseMember = "LICENSE.txt"
+
+/** The one implementation of the WebView2 pin checks, used by [PrepareWebView2Loader] and by verifyWebView2Pins. */
+object WebView2Pins {
+    fun sha256Hex(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(1 shl 16)
+            while (true) {
+                val n = input.read(buffer)
+                if (n < 0) break
+                digest.update(buffer, 0, n)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    /** Throws a [GradleException] unless [file] hashes to [expected] (SHA-256 hex). */
+    fun requireSha256(file: File, expected: String, what: String) {
+        val actual = sha256Hex(file)
+        if (actual != expected.lowercase()) throw GradleException("SHA-256 mismatch for $what ($file): expected $expected, got $actual")
+    }
+
+    /** Copies exactly the ZIP members named in [members] (entry name to destination), never anything else; a missing member throws. */
+    fun extractZipMembers(archive: File, members: Map<String, File>) {
+        ZipFile(archive).use { zip ->
+            for ((name, destination) in members) {
+                val entry = zip.getEntry(name) ?: throw GradleException("${archive.name} has no member $name")
+                destination.parentFile.mkdirs()
+                zip.getInputStream(entry).use { input -> destination.outputStream().use { input.copyTo(it) } }
+            }
+        }
+    }
+
+    /**
+     * Extracts the loader DLL and licence from an already digest-verified [archive] into [out], then checks the DLL's
+     * size and SHA-256. On any failure [out] is deleted and a [GradleException] thrown.
+     */
+    fun extractLoader(archive: File, out: File, loaderMember: String, licenseMember: String, loaderSize: Long, loaderSha256: String) {
+        out.deleteRecursively()
+        out.mkdirs()
+        try {
+            val dll = File(out, "WebView2Loader.dll")
+            extractZipMembers(archive, mapOf(loaderMember to dll, licenseMember to File(out, "LICENSE.txt")))
+            if (dll.length() != loaderSize) throw GradleException("WebView2Loader.dll is ${dll.length()} bytes, expected $loaderSize")
+            requireSha256(dll, loaderSha256, "WebView2Loader.dll")
+        } catch (e: Throwable) {
+            out.deleteRecursively()
+            throw e
+        }
+    }
+}
+
+abstract class PrepareWebView2Loader : DefaultTask() {
+    @get:Input abstract val archiveUrl: Property<String>
+    @get:Input abstract val archiveSha256: Property<String>
+    @get:Input abstract val loaderSha256: Property<String>
+    @get:Input abstract val loaderSize: Property<Long>
+    @get:Input abstract val loaderMember: Property<String>
+    @get:Input abstract val licenseMember: Property<String>
+    @get:InputFile @get:Optional @get:PathSensitive(PathSensitivity.NONE) abstract val localArchive: RegularFileProperty
+    @get:Internal abstract val downloadDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @get:Inject abstract val exec: ExecOperations
+
+    @TaskAction
+    fun prepare() {
+        val archive = if (localArchive.isPresent) {
+            localArchive.get().asFile.also { WebView2Pins.requireSha256(it, archiveSha256.get(), "local WebView2 archive") }
+        } else {
+            val downloads = downloadDir.get().asFile.apply { mkdirs() }
+            val file = File(downloads, archiveUrl.get().substringAfterLast('/'))
+            val cachedOk = file.isFile && WebView2Pins.sha256Hex(file) == archiveSha256.get().lowercase()
+            if (!cachedOk) {
+                file.delete()
+                val part = File(downloads, file.name + ".part")
+                exec.exec { commandLine("curl", "-fsSL", "--retry", "2", "-o", part.absolutePath, archiveUrl.get()) }
+                try {
+                    WebView2Pins.requireSha256(part, archiveSha256.get(), archiveUrl.get())
+                } catch (e: GradleException) {
+                    part.delete()
+                    throw e
+                }
+                check(part.renameTo(file)) { "Could not rename $part" }
+            }
+            file
+        }
+        val out = outputDir.get().asFile
+        WebView2Pins.extractLoader(archive, out, loaderMember.get(), licenseMember.get(), loaderSize.get(), loaderSha256.get())
+        val dll = File(out, "WebView2Loader.dll")
+        logger.lifecycle("WebView2 loader ${archiveUrl.get().substringAfterLast('/')}: ${dll.length()} bytes -> $out")
+    }
+}
+
+val webView2LoaderDir = layout.buildDirectory.dir("webview2-loader")
+val prepareWebView2Loader by tasks.registering(PrepareWebView2Loader::class) {
+    group = "build"
+    description = "Fetches the pinned Microsoft.Web.WebView2 SDK $webView2Version and extracts WebView2Loader.dll and LICENSE.txt into build/webview2-loader."
+    archiveUrl.set(webView2ArchiveUrl)
+    archiveSha256.set(webView2ArchiveSha256)
+    loaderSha256.set(webView2LoaderSha256)
+    loaderSize.set(webView2LoaderSize)
+    loaderMember.set(webView2LoaderMember)
+    licenseMember.set(webView2LicenseMember)
+    // The override is verified against the same archive digest.
+    providers.gradleProperty("andbible.webview2Archive").orNull?.let { localArchive.set(rootProject.file(it)) }
+    downloadDir.set(layout.buildDirectory.dir("webview2-download"))
+    outputDir.set(webView2LoaderDir)
+}
+// The loader as an app resource of the Windows distribution (found through compose.application.resources.dir).
+val stageWebView2Loader by tasks.registering(Sync::class) {
+    dependsOn(prepareWebView2Loader)
+    from(webView2LoaderDir) { include("WebView2Loader.dll", "LICENSE.txt") }
+    into(layout.buildDirectory.dir("desktop-resources/$hostTarget/webview2"))
+}
+// Only a Windows host packages (and downloads) it, so Linux builds never fetch it.
+if (hostTarget == "windows-x64") {
+    tasks.matching { it.name in packagingTaskNames }.configureEach { dependsOn(stageWebView2Loader) }
+    tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareWebView2Loader) }
+    tasks.matching { it.name == "run" }.withType<JavaExec>().configureEach {
+        jvmArgs("-Dwebview2.loaderDir=${webView2LoaderDir.get().asFile.absolutePath}")
+    }
+}
+
+tasks.register("verifyWebView2Pins") {
+    group = "verification"
+    description = "Exercises the real WebView2Pins code (as used by prepareWebView2Loader) on a synthetic archive and test pins."
+    doLast {
+        val dir = Files.createTempDirectory("webview2-pins").toFile()
+        try {
+            val member = "build/native/x64/WebView2Loader.dll"
+            val zipFile = File(dir, "x.nupkg")
+            ZipOutputStream(zipFile.outputStream()).use { z ->
+                for ((name, text) in listOf(member to "dll", "LICENSE.txt" to "lic", "other/huge.bin" to "no")) {
+                    z.putNextEntry(ZipEntry(name)); z.write(text.toByteArray()); z.closeEntry()
+                }
+            }
+            val dllFile = File(dir, "dll.bin").apply { writeText("dll") }
+            val goodSha = WebView2Pins.sha256Hex(dllFile)
+            fun extract(out: File, sha: String, size: Long = 3L, loaderMember: String = member) =
+                WebView2Pins.extractLoader(zipFile, out, loaderMember, "LICENSE.txt", size, sha)
+            fun fails(what: String, block: () -> Unit) {
+                check(runCatching(block).exceptionOrNull() is GradleException) { "$what must throw a GradleException" }
+            }
+
+            val out = File(dir, "out")
+            extract(out, goodSha)
+            check(File(out, "WebView2Loader.dll").readText() == "dll" && File(out, "LICENSE.txt").readText() == "lic")
+            check(out.list()!!.toSet() == setOf("WebView2Loader.dll", "LICENSE.txt")) { "only the two members may be extracted" }
+
+            val bad = File(dir, "bad")
+            fails("a wrong digest") { extract(bad, "0".repeat(64)) }
+            check(!bad.exists()) { "a failed extraction must leave no output" }
+            fails("a wrong size") { extract(bad, goodSha, size = 4L) }
+            fails("a missing member") { extract(bad, goodSha, loaderMember = "missing.dll") }
+            check(!bad.exists())
+            WebView2Pins.requireSha256(dllFile, goodSha, "right digest")
+            fails("a wrong archive digest") { WebView2Pins.requireSha256(dllFile, "0".repeat(64), "archive") }
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
+}
+tasks.named("check") { dependsOn("verifyWebView2Pins") }
+
 // Headless desktop Compose (no X server in the container / CI).
 tasks.withType<Test>().configureEach {
     systemProperty("java.awt.headless", "true")
@@ -458,6 +636,11 @@ tasks.matching { it.name == "createDistributable" || it.name == "createReleaseDi
         check(cfg.isFile) { "No app image .cfg at $cfg" }
         // A build-machine path here would beat the resources dir on the user's machine (CefNativesLocation).
         check("kcef.installDir" !in cfg.readText()) { "$cfg must not contain kcef.installDir" }
+        if (isWindowsHost) {
+            val loader = layout.buildDirectory.dir("$appDir/resources/webview2").get().asFile
+            check(File(loader, "WebView2Loader.dll").isFile) { "WebView2Loader.dll is missing from the app image ($loader)" }
+            check("webview2.loaderDir" !in cfg.readText()) { "$cfg must not contain webview2.loaderDir" }
+        }
     }
 }
 
@@ -632,7 +815,8 @@ val packageWindowsZip by tasks.registering(Zip::class) {
     doLast {
         val names = ZipFile(archiveFile.get().asFile).use { zip -> zip.entries().asSequence().map { it.name }.toSet() }
         for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/app/resources/kcef-natives/libcef.dll",
-            "AndBible/app/resources/kcef-natives/jcef_helper.exe", "AndBible/runtime/bin/java.dll")) {
+            "AndBible/app/resources/kcef-natives/jcef_helper.exe", "AndBible/runtime/bin/java.dll",
+            "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt")) {
             check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
         }
     }

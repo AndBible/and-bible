@@ -10,6 +10,12 @@ Windows packaging requires Windows x64, JDK 17, Node 24, the Windows SDK desktop
 
 The versioned zip, MSIX and MSI are in `desktopApp/build/compose/binaries/main/`. The MSI in `main/msi/AndBible-<version>.msi` is the intermediate unsigned jpackage output, not the signed release copy. Use `-PwindowsPackageVersion=<version>` for a test upgrade build; do not reuse a release version for a different payload.
 
+### Reading engines
+
+The Windows distribution ships both the system-WebView2 integration and KCEF's bundled Chromium fallback in one installer. The app prefers the installed Evergreen runtime only when the actual Compose window uses Direct3D; a missing/unusable runtime or another renderer selects KCEF. Retaining the fallback intentionally means there is no significant installer-size reduction. `WebView2Loader.dll` and its licence (from the pinned Microsoft.Web.WebView2 SDK 1.0.4191.47, fetched and SHA-256-verified by `prepareWebView2Loader`) are staged into the app image's `resources/webview2/`; the app never downloads a browser on startup. For an offline build pass `-Pandbible.webview2Archive=<local .nupkg>`; it is verified against the same archive digest. If neither engine can start, a modal error dialog names both failures and the log file (`<data>/logs/andbible.log`) before the app exits. `compose.interop.blending=true` is an experimental global Compose dependency of this integration.
+
+For same-machine diagnostics, set `-Dandbible.windows.webEngine=kcef` to force the baseline (the default is `auto`). To exercise the graphics fallback independently, keep `auto` and request `-Dskiko.renderApi=SOFTWARE`, then confirm the logged actual renderer and KCEF selection. Use the same installed image and profile for startup/memory comparisons; include only that app's browser process tree, not Windows widgets' WebView2 processes.
+
 ### Identity and signing
 
 The MSIX identity `AndBible.Desktop` and publisher `CN=AndBible-Unsigned` are placeholders in the `windowsIdentity` block in `desktopApp/build.gradle.kts`. Before a Store release, reserve the app name in Partner Center, obtain the package identity name and publisher from its app identity page, and replace both values in that block. Verify the resulting manifest against Partner Center and use a certificate whose subject matches the publisher. The Store identity and production certificate are still pending; placeholder packages are not Store-ready. Follow Partner Center's current package submission, certification, and publishing steps after uploading the release package.

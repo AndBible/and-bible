@@ -18,10 +18,10 @@ interface DesktopEngineProvider {
      */
     suspend fun awaitWindowReady(window: ComposeWindow) {}
     fun shutdown()
-    fun exitProcess(status: Int): Nothing
+    fun exitProcess(status: Int): Nothing = kotlin.system.exitProcess(status)
 }
 
-class KcefEngineProvider : DesktopEngineProvider {
+class KcefEngineProvider(private val onFailure: (String) -> Nothing = ::fail) : DesktopEngineProvider {
     override val windowedRendering: Boolean get() = KcefWebEngine.isWindowedRendering()
 
     override fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine {
@@ -32,16 +32,15 @@ class KcefEngineProvider : DesktopEngineProvider {
         } catch (e: Exception) {
             e.toString()
         }
-        if (problem != null) fail("the cache directory $cache cannot be used ($problem); check the cache location (XDG_CACHE_HOME on Linux) and its permissions")
-        val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
+        if (problem != null) onFailure("the cache directory $cache cannot be used ($problem); check the cache location (XDG_CACHE_HOME on Linux) and its permissions")
+        val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { onFailure(it.message ?: it.toString()) }
         val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
-        KcefWebEngine.init(installDir, args, cacheDir = cache).onFailure { fail(it.message ?: it.toString()) }
+        KcefWebEngine.init(installDir, args, cacheDir = cache).onFailure { onFailure(it.message ?: it.toString()) }
         return KcefWebEngine(installDir, bundleDir, log, pageAssets = DesktopPageAssetRoutes.koinBound())
     }
-
     override fun shutdown() = KcefWebEngine.shutdown()
-    override fun exitProcess(status: Int): Nothing = kotlin.system.exitProcess(status)
 }
 
-internal fun defaultDesktopEngineProvider(): DesktopEngineProvider = KcefEngineProvider()
+internal fun defaultDesktopEngineProvider(): DesktopEngineProvider =
+    if (System.getProperty("os.name").orEmpty().startsWith("Windows", ignoreCase = true)) WindowsEngineProvider() else KcefEngineProvider()
 internal fun desktopLayersType(provider: DesktopEngineProvider): String? = composeLayersTypeFor(provider.windowedRendering)
