@@ -20,6 +20,7 @@ kotlin {
 
 dependencies {
     implementation(project(":desktopWebView2"))
+    implementation(libs.jna) // NativeLibrary.addSearchPath for the WebView2 loader (WindowsEngineProvider)
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
     implementation(compose.desktop.currentOs)

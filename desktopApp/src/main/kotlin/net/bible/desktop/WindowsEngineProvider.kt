@@ -9,7 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.desktop.webview2.WebView2Engine
+import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedcore.platform.desktop.DesktopPaths
+import net.bible.sharedui.desktop.assembly.DESKTOP_DEVICE_SETTINGS_FILE
+import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
@@ -50,6 +54,10 @@ internal class DeferredWindowsEngine(
     private var languages: (() -> String)? = null
     private var waiter: CancellableContinuation<Unit>? = null
 
+    /** The message of the WebView2 failure that led to the KCEF fallback, kept for the both-failed report. */
+    @Volatile var webView2Failure: String? = null
+        private set
+
     suspend fun initialize(renderer: String?) {
         synchronized(lock) {
             if (closed) throw CancellationException("Windows engine closed")
@@ -81,8 +89,10 @@ internal class DeferredWindowsEngine(
         try {
             if (selected == WindowsEngineChoice.WEBVIEW2) {
                 if (!mayStart()) return
-                engine = runCatching { startWebView2() }.getOrElse { Result.failure(it) }.getOrNull()
+                val started = runCatching { startWebView2() }.getOrElse { Result.failure(it) }
+                engine = started.getOrNull()
                 if (engine != null) closer = stopWebView2
+                else webView2Failure = started.exceptionOrNull()?.let { it.message ?: it.toString() }
             }
             if (engine == null) {
                 if (!mayStart()) return
@@ -138,21 +148,82 @@ internal class DeferredWindowsEngine(
     }
 }
 
+/** Resolves the loader dir, registers it with JNA for `WebView2Loader`, then starts WebView2; any failure is a failed Result. */
+internal fun startWebView2WithLoader(
+    locate: () -> Result<Path>,
+    addSearchPath: (library: String, dir: String) -> Unit,
+    start: (loaderDir: Path) -> Result<DesktopWebEngine>,
+    log: (String) -> Unit,
+): Result<DesktopWebEngine> {
+    val result = runCatching {
+        val dir = locate().getOrThrow()
+        addSearchPath("WebView2Loader", dir.toString())
+        start(dir).getOrThrow()
+    }
+    result.onFailure { log("webview2 unavailable: ${it.message}; falling back to KCEF") }
+    return result
+}
+
+internal fun windowsEngineFailureMessage(webView2Failure: String?, kcefFailure: Throwable, logPath: Path): String =
+    "AndBible could not start a web engine for the Bible text.\n\n" +
+        "WebView2: ${webView2Failure ?: "not attempted"}\n" +
+        "KCEF: ${kcefFailure.message ?: kcefFailure}\n\n" +
+        "Details are in the log file:\n$logPath"
+
+/**
+ * Initializes the engine; when both engines failed, shows [present] once (title, message) and rethrows the original
+ * exception. Cancellation and close are not failures and show nothing.
+ */
+internal suspend fun DeferredWindowsEngine.initializeReportingFailure(
+    renderer: String?,
+    logPath: Path,
+    title: String,
+    present: (title: String, message: String) -> Unit,
+) {
+    try {
+        initialize(renderer)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        runCatching { present(title, windowsEngineFailureMessage(webView2Failure, e, logPath)) }
+        throw e
+    }
+}
+
+/** Modal error dialog on the AWT event thread; skipped when headless. */
+internal fun showEngineFailureDialog(title: String, message: String) {
+    if (java.awt.GraphicsEnvironment.isHeadless()) return
+    val show = Runnable { javax.swing.JOptionPane.showMessageDialog(null, message, title, javax.swing.JOptionPane.ERROR_MESSAGE) }
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) show.run() else javax.swing.SwingUtilities.invokeAndWait(show)
+}
+
 class WindowsEngineProvider : DesktopEngineProvider {
     private val kcef = KcefEngineProvider { throw IllegalStateException(it) }
     private var deferred: DeferredWindowsEngine? = null
     private var log: (String) -> Unit = {}
+    private var logPath: Path = Path.of("andbible.log")
+    private var errorTitle: String = "Error"
+    internal var presenter: (String, String) -> Unit = ::showEngineFailureDialog
     override val windowedRendering: Boolean get() = windowsWindowedRendering(kcef.windowedRendering)
 
     override fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine {
         this.log = log
+        logPath = paths.data.resolve("logs").resolve("andbible.log")
+        errorTitle = runCatching {
+            val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
+            iosStrings(language).errorOccurred
+        }.getOrDefault("Error")
         val property = System.getProperty("andbible.windows.webEngine", "auto")
         selectWindowsEngine(property, null, false)
         return DeferredWindowsEngine(
             property = property,
             startWebView2 = {
-                WebView2Engine.start(bundleDir, paths.cache.resolve("webview2"), log, DesktopPageAssetRoutes.koinBound())
-                    .onFailure { log("webview2 unavailable: ${it.message}; falling back to KCEF") }
+                startWebView2WithLoader(
+                    locate = { WebView2LoaderLocation.resolve(System::getProperty) },
+                    addSearchPath = com.sun.jna.NativeLibrary::addSearchPath,
+                    start = { WebView2Engine.start(bundleDir, paths.cache.resolve("webview2"), log, DesktopPageAssetRoutes.koinBound()) },
+                    log = log,
+                )
             },
             startKcef = { kcef.create(bundleDir, paths, log) },
             stopWebView2 = { (it as WebView2Engine).shutdown() },
@@ -172,7 +243,7 @@ class WindowsEngineProvider : DesktopEngineProvider {
         log("desktop renderer: ${renderer ?: "UNKNOWN"}; engine: $choice" +
             if (property == "kcef") " (forced)" else if (choice == WindowsEngineChoice.KCEF) " (renderer is not DIRECT3D)" else "")
         val engine = checkNotNull(deferred)
-        engine.initialize(renderer)
+        engine.initializeReportingFailure(renderer, logPath, errorTitle, presenter)
         currentCoroutineContext().ensureActive()
         engine.bindWindow(window)
     }

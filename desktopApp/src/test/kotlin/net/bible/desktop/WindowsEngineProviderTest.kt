@@ -252,4 +252,134 @@ class WindowsEngineProviderTest {
         assertEquals(WindowsEngineChoice.KCEF, selectWindowsEngine("kcef", "DIRECT3D", true))
         assertFailsWith<IllegalArgumentException> { selectWindowsEngine("other", "DIRECT3D", true) }
     }
+
+    @Test
+    fun `loader location failure skips webview start and falls back to cef once`() = runBlocking {
+        var webviewStarts = 0
+        var searchPaths = 0
+        val cef = FakeEngine("cef")
+        var cefAttempts = 0
+        val logs = mutableListOf<String>()
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = {
+                startWebView2WithLoader(
+                    locate = { Result.failure(IllegalStateException("loader dir unknown")) },
+                    addSearchPath = { _, _ -> searchPaths++ },
+                    start = { webviewStarts++; Result.success(FakeEngine("webview2")) },
+                    log = { logs += it },
+                )
+            },
+            startKcef = { cefAttempts++; cef },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        deferred.initialize("DIRECT3D")
+        assertEquals(0, webviewStarts)
+        assertEquals(0, searchPaths)
+        assertEquals(1, cefAttempts)
+        assertEquals("cef", deferred.bundleUrl("en", false))
+        assertTrue(logs.any { "loader dir unknown" in it && "KCEF" in it }, logs.toString())
+    }
+
+    @Test
+    fun `loader dir is registered under the jna library name before webview start`() {
+        val order = mutableListOf<String>()
+        val dir = java.nio.file.Path.of("loader-dir")
+        val engine = FakeEngine("webview2")
+        val result = startWebView2WithLoader(
+            locate = { Result.success(dir) },
+            addSearchPath = { lib, path -> order += "path:$lib:$path" },
+            start = { order += "start:$it"; Result.success(engine) },
+            log = {},
+        )
+        assertEquals(engine, result.getOrThrow())
+        assertEquals(listOf("path:WebView2Loader:$dir", "start:$dir"), order)
+    }
+
+    @Test
+    fun `search path failure becomes a failed start without starting webview`() {
+        var starts = 0
+        val result = startWebView2WithLoader(
+            locate = { Result.success(java.nio.file.Path.of("x")) },
+            addSearchPath = { _, _ -> throw UnsatisfiedLinkError("no jna") },
+            start = { starts++; Result.success(FakeEngine("w")) },
+            log = {},
+        )
+        assertTrue(result.isFailure)
+        assertEquals(0, starts)
+    }
+
+    @Test
+    fun `both engines failing presents one dialog naming both causes and log path then rethrows`() = runBlocking {
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = { Result.failure(IllegalStateException("runtime missing")) },
+            startKcef = { throw IllegalStateException("cef missing") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        val shown = mutableListOf<Pair<String, String>>()
+        val logPath = java.nio.file.Path.of("data", "logs", "andbible.log")
+        val error = assertFailsWith<IllegalStateException> {
+            deferred.initializeReportingFailure("DIRECT3D", logPath, "Error title") { t, m -> shown += t to m }
+        }
+        assertEquals("cef missing", error.message)
+        assertEquals(1, shown.size)
+        assertEquals("Error title", shown[0].first)
+        assertTrue("runtime missing" in shown[0].second, shown[0].second)
+        assertTrue("cef missing" in shown[0].second, shown[0].second)
+        assertTrue(logPath.toString() in shown[0].second, shown[0].second)
+    }
+
+    @Test
+    fun `webview failure with working cef presents no dialog`() = runBlocking {
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = { Result.failure(IllegalStateException("runtime missing")) },
+            startKcef = { FakeEngine("cef") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        var shown = 0
+        deferred.initializeReportingFailure("DIRECT3D", java.nio.file.Path.of("l"), "t") { _, _ -> shown++ }
+        assertEquals(0, shown)
+        assertEquals("cef", deferred.bundleUrl("en", false))
+    }
+
+    @Test
+    fun `cancellation and close during init present no dialog`() = runBlocking {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = {
+                entered.countDown()
+                check(release.await(5, TimeUnit.SECONDS))
+                Result.failure(IllegalStateException("late failure"))
+            },
+            startKcef = { throw IllegalStateException("cef late failure") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        var shown = 0
+        val job = launch(Dispatchers.Default) {
+            deferred.initializeReportingFailure("DIRECT3D", java.nio.file.Path.of("l"), "t") { _, _ -> shown++ }
+        }
+        try {
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            withTimeout(1000) { job.cancelAndJoin() }
+        } finally {
+            release.countDown()
+        }
+        Thread.sleep(100)
+        assertEquals(0, shown)
+
+        val closed = DeferredWindowsEngine("auto", { error("no") }, { error("no") }, {}, {})
+        closed.shutdown()
+        assertFailsWith<kotlinx.coroutines.CancellationException> {
+            closed.initializeReportingFailure("DIRECT3D", java.nio.file.Path.of("l"), "t") { _, _ -> shown++ }
+        }
+        assertEquals(0, shown)
+    }
 }
