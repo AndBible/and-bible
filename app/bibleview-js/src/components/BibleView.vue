@@ -579,8 +579,11 @@ $cornerSoftness: 1.4;
   --corner-radius: #{$cornerRadius};
   --corner-softness: #{$cornerSoftness};
 
+  // Night: the theme's primary is a pale tone-80 colour that reads as white once the gradient fades to
+  // transparent; the primary container is the darker accent of the same palette. Without theme colours
+  // (grey-base modes) the old pale fallback stays.
   .night & {
-    color: var(--ab-primary, rgba(196, 196, 255, 0.8));
+    color: var(--ab-primary-container, rgba(196, 196, 255, 0.8));
   }
 
   color: var(--ab-primary, rgba(0, 0, 255, 0.6));
