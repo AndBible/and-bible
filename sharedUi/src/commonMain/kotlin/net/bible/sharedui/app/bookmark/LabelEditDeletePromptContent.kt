@@ -29,7 +29,6 @@ fun LabelEditDeletePromptContent(
     deleteOnlyLabel: String,
     cancelLabel: String,
     confirmLabel: String,
-    dismissLabel: String,
     onConfirm: (deleteOrphaned: Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -49,7 +48,7 @@ fun LabelEditDeletePromptContent(
             onDismissRequest = onDismiss,
             title = { Text(title) },
             confirmButton = { TextButton(onClick = { onConfirm(false) }) { Text(confirmLabel) } },
-            dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
+            dismissButton = { TextButton(onClick = onDismiss) { Text(cancelLabel) } },
         )
     }
 }

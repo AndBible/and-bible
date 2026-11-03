@@ -107,14 +107,14 @@ class LabelEditScreenDiscardDialogTest {
     @Test fun discardPromptShowsTheQuestionAndAnswersConfirm() {
         show(discardPrompt = true)
         compose.onNodeWithText("Discard unsaved changes?").assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Discard").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }
 
     @Test fun noAnswersDismiss() {
         show(discardPrompt = true)
-        compose.onNodeWithText("No").performClick()
+        compose.onNodeWithText("Cancel").performClick()
         assertEquals(0, confirmCalls)
         assertEquals(1, dismissCalls)
     }

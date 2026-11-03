@@ -127,7 +127,7 @@ fun InstallZipContent(
             is InstallUiState.Overwrite -> AbConfirmDialog(
                 title = strings.overwriteFilesTitle,
                 message = strings.overwriteFiles("\n" + state.files.joinToString("\n")),
-                confirmText = strings.yes,
+                confirmText = strings.overwrite,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
@@ -145,7 +145,7 @@ fun InstallZipContent(
             InstallUiState.EpubUpgrade -> AbConfirmDialog(
                 title = strings.epubUpgradeTitle,
                 message = strings.epubUpgradeMessage,
-                confirmText = strings.yes,
+                confirmText = strings.okay,
                 dismissText = strings.cancel,
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,

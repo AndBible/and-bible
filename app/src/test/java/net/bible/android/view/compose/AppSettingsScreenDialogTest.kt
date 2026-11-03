@@ -99,7 +99,7 @@ class AppSettingsScreenDialogTest {
             "Do you want to reset all global application preferences that are displayed on this " +
                 "screen to their default values?",
         ).assertExists()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Reset").performClick()
         assertEquals(1, confirmCalls)
         assertEquals(0, dismissCalls)
     }

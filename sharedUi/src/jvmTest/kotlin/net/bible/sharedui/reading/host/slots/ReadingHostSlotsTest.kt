@@ -418,7 +418,7 @@ class ReadingHostSlotsTest {
             }
         }
         onNodeWithText(strings.aiDocumentDeleteConfirmation).assertExists()
-        onNodeWithText(strings.yes).performClick()
+        onNodeWithText(strings.delete).performClick()
         assertEquals(1, deleted)
         assertTrue(state.readingDialog.value == null)
     }

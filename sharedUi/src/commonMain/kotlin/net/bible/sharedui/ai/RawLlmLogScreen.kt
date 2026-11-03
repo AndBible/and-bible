@@ -140,8 +140,8 @@ fun RawLlmLogScreen(
         AbConfirmDialog(
             title = null,
             message = strings.areYouSure,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },
             onDismiss = { showDeleteConfirm = false },
         )

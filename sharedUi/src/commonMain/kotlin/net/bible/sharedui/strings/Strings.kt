@@ -843,6 +843,12 @@ interface Strings {
     val copyToCustomizeLabel: String              // R.string.copy_to_customize (overflow item)
     val viewToolsMenuLabel: String                // R.string.ai_available_tools (overflow item, host navigates)
     val discardChangesConfirmation: String        // R.string.discard_changes_confirmation
+    // Action-verb confirm buttons (replace Yes/No in confirm dialogs)
+    val delete: String                            // R.string.delete
+    val discard: String                           // R.string.discard
+    val remove: String                            // R.string.remove
+    val overwrite: String                         // R.string.overwrite
+    val setCurrentDayAction: String               // R.string.set_current_day_action
 
     // Batch 9d — GlobalToolPermissionsScreen + ToolInfoScreen
     val globalToolPermissionsTitle: String        // R.string.global_tool_permissions_title

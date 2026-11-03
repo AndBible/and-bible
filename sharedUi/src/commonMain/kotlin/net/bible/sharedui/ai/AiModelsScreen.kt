@@ -422,8 +422,8 @@ private fun ModelFormDialog(
         AbConfirmDialog(
             title = null,
             message = strings.modelDeleteConfirm(editedModel?.displayName ?: state.modelId),
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = {
                 showDeleteConfirm = false
                 onDelete(id)

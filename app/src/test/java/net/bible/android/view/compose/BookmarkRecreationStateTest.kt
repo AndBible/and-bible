@@ -450,10 +450,10 @@ class BookmarkRecreationStateTest {
 
         recreated.onBackPressedDispatcher.onBackPressed()
         compose.onNodeWithText("Discard unsaved changes?").assertExists()
-        compose.onNodeWithText("No").performClick()
+        compose.onNodeWithText("Cancel").performClick()
         compose.onNodeWithText("BM13 unsaved assigned label").assertExists()
         recreated.onBackPressedDispatcher.onBackPressed()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNodeWithText("Discard").performClick()
         awaitHostRoute(recreated, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
         assertFalse(manager(recreated).currentLabelItems().any { it.name == "BM13 unsaved assigned label" })
         manager(recreated).save()

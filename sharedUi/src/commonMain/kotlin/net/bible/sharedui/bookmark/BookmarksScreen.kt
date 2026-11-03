@@ -258,7 +258,7 @@ fun BookmarksScreen(
         is BookmarksDialog.ConfirmDelete -> AbConfirmDialog(
             title = null,
             message = strings.confirmDeleteBookmarks(dialog.count),
-            confirmText = strings.yes,
+            confirmText = strings.remove,
             dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,

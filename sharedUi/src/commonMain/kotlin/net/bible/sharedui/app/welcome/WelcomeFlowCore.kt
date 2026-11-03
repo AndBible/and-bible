@@ -93,7 +93,7 @@ class WelcomeFlowCore(
             title = strings.welcomeRedownloadButton,
             options = books, selectedIds = books.map { it.initials },
             idOf = { it.initials }, labelOf = bookLabel,
-            confirmText = strings.okay, dismissText = strings.no,
+            confirmText = strings.okay, dismissText = strings.cancel,
             onConfirm = { ids -> scope.launch { confirmRedownload(ids.toSet()) } },
             onDismiss = { redownloadBooks = null },
             selectAllText = strings.selectAll, selectNoneText = strings.selectNone,

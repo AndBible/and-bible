@@ -386,8 +386,8 @@ fun PromptEditScreen(
         AbConfirmDialog(
             title = null,
             message = strings.discardChangesConfirmation,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.discard,
+            dismissText = strings.cancel,
             onConfirm = { showDiscardConfirm = false; onBack() },
             onDismiss = { showDiscardConfirm = false },
         )
@@ -396,8 +396,8 @@ fun PromptEditScreen(
         AbConfirmDialog(
             title = null,
             message = strings.deletePromptConfirmMessage,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = { showDeleteConfirm = false; onDelete() },
             onDismiss = { showDeleteConfirm = false },
         )

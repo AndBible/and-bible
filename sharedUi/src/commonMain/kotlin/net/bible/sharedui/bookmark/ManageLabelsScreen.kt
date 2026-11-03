@@ -231,7 +231,7 @@ fun ManageLabelsScreen(
                 ManageLabelsResetKind.WORKSPACE -> strings.resetWorkspaceAutoAssignLabels
                 ManageLabelsResetKind.HIDE_LABELS -> strings.resetHideLabels
             },
-            confirmText = strings.yes,
+            confirmText = strings.resetGeneric,
             dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,

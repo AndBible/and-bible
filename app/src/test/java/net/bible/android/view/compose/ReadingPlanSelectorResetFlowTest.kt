@@ -2,6 +2,8 @@ package net.bible.android.view.compose
 
 import android.os.Looper
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -90,7 +92,7 @@ class ReadingPlanSelectorResetFlowTest {
         }
         compose.onNodeWithText(planName).performTouchInput { longClick() }
         idle()
-        compose.onNodeWithText("Yes").performClick()
+        compose.onNode(hasText("Reset") and hasClickAction()).performClick()
         idle()
         assertEquals("fixture: the reset removed the selected plan", "", readingPlanSetting())
         return Fixture(controller, planName)

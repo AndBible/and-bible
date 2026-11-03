@@ -224,12 +224,12 @@ fun DocumentSelectionScreen(
             cancellable = false,
             onBack = onDismissDialog,
         )
-        // The bulk-delete question (NH rows 8004/9306); classic's own Yes/No wording.
+        // The bulk-delete question (NH rows 8004/9306); classic wording, action-verb buttons.
         is DocumentSelectionDialog.ConfirmDelete -> AbConfirmDialog(
             title = null,
             message = dialog.message,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )

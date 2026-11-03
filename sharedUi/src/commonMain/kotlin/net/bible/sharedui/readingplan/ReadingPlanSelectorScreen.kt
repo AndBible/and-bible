@@ -84,8 +84,8 @@ fun ReadingPlanSelectorScreen(
         AbConfirmDialog(
             title = strings.resetGeneric,
             message = strings.resetPlanQuestion,
-            confirmText = strings.yes,
-            dismissText = strings.no,
+            confirmText = strings.resetGeneric,
+            dismissText = strings.cancel,
             onConfirm = { confirmResetCode = null; onReset(code) },
             onDismiss = { confirmResetCode = null },
         )

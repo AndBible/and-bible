@@ -846,6 +846,10 @@
     <string name="settings_editor_close">Close</string>
     <string name="settings_editor_apply">Apply</string>
     <string name="discard_changes_confirmation">Discard unsaved changes?</string>
+    <string name="discard">Discard</string>
+    <string name="remove">Remove</string>
+    <string name="overwrite">Overwrite</string>
+    <string name="set_current_day_action">Set day</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
