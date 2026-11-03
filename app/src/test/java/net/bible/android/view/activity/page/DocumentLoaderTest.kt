@@ -241,8 +241,8 @@ class DocumentLoaderTest {
      */
     @Test
     fun restartedPageGetsLabelsAndDocumentAgain() = runBlocking {
+        // The fixture's channel is already ready: the load goes straight to the first page.
         loader.loadDocument(doc("A"), false, null, null, null, null)
-        loader.setClientReady()
         val firstDelivery = host.evaluated.toList()
         assertEquals("first page: $firstDelivery", 1, firstDelivery.count { it.contains("add_documents") })
         assertEquals("first page: $firstDelivery", 1, firstDelivery.count { it.contains("update_labels") })

@@ -476,8 +476,16 @@ class DocumentLoader(
         }
     }
 
+    /**
+     * The page reports it has (re)started: it holds no labels and no document. Usually this is the first page of the
+     * session, but a page can also restart on the same session (iOS: WebKit killed the hidden app's WebContent process
+     * and the page reloaded), so the labels and the latest document are always sent again; otherwise the restarted page
+     * waits in its loading state for good.
+     */
     override fun setClientReady() = session.jsChannel.runOnMain {
         session.jsChannel.markClientReady()
+        documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
+        labelsUploaded = false
         replaceDocument()
         updateActive()
     }

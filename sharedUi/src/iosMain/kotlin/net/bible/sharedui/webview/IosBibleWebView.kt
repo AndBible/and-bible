@@ -58,13 +58,16 @@ internal fun iosLinkNavigation(target: String?, isMainFrame: Boolean, documentUr
 }
 
 /**
- * Opens the page's link clicks and reloads the page when WebKit kills the content process; the marker lets CI count
- * terminations. A link navigation ([iosLinkNavigation]) is cancelled and handed to [openLink] (Android's
+ * Opens the page's link clicks and reloads the page when WebKit kills the content process (macOS and iOS do that to a
+ * hidden app, e.g. AndBible left on another virtual desktop); the marker lets CI count terminations. After the reload
+ * [onPageRestart] loads the window's text at its current position; the restarted page gets its document through
+ * `DocumentLoader.setClientReady` either way. A link navigation ([iosLinkNavigation]) is cancelled and handed to [openLink] (Android's
  * `shouldOverrideUrlLoading`): WebKit has no handler for `osis://` and the like, so without this a click did nothing.
  */
 internal class IosNavDelegate(
     private val windowId: String,
     private val openLink: (String) -> Boolean = { url -> HostReadingWindows.openLink(windowId, url) },
+    private val onPageRestart: () -> Unit = { HostReadingWindows.pageRestarted(windowId) },
 ) : NSObject(), WKNavigationDelegateProtocol {
     override fun webView(
         webView: WKWebView,
@@ -97,6 +100,7 @@ internal class IosNavDelegate(
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")
             webView.reload()
+            onPageRestart()
         } catch (t: Throwable) {
             nsLog("bridge[$windowId]: terminate handler failure $t")
         }

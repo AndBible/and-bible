@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.webview
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
@@ -36,7 +37,7 @@ internal const val KILL_WEB_CONTENT_ON_BACKGROUND = "-killWebContentOnBackground
  * `_killWebContentProcess` (the call WebKit's own tests use) as soon as the app enters the background, so a UI test can
  * reproduce that on the simulator. Release builds never read the flag.
  */
-@OptIn(ExperimentalNativeApi::class)
+@OptIn(ExperimentalNativeApi::class, ExperimentalForeignApi::class)
 internal object IosWebContentKillHook {
     private var installed = false
 
