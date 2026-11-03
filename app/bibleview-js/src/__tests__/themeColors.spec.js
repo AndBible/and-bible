@@ -52,7 +52,7 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-on-primary-container", fallback: "#e2e2e2"},
     ],
     "../components/BibleView.vue": [
-        {property: "--ab-primary", fallback: "rgba(196, 196, 255, 0.8)"},
+        {property: "--ab-primary-container", fallback: "rgba(196, 196, 255, 0.8)"},
         {property: "--ab-primary", fallback: "rgba(0, 0, 255, 0.6)"},
         {property: "--ab-on-primary-container", fallback: "#d5d5d5"},
     ],
