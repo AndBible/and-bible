@@ -21,6 +21,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.cloudsync.desktop.desktopSyncModule
 import net.bible.service.db.DatabaseContainer
@@ -246,6 +247,7 @@ object DesktopAppStartup {
      * next start re-points it at its own `<data>/sword`.
      */
     fun resetForTest(): Unit = synchronized(lock) {
+        var leakedWindowJobs: String? = null
         runBlocking {
             withTimeout(30_000) {
                 val koin = koinApp?.koin
@@ -257,6 +259,7 @@ object DesktopAppStartup {
                         }
                     }
                     detachBookInstallWatcher(koin)
+                    leakedWindowJobs = retireWindowLoads(koin)
                 }
                 if (KoinPlatform.getKoinOrNull() === koin) runCatching { stopKoin() }
                 SharedAppStartup.resetForTest()
@@ -272,6 +275,25 @@ object DesktopAppStartup {
         koinApp = null
         opened = false
         synchronized(shownErrors) { shownErrors.clear() }
+        leakedWindowJobs?.let { error("window jobs outlived the test: $it") }
+    }
+
+    /**
+     * Test only: cancels the window repository's scope and waits for its jobs before Koin stops. `Window.loadText` runs
+     * `fetchDocument` on Dispatchers.IO in that scope; the repository a test reads (often `WindowControl`'s lazy
+     * fallback) has a scope nothing else cancels, and a blocking page read ignores cancellation until it returns. A
+     * load still running after `stopKoin` threw "KoinApplication has not been started" into whichever test ran next.
+     * Returns the jobs that did not finish in time (null when none): the reset completes, then fails the test that
+     * leaked them.
+     */
+    private suspend fun retireWindowLoads(koin: Koin): String? {
+        val control = koin.getOrNull<WindowControl>() ?: return null
+        val repository = control.currentWindowRepositoryOrNull ?: return null
+        val job = repository.scope.coroutineContext[Job] ?: return null
+        job.cancel()
+        val finished = withTimeoutOrNull(10_000) { job.children.toList().forEach { it.join() }; true } ?: false
+        control.retireWindowRepositoryForTest()
+        return if (finished) null else job.children.toList().toString()
     }
 
     private fun ensureWritableDirectory(dir: Path) {

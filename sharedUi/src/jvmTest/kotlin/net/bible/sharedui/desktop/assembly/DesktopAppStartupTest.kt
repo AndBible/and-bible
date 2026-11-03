@@ -257,6 +257,28 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun resetForTestCancelsAndJoinsTheWindowLoadsBeforeKoinStops() = kotlinx.coroutines.runBlocking {
+        // Leak 2026-11-04: Window.loadText runs fetchDocument on Dispatchers.IO in the repository's scope. The test's
+        // repository is WindowControl's lazy fallback, whose scope nothing cancelled: a load still running when Koin
+        // stopped threw "KoinApplication has not been started" (CurrentPageBase.strings) into whichever test ran next.
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val control = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
+        val repo = control.windowRepository
+        kotlinx.coroutines.withContext(mainThread) {
+            repo.initialize()
+            repeat(3) { repo.activeWindow.loadText() }
+        }
+        val scopeJob = assertNotNull(repo.scope.coroutineContext[kotlinx.coroutines.Job])
+        DesktopAppStartup.resetForTest()
+        assertTrue(scopeJob.isCompleted, "a window load job outlived resetForTest (and with it Koin)")
+    }
+
     @Test fun startsWithStartupFixtureModule() {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
@@ -293,6 +315,11 @@ class DesktopAppStartupTest {
         val paths = paths()
         val home = Files.createDirectories(root.resolve("home"))
         val previousHome = System.getProperty("user.home")
+        // JNA unpacks native libraries below user.home/.cache/JNA when a library is first loaded in the JVM (a library
+        // cache, not app data). In a filtered run this test can be JNA's first user; in the full suite an earlier class
+        // already loaded them. Point JNA's temp dir outside the checked home.
+        val previousJnaTmp = System.getProperty("jna.tmpdir")
+        System.setProperty("jna.tmpdir", Files.createDirectories(root.resolve("jna")).toString())
         try {
             System.setProperty("user.home", home.toString())
             // CWProject keeps the first project home of the process: start from a fresh one, as the app's first start does.
@@ -304,6 +331,7 @@ class DesktopAppStartupTest {
             assertEquals(emptyList(), written, "files were written under user.home")
         } finally {
             System.setProperty("user.home", previousHome)
+            if (previousJnaTmp == null) System.clearProperty("jna.tmpdir") else System.setProperty("jna.tmpdir", previousJnaTmp)
         }
     }
 
