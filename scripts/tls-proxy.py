@@ -22,6 +22,10 @@ async def pipe(reader, writer):
             await writer.drain()
         if writer.can_write_eof():
             writer.write_eof()
+        else:
+            # A TLS stream cannot half-close: without this a server's `Connection: close` never reaches the
+            # client and it waits for the timeout.
+            writer.close()
     except OSError:
         pass
 
