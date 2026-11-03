@@ -1,6 +1,7 @@
 package net.bible.desktop
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +46,6 @@ import net.bible.sharedui.desktop.webengine.DesktopBibleWebViews
 import net.bible.sharedui.desktop.webengine.DesktopWebPaneKeys
 import net.bible.sharedui.desktop.webengine.kcef.KcefWebEngine
 import net.bible.sharedui.desktop.webview.DesktopReadingInput
-import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 import net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine
 import java.awt.Dimension
 import java.awt.EventQueue
@@ -83,8 +84,28 @@ fun main(args: Array<String>) {
     // Windowed panes are heavyweight components, so Compose dialogs and popups need their own windows to show above them
     // (D1 verified it). Off-screen panes paint into a Compose canvas: popups stay in-window, correctly placed and without
     // black corners. The mode is the engine's own one-time resolution. Before any Compose window and before KCEF init.
-    composeLayersTypeFor(KcefWebEngine.isWindowedRendering())?.let { System.setProperty("compose.layers.type", it) }
-    if (System.getProperty("andbible.poc.scenario") != null) runPoc() else runApp(args.toList())
+    if (System.getProperty("andbible.poc.scenario") != null) {
+        composeLayersTypeFor(KcefWebEngine.isWindowedRendering())?.let { System.setProperty("compose.layers.type", it) }
+        runPoc()
+    } else {
+        runDesktopApp(args, defaultDesktopEngineProvider())
+    }
+}
+
+fun runDesktopApp(args: Array<String>, provider: DesktopEngineProvider) {
+    desktopLayersType(provider)?.let { System.setProperty("compose.layers.type", it) }
+    runApp(args.toList(), provider)
+}
+
+@Composable
+internal fun DesktopEngineReadyGate(awaitReady: suspend () -> Unit, content: @Composable () -> Unit) {
+    var ready by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        awaitReady()
+        ready = true
+    }
+    if (ready) content()
 }
 
 /**
@@ -95,7 +116,7 @@ fun main(args: Array<String>) {
  * [DesktopHostLifecycle]. A data directory that cannot be written skips CEF and the startup and shows the
  * startup-failed screen naming the directory.
  */
-private fun runApp(launchArgs: List<String>) {
+private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     val paths = DesktopPaths.system()
     val lockFailure = InstanceLock.acquire(paths.data).fold(onSuccess = { instanceLock = it; null }, onFailure = { it })
     if (lockFailure is AlreadyRunningException) {
@@ -130,21 +151,11 @@ private fun runApp(launchArgs: List<String>) {
     } else {
         val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
         val crashGate = desktopCrashGate(paths)
-        val cefCache = paths.cefCache
-        requireWritableDirectory(cefCache, "the cache directory")
-        val installDir = CefNativesLocation.resolve(System::getProperty).getOrElse { fail(it.message ?: it.toString()) }
-        val args = System.getProperty("kcef.args").orEmpty().split(' ').filter { it.isNotBlank() }
-        KcefWebEngine.init(installDir, args, cacheDir = cefCache).onFailure { fail(it.message ?: it.toString()) }
-
         val bundleRoot = Files.createTempDirectory("andbible-bibleview")
         val index = BibleViewBundle.extractTo(bundleRoot)
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
         val log: (String) -> Unit = { line -> println(line) }
-        val engine = KcefWebEngine(
-            installDir, index.parent, log,
-            // Bound once the app graph exists (page requests start after it); nothing before that.
-            pageAssets = DesktopPageAssetRoutes.koinBound(),
-        )
+        val engine = provider.create(index.parent, paths, log)
         val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
         val webViews = DesktopBibleWebViews(engine, log)
@@ -166,7 +177,7 @@ private fun runApp(launchArgs: List<String>) {
         shutdownEngine = {
             try {
                 webViews.disposeAll()
-                KcefWebEngine.shutdown()
+                provider.shutdown()
             } finally {
                 DesktopEarlyIncomingFiles.closeInstalled()
                 bundleRoot.toFile().deleteRecursively()
@@ -228,10 +239,23 @@ private fun runApp(launchArgs: List<String>) {
             // Closing is two-phase: the content (and with it the CEF panes' SwingPanels) leaves the composition first;
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
             // SkiaLayer ("SkiaLayer is disposed" crash, process left hanging).
-            if (!closing) DesktopAppRoot(state)
+            if (!closing) DesktopEngineReadyGate(awaitReady = {
+                if (lockFailure == null) {
+                    try {
+                        provider.awaitWindowReady(awtWindow)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Throwable) {
+                        Log.e(TAG, "desktop engine window readiness failed", e)
+                        provider.exitProcess(1)
+                    }
+                }
+            }) {
+                DesktopAppRoot(state)
+            }
         }
     }
-    exitAfterWindows(watchdog)
+    exitAfterWindows(watchdog, provider)
 }
 
 /**
@@ -264,12 +288,12 @@ private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdo
  * [EXIT_SETTLE_MS] so AWT-XAWT is back in its native poll and not holding the Xlib display lock when the exit safepoint
  * freezes it (libGLX's exit handler waits for that lock). The [ExitWatchdog] backs that up on Linux.
  */
-private fun exitAfterWindows(watchdog: ExitWatchdog): Nothing {
+private fun exitAfterWindows(watchdog: ExitWatchdog, provider: DesktopEngineProvider): Nothing {
     runCatching { EventQueue.invokeAndWait { } }
     runCatching { Thread.sleep(EXIT_SETTLE_MS) }
     runCatching { EventQueue.invokeAndWait { } }
     watchdog.arm()
-    exitProcess(0)
+    provider.exitProcess(0)
 }
 
 /** CEF cannot start without a display and then takes the JVM down silently (D1 defect 4): fail clearly instead. */
@@ -354,7 +378,7 @@ private fun requireWritableDirectory(dir: java.nio.file.Path, what: String) {
     if (problem != null) fail("$what $dir cannot be used ($problem); check the cache location (XDG_CACHE_HOME on Linux) and its permissions")
 }
 
-private fun fail(message: String): Nothing {
+internal fun fail(message: String): Nothing {
     // Log.e writes stderr and, once main() configured it, the log file.
     Log.e(TAG, "AndBible desktop: $message")
     exitProcess(1)
