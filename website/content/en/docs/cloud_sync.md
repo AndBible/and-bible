@@ -63,13 +63,13 @@ Nextcloud and WebDAV server addresses work with or without a trailing `/`.
 AndBible removes trailing slashes and surrounding whitespace when saving the
 address, and also handles trailing slashes in previously saved addresses.
 
-On iOS, public Nextcloud servers require an `https://` address. Plain `http://`
-is allowed only for local hosts: `localhost`, names ending in `.local`, loopback
-addresses, private IPv4 addresses, and link-local IPv4 or IPv6 addresses. For
-example, `http://NAS.local:8080/` is allowed, but `http://example.org/` is not.
-This is checked both when saving the address and before signing in with a saved
-address. Android's Nextcloud HTTP support is unchanged. The separate WebDAV
-adapter still requires HTTPS, including for local servers.
+Nextcloud and WebDAV servers require a secure `https://` address on every
+platform (Android, iOS and desktop). Plain `http://` is not accepted, not even
+for a server on your local network. AndBible refuses an `http://` address both
+when you save it and when it signs in. If you saved an `http://` address
+earlier, sync does not start and AndBible tells you the address must be
+`https://`. The saved address is kept, so you can edit it and add the `s`
+(or set up HTTPS on your server).
 
 ### Setting Up WebDAV
 

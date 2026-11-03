@@ -196,12 +196,7 @@ class DesktopWebDavClientFactoryTest {
         assertEquals(1, factory.create(config(server, "127.0.0.1"), state).propfind("", 0).size)
     }
 
-    @Test fun plainHttpAllowedOnlyForLocalHosts() {
-        listOf("http://example.com", "http://nas.example.org:8080/x", "http://192.0.2.1").forEach { assertFalse(desktopPlainHttpAllowed(it), it) }
-        listOf("https://example.com", "http://localhost:8080", "http://127.0.0.1:1/x", "http://nas.local").forEach { assertTrue(desktopPlainHttpAllowed(it), it) }
-    }
-
-    @Test fun plainHttpRefusedExceptNextcloudBackend() = runBlocking {
+    @Test fun savedHttpNextcloudRefusedBeforeAnyClient() = runBlocking {
         val secrets = mutableMapOf<String, String>()
         val platform = object : SyncSettingsPlatform {
             override fun credential(key: String) = secrets[key] ?: ""
@@ -212,7 +207,6 @@ class DesktopWebDavClientFactoryTest {
             override fun formatDecimal2(value: Double) = "$value"
             override val webDavServerUrlHint = ""
             override val webDavState get() = state
-            override fun plainHttpAllowed(url: String) = desktopPlainHttpAllowed(url)
         }
         val ui = FakeUi(false)
         val built = mutableListOf<WebDavConfig>()
@@ -227,11 +221,13 @@ class DesktopWebDavClientFactoryTest {
         val refusal = generateSequence(failure) { it.cause }.filterIsInstance<PlainHttpRefusedException>().firstOrNull()
         assertNotNull(refusal, "expected a plain-http refusal, got $failure")
         assertTrue(built.isEmpty())
-        // NEXT_CLOUD over http to a local host passes the policy (a client is built).
+        // The local network is no exception: http to a local host is refused the same way.
         val local = startHttp()
         secrets["cloud_sync_server_url"] = "http://127.0.0.1:${local.address.port}"
-        runCatching { f.create("NEXT_CLOUD").signIn() }
-        assertEquals(1, built.size)
+        val localFailure = runCatching { f.create("NEXT_CLOUD").signIn() }.exceptionOrNull()
+        assertNotNull(generateSequence(localFailure) { it.cause }.filterIsInstance<PlainHttpRefusedException>().firstOrNull())
+        assertEquals("HTTPS_REQUIRED", localFailure?.message)
+        assertTrue(built.isEmpty())
     }
 
     @Test fun nameMismatchWithoutPinRaisesUntrustedWithDetails() = runBlocking {
@@ -283,5 +279,6 @@ class DesktopWebDavClientFactoryTest {
 
     @Test fun factoryRefusesPlainHttpToPublicHost() {
         assertFailsWith<PlainHttpRefusedException> { factory.create(WebDavConfig("http://example.com/dav/", "u", "p", ""), state) }
+        assertFailsWith<PlainHttpRefusedException> { factory.create(WebDavConfig("http://localhost:8080/dav/", "u", "p", ""), state) }
     }
 }

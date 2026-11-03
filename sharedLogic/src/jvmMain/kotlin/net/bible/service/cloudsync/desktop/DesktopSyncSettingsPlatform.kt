@@ -49,8 +49,6 @@ class DesktopSyncSettingsPlatform(
         return (scheme == "http" || scheme == "https") && !uri.host.isNullOrEmpty()
     }
 
-    override fun plainHttpAllowed(url: String): Boolean = desktopPlainHttpAllowed(url)
-
     /** File-style sizes with SI unit symbols and locale digits: "999 B", "12 kB", "1.5 MB" ("1,5 MB" in Finnish). */
     override fun formatFileSize(bytes: Long): String {
         val locale = Locale.getDefault()

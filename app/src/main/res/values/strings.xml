@@ -1402,7 +1402,7 @@
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="adapters_webdav">WebDAV</string>
     <string name="webdav_server_url_hint">Address of the WebDAV folder, e.g. https://nas.local/dav/ or https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
-    <string name="webdav_https_required">WebDAV sync requires a secure https:// address.</string>
+    <string name="webdav_https_required">Sync requires a secure https:// address.</string>
     <string name="webdav_certificate_title">Server certificate</string>
     <string name="webdav_forget_certificate_message">Forget the trusted server certificate? You will be asked to confirm the certificate again on the next connection.</string>
     <string name="adapters_icloud_drive">iCloud Drive</string>

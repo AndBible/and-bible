@@ -19,27 +19,15 @@ package net.bible.service.cloudsync.desktop
 import net.bible.service.cloudsync.host.PlainHttpRefusedException
 import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.webdav.WebDavStateStore
-import net.bible.sharedcore.http.LocalNetworkHost
 import net.bible.sharedcore.platform.desktop.sync.desktopDefaultHostnameVerifier
 import net.bible.sharedcore.platform.desktop.sync.desktopPinnedHttpEngine
 import net.bible.sharedcore.webdav.DavUntrustedCertificateException
 import net.bible.sharedcore.webdav.WebDavClient
 import net.bible.sharedcore.webdav.createWebDavHttpClient
-import java.net.URI
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLPeerUnverifiedException
 import javax.net.ssl.X509TrustManager
-
-/**
- * True when [url] may be used: anything but plain http, or plain http to a local host (fixtures, LAN).
- * The same rule as the iOS settings platform; the desktop SyncSettingsPlatform calls it.
- */
-fun desktopPlainHttpAllowed(url: String): Boolean {
-    val uri = try { URI(url.trim()) } catch (_: Exception) { return false }
-    if (!"http".equals(uri.scheme, ignoreCase = true)) return true
-    return LocalNetworkHost.isLocal(uri.host ?: return false)
-}
 
 /**
  * Builds the desktop [WebDavClient]: OkHttp engine with pinned trust for [WebDavConfig.host] only (spec C5,
@@ -52,8 +40,8 @@ class DesktopWebDavClientFactory(
     private val nowMs: () -> Long = System::currentTimeMillis,
 ) {
     fun create(config: WebDavConfig, state: WebDavStateStore): WebDavClient {
-        // Defence in depth: the hoisted factory refuses plain http for NEXT_CLOUD, but never let a client be built for it.
-        if (!desktopPlainHttpAllowed(config.serverUrl)) throw PlainHttpRefusedException(config.serverUrl)
+        // Defence in depth: the hoisted factory refuses plain http for NEXT_CLOUD and the settings gate for WebDAV, but never let a client be built for it.
+        if (!config.serverUrl.trim().startsWith("https://", ignoreCase = true)) throw PlainHttpRefusedException(config.serverUrl)
         val trust = PinningTrustManager(config.host, { state.certPin }, platformTrust())
         val verifier = PinningHostnameVerifier({ state.certPin }, defaultVerifier())
         val ssl = SSLContext.getInstance("TLS").apply { init(null, arrayOf(trust), null) }

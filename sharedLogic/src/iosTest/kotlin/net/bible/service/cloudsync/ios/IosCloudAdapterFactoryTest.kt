@@ -142,11 +142,12 @@ class IosCloudAdapterFactoryTest {
         }
     }
 
-    @Test fun localHttpNextcloudReachesClientFactory() = runTest {
+    @Test fun localHttpNextcloudRefusedToo() = runTest {
         platform.setCredential("cloud_sync_server_url", "http://NAS.local:8080/")
         platform.setCredential("cloud_sync_username", "anna")
-        runCatching { factory().create("NEXT_CLOUD").signIn() }
-        assertEquals("http://NAS.local:8080/remote.php/dav/files/anna", recorded.single().serverUrl)
+        val failure = runCatching { factory().create("NEXT_CLOUD").signIn() }.exceptionOrNull()
+        assertEquals("HTTPS_REQUIRED", failure?.message)
+        assertTrue(recorded.isEmpty())
     }
 
     @Test fun webDavUsesWebdavKeys() = runTest {

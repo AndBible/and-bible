@@ -224,7 +224,7 @@ class SyncSettingsServiceImpl(
         val value = if (key == "cloud_sync_server_url") normalizeSyncServerUrl(rawValue) else rawValue
         if (key == "cloud_sync_server_url") {
             val valid = if (isWebDav) WebDavUrl.validate(value) else {
-                validNextcloudUrl(value) && platform.plainHttpAllowed(value)
+                validNextcloudUrl(value)
             }
             if (!valid) return false
         }
@@ -242,13 +242,14 @@ class SyncSettingsServiceImpl(
     }
 
     private fun validNextcloudUrl(value: String): Boolean =
-        (value.startsWith("http://", ignoreCase = true) || value.startsWith("https://", ignoreCase = true)) &&
+        value.startsWith("https://", ignoreCase = true) &&
             platform.isValidUrl(value) && !value.endsWith("/login") && value.none { it.isWhitespace() }
 
+    /** Nextcloud accepts https only, on every platform and also on the local network; true for an otherwise well-formed http address. */
     override fun plainHttpRefused(url: String): Boolean {
-        val value = url.trim()
+        val value = normalizeSyncServerUrl(url)
         return !isWebDav && value.startsWith("http://", ignoreCase = true) &&
-            validNextcloudUrl(value) && !platform.plainHttpAllowed(value)
+            platform.isValidUrl(value) && !value.endsWith("/login") && value.none { it.isWhitespace() }
     }
 
     override fun forgetCertificate() {
