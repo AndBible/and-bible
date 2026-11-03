@@ -1,5 +1,6 @@
 package net.bible.desktop.webkitgtk
 
+import net.bible.sharedcore.log.Log
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -80,7 +81,7 @@ class GtkThread(private val driver: MainLoopDriver, name: String = "gtk-main") :
             try {
                 block()
             } catch (t: Throwable) {
-                System.err.println("GtkThread: posted task failed: $t")
+                Log.e("WebKitGtk", "GtkThread: posted task failed", t)
                 t.printStackTrace()
             }
         }

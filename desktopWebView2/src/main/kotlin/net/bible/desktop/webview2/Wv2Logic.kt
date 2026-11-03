@@ -1,5 +1,6 @@
 package net.bible.desktop.webview2
 
+import net.bible.sharedcore.log.Log
 import net.bible.sharedui.desktop.webengine.kcef.BundleRequestHandler
 import net.bible.sharedui.desktop.webengine.kcef.isAtBundleOrigin
 import net.bible.sharedui.desktop.webengine.kcef.linkNavigation
@@ -183,7 +184,7 @@ class EvalReplies(
             try {
                 callback(json)
             } catch (t: Throwable) {
-                System.err.println("webview2: eval callback failed: $t")
+                Log.e("WebView2", "webview2: eval callback failed", t)
             }
         })
     }

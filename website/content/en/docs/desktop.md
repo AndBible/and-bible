@@ -6,7 +6,7 @@ AndBible for Linux and Windows is in beta. Download desktop packages from [GitHu
 
 On Windows x64, AndBible uses the system **Microsoft Edge WebView2 Evergreen Runtime** for document text when the graphics renderer supports it. Windows normally keeps this runtime up to date independently of AndBible.
 
-The MSI also includes a Chromium-based fallback. AndBible selects it automatically if WebView2 is unavailable or the window cannot use Direct3D. You do not need to install WebView2 manually to use AndBible, and the app does not download a browser at startup. Both engines are included in the same installer, so using the system runtime does not make this MSI substantially smaller. If neither engine can start, AndBible shows an error message naming the cause and the log file location, then closes.
+The MSI also includes a Chromium-based fallback. AndBible selects it automatically if WebView2 is unavailable or the window cannot use Direct3D. You do not need to install WebView2 manually to use AndBible, and the app does not download a browser at startup. Both engines are included in the same installer, so using the system runtime does not make this MSI substantially smaller. If neither engine can start, AndBible shows an error message naming the cause and the log file location, then closes. The engine AndBible chose is logged (`desktop renderer: ...; engine: ...`) in `%APPDATA%\AndBible\logs\andbible.log` and is included in bug reports.
 
 ## Linux packages
 
