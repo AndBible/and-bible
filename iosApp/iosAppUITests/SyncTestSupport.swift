@@ -91,7 +91,7 @@ struct SyncHarness {
         guard certificateTitle.exists else { return true }
         let body = app.staticTexts.matching(NSPredicate(
             format: "label BEGINSWITH %@",
-            "The certificate of localhost is not trusted by Android.")).firstMatch
+            "The certificate of localhost is not trusted by")).firstMatch
         let trust = app.buttons.matching(NSPredicate(
             format: "label == %@", "Trust this certificate")).firstMatch
         guard let suppliedFingerprint = sha256,

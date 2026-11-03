@@ -17,8 +17,10 @@ import XCTest
 /// reacts to night mode and text size changes made from the reading menu.
 ///
 /// Opt-in sync fixture: env `TEST_RUNNER_E2E_SYNC_FIXTURE_JSON` (the runner strips the prefix, so the test sees
-/// `E2E_SYNC_FIXTURE_JSON`): `{"url":"http://localhost:P/remote.php/dav/files/admin/","user":"admin","password":"...",
-/// "sha256":"<optional, https://localhost only>"}`. Without it the chain test FAILS ("E2E sync fixture missing"), so
+/// `E2E_SYNC_FIXTURE_JSON`): `{"url":"https://localhost:P/remote.php/dav/files/admin/","user":"admin","password":"...",
+/// "sha256":"<SHA-256 of the self-signed certificate of the loopback TLS relay>"}`. Both the NextCloud and the WebDAV
+/// adapter accept only https, so the fixture is a local Nextcloud behind a TLS relay: `scripts/e2e-sync-fixture.sh run`
+/// builds it (see docs/superpowers/status/2026-11-03-ios-e2e-https-fixture.md). Without it the chain test FAILS ("E2E sync fixture missing"), so
 /// the close-out cannot pass it silently. The remote folder must be empty (a fresh device creates the cloud copy).
 ///
 /// Each test is self-contained and ends with the app terminated. The chain is destructive for the app data
@@ -52,6 +54,10 @@ final class EndToEndUITests: RealAppUITestCase {
               ["http", "https"].contains(url.scheme ?? ""), url.user == nil, url.password == nil,
               !fixture.user.isEmpty, !fixture.password.isEmpty else {
             XCTFail("E2E sync fixture invalid: the url must be http(s) to localhost, 127.0.0.1 or ::1, without credentials")
+            return nil
+        }
+        if url.scheme != "https" {
+            XCTFail("E2E sync fixture invalid: the url must be https (the sync adapters refuse http since 2026-11-03); use scripts/e2e-sync-fixture.sh")
             return nil
         }
         if let fingerprint = fixture.sha256,
@@ -222,18 +228,15 @@ final class EndToEndUITests: RealAppUITestCase {
         let backend = syncUI.rowButton(app, "Synchronization Backend")
         harnessRequire(backend.waitForExistence(timeout: 30), app, "the Device synchronization screen opened")
         backend.tap()
-        // The WebDAV backend is HTTPS-only (spec 2026-10-09); the plain-http local fixture goes through the NextCloud
-        // backend, which allows http to local hosts and derives the user's DAV root from the server address.
-        let plainHttp = URL(string: fixture.url)?.scheme == "http"
-        let backendLabel = plainHttp ? "NextCloud" : "WebDAV"
-        let webDav = syncUI.label(app, backendLabel)
-        harnessRequire(webDav.waitForExistence(timeout: 10), app, "the backend choice lists '\(backendLabel)'")
+        // Both sync adapters are HTTPS-only; the fixture is the Nextcloud DAV folder behind a pinned self-signed TLS relay.
+        let webDav = syncUI.label(app, "WebDAV")
+        harnessRequire(webDav.waitForExistence(timeout: 10), app, "the backend choice lists 'WebDAV'")
         webDav.tap()
         // Credentials first, with the category still off (switching it on starts the real sign-in).
         let bookmarks = syncUI.reveal(app, "Bookmarks", toggle: true)
         harnessRequire(bookmarks.isEnabled && !bookmarks.isSelected, app, "the Bookmarks sync category starts off")
         app.swipeDown(); app.swipeDown(); app.swipeDown()
-        syncUI.edit(app, "Server URL", plainHttp ? (URL(string: fixture.url).flatMap { u in u.host.map { "http://\($0)" + (u.port.map { ":\($0)" } ?? "") } } ?? fixture.url) : fixture.url)
+        syncUI.edit(app, "Server URL", fixture.url)
         syncUI.edit(app, "User name", fixture.user)
         syncUI.edit(app, "Password", fixture.password, sensitive: true)
         _ = syncUI.reveal(app, "Bookmarks", toggle: true)
