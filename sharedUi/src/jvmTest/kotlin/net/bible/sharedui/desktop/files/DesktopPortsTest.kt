@@ -47,6 +47,16 @@ class DesktopPortsTest {
         runCurrent()
         assertEquals(listOf("portal:https://example.org/path?q=1", "desktop:https://example.org/path?q=1", "xdg:https://example.org/path?q=1"), opened)
     }
+    @Test fun openAndWaitReportsWhetherALauncherAcceptedTheUrl() = runTest {
+        val url = "mailto:a@b.c?subject=x"
+        fun links(portal: PortalOpenResult, desktop: Boolean, xdg: Boolean) =
+            DesktopExternalLinks({ portal }, { desktop }, { xdg }, this)
+        assertTrue(links(PortalOpenResult.OPENED, false, false).openAndWait(url))
+        assertTrue(links(PortalOpenResult.UNAVAILABLE, false, true).openAndWait(url))
+        assertFalse(links(PortalOpenResult.UNAVAILABLE, false, false).openAndWait(url))
+        assertFalse(links(PortalOpenResult.CANCELLED, true, true).openAndWait(url))
+        assertFalse(links(PortalOpenResult.OPENED, true, true).openAndWait("file:///etc/passwd"))
+    }
     @Test fun portalResponseCodesRespectCancellation() = runTest {
         for ((code, expected) in listOf(0 to emptyList(), 1 to emptyList(), 2 to listOf("desktop", "xdg"))) {
             val calls = mutableListOf<String>()

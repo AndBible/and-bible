@@ -8,10 +8,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.files.DeliveryResult
+import net.bible.sharedui.host.report.BUG_REPORT_EMAIL
 import net.bible.sharedui.host.report.ReportDevice
 import net.bible.sharedui.host.report.aiReportEligible
 import net.bible.sharedui.host.report.reportDetails
 import net.bible.sharedui.host.report.reportSafely
+
+/**
+ * What the user needs to send the report by hand: the file they saved ([savedPath], null when unknown), the [address]
+ * and the suggested [subject]. Shown when the mail client could not be opened.
+ */
+class BugReportInstructions(val address: String, val subject: String, val savedPath: String?)
+
+/** The instructions dialog's HTML body for [info]; every inserted value is HTML-escaped. */
+fun net.bible.sharedui.strings.keyed.StringTable.manualSendText(info: BugReportInstructions): String {
+    fun esc(v: String) = v.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    val path = info.savedPath
+    val text = if (path != null) fmt("bug_report_manual_text_saved", esc(path), esc(info.address), esc(info.subject))
+        else fmt("bug_report_manual_text_unsaved", esc(info.address), esc(info.subject))
+    return text.replace("\n", "<br>")
+}
 
 /** Saves diagnostics before opening the mail composer; mailto cannot attach the file itself. */
 class DesktopBugReport(
@@ -19,12 +35,16 @@ class DesktopBugReport(
     private val version: String,
     private val log: () -> String,
     private val deliver: suspend (Path, String, String) -> DeliveryResult,
-    private val open: (String) -> Unit,
+    /** Opens the `mailto:` URL; false (or a throw) means no mail client came up and [instructions] is shown. */
+    private val open: suspend (String) -> Boolean,
     private val confirm: suspend (Boolean) -> Boolean = { true },
     private val failure: suspend (Exception) -> Unit = { Log.w("DesktopBugReport", "Report failed", it) },
     private val introduction: () -> String = { "" },
     private val crashFile: Path = directory.resolve("last_crash.txt"),
     private val retainReport: Boolean = false,
+    /** Where the user's chosen save location is, once [deliver] has saved the file. */
+    private val savedPath: () -> String? = { null },
+    private val instructions: suspend (BugReportInstructions) -> Unit = {},
 ) : net.bible.sharedui.desktop.assembly.DesktopBugReport {
     override suspend fun report(cause: Throwable?) = reportSafely(failure) {
         if (!confirm(false)) return@reportSafely
@@ -56,11 +76,19 @@ class DesktopBugReport(
             val result = deliver(path, name, subject)
             if (result == DeliveryResult.FAILED) error("Report file delivery failed")
             if (result == DeliveryResult.DELIVERED) {
-                val prefix = "mailto:errors.andbible@gmail.com?subject=${encodeBounded(subject, 1024)}&body="
+                val prefix = "mailto:$BUG_REPORT_EMAIL?subject=${encodeBounded(subject, 1024)}&body="
                 val suffix = if (retainReport) encode("\n\n$path") else ""
                 val mailBody = encodeBounded(body, (MAX_MAIL_BYTES - prefix.length - suffix.length).coerceAtLeast(0))
                 completed = true
-                open(prefix + mailBody + suffix)
+                val opened = try {
+                    open(prefix + mailBody + suffix)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w("DesktopBugReport", "Could not open the mail client", e)
+                    false
+                }
+                if (!opened) instructions(BugReportInstructions(BUG_REPORT_EMAIL, subject, savedPath()))
             }
         } finally {
             if (!retainReport || !completed) Files.deleteIfExists(path)
@@ -98,7 +126,7 @@ fun recoveryBugReport(directory: Path, version: String, log: () -> String, intro
 
     DesktopBugReport(directory.resolve("reports"), version, log,
 
-        { path, _, _ -> println(path); DeliveryResult.DELIVERED }, open,
+        { path, _, _ -> println(path); DeliveryResult.DELIVERED }, { open(it); true },
 
         introduction = { introduction }, crashFile = directory.resolve("logs").resolve("last_crash.txt"), retainReport = true)
 

@@ -33,3 +33,6 @@ internal fun aiReportEligible(modelSupported: Boolean, log: ByteArray): Boolean 
 /** The standard report attachments: the gzipped app log first, then [extra]. */
 internal fun reportAttachments(gzippedLog: ByteArray, extra: List<Attachment>): List<Attachment> =
     listOf(Attachment("app_log.txt.gz", "application/gzip", gzippedLog)) + extra
+
+/** The single address bug reports are sent to (Android intents, iOS composer, desktop mailto and instructions). */
+const val BUG_REPORT_EMAIL = "errors.andbible@gmail.com"

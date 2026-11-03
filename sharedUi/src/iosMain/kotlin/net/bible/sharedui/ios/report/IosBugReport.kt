@@ -65,7 +65,7 @@ internal class IosBugReport(
         return reportDetails(device(), savedTime.takeIf { it > 0 } ?: fileTime, stack, cause)
     }
 
-    companion object { const val RECIPIENT = "errors.andbible@gmail.com" }
+    companion object { const val RECIPIENT = net.bible.sharedui.host.report.BUG_REPORT_EMAIL }
 }
 
 internal fun device(): ReportDevice {

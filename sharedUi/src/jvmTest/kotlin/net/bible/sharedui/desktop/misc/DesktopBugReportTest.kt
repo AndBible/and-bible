@@ -8,6 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import net.bible.sharedcore.platform.files.DeliveryResult
+import net.bible.sharedui.host.report.BUG_REPORT_EMAIL
 
 class DesktopBugReportTest {
     @Test
@@ -15,7 +16,7 @@ class DesktopBugReportTest {
         val root = Files.createTempDirectory("report")
         var saved = ""
         val report = DesktopBugReport(root, "1.2", { "z".repeat(2_000_000) },
-            { path, _, _ -> saved = GZIPInputStream(Files.newInputStream(path)).bufferedReader().readText(); DeliveryResult.DELIVERED }, {})
+            { path, _, _ -> saved = GZIPInputStream(Files.newInputStream(path)).bufferedReader().readText(); DeliveryResult.DELIVERED }, { true })
         report.report(null)
         assertTrue(saved.length <= 1024 * 1024)
         assertTrue(saved.isNotEmpty())
@@ -26,10 +27,67 @@ class DesktopBugReportTest {
         val root = Files.createTempDirectory("report-mail")
         var url = ""
         val report = DesktopBugReport(root, "1.2", { "log" },
-            { _, _, _ -> DeliveryResult.DELIVERED }, { url = it })
+            { _, _, _ -> DeliveryResult.DELIVERED }, { url = it; true })
         report.report(null)
         assertTrue(url.startsWith("mailto:errors.andbible@gmail.com?"))
         assertTrue("Bug+Report+v1.2" in url || "Bug%20Report%20v1.2" in url)
+    }
+
+    private fun instructionsReport(
+        result: DeliveryResult = DeliveryResult.DELIVERED,
+        open: suspend (String) -> Boolean,
+        shown: MutableList<BugReportInstructions>,
+    ) = DesktopBugReport(Files.createTempDirectory("report-instr"), "1.2", { "log" },
+        { _, _, _ -> result }, open, savedPath = { "/home/u/andbible-report.gz" }, instructions = { shown += it })
+
+    @Test
+    fun instructionsShownWithPathAddressAndSubjectWhenMailClientDidNotOpen() = runBlocking {
+        val shown = mutableListOf<BugReportInstructions>()
+        instructionsReport(open = { false }, shown = shown).report(null)
+        val only = shown.single()
+        assertEquals(BUG_REPORT_EMAIL, only.address)
+        assertEquals("Bug Report v1.2", only.subject)
+        assertEquals("/home/u/andbible-report.gz", only.savedPath)
+    }
+
+    @Test
+    fun instructionsShownWhenOpeningMailThrows() = runBlocking {
+        val shown = mutableListOf<BugReportInstructions>()
+        instructionsReport(open = { error("no xdg-open") }, shown = shown).report(null)
+        assertEquals(1, shown.size)
+    }
+
+    @Test
+    fun noInstructionsWhenMailClientOpened() = runBlocking {
+        val shown = mutableListOf<BugReportInstructions>()
+        instructionsReport(open = { true }, shown = shown).report(null)
+        assertTrue(shown.isEmpty())
+    }
+
+    @Test
+    fun noInstructionsWhenSaveCancelled() = runBlocking {
+        val shown = mutableListOf<BugReportInstructions>()
+        instructionsReport(DeliveryResult.CANCELLED, open = { false }, shown = shown).report(null)
+        assertTrue(shown.isEmpty())
+    }
+
+    @Test
+    fun mailtoUsesTheSharedAddressConstant() = runBlocking {
+        var url = ""
+        instructionsReport(open = { url = it; true }, shown = mutableListOf()).report(null)
+        assertTrue(url.startsWith("mailto:$BUG_REPORT_EMAIL?"))
+    }
+
+    @Test
+    fun manualInstructionsTextNamesPathAddressAndSubjectAndEscapesHtml() {
+        val table = net.bible.sharedui.assembly.hostStringTable("en")
+        val saved = table.manualSendText(BugReportInstructions(BUG_REPORT_EMAIL, "Bug Report v1.2", "/home/a&b/<r>.gz"))
+        assertTrue("/home/a&amp;b/&lt;r&gt;.gz" in saved, saved)
+        assertTrue(BUG_REPORT_EMAIL in saved && "Bug Report v1.2" in saved, saved)
+        assertFalse("bug_report_manual" in saved, saved)
+        val unsaved = table.manualSendText(BugReportInstructions(BUG_REPORT_EMAIL, "Bug Report v1.2", null))
+        assertTrue(BUG_REPORT_EMAIL in unsaved && "Bug Report v1.2" in unsaved, unsaved)
+        assertFalse("bug_report_manual" in unsaved, unsaved)
     }
 
     @Test
@@ -42,7 +100,7 @@ class DesktopBugReportTest {
         DesktopBugReport(root, "1.2", { "" }, { path, _, _ ->
             size = GZIPInputStream(Files.newInputStream(path)).use { it.readBytes().size }
             DeliveryResult.DELIVERED
-        }, {}).ai("model", "summary", bytes, true)
+        }, { true }).ai("model", "summary", bytes, true)
         assertTrue(size in 1..1024 * 1024)
     }
 
@@ -64,7 +122,7 @@ class DesktopBugReportTest {
         val root = Files.createTempDirectory("report-body")
         var url = ""
         DesktopBugReport(root, "1.2", { "private log" },
-            { _, _, _ -> DeliveryResult.DELIVERED }, { url = it },
+            { _, _, _ -> DeliveryResult.DELIVERED }, { url = it; true },
             introduction = { "Report introduction" }).report(null)
         val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
         assertTrue("body=" in decoded)
@@ -84,7 +142,7 @@ class DesktopBugReportTest {
         DesktopBugReport(root, "1.2", { "log" }, { path, _, _ ->
             saved = GZIPInputStream(Files.newInputStream(path)).bufferedReader().readText()
             DeliveryResult.DELIVERED
-        }, { url = it }, introduction = { "Introduction" }).report(IllegalStateException(current))
+        }, { url = it; true }, introduction = { "Introduction" }).report(IllegalStateException(current))
         assertTrue(url.toByteArray().size <= 8192)
         val decoded = java.net.URLDecoder.decode(url, Charsets.UTF_8)
         assertTrue("Introduction" in decoded && "net.bible.desktop" in decoded)
@@ -122,7 +180,7 @@ class DesktopBugReportTest {
         val root = Files.createTempDirectory("report-cancel")
         var opened = false
         DesktopBugReport(root, "1.2", { "log" },
-            { _, _, _ -> DeliveryResult.CANCELLED }, { opened = true }).report(null)
+            { _, _, _ -> DeliveryResult.CANCELLED }, { opened = true; true }).report(null)
         assertFalse(opened)
     }
 
