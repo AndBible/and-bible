@@ -319,6 +319,22 @@ internal class WebKitGtkPane(
         }
     }
 
+    /**
+     * `window.open` reaches the view through `create`, not `decide-policy`. No popup view is ever made: the request URI is
+     * reported once to the link listener (EDT) and NULL is returned.
+     */
+    private val createCallback = object : CreateCallback {
+        override fun invoke(view: Pointer?, action: Pointer?, userData: Pointer?): Pointer? {
+            val uri = action
+                ?.let { Gtk.webkit.webkit_navigation_action_get_request(it) }
+                ?.let { Gtk.webkit.webkit_uri_request_get_uri(it) }
+            (decideNavigation(POLICY_NEW_WINDOW_ACTION, uri) as? NavigationVerdict.BlockAndReport)?.let { verdict ->
+                SwingUtilities.invokeLater { if (!disposed) linkListener?.invoke(verdict.uri) }
+            }
+            return null
+        }
+    }
+
     /** BibleView owns the selection menu: WebKit's own context menu is suppressed (returning TRUE cancels it). */
     private val contextMenuCallback = object : ContextMenuCallback {
         override fun invoke(view: Pointer?, menu: Pointer?, hitTest: Pointer?, userData: Pointer?): Int = 1
@@ -410,7 +426,7 @@ internal class WebKitGtkPane(
      * any AWT/Compose component outside the pane hands it back to the AWT top-level window (AWT would not re-request
      * focus it believes it still has). Live-verify on Xvfb + openbox: whether the Compose chrome receives keys again.
      */
-    private val awtPressListener = java.awt.event.AWTEventListener { event ->
+    private val awtPressListener: java.awt.event.AWTEventListener = java.awt.event.AWTEventListener { event ->
         if (event.id != java.awt.event.MouseEvent.MOUSE_PRESSED || !gtkHasFocus) return@AWTEventListener
         val source = event.source as? Component ?: return@AWTEventListener
         if (source === canvas || SwingUtilities.isDescendingFrom(source, component)) return@AWTEventListener
@@ -426,10 +442,10 @@ internal class WebKitGtkPane(
         }
     }
 
-    private fun installAwtPressListener() =
+    private fun installAwtPressListener(): Unit =
         java.awt.Toolkit.getDefaultToolkit().addAWTEventListener(awtPressListener, java.awt.AWTEvent.MOUSE_EVENT_MASK)
 
-    private fun uninstallAwtPressListener() = java.awt.Toolkit.getDefaultToolkit().removeAWTEventListener(awtPressListener)
+    private fun uninstallAwtPressListener(): Unit = java.awt.Toolkit.getDefaultToolkit().removeAWTEventListener(awtPressListener)
 
     /** The AWT host; created once, re-parented by every [Content]. Exposed for tests. */
     internal val component: Component by lazy { JPanel(BorderLayout()).apply { add(canvas, BorderLayout.CENTER) } }
@@ -445,10 +461,13 @@ internal class WebKitGtkPane(
         val wk = Gtk.webkit
         val gtkLib = Gtk.gtk
         val v = Gtk.newWebView(checkNotNull(BundleScheme.context) { "BundleScheme.install must run first" }, FRAME_LOCKDOWN_CSP)
+        // Let window.open reach decide-policy (otherwise WebKit drops it silently); it is always cancelled and reported.
+        wk.webkit_settings_set_javascript_can_open_windows_automatically(wk.webkit_web_view_get_settings(v), 1)
         view = v
         val rgb = if (WebKitGtkEngine.isNight(url)) 0f else 1f
         wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1f))
         Gtk.gobject.g_signal_connect_data(v, "decide-policy", decidePolicyCallback, null, null, 0)
+        Gtk.gobject.g_signal_connect_data(v, "create", createCallback, null, null, 0)
         Gtk.gobject.g_signal_connect_data(v, "context-menu", contextMenuCallback, null, null, 0)
         Gtk.gobject.g_signal_connect_data(v, "web-process-terminated", processTerminatedCallback, null, null, 0)
 

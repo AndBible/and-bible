@@ -38,6 +38,11 @@ interface DecidePolicyCallback : Callback {
     fun invoke(view: Pointer?, decision: Pointer?, type: Int, userData: Pointer?): Int
 }
 
+/** `WebKitWebView* (*)(WebKitWebView*, WebKitNavigationAction*, gpointer)` (create; NULL = no new view). */
+interface CreateCallback : Callback {
+    fun invoke(view: Pointer?, action: Pointer?, userData: Pointer?): Pointer?
+}
+
 /** `gboolean (*)(WebKitWebView*, WebKitContextMenu*, WebKitHitTestResult*, gpointer)` (context-menu). */
 interface ContextMenuCallback : Callback {
     fun invoke(view: Pointer?, menu: Pointer?, hitTest: Pointer?, userData: Pointer?): Int
@@ -120,6 +125,8 @@ interface WebKit : Library {
     fun webkit_web_view_get_user_content_manager(view: Pointer): Pointer
     fun webkit_web_view_get_context(view: Pointer): Pointer
     fun webkit_web_view_set_background_color(view: Pointer, color: GdkRGBA)
+    fun webkit_web_view_get_settings(view: Pointer): Pointer
+    fun webkit_settings_set_javascript_can_open_windows_automatically(settings: Pointer, enabled: Int)
     fun webkit_web_view_evaluate_javascript(
         view: Pointer, script: String, length: Long, worldName: String?, sourceUri: String?,
         cancellable: Pointer?, callback: AsyncReadyCallback, userData: Pointer?,
