@@ -50,9 +50,13 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.app.ports.ClipboardText
+import net.bible.sharedui.desktop.files.DesktopExternalLinks
+import net.bible.sharedcore.platform.desktop.files.DesktopFileDelivery
 import net.bible.sharedui.assembly.HostStringTableHolder
 import net.bible.sharedui.desktop.misc.DesktopBugReport as ConcreteBugReport
 import net.bible.sharedui.desktop.misc.DesktopBugReportPlatform
+import net.bible.sharedui.desktop.misc.manualSendText
 import net.bible.sharedui.desktop.misc.DesktopCrashTracker
 import net.bible.sharedui.desktop.update.DesktopUpdatePrompts
 import net.bible.sharedui.desktop.update.checksForUpdates
@@ -156,7 +160,9 @@ fun desktopMiscModule(): Module = module {
         val table = get<HostStringTableHolder>()
         val dialogs = get<AppDialogController>()
         val delivery = get<FileDelivery>()
-        val links = get<ExternalLinks>()
+        val links = get<DesktopExternalLinks>()
+        val fileDelivery = get<DesktopFileDelivery>()
+        val clipboard = get<ClipboardText>()
         val dirs = get<AppDirectories>()
         ConcreteBugReport(
             directory = Path.of(get<DesktopAppEnvironment>().cacheDir).resolve("reports"),
@@ -164,7 +170,16 @@ fun desktopMiscModule(): Module = module {
             log = ::recentLogSnapshot,
             deliver = { path, name, subject -> delivery.deliver(path.toString(), name, SaveOrShare.SAVE,
                 "application/gzip", "application/gzip", subject, null, table.current.text("bug_report_email_title")) },
-            open = links::open,
+            open = links::openAndWait,
+            savedPath = { fileDelivery.lastSavedPath },
+            instructions = { info ->
+                val strings = table.current
+                val body = strings.manualSendText(info)
+                while (dialogs.await(AppDialogRequest.Message(strings.text("bug_report_manual_title"), body,
+                        strings.text("okay"), neutralText = strings.text("bug_report_copy_address"))) == AppDialogResult.Neutral) {
+                    clipboard.write("", info.address)
+                }
+            },
             confirm = { ai ->
                 val strings = table.current
                 dialogs.await(AppDialogRequest.Confirm(

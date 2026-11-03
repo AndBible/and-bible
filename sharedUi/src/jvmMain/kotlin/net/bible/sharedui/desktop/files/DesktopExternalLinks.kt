@@ -30,13 +30,26 @@ class DesktopExternalLinks(
 
     override val askBeforeOpening: Boolean get() = false
     override fun open(url: String) {
-        val uri = try { URI(url) } catch (_: Exception) { return }
-        if (uri.scheme?.lowercase() !in setOf("http", "https", "mailto")) return
-        scope.launch {
-            if (!freedesktop) { desktop(uri); return@launch }
-            val result = try { portal(uri) } catch (e: kotlinx.coroutines.CancellationException) { throw e }
-                catch (_: Exception) { PortalOpenResult.UNAVAILABLE } catch (_: LinkageError) { PortalOpenResult.UNAVAILABLE }
-            if (result == PortalOpenResult.UNAVAILABLE && !desktop(uri)) xdg(uri)
+        val uri = parse(url) ?: return
+        scope.launch { launch(uri) }
+    }
+
+    /** Like [open] but answers whether a launcher accepted the URL (portal, `Desktop` or `xdg-open` started). */
+    suspend fun openAndWait(url: String): Boolean = parse(url)?.let { launch(it) } ?: false
+
+    private fun parse(url: String): URI? {
+        val uri = try { URI(url) } catch (_: Exception) { return null }
+        return uri.takeIf { it.scheme?.lowercase() in setOf("http", "https", "mailto") }
+    }
+
+    private suspend fun launch(uri: URI): Boolean {
+        if (!freedesktop) return desktop(uri)
+        val result = try { portal(uri) } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { PortalOpenResult.UNAVAILABLE } catch (_: LinkageError) { PortalOpenResult.UNAVAILABLE }
+        return when (result) {
+            PortalOpenResult.OPENED -> true
+            PortalOpenResult.CANCELLED -> false
+            PortalOpenResult.UNAVAILABLE -> desktop(uri) || xdg(uri)
         }
     }
 }

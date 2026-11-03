@@ -18,11 +18,13 @@ class DesktopFileDeliveryTest {
             override suspend fun save(suggestedName: String, filters: List<FileFilter>): Path? = null
         }
         try {
-            val result = DesktopFileDelivery(chooser).deliver(
+            val delivery = DesktopFileDelivery(chooser)
+            val result = delivery.deliver(
                 source.toString(), "backup.abk", SaveOrShare.SAVE,
                 "application/zip", "application/zip", null, null, "Save"
             )
             assertEquals(DeliveryResult.CANCELLED, result)
+            assertEquals(null, delivery.lastSavedPath)
         } finally {
             Files.deleteIfExists(source)
         }
@@ -40,11 +42,13 @@ class DesktopFileDeliveryTest {
             override suspend fun save(suggestedName: String, filters: List<FileFilter>) = target
         }
         try {
-            val result = DesktopFileDelivery(chooser).deliver(
+            val delivery = DesktopFileDelivery(chooser)
+            val result = delivery.deliver(
                 source.toString(), "backup.abk", SaveOrShare.SAVE,
                 "application/zip", "application/zip", null, null, "Save"
             )
             assertEquals(DeliveryResult.DELIVERED, result)
+            assertEquals(target.toString(), delivery.lastSavedPath)
             assertEquals("new backup", Files.readString(target))
             assertFalse(Files.exists(directory.resolve("target.abk.part")))
         } finally {

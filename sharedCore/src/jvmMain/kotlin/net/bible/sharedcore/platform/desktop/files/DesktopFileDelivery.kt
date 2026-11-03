@@ -18,14 +18,20 @@ class DesktopFileDelivery(
     private val openInput: (Path) -> java.io.InputStream = { Files.newInputStream(it) },
     private val isPortalPath: (Path) -> Boolean = { Regex("^/run/user/[^/]+/doc/").containsMatchIn(it.toString()) },
 ) : FileDelivery {
+    /** The file the last successful [deliver] wrote, for dialogs that tell the user where the save went. */
+    @Volatile var lastSavedPath: String? = null
+        private set
+
     override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String,
         saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult {
+        lastSavedPath = null
         try {
             val source = Path.of(file)
             if (!Files.isRegularFile(source)) return DeliveryResult.FAILED
             val target = chooser.save(fileName, fileFiltersFor(listOf(if (mode == SaveOrShare.SAVE) saveMimeType else shareMimeType)))
                 ?: return DeliveryResult.CANCELLED
             withContext(Dispatchers.IO) { write(source, target) }
+            lastSavedPath = target.toString()
             return DeliveryResult.DELIVERED
         } catch (e: CancellationException) { throw e } catch (_: Exception) { return DeliveryResult.FAILED }
     }

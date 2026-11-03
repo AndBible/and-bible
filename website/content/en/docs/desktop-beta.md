@@ -56,3 +56,8 @@ If you use one of these and something looks wrong, please [report it](#reporting
 In the app open the navigation menu, then *Help & tips*, then *Feedback / bug report*. The same
 item is also in the toolbar of the *Application preferences* screen. Please tell us your operating
 system and version, whether you use Wayland or X11 on Linux, and what you were doing when the problem happened.
+
+The app first asks you where to save the report file, then tries to open your email program with a
+prepared message. If no email program can be opened (common on Linux), a dialog shows where the file
+was saved, the address to send it to (`errors.andbible@gmail.com`, with a *Copy address* button) and the
+subject to use. Send the saved file to that address as an email attachment.

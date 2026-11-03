@@ -25,7 +25,8 @@ import org.koin.dsl.onClose
 fun desktopDocumentModule(): Module = module {
     single<FileChooserBackend> { desktopFileChooser(DesktopDbus()) }
     single<FilePicker> { DesktopFilePicker(get()) }
-    single<FileDelivery> { DesktopFileDelivery(get()) }
+    single { DesktopFileDelivery(get()) }
+    single<FileDelivery> { get<DesktopFileDelivery>() }
     single<DocumentPicker> { DesktopDocumentPicker(get()) }
     single<ImagePicker> { DesktopImagePicker(get()) }
     single<ContentSource> { DesktopContentSource() }
@@ -35,7 +36,8 @@ fun desktopDocumentModule(): Module = module {
         DesktopIncomingFilesImpl(get<AppDirectories>().internalFilesDir.toNioPath(), get<DesktopLaunchArgs>().args, get(), get<DesktopExitTasks>())
     } onClose { (it as? DesktopIncomingFilesImpl)?.close() }
     single<DesktopFileShare> { DesktopFileShareImpl(get()) }
-    single<ExternalLinks> { DesktopExternalLinks() }
+    single { DesktopExternalLinks() }
+    single<ExternalLinks> { get<DesktopExternalLinks>() }
     single<MyDocumentFiles> { DesktopMyDocumentFiles() }
     single<PromptFiles> { DesktopPromptFiles() }
 }

@@ -871,6 +871,10 @@
     <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
+    <string name="bug_report_manual_title">Send the report by email</string>
+    <string name="bug_report_manual_text_saved">The report was saved to <b>%1$s</b>, but no email program could be opened on this device.\n\nPlease send an email to <b>%2$s</b>, attach the saved file and use the subject <b>%3$s</b>.</string>
+    <string name="bug_report_manual_text_unsaved">No email program could be opened on this device.\n\nPlease send the report by email to <b>%1$s</b>, attaching the saved report file and using the subject <b>%2$s</b>.</string>
+    <string name="bug_report_copy_address">Copy address</string>
 
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
