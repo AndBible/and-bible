@@ -217,6 +217,46 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun consecutiveLinkClicksFromOneWindowReuseTheLinksWindow() = kotlinx.coroutines.runBlocking {
+        // Host regression 2026-11-03: every link click opened a NEW links window. The host web views swallow the touch
+        // that makes a window active on Android, so the links window (active after the first link) was the source of the
+        // next link and created its own target. Clicks must be routed from the window that carries the link.
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val koin = KoinPlatform.getKoin()
+        val control = koin.get<net.bible.android.control.page.window.WindowControl>()
+        val commands = koin.get<net.bible.sharedcore.window.WindowCommands>()
+        val book = Books.installed().getBook("K4RawText")!!
+        val repo = control.windowRepository
+        kotlinx.coroutines.withContext(mainThread) {
+            repo.initialize()
+            val source = repo.activeWindow
+            val key = book.getKey("Gen 1:1")
+            // What the link handler does for a verse link: LinkControl -> WindowControl.showLink.
+            val handler = { _: String -> control.showLink(book, key); true }
+            fun linksWindows() = repo.windowList.filter { it.isLinksWindow }
+
+            net.bible.sharedui.host.reading.openLinkInWindow(commands, source.id.toString(), handler, "osis://?osis=Gen.1.1")
+            net.bible.sharedui.host.reading.openLinkInWindow(commands, source.id.toString(), handler, "osis://?osis=Gen.1.2")
+            assertEquals(1, linksWindows().size, "two links from the same window share one links window")
+            val links = linksWindows().single()
+
+            // A link inside the links window follows Android: that window is the source (its own target, created once).
+            net.bible.sharedui.host.reading.openLinkInWindow(commands, links.id.toString(), handler, "osis://?osis=Gen.1.3")
+            net.bible.sharedui.host.reading.openLinkInWindow(commands, links.id.toString(), handler, "osis://?osis=Gen.1.4")
+            assertEquals(2, linksWindows().size, "the links window's own links go to one target, reused")
+
+            // And the first window still targets the first links window.
+            net.bible.sharedui.host.reading.openLinkInWindow(commands, source.id.toString(), handler, "osis://?osis=Gen.1.5")
+            assertEquals(2, linksWindows().size)
+        }
+    }
+
     @Test fun startsWithStartupFixtureModule() {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
