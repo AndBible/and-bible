@@ -6,6 +6,8 @@ import com.sun.jna.Native
 import com.sun.jna.NativeLibrary
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
+import com.sun.jna.ptr.IntByReference
+import com.sun.jna.ptr.LongByReference
 import com.sun.jna.ptr.PointerByReference
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -178,6 +180,9 @@ interface X11 : Library {
     fun XSync(display: Pointer, discard: Int): Int
     fun XDefaultRootWindow(display: Pointer): Long
     fun XSetInputFocus(display: Pointer, window: Long, revertTo: Int, time: Long): Int
+    fun XQueryTree(display: Pointer, window: Long, root: LongByReference, parent: LongByReference, children: PointerByReference, count: IntByReference): Int
+    fun XFetchName(display: Pointer, window: Long, name: PointerByReference): Int
+    fun XFree(data: Pointer?): Int
     fun XChangeWindowAttributes(display: Pointer, window: Long, valueMask: Long, attributes: Pointer): Int
 }
 
@@ -216,6 +221,27 @@ internal object Gtk {
     val webkit: WebKit by lazy { load(WebKit::class.java, "libwebkitgtk-6.0.so.4", "webkitgtk-6.0") }
     val jsc: Jsc by lazy { load(Jsc::class.java, "libjavascriptcoregtk-6.0.so.1", "javascriptcoregtk-6.0") }
     val x11: X11 by lazy { load(X11::class.java, "libX11.so.6", "X11") }
+
+    /** The direct child of [parent] whose X name is [name] (WM_NAME), or null. */
+    fun findChildByName(display: Pointer, parent: Long, name: String): Long? {
+        val children = PointerByReference()
+        val count = IntByReference()
+        if (x11.XQueryTree(display, parent, LongByReference(), LongByReference(), children, count) == 0) return null
+        val list = children.value ?: return null
+        try {
+            for (i in 0 until count.value) {
+                val child = list.getLong(i * 8L)
+                val nameRef = PointerByReference()
+                if (x11.XFetchName(display, child, nameRef) == 0) continue
+                val found = nameRef.value?.getString(0)
+                x11.XFree(nameRef.value)
+                if (found == name) return child
+            }
+        } finally {
+            x11.XFree(list)
+        }
+        return null
+    }
 
     /**
      * Marks [window] override-redirect, so no window manager ever manages (frames, moves, reparents) it. A GTK toplevel

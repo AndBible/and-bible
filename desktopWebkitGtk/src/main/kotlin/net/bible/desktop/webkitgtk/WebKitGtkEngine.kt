@@ -427,7 +427,9 @@ internal class WebKitGtkPane(
      * focus it believes it still has). Live-verify on Xvfb + openbox: whether the Compose chrome receives keys again.
      */
     private val awtPressListener: java.awt.event.AWTEventListener = java.awt.event.AWTEventListener { event ->
-        if (event.id != java.awt.event.MouseEvent.MOUSE_PRESSED || !gtkHasFocus) return@AWTEventListener
+        if (event.id != java.awt.event.MouseEvent.MOUSE_PRESSED) return@AWTEventListener
+        if (System.getProperty("andbible.d5.focusLog") == "true") log("awt press on ${event.source.javaClass.name}, gtkHasFocus=$gtkHasFocus")
+        if (!gtkHasFocus) return@AWTEventListener
         val source = event.source as? Component ?: return@AWTEventListener
         if (source === canvas || SwingUtilities.isDescendingFrom(source, component)) return@AWTEventListener
         val top = SwingUtilities.getWindowAncestor(canvas) ?: return@AWTEventListener
@@ -435,10 +437,15 @@ internal class WebKitGtkPane(
         gtkHasFocus = false
         val topXid = runCatching { Native.getComponentID(top) }.getOrDefault(0L)
         if (topXid == 0L) return@AWTEventListener
+        // On the press, not later: the AWT window must be active again before the Compose control under the press (e.g. a
+        // search field) requests its focus when the button is released.
         gtk.post {
             val dpy = display ?: return@post
-            Gtk.x11.XSetInputFocus(dpy, topXid, X_REVERT_TO_PARENT, 0L)
+            // AWT takes keys through its child "Focus-Proxy-Window"; focusing the frame itself leaves Compose deaf.
+            val target = Gtk.findChildByName(dpy, topXid, "FocusProxy") ?: topXid
+            val rc = Gtk.x11.XSetInputFocus(dpy, target, X_REVERT_TO_PARENT, 0L)
             Gtk.x11.XSync(dpy, 0)
+            if (System.getProperty("andbible.d5.focusLog") == "true") log("hand-back: XSetInputFocus(${java.lang.Long.toHexString(target)}, top ${java.lang.Long.toHexString(topXid)}) = $rc")
         }
     }
 
