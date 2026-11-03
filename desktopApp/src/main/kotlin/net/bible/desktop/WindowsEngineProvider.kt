@@ -12,6 +12,8 @@ import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 import java.nio.file.Path
 
+internal fun windowsWindowedRendering(kcefWindowed: Boolean): Boolean = kcefWindowed
+
 internal enum class WindowsEngineChoice { WEBVIEW2, KCEF }
 
 internal fun selectWindowsEngine(property: String, renderer: String?, runtimeAvailable: Boolean): WindowsEngineChoice {

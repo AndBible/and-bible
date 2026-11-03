@@ -1,6 +1,10 @@
 package net.bible.desktop
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.withTimeout
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import java.util.concurrent.CountDownLatch
@@ -71,6 +75,43 @@ class WindowsEngineProviderTest {
         assertEquals(1, webview.shutdowns)
         assertEquals(0, cefAttempts)
         assertFailsWith<IllegalStateException> { deferred.bundleUrl("en", false) }
+    }
+
+    @Test
+    fun `cancelling startup prevents late publication and fallback`() = runBlocking {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val webview = FakeEngine("webview2")
+        var cefAttempts = 0
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = {
+                entered.countDown()
+                check(release.await(5, TimeUnit.SECONDS))
+                Result.success(webview)
+            },
+            startKcef = { cefAttempts++; FakeEngine("cef") },
+            stopWebView2 = { (it as FakeEngine).shutdowns++ },
+            stopKcef = { (it as FakeEngine).shutdowns++ },
+        )
+        val job = launch(Dispatchers.Default) { deferred.initialize("DIRECT3D") }
+        try {
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            withTimeout(1000) { job.cancelAndJoin() }
+        } finally {
+            release.countDown()
+        }
+        withTimeout(5000) { while (webview.shutdowns == 0) kotlinx.coroutines.delay(10) }
+        assertEquals(1, webview.shutdowns)
+        assertEquals(0, cefAttempts)
+        assertFailsWith<IllegalStateException> { deferred.bundleUrl("en", false) }
+        Unit
+    }
+
+    @Test
+    fun `windows honors configured windowed cef for fallback overlays`() {
+        assertEquals(true, windowsWindowedRendering(true))
+        assertEquals(false, windowsWindowedRendering(false))
     }
 
     @Test
