@@ -98,15 +98,34 @@ fun runDesktopApp(args: Array<String>, provider: DesktopEngineProvider) {
 }
 
 @Composable
-internal fun DesktopEngineReadyGate(awaitReady: suspend () -> Unit, content: @Composable () -> Unit) {
+internal fun DesktopEngineReadyGate(
+    awaitReady: suspend () -> Unit,
+    onFailure: (Throwable) -> Unit = { throw it },
+    onCancelled: () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     var ready by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        withFrameNanos { }
-        awaitReady()
-        ready = true
+        try {
+            withFrameNanos { }
+            awaitReady()
+            ready = true
+        } catch (e: CancellationException) {
+            onCancelled()
+            throw e
+        } catch (e: Throwable) {
+            onFailure(e)
+        }
     }
     if (ready) content()
 }
+
+internal fun createDesktopEngine(
+    provider: DesktopEngineProvider,
+    bundleDir: java.nio.file.Path,
+    paths: DesktopPaths,
+    log: (String) -> Unit,
+) = provider.create(bundleDir, paths, log)
 
 /**
  * The real app, in this order: instance lock (a second instance prints one line and exits 0 before anything else);
@@ -138,6 +157,14 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     val lifecycle = DesktopHostLifecycle()
     val exitRequested = mutableStateOf(false)
     var shutdownEngine: () -> Unit = {}
+    var engineShutdown = false
+    val shutdownEngineOnce = {
+        if (!engineShutdown) {
+            engineShutdown = true
+            shutdownEngine()
+        }
+    }
+    var exitStatus = 0
     val state: DesktopStartupState
     if (lockFailure != null) {
         val failure = DesktopStartupException(paths.data, lockFailure)
@@ -155,7 +182,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         val index = BibleViewBundle.extractTo(bundleRoot)
         // stdout: the readiness line `[desktop] reading ready <windowId>` is what the smoke checks wait for.
         val log: (String) -> Unit = { line -> println(line) }
-        val engine = provider.create(index.parent, paths, log)
+        val engine = createDesktopEngine(provider, index.parent, paths, log)
         val panes = DesktopReadingPaneEngine(engine, log, lang = { language }, onRendererGone = desktopRendererRecovery())
         val platform by lazy { DesktopAppHostPlatform(lifecycle, panes, windowHandle) }
         val webViews = DesktopBibleWebViews(engine, log)
@@ -201,7 +228,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             }
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
-        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngine, watchdog) }
+        if (closing) LaunchedEffect(Unit) { shutDown(state, shutdownEngineOnce, watchdog) }
         val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
         val workArea = remember { AwtWindowHandle.screenWorkArea() }
         val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
@@ -239,23 +266,20 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             // Closing is two-phase: the content (and with it the CEF panes' SwingPanels) leaves the composition first;
             // disposing the window while they are still in it removes the CEF canvases from an already-disposed
             // SkiaLayer ("SkiaLayer is disposed" crash, process left hanging).
-            if (!closing) DesktopEngineReadyGate(awaitReady = {
-                if (lockFailure == null) {
-                    try {
-                        provider.awaitWindowReady(awtWindow)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Throwable) {
-                        Log.e(TAG, "desktop engine window readiness failed", e)
-                        provider.exitProcess(1)
-                    }
-                }
-            }) {
+            if (!closing) DesktopEngineReadyGate(
+                awaitReady = { if (lockFailure == null) provider.awaitWindowReady(awtWindow) },
+                onFailure = { e ->
+                    Log.e(TAG, "desktop engine window readiness failed", e)
+                    exitStatus = 1
+                    requestClose()
+                },
+                onCancelled = shutdownEngineOnce,
+            ) {
                 DesktopAppRoot(state)
             }
         }
     }
-    exitAfterWindows(watchdog, provider)
+    exitAfterWindows(watchdog, provider, exitStatus)
 }
 
 /**
@@ -288,12 +312,12 @@ private suspend fun ApplicationScope.shutDown(state: DesktopStartupState, shutdo
  * [EXIT_SETTLE_MS] so AWT-XAWT is back in its native poll and not holding the Xlib display lock when the exit safepoint
  * freezes it (libGLX's exit handler waits for that lock). The [ExitWatchdog] backs that up on Linux.
  */
-private fun exitAfterWindows(watchdog: ExitWatchdog, provider: DesktopEngineProvider): Nothing {
+private fun exitAfterWindows(watchdog: ExitWatchdog, provider: DesktopEngineProvider, status: Int): Nothing {
     runCatching { EventQueue.invokeAndWait { } }
     runCatching { Thread.sleep(EXIT_SETTLE_MS) }
     runCatching { EventQueue.invokeAndWait { } }
     watchdog.arm()
-    provider.exitProcess(0)
+    provider.exitProcess(status)
 }
 
 /** CEF cannot start without a display and then takes the JVM down silently (D1 defect 4): fail clearly instead. */

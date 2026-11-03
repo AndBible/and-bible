@@ -11,6 +11,10 @@ import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 interface DesktopEngineProvider {
     val windowedRendering: Boolean
     fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine
+    /**
+     * Called after the first Compose frame and before any pane is created. Implementations must suspend without
+     * blocking the UI thread and cooperate with cancellation; shutdown follows if readiness is cancelled.
+     */
     suspend fun awaitWindowReady(window: ComposeWindow) {}
     fun shutdown()
     fun exitProcess(status: Int): Nothing
