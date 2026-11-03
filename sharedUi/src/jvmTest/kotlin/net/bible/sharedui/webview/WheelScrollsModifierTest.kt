@@ -103,6 +103,23 @@ class WheelScrollsModifierTest {
     }
 
     @Test
+    fun withAPlatformObserverARestingZeroDeltaDoesNotEndTheGesture() = runComposeUiTest {
+        // CMP's zero-delta event is ambiguous (began, ended, or fingers resting); with the observer's signals present
+        // only its Ended closes the gesture, so a pause mid-swipe neither glides early nor loses the release velocity.
+        WheelGestureSignals.emit(WheelGestureSignal.Began(WheelGestureKind.CONTINUOUS))
+        val target = Recorder()
+        val times = mutableListOf<Long>()
+        pane(target, times)
+        mainClock.autoAdvance = false
+        WheelGestureSignals.emit(WheelGestureSignal.Began(WheelGestureKind.CONTINUOUS))
+        mainClock.advanceTimeBy(20)
+        swipe(thenZero = true)
+        mainClock.advanceTimeBy(300)
+        assertEquals(8, target.calls.size, "glided before the platform end: ${target.calls}")
+        assertTrue(target.diagnostics.isEmpty(), "ended early: ${target.diagnostics}")
+    }
+
+    @Test
     fun aMouseWheelDoesNotGlide() = runComposeUiTest {
         val target = Recorder()
         pane(target)

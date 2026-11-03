@@ -29,8 +29,8 @@ fun interface WheelScrollTarget {
  * back to points with [PointerWheelScroll.deltaPoints], and consumes them. Fast mouse-wheel spins accelerate, and a
  * trackpad flick glides on after the fingers lift, decelerating like a `UIScrollView` ([WheelMomentum], [WheelFling]):
  * the glide frames go through [target] too, so the receiver logic (inner scrollable boxes first) stays the same. The
- * gesture end comes from [WheelGestureSignals] (the platform's observer) or, without one, from CMP's zero-delta
- * `Scroll` event that closes a pan. A new gesture, new movement, a press or a finger on the native view
+ * gesture end comes from [WheelGestureSignals] (the platform's observer) or, while no observer has reported, from
+ * CMP's zero-delta `Scroll` event that closes a pan. A new gesture, new movement, a press or a finger on the native view
  * ([WheelScrollTarget.isTouchActive]) stops a glide.
  *
  * Why this exists: on iOS (Mac "Designed for iPad", iPad with a pointer) Compose Multiplatform's input overlay
@@ -106,8 +106,9 @@ fun Modifier.wheelScrolls(target: WheelScrollTarget): Modifier = pointerInput(ta
                 val dy = PointerWheelScroll.deltaPoints(change.scrollDelta.y, density)
                 val kind = WheelGestureSignals.currentKind
                 if (dx == 0.0 && dy == 0.0) {
-                    // CMP sends the pan's began and ended as zero-delta events; after movement it is the end.
-                    end(change.uptimeMillis, kind, null)
+                    // CMP sends the pan's began and ended as zero-delta events, but resting fingers can produce one
+                    // too. Only without a platform observer (kind still unknown) is it taken as the end.
+                    if (kind == WheelGestureKind.UNKNOWN) end(change.uptimeMillis, kind, null)
                     continue
                 }
                 stopGlide()

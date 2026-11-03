@@ -85,10 +85,17 @@ internal object IosWheelGestureObserver {
         @ObjCAction
         fun discretePanned(sender: UIPanGestureRecognizer) = panned(sender, WheelGestureKind.DISCRETE)
 
+        /** Kinds with a reported Began and no end yet: a recogniser failing before it began reports nothing. */
+        private val began = mutableSetOf<WheelGestureKind>()
+
         private fun panned(sender: UIPanGestureRecognizer, kind: WheelGestureKind) {
             when (sender.state) {
-                UIGestureRecognizerStateBegan -> WheelGestureSignals.emit(WheelGestureSignal.Began(kind))
+                UIGestureRecognizerStateBegan -> {
+                    began += kind
+                    WheelGestureSignals.emit(WheelGestureSignal.Began(kind))
+                }
                 UIGestureRecognizerStateEnded -> {
+                    if (!began.remove(kind)) return
                     // Same clock as UIEvent.timestamp, which CMP passes on as the pointer events' uptimeMillis.
                     val now = (NSProcessInfo.processInfo.systemUptime * 1000.0).toLong()
                     // UIKit's velocity is the finger's; the content offset moves the other way.
@@ -98,7 +105,7 @@ internal object IosWheelGestureObserver {
                     }
                 }
                 UIGestureRecognizerStateCancelled, UIGestureRecognizerStateFailed ->
-                    WheelGestureSignals.emit(WheelGestureSignal.Cancelled)
+                    if (began.remove(kind)) WheelGestureSignals.emit(WheelGestureSignal.Cancelled)
                 else -> {}
             }
         }
