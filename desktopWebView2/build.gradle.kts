@@ -23,9 +23,15 @@ dependencies {
 val w2WindowsNatives by configurations.creating {
     isCanBeConsumed = false
     isCanBeResolved = true
+    isTransitive = false // only the Skiko Windows runtime jar itself, never a second version of a shared library
 }
 dependencies {
-    w2WindowsNatives(compose.desktop.windows_x64)
+    // The Skiko version the runtime classpath resolves (skiko-awt), so the natives always match it.
+    w2WindowsNatives(provider {
+        val skiko = configurations.getByName("runtimeClasspath").incoming.resolutionResult.allComponents
+            .map { it.moduleVersion }.first { it?.group == "org.jetbrains.skiko" && it.name == "skiko-awt" }!!
+        "org.jetbrains.skiko:skiko-awt-runtime-windows-x64:${skiko.version}"
+    })
 }
 
 tasks.withType<Test>().configureEach {
@@ -40,10 +46,9 @@ val w2Loader = providers.gradleProperty("w2.loader").orNull
 /** A plain directory to copy to the Windows VM: `lib/` (all jars) plus `run.cmd`. */
 val w2Dist by tasks.registering(Sync::class) {
     group = "distribution"
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(project(":desktopApp").tasks.named("jar")) { into("lib") }
     from(project(":desktopApp").configurations.named("runtimeClasspath")) { into("lib") }
-    from(w2WindowsNatives) { into("lib") } // its transitive jars repeat those already copied
+    from(w2WindowsNatives) { into("lib") }
     w2Loader?.let { from(it) { into("lib") } }
     into(layout.buildDirectory.dir("w2dist"))
 }
@@ -51,12 +56,11 @@ val w2Dist by tasks.registering(Sync::class) {
 /** The module's tests as a plain directory for the Windows VM: `lib/` plus `run-tests.cmd` (JUnit 4 runner). */
 val w2TestDist by tasks.registering(Sync::class) {
     group = "verification"
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     val testSources = sourceSets.named("test")
     from(testSources.map { it.output }) { into("classes") }
     from(tasks.named("jar")) { into("lib") }
     from(configurations.named("testRuntimeClasspath")) { into("lib") }
-    from(w2WindowsNatives) { into("lib") } // its transitive jars repeat those already copied
+    from(w2WindowsNatives) { into("lib") }
     w2Loader?.let { from(it) { into("lib") } }
     from(layout.projectDirectory.file("src/test/run-tests.cmd"))
     into(layout.buildDirectory.dir("w2testdist"))

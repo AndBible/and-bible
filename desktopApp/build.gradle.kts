@@ -344,32 +344,53 @@ val webView2LoaderSize = 163680L
 val webView2LoaderMember = "build/native/x64/WebView2Loader.dll"
 val webView2LicenseMember = "LICENSE.txt"
 
-fun sha256Hex(file: File): String {
-    val digest = MessageDigest.getInstance("SHA-256")
-    file.inputStream().use { input ->
-        val buffer = ByteArray(1 shl 16)
-        while (true) {
-            val n = input.read(buffer)
-            if (n < 0) break
-            digest.update(buffer, 0, n)
+/** The one implementation of the WebView2 pin checks, used by [PrepareWebView2Loader] and by verifyWebView2Pins. */
+object WebView2Pins {
+    fun sha256Hex(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(1 shl 16)
+            while (true) {
+                val n = input.read(buffer)
+                if (n < 0) break
+                digest.update(buffer, 0, n)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    /** Throws a [GradleException] unless [file] hashes to [expected] (SHA-256 hex). */
+    fun requireSha256(file: File, expected: String, what: String) {
+        val actual = sha256Hex(file)
+        if (actual != expected.lowercase()) throw GradleException("SHA-256 mismatch for $what ($file): expected $expected, got $actual")
+    }
+
+    /** Copies exactly the ZIP members named in [members] (entry name to destination), never anything else; a missing member throws. */
+    fun extractZipMembers(archive: File, members: Map<String, File>) {
+        ZipFile(archive).use { zip ->
+            for ((name, destination) in members) {
+                val entry = zip.getEntry(name) ?: throw GradleException("${archive.name} has no member $name")
+                destination.parentFile.mkdirs()
+                zip.getInputStream(entry).use { input -> destination.outputStream().use { input.copyTo(it) } }
+            }
         }
     }
-    return digest.digest().joinToString("") { "%02x".format(it) }
-}
 
-/** Throws a [GradleException] unless [file] hashes to [expected] (SHA-256 hex). */
-fun requireSha256(file: File, expected: String, what: String) {
-    val actual = sha256Hex(file)
-    if (actual != expected.lowercase()) throw GradleException("SHA-256 mismatch for $what ($file): expected $expected, got $actual")
-}
-
-/** Copies exactly the ZIP members named in [members] (entry name to destination), never anything else; a missing member throws. */
-fun extractZipMembers(archive: File, members: Map<String, File>) {
-    ZipFile(archive).use { zip ->
-        for ((name, destination) in members) {
-            val entry = zip.getEntry(name) ?: throw GradleException("${archive.name} has no member $name")
-            destination.parentFile.mkdirs()
-            zip.getInputStream(entry).use { input -> destination.outputStream().use { input.copyTo(it) } }
+    /**
+     * Extracts the loader DLL and licence from an already digest-verified [archive] into [out], then checks the DLL's
+     * size and SHA-256. On any failure [out] is deleted and a [GradleException] thrown.
+     */
+    fun extractLoader(archive: File, out: File, loaderMember: String, licenseMember: String, loaderSize: Long, loaderSha256: String) {
+        out.deleteRecursively()
+        out.mkdirs()
+        try {
+            val dll = File(out, "WebView2Loader.dll")
+            extractZipMembers(archive, mapOf(loaderMember to dll, licenseMember to File(out, "LICENSE.txt")))
+            if (dll.length() != loaderSize) throw GradleException("WebView2Loader.dll is ${dll.length()} bytes, expected $loaderSize")
+            requireSha256(dll, loaderSha256, "WebView2Loader.dll")
+        } catch (e: Throwable) {
+            out.deleteRecursively()
+            throw e
         }
     }
 }
@@ -389,17 +410,17 @@ abstract class PrepareWebView2Loader : DefaultTask() {
     @TaskAction
     fun prepare() {
         val archive = if (localArchive.isPresent) {
-            localArchive.get().asFile.also { requireDigest(it, archiveSha256.get(), "local WebView2 archive") }
+            localArchive.get().asFile.also { WebView2Pins.requireSha256(it, archiveSha256.get(), "local WebView2 archive") }
         } else {
             val downloads = downloadDir.get().asFile.apply { mkdirs() }
             val file = File(downloads, archiveUrl.get().substringAfterLast('/'))
-            val cachedOk = file.isFile && hex(file) == archiveSha256.get().lowercase()
+            val cachedOk = file.isFile && WebView2Pins.sha256Hex(file) == archiveSha256.get().lowercase()
             if (!cachedOk) {
                 file.delete()
                 val part = File(downloads, file.name + ".part")
                 exec.exec { commandLine("curl", "-fsSL", "--retry", "2", "-o", part.absolutePath, archiveUrl.get()) }
                 try {
-                    requireDigest(part, archiveSha256.get(), archiveUrl.get())
+                    WebView2Pins.requireSha256(part, archiveSha256.get(), archiveUrl.get())
                 } catch (e: GradleException) {
                     part.delete()
                     throw e
@@ -409,51 +430,9 @@ abstract class PrepareWebView2Loader : DefaultTask() {
             file
         }
         val out = outputDir.get().asFile
-        out.deleteRecursively()
-        out.mkdirs()
+        WebView2Pins.extractLoader(archive, out, loaderMember.get(), licenseMember.get(), loaderSize.get(), loaderSha256.get())
         val dll = File(out, "WebView2Loader.dll")
-        extractMembers(archive, mapOf(loaderMember.get() to dll, licenseMember.get() to File(out, "LICENSE.txt")))
-        if (dll.length() != loaderSize.get()) {
-            out.deleteRecursively()
-            throw GradleException("WebView2Loader.dll is ${dll.length()} bytes, expected ${loaderSize.get()}")
-        }
-        try {
-            requireDigest(dll, loaderSha256.get(), "WebView2Loader.dll")
-        } catch (e: GradleException) {
-            out.deleteRecursively()
-            throw e
-        }
         logger.lifecycle("WebView2 loader ${archiveUrl.get().substringAfterLast('/')}: ${dll.length()} bytes -> $out")
-    }
-
-    // Task classes cannot reach script-level functions (they are non-static inner classes), so these mirror
-    // sha256Hex/requireSha256/extractZipMembers, which verifyWebView2Pins covers.
-    private fun hex(file: File): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { input ->
-            val buffer = ByteArray(1 shl 16)
-            while (true) {
-                val n = input.read(buffer)
-                if (n < 0) break
-                digest.update(buffer, 0, n)
-            }
-        }
-        return digest.digest().joinToString("") { "%02x".format(it) }
-    }
-
-    private fun requireDigest(file: File, expected: String, what: String) {
-        val actual = hex(file)
-        if (actual != expected.lowercase()) throw GradleException("SHA-256 mismatch for $what ($file): expected $expected, got $actual")
-    }
-
-    private fun extractMembers(archive: File, members: Map<String, File>) {
-        ZipFile(archive).use { zip ->
-            for ((name, destination) in members) {
-                val entry = zip.getEntry(name) ?: throw GradleException("${archive.name} has no member $name")
-                destination.parentFile.mkdirs()
-                zip.getInputStream(entry).use { input -> destination.outputStream().use { input.copyTo(it) } }
-            }
-        }
     }
 }
 
@@ -489,26 +468,38 @@ if (hostTarget == "windows-x64") {
 
 tasks.register("verifyWebView2Pins") {
     group = "verification"
-    description = "Checks the WebView2 pin helpers on temporary data."
+    description = "Exercises the real WebView2Pins code (as used by prepareWebView2Loader) on a synthetic archive and test pins."
     doLast {
         val dir = Files.createTempDirectory("webview2-pins").toFile()
         try {
-            val data = File(dir, "data.bin").apply { writeText("hello") }
-            val digest = sha256Hex(data)
-            requireSha256(data, digest, "right digest")
-            check(runCatching { requireSha256(data, "0".repeat(64), "wrong digest") }.isFailure) { "a wrong digest must throw" }
-
+            val member = "build/native/x64/WebView2Loader.dll"
             val zipFile = File(dir, "x.nupkg")
             ZipOutputStream(zipFile.outputStream()).use { z ->
-                for ((name, text) in listOf("build/native/x64/WebView2Loader.dll" to "dll", "LICENSE.txt" to "lic", "other/huge.bin" to "no")) {
+                for ((name, text) in listOf(member to "dll", "LICENSE.txt" to "lic", "other/huge.bin" to "no")) {
                     z.putNextEntry(ZipEntry(name)); z.write(text.toByteArray()); z.closeEntry()
                 }
             }
+            val dllFile = File(dir, "dll.bin").apply { writeText("dll") }
+            val goodSha = WebView2Pins.sha256Hex(dllFile)
+            fun extract(out: File, sha: String, size: Long = 3L, loaderMember: String = member) =
+                WebView2Pins.extractLoader(zipFile, out, loaderMember, "LICENSE.txt", size, sha)
+            fun fails(what: String, block: () -> Unit) {
+                check(runCatching(block).exceptionOrNull() is GradleException) { "$what must throw a GradleException" }
+            }
+
             val out = File(dir, "out")
-            extractZipMembers(zipFile, mapOf(webView2LoaderMember to File(out, "WebView2Loader.dll"), webView2LicenseMember to File(out, "LICENSE.txt")))
+            extract(out, goodSha)
             check(File(out, "WebView2Loader.dll").readText() == "dll" && File(out, "LICENSE.txt").readText() == "lic")
             check(out.list()!!.toSet() == setOf("WebView2Loader.dll", "LICENSE.txt")) { "only the two members may be extracted" }
-            check(runCatching { extractZipMembers(zipFile, mapOf("missing.dll" to File(out, "m"))) }.isFailure) { "a missing member must throw" }
+
+            val bad = File(dir, "bad")
+            fails("a wrong digest") { extract(bad, "0".repeat(64)) }
+            check(!bad.exists()) { "a failed extraction must leave no output" }
+            fails("a wrong size") { extract(bad, goodSha, size = 4L) }
+            fails("a missing member") { extract(bad, goodSha, loaderMember = "missing.dll") }
+            check(!bad.exists())
+            WebView2Pins.requireSha256(dllFile, goodSha, "right digest")
+            fails("a wrong archive digest") { WebView2Pins.requireSha256(dllFile, "0".repeat(64), "archive") }
         } finally {
             dir.deleteRecursively()
         }
