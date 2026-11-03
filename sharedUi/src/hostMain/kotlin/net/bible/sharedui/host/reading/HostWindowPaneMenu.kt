@@ -83,6 +83,8 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.painterResource
+import net.bible.sharedui.icons.AbIcons
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -333,7 +335,12 @@ fun hostDrawerIcon(iconKey: String): ImageVector? = when (iconKey) {
 /** The painter of the drawer row icon [iconKey] for the drawer's `drawerIcon` slot. */
 @Composable
 @kotlin.native.HiddenFromObjC
-fun rememberIosDrawerIcon(iconKey: String): Painter? = hostDrawerIcon(iconKey)?.let { rememberVectorPainter(it) }
+fun rememberIosDrawerIcon(iconKey: String): Painter? =
+    if (iconKey == "ic_logo") {
+        // The multi-colour AndBible logo is a bundled drawable resource (Android maps it to R.drawable.ic_logo), not a
+        // Material stand-in; without it the drawer header had no logo on desktop and iOS.
+        painterResource(AbIcons.identityIconResources.getValue("ic_logo"))
+    } else hostDrawerIcon(iconKey)?.let { rememberVectorPainter(it) }
 
 /** The painter of [iconKey] for the pane menu's `menuIcon` slot (composable: the painter is remembered). */
 @Composable

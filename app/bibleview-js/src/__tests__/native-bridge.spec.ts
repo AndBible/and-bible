@@ -11,6 +11,7 @@ function reset() {
     delete w.androidBridge;
     delete w.webkit;
     delete w.__activeLanguages__;
+    document.documentElement.classList.remove("desktop-host");
 }
 
 describe("native bridge", () => {
@@ -22,6 +23,23 @@ describe("native bridge", () => {
         installNativeBridge(w);
         w.android.addBookmark("KJV", 1, 2, false);
         expect(posted).toEqual(['{"method":"addBookmark","args":["KJV",1,2,false]}']);
+    });
+
+    it("marks the document as desktop-host only for the desktop shim", () => {
+        const root = document.documentElement;
+        w.androidBridge = {postMessage: () => {}, getActiveLanguages: () => '["en"]'};
+        installNativeBridge(w);
+        expect(root.classList.contains("desktop-host")).toBe(false);
+
+        reset();
+        w.webkit = {messageHandlers: {bridge: {postMessage: () => {}}}};
+        installNativeBridge(w);
+        expect(root.classList.contains("desktop-host")).toBe(false);
+
+        reset();
+        w.androidBridge = {postMessage: () => {}, getActiveLanguages: () => '["en"]', desktop: true};
+        installNativeBridge(w);
+        expect(root.classList.contains("desktop-host")).toBe(true);
     });
 
     it("posts objects to webkit.messageHandlers.bridge on iOS", () => {

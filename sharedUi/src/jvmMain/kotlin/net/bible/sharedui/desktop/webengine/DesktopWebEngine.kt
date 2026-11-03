@@ -68,10 +68,11 @@ interface DesktopWebPane : JsHost {
  * JS expression [postMessageJs], a function reference or expression taking the text) and
  * `getActiveLanguages()` returning the live `window.__activeLanguages__` when a script has set it (the hoisted reading
  * assembly refreshes it before each document load, as on iOS), else [activeLanguagesJson] (a JSON list string such as
- * `["en"]`).
+ * `["en"]`). `desktop: true` lets BibleView-JS tell the desktop app from Android (thin scrollbar styling).
  */
 fun androidBridgeShim(postMessageJs: String, activeLanguagesJson: String): String =
     "window.androidBridge = {" +
+        "desktop: true, " +
         "postMessage: function (t) { return ($postMessageJs)(t); }, " +
         "getActiveLanguages: function () { return (typeof window.__activeLanguages__ === 'string' && window.__activeLanguages__) ? window.__activeLanguages__ : '" +
         activeLanguagesJson.replace("\\", "\\\\").replace("'", "\\'") + "'; }" +

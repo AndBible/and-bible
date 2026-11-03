@@ -26,6 +26,8 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.isWorkspaceColorSet
+import net.bible.service.common.THEME_PALETTE_STYLE_KEY
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedui.theme.themeColorsJson
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.android.view.activity.page.screen.readingBackgroundArgb
@@ -121,8 +123,12 @@ class HostDocumentLoaderPlatform(
             disableAnimations = s.getBoolean("disable_animations", false),
             fontSizeMultiplier = s.getInt("font_size_multiplier", 100) / 100F,
             enabledExperimentalFeatures = s.getStringSet("experimental_features", emptySet()).toList(),
-            themeColors = if (colorMode == DisplayColorMode.NORMAL && !isWorkspaceColorSet(workspaceSettings.workspaceColor))
-                themeColorsJson(workspaceSettings.workspaceColor, night, colorMode) else "null",
+            // Same as Android's BibleView: always the derived palette (themeColorsJson itself yields "null" for the
+            // grey-base modes and for COLOR_EINK without a chosen colour), including the app-wide palette style.
+            themeColors = themeColorsJson(
+                workspaceSettings.workspaceColor, night, colorMode,
+                ThemePaletteStyle.fromValue(s.getString(THEME_PALETTE_STYLE_KEY, null)) ?: ThemePaletteStyle.DEFAULT,
+            ),
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
             notesContentType = s.getString("notes_content_type", "HTML") ?: "HTML",

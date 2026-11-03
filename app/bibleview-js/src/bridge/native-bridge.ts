@@ -35,6 +35,8 @@ function transport(w: BridgeWindow): Post | null {
 }
 
 export function installNativeBridge(w: BridgeWindow = window as BridgeWindow): void {
+    // The desktop app's androidBridge shim sets `desktop: true`; Android and iOS (also iOS-on-Mac) never do.
+    if (w.androidBridge?.desktop === true) w.document?.documentElement?.classList.add("desktop-host");
     const existing = w.android;
     // Chromium also defines window.android; only an app bridge has this startup method.
     if (typeof existing?.setClientReady === "function") return;

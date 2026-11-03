@@ -90,6 +90,7 @@ class DesktopBibleWebViewTest {
         val s = androidBridgeShim("window.__post", "[\"en\",\"fi\"]")
         assertTrue("postMessage" in s && "window.__post" in s)
         assertTrue("getActiveLanguages" in s && "[\"en\",\"fi\"]" in s)
+        assertTrue("desktop: true" in s)
         assertTrue("it's" in androidBridgeShim("p", "[\"it's\"]").replace("\\'", "'"))
     }
 

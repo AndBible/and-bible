@@ -201,10 +201,17 @@ class DesktopAppStartupTest {
                     isPortrait = { true }, isBeta = { false },
                 )
                 val json = kotlinx.coroutines.withContext(mainThread) { platform.configInputs(emptyList()).themeColors }
-                if (mode == net.bible.service.common.DisplayColorMode.NORMAL && seed != 0xFFFF8000.toInt()) {
+                val chosen = seed == 0xFFFF8000.toInt()
+                if (mode == net.bible.service.common.DisplayColorMode.NORMAL && !chosen) {
                     assertTrue(json.contains(if (dark) "\"primary\":\"#D0BCFF\"" else "\"primary\":\"#6750A4\""), json)
+                } else if (mode == net.bible.service.common.DisplayColorMode.NORMAL) {
+                    // A chosen workspace colour must reach BibleView as Android sends it (it used to be "null").
+                    assertTrue(json.startsWith("{\"primary\":\"#"), json)
+                    assertTrue(!json.contains("#D0BCFF") && !json.contains("#6750A4"), "palette follows the chosen colour: $json")
+                } else if (mode == net.bible.service.common.DisplayColorMode.COLOR_EINK && chosen) {
+                    assertTrue(json.startsWith("{\"primary\":\"#"), json)
                 } else {
-                    assertEquals("null", json, "chosen colours and e-ink keep the existing host CSS palette")
+                    assertEquals("null", json, "grey-base modes and unset-colour e-ink keep the host CSS palette")
                 }
             }
         }
