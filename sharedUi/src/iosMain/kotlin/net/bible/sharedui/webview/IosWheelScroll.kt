@@ -33,7 +33,9 @@ import platform.WebKit.WKWebView
  * [wheelScrolls]), so WebKit never sees a wheel. Each event first goes to the page ([INNER_SCROLL_JS]): the nearest
  * scrollable element under the pointer that can still move that way (a bookmark modal, the note editor) takes it.
  * Otherwise the page itself moves: `scrollView.contentOffset`, after which WebKit updates the page and fires DOM
- * `scroll` events as for any scroll. No momentum: movement stops when the pan ends.
+ * `scroll` events as for any scroll. A trackpad flick's glide and the wheel acceleration come from [wheelScrolls];
+ * the glide frames take this same path. [IosWheelGestureObserver] (installed on the pane's window at the first wheel
+ * event) supplies the gesture phase and kind.
  */
 internal fun Modifier.wheelScrollsWebView(windowId: String, webView: WKWebView): Modifier =
     wheelScrolls(WebViewWheelTarget(windowId, webView))
@@ -41,6 +43,7 @@ internal fun Modifier.wheelScrollsWebView(windowId: String, webView: WKWebView):
 /** Value equality (window id + the same WKWebView instance) so recomposition keeps the pointer-input coroutine. */
 private data class WebViewWheelTarget(val windowId: String, val webView: WKWebView) : WheelScrollTarget {
     override fun scrollBy(xPoints: Double, yPoints: Double, dxPoints: Double, dyPoints: Double): Boolean {
+        webView.window?.let { IosWheelGestureObserver.installOn(it) }
         val zoom = webView.scrollView.zoomScale.takeIf { it > 0.0 } ?: 1.0
         val script = "$INNER_SCROLL_JS(${xPoints / zoom},${yPoints / zoom},${dxPoints / zoom},${dyPoints / zoom})"
         webView.evaluateJavaScript(script) { result, _ ->
@@ -51,13 +54,20 @@ private data class WebViewWheelTarget(val windowId: String, val webView: WKWebVi
         return true
     }
 
+    override fun isTouchActive(): Boolean = webView.scrollView.tracking
+
+    override fun diagnostic(message: String) {
+        val offsetY = webView.scrollView.contentOffset.useContents { y }
+        nsLog("MAC-SCROLL pane[$windowId]: $message offsetY=$offsetY")
+    }
+
     private fun logThrottled(inner: Boolean, dyPoints: Double) {
         // Temporary Mac diagnostic for the maintainer's check: at most one line per second per pane.
         val now = (NSProcessInfo.processInfo.systemUptime * 1000.0).toLong()
         if (now - (lastLogMs[windowId] ?: 0L) < 1000) return
         lastLogMs[windowId] = now
         val offsetY = webView.scrollView.contentOffset.useContents { y }
-        nsLog("MAC-SCROLL pane[$windowId]: dy=$dyPoints pt ${if (inner) "inner element" else "page"} offsetY=$offsetY")
+        nsLog("MAC-SCROLL pane[$windowId]: dy=$dyPoints pt kind=${WheelGestureSignals.currentKind} ${if (inner) "inner element" else "page"} offsetY=$offsetY")
     }
 }
 
