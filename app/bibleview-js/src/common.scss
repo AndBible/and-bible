@@ -92,6 +92,26 @@
   top: -0.3em;
 }
 
+// Desktop app only (KCEF/WebKitGTK/WebView2): thin overlay-like document scrollbar, as on Android.
+// Grey with alpha works in day, night and monochrome (theme classes sit below <html>). Only the
+// ::-webkit-scrollbar pseudo-elements: scrollbar-width/-color would disable them in Chromium 121+.
+html.desktop-host {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(128, 128, 128, .45);
+    border-radius: 3px;
+    &:hover {
+      background-color: rgba(96, 96, 96, .7);
+    }
+  }
+}
+
 .visible-scrollbar {
   &::-webkit-scrollbar {
     height: 20%;
