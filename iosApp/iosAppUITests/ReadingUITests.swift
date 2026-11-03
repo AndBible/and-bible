@@ -127,6 +127,28 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "split-three-reopened")
     }
 
+    /// WebKit kills the WebContent process of a hidden app (Mac: AndBible on another virtual desktop for a while); the
+    /// pages restart on the same native sessions. With the debug-only `-killWebContentOnBackground` the app kills its
+    /// reading WebViews' content processes when it enters the background. Back in the foreground every pane must show
+    /// the chapter again, not stay in its loading state (the restarted page reported client ready, and the session had
+    /// considered its document already delivered).
+    func testPanesRecoverAfterWebContentKilledInBackground() throws {
+        let app = try launchReading(extraArguments: ["-killWebContentOnBackground"])
+        addWindow(app, from: 1)
+        assertTextOncePerPane(app, panes: 2, "before background")
+
+        sendToBackground(app)
+        app.activate()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "reading host not shown after foreground")
+        assertTextOncePerPane(app, panes: 2, "after the WebContent processes were killed in background")
+        shot(app, "after-webcontent-kill")
+
+        // A second round: a page that restarted once must survive the next restart too.
+        sendToBackground(app)
+        app.activate()
+        assertTextOncePerPane(app, panes: 2, "after the second kill")
+    }
+
     /// Opens a sheet over the reading view and dismisses it: the panes (re-parented by Compose when the sheet host
     /// recomposes) must still expose their text once, and VoiceOver's order (the tree order of the panes) must follow
     /// the visual order (top-to-bottom, then left-to-right).

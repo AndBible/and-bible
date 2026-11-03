@@ -233,6 +233,30 @@ class DocumentLoaderTest {
         assertFalse("the older load must never reach JS: $sent", sent.any { it.contains("'A'") })
     }
 
+    /**
+     * A page that starts again on the same session (iOS: WebKit killed the WebContent process while the app was hidden
+     * and the page reloaded) reports client ready a second time. It is an empty page: it must get the labels and the
+     * document again, or it stays in its loading state for good (the Mac "panes vanish after a virtual desktop
+     * switch" bug).
+     */
+    @Test
+    fun restartedPageGetsLabelsAndDocumentAgain() = runBlocking {
+        loader.loadDocument(doc("A"), false, null, null, null, null)
+        loader.setClientReady()
+        val firstDelivery = host.evaluated.toList()
+        assertEquals("first page: $firstDelivery", 1, firstDelivery.count { it.contains("add_documents") })
+        assertEquals("first page: $firstDelivery", 1, firstDelivery.count { it.contains("update_labels") })
+        host.evaluated.clear()
+
+        // The page reloads and its BibleView-JS mounts again.
+        loader.setClientReady()
+
+        val sent = host.evaluated.toList()
+        assertEquals("restarted page gets labels again: $sent", 1, sent.count { it.contains("update_labels") })
+        assertEquals("restarted page gets the document again: $sent", 1, sent.count { it.contains("add_documents") && it.contains("'A'") })
+        assertTrue("and its setup_content: $sent", sent.any { it.contains("setup_content") })
+    }
+
     @Test
     fun failingChapterLoadStillAnswersTheJsPromiseWithNull() = runBlocking {
         loader.launchAnswer(77) { throw IllegalStateException("module unreadable") }.join()
