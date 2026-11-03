@@ -85,6 +85,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         if (lastSyncWasInNightMode != nightModeState.nightMode) {
             setResyncRequired()
+            // Remember it here too: otherwise every sync (each window reload reports a verse, which
+            // syncs again) forces another resync until reloadAllWindows runs, i.e. a reload loop.
+            lastSyncWasInNightMode = nightModeState.nightMode
         }
 
         if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
