@@ -47,6 +47,17 @@ class BibleViewJsChannelTest {
         assertTrue(logged.any { "not yet ready" in it })
     }
 
+    @Test fun restartingPageDropsCallsUntilItIsReadyAgain() {
+        ready()
+        channel.markPageRestarting()
+        assertTrue(channel.loading)
+        assertFalse(channel.execute(JsCall("lost")))
+        assertTrue(host.evaluated.isEmpty())
+        ready()
+        assertTrue(channel.execute(JsCall("a")))
+        assertEquals(listOf("a;"), host.evaluated)
+    }
+
     @Test fun runsImmediatelyOnMainWhenAttachedAndQueueEmpty() {
         ready()
         assertTrue(channel.execute(JsCall("a")))

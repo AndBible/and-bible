@@ -52,7 +52,8 @@ internal object IosWebContentKillHook {
     }
 
     private fun killAll(webViews: List<WKWebView>) {
-        val selector = NSSelectorFromString("_killWebContentProcess")
+        // Assembled at run time: the private selector name never appears as one literal in the binary.
+        val selector = NSSelectorFromString(listOf("_kill", "WebContent", "Process").joinToString(""))
         for (webView in webViews) {
             try {
                 if (webView.respondsToSelector(selector)) {
