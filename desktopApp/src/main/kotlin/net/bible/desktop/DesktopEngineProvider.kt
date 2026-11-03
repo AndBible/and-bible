@@ -13,7 +13,8 @@ interface DesktopEngineProvider {
     fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine
     /**
      * Called after the first Compose frame and before any pane is created. Implementations must suspend without
-     * blocking the UI thread and cooperate with cancellation; shutdown follows if readiness is cancelled.
+     * blocking the UI thread, be cooperatively cancellable, and never publish an engine after cancellation.
+     * Shutdown follows through the normal ordered close sequence.
      */
     suspend fun awaitWindowReady(window: ComposeWindow) {}
     fun shutdown()
