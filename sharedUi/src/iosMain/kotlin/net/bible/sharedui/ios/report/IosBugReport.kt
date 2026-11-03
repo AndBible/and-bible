@@ -11,6 +11,11 @@ import net.bible.sharedui.strings.keyed.StringTable
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import platform.Foundation.NSBundle
+import platform.Foundation.NSLocale
+import platform.Foundation.NSProcessInfo
+import platform.Foundation.currentLocale
+import platform.Foundation.preferredLanguages
+import platform.Foundation.isiOSAppOnMac
 import platform.Foundation.NSFileModificationDate
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSDate
@@ -71,7 +76,31 @@ internal class IosBugReport(
 internal fun device(): ReportDevice {
     val bundle = NSBundle.mainBundle
     val version = bundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
-    return ReportDevice(bundle.bundleIdentifier ?: "", version, "${UIDevice.currentDevice.systemName} ${UIDevice.currentDevice.systemVersion}", UIDevice.currentDevice.model)
+    return ReportDevice(bundle.bundleIdentifier ?: "", version, "${UIDevice.currentDevice.systemName} ${UIDevice.currentDevice.systemVersion}",
+        UIDevice.currentDevice.model, iosReportFacts())
+}
+
+/** Build number, whether the iOS app runs on a Mac, and the locale: the report header lines beyond [ReportDevice]'s basics. */
+internal fun iosReportFacts(): List<Pair<String, String>> {
+    val bundle = NSBundle.mainBundle
+    return buildList {
+        (bundle.objectForInfoDictionaryKey("CFBundleVersion") as? String)?.takeIf { it.isNotBlank() }?.let { add("Build" to it) }
+        (bundle.objectForInfoDictionaryKey("AndBibleCommit") as? String)?.takeIf { it.isNotBlank() }?.let { add("Commit" to it) }
+        if (NSProcessInfo.processInfo.isiOSAppOnMac()) add("Platform" to "iOS app on Mac")
+        add("Locale" to (NSLocale.preferredLanguages.firstOrNull() as? String ?: NSLocale.currentLocale.toString()))
+    }
+}
+
+/** Shortens the container path in logs and writes the version/build/OS/locale lines first in the log; called once at launch. */
+internal fun startIosReportLog() {
+    net.bible.sharedcore.log.registerIosLogPathAliases()
+    val d = device()
+    val facts = net.bible.sharedcore.log.ReportFacts.global
+    facts.set("Version", d.version)
+    d.extras.forEach { (k, v) -> facts.set(k, v) }
+    facts.set("OS", d.os)
+    facts.set("Model", d.model)
+    facts.logAll("Startup")
 }
 
 /** Reporting must remain usable even when its staging directory or outward presenter fails. No databases needed. */

@@ -23,10 +23,9 @@ internal class RecentIosLog(private val limit: Int = 256 * 1024) {
 }
 
 internal actual fun platformLog(level: LogLevel, tag: String, msg: String, tr: Throwable?) {
+    recentIosLog.append(formatLogLineNow(level, tag, msg, tr))
     val text = if (tr == null) msg else "$msg\n${tr.stackTraceToString()}"
-    val line = "${level.name.first()}/$tag: $text"
-    recentIosLog.append(line)
-    nsLog(line)
+    nsLog("${level.name.first()}/$tag: $text")
 }
 
 /**

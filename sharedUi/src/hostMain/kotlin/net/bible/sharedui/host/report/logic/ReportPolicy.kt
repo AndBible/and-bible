@@ -8,7 +8,9 @@ internal suspend fun reportSafely(failure: suspend (Exception) -> Unit, action: 
     catch (error: Exception) { failure(error) }
 }
 
-internal data class ReportDevice(val appId: String, val version: String, val os: String, val model: String)
+internal data class ReportDevice(val appId: String, val version: String, val os: String, val model: String,
+    /** Further `label: value` header lines (build number, locale, web engine...). */
+    val extras: List<Pair<String, String>> = emptyList())
 internal data class Attachment(val name: String, val mime: String, val bytes: ByteArray)
 internal enum class ReportTransport { MAIL, SHARE }
 internal fun reportTransport(canSendMail: Boolean): ReportTransport = if (canSendMail) ReportTransport.MAIL else ReportTransport.SHARE
@@ -19,6 +21,7 @@ internal fun reportDetails(device: ReportDevice, crashTime: Long, crashStack: St
     appendLine("Version: ${device.version}")
     appendLine("OS version: ${device.os}")
     appendLine("Model: ${device.model}")
+    device.extras.forEach { (k, v) -> appendLine("$k: $v") }
     if (crashStack.isNotBlank()) {
         appendLine("=== LAST APP CRASH INFORMATION ===")
         if (crashTime > 0) appendLine("Last crash time (epoch ms): $crashTime")

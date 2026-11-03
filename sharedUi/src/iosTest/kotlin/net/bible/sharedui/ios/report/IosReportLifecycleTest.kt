@@ -82,4 +82,8 @@ class IosReportLifecycleTest {
     }
 
     // Real modal/cancellation coverage lives in app-hosted ReportLifecycleTests (UIApplication scene).
+
+    @Test fun iosReportFactsCarryTheLocale() {
+        assertTrue(iosReportFacts().any { it.first == "Locale" && it.second.isNotBlank() })
+    }
 }

@@ -12,6 +12,14 @@ import net.bible.sharedui.host.report.BUG_REPORT_EMAIL
 
 class DesktopBugReportTest {
     @Test
+    fun headerHasJavaLocaleAndTheChosenEngine() {
+        net.bible.sharedcore.log.ReportFacts.global.set("Web engine", "test-engine")
+        val body = net.bible.sharedui.host.report.reportDetails(
+            net.bible.sharedui.host.report.ReportDevice("net.bible.desktop", "1.0", "Linux 6", "amd64", desktopReportFacts()), 0, "", null)
+        listOf("Java: ", "Locale: ", "Web engine: test-engine", "OS version: Linux 6").forEach { assertTrue(it in body, body) }
+    }
+
+    @Test
     fun reportRespectsSizeCap() = runBlocking {
         val root = Files.createTempDirectory("report")
         var saved = ""
