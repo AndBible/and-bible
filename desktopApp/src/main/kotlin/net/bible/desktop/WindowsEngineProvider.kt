@@ -5,6 +5,7 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -57,6 +58,8 @@ internal class DeferredWindowsEngine(
     /** The message of the WebView2 failure that led to the KCEF fallback, kept for the both-failed report. */
     @Volatile var webView2Failure: String? = null
         private set
+
+    val isClosed: Boolean get() = synchronized(lock) { closed }
 
     suspend fun initialize(renderer: String?) {
         synchronized(lock) {
@@ -172,7 +175,7 @@ internal fun windowsEngineFailureMessage(webView2Failure: String?, kcefFailure: 
 
 /**
  * Initializes the engine; when both engines failed, shows [present] once (title, message) and rethrows the original
- * exception. Cancellation and close are not failures and show nothing.
+ * exception. Real cancellation and close are not failures and show nothing; a CancellationException thrown by an engine itself is.
  */
 internal suspend fun DeferredWindowsEngine.initializeReportingFailure(
     renderer: String?,
@@ -182,9 +185,10 @@ internal suspend fun DeferredWindowsEngine.initializeReportingFailure(
 ) {
     try {
         initialize(renderer)
-    } catch (e: CancellationException) {
-        throw e
     } catch (e: Throwable) {
+        // Only real cancellation (this coroutine cancelled, or the engine shut down) is silent; a CancellationException
+        // thrown by an engine itself is a startup failure.
+        if (e is CancellationException && (!currentCoroutineContext().isActive || isClosed)) throw e
         runCatching { present(title, windowsEngineFailureMessage(webView2Failure, e, logPath)) }
         throw e
     }

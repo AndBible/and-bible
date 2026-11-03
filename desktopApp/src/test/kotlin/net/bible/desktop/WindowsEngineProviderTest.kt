@@ -382,4 +382,21 @@ class WindowsEngineProviderTest {
         }
         assertEquals(0, shown)
     }
+
+    @Test
+    fun `cancellation exception thrown by the engine itself is reported`() = runBlocking {
+        val deferred = DeferredWindowsEngine(
+            property = "kcef",
+            startWebView2 = { error("no") },
+            startKcef = { throw kotlinx.coroutines.CancellationException("engine gave up") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        val shown = mutableListOf<String>()
+        assertFailsWith<kotlinx.coroutines.CancellationException> {
+            deferred.initializeReportingFailure("DIRECT3D", java.nio.file.Path.of("l"), "t") { _, m -> shown += m }
+        }
+        assertEquals(1, shown.size)
+        assertTrue("engine gave up" in shown[0], shown[0])
+    }
 }
