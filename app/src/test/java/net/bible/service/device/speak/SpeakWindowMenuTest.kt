@@ -162,6 +162,17 @@ class SpeakWindowMenuTest : SpeakIntegrationTestBase() {
     }
 
     @Test
+    fun speakMenuRowIsAbsentWhenThePlatformHasNoSpeech() {
+        playBibleAndScrollAway()
+        platform.supported = false
+        assertTrue(androidWindowPaneMenuStateBuilder(windowControl, speakControl)
+            .build(windowControl.activeWindow).none { it.id == WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK })
+        platform.supported = true
+        assertEquals(1, androidWindowPaneMenuStateBuilder(windowControl, speakControl)
+            .build(windowControl.activeWindow).count { it.id == WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK })
+    }
+
+    @Test
     fun bibleMenuLabelTracksAudibleVerseAfterScrollingAway() {
         val audible = playBibleAndScrollAway()
         assertEquals(AndroidPaneMenuStrings().goToRef(audible.shortName), speakItem().label)

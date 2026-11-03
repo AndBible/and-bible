@@ -287,6 +287,7 @@ object HostReadingWindows {
                 offsets = { b.host.offsets },
                 isPortrait = b.host.platform::isPortrait,
                 onPageBackground = { panes.applyBackground(windowId, it) },
+                speakSupported = { b.koin.get<net.bible.android.control.speak.SpeakControl>().isSupported },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
             val loader = DocumentLoader(session, platform).also { session.paging = it }

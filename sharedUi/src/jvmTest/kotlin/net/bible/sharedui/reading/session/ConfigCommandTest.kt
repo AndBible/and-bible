@@ -86,4 +86,11 @@ class ConfigCommandTest {
     fun configIsStableForEqualInputs() {
         assertEquals(ConfigCommand.build(true, inputs()), ConfigCommand.build(true, inputs()))
     }
+
+    @Test
+    fun speakButtonIsDisabledOnlyWhereSpeechIsUnsupported() {
+        assertEquals(setOf("SHARE"), withSpeakGate(setOf("SHARE"), speakSupported = true))
+        assertEquals(setOf("SHARE", "SPEAK"), withSpeakGate(setOf("SHARE"), speakSupported = false))
+        assertEquals(setOf("SPEAK"), withSpeakGate(setOf("SPEAK"), speakSupported = false))
+    }
 }

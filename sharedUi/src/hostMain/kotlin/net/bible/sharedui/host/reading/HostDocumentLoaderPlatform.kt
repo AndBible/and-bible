@@ -32,6 +32,7 @@ import net.bible.sharedui.theme.themeColorsJson
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.android.view.activity.page.screen.readingBackgroundArgb
 import net.bible.sharedui.reading.session.ConfigInputs
+import net.bible.sharedui.reading.session.withSpeakGate
 import net.bible.sharedui.reading.session.DocumentLoaderPlatform
 import net.bible.sharedui.reading.session.ReadingOffsets
 import org.koin.mp.KoinPlatform
@@ -64,6 +65,8 @@ class HostDocumentLoaderPlatform(
      * follows night, colour scheme and monochrome like Android's `BibleView.updateBackgroundColor`.
      */
     private val onPageBackground: (Int) -> Unit = {},
+    /** False on a platform without speech: the BibleView "SPEAK" action button is then switched off in the JS config. */
+    private val speakSupported: () -> Boolean = { true },
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
     override val topOffset: Float get() = if (isTopWindow) offsets().top else 0f
@@ -114,8 +117,8 @@ class HostDocumentLoaderPlatform(
             hideCompareDocuments = workspaceSettings.hideCompareDocuments.toSet(),
             limitAmbiguousModalSize = workspaceSettings.limitAmbiguousModalSize,
             windowDisplayId = w.displayId,
-            disableBibleModalButtons = s.getStringSet("disable_bible_bookmark_modal_buttons", emptySet()),
-            disableGenericModalButtons = s.getStringSet("disable_gen_bookmark_modal_buttons", emptySet()),
+            disableBibleModalButtons = withSpeakGate(s.getStringSet("disable_bible_bookmark_modal_buttons", emptySet()), speakSupported()),
+            disableGenericModalButtons = withSpeakGate(s.getStringSet("disable_gen_bookmark_modal_buttons", emptySet()), speakSupported()),
             monochromeMode = colorMode != DisplayColorMode.NORMAL,
             einkMode = s.getBoolean("eink_mode", false),
             colorEinkMode = colorMode == DisplayColorMode.COLOR_EINK,

@@ -159,9 +159,9 @@ fun DailyReadingScreen(
             val listState = rememberLazyListState()
             LazyColumn(state = listState, modifier = Modifier.weight(1f).volumeScrollTarget(listState)) {
                 items(ui.readings, key = { it.readingNo }) { item ->
-                    ReadingRow(item, onToggleRead, onRead, onSpeak, strings.selectPassage, strings.speak)
+                    ReadingRow(item, onToggleRead, onRead, onSpeak.takeIf { ui.speakSupported }, strings.selectPassage, strings.speak)
                 }
-                if (ui.showSpeakAll) {
+                if (ui.showSpeakAll && ui.speakSupported) {
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -217,7 +217,7 @@ private fun ReadingRow(
     item: ReadingItem,
     onToggleRead: (Int) -> Unit,
     onRead: (Int) -> Unit,
-    onSpeak: (Int) -> Unit,
+    onSpeak: ((Int) -> Unit)?,
     readLabel: String,
     speakLabel: String,
 ) {
@@ -233,6 +233,6 @@ private fun ReadingRow(
         )
         Text(item.passage, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
         TextButton(onClick = { onRead(item.readingNo) }) { Text(readLabel) }
-        TextButton(onClick = { onSpeak(item.readingNo) }) { Text(speakLabel) }
+        if (onSpeak != null) TextButton(onClick = { onSpeak(item.readingNo) }) { Text(speakLabel) }
     }
 }

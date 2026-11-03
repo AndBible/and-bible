@@ -124,7 +124,7 @@ class ToolbarStateServiceImpl(
             // down through workspace/global/default via `TextDisplaySettings.actual` — 0/1/2.
             strongsMode = windowControl.activeWindowPageManager.actualTextDisplaySettings.strongsMode ?: 0,
             searchable = page.isSearchable,
-            speakable = page.isSpeakable,
+            speakable = page.isSpeakable && speakControl.isSupported,
             speakStopped = speakControl.isStopped,
             // A/B batch 3 F3. Read fresh on every snapshot: buildSnapshot() re-runs on
             // WindowChange.ActiveWindowChanged (workspace switch) and on every
