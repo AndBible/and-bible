@@ -19,6 +19,7 @@ package net.bible.sharedui.desktop.webengine.kcef
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** CEF-free tests of what both pane kinds share: eval replies, origin trust and the rendering-mode switch. */
@@ -103,6 +104,23 @@ class KcefPaneCoreTest {
         assertFalse(isAtBundleOrigin("$BUNDLE_ORIGIN@evil.org/"), "userinfo trick")
         assertFalse(isAtBundleOrigin("http://bibleview.andbible.local/index.html"), "another scheme")
         assertFalse(isAtBundleOrigin("file:///tmp/index.html"))
+    }
+
+    @Test
+    fun blockedMainFrameNavigationsOfTheBundlePageAreLinkClicks() {
+        val page = "$BUNDLE_ORIGIN/index.html?lang=en&night=false"
+        for (link in listOf(
+            "osis://?osis=John.3.16&v11n=KJV", "ab-w://?strong=G2316", "multi://?osis=Gen.1.1",
+            "sword://MHC/Matt.5.3", "https://example.org/", "journal://?id=x",
+        )) {
+            assertEquals(link, linkNavigation(link, isMainFrame = true, frameUrl = page), link)
+        }
+        assertNull(linkNavigation("$BUNDLE_ORIGIN/index.html?lang=fi", isMainFrame = true, frameUrl = page), "a bundle (re)load is no link")
+        assertNull(linkNavigation("osis://?osis=Gen.1.1", isMainFrame = false, frameUrl = page), "a subframe navigation")
+        assertNull(linkNavigation("osis://?osis=Gen.1.1", isMainFrame = true, frameUrl = "https://evil.org/"), "a foreign document")
+        assertNull(linkNavigation("osis://?osis=Gen.1.1", isMainFrame = true, frameUrl = null))
+        assertNull(linkNavigation(null, isMainFrame = true, frameUrl = page))
+        assertNull(linkNavigation("", isMainFrame = true, frameUrl = page))
     }
 
     @Test

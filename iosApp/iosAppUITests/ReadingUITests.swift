@@ -1709,6 +1709,40 @@ final class ReadingUITests: RealAppUITestCase {
 
     /// Samples immediately after a split is opened, before waiting for Bible text. Native tests separately pin
     /// the background before attachment: XCTest screenshots alone cannot guarantee capture of every display frame.
+    /// A link in the Bible text opens the link window (2026-11-03: no link opened on iOS or desktop). BibleView-JS opens
+    /// every link with `window.location.assign` (`ab-w://` for a Strong's word, `osis://` for a cross-reference);
+    /// `IosNavDelegate` must cancel that navigation and hand it to the window's `ReadingLinkHandler`. The provisioned
+    /// KJV has Strong's numbers but no cross-references, so the link here is a Strong's word: the toolbar's Strong's
+    /// button turns them on, a tap on "loved" (John 3:16) opens the links window as a second pane.
+    func testStrongsWordLinkOpensTheLinkWindow() throws {
+        // Portrait: the iPhone toolbar fits Bible, Commentary and Strong's (see testToolbarActionsOpenTheirDestinations).
+        let app = try launchReading()
+        defer { app.terminate() }
+        XCTAssertEqual(paneIds(app).count, 1, "one window before the link tap")
+        let strongs = byLabel(app, "Strong's numbers")
+        guard strongs.waitForExistence(timeout: 10) else {
+            attachTree(app, "link-no-strongs-button"); XCTFail("no 'Strong's numbers' toolbar button"); return
+        }
+        strongs.tap()
+        // A word of the shown verse 16 ("For God so loved the world"; 'Nicodemus' is in verses 1-9, scrolled off
+        // screen above, where a coordinate tap lands on the toolbar). The page re-renders with the words as links.
+        let word = app.webViews.staticTexts.matching(NSPredicate(format: "label == 'loved'")).firstMatch
+        let hittable = waitUntil(timeout: 30) { word.exists && word.isHittable }
+        if !hittable { attachTree(app, "link-word-not-hittable") }
+        XCTAssertTrue(hittable, "John 3:16 'loved' not on screen after turning Strong's on")
+        sleep(2)
+        word.tap()
+        // A word with more than one action (the fixture bookmarks verse 16) opens the ambiguous-selection modal first;
+        // its "Definition & Morphology" row is the Strong's link itself.
+        let definition = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS 'Definition & Morphology'")).firstMatch
+        if definition.waitForExistence(timeout: 5) { definition.tap() }
+        let opened = waitUntil(timeout: 30) { self.paneIds(app).count == 2 }
+        shot(app, "strongs-link-window")
+        if !opened { attachTree(app, "link-window-not-opened") }
+        XCTAssertTrue(opened, "tapping a Strong's word did not open the link window (panes: \(paneIds(app)))")
+    }
+
     func testNewSplitPaneStartsWithDayBackground() throws {
         let app = try launchReading(extraArguments: ["-night_mode_pref3", "manual", "-night_mode_pref", "NO"])
         let previousPanes = Set(paneIds(app))

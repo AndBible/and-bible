@@ -28,7 +28,8 @@ import net.bible.sharedui.reading.session.BibleWindowSession
  * Desktop [ReadingPaneFactory] (counterpart of `iosReadingPaneFactory`; its gestures and selection menu come through
  * [input], the D3a [DesktopReadingInput], handed to the engine with the window's wiring): at composition of an open window it wires the pane once through [DesktopReadingPaneEngine.attach] (asking
  * [sessionFor] and [bridgeFor] then) and shows the engine's current pane. [nightMode] only feeds the initial `night`
- * URL parameter. A closed window gets no session and no pane, whatever the recomposition order.
+ * URL parameter. [openLink] opens the links the window's page navigates to (`HostReadingWindows.openLink`). A closed
+ * window gets no session and no pane, whatever the recomposition order.
  */
 fun desktopReadingPaneFactory(
     engine: DesktopReadingPaneEngine,
@@ -37,6 +38,7 @@ fun desktopReadingPaneFactory(
     nightMode: () -> Boolean = { false },
     isOpen: (windowId: String) -> Boolean = { true },
     input: () -> DesktopReadingInput = { DesktopReadingInput.None },
+    openLink: (windowId: String, url: String) -> Boolean = { _, _ -> false },
 ): ReadingPaneFactory = { windowId, modifier ->
     if (isOpen(windowId)) {
         if (engine.paneFor(windowId) == null && !engine.hasFailed(windowId)) {
@@ -50,6 +52,7 @@ fun desktopReadingPaneFactory(
                     respondNull = { callId -> session.emit(BibleViewEvents.response(callId, null)) },
                     onAttached = { session.jsChannel.flush() },
                     input = input(),
+                    openLink = { url -> openLink(windowId, url) },
                 )
             } catch (t: Throwable) {
                 engine.markFailed(windowId, t)

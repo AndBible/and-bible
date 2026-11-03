@@ -51,6 +51,14 @@ interface DesktopWebPane : JsHost {
      */
     fun setOnRendererGone(listener: () -> Unit) {}
 
+    /**
+     * Registers [listener] for the page's link navigations: a main-frame navigation of the bundle page away from the
+     * bundle origin (BibleView-JS opens every link, `osis://`, `ab-w://`, `multi://`, `https://`..., with
+     * `window.location.assign`). The engine cancels such a navigation and passes its URL to [listener] on the UI
+     * thread; the owner opens it (Android's `shouldOverrideUrlLoading`). Default: never fires.
+     */
+    fun setOnLinkNavigation(listener: (String) -> Unit) {}
+
     /** Releases the engine resources. Not called when leaving composition; see [DesktopBibleWebViews.disposeAll]. */
     fun dispose()
 }

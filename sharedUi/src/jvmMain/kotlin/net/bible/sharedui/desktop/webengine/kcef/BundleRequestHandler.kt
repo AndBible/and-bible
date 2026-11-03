@@ -23,6 +23,17 @@ fun isAtBundleOrigin(url: String?): Boolean {
 }
 
 /**
+ * The link a blocked navigation stands for, or null when it is none: a main-frame navigation of the bundle page
+ * ([frameUrl] at [BUNDLE_ORIGIN]) to a [target] away from the bundle origin is a link click (BibleView-JS opens every
+ * link with `window.location.assign`). A navigation within the bundle, of a subframe or of a foreign document is not.
+ */
+fun linkNavigation(target: String?, isMainFrame: Boolean, frameUrl: String?): String? = when {
+    target.isNullOrEmpty() || isAtBundleOrigin(target) -> null
+    !isMainFrame || !isAtBundleOrigin(frameUrl) -> null
+    else -> target
+}
+
+/**
  * Maps requests at [BUNDLE_ORIGIN] to files under [bundleDir] (pure logic, no CEF types).
  *
  * Document-start scripts: [body] inserts [documentStartScripts] as one inline `<script>` at the start of every

@@ -75,7 +75,7 @@ object HostReadingWindows {
         val bridge: ReadingBridge,
         val relayPlatform: HostSessionEventRelayPlatform,
         val platform: HostDocumentLoaderPlatform,
-        @Suppress("unused") val linkHandler: ReadingLinkHandler,
+        val linkHandler: ReadingLinkHandler,
     ) {
     }
 
@@ -177,6 +177,13 @@ object HostReadingWindows {
 
     /** The window's bridge (the one `sessionFor` assembled), for the WebView's message handler. */
     fun bridgeFor(windowId: String): BibleBridge = assembly(windowId).bridge
+
+    /**
+     * Opens a link the window's page navigated to (BibleView-JS opens every link with `window.location.assign`; the
+     * platform web view cancels that navigation and hands its URL here, as Android's `shouldOverrideUrlLoading` does).
+     * Main thread. False when the window has no assembly or the link is not handled.
+     */
+    fun openLink(windowId: String, url: String): Boolean = assemblies[windowId]?.linkHandler?.handle(url) ?: false
 
     /** The reading gestures of the bound host, for the pane factory; null while no host is bound. */
     fun gesturesFor(@Suppress("UNUSED_PARAMETER") windowId: String): HostReadingGestures? = binding?.host?.gestures

@@ -165,6 +165,16 @@ class WebView2EngineLogicTest {
         assertFalse(Wv2Trust.allowNavigation("https://bibleview.andbible.local.evil.org/"))
     }
 
+    @Test
+    fun blockedNavigationsOfTheBundlePageAreLinkClicks() {
+        val page = "https://bibleview.andbible.local/index.html?lang=en&night=false"
+        assertEquals("osis://?osis=John.3.16", Wv2Trust.linkNavigation("osis://?osis=John.3.16", page))
+        assertEquals("https://www.example.org/", Wv2Trust.linkNavigation("https://www.example.org/", page))
+        assertEquals(null, Wv2Trust.linkNavigation("https://bibleview.andbible.local/index.html", page), "a bundle load")
+        assertEquals(null, Wv2Trust.linkNavigation("osis://?osis=John.3.16", "about:blank"), "not the bundle document")
+        assertEquals(null, Wv2Trust.linkNavigation(null, page))
+    }
+
     // ---- Evaluate ----
 
     @Test

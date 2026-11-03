@@ -41,9 +41,15 @@ class FakePane(
     var disposed = false
     val backgrounds = mutableListOf<Int>()
     private var rendererGone: (() -> Unit)? = null
+    private var linkNavigation: ((String) -> Unit)? = null
 
     override fun setBackground(argb: Int) { backgrounds += argb }
     override fun setOnRendererGone(listener: () -> Unit) { rendererGone = listener }
+
+    override fun setOnLinkNavigation(listener: (String) -> Unit) { linkNavigation = listener }
+
+    /** Simulates the page navigating to [url] (a link click), which the engine cancels and reports. */
+    fun navigate(url: String) { linkNavigation?.invoke(url) }
 
     /** Simulates the renderer process dying. */
     fun crash() { rendererGone?.invoke() }

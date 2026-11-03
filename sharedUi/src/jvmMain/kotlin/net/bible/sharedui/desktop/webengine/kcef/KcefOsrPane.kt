@@ -171,6 +171,7 @@ internal class KcefOsrPane(
     }
 
     override fun setOnRendererGone(listener: () -> Unit) = core.setOnRendererGone(listener)
+    override fun setOnLinkNavigation(listener: (String) -> Unit) = core.setOnLinkNavigation(listener)
 
     override val isMainThread: Boolean get() = SwingUtilities.isEventDispatchThread()
     override val isAttached: Boolean get() = !core.isDisposed
