@@ -19,6 +19,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":desktopWebView2"))
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
     implementation(compose.desktop.currentOs)

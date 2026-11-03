@@ -10,7 +10,6 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":desktopApp"))
     implementation(project(":sharedUi"))
     implementation(project(":sharedCore"))
     implementation(compose.desktop.currentOs)
@@ -33,8 +32,8 @@ val w2Loader = providers.gradleProperty("w2.loader").orNull
 /** A plain directory to copy to the Windows VM: `lib/` (all jars) plus `run.cmd`. */
 val w2Dist by tasks.registering(Sync::class) {
     group = "distribution"
-    from(tasks.named("jar")) { into("lib") }
-    from(configurations.named("runtimeClasspath")) { into("lib") }
+    from(project(":desktopApp").tasks.named("jar")) { into("lib") }
+    from(project(":desktopApp").configurations.named("runtimeClasspath")) { into("lib") }
     w2Loader?.let { from(it) { into("lib") } }
     into(layout.buildDirectory.dir("w2dist"))
 }
