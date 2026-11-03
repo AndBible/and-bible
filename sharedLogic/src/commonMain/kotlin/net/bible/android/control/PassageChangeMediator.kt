@@ -34,6 +34,9 @@ object PassageChangeMediator {
 
     /** the document has changed so ask the view to refresh itself */
     fun onCurrentPageChanged(window: Window) {
+        // Refresh the layout snapshot: the new document may flip Window.isSyncable, which the
+        // window button's sync glyph follows.
+        window.windowRepository.notifyWindowChanged(window)
         window.updateText()
         source.emit(PageChange.VerseChanged(window))
     }

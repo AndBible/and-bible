@@ -187,6 +187,31 @@ class WindowPaneMenuStateBuilderTest {
     }
 
     @Test
+    fun nonSyncableWindowHasNoSyncItemsEvenWhenSynchronised() {
+        val window = windowRepository.activeWindow
+        window.isSynchronised = true
+        val v11n = org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")
+        window.pageManager.setCurrentDocumentAndKey(
+            GlobalContext.get().get<net.bible.service.download.FakeBookFactory>().memorizeDocument,
+            org.crosswire.jsword.passage.Verse(v11n, org.crosswire.jsword.versification.BibleBook.GEN, 1, 1),
+        )
+        assertFalse(window.isSyncable, "sanity: the memorize document is not syncable")
+
+        // The button glyph reads the layout snapshot: no group number for a non-syncable document,
+        // although the stored flag stays set.
+        val snapshot = GlobalContext.get().get<net.bible.android.control.page.window.WindowStateServiceImpl>()
+            .layout.value.windows.first { it.id == window.id.toString() }
+        assertFalse(snapshot.isSyncable)
+        assertTrue(snapshot.isSynchronised, "the stored flag is kept")
+        assertEquals(0, snapshot.displayedSyncGroup)
+
+        val all = items(window)
+        assertNull(findInSubmenus(all, WindowPaneMenuStateBuilder.ID_SYNC_GROUP_SUBMENU))
+        assertNull(findInSubmenus(all, WindowPaneMenuStateBuilder.ID_DISABLE_SYNC))
+        assertTrue(all.none { it.id.startsWith("syncGroupItem:") })
+    }
+
+    @Test
     fun syncGroupSubMenuHasNoDisableSyncWhenNotSynchronised() {
         val window = windowRepository.activeWindow
         window.isSynchronised = false
