@@ -50,7 +50,7 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 cd app/bibleview-js
 npm install              # Initial setup (requires internet)
 npm run dev              # Development server at http://localhost:5173/
-npm run test:ci          # Unit tests (~5-6 seconds, 140+ tests)
+npm run test:ci          # Unit tests (~15 seconds, 700+ tests)
 npm run lint             # ESLint checking
 npm run lint-fix         # Auto-fix lint issues
 npm run type-check       # TypeScript validation
@@ -102,7 +102,7 @@ Only run Android builds when testing Android-specific integration.
 **Vue.js Tests (for Vue.js/TypeScript changes)**
 - Test files: `app/bibleview-js/src/__tests__/*.spec.js`
 - Run: `cd app/bibleview-js && npm run test:ci`
-- Coverage: 140+ tests including DOM manipulation, bookmarks, verse rendering, colors
+- Coverage: 700+ tests including DOM manipulation, bookmarks, verse rendering, colors
 
 **Android Tests (for Kotlin/Java changes)**
 - Test files: `app/src/test/java/**/*Test.kt`
@@ -112,12 +112,13 @@ Only run Android builds when testing Android-specific integration.
 ## Key Files
 
 ### Core Application
-- `app/src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt`: Central activity managing windows and navigation
-- `app/src/main/java/net/bible/android/control/page/window/WindowRepository.kt`: Core workspace and window state management
+- `app/src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt`: The single Android host of the Compose navigation graph
+- `sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/ReadingViewScreen.kt`: The shared (Android, iOS, desktop) reading screen with its windows
+- `sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/window/WindowRepository.kt`: Core workspace and window state management
 - `sharedData/src/commonMain/kotlin/net/bible/android/database/WorkspaceEntities.kt`: Database schema definitions
-- `app/src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt`: WebView bridge with @JavascriptInterface methods
-- `app/src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt`: Manages bookmarks, labels, StudyPads, and MyNotes
-- `app/src/main/java/net/bible/service/db/DatabaseContainer.kt`: Singleton managing multiple Room databases
+- `sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ReadingBridge.kt`: Shared BibleView bridge; Android's `@JavascriptInterface` side is `app/src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt`
+- `sharedLogic/src/commonMain/kotlin/net/bible/android/control/bookmark/BookmarkControl.kt`: Manages bookmarks, labels, StudyPads, and MyNotes
+- `sharedLogic/src/commonMain/kotlin/net/bible/service/db/DatabaseContainer.kt`: Singleton managing multiple Room databases
 - `app/src/main/java/net/bible/service/common/CommonUtils.kt`: Global app preferences and utilities
 
 ### Vue.js Frontend
@@ -215,15 +216,15 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
 **Always consider all theme/display variants when making UI changes.** AndBible supports multiple visual modes that must all work correctly:
 
 - **Color themes**: Both **dark** and **light** themes must be supported. Test that colors, contrast, and readability work in both.
-- **Monochrome mode**: Designed for **black-and-white e-ink devices**. In this mode, virtually everything should be grayscale — no color hues. This applies especially to `MainBibleActivity` (Android side) and the BibleView-JS (Vue.js side). Avoid introducing colored elements that would look broken on e-ink.
+- **Monochrome mode**: Designed for **black-and-white e-ink devices**. In this mode, virtually everything should be grayscale — no color hues. This applies especially to the reading screen (`ReadingViewScreen`, Compose) and the BibleView-JS (Vue.js side). Avoid introducing colored elements that would look broken on e-ink.
 - **No animations setting**: Users can disable animations. Ensure new animations respect this setting and degrade gracefully when disabled.
 
 When adding or modifying UI elements (buttons, highlights, backgrounds, icons, etc.), verify they look correct across all four combinations: dark, light, monochrome, and no-animations.
 
 ## Code Patterns
 
-### View Bindings
-Always use [View Binding](https://developer.android.com/topic/libraries/view-binding) in new Activities and Fragments. Access views through the generated binding object instead of `findViewById`.
+### New UI is Compose
+New screens and views are Compose Multiplatform code in `:sharedUi`, shared by Android, iOS and desktop. When you have to touch one of the remaining legacy View-based screens, use [View Binding](https://developer.android.com/topic/libraries/view-binding) instead of `findViewById`.
 
 ### Kotlin Idioms
 Use Kotlin scope functions (`apply`, `let`, `with`, `also`, `run`) to reduce repetition. For example, prefer `binding.apply { ... }` over repeating `binding.` on every line. Apply this consistently whenever it improves readability.
@@ -390,5 +391,5 @@ echo $ANDROID_SDK_ROOT
 
 - `current-stable` is the stable release branch; feature work happens on topic branches
 - Never cancel long-running Gradle builds - they can take 10-45 minutes on first run
-- Prefer Vue.js tests for rapid development feedback (5-6 seconds vs minutes for Android tests)
+- Prefer Vue.js tests for rapid development feedback (seconds vs minutes for Android tests)
 - Always use the repository's standard testing tools (`npm run test:ci`, `./gradlew check`)
