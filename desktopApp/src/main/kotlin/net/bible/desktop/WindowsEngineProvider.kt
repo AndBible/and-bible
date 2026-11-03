@@ -1,16 +1,22 @@
 package net.bible.desktop
 
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.runtime.withFrameNanos
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.desktop.webview2.WebView2Engine
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 import java.nio.file.Path
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 internal fun windowsWindowedRendering(kcefWindowed: Boolean): Boolean = kcefWindowed
 
@@ -21,7 +27,13 @@ internal fun selectWindowsEngine(property: String, renderer: String?, runtimeAva
     return if (property == "auto" && renderer == "DIRECT3D" && runtimeAvailable) WindowsEngineChoice.WEBVIEW2 else WindowsEngineChoice.KCEF
 }
 
-/** Owns publication and disposal across startup racing with a window close. */
+/**
+ * Owns publication and disposal across engine startup racing with cancellation or a window close.
+ *
+ * The blocking engine start runs on one IO worker that owns its result; the suspended caller never waits for
+ * it once cancelled or after [shutdown]. A start already running cannot be aborted, so a late engine is
+ * disposed by the worker exactly once.
+ */
 internal class DeferredWindowsEngine(
     private val property: String,
     private val startWebView2: () -> Result<DesktopWebEngine>,
@@ -31,38 +43,71 @@ internal class DeferredWindowsEngine(
 ) : DesktopWebEngine {
     private val lock = Any()
     private var closed = false
+    private var abandoned = false
     private var started = false
     private var delegate: DesktopWebEngine? = null
     private var stop: ((DesktopWebEngine) -> Unit)? = null
     private var languages: (() -> String)? = null
+    private var waiter: CancellableContinuation<Unit>? = null
 
     suspend fun initialize(renderer: String?) {
         synchronized(lock) {
-            if (closed || started) return
+            if (closed) throw CancellationException("Windows engine closed")
+            if (started) return
             started = true
         }
         val selected = selectWindowsEngine(property, renderer, true)
-        withContext(Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
-            var engine: DesktopWebEngine? = null
-            var closer: (DesktopWebEngine) -> Unit = stopKcef
+        suspendCancellableCoroutine { cont ->
+            val alreadyClosed = synchronized(lock) {
+                if (closed) true else { waiter = cont; false }
+            }
+            if (alreadyClosed) {
+                cont.resumeWithException(CancellationException("Windows engine closed"))
+                return@suspendCancellableCoroutine
+            }
+            cont.invokeOnCancellation { synchronized(lock) { abandoned = true; waiter = null } }
+            Dispatchers.IO.dispatch(EmptyCoroutineContext, Runnable { runStartup(selected) })
+        }
+    }
+
+    private fun mayStart(): Boolean = synchronized(lock) { !closed && !abandoned }
+
+    private fun takeWaiter(): CancellableContinuation<Unit>? = synchronized(lock) { waiter.also { waiter = null } }
+
+    /** Worker body: starts the engine, then publishes it or disposes it exactly once. */
+    private fun runStartup(selected: WindowsEngineChoice) {
+        var engine: DesktopWebEngine? = null
+        var closer: (DesktopWebEngine) -> Unit = stopKcef
+        try {
             if (selected == WindowsEngineChoice.WEBVIEW2) {
-                engine = startWebView2().getOrNull()
+                if (!mayStart()) return
+                engine = runCatching { startWebView2() }.getOrElse { Result.failure(it) }.getOrNull()
                 if (engine != null) closer = stopWebView2
             }
             if (engine == null) {
-                synchronized(lock) { if (closed) return@withContext }
+                if (!mayStart()) return
                 engine = startKcef()
+                closer = stopKcef
             }
-            val created = engine
-            val dispose = synchronized(lock) {
-                if (closed) true else {
+            val created: DesktopWebEngine = engine
+            var waiting: CancellableContinuation<Unit>? = null
+            val publish = synchronized(lock) {
+                if (closed || abandoned) false else {
                     languages?.let(created::setActiveLanguages)
                     delegate = created
                     stop = closer
-                    false
+                    waiting = waiter.also { waiter = null }
+                    true
                 }
             }
-            if (dispose) closer(created)
+            if (publish) {
+                engine = null
+                waiting?.resume(Unit)
+            }
+        } catch (t: Throwable) {
+            takeWaiter()?.resumeWithException(t)
+        } finally {
+            engine?.let { closer(it) }
         }
     }
 
@@ -72,17 +117,23 @@ internal class DeferredWindowsEngine(
         Unit
     }
     private fun ready(): DesktopWebEngine = synchronized(lock) { checkNotNull(delegate) { "Windows engine not ready" } }
+    fun bindWindow(window: ComposeWindow) = synchronized(lock) {
+        (delegate as? WebView2Engine)?.window = window
+    }
     override fun bundleUrl(lang: String, dark: Boolean) = ready().bundleUrl(lang, dark)
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane =
         ready().createPane(id, url, documentStartScripts, onMessage)
     fun shutdown() {
-        val owned = synchronized(lock) {
+        val owned: Pair<DesktopWebEngine, (DesktopWebEngine) -> Unit>?
+        val waiting: CancellableContinuation<Unit>?
+        synchronized(lock) {
             if (closed) return
             closed = true
-            val pair = delegate?.let { it to checkNotNull(stop) }
+            owned = delegate?.let { it to checkNotNull(stop) }
             delegate = null
-            pair
+            waiting = waiter.also { waiter = null }
         }
+        waiting?.resumeWithException(CancellationException("Windows engine closed"))
         owned?.second?.invoke(owned.first)
     }
 }
@@ -90,9 +141,8 @@ internal class DeferredWindowsEngine(
 class WindowsEngineProvider : DesktopEngineProvider {
     private val kcef = KcefEngineProvider { throw IllegalStateException(it) }
     private var deferred: DeferredWindowsEngine? = null
-    private var window: ComposeWindow? = null
     private var log: (String) -> Unit = {}
-    override val windowedRendering: Boolean get() = false
+    override val windowedRendering: Boolean get() = windowsWindowedRendering(kcef.windowedRendering)
 
     override fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine {
         this.log = log
@@ -103,7 +153,6 @@ class WindowsEngineProvider : DesktopEngineProvider {
             startWebView2 = {
                 WebView2Engine.start(bundleDir, paths.cache.resolve("webview2"), log, DesktopPageAssetRoutes.koinBound())
                     .onFailure { log("webview2 unavailable: ${it.message}; falling back to KCEF") }
-                    .map { it.also { engine -> engine.window = window } }
             },
             startKcef = { kcef.create(bundleDir, paths, log) },
             stopWebView2 = { (it as WebView2Engine).shutdown() },
@@ -112,8 +161,6 @@ class WindowsEngineProvider : DesktopEngineProvider {
     }
 
     override suspend fun awaitWindowReady(window: ComposeWindow) {
-        this.window = window
-        withFrameNanos { }
         var renderer: String? = null
         for (attempt in 0 until 100) {
             renderer = window.renderApi.toString()
@@ -124,7 +171,10 @@ class WindowsEngineProvider : DesktopEngineProvider {
         val choice = selectWindowsEngine(property, renderer, true)
         log("desktop renderer: ${renderer ?: "UNKNOWN"}; engine: $choice" +
             if (property == "kcef") " (forced)" else if (choice == WindowsEngineChoice.KCEF) " (renderer is not DIRECT3D)" else "")
-        checkNotNull(deferred).initialize(renderer)
+        val engine = checkNotNull(deferred)
+        engine.initialize(renderer)
+        currentCoroutineContext().ensureActive()
+        engine.bindWindow(window)
     }
     override fun shutdown() { deferred?.shutdown() }
 }

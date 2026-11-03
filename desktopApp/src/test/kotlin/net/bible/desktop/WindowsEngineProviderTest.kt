@@ -18,7 +18,7 @@ import kotlin.test.assertFailsWith
 class WindowsEngineProviderTest {
     private class FakeEngine(private val name: String) : DesktopWebEngine {
         var languages: (() -> String)? = null
-        var shutdowns = 0
+        @Volatile var shutdowns = 0
         override fun bundleUrl(lang: String, dark: Boolean) = name
         override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane =
             error("No pane expected")
@@ -72,6 +72,10 @@ class WindowsEngineProviderTest {
             worker.join(5000)
         }
         assertTrue(!worker.isAlive)
+        // The caller is released at shutdown(); the late engine is disposed on the IO worker after release.
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+        while (webview.shutdowns == 0 && System.nanoTime() < deadline) Thread.sleep(10)
+        Thread.sleep(50) // leave room for an erroneous second dispose
         assertEquals(1, webview.shutdowns)
         assertEquals(0, cefAttempts)
         assertFailsWith<IllegalStateException> { deferred.bundleUrl("en", false) }
@@ -110,8 +114,97 @@ class WindowsEngineProviderTest {
 
     @Test
     fun `windows honors configured windowed cef for fallback overlays`() {
-        assertEquals(true, windowsWindowedRendering(true))
-        assertEquals(false, windowsWindowedRendering(false))
+        val previous = System.getProperty("andbible.kcef.rendering")
+        // The real KCEF mode is process-cached; isolate this test and restore the exact previous resolution.
+        val mode = Class.forName("net.bible.sharedui.desktop.webengine.kcef.KcefRenderingMode")
+            .getDeclaredField("resolved").apply { isAccessible = true }
+        val previousMode = mode.get(null)
+        try {
+            mode.set(null, null)
+            System.setProperty("andbible.kcef.rendering", "windowed")
+            assertEquals("WINDOW", desktopLayersType(WindowsEngineProvider()))
+        } finally {
+            mode.set(null, previousMode)
+            if (previous == null) System.clearProperty("andbible.kcef.rendering")
+            else System.setProperty("andbible.kcef.rendering", previous)
+        }
+    }
+
+    @Test
+    fun `close before initialization prevents either engine starting`() = runBlocking {
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = { error("WebView2 started after close") },
+            startKcef = { error("KCEF started after close") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        deferred.shutdown()
+        assertFailsWith<kotlinx.coroutines.CancellationException> { deferred.initialize("DIRECT3D") }
+        Unit
+    }
+
+    @Test
+    fun `close after webview failure prevents fallback reservation`() = runBlocking {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        val cefAttempts = java.util.concurrent.atomic.AtomicInteger()
+        val deferred = DeferredWindowsEngine(
+            property = "auto",
+            startWebView2 = {
+                entered.countDown()
+                check(release.await(5, TimeUnit.SECONDS))
+                finished.countDown()
+                Result.failure(IllegalStateException("runtime missing"))
+            },
+            startKcef = { cefAttempts.incrementAndGet(); FakeEngine("cef") },
+            stopWebView2 = {},
+            stopKcef = {},
+        )
+        val job = launch(Dispatchers.Default) { deferred.initialize("DIRECT3D") }
+        try {
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            deferred.shutdown()
+            withTimeout(1000) { job.join() }
+        } finally {
+            release.countDown()
+        }
+        assertTrue(finished.await(5, TimeUnit.SECONDS))
+        assertEquals(0, cefAttempts.get())
+        assertFailsWith<IllegalStateException> { deferred.bundleUrl("en", false) }
+        Unit
+    }
+
+    @Test
+    fun `cancelling reserved cef startup cleans up late engine once`() = runBlocking {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val stopped = CountDownLatch(1)
+        val cef = FakeEngine("cef")
+        val deferred = DeferredWindowsEngine(
+            property = "kcef",
+            startWebView2 = { error("Forced KCEF must not start WebView2") },
+            startKcef = {
+                entered.countDown()
+                check(release.await(5, TimeUnit.SECONDS))
+                cef
+            },
+            stopWebView2 = { error("Wrong engine stopped") },
+            stopKcef = { cef.shutdowns++; stopped.countDown() },
+        )
+        val job = launch(Dispatchers.Default) { deferred.initialize("DIRECT3D") }
+        try {
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            withTimeout(1000) { job.cancelAndJoin() }
+            deferred.shutdown()
+        } finally {
+            release.countDown()
+        }
+        assertTrue(stopped.await(5, TimeUnit.SECONDS))
+        assertEquals(1, cef.shutdowns)
+        assertFailsWith<IllegalStateException> { deferred.bundleUrl("en", false) }
+        Unit
     }
 
     @Test
