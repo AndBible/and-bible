@@ -128,8 +128,9 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     /// WebKit kills the WebContent process of a hidden app (Mac: AndBible on another virtual desktop for a while); the
-    /// pages restart on the same native sessions. With the debug-only `-killWebContentOnBackground` the app kills its
-    /// reading WebViews' content processes when it enters the background. Back in the foreground every pane must show
+    /// pages restart on the same native sessions. With the debug-only `-killWebContentOnBackground` the app SIGKILLs its
+    /// reading WebViews' content processes when it resigns active (`IosWebContentKillHook.kt`; the app log then shows
+    /// `I0-WEBVIEW-KILL` and `I0-WEBVIEW-TERMINATED` per pane). Back in the foreground every pane must show
     /// the chapter again, not stay in its loading state (the restarted page reported client ready, and the session had
     /// considered its document already delivered).
     func testPanesRecoverAfterWebContentKilledInBackground() throws {

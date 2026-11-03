@@ -25,22 +25,24 @@ import platform.Foundation.NSNumber
 import platform.Foundation.valueForKey
 import platform.posix.SIGKILL
 import platform.posix.kill
-import platform.UIKit.UIApplicationDidEnterBackgroundNotification
+import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.WebKit.WKWebView
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.Platform
 
-/** Debug-only launch flag: kill every reading WebView's WebContent process when the app goes to the background. */
+/** Debug-only launch flag: kill every reading WebView's WebContent process when the app leaves the foreground. */
 internal const val KILL_WEB_CONTENT_ON_BACKGROUND = "-killWebContentOnBackground"
 
 /**
  * Debug-only test seam for the "panes stay loading after the app was hidden" bug: macOS/iOS WebKit kills the
  * WebContent process of a hidden app, the page restarts on the same native session. With [KILL_WEB_CONTENT_ON_BACKGROUND]
- * (debug binaries only) every reading WebView's WebContent process gets SIGKILL as soon as the app enters the
- * background, as the system's memory killer does, so WebKit reports a real termination
+ * (debug binaries only) every reading WebView's WebContent process gets SIGKILL as soon as the app resigns active
+ * (on its way to the background), as the system's memory killer does, so WebKit reports a real termination
  * (`webViewWebContentProcessDidTerminate`). WebKit's own `_killWebContentProcess` does not do: a client-requested
  * termination is not reported to the navigation delegate (Mac run 20261103-124841: no I0-WEBVIEW-TERMINATED). The
- * process id comes from WebKit's private `_webProcessIdentifier`. Release builds never read the flag.
+ * trigger is `willResignActive`, not `didEnterBackground`: on the iPadOS 26 simulator the Home button only takes the
+ * focus away and the app never enters the background (Mac run 20261103-141732). The process id comes from WebKit's
+ * private `_webProcessIdentifier`. Release builds never read the flag.
  */
 @OptIn(ExperimentalNativeApi::class, ExperimentalForeignApi::class)
 internal object IosWebContentKillHook {
@@ -52,7 +54,7 @@ internal object IosWebContentKillHook {
         if (NSProcessInfo.processInfo.arguments.none { it.toString() == KILL_WEB_CONTENT_ON_BACKGROUND }) return
         installed = true
         NSNotificationCenter.defaultCenter.addObserverForName(
-            UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue,
+            UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue,
         ) { _ -> killAll(webViews()) }
     }
 
