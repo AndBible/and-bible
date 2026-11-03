@@ -17,6 +17,11 @@ data class SpeakPhrases(
 )
 
 interface SpeakPlatform : AudioFocus {
+    /**
+     * Whether this platform has a working speech backend. When false every speak entry point (toolbar button, drawer
+     * row, window-menu row, BibleView action button, reading-plan buttons) is hidden. Android and iOS: true.
+     */
+    val isSupported: Boolean get() = true
     val maxSpeechInputLength: Int
     /** Read on every access so playback notices changes in the system engine preference. */
     val preferredEnginePackage: String?

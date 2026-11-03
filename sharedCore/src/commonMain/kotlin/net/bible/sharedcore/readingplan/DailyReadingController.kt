@@ -32,6 +32,8 @@ data class DailyReadingUi(
     val showSpeakAll: Boolean,
     val allRead: Boolean,
     val isDateBasedPlan: Boolean,
+    /** False on a platform without speech: the per-reading and "all" Speak buttons are not shown. */
+    val speakSupported: Boolean = true,
 )
 
 enum class SpeakState { NONE, SPEAKING, PAUSED }

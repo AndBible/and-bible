@@ -42,6 +42,8 @@ class FakeSpeakEngine(var languages: Map<Locale, SpeakLanguageResult>) : SpeakEn
 
 class FakeSpeakPlatform(private val engine: FakeSpeakEngine, private val autoInit: Boolean = false) : SpeakPlatform {
     override var preferredEnginePackage: String? = null
+    var supported = true
+    override val isSupported get() = supported
     override val maxSpeechInputLength get() = engine.maxSpeechInputLength
     var creations = 0
     var listener: SpeakEngineListener? = null

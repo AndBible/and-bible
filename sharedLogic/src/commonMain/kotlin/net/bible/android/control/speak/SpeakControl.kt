@@ -95,6 +95,9 @@ class SpeakControl constructor(
     val speakPageManager: CurrentPageManager
         get() = _speakPageManager ?: windowControl.activeWindowPageManager
 
+    /** See [SpeakPlatform.isSupported]: the single gate for showing speak UI. */
+    val isSupported: Boolean get() = platform.isSupported
+
     val isCurrentDocSpeakAvailable: Boolean
         get() {
             return try {

@@ -281,7 +281,7 @@ class WindowPaneMenuStateBuilder(
         }
 
         // SplitBibleArea.kt:910-928
-        if (!speakControl.isStopped) {
+        if (speakControl.isSupported && !speakControl.isStopped) {
             val bookAndKey = speakControl.speakBookAndKey
             val label = strings.goToRef(
                 bookAndKey?.let {

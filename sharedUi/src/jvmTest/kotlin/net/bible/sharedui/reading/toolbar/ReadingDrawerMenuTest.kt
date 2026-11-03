@@ -33,6 +33,7 @@ class ReadingDrawerMenuTest {
         val calls = mutableListOf<String>()
         var searchOk = true
         var speakOk = true
+        var speakSupportedOk = true
         override fun openChooseDocument() { calls += "chooser" }
         override fun openSearch() { calls += "search" }
         override fun showSpeakTransport() { calls += "speak" }
@@ -46,6 +47,7 @@ class ReadingDrawerMenuTest {
         override fun openUrl(url: String) { calls += "url:$url" }
         override fun searchable() = searchOk
         override fun speakable() = speakOk
+        override fun speakSupported() = speakSupportedOk
         override fun versionName() = "9.9"
         var offered: Set<String> = ReadingDrawerMenu.EXTRA_ROWS
         override fun openStudyPads() { calls += "studyPads" }
@@ -171,6 +173,15 @@ class ReadingDrawerMenuTest {
         assertTrue(items.getValue(ReadingDrawerMenu.ID_SEARCH).enabled && items.getValue(ReadingDrawerMenu.ID_SPEAK).enabled)
         menu.handle(ReadingDrawerMenu.ID_SEARCH); menu.handle(ReadingDrawerMenu.ID_SPEAK)
         assertEquals(listOf("search", "speak"), host.calls)
+    }
+
+    /** A platform without a speech backend (the Linux desktop) shows no Speak row at all, not a disabled one. */
+    @Test fun speakRowIsHiddenWhenThePlatformHasNoSpeech() {
+        host.speakSupportedOk = false
+        val items = menu.build().groups.flatMap { it.items }.associateBy { it.id }
+        assertTrue(ReadingDrawerMenu.ID_SPEAK !in items, "Speak row must not be shown")
+        menu.handle(ReadingDrawerMenu.ID_SPEAK)
+        assertTrue(host.calls.isEmpty(), "Speak row must be inert")
     }
 
     /** Shown plus omitted rows are exactly Android's drawer table, so a row cannot disappear without being named. */

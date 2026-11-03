@@ -403,6 +403,7 @@ internal class HostReadingToolbarHost(
 
     override fun searchable(): Boolean = activePageManager.currentPage.isSearchable
     override fun speakable(): Boolean = activePageManager.currentPage.isSpeakable
+    override fun speakSupported(): Boolean = speakControl().isSupported
     override fun versionName(): String = versionNameSource()
 
     private companion object {

@@ -420,6 +420,7 @@ class ReadingPlanHost(
             showSpeakAll = dto.numReadings > 1,
             allRead = status.isAllRead,
             isDateBasedPlan = dto.isDateBasedPlan,
+            speakSupported = speakControl.isSupported,
         )
     }
 

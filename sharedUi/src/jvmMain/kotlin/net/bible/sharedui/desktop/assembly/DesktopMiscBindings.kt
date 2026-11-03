@@ -110,6 +110,7 @@ private object NoSpeakEngine : SpeakEngine {
 }
 
 class DesktopNoSpeakPlatform : SpeakPlatform {
+    override val isSupported: Boolean get() = false
     override val maxSpeechInputLength: Int get() = 1000
     override val preferredEnginePackage: String? get() = null
     override fun createEngine(listener: SpeakEngineListener): SpeakEngine = NoSpeakEngine.also { listener.onInit(false) }

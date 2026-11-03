@@ -55,6 +55,9 @@ interface ReadingDrawerHost {
     /** The active page can be searched (Android disables the row otherwise). */
     fun searchable(): Boolean
     fun speakable(): Boolean
+
+    /** Whether the platform has a speech backend at all; when false the Speak row is not shown (not merely disabled). */
+    fun speakSupported(): Boolean = true
     fun versionName(): String
 
     // --- R3 ---
@@ -93,7 +96,8 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
                     items = listOf(
                         item(ID_CHOOSE_DOCUMENT, s.chooseDocument, "ic_library_books_white_24dp"),
                         item(ID_SEARCH, s.search, "ic_search_24dp", host.searchable()),
-                        item(ID_SPEAK, s.speak, "ic_baseline_headphones_24", host.speakable()),
+                        item(ID_SPEAK, s.speak, "ic_baseline_headphones_24", host.speakable())
+                            .copy(visible = host.speakSupported()),
                         item(ID_BOOKMARKS, s.bookmarks, "ic_baseline_bookmark_24"),
                         item(ID_STUDY_PADS, s.studyPads, "ic_baseline_studypads_24"),
                         item(ID_MY_DOCUMENTS, s.myDocuments, "ic_baseline_description_24"),
@@ -139,7 +143,7 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
         when (id) {
             ID_CHOOSE_DOCUMENT -> host.openChooseDocument()
             ID_SEARCH -> if (host.searchable()) host.openSearch()
-            ID_SPEAK -> if (host.speakable()) host.showSpeakTransport()
+            ID_SPEAK -> if (host.speakSupported() && host.speakable()) host.showSpeakTransport()
             ID_BOOKMARKS -> host.openBookmarks()
             ID_STUDY_PADS -> host.openStudyPads()
             ID_MY_DOCUMENTS -> host.openMyDocuments()
