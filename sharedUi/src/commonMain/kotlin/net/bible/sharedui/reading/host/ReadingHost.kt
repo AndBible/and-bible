@@ -756,7 +756,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
                     isMaximised = isMaximised,
                 ),
                 isLinks = window.isLinksWindow,
-                syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
+                syncGroup = window.displayedSyncGroup,
                 mode = WindowButtonMode.Pane,
                 onClick = {
                     controller.onWindowActivated(windowId)

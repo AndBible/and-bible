@@ -34,7 +34,21 @@ data class WindowSnapshot(
     val isSynchronised: Boolean,
     val syncGroup: Int,
     val isLinksWindow: Boolean,
-)
+    /**
+     * Whether the window's CURRENT document can take part in window sync (`Window.isSyncable`;
+     * false for e.g. General Books and the memorize document). It follows the page, so it can flip
+     * while the stored [isSynchronised] flag stays put.
+     */
+    val isSyncable: Boolean = true,
+) {
+    /**
+     * The 1-based sync group number to draw on the window button, or 0 for "no sync glyph".
+     * Hidden unless the window is synchronised AND its current document is syncable; the stored
+     * [isSynchronised] flag is untouched, so the glyph returns when a Bible is shown again.
+     */
+    val displayedSyncGroup: Int
+        get() = if (isSynchronised && isSyncable) syncGroup + 1 else 0
+}
 
 /**
  * Immutable snapshot of the whole window layout for one workspace, in display order

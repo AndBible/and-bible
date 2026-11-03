@@ -88,6 +88,7 @@ class WindowStateServiceImpl : WindowStateService {
                 isSynchronised = w.isSynchronised,
                 syncGroup = w.syncGroup,
                 isLinksWindow = w.isLinksWindow,
+                isSyncable = w.isSyncable,
             )
         }
         val settings = repo.workspaceSettings

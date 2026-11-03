@@ -44,4 +44,26 @@ class WindowLayoutStateTest {
         assertNotEquals(s1, s2.copy(activeWindowId = "b"))
         assertNotEquals(s1, s1.copy(windows = listOf(w.copy(state = WindowStateValue.MINIMISED))))
     }
+
+    private fun snap(synchronised: Boolean, group: Int, syncable: Boolean) = WindowSnapshot(
+        id = "a", state = WindowStateValue.VISIBLE, weight = 1.0f, isVisible = true,
+        isPinMode = false, isSynchronised = synchronised, syncGroup = group, isLinksWindow = false,
+        isSyncable = syncable,
+    )
+
+    @Test
+    fun displayedSyncGroup_isOneBased_forSynchronisedSyncableWindow() {
+        assertEquals(3, snap(synchronised = true, group = 2, syncable = true).displayedSyncGroup)
+    }
+
+    @Test
+    fun displayedSyncGroup_isZero_whenNotSynchronised() {
+        assertEquals(0, snap(synchronised = false, group = 2, syncable = true).displayedSyncGroup)
+    }
+
+    @Test
+    fun displayedSyncGroup_isZero_whenDocumentCannotBeSynchronised() {
+        // A General Book window keeps its stored isSynchronised flag, but shows no glyph.
+        assertEquals(0, snap(synchronised = true, group = 2, syncable = false).displayedSyncGroup)
+    }
 }
