@@ -183,7 +183,11 @@ object HostReadingWindows {
      * platform web view cancels that navigation and hands its URL here, as Android's `shouldOverrideUrlLoading` does).
      * Main thread. False when the window has no assembly or the link is not handled.
      */
-    fun openLink(windowId: String, url: String): Boolean = assemblies[windowId]?.linkHandler?.handle(url) ?: false
+    fun openLink(windowId: String, url: String): Boolean {
+        val handler = assemblies[windowId]?.linkHandler ?: return false
+        val commands = binding?.koin?.get<net.bible.sharedcore.window.WindowCommands>()
+        return openLinkInWindow(commands, windowId, handler::handle, url)
+    }
 
     /**
      * The window's page is starting again on its existing session (iOS: WebKit killed the WebContent process and the
@@ -424,4 +428,21 @@ class HostNightModeObserver(
         /** The [AppSettings] keys whose writes change a display mode. */
         val DISPLAY_MODE_KEYS = setOf("display_color_mode", "disable_animations")
     }
+}
+
+/**
+ * Opens [url] from the window [windowId]'s page. Android's `BibleView.onTouchEvent` makes the touched window the active
+ * one before its link is followed, and `WindowControl.showLink` picks the links window from the ACTIVE window; the host
+ * web views swallow the touch, so the click's window is activated here. Without it, once a link had opened the links
+ * window (which becomes active) every later link, also those of the normal window, was routed from the links window
+ * and created yet another links window.
+ */
+internal fun openLinkInWindow(
+    commands: net.bible.sharedcore.window.WindowCommands?,
+    windowId: String,
+    handle: (String) -> Boolean,
+    url: String,
+): Boolean {
+    commands?.setActive(windowId)
+    return handle(url)
 }
