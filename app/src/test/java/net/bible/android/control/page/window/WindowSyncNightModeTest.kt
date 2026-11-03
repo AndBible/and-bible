@@ -38,6 +38,35 @@ class WindowSyncNightModeTest {
         DatabaseResetter.resetDatabase()
     }
 
+    /**
+     * Regression (desktop sync loop): night mode on while no reloadAllWindows ran since start.
+     * Every sync used to force a resync again (lastSyncWasInNightMode was only stored by
+     * reloadAllWindows), so each reload's verse report re-triggered a sync and the windows reloaded
+     * the same chapter forever. The flip must force exactly one resync.
+     */
+    @Test
+    fun nightModeStaysOnForcesResyncOnlyOnce() {
+        val koin = GlobalContext.get()
+        val snapshot = KoinFactorySnapshot.of<NightModeState>(koin)
+        val fake = FakeNightMode(true)
+        try {
+            koin.loadModules(listOf(module { single<NightModeState> { fake } }), allowOverride = true)
+            val repository = testWindowRepository()
+            repository.initializeAtEdge()
+            val sync = WindowSync(repository)
+            val window = repository.activeWindow
+
+            immediateSync.invoke(sync, window) // first sync sees night mode differ from the initial false
+            val afterFirst = lastForceSyncAllField.getLong(sync)
+            lastForceSyncAllField.setLong(sync, 0L)
+            immediateSync.invoke(sync, window)
+            assertEquals("night mode unchanged since the last sync: no new forced resync", 0L, lastForceSyncAllField.getLong(sync))
+            assertNotEquals("the first sync after the flip did force one", 0L, afterFirst)
+        } finally {
+            snapshot.restore()
+        }
+    }
+
     @Test
     fun nightModeFlipForcesResync() {
         val koin = GlobalContext.get()
