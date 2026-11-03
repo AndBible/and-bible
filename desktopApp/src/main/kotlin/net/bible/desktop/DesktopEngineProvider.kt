@@ -11,7 +11,11 @@ import net.bible.sharedui.desktop.webview.DesktopPageAssetRoutes
 interface DesktopEngineProvider {
     val windowedRendering: Boolean
     fun create(bundleDir: Path, paths: DesktopPaths, log: (String) -> Unit): DesktopWebEngine
-    /** Called once the main window has rendered its first frame, before the first web pane is created; an engine whose choice depends on the window (render API) decides here. */
+    /**
+     * Called after the first Compose frame and before any pane is created. Implementations must suspend without
+     * blocking the UI thread, be cooperatively cancellable, and never publish an engine after cancellation.
+     * Shutdown follows through the normal ordered close sequence.
+     */
     suspend fun awaitWindowReady(window: ComposeWindow) {}
     fun shutdown()
     fun exitProcess(status: Int): Nothing = kotlin.system.exitProcess(status)

@@ -12,6 +12,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import net.bible.sharedcore.platform.desktop.DesktopPaths
 import net.bible.sharedui.desktop.webengine.DesktopWebEngine
 import kotlin.test.Test
@@ -64,11 +65,12 @@ class DesktopEngineProviderTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun closingDuringReadinessCancelsItBeforeEngineShutdown() = runComposeUiTest {
+    fun closingDuringReadinessPersistsBeforeOneEngineShutdown() = runComposeUiTest {
         var visible by mutableStateOf(true)
         val started = CompletableDeferred<Unit>()
         val ready = CompletableDeferred<Unit>()
         val events = mutableListOf<String>()
+        val close = DesktopEngineCloseCoordinator { events += "shutdown" }
         setContent {
             if (visible) DesktopEngineReadyGate(
                 awaitReady = {
@@ -81,7 +83,7 @@ class DesktopEngineProviderTest {
                     }
                 },
                 onFailure = { events += "failure" },
-                onCancelled = { events += "shutdown" },
+                onCancelled = close::readinessCancelled,
             ) { Box(Modifier.testTag("pane")) }
         }
         waitForIdle()
@@ -90,7 +92,14 @@ class DesktopEngineProviderTest {
         waitForIdle()
         ready.complete(Unit)
         waitForIdle()
-        assertEquals(listOf("cancelled", "shutdown"), events)
+        assertEquals(listOf("cancelled"), events)
+        runOnIdle {
+            runBlocking {
+                close.finish(persist = { events += "persist" }, onShutdownFailure = { throw it })
+                close.finish(persist = {}, onShutdownFailure = { throw it })
+            }
+        }
+        assertEquals(listOf("cancelled", "persist", "shutdown"), events)
         onNodeWithTag("pane").assertDoesNotExist()
     }
 
