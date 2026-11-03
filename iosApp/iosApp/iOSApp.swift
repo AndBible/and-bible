@@ -42,6 +42,8 @@ func appLog(_ line: String) {
 /// top-level `MainViewController()` in `sharedUi/iosMain`; it shows the AndBible I0 PoC app.
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
+        // Before Compose shows its first scene (every sheet's layer computes its keyboard overlap when it appears).
+        CmpScreenSpaceFix.installIfNeeded()
         let compose = MainViewControllerKt.MainViewController()
         // iPhone and iPad keep the Compose controller as it is; only the iOS app on a Mac gets the window-controls host.
         return ProcessInfo.processInfo.isiOSAppOnMac ? MacWindowControlsHost(compose: compose) : compose

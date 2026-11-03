@@ -431,43 +431,11 @@ final class ReadingUITests: RealAppUITestCase {
         }
 
         func checkWorkspacesSheet(_ step: String) {
-            // The toolbar button where it fits (iPad, landscape), else the overflow row.
-            let ws = byLabel(app, "Workspaces")
-            if ws.waitForExistence(timeout: 5) && ws.isHittable {
-                ws.tap()
-            } else {
-                let more = byLabel(app, "More options")
-                guard more.waitForExistence(timeout: 10) else {
-                    attachTree(app, "\(step)-no-overflow"); XCTFail("\(step): no 'More options' toolbar button"); return
-                }
-                more.tap()
-                let row = app.descendants(matching: .any)
-                    .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
-                guard row.waitForExistence(timeout: 10) else {
-                    attachTree(app, "\(step)-no-row"); XCTFail("\(step): no 'Workspaces' overflow row"); return
-                }
-                row.tap()
-            }
-            guard quickSheetShown(app, timeout: 15) else {
-                attachTree(app, "\(step)-sheet-not-shown"); XCTFail("\(step): the workspaces sheet did not open"); return
-            }
-            // Let the slide-in settle before measuring.
-            _ = waitUntil(timeout: 3) { false }
-            // The sheet surface's own accessibility frame is not its drawn frame (Compose reports it unoffset), so
-            // measure the sheet's last row, the "Manage workspaces" footer.
-            let footer = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Manage workspaces'")).firstMatch
-            guard footer.waitForExistence(timeout: 10) else {
-                attachTree(app, "\(step)-no-footer"); XCTFail("\(step): the sheet has no 'Manage workspaces' row"); return
-            }
-            let window = app.windows.firstMatch.frame
-            let gap = window.maxY - footer.frame.maxY
-            NSLog("%@", "SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
-            shot(app, "\(step)-workspaces-sheet")
+            guard let gap = workspacesSheetGap(app, step) else { return }
             // Below the footer: at most the bottom safe area (34 pt home indicator) and the sheet's own padding. The
             // Mac report was a gap of about 5 cm (well over 100 pt).
-            XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom \(window.maxY)")
+            XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom")
             XCTAssertGreaterThanOrEqual(gap, 0, "\(step): the sheet's last row ends below the window")
-            closeQuickSheet(app, step)
         }
 
         checkWorkspacesSheet("fresh")
@@ -504,6 +472,78 @@ final class ReadingUITests: RealAppUITestCase {
             XCTAssertNotEqual(before, after, "the corner drag did not resize the window")
             shot(app, "resized-window")
             checkWorkspacesSheet("resized")
+        }
+    }
+
+    /// Opens the Workspaces quick sheet (toolbar button where it fits, else the overflow row), measures how far its
+    /// last row (the "Manage workspaces" footer) ends above the window's bottom edge, and closes it again. Nil (with a
+    /// recorded failure) when the sheet could not be opened or measured.
+    private func workspacesSheetGap(_ app: XCUIApplication, _ step: String) -> CGFloat? {
+        let ws = byLabel(app, "Workspaces")
+        if ws.waitForExistence(timeout: 5) && ws.isHittable {
+            ws.tap()
+        } else {
+            let more = byLabel(app, "More options")
+            guard more.waitForExistence(timeout: 10) else {
+                attachTree(app, "\(step)-no-overflow"); XCTFail("\(step): no 'More options' toolbar button"); return nil
+            }
+            more.tap()
+            let row = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+            guard row.waitForExistence(timeout: 10) else {
+                attachTree(app, "\(step)-no-row"); XCTFail("\(step): no 'Workspaces' overflow row"); return nil
+            }
+            row.tap()
+        }
+        guard quickSheetShown(app, timeout: 15) else {
+            attachTree(app, "\(step)-sheet-not-shown"); XCTFail("\(step): the workspaces sheet did not open"); return nil
+        }
+        // Let the slide-in settle before measuring.
+        _ = waitUntil(timeout: 3) { false }
+        // The sheet surface's own accessibility frame is not its drawn frame (Compose reports it unoffset), so
+        // measure the sheet's last row, the "Manage workspaces" footer.
+        let footer = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Manage workspaces'")).firstMatch
+        guard footer.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-footer"); XCTFail("\(step): the sheet has no 'Manage workspaces' row"); return nil
+        }
+        let window = app.windows.firstMatch.frame
+        let gap = window.maxY - footer.frame.maxY
+        NSLog("%@", "SHEET-GEOMETRY-TEST \(step): window=\(window) footer=\(footer.frame) gap=\(gap)")
+        shot(app, "\(step)-workspaces-sheet")
+        closeQuickSheet(app, step)
+        return gap
+    }
+
+    /// The Mac geometry that floated the Workspaces sheet on TestFlight 2026.1102.214434: a window taller than
+    /// `UIScreen.bounds` (1284 pt on a 1050 pt screen), so Compose's per-layer keyboard overlap is 234 pt with no
+    /// keyboard (`CmpScreenSpaceFix.swift`). `-simulateTallMacWindow` (debug builds) reproduces it on the simulator:
+    /// - alone (iPhone/iPad behaviour, no correction) the sheet floats about 234 pt above the window bottom, which
+    ///   proves the simulation reaches Compose's computation;
+    /// - with `-simulateMacInsets` (the Mac path) the sheet sits on the bottom.
+    func testQuickSheetSitsOnWindowBottomInTallMacWindow() throws {
+        continueAfterFailure = true
+        if !isPad {
+            let device = XCUIDevice.shared
+            addTeardownBlock { device.orientation = .portrait }
+            device.orientation = .landscapeLeft
+        }
+        var app = try launchReading(extraArguments: ["-simulateTallMacWindow"])
+        if isPad {
+            maximizePadWindow(app)
+            addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
+        }
+        if let gap = workspacesSheetGap(app, "tall-uncorrected") {
+            XCTAssertGreaterThan(gap, 150, "the simulated tall window did not lift the uncorrected sheet (gap \(gap) pt)")
+        }
+        app.terminate()
+
+        app = try launchReading(extraArguments: ["-simulateTallMacWindow", "-simulateMacInsets"])
+        if isPad { maximizePadWindow(app) }
+        for step in ["tall-mac-fresh", "tall-mac-again"] {
+            if let gap = workspacesSheetGap(app, step) {
+                XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom")
+                XCTAssertGreaterThanOrEqual(gap, 0, "\(step): the sheet's last row ends below the window")
+            }
         }
     }
 
