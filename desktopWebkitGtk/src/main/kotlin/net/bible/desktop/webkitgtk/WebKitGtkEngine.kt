@@ -433,7 +433,10 @@ internal class WebKitGtkPane(
         val source = event.source as? Component ?: return@AWTEventListener
         if (source === canvas || SwingUtilities.isDescendingFrom(source, component)) return@AWTEventListener
         val top = SwingUtilities.getWindowAncestor(canvas) ?: return@AWTEventListener
-        if (SwingUtilities.getWindowAncestor(source) !== top) return@AWTEventListener
+        // Compose popups and dialogs are their own (owned) windows in WINDOW layer mode: accept any window owned by `top`.
+        var owner: java.awt.Window? = SwingUtilities.getWindowAncestor(source)
+        while (owner != null && owner !== top) owner = owner.owner
+        if (owner == null) return@AWTEventListener
         gtkHasFocus = false
         val topXid = runCatching { Native.getComponentID(top) }.getOrDefault(0L)
         if (topXid == 0L) return@AWTEventListener

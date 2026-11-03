@@ -110,8 +110,9 @@ val runPoc by tasks.registering(JavaExec::class) {
 // packageDeb runs its own jpackage; its .deb is unpacked, given the AndBible launcher entry, the WebKitGTK dependency and
 // the exact version, rebuilt under the same name, and then checked. These checks are the packaging gate.
 tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.configureEach {
+    val binariesSubdir = if (name == "packageReleaseDeb") "main-release" else "main"
     doLast {
-        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val debDir = layout.buildDirectory.dir("compose/binaries/$binariesSubdir/deb").get().asFile
         val deb = debDir.listFiles { f -> f.name.endsWith(".deb") }?.singleOrNull()
             ?: throw GradleException("Expected exactly one .deb in $debDir")
         fun run(vararg cmd: String): String {
