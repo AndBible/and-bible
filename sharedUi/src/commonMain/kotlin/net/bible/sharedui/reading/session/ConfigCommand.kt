@@ -112,5 +112,6 @@ object ConfigCommand {
 }
 
 /** The BibleView modal buttons to switch off: the user's [disabled] set, plus the "SPEAK" button where the platform cannot speak. */
+@kotlin.native.HiddenFromObjC
 fun withSpeakGate(disabled: Set<String>, speakSupported: Boolean): Set<String> =
     if (speakSupported) disabled else disabled + "SPEAK"
