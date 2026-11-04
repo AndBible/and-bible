@@ -203,7 +203,7 @@ class MigrationDataTest {
             """INSERT INTO GlobalAiSettings VALUES (X'62','ALLOW','["search"]','[]','["DOC"]',7777)""",
         )) { db ->
             assertEquals(listOf(
-                listOf("61", "ASK", """["read"]""", """["write"]""", """["KJV"]"" , "15000"),
+                listOf("61", "ASK", "[\"read\"]", "[\"write\"]", "[\"KJV\"]", "15000"),
                 listOf("62", "ALLOW", """["search"]""", "[]", """["DOC"]""", "7777"),
             ), db.rawRows("SELECT hex(id),agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens FROM GlobalAiSettings ORDER BY id", 6))
         }
@@ -220,10 +220,10 @@ class MigrationDataTest {
         )) { db ->
             assertEquals(listOf(listOf("72", "71", "model-x", "4", "1.5", "2.5")),
                 db.rawRows("SELECT hex(id),hex(providerConfigId),modelId,orderNumber,inputPricePerMillion,outputPricePerMillion FROM LlmConfiguredModel", 6))
-            assertEquals(listOf(listOf("73", "Prompt", "Question", """["BIBLE"]"", "72")),
+            assertEquals(listOf(listOf("73", "Prompt", "Question", "[\"BIBLE\"]", "72")),
                 db.rawRows("SELECT hex(id),name,promptTemplate,showIn,hex(configuredModelId) FROM AgentPrompt", 5))
             assertEquals(listOf(
-                listOf("74", "ASK", """["read"]"", """["write"]"", """["KJV"]"", "15000", """["p"]"", "17", """["c"]"", "72"),
+                listOf("74", "ASK", "[\"read\"]", "[\"write\"]", "[\"KJV\"]", "15000", "[\"p\"]", "17", "[\"c\"]", "72"),
                 listOf("75", null, null, null, "[]", "6789", "[]", "10", "[]", ""),
             ), db.rawRows("SELECT hex(id),agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens,hiddenBuiltInPrompts,maxIterations,commentaryDeselected,hex(defaultModelId) FROM GlobalAiSettings ORDER BY id", 10))
         }
