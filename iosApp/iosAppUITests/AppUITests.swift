@@ -188,27 +188,12 @@ class RealAppUITestCase: XCTestCase {
     }
 
     /// Accept only the known verse-16 wording, tolerating NASB's captured cross-reference marker.
-    private func hasJohn316Text(_ labels: [String]) -> Bool {
+    func hasJohn316Text(_ labels: [String]) -> Bool {
         guard let start = labels.firstIndex(of: "16"),
               let end = labels[(start + 1)...].firstIndex(of: "17") else { return false }
         let verse = labels[(start + 1)..<end].joined(separator: " ")
         return verse.range(of: #"\bFor God\s+so\s+(?:A\s+)?loved\s+the world\b"#,
                            options: .regularExpression) != nil
-    }
-
-    func testJohn316PhraseLabels() {
-        let nasb = ["16", "\u{201C}For God", "so", "A", "loved", "the world", ", that He", "B", "gave", "17"]
-        let kjv = ["16", "For", "God", "so", "loved", "the world", "17"]
-        XCTAssertTrue(hasJohn316Text(nasb))
-        XCTAssertTrue(hasJohn316Text(kjv))
-        XCTAssertFalse(hasJohn316Text(["1", "Nicodemus", "2", "came to Jesus"]))
-        XCTAssertFalse(hasJohn316Text(["17", "For God", "so", "A", "loved", "the world", "18"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "did not send", "the Son", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "hated", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "B", "loved", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "deeply", "loved", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "different text", "17", "For God so loved the world"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God so loved the world"]))
     }
 
     func freshReading(scenario: String = "chooser") -> XCUIApplication {
@@ -271,6 +256,22 @@ class RealAppUITestCase: XCTestCase {
 }
 
 final class AppUITests: RealAppUITestCase {
+    /// Lives here, not in RealAppUITestCase: a test method of the open base class runs again in each of its subclasses.
+    func testJohn316PhraseLabels() {
+        let nasb = ["16", "\u{201C}For God", "so", "A", "loved", "the world", ", that He", "B", "gave", "17"]
+        let kjv = ["16", "For", "God", "so", "loved", "the world", "17"]
+        XCTAssertTrue(hasJohn316Text(nasb))
+        XCTAssertTrue(hasJohn316Text(kjv))
+        XCTAssertFalse(hasJohn316Text(["1", "Nicodemus", "2", "came to Jesus"]))
+        XCTAssertFalse(hasJohn316Text(["17", "For God", "so", "A", "loved", "the world", "18"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "did not send", "the Son", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "hated", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "B", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "deeply", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "different text", "17", "For God so loved the world"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God so loved the world"]))
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = freshReading()
         selectKJV(app)

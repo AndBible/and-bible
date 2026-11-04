@@ -501,6 +501,14 @@ sync_tree() {
     # does not use .gitignore filters); xcodegen on the Mac then reads it through Base.xcconfig.
     VERSION_XCCONFIG="$repo/iosApp/Config/Version.xcconfig" "$(dirname "${BASH_SOURCE[0]}")/ios-version-xcconfig.sh" \
         || die "cannot generate iosApp/Config/Version.xcconfig"
+    # The UI suite's KJV Files fixture (tmp/ is gitignored but synced): packaged once from the test modules in ~/.sword;
+    # xcode-test seeds it into the simulator (iosApp/scripts/prepare-ui-test-files.sh).
+    local kjv="$repo/tmp/h2-files/h2-kjv.zip" pkg="$repo/iosApp/scripts/package-backup-test-kjv.py"
+    if [ ! -f "$kjv" ] && [ -f "$pkg" ] && [ -f "$HOME/.sword/mods.d/kjv.conf" ]; then
+        mkdir -p "$(dirname "$kjv")"
+        python3 -I "$pkg" --sword-dir "$HOME/.sword" --output "$kjv" >/dev/null \
+            || echo "mac-remote: WARNING: could not package tmp/h2-files/h2-kjv.zip (KJV Files fixture)" >&2
+    fi
     # Not synced: .git (the container's objects live in an alternate on the host), container-only data,
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
     stats=$("${RSYNC[@]}" --delete --stats \
@@ -772,6 +780,10 @@ UDID=\$(sim_boot $(q "$XC_SIM")) || return 1
 echo "mac-remote: simulator \$UDID"
 $([ $XC_CONFIG = Release ] && [ -z "${MAC_RELEASE_KEEP_INSTALL:-}" ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
 if [ $kind = xcode-test ]; then
+    # Fixtures in, leftovers of earlier runs out (the full suite needs them; parallel clones copy this device's data).
+    if [ -f iosApp/scripts/prepare-ui-test-files.sh ]; then
+        bash iosApp/scripts/prepare-ui-test-files.sh "\$UDID" || echo "mac-remote: WARNING: Files fixture preparation failed" >&2
+    fi
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
     # com.apple.dt.xctest is XCTest's own in-app accessibility-snapshot chatter (about a third of a full run's log);
     # MAC_APP_LOG_XCTEST=1 keeps it.
