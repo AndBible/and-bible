@@ -47,6 +47,7 @@ import kotlinx.coroutines.withContext
 import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.NoMotionDurationScale
+import net.bible.sharedui.theme.noMotionIf
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoInk
 
@@ -144,6 +145,7 @@ fun AbModalBottomSheet(
         CompositionLocalProvider(LocalAbSheetAnimatedClose provides animatedClose) { content() }
     }
     if (instantMotion) InstantSheetMotion(sheetState, dismissOnce)
+    ResettleStrandedSheet(sheetState, instantMotion)
 }
 
 /**
@@ -227,6 +229,54 @@ private fun InstantSheetMotion(sheetState: SheetState, dismiss: () -> Unit) {
                 if (target == SheetValue.Hidden && !sheetState.isVisible) dismiss()
                 // Never spin on an animation that outlives its takeover.
                 if (sheetState.isAnimationRunning) withFrameNanos { }
+            }
+        }
+    }
+}
+
+/**
+ * Finishes a slide that ended short of its target because the sheet changed height while it moved (the workspace
+ * quick sheet opening with only its first row visible on an e-ink device, 2026-11-04).
+ *
+ * Material moves the sheet between anchors computed from its measured height. When the height changes, the anchor
+ * update snaps the sheet to the new anchor, but only when nothing else holds the sheet's drag mutex; while a slide
+ * runs, it just records the target and lets the slide continue. A normal slide re-reads the anchors on its next frame.
+ * A zero-duration slide (animations off: Android's zero motion-duration scale, or [InstantSheetMotion]) has no next
+ * frame: when content that loads asynchronously (the workspace rows, document tabs) grows the sheet in exactly the
+ * frame the slide finishes, the sheet comes to rest at the OLD offset, with its bottom below the window, its
+ * `currentValue` still Hidden and nothing left running to correct it. The race depends on when the content arrives,
+ * so it hits intermittently, and more often on a slow device.
+ *
+ * This watches the slides: when one stops ([SheetState.isAnimationRunning] falls) without the sheet having reached the
+ * slide's visible target, it moves the sheet there again. A slide towards Hidden is never repeated (the Hidden anchor
+ * does not depend on the sheet's height, and repeating it could report a dismiss twice). A user's drag is never
+ * fought: drags do not run a slide, and a slide started while a finger holds the sheet is refused by the drag mutex.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ResettleStrandedSheet(sheetState: SheetState, instantMotion: Boolean) {
+    val currentInstantMotion by rememberUpdatedState(instantMotion)
+    LaunchedEffect(sheetState) {
+        var slideTarget: SheetValue? = null
+        snapshotFlow { sheetState.isAnimationRunning to sheetState.targetValue }.collect { (running, target) ->
+            if (running) {
+                slideTarget = target
+                return@collect
+            }
+            val stranded = slideTarget?.takeIf { it != SheetValue.Hidden && sheetState.currentValue != it }
+            slideTarget = null
+            if (stranded != null) {
+                try {
+                    withContext(noMotionIf(currentInstantMotion)) {
+                        when (stranded) {
+                            SheetValue.Expanded -> sheetState.expand()
+                            else -> sheetState.partialExpand()
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    // A finger or another slide took the sheet over; that one decides where it rests.
+                    coroutineContext.ensureActive()
+                }
             }
         }
     }
