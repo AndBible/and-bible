@@ -12,6 +12,11 @@ The ‘Bible Study App’ provides amazing window functionality.
 - Any number of pinned windows can be shown at one time. Only one unpinned window can be shown at once.
 - Document links are always opened in the links window. Change a window type by changing the Pin setting.
 
+On desktop, click inside a reading window to make it active. The toolbar then
+controls that window, just as tapping a reading window does on Android. When you
+change a window's document, its window-button label updates without needing to
+activate a different window first.
+
 When you scroll a synchronised commentary window, its title follows the verse
 range of the entry in view, including when you return to an already-loaded entry.
 The synchronised Bible windows follow that entry, too.

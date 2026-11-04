@@ -61,6 +61,7 @@ import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.screen.WindowLabelFreshness
 import net.bible.android.view.activity.page.screen.paneBackgroundArgb
 import net.bible.android.view.activity.page.screen.paneWindowLabel
 import net.bible.android.view.activity.page.screen.paneWindowTopLabel
@@ -467,6 +468,8 @@ class HostReadingHost(
         onLeaveFullScreen = onLeaveFullScreen,
     )
 
+    private val windowLabelFreshness = WindowLabelFreshness()
+
     /**
      * Android's `searchController.activeDocumentChanged()` call sites: search mode outlives a window switch and a document
      * swap, so the panel's target document follows them.
@@ -474,6 +477,7 @@ class HostReadingHost(
     private val searchSubscriptions = Subscriptions().also { subscriptions ->
         subscriptions.add(
             PassageChangeMediator.changes.subscribeOnMain { change ->
+                if (change is PageChange.VerseChanged || change is PageChange.BibleVerseChanged) windowLabelFreshness.invalidate()
                 if (change is PageChange.VerseChanged) searchState.controller.activeDocumentChanged()
                 // Android's overlay events (`VerseChanged`, active window); `BibleVerseChanged` too, where no `VerseChanged` follows.
                 // `ContentLoaded` as well, like the toolbar title: the first page is only current once its content has loaded
@@ -750,8 +754,8 @@ class HostReadingHost(
         speakSettingsSlot = { slots.SpeakSettings() },
         quickSheetContent = { sheet -> slots.QuickSheet(sheet) },
         readingDialogSlot = { slots.ReadingDialog() },
-        windowLabel = { snapshot -> paneWindowLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) },
-        windowTopLabel = { snapshot -> paneWindowTopLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) },
+        windowLabel = { snapshot -> windowLabelFreshness.observed { paneWindowLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) } },
+        windowTopLabel = { snapshot -> windowLabelFreshness.observed { paneWindowTopLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) } },
         windowIcon = { snapshot ->
             val category = windowControl.windowRepository.getWindow(IdType(snapshot.id))
                 ?.pageManager?.currentPage?.currentDocument?.bookCategory

@@ -167,9 +167,9 @@ window.addEventListener('keydown', function (e) {
 })();
 """
 
-    /** A click is a touch. The page's own click handling (verse selection) is untouched: no preventDefault. */
+    /** Report the press before the page's click action, without interfering with selection or links. */
     const val CLICK_PART: String = """
-window.addEventListener('click', function () { window.__abDesktop.post({type: 'click'}); }, {passive: true, capture: true});
+window.addEventListener('mousedown', function () { window.__abDesktop.post({type: 'click'}); }, {passive: true, capture: true});
 """
 
     /** The parts every pane gets. Task 3 adds the context menu part beside them. */

@@ -217,6 +217,82 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun railLabelsFollowARealDocumentChange() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        val originalConf = StartupFixture.files.getValue("mods.d/K4RawText.conf").decodeToString()
+        Files.writeString(paths.sword.resolve("mods.d/SecondBible.conf"), originalConf.replace("[K4RawText]", "[SecondBible]"))
+        assertEquals(StartupPhase.Ready, start(paths))
+        kotlinx.coroutines.withContext(mainThread) {
+            val koin = KoinPlatform.getKoin()
+            val repo = koin.get<net.bible.android.control.page.window.WindowControl>().windowRepository
+            repo.initialize()
+            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + mainThread)
+            val navigator = object : net.bible.sharedui.host.app.HostNavigator {
+                override fun navigate(route: String) = Unit
+                override fun popBackStack() = false
+                override fun popBackStackTo(route: String, inclusive: Boolean) = false
+            }
+            val previousRestoreAllowed = net.bible.sharedui.components.OverlayPresence.restoreAllowed
+            var host: net.bible.sharedui.host.reading.HostReadingHost? = null
+            try {
+                host = net.bible.sharedui.host.reading.HostReadingHost(
+                    scope, net.bible.sharedui.host.app.HostNavShell(scope, navigator), koin, DesktopReadingHostPlatform(FakeWindow()),
+                )
+                val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+                val icons = net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter)
+                val deps = host.deps(icons)
+                val window = repo.activeWindow
+                val snapshot = deps.controller.layout.value.windows.first { it.id == window.id.toString() }
+                val first = assertNotNull(Books.installed().getBook("K4RawText"))
+                val second = assertNotNull(Books.installed().getBook("SecondBible"))
+                window.pageManager.setCurrentDocument(first)
+                androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+                val reads = mutableSetOf<Any>()
+                val before = androidx.compose.runtime.snapshots.Snapshot.observe({ reads += it }, null) { deps.windowLabel(snapshot) }
+                val topReads = mutableSetOf<Any>()
+                androidx.compose.runtime.snapshots.Snapshot.observe({ topReads += it }, null) { deps.windowTopLabel(snapshot) }
+                val written = mutableSetOf<Any>()
+                val observer = androidx.compose.runtime.snapshots.Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
+                try {
+                    window.pageManager.setCurrentDocument(second)
+                    kotlinx.coroutines.yield() // Main-dispatched passage observers run on the test main thread.
+                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+                } finally {
+                    observer.dispose()
+                }
+                assertEquals(first.abbreviation, before)
+                assertEquals(second.abbreviation, deps.windowLabel(snapshot))
+                assertTrue(reads.any { it in written }, "document change must invalidate the rail label")
+                assertTrue(topReads.any { it in written }, "document change must invalidate the rail top label")
+
+                written.clear()
+                val verseObserver = androidx.compose.runtime.snapshots.Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
+                try {
+                    net.bible.android.control.PassageChangeMediator.onBibleVerseSelected()
+                    kotlinx.coroutines.yield()
+                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+                } finally {
+                    verseObserver.dispose()
+                }
+                assertTrue(reads.any { it in written }, "BibleVerseChanged must invalidate the rail label")
+                assertTrue(topReads.any { it in written }, "BibleVerseChanged must invalidate the rail top label")
+            } finally {
+                try {
+                    host?.dispose()
+                } finally {
+                    net.bible.sharedui.components.OverlayPresence.restoreAllowed = previousRestoreAllowed
+                    scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+                }
+                assertSame(previousRestoreAllowed, net.bible.sharedui.components.OverlayPresence.restoreAllowed)
+            }
+        }
+    }
+
     @Test fun consecutiveLinkClicksFromOneWindowReuseTheLinksWindow() = kotlinx.coroutines.runBlocking {
         // Host regression 2026-11-03: every link click opened a NEW links window. The host web views swallow the touch
         // that makes a window active on Android, so the links window (active after the first link) was the source of the
