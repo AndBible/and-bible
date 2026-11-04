@@ -660,19 +660,25 @@ cat \$HOME/$(q "$WORKDIR/.mac-owner") 2>/dev/null") || {
 }
 
 step_script_sim_crashes() {
+    local n=$1
     cat <<EOF
-mkdir -p build/crashes || return 74
-find "\$HOME/Library/Logs/DiagnosticReports" -name $(q "$APP_PROCESS*") -mtime -2 -exec cp {} build/crashes/ \\; 2>/dev/null
-# No diagnostic directory is a legitimate empty collection.
-ls -t build/crashes | head
+stage=build/.mac-evidence/$TOKEN/crashes/step$n/crashes
+mkdir -p "\$stage" || return 74
+# A run-specific empty directory cannot contain a previous owner's reports.
+if [ -d "\$HOME/Library/Logs/DiagnosticReports" ]; then
+    find "\$HOME/Library/Logs/DiagnosticReports" -name $(q "$APP_PROCESS*") -mtime -2 -exec cp {} "\$stage/" \\; || return 74
+fi
+ls -t "\$stage" | head
 EOF
 }
 step_post_sim_crashes() {
     local n=$1 ev="$RUNDIR/crashes/step$1"
-    fetch_optional build/crashes "$ev" || return $?
+    fetch "build/.mac-evidence/$TOKEN/crashes/step$n/crashes" "$ev" || return $?
     mkdir -p "$OUT"
     [ -L "$OUT/crashes" ] || rm -rf "$OUT/crashes"
     ln -sfn "runs/$RUN_ID/crashes/step$n/crashes" "$OUT/crashes"
+    remote "$(locked_guard)
+rm -rf \"\$TREE\"/$(q "build/.mac-evidence/$TOKEN/crashes/step$n")"
 }
 
 step_script_sync() { echo ':'; }
@@ -825,22 +831,42 @@ source_metadata() {
     SOURCE_DIRTY=$(python3 -I - "$repo" <<'__MR_SOURCE__'
 import hashlib, os, subprocess, sys
 root = sys.argv[1]
-h = hashlib.sha256()
-try:
-    names = subprocess.check_output(['git', '-C', root, 'ls-files', '-z', '--modified', '--others', '--exclude-standard']).split(b'\0')
-    names += subprocess.check_output(['git', '-C', root, 'diff', '--cached', '--name-only', '-z', '--diff-filter=ACDMRTUXB']).split(b'\0')
-except subprocess.CalledProcessError:
-    names = []
-for raw in sorted(set(names)):
-    if not raw: continue
-    h.update(raw + b'\0')
-    p = os.path.join(root, os.fsdecode(raw))
-    if os.path.islink(p): h.update(os.fsencode(os.readlink(p)))
-    elif os.path.isfile(p):
-        with open(p, 'rb') as f:
-            for data in iter(lambda: f.read(1024 * 1024), b''): h.update(data)
-    else: h.update(b'<deleted-or-submodule>')
-print(h.hexdigest())
+def git(path, *args):
+    return subprocess.check_output(['git', '-C', path, *args], stderr=subprocess.DEVNULL)
+def fingerprint(path):
+    h = hashlib.sha256()
+    try:
+        names = git(path, 'ls-files', '-z', '--modified', '--others', '--exclude-standard').split(b'\0')
+        names += git(path, 'diff', '--cached', '--name-only', '-z', '--diff-filter=ACDMRTUXB').split(b'\0')
+        # Inspect every gitlink, including an unchanged module whose worktree is
+        # dirty. Its own index/HEAD comparison must be performed recursively.
+        modules = {}
+        for entry in git(path, 'ls-files', '--stage', '-z').split(b'\0'):
+            if not entry: continue
+            info, name = entry.split(b'\t', 1)
+            mode, oid, stage = info.split()
+            if mode == b'160000': modules[name] = oid
+        names += list(modules)
+    except subprocess.CalledProcessError:
+        return h.hexdigest()
+    for raw in sorted(set(names)):
+        if not raw: continue
+        h.update(raw + b'\0')
+        p = os.path.join(path, os.fsdecode(raw))
+        if raw in modules:
+            h.update(b'<submodule>' + modules[raw] + b'\0')
+            # .git is a file for standard submodules, a dir for embedded fixtures.
+            if os.path.exists(os.path.join(p, '.git')):
+                h.update(git(p, 'rev-parse', 'HEAD').strip() + b'\0')
+                h.update(fingerprint(p).encode() + b'\0')
+            else: h.update(b'<uninitialized-or-deleted>')
+        elif os.path.islink(p): h.update(os.fsencode(os.readlink(p)))
+        elif os.path.isfile(p):
+            with open(p, 'rb') as f:
+                for data in iter(lambda: f.read(1024 * 1024), b''): h.update(data)
+        else: h.update(b'<deleted>')
+    return h.hexdigest()
+print(fingerprint(root))
 __MR_SOURCE__
     ) || die 'cannot fingerprint source'
 }

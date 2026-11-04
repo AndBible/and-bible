@@ -1275,7 +1275,52 @@ EOS
     grep -q 'no instruction' "$FAKE_HOME/work/.mac-remote-watchdog.log" || fail 'idle timeout did not execute watchdog'
 }
 
-for t in t_review_genuine_idle_timeout_releases_parent_lock \
+t_final_crashes_collection_is_current_run_only() {
+    new_env final-crashes; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1 || fail 'A sync'
+    local report="$FAKE_HOME/Library/Logs/DiagnosticReports/AndBibleDev-old.ips"
+    mkdir -p "$(dirname "$report")"; echo old > "$report"
+    mr sim crashes >/dev/null 2>&1 || fail 'A collection'
+    local a; a="$T/out/$(readlink "$T/out/crashes")"; a=${a%/crashes/step1/crashes}
+    [ -f "$a/crashes/step1/crashes/AndBibleDev-old.ips" ] || fail 'A immutable report missing'
+    rm "$report"
+    MAC_CONTAINER=other mr sync >/dev/null 2>&1 || fail 'B sync'
+    MAC_CONTAINER=other mr sim crashes >/dev/null 2>&1 || fail 'B empty collection'
+    [ ! -e "$(last_run)/crashes/step1/crashes/AndBibleDev-old.ips" ] || fail 'B collection recaptured A stale crash'
+    [ -d "$T/out/crashes" ] && [ -z "$(ls -A "$T/out/crashes")" ] || fail 'empty latest crash view retained stale evidence'
+    [ -f "$a/crashes/step1/crashes/AndBibleDev-old.ips" ] || fail 'A immutable crash evidence changed'
+}
+t_final_submodule_source_fingerprint_tracks_revision_and_contents() {
+    new_env final-submodule
+    git -C "$T/repo" init -q
+    mkdir -p "$T/repo/jsword"
+    git -C "$T/repo/jsword" init -q
+    echo base > "$T/repo/jsword/tracked"
+    git -C "$T/repo/jsword" add tracked
+    git -C "$T/repo/jsword" -c user.name=test -c user.email=test@localhost commit -qm base
+    git -C "$T/repo" add jsword
+    git -C "$T/repo" -c user.name=test -c user.email=test@localhost commit -qm parent
+    mr sync >/dev/null 2>&1; mr sync >/dev/null 2>&1
+    local previous current parent
+    parent=$(kv "$(last_run)/meta" source_revision)
+    previous=$(kv "$(last_run)/meta" source_dirty)
+    local action
+    for action in headA headB stagedA stagedB untrackedA untrackedB; do
+        case "$action" in
+            headA|headB) echo "$action" > "$T/repo/jsword/tracked"; git -C "$T/repo/jsword" add tracked; git -C "$T/repo/jsword" -c user.name=test -c user.email=test@localhost commit -qm "$action" ;;
+            stagedA|stagedB) echo "$action" > "$T/repo/jsword/tracked"; git -C "$T/repo/jsword" add tracked ;;
+            *) echo "$action" > "$T/repo/jsword/untracked" ;;
+        esac
+        mr sync >/dev/null 2>&1 || fail "sync $action"
+        current=$(kv "$(last_run)/meta" source_dirty)
+        [ "$current" != "$previous" ] || fail "submodule fingerprint omitted $action"
+        [ "$(kv "$(last_run)/meta" source_revision)" = "$parent" ] || fail 'parent HEAD changed in fixture'
+        previous=$current
+    done
+}
+
+for t in t_final_crashes_collection_is_current_run_only t_final_submodule_source_fingerprint_tracks_revision_and_contents \
+    t_review_genuine_idle_timeout_releases_parent_lock \
     t_review_owner_exit_trap_is_parent_only_before_helper_reset \
     t_review_maintenance_without_completed_source_owner \
     t_review_idle_guard_disarm_never_releases_parent_lock \
