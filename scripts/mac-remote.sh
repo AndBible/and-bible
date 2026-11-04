@@ -84,7 +84,9 @@
 # Environment:
 #   MAC_SSH_CONFIG   ssh config with the host alias (default ~/.ssh-mac/config, from `jailbee mount mac-ssh`)
 #   MAC_HOST         host alias in that config (default andbible-mac)
-#   MAC_WORKDIR      remote directory under ~ (default work/<container hostname>)
+#   MAC_WORKDIR      remote directory under ~ (default work/shared; safe work/<name> only)
+#   MAC_OWN_TREE     1: use work/<container> instead of the shared warm tree
+#   MAC_TRANSFER_TIMEOUT seconds per sync/evidence transfer (default 1800; bounded lease)
 #   MAC_SIM_IPHONE   iPhone simulator name (default "iPhone 16", as in CI; created if missing)
 #   MAC_SIM_IPAD     iPad simulator name (default "iPad Air 11-inch (M4)"; created if missing)
 #   MAC_TIMEOUT      seconds before one remote step (Gradle/xcodebuild/run) is killed (default 3000; 2400 for xcode-test)
@@ -122,7 +124,9 @@ if [ "${JAILBEE_ROLE:-}" = child ]; then
 fi
 SSH_BIN="${MAC_SSH_BIN:-ssh}"
 RSYNC_BIN="${MAC_RSYNC_BIN:-rsync}"
-WORKDIR="${MAC_WORKDIR:-work/$NAME}"
+WORKDIR="${MAC_WORKDIR:-work/shared}"
+[ "${MAC_OWN_TREE:-0}" != 1 ] || WORKDIR="${MAC_WORKDIR:-work/$NAME}"
+SHARED=0; [ "$WORKDIR" != work/shared ] || SHARED=1
 TREE="$WORKDIR/and-bible"
 OUT="${MAC_LOCAL_DIR:-$repo/.local/mac/$NAME}"
 SIM_IPHONE="${MAC_SIM_IPHONE:-iPhone 16}"
@@ -148,6 +152,11 @@ die() { echo "mac-remote: $*" >&2; exit 1; }
 
 # Legacy clients cannot honor parallel slots. Fail before any SSH or run side effect.
 [ "${MAC_SLOTS:-1}" = 1 ] || die "MAC_SLOTS must be 1 while legacy clients use the build lock"
+[[ "$NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] && [ "$NAME" != shared ] || die "unsafe MAC_CONTAINER"
+[[ "$WORKDIR" =~ ^work/[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] || die "MAC_WORKDIR must be work/<safe-name> (nested paths/aliases unsupported)"
+[ "${MAC_OWN_TREE:-0}" != 1 ] || [ "$SHARED" = 0 ] || die "own tree cannot alias shared"
+[ -z "${GRADLE_USER_HOME:-}" ] || die "custom GRADLE_USER_HOME unsupported"
+SOURCE_REVISION=unknown SOURCE_DIRTY=unknown
 
 [ -f "$SSH_CONFIG" ] || die "no ssh config at $SSH_CONFIG. Ask the user to run on the host: jailbee mount mac-ssh $NAME (see docs/ios-remote-mac.md)"
 
@@ -162,14 +171,55 @@ q() { [ $# -eq 0 ] || printf '%q ' "$@"; }
 
 # Run a bash script on the Mac. $1 = script text; the remote bash gets the login PATH from ~/.zshenv
 # because ssh starts the command through the user's zsh.
-remote() { "${SSH_RUN[@]}" "$HOST" 'bash -s' <<<"$1"; }
+remote() { timeout --kill-after=10 "${MAC_TRANSFER_TIMEOUT:-1800}" "${SSH_RUN[@]}" "$HOST" 'bash -s' <<<"$1"; }
 
+# Fail closed on aliases, including symlinked ancestors and nested outputs used for deletion.
+path_guard() {
+    cat <<EOF
+TREE=\$HOME/$(q "$TREE")
+python3 -I - \$HOME $(q "$TREE") <<'__MR_PATH__' || exit 73
+import os, sys
+home, rel = sys.argv[1:]
+p = home
+owner_dir = os.path.join(home, os.path.dirname(rel))
+for name in ('.mac-owner',):
+    if os.path.islink(os.path.join(owner_dir, name)):
+        raise SystemExit('mac-remote: symlink ownership record refused')
+for part in rel.split('/'):
+    p = os.path.join(p, part)
+    if os.path.islink(p):
+        raise SystemExit('mac-remote: symlink tree component refused: ' + p)
+if os.path.realpath(p) != os.path.join(os.path.realpath(home), rel):
+    raise SystemExit('mac-remote: noncanonical tree refused')
+if os.path.isdir(p):
+    for root, dirs, files in os.walk(p, followlinks=False):
+        if '.git' in dirs: dirs.remove('.git')
+        for name in dirs + files:
+            f = os.path.join(root, name)
+            if os.path.islink(f) and not os.path.realpath(f).startswith(p + os.sep):
+                raise SystemExit('mac-remote: escaping symlink refused: ' + f)
+__MR_PATH__
+EOF
+}
+locked_guard() {
+    path_guard
+    printf '[ "$(sed -n "s/^token=//p" "$HOME/work/.build-lock/owner" 2>/dev/null)" = %q ] || exit 73\n' "$TOKEN"
+}
+owner_guard() {
+    locked_guard
+    [ "$SHARED" = 0 ] || cat <<EOF
+[ "\$(sed -n 's/^container=//p' \$HOME/work/shared/.mac-owner 2>/dev/null)" = $(q "$NAME") ] || { echo 'mac-remote: shared tree has no matching completed owner; sync first' >&2; exit 73; }
+EOF
+}
 PROLOGUE_NOTREE=0   # 1 for cleanup/prune: they work without this container's tree
 # Prologue for remote scripts: cd into the tree, helpers.
 prologue() {
     cat <<EOF
 set -uo pipefail
-TREE=\$HOME/$(q "$TREE")
+$(path_guard)
+[ -z "\${GRADLE_USER_HOME:-}" ] || { echo 'mac-remote: custom remote GRADLE_USER_HOME unsupported' >&2; exit 73; }
+export MAC_REMOTE_BUILD_CACHE=1
+export GRADLE_OPTS="\${GRADLE_OPTS:-} -Dorg.gradle.caching=true"
 cd "\$TREE" 2>/dev/null || $( [ "${PROLOGUE_NOTREE:-0}" = 1 ] && echo 'cd "$HOME"' || echo '{ echo "mac-remote: no remote tree at $TREE; run sync first" >&2; exit 1; }' )
 # timeout without coreutils: perl's alarm survives exec
 # tmo <seconds> cmd...: runs cmd in its own process group; on timeout (exit 142) or TERM the whole group is
@@ -229,7 +279,7 @@ leftovers() {   # $1 = this container's name; prints classified lines
             esac
         fi
         [ -n "$where" ] || continue
-        if [ "$where" = "$1" ]; then k=mine; else k=other; fi
+        if [ "$where" = "$1" ] && [ "$where" != shared ]; then k=mine; else k=other; fi
         printf '%s %s %s %s %s %s [%s]\n' "$k" "$pid" "$et" "$((rss / 1024))" "$cpu" "$(printf '%s' "$cmd" | cut -c1-110)" "$where"
     done
 }
@@ -273,7 +323,17 @@ EOF
 own_junk_script() {
     cat <<'EOF'
 own_junk() {
-    local me=$1 dd=$2 tree=$HOME/work/$1/and-bible freed=0 f
+    local me=$1 dd=$2 tree=$TREE freed=0 f
+    if [ "${MR_SHARED:-0}" = 1 ]; then
+        echo "mac-remote: cleanup: shared warm outputs and unowned scratch kept"
+        if [ "$dd" = 1 ]; then
+            for f in "$tree"/build/dd-*; do
+                [ ! -L "$f" ] || { echo 'mac-remote: symlink DerivedData refused' >&2; return 73; }
+                [ ! -d "$f" ] || rm -rf "$f"
+            done
+        fi
+        return 0
+    fi
     if [ -d "$tree/build/release" ]; then
         # keep the newest of each kind (xcarchive, ipa, export dir), delete the rest
         for pat in '*.xcarchive' '*.ipa' 'export*'; do
@@ -291,6 +351,8 @@ own_junk() {
     if [ "$dd" = 1 ]; then
         for d in ~/Library/Developer/Xcode/DerivedData/*/; do
             d=${d%/}
+            case "${d##*/}" in ModuleCache.noindex|SDKStatCaches.noindex) continue ;; esac
+            [ ! -L "$d" ] || continue
             if grep -qs "/work/$me/" "$d/info.plist" "$d/Info.plist" 2>/dev/null; then
                 echo "mac-remote: cleanup: removing own DerivedData $(basename "$d") ($(du -sh "$d" | awk '{print $1}'))"
                 rm -rf "$d"
@@ -339,13 +401,18 @@ prune() {   # args: [--trees name...] [--older-than days] [--sims] [--yes]; PRUN
         done
     fi
     for n in $todo; do
+        if [ "$n" = shared ]; then echo "  shared: SKIPPED, protected warm tree"; continue; fi
+        [ ! -L "$HOME/work/$n" ] || { echo "mac-remote: refusing symlink prune target" >&2; return 73; }
         if [ "$n" = "$PRUNE_ME" ]; then echo "  $n: SKIPPED, this container's own tree (use 'cleanup')"; continue; fi
         if [ -n "$holder" ] && [ "$n" = "$holder" ] && [ "$holder" != "$PRUNE_ME" ]; then echo "  $n: SKIPPED, holds the build lock"; continue; fi
         if echo "$busy" | grep -qx "$n"; then echo "  $n: SKIPPED, has running processes"; continue; fi
         sz=$(du -sk "$HOME/work/$n" 2>/dev/null | awk '{print $1}')
         dds=""
         for d in ~/Library/Developer/Xcode/DerivedData/*/; do
-            d=${d%/}; grep -qs "/work/$n/" "$d/info.plist" "$d/Info.plist" 2>/dev/null && dds="$dds $d"
+            d=${d%/}
+            case "${d##*/}" in ModuleCache.noindex|SDKStatCaches.noindex) continue ;; esac
+            [ ! -L "$d" ] || continue
+            grep -qs "/work/$n/" "$d/info.plist" "$d/Info.plist" 2>/dev/null && dds="$dds $d"
         done
         for d in $dds; do sz=$(( sz + $(du -sk "$d" 2>/dev/null | awk '{print $1}') )); done
         echo "  $n: $(gib "$sz") (last modified $(date -r "$(tree_mtime "$HOME/work/$n")" '+%F %H:%M')); tree + $(echo $dds | wc -w | tr -d ' ') DerivedData folder(s)"
@@ -543,8 +610,203 @@ echo "@@LOCKED-$TOKEN"
 EOF
 }
 
+cache_install_script() {
+    local encoded
+    encoded=$(base64 < "$(dirname "${BASH_SOURCE[0]}")/mac-build-cache.init.gradle" | tr -d '\n') || return 1
+    cat <<EOF
+python3 -I - $(q "$encoded") <<'__MR_INIT__'
+import base64, os, sys, tempfile
+root = os.path.join(os.environ['HOME'], '.gradle')
+d = os.path.join(root, 'init.d')
+for p in (root, d):
+    if os.path.islink(p): raise SystemExit('mac-remote: symlink Gradle init directory refused')
+os.makedirs(d, exist_ok=True)
+p = os.path.join(d, 'andbible-mac-build-cache.gradle')
+content = base64.b64decode(sys.argv[1])
+if os.path.islink(p) or (os.path.exists(p) and open(p, 'rb').read() != content):
+    raise SystemExit('mac-remote: unrelated existing cache init refused')
+fd, tmp = tempfile.mkstemp(prefix='.andbible-cache-', dir=d)
+try:
+    with os.fdopen(fd, 'wb') as f: f.write(content)
+    os.replace(tmp, p)
+finally:
+    if os.path.exists(tmp): os.unlink(tmp)
+__MR_INIT__
+EOF
+}
+
+step_script_sync() { echo ':'; }
+step_script_fetch() { echo ':'; }
+step_post_fetch() { shift 2; fetch "$@"; }
+
+step_script_reset_tree() {
+    cat <<'EOF'
+python3 -I - "$TREE" <<'__MR_RESET__'
+import os, shutil, sys
+root = sys.argv[1]
+outputs = {'build', '.gradle', '.kotlin', 'node_modules'}
+for here, dirs, files in os.walk(root, topdown=True, followlinks=False):
+    if '.git' in dirs: dirs.remove('.git')
+    for name in list(dirs):
+        p = os.path.join(here, name)
+        if name in outputs:
+            if os.path.islink(p): raise SystemExit('mac-remote: symlink output refused: ' + p)
+            shutil.rmtree(p)
+            dirs.remove(name)
+__MR_RESET__
+EOF
+}
+
+# Optional absence is not a transport error. Always test and copy under the held lock.
+fetch_optional() {
+    local src=$1 dest=$2 status
+    remote "$(locked_guard)
+[ -e \"\$TREE\"/$(q "$src") ] || exit 44" >/dev/null
+    status=$?
+    [ "$status" != 44 ] || { echo "mac-remote: optional evidence absent: $src" >&2; return 0; }
+    [ "$status" = 0 ] || return "$status"
+    fetch "$src" "$dest"
+}
+
+# Content signatures select only newly created/changed top-level release/shots artifacts.
+# The pre/post manifest also detects overwritten archive contents without copying warm builds.
+artifact_signature_script() {
+    cat <<'__MR_SIGNATURE__'
+def signature(p):
+    h = hashlib.sha256()
+    def add(f):
+        if os.path.islink(f): raise RuntimeError('symlink artifact refused: ' + f)
+        h.update(os.path.relpath(f, p).encode())
+        if os.path.isfile(f):
+            with open(f, 'rb') as src:
+                for b in iter(lambda: src.read(1024 * 1024), b''): h.update(b)
+    if os.path.isdir(p):
+        for here, dirs, files in os.walk(p):
+            dirs.sort(); files.sort()
+            for name in dirs + files: add(os.path.join(here, name))
+    else: add(p)
+    return h.hexdigest()
+__MR_SIGNATURE__
+}
+
+artifact_script() {
+    local mode=$1 n=$2
+    cat <<EOF
+python3 -I - "\$TREE" $(q "$TOKEN" "$n" "$mode") <<'__MR_ARTIFACT__'
+import hashlib, json, os, shutil, sys
+root, token, step, mode = sys.argv[1:]
+stage = os.path.join(root, 'build', '.mac-evidence', token, 'run', 'step' + step)
+os.makedirs(stage, exist_ok=True)
+$(artifact_signature_script)
+current = {}
+for kind in ('release', 'shots'):
+    d = os.path.join(root, 'build', kind)
+    if os.path.islink(d): raise RuntimeError('symlink artifact directory refused')
+    if os.path.isdir(d):
+        for name in sorted(os.listdir(d)):
+            current[kind + '/' + name] = signature(os.path.join(d, name))
+manifest = os.path.join(stage, 'before.json')
+if mode == 'before':
+    with open(manifest, 'w') as f: json.dump(current, f, sort_keys=True)
+else:
+    before = json.load(open(manifest))
+    changed = {k: v for k, v in current.items() if before.get(k) != v}
+    for rel in changed:
+        src, dst = os.path.join(root, 'build', rel), os.path.join(stage, rel)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        if os.path.isdir(src): shutil.copytree(src, dst)
+        else: shutil.copy2(src, dst)
+    with open(os.path.join(stage, 'captured.json'), 'w') as f: json.dump(changed, f, sort_keys=True)
+__MR_ARTIFACT__
+EOF
+}
+
+# Cleanup receipts exist only after the evidence copy succeeds. A later handoff or
+# content change revokes deletion authority, even for the same pathname.
+scratch_receipt_script() {
+    local mode=$1 n=${2:-0}
+    cat <<EOF
+python3 -I - "\$TREE" $(q "$NAME" "$TOKEN" "$n" "$mode") <<'__MR_RECEIPT__'
+import hashlib, json, os, shutil, sys
+root, owner, token, step, mode = sys.argv[1:]
+$(artifact_signature_script)
+receipts = os.path.join(root, 'build', '.mac-receipts')
+if mode == 'capture':
+    stage = os.path.join(root, 'build', '.mac-evidence', token, 'run', 'step' + step)
+    changed = json.load(open(os.path.join(stage, 'captured.json')))
+    os.makedirs(receipts, exist_ok=True)
+    p = os.path.join(receipts, token + '-' + step + '.json')
+    with open(p + '.tmp', 'w') as f: json.dump({'owner': owner, 'token': token, 'changed': changed}, f)
+    os.replace(p + '.tmp', p)
+else:
+    # The owner record is the completed source handoff, not this cleanup's lock token.
+    try:
+        fields = dict(line.rstrip().split('=', 1) for line in open(os.path.join(os.path.dirname(root), '.mac-owner')))
+    except (OSError, ValueError): fields = {}
+    if fields.get('container') != owner: raise SystemExit(0)
+    if os.path.isdir(receipts):
+        for name in os.listdir(receipts):
+            p = os.path.join(receipts, name)
+            if not name.endswith('.json') or os.path.islink(p): continue
+            receipt = json.load(open(p))
+            if receipt.get('owner') != owner: continue
+            for rel, digest in receipt['changed'].items():
+                if rel.split('/')[0] not in ('release', 'shots') or '..' in rel.split('/'): raise RuntimeError('invalid cleanup receipt')
+                target = os.path.join(root, 'build', rel)
+                if os.path.exists(target) and signature(target) == digest:
+                    if os.path.isdir(target): shutil.rmtree(target)
+                    else: os.unlink(target)
+            os.unlink(p)
+__MR_RECEIPT__
+EOF
+}
+
+# A transfer has its own bounded process group instead of the between-instruction
+# idle timer. Never let the timer release the lock underneath an active rsync.
+transfer_begin() {
+    session_send "idle_disarm; echo \"@@STEP-RC-$TOKEN lease\"" && session_read && [ "$SENT" = lease ]
+}
+transfer_end() { session_send 'idle_arm'; }
+
+step_post_run() {
+    local n=$1 rc=$2 ev="$RUNDIR/run/step$1"
+    remote "$(locked_guard)
+$(artifact_script after "$n")" || return $?
+    fetch "build/.mac-evidence/$TOKEN/run/step$n/" "$ev" || return $?
+    remote "$(locked_guard)
+$(scratch_receipt_script capture "$n")" || return $?
+    remote "$(locked_guard)
+rm -rf \"\$TREE/build/.mac-evidence/$(q "$TOKEN/run/step$n")\""
+}
+
+source_metadata() {
+    SOURCE_REVISION=$(git -C "$repo" rev-parse HEAD 2>/dev/null || printf unknown)
+    SOURCE_DIRTY=$(python3 -I - "$repo" <<'__MR_SOURCE__'
+import hashlib, os, subprocess, sys
+root = sys.argv[1]
+h = hashlib.sha256()
+try:
+    names = subprocess.check_output(['git', '-C', root, 'ls-files', '-z', '--modified', '--others', '--exclude-standard']).split(b'\0')
+except subprocess.CalledProcessError:
+    names = []
+for raw in sorted(set(names)):
+    if not raw: continue
+    h.update(raw + b'\0')
+    p = os.path.join(root, os.fsdecode(raw))
+    if os.path.islink(p): h.update(os.fsencode(os.readlink(p)))
+    elif os.path.isfile(p):
+        with open(p, 'rb') as f:
+            for data in iter(lambda: f.read(1024 * 1024), b''): h.update(data)
+    else: h.update(b'<deleted-or-submodule>')
+print(h.hexdigest())
+__MR_SOURCE__
+    ) || die 'cannot fingerprint source'
+}
+
 sync_tree() {
-    "${SSH[@]}" "$HOST" "mkdir -p $(q "$TREE")" || die "cannot reach $HOST"
+    remote "$(locked_guard)
+rm -f \$HOME/$(q "$WORKDIR/.mac-owner")
+mkdir -p \"\$TREE\"" || die "unsafe remote tree or lost lock"
     command -v "$RSYNC_BIN" >/dev/null || die "rsync is not installed in this container (old golden image?)"
     local t0=$SECONDS stats
     # Version.xcconfig is gitignored but generated locally, so it travels with the tree (rsync here
@@ -553,26 +815,38 @@ sync_tree() {
         || die "cannot generate iosApp/Config/Version.xcconfig"
     # Not synced: .git (the container's objects live in an alternate on the host), container-only data,
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
-    stats=$("${RSYNC[@]}" --delete --stats \
+    stats=$(timeout --kill-after=10 "${MAC_TRANSFER_TIMEOUT:-1800}" "${RSYNC[@]}" --delete --stats \
         --exclude='.git' --exclude='/.local/' --exclude='/docs/' --exclude='/website/' \
         --exclude='/fastlane/' --exclude='/play/' --exclude='/app/src/test/roborazzi/' \
         --exclude='/local.properties' --exclude='build/' --exclude='.gradle/' --exclude='.kotlin/' \
         --exclude='node_modules/' --exclude='/app/bibleview-js/dist/' \
         --exclude='/iosApp/iosApp.xcodeproj/' --exclude='*.xcresult' \
         "$repo/" "$HOST:$TREE/") || die "rsync to $HOST failed"
+    source_metadata
+    sed -i "s/^source_revision=.*/source_revision=$SOURCE_REVISION/; s/^source_dirty=.*/source_dirty=$SOURCE_DIRTY/" "$RUNDIR/meta"
     grep -E '^(Number of regular files transferred|Total transferred file size)' <<<"$stats" || true
     # :app's Gradle configuration runs `git rev-parse` / `git describe`: give it a one-commit repo.
     # It also needs an Android SDK location; iOS tasks never use the SDK, so an empty stub directory does.
-    remote "$(prologue)
+    remote "$(locked_guard)
+$(prologue)
+set -e
 [ -d .git ] || { git init -q && git -c user.name=mac-remote -c user.email=mac-remote@localhost commit -q --allow-empty -m 'mac-remote tree'; }
-[ -f local.properties ] || [ -n \"\${ANDROID_HOME:-}\" ] || { mkdir -p \$HOME/android-sdk-stub && echo \"sdk.dir=\$HOME/android-sdk-stub\" > local.properties; }"
+# Never carry client-local properties across a handoff.
+mkdir -p \$HOME/android-sdk-stub
+printf 'sdk.dir=%s\\n' \"\${ANDROID_HOME:-\$HOME/android-sdk-stub}\" > local.properties.tmp
+mv local.properties.tmp local.properties
+$(cache_install_script)
+printf 'container=%s\\nsource_revision=%s\\nsource_dirty=%s\\ntoken=%s\\n' $(q "$NAME" "$SOURCE_REVISION" "$SOURCE_DIRTY" "$TOKEN") > \$HOME/$(q "$WORKDIR/.mac-owner.tmp.$TOKEN")
+mv \$HOME/$(q "$WORKDIR/.mac-owner.tmp.$TOKEN") \$HOME/$(q "$WORKDIR/.mac-owner")" || die "remote setup failed"
     echo "mac-remote: synced to $HOST:~/$TREE in $((SECONDS - t0)) s"
 }
 
 fetch() {
     local src="$1" dest="${2:-$OUT}"
+    [[ "$src" =~ ^[a-zA-Z0-9_./-]+$ ]] && [[ "$src" != /* && "$src" != *..* ]] || { echo 'mac-remote: unsafe fetch path' >&2; return 73; }
+    remote "$(locked_guard)" || return $?
     mkdir -p "$dest"
-    "${RSYNC[@]}" "$HOST:$TREE/$src" "$dest/" && echo "mac-remote: fetched $src -> ${dest#"$repo"/}"
+    timeout --kill-after=10 "${MAC_TRANSFER_TIMEOUT:-1800}" "${RSYNC[@]}" "$HOST:$TREE/$src" "$dest/" && echo "mac-remote: fetched $src -> ${dest#"$repo"/}"
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -609,7 +883,7 @@ run_begin() {   # label total-steps cmdline...
     {
         echo "id=$RUN_ID"; echo "container=$NAME"; echo "cmd=${cmdline:0:300}"; echo "pid=$$"
         echo "pstart=$(lpstart $$)"; echo "start_epoch=$(date +%s)"; echo "token=$TOKEN"; echo "steps=$total"
-        echo "log=$RUNDIR/output.log"
+        echo "log=$RUNDIR/output.log"; echo "tree=$TREE"; echo "source_revision=$SOURCE_REVISION"; echo "source_dirty=$SOURCE_DIRTY"
     } > "$RUNDIR/meta"
     : > "$RUNDIR/steps"
     # prune old run dirs (the newest KEEP_RUNS stay; a running run is always among them)
@@ -725,6 +999,7 @@ session_abort() { [ -z "${RS_PID_:-}" ] || kill "$RS_PID_" 2>/dev/null; RS_PID_=
 step_prep_gradle() {
     local a
     for a in "$@"; do
+        case "$a" in -g|-g?*|--gradle-user-home*|-Dgradle.user.home*|--no-build-cache) die "unsupported Gradle cache/home override: $a" ;; esac
         case "$a" in *iosSimulatorArm64Test*)
             echo "mac-remote: WARNING: '$a' through the plain gradle step runs without a booted simulator (IOS_TEST_SIMULATOR unset): sharedCore/sharedUi tests crash with SIGTRAP. Use: mac-remote.sh native-tests [--force] <modules>" >&2 ;;
         esac
@@ -734,7 +1009,7 @@ step_script_gradle() {
     local n=$1 t; shift; t=$(step_timeout gradle)
     cat <<EOF
 tmo $t ./gradlew -Dorg.gradle.native=false $(q "$@"); rc=\$?
-[ \$rc = 142 ] && { echo 'mac-remote: TIMEOUT after ${t}s, stopping the Gradle daemon' >&2; ./gradlew --stop >/dev/null 2>&1; }
+[ \$rc = 142 ] && { echo 'mac-remote: TIMEOUT after ${t}s, stopping the owned step group' >&2; }
 return \$rc
 EOF
 }
@@ -742,7 +1017,7 @@ EOF
 native_parse() {   # [--force] [mod...] -> NATIVE_FORCE, NATIVE_MODS
     NATIVE_FORCE=; NATIVE_MODS=()
     while [ $# -gt 0 ]; do
-        case "$1" in --force) NATIVE_FORCE=1 ;; *) NATIVE_MODS+=("$1") ;; esac
+        case "$1" in --force) NATIVE_FORCE=1 ;; jsword|kdom|sharedCore|sharedData|sharedLogic|sharedUi) NATIVE_MODS+=("$1") ;; *) die "unsupported Native module: $1" ;; esac
         shift
     done
     [ ${#NATIVE_MODS[@]} -gt 0 ] || NATIVE_MODS=(jsword kdom sharedCore sharedData sharedLogic sharedUi)
@@ -751,30 +1026,53 @@ step_script_native_tests() {
     local n=$1 t; shift; t=$(step_timeout native-tests)
     native_parse "$@"
     cat <<EOF
-# sharedCore's tests run inside a booted simulator (IOS_TEST_SIMULATOR, see sharedCore/build.gradle.kts).
+STAGE="\$TREE/build/.mac-evidence/$TOKEN/native/step$n"
+mkdir -p "\$STAGE"
+for m in $(q "${NATIVE_MODS[@]}"); do mkdir -p "\$STAGE/\$m"; echo unattempted > "\$STAGE/\$m/status"; done
 IOS_TEST_SIMULATOR=\$(sim_boot $(q "$SIM_IPHONE")) || return 1
 export IOS_TEST_SIMULATOR
 fail=0
 for m in $(q "${NATIVE_MODS[@]}"); do
-    $([ -z "$NATIVE_FORCE" ] || echo 'rm -rf "$m/build/test-results/iosSimulatorArm64Test"   # --force: a real rerun, not UP-TO-DATE')
+    $([ -z "$NATIVE_FORCE" ] || echo 'rm -rf "$m/build/test-results/iosSimulatorArm64Test" "$m/build/reports/tests/iosSimulatorArm64Test"')
+    echo attempted > "\$STAGE/\$m/status"
     echo "=== :\$m:iosSimulatorArm64Test"
-    tmo $t ./gradlew -Dorg.gradle.native=false :\$m:iosSimulatorArm64Test --continue; r=\$?
-    [ \$r = 142 ] && { echo "mac-remote: TIMEOUT in \$m after ${t}s" >&2; ./gradlew --stop >/dev/null 2>&1; }
-    [ \$r = 0 ] || { fail=1; [ \$r != 142 ] || fail=142; }
+    # A failed invocation must not re-present an unchanged previous result as fresh.
+    before=\$(find "\$m/build/test-results/iosSimulatorArm64Test" -type f -exec shasum {} \\; 2>/dev/null | shasum)
+    tmo $t ./gradlew -Dorg.gradle.native=false :\$m:iosSimulatorArm64Test $([ -z "$NATIVE_FORCE" ] || echo --rerun) --continue; r=\$?
+    after=\$(find "\$m/build/test-results/iosSimulatorArm64Test" -type f -exec shasum {} \\; 2>/dev/null | shasum)
+    printf 'exit=%s\\n' "\$r" > "\$STAGE/\$m/status"
+    if [ "\$r" = 0 ] || [ "\$before" != "\$after" ]; then
+        for d in test-results/iosSimulatorArm64Test reports/tests/iosSimulatorArm64Test; do
+            if [ -e "\$m/build/\$d" ]; then
+                mkdir -p "\$STAGE/\$m/\$(dirname "\$d")"
+                cp -R "\$m/build/\$d" "\$STAGE/\$m/\$(dirname "\$d")/" || return 74
+            fi
+        done
+    fi
+    [ \$r != 142 ] || echo "mac-remote: TIMEOUT in \$m after ${t}s" >&2
+    [ \$r = 0 ] || { [ \$fail != 0 ] || fail=\$r; }
 done
 return \$fail
 EOF
 }
 step_post_native_tests() {
-    local n=$1 rc=$2 m d; shift 2
+    local n=$1 rc=$2 m failed=0 ev="$RUNDIR/native-tests/step$1"; shift 2
     native_parse "$@"
+    mkdir -p "$ev" "$OUT/native-tests"
     for m in "${NATIVE_MODS[@]}"; do
-        rm -rf "$OUT/native-tests/$m/test-results/iosSimulatorArm64Test" "$OUT/native-tests/$m/reports/tests/iosSimulatorArm64Test"
-        for d in test-results/iosSimulatorArm64Test reports/tests/iosSimulatorArm64Test; do
-            fetch "$m/build/$d" "$OUT/native-tests/$m/$(dirname "$d")" 2>/dev/null || true
-        done
+        if fetch_optional "build/.mac-evidence/$TOKEN/native/step$n/$m" "$ev"; then
+            mkdir -p "$ev/$m"
+            [ -f "$ev/$m/status" ] || echo unavailable > "$ev/$m/status"
+            [ -L "$OUT/native-tests/$m" ] || rm -rf "$OUT/native-tests/$m"
+            ln -sfn "../runs/$RUN_ID/native-tests/step$n/$m" "$OUT/native-tests/$m"
+        else
+            failed=74
+        fi
     done
-    echo "mac-remote: native-tests exit $rc; XML under ${OUT#"$repo"/}/native-tests/<module>/test-results"
+    [ "$failed" = 0 ] || return "$failed"
+    remote "$(locked_guard)
+rm -rf \"\$TREE/build/.mac-evidence/$(q "$TOKEN/native/step$n")\"" || return $?
+    echo "mac-remote: native-tests exit $rc; evidence under ${ev#"$repo"/}"
 }
 
 xcode_parse() {   # [iphone|ipad] [--release] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP
@@ -791,7 +1089,7 @@ step_script_xcode() {   # <kind> <n> [dev] [args...]
     xcode_parse "$@" || return 1
     local which=$XC_WHICH
     cat <<EOF
-mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
+mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which build/app-$which.log build/xcodebuild-$which.log build/bibleview-$which.log
 # bibleview-js: npm ci only when package-lock.json changed (macOS-native node_modules live on the Mac)
 ( cd app/bibleview-js
   stamp=node_modules/.mac-remote-lock-sha; sha=\$(shasum package-lock.json | cut -d' ' -f1)
@@ -835,14 +1133,14 @@ step_script_xcode_build() { step_script_xcode xcode-build "$@"; }
 step_post_xcode() {   # <kind> <n> <rc> [dev] [args...]
     local kind=$1 n=$2 rc=$3; shift 3
     xcode_parse "$@" || return 0
-    local which=$XC_WHICH ev="$RUNDIR/xcode/step$n-$XC_WHICH" f
+    local which=$XC_WHICH ev="$RUNDIR/xcode/step$n-$XC_WHICH" f failed=0
     mkdir -p "$ev" "$OUT/xcode"
     for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult"; do
-        fetch "$f" "$ev" >/dev/null 2>&1 || true
+        fetch_optional "$f" "$ev" >/dev/null || failed=74
     done
     # xcresulttool names attachments by UUID; manifest.json maps them to the names the tests gave
     # (e.g. split2-dark_0_<uuid>.png): copy each PNG to <test>/<name>.png next to them.
-    python3 - "$ev/screenshots-$which" <<'EOF' || true
+    python3 -I - "$ev/screenshots-$which" <<'EOF' || true
 import json, os, re, shutil, sys
 d = sys.argv[1]
 m = os.path.join(d, "manifest.json")
@@ -865,6 +1163,7 @@ EOF
         fi
     done
     echo "mac-remote: $kind $which exit $rc; logs, xcresult and screenshots under ${ev#"$repo"/}/ (latest: ${OUT#"$repo"/}/xcode/)"
+    return "$failed"
 }
 step_post_xcode_test() { step_post_xcode xcode-test "$@"; }
 step_post_xcode_build() { step_post_xcode xcode-build "$@"; }
@@ -873,6 +1172,8 @@ step_script_run() {
     local n=$1 t; shift; t=$(step_timeout run)
     cat <<EOF
 export TREE
+$(artifact_script before "$n")
+[ \$? = 0 ] || return 74
 tmo $t bash -c $(q "$*"); rc=\$?
 [ \$rc = 142 ] && echo "mac-remote: TIMEOUT: command killed after ${t}s" >&2
 return \$rc
@@ -892,6 +1193,8 @@ $(leftovers_script)
 $(disk_script)
 $(own_junk_script)
 ME=$(q "$NAME")
+MR_SHARED=$SHARED
+$([ "$SHARED" = 0 ] || scratch_receipt_script cleanup)
 mem_line before
 disk_report "\$ME" quiet
 $(sims_down_script)
@@ -910,7 +1213,7 @@ if [ -n "\$other" ]; then
     echo "mac-remote: cleanup: leftovers of OTHER containers' trees (reported, not killed; pid age rss-MiB cpu% command):"
     echo "\$other" | sed 's/^other /  /'
 fi
-own_junk "\$ME" $${CLEANUP_DD:-0}
+own_junk "\$ME" ${CLEANUP_DD:-0} || return \$?
 mem_line after
 disk_report "\$ME"
 return 0
@@ -939,20 +1242,39 @@ run_steps() {
         eval "STEP=($step)"
         [ "${STEP[0]}" != link ] || continue
         kind=${STEP[0]//-/_}
+        if [ "$kind" = gradle ]; then step_prep_gradle "${STEP[@]:1}"; fi
+        if [ "$kind" = native_tests ]; then ( native_parse "${STEP[@]:1}" ) || exit 1; fi
         case "${STEP[0]}" in xcode-test|xcode-build) ( xcode_parse "${STEP[@]:1}" ) || exit 1 ;; esac
         declare -F "step_script_$kind" >/dev/null || die "unknown step '${STEP[0]}' (steps: link gradle native-tests xcode-test xcode-build run)"
     done
     case "$label" in cleanup|prune|sim-*) PROLOGUE_NOTREE=1 ;; esac
     queue_helper_check
+    [ -s "$(dirname "${BASH_SOURCE[0]}")/mac-build-cache.init.gradle" ] || die "missing cache init component"
+    source_metadata
     run_begin "$label" "$total" "${steps[@]}"
     RUN_REASON="no lock"
     session_open || exit $?
     RUN_REASON=
-    if [ "$sync" = 1 ]; then RUN_REASON="sync failed"; sync_tree; RUN_REASON=; fi
+    remote "$(locked_guard)" || die "unsafe remote tree or lost lock"
+    if [ "$sync" = 1 ]; then
+        RUN_REASON="sync failed"
+        transfer_begin || die "lost transfer lease"
+        sync_tree
+        transfer_end || die "lost transfer lease"
+        RUN_REASON=
+    else
+        case "$label" in run|batch|fetch|sim-shot) remote "$(owner_guard)" || die "shared ownership check failed" ;; esac
+        case "$label" in run|batch)
+            remote "$(locked_guard)
+$(prologue)
+set -e
+$(cache_install_script)" || die "remote cache setup failed" ;;
+        esac
+    fi
     session_send "$(prologue)" || true
     # shut the simulators down when the session ends (unless kept; sim helpers and cleanup manage them themselves)
     auto_down=1
-    case "$label" in sim-*|cleanup) auto_down=0 ;; esac
+    case "$label" in sim-*|cleanup|sync|fetch|reset-tree|prune) auto_down=0 ;; esac
     [ "${MAC_KEEP_SIM:-0}" != 1 ] || auto_down=0
     [ "$auto_down" != 1 ] || session_send "MR_SIMDOWN=1" || true
     for step in "${steps[@]}"; do
@@ -964,7 +1286,17 @@ run_steps() {
         printf '%s\tstart\t%s\t%s\n' "$n" "$(date +%s)" "${STEP[*]}" >> "$RUNDIR/steps"
         ! declare -F "step_prep_$kind" >/dev/null || "step_prep_$kind" "${STEP[@]:1}"
         session_step "$n" "$("step_script_$kind" "$n" "${STEP[@]:1}")"
-        ! declare -F "step_post_$kind" >/dev/null || "step_post_$kind" "$n" "$STEP_RC" "${STEP[@]:1}" || true
+        local post_rc=0
+        if declare -F "step_post_$kind" >/dev/null; then
+            if transfer_begin; then
+                "step_post_$kind" "$n" "$STEP_RC" "${STEP[@]:1}" || post_rc=$?
+                transfer_end || { [ "$post_rc" != 0 ] || post_rc=73; }
+            else post_rc=73; fi
+        fi
+        if [ "$post_rc" != 0 ]; then
+            echo "mac-remote: evidence capture failed for step $n (exit $post_rc)" >&2
+            [ "$STEP_RC" != 0 ] || STEP_RC=$post_rc
+        fi
         printf '%s\tend\t%s\t%s\n' "$n" "$(date +%s)" "$STEP_RC" >> "$RUNDIR/steps"
         if [ "$STEP_RC" != 0 ]; then
             failed=$((failed + 1))
@@ -1105,6 +1437,10 @@ queue)
     remote "$(queue_lib)
 mac_queue $(q "$@")"
     ;;
+reset-tree)
+    PROLOGUE_NOTREE=1
+    run_steps reset-tree 0 "$(q reset-tree)"
+    ;;
 cleanup)
     CLEANUP_DD=0; [ "${1:-}" != --derived-data ] || { CLEANUP_DD=1; shift; }
     run_steps cleanup 0 "$(q cleanup)"
@@ -1165,7 +1501,7 @@ cancel)
     cmd_cancel "${1:-}"
     ;;
 sync)
-    sync_tree
+    run_steps sync 1 "$(q sync)"
     ;;
 gradle)
     [ $# -gt 0 ] || die "usage: gradle <tasks/args...>"
@@ -1193,7 +1529,7 @@ batch)
     ;;
 fetch)
     [ $# -ge 1 ] || die "usage: fetch <remote-rel-path> [local-dir]"
-    fetch "$@"
+    run_steps fetch 0 "$(q fetch "$@")"
     ;;
 sim)
     sub="${1:-list}"; [ $# -gt 0 ] && shift

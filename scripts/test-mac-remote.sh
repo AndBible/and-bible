@@ -39,6 +39,7 @@ while [ $# -gt 0 ]; do
 done
 case "${args[${#args[@]}-1]}" in "$FAKE_HOME"/*) push=1 ;; esac
 [ -z "$push" ] && [ -n "${FAKE_RSYNC_PULL_SLEEP:-}" ] && sleep "$FAKE_RSYNC_PULL_SLEEP"
+[ -z "$push" ] && [ -n "${FAKE_RSYNC_FAIL_PULL:-}" ] && exit 23
 [ -n "$push" ] && echo "rsync-push lock=$([ -d "$FAKE_HOME/work/.build-lock" ] && echo held || echo free)" >> "$EVENTS"
 exec rsync "${args[@]}"
 EOS
@@ -66,7 +67,7 @@ EOS
 cat > "$T/bin/npm" <<'EOS'
 #!/usr/bin/env bash
 mkdir -p node_modules
-exit 0
+exit "${NPM_RC:-0}"
 EOS
 cat > "$T/bin/xcodebuild" <<'EOS'
 #!/usr/bin/env bash
@@ -89,6 +90,7 @@ if [ "${1:-}" = -r ] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then e=$2; shift 2; exec /us
 exec /usr/bin/date "$@"
 EOS
 chmod +x "$T/bin/"*
+cp "$T/bin/xcodebuild" "$T/bin/xcodebuild.original"
 
 new_env() {   # fresh fake Mac, fake repo and result dir for one test
     cur="$1"
@@ -108,7 +110,10 @@ EOS
         MAC_CONTAINER=testbox MAC_SSH_CONFIG="$T/ssh-config" MAC_SSH_BIN="$T/bin/fake-ssh" \
         MAC_RSYNC_BIN="$T/bin/fake-rsync" MAC_LOCK_POLL=0.2 MAC_LOCK_MSG_EVERY=1 MAC_LOCK_WAIT=30 \
         PATH="$T/bin:$PATH"
-    unset MAC_TIMEOUT MAC_STEP_MARGIN MAC_IDLE_MAX MAC_KEEP_RUNS FAKE_RSYNC_PULL_SLEEP XC_BOOT_SLEEP GRADLE_RC GRADLE_SLEEP XC_RC XC_SLEEP XC_MARK
+    export MAC_OWN_TREE=1
+    unset MAC_WORKDIR MAC_TIMEOUT MAC_STEP_MARGIN MAC_IDLE_MAX MAC_KEEP_RUNS FAKE_RSYNC_PULL_SLEEP FAKE_RSYNC_FAIL_PULL XC_BOOT_SLEEP GRADLE_RC GRADLE_SLEEP XC_RC XC_SLEEP XC_MARK NPM_RC GRADLE_USER_HOME
+    unset MAC_REMOTE_GRADLE_OPTS MAC_REMOTE_ANDROID_HOME MAC_REMOTE_LOCAL_PROPERTIES
+
     LOCK="$FAKE_HOME/work/.build-lock"
 }
 mr() { "$SCRIPT" "$@"; }
@@ -419,7 +424,7 @@ t_marker_records_timeout() {
     local d; d=$(last_run)
     [ "$(kv "$d/exit" code)" = 142 ] && [ "$(kv "$d/exit" reason)" = timeout ] || fail "exit marker: $(cat "$d/exit")"
     grep -q "TIMEOUT after 1s" <<<"$out" || fail "no timeout message: $out"
-    grep -q 'gradlew --stop' "$EVENTS" || fail "daemon not stopped after the timeout"
+    ! grep -q 'gradlew --stop' "$EVENTS" || fail "timeout stopped another client's daemon"
     [ ! -e "$LOCK" ] || fail "lock left behind after a timeout"
 }
 t_marker_records_killed_run() {
@@ -505,8 +510,8 @@ t_cancel_releases_lock_of_a_lost_run_and_stops_its_holder() {
 }
 t_cancel_leaves_foreign_lock_alone() {
     new_env cancel-foreign
-    "$SCRIPT" run 'sleep 8' > /dev/null 2>&1 & local p=$!; bg_pids+=("$p")
-    wait_for '[ -f "$LOCK/owner" ] && grep -q "sleep 8" <(ps -eo args | grep -v grep)' || { fail "run did not start"; return; }
+    "$SCRIPT" run 'touch "$HOME/cancel-ready"; sleep 8' > /dev/null 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for '[ -f "$FAKE_HOME/cancel-ready" ]' || { fail "run did not start"; return; }
     # the Mac lock changed hands (e.g. the old one was broken as stale): the owner token is another run's
     local mine; mine=$(owner_field token)
     sed -i 's/^token=.*/token=someone-elses-token/' "$LOCK/owner"
@@ -559,7 +564,7 @@ t_batch_keep_going_with_no_sync() {
     new_env batch-keep-nosync
     # no remote tree yet: the session is lost at step 1, so --keep-going must not try step 2
     out=$(mr batch --no-sync --keep-going "run exit 2" "run echo after" 2>&1); rc=$?
-    [ $rc != 0 ] && grep -q "step 2: .* -> not run" <<<"$out" || fail "a lost session should stop the batch, exit $rc: $out"
+    [ $rc != 0 ] && ! grep -qx after <<<"$out" || fail "missing-tree preflight should stop the batch, exit $rc: $out"
     mr sync >/dev/null 2>&1 || fail "sync failed"
     local pushes; pushes=$(grep -c '^rsync-push' "$EVENTS")
     out=$(mr batch --keep-going --no-sync "run exit 2" "run echo after" 2>&1); rc=$?
@@ -701,11 +706,11 @@ t_bad_device_in_batch_is_rejected_before_locking() {
 t_idle_guard_releases_lock_when_container_side_stalls() {
     new_env idle-guard
     # the container side stalls in fetches after the step (a dropped network would look the same): the guard frees the lock
-    MAC_IDLE_MAX=1 FAKE_RSYNC_PULL_SLEEP=3 "$SCRIPT" native-tests jsword > /dev/null 2>&1 & local p=$!; bg_pids+=("$p")
+    MAC_TRANSFER_TIMEOUT=1 FAKE_RSYNC_PULL_SLEEP=3 "$SCRIPT" native-tests jsword > /dev/null 2>&1 & local p=$!; bg_pids+=("$p")
     wait_for '[ -f "$LOCK/owner" ]' || { fail "run did not start"; return; }
-    wait_for '[ ! -e "$LOCK" ]' || fail "lock not released while the container side idles"
-    kill -0 "$p" 2>/dev/null || fail "the local run ended before the stall was observed (test not meaningful)"
-    wait "$p"
+    wait "$p"; local rc=$?
+    [ "$rc" != 0 ] || fail 'stalled transfer reported success'
+    [ ! -e "$LOCK" ] || fail 'bounded transfer left lock'
 }
 t_timeout_kills_the_whole_process_group() {
     new_env timeout-group
@@ -878,7 +883,228 @@ t_prune_older_than_and_refusals() {
     out=$(mr prune --trees ../x 2>&1); [ $? = 2 ] || fail "bad name accepted: $out"
 }
 
-for t in t_queue_fifo_three_waiters_behind_legacy_holder t_queue_timeout_and_cancel_remove_waiters \
+t_warm_shared_sync_and_owner() {
+    new_env warm-shared; unset MAC_OWN_TREE
+    touch "$FAKE_HOME/booted"
+    mr sync >/dev/null 2>&1 || fail 'sync failed'
+    local tree="$FAKE_HOME/work/shared/and-bible"
+    [ -f "$tree/gradlew" ] || { fail 'shared default missing'; return; }
+    grep -qx 'rsync-push lock=held' "$EVENTS" || fail 'standalone sync unlocked'
+    [ -f "$FAKE_HOME/booted" ] || fail 'sync shut down simulator'
+    mkdir -p "$tree/sharedCore/build" "$tree/.gradle" "$tree/.kotlin" "$tree/app/bibleview-js/node_modules"
+    local p; for p in sharedCore/build .gradle .kotlin app/bibleview-js/node_modules; do touch "$tree/$p/warm"; done
+    echo foreign.setting=bad > "$tree/local.properties"
+    MAC_CONTAINER=next mr sync >/dev/null 2>&1 || fail 'second sync failed'
+    for p in sharedCore/build .gradle .kotlin app/bibleview-js/node_modules; do [ -f "$tree/$p/warm" ] || fail "lost warm $p"; done
+    ! grep -q foreign.setting "$tree/local.properties" || fail 'foreign settings survived'
+    mr run --no-sync 'touch forbidden' >/dev/null 2>&1 && fail 'foreign owner accepted'
+    mr fetch gradlew >/dev/null 2>&1 && fail 'foreign fetch accepted'
+    MAC_CONTAINER=next mr fetch gradlew "$T/copy" >/dev/null 2>&1 || fail 'owner fetch refused'
+    [ -f "$T/copy/gradlew" ] || fail 'owner fetch lost file'
+    grep -q '^tree=work/shared/and-bible$' "$(last_run)/meta" || fail 'tree metadata missing'
+    grep -q '^source_revision=.' "$(last_run)/meta" || fail 'revision missing'
+}
+t_warm_setup_failure_invalidates_owner() {
+    new_env warm-setup; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1 || fail 'initial sync'
+    mkdir -p "$FAKE_HOME/.gradle/init.d"
+    echo 'unrelated init' > "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle"
+    out=$(mr sync 2>&1); rc=$?
+    [ "$rc" != 0 ] && ! grep -q 'synced to' <<<"$out" || fail "setup reported success: $out"
+    grep -qx 'unrelated init' "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle" || fail 'unrelated init overwritten'
+    mr run --no-sync true >/dev/null 2>&1 && fail 'partial sync authorized'
+}
+t_warm_paths_fail_closed() {
+    new_env warm-paths
+    MAC_CONTAINER=../escape mr sync >/dev/null 2>&1 && fail 'container traversal accepted'
+    local p; for p in work work/../outside /tmp/outside work/shared/../testbox; do MAC_WORKDIR="$p" mr sync >/dev/null 2>&1 && fail "unsafe path $p"; done
+    mkdir -p "$FAKE_HOME/outside"; ln -s "$FAKE_HOME/outside" "$FAKE_HOME/work/testbox"
+    mr sync >/dev/null 2>&1 && fail 'symlink escape accepted'
+    [ ! -e "$FAKE_HOME/outside/and-bible" ] || fail 'escape mutated outside'
+}
+t_warm_cache_environment_and_force() {
+    new_env warm-cache
+    mr run 'printf "%s\n" "$MAC_REMOTE_BUILD_CACHE" "$GRADLE_OPTS" > build-env' >/dev/null 2>&1 || fail 'cache run failed'
+    local tree="$FAKE_HOME/work/testbox/and-bible"
+    grep -qx 1 "$tree/build-env" && grep -q -- '-Dorg.gradle.caching=true' "$tree/build-env" || fail 'cache env absent'
+    cmp "$HERE/mac-build-cache.init.gradle" "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle" || fail 'init absent'
+    mr native-tests --force jsword >/dev/null 2>&1 || fail 'forced Native run failed'
+    grep -q ':jsword:iosSimulatorArm64Test --rerun' "$EVENTS" || fail 'no task-scoped rerun'
+    GRADLE_USER_HOME="$FAKE_HOME/custom" mr run true >/dev/null 2>&1 && fail 'custom Gradle home accepted'
+    mr gradle -g /tmp/custom help >/dev/null 2>&1 && fail 'custom Gradle home argument accepted'
+}
+t_warm_native_immutable_and_transfer_failure() {
+    new_env warm-native
+    cat > "$T/repo/gradlew" <<'EOS'
+#!/bin/bash
+mkdir -p jsword/build/test-results/iosSimulatorArm64Test
+echo "${XC_MARK:-A}" > jsword/build/test-results/iosSimulatorArm64Test/TEST-x.xml
+EOS
+    mr native-tests jsword >/dev/null 2>&1 || fail 'first Native run'
+    local a; a=$(last_run)
+    XC_MARK=B mr native-tests jsword >/dev/null 2>&1 || fail 'second Native run'
+    [ "$(cat "$a/native-tests/step1/jsword/test-results/iosSimulatorArm64Test/TEST-x.xml" 2>/dev/null)" = A ] || fail 'immutable Native evidence missing'
+    [ -L "$T/out/native-tests/jsword" ] || fail 'Native latest not linked'
+    FAKE_RSYNC_FAIL_PULL=1 mr native-tests jsword >/dev/null 2>&1; rc=$?
+    [ "$rc" != 0 ] || fail 'Native transport failure ignored'
+    FAKE_RSYNC_FAIL_PULL=1 mr xcode-test iphone >/dev/null 2>&1; rc=$?
+    [ "$rc" != 0 ] || fail 'Xcode transport failure ignored'
+}
+t_warm_xcode_early_failure_clears_stale() {
+    new_env warm-xcode
+    mr xcode-test iphone >/dev/null 2>&1 || fail 'initial Xcode run'
+    NPM_RC=9 mr xcode-test iphone >/dev/null 2>&1; rc=$?
+    [ "$rc" != 0 ] || fail 'npm failure ignored'
+    [ ! -e "$(last_run)/xcode/step1-iphone/app-iphone.log" ] && [ ! -e "$(last_run)/xcode/step1-iphone/xcodebuild-iphone.log" ] || fail 'stale Xcode logs recaptured'
+}
+t_warm_run_snapshots_only_current_outputs() {
+    new_env warm-run; unset MAC_OWN_TREE
+    MAC_CONTAINER=foreign mr run 'mkdir -p build/release/old.xcarchive build/shots; echo old > build/shots/old.png' >/dev/null 2>&1 || fail 'initial artifacts'
+    mr run 'mkdir -p build/release/new.xcarchive; echo new > build/release/new.xcarchive/data; echo new > build/shots/new.png; exit 6' >/dev/null 2>&1; rc=$?
+    [ "$rc" = 6 ] || fail "original failure lost: $rc"
+    local ev="$(last_run)/run/step1"
+    [ -f "$ev/release/new.xcarchive/data" ] && [ -f "$ev/shots/new.png" ] || fail 'new artifacts not snapshotted'
+    [ ! -e "$ev/release/old.xcarchive" ] && [ ! -e "$ev/shots/old.png" ] || fail 'old artifacts snapshotted'
+    mr cleanup >/dev/null 2>&1 || fail 'cleanup failed'
+    [ -d "$FAKE_HOME/work/shared/and-bible/build/release/old.xcarchive" ] || fail 'cleanup removed foreign scratch'
+}
+t_warm_reset_cleanup_prune_protect_caches() {
+    new_env warm-reset; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1 || fail 'sync failed'
+    local tree="$FAKE_HOME/work/shared/and-bible"
+    mkdir -p "$tree/sharedCore/build" "$tree/.gradle" "$tree/.kotlin" "$tree/build/dd-iphone" "$tree/app/bibleview-js/node_modules" "$FAKE_HOME/Library/Developer/Xcode/DerivedData/ModuleCache.noindex"
+    touch "$tree/sharedCore/build/warm" "$tree/.gradle/warm" "$tree/app/bibleview-js/node_modules/warm"
+    mr cleanup >/dev/null 2>&1 || fail 'cleanup failed'
+    [ -f "$tree/sharedCore/build/warm" ] && [ -f "$tree/.gradle/warm" ] && [ -f "$tree/app/bibleview-js/node_modules/warm" ] || fail 'cleanup destroyed caches'
+    mr prune --trees shared --yes >/dev/null 2>&1 || fail 'prune failed'
+    [ -d "$tree" ] || fail 'prune selected shared'
+    mr reset-tree >/dev/null 2>&1 || fail 'reset failed'
+    [ ! -e "$tree/sharedCore/build" ] && [ ! -e "$tree/.gradle" ] && [ ! -e "$tree/build" ] || fail 'reset kept outputs'
+    [ -f "$tree/gradlew" ] && [ -d "$FAKE_HOME/Library/Developer/Xcode/DerivedData/ModuleCache.noindex" ] || fail 'reset deleted sources/external cache'
+}
+
+t_warm_nested_xcode_env_preserves_options() {
+    new_env warm-nested
+    # The fake build phase invokes Gradle just as project.yml does.
+    cat > "$T/bin/xcodebuild" <<'EOS'
+#!/bin/bash
+bash -c 'printf "%s\n" "$MAC_REMOTE_BUILD_CACHE" "$GRADLE_OPTS" > "$HOME/nested-env"; ./gradlew nested'
+EOS
+    GRADLE_OPTS='-Dexisting.setting=retained' mr xcode-build iphone --release >/dev/null 2>&1
+    grep -qx 1 "$FAKE_HOME/nested-env" && grep -q -- '-Dexisting.setting=retained' "$FAKE_HOME/nested-env" && grep -q -- '-Dorg.gradle.caching=true' "$FAKE_HOME/nested-env" || fail 'nested build phase lost cache env/options'
+    grep -q 'gradlew nested' "$EVENTS" || fail 'nested Gradle not invoked'
+    # Restore the global tool fixture for subsequent tests.
+    cp "$T/bin/xcodebuild.original" "$T/bin/xcodebuild"
+}
+t_warm_derived_data_flag_and_shared_process_safety() {
+    new_env warm-dd
+    local dd="$FAKE_HOME/Library/Developer/Xcode/DerivedData"
+    mkdir -p "$dd/own" "$dd/other" "$dd/ModuleCache.noindex" "$FAKE_HOME/work/testbox/and-bible"
+    echo /work/testbox/and-bible > "$dd/own/info.plist"
+    echo /work/other/and-bible > "$dd/other/info.plist"
+    mr cleanup --derived-data >/dev/null 2>&1 || fail 'own derived cleanup failed'
+    [ ! -e "$dd/own" ] && [ -d "$dd/other" ] && [ -d "$dd/ModuleCache.noindex" ] || fail 'derived flag propagation or boundary wrong'
+    unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1 || fail 'shared sync failed'
+    mkdir -p "$FAKE_HOME/work/shared/and-bible/build/dd-iphone"
+    mr cleanup --derived-data >/dev/null 2>&1 || fail 'shared derived cleanup failed'
+    [ ! -e "$FAKE_HOME/work/shared/and-bible/build/dd-iphone" ] || fail 'explicit shared derived cleanup ignored'
+    mkdir -p "$FAKE_HOME/work/shared/and-bible"
+    printf '#!/bin/bash\nsleep 60\n' > "$FAKE_HOME/work/shared/and-bible/test.kexe"
+    chmod +x "$FAKE_HOME/work/shared/and-bible/test.kexe"
+    "$FAKE_HOME/work/shared/and-bible/test.kexe" & local p=$!; bg_pids+=("$p")
+    mr cleanup >/dev/null 2>&1 || fail 'shared process cleanup failed'
+    kill -0 "$p" 2>/dev/null || fail 'shared path process killed without token ownership'
+    kill "$p" 2>/dev/null
+}
+t_warm_failed_and_unattempted_native_not_fresh() {
+    new_env warm-native-stale
+    mr sync >/dev/null 2>&1 || fail 'sync failed'
+    local tree="$FAKE_HOME/work/testbox/and-bible"
+    mkdir -p "$tree/jsword/build/test-results/iosSimulatorArm64Test" "$tree/kdom/build/test-results/iosSimulatorArm64Test"
+    echo old > "$tree/jsword/build/test-results/iosSimulatorArm64Test/TEST-old.xml"
+    echo old > "$tree/kdom/build/test-results/iosSimulatorArm64Test/TEST-old.xml"
+    GRADLE_RC=3 mr native-tests jsword >/dev/null 2>&1
+    [ ! -e "$(last_run)/native-tests/step1/jsword/test-results/iosSimulatorArm64Test/TEST-old.xml" ] || fail 'failed invocation reported unchanged XML as fresh'
+    MAC_TIMEOUT=1 MAC_STEP_MARGIN=1 XC_BOOT_SLEEP=5 mr native-tests jsword kdom >/dev/null 2>&1
+    [ "$(cat "$(last_run)/native-tests/step1/kdom/status")" = unattempted ] && [ ! -e "$(last_run)/native-tests/step1/kdom/test-results" ] || fail 'unattempted module reported stale results'
+}
+
+t_warm_transfer_lease_and_failure_precedence() {
+    new_env warm-lease
+    # A successful transfer may outlast the between-instruction idle guard.
+    MAC_IDLE_MAX=1 FAKE_RSYNC_PULL_SLEEP=2 mr run 'mkdir -p build/shots; echo current > build/shots/current.png' >/dev/null 2>&1; rc=$?
+    [ "$rc" = 0 ] || fail "active evidence copy lost lock: $rc"
+    [ -f "$(last_run)/run/step1/shots/current.png" ] || fail 'evidence not captured across lease'
+    FAKE_RSYNC_FAIL_PULL=1 mr run 'mkdir -p build/shots; echo failed > build/shots/failed.png; exit 7' >/dev/null 2>&1; rc=$?
+    [ "$rc" = 7 ] || fail "transport replaced original step failure: $rc"
+}
+t_warm_shared_scratch_cleanup_is_content_owned() {
+    new_env warm-scratch; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1
+    local tree="$FAKE_HOME/work/shared/and-bible"
+    mkdir -p "$tree/build/release/foreign.xcarchive" "$tree/build/shots"
+    echo foreign > "$tree/build/shots/foreign.png"
+    mr run 'echo mine > build/shots/mine.png; mkdir -p build/release/mine.xcarchive; echo mine > build/release/mine.xcarchive/data' >/dev/null 2>&1 || fail 'artifact run'
+    mr cleanup >/dev/null 2>&1 || fail 'cleanup'
+    [ ! -e "$tree/build/shots/mine.png" ] && [ ! -e "$tree/build/release/mine.xcarchive" ] || fail 'captured own scratch not cleaned'
+    [ -f "$tree/build/shots/foreign.png" ] && [ -d "$tree/build/release/foreign.xcarchive" ] || fail 'foreign scratch cleaned'
+    mr run 'echo mine > build/shots/reused.png' >/dev/null 2>&1
+    echo foreign-overwrite > "$tree/build/shots/reused.png"
+    MAC_CONTAINER=other mr sync >/dev/null 2>&1
+    mr cleanup >/dev/null 2>&1 || fail 'cleanup after foreign handoff'
+    [ -f "$tree/build/shots/reused.png" ] || fail 'foreign overwrite cleaned'
+}
+
+t_warm_nosync_installs_cache_under_lock() {
+    new_env warm-nosync-cache
+    mr sync >/dev/null 2>&1 || fail 'sync'
+    rm "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle"
+    mr run --no-sync 'test -f "$HOME/.gradle/init.d/andbible-mac-build-cache.gradle"' >/dev/null 2>&1 || fail 'no-sync bypassed cache installation'
+}
+t_warm_reset_refuses_nested_external_symlink() {
+    new_env warm-reset-escape; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1
+    local tree="$FAKE_HOME/work/shared/and-bible"
+    mkdir -p "$FAKE_HOME/external" "$tree/build"
+    touch "$FAKE_HOME/external/keep"
+    ln -s "$FAKE_HOME/external" "$tree/build/escape"
+    mr reset-tree >/dev/null 2>&1 && fail 'reset accepted escaping output symlink'
+    [ -f "$FAKE_HOME/external/keep" ] || fail 'reset escaped tree'
+    mr prune --older-than 0 --yes >/dev/null 2>&1
+    [ -d "$tree" ] || fail 'age prune selected shared'
+}
+
+t_warm_prune_preserves_external_xcode_caches() {
+    new_env warm-prune-cache
+    local dd="$FAKE_HOME/Library/Developer/Xcode/DerivedData"
+    mkdir -p "$FAKE_HOME/work/gone/and-bible" "$dd/ModuleCache.noindex" "$dd/SDKStatCaches.noindex"
+    echo /work/gone/and-bible > "$dd/ModuleCache.noindex/info.plist"
+    echo /work/gone/and-bible > "$dd/SDKStatCaches.noindex/info.plist"
+    mr prune --trees gone --yes >/dev/null 2>&1 || fail 'prune failed'
+    [ -d "$dd/ModuleCache.noindex" ] && [ -d "$dd/SDKStatCaches.noindex" ] || fail 'prune deleted global Xcode caches'
+}
+
+t_warm_dirty_source_fingerprint_tracks_content() {
+    new_env warm-dirty
+    git -C "$T/repo" init -q
+    git -C "$T/repo" -c user.name=test -c user.email=test@localhost commit -q --allow-empty -m fixture
+    echo one > "$T/repo/dirty.txt"
+    mr sync >/dev/null 2>&1 || fail 'initial generated files sync'
+    mr sync >/dev/null 2>&1 || fail 'first sync'
+    local first; first=$(kv "$(last_run)/meta" source_dirty)
+    echo two > "$T/repo/dirty.txt"
+    mr sync >/dev/null 2>&1 || fail 'second sync'
+    [ "$first" != "$(kv "$(last_run)/meta" source_dirty)" ] || fail 'dirty fingerprint ignored content change'
+}
+
+for t in t_warm_dirty_source_fingerprint_tracks_content \
+    t_warm_prune_preserves_external_xcode_caches \
+    t_warm_nosync_installs_cache_under_lock t_warm_reset_refuses_nested_external_symlink \
+    t_warm_transfer_lease_and_failure_precedence t_warm_shared_scratch_cleanup_is_content_owned \
+    t_warm_nested_xcode_env_preserves_options t_warm_derived_data_flag_and_shared_process_safety t_warm_failed_and_unattempted_native_not_fresh \
+    t_warm_shared_sync_and_owner t_warm_setup_failure_invalidates_owner t_warm_paths_fail_closed t_warm_cache_environment_and_force t_warm_native_immutable_and_transfer_failure t_warm_xcode_early_failure_clears_stale t_warm_run_snapshots_only_current_outputs t_warm_reset_cleanup_prune_protect_caches \
+    t_queue_fifo_three_waiters_behind_legacy_holder t_queue_timeout_and_cancel_remove_waiters \
     t_queue_controls_use_orchestrator_group_not_child_name t_queue_rejects_parallel_slots_before_connecting \
     t_queue_legacy_client_respects_new_holder_and_can_overtake_reservation \
     t_queue_child_registration_inherits_group_and_priority_changes_admission t_queue_missing_embedded_helper_fails_closed \
