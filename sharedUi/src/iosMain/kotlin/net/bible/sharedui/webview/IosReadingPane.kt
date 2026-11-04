@@ -2,6 +2,7 @@
 
 package net.bible.sharedui.webview
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -76,6 +77,9 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
         }
     }
 
+    /** Set by the pane composable that hosts this view now: refreshes its accessibility element (issue #3949). */
+    var onWindowAttachForAccessibility: (() -> Unit)? = null
+
     override fun didMoveToWindow() {
         super.didMoveToWindow()
         if (window != null) {
@@ -84,6 +88,7 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
             } catch (t: Throwable) {
                 nsLog("bridge: flush on attach failure $t")
             }
+            onWindowAttachForAccessibility?.invoke()
         }
     }
 }
@@ -338,7 +343,14 @@ fun iosReadingPaneFactory(
         // Compose iOS caches a node's native accessibility children; after the cached WKWebView is re-parented into this
         // new holder that cache can stay empty, so VoiceOver (and XCUITest) lose the Bible text. Changing a semantics
         // value once the view is attached makes the accessibility sync rebuild this node's element (issue #3949).
+        // Bumped when the view reaches a window (the moment the new holder is live) and, as a fallback, two frames after
+        // this holder composed.
         var attachGeneration by remember { mutableIntStateOf(0) }
+        DisposableEffect(entry.webView) {
+            val bump: () -> Unit = { attachGeneration++ }
+            entry.webView.onWindowAttachForAccessibility = bump
+            onDispose { if (entry.webView.onWindowAttachForAccessibility === bump) entry.webView.onWindowAttachForAccessibility = null }
+        }
         LaunchedEffect(entry.webView) {
             withFrameNanos { }
             withFrameNanos { }
