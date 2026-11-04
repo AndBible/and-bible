@@ -25,6 +25,8 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -1337,6 +1339,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         remember { windowState.refresh(activity.hostWindowRepository) }
         val deps = remember { readingHostDeps() }
         ReadingHostContent(deps, paneFactory)
+        // A rebuild after a workspace switch has had its panes take the parked views over by the time two frames
+        // have passed (panes inside subcompositions are composed during layout, after this effect starts); the
+        // views no pane took are destroyed then (#3950).
+        val gen = generation.state.value
+        LaunchedEffect(gen) {
+            withFrameNanos { }
+            withFrameNanos { }
+            activity.readingCommands.bibleViewFactory.releaseSpares()
+        }
     }
 
     /**

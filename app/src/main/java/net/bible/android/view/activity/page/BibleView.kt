@@ -924,6 +924,34 @@ class BibleView(
             field = value
         }
 
+    /**
+     * Parks this view on a workspace switch (`BibleViewFactory.retireForReuse`, #3950): it stops following events
+     * and leaves its window, but the page and its content stay alive (and on screen) for the next window.
+     */
+    fun retire() {
+        listenEvents = false
+        val win = windowRef.get()
+        if (win != null && win.bibleView === this) win.bibleView = null
+    }
+
+    /**
+     * Takes this parked view over for [window] (#3950). The old page stays on screen until [window]'s document
+     * replaces it, which the switch's reload delivers; nothing of the old window may leak into that load.
+     */
+    fun adoptWindow(window: Window) {
+        Log.i(TAG, "adopting window ${window.displayId}")
+        this.window = window
+        lastUpdated = 0L
+        // A modal of the old window's page must not survive into the new window.
+        emit(BibleViewEvents.closeModals())
+        modalOpen = false
+        editingTextInJs = false
+        documentLoader.forgetDocument()
+        listenEvents = true
+        updateBackgroundColor()
+        updateActive()
+    }
+
     fun doDestroy() {
         if(!toBeDestroyed) {
             destroy()

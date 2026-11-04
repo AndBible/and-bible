@@ -28,11 +28,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent.get
+import android.os.Looper
+import java.time.Duration
 import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
@@ -80,8 +84,17 @@ class WorkspaceSwitchContentTest {
     private fun cachedViews(factory: net.bible.android.view.activity.page.BibleViewFactory): Map<*, *> =
         factory.javaClass.getDeclaredField("windowBibleViewMap").apply { isAccessible = true }.get(factory) as Map<*, *>
 
-    private fun scenario(animationsOff: Boolean) {
-        CommonUtils.settings.setBoolean("disable_animations", animationsOff)
+    /** The live host with workspace A of three windows (KJV, NASB, a StudyPad), each with a cached view. */
+    private class WorkspaceA(
+        val activity: NavHostComposeActivity,
+        val repo: WindowRepository,
+        val factory: net.bible.android.view.activity.page.BibleViewFactory,
+        val oldWindows: List<Window>,
+        val label: BookmarkEntities.Label,
+        val journal: net.bible.service.download.FakeBookFactory,
+    )
+
+    private fun workspaceA(): WorkspaceA {
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
@@ -91,8 +104,7 @@ class WorkspaceSwitchContentTest {
         }
         val activity = controller.get()
         val repo = activity.hostWindowRepository
-        val commands = activity.readingCommands
-        val factory = commands.bibleViewFactory
+        val factory = activity.readingCommands.bibleViewFactory
         val books = Books.installed()
         val journal = get<net.bible.service.download.FakeBookFactory>(net.bible.service.download.FakeBookFactory::class.java)
 
@@ -108,15 +120,64 @@ class WorkspaceSwitchContentTest {
         runBlocking { DatabaseContainer.instance.bookmarkDb.bookmarkDao().insert(label) }
         w3.pageManager.setCurrentDocumentAndKey(journal.journalDocument, StudyPadKey(label))
         val oldWindows = listOf(w1, w2, w3)
-        val oldIds = oldWindows.map { it.id }
-        val aId = repo.id
         oldWindows.forEach { factory.getOrCreateBibleView(it) }
         assertEquals("fixture: three windows with a live view each", 3, oldWindows.count { it.bibleView != null })
+        return WorkspaceA(activity, repo, factory, oldWindows, label, journal)
+    }
 
+    /** Inserts an empty workspace B (the loader gives it one default window) and persists A. */
+    private fun newWorkspaceB(repo: WindowRepository): IdType {
         val bId = IdType()
         runBlocking { workspaceDao.insertWorkspace(WorkspaceEntities.Workspace("B").also { it.id = bId }) }
         repo.saveIntoDb(false)
         runBlocking { repo.persistence.awaitPersisted() }
+        return bId
+    }
+
+    /**
+     * #3950: a switch must not throw the outgoing web views away and boot new ones (a WebView load plus the page's
+     * Vue start-up, about a second of blank content on the emulator). The incoming windows take the outgoing views
+     * over, so each pane keeps its old page on screen until the new document replaces it; only the views no incoming
+     * window takes are destroyed, once the new panes are composed.
+     */
+    @Test fun switchHandsTheOutgoingViewsToTheIncomingWindows() {
+        val a = workspaceA()
+        val oldViews = a.oldWindows.map { it.bibleView as BibleView }
+        val bId = newWorkspaceB(a.repo)
+
+        a.activity.lifecycleScope.launch { a.activity.readingCommands.switchWorkspace(bId) }
+        settleWorkspaceSwitches()
+        compose.waitForIdle()
+
+        assertEquals(bId, a.repo.id)
+        val incoming = a.repo.windowList.single()
+        val view = a.factory.getOrCreateBibleView(incoming)
+        assertTrue("workspace B's window must reuse an outgoing view, not boot a new WebView", oldViews.any { it === view })
+        assertFalse("the reused view must stay alive", view.session.isDisposed)
+        assertSame(incoming, view.window)
+        assertSame(view, incoming.bibleView)
+        a.oldWindows.forEach { assertNull("${it.displayId} must not keep a view it handed over", it.bibleView) }
+
+        // The two views workspace B has no window for are destroyed once the new panes are composed.
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
+        compose.waitForIdle()
+        assertEquals("unused outgoing views must be destroyed", 2, oldViews.count { it.session.isDisposed })
+    }
+
+    private fun scenario(animationsOff: Boolean) {
+        CommonUtils.settings.setBoolean("disable_animations", animationsOff)
+        val a = workspaceA()
+        val activity = a.activity
+        val repo = a.repo
+        val commands = activity.readingCommands
+        val factory = a.factory
+        val label = a.label
+        val oldWindows = a.oldWindows
+        val (w1, w2, w3) = oldWindows
+        val oldIds = oldWindows.map { it.id }
+        val aId = repo.id
+
+        val bId = newWorkspaceB(repo)
 
         val held = HeldRead(realLoader(repo.persistence), repo.persistence)
         repo.loaderOverride = held

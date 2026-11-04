@@ -86,4 +86,23 @@ class BibleViewFactoryLoadPendingTest {
         resolve(window(), mutableMapOf(), events)
         assertEquals(listOf("create", "assign"), events)
     }
+
+    /** #3950: a parked view of the previous workspace is taken over instead of creating a WebView. */
+    @Test
+    fun aParkedViewIsAdoptedInsteadOfCreatingOneAndRunsThePendingLoad() {
+        val w = window().apply { loadPending = true }
+        val map = mutableMapOf<IdType, String>()
+        val events = mutableListOf<String>()
+        val view = BibleViewFactory.resolveView(
+            w, map,
+            rebind = { events += "rebind" },
+            adopt = { events += "adopt"; "parked" },
+            create = { events += "create"; "new" },
+            assign = { events += "assign" },
+            load = { events += "load" },
+        )
+        assertEquals("parked", view)
+        assertEquals(listOf("adopt", "assign", "load"), events)
+        assertEquals("parked", map[w.id])
+    }
 }

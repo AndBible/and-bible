@@ -1391,9 +1391,11 @@ class ReadingCommands(
         workspaceSwitchesInFlight.incrementAndGet()
         try {
             switchMutex.withLock {
-                // The outgoing views are destroyed in the apply step (same Main step as the owner swap), not
-                // before the read: clearing first blanked every pane for the whole IO read (SU-2).
-                windowRepository().loadFromDb(id) { bibleViewFactory.clear() }
+                // The outgoing views are parked in the apply step (same Main step as the owner swap), not before the
+                // read, and the incoming windows take them over: destroying them blanked every pane for the IO read
+                // (SU-2) and, with new WebViews booting, for about a second more (#3950). The host drops the views
+                // no incoming window took once the new panes are composed (`BibleViewFactory.releaseSpares`).
+                windowRepository().loadFromDb(id) { bibleViewFactory.retireForReuse() }
 
                 CommonUtils.settings.setString("current_workspace_id", windowRepository().id.toString())
                 hostCallbacks.documentViewManager().buildView(forceUpdate = true)
