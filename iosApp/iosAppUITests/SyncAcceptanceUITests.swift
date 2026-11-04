@@ -240,6 +240,22 @@ final class SyncAcceptanceUITests: XCTestCase {
             XCTFail("Changed-certificate rejection requires controller swap fixture")
             return
         }
+        // First prove the accepted pin survives a fresh NSURLSession/process on the unchanged server.
+        XCUIDevice.shared.press(.home)
+        app.terminate()
+        app.launch()
+        guard syncUI.openDeviceSynchronization(app, "Persisted-pin settings missing") else { return }
+        syncUI.reveal(app, "Documents", toggle: true).tap()
+        let persistedDecision = NSPredicate { _, _ in start.exists || certificate.exists }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: persistedDecision, object: app)], timeout: 90) == .completed,
+                       app, "Persisted pin produced neither success nor a certificate decision")
+        syncUI.require(start.exists && !certificate.exists, app,
+                       "Original verified certificate was not retained across process relaunch")
+        guard start.exists && !certificate.exists else { return }
+        app.buttons["Cancel"].firstMatch.tap()
+        let pinCancelled = NSPredicate { _, _ in !start.exists }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: pinCancelled, object: app)], timeout: 15) == .completed,
+                       app, "Persisted-pin document decision did not close")
         try Data("swap".utf8).write(to: URL(fileURLWithPath: swapDirectory + "/request"), options: .atomic)
         let ready = NSPredicate { _, _ in FileManager.default.fileExists(atPath: swapDirectory + "/ready") }
         syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: app)], timeout: 20) == .completed,
