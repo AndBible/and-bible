@@ -160,10 +160,12 @@ final class DynamicTypeUITests: RealAppUITestCase {
         expectUsable(app, upButton(app), "Back", screen: "download")
         let filter = app.staticTexts.matching(NSPredicate(format: "label == 'All'")).firstMatch
         if expectUsable(app, filter, "language filter 'All'", screen: "download", timeout: 60) {
-            // First row below the filter bar: the catalogue arrives from the network, so allow it time.
+            // First row below the filter bar: the catalogue arrives from the network, so allow it time. The filter's bottom
+            // is read once: re-resolving the 'All' query inside the loop threw "No matches found" while the list loaded.
+            let filterBottom = filter.frame.maxY
             let firstRow = { () -> XCUIElement? in
                 app.buttons.allElementsBoundByIndex.first {
-                    $0.exists && !$0.label.isEmpty && !$0.frame.isEmpty && $0.frame.minY > filter.frame.maxY
+                    $0.exists && !$0.label.isEmpty && !$0.frame.isEmpty && $0.frame.minY > filterBottom
                 }
             }
             let loaded = waitUntil(timeout: 60) { firstRow() != nil }

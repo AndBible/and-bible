@@ -7,7 +7,10 @@ final class BugReportUITests: XCTestCase {
 
     private func app(_ extra: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + extra
+        // An earlier test on this simulator may leave a crash record: without the reset the app opens the crash-recovery
+        // screen, whose own "Backup & Restore" button would satisfy the error-dialog test for the wrong reason.
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-discrete_mode", "NO", "-show_calculator", "NO",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + extra
         app.launch()
         return app
     }
