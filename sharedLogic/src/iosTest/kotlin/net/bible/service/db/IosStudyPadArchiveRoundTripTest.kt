@@ -68,8 +68,7 @@ class IosStudyPadArchiveRoundTripTest {
         previousHost = try { DatabaseContainer.host } catch (_: IllegalStateException) { null }
         previousReady = DatabaseContainer.ready
         previousFactory = DatabaseContainer.containerFactory
-        previousInstance = try { DatabaseContainer.instance } catch (_: Exception) { null }
-        DatabaseContainer.detachInstanceForTest()
+        previousInstance = DatabaseContainer.detachInstanceForTest()
         startKoin { modules(module { single<DateTimeFormats> { FixedDateTimeFormats } }) }
     }
 
@@ -79,9 +78,14 @@ class IosStudyPadArchiveRoundTripTest {
         DatabaseContainer.ready = false
         DatabaseContainer.forgetReplacesForTest()
         DatabaseContainer.detachInstanceForTest()
+        previousHost?.let(DatabaseContainer::installHost)
+        previousInstance?.let { instance ->
+            DatabaseContainer.containerFactory = { instance }
+            DatabaseContainer.ready = true
+            DatabaseContainer.instance
+        }
         previousFactory?.let { DatabaseContainer.containerFactory = it }
         DatabaseContainer.ready = previousReady
-        previousHost?.let(DatabaseContainer::installHost)
         testDirs.forEach { FileSystem.SYSTEM.deleteRecursively(it, mustExist = false) }
     }
 
@@ -95,97 +99,98 @@ class IosStudyPadArchiveRoundTripTest {
         testDirs += sourceDir.toPath()
         try {
             val sourceDao = source.bookmarkDb.bookmarkDao()
-        val label = BookmarkEntities.Label(name = "Archive round trip pad")
-        val bookmark = BookmarkEntities.BibleBookmark(
-            kjvOrdinalStart = 4321, kjvOrdinalEnd = 4322, ordinalStart = 4321, ordinalEnd = 4322,
-            v11n = KJVA, playbackSettings = null, startOffset = null, endOffset = null, customIcon = null,
-        )
-        sourceDao.insert(label)
-        sourceDao.insert(bookmark)
-        sourceDao.insert(BookmarkEntities.BibleBookmarkNotes(bookmark.id, "Bookmark note"))
-        sourceDao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.id, label.id, orderNumber = 3, indentLevel = 2))
-        val entries = listOf(
-            BookmarkEntities.StudyPadTextEntry(labelId = label.id, orderNumber = 7, indentLevel = 1),
-            BookmarkEntities.StudyPadTextEntry(labelId = label.id, orderNumber = 2, indentLevel = 3),
-        )
-        entries.forEachIndexed { index, entry ->
-            sourceDao.insert(entry)
-            sourceDao.insert(BookmarkEntities.StudyPadTextEntryText(entry.id, "Entry ${index + 1}"))
-        }
-        val expectedEntries = sourceDao.studyPadTextEntriesByLabelId(label.id).map {
-            Triple(it.text, it.orderNumber, it.indentLevel)
-        }
-        val expectedLink = assertNotNull(sourceDao.getBibleBookmarkToLabel(bookmark.id, label.id))
-
-        val filesDir = trackTestDir()
-        FileSystem.SYSTEM.createDirectories(sourceDir.toPath() / "tmp")
-        val environment = TestEnvironment(sourceDir)
-        lateinit var backupHost: CapturingBackupHost
-        val backup = BackupControl(
-            AppDialogController(), StubCoreStrings(), environment, TestSettings(), WindowControl(),
-            testCloudSync(environment), TestNotifier(), testDirectories(filesDir),
-        )
-        backupHost = CapturingBackupHost { bytes = it }
-        assertTrue(
-            net.bible.service.db.exportStudyPads(
-                listOf(label), backupHost, StubCoreStrings(), environment, backup,
-                chooseDestination = { SaveOrShare.SAVE },
-            ),
-        )
-
-        // Read the ZIP independently of the importer and validate its real embedded database payload.
-        val archive = filesDir / "export.abdb.zip"
-        FileSystem.SYSTEM.write(archive) { write(bytes) }
-        val payloads = readZip(archive)
-        assertEquals(
-            setOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME, "db/${BookmarkDatabase.dbFileName}"),
-            payloads.keys,
-        )
-        assertEquals(
-            BackupType.STUDYPAD_EXPORT,
-            AndBibleBackupManifest.fromJson(payloads.getValue(ANDBIBLE_BACKUP_MANIFEST_FILENAME).utf8()).backupType,
-        )
-
-        val unpackDir = trackTestDir()
-        ArchiveUtils.unzip(archive, unpackDir)
-        val payloadDbFile = unpackDir / "db/${BookmarkDatabase.dbFileName}"
-        val payloadDb = buildAppDatabase<BookmarkDatabase>(payloadDbFile.toString(), *bookmarkMigrations)
-        try {
-            val payloadDao = payloadDb.bookmarkDao()
-            assertEquals(label, payloadDao.labelById(label.id))
-            val payloadBookmark = assertNotNull(payloadDao.bibleBookmarkById(bookmark.id))
-            assertEquals("Bookmark note", payloadBookmark.notes)
-            assertEquals(expectedLink, payloadDao.getBibleBookmarkToLabel(bookmark.id, label.id))
-            assertEquals(
-                expectedEntries,
-                payloadDao.studyPadTextEntriesByLabelId(label.id).map { Triple(it.text, it.orderNumber, it.indentLevel) },
+            val label = BookmarkEntities.Label(name = "Archive round trip pad")
+            val bookmark = BookmarkEntities.BibleBookmark(
+                kjvOrdinalStart = 4321, kjvOrdinalEnd = 4322, ordinalStart = 4321, ordinalEnd = 4322,
+                v11n = KJVA, playbackSettings = null, startOffset = null, endOffset = null, customIcon = null,
             )
-        } finally {
-            payloadDb.close()
-        }
-
-        // Import the extracted payload through the production install committer into a separate empty database.
-        val importDir = newTestDir()
-        testDirs += importDir.toPath()
-        DatabaseContainer.installHost(FakeDatabaseHost(importDir))
-        val imported = DatabaseContainer.create()
-        DatabaseContainer.containerFactory = { imported }
-        DatabaseContainer.ready = true
-        try {
-            DefaultInstallCommitter(
-                backup, StubCoreStrings(), environment, clearAddonCaches = {},
-            ).commitStudyPad(unpackDir)
-            val importedDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-            assertEquals(label, importedDao.labelById(label.id))
-            assertEquals("Bookmark note", assertNotNull(importedDao.bibleBookmarkById(bookmark.id)).notes)
-            assertEquals(expectedLink, importedDao.getBibleBookmarkToLabel(bookmark.id, label.id))
-            assertEquals(
-                expectedEntries,
-                importedDao.studyPadTextEntriesByLabelId(label.id).map { Triple(it.text, it.orderNumber, it.indentLevel) },
+            sourceDao.insert(label)
+            sourceDao.insert(bookmark)
+            sourceDao.insert(BookmarkEntities.BibleBookmarkNotes(bookmark.id, "Bookmark note"))
+            sourceDao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.id, label.id, orderNumber = 3, indentLevel = 2))
+            val entries = listOf(
+                BookmarkEntities.StudyPadTextEntry(labelId = label.id, orderNumber = 7, indentLevel = 1),
+                BookmarkEntities.StudyPadTextEntry(labelId = label.id, orderNumber = 2, indentLevel = 3),
             )
-        } finally {
-            imported.closeOwned()
-        }
+            entries.forEachIndexed { index, entry ->
+                sourceDao.insert(entry)
+                sourceDao.insert(BookmarkEntities.StudyPadTextEntryText(entry.id, "Entry ${index + 1}"))
+            }
+            val expectedEntries = sourceDao.studyPadTextEntriesByLabelId(label.id).map {
+                Triple(it.text, it.orderNumber, it.indentLevel)
+            }
+            val expectedLink = assertNotNull(sourceDao.getBibleBookmarkToLabel(bookmark.id, label.id))
+
+            val filesDir = trackTestDir()
+            FileSystem.SYSTEM.createDirectories(sourceDir.toPath() / "tmp")
+            val environment = TestEnvironment(sourceDir)
+            lateinit var backupHost: CapturingBackupHost
+            val backup = BackupControl(
+                AppDialogController(), StubCoreStrings(), environment, TestSettings(), WindowControl(),
+                testCloudSync(environment), TestNotifier(), testDirectories(filesDir),
+            )
+            backupHost = CapturingBackupHost { bytes = it }
+            assertTrue(
+                net.bible.service.db.exportStudyPads(
+                    listOf(label), backupHost, StubCoreStrings(), environment, backup,
+                    chooseDestination = { SaveOrShare.SAVE },
+                ),
+            )
+
+            // Read the ZIP independently of the importer and validate its real embedded database payload.
+            val archive = filesDir / "export.abdb.zip"
+            FileSystem.SYSTEM.write(archive) { write(bytes) }
+            val payloads = readZip(archive)
+            assertEquals(
+                setOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME, "db/${BookmarkDatabase.dbFileName}"),
+                payloads.keys,
+            )
+            assertEquals(
+                BackupType.STUDYPAD_EXPORT,
+                AndBibleBackupManifest.fromJson(payloads.getValue(ANDBIBLE_BACKUP_MANIFEST_FILENAME).utf8()).backupType,
+            )
+
+            val unpackDir = trackTestDir()
+            ArchiveUtils.unzip(archive, unpackDir)
+            val payloadDbFile = unpackDir / "db/${BookmarkDatabase.dbFileName}"
+            val payloadDb = buildAppDatabase<BookmarkDatabase>(payloadDbFile.toString(), *bookmarkMigrations)
+            try {
+                val payloadDao = payloadDb.bookmarkDao()
+                assertEquals(label, payloadDao.labelById(label.id))
+                val payloadBookmark = assertNotNull(payloadDao.bibleBookmarkById(bookmark.id))
+                assertEquals("Bookmark note", payloadBookmark.notes)
+                assertEquals(expectedLink, payloadDao.getBibleBookmarkToLabel(bookmark.id, label.id))
+                assertEquals(
+                    expectedEntries,
+                    payloadDao.studyPadTextEntriesByLabelId(label.id).map { Triple(it.text, it.orderNumber, it.indentLevel) },
+                )
+            } finally {
+                payloadDb.close()
+            }
+
+            // Import the extracted payload through the production install committer into a separate empty database.
+            val importDir = newTestDir()
+            testDirs += importDir.toPath()
+            DatabaseContainer.installHost(FakeDatabaseHost(importDir))
+            val imported = DatabaseContainer.create()
+            DatabaseContainer.detachInstanceForTest()
+            DatabaseContainer.containerFactory = { imported }
+            DatabaseContainer.ready = true
+            try {
+                DefaultInstallCommitter(
+                    backup, StubCoreStrings(), environment, clearAddonCaches = {},
+                ).commitStudyPad(unpackDir)
+                val importedDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+                assertEquals(label, importedDao.labelById(label.id))
+                assertEquals("Bookmark note", assertNotNull(importedDao.bibleBookmarkById(bookmark.id)).notes)
+                assertEquals(expectedLink, importedDao.getBibleBookmarkToLabel(bookmark.id, label.id))
+                assertEquals(
+                    expectedEntries,
+                    importedDao.studyPadTextEntriesByLabelId(label.id).map { Triple(it.text, it.orderNumber, it.indentLevel) },
+                )
+            } finally {
+                imported.closeOwned()
+            }
         } finally {
             source.closeOwned()
         }
