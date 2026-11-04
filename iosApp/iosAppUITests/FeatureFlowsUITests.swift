@@ -322,7 +322,7 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         }
         shot(app, "bookmarks-three-selected")
         tapRequired(app, delete, "bookmark-delete")
-        tapRequired(app, button(app, "Yes"), "bookmark-delete-confirm")
+        tapRequired(app, button(app, "Remove"), "bookmark-delete-confirm")
         harnessRequire(byLabel(app, "No items to display").waitForExistence(timeout: 30), app, "ZERO seeded bookmarks after delete (empty filtered state)")
         for note in allNotes { XCTAssertFalse(noteElement(app, note).exists, "Note '\(note)' gone after delete") }
         closeSeededFilter(app)

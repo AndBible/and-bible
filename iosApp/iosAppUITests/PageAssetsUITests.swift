@@ -5,6 +5,14 @@ import XCTest
 /// background image module ("PageAssetsBg") and an unpacked EPUB (`Epub-PageAssets`) with one 300x200 picture;
 /// `-probePageAssets` logs each route's HTTP status (`PAGE-ASSETS-PROBE` in the app log) for the status note.
 final class PageAssetsUITests: RealAppUITestCase {
+    /// Reading needs an installed Bible; a `-resetData` test earlier in the run (or in this parallel clone) may have
+    /// removed KJV, which left this class on Welcome (#3949 run, "Reading shown").
+    private static var kjvEnsured = false
+    override func setUp() {
+        super.setUp()
+        if !Self.kjvEnsured { ensureKJVInstalled(); Self.kjvEnsured = true }
+    }
+
     private func require(_ condition: Bool, _ app: XCUIApplication, _ step: String,
                          file: StaticString = #filePath, line: UInt = #line) {
         if !condition { attachTree(app, step); shot(app, step) }
