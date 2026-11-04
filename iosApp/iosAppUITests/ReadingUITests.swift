@@ -1409,6 +1409,9 @@ final class ReadingUITests: RealAppUITestCase {
     func testTwoStepBookmarkFromSelection() throws {
         continueAfterFailure = true
         let app = try launchReading()
+        // The setting survives `-resetDatabases`; a run that failed before the final reset left it on (#3949). Start from the
+        // default (two-step) explicitly.
+        _ = XCTContext.runActivity(named: "One-step bookmarking off (default)") { _ in setOneStepBookmarking(app, on: false) }
         XCTContext.runActivity(named: "two-step (default)") { _ in
             guard longPressVisibleWord(app) else { return }
             guard let bookmark = editMenuItem(app, "Bookmark") else {
@@ -1432,7 +1435,7 @@ final class ReadingUITests: RealAppUITestCase {
         // not reach it (the Mac run showed the two-step menu with the argument given): switch it on in the Application
         // preferences ("One-step bookmarking", `prefs_disable_two_step_bookmarking_title`), then go back to reading.
         paneMargin(app).tap()   // dismiss the edit menu and the selection
-        _ = XCTContext.runActivity(named: "switch One-step bookmarking on") { _ in flipOneStepBookmarking(app) }
+        _ = XCTContext.runActivity(named: "switch One-step bookmarking on") { _ in setOneStepBookmarking(app, on: true) }
         XCTContext.runActivity(named: "one-step (disable_two_step_bookmarking)") { _ in
             guard longPressVisibleWord(app) else { return }
             let selection = editMenuItem(app, "Selection"), verses = editMenuItem(app, "Verses")
@@ -1445,13 +1448,14 @@ final class ReadingUITests: RealAppUITestCase {
         }
         // Put the setting back so it cannot leak into later tests (the settings store may survive `-resetDatabases`).
         paneMargin(app).tap()
-        _ = XCTContext.runActivity(named: "switch One-step bookmarking off again") { _ in flipOneStepBookmarking(app) }
+        _ = XCTContext.runActivity(named: "switch One-step bookmarking off again") { _ in setOneStepBookmarking(app, on: false) }
     }
 
-    /// Flips "One-step bookmarking" (`disable_two_step_bookmarking`) in the Application preferences and returns to the
-    /// reading view (drawer closed). Returns false, failure recorded, when a step cannot be done.
+    /// Sets "One-step bookmarking" (`disable_two_step_bookmarking`) in the Application preferences to [on] (tapping only
+    /// when it differs) and returns to the reading view (drawer closed). Returns false, failure recorded, when a step
+    /// cannot be done.
     @discardableResult
-    private func flipOneStepBookmarking(_ app: XCUIApplication) -> Bool {
+    private func setOneStepBookmarking(_ app: XCUIApplication, on: Bool) -> Bool {
         guard openDrawerRow(app, "Application preferences") else { return false }
         let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'One-step bookmarking'")).firstMatch
         var scrolls = 0
@@ -1464,14 +1468,17 @@ final class ReadingUITests: RealAppUITestCase {
         let state = { "\(toggle.value as? String ?? "nil")|\(toggle.isSelected)" }
         let before = state()
         attachTree(app, "settings-one-step-before (\(before))")
-        toggle.tap()
-        var changed = waitUntil(timeout: 4) { state() != before }
-        if !changed {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
-            changed = waitUntil(timeout: 6) { state() != before }
+        let isOn = { (toggle.value as? String) == "1" || toggle.isSelected }
+        if isOn() != on {
+            toggle.tap()
+            var changed = waitUntil(timeout: 4) { state() != before }
+            if !changed {
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+                changed = waitUntil(timeout: 6) { state() != before }
+            }
+            if !changed { attachTree(app, "settings-one-step-unchanged (\(state()))"); shot(app, "settings-one-step-unchanged") }
+            XCTAssertTrue(changed, "the 'One-step bookmarking' switch stays '\(before)' (value|selected) after tapping it")
         }
-        if !changed { attachTree(app, "settings-one-step-unchanged (\(state()))"); shot(app, "settings-one-step-unchanged") }
-        XCTAssertTrue(changed, "the 'One-step bookmarking' switch stays '\(before)' (value|selected) after tapping it")
         let back = app.buttons["Back"]
         guard back.waitForExistence(timeout: 10) else { attachTree(app, "settings-no-back"); XCTFail("no 'Back' button in the settings"); return false }
         back.tap()
