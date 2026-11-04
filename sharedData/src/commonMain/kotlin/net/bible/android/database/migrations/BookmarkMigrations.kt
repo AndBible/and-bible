@@ -54,7 +54,7 @@ private val genericTables = makeMigration(2..3) { _db ->
 }
 private val genericBookmark = makeMigration(3..4) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN bookInitials TEXT NOT NULL DEFAULT ''")
-    _db.execSQL("UPDATE GenericBookmark SET bookInitials = book")
+    _db.execSQL("UPDATE GenericBookmark SET bookInitials = COALESCE(book, '')")
     _db.execSQL("DROP INDEX `index_GenericBookmark_book_key`");
     _db.execSQL("ALTER TABLE GenericBookmark DROP COLUMN book")
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_bookInitials_key` ON `GenericBookmark` (`bookInitials`, `key`)")
