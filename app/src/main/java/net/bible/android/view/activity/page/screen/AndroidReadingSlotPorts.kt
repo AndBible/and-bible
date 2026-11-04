@@ -32,6 +32,7 @@ import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedui.reading.host.slots.ReadingKeyChooserPage
 import net.bible.sharedui.reading.host.slots.ReadingQuickActions
 import net.bible.sharedui.reading.host.slots.ReadingSearchPlatform
+import net.bible.sharedui.reading.host.slots.showSearchResultInLinksWindow
 import net.bible.sharedui.reading.host.slots.SearchIndexJobs
 import net.bible.sharedui.search.isSearchIndexJob
 import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
@@ -131,7 +132,7 @@ class AndroidReadingSearchPlatform(
     }
 
     override fun showInLinksWindow(book: Book, key: Key) {
-        windowControl().showLink(book, key)
+        windowControl().showSearchResultInLinksWindow(book, key)
     }
 
     override fun showInLinksWindow(list: BookAndKeyList) {

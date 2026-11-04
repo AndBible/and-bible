@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.reading.host.slots
 
+import net.bible.android.control.page.window.WindowControl
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.service.sword.BookAndKeyList
@@ -107,9 +108,18 @@ interface ReadingSearchPlatform {
     /** Makes [book] at [key] the active window's page (no new window, no history pop). */
     fun showInActiveWindow(book: Book, key: Key)
 
-    /** Shows [list] (the "open results in a window" multi-document) in the links window. */
+    /** Opens one result in the dedicated links window, independently of link preferences. */
     fun showInLinksWindow(book: Book, key: Key)
+
+    /** Shows [list] (the "open results in a window" multi-document). */
     fun showInLinksWindow(list: BookAndKeyList)
+}
+
+/** Opens an explicit result in a visible links window even when another window is maximized. */
+@kotlin.native.HiddenFromObjC
+fun WindowControl.showSearchResultInLinksWindow(book: Book, key: Key) {
+    if (windowRepository.isMaximized) unMaximise()
+    showLink(book, key)
 }
 
 /**

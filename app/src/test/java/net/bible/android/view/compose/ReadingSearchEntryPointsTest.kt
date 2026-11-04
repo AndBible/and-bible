@@ -272,6 +272,32 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    @Test fun searchPlatformShowsLinksResultWhenSourceIsMaximized() {
+        val source = windowRepository.activeWindow
+        val book = Books.installed().getBook("KJV") as SwordBook
+        val versification = Versifications.instance().getVersification("KJV")
+        val initial = Verse(versification, BibleBook.GEN, 1, 1)
+        val result = Verse(versification, BibleBook.GEN, 1, 8)
+        val platform = net.bible.android.view.activity.page.screen.AndroidReadingSearchPlatform(
+            currentDocument = { source.pageManager.currentBible.currentDocument },
+            currentBookName = { "Genesis" }, documentInfo = { null },
+            windowControl = { windowControl },
+            linkControl = { GlobalContext.get().get() },
+            fakeBookFactory = { GlobalContext.get().get() },
+        )
+        windowControl.maximiseWindow(source)
+        assertTrue(source.isVisible)
+        platform.showInActiveWindow(book, initial)
+        assertTrue(windowRepository.isMaximized, "active result must preserve maximization")
+        platform.showInLinksWindow(book, result)
+        val target = source.targetLinksWindow
+        assertTrue(target.isVisible, "explicit links result must be visible even from a maximized source")
+        assertTrue(target in windowRepository.visibleWindows)
+        assertEquals(book, target.pageManager.currentBible.currentDocument)
+        assertEquals(result, target.pageManager.currentBible.singleKey)
+        assertEquals(initial, source.pageManager.currentBible.singleKey)
+    }
+
     // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------
 
     @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
