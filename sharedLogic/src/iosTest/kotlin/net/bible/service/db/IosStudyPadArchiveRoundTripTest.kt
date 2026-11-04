@@ -103,12 +103,14 @@ class IosStudyPadArchiveRoundTripTest {
         val expectedLink = assertNotNull(sourceDao.getBibleBookmarkToLabel(bookmark.id, label.id))
 
         val filesDir = newTestDir().toPath()
+        FileSystem.SYSTEM.createDirectories(sourceDir.toPath() / "tmp")
         val environment = TestEnvironment(sourceDir)
-        val backupHost = CapturingBackupHost { bytes = it }
+        lateinit var backupHost: CapturingBackupHost
         val backup = BackupControl(
             AppDialogController(), StubCoreStrings(), environment, TestSettings(), WindowControl(),
             testCloudSync(environment), TestNotifier(), testDirectories(filesDir),
         )
+        backupHost = CapturingBackupHost { bytes = it }
         try {
             assertTrue(
                 net.bible.service.db.exportStudyPads(
@@ -130,7 +132,7 @@ class IosStudyPadArchiveRoundTripTest {
         )
         assertEquals(
             BackupType.STUDYPAD_EXPORT,
-            AndBibleBackupManifest.fromZip(Buffer().writeUtf8(payloads.getValue(ANDBIBLE_BACKUP_MANIFEST_FILENAME).utf8()))?.backupType,
+            AndBibleBackupManifest.fromJson(payloads.getValue(ANDBIBLE_BACKUP_MANIFEST_FILENAME).utf8()).backupType,
         )
 
         val unpackDir = newTestDir().toPath()
