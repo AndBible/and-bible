@@ -64,6 +64,28 @@ class DesktopReadingPaneEngineTest {
     }
 
     @Test
+    fun rekeyKeepsPaneAndRoutesToNewOwner() {
+        val opened = mutableListOf<String>()
+        val inputIds = mutableListOf<String>()
+        val input = object : DesktopReadingInput {
+            override fun onPaneCreated(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { inputIds += "created:$windowId" }
+            override fun onPaneDisposed(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { inputIds += "disposed:$windowId" }
+        }
+        engine.attach("old", false, bridge, {}, {}, input, { opened += "old:$it"; true })
+        val pane = fake.pane("old")
+        engine.rekey("old", "new")
+        engine.attach("new", false, bridge, {}, {}, input, { opened += "new:$it"; true })
+        assertSame(pane, engine.paneFor("new"))
+        assertEquals(1, fake.panes.size)
+        assertFalse(pane.disposed)
+        pane.navigate("osis://test")
+        pane.onMessage(readyMessage)
+        assertEquals(listOf("new:osis://test"), opened)
+        assertEquals(listOf("ready"), ready)
+        assertEquals(listOf("created:old", "disposed:old", "created:new"), inputIds)
+    }
+
+    @Test
     fun themeChangeSetsBackgroundAndResendsConfig() {
         val night = 0xFF121212.toInt()
         val host = engine.jsHostFor("w1")

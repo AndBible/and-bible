@@ -65,10 +65,11 @@ internal fun iosLinkNavigation(target: String?, isMainFrame: Boolean, documentUr
  * `shouldOverrideUrlLoading`): WebKit has no handler for `osis://` and the like, so without this a click did nothing.
  */
 internal class IosNavDelegate(
-    private val windowId: String,
-    private val openLink: (String) -> Boolean = { url -> HostReadingWindows.openLink(windowId, url) },
-    private val onPageRestart: () -> Unit = { HostReadingWindows.pageRestarted(windowId) },
+    windowId: String,
+    private val openLink: ((String) -> Boolean)? = null,
+    private val onPageRestart: (() -> Unit)? = null,
 ) : NSObject(), WKNavigationDelegateProtocol {
+    var windowId: String = windowId
     override fun webView(
         webView: WKWebView,
         decidePolicyForNavigationAction: WKNavigationAction,
@@ -90,7 +91,7 @@ internal class IosNavDelegate(
         }
         decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
         try {
-            if (!openLink(link)) nsLog("bridge[$windowId]: unhandled link $link")
+            if (!(openLink?.invoke(link) ?: HostReadingWindows.openLink(windowId, link))) nsLog("bridge[$windowId]: unhandled link $link")
         } catch (t: Throwable) {
             nsLog("bridge[$windowId]: link handler failure for $link: $t")
         }
@@ -100,7 +101,7 @@ internal class IosNavDelegate(
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")
             webView.reload()
-            onPageRestart()
+            if (onPageRestart != null) onPageRestart.invoke() else HostReadingWindows.pageRestarted(windowId)
         } catch (t: Throwable) {
             nsLog("bridge[$windowId]: terminate handler failure $t")
         }

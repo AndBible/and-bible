@@ -25,6 +25,7 @@ internal class HostWindowView(
     private val loader: DocumentLoader,
     /** Runs before each document load (refreshes page globals that depend on installed books). */
     private val beforeLoad: () -> Unit = {},
+    private val isCurrent: () -> Boolean = { true },
 ) : WindowView {
     override var lastUpdated: Long = 0L
     override var listenEvents: Boolean = true
@@ -51,6 +52,7 @@ internal class HostWindowView(
         htmlId: String?,
         windowContentGeneration: Long?,
     ) {
+        if (!listenEvents || !isCurrent()) return
         beforeLoad()
         loader.loadDocument(document, updateLocation, key, anchorOrdinal, htmlId, windowContentGeneration)
     }

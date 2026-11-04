@@ -129,6 +129,20 @@ class IosReadingWindowsTest {
         id, HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, night, HostReadingWindows::isOpen,
     )
 
+    @Test
+    fun rekeyRetainsWebViewAndDoesNotReloadBundle() = withWindows { id ->
+        var loads = 0
+        IosReadingWebViews.bundleLoader = { _, _, _ -> loads++ }
+        attach(id)
+        val webView = IosReadingWebViews.webViewFor(id)
+        IosReadingPaneEngine.rekey(id, "adopted")
+        assertSame(webView, IosReadingWebViews.webViewFor("adopted"))
+        assertEquals(1, IosReadingWebViews.bridgeHandlerCount("adopted"))
+        assertEquals(1, loads)
+        assertEquals("adopted", IosReadingWebViews.entry("adopted").navDelegate.windowId)
+        IosReadingPaneEngine.release("adopted")
+    }
+
     /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area at the bottom pane's foot. */
     @Test
     fun offsetsFollowTheToolbarAndSafeArea() = withWindows { _ ->

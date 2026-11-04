@@ -92,6 +92,7 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
 
     /** The `"selection"` script-message handler (held strongly: WebKit holds it weakly); null when the window has no selection menu. */
     var selectionHandler: IosSelectionMessageHandler? = null
+    var selectionScriptInstalled = false
 
     /** The pane's gesture recognisers once attached (see [attachReadingGestures]); detached when the window is released. */
     var gestureRecognisers: IosReadingGestureRecognisers? = null
@@ -162,6 +163,23 @@ object IosReadingWebViews {
         entry.webView.scrollView.backgroundColor = color
     }
 
+    internal fun rekey(fromId: String, toId: String) {
+        checkMain()
+        if (fromId == toId) return
+        val entry = entries.remove(fromId) ?: return
+        check(!entries.containsKey(toId))
+        entry.navDelegate.windowId = toId
+        entry.webView.setValue("bible-webview-$toId", forKey = "accessibilityIdentifier")
+        entry.gestureRecognisers?.detach()
+        entry.gestureRecognisers = null
+        if (entry.selectionHandler != null) {
+            entry.webView.configuration.userContentController.removeScriptMessageHandlerForName(SELECTION_HANDLER_NAME)
+            entry.selectionHandler = null
+        }
+        entry.webView.onBuildMenu = null
+        entries[toId] = entry
+    }
+
     /** Number of `"bridge"` handlers registered on the window's WebView (0 once released). */
     internal fun bridgeHandlerCount(windowId: String): Int = entries[windowId]?.handlerCount ?: 0
 
@@ -229,7 +247,10 @@ object IosReadingWebViews {
         selectionMenu: HostSelectionMenu? = null,
     ) {
         val entry = entry(windowId)
-        if (entry.handler != null) return
+        if (entry.handler != null) {
+            if (selectionMenu != null) attachSelectionMenu(entry, windowId, selectionMenu)
+            return
+        }
         val log: (String) -> Unit = { msg -> nsLog("bridge[$windowId]: $msg") }
         val dispatcher = BridgeDispatcher(
             bridge,
@@ -258,13 +279,16 @@ private fun attachSelectionMenu(entry: ReadingEntry, windowId: String, menu: Hos
     if (entry.selectionHandler != null) return
     val handler = IosSelectionMessageHandler(windowId, menu)
     val controller = entry.webView.configuration.userContentController
-    controller.addUserScript(
-        WKUserScript(
-            source = SELECTION_USER_SCRIPT,
-            injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
-            forMainFrameOnly = true,
-        ),
-    )
+    if (!entry.selectionScriptInstalled) {
+        controller.addUserScript(
+            WKUserScript(
+                source = SELECTION_USER_SCRIPT,
+                injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                forMainFrameOnly = true,
+            ),
+        )
+        entry.selectionScriptInstalled = true
+    }
     controller.addScriptMessageHandler(handler, SELECTION_HANDLER_NAME)
     entry.selectionHandler = handler
     entry.webView.onBuildMenu = { builder -> insertSelectionMenu(builder, windowId, menu) }
@@ -292,14 +316,14 @@ internal fun attachReadingPane(
 ) {
     // A closed or missing window gets no entry, no session and no WebView, whatever the recomposition order.
     if (!isOpen(windowId)) return
-    val entry = IosReadingWebViews.entry(windowId)
-    if (entry.handler != null || entry.failed) return
     try {
         val session = sessionFor(windowId)
+        val entry = IosReadingWebViews.entry(windowId)
+        if (entry.failed) return
         val bridge = bridgeFor?.invoke(windowId) ?: ReadingBridge(session)
         IosReadingWebViews.attachSession(windowId, session, bridge, nightMode(), selectionMenu)
     } catch (t: Throwable) {
-        entry.failed = true
+        IosReadingWebViews.entry(windowId).failed = true
         nsLog("bridge[$windowId]: reading pane wiring failed $t")
     }
 }

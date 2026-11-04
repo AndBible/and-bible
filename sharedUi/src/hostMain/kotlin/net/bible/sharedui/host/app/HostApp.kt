@@ -656,6 +656,12 @@ private fun HostReadingDestination(
     val paneIcons = rememberIosPaneIcons()
     val deps = remember(host) { host.deps(icons, paneIcons) }
     val paneFactory = remember { platform.readingPaneFactory() }
+    val switchGeneration = HostReadingWindows.switchGeneration
+    LaunchedEffect(switchGeneration) {
+        androidx.compose.runtime.withFrameNanos { }
+        androidx.compose.runtime.withFrameNanos { }
+        HostReadingWindows.releaseSpares(switchGeneration)
+    }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
     HideStatusBarInFullScreen(host)

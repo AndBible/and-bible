@@ -16,7 +16,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.db.DatabaseContainer
@@ -153,11 +152,23 @@ class WorkspaceSwitchContentTest {
             assertTrue(originalPanes.any { it === adopted }, "the incoming window must adopt an outgoing native pane")
             assertTrue(outgoing.all { it.bibleView == null }, "outgoing owners must detach their views")
             assertSame(adopted, engine.paneFor(id))
-            // Let the host's asynchronous spare cleanup run after composition claims the incoming pane.
-            repeat(10) { yield() }
+            // Simulate the completed-composition cleanup seam.
+            HostReadingWindows.releaseSpares()
             assertEquals(3, fake.panes.size, "switching must not create a new native pane")
             assertEquals(2, originalPanes.count { it.disposed }, "unused outgoing panes must be disposed")
             assertFalse(originalPanes.single { it === adopted }.disposed)
+
+            val staleView = incoming.bibleView
+            actions.switchToWorkspace(target.id.toString(), saveOutgoing = false)
+            val reconstructed = repository.activeWindow
+            assertEquals(incoming.id, reconstructed.id)
+            assertTrue(incoming !== reconstructed)
+            assertNull(incoming.bibleView)
+            assertFalse(checkNotNull(staleView).listenEvents)
+            assertSame(session, HostReadingWindows.sessionFor(id))
+            assertSame(adopted, engine.paneFor(id))
+            assertSame(reconstructed, session.window)
+            HostReadingWindows.releaseSpares()
         }
     }
 

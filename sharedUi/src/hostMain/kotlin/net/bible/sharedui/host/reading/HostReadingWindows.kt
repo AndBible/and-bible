@@ -19,6 +19,8 @@
 
 package net.bible.sharedui.host.reading
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,6 +78,7 @@ object HostReadingWindows {
         val relayPlatform: HostSessionEventRelayPlatform,
         val platform: HostDocumentLoaderPlatform,
         val linkHandler: ReadingLinkHandler,
+        val jsHost: net.bible.sharedcore.bibleview.JsHost,
     ) {
     }
 
@@ -89,6 +92,31 @@ object HostReadingWindows {
     }
 
     private val assemblies = mutableMapOf<String, Assembly>()
+    private val spares = mutableMapOf<String, Assembly>()
+    var switchGeneration by androidx.compose.runtime.mutableIntStateOf(0)
+        private set
+
+    fun parkForWorkspaceSwitch() {
+        for ((id, a) in assemblies.toMap()) {
+            spares.remove(id)?.let { disposeAssembly(id, it) }
+            a.relay.stop()
+            a.session.windowOrNull?.let { window ->
+                window.bibleView?.listenEvents = false
+                window.bibleView = null
+            }
+            a.loader.forgetDocument()
+            selectionMenu?.clear(id)
+            spares[id] = a
+        }
+        assemblies.clear()
+        switchGeneration++
+    }
+
+    fun releaseSpares(generation: Int = switchGeneration) {
+        if (generation != switchGeneration) return
+        for ((id, a) in spares.toMap()) disposeAssembly(id, a)
+        spares.clear()
+    }
 
     /**
      * The text-selection menu of the bound host (one for all windows; it caches per window id); null while no host is
@@ -152,6 +180,7 @@ object HostReadingWindows {
 
     private fun unbind() {
         for (id in assemblies.keys.toList()) release(id)
+        releaseSpares()
         binding?.subscriptions?.cancelAll()
         binding = null
         selectionMenu = null
@@ -251,7 +280,30 @@ object HostReadingWindows {
         for (a in assemblies.values) a.relayPlatform.updateConfig()
     }
 
-    private fun assembly(windowId: String): Assembly = assemblies.getOrPut(windowId) { assemble(windowId) }
+    private fun assembly(windowId: String): Assembly = assemblies.getOrPut(windowId) {
+        val oldId = if (spares.containsKey(windowId)) windowId else spares.keys.firstOrNull()
+        if (oldId == null) assemble(windowId) else {
+            val a = checkNotNull(spares.remove(oldId))
+            checkNotNull(panes).rekey(oldId, windowId)
+            val window = checkNotNull(requireBinding().koin.get<WindowControl>().windowRepository.getWindow(IdType(windowId)))
+            a.session.window = window
+            a.session.modalOpen = false
+            a.session.editingTextInJs = false
+            a.session.contentVisible = false
+            attachView(a, window)
+            a.relay.start()
+            a.loader.updateConfig()
+            a
+        }
+    }
+
+    private fun attachView(a: Assembly, window: net.bible.android.control.page.window.Window) {
+        val view = HostWindowView(a.session, a.loader, beforeLoad = {
+            a.jsHost.post { a.jsHost.evaluate(activeLanguagesScript(installedLanguagesJson()), null) }
+        }, isCurrent = { a.session.windowOrNull === window })
+        window.bibleView = view
+        if (window.takeLoadPending()) window.loadText()
+    }
 
     private fun assemble(windowId: String): Assembly {
         val b = requireBinding()
@@ -280,8 +332,6 @@ object HostReadingWindows {
             )
             session.verseChooser = readingVerseChooser(b.host.hostState)
             val settings = koin.get<AppSettings>()
-            // Known follow-up (Stream R): a Window object re-created after a workspace restore is not re-bound here
-            // (Android rebinds in BibleViewFactory.getOrCreateBibleView); this session keeps the window it was built for.
             val platform = HostDocumentLoaderPlatform(
                 window = { session.window },
                 windowControl = { windowControl },
@@ -290,26 +340,21 @@ object HostReadingWindows {
                 llmConfigured = { b.host.llmConfigured() },
                 offsets = { b.host.offsets },
                 isPortrait = b.host.platform::isPortrait,
-                onPageBackground = { panes.applyBackground(windowId, it) },
+                onPageBackground = { panes.applyBackground(session.window.id.toString(), it) },
                 speakSupported = { b.koin.get<net.bible.android.control.speak.SpeakControl>().isSupported },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
             val loader = DocumentLoader(session, platform).also { session.paging = it }
-            val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id.toString() == windowId })
+            val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id == session.window.id })
             bridgeRef[0] = bridge
             // The same steps Android takes (BibleView.openEpubLink): resolve the key off the main thread, then showLink.
             val linkHandler = ReadingLinkHandler(session) { book, backend, keyStr, idStr -> bridge.openEpubLink(book, backend, keyStr, idStr) }
             val relayPlatform = HostSessionEventRelayPlatform { loader.updateConfig() }
             val relay = SessionEventRelay(session, loader, relayPlatform)
             relay.start()
-            // Window.loadText delivers documents to window.bibleView; without one it times out after 5 s.
-            val view = HostWindowView(session, loader, beforeLoad = {
-                // Books may have been installed since the WebView was created: the page reads the global lazily.
-                host.post { host.evaluate(activeLanguagesScript(installedLanguagesJson()), null) }
-            })
-            window.bibleView = view
-            if (window.takeLoadPending()) window.loadText()
-            return Assembly(session, loader, relay, bridge, relayPlatform, platform, linkHandler)
+            val a = Assembly(session, loader, relay, bridge, relayPlatform, platform, linkHandler, host)
+            attachView(a, window)
+            return a
         } catch (t: Throwable) {
             // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
             session.dispose()
@@ -321,12 +366,14 @@ object HostReadingWindows {
     /** Disposes the window's session, stops its relay and drops its WebView (removing the `"bridge"` handler). */
     fun release(windowId: String) {
         val a = assemblies.remove(windowId)
-        if (a != null) {
-            val w = a.session.windowOrNull
-            if (w?.bibleView is HostWindowView) w.bibleView = null
-            a.relay.stop()
-            a.session.dispose()
-        }
+        if (a != null) disposeAssembly(windowId, a) else panes?.release(windowId)
+    }
+
+    private fun disposeAssembly(windowId: String, a: Assembly) {
+        val w = a.session.windowOrNull
+        if (w?.bibleView is HostWindowView) w.bibleView = null
+        a.relay.stop()
+        a.session.dispose()
         selectionMenu?.clear(windowId)
         panes?.release(windowId)
     }
