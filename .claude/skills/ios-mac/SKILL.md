@@ -60,6 +60,35 @@ runs, with the idle time of the newest remote log), `steps` and, when the call e
 failure, SIGTERM/INT/HUP), `exit` (code, reason, end time, failing step). No `exit` file and a dead pid
 means the call was killed hard (`check` calls that LOST).
 
+## Queue control
+
+`scripts/mac-remote.sh queue` lists all waiting tickets in admission order. Only the orchestrator
+may control tickets in its own group (its children inherit `JAILBEE_ORCHESTRATOR`):
+
+```bash
+scripts/mac-remote.sh queue priority <ticket> 10  # higher first, FIFO within equal priority
+scripts/mac-remote.sh queue reserve 120          # reserve a FIFO position for 120 seconds
+scripts/mac-remote.sh queue release <ticket>     # release that reservation
+```
+
+Reservations expire 1-3600 seconds after creation and never interrupt the current holder. Dead or
+cancelled waiters are removed. Controls are cooperative shared-account safeguards, not authentication.
+Never use `unlock` to jump the queue; wait normally or have the orchestrator adjust its own entries.
+
+## Shared tree and compatibility
+
+New clients use `~/work/shared/and-bible` by default: build outputs and DerivedData stay warm when
+another container syncs its sources. `MAC_OWN_TREE=1 scripts/mac-remote.sh ...` opts into a private tree.
+Standalone `sync` also takes the execution lock. Keep old scripts on their default private paths;
+never configure an old client with `MAC_WORKDIR=work/shared` (its standalone sync is unlocked).
+New and old clients respect the same `~/work/.build-lock`, but FIFO fairness applies only among new
+queued clients; old clients can still overtake them.
+
+`MAC_SLOTS` is 1; larger values fail closed while legacy clients exist. Parallelism requires retiring
+old clients, separate warm trees, explicit per-run simulator UDIDs for all operations (including
+shutdown), and a measured memory budget on the 16 GiB Mac (Release's compiler alone has an 8 GiB heap).
+Do not attempt concurrent light jobs by bypassing the lock.
+
 ## Running
 
 - Steps longer than a few minutes (`native-tests`, `xcode-test`, `xcode-build`, cold Gradle): Bash
@@ -107,11 +136,13 @@ means the call was killed hard (`check` calls that LOST).
   results. Editing files after the call printed `synced` does not affect that Mac run; edits made while
   it waits for the lock are included. `run` syncs too; `run --no-sync` (and `batch --no-sync`) run in the
   Mac tree as it is, e.g. to inspect or rerun what a previous run left there.
-- Count results from the fetched XML (classes, tests, failures, skipped), not from
+- Mac runs enable the local Gradle build cache, including Gradle invoked inside Xcode. Test task
+  outputs are excluded: tests must not be restored `FROM-CACHE`. Compilation may be cached.
+  Count results from the fetched XML (classes, tests, failures, skipped), not from
   "BUILD SUCCESSFUL": a filter matching nothing is green too. A test task reported `UP-TO-DATE` did
   not run: its inputs equal an earlier run's, whose XML you are reading. That is a valid result for
   an unchanged module; to force a real rerun (e.g. "three consecutive runs" for a flake check) use
-  `native-tests --force <modules>`, which deletes those modules' remote results first. Do not use the
+  `native-tests --force <modules>`, which reruns selected tests without rerunning compilation. Do not use the
   plain `gradle` step for `iosSimulatorArm64Test` tasks: it boots no simulator (sharedCore/sharedUi
   tests crash with SIGTRAP) and the script warns about it.
 - `xcode-test` exports only the screenshots the tests attach themselves (mostly

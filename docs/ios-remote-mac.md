@@ -232,10 +232,26 @@ no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded pat
 `--delete` on the Mac, so its build outputs and macOS-native `node_modules` stay warm. A one-commit
 stub repository on the Mac satisfies `:app`'s `git rev-parse` / `git describe`.
 
-Each container gets its own tree under `~/work/<container>`; `~/.gradle` and `~/.konan` on the Mac
-are shared by all of them, and the build lock lets only one heavy run go at a time.
+New clients use one warm tree, `~/work/shared/and-bible`, under the existing execution lock. Project-local
+Gradle/Kotlin outputs, macOS `node_modules` and Xcode DerivedData keep the same path when another container
+syncs its revision, so only changed inputs rebuild. `MAC_OWN_TREE=1` opts into the old private
+`~/work/<container>/and-bible` tree; an explicit safe `MAC_WORKDIR` still selects a private work directory.
+`~/.gradle` and `~/.konan` remain shared. Source sync (including standalone `sync`) is now locked too.
 
-How a call runs: one remote `bash -s` session per call. It first waits for the lock
+**Mixed deployment:** old scripts must retain their default private tree. Never point an old script at
+`MAC_WORKDIR=work/shared`: its standalone sync does not take the lock. New clients still take the exact
+`~/work/.build-lock` understood by old clients, so neither can execute through the other's live lock.
+FIFO fairness applies between new queued clients only; old clients do not know about tickets and can
+still win a release/poll race. Update all clients to obtain full FIFO fairness.
+
+**One slot, deliberately.** The 16 GiB Mac must accommodate an 8 GiB Release Kotlin/Native compiler plus
+Gradle and the owner's session. `MAC_SLOTS` defaults to 1 and other values are rejected, not silently
+accepted. Parallel slots require retiring old clients (they shut down all simulators), separate warm
+trees, explicit simulator UDIDs for every operation including shutdown, and measured memory admission.
+No parallel light slot is enabled by this change.
+
+How a call runs: one remote `bash -s` session per call. It registers a FIFO ticket on the Mac and
+waits until that ticket is eligible, then takes the existing lock
 (`~/work/.build-lock`, a directory renamed into place together with its owner record: random token,
 container, pid, process start time, local pid, run id), then the tree is rsynced (so a call that waited
 behind another container runs the tree as it is when it starts; `run --no-sync` skips this), then the
@@ -261,7 +277,8 @@ screenshots) is fetched into `runs/<run-id>/xcode/step<N>-<device>/`, and `.loca
 are links to the latest run. `check` summarises the runs (running / exited N / LOST, elapsed, log idle
 time), the lock holder with its age and whether it is this container, and the idle time of the remote
 logs; `cancel` stops this container's runs by pid and releases the Mac lock only when the owner token is
-theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder.
+theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder. Never use it to
+move ahead in the queue or shorten a normal wait; use orchestrator-owned queue controls instead.
 
 `run [--no-sync] <command>` syncs with `--delete`, is bounded by `MAC_TIMEOUT` (default 3000 s) and runs in
 `bash -c` in the tree (the script's `sim_boot` helpers are not available); raise `MAC_TIMEOUT` for long
@@ -293,6 +310,39 @@ The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the 
   and passes the names; a child never runs `prune --yes`.
 
 Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
+
+### FIFO queue and orchestrator controls
+
+```bash
+scripts/mac-remote.sh queue                         # all waiting tickets, in admission order
+scripts/mac-remote.sh queue priority <ticket> 10    # higher priority first, then FIFO
+scripts/mac-remote.sh queue reserve 120             # bounded reservation, prints its ticket
+scripts/mac-remote.sh queue release <ticket>        # release that reservation
+```
+
+Queue tickets live outside the source tree in `~/work/.mac-queue`; sequence numbers remain monotonic
+when the queue empties. Dead waiters and reused PIDs are removed using PID plus process start time.
+Timeout/cancellation removes the ticket. Reservations expire 1-3600 seconds after creation, not after
+reaching the head. A reservation occupies its queue position until released or expired; it does not
+preempt the current holder and legacy clients cannot see it.
+
+Everyone may inspect. Priority/reservation controls require the orchestrator role and matching group;
+an orchestrator may control only its own children's tickets. Children derive the group from
+`JAILBEE_ORCHESTRATOR`, while an orchestrator uses its container identity. This is cooperative safety
+on a shared SSH account, not a security boundary. Equal priority is FIFO. Corrupt queue metadata fails
+closed instead of silently dropping another client's ticket.
+
+### Mac build cache and forced tests
+
+Mac runs enable Gradle's local build cache without changing the repository's Linux defaults (tracked
+separately in #3957). The cache configuration is also inherited by Gradle launched from Xcode's
+framework build phase. Test task outputs are excluded from the cache: cached compilation is useful,
+but a test report from another device/session is not proof that this session ran tests.
+
+A normal unchanged test task may still be `UP-TO-DATE`; this is distinct from `FROM-CACHE`.
+`native-tests --force <modules>` forces the selected test tasks to execute while keeping compilation
+incremental. Read and count the captured XML, and retain its run ID with any verification claim.
+Never use `--rerun-tasks` merely to force tests: that also reruns expensive compilation.
 
 ### Debug and Release builds
 
