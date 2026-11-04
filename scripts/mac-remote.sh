@@ -501,6 +501,14 @@ sync_tree() {
     # does not use .gitignore filters); xcodegen on the Mac then reads it through Base.xcconfig.
     VERSION_XCCONFIG="$repo/iosApp/Config/Version.xcconfig" "$(dirname "${BASH_SOURCE[0]}")/ios-version-xcconfig.sh" \
         || die "cannot generate iosApp/Config/Version.xcconfig"
+    # The UI suite's KJV Files fixture (tmp/ is gitignored but synced): packaged once from the test modules in ~/.sword;
+    # xcode-test seeds it into the simulator (iosApp/scripts/prepare-ui-test-files.sh).
+    local kjv="$repo/tmp/h2-files/h2-kjv.zip" pkg="$repo/iosApp/scripts/package-backup-test-kjv.py"
+    if [ ! -f "$kjv" ] && [ -f "$pkg" ] && [ -f "$HOME/.sword/mods.d/kjv.conf" ]; then
+        mkdir -p "$(dirname "$kjv")"
+        python3 -I "$pkg" --sword-dir "$HOME/.sword" --output "$kjv" >/dev/null \
+            || echo "mac-remote: WARNING: could not package tmp/h2-files/h2-kjv.zip (KJV Files fixture)" >&2
+    fi
     # Not synced: .git (the container's objects live in an alternate on the host), container-only data,
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
     stats=$("${RSYNC[@]}" --delete --stats \
@@ -727,21 +735,41 @@ step_post_native_tests() {
     echo "mac-remote: native-tests exit $rc; XML under ${OUT#"$repo"/}/native-tests/<module>/test-results"
 }
 
-xcode_parse() {   # [iphone|ipad] [--release] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP
+# The UI smoke set (issue #3949): one `Class/test` per line, `#` comments; `--smoke` turns it into -only-testing args.
+SMOKE_LIST="${MAC_SMOKE_LIST:-iosApp/iosAppUITests/smoke-tests.txt}"
+xcode_parse() {   # [iphone|ipad] [--release] [--smoke] [--parallel N] [xcodebuild args...]
+                  # -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP, XC_PARALLEL
     XC_WHICH="${1:-iphone}"; [ $# -gt 0 ] && shift
     case "$XC_WHICH" in iphone) XC_SIM="$SIM_IPHONE" ;; ipad) XC_SIM="$SIM_IPAD" ;; *) echo "mac-remote: device must be iphone or ipad" >&2; return 1 ;; esac
-    XC_CONFIG=Debug XC_APP_ID=$APP_ID XC_APP=$APP_PROCESS
-    if [ "${1:-}" = --release ]; then
-        shift; XC_CONFIG=Release XC_APP_ID=org.andbible.ios XC_APP=AndBible
+    XC_CONFIG=Debug XC_APP_ID=$APP_ID XC_APP=$APP_PROCESS XC_PARALLEL=0
+    local smoke=() line
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --release) XC_CONFIG=Release XC_APP_ID=org.andbible.ios XC_APP=AndBible ;;
+            --smoke)
+                [ -f "$repo/$SMOKE_LIST" ] || { echo "mac-remote: --smoke: no list at $SMOKE_LIST" >&2; return 1; }
+                while IFS= read -r line || [ -n "$line" ]; do
+                    line="${line%%#*}"; line="${line//[[:space:]]/}"
+                    [ -n "$line" ] && smoke+=("-only-testing:iosAppUITests/$line")
+                done < "$repo/$SMOKE_LIST"
+                [ ${#smoke[@]} -gt 0 ] || { echo "mac-remote: --smoke: $SMOKE_LIST lists no tests" >&2; return 1; } ;;
+            --parallel)
+                case "${2:-}" in [1-9]) XC_PARALLEL=$2; shift ;; *) echo "mac-remote: --parallel needs a worker count 1-9" >&2; return 1 ;; esac ;;
+            *) break ;;
+        esac
+        shift
+    done
+    XC_ARGS=("${smoke[@]}" "$@")
+    if [ "$XC_PARALLEL" -gt 1 ]; then
+        XC_ARGS+=(-parallel-testing-enabled YES -parallel-testing-worker-count "$XC_PARALLEL")
     fi
-    XC_ARGS=("$@")
 }
 step_script_xcode() {   # <kind> <n> [dev] [args...]
     local kind=$1 n=$2 t; shift 2; t=$(step_timeout "$kind")
     xcode_parse "$@" || return 1
     local which=$XC_WHICH
     cat <<EOF
-mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
+mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which build/failures-$which.txt
 # bibleview-js: npm ci only when package-lock.json changed (macOS-native node_modules live on the Mac)
 ( cd app/bibleview-js
   stamp=node_modules/.mac-remote-lock-sha; sha=\$(shasum package-lock.json | cut -d' ' -f1)
@@ -752,17 +780,56 @@ UDID=\$(sim_boot $(q "$XC_SIM")) || return 1
 echo "mac-remote: simulator \$UDID"
 $([ $XC_CONFIG = Release ] && [ -z "${MAC_RELEASE_KEEP_INSTALL:-}" ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
 if [ $kind = xcode-test ]; then
+    # Fixtures in, leftovers of earlier runs out (the full suite needs them; parallel clones copy this device's data).
+    if [ -f iosApp/scripts/prepare-ui-test-files.sh ]; then
+        bash iosApp/scripts/prepare-ui-test-files.sh "\$UDID" || echo "mac-remote: WARNING: Files fixture preparation failed" >&2
+    fi
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
-    xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == "$XC_APP"' > build/app-$which.log 2>&1 &
+    # com.apple.dt.xctest is XCTest's own in-app accessibility-snapshot chatter (about a third of a full run's log);
+    # MAC_APP_LOG_XCTEST=1 keeps it.
+    PRED='process == "$XC_APP"$([ -n "${MAC_APP_LOG_XCTEST:-}" ] || echo ' AND subsystem != "com.apple.dt.xctest"')'
+    xcrun simctl spawn \$UDID log stream --style compact --predicate "\$PRED" > build/app-$which.log 2>&1 &
     LOGPID=\$!; sleep 2
+    rm -f build/app-$which-clone-*.log
+    CLONEPID=
+    if [ $XC_PARALLEL -gt 1 ]; then
+        # Parallel testing runs the tests in clones of the simulator (device set "testing"); stream each clone's app log too.
+        ( seen=; while :; do
+              for c in \$(xcrun simctl --set testing list devices 2>/dev/null | grep -i 'clone' | grep Booted | grep -oE '[0-9A-F]{8}-[0-9A-F-]{27}'); do
+                  case " \$seen " in *" \$c "*) ;; *) seen="\$seen \$c"
+                      xcrun simctl --set testing spawn \$c log stream --style compact --predicate "\$PRED" > build/app-$which-clone-\$c.log 2>&1 & ;; esac
+              done; sleep 5
+          done ) &
+        CLONEPID=\$!
+    fi
     $(for v in $(compgen -v TEST_RUNNER_ || true); do printf 'export %s=%q\n' "$v" "${!v}"; done)
     tmo $t xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \\
         -destination "platform=iOS Simulator,id=\$UDID" -resultBundlePath build/ios-$which.xcresult -configuration $XC_CONFIG $(q "${XC_ARGS[@]}") \\
         > build/xcodebuild-$which.log 2>&1; rc=\$?
     [ \$rc = 142 ] && echo "mac-remote: TIMEOUT: xcodebuild killed after ${t}s" >&2
     sleep 2; kill \$LOGPID 2>/dev/null
+    if [ -n "\$CLONEPID" ]; then
+        pkill -P \$CLONEPID 2>/dev/null; kill \$CLONEPID 2>/dev/null
+        for c in build/app-$which-clone-*.log; do
+            [ -f "\$c" ] || continue
+            printf '==== %s\\n' "\${c#build/}" >> build/app-$which.log; cat "\$c" >> build/app-$which.log
+        done
+        echo "mac-remote: parallel testing ($XC_PARALLEL workers): \$(ls build/app-$which-clone-*.log 2>/dev/null | wc -l | tr -d ' ') clone logs appended to app-$which.log"
+    fi
     [ -d build/ios-$which.xcresult ] && xcrun xcresulttool export attachments --path build/ios-$which.xcresult \\
         --output-path build/screenshots-$which >/dev/null 2>&1
+    # Parallel testing prints no per-test failure messages to the log: list them from the result bundle.
+    [ -d build/ios-$which.xcresult ] && xcrun xcresulttool get test-results tests --path build/ios-$which.xcresult 2>/dev/null \\
+        | python3 -c 'import json,sys
+def walk(n, cls=""):
+    t = n.get("nodeType", ""); name = n.get("name", "")
+    if t == "Test Suite": cls = name
+    if t == "Test Case" and n.get("result") == "Failed":
+        msgs = [c.get("name", "") for c in n.get("children", []) if c.get("nodeType") == "Failure Message"]
+        print("FAILED " + cls + "/" + name + ": " + (msgs[0][:300] if msgs else "?"))
+    for c in n.get("children", []): walk(c, cls)
+for n in json.load(sys.stdin).get("testNodes", []): walk(n)' > build/failures-$which.txt 2>/dev/null
+    [ -s build/failures-$which.txt ] && cat build/failures-$which.txt
     grep -E '^(Test Suite|Test Case .*(passed|failed|skipped))|error:|\\*\\* TEST' build/xcodebuild-$which.log | grep -vE "Test Suite '(All tests|.*\\.xctest)' started" | tail -60
     echo "app log: \$(wc -l < build/app-$which.log) lines, WEBVIEW-TERMINATED: \$(grep -c WEBVIEW-TERMINATED build/app-$which.log), js[ lines: \$(grep -c 'js\\[' build/app-$which.log)"
     return \$rc
@@ -787,7 +854,7 @@ step_post_xcode() {   # <kind> <n> <rc> [dev] [args...]
     xcode_parse "$@" || return 0
     local which=$XC_WHICH ev="$RUNDIR/xcode/step$n-$XC_WHICH" f
     mkdir -p "$ev" "$OUT/xcode"
-    for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult"; do
+    for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult" "build/failures-$which.txt"; do
         fetch "$f" "$ev" >/dev/null 2>&1 || true
     done
     # xcresulttool names attachments by UUID; manifest.json maps them to the names the tests gave

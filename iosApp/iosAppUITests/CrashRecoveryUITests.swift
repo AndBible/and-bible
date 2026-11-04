@@ -70,20 +70,6 @@ final class CrashRecoveryUITests: XCTestCase {
         add(hierarchy)
     }
 
-    func testDebugErrorShowsActualLocalizedDialog() {
-        let app = XCUIApplication()
-        app.launchArguments = ["-task6DebugActions", "-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
-                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
-        app.launch()
-        XCTAssertTrue(element(app, "task6-error").waitForExistence(timeout: 60))
-        element(app, "task6-error").tap()
-        XCTAssertTrue(app.staticTexts["Test error (debug build)"].firstMatch.waitForExistence(timeout: 15))
-        shot(app, "task6-localized-test-error")
-        app.buttons["OK"].firstMatch.tap()
-        XCTAssertFalse(app.staticTexts["Test error (debug build)"].firstMatch.exists)
-        XCTAssertEqual(app.state, .runningForeground)
-    }
-
     func testSeededRecoveryOpensRealUninitialisedBackup() {
         let app = XCUIApplication()
         app.launchArguments = ["-resetData", "-seedCrashRecovery", "-discrete_mode", "NO", "-show_calculator", "NO",

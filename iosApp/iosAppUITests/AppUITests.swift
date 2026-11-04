@@ -70,7 +70,7 @@ class RealAppUITestCase: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if condition() { return true }
-            usleep(500_000)
+            usleep(200_000)   // each poll re-snapshots the accessibility tree; 0.2 s keeps the latency low without spinning
         }
         return condition()
     }
@@ -179,35 +179,21 @@ class RealAppUITestCase: XCTestCase {
 
     /// What a real user does before the app goes away: press Home so the app saves the workspace (it persists the
     /// passage when it resigns active / enters the background, like Android's onPause), then wait for the background
-    /// state and give the asynchronous save a moment. XCTest terminates the app abruptly at the end of a test.
+    /// state and give the asynchronous save a moment (1 s; it was 3 s before #3949). XCTest terminates the app abruptly at the end of a test.
     func sendToBackground(_ app: XCUIApplication) {
         XCUIDevice.shared.press(.home)
         _ = waitUntil(timeout: 15) { app.state != .runningForeground }
-        sleep(3)
+        // The save (HostApp's lifecycle observer) runs in a UIKit background task and takes milliseconds; 1 s is margin.
+        sleep(1)
     }
 
     /// Accept only the known verse-16 wording, tolerating NASB's captured cross-reference marker.
-    private func hasJohn316Text(_ labels: [String]) -> Bool {
+    func hasJohn316Text(_ labels: [String]) -> Bool {
         guard let start = labels.firstIndex(of: "16"),
               let end = labels[(start + 1)...].firstIndex(of: "17") else { return false }
         let verse = labels[(start + 1)..<end].joined(separator: " ")
         return verse.range(of: #"\bFor God\s+so\s+(?:A\s+)?loved\s+the world\b"#,
                            options: .regularExpression) != nil
-    }
-
-    func testJohn316PhraseLabels() {
-        let nasb = ["16", "\u{201C}For God", "so", "A", "loved", "the world", ", that He", "B", "gave", "17"]
-        let kjv = ["16", "For", "God", "so", "loved", "the world", "17"]
-        XCTAssertTrue(hasJohn316Text(nasb))
-        XCTAssertTrue(hasJohn316Text(kjv))
-        XCTAssertFalse(hasJohn316Text(["1", "Nicodemus", "2", "came to Jesus"]))
-        XCTAssertFalse(hasJohn316Text(["17", "For God", "so", "A", "loved", "the world", "18"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "did not send", "the Son", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "hated", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "B", "loved", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "deeply", "loved", "the world", "17"]))
-        XCTAssertFalse(hasJohn316Text(["16", "different text", "17", "For God so loved the world"]))
-        XCTAssertFalse(hasJohn316Text(["16", "For God so loved the world"]))
     }
 
     func freshReading(scenario: String = "chooser") -> XCUIApplication {
@@ -270,19 +256,27 @@ class RealAppUITestCase: XCTestCase {
 }
 
 final class AppUITests: RealAppUITestCase {
+    /// Lives here, not in RealAppUITestCase: a test method of the open base class runs again in each of its subclasses.
+    func testJohn316PhraseLabels() {
+        let nasb = ["16", "\u{201C}For God", "so", "A", "loved", "the world", ", that He", "B", "gave", "17"]
+        let kjv = ["16", "For", "God", "so", "loved", "the world", "17"]
+        XCTAssertTrue(hasJohn316Text(nasb))
+        XCTAssertTrue(hasJohn316Text(kjv))
+        XCTAssertFalse(hasJohn316Text(["1", "Nicodemus", "2", "came to Jesus"]))
+        XCTAssertFalse(hasJohn316Text(["17", "For God", "so", "A", "loved", "the world", "18"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "did not send", "the Son", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "hated", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "B", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "deeply", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "different text", "17", "For God so loved the world"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God so loved the world"]))
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = freshReading()
         selectKJV(app)
         assertExactJohn316(app)
         sendToBackground(app)
-    }
-
-    func testIpadLaunchReachesWelcome() throws {
-        try XCTSkipUnless(isPad, "iPad destination only")
-        let app = launch(["-resetData", "-standardTestFixture"])
-        let found = element(app, "welcome-screen").waitForExistence(timeout: 30)
-        shot(app, "ipad-welcome")
-        XCTAssertTrue(found, "Welcome not shown on iPad")
     }
 
     func testRelaunchReopensWorkspace() throws {

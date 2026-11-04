@@ -70,6 +70,14 @@ final class InstallRobustnessUITests: RealAppUITestCase {
 
         // 3. Relaunch without reset, fixture or delay: the store must be consistent.
         app = launch(["-standardTestFixture", "-featureScenario", "chooser", "-openDocument", "KJV", "-openRef", "Gen.1.1"])
+        // A half-committed module must not surface as a startup error either: 2026-11-04 (#3949) a later launch in the same
+        // simulator clone showed "An error has occurred. Missing data files for old and new testaments in ...
+        // modules/K4RawText" after this test had passed with K4RawText absent from the chooser.
+        let missingData = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Missing data files'")).firstMatch
+        if missingData.waitForExistence(timeout: 8) {
+            shot(app, "kill-during-commit-missing-data-files")
+            XCTFail("PRODUCT: the relaunch after a kill mid-commit reports a half-installed module: '\(missingData.label)'")
+        }
         // 'Absent' is only meaningful when the chooser really lists installed modules.
         require(chooserHasRow(app, initials: "KJV") != nil, app, "HARNESS: the chooser lists KJV (so an absent K4RawText means absent)")
         let listed = chooserHasRow(app, initials: "K4RawText") != nil

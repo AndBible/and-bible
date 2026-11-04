@@ -323,7 +323,8 @@ final class LegacyMigrationUITests: XCTestCase {
     }
 
     /// W9: two kills while migrating, the third launch lands on the legacy recovery screen, not on crash recovery.
-    func testTwoKillsDuringMigrationLandOnLegacyRecovery() throws {
+    /// From that given-up state: start fresh, then import the old data again from Settings and relaunch.
+    func testTwoKillsLandOnLegacyRecoveryThenStartFreshAndImportReplaces() throws {
         let dir = try scenario("extended")
         killTwiceDuringMigration(dir)
         let third = launch([])
@@ -333,13 +334,7 @@ final class LegacyMigrationUITests: XCTestCase {
         XCTAssertTrue(element(third, "legacy-restore").exists, "legacy-restore missing in the given-up state")
         XCTAssertTrue(element(third, "legacy-start-fresh").exists, "legacy-start-fresh missing in the given-up state")
         shot(third, "i3b-legacy-recovery")
-    }
 
-    /// From the given-up state: start fresh, then import the old data again from Settings and relaunch.
-    func testStartFreshThenImportReplaces() throws {
-        let dir = try scenario("extended")
-        killTwiceDuringMigration(dir)
-        let third = launch([])
         XCTAssertTrue(element(third, "legacy-start-fresh").waitForExistence(timeout: 90), "No start-fresh action on the recovery screen")
         element(third, "legacy-start-fresh").tap()
         let confirm = element(third, "legacy-start-fresh-confirm")
@@ -384,15 +379,6 @@ final class LegacyMigrationUITests: XCTestCase {
         XCTAssertFalse(element(relaunched, "legacy-recovery").exists)
         XCTAssertFalse(element(relaunched, "legacy-progress").exists)
         shot(relaunched, "i3b-after-import")
-    }
-
-    /// NOT IMPLEMENTED on purpose. ROLLBACK_PENDING needs a rollback that FAILS. A kill during ADOPTING is rolled back
-    /// successfully by the next launch (which then migrates again), so no launch argument can leave the databases in an
-    /// unsafe state deterministically; `-legacyMigrationStepDelayMs` only delays after the MAP step. The hidden
-    /// `legacy-restore` / `legacy-start-fresh` actions for that reason are covered by the Task 4 JVM test only.
-    func testRollbackPendingHidesUnsafeActions() throws {
-        _ = try fixtureRoot()
-        throw XCTSkip("ROLLBACK_PENDING cannot be induced deterministically from the UI; covered by the Task 4 JVM test")
     }
 
     // testRestoreBackupThenBackReachesReady is intentionally absent: `legacy-restore` resolves the gate with `OpenBackup`, which

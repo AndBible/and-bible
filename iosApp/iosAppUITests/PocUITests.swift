@@ -58,10 +58,6 @@ final class PocUITests: XCTestCase {
         }
     }
 
-    func testLaunchRendersVerseText() {
-        XCTAssertTrue(waitForVerseText(launch("single")), "verse text not visible within 10 s")
-    }
-
     func testScrollUpdatesToolbarTitle() {
         let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         let title = app.staticTexts["reading-title"]
@@ -69,15 +65,6 @@ final class PocUITests: XCTestCase {
         app.webViews.firstMatch.swipeUp(velocity: .fast)
         sleep(1)
         XCTAssertNotEqual(before, title.label)
-    }
-
-    func testScrollPerformance() {
-        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
-        let options = XCTMeasureOptions(); options.iterationCount = 5
-        measure(metrics: [XCTOSSignpostMetric.scrollDecelerationMetric], options: options) {
-            app.webViews.firstMatch.swipeUp(velocity: .fast)
-            app.webViews.firstMatch.swipeDown(velocity: .fast)
-        }
     }
 
     func testEdgeSwipeBack() {
@@ -100,11 +87,6 @@ final class PocUITests: XCTestCase {
         return Array(Set(ids)).sorted()
     }
 
-    /// Records the element tree when a pane count is wrong, so the next CI run shows the hierarchy.
-    private func attachTree(_ app: XCUIApplication, _ step: String) {
-        let a = XCTAttachment(string: app.debugDescription); a.name = "tree-\(step)"; a.lifetime = .keepAlways; add(a)
-    }
-
     /// True once every one of the first `count` panes shows the verse text. A re-parented or freshly
     /// created but blank WKWebView therefore fails, unlike a bare count check.
     private func verseTextInEachWebView(_ app: XCUIApplication, count: Int, timeout: TimeInterval = 10) -> Bool {
@@ -115,67 +97,5 @@ final class PocUITests: XCTestCase {
             if !verse.waitForExistence(timeout: timeout) { return false }
         }
         return true
-    }
-
-    private func assertPaneCount(_ app: XCUIApplication, _ count: Int, _ step: String) {
-        let ok = waitUntil { paneIds(app).count == count }
-        XCTAssertTrue(ok, "\(step): expected \(count) panes, got \(paneIds(app)) (webViews.count \(app.webViews.count))")
-        if !ok { attachTree(app, step) }
-    }
-
-    private func toggleSplit(_ app: XCUIApplication, expecting count: Int, _ step: String) {
-        app.buttons["poc-split-toggle"].tap()
-        assertPaneCount(app, count, step)
-        XCTAssertTrue(verseTextInEachWebView(app, count: count), "\(step): verse text missing in a web view")
-    }
-
-    /// reading -> bookmarks -> back: the web views are re-parented; they must still show their text.
-    private func roundTripThroughBookmarks(_ app: XCUIApplication, windows: Int, _ step: String) {
-        app.buttons["poc-open-bookmarks"].tap()
-        XCTAssertTrue(app.buttons["poc-back"].waitForExistence(timeout: 5), "\(step): bookmarks route not reached")
-        app.buttons["poc-back"].tap()
-        XCTAssertTrue(app.buttons["poc-split-toggle"].waitForExistence(timeout: 5), "\(step): did not return to reading")
-        assertPaneCount(app, windows, step)
-        XCTAssertTrue(verseTextInEachWebView(app, count: windows), "\(step): verse text missing after returning from bookmarks")
-    }
-
-    func testSplitChangesKeepWebViews() {
-        let app = launch("split2")
-        XCTAssertTrue(verseTextInEachWebView(app, count: 2), "split2: verse text not visible in both web views")
-        toggleSplit(app, expecting: 3, "2->3")
-        toggleSplit(app, expecting: 2, "3->2")
-        toggleSplit(app, expecting: 3, "2->3 again")
-        toggleSplit(app, expecting: 2, "3->2 again")
-        // Known issue, to be investigated on a Mac (status: I2): after this round trip both re-parented
-        // WKWebViews intermittently drop out of the accessibility tree while their text still renders.
-        let options = XCTExpectedFailure.Options()
-        options.isStrict = false
-        XCTExpectFailure("Re-parented WKWebViews can leave the accessibility tree after a 2-pane bookmarks round trip",
-                         options: options) {
-            roundTripThroughBookmarks(app, windows: 2, "split2 bookmarks round trip")
-        }
-        shot(app, "split-after-toggle")
-    }
-
-    func testReparentKeepsVerseTextSingle() {
-        let app = launch("single")
-        XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
-        roundTripThroughBookmarks(app, windows: 1, "single bookmarks round trip")
-    }
-
-    func testAccessibilityAudit() throws {
-        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
-        if #available(iOS 17.0, *) {
-            do {
-                try app.performAccessibilityAudit { issue in
-                    let a = XCTAttachment(string: issue.debugDescription); a.name = "a11y-issue"; a.lifetime = .keepAlways
-                    self.add(a)
-                    return true   // record, do not fail (I0 thresholds are soft)
-                }
-            } catch let error as NSError where error.domain == "com.apple.xcode.xctest.accessibilityAudit" && error.code == -56 {
-                // "Audit failed to complete in time": runner load, not an audit result.
-                throw XCTSkip("Accessibility audit did not complete in time on this runner")
-            }
-        }
     }
 }

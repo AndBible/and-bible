@@ -39,13 +39,24 @@ is missing from egress: ask for `jailbee net egress add <mac-ip>:22 --repo`. Nev
 | Survey: every step runs even after a red (one UI class per step) | `batch --keep-going "xcode-test iphone -only-testing:iosAppUITests/A" "xcode-test iphone -only-testing:iosAppUITests/B"` | exit and marker name the first red; a lost session or a failed `link`/`gradle` step still stops it |
 | What is running / who holds the Mac | `check` | seconds |
 | Stop my own forgotten or hung run | `cancel` | seconds |
-| CI `ios` job (bibleview-js, xcodegen, XCUITests, screenshots) | `xcode-test iphone` | 9.5 min (first run) |
+| UI smoke set (every Mac round that touches the app) | `xcode-test iphone --smoke` (and `ipad`) | see `iosApp/iosAppUITests/smoke-tests.txt`; target under 10 min per device |
+| Full UI suite (batch ends only) | `MAC_TIMEOUT=5400 xcode-test iphone --parallel 2` (and `ipad`) | about 35 min of testing on iPhone with 2 clones (106 min serial, 2026-11-04) |
+| CI `ios` job (bibleview-js, xcodegen, XCUITests, screenshots) | `xcode-test iphone --smoke` | CI runs the unit tests plus the smoke set |
 | One UI test | `xcode-test iphone -only-testing:iosAppUITests/PocUITests/testEdgeSwipeBack` | |
 | Release configuration, fresh install (`org.andbible.ios` uninstalled first; Release ignores debug launch args) | `xcode-test iphone --release -only-testing:iosAppUITests/OnboardingUITests/testFreshInstallOnboardingOpensReading` | ~15 min cold (Release K/N link), ~2 min warm |
 | iPad screenshots (as CI) | `xcode-test ipad -only-testing:iosAppUITests/PocUITests/testScreenshotsAllScenarios` | |
 | Any Gradle task | `gradle :sharedUi:linkDebugFrameworkIosSimulatorArm64` | |
 | Build, install and launch the app by hand | `xcode-build iphone`, then `sim shot <name>` | 20 s warm |
 | Any command in the remote tree (synced first; `run --no-sync` keeps the Mac tree as it is) | `run '<command>'` | |
+
+**UI test tiers (issue #3949).** The smoke set is the default UI check of a Mac round; the full set (no `--smoke`) is a
+batch-end gate. `--parallel N` (2 is the tested value on the 16 GiB Mac) runs the classes in N simulator clones and appends
+each clone's app log to `app-<device>.log`. Before every `xcode-test` the script prepares the simulator's local Files storage
+(`iosApp/scripts/prepare-ui-test-files.sh`: removes earlier runs' export folders, seeds `H2 Fixtures` and `H2 Backup`; the
+KJV fixture is packaged from `~/.sword` into `tmp/h2-files/h2-kjv.zip` on sync), so a fresh or cleaned simulator needs no
+hand seeding. The app log no longer carries XCTest's own `com.apple.dt.xctest` chatter (`MAC_APP_LOG_XCTEST=1` keeps it). In
+parallel mode xcodebuild prints no per-test failure messages: read them from the attachments (`tree-<failure>` names) or the
+`.xcresult`.
 
 Results land in `.local/mac/<container>/`: `native-tests/<module>/test-results/…/*.xml`,
 `xcode/xcodebuild-<device>.log`, `xcode/app-<device>.log` (the app's unified log during the run),

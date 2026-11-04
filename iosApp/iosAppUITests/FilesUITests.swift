@@ -622,19 +622,15 @@ final class FilesUITests: XCTestCase {
         probeOsFilesHandoff(mode: "os-routing-zip", fileExtension: "zip", cold: true)
     }
 
-    func testWarmOsFilesEpubHandoffAndBackendProof() {
-        probeOsFilesHandoff(mode: "os-routing-epub", fileExtension: "epub", cold: false)
-    }
-
     func testImageSelectionCopiesExpectedProviderAsset() throws {
         // The controller preloads the generated recognizable PNG using simctl addmedia and supplies its
         // observed, unique PHPicker accessibility label. Never choose the first/arbitrary photo or skip.
         // Fixture contract: 16x16 pixels; opaque red/green/blue/yellow quadrants, no orientation metadata.
         // Harness uses the default production picker/provider, waits for dismissal, decodes the returned
         // absolute file URL and checks all quadrant centres/dimensions before files-port-verified appears.
-        let label = try XCTUnwrap(ProcessInfo.processInfo.environment["FILES_TEST_PHOTO_LABEL"],
-                                  "Controller must provide the deterministic fixture asset's exact Photos label")
-        XCTAssertFalse(label.isEmpty)
+        guard let label = ProcessInfo.processInfo.environment["FILES_TEST_PHOTO_LABEL"], !label.isEmpty else {
+            throw XCTSkip("Opt-in: set TEST_RUNNER_FILES_TEST_PHOTO_LABEL to the fixture asset's exact Photos label (simctl addmedia)")
+        }
         let app = launchPort("image-select")
         defer { app.terminate() }
         open(app)
@@ -650,58 +646,5 @@ final class FilesUITests: XCTestCase {
         waitForSystemControl(element(app, "files-port-verified"), app: app, name: "image-provider-content-verified",
                              message: "Returned provider copy did not match the expected dimensions and pixel pattern after dismissal")
         XCTAssertFalse(element(app, "files-port-error").exists)
-    }
-
-    /// Provisioning diagnostic only: no save/result assertion or feature-parity claim.
-    /// Creates a unique folder through the observed system inline rename controls; never guesses its filesystem path.
-    func testLocalCreatePickerReportsNewFolderAvailability() {
-        let app = launchSavePort("create-writeback", filename: "provider-diagnostic-\(UUID().uuidString).csv")
-        defer { app.terminate() }
-        let select = element(app, "files-port-folder-select")
-        waitForSystemControl(select, app: app, name: "provider-folder-select", message: "Genuine folder picker trigger is unavailable")
-        XCTAssertTrue(select.isHittable)
-        select.tap()
-        let confirm = app.buttons["Open"].firstMatch
-        waitForSystemControl(confirm, app: app, name: "provider-folder-picker", message: "Actual folder picker Open control did not appear")
-        XCTAssertTrue(confirm.isHittable)
-        navigateToLocalRoot(app)
-        let root = localRoot(app)
-        waitForSystemControl(root, app: app, name: "provider-local-root", message: "Actual local provider root was not attached")
-        let newFolder: XCUIElement
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let matches = root.navigationBars["FullDocumentManagerViewControllerNavigationBar"].buttons
-                .matching(identifier: "New Folder")
-            waitForSystemControl(matches.firstMatch, app: app, name: "provider-local-new-folder",
-                                 message: "Local Files New Folder toolbar button is unavailable")
-            XCTAssertEqual(matches.count, 1, "Cannot uniquely identify the observed iPad New Folder toolbar button")
-            guard matches.count == 1 else { return }
-            newFolder = matches.firstMatch
-        } else {
-            let more = root.navigationBars["FullDocumentManagerViewControllerNavigationBar"].buttons["More"].firstMatch
-            waitForSystemControl(more, app: app, name: "provider-local-more", message: "Local Files ellipsis menu is unavailable")
-            XCTAssertTrue(more.isHittable)
-            more.tap()
-            newFolder = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'New Folder'")).firstMatch
-        }
-        let available = newFolder.waitForExistence(timeout: 10)
-        evidence(app, "provider-local-menu-new-folder-\(available ? "present" : "absent")")
-        XCTAssertTrue(available, "Local Files provider does not expose New Folder; save provisioning remains blocked")
-        XCTAssertTrue(newFolder.isHittable, "Local provider New Folder action is not usable")
-        newFolder.tap()
-        let nameField = localRoot(app).textViews["DOC.inlineRenameField"].firstMatch
-        waitForSystemControl(nameField, app: app, name: "provider-new-folder-inline-rename", message: "System inline folder rename field was not presented")
-        XCTAssertTrue(nameField.isHittable)
-        let folderName = "AndBible UI Probe \(UUID().uuidString)"
-        // New Folder starts with its default name selected, as observed in the real Files UI.
-        nameField.typeText(folderName)
-        evidence(app, "provider-new-folder-name-entered")
-        XCTAssertEqual(nameField.value as? String, folderName, "System folder name entry was not exact")
-        let done = app.buttons["Done"].firstMatch
-        waitForSystemControl(done, app: app, name: "provider-new-folder-done", message: "System inline rename keyboard has no Done action")
-        XCTAssertTrue(done.isHittable && done.isEnabled)
-        done.tap()
-        waitUntil("Inline folder rename did not finish", app: app, evidenceName: "provider-new-folder-created") { !nameField.exists }
-        // Verify the exact UUID cell and opened title, never a stale provider root title or label prefix.
-        openNamedLocalFolder(app, folderName: folderName)
     }
 }

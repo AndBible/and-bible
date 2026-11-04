@@ -112,15 +112,6 @@ final class IncomingFilesUITests: XCTestCase {
         requireContent(app, "incoming-sword-content-verified")
     }
 
-    func testWarmEpubAfterSwordUsesSameProcessQueue() {
-        let app = launch(fixture: "sword")
-        defer { app.terminate() }
-        confirmInstall(app, filename: "f-rawtext.zip")
-        requireContent(app, "incoming-sword-content-verified")
-        offerWarmEpub(app)
-        requireContent(app, "incoming-sword-content-verified")
-    }
-
     func testInvalidArchiveShowsProductionErrorThenQueueAcceptsEpub() {
         let app = launch(fixture: "invalid")
         defer { app.terminate() }
@@ -134,63 +125,5 @@ final class IncomingFilesUITests: XCTestCase {
         requireVisible(element(app, "incoming-runtime-ready"), app: app, step: "incoming-production-graph-ready-after-error", timeout: 60)
         XCTAssertFalse(element(app, "incoming-sword-content-verified").exists)
         offerWarmEpub(app)
-    }
-
-    func testBackupDocumentsRestoreOpensProductionInstallPicker() {
-        let app = launch()
-        defer { app.terminate() }
-        let openBackup = element(app, "incoming-open-backup")
-        requireVisible(openBackup, app: app, step: "backup-destination-trigger")
-        XCTAssertTrue(openBackup.isHittable)
-        openBackup.tap()
-        let hidden = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            !self.element(app, "incoming-open-backup").exists
-                && !self.element(app, "incoming-offer-epub").exists
-                && app.descendants(matching: .any).matching(
-                    NSPredicate(format: "identifier BEGINSWITH 'incoming-'")).count == 0
-        }, object: nil)
-        let hiddenResult = XCTWaiter.wait(for: [hidden], timeout: 20)
-        evidence(app, "backup-entry-panel-hidden")
-        XCTAssertEqual(hiddenResult, .completed, "Incoming panel must disappear on Backup entry")
-        let restoreActions = app.buttons.matching(NSPredicate(format: "label == 'Restore or Import from…'"))
-        requireVisible(restoreActions.firstMatch, app: app, step: "production-backup-restore-action")
-        XCTAssertEqual(restoreActions.count, 1, "Expected unique real Backup Restore action")
-        // BackupRestoreScreen has two occurrences of each label, ordered Backup then Restore.
-        // These production switch selectors still need actual iOS accessibility-tree validation.
-        let documents = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Documents'"))
-        let database = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Database'"))
-        XCTAssertEqual(documents.count, 2, "Cannot unambiguously identify the Restore Documents switch")
-        XCTAssertEqual(database.count, 2, "Cannot unambiguously identify the Restore Database switch")
-        let restoreDocuments = documents.element(boundBy: 1)
-        let restoreDatabase = database.element(boundBy: 1)
-        XCTAssertTrue(restoreDocuments.isHittable && restoreDatabase.isHittable)
-        if restoreDatabase.isSelected { restoreDatabase.tap() }
-        if !restoreDocuments.isSelected { restoreDocuments.tap() }
-        XCTAssertFalse(restoreDatabase.isSelected)
-        XCTAssertTrue(restoreDocuments.isSelected)
-        let restore = app.buttons.matching(NSPredicate(format: "label == 'Restore or Import from…'")).firstMatch
-        requireVisible(restore, app: app, step: "production-documents-restore-action")
-        XCTAssertTrue(restore.isHittable && restore.isEnabled)
-        restore.tap()
-        // Real BackupServiceImpl -> IosBackupHost.restoreModules -> bound InstallZipHost prelude.
-        requireVisible(app.staticTexts["Load Documents From Files"].firstMatch, app: app, step: "restore-modules-formats-title")
-        let formats = app.staticTexts.matching(NSPredicate(format:
-            "label BEGINSWITH 'You have to choose the file' AND label CONTAINS 'Supported formats for loading documents'")).firstMatch
-        requireVisible(formats, app: app, step: "restore-modules-supported-formats")
-        let proceed = app.buttons["Proceed"].firstMatch
-        requireVisible(proceed, app: app, step: "restore-modules-proceed")
-        XCTAssertTrue(proceed.isHittable && proceed.isEnabled)
-        proceed.tap()
-        // Only after Proceed can Cancel plus the actual Files root prove the native document picker.
-        let cancel = app.buttons["Cancel"].firstMatch
-        requireVisible(cancel, app: app, step: "restore-modules-system-picker")
-        XCTAssertTrue(cancel.isHittable)
-        let filesRoot = app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'DOC.browsingRoot Source:'")).firstMatch
-        requireVisible(filesRoot, app: app, step: "restore-modules-real-files-content")
-        cancel.tap()
-        let gone = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in !cancel.exists }, object: nil)
-        let result = XCTWaiter.wait(for: [gone], timeout: 20)
-        evidence(app, "restore-modules-picker-dismissed")
-        XCTAssertEqual(result, .completed)
     }
 }

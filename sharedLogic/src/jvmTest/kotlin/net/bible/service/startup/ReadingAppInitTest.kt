@@ -35,6 +35,16 @@ import kotlinx.coroutines.test.setMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.GlobalTextDisplaySettingsDao
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.service.cloudsync.DocumentSyncProvider
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.sword.persistCipherKey
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedlogic.platform.AddonCatalog
+import org.crosswire.jsword.book.sword.NullBackend
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import java.lang.reflect.Proxy
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -215,6 +225,68 @@ class ReadingAppInitTest {
         ReadingAppInit.initialise(platform)
 
         assertEquals<List<Pair<String, String?>>>(listOf("Locked" to "secret"), unlocked)
+    }
+
+    private inline fun <reified T : Any> unused(): T =
+        Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, m, _ -> error("unexpected ${m.name}") } as T
+
+    private fun watcher(): BookInstallWatcher {
+        val launcher = OrderedLauncher(scope)
+        return BookInstallWatcher(
+            launcher, unused<DocumentSyncStarter>(), unused<DocumentSyncProvider>(),
+            DocumentSyncSettings({ error("unused") }, { error("unused") }, { error("unused") }, launcher, unused()),
+            unused<AddonCatalog>(),
+        )
+    }
+
+    private fun lockedBook() = SwordBook(
+        SwordBookMetaData("""
+            [LockedKjv]
+            Description=Locked King James
+            Abbreviation=LKJV
+            ModDrv=RawText
+            Versification=KJV
+            Lang=en
+        """.trimIndent().encodeToByteArray(), "LockedKjv"),
+        NullBackend(),
+    )
+
+    /** Pins iOS FeaturePathsUITests.testCipherWrongRetryRightPersists: the key given in the unlock dialog reaches the next launch's unlock. */
+    @Test
+    fun persistedCipherKeyOfAModuleWithoutARowIsUnlockedAtNextStartup() = runTest(timeout = 10.minutes) {
+        stubSettingsAndBooks()
+        val unlocked = mutableListOf<Pair<String, String?>>()
+        ReadingAppInit.unlockBook = { initials, key -> unlocked += initials to key }
+        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+        val book = lockedBook()
+        assertEquals(null, dao.getBook(book.initials))
+
+        persistCipherKey(book, "right-key", watcher())
+
+        val row = dao.getBook(book.initials)!!
+        assertEquals("right-key", row.cipherKey)
+        assertEquals("LockedKjv", row.initials)
+        ReadingAppInit.unlockStoredCipherKeys()
+        assertEquals<List<Pair<String, String?>>>(listOf("LockedKjv" to "right-key"), unlocked)
+    }
+
+    @Test
+    fun persistCipherKeyKeepsOtherFieldsOfAnExistingRow() = runTest(timeout = 10.minutes) {
+        stubSettingsAndBooks()
+        val unlocked = mutableListOf<Pair<String, String?>>()
+        ReadingAppInit.unlockBook = { initials, key -> unlocked += initials to key }
+        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+        val book = lockedBook()
+        dao.insert(SwordDocumentInfo(book.initials, "Old name", "OLD", "en", "Some Repo", cipherKey = "wrong"))
+
+        persistCipherKey(book, "right-key", watcher())
+
+        val row = dao.getBook(book.initials)!!
+        assertEquals("right-key", row.cipherKey)
+        assertEquals("Some Repo", row.repository)
+        assertEquals("Old name", row.name)
+        ReadingAppInit.unlockStoredCipherKeys()
+        assertEquals<List<Pair<String, String?>>>(listOf("LockedKjv" to "right-key"), unlocked)
     }
 
     @Test
