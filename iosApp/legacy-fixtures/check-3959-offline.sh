@@ -18,7 +18,7 @@ pid=$(xcrun simctl launch --wait-for-debugger "$id" "$bundle" -seedLegacyFixture
 # Check the syscall result in the attached process before allowing any migration work.
 xcrun lldb --batch -p "$pid" \
   -o 'expr -l objc -- @import Darwin' \
-  -o 'expr -l objc -- (int)((int (*)(const char *, unsigned long long, char **))dlsym((void *)-2, "sandbox_init"))("(version 1)(allow default)(deny network*)", 0, (char **)0)' \
+  -o 'expr -l objc -- (int)(dlsym((void *)-2, "sandbox_init") ? ((int (*)(const char *, unsigned long long, char **))dlsym((void *)-2, "sandbox_init"))("(version 1)(allow default)(deny network*)", 0, (char **)0) : -2)' \
   -o 'process detach' > build/shots/3959-offline-sandbox.txt 2>&1
 if ! grep -Eq '\(int\).* = 0$' build/shots/3959-offline-sandbox.txt; then
   printf 'BLOCKED: process sandbox installation was not proved; no offline acceptance\n'
