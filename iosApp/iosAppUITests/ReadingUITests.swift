@@ -1244,6 +1244,27 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: in-place search
 
+    /// Sends a hardware keyboard shortcut to the reading WebView, whose keydown handler opens search via the bridge.
+    func testControlFOpensInPlaceSearch() throws {
+        let app = try launchReading()
+        let field = element(app, "reading-search-field")
+        guard !field.exists else {
+            XCTFail("search must be closed before Ctrl+F")
+            return
+        }
+        let pane = firstPane(app)
+        guard pane.waitForExistence(timeout: 15) else {
+            attachTree(app, "control-f-no-pane")
+            XCTFail("no reading WebView to receive Ctrl+F")
+            return
+        }
+        paneMargin(app).tap()
+        app.typeKey("f", modifierFlags: .control)
+        let opened = field.waitForExistence(timeout: 15)
+        if !opened { attachTree(app, "control-f-search-not-shown") }
+        XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
+    }
+
     /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
     /// when the prompt "An index is required to search" appears: "Create"), the sheet shows "<n> verses in 1
     /// translations" with n > 0 and result cards; the card of John 7:50 (or 19:39) opens that chapter (a chapter with
