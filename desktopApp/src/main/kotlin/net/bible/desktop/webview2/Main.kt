@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -82,7 +83,7 @@ fun main() {
                 exitApplication()
             }
         }
-        Window(title = "AndBible (WebView2)", onCloseRequest = { closing = true }) {
+        Window(title = "AndBible (WebView2)", icon = painterResource("andbible.png"), onCloseRequest = { closing = true }) {
             engine.window = window
             var dark by remember { mutableStateOf(options.dark) }
             options.themeFlipMs?.let { period ->

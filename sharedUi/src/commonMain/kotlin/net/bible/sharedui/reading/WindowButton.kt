@@ -39,8 +39,13 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -71,7 +76,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.bible.sharedcore.reading.railLabelFontScale
 
 // Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
 // deleted once the Compose reading view replaced what used them. The citations stay as the
@@ -359,17 +363,35 @@ fun WindowButton(
             // verticalArrangement=Bottom then still hugs the two lines to the bottom, mirroring
             // classic's `buttonText` `Bottom_toBottomOf="@id/windowButton"`.
             WindowButtonMode.Rail -> {
-                // The box is dp, the lines are sp: above ~1.05 font scale the bottom-anchored
-                // Column would overflow upward into the badge row. One shared factor keeps the two
-                // lines proportional to each other and inside the box; at scale 1.0 it is exactly
-                // 1f, so nothing moves. See railLabelFontScale's kdoc.
-                val density = LocalDensity.current
                 val labelBoxHeight = WindowButtonSize - RailBadgeRowHeight
-                val availablePx = with(density) { (labelBoxHeight - RailLabelBottomPadding).toPx() }
-                val requiredPx = with(density) {
-                    RailLabelSize.toPx() + if (topLabel != null) RailTopLabelSize.toPx() else 0f
+                val availablePx = with(density) {
+                    labelBoxHeight.roundToPx() - RailLabelBottomPadding.roundToPx()
                 }
-                val scale = railLabelFontScale(availablePx, requiredPx)
+                val measurer = rememberTextMeasurer()
+                val textStyle = LocalTextStyle.current
+                // A requested lineHeight is not the measured line box: platform fonts can need
+                // extra ascent/descent, and each Text rounds independently. Fit the real boxes
+                // before Column measures its children, or the second label gets only the remainder.
+                fun requiredHeight(scale: Float): Int {
+                    fun lineHeight(text: String, size: TextUnit): Int = measurer.measure(
+                        text, style = textStyle.copy(fontSize = size * scale, lineHeight = size * scale),
+                        maxLines = 1, softWrap = false, constraints = Constraints(),
+                    ).size.height
+                    return lineHeight(label, RailLabelSize) +
+                        (topLabel?.let { lineHeight(it, RailTopLabelSize) } ?: 0)
+                }
+                val scale = remember(label, topLabel, density, textStyle, measurer, availablePx) {
+                    if (requiredHeight(1f) <= availablePx) 1f else {
+                        var low = 0f
+                        var high = 1f
+                        // Keep the largest fitting shared factor, including pixel rounding at HiDPI.
+                        repeat(12) {
+                            val candidate = (low + high) / 2f
+                            if (requiredHeight(candidate) <= availablePx) low = candidate else high = candidate
+                        }
+                        low
+                    }
+                }
                 val topLabelSize = RailTopLabelSize * scale
                 val labelSize = RailLabelSize * scale
                 Column(

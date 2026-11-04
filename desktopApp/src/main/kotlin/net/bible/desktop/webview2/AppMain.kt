@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -99,6 +100,7 @@ fun appMain() {
         }
         Window(
             title = "AndBible (WebView2)",
+            icon = painterResource("andbible.png"),
             state = rememberWindowState(size = DpSize(AwtWindowHandle.DEFAULT_WIDTH_DP.dp, AwtWindowHandle.DEFAULT_HEIGHT_DP.dp)),
             onCloseRequest = requestClose,
             onPreviewKeyEvent = { DesktopWebPaneKeys.windowKey { DesktopReadingInput.current().onPreviewKeyEvent(it) } },

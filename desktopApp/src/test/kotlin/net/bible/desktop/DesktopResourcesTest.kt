@@ -27,6 +27,13 @@ class DesktopResourcesTest {
         return stream.use { it.readBytes().decodeToString() }
     }
 
+    @Test fun desktopWindowIconIsPackagedForComposePainter() {
+        val stream = assertNotNull(javaClass.classLoader.getResourceAsStream("andbible.png"), "andbible.png is not on the app classpath")
+        val image = stream.use { javax.imageio.ImageIO.read(it) }
+        assertNotNull(image, "Compose window icon cannot be decoded")
+        assertTrue(image.width > 0 && image.height > 0, "Compose window icon is empty")
+    }
+
     @Test fun repositoriesSiteMapIsPackaged() {
         assertTrue(text("repositories.txt").contains("CrossWire"), "repositories.txt does not list CrossWire")
     }

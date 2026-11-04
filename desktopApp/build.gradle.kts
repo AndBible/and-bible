@@ -281,6 +281,7 @@ compose.desktop {
                 fileAssociation(mimeType = mime, extension = ext, description = "AndBible $ext file")
             }
             windows {
+                iconFile.set(project.file("packaging/windows/andbible.ico"))
                 upgradeUuid = windowsUpgradeUuid
                 msiPackageVersion = windowsPackageVersion
                 menu = true
