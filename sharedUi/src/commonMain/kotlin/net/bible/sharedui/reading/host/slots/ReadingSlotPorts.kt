@@ -108,6 +108,7 @@ interface ReadingSearchPlatform {
     fun showInActiveWindow(book: Book, key: Key)
 
     /** Shows [list] (the "open results in a window" multi-document) in the links window. */
+    fun showInLinksWindow(book: Book, key: Key)
     fun showInLinksWindow(list: BookAndKeyList)
 }
 

@@ -183,6 +183,10 @@ internal class HostReadingSearchPlatform(
         windowControl().activeWindowPageManager.setCurrentDocumentAndKey(book, key)
     }
 
+    override fun showInLinksWindow(book: Book, key: Key) {
+        windowControl().showLink(book, key)
+    }
+
     override fun showInLinksWindow(list: BookAndKeyList) {
         linkControl().showLink(fakeBookFactory().multiDocument, list)
     }

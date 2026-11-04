@@ -39,18 +39,19 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 
-/** In-memory [AppSettings]; only strings are stored (the search state persists nothing else). */
+/** In-memory settings shared by search state instances in tests. */
 class MapSearchSettings(val strings: MutableMap<String, String?> = mutableMapOf()) : AppSettings {
+    val booleans = mutableMapOf<String, Boolean>()
     override fun getString(key: String, default: String?) = strings[key] ?: default
     override fun getLong(key: String, default: Long) = default
     override fun getInt(key: String, default: Int) = default
-    override fun getBoolean(key: String, default: Boolean) = default
+    override fun getBoolean(key: String, default: Boolean) = booleans[key] ?: default
     override fun getDouble(key: String, default: Double) = default
     override fun getFloat(key: String, default: Float) = default
     override fun setString(key: String, value: String?) { strings[key] = value }
     override fun setLong(key: String, value: Long?) = Unit
     override fun setInt(key: String, value: Int?) = Unit
-    override fun setBoolean(key: String, value: Boolean?) = Unit
+    override fun setBoolean(key: String, value: Boolean?) { if (value == null) booleans.remove(key) else booleans[key] = value }
     override fun setDouble(key: String, value: Double?) = Unit
     override fun setFloat(key: String, value: Float?) = Unit
 }
@@ -99,6 +100,7 @@ class FakeSearchPlatform : ReadingSearchPlatform {
     var bibles: List<Pair<String, String>> = listOf("KJV" to "KJV")
     var referenceOpens = false
     val shown = mutableListOf<Pair<Book, Key>>()
+    val singleLinksShown = mutableListOf<Pair<Book, Key>>()
     val linkWindows = mutableListOf<BookAndKeyList>()
 
     override fun currentDocument() = current
@@ -115,6 +117,7 @@ class FakeSearchPlatform : ReadingSearchPlatform {
     override fun installedBibles() = bibles
     override fun tryOpenReference(query: String) = referenceOpens
     override fun showInActiveWindow(book: Book, key: Key) { shown += book to key }
+    override fun showInLinksWindow(book: Book, key: Key) { singleLinksShown += book to key }
     override fun showInLinksWindow(list: BookAndKeyList) { linkWindows += list }
 }
 

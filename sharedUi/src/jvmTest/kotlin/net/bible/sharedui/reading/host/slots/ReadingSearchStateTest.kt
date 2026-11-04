@@ -546,6 +546,62 @@ class ReadingSearchStateTest {
     }
 
     @Test
+    fun resultTargetDefaultsFollowRequestOriginRatherThanQuerySyntax() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.queries.setQuery("edited")
+            assertTrue(f.state.openResultInLinksWindow.value, "editing must not change the displayed results' origin")
+            f.platform.current = f.platform.documents.getValue("KJV")
+            f.state.openSearch("strong:H430")
+            assertTrue(f.state.openResultInLinksWindow.value, "reopening the same result set retains its origin")
+            assertTrue(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            f.state.controller.submit()
+            assertFalse(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            assertFalse(f.state.openResultInLinksWindow.value, "a newly submitted typed Strong's query uses the typed default")
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun resultTargetFollowsOriginOfEachRerun() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.state.controller.settingsClosed()
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.queries.setQuery("light")
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.controller.submit()
+            assertFalse(f.state.openResultInLinksWindow.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun resultTargetPreferencesPersistIndependentlyAcrossStates() {
+        val settings = MapSearchSettings()
+        val first = strongsFixture(SearchFixture(settings = settings))
+        try {
+            first.state.openSearchStrongs("H430", listOf("KJV"))
+            first.state.setOpenResultInLinksWindow(false)
+            first.platform.current = first.platform.documents.getValue("KJV")
+            first.state.openSearch("light")
+            first.state.setOpenResultInLinksWindow(true)
+        } finally { first.state.dispose() }
+        val second = strongsFixture(SearchFixture(settings = settings))
+        try {
+            second.state.openSearchStrongs("H430", listOf("KJV"))
+            assertFalse(second.state.openResultInLinksWindow.value)
+            second.platform.current = second.platform.documents.getValue("KJV")
+            second.state.openSearch("light")
+            assertTrue(second.state.openResultInLinksWindow.value)
+        } finally { second.state.dispose() }
+    }
+
+    @Test
     fun defaults() {
         val s = state(MapSettings())
         assertEquals(SearchType.ALL_WORDS, s.searchType.value)

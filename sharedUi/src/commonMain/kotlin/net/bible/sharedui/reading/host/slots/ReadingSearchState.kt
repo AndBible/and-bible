@@ -123,6 +123,23 @@ class ReadingSearchState(
     private val bibleSearchService: BibleSearchService = services.bible
     internal val searchIndexService: SearchIndexService = services.index
 
+    private var resultStrongsOrigin = false
+    private val _openResultInLinksWindow = MutableStateFlow(settings.getBoolean("search_result_in_links_window", false))
+    val openResultInLinksWindow: StateFlow<Boolean> = _openResultInLinksWindow.asStateFlow()
+
+    fun setOpenResultInLinksWindow(value: Boolean) {
+        settings.setBoolean(resultTargetKey(), value)
+        _openResultInLinksWindow.value = value
+    }
+
+    private fun resultTargetKey() =
+        if (resultStrongsOrigin) "strongs_search_result_in_links_window" else "search_result_in_links_window"
+
+    private fun updateResultOrigin(strongs: Boolean) {
+        resultStrongsOrigin = strongs
+        _openResultInLinksWindow.value = settings.getBoolean(resultTargetKey(), strongs)
+    }
+
     val searchType: MutableState<SearchType> = mutableStateOf(SearchType.ALL_WORDS)
     val searchSection: MutableState<SearchBibleSection> = mutableStateOf(SearchBibleSection.ALL)
     val searchTranslations: MutableState<List<String>> = mutableStateOf(emptyList())
@@ -629,6 +646,7 @@ class ReadingSearchState(
         // untouched.
         searchResultsListState.value = LazyListState()
         val request = buildSearchRequest(docId, query)
+        updateResultOrigin(strongsOrigin && request.isStrongsSearch)
         lastSearchRequestForTest = request
         // The searched list and the USER's selection are different things (F44 fix round, I2): the
         // results sheet's selector must show, and persist on confirm, only what the user chose, not
@@ -641,6 +659,7 @@ class ReadingSearchState(
      * deliberately does NOT clear [searchResultsExpanded] (EPUB rows carry no expansion state).
      */
     fun runEpubSearch(docId: String, query: String) {
+        updateResultOrigin(false)
         searchResultsListState.value = LazyListState()
         // The text-selection entry point seeds an ALREADY Lucene-decorated query, meaningless to
         // FTS5; the flag is matched the same trimmed, self-clearing way as on the SWORD path.
@@ -671,7 +690,8 @@ class ReadingSearchState(
         }
         try {
             val key = epubKeyFor(book, docId, keyId, ordinal)
-            platform.showInActiveWindow(book, key)
+            if (openResultInLinksWindow.value) platform.showInLinksWindow(book, key)
+            else platform.showInActiveWindow(book, key)
             controller.onResultOpened()
         } catch (e: Exception) {
             Log.e(TAG, "onEpubSearchResultSelected: bad key '$keyId' in $docId", e)
@@ -692,7 +712,8 @@ class ReadingSearchState(
         }
         try {
             val key = book.getKey(referenceName)
-            platform.showInActiveWindow(book, key)
+            if (openResultInLinksWindow.value) platform.showInLinksWindow(book, key)
+            else platform.showInActiveWindow(book, key)
             controller.onResultOpened()
         } catch (e: Exception) {
             Log.e(TAG, "onSearchResultSelected: bad key '$referenceName' in ${book.initials}", e)

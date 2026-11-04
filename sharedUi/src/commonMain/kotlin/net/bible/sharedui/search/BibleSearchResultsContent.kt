@@ -88,6 +88,8 @@ fun BibleResultsActions(
     onToggleScripture: () -> Unit,
     onOpenInWindow: () -> Unit,
     onSelectTranslations: (List<String>) -> Unit,
+    openResultInLinksWindow: Boolean = false,
+    onOpenResultInLinksWindowChange: (Boolean) -> Unit = {},
     initiallyChooserOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
@@ -116,13 +118,7 @@ fun BibleResultsActions(
             onClick = onToggleScripture,
         )
     }
-    AbOverflowMenu(contentDescription = null) { close ->
-        AbMenuItem(
-            text = strings.openResultsInWindow,
-            onClick = { close(); onOpenInWindow() },
-            icon = { Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null) },
-        )
-    }
+    SearchResultTargetActions(openResultInLinksWindow, onOpenResultInLinksWindowChange, onOpenInWindow)
 
     if (chooserOpen) {
         // Declared inside the top bar's actions, so it would inherit the bar's capped font scale: a dialog keeps the system scale.
@@ -140,6 +136,41 @@ fun BibleResultsActions(
             )
         }
     }
+}
+
+@Composable
+fun SearchResultTargetActions(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onOpenInWindow: (() -> Unit)? = null,
+) {
+    AbOverflowMenu(contentDescription = null) { close ->
+        SearchResultTargetMenuRows(checked, onCheckedChange, onOpenInWindow, close)
+    }
+}
+
+/** Menu rows shared with screenshot tests without opening a popup. */
+@Composable
+fun SearchResultTargetMenuRows(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onOpenInWindow: (() -> Unit)?,
+    close: () -> Unit,
+) {
+    val strings = LocalStrings.current
+    if (onOpenInWindow != null) {
+        AbMenuItem(
+            text = strings.openResultsInWindow,
+            onClick = { close(); onOpenInWindow() },
+            icon = { Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null) },
+        )
+    }
+    AbMenuItem(
+        text = strings.openResultInLinksWindow,
+        onClick = { close(); onCheckedChange(!checked) },
+        checkable = true,
+        checked = checked,
+    )
 }
 
 /**

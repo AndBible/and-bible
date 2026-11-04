@@ -1328,6 +1328,7 @@
     <string name="sync_group_n">Group %d</string>
     <string name="disable_sync">Disable synchronize</string>
     <string name="open_in_window">Open results in a window</string>
+    <string name="open_result_in_links_window">Open result in links window</string>
 
     <!-- Custom repositories -->
     <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->

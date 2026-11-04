@@ -234,6 +234,44 @@ class ReadingSearchEntryPointsTest {
         return epub
     }
 
+    @Test fun searchPlatformRoutesSingleResultsIndependentlyOfGlobalLinksPreference() {
+        val settings = CommonUtils.settings
+        val pref = "open_links_in_special_window_pref"
+        val previous = settings.getBoolean(pref, true)
+        val links = GlobalContext.get().get<LinkControl>()
+        val previousMode = links.windowMode
+        val source = windowRepository.activeWindow
+        val book = Books.installed().getBook("KJV") as SwordBook
+        val versification = Versifications.instance().getVersification("KJV")
+        val platform = net.bible.android.view.activity.page.screen.AndroidReadingSearchPlatform(
+            currentDocument = { source.pageManager.currentBible.currentDocument },
+            currentBookName = { "Genesis" },
+            documentInfo = { null },
+            windowControl = { windowControl },
+            linkControl = { links },
+            fakeBookFactory = { GlobalContext.get().get() },
+        )
+        try {
+            links.windowMode = net.bible.android.control.link.WindowMode.WINDOW_MODE_UNDEFINED
+            for ((index, globalLinks) in listOf(false, true).withIndex()) {
+                settings.setBoolean(pref, globalLinks)
+                windowRepository.activeWindow = source
+                val activeVerse = Verse(versification, BibleBook.GEN, 1, 2 + index * 2)
+                platform.showInActiveWindow(book, activeVerse)
+                assertEquals(activeVerse, source.pageManager.currentBible.singleKey)
+                val linksVerse = Verse(versification, BibleBook.GEN, 1, 3 + index * 2)
+                platform.showInLinksWindow(book, linksVerse)
+                val target = source.targetLinksWindow
+                assertTrue(target.isLinksWindow)
+                assertEquals(linksVerse, target.pageManager.currentBible.singleKey)
+                assertEquals(activeVerse, source.pageManager.currentBible.singleKey)
+            }
+        } finally {
+            settings.setBoolean(pref, previous)
+            links.windowMode = previousMode
+        }
+    }
+
     // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------
 
     @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
