@@ -7,6 +7,7 @@ hold a FIFO place until release or expiry (at most one hour from creation).
 """
 import argparse
 import fcntl
+import errno
 import json
 import os
 from pathlib import Path
@@ -29,6 +30,12 @@ def process_start(pid):
 
 
 def alive(row):
+    # A zombie retains its PID/start and passes kill(0), but cannot make progress.
+    status = subprocess.run(
+        ['ps', '-p', str(row['pid']), '-o', 'stat='], capture_output=True,
+        text=True, env={**os.environ, 'LC_ALL': 'C'}, timeout=5).stdout.strip()
+    if status.startswith('Z'):
+        return False
     current = process_start(row['pid'])
     if current:
         return current == row['pstart']
@@ -147,6 +154,22 @@ def operate(args, state):
     if args.ticket and (row is None or row['identity'] != args.identity or
                         row['group'] != args.group or row['kind'] != 'waiter'):
         raise ValueError('waiter ticket missing or not owned by caller')
+    if command == 'admit':
+        if not ordered or ordered[0]['ticket'] != args.ticket:
+            return 'busy'
+        # Final eligibility, the exact legacy rename(2) gate, and ticket
+        # consumption share the metadata guard with remove/priority/release.
+        # Old clients still compete using the same nonempty directory lock.
+        if not (args.pending / 'owner').is_file():
+            raise ValueError('pending legacy lock has no owner')
+        try:
+            os.rename(args.pending, args.lock)
+        except OSError as error:
+            if error.errno in (errno.EEXIST, errno.ENOTEMPTY):
+                return 'busy'
+            raise
+        rows.remove(row)
+        return 'acquired'
     return ordered[0]['ticket'] if ordered else ''
 
 
@@ -164,6 +187,10 @@ def main():
     head = commands.add_parser('head')
     head.add_argument('--ticket')
     commands.add_parser('list')
+    admit = commands.add_parser('admit')
+    admit.add_argument('ticket')
+    admit.add_argument('pending', type=Path)
+    admit.add_argument('lock', type=Path)
     for command in ('remove', 'priority', 'release'):
         sub = commands.add_parser(command)
         sub.add_argument('ticket')

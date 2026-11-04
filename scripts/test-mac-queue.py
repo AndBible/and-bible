@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Behavior tests for the remote Mac queue helper (no Mac connection)."""
 import concurrent.futures
+import fcntl
+import importlib.util
+import threading
+from unittest import mock
 import json
 import os
 import pathlib
@@ -124,6 +128,72 @@ class QueueTests(unittest.TestCase):
         self.call('remove', 'run-token')
         self.call('remove', 'run-token')  # exit/cancel can race harmlessly
         self.call('head', '--ticket', 'run-token', ok=False)
+
+    def pending_lock(self):
+        pending = pathlib.Path(self.root, 'pending')
+        pending.mkdir()
+        (pending / 'owner').write_text('legacy owner record')
+        return pending, pathlib.Path(self.root, 'legacy-lock')
+
+    def test_removed_or_reprioritized_ticket_cannot_admit_from_stale_head(self):
+        first, second = self.register(), self.register()
+        self.assertEqual(self.call('head'), first)
+        pending, lock = self.pending_lock()
+        self.control('priority', second, '5')
+        self.assertEqual(self.call('admit', first, str(pending), str(lock)), 'busy')
+        self.assertFalse(lock.exists())
+        self.call('remove', first)
+        self.call('admit', first, str(pending), str(lock), ok=False)
+        self.assertFalse(lock.exists())
+        self.assertEqual(self.call('admit', second, str(pending), str(lock)), 'acquired')
+        self.assertEqual((lock / 'owner').read_text(), 'legacy owner record')
+        self.assertEqual(self.rows(), [])
+
+    def test_admission_behind_legacy_holder_keeps_ticket(self):
+        ticket = self.register()
+        pending, lock = self.pending_lock()
+        lock.mkdir()
+        (lock / 'owner').write_text('foreign legacy owner')
+        self.assertEqual(self.call('admit', ticket, str(pending), str(lock)), 'busy')
+        self.assertEqual((lock / 'owner').read_text(), 'foreign legacy owner')
+        self.assertEqual(self.call('head'), ticket)
+        self.assertTrue(pending.exists())
+
+    def test_admission_holds_metadata_guard_through_legacy_rename(self):
+        ticket = self.register()
+        pending, lock = self.pending_lock()
+        spec = importlib.util.spec_from_file_location('mac_queue', HELPER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        entered, resume = threading.Event(), threading.Event()
+        rename = os.rename
+        def paused_rename(*args):
+            entered.set()
+            self.assertTrue(resume.wait(5))
+            return rename(*args)
+        argv = ['mac-queue', '--root', self.root, '--identity', 'box',
+                '--group', 'group', '--role', 'child',
+                'admit', ticket, str(pending), str(lock)]
+        with mock.patch.object(module.os, 'rename', paused_rename), mock.patch('sys.argv', argv):
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                admission = pool.submit(module.main)
+                self.assertTrue(entered.wait(5))
+                with pathlib.Path(self.root, 'guard').open('a') as guard:
+                    with self.assertRaises(BlockingIOError):
+                        fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                resume.set()
+                self.assertEqual(admission.result(timeout=5), 0)
+        self.assertTrue(lock.exists())
+        self.assertEqual(self.rows(), [])
+
+    def test_exited_unreaped_waiter_does_not_block_head(self):
+        process = subprocess.Popen(['sleep', '30'])
+        self.addCleanup(lambda: process.wait(timeout=5))
+        self.call('register', '--pid', str(process.pid))
+        successor = self.register()
+        process.kill()
+        os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOWAIT)
+        self.assertEqual(self.call('head'), successor)
 
     def test_corrupt_metadata_fails_closed(self):
         ticket = self.register()

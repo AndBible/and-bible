@@ -447,8 +447,13 @@ try_acquire() {
     rm -rf "$P"; mkdir "$P" || return 1
     printf '%s pid %s since %s\ntoken=%s\ncontainer=%s\npid=%s\npstart=%s\nepoch=%s\nlpid=%s\nrun=%s\n' \
         "$MYNAME" $$ "$(date '+%F %T')" "$TOKEN" "$MYNAME" $$ "$(pstart_of $$)" "$(date +%s)" "$LPID" "$RUNID" > "$P/owner"
-    rename "$P" "$L" && return 0
-    rm -rf "$P"; return 1
+    local admission rc
+    admission=$(mac_queue admit "$QTICKET" "$P" "$L"); rc=$?
+    rm -rf "$P"
+    [ "$rc" = 0 ] || return 74
+    [ "$admission" = acquired ] && return 0
+    [ "$admission" = busy ] && return 1
+    return 74
 }
 break_lock() {
     local B="$L.breaking" seen got moved bpid
@@ -511,10 +516,11 @@ while :; do
     # clients can still overtake us; FIFO is guaranteed only among new clients.
     QHEAD=$(mac_queue head --ticket "$QTICKET") || exit 74
     if [ "$QHEAD" = "$QTICKET" ]; then
-        if try_acquire; then
-            mac_queue remove "$QTICKET" || exit 74
-            QTICKET=; got=1; break
-        fi
+        # admit rechecks and consumes under the same guard as cancel/priority,
+        # holding it through legacy rename. The earlier head result is a hint.
+        try_acquire; admission_rc=$?
+        if [ "$admission_rc" = 0 ]; then QTICKET=; got=1; break; fi
+        [ "$admission_rc" = 1 ] || exit 74
         if lock_stale; then break_lock && continue; fi
     fi
     if [ $(( SECONDS - last )) -ge "$MSG_EVERY" ]; then
@@ -1024,20 +1030,22 @@ kill_run() {   # pid: TERM the leader (its traps write the marker and close the 
 }
 cmd_cancel() {
     queue_helper_check
-    local want="${1:-}" d id tokens="" found=0
+    local want="${1:-}" d id tokens="" found=0 rc=0
+    local cancel_dirs=()
     for d in $(ls -1d "$OUT"/runs/*/ 2>/dev/null | sort); do
         d=${d%/}; id=$(basename "$d")
         [ -z "$want" ] || [ "$id" = "$want" ] || continue
-        [ ! -f "$d/exit" ] || continue
+        [ ! -f "$d/exit" ] || [ -f "$d/cancel-pending" ] || continue
         found=1
+        # Write before stopping the local process: its EXIT trap may write an
+        # exit marker, but remote cleanup must stay retryable until confirmed.
+        : > "$d/cancel-pending"
+        cancel_dirs+=("$d")
         if run_alive "$d"; then
             echo "mac-remote: cancelling $id (local pid $(meta_get "$d" pid))"
             kill_run "$(meta_get "$d" pid)"
         else
             echo "mac-remote: $id has no exit marker and its process is gone (lost run)"
-        fi
-        if [ ! -f "$d/exit" ]; then
-            printf 'code=143\nreason=cancelled\nend_epoch=%s\nfailed_step=\n' "$(date +%s)" > "$d/exit"
         fi
         tokens="$tokens $(meta_get "$d" token)"
     done
@@ -1048,7 +1056,10 @@ cmd_cancel() {
         rlib
         queue_lib
         cat <<'EOF'
-for TOK in $TOKENS; do mac_queue remove "$TOK" || exit 74; done
+queue_rc=0
+for TOK in $TOKENS; do
+    mac_queue remove "$TOK" || queue_rc=74
+done
 for TOK in $TOKENS; do
     [ -d "$L" ] || { echo "mac-remote: remote lock already free"; break; }
     if [ "$(owner_get token)" = "$TOK" ]; then
@@ -1064,9 +1075,23 @@ for TOK in $TOKENS; do
     fi
 done
 [ -d "$L" ] && echo "mac-remote: remote lock left alone, held by: $(sed -n 1p "$L/owner" 2>/dev/null) (token is not one of the cancelled runs)"
-true
+if [ "$queue_rc" != 0 ]; then
+    echo 'mac-remote: queue cleanup failed; matching holder cleanup was attempted independently. Repair queue metadata, then retry cancel.' >&2
+fi
+exit "$queue_rc"
 EOF
-    } | "${SSH[@]}" "$HOST" 'bash -s'
+    } | "${SSH[@]}" "$HOST" 'bash -s' || rc=$?
+    if [ "$rc" = 0 ]; then
+        for d in "${cancel_dirs[@]}"; do
+            if [ ! -f "$d/exit" ]; then
+                printf 'code=143\nreason=cancelled\nend_epoch=%s\nfailed_step=\n' "$(date +%s)" > "$d/exit"
+            fi
+            rm -f "$d/cancel-pending"
+        done
+    else
+        echo 'mac-remote: cancellation cleanup incomplete; cancel-pending retained for retry with cancel' >&2
+    fi
+    return "$rc"
 }
 
 cmd="${1:-}"; shift || true

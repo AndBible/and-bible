@@ -142,11 +142,13 @@ t_sync_happens_after_lock_acquired() {
     sleep 30 & local hp=$!; bg_pids+=("$hp")
     mk_owner other "$hp"
     echo v1 > "$T/repo/marker.txt"
-    mr run 'cat marker.txt' > "$T/o.txt" 2>/dev/null &
+    mr run 'cat marker.txt' > "$T/o.txt" 2>"$T/sync-wait.err" &
     local w=$!; bg_pids+=("$w"); sleep 1
     echo v2 > "$T/repo/marker.txt"; kill "$hp"
-    wait "$w"
-    grep -qx v2 "$T/o.txt" || fail "run saw a tree older than its lock acquisition: $(cat "$T/o.txt")"
+    wait "$w"; local waiter_rc=$?
+    [ "$waiter_rc" = 0 ] || fail "sync waiter exit $waiter_rc: $(cat "$T/sync-wait.err")"
+    # run_begin's process-substitution tee can drain after its leader exits.
+    wait_for 'grep -qx v2 "$T/o.txt"' || fail "run saw a tree older than its lock acquisition: $(cat "$T/o.txt"); stderr=$(cat "$T/sync-wait.err")"
 }
 t_owner_record_has_token_pid_start() {
     new_env owner-record
@@ -317,6 +319,53 @@ t_queue_child_registration_inherits_group_and_priority_changes_admission() {
     JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue release "$reservation" || fail "release failed"
     wait "$a" || fail "first child failed"
     [ "$(tr '\n' ' ' < "$FAKE_HOME/priority-order")" = 'kid2 kid1 ' ] || fail "priority not respected"
+}
+t_queue_cancel_after_head_check_cannot_admit() {
+    new_env queue-cancel-race
+    # Pause the actual legacy owner-record preparation after eligibility was
+    # observed. Cancellation completes before the pending rename can resume.
+    cat > "$T/bin/ps" <<'EOS'
+#!/usr/bin/env bash
+if [[ "$*" == *'lstart='* ]] && [ "$(find "$FAKE_HOME/work" -maxdepth 1 -name '.build-lock.pending.*' | wc -l)" -gt 0 ] && mkdir "$FAKE_HOME/pause-once" 2>/dev/null; then
+    touch "$FAKE_HOME/admission-paused"
+    while [ ! -f "$FAKE_HOME/admission-resume" ]; do sleep 0.05; done
+fi
+exec /bin/ps "$@"
+EOS
+    chmod +x "$T/bin/ps"
+    "$SCRIPT" run 'touch $HOME/ran-after-cancel' > "$T/race.out" 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for '[ -f "$FAKE_HOME/admission-paused" ]' || { fail "admission did not pause"; rm -f "$T/bin/ps"; return; }
+    local d token
+    d=$(last_run); token=$(kv "$d/meta" token)
+    # Model a lost local client: remote waiter survives; cancellation can only
+    # coordinate through its token, not by killing the lost local PID.
+    sed -i 's/^pstart=.*/pstart=lost-client/' "$d/meta"
+    mr cancel >/dev/null 2>&1 || fail "cancel failed"
+    touch "$FAKE_HOME/admission-resume"
+    wait "$p" 2>/dev/null
+    [ ! -e "$FAKE_HOME/ran-after-cancel" ] || fail "cancelled ticket admitted from stale eligibility"
+    [ ! -e "$LOCK" ] || fail "cancelled waiter acquired legacy gate"
+    rm -f "$T/bin/ps"
+}
+t_cancel_corrupt_queue_releases_matching_holder_and_remains_retryable() {
+    new_env cancel-corrupt
+    sleep 60 & local hp=$!; bg_pids+=("$hp")
+    mk_owner testbox "$hp" tok-corrupt
+    local d="$T/out/runs/19990101-000000-run-1" out rc
+    mkdir -p "$d" "$FAKE_HOME/work/.mac-queue"
+    printf 'id=lost\npid=99999999\npstart=gone\nstart_epoch=1\ncmd=run lost\ntoken=tok-corrupt\n' > "$d/meta"
+    echo '{broken' > "$FAKE_HOME/work/.mac-queue/state.json"
+    out=$(mr cancel 2>&1); rc=$?
+    [ "$rc" = 74 ] || fail "queue cleanup failure hidden: exit $rc $out"
+    [ ! -e "$LOCK" ] || fail "corrupt queue prevented matching holder release: $out"
+    wait_for '! kill -0 "$hp" 2>/dev/null' || fail "matching holder survived queue failure"
+    [ -f "$d/cancel-pending" ] || fail "failed cancellation is not recoverable"
+    grep -q 'queue cleanup failed' <<<"$out" || fail "failure/retry guidance missing: $out"
+    # Explicit operator recovery of bad metadata, then retry the SAME run.
+    rm "$FAKE_HOME/work/.mac-queue/state.json"
+    out=$(mr cancel 2>&1); rc=$?
+    [ "$rc" = 0 ] && [ ! -f "$d/cancel-pending" ] || fail "cancellation retry failed: $out"
+    [ "$(kv "$d/exit" reason)" = cancelled ] || fail "recovered cancellation not recorded"
 }
 t_queue_missing_embedded_helper_fails_closed() {
     new_env queue-missing-helper
@@ -833,6 +882,7 @@ for t in t_queue_fifo_three_waiters_behind_legacy_holder t_queue_timeout_and_can
     t_queue_controls_use_orchestrator_group_not_child_name t_queue_rejects_parallel_slots_before_connecting \
     t_queue_legacy_client_respects_new_holder_and_can_overtake_reservation \
     t_queue_child_registration_inherits_group_and_priority_changes_admission t_queue_missing_embedded_helper_fails_closed \
+    t_queue_cancel_after_head_check_cannot_admit t_cancel_corrupt_queue_releases_matching_holder_and_remains_retryable \
     t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
