@@ -18,9 +18,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+def selected_port(arguments):
+    """Keep the same loopback endpoint when the certificate fixture swaps listeners."""
+    return int(arguments[3]) if len(arguments) > 3 else 0
+
+
 if __name__ == "__main__":
     cert, key, port_file = sys.argv[1:4]
-    port = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+    port = selected_port(sys.argv[1:])
     server = http.server.HTTPServer(("127.0.0.1", port), Handler)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(cert, key)
