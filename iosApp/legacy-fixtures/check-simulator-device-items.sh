@@ -101,6 +101,7 @@ PY
     sleep 10
     # This private Apple debug hook is diagnostic only, never linked into the product.
     xcrun lldb --batch -p "$pid" \
+      -o 'expr -l objc -- (id)[[BGTaskScheduler sharedScheduler] valueForKey:@"_registrations"]' \
       -o 'expr -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"org.andbible.ios.remote-sync-refresh"]' \
       -o 'process detach' > "$OUT/background-hook.txt" 2>&1
     sleep 5
