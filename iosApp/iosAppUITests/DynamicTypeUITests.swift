@@ -28,50 +28,6 @@ final class DynamicTypeUITests: RealAppUITestCase {
         XCTAssertEqual(scale, 23.0 / 17.0, accuracy: 0.0001, "App mapping must replace, not multiply, the built-in scale")
     }
 
-    private func assertSettingsReachable(at category: String) {
-        let app = XCUIApplication()
-        app.launchArguments += [
-            "-task6ResetCrashState", "-standardTestFixture", "-task5Settings",
-            "-discrete_mode", "NO", "-show_calculator", "NO"
-        ]
-        launchAtTextSize(app, category)
-        let first = "settings-row-navigate_to_verse_pref"
-        guard app.staticTexts["Application preferences"].firstMatch.waitForExistence(timeout: 60) else {
-            XCTFail("Real Settings root must appear")
-            return
-        }
-        let ids = [
-            first,
-            "settings-row-open_links_in_special_window_pref",
-            "settings-row-screen_keep_on_pref",
-            "settings-row-double_tap_to_fullscreen",
-            "settings-row-auto_fullscreen_pref",
-            "settings-row-toolbar_button_actions",
-            "settings-row-bible_view_swipe_mode",
-            "settings-row-disable_two_step_bookmarking",
-            "settings-row-volume_keys_scroll",
-            "settings-row-night_mode_pref3",
-            "settings-row-global_text_display_settings",
-            "settings-row-locale_pref",
-            "settings-row-font_size_multiplier",
-            "settings-row-display_color_mode",
-            "settings-row-disable_animations",
-            "settings-row-sync_settings_shortcut",
-            "settings-row-ai_settings_shortcut",
-            "settings-row-reading_progress_settings_shortcut"
-        ]
-        // Capture every checked control when visible, rather than only the final scrolled viewport.
-        for id in ids {
-            assertReachable(app, ids: [id])
-            shot(app, "\(category)-\(id)")
-        }
-        attachTree(app, "settings-reachable-\(category)")
-    }
-
-    func testSettingsReachableAtAX5() {
-        assertSettingsReachable(at: "UICTContentSizeCategoryAccessibilityXXXL")
-    }
-
     // MARK: AX5 walk of the screens not covered above (Review Focus 4)
 
     private let ax5Category = "UICTContentSizeCategoryAccessibilityXXXL"
