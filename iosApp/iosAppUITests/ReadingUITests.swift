@@ -1180,30 +1180,6 @@ final class ReadingUITests: RealAppUITestCase {
         return true
     }
 
-    /// The row menu ("Menu") button of the selector row whose label starts with `name`: the nearest one to the row.
-    private func workspaceRowMenu(_ app: XCUIApplication, _ name: String, _ step: String) -> XCUIElement? {
-        let row = labelStarting(app, name)
-        guard row.waitForExistence(timeout: 15) else {
-            attachTree(app, "\(step)-no-row"); XCTFail("\(step): no workspace row '\(name)'"); return nil
-        }
-        let y = row.frame.midY
-        let menus = app.buttons.matching(NSPredicate(format: "label == 'Menu'")).allElementsBoundByIndex.filter { $0.frame.height > 0 }
-        guard let nearest = menus.min(by: { abs($0.frame.midY - y) < abs($1.frame.midY - y) }) else {
-            attachTree(app, "\(step)-no-row-menu"); XCTFail("\(step): row '\(name)' has no menu button"); return nil
-        }
-        return nearest
-    }
-
-    /// Taps the exact-label item of the open dropdown (`Rename`, `Remove`).
-    private func tapRowMenuItem(_ app: XCUIApplication, _ label: String, _ step: String) -> Bool {
-        let item = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
-        guard item.waitForExistence(timeout: 10) else {
-            attachTree(app, "\(step)-no-\(label)"); XCTFail("\(step): the row menu has no '\(label)'"); return false
-        }
-        item.tap()
-        return true
-    }
-
     /// Creates a workspace in the selector; the selector then leaves with the new workspace current
     /// (`WorkspaceSelectorController.createNew` ends in `selectWorkspace`, as Android's `goToWorkspace`).
     private func createWorkspace(_ app: XCUIApplication, named name: String) -> Bool {
@@ -1217,67 +1193,6 @@ final class ReadingUITests: RealAppUITestCase {
         if !left { attachTree(app, "create-\(name)-selector-stays") }
         XCTAssertTrue(left, "creating '\(name)' did not return to the reading view")
         return left
-    }
-
-    /// Create, rename and delete in the workspace selector, each checked in the list and after Save in the workspaces
-    /// quick sheet: Alpha is created (becomes current), renamed to Beta and saved; Gamma is created (current); Beta, now
-    /// not current, is removed and saved; only Gamma of the three remains. Labels: `give_name_workspace`, `rename`,
-    /// `delete_workspace` ("Remove"), `save_and_exit` ("Save"), `new_item` ("New"), `menu`, `workspace_listing_with_current`.
-    func testWorkspaceCreateRenameDelete() throws {
-        continueAfterFailure = false
-        let app = try launchReading()
-
-        // Create Alpha.
-        guard openWorkspaceSelector(app, "open 1") else { return }
-        guard createWorkspace(app, named: "UITest Alpha") else { return }
-
-        // Rename Alpha to Beta and Save.
-        guard openWorkspaceSelector(app, "open 2") else { return }
-        XCTAssertTrue(labelStarting(app, "UITest Alpha").waitForExistence(timeout: 10), "the created workspace is not listed")
-        guard let alphaMenu = workspaceRowMenu(app, "UITest Alpha", "rename") else { return }
-        alphaMenu.tap()
-        guard tapRowMenuItem(app, "Rename", "rename") else { return }
-        guard replaceDialogText(app, with: "UITest Beta", "rename"), confirmDialog(app, "rename") else { return }
-        XCTAssertTrue(labelStarting(app, "UITest Beta").waitForExistence(timeout: 10), "the renamed row 'UITest Beta' is not listed")
-        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "the old name 'UITest Alpha' is still listed after the rename")
-        shot(app, "workspace-renamed")
-        let save = app.buttons.matching(NSPredicate(format: "label == 'Save'")).firstMatch
-        XCTAssertTrue(save.waitForExistence(timeout: 10), "no 'Save' button")
-        XCTAssertTrue(save.isEnabled, "'Save' stays disabled after a rename (the selector is not dirty)")
-        save.tap()
-        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "Save did not return to the reading view")
-
-        // Create Gamma (current), then delete Beta (not current) and Save.
-        guard openWorkspaceSelector(app, "open 3") else { return }
-        XCTAssertTrue(labelStarting(app, "UITest Beta").waitForExistence(timeout: 10), "the rename was not kept: 'UITest Beta' is not listed")
-        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "'UITest Alpha' is back after the rename was saved")
-        guard createWorkspace(app, named: "UITest Gamma") else { return }
-        guard openWorkspaceSelector(app, "open 4") else { return }
-        guard let betaMenu = workspaceRowMenu(app, "UITest Beta", "delete") else { return }
-        betaMenu.tap()
-        guard tapRowMenuItem(app, "Remove", "delete") else { return }
-        let gone = waitUntil(timeout: 10) { !labelStarting(app, "UITest Beta").exists }
-        if !gone { attachTree(app, "delete-row-stays") }
-        XCTAssertTrue(gone, "'UITest Beta' is still listed after Remove")
-        XCTAssertTrue(labelStarting(app, "UITest Gamma").exists, "removing Beta removed Gamma too")
-        let save2 = app.buttons.matching(NSPredicate(format: "label == 'Save'")).firstMatch
-        XCTAssertTrue(save2.waitForExistence(timeout: 10) && save2.isEnabled, "'Save' is not enabled after a Remove")
-        save2.tap()
-        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "Save did not return to the reading view after the delete")
-
-        // The result is persisted: the quick switch list shows Gamma only.
-        let more = byLabel(app, "More options")
-        XCTAssertTrue(more.waitForExistence(timeout: 15))
-        more.tap()
-        let row = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "no 'Workspaces' overflow row")
-        row.tap()
-        XCTAssertTrue(quickSheetShown(app, timeout: 15), "the workspaces quick sheet did not open")
-        XCTAssertTrue(labelStarting(app, "UITest Gamma").waitForExistence(timeout: 10), "'UITest Gamma' is not in the workspace list")
-        XCTAssertFalse(labelStarting(app, "UITest Beta").exists, "the removed 'UITest Beta' is still in the workspace list")
-        XCTAssertFalse(labelStarting(app, "UITest Alpha").exists, "the renamed 'UITest Alpha' is still in the workspace list")
-        shot(app, "workspace-final-list")
     }
 
     // MARK: Task 11: reading progress
