@@ -40,6 +40,13 @@ class FilePresentation<T>(
     UIAdaptivePresentationControllerDelegateProtocol, UIPopoverPresentationControllerDelegateProtocol {
     val isPending: Boolean get() = continuation != null
 
+    init {
+        continuation?.invokeOnCancellation {
+            // Cancellation may originate off-main. This independent dispatch must survive it.
+            CoroutineScope(Dispatchers.Main).launch { finish(cancelled) }
+        }
+    }
+
     fun present(from: UIViewController) {
         val sheet = controller ?: return
         (sheet as? UIDocumentPickerViewController)?.delegate = this
@@ -47,10 +54,6 @@ class FilePresentation<T>(
         if (sheet !is UIAlertController) {
             sheet.presentationController?.delegate = this
             sheet.popoverPresentationController?.delegate = this
-        }
-        continuation?.invokeOnCancellation {
-            // Cancellation may originate off-main. This independent dispatch must survive it.
-            CoroutineScope(Dispatchers.Main).launch { finish(cancelled) }
         }
         if (continuation?.isActive != true || from.isBeingDismissed() || from.isBeingPresented() ||
             from.transitionCoordinator != null || from.presentedViewController != null || from.view.window == null) {

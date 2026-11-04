@@ -7,31 +7,28 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.yield
 import platform.Foundation.NSURL
-import platform.UIKit.*
-import platform.UniformTypeIdentifiers.UTTypeData
+import platform.UIKit.UIViewController
 import kotlin.test.*
 
-/** Models UIKit's relationship and delayed completion; does not claim app-hosted presentation coverage. */
+/** Exercises real session/terminal ownership without a scene, key window or system document browser. */
 class IosDocumentPickerSessionTest {
     private class Host : UIViewController(null, null) {
         var attached: Sheet? = null
         val presentations = mutableListOf<Sheet>()
-        override fun presentedViewController(): UIViewController? = attached
-        override fun presentViewController(viewControllerToPresent: UIViewController, animated: Boolean, completion: (() -> Unit)?) {
+
+        fun present(sheet: Sheet, presentation: FilePresentation<List<NSURL>>) {
             check(attached == null)
-            val sheet = viewControllerToPresent as Sheet
             attached = sheet
             presentations.add(sheet)
             sheet.host = this
-            sheet.presentedDelegate = sheet.delegate
-            completion?.invoke()
+            sheet.presentation = presentation
         }
     }
 
-    private class Sheet : UIDocumentPickerViewController(forOpeningContentTypes = listOf(UTTypeData), asCopy = true) {
+    private class Sheet : UIViewController(null, null) {
         var host: Host? = null
         var completion: (() -> Unit)? = null
-        var presentedDelegate: UIDocumentPickerDelegateProtocol? = null
+        lateinit var presentation: FilePresentation<List<NSURL>>
         override fun presentingViewController(): UIViewController? = host
         override fun dismissViewControllerAnimated(flag: Boolean, completion: (() -> Unit)?) {
             check(this.completion == null)
@@ -46,23 +43,67 @@ class IosDocumentPickerSessionTest {
         }
     }
 
-    @Test fun staleReplacementCannotAcquireOrCancelTheLatestSheetAfterDismissal() = runOnMainRunLoop {
-        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+    @Test fun presentationFailureReleasesTheSlotForTheNextRequest() = runOnMainRunLoop {
         val host = Host()
-        window.rootViewController = host
-        window.makeKeyAndVisible()
+        val session = IosDocumentPickerSession()
+        val failure = IllegalStateException("Presentation failed")
+        val thrown = assertFailsWith<IllegalStateException> {
+            session.pick(Sheet(), present = { throw failure })
+        }
+        assertSame(failure, thrown)
+        val next = Sheet()
+        val result = session.pick(next, present = {
+            host.present(next, it)
+            it.finish(listOf(NSURL.fileURLWithPath("/tmp/next")))
+            next.completeDismissal()
+        })
+        assertEquals(listOf(NSURL.fileURLWithPath("/tmp/next")), result)
+        assertNull(host.attached)
+    }
+
+    @Test fun cancellationWaitsForItsOwnDismissalBeforeReleasingTheSession() = runOnMainRunLoop {
+        val host = Host()
+        val session = IosDocumentPickerSession()
+        val sheet = Sheet()
+        val request = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(sheet, present = { host.present(sheet, it) })
+        }
+        try {
+            request.cancel()
+            repeat(4) { yield() }
+            assertNotNull(sheet.completion)
+            assertFalse(request.isCompleted, "Cancellation must retain the sheet until dismissal")
+            sheet.completeDismissal()
+            request.join()
+            assertTrue(request.isCancelled)
+            assertNull(host.attached)
+            assertTrue(session.cancelPrevious())
+        } finally {
+            request.cancel()
+            repeat(8) {
+                yield()
+                host.attached?.takeIf { it.completion != null }?.completeDismissal()
+            }
+            request.cancelAndJoin()
+        }
+    }
+
+    @Test fun staleReplacementCannotAcquireOrCancelTheLatestSheetAfterDismissal() = runOnMainRunLoop {
+        val host = Host()
         val session = IosDocumentPickerSession()
         val a = Sheet()
         val b = Sheet()
         val c = Sheet()
         var latest = 1
-        val first = async(start = CoroutineStart.UNDISPATCHED) { session.pick(a) { host } }
+        val first = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(a, present = { host.present(a, it) })
+        }
         val second = async(start = CoroutineStart.UNDISPATCHED) {
-            session.pick(b, isCurrent = { latest == 1 }) { host }
+            session.pick(b, isCurrent = { latest == 1 }, present = { host.present(b, it) })
         }
         latest = 2
         val third = async(start = CoroutineStart.UNDISPATCHED) {
-            session.pick(c, isCurrent = { latest == 2 }) { host }
+            session.pick(c, isCurrent = { latest == 2 }, present = { host.present(c, it) })
         }
         try {
             assertEquals(listOf(a), host.presentations)
@@ -74,7 +115,7 @@ class IosDocumentPickerSessionTest {
             assertSame(c, host.attached)
             assertNull(c.completion, "Stale dismissal waiter must not cancel the latest sheet")
             assertFalse(third.isCompleted)
-            c.delegate!!.documentPickerWasCancelled(c)
+            c.presentation.finish(emptyList())
             c.completeDismissal()
             assertEquals(emptyList(), third.await())
         } finally {
@@ -84,24 +125,25 @@ class IosDocumentPickerSessionTest {
                 host.attached?.takeIf { it.completion != null }?.completeDismissal()
             }
             first.cancelAndJoin(); second.cancelAndJoin(); third.cancelAndJoin()
-            window.hidden = true
-            window.rootViewController = null
         }
     }
 
     @Test fun competingReplacementsRecheckTheActiveSheetAfterDelayedDismissal() = runOnMainRunLoop {
-        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         val host = Host()
-        window.rootViewController = host
-        window.makeKeyAndVisible()
         val session = IosDocumentPickerSession()
         val a = Sheet()
         val b = Sheet()
         val c = Sheet()
-        val first = async(start = CoroutineStart.UNDISPATCHED) { session.pick(a) { host } }
-        val lateA = assertNotNull(a.delegate)
-        val second = async(start = CoroutineStart.UNDISPATCHED) { session.pick(b) { host } }
-        val third = async(start = CoroutineStart.UNDISPATCHED) { session.pick(c) { host } }
+        val first = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(a, present = { host.present(a, it) })
+        }
+        val lateA = a.presentation
+        val second = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(b, present = { host.present(b, it) })
+        }
+        val third = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(c, present = { host.present(c, it) })
+        }
         try {
             assertEquals(listOf(a), host.presentations)
             assertNotNull(a.completion)
@@ -113,7 +155,7 @@ class IosDocumentPickerSessionTest {
             assertEquals(emptyList(), first.await())
             assertEquals(listOf(a, b), host.presentations)
             assertNotNull(b.completion, "The intermediate sheet must be cancelled after A's dismissal")
-            val lateB = assertNotNull(b.presentedDelegate)
+            val lateB = b.presentation
             assertFalse(second.isCompleted)
             assertFalse(third.isCompleted)
             b.completeDismissal()
@@ -121,10 +163,10 @@ class IosDocumentPickerSessionTest {
             assertEquals(emptyList(), second.await())
             assertEquals(listOf(a, b, c), host.presentations)
             assertSame(c, host.attached)
-            lateA.documentPicker(a, didPickDocumentsAtURLs = listOf(NSURL.fileURLWithPath("/tmp/late-a")))
-            lateB?.documentPicker(b, didPickDocumentsAtURLs = listOf(NSURL.fileURLWithPath("/tmp/late-b")))
+            lateA.finish(listOf(NSURL.fileURLWithPath("/tmp/late-a")))
+            lateB.finish(listOf(NSURL.fileURLWithPath("/tmp/late-b")))
             assertFalse(third.isCompleted)
-            c.delegate!!.documentPickerWasCancelled(c)
+            c.presentation.finish(emptyList())
             assertFalse(third.isCompleted)
             c.completeDismissal()
             assertEquals(emptyList(), third.await())
@@ -137,8 +179,6 @@ class IosDocumentPickerSessionTest {
                 host.attached?.takeIf { it.completion != null }?.completeDismissal()
             }
             first.cancelAndJoin(); second.cancelAndJoin(); third.cancelAndJoin()
-            window.hidden = true
-            window.rootViewController = null
         }
     }
 }
