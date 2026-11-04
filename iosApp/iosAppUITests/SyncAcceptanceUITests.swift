@@ -9,6 +9,7 @@ final class SyncAcceptanceUITests: XCTestCase {
         // Reuses controller-provisioned credentials; this mode does not test password replacement.
         let reuseExistingPassword: Bool?
         let trustedCertificateSha256: String?
+        let changedCertificateSha256: String?
         let folderPath: String
         let marker: String
         let reference: String
@@ -233,6 +234,36 @@ final class SyncAcceptanceUITests: XCTestCase {
         let dismissed = NSPredicate { _, _ in !start.exists && documents.exists && !documents.isSelected }
         syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: app)], timeout: 15) == .completed,
                        app, "Document sync decision did not close with Documents disabled")
+        guard let changedHash = fixture.changedCertificateSha256,
+              let normalizedChanged = syncUI.normalizedSha256(changedHash),
+              let swapDirectory = ProcessInfo.processInfo.environment["TASK7_CERTIFICATE_SWAP_DIRECTORY"] else {
+            XCTFail("Changed-certificate rejection requires controller swap fixture")
+            return
+        }
+        try Data("swap".utf8).write(to: URL(fileURLWithPath: swapDirectory + "/request"), options: .atomic)
+        let ready = NSPredicate { _, _ in FileManager.default.fileExists(atPath: swapDirectory + "/ready") }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: app)], timeout: 20) == .completed,
+                       app, "Controller did not replace localhost certificate")
+        // Fresh process closes the old NSURLSession, retaining the accepted pin but no trust/session cache.
+        XCUIDevice.shared.press(.home)
+        app.terminate()
+        app.launch()
+        guard syncUI.openDeviceSynchronization(app, "Changed-certificate settings missing") else { return }
+        let changedDocuments = syncUI.reveal(app, "Documents", toggle: true)
+        changedDocuments.tap()
+        syncUI.require(certificate.waitForExistence(timeout: 90), app, "Changed certificate was not rejected for a new decision")
+        let changedBody = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@",
+            "The certificate of localhost is not trusted by this device.")).firstMatch
+        let lines = changedBody.label.components(separatedBy: .newlines)
+        let hashes = lines.filter { $0.hasPrefix("SHA-256: ") }
+        XCTAssertEqual(hashes.count, 1)
+        if let hash = hashes.first {
+            XCTAssertEqual(syncUI.normalizedSha256(String(hash.dropFirst("SHA-256: ".count))), normalizedChanged)
+        }
+        XCTAssertFalse(start.exists, "Changed certificate must not reach document synchronization before approval")
+        syncUI.shot(app, "3959-changed-certificate-rejected")
+        app.buttons["Cancel"].firstMatch.tap()
+        app.terminate()
     }
 
     func testConfigureAndObserveFetchChoice() throws {

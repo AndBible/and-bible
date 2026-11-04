@@ -19,8 +19,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    cert, key, port_file = sys.argv[1:]
-    server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    cert, key, port_file = sys.argv[1:4]
+    port = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+    server = http.server.HTTPServer(("127.0.0.1", port), Handler)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(cert, key)
     server.socket = context.wrap_socket(server.socket, server_side=True)
