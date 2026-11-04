@@ -1,0 +1,144 @@
+name: Shared JVM tests
+
+on:
+  push:
+    paths:
+      - 'jsword'
+      - 'jsword/**'
+      - 'kdom'
+      - 'kdom/**'
+      - 'sharedCore/**'
+      - 'sharedData/**'
+      - 'sharedLogic/**'
+      - 'sharedUi/**'
+      - 'strings-gen/**'
+      - 'app/src/main/res/**'
+      - 'app/src/main/assets/**'
+      - 'app/src/test/resources/l1b-g2/**'
+      - 'app/src/main/java/net/bible/service/common/CommonUtils.kt'
+      - 'app/src/main/java/net/bible/sharedui/strings/AndroidStrings.kt'
+      - 'app/src/main/java/net/bible/android/view/activity/page/DrawerMenuStateBuilder.kt'
+      - 'app/src/main/java/net/bible/android/view/activity/bookmark/LabelIconMap.kt'
+      - 'app/bibleview-js/index.html'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'version.properties'
+      - 'iosApp/iosApp/iOSApp.swift'
+      - 'scripts/host-rename-map.tsv'
+      - 'scripts/shared-test-summary.py'
+      - 'scripts/tests/test_shared_test_summary.py'
+      - '.github/workflows/shared-jvm-tests.yml'
+  pull_request:
+    paths:
+      - 'jsword'
+      - 'jsword/**'
+      - 'kdom'
+      - 'kdom/**'
+      - 'sharedCore/**'
+      - 'sharedData/**'
+      - 'sharedLogic/**'
+      - 'sharedUi/**'
+      - 'strings-gen/**'
+      - 'app/src/main/res/**'
+      - 'app/src/main/assets/**'
+      - 'app/src/test/resources/l1b-g2/**'
+      - 'app/src/main/java/net/bible/service/common/CommonUtils.kt'
+      - 'app/src/main/java/net/bible/sharedui/strings/AndroidStrings.kt'
+      - 'app/src/main/java/net/bible/android/view/activity/page/DrawerMenuStateBuilder.kt'
+      - 'app/src/main/java/net/bible/android/view/activity/bookmark/LabelIconMap.kt'
+      - 'app/bibleview-js/index.html'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'version.properties'
+      - 'iosApp/iosApp/iOSApp.swift'
+      - 'scripts/host-rename-map.tsv'
+      - 'scripts/shared-test-summary.py'
+      - 'scripts/tests/test_shared_test_summary.py'
+      - '.github/workflows/shared-jvm-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fork-notice:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Explain unavailable fixtures
+        run: |
+          echo 'WARNING: No shared JVM tests ran. Encrypted Sword fixtures are unavailable to fork PRs; this notice is not a test success. A maintainer must arrange verification on a trusted branch without exposing secrets to untrusted code.' >> "$GITHUB_STEP_SUMMARY"
+  shared-jvm-tests:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize public submodules
+        run: git submodule update --init jsword kdom
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Download encrypted Sword test fixtures
+        env:
+          MODULES_URL: ${{ secrets.DOWNLOAD_TEST_MODULES_URL }}
+          MODULES_KEY: ${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}
+        run: |
+          test -n "$MODULES_URL" && test -n "$MODULES_KEY" || { echo 'Sword fixture secrets are missing' >&2; exit 1; }
+          curl --fail --location --silent --show-error "$MODULES_URL" -o "$RUNNER_TEMP/testmods.zip.enc"
+          openssl aes-256-cbc -d -a -pbkdf2 -in "$RUNNER_TEMP/testmods.zip.enc" -out "$RUNNER_TEMP/testmods.zip" -pass env:MODULES_KEY
+          mkdir -p "$HOME/.sword"
+          unzip -q -o "$RUNNER_TEMP/testmods.zip" -d "$HOME/.sword"
+          scripts/check-test-sword-modules.sh --zip "$RUNNER_TEMP/testmods.zip"
+      - name: Test summary helper
+        run: python3 -m unittest discover -s scripts/tests -p test_shared_test_summary.py
+      - name: Run shared JVM tests
+        id: tests
+        run: >-
+          ./gradlew --console plain --continue -Pcoverage
+          :jsword:jvmTest :jsword:parityTest :kdom:jvmTest
+          :sharedCore:jvmTest :sharedData:jvmTest :sharedLogic:jvmTest :sharedUi:jvmTest
+      - name: Generate JVM coverage reports
+        if: always() && (steps.tests.outcome == 'success' || steps.tests.outcome == 'failure')
+        run: >-
+          ./gradlew --console plain -Pcoverage
+          :koverHtmlReportShared :koverXmlReportShared
+          :sharedCore:koverXmlReportJvm :sharedData:koverXmlReportJvm :sharedLogic:koverXmlReportJvm
+          -x :sharedCore:jvmTest -x :sharedData:jvmTest -x :sharedLogic:jvmTest
+      - name: Summarize test results
+        if: always()
+        run: python3 scripts/shared-test-summary.py
+      - name: Upload JUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-jvm-test-results
+          path: |
+            jsword/build/test-results/*/TEST-*.xml
+            kdom/build/test-results/*/TEST-*.xml
+            sharedCore/build/test-results/*/TEST-*.xml
+            sharedData/build/test-results/*/TEST-*.xml
+            sharedLogic/build/test-results/*/TEST-*.xml
+            sharedUi/build/test-results/*/TEST-*.xml
+          if-no-files-found: warn
+          retention-days: 5
+      - name: Upload JVM coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-jvm-coverage
+          path: |
+            build/reports/kover/
+            sharedCore/build/reports/kover/
+            sharedData/build/reports/kover/
+            sharedLogic/build/reports/kover/
+          if-no-files-found: warn
+          retention-days: 5

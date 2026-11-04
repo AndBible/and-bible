@@ -3,6 +3,7 @@
 agp = "9.2.1"
 kotlin = "2.4.21"
 ksp = "2.3.12"
+kover = "0.9.11"
 gradle = "9.5.1"                 # informational; the wrapper is the source of truth
 # AndBible libraries — current values, moved verbatim into the catalog
 room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3) with the bundled SQLite driver
@@ -102,6 +103,7 @@ jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycl
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 
 [plugins]
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

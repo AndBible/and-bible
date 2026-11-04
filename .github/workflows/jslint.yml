@@ -10,6 +10,9 @@ on:
       - '**/*.vue'
       - '**/*.js'
       - '**/*.ts'
+      - '.github/workflows/jslint.yml'
+      - 'app/bibleview-js/**/*.mts'
+      - 'app/bibleview-js/src/lang/default.yaml'
       - 'app/bibleview-js/package.json'
       - 'app/bibleview-js/package-lock.json'
   pull_request:
@@ -17,6 +20,9 @@ on:
     - '**/*.vue'
     - '**/*.js'
     - '**/*.ts'
+    - '.github/workflows/jslint.yml'
+    - 'app/bibleview-js/**/*.mts'
+    - 'app/bibleview-js/src/lang/default.yaml'
     - 'app/bibleview-js/package.json'
     - 'app/bibleview-js/package-lock.json'
   workflow_dispatch:
@@ -28,7 +34,7 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 10 # so that recent tags can be found
           submodules: recursive
@@ -38,7 +44,7 @@ jobs:
           git submodule update --init --depth=1
 
       - name: Set up Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
@@ -57,7 +63,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 10 # so that recent tags can be found
           submodules: recursive
@@ -67,7 +73,7 @@ jobs:
           git submodule update --init --depth=1
 
       - name: Set up Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
@@ -79,22 +85,41 @@ jobs:
         working-directory: app/bibleview-js
         run: npm ci
 
-      - name: Run js unit tests
+      - name: Run js unit tests with coverage
         working-directory: app/bibleview-js
-        run: npm run test:ci
-        if: ${{ always() }}
+        run: npm run test:coverage
 
-      - name: Upload jest results
+      - name: Summarize coverage
+        if: ${{ always() }}
+        working-directory: app/bibleview-js
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          let summary = "### BibleView JS tests and coverage\n";
+          if (fs.existsSync("coverage/junit.xml")) {
+            const xml = fs.readFileSync("coverage/junit.xml", "utf8");
+            const suites = [...xml.matchAll(/<testsuite\s[^>]*>/g)].map(m => m[0]);
+            const count = name => suites.reduce((sum, suite) => sum + Number(suite.match(new RegExp(`\\b${name}="(\\d+)"`))?.[1] ?? 0), 0);
+            summary += `Tests: ${count("tests")}, failures: ${count("failures")}, errors: ${count("errors")}, skipped: ${count("skipped")}\n`;
+          }
+          if (fs.existsSync("coverage/coverage-summary.json")) {
+            const lines = JSON.parse(fs.readFileSync("coverage/coverage-summary.json")).total.lines;
+            summary += `Lines: ${lines.covered}/${lines.total} (${lines.pct}%)\n`;
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          NODE
+
+      - name: Upload coverage and test results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: js-results
-          path: app/bibleview-js/test-report.html
+          name: js-coverage
+          path: app/bibleview-js/coverage/
           retention-days: 5
   type-check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 10 # so that recent tags can be found
           submodules: recursive
@@ -104,7 +129,7 @@ jobs:
           git submodule update --init --depth=1
 
       - name: Set up Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 

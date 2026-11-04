@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    alias(libs.plugins.kover)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlinMultiplatformLibrary)
     alias(libs.plugins.kotlin.serialization)
@@ -93,4 +94,15 @@ dependencies {
     add("kspJvm", libs.androidx.room3.compiler)
     add("kspIosArm64", libs.androidx.room3.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
+}
+
+// Keep ordinary test runs uninstrumented.
+if (providers.gradleProperty("coverage").isPresent) {
+    kover {
+        currentProject {
+            createVariant("shared") { add("jvm") }
+        }
+    }
+} else {
+    kover { disable() }
 }

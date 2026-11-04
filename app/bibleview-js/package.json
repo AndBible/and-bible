@@ -17,6 +17,7 @@
     "build-development": "cross-env NODE_ENV=development vite build --mode development",
     "lint:ci": "eslint . --no-color",
     "lint:silent": "eslint . --no-color",
+    "test:coverage": "vitest --config ../vitest.config.mts --root src/ --run --coverage --reporter=default --reporter=junit --outputFile.junit=../coverage/junit.xml",
     "test:ci": "vitest --config ../vitest.config.mts --root src/ --run",
     "test:ios-webkit": "node ios/webkit/run-webkit-test.mjs"
   },
@@ -44,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "~8.72.1",
     "@typescript-eslint/parser": "~8.72.1",
     "@vitejs/plugin-vue": "~6.0.10",
+    "@vitest/coverage-v8": "~5.0.5",
     "@vue/compiler-sfc": "~3.5.44",
     "@vue/eslint-config-typescript": "~14.9.0",
     "@vue/reactivity": "~3.5.44",

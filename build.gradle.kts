@@ -17,6 +17,7 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
+    alias(libs.plugins.kover)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
@@ -31,4 +32,20 @@ plugins {
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory.get().asFile)
+}
+
+// Only the JVM report variant is used; the total variant would include Android.
+if (providers.gradleProperty("coverage").isPresent) {
+    dependencies {
+        kover(project(":sharedCore"))
+        kover(project(":sharedData"))
+        kover(project(":sharedLogic"))
+    }
+    kover {
+        currentProject {
+            createVariant("shared") {}
+        }
+    }
+} else {
+    kover { disable() }
 }

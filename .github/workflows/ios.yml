@@ -19,6 +19,21 @@ on:
       - "kdom"
       - "app/src/main/res/values/strings.xml"
       - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "sharedUi/**"
+      - "sharedCore/**"
+      - "sharedData/**"
+      - "sharedLogic/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "gradle.properties"
+      - "strings-gen/**"
+      - "jsword"
+      - "kdom"
+      - "app/src/main/res/values/strings.xml"
+      - ".github/workflows/ios.yml"
 concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
 jobs:
   jsword-ios-tests:
@@ -59,6 +74,7 @@ jobs:
             sharedData/build/reports/tests/iosSimulatorArm64Test
             sharedLogic/build/reports/tests/iosSimulatorArm64Test
   ios:
+    if: github.event_name != 'pull_request'
     runs-on: macos-15
     timeout-minutes: 90
     steps:
@@ -162,6 +178,7 @@ jobs:
             build/xcodebuild-*.log
             build/app-*.log
   webkit-shim:
+    if: github.event_name != 'pull_request'
     runs-on: macos-15
     timeout-minutes: 20
     defaults:
