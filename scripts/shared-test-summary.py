@@ -24,6 +24,22 @@ def render(root: Path) -> str:
             for i, key in enumerate(("tests", "failures", "errors", "skipped")):
                 counts[i] += int(suite.get(key, "0"))
         lines.append(f"| {module} | {task} | {' | '.join(map(str, counts))} |")
+    lines += ["", "## JVM line coverage", "", "| Module | Covered | Missed | Coverage |",
+              "| --- | ---: | ---: | ---: |"]
+    for module in ("merged", "sharedCore", "sharedData", "sharedLogic"):
+        report = (root / "build/reports/kover/reportShared.xml" if module == "merged" else
+                  root / module / "build/reports/kover/reportJvm.xml")
+        if not report.is_file():
+            lines.append(f"| {module} | unavailable | - | - |")
+            continue
+        counter = ET.parse(report).getroot().find("counter[@type='LINE']")
+        if counter is None:
+            lines.append(f"| {module} | unavailable | - | - |")
+            continue
+        covered, missed = int(counter.attrib["covered"]), int(counter.attrib["missed"])
+        total = covered + missed
+        percentage = f"{covered / total:.1%}" if total else "n/a"
+        lines.append(f"| {module} | {covered} | {missed} | {percentage} |")
     return "\n".join(lines) + "\n"
 
 

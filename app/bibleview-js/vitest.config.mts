@@ -40,6 +40,14 @@ const testConfig: any = {
   // @ts-ignore
   test: {
     environment: "jsdom",
+    coverage: {
+      provider: "v8",
+      reportOnFailure: true,
+      reportsDirectory: "../coverage",
+      reporter: ["html", "cobertura", "json-summary"],
+      include: ["**/*.{ts,js,vue}"],
+      exclude: ["**/__tests__/**", "**/*.spec.*", "**/*.test.*", "**/*.d.ts", "**/testdata.*", "**/testdata/**", "**/fixtures/**", "**/node_modules/**", "**/dist/**"],
+    },
     css: {
       modules: {
         classNameStrategy: "non-scoped",
