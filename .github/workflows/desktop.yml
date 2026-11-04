@@ -5,6 +5,7 @@ on:
     tags: ["test-*", "production-*"]
     paths:
       - "desktopApp/**"
+      - "desktopWebView2/**"
       - "desktopWebkitGtk/**"
       - "sharedUi/**"
       - "sharedLogic/**"
@@ -20,6 +21,7 @@ on:
   pull_request:
     paths:
       - "desktopApp/**"
+      - "desktopWebView2/**"
       - "desktopWebkitGtk/**"
       - "sharedUi/**"
       - "sharedLogic/**"
@@ -76,7 +78,7 @@ jobs:
           kind=dev
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == test-* ]]; then kind=test; fi
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
-          ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
+          ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopWebView2:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
       - name: WebKitGTK desktop tests and package
         if: env.WEBKITGTK_ENABLED == 'true'
         env:
