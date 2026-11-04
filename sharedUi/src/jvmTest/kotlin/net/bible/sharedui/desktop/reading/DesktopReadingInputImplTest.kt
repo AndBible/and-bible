@@ -60,7 +60,7 @@ class DesktopReadingInputImplTest {
 
     private fun msg(body: String) = "{\"desktopInput\":$body}"
 
-    @Test fun panePressActivatesBeforePageAction() {
+    @Test fun pressActivatesPaneBeforeReleaseAndPageAction() {
         val activated = mutableListOf<String>()
         val settings = java.lang.reflect.Proxy.newProxyInstance(
             AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java),
@@ -71,7 +71,13 @@ class DesktopReadingInputImplTest {
         val paneInput = DesktopReadingInputImpl(
             DesktopShortcuts(rec) { false }, DesktopReadingGestures({ gestures }), {}, x11Toolkit = false,
         )
-        // Execute the actual installed script with a minimal DOM and deliver its native messages in order.
+        val webEngine = net.bible.sharedui.desktop.webengine.FakeWebEngine()
+        val readingEngine = net.bible.sharedui.desktop.webview.DesktopReadingPaneEngine(webEngine, {})
+        readingEngine.attach(
+            "w2", false, object : net.bible.sharedcore.bibleview.UnimplementedBibleBridge({}, {}) {}, {}, {}, paneInput,
+        )
+        val pane = webEngine.pane("w2")
+        // Execute the scripts installed on the real pane assembly and deliver the engine's messages in order.
         val harness = """
             const listeners = {};
             global.window = {
@@ -79,20 +85,24 @@ class DesktopReadingInputImplTest {
               androidBridge: { postMessage: text => console.log(text) }
             };
             global.document = { addEventListener: () => {} };
-            ${DesktopInputScript.compose()}
+            ${pane.scripts.joinToString("\n")}
             for (const fn of listeners.mousedown || []) fn({button: 0});
+            // Observe the held press before mouseup/click and any subsequent page action.
             console.log('PAGE_ACTION');
-            for (const fn of listeners.click || []) fn({button: 0});
         """.trimIndent()
         val process = ProcessBuilder("node", "-e", harness).redirectErrorStream(true).start()
         val lines = process.inputStream.bufferedReader().readLines()
         assertEquals(0, process.waitFor(), lines.joinToString("\n"))
-        for (line in lines) {
-            if (line == "PAGE_ACTION") {
-                assertEquals(listOf("w2"), activated, "the clicked pane must be active before its page action")
-            } else {
-                paneInput.handleMessage("w2", line)
+        try {
+            for (line in lines) {
+                if (line == "PAGE_ACTION") {
+                    assertEquals(listOf("w2"), activated, "the pressed pane must be active before its page action")
+                } else {
+                    pane.onMessage(line)
+                }
             }
+        } finally {
+            readingEngine.release("w2")
         }
     }
 
