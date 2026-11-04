@@ -19,6 +19,7 @@ import XCTest
 /// product RED): the bookmark top-bar overflow button label, the Files save picker confirm label, the text display
 /// rows and font-size slider, the search results cards and the Create-index button.
 final class FeatureFlowsUITests: RealAppUITestCase {
+    override var usesReadingDomProbe: Bool { name.contains("testTextDisplayEditAppliesToReading") }
     private static var kjvEnsured = false
     override func setUp() {
         super.setUp()
@@ -411,6 +412,9 @@ final class FeatureFlowsUITests: RealAppUITestCase {
             let title = readingTitlePosition(app).map { "John \($0.chapter):\($0.verse)" } ?? "unreadable"
             attach("verse16-missing", "toolbar title after \(step): \(title)")
         }
+        let prior = continueAfterFailure
+        continueAfterFailure = true
+        defer { continueAfterFailure = prior }
         harnessRequire(result != nil, app, "John 3:16 not in view after \(step)")
         return result ?? PhraseMetrics(widths: [], heights: [], top: 0)
     }
@@ -491,6 +495,7 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         var app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"])
         defer { app.terminate() }
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 90), app, "Reading host")
+        let baselineDom = settledDomVerse16(app, "baseline")
         let baseline = settledVerse16(app, "baseline")
         attach("baseline", "\(baseline)")
         shot(app, "text-display-baseline")
@@ -505,37 +510,86 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         let redPixels = { red.screenshot().pngRepresentation }
         let redBefore = redPixels()
         attach("red-before", "label=\(red.label) value=\(red.value as? String ?? "nil") selected=\(red.isSelected) bytes=\(redBefore.count)")
+        let redAction = Date().timeIntervalSince1970
         red.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.5)).tap()
         harnessRequire(waitUntil(timeout: 10) { redPixels() != redBefore }, app, "Red letter switch toggled (element pixels unchanged after the tap)")
         sleep(1)
         shot(app, "text-display-red-letters-toggled")
         closeTextOptions(app)
+        let afterRedDom = settledDomVerse16(app, "after red letters", after: redAction) {
+            baselineDom.count == 4 && $0.map(\.color) != baselineDom.map(\.color)
+        }
+        withDomEvidence {
+            XCTAssertEqual(baselineDom.count, 4)
+            XCTAssertEqual(afterRedDom.count, 4)
+            if baselineDom.count == 4 && afterRedDom.count == 4 {
+                for (before, after) in zip(baselineDom, afterRedDom) {
+                    XCTAssertEqual(before.width, after.width, accuracy: 1.5, "DOM: recoloring must not resize words")
+                    XCTAssertEqual(before.height, after.height, accuracy: 1.5)
+                }
+                XCTAssertNotEqual(baselineDom.map(\.color), afterRedDom.map(\.color), "DOM: red letters changed color")
+            }
+        }
         let afterRed = settledVerse16(app, "after red letters")
-        XCTAssertEqual(afterRed.widths.count, baseline.widths.count)
-        for (before, after) in zip(baseline.widths + baseline.heights, afterRed.widths + afterRed.heights) {
-            XCTAssertEqual(before, after, accuracy: 1.5, "Red-letter toggle alone must not resize the tracked phrases")
+        withDomEvidence {
+            XCTAssertEqual(baseline.widths.count, 4, "AX baseline must contain all tracked words")
+            XCTAssertEqual(afterRed.widths.count, 4, "AX after red letters must contain all tracked words")
+            XCTAssertEqual(afterRed.widths.count, baseline.widths.count)
+            for (before, after) in zip(baseline.widths + baseline.heights, afterRed.widths + afterRed.heights) {
+                XCTAssertEqual(before, after, accuracy: 1.5, "Red-letter toggle alone must not resize the tracked phrases")
+            }
         }
 
         // Font size +2.
         openTextOptions(app)
+        let fontAction = Date().timeIntervalSince1970
         let (old, new) = raiseFontSize(app, by: 2)
         XCTAssertEqual(new, old + 2, "Font size editor moved by +2")
         closeTextOptions(app)
+        let afterFontDom = settledDomVerse16(app, "after font size", after: fontAction) { words in
+            afterRedDom.count == 4 && words.count == 4 &&
+                zip(afterRedDom, words).allSatisfy { $1.width > $0.width * 1.03 }
+        }
+        withDomEvidence {
+            XCTAssertEqual(afterRedDom.count, 4)
+            XCTAssertEqual(afterFontDom.count, 4)
+            XCTAssertTrue(afterRedDom.count == 4 && afterFontDom.count == 4 &&
+                          zip(afterRedDom, afterFontDom).allSatisfy { $1.width > $0.width * 1.03 },
+                          "DOM: every tracked word grew with font size +2")
+        }
         let afterFont = settledVerse16(app, "after font size")
         let grown = zip(afterRed.widths, afterFont.widths).map { $1 / $0 }
         attach("growth", "font \(old) -> \(new); width ratios \(grown); heights \(afterRed.heights) -> \(afterFont.heights)")
         shot(app, "text-display-font-increased")
-        XCTAssertTrue(grown.allSatisfy { $0 > 1.03 }, "Every tracked phrase widened with font size +2 (ratios \(grown))")
-        XCTAssertGreaterThan(afterFont.heights.reduce(0, +), afterRed.heights.reduce(0, +), "Phrase heights grew")
+        withDomEvidence {
+            XCTAssertEqual(afterRed.widths.count, 4, "AX before font change must contain all tracked words")
+            XCTAssertEqual(afterFont.widths.count, 4, "AX after font change must contain all tracked words")
+            XCTAssertTrue(grown.allSatisfy { $0 > 1.03 }, "Every tracked phrase widened with font size +2 (ratios \(grown))")
+            XCTAssertGreaterThan(afterFont.heights.reduce(0, +), afterRed.heights.reduce(0, +), "Phrase heights grew")
+        }
 
         // The setting persisted to the reading page across a relaunch (no -resetDatabases): same grown metrics.
         sendToBackground(app)
         app.terminate()
         app = launch(["-openDocument", "KJV", "-openRef", "John.3.16"])
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 90), app, "Reading host after relaunch")
+        let relaunchedDom = settledDomVerse16(app, "after relaunch")
+        withDomEvidence {
+            XCTAssertEqual(afterFontDom.count, 4)
+            XCTAssertEqual(relaunchedDom.count, 4)
+            if afterFontDom.count == 4 && relaunchedDom.count == 4 {
+                for (before, after) in zip(afterFontDom, relaunchedDom) {
+                    XCTAssertEqual(before.width, after.width, accuracy: 1.5, "DOM: font size persisted")
+                }
+            }
+        }
         let relaunched = settledVerse16(app, "after relaunch")
-        for (a, b) in zip(afterFont.widths, relaunched.widths) {
-            XCTAssertEqual(a, b, accuracy: 1.5, "Font size persisted across a relaunch")
+        withDomEvidence {
+            XCTAssertEqual(afterFont.widths.count, 4, "AX before relaunch must contain all tracked words")
+            XCTAssertEqual(relaunched.widths.count, 4, "AX after relaunch must contain all tracked words")
+            for (a, b) in zip(afterFont.widths, relaunched.widths) {
+                XCTAssertEqual(a, b, accuracy: 1.5, "Font size persisted across a relaunch")
+            }
         }
     }
 }

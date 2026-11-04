@@ -15,6 +15,7 @@ import XCTest
 /// The AX labels of the unlock dialog, the backup selection dialog, Grid cells and the general book/map key lists
 /// were NOT measured when this was drafted: a missing selector is HARNESS discovery (tree attached), not a product RED.
 final class FeaturePathsUITests: RealAppUITestCase {
+    override var usesReadingDomProbe: Bool { name.contains("testGeneralBookAndMapsOpenFromReading") }
     /// A fresh install has only the NASB fallback; establish KJV once per class (idempotent, see KjvProvisioning.swift).
     private static var kjvEnsured = false
     override func setUp() {
@@ -238,6 +239,7 @@ final class FeaturePathsUITests: RealAppUITestCase {
         for initials in ["K4GenBook", "H2Maps"] {
             let row = openChooserRow(app, initials: initials)
             require(row.exists, app, "HARNESS: \(initials) row in the document chooser")
+            let selectionStarted = Date().timeIntervalSince1970
             row.tap()
             // Run 3: choosing H2Maps showed neither a key list nor reading and logged no 'Set current doc'. Record what
             // follows the tap and retry it once, so a lost tap (HARNESS) is told from an inert maps row (PRODUCT?).
@@ -254,6 +256,16 @@ final class FeaturePathsUITests: RealAppUITestCase {
             let chapter = app.buttons.matching(NSPredicate(format: "label == 'Chapter 1'")).firstMatch
             if chapter.waitForExistence(timeout: 20) { tap(app, chapter, "\(initials)-key-Chapter 1") }
             require(element(app, "reading-host").waitForExistence(timeout: 60), app, "\(initials) reading host")
+            let chapterSelected = Date().timeIntervalSince1970
+            var lastSample: Int?
+            var lastMount: String?
+            let domReady = waitUntil(timeout: 30) {
+                guard let report = self.readingDomReport(app), report.started > max(selectionStarted, chapterSelected),
+                      report.genesisFixture == initials else { lastSample = nil; lastMount = nil; return false }
+                defer { lastSample = report.sample; lastMount = report.mount }
+                return lastMount == report.mount && lastSample != nil && lastSample != report.sample
+            }
+            withDomEvidence { XCTAssertTrue(domReady, "\(initials) DOM contains the selected chapter independently of AX") }
             let text = app.webViews.staticTexts.matching(NSPredicate(
                 format: "label CONTAINS 'In the beginning God created the heaven and the earth'")).firstMatch
             require(text.waitForExistence(timeout: 60), app, "\(initials) page text '/Part 1/Chapter 1'")
