@@ -578,11 +578,14 @@ final class EndToEndUITests: RealAppUITestCase {
     /// Independent paint oracle for #3959. OCR sees only pixels inside the pane, never offscreen AX phrases.
     /// This supplements, and deliberately does not replace, testRestoreKeepsLiveSettings's AX assertions.
     private func paintedLovedLine(_ app: XCUIApplication, step: String) throws -> (height: CGFloat, top: CGFloat) {
-        let pane = firstPane(app)
-        harnessRequire(pane.waitForExistence(timeout: 20), app, "Visible reading pane for OCR: \(step)")
-        guard let image = pane.screenshot().image.cgImage else {
-            throw NSError(domain: "3959OCR", code: 1)
-        }
+        // Preserve the pre-restore on-screen pane rectangle. AX disappearance must not erase this independent oracle.
+        let frame = lastPaneFrame
+        guard frame.width > 40, frame.height > 80, app.frame.width > 0,
+              let full = app.screenshot().image.cgImage else { throw NSError(domain: "3959OCR", code: 1) }
+        let scale = CGFloat(full.width) / app.frame.width
+        let crop = CGRect(x: frame.minX * scale, y: frame.minY * scale,
+                          width: frame.width * scale, height: frame.height * scale).integral
+        guard let image = full.cropping(to: crop) else { throw NSError(domain: "3959OCR", code: 3) }
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.recognitionLanguages = ["en-US"]
@@ -608,10 +611,15 @@ final class EndToEndUITests: RealAppUITestCase {
         guard isPad else { throw XCTSkip("iPad rendering acceptance") }
         var app = readingOnKjv()
         defer { app.terminate() }
+        let initialPane = firstPane(app)
+        harnessRequire(initialPane.waitForExistence(timeout: 20), app, "Initial visible pane before backup")
+        lastPaneFrame = initialPane.frame
         let savedName = backupDatabaseToFiles(app)
         app = relaunch(app)
         restoreFromFilesRoot(app, fileName: savedName)
         returnToReading(app)
+        // The original rectangle is valid only with unchanged window/orientation; a screenshot crop must remain onscreen.
+        XCTAssertTrue(app.frame.insetBy(dx: -1, dy: -1).contains(lastPaneFrame))
         let before = try paintedLovedLine(app, step: "restored-baseline")
         let (old, new) = changeFontSize(app, by: 4)
         XCTAssertEqual(new, old + 4)
