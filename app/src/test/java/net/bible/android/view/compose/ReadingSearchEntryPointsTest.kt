@@ -1070,6 +1070,53 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    @Test fun inGraphHandoffBackDoesNotReplaySearch() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.SETTINGS),
+        )
+        try {
+            val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitHostCondition("settings graph", advanceComposition = { compose.waitForIdle() }) {
+                activity.currentRouteForTest() == NavRoutes.SETTINGS
+            }
+            activity.navigate(NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(query = "once", documentId = "KJV")))
+            net.bible.test.awaitHostCondition("reading search delivered", advanceComposition = { compose.waitForIdle() }) {
+                activity.currentRouteForTest() == NavRoutes.READING &&
+                    activity.composeReadingViewHost?.searchController?.queries?.query?.value == "once"
+            }
+            val host = assertNotNull(activity.composeReadingViewHost)
+            while (host.closeSearchIfOpen()) { }
+            val nav = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
+                .get(activity) as androidx.navigation.NavHostController
+            fun state(): String = "route=${activity.currentRouteForTest()}, stack=${nav.currentBackStack.value.map { it.destination.route }}, " +
+                "phase=${host.searchController.phase.value}, active=${host.searchController.searchModeActive.value}, " +
+                "sheet=${host.searchController.sheetVisible.value}, finishing=${activity.isFinishing}, " +
+                "exitWarning=${NavHostComposeActivity::class.java.getDeclaredField("lastBackPressed").apply { isAccessible = true }.get(activity)}"
+            assertFalse(nav.currentBackStack.value.any { it.destination.route == NavRoutes.READING_SEARCH_PATTERN },
+                "the transient handoff must be removed before Back")
+            val beforeBack = state()
+            activity.onBackPressedDispatcher.onBackPressed()
+            val afterBack = state()
+            // Reading's normal back chain requires a second press to pass its exit warning.
+            activity.onBackPressedDispatcher.onBackPressed()
+            try {
+                net.bible.test.awaitHostCondition("back returns to settings", advanceComposition = { compose.waitForIdle() }, timeoutMs = 10_000) {
+                    activity.currentRouteForTest() == NavRoutes.SETTINGS
+                }
+            } catch (e: AssertionError) {
+                throw AssertionError("beforeBack=$beforeBack; afterBack=$afterBack; final=${state()}", e)
+            }
+            assertFalse(host.searchController.searchModeActive.value, "back must not replay the handoff")
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
     @Test fun inGraphHandoffWaitsForDocumentRegistrationAndNewestWins() {
         firstTime = false
         resetComposeUiDispatcher()

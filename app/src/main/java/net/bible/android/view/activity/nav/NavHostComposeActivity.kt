@@ -507,7 +507,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun navigateToRoute(controller: NavHostController, route: String) {
         recordHistoryOnLeavingReading(route)
         try {
-            controller.navigate(route) { launchSingleTop = true }
+            controller.navigate(route) {
+                launchSingleTop = true
+                if (controller.currentDestination?.route == NavRoutes.READING_SEARCH_PATTERN) {
+                    popUpTo(NavRoutes.READING_SEARCH_PATTERN) { inclusive = true }
+                }
+            }
         } catch (e: IllegalArgumentException) {
             Log.w(TAG_NAV_HOST, "Ignoring an unroutable EXTRA_ROUTE: $route", e)
         }
