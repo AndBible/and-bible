@@ -123,7 +123,8 @@ private fun SearchArgs.indexProgressRoute(): String = NavRoutes.searchIndexProgr
 /** Keep the decorated query while retaining the form's original settings for the reading sheet. */
 internal fun SearchRequest.toReadingSearchRequest(decoratedQuery: String, documentId: String?) = ReadingSearchRequest(
     query = decoratedQuery,
-    documentId = documentId,
+    // The receiver includes its target in the searched set: target a selected document, not the active window.
+    documentId = translationIds.firstOrNull() ?: documentId,
     translationIds = translationIds,
     strongsOrigin = isStrongsSearch,
     preDecorated = true,
@@ -732,6 +733,6 @@ internal fun nextRouteAfterIndexing(args: SearchArgs, isEpub: Boolean): String =
         strongsOrigin = args.isStrongsSearch,
         // Legacy Bible callers passed an already-decorated Lucene query; EPUB queries are raw FTS.
         preDecorated = !isEpub && !args.searchText.isNullOrEmpty(),
-        epubMode = if (isEpub) EpubSearchMode.FTS else null,
+        epubMode = if (isEpub && !args.searchText.isNullOrEmpty()) EpubSearchMode.FTS else null,
     )
 )
