@@ -16,7 +16,7 @@ cleanup() {
 }
 trap cleanup EXIT
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
-  -subj '/O=AndBible disposable test/CN=localhost' \
+  -subj '/CN=localhost/O=AndBible disposable test' \
   -keyout "$scratch/key.pem" -out "$scratch/cert.pem" > "$scratch/openssl.log" 2>&1
 python3 -I iosApp/legacy-fixtures/checklist-tls-server.py \
   "$scratch/cert.pem" "$scratch/key.pem" "$scratch/port" > "$scratch/server.log" 2>&1 &
@@ -26,7 +26,7 @@ test -s "$scratch/port"
 port=$(<"$scratch/port")
 fingerprint=$(openssl x509 -in "$scratch/cert.pem" -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':')
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
-  -subj '/O=AndBible disposable test/CN=localhost' \
+  -subj '/CN=localhost/O=AndBible disposable test' \
   -keyout "$scratch/changed-key.pem" -out "$scratch/changed-cert.pem" > "$scratch/changed-openssl.log" 2>&1
 changed=$(openssl x509 -in "$scratch/changed-cert.pem" -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':')
 (
