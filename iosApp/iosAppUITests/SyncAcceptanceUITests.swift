@@ -150,6 +150,85 @@ final class SyncAcceptanceUITests: XCTestCase {
         return onSettings
     }
 
+    /// Exercises the production certificate prompt twice without enabling document synchronization.
+    func testCertificateCancelThenTrustLocalhost() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["TASK7_CERTIFICATE_ACCEPTANCE"] == "1",
+                          "Controller-only certificate acceptance is not enabled")
+        let fixture = try fixture()
+        guard let fingerprint = fixture.trustedCertificateSha256,
+              syncUI.normalizedSha256(fingerprint) != nil,
+              URL(string: fixture.serverURL)?.host == "localhost" else {
+            XCTFail("Certificate acceptance requires the exact localhost fixture and its SHA-256")
+            return
+        }
+        let app = launch(settings: true, reference: fixture.reference)
+        guard syncUI.openDeviceSynchronization(app, "Certificate test did not reach synchronization settings") else { return }
+        syncUI.rowButton(app, "Synchronization Backend").tap()
+        let webdav = syncUI.label(app, "WebDAV")
+        guard webdav.waitForExistence(timeout: 10) else { XCTFail("WebDAV choice missing"); return }
+        webdav.tap()
+        let documents = syncUI.reveal(app, "Documents", toggle: true)
+        guard documents.isEnabled && !documents.isSelected else {
+            XCTFail("Disposable fixture must start with Documents disabled")
+            return
+        }
+        app.swipeDown(); app.swipeDown(); app.swipeDown()
+        syncUI.edit(app, "Server URL", fixture.serverURL)
+        syncUI.edit(app, "User name", fixture.username)
+        if !(fixture.reuseExistingPassword ?? false) {
+            syncUI.edit(app, "Password", fixture.password, sensitive: true)
+        }
+        syncUI.edit(app, "Sync folder path", fixture.folderPath)
+        _ = syncUI.reveal(app, "Documents", toggle: true)
+        documents.tap()
+
+        let certificate = syncUI.label(app, "Untrusted server certificate")
+        guard certificate.waitForExistence(timeout: 90) else {
+            syncUI.require(false, app, "Expected the untrusted localhost certificate prompt")
+            return
+        }
+        let cancel = app.buttons.matching(NSPredicate(format: "label == %@", "Cancel")).firstMatch
+        guard cancel.exists && cancel.isEnabled && cancel.isHittable else {
+            syncUI.require(false, app, "Certificate Cancel action unavailable")
+            return
+        }
+        cancel.tap()
+        let failure = app.staticTexts.matching(NSPredicate(
+            format: "label CONTAINS %@", "Signing in to synchronization backend service failed.")).firstMatch
+        let closed = NSPredicate { _, _ in !certificate.exists && documents.exists && documents.isEnabled && !documents.isSelected }
+        guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: closed, object: app)], timeout: 15) == .completed else {
+            syncUI.require(false, app, "Certificate cancellation did not return to disabled Documents")
+            return
+        }
+        let noFailure = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in failure.exists }, object: app)
+        noFailure.isInverted = true
+        guard XCTWaiter.wait(for: [noFailure], timeout: 5) == .completed else {
+            syncUI.require(false, app, "Certificate cancellation was reported as a sign-in failure")
+            return
+        }
+        _ = syncUI.reveal(app, "Documents", toggle: true)
+        documents.tap()
+        guard certificate.waitForExistence(timeout: 90) else {
+            syncUI.require(false, app, "Retry did not ask for the untrusted certificate again")
+            return
+        }
+        guard syncUI.trustPinnedCertificateIfShown(app, serverURL: fixture.serverURL, sha256: fingerprint) else { return }
+        let start = syncUI.label(app, "Start syncing documents?")
+        guard start.waitForExistence(timeout: 90) else {
+            syncUI.require(false, app, "Verified certificate did not lead to the document sync decision")
+            return
+        }
+        let cancelSync = app.buttons.matching(NSPredicate(format: "label == %@", "Cancel")).firstMatch
+        guard cancelSync.exists && cancelSync.isEnabled && cancelSync.isHittable else {
+            syncUI.require(false, app, "Document sync Cancel action unavailable")
+            return
+        }
+        cancelSync.tap()
+        let dismissed = NSPredicate { _, _ in !start.exists && documents.exists && !documents.isSelected }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: app)], timeout: 15) == .completed,
+                       app, "Document sync decision did not close with Documents disabled")
+    }
+
     func testConfigureAndObserveFetchChoice() throws {
         let fixture = try fixture()
         guard let completionPath = ProcessInfo.processInfo.environment["TASK7_SYNC_COMPLETION_FILE"],
