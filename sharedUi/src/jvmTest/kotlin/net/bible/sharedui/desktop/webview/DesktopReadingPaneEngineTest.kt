@@ -30,6 +30,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
 import net.bible.sharedui.desktop.webengine.kcef.OsrFocus
 import net.bible.sharedui.desktop.webengine.kcef.OsrKeyboardSink
@@ -211,6 +213,56 @@ class DesktopReadingPaneEngineTest {
         } else {
             assertSame(pane, compositionEngine.paneFor("new"))
             assertEquals(1, compositionFake.panes.size)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun repeatedWorkspaceSwitchesComposeDifferentPaneCounts() = runComposeUiTest {
+        val compositionFake = FakeWebEngine()
+        val compositionEngine = DesktopReadingPaneEngine(compositionFake, {})
+        val ids = mutableStateOf(listOf("initial-a", "initial-b"))
+        val generation = mutableStateOf(0)
+        setContent {
+            val windows = ids.value.map { id ->
+                WindowSnapshot(id = id, state = WindowStateValue.VISIBLE, weight = 1f, isVisible = true,
+                    isPinMode = true, isSynchronised = false, syncGroup = 0, isLinksWindow = false)
+            }
+            val layout = WindowLayoutState(windows, windows.first().id, null, false, true)
+            val currentGeneration = generation.value
+            val sharedFactory: @Composable (String, Modifier) -> Unit = { id, modifier ->
+                if (!compositionEngine.hasFailed(id)) {
+                    compositionEngine.jsHostFor(id)
+                    compositionEngine.attach(id, false, bridge, {}, {})
+                }
+                compositionEngine.paneFor(id)?.Content(modifier.testTag("content-$id"))
+            }
+            val sharedPane: @Composable (String) -> Unit = { id -> sharedFactory(id, Modifier) }
+            SplitContent(layout, {}, { _, _, _, _ -> }, pane = sharedPane,
+                paneOverlay = { id -> androidx.compose.material3.Text("$currentGeneration:$id") })
+        }
+        waitForIdle()
+        repeat(20) { step ->
+            val outgoing = ids.value
+            outgoing.forEach { id -> onNodeWithTag("content-$id").assertExists() }
+            runOnIdle {
+                outgoing.forEach(compositionEngine::release)
+                ids.value = if (step % 2 == 0) listOf("single-$step") else listOf("left-$step", "right-$step")
+                generation.value = step + 1
+            }
+            waitForIdle()
+            outgoing.forEach { id -> onNodeWithTag("content-$id").assertDoesNotExist() }
+            ids.value.forEach { id -> onNodeWithTag("content-$id").assertExists() }
+            runOnIdle {
+                outgoing.forEach { id ->
+                    assertEquals(null, compositionEngine.paneFor(id))
+                    assertTrue(compositionFake.pane(id).disposed)
+                }
+            }
+        }
+        runOnIdle {
+            ids.value.forEach(compositionEngine::release)
+            assertTrue(compositionFake.panes.all { it.disposed })
         }
     }
 
