@@ -204,6 +204,73 @@ typeRejectsUnicodeBeforeSendingAnything() {
   run stop >/dev/null
 }
 
+typeStdinRejectsUnicodeBeforeSendingAnything() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  if printf 'oké' | run type-stdin >"$TMP/type-stdin-unicode.out" 2>&1; then fail 'type-stdin accepted unsupported non-ASCII'; fi
+  grep -q 'Usage:' "$TMP/type-stdin-unicode.out" && fail 'type-stdin command is missing'
+  [[ $(grep -c '"execute": "send-key"' "$WINDOWS_VM_TEST_LOG/qmp-requests" || true) == 0 ]] || fail 'type-stdin sent a partial prefix before rejecting Unicode'
+  run stop >/dev/null
+}
+
+typeStdinStripsSingleLineTerminator() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  printf 'pw\n' | run type-stdin
+  printf 'pw\r\n' | run type-stdin
+  python3 - "$WINDOWS_VM_TEST_LOG/qmp-requests" <<'PY'
+import json, sys
+rows=[json.loads(line) for line in open(sys.argv[1])]
+keys=[r["arguments"]["keys"] for r in rows if r.get("execute")=="send-key"]
+assert [[k["data"] for k in row] for row in keys] == [["p"], ["w"], ["p"], ["w"]], keys
+PY
+  run stop >/dev/null
+}
+
+typeStdinRejectsInternalNewlineBeforeSendingAnything() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  if printf 'pw\nother' | run type-stdin >"$TMP/type-stdin-newline.out" 2>&1; then fail 'type-stdin accepted an internal newline'; fi
+  [[ $(grep -c '"execute": "send-key"' "$WINDOWS_VM_TEST_LOG/qmp-requests" || true) == 0 ]] || fail 'type-stdin sent keys before rejecting an internal newline'
+  run stop >/dev/null
+}
+
+typeStdinUsesValidQcodesForPrintableAscii() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  printf ' !A_~' | run type-stdin
+  python3 - "$WINDOWS_VM_TEST_LOG/qmp-requests" <<'PY'
+import json, sys
+rows=[json.loads(line) for line in open(sys.argv[1])]
+keys=[r["arguments"]["keys"] for r in rows if r.get("execute")=="send-key"]
+assert [[k["data"] for k in row] for row in keys] == [["spc"], ["shift", "1"], ["shift", "a"], ["shift", "minus"], ["shift", "grave_accent"]], keys
+PY
+  run stop >/dev/null
+}
+
+typeStdinDoesNotExposeTextInPythonArgv() {
+  run start
+  : > "$WINDOWS_VM_TEST_LOG/qmp-requests"
+  local wrapper="$TMP/python-wrapper" secret='sensitive stdin text'
+  mkdir -p "$wrapper"
+  cat > "$wrapper/python3" <<'SH'
+#!/usr/bin/env bash
+printf '%s\0' "$@" >> "$WINDOWS_VM_TEST_PYTHON_ARGS"
+exec /usr/bin/python3 "$@"
+SH
+  chmod +x "$wrapper/python3"
+  : > "$TMP/python-args"
+  printf '%s' "$secret" | PATH="$wrapper:$PATH" WINDOWS_VM_TEST_PYTHON_ARGS="$TMP/python-args" run type-stdin
+  if python3 - "$TMP/python-args" "$secret" <<'PY'
+import sys
+args=open(sys.argv[1], "rb").read().split(b"\0")
+assert sys.argv[2].encode() not in args, args
+PY
+  then :; else fail 'type-stdin text appeared in Python command-line arguments'; fi
+  grep -Fq "$secret" "$WINDOWS_VM_TEST_LOG/qmp-requests" && fail 'secret was logged in QMP test requests'
+  run stop >/dev/null
+}
+
 silentQmpGreetingTimesOut() {
   run start
   local before=$SECONDS
@@ -690,7 +757,7 @@ devResetRefusesWhileRunning() {
   [[ ! -e "$dev" && ! -e "$WINDOWS_VM_DIR/dev-$WINDOWS_VM_ID.vars" ]] || fail 'dev-reset did not delete overlay and vars'
 }
 
-for test in devOverlayIsPersistentAndSeparate pushRepoExcludesBuildAndGit devGradleQuotesArgsAndPropagatesExit devResetRefusesWhileRunning relativePathsResolveBackingAndScreenshots installSuccessCleansStateAndPromotesBase installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
+for test in typeStdinStripsSingleLineTerminator typeStdinRejectsInternalNewlineBeforeSendingAnything typeStdinRejectsUnicodeBeforeSendingAnything typeStdinUsesValidQcodesForPrintableAscii typeStdinDoesNotExposeTextInPythonArgv devOverlayIsPersistentAndSeparate pushRepoExcludesBuildAndGit devGradleQuotesArgsAndPropagatesExit devResetRefusesWhileRunning relativePathsResolveBackingAndScreenshots installSuccessCleansStateAndPromotesBase installRejectsCorruptMsi installerUsesPinnedOfflineSshAndHyperv installShutdownTimeoutsPreserveDiagnostics installTimeoutPreservesFinalScreenshot answerIsoExposesWindowsFilenames installerReviewRegressions longRunPathUsesShortQmpSocket installAnswerHasRequiredConfiguration installRejectsMissingIso installRefusesExistingBase qmpPartialLinesHonorDeadline startUsesKvmOvmfAhci silentQmpGreetingTimesOut qemuArgsOmitTpmDevices typeUsesValidQcodesForPrintableAscii qmpCapabilityErrorsAbortCommand keyAcceptsPlusAndHyphenCombos qmpEventFloodHonorsDeadline qemuExitBeforeQmpCleansState startupTimeoutCleansState typeRejectsUnicodeBeforeSendingAnything stoppingAfterQemuExitCleansState concurrentStartsAreSerialized qmpCommandsUseValidKeysAndPng containersHaveIndependentState twoRunsGetSeparateOverlays baseIsNeverOpenedWritable startRefusesWhenRunning staleRestartDoesNotHoldRunLock stopEscalatesAndHandlesSpacedComm stopKillsQemu; do
   printf '%s ... ' "$test"
   "$test"
   printf 'PASS\n'

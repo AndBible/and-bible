@@ -28,14 +28,16 @@ All commands below are arguments to `bash scripts/windows-vm.sh`.
 | Copy installer / fetch evidence | `scp-to <local> C:/abtest/file`, `scp-from <guest> <local>` |
 | Launch visible app (after console logon) | `gui-run '<cmd.exe command>'` |
 | Screenshot / input | `shot <unique-name>`, `mouse click <x> <y>`, `key <combo>`, `type '<ASCII>'` |
+| Secret keyboard input | `type-stdin < <credential-file>` (never secret text in argv) |
 | Build in persistent guest | `dev-start`, `dev-provision`, `push-repo`, `dev-gradle :desktopApp:packageWindowsZip` |
 | Release resources | `stop`, then `dev-reset`; remove only your run/output/shot files |
 
 ## Rules and common mistakes
 
 - **6 GiB RAM; never alongside the Android emulator or a heavy container gate.** Stop your
-  emulator first using `android-emulator`. One VM per container; inspect ownership before
-  stopping any existing process. Different containers need distinct SSH forwarding ports.
+  emulator first using `android-emulator`. **Only one container may run a Windows VM at a
+  time**; get the orchestrator's VM token before `install`/`start`/`dev-start`.
+  One VM per container; inspect ownership before stopping any existing process.
 - `start` means QMP ready, not Windows/SSH ready. Check SSH with a deadline; a login-screen
   screenshot proves only VM boot, not an AndBible test.
 - An SSH-launched GUI is invisible and may crash Skia. Log on at the console, then use

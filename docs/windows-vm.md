@@ -1,5 +1,11 @@
 # Windows test VM
 
+Use the project skill `windows-vm` (`.claude/skills/windows-vm/SKILL.md`) for runtime checks;
+its [runbook](../.claude/skills/windows-vm/references/runbook.md) covers bounded boot, MSI/zip
+install, GUI input, screenshots and task-owned cleanup. Use `verifying-on-a-runtime` when
+choosing an environment. Ordinary Windows checks run in this VM, not on the maintainer's
+checklist; physical-GPU/hardware checks remain separate (issue #3946).
+
 This developer VM supports Windows desktop testing, not TPM-dependent feature testing. It uses a disposable local `abtest` administrator account; no Microsoft account or Java installation is required. AndBible supplies its own JRE. The Windows Enterprise evaluation is time-limited (nominally 90 days; the reported remaining days change with time). Check `status` before relying on an old image.
 
 ## Prerequisites
@@ -7,13 +13,14 @@ This developer VM supports Windows desktop testing, not TPM-dependent feature te
 - x86-64 Linux with working KVM access, QEMU (`qemu-system-x86_64`, `qemu-img`), and OVMF: `/usr/share/OVMF/OVMF_CODE_4M.secboot.fd` and `/usr/share/OVMF/OVMF_VARS_4M.ms.fd`.
 - `xorriso`, 7-Zip (`7z`), Python 3 with Pillow (`python3-pil`), `curl`, OpenSSL, and OpenSSH client tools (`ssh`, `scp`, `ssh-keygen`), plus `flock` and `sha256sum`.
 - A user-provided Windows 11 Enterprise Evaluation ISO at `.local/win.iso`, or set `WINDOWS_VM_ISO`. Wait until the copy has remained the same size for at least 120 seconds before installing. The supplied ISO was UDF-only: xorriso exposed only a README requiring UDF, so `7z l .local/win.iso` was used to validate `sources/boot.wim` and `sources/install.wim`. The installer validates these paths (also accepting `install.esd`) with 7z; it does not enforce the stability wait or verify a full ISO hash. xorriso creates the separate answer ISO.
-- Default allocation is 6 GiB RAM and four vCPUs. Do not run this VM alongside the Android emulator, which also uses roughly 6 GiB.
+- Default allocation is 6 GiB RAM and four vCPUs. Do not run this VM alongside the Android emulator, which also uses roughly 6 GiB. Across the shared host, only one container may run a Windows VM at a time: coordinate with the orchestrator and wait for its VM token before starting (distinct ports do not remove this memory constraint).
 
 ## Install and use
 
 From the repository root:
 
 ```sh
+# Obtain the orchestrator's Windows VM token before install/start/dev-start.
 scripts/windows-vm.sh install
 scripts/windows-vm.sh start
 scripts/windows-vm.sh status
@@ -23,6 +30,8 @@ scripts/windows-vm.sh scp-from 'C:/abtest/file' /path/to/local-copy
 scripts/windows-vm.sh shot desktop
 scripts/windows-vm.sh key ctrl+alt+delete
 scripts/windows-vm.sh type 'printable ASCII text'
+# Secret input: redirect a protected file; never put passwords in command-line arguments.
+scripts/windows-vm.sh type-stdin < .local/windows-vm/credentials
 scripts/windows-vm.sh mouse click 640 400 [left|right|middle|back|forward]   # also move, down, up, wheel x y notches
 scripts/windows-vm.sh gui-run 'set "APPDATA=C:\p\Roaming" && C:\abtest\app\AndBible\AndBible.exe'
 scripts/windows-vm.sh key enter
@@ -38,6 +47,9 @@ scripts/windows-vm.sh dev-reset
 `start` returns when QMP is ready, not when Windows or SSH has finished booting. Retry SSH with a bounded timeout before using the guest; a successful `start` alone does not establish SSH readiness.
 
 `install` refuses to overwrite an existing base or firmware, waits for guest readiness, requests a clean Windows shutdown and promotes the image only after QEMU exits successfully. It downloads the official Win32-OpenSSH `10.4.0.0p1-Preview` MSI from GitHub and verifies SHA-256 `788d8643464a01eb63640a2fd746f9ed23d106b5a901a35f88dc8cd40e446ac9`. The guest installs this preview locally from the answer media, without a Windows Update dependency. Internet access to the release is needed at installation time. Guest diagnostics are `C:\abtest\firstlogon.log` and `C:\abtest\openssh-install.log`.
+
+The orchestrator's Windows VM token is required before `install`, `start` or `dev-start`;
+release it after installation exits or the running VM is stopped, including on failure.
 
 Each `start` creates a fresh ephemeral overlay and a firmware-variable copy; changes made in a run do not persist to the base. `stop` terminates QEMU rather than cleanly shutting down the guest: use it only knowing that the overlay is disposable. Initial base promotion, by contrast, requires clean shutdown. A run's files remain under `runs/`; do not assume `stop` removes them.
 
@@ -55,7 +67,7 @@ GUI testing requires a manual `abtest` logon once per fresh overlay: automatic l
 
 ### GUI runs
 
-A process started over SSH lives on a non-interactive window station: its windows are invisible, get no input, and the app's Skia finds no Direct3D/OpenGL device there (`Direct3DRedrawer_initSwapChain` access violation, then a blank window). `gui-run <cmd>` instead starts the command in the logged-on user's desktop through a one-shot scheduled task (`/IT`), so log on at the console first (`type` the password from `credentials`, then `key enter`). Each run gets its own task and its own `C:\abtest\gui\<id>.cmd`, `.log` (the command's stdout and stderr) and `.exit` (its exit code, written when it ends); `gui-run` prints the id. The command line is cmd.exe syntax in UTF-8 (code page 65001), so `set "NAME=value" && ...` sets environment variables, and non-ASCII paths work. `mouse` drives the absolute pointer (a `usb-tablet` on its own xHCI controller) through QMP `input-send-event`; coordinates are guest screen pixels (the screen size comes from a screendump, or `WINDOWS_VM_SCREEN=WxH`); `back`/`forward` are the side buttons. `key` also knows `altgr` and `win` (`win+spc` switches the keyboard layout). Disable the display timeout once (`powercfg /change monitor-timeout-ac 0`), or screenshots come out black.
+A process started over SSH lives on a non-interactive window station: its windows are invisible, get no input, and the app's Skia finds no Direct3D/OpenGL device there (`Direct3DRedrawer_initSwapChain` access violation, then a blank window). `gui-run <cmd>` instead starts the command in the logged-on user's desktop through a one-shot scheduled task (`/IT`), so log on at the console first (`type-stdin < .local/windows-vm/credentials`, then `key enter`; never pass the password as a `type` argument). Each run gets its own task and its own `C:\abtest\gui\<id>.cmd`, `.log` (the command's stdout and stderr) and `.exit` (its exit code, written when it ends); `gui-run` prints the id. The command line is cmd.exe syntax in UTF-8 (code page 65001), so `set "NAME=value" && ...` sets environment variables, and non-ASCII paths work. `mouse` drives the absolute pointer (a `usb-tablet` on its own xHCI controller) through QMP `input-send-event`; coordinates are guest screen pixels (the screen size comes from a screendump, or `WINDOWS_VM_SCREEN=WxH`); `back`/`forward` are the side buttons. `key` also knows `altgr` and `win` (`win+spc` switches the keyboard layout). Disable the display timeout once (`powercfg /change monitor-timeout-ac 0`), or screenshots come out black.
 
 Display scaling: set `HKCU\Control Panel\Desktop` `LogPixels` (120 = 125 %, 144 = 150 %) and `Win8DpiScaling` = 1, then log off (`gui-run 'shutdown /l'`) and log on again. A folder created over SSH under `C:\Users` belongs to the elevated Administrators token and is read-only for the UAC-filtered desktop session; `icacls <dir> /grant abtest:(OI)(CI)F /T` before using it as a test profile.
 
@@ -71,7 +83,7 @@ Overrides (defaults shown):
 | `WINDOWS_VM_BASE` | `$WINDOWS_VM_DIR/base.qcow2` | Base image; firmware is `<base>.vars` |
 | `WINDOWS_VM_ISO` | `.local/win.iso` | Installation media |
 | `WINDOWS_VM_ID` | hostname | Per-container state/run namespace; letters, digits, `.`, `_`, `-` only |
-| `WINDOWS_VM_SSH_PORT` | `2222` | Loopback SSH forwarding port; choose a distinct port for concurrent VMs |
+| `WINDOWS_VM_SSH_PORT` | `2222` | Loopback SSH forwarding port; override only for a conflicting non-VM service (one Windows VM host-wide) |
 | `WINDOWS_VM_USER` | `abtest` | SSH user |
 | `WINDOWS_VM_RAM` / `WINDOWS_VM_CPUS` | `6G` / `4` | QEMU memory and vCPUs |
 | `WINDOWS_VM_DISK_SIZE` | `80G` | New installer disk size |

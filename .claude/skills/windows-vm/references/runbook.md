@@ -2,6 +2,9 @@
 
 Run commands from the repository root. `W` is a shell array, so paths/arguments retain quoting.
 Read `.jailbee/AGENT-GUIDE.md` before builds or git. Never print the VM's credentials or keys.
+Bash variables do not persist between tool calls: repeat `W=(bash scripts/windows-vm.sh)`,
+`id=${WINDOWS_VM_ID:-$(hostname)}` and `vm=${WINDOWS_VM_DIR:-$PWD/.local/windows-vm}` in each
+new shell. Persist any nondefault namespace/SSH-port overrides explicitly in every call.
 
 ## Preflight and boot-only smoke
 
@@ -26,7 +29,13 @@ PY
 "${W[@]}" status
 ```
 
-An empty process search is normal (exit 1). If your Android emulator runs, stop it with
+**Across the host, only one container may run a Windows VM at a time.** Obtain the
+orchestrator's explicit VM token before `install`, `start` or `dev-start`; a free local port/process
+list cannot establish that other containers are idle. If the token is held, do Linux work
+or ask and wait; never boot concurrently. Release the token with a concise message after
+`stop`. This rule overrides older notes about concurrent VMs with different SSH ports.
+
+An empty process search is normal. If your Android emulator runs, stop it with
 `bash scripts/andbible-emu.sh kill`. Never kill another container's processes. `start` refuses
 an already running VM in this namespace. SSH defaults to loopback port 2222; if occupied,
 choose a free `WINDOWS_VM_SSH_PORT` and export it for **every** command in the session.
@@ -71,11 +80,12 @@ even if boot/readiness fails.
 
 SSH is available at the login screen; a fresh throwaway overlay needs manual console logon.
 Capture first; dismiss the lock screen with `key enter` (or `key ctrl+alt+delete` if requested).
-Once the password field is visible, pass the credential directly, without printing or tracing:
+Once the password field is visible, pass the credential through stdin, without printing,
+tracing or putting it in process arguments (argv is visible in process listings):
 
 ```bash
 set +x
-"${W[@]}" type "$(<"$vm/credentials")"
+"${W[@]}" type-stdin < "$vm/credentials"
 "${W[@]}" key enter
 "${W[@]}" ssh 'powercfg /change monitor-timeout-ac 0'
 "${W[@]}" shot "$id-desktop"
@@ -96,7 +106,15 @@ Use a known build, not an unrelated cached artifact. For MSI (substitute the rea
 ```
 
 Check the MSI exit code (3010 means reboot required) and `C:\abtest\msi.log`. Use the returned
-exe path; don't assume installation scope. ZIP alternative, in a fresh destination:
+exe path; don't assume installation scope. With the console logged on, launch it visibly,
+substituting that discovered path:
+
+```bash
+"${W[@]}" gui-run '"C:\Users\abtest\AppData\Local\AndBible\AndBible.exe"'
+"${W[@]}" shot "$id-app"
+```
+
+ZIP alternative, in a fresh destination:
 
 ```bash
 "${W[@]}" scp-to /absolute/path/AndBible.zip C:/abtest/AndBible.zip
@@ -141,15 +159,21 @@ Stop a throwaway VM first. Reuse only this task's own dev overlay:
 "${W[@]}" ssh 'Restart-Service sshd'
 # Recheck SSH readiness after its restart (the command may lose its own connection).
 (cd app/bibleview-js && npm run build-production)
-"${W[@]}" push-repo
+"${W[@]}" push-repo --clean
 "${W[@]}" dev-gradle :desktopApp:packageWindowsZip
 ```
 
 Provisioning installs pinned JDK 17 and Git; restarting sshd makes the new PATH visible.
 The guest has no Node: build the BibleView bundle in the container before `push-repo`.
-The repo copy is a stub git checkout, not a place to commit. `push-repo --clean` deletes the
-guest repo/build outputs; use only when intentional. `dev-gradle` fetches zips and reports to
-`$vm/out/$id/` and returns the build's exit code. Cold packaging can take 25 minutes: run it
+The repo copy is a stub git checkout, not a place to commit. `push-repo --clean` intentionally
+deletes this task's guest repo/build outputs (not the user Gradle cache): it prevents deleted
+source files lingering from an earlier sync. Plain `push-repo` is only for an incremental
+experiment where you have verified there are no source deletions; it is not a clean gate. `dev-gradle` fetches zips and reports to
+`$vm/out/$id/` and returns the build's exit code. For an MSI-specific change, build `dev-gradle :desktopApp:packageWindowsMsi` instead;
+see `docs/desktop-release.md` for Windows SDK/WiX/signing prerequisites (dev-provision only
+installs JDK/Git). Fetch the generated MSI by its actual guest path with `scp-from`:
+`dev-gradle` automatically fetches ZIPs/reports, not MSI files. Cold packaging can take
+25 minutes: run it
 in the controller's background, wait for notification, and inspect the log/result. Do not
 run a second guest build concurrently or infer a pass from a preexisting output file.
 After a base replacement, reset and re-provision the dev overlay before reuse.
