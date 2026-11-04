@@ -218,6 +218,7 @@ fun desktopPlatformModule(
                 documentControl = { get() },
                 settings = { get() },
                 backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
+                showMarginPageJumpTip = false,
             )
         }
         single<BackgroundImageCatalog> { get<AddonCatalog>() as SharedAddonCatalog }

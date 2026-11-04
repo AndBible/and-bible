@@ -59,7 +59,7 @@
         <LoadingSpinner small/>
       </div>
     </div>
-    <template v-if="!modalOpen">
+    <template v-if="!modalOpen && !isDesktopHost">
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
@@ -171,6 +171,7 @@ import ReadingProgress from "@/components/ReadingProgress.vue";
 import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
 import {backgroundImageLayer} from "@/code/background-image";
 
+const isDesktopHost = document.documentElement.classList.contains("desktop-host");
 console.log("BibleView setup");
 useAddonFonts();
 useFontAwesome();

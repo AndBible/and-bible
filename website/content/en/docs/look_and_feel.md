@@ -275,7 +275,8 @@ to discard the change.
     that module's text.
 - **Margin size:** Set the left and right margins independently, measured in
     millimeters. You can also set a maximum text width to prevent lines from
-    becoming too long on wide screens.
+    becoming too long on wide screens. In the Android and iOS apps, tap the left
+    or right margin to scroll one page up or down. Desktop app margin clicks do not scroll.
 - **Top margin:** Add a margin at the top of the window (in millimeters). The
     reading position starts below this margin.
 - **Line spacing:** Adjust the space between lines (multiplier from 1.0x to
