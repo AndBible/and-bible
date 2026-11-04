@@ -30,6 +30,21 @@ plugins {
     alias(libs.plugins.android.kotlinMultiplatformLibrary) apply false
 }
 
+// A gate must observe this run, not another checkout's cached test results.
+// AbstractTestTask also covers Kotlin/Native tests, not only JVM Test tasks.
+allprojects {
+    tasks.withType<AbstractTestTask>().configureEach {
+        outputs.doNotCacheIf("Tests must execute on every requested gate") { true }
+        outputs.upToDateWhen { false }
+    }
+    tasks.matching {
+        it.name.matches(Regex("(verify|record|compare).*Roborazzi.*", RegexOption.IGNORE_CASE))
+    }.configureEach {
+        outputs.doNotCacheIf("Screenshot gates must execute, not restore results") { true }
+        outputs.upToDateWhen { false }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory.get().asFile)
 }
