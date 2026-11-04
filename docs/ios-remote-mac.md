@@ -16,7 +16,7 @@ the key is absent from containers until a session asks for it.
 
 ```
 jailbee container ──ssh/rsync (127.0.0.1:2224, host_ports mac-ssh, via the host's relay)──▶ Mac, user `andbible`
-  ~/.ssh-mac/ (optional mount, ro)          ~/work/<branch>/and-bible   (synced tree)
+  ~/.ssh-mac/ (optional mount, ro)          ~/work/shared/and-bible     (locked warm tree)
                                             Xcode, JDK 17, Node 24, xcodegen (shared, admin-installed)
 ```
 
@@ -232,16 +232,42 @@ scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulato
 scripts/mac-remote.sh cleanup                # end of every Mac session: simulators off, own leftovers killed, own junk removed
 ```
 
+`reset-tree` takes the execution lock and clears regenerable outputs of the selected tree: project
+`build/`, `.gradle/`, `.kotlin/` and `node_modules`. It deliberately makes the next build cold. It never
+clears external Xcode `ModuleCache.noindex`/`SDKStatCaches.noindex`. Use it for a demonstrably broken
+warm state, not routinely after a run. Safe explicit workdirs have the form `work/<name>`; nested paths,
+symlink aliases and custom `GRADLE_USER_HOME` are rejected rather than bypassing ownership/cache guards.
+
+A shared `run --no-sync`, `batch --no-sync` or `fetch` requires this client to own the last completed sync;
+otherwise sync first. The owner is invalidated before mutation and published only after successful sync
+and setup. Run metadata records the source revision, dirty-content fingerprint and selected tree.
+
 The sync sends the working tree only, uncommitted changes included: no `.git` (the container's git
 objects live in an alternate on the host, and the repository is meant to stay in the container),
 no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded paths survive
 `--delete` on the Mac, so its build outputs and macOS-native `node_modules` stay warm. A one-commit
 stub repository on the Mac satisfies `:app`'s `git rev-parse` / `git describe`.
 
-Each container gets its own tree under `~/work/<container>`; `~/.gradle` and `~/.konan` on the Mac
-are shared by all of them, and the build lock lets only one heavy run go at a time.
+New clients use one warm tree, `~/work/shared/and-bible`, under the existing execution lock. Project-local
+Gradle/Kotlin outputs, macOS `node_modules` and Xcode DerivedData keep the same path when another container
+syncs its revision, so only changed inputs rebuild. `MAC_OWN_TREE=1` opts into the old private
+`~/work/<container>/and-bible` tree; an explicit safe `MAC_WORKDIR` still selects a private work directory.
+`~/.gradle` and `~/.konan` remain shared. Source sync (including standalone `sync`) is now locked too.
 
-How a call runs: one remote `bash -s` session per call. It first waits for the lock
+**Mixed deployment:** old scripts must retain their default private tree. Never point an old script at
+`MAC_WORKDIR=work/shared`: its standalone sync does not take the lock. New clients still take the exact
+`~/work/.build-lock` understood by old clients, so neither can execute through the other's live lock.
+FIFO fairness applies between new queued clients only; old clients do not know about tickets and can
+still win a release/poll race. Update all clients to obtain full FIFO fairness.
+
+**One slot, deliberately.** The 16 GiB Mac must accommodate an 8 GiB Release Kotlin/Native compiler plus
+Gradle and the owner's session. `MAC_SLOTS` defaults to 1 and other values are rejected, not silently
+accepted. Parallel slots require retiring old clients (they shut down all simulators), separate warm
+trees, explicit simulator UDIDs for every operation including shutdown, and measured memory admission.
+No parallel light slot is enabled by this change.
+
+How a call runs: one remote `bash -s` session per call. It registers a FIFO ticket on the Mac and
+waits until that ticket is eligible, then takes the existing lock
 (`~/work/.build-lock`, a directory renamed into place together with its owner record: random token,
 container, pid, process start time, local pid, run id), then the tree is rsynced (so a call that waited
 behind another container runs the tree as it is when it starts; `run --no-sync` skips this), then the
@@ -253,7 +279,9 @@ session has a watchdog that stops it (waiting or running) when its own ssh conne
 use a separate, non-multiplexed connection for that reason). A connection that only goes silent (network
 down; a SIGKILLed local script whose ssh child lingers) is covered by an idle guard: the Mac releases the lock
 and ends the session when no next step arrives within `MAC_IDLE_MAX` (default 1800 s; it must exceed the
-longest container-side sync or fetch). Each step runs from a script file in its own process group under
+longest instruction gap). Active sync/evidence transfers disarm that idle timer while retaining the
+execution lock and use a separate bounded lease, `MAC_TRANSFER_TIMEOUT` (default 1800 seconds per
+operation). Each step runs from a script file in its own process group under
 `MAC_TIMEOUT` plus a step-level watchdog (`MAC_STEP_MARGIN`, default 600 s), so a timeout kills every
 process the step started. ssh and rsync use `ServerAliveInterval=30`. Process start times are compared
 under `LC_ALL=C TZ=UTC0`. Watchdog events go to `~/work/.mac-remote-watchdog.log` (shown by `check`).
@@ -262,12 +290,18 @@ Container side, per call: `.local/mac/<container>/runs/<run-id>/` with `meta`, `
 an `exit` marker (code, reason `ok|failed|timeout|signal ...|cancelled|no lock|sync failed`, end time, failing step; timeouts are always
 exit 142; `no lock` = the lock wait ran out (75) or the connection failed, `sync failed` = rsync/ssh to the Mac
 failed before any step ran; the generated script of each step is kept as `step-<n>.sh`); the
-newest 20 run directories are kept. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
+newest 20 run directories are kept (not overwritten is not permanent retention).
+Native XML/HTML/status lives in `runs/<run-id>/native-tests/step<N>/<module>/`; legacy
+`native-tests/<module>` links to the latest capture. `run` snapshots only new/changed top-level
+`build/release` and `build/shots` artifacts under `runs/<run-id>/run/step<N>/` before releasing the lock.
+Missing optional artifacts are distinct from a failed transfer; capture failure fails an otherwise
+successful step. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
 screenshots) is fetched into `runs/<run-id>/xcode/step<N>-<device>/`, and `.local/mac/<container>/xcode/<name>-<device>`
 are links to the latest run. `check` summarises the runs (running / exited N / LOST, elapsed, log idle
 time), the lock holder with its age and whether it is this container, and the idle time of the remote
 logs; `cancel` stops this container's runs by pid and releases the Mac lock only when the owner token is
-theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder.
+theirs. `unlock` removes any lock and is a last resort for a wedged foreign holder. Never use it to
+move ahead in the queue or shorten a normal wait; use orchestrator-owned queue controls instead.
 
 `run [--no-sync] <command>` syncs with `--delete`, is bounded by `MAC_TIMEOUT` (default 3000 s) and runs in
 `bash -c` in the tree (the script's `sim_boot` helpers are not available); raise `MAC_TIMEOUT` for long
@@ -278,18 +312,22 @@ and they do not honour the idle guard or the step process groups).
 ### Clean up after use
 
 The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the rule is the same as for
-`.local/` (maintainer, 2026-11-04): **resources used on the Mac are cleaned up after use**.
+`.local/` (maintainer, 2026-11-04): **release session-owned runtime/scratch resources after use**.
+The shared warm compilation tree, node_modules and reusable build caches intentionally remain; they are
+shared tool inputs, not abandoned session scratch.
 
 - `gradle`, `native-tests`, `xcode-test`, `xcode-build`, `run` and `batch` shut down all simulators when their locked
   session ends, on success and on failure (also when the session is killed: the Mac-side exit trap does it), and print
   one line saying what was shut down. `MAC_KEEP_SIM=1` (or `--keep-sim` right after the command name) keeps them.
 - The `sim` helpers (`boot`, `shot`, `launch`, `log`, ...) leave the simulator booted, because they are a sequence of calls.
   End the sequence with `sim shutdown` or, better, `cleanup`.
-- **Every Mac session ends with `scripts/mac-remote.sh cleanup`** (a child includes it before `done`). It takes the lock, shuts
-  down all simulators, kills processes left over from this container's tree (`~/work/<container>/`: `test.kexe`, `xcodebuild`,
-  Gradle wrapper/daemons started there, `simctl spawn`), *reports* (never kills) such processes of other containers' trees with
-  age, RSS and CPU, removes this container's regenerable junk (`build/release` archives except the newest of each kind,
-  `build/shots`; `--derived-data` also its DerivedData) and prints memory and disk before and after.
+- **Every Mac session ends with `scripts/mac-remote.sh cleanup`** (a child includes it before `done`). It takes the lock,
+  shuts down simulators and prints memory/disk. In a shared tree it preserves warm compilation, node_modules, Gradle caches
+  and daemons. Only successfully captured release/shots scratch with a matching owner/content receipt is removed;
+  changed/foreign scratch and shared-tree processes are report-only. `--derived-data` explicitly removes tree-local
+  `build/dd-*`, never Xcode's global `ModuleCache.noindex` or `SDKStatCaches.noindex`. A private tree retains its previous
+  cleanup policy: kill own leftovers, report foreign leftovers, prune old release archives (newest kept), remove shots,
+  and optionally remove its own DerivedData.
 - `check` ends with a "leftovers" section and a disk report: free space, the size and last modification of every
   `~/work/<tree>`, and CoreSimulator, DerivedData, `~/.konan` and `~/.gradle`. It warns above 85 % full.
 - `prune [--trees <name...>] [--older-than <days>] [--sims] [--yes]` deletes **other** containers' trees (and their DerivedData) and,
@@ -299,6 +337,39 @@ The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the 
   and passes the names; a child never runs `prune --yes`.
 
 Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
+
+### FIFO queue and orchestrator controls
+
+```bash
+scripts/mac-remote.sh queue                         # all waiting tickets, in admission order
+scripts/mac-remote.sh queue priority <ticket> 10    # higher priority first, then FIFO
+scripts/mac-remote.sh queue reserve 120             # bounded reservation, prints its ticket
+scripts/mac-remote.sh queue release <ticket>        # release that reservation
+```
+
+Queue tickets live outside the source tree in `~/work/.mac-queue`; sequence numbers remain monotonic
+when the queue empties. Dead waiters and reused PIDs are removed using PID plus process start time.
+Timeout/cancellation removes the ticket. Reservations expire 1-3600 seconds after creation, not after
+reaching the head. A reservation occupies its queue position until released or expired; it does not
+preempt the current holder and legacy clients cannot see it.
+
+Everyone may inspect. Priority/reservation controls require the orchestrator role and matching group;
+an orchestrator may control only its own children's tickets. Children derive the group from
+`JAILBEE_ORCHESTRATOR`, while an orchestrator uses its container identity. This is cooperative safety
+on a shared SSH account, not a security boundary. Equal priority is FIFO. Corrupt queue metadata fails
+closed instead of silently dropping another client's ticket.
+
+### Mac build cache and forced tests
+
+Mac runs enable Gradle's local build cache without changing the repository's Linux defaults (tracked
+separately in #3957). The cache configuration is also inherited by Gradle launched from Xcode's
+framework build phase. Test task outputs are excluded from the cache: cached compilation is useful,
+but a test report from another device/session is not proof that this session ran tests.
+
+A normal unchanged test task may still be `UP-TO-DATE`; this is distinct from `FROM-CACHE`.
+`native-tests --force <modules>` forces the selected test tasks to execute while keeping compilation
+incremental. Read and count the captured XML, and retain its run ID with any verification claim.
+Never use `--rerun-tasks` merely to force tests: that also reruns expensive compilation.
 
 ### Debug and Release builds
 

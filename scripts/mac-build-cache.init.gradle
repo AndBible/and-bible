@@ -1,0 +1,10 @@
+import org.gradle.api.tasks.testing.AbstractTestTask
+
+if (System.getenv('MAC_REMOTE_BUILD_CACHE') == '1') {
+    gradle.startParameter.buildCacheEnabled = true
+    gradle.beforeProject { project ->
+        project.tasks.withType(AbstractTestTask).configureEach { task ->
+            task.outputs.doNotCacheIf('Mac remote test results must be fresh') { true }
+        }
+    }
+}
