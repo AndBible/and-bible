@@ -39,8 +39,19 @@ The merged report includes execution across the three modules' test suites;
 individual reports show their own suite's execution. Native-only and Android-only
 implementations are outside this JVM measurement. Kover's default compiler filters
 apply; Room-generated DAO/database implementations remain in the denominator, so
-`sharedData` coverage includes generated database code. `:app` Robolectric and
-`sharedUi` Compose coverage are deliberately not enabled.
+`sharedData` coverage includes generated database code. `sharedUi` Compose coverage
+is deliberately not enabled.
+
+A local `:app` probe used the 109-test BookmarkControl, TextDisplaySettings, and
+WindowControl subset (96 passed, 13 skipped). After compilation warmup, the first
+uninstrumented/application-only Kover pair took 37.7/30.1 seconds. A repeated warm
+pair took 20.0/21.4 seconds (about 7% overhead with `include=net.bible.*`). These
+bounded samples do not establish the cost of a complete Robolectric run.
+Unrestricted Kover
+instrumentation failed 13 tests with `VerifyError` in Robolectric's transformed
+`ResourcesImpl`. `:app` coverage therefore remains disabled pending a separate,
+full-suite compatibility and timing evaluation; no application test configuration
+was changed by this probe.
 
 Reproduce the CI Gradle steps from the repository root after installing the
 Sword fixtures. Run the report command even if a test fails; excluding the three
