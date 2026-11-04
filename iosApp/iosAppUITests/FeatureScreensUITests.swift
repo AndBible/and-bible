@@ -351,7 +351,10 @@ final class FeatureScreensUITests: RealAppUITestCase {
         if wentToBackground {
             // Settings becomes foreground before our scene finishes its outgoing transition on iPad.
             // Activating during that transition races the pending background event (seen in parallel runs).
-            harnessRequire(app.wait(for: .runningBackground, timeout: 20), app, "App finished backgrounding for iOS Settings")
+            harnessRequire(waitUntil(timeout: 20) {
+                let state = app.state
+                return state == .runningBackground || state == .runningBackgroundSuspended
+            }, app, "App finished backgrounding for iOS Settings")
             app.activate()
             harnessRequire(app.wait(for: .runningForeground, timeout: 30), app, "App reactivated after iOS Settings")
             shot(app, "speak-after-system-settings")
