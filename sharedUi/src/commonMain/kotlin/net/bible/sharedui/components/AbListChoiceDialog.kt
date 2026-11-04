@@ -80,7 +80,7 @@ fun AbListChoiceContent(
                             onSelect(choice.value)
                         },
                     )
-                    .padding(vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = selected, onClick = null)

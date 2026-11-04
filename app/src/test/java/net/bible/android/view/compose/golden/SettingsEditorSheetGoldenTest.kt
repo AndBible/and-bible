@@ -50,6 +50,39 @@ class SettingsEditorSheetGoldenTest {
             }
         }
 
+    private val strongsChoices = listOf(
+        SettingsItem.Choice("hidden", "Hidden Links"),
+        SettingsItem.Choice("links", "Links"),
+        SettingsItem.Choice("text", "Text and Links"),
+    )
+
+    private val colorModeChoices = listOf(
+        SettingsItem.Choice("normal", "Normal"),
+        SettingsItem.Choice("bw", "Black & white"),
+        SettingsItem.Choice("monochrome", "Monochrome"),
+        SettingsItem.Choice("color_eink", "Color e-ink"),
+    )
+
+    @Test fun strongsChoices_matrix() = captureMatrix("SettingsEditorSheet", "strongsChoices") {
+        Column { AbListChoiceContent(strongsChoices, "links", onSelect = {}) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun strongsChoices_rtl() = captureRtl("SettingsEditorSheet", "strongsChoices") {
+        Column { AbListChoiceContent(strongsChoices, "links", onSelect = {}) }
+    }
+
+    @Test fun colorModeChoices_matrix() = captureMatrix("SettingsEditorSheet", "colorModeChoices") {
+        Column { AbListChoiceContent(colorModeChoices, "normal", onSelect = {}) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun colorModeChoices_rtl() = captureRtl("SettingsEditorSheet", "colorModeChoices") {
+        Column { AbListChoiceContent(colorModeChoices, "normal", onSelect = {}) }
+    }
+
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun listChoice_rtl() =

@@ -712,7 +712,6 @@ fun PromptPermissionSheetContent(
                 choices = choices,
                 selectedValue = selectedValue,
                 onSelect = { if (editable) onSelect(it) },
-                modifier = Modifier.padding(horizontal = 16.dp),
                 scrollState = scrollState,
             )
         }

@@ -101,11 +101,6 @@ fun AbChoiceSheetContent(
                     choices = choices,
                     selectedValue = selectedValue,
                     onSelect = onSelect,
-                    // Horizontal padding only. `AbListChoiceContent`'s CAUTION kdoc is about a HEIGHT
-                    // bound landing inside its `verticalScroll` — padding is unaffected by that
-                    // mechanism, and the height bound is supplied by `AbSheetScrollBound` above,
-                    // exactly as that kdoc requires.
-                    modifier = Modifier.padding(horizontal = 16.dp),
                     scrollState = scrollState,
                 )
             }
