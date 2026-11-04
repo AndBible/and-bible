@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
@@ -261,6 +262,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
         Window(
             title = "AndBible",
+            icon = painterResource("andbible.png"),
             // Shrunk to the work area when the default does not fit (HiDPI laptops), and then placed on it with the title
             // bar on screen.
             state = rememberWindowState(
@@ -389,6 +391,7 @@ private fun runPoc() {
         }
         Window(
             title = "AndBible",
+            icon = painterResource("andbible.png"),
             onCloseRequest = { closing = true },
         ) {
             // Spike-only (D1 measurements): the theme-flip timer and SpikeOverlay. With only andbible.poc.scenario set

@@ -11,6 +11,23 @@ import org.w3c.dom.Element
 
 class WindowsManifestTest {
     @Test
+    fun generatedWindowsIconContainsMultipleStandardResolutions() {
+        val icon = File("packaging/windows/andbible.ico")
+        assertTrue(icon.isFile, "Windows MSI icon is missing")
+        val bytes = icon.readBytes()
+        assertTrue(bytes.size > 6, "Windows icon is truncated")
+        assertEquals(0, bytes[0].toInt())
+        assertEquals(1, bytes[2].toInt())
+        val imageCount = (bytes[4].toInt() and 0xff) or ((bytes[5].toInt() and 0xff) shl 8)
+        assertTrue(imageCount >= 5, "Windows icon needs multiple resolution variants")
+        val sizes = (0 until imageCount).map { index ->
+            val offset = 6 + index * 16
+            (bytes[offset].toInt() and 0xff).let { if (it == 0) 256 else it }
+        }.toSet()
+        assertTrue(sizes.containsAll(setOf(16, 32, 48, 64, 128, 256)), "Missing standard icon dimensions: $sizes")
+    }
+
+    @Test
     fun msiAssociationsAndSigningPolicyAreGeneratedForPackaging() {
         val policy = java.util.Properties().apply {
             File("build/windows-msix/packaging-policy.properties").inputStream().use { load(it) }
