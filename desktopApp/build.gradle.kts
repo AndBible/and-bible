@@ -78,8 +78,10 @@ val packageTargets = setOf("linux-x64", "windows-x64")
 
 // sun.awt.X11 is only needed by the windowed-pane fallback (X11 focus helper); off-screen rendering does not use it.
 // java.desktop has no sun.awt.X11 on Windows, where the JVM would warn about the unknown package on every start.
-val kcefJvmArgs = listOf("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") +
-    if (isWindowsHost) emptyList() else listOf("--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")
+val kcefJvmArgs = if (isWindowsHost) emptyList() else listOf(
+    "--add-opens", "java.desktop/sun.awt=ALL-UNNAMED", "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED",
+    "--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED",
+)
 
 /**
  * Downloads the JBR JCEF package for this OS/arch (with its `.checksum`), verifies it, and lays it out as KCEF's install
@@ -306,14 +308,16 @@ compose.desktop {
         jvmArgs += "-Dandbible.releaseKind=${providers.gradleProperty("desktopReleaseKind").orElse("dev").get()}"
     }
 }
-tasks.matching { it.name == "run" }.configureEach { dependsOn(prepareKcefNatives) }
+tasks.matching { it.name == "run" }.configureEach { if (!isWindowsHost) dependsOn(prepareKcefNatives) }
 // `run` points the app at the natives in this build dir by absolute path. This must stay out of
 // compose.desktop.application.jvmArgs: those land in the packaged app's .cfg and would beat the resources dir that
 // the installed app resolves its natives from (CefNativesLocation). verifyPackagedConfig enforces that.
 tasks.matching { it.name == "run" }.withType<JavaExec>().configureEach {
-    jvmArgs("-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}")
-    // Optional extra Chromium switches for `run`, e.g. -Pkcef.args=--remote-debugging-port=9222 (debugging, CDP).
-    providers.gradleProperty("kcef.args").orNull?.let { jvmArgs("-Dkcef.args=$it") }
+    if (!isWindowsHost) {
+        jvmArgs("-Dkcef.installDir=${kcefNativesDir.get().asFile.absolutePath}")
+        // Optional extra Chromium switches for Linux `run`.
+        providers.gradleProperty("kcef.args").orNull?.let { jvmArgs("-Dkcef.args=$it") }
+    }
 }
 
 // The CEF natives as app resources of this host's distribution (appResourcesRootDir/<os-arch>/kcef-natives), found
@@ -332,7 +336,13 @@ stageKcefNatives.configure {
         }
     }
 }
-tasks.matching { it.name in packagingTaskNames }.configureEach { dependsOn(stageKcefNatives) }
+// Sync alone would leave the old Windows payload behind in an incremental dual-engine build.
+val removeWindowsKcefNatives by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("desktop-resources/windows-x64/kcef-natives"))
+}
+tasks.matching { it.name in packagingTaskNames }.configureEach {
+    if (isWindowsHost) dependsOn(removeWindowsKcefNatives) else dependsOn(stageKcefNatives)
+}
 
 // ---- WebView2 loader (Windows engine, #3933) --------------------------------------------------------------------
 // WebView2Loader.dll (x64) and its licence come from the Microsoft.Web.WebView2 NuGet SDK, pinned by SHA-256 of the
@@ -629,10 +639,13 @@ tasks.matching { it.name == "createDistributable" || it.name == "createReleaseDi
         val appDir = if (release) appImageAppDir.replace("binaries/main/", "binaries/main-release/") else appImageAppDir
         val natives = layout.buildDirectory.dir("$appDir/resources/kcef-natives").get().asFile
         val config = layout.buildDirectory.file("$appDir/${if (isWindowsHost) "AndBible" else "andbible"}.cfg").get().asFile
-        // Windows has no executable bit: jcef_helper.exe runs as it is.
-        if (!isWindowsHost) restoreNativeModes(kcefNativesDir.get().asFile, natives)
-        val helper = File(natives, if (isWindowsHost) "jcef_helper.exe" else "jcef_helper")
-        check(helper.isFile && helper.canExecute()) { "jcef_helper is missing or not executable in the app image ($helper)" }
+        if (isWindowsHost) {
+            check(!natives.exists()) { "Windows must not include the retired KCEF payload ($natives)" }
+        } else {
+            restoreNativeModes(kcefNativesDir.get().asFile, natives)
+            val helper = File(natives, "jcef_helper")
+            check(helper.isFile && helper.canExecute()) { "jcef_helper is missing or not executable in the app image ($helper)" }
+        }
         val cfg = config
         check(cfg.isFile) { "No app image .cfg at $cfg" }
         // A build-machine path here would beat the resources dir on the user's machine (CefNativesLocation).
@@ -797,8 +810,8 @@ tasks.matching { it.name == "packageDeb" || it.name == "packageReleaseDeb" }.con
     }
 }
 
-// Windows x64: the app image (AndBible.exe, its runtime and the windows-x64 CEF natives) and a zip of it. Built on
-// Windows only: jpackage cannot cross-build, and the natives are the windows-x64 JBR build. Unsigned (W3 decides that).
+// Windows x64: the app image (AndBible.exe, its JVM and WebView2 loader) and a zip of it.
+// The browser is the installed Evergreen runtime, never bundled Chromium. Built on Windows: jpackage cannot cross-build.
 val createWindowsAppImage by tasks.registering {
     group = "distribution"
     description = "Builds the Windows x64 app image build/compose/binaries/main/app/AndBible (AndBible.exe)."
@@ -815,8 +828,10 @@ val packageWindowsZip by tasks.registering(Zip::class) {
     doFirst { if (hostTarget != "windows-x64") throw GradleException("packageWindowsZip needs a Windows x64 host (this host is $hostTarget)") }
     doLast {
         val names = ZipFile(archiveFile.get().asFile).use { zip -> zip.entries().asSequence().map { it.name }.toSet() }
-        for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/app/resources/kcef-natives/libcef.dll",
-            "AndBible/app/resources/kcef-natives/jcef_helper.exe", "AndBible/runtime/bin/java.dll",
+        check(names.none { it.contains("/kcef-natives/") || it.endsWith("/libcef.dll") || it.endsWith("/jcef_helper.exe") }) {
+            "The Windows archive must not include Chromium natives"
+        }
+        for (required in listOf("AndBible/AndBible.exe", "AndBible/app/AndBible.cfg", "AndBible/runtime/bin/java.dll",
             "AndBible/app/resources/webview2/WebView2Loader.dll", "AndBible/app/resources/webview2/LICENSE.txt")) {
             check(required in names) { "$required is missing from ${archiveFile.get().asFile.name}" }
         }

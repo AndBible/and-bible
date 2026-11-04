@@ -4,9 +4,13 @@ AndBible for Linux and Windows is in beta. Download desktop packages from [GitHu
 
 ## Windows reading engine
 
-On Windows x64, AndBible uses the system **Microsoft Edge WebView2 Evergreen Runtime** for document text when the graphics renderer supports it. Windows normally keeps this runtime up to date independently of AndBible.
+On Windows x64, AndBible uses the system **Microsoft Edge WebView2 Evergreen Runtime** for document text. Windows normally keeps this runtime up to date independently of AndBible. The MSI includes the small WebView2 loader, not a bundled Chromium browser.
 
-The MSI also includes a Chromium-based fallback. AndBible selects it automatically if WebView2 is unavailable or the window cannot use Direct3D. You do not need to install WebView2 manually to use AndBible, and the app does not download a browser at startup. Both engines are included in the same installer, so using the system runtime does not make this MSI substantially smaller. If neither engine can start, AndBible shows an error message naming the cause and the log file location, then closes. The engine AndBible chose is logged (`desktop renderer: ...; engine: ...`) in `%APPDATA%\AndBible\logs\andbible.log` and is included in bug reports.
+If WebView2 is missing or cannot start, AndBible shows an error with the [WebView2 Runtime download link](https://developer.microsoft.com/microsoft-edge/webview2/) and the log file location, then closes. Install or repair the Evergreen Runtime and try again. The app does not download a browser at startup.
+
+The reading view requires the Direct3D graphics renderer. If the window uses a different renderer, AndBible shows a graphics-specific error instead of an empty reading window. Remove any forced software/OpenGL renderer override and check your graphics driver; installing WebView2 alone does not solve a graphics-renderer error. Diagnostic details are logged in `%APPDATA%\AndBible\logs\andbible.log` and included in bug reports.
+
+Switching workspaces reuses the reading pages. Returning to a workspace restores its StudyPad, Bible and commentary panes without restarting the browser page.
 
 ## Linux packages
 

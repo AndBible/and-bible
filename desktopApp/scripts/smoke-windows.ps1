@@ -9,7 +9,7 @@
 # only follows a failed close and fails the smoke.
 #
 # Fails on: no readiness, an "already running" line, a close that does not end the process within 20 s, any
-# AndBible.exe / java.exe / jcef_helper.exe from the unzipped image left afterwards, and a Windows Error Reporting
+# AndBible.exe / java.exe / profile-owned msedgewebview2.exe from the unzipped image left afterwards, and a Windows Error Reporting
 # crash (WerFault.exe, or an Application Error / Windows Error Reporting event for these executables since the start;
 # not RADAR_PRE_LEAK, a memory heuristic).
 # Exit 0 only if all of that held. Needs an interactive or SSH session of the test user; no Java on the PATH.
@@ -35,6 +35,8 @@ if ($LASTEXITCODE -ne 0) { Write-Output "FAIL: could not unpack $Zip"; exit 1 }
 $exe = Join-Path $tmp 'image\AndBible\AndBible.exe'
 if (-not (Test-Path $exe)) { Write-Output "FAIL: no AndBible\AndBible.exe in $Zip"; exit 1 }
 $imageDir = Split-Path $exe
+if (Test-Path (Join-Path $imageDir 'app\resources\kcef-natives')) { throw 'Windows image still bundles Chromium natives' }
+if (-not (Test-Path (Join-Path $imageDir 'app\resources\webview2\WebView2Loader.dll'))) { throw 'WebView2 loader missing' }
 
 $appData = Join-Path $tmp 'Roaming'
 $localAppData = Join-Path $tmp 'Local'
@@ -75,6 +77,8 @@ for ($i = 0; $i -lt $TimeoutSec; $i++) {
     Start-Sleep -Seconds 1
 }
 $text = Read-Logs
+if ($text -notmatch 'desktop renderer: DIRECT3D; engine: WEBVIEW2') { Fail 'Windows did not start the WebView2 engine on Direct3D' }
+if ($text -match 'engine: KCEF|falling back to KCEF') { Fail 'Windows unexpectedly selected the retired KCEF fallback' }
 if ($text -match 'already running') { Fail "app reports 'already running'" }
 elseif ($ready) { Write-Output ("OK: " + (($text -split "`n") | Where-Object { $_ -match $pattern } | Select-Object -First 1)) }
 else { Fail "no readiness line ('$pattern') within $TimeoutSec s, or the app exited first (exit $(if ($proc.HasExited) { $proc.ExitCode } else { 'n/a' }))" }
@@ -116,16 +120,17 @@ public static int CloseAll(uint target) {
 # Nothing of this image may be left running, and no crash may have been reported.
 Start-Sleep -Seconds 3
 $left = Get-CimInstance Win32_Process | Where-Object {
-    $_.ExecutablePath -and $_.ExecutablePath.StartsWith($imageDir, [StringComparison]::OrdinalIgnoreCase)
+    ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($imageDir, [StringComparison]::OrdinalIgnoreCase)) -or
+    ($_.Name -eq 'msedgewebview2.exe' -and $_.CommandLine -and $_.CommandLine.IndexOf($localAppData, [StringComparison]::OrdinalIgnoreCase) -ge 0)
 }
 if ($left) {
     Fail ("processes left: " + (($left | ForEach-Object { "$($_.Name) ($($_.ProcessId))" }) -join ', '))
     $left | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
-} else { Write-Output 'OK: no AndBible.exe / java.exe / jcef_helper.exe left' }
+} else { Write-Output 'OK: no AndBible.exe / java.exe / profile-owned msedgewebview2.exe left' }
 $wer = Get-Process -Name WerFault -ErrorAction SilentlyContinue
 # RADAR_PRE_LEAK_64 is Windows' memory-growth heuristic (seen for AndBible.exe and the Gradle JVM in W1): no crash, no dialog.
 $events = Get-WinEvent -FilterHashtable @{ LogName = 'Application'; StartTime = $started } -ErrorAction SilentlyContinue |
-    Where-Object { ($_.ProviderName -in 'Application Error', 'Windows Error Reporting') -and ($_.Message -match 'AndBible|jcef_helper|java\.exe') } |
+    Where-Object { ($_.ProviderName -in 'Application Error', 'Windows Error Reporting') -and ($_.Message -match 'AndBible|msedgewebview2|java\.exe') } |
     Where-Object { $_.Message -notmatch 'RADAR_PRE_LEAK' }
 if ($wer -or $events) {
     Fail ("Windows Error Reporting: " + (@($events | ForEach-Object { $_.Message.Split("`n")[0] }) + @($wer | ForEach-Object { "WerFault.exe ($($_.Id))" }) -join ' | '))
