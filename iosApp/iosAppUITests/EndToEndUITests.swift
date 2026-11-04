@@ -26,6 +26,7 @@ import XCTest
 /// Each test is self-contained and ends with the app terminated. The chain is destructive for the app data
 /// (`-resetData`); the restore test leaves night mode and the font size as it found them.
 final class EndToEndUITests: RealAppUITestCase {
+    override var usesReadingDomProbe: Bool { name.contains("testRestoreKeepsLiveSettings") }
     private struct E2EFixture: Decodable {
         let url: String
         let user: String
@@ -350,22 +351,47 @@ final class EndToEndUITests: RealAppUITestCase {
         }
         requireBrightPage("after the post-restore night round trip")
 
+        // Keep DOM geometry separate from AX: a missing/stale snapshot is not a font subscription failure.
+        let beforeDom = settledDomVerse16(app, "restore before font")
         // Text size: a phrase of the page grows when the font size goes up (AX frame width of the phrase).
-        guard let before = phraseWidth(app, preferring: nil) else {
-            harnessRequire(false, app, "a measurable phrase (Nicodemus / loved / God) is on the page")
-            return
+        let before = phraseWidth(app, preferring: nil)
+        withDomEvidence {
+            harnessRequire(before != nil, app, "a measurable phrase (Nicodemus / loved / God) is on the page")
         }
+        let increaseAction = Date().timeIntervalSince1970
         let (old, new) = changeFontSize(app, by: 4)
         harnessRequire(new == old + 4, app, "the font size editor moved from \(old) to \(new), expected +4")
-        let grew = waitUntil(timeout: 30) { (self.phraseWidth(app, preferring: before.label)?.width ?? 0) > before.width * 1.05 }
-        shot(app, "e2e-restore-font-increased")
-        harnessRequire(grew, app, "'\(before.label)' got wider than \(before.width) pt after the font size +4 (same process as the restore)")
+        let increasedDom = settledDomVerse16(app, "restore after font increase", after: increaseAction) { now in
+            beforeDom.count == 4 && now.count == 4 && zip(beforeDom, now).allSatisfy { $1.width > $0.width * 1.05 }
+        }
+        withDomEvidence {
+            XCTAssertEqual(beforeDom.count, 4)
+            XCTAssertEqual(increasedDom.count, 4)
+        }
+        if let before {
+            let grew = waitUntil(timeout: 30) { (self.phraseWidth(app, preferring: before.label)?.width ?? 0) > before.width * 1.05 }
+            shot(app, "e2e-restore-font-increased")
+            withDomEvidence {
+                harnessRequire(grew, app, "'\(before.label)' got wider than \(before.width) pt after the font size +4 (same process as the restore)")
+            }
+        } else {
+            shot(app, "e2e-restore-font-increased")
+        }
         // Leave the setting as found: back down by the same amount, the phrase returns to its width.
+        let restoreAction = Date().timeIntervalSince1970
         let (_, restoredSize) = changeFontSize(app, by: -4)
         harnessRequire(restoredSize == old, app, "the font size went back to \(old), is \(restoredSize)")
-        harnessRequire(waitUntil(timeout: 30) {
-            abs((self.phraseWidth(app, preferring: before.label)?.width ?? 0) - before.width) < 1.5
-        }, app, "'\(before.label)' returned to its original width")
+        let restoredDom = settledDomVerse16(app, "restore after font reset", after: restoreAction) { now in
+            beforeDom.count == 4 && now.count == 4 && zip(beforeDom, now).allSatisfy { abs($1.width - $0.width) < 1.5 }
+        }
+        withDomEvidence { XCTAssertEqual(restoredDom.count, 4) }
+        if let before {
+            withDomEvidence {
+                harnessRequire(waitUntil(timeout: 30) {
+                    abs((self.phraseWidth(app, preferring: before.label)?.width ?? 0) - before.width) < 1.5
+                }, app, "'\(before.label)' returned to its original width")
+            }
+        }
 
         // Final fresh process on the restored data: night follows the system again (preference System), page is a day page.
         app = relaunch(app)

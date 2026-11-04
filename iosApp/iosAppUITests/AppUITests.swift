@@ -7,11 +7,13 @@ class RealAppUITestCase: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    var usesReadingDomProbe: Bool { false }
 
     func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO"]
         app.launchArguments += arguments
+        if usesReadingDomProbe { app.launchArguments += ["-readingAccessibilityProbe"] }
         app.launch()
         return app
     }
