@@ -137,7 +137,7 @@ configured in `Settings` > `Application behavior` > `Action for swipe
 left/right gesture`:
 
 - **Chapter** (default) – Navigate to the next or previous chapter.
-- **Page** – Scroll by one page (like tapping the margin).
+- **Page** – Scroll by one page (like tapping the margin in the Android or iOS app).
 - **Disabled** – Swiping has no effect on the Bible text.
 
 ### Double-Tap to Fullscreen

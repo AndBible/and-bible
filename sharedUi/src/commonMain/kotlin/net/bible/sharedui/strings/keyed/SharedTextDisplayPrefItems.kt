@@ -78,6 +78,7 @@ class SharedTextDisplayPrefItems(
     private val documentControl: () -> DocumentControl,
     private val settings: () -> AppSettings,
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
+    private val showMarginPageJumpTip: Boolean = true,
     override val fonts: List<SettingsItem.Choice> = listOf(
         // The CSS generic families every WebView resolves; a platform with a font scan passes its own.
         genericFontChoice("sans-serif"),
@@ -213,7 +214,12 @@ class SharedTextDisplayPrefItems(
 
         override val summary: String?
             get() = if (type == Types.MARGINSIZE) {
-                strings().text("prefs_margin_size_summary") + " " + strings().text("prefs_margin_size_summary_2")
+                val table = strings()
+                table.text("prefs_margin_size_summary") + if (showMarginPageJumpTip) {
+                    " " + table.text("prefs_margin_size_summary_2")
+                } else {
+                    ""
+                }
             } else {
                 null
             }

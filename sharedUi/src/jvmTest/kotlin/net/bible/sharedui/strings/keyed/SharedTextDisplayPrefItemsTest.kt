@@ -200,6 +200,22 @@ class SharedTextDisplayPrefItemsTest {
         assertNull(items.item(bundle, Types.FONTSIZE).summary)
     }
 
+    @Test fun desktopMarginSummaryOmitsMobilePageJumpTip() {
+        val desktopItems = SharedTextDisplayPrefItems(
+            strings = { StringTable.of("en", { lookup("en", it) }, { n, c -> lookupPlural("en", n, c) }, { lookupArray("en", it) }) },
+            contentSource = { source },
+            windowControl = { error("these bundles name no window and the types tested need no active page") },
+            documentControl = { error("no document control needed") },
+            settings = { appSettings },
+            showMarginPageJumpTip = false,
+        )
+
+        assertEquals(
+            lookup("en", "prefs_margin_size_summary"),
+            desktopItems.item(bundle, Types.MARGINSIZE).summary,
+        )
+    }
+
     @Test fun staticTitlesAreTheSettingLabels() {
         val labels = KeyedSettingLabels(StringTable.of("en", { lookup("en", it) }, { n, c -> lookupPlural("en", n, c) }, { lookupArray("en", it) }))
         val items = items()
