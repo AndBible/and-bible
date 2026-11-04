@@ -49,16 +49,17 @@
 #                                               gradle <args>, native-tests [--force] [mod...], xcode-test [dev] [args],
 #                                               xcode-build [dev], run <command>
 #   (gradle, native-tests, xcode-*, run, batch and the sim subcommands that drive the shared simulator — boot,
-#   shot, launch, shutdown — all take the one Mac-wide build lock and write a run marker under
-#   .local/mac/<container>/runs/<run-id>/ (meta, output.log, steps, exit); sync, fetch, check, cancel,
-#   sim list/log/sample/crashes do not)
+#   shot, launch, shutdown, crashes — plus sync and fetch take the one Mac-wide build lock and write a run marker
+#   under .local/mac/<container>/runs/<run-id>/ (meta, output.log, steps, exit); check, cancel and sim list/log/sample do not)
 #   scripts/mac-remote.sh cleanup               lock, then clean up after use: shut down all simulators, kill processes left over
 #                                               from THIS container's tree (~/work/<container>/: test.kexe, xcodebuild, gradle
 #                                               wrapper/daemons, simctl spawn), report (never kill) such processes of other
 #                                               containers' trees with age/RSS/CPU, print free memory before and after.
 #                                               Every Mac session ends with it (or `sim shutdown`); `check` lists the leftovers
-#       cleanup also removes this container's regenerable junk on the Mac (build/release archives except the newest of each
-#       kind, build/shots; --derived-data also its DerivedData) and prints the Mac's disk state before and after
+#       Shared cleanup keeps warm outputs/daemons and only deletes captured scratch from the current source generation;
+#       shared-path processes are report-only. Private cleanup removes old release archives/shots and own leftovers.
+#       --derived-data explicitly removes own DerivedData (shared: tree-local build/dd-*). Prints disk state before/after.
+#   scripts/mac-remote.sh reset-tree            lock, clear selected tree regenerable outputs; never global Xcode caches
 #   scripts/mac-remote.sh prune [--trees <name...>] [--older-than <days>] [--sims] [--yes]
 #                                               DELETES other containers' ~/work trees (+ their DerivedData) and, with --sims,
 #                                               simulator devices other than the script's iPhone/iPad. Dry run (listing with
@@ -203,6 +204,7 @@ EOF
 }
 locked_guard() {
     path_guard
+    printf '[ -n %q ] || exit 73\n' "$TOKEN"
     printf '[ "$(sed -n "s/^token=//p" "$HOME/work/.build-lock/owner" 2>/dev/null)" = %q ] || exit 73\n' "$TOKEN"
 }
 owner_guard() {
@@ -218,6 +220,9 @@ prologue() {
 set -uo pipefail
 $(path_guard)
 [ -z "\${GRADLE_USER_HOME:-}" ] || { echo 'mac-remote: custom remote GRADLE_USER_HOME unsupported' >&2; exit 73; }
+for __opts in "\${GRADLE_OPTS:-}" "\${JAVA_OPTS:-}" "\${JAVA_TOOL_OPTIONS:-}" "\${JDK_JAVA_OPTIONS:-}" "\${_JAVA_OPTIONS:-}"; do
+    case "\$__opts" in *gradle.user.home*) echo 'mac-remote: JVM Gradle home override unsupported' >&2; exit 73 ;; esac
+done
 export MAC_REMOTE_BUILD_CACHE=1
 export GRADLE_OPTS="\${GRADLE_OPTS:-} -Dorg.gradle.caching=true"
 cd "\$TREE" 2>/dev/null || $( [ "${PROLOGUE_NOTREE:-0}" = 1 ] && echo 'cd "$HOME"' || echo '{ echo "mac-remote: no remote tree at $TREE; run sync first" >&2; exit 1; }' )
@@ -403,7 +408,7 @@ prune() {   # args: [--trees name...] [--older-than days] [--sims] [--yes]; PRUN
     for n in $todo; do
         if [ "$n" = shared ]; then echo "  shared: SKIPPED, protected warm tree"; continue; fi
         [ ! -L "$HOME/work/$n" ] || { echo "mac-remote: refusing symlink prune target" >&2; return 73; }
-        if [ "$n" = "$PRUNE_ME" ]; then echo "  $n: SKIPPED, this container's own tree (use 'cleanup')"; continue; fi
+        if [ "$n" = "$PRUNE_ME" ] || [ "$n" = "${PRUNE_SELECTED:-}" ]; then echo "  $n: SKIPPED, this container's own tree (use 'cleanup')"; continue; fi
         if [ -n "$holder" ] && [ "$n" = "$holder" ] && [ "$holder" != "$PRUNE_ME" ]; then echo "  $n: SKIPPED, holds the build lock"; continue; fi
         if echo "$busy" | grep -qx "$n"; then echo "  $n: SKIPPED, has running processes"; continue; fi
         sz=$(du -sk "$HOME/work/$n" 2>/dev/null | awk '{print $1}')
@@ -635,6 +640,37 @@ __MR_INIT__
 EOF
 }
 
+recorded_source_metadata() {
+    local record
+    record=$(remote "$(locked_guard)
+cat \$HOME/$(q "$WORKDIR/.mac-owner") 2>/dev/null") || {
+        # Older private trees can lack an owner record: never attribute local HEAD.
+        [ "$SHARED" = 0 ] || return 73
+        record=
+    }
+    SOURCE_REVISION=$(sed -n 's/^source_revision=//p' <<<"$record")
+    SOURCE_DIRTY=$(sed -n 's/^source_dirty=//p' <<<"$record")
+    SOURCE_REVISION=${SOURCE_REVISION:-unknown}; SOURCE_DIRTY=${SOURCE_DIRTY:-unknown}
+    [[ "$SOURCE_REVISION" =~ ^[a-zA-Z0-9]+$ && "$SOURCE_DIRTY" =~ ^[a-zA-Z0-9]+$ ]] || return 73
+    sed -i "s/^source_revision=.*/source_revision=$SOURCE_REVISION/; s/^source_dirty=.*/source_dirty=$SOURCE_DIRTY/" "$RUNDIR/meta"
+}
+
+step_script_sim_crashes() {
+    cat <<EOF
+mkdir -p build/crashes || return 74
+find "\$HOME/Library/Logs/DiagnosticReports" -name $(q "$APP_PROCESS*") -mtime -2 -exec cp {} build/crashes/ \\; 2>/dev/null
+# No diagnostic directory is a legitimate empty collection.
+ls -t build/crashes | head
+EOF
+}
+step_post_sim_crashes() {
+    local n=$1 ev="$RUNDIR/crashes/step$1"
+    fetch_optional build/crashes "$ev" || return $?
+    mkdir -p "$OUT"
+    [ -L "$OUT/crashes" ] || rm -rf "$OUT/crashes"
+    ln -sfn "runs/$RUN_ID/crashes/step$n/crashes" "$OUT/crashes"
+}
+
 step_script_sync() { echo ':'; }
 step_script_fetch() { echo ':'; }
 step_post_fetch() { shift 2; fetch "$@"; }
@@ -731,25 +767,26 @@ import hashlib, json, os, shutil, sys
 root, owner, token, step, mode = sys.argv[1:]
 $(artifact_signature_script)
 receipts = os.path.join(root, 'build', '.mac-receipts')
+try:
+    fields = dict(line.rstrip().split('=', 1) for line in open(os.path.join(os.path.dirname(root), '.mac-owner')))
+except (OSError, ValueError): fields = {}
+generation = fields.get('token')
+if fields.get('container') != owner or not generation: raise SystemExit(0)
 if mode == 'capture':
     stage = os.path.join(root, 'build', '.mac-evidence', token, 'run', 'step' + step)
     changed = json.load(open(os.path.join(stage, 'captured.json')))
     os.makedirs(receipts, exist_ok=True)
     p = os.path.join(receipts, token + '-' + step + '.json')
-    with open(p + '.tmp', 'w') as f: json.dump({'owner': owner, 'token': token, 'changed': changed}, f)
+    with open(p + '.tmp', 'w') as f: json.dump({'owner': owner, 'token': token, 'generation': generation, 'changed': changed}, f)
     os.replace(p + '.tmp', p)
 else:
-    # The owner record is the completed source handoff, not this cleanup's lock token.
-    try:
-        fields = dict(line.rstrip().split('=', 1) for line in open(os.path.join(os.path.dirname(root), '.mac-owner')))
-    except (OSError, ValueError): fields = {}
-    if fields.get('container') != owner: raise SystemExit(0)
+    # Only this completed source generation can grant scratch deletion authority.
     if os.path.isdir(receipts):
         for name in os.listdir(receipts):
             p = os.path.join(receipts, name)
             if not name.endswith('.json') or os.path.islink(p): continue
             receipt = json.load(open(p))
-            if receipt.get('owner') != owner: continue
+            if receipt.get('owner') != owner or receipt.get('generation') != generation: continue
             for rel, digest in receipt['changed'].items():
                 if rel.split('/')[0] not in ('release', 'shots') or '..' in rel.split('/'): raise RuntimeError('invalid cleanup receipt')
                 target = os.path.join(root, 'build', rel)
@@ -787,6 +824,7 @@ root = sys.argv[1]
 h = hashlib.sha256()
 try:
     names = subprocess.check_output(['git', '-C', root, 'ls-files', '-z', '--modified', '--others', '--exclude-standard']).split(b'\0')
+    names += subprocess.check_output(['git', '-C', root, 'diff', '--cached', '--name-only', '-z', '--diff-filter=ACDMRTUXB']).split(b'\0')
 except subprocess.CalledProcessError:
     names = []
 for raw in sorted(set(names)):
@@ -883,7 +921,7 @@ run_begin() {   # label total-steps cmdline...
     {
         echo "id=$RUN_ID"; echo "container=$NAME"; echo "cmd=${cmdline:0:300}"; echo "pid=$$"
         echo "pstart=$(lpstart $$)"; echo "start_epoch=$(date +%s)"; echo "token=$TOKEN"; echo "steps=$total"
-        echo "log=$RUNDIR/output.log"; echo "tree=$TREE"; echo "source_revision=$SOURCE_REVISION"; echo "source_dirty=$SOURCE_DIRTY"
+        echo "log=$RUNDIR/output.log"; echo "tree=$TREE"; echo "source_revision=$SOURCE_REVISION"; echo "source_dirty=$SOURCE_DIRTY"; echo "requested_source_revision=$SOURCE_REVISION"; echo "requested_source_dirty=$SOURCE_DIRTY"
     } > "$RUNDIR/meta"
     : > "$RUNDIR/steps"
     # prune old run dirs (the newest KEEP_RUNS stay; a running run is always among them)
@@ -1227,6 +1265,7 @@ $(leftovers_script)
 $(disk_script)
 $(prune_script)
 PRUNE_ME=$(q "$NAME")
+PRUNE_SELECTED=$(q "${WORKDIR#work/}")
 PRUNE_KEEP_SIMS=$(q "$SIM_IPHONE|$SIM_IPAD")
 prune $(q "$@")
 return \$?
@@ -1263,7 +1302,8 @@ run_steps() {
         transfer_end || die "lost transfer lease"
         RUN_REASON=
     else
-        case "$label" in run|batch|fetch|sim-shot) remote "$(owner_guard)" || die "shared ownership check failed" ;; esac
+        case "$label" in run|batch|fetch|sim-shot|sim-crashes) remote "$(owner_guard)" || die "shared ownership check failed" ;; esac
+        recorded_source_metadata || die "cannot attribute selected remote source"
         case "$label" in run|batch)
             remote "$(locked_guard)
 $(prologue)
@@ -1547,9 +1587,7 @@ xcrun simctl spawn booted log show --style compact --last ${min}m --predicate $(
     sample) remote "$(prologue)
 p=\$(pgrep -n $(q "${1:-$APP_PROCESS}")) || { echo 'process not running' >&2; exit 1; }
 sample \$p 5 -file /tmp/mac-remote-sample.txt >/dev/null 2>&1; cat /tmp/mac-remote-sample.txt" ;;
-    crashes) remote "$(prologue)
-mkdir -p build/crashes && find ~/Library/Logs/DiagnosticReports -name '$APP_PROCESS*' -mtime -2 -exec cp {} build/crashes/ \\; 2>/dev/null; ls -t build/crashes | head"
-          fetch build/crashes "$OUT" ;;
+    crashes) run_steps sim-crashes 0 "$(q sim-crashes)" ;;
     shutdown) run_steps sim-shutdown 0 "$(q sim-shutdown)" ;;
     *) die "unknown sim subcommand: $sub" ;;
     esac

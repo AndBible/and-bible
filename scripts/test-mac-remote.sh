@@ -12,7 +12,15 @@ bg_pids=()
 cleanup() { [ -n "${KEEP:-}" ] && { echo "kept $T"; return; }; for p in "${bg_pids[@]:-}"; do [ -n "$p" ] && kill "$p" 2>/dev/null; done; rm -rf "$T"; }
 trap cleanup EXIT
 pass=0; failn=0; cur=
-fail() { echo "FAIL [$cur]: $*"; failn=$((failn + 1)); return 1; }
+fail() {
+    echo "FAIL [$cur]: $*"
+    failn=$((failn + 1))
+    if [ -n "${KEEP:-}" ]; then
+        mkdir -p "$T/failures/$cur"
+        cp -R "$T/out/runs" "$T/failures/$cur/" 2>/dev/null || true
+    fi
+    return 1
+}
 
 mkdir -p "$T/bin"
 # ssh: skip the option arguments, then `host command...`; run the command on this machine with the
@@ -23,7 +31,12 @@ while [ $# -gt 0 ]; do
     case "$1" in -F|-o) shift 2 ;; -t|-T) shift ;; *) break ;; esac
 done
 shift   # host
-cd "$FAKE_HOME" && HOME="$FAKE_HOME" exec bash -c "$*"
+cd "$FAKE_HOME" || exit 1
+export HOME="$FAKE_HOME"
+# Model ssh's exec of the remote interpreter without a redundant bash -c wait
+# layer (Bash 5.3 can report "wait_for: No record of process" in that layer).
+if [ "$*" = 'bash -s' ]; then exec bash -s; fi
+exec bash -c "$*"
 EOS
 # rsync: drop -e/--rsync-path, map host:path onto the fake home, record whether the lock was held at a push.
 cat > "$T/bin/fake-rsync" <<'EOS'
@@ -1060,7 +1073,8 @@ t_warm_nosync_installs_cache_under_lock() {
     new_env warm-nosync-cache
     mr sync >/dev/null 2>&1 || fail 'sync'
     rm "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle"
-    mr run --no-sync 'test -f "$HOME/.gradle/init.d/andbible-mac-build-cache.gradle"' >/dev/null 2>&1 || fail 'no-sync bypassed cache installation'
+    local result
+    result=$(mr run --no-sync 'test -f "$HOME/.gradle/init.d/andbible-mac-build-cache.gradle"' 2>&1) || fail "no-sync cache setup failed: $result"
 }
 t_warm_reset_refuses_nested_external_symlink() {
     new_env warm-reset-escape; unset MAC_OWN_TREE
@@ -1098,7 +1112,93 @@ t_warm_dirty_source_fingerprint_tracks_content() {
     [ "$first" != "$(kv "$(last_run)/meta" source_dirty)" ] || fail 'dirty fingerprint ignored content change'
 }
 
-for t in t_warm_dirty_source_fingerprint_tracks_content \
+t_review_receipt_generation_revoked_on_handoff() {
+    new_env review-generation; unset MAC_OWN_TREE
+    mr run 'mkdir -p build/shots; echo same > build/shots/same.png' >/dev/null 2>&1 || fail 'A run'
+    MAC_CONTAINER=other mr run 'echo same > build/shots/same.png' >/dev/null 2>&1 || fail 'B run'
+    mr sync >/dev/null 2>&1 || fail 'A reacquire'
+    mr cleanup >/dev/null 2>&1 || fail 'A cleanup'
+    [ -f "$FAKE_HOME/work/shared/and-bible/build/shots/same.png" ] || fail 'old A receipt deleted same-byte B artifact'
+}
+t_review_crashes_locked_and_fetchable() {
+    new_env review-crashes; unset MAC_OWN_TREE
+    mr sync >/dev/null 2>&1 || fail 'sync'
+    mkdir -p "$FAKE_HOME/Library/Logs/DiagnosticReports"
+    echo crash > "$FAKE_HOME/Library/Logs/DiagnosticReports/AndBibleDev-crash.ips"
+    sleep 30 & local hp=$!; bg_pids+=("$hp"); mk_owner other "$hp"
+    MAC_LOCK_WAIT=1 mr sim crashes >/dev/null 2>&1; local rc=$?
+    [ "$rc" = 75 ] || fail "crashes bypassed holder: $rc"
+    [ ! -e "$FAKE_HOME/work/shared/and-bible/build/crashes" ] || fail 'crashes mutated before lock'
+    kill "$hp"; wait "$hp" 2>/dev/null; rm -rf "$LOCK"
+    mr sim crashes >/dev/null 2>&1 || fail 'crashes fetch failed'
+    [ -f "$T/out/crashes/AndBibleDev-crash.ips" ] || fail 'crash evidence absent'
+    MAC_CONTAINER=other mr sim crashes >/dev/null 2>&1 && fail 'foreign crash collection accepted'
+}
+t_review_jvm_home_overrides_fail_closed() {
+    new_env review-jvm-home
+    local key out rc
+    for key in GRADLE_OPTS JAVA_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS; do
+        out=$(env "$key=-Dgradle.user.home=$FAKE_HOME/custom" "$SCRIPT" run 'touch forbidden' 2>&1); rc=$?
+        [ "$rc" != 0 ] || fail "$key override accepted"
+    done
+    [ ! -e "$FAKE_HOME/work/testbox/and-bible/forbidden" ] || fail 'override ran build body'
+    # Simulate a remote-only login environment, not the local shell.
+    cp "$T/bin/fake-ssh" "$T/bin/fake-ssh.original"
+    python3 -I - "$T/bin/fake-ssh" <<'EOS'
+import sys
+p=sys.argv[1]
+s=open(p).read().replace('cd "$FAKE_HOME"', 'export JAVA_TOOL_OPTIONS="-Dgradle.user.home=$FAKE_HOME/remote-custom"\ncd "$FAKE_HOME"')
+open(p,'w').write(s)
+EOS
+    mr xcode-test iphone >/dev/null 2>&1 && fail 'remote login JVM home override accepted'
+    cp "$T/bin/fake-ssh.original" "$T/bin/fake-ssh"
+}
+t_review_nosync_metadata_uses_executed_source() {
+    new_env review-nosync; unset MAC_OWN_TREE
+    git -C "$T/repo" init -q
+    git -C "$T/repo" -c user.name=test -c user.email=test@localhost commit -q --allow-empty -m A
+    mr sync >/dev/null 2>&1 || fail 'sync A'
+    local revision dirty; revision=$(kv "$(last_run)/meta" source_revision); dirty=$(kv "$(last_run)/meta" source_dirty)
+    echo B > "$T/repo/change"
+    git -C "$T/repo" add change
+    git -C "$T/repo" -c user.name=test -c user.email=test@localhost commit -qm B
+    echo local-only > "$T/repo/dirty"
+    mr run --no-sync 'test ! -e change' >/dev/null 2>&1 || fail 'no-sync execution'
+    [ "$(kv "$(last_run)/meta" source_revision)" = "$revision" ] && [ "$(kv "$(last_run)/meta" source_dirty)" = "$dirty" ] || fail 'no-sync source attributed to local checkout'
+    mr fetch gradlew >/dev/null 2>&1 || fail 'fetch'
+    [ "$(kv "$(last_run)/meta" source_revision)" = "$revision" ] || fail 'fetch source attributed to local checkout'
+}
+t_review_staged_fingerprint_tracks_all_states() {
+    new_env review-staged
+    git -C "$T/repo" init -q
+    echo clean > "$T/repo/tracked"
+    git -C "$T/repo" add tracked
+    git -C "$T/repo" -c user.name=test -c user.email=test@localhost commit -qm initial
+    mr sync >/dev/null 2>&1; mr sync >/dev/null 2>&1
+    local previous current
+    previous=$(kv "$(last_run)/meta" source_dirty)
+    local action
+    for action in modifyA modifyB addition deletion; do
+        case "$action" in modifyA) echo A > "$T/repo/tracked" ;; modifyB) echo B > "$T/repo/tracked" ;; addition) echo new > "$T/repo/added" ;; deletion) rm "$T/repo/tracked" ;; esac
+        git -C "$T/repo" add -A
+        mr sync >/dev/null 2>&1 || fail "sync $action"
+        current=$(kv "$(last_run)/meta" source_dirty)
+        [ "$previous" != "$current" ] || fail "fingerprint omitted staged $action"
+        previous=$current
+    done
+}
+t_review_selected_custom_tree_prune_protected() {
+    new_env review-custom
+    MAC_WORKDIR=work/custom mr sync >/dev/null 2>&1 || fail 'custom sync'
+    MAC_WORKDIR=work/custom mr prune --trees custom --yes >/dev/null 2>&1 || fail 'explicit prune'
+    [ -f "$FAKE_HOME/work/custom/and-bible/gradlew" ] || fail 'explicit prune removed selected tree'
+    MAC_WORKDIR=work/custom mr sync >/dev/null 2>&1
+    MAC_WORKDIR=work/custom mr prune --older-than 0 --yes >/dev/null 2>&1 || fail 'age prune'
+    [ -f "$FAKE_HOME/work/custom/and-bible/gradlew" ] || fail 'age prune removed selected tree'
+}
+
+for t in t_review_receipt_generation_revoked_on_handoff t_review_crashes_locked_and_fetchable t_review_jvm_home_overrides_fail_closed t_review_nosync_metadata_uses_executed_source t_review_staged_fingerprint_tracks_all_states t_review_selected_custom_tree_prune_protected \
+    t_warm_dirty_source_fingerprint_tracks_content \
     t_warm_prune_preserves_external_xcode_caches \
     t_warm_nosync_installs_cache_under_lock t_warm_reset_refuses_nested_external_symlink \
     t_warm_transfer_lease_and_failure_precedence t_warm_shared_scratch_cleanup_is_content_owned \
