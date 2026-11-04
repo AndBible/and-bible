@@ -16,16 +16,27 @@
  */
 package net.bible.service.startup
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.GlobalTextDisplaySettings
+import net.bible.android.database.GlobalTextDisplaySettingsDao
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.KJVA
@@ -128,6 +139,55 @@ class ReadingAppInitTest {
         ReadingAppInit.loadDocumentSyncSettings = { }
         ReadingAppInit.installManualBooks = { counter[0]++ }
         ReadingAppInit.hasInstalledBible = { true }
+    }
+
+    /** Removing startup-job ownership must fail before a replacement can close its exact DAO's database. */
+    @Test
+    fun replacementWaitsForTheStartupSnapshotQueryBeforeClosingItsDatabase() = runBlocking {
+        val dao = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var queryFinished = false
+        val gatedDao = object : GlobalTextDisplaySettingsDao by dao {
+            override suspend fun get(): GlobalTextDisplaySettings? =
+                withContext(NonCancellable) {
+                    entered.complete(Unit)
+                    release.await()
+                    dao.get().also { queryFinished = true }
+                }
+        }
+        val appScope = AppCoroutineScope()
+        KoinPlatform.getKoin().loadModules(listOf(module {
+            single { appScope }
+            single { GlobalTextDisplaySettingsStore(OrderedLauncher(appScope), { gatedDao }) }
+        }))
+        val load = ReadingAppInit.loadSnapshotStoresInBackground()
+        var replacement: Deferred<Unit>? = null
+        try {
+            withTimeout(30_000) { entered.await() }
+            // UNDISPATCHED reaches cancel-and-join before returning: no timing-based "has not closed yet" check.
+            replacement = async(start = CoroutineStart.UNDISPATCHED) {
+                DatabaseContainer.aiLifetime.replace { token ->
+                    assertTrue(queryFinished, "replacement must join the exact startup query before closing")
+                    DatabaseContainer.resetOwned(token)
+                }
+            }
+            assertEquals(false, replacement.isCompleted, "replacement must be waiting for the startup query")
+            release.complete(Unit)
+            withTimeout(30_000) { replacement.await() }
+            assertTrue(queryFinished)
+            assertTrue(load.isCompleted)
+            assertTrue(runCatching { dao.get() }.isFailure, "the exact queried database was closed")
+        } finally {
+            release.complete(Unit)
+            // Even a failed assertion must join the native reader before @AfterTest closes its database.
+            // A cleanup timeout must not turn an ownership regression into a JVM crash.
+            withContext(NonCancellable) {
+                load.join()
+                replacement?.join()
+                appScope.coroutineContext[Job]!!.let { it.cancel(); it.join() }
+            }
+        }
     }
 
     @Test
