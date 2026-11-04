@@ -16,6 +16,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not chunk:
                 return
             remaining -= len(chunk)
+        evidence = os.environ.get("CHECKLIST_UPLOAD_EVIDENCE")
+        if evidence:
+            pathlib.Path(evidence, "upload-started").touch()
         delay = min(float(os.environ.get("CHECKLIST_PUT_DELAY", "0")), 30)
         if delay:
             print("CHECKLIST PUT waiting for real upload response", flush=True)
@@ -23,6 +26,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_response(201)
         self.send_header("Content-Length", "0")
         self.end_headers()
+        if evidence:
+            pathlib.Path(evidence, "upload-completed").touch()
 
     def do_MKCOL(self):
         self.send_response(201)

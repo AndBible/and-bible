@@ -282,6 +282,41 @@ final class SyncAcceptanceUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Real database initial-upload pass, not a fake allowance action. The controller delays the DAV PUT response.
+    func testActualDatabaseSyncContinuesAfterBackground() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["TASK7_LONG_SYNC_ACCEPTANCE"] == "1",
+                          "Controller-only bounded long-sync fixture")
+        let fixture = try fixture()
+        guard let directory = ProcessInfo.processInfo.environment["TASK7_CERTIFICATE_SWAP_DIRECTORY"] else {
+            XCTFail("Controller evidence directory missing"); return
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-task5Settings"]
+        app.launch()
+        guard syncUI.openDeviceSynchronization(app, "Long-sync settings missing") else { return }
+        syncUI.rowButton(app, "Synchronization Backend").tap()
+        syncUI.label(app, "WebDAV").tap()
+        syncUI.edit(app, "Server URL", fixture.serverURL)
+        syncUI.edit(app, "User name", fixture.username)
+        syncUI.edit(app, "Password", fixture.password, sensitive: true)
+        syncUI.reveal(app, "Bookmarks", toggle: true).tap()
+        let certificate = syncUI.label(app, "Untrusted server certificate")
+        syncUI.require(certificate.waitForExistence(timeout: 60), app, "Long-sync fixture requires explicit certificate trust")
+        guard syncUI.trustPinnedCertificateIfShown(app, serverURL: fixture.serverURL, sha256: fixture.trustedCertificateSha256) else { return }
+        let uploading = NSPredicate { _, _ in FileManager.default.fileExists(atPath: directory + "/upload-started") }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: uploading, object: app)], timeout: 90) == .completed,
+                       app, "Actual database upload never reached the loopback DAV server")
+        syncUI.shot(app, "3959-real-sync-before-background")
+        XCUIDevice.shared.press(.home)
+        syncUI.require(app.wait(for: .runningBackground, timeout: 15), app, "Sync app did not background")
+        let completed = NSPredicate { _, _ in FileManager.default.fileExists(atPath: directory + "/upload-completed") }
+        syncUI.require(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: completed, object: app)], timeout: 45) == .completed,
+                       app, "Real DAV upload did not finish while backgrounded")
+        app.activate()
+        syncUI.shot(app, "3959-real-sync-after-background")
+        app.terminate()
+    }
+
     func testConfigureAndObserveFetchChoice() throws {
         let fixture = try fixture()
         guard let completionPath = ProcessInfo.processInfo.environment["TASK7_SYNC_COMPLETION_FILE"],

@@ -18,7 +18,7 @@ trap cleanup EXIT
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
   -subj '/CN=localhost/O=AndBible disposable test' \
   -keyout "$scratch/key.pem" -out "$scratch/cert.pem" > "$scratch/openssl.log" 2>&1
-python3 -I iosApp/legacy-fixtures/checklist-tls-server.py \
+CHECKLIST_UPLOAD_EVIDENCE="$scratch" CHECKLIST_PUT_DELAY=20 python3 -I iosApp/legacy-fixtures/checklist-tls-server.py \
   "$scratch/cert.pem" "$scratch/key.pem" "$scratch/port" > "$scratch/server.log" 2>&1 &
 server_pid=$!
 for _ in {1..50}; do test ! -s "$scratch/port" || break; sleep 0.1; done
@@ -45,6 +45,11 @@ changed=$(openssl x509 -in "$scratch/changed-cert.pem" -noout -fingerprint -sha2
 swap_pid=$!
 export TEST_RUNNER_TASK7_CERTIFICATE_SWAP_DIRECTORY="$scratch"
 export TEST_RUNNER_TASK7_CERTIFICATE_ACCEPTANCE=1 TEST_RUNNER_TASK7_SYNC_ACCEPTANCE=1
+selector=testCertificateCancelThenTrustLocalhost
+if test "${1:-}" = long-sync; then
+  selector=testActualDatabaseSyncContinuesAfterBackground
+  export TEST_RUNNER_TASK7_LONG_SYNC_ACCEPTANCE=1
+fi
 export TEST_RUNNER_TASK7_SYNC_FIXTURE_JSON
 TEST_RUNNER_TASK7_SYNC_FIXTURE_JSON=$(python3 -I -c '
 import json,sys
@@ -62,10 +67,11 @@ result="$PWD/build/3959-certificate-$(date -u +%Y%m%dT%H%M%S).xcresult"
 status=0
 xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
   -destination "platform=iOS Simulator,id=$id" -resultBundlePath "$result" \
-  -only-testing:iosAppUITests/SyncAcceptanceUITests/testCertificateCancelThenTrustLocalhost \
+  -only-testing:iosAppUITests/SyncAcceptanceUITests/"$selector" \
   > build/3959-certificate.log 2>&1 || status=$?
 cp build/3959-certificate.log build/shots/3959-certificate.log
 cp "$scratch/server.log" build/shots/3959-certificate-server.log
+xcrun simctl spawn "$id" log show --style compact --last 15m --predicate 'process == "AndBibleDev"' > build/shots/3959-certificate-app.log
 xcrun simctl io "$id" screenshot build/shots/3959-certificate-final.png >/dev/null 2>&1 || true
 xcrun xcresulttool get test-results tests --path "$result" --format json > build/shots/3959-certificate-tests.json || true
 xcrun xcresulttool get test-results summary --path "$result" --format json > build/shots/3959-certificate-summary.json || true
