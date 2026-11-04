@@ -49,6 +49,8 @@ class IosRootLinksTest {
 
     @BeforeTest fun attach() {
         HostRootLinks.mainContext = Dispatchers.Unconfined
+        HostRootLinks.setActive(true)
+        HostRootLinks.setReadingNavigator { shell.openReading(); true }
         HostRootLinks.attachShell(shell)
     }
 

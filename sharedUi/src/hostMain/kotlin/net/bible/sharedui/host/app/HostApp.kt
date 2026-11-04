@@ -476,6 +476,18 @@ private fun HostAppContent(
             log = { nsLog("IosApp: $it") },
         )
         welcome.afterRestore = gate::afterExternalFlow
+        HostRootLinks.setReadingNavigator {
+            val current = navController.currentDestination?.route?.substringBefore('?')
+            val welcomeOnStack = navController.currentBackStack.value.any { it.destination.route?.substringBefore('?') == NavRoutes.WELCOME }
+            if (welcomeOnStack || current == NavRoutes.WELCOME) false else {
+                shell.openReading()
+                true
+            }
+        }
+        val stopLifecycle = platform.lifecycle.observe(
+            listOf(HostLifecycleEvent.Active, HostLifecycleEvent.ResignActive, HostLifecycleEvent.Background),
+        ) { HostRootLinks.setActive(it == HostLifecycleEvent.Active) }
+        HostRootLinks.setActive(platform.lifecycle.isActive())
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
             shell.routeChanged(destination.route)
             HostRootLinks.onDestinationChanged()
@@ -487,7 +499,12 @@ private fun HostAppContent(
             )
         }
         navController.addOnDestinationChangedListener(listener)
-        onDispose { navController.removeOnDestinationChangedListener(listener) }
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+            stopLifecycle()
+            HostRootLinks.setActive(false)
+            HostRootLinks.setReadingNavigator(null)
+        }
     }
     AppRoot(
         navController = navController,

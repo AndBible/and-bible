@@ -1014,6 +1014,108 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    @Test fun newerDirectLinkRequestSupersedesPendingResumeRequest() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        val key = SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        val previous = CommonUtils.settings.getString(key, null)
+        try {
+            CommonUtils.settings.setString(key, "KJV")
+            val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
+            val host = assertNotNull(activity.composeReadingViewHost)
+            val pending = NavHostComposeActivity::class.java.getDeclaredField("pendingReadingSearchRoute").apply { isAccessible = true }
+            pending.set(activity, NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(query = "older", documentId = "KJV")))
+            GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+            NavHostComposeActivity::class.java.getDeclaredMethod("deliverPendingReadingSearch").apply { isAccessible = true }.invoke(activity)
+            assertEquals("strong:H430", host.searchController.queries.query.value, "older pending request must not overwrite the new link")
+        } finally {
+            CommonUtils.settings.setString(key, previous)
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    @Test fun linkRequestDuringOutgoingReadingTransitionReturnsToReading() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        val key = SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        val previous = CommonUtils.settings.getString(key, null)
+        try {
+            CommonUtils.settings.setString(key, "KJV")
+            val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
+            val host = assertNotNull(activity.composeReadingViewHost)
+            activity.navigate(NavRoutes.SETTINGS)
+            assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest())
+            assertTrue(ReadingViewVisibility.isVisible, "outgoing reading composition remains visible during transition")
+            GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+            net.bible.test.awaitHostCondition("return to reading") {
+                activity.currentRouteForTest() == NavRoutes.READING && host.searchController.queries.query.value == "strong:H430"
+            }
+        } finally {
+            CommonUtils.settings.setString(key, previous)
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    @Test fun inGraphHandoffWaitsForDocumentRegistrationAndNewestWins() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.SETTINGS),
+        )
+        val registrationField = CommonUtils::class.java.getDeclaredField("myDocumentRegistration").apply { isAccessible = true }
+        val oldRegistration = registrationField.get(CommonUtils)
+        val registration = Job()
+        try {
+            val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitHostCondition("settings graph", advanceComposition = { compose.waitForIdle() }) {
+                activity.currentRouteForTest() == NavRoutes.SETTINGS
+            }
+            registrationField.set(CommonUtils, registration)
+            activity.navigate(NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(query = "older", documentId = "KJV")))
+            val pendingField = NavHostComposeActivity::class.java.getDeclaredField("pendingReadingSearchRoute").apply { isAccessible = true }
+            net.bible.test.awaitHostCondition("first handoff accepted", advanceComposition = { compose.waitForIdle() }) {
+                (pendingField.get(activity) as? String)?.let(NavRoutes::readReadingSearch)?.query == "older"
+            }
+            activity.navigate(NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(query = "newest", documentId = "KJV")))
+            net.bible.test.awaitHostCondition("newest handoff accepted", advanceComposition = { compose.waitForIdle() }) {
+                (pendingField.get(activity) as? String)?.let(NavRoutes::readReadingSearch)?.query == "newest"
+            }
+            assertNull(activity.composeReadingViewHost, "reading cannot bootstrap before registration")
+            registration.complete()
+            try {
+                net.bible.test.awaitHostCondition("latest request", advanceComposition = { compose.waitForIdle() }, timeoutMs = 10_000) {
+                    activity.currentRouteForTest() == NavRoutes.READING &&
+                        activity.composeReadingViewHost?.searchController?.queries?.query?.value == "newest"
+                }
+            } catch (e: AssertionError) {
+                throw AssertionError("route=${activity.currentRouteForTest()}, pending=${pendingField.get(activity)}, " +
+                    "query=${activity.composeReadingViewHost?.searchController?.queries?.query?.value}, " +
+                    "foreground=${ReadingHostPresence.isForeground(activity)}, visible=${ReadingViewVisibility.isVisible}", e)
+            }
+        } finally {
+            registration.complete()
+            registrationField.set(CommonUtils, oldRegistration)
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
     // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
 
     @Test fun showAllOccurrencesOpensUnindexedTargetInHostedSheet() {

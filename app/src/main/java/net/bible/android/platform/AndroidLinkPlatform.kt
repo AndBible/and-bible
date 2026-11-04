@@ -20,8 +20,7 @@ class AndroidLinkPlatform : LinkPlatform {
     override fun openSearchInReadingView(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean {
         val activity = CurrentActivityHolder.currentActivity as? NavHostComposeActivity ?: return false
         if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) return false
-        if (!net.bible.sharedcore.reading.ReadingViewVisibility.isVisible) return false
-        return activity.composeReadingViewHost?.openSearchRequest(request) ?: false
+        return activity.requestReadingSearch(request)
     }
 
     override fun openRoute(route: String) {

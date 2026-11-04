@@ -48,6 +48,8 @@ object HostRootLinks {
     private var openSearch: ((net.bible.sharedcore.search.ReadingSearchRequest) -> Boolean)? = null
     private var pendingSearch: net.bible.sharedcore.search.ReadingSearchRequest? = null
     private var pendingNeedsNavigation = false
+    private var active = false
+    private var requestReading: (() -> Boolean)? = null
 
     /** The app root registers its shell. */
     fun attachShell(shell: HostNavShell) {
@@ -55,7 +57,18 @@ object HostRootLinks {
         onDestinationChanged()
     }
 
+    fun setActive(value: Boolean) {
+        active = value
+        if (active) onDestinationChanged()
+    }
+
+    fun setReadingNavigator(navigate: (() -> Boolean)?) {
+        requestReading = navigate
+        onDestinationChanged()
+    }
+
     fun onDestinationChanged() {
+        if (!active) return
         val currentShell = shell ?: return
         if (pendingSearch == null) return
         val route = currentShell.currentRoute.value ?: return
@@ -63,8 +76,9 @@ object HostRootLinks {
             pendingNeedsNavigation = false
             deliverPendingSearch()
         } else if (pendingNeedsNavigation) {
+            val navigate = requestReading ?: return
             pendingNeedsNavigation = false
-            currentShell.openReading()
+            if (!navigate()) pendingNeedsNavigation = true
         }
     }
 
@@ -82,7 +96,7 @@ object HostRootLinks {
     }
 
     fun deliverPendingSearch() {
-        if (shell?.currentRoute?.value != NavRoutes.READING) return
+        if (!active || shell?.currentRoute?.value != NavRoutes.READING) return
         val request = pendingSearch ?: return
         val open = openSearch ?: return
         pendingSearch = null
@@ -96,6 +110,8 @@ object HostRootLinks {
         openSearch = null
         pendingSearch = null
         pendingNeedsNavigation = false
+        active = false
+        requestReading = null
     }
 
     private fun onMain(what: String, block: (HostNavShell) -> Unit) {

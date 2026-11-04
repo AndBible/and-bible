@@ -475,9 +475,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private var pendingNewIntentRoute: String? = null
     private var pendingReadingSearchRoute: String? = null
+    private var readingResumeReady = false
+
+    internal fun requestReadingSearch(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean {
+        if (!::appHosts.isInitialized) return false
+        applyNewIntent(intentFor(this, NavRoutes.readingSearch(request)))
+        return true
+    }
 
     private fun deliverPendingReadingSearch() {
-        if (paused || !ReadingHostPresence.isForeground(this) || navController?.currentDestination?.route != NavRoutes.READING) return
+        if (paused || !readingResumeReady || !ReadingHostPresence.isForeground(this) || navController?.currentDestination?.route != NavRoutes.READING) return
         val route = pendingReadingSearchRoute ?: return
         val host = composeReadingViewHost ?: return
         pendingReadingSearchRoute = null
@@ -1490,6 +1497,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
+        readingResumeReady = false
         paused = true
         // Fix batch 1 §2.1 (F93/F94): classic MainBibleActivity.onPause saved here (`47dc2f73f^`
         // :1872). Every reload path -- a new host, process death, resume-reclaim -- reads the DB, so
@@ -1557,6 +1565,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // this runs inline exactly as before.
         lifecycleScope.launch {
             if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+            if (paused || !ReadingHostPresence.isForeground(this@NavHostComposeActivity)) return@launch
+            readingResumeReady = true
             applyBootstrapUiIfForeground()
             applyPendingDeepLinkIfForeground()
             deliverPendingReadingSearch()
@@ -3077,12 +3087,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         // `readingResultCollectors` and the block comment above it.
                         results = readingResultCollectors,
                         onSearchHandoff = { request ->
-                            pendingReadingSearchRoute = NavRoutes.readingSearch(request)
-                            navController.popBackStack()
-                            val route = gatedReadingRoute(NavRoutes.READING)
-                            if (route == NavRoutes.READING) bootstrapIfNeeded()
-                            navigateNewIntentRoute(route)
-                            deliverPendingReadingSearch()
+                            requestReadingSearch(request)
                         },
                     )
                 }
