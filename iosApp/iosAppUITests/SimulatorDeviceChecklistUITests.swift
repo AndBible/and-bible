@@ -68,11 +68,12 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
         return app.buttons.matching(NSPredicate(format: "label IN %@", ["OK", "Yes", "Kyllä"])).firstMatch
     }
 
-    /// Dismiss each modal notice and return the number shown.
+    /// Dismiss modal notices up to a bounded count, waiting for each dialog transition to settle.
     private func dismissNotices(_ app: XCUIApplication, firstTimeout: TimeInterval, quietTimeout: TimeInterval) -> Int {
         var count = 0
         var timeout = firstTimeout
-        while Date().addingTimeInterval(timeout) > Date() {
+        let maximumNotices = 10
+        while count < maximumNotices {
             let deadline = Date().addingTimeInterval(timeout)
             while Date() < deadline {
                 dismissSystemAlert(app)
@@ -84,6 +85,10 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
             confirm.tap()
             count += 1
             screenshot(app, named: "migration-notice-dismissed-\(count)")
+
+            // The next notice may reuse the same accessibility element, so allow its transition to finish.
+            let fadeDeadline = Date().addingTimeInterval(2.5)
+            while Date() < fadeDeadline && confirmButton(app).exists { usleep(150_000) }
             timeout = quietTimeout
         }
         return count
@@ -96,21 +101,38 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
         while Date() < deadline {
             dismissSystemAlert(app)
             if row.exists && row.isHittable { return row }
-            if swipes % 2 == 0 { app.swipeUp() } else { app.swipeDown() }
+            if swipes % 20 < 10 { app.swipeUp() } else { app.swipeDown() }
             swipes += 1
             usleep(300_000)
         }
         return row
     }
 
+    private func waitForStableFrame(_ row: XCUIElement) {
+        var last = row.frame
+        var stableSamples = 0
+        let deadline = Date().addingTimeInterval(5)
+        while Date() < deadline && stableSamples < 2 {
+            usleep(400_000)
+            let current = row.frame
+            stableSamples = current == last && row.exists ? stableSamples + 1 : 0
+            last = current
+        }
+    }
+
     private func serverURL(_ app: XCUIApplication) -> String? {
         let deviceSync = openSettingsRow(app, startingWith: "Device synchronization")
-        guard deviceSync.exists && deviceSync.isHittable else { return nil }
+        guard deviceSync.exists else { return nil }
+        waitForStableFrame(deviceSync)
+        guard deviceSync.isHittable else { return nil }
         deviceSync.tap()
         let backend = openSettingsRow(app, startingWith: "Synchronization Backend")
         guard backend.exists else { return nil }
+        waitForStableFrame(backend)
         let server = openSettingsRow(app, startingWith: "Server URL")
-        return server.exists ? server.label : nil
+        guard server.exists else { return nil }
+        waitForStableFrame(server)
+        return server.label
     }
 
     func testSingleKillResumesMigrationAndPersistsMigratedStateAfterRelaunch() throws {
@@ -136,6 +158,7 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
         XCTAssertEqual(serverURL(resumed), "Server URL, https://cloud.example.invalid/remote.php/dav/files/fixture",
                        "The migrated server URL must be available in settings")
         screenshot(resumed, named: "migration-resumed-ready-with-migrated-server")
+        XCUIDevice.shared.press(.home)
         resumed.terminate()
 
         let relaunched = launch(["-task5Settings"])
@@ -147,6 +170,7 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
         XCTAssertEqual(serverURL(relaunched), "Server URL, https://cloud.example.invalid/remote.php/dav/files/fixture",
                        "The migrated server URL must persist after relaunch")
         screenshot(relaunched, named: "migration-data-persisted-after-relaunch")
+        XCUIDevice.shared.press(.home)
         relaunched.terminate()
     }
 }
