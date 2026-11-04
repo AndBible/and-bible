@@ -19,8 +19,9 @@ PocUITests/testEdgeSwipeBack
 CrashRecoveryUITests/testTwoFatalForegroundCrashesRecoverAfterBackgroundRearm
 UserMessagesUITests/testStartupUserMessageAppearsInTheAppDialog
 
-# UIKit hand-offs: Files save picker round trip, share sheet, incoming archive through the production queue
-FilesUITests/testFileDeliverySavePreservesPayload
+# UIKit hand-offs: share sheet, incoming archive through the production queue. The Files save picker round trip
+# (FilesUITests/testFileDeliverySavePreservesPayload) stays in the full set only: 283 s on the iPad alone kept the smoke
+# set over 10 min there.
 FilesUITests/testProductionTextShareVisibleDismissAndRepresent
 IncomingFilesUITests/testColdSwordRegistersRecognizableBackendContent
 
