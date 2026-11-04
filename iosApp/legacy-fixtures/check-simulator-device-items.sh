@@ -42,8 +42,12 @@ case "${1:-}" in
     xcrun simctl io "$id" screenshot "$OUT/seeded-old-app.png" >/dev/null 2>&1
     xcrun simctl install "$id" "$new"
     after=$(xcrun simctl get_app_container "$id" "$bundle" data)
-    test "$data" = "$after"
-    printf 'PASS install-over preserved container %s\n' "$id" | tee "$OUT/seeded-install-over.txt"
+    printf 'install-over data before=%s after=%s\n' "$data" "$after" | tee "$OUT/seeded-install-over.txt"
+    # CoreSimulator may relocate the sandbox on install; require the actual legacy payload, not its UUID.
+    test -f "$after/Library/Application Support/AndBible.store"
+    cmp "$OUT/fixtures/extended/AndBible.store" "$after/Library/Application Support/AndBible.store"
+    data="$after"
+    printf 'PASS install-over preserved legacy store bytes %s\n' "$id" | tee -a "$OUT/seeded-install-over.txt"
     xcrun simctl launch "$id" "$bundle"
     sleep 60
     find "$data" -name done.json -exec cp '{}' "$OUT/seeded-done.json" \;

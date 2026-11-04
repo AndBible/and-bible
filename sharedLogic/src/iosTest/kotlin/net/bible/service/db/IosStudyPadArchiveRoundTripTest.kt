@@ -221,7 +221,7 @@ class IosStudyPadArchiveRoundTripTest {
             file: String, fileName: String, mode: SaveOrShare, shareMimeType: String, saveMimeType: String,
             subject: String?, message: String?, chooserTitle: String,
         ): DeliveryResult {
-            assertEquals("Archive round trip pad$DATABASE_BACKUP_SUFFIX", fileName)
+            assertEquals("Archive_round_trip_pad$DATABASE_BACKUP_SUFFIX", fileName)
             capture(FileSystem.SYSTEM.read(file.toPath()) { readByteArray() })
             return DeliveryResult.DELIVERED
         }

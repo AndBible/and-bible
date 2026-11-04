@@ -62,7 +62,7 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
     private func waitForReady(_ app: XCUIApplication, timeout: TimeInterval = 150) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            if element(app, "reading-host").exists || element(app, "welcome-screen").exists || element(app, "dialog-confirm").exists {
+            if element(app, "reading-host").exists || element(app, "welcome-screen").exists || element(app, "dialog-confirm").exists || app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Device synchronization")).firstMatch.exists {
                 return true
             }
             usleep(300_000)
