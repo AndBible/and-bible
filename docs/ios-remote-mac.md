@@ -11,7 +11,7 @@ the key is absent from containers until a session asks for it.
 
 ```
 jailbee container ──ssh/rsync (127.0.0.1:2224, host_ports mac-ssh, via the host's relay)──▶ Mac, user `andbible`
-  ~/.ssh-mac/ (optional mount, ro)          ~/work/<branch>/and-bible   (synced tree)
+  ~/.ssh-mac/ (optional mount, ro)          ~/work/shared/and-bible     (locked warm tree)
                                             Xcode, JDK 17, Node 24, xcodegen (shared, admin-installed)
 ```
 
@@ -306,7 +306,9 @@ and they do not honour the idle guard or the step process groups).
 ### Clean up after use
 
 The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the rule is the same as for
-`.local/` (maintainer, 2026-11-04): **resources used on the Mac are cleaned up after use**.
+`.local/` (maintainer, 2026-11-04): **release session-owned runtime/scratch resources after use**.
+The shared warm compilation tree, node_modules and reusable build caches intentionally remain; they are
+shared tool inputs, not abandoned session scratch.
 
 - `gradle`, `native-tests`, `xcode-test`, `xcode-build`, `run` and `batch` shut down all simulators when their locked
   session ends, on success and on failure (also when the session is killed: the Mac-side exit trap does it), and print
