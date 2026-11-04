@@ -31,6 +31,7 @@ import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
+import platform.Foundation.setValue
 import platform.UIKit.UIColor
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
