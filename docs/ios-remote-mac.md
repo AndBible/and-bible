@@ -223,6 +223,7 @@ scripts/mac-remote.sh xcode-test iphone      # the CI ios job (XCUITests + scree
 scripts/mac-remote.sh batch link native-tests "xcode-test iphone" "xcode-test ipad"   # one lock, one sync, stop at first red
 scripts/mac-remote.sh batch --keep-going "xcode-test iphone -only-testing:iosAppUITests/AppUITests" "xcode-test iphone -only-testing:iosAppUITests/PocUITests"   # every step runs; exit = first red
 scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulator
+scripts/mac-remote.sh cleanup                # end of every Mac session: simulators off, own leftovers killed, own junk removed
 ```
 
 The sync sends the working tree only, uncommitted changes included: no `.git` (the container's git
@@ -267,6 +268,29 @@ theirs. `unlock` removes any lock and is a last resort for a wedged foreign hold
 scripts. Update `scripts/mac-remote.sh` in every container before relying on the new lock: containers
 running the old script only partly understand the new owner record (they never break a new-style lock,
 and they do not honour the idle guard or the step process groups).
+
+### Clean up after use
+
+The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the rule is the same as for
+`.local/` (maintainer, 2026-11-04): **resources used on the Mac are cleaned up after use**.
+
+- `gradle`, `native-tests`, `xcode-test`, `xcode-build`, `run` and `batch` shut down all simulators when their locked
+  session ends, on success and on failure (also when the session is killed: the Mac-side exit trap does it), and print
+  one line saying what was shut down. `MAC_KEEP_SIM=1` (or `--keep-sim` right after the command name) keeps them.
+- The `sim` helpers (`boot`, `shot`, `launch`, `log`, ...) leave the simulator booted, because they are a sequence of calls.
+  End the sequence with `sim shutdown` or, better, `cleanup`.
+- **Every Mac session ends with `scripts/mac-remote.sh cleanup`** (a child includes it before `done`). It takes the lock, shuts
+  down all simulators, kills processes left over from this container's tree (`~/work/<container>/`: `test.kexe`, `xcodebuild`,
+  Gradle wrapper/daemons started there, `simctl spawn`), *reports* (never kills) such processes of other containers' trees with
+  age, RSS and CPU, removes this container's regenerable junk (`build/release` archives except the newest of each kind,
+  `build/shots`; `--derived-data` also its DerivedData) and prints memory and disk before and after.
+- `check` ends with a "leftovers" section and a disk report: free space, the size and last modification of every
+  `~/work/<tree>`, and CoreSimulator, DerivedData, `~/.konan` and `~/.gradle`. It warns above 85 % full.
+- `prune [--trees <name...>] [--older-than <days>] [--sims] [--yes]` deletes **other** containers' trees (and their DerivedData) and,
+  with `--sims`, simulator devices other than the script's iPhone/iPad (plus `simctl delete unavailable`). It is a dry run listing
+  sizes unless `--yes` is given, and never touches this container's tree, the lock holder or a tree with running processes. A
+  container cannot know which others are alive: only the maintainer decides. Above 85 % full the orchestrator asks the maintainer
+  and passes the names; a child never runs `prune --yes`.
 
 Tests for the script (fake ssh/rsync, no Mac): `scripts/test-mac-remote.sh`.
 

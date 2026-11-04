@@ -49,7 +49,9 @@ cat > "$T/bin/xcrun" <<'EOS'
 #!/usr/bin/env bash
 case "$*" in
     "simctl list devices available -j") echo '{"devices":{"rt":[{"name":"iPhone 16","udid":"UDID-IPHONE"},{"name":"iPad Air 11-inch (M4)","udid":"UDID-IPAD"}]}}' ;;
-    "simctl bootstatus "*) [ -n "${XC_BOOT_SLEEP:-}" ] && sleep "$XC_BOOT_SLEEP" ;;
+    "simctl bootstatus "*) touch "$FAKE_HOME/booted"; [ -n "${XC_BOOT_SLEEP:-}" ] && sleep "$XC_BOOT_SLEEP" ;;
+    "simctl list devices booted") [ -f "$FAKE_HOME/booted" ] && echo "    iPhone 16 (11111111-2222-3333-4444-555555555555) (Booted)" ;;
+    "simctl shutdown all") echo "simctl-shutdown-all" >> "$EVENTS"; rm -f "$FAKE_HOME/booted" ;;
     "simctl spawn "*) exec sleep 600 ;;
     "xcresulttool export attachments --path "*)
         out="${@: -1}"; mkdir -p "$out"; echo shot > "$out/a.png"
@@ -74,6 +76,17 @@ while [ $# -gt 0 ]; do [ "$1" = -resultBundlePath ] && { mkdir -p "$2"; echo "ru
 [ -n "${XC_SLEEP:-}" ] && sleep "$XC_SLEEP"
 echo "Test Case '-[T t]' passed"
 exit "${XC_RC:-0}"
+EOS
+# BSD-flavoured stat/date/vm_stat shims for the fake Mac (the remote code uses `stat -f %m`, `date -r <epoch>`)
+cat > "$T/bin/stat" <<'EOS'
+#!/usr/bin/env bash
+if [ "${1:-}" = -f ] && [ "${2:-}" = "%m" ]; then shift 2; exec /usr/bin/stat -c %Y "$@"; fi
+exec /usr/bin/stat "$@"
+EOS
+cat > "$T/bin/date" <<'EOS'
+#!/usr/bin/env bash
+if [ "${1:-}" = -r ] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then e=$2; shift 2; exec /usr/bin/date -d "@$e" "$@"; fi
+exec /usr/bin/date "$@"
 EOS
 chmod +x "$T/bin/"*
 
@@ -610,6 +623,97 @@ t_version_xcconfig_is_generated_and_synced() {
     grep -q '^MARKETING_VERSION = ' "$FAKE_HOME/work/testbox/and-bible/iosApp/Config/Version.xcconfig" || fail "Version.xcconfig missing from the synced tree"
 }
 
+# ---------------------------------------------------------------- cleanup after use
+t_cleanup_shuts_down_simulators() {
+    new_env cleanup
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible"
+    mr sim boot >/dev/null 2>&1
+    [ -f "$FAKE_HOME/booted" ] || fail "sim boot did not leave a booted simulator"
+    out=$(mr cleanup 2>&1); rc=$?
+    [ $rc = 0 ] || fail "exit $rc: $out"
+    [ -f "$FAKE_HOME/booted" ] && fail "simulator still booted after cleanup"
+    grep -q "shut down simulators: iPhone 16" <<<"$out" || fail "no shutdown line: $out"
+    grep -q "memory before" <<<"$out" && grep -q "memory after" <<<"$out" || fail "no memory lines: $out"
+    [ -d "$LOCK" ] && fail "cleanup left the lock"
+}
+t_cleanup_kills_own_tree_and_reports_foreign() {
+    new_env cleanup-procs
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible" "$FAKE_HOME/work/otherbox/and-bible"
+    printf '#!/bin/bash\nsleep 300\n' | tee "$FAKE_HOME/work/testbox/and-bible/test.kexe" > "$FAKE_HOME/work/otherbox/and-bible/test.kexe"
+    chmod +x "$FAKE_HOME"/work/*/and-bible/test.kexe
+    "$FAKE_HOME/work/testbox/and-bible/test.kexe" & mine=$!
+    "$FAKE_HOME/work/otherbox/and-bible/test.kexe" & other=$!
+    bg_pids+=("$mine" "$other")
+    sleep 0.3
+    out=$(mr cleanup 2>&1); rc=$?
+    sleep 0.3
+    kill -0 "$mine" 2>/dev/null && fail "own leftover test.kexe survived: $out"
+    kill -0 "$other" 2>/dev/null || fail "another container's process was killed"
+    grep -q "OTHER containers" <<<"$out" && grep -q "otherbox" <<<"$out" || fail "foreign leftover not reported: $out"
+    kill "$other" 2>/dev/null; [ $rc = 0 ] || fail "exit $rc"
+}
+t_gradle_shuts_down_simulators_unless_kept() {
+    new_env gradle-sim
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible"
+    mr sim boot >/dev/null 2>&1
+    out=$(mr gradle help 2>&1)
+    [ -f "$FAKE_HOME/booted" ] && fail "gradle left the simulator booted"
+    grep -q "shut down simulators" <<<"$out" || fail "no shutdown line: $out"
+    mr sim boot >/dev/null 2>&1
+    MAC_KEEP_SIM=1 mr gradle help >/dev/null 2>&1
+    [ -f "$FAKE_HOME/booted" ] || fail "MAC_KEEP_SIM=1 still shut it down"
+    mr gradle --keep-sim help >/dev/null 2>&1 || true
+}
+t_failed_batch_still_shuts_down_simulators() {
+    new_env batch-sim
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible"
+    mr sim boot >/dev/null 2>&1
+    GRADLE_RC=3 mr batch "gradle help" >/dev/null 2>&1
+    [ -f "$FAKE_HOME/booted" ] && fail "failed batch left the simulator booted"
+}
+t_sim_helpers_keep_simulator_booted() {
+    new_env sim-keeps
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible"
+    mr sim boot >/dev/null 2>&1; mr sim launch >/dev/null 2>&1
+    [ -f "$FAKE_HOME/booted" ] || fail "sim launch shut the simulator down"
+}
+
+t_cleanup_removes_own_old_archives_and_shots() {
+    new_env cleanup-junk
+    r="$FAKE_HOME/work/testbox/and-bible/build/release"
+    mkdir -p "$r/old.xcarchive" "$r/new.xcarchive" "$r/export1" "$FAKE_HOME/work/testbox/and-bible/build/shots"
+    touch -d '2 days ago' "$r/old.xcarchive"; echo x > "$FAKE_HOME/work/testbox/and-bible/build/shots/a.png"
+    mkdir -p "$FAKE_HOME/work/otherbox/and-bible/build/release/old.xcarchive"
+    out=$(mr cleanup 2>&1) || fail "exit: $out"
+    [ -d "$r/new.xcarchive" ] && [ ! -d "$r/old.xcarchive" ] || fail "archive pruning wrong: $(ls "$r")"
+    [ -d "$r/export1" ] || fail "the only export dir must stay"
+    [ -e "$FAKE_HOME/work/testbox/and-bible/build/shots" ] && fail "shots kept"
+    [ -d "$FAKE_HOME/work/otherbox/and-bible/build/release/old.xcarchive" ] || fail "another container's tree was touched"
+    grep -q "disk (data volume)" <<<"$out" || fail "no disk line: $out"
+}
+t_prune_is_a_dry_run_unless_yes() {
+    new_env prune-dry
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible" "$FAKE_HOME/work/gone1/and-bible" "$FAKE_HOME/work/keep/and-bible"
+    head -c 100000 /dev/zero > "$FAKE_HOME/work/gone1/and-bible/big"
+    out=$(mr prune --trees gone1 testbox nosuch 2>&1) || fail "exit: $out"
+    [ -d "$FAKE_HOME/work/gone1" ] || fail "dry run deleted the tree"
+    grep -q "gone1:" <<<"$out" && grep -q "testbox: SKIPPED, this container's own tree" <<<"$out" && grep -q "nosuch: no such tree" <<<"$out" || fail "listing wrong: $out"
+    [ -d "$LOCK" ] && fail "dry run left a lock"
+    out=$(mr prune --trees gone1 --yes 2>&1) || fail "exit --yes: $out"
+    [ -e "$FAKE_HOME/work/gone1" ] && fail "gone1 not deleted"
+    [ -d "$FAKE_HOME/work/keep" ] || fail "unnamed tree deleted"
+    [ -d "$FAKE_HOME/work/testbox" ] || fail "own tree deleted"
+}
+t_prune_older_than_and_refusals() {
+    new_env prune-old
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible" "$FAKE_HOME/work/stale/and-bible" "$FAKE_HOME/work/fresh/and-bible"
+    find "$FAKE_HOME/work/stale" -exec touch -d '40 days ago' {} +
+    out=$(mr prune --older-than 14 2>&1)
+    grep -q "stale:" <<<"$out" && ! grep -q "fresh:" <<<"$out" || fail "age selection wrong: $out"
+    out=$(mr prune 2>&1); [ $? = 2 ] || fail "prune without selection must fail: $out"
+    out=$(mr prune --trees ../x 2>&1); [ $? = 2 ] || fail "bad name accepted: $out"
+}
+
 for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
@@ -627,7 +731,9 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_step_watchdog_bounds_work_outside_the_inner_timeouts t_timeouts_are_142_everywhere \
     t_live_holder_is_not_broken_under_another_timezone t_pruning_keeps_a_live_runs_directory \
     t_abandoned_breaker_mutex_is_judged_by_its_pid t_step_script_is_kept_in_run_dir \
-    t_app_id_and_product_follow_the_configuration t_version_xcconfig_is_generated_and_synced; do run_test "$t"; done
+    t_app_id_and_product_follow_the_configuration t_version_xcconfig_is_generated_and_synced \
+    t_cleanup_shuts_down_simulators t_cleanup_kills_own_tree_and_reports_foreign t_gradle_shuts_down_simulators_unless_kept t_failed_batch_still_shuts_down_simulators t_sim_helpers_keep_simulator_booted \
+    t_cleanup_removes_own_old_archives_and_shots t_prune_is_a_dry_run_unless_yes t_prune_older_than_and_refusals; do run_test "$t"; done
 
 echo "mac-remote tests: $pass passed, $failn failed"
 [ "$failn" = 0 ] && echo "MAC-REMOTE OK"

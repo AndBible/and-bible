@@ -143,13 +143,28 @@ using Foundation/UIKit needs the Mac.
 - XCUITests run over SSH without a GUI session or Automation Mode.
 - 16 GiB RAM shared with the owner's own session: Gradle peaks at ~4.6 GB during the framework link.
   `check` and each lock acquisition print the free memory. Runs of all containers reuse one warm
-  Gradle daemon while `gradle.properties` (JVM args) is the same, so `check` should show 1; after the last Mac step of a session:
-  `run './gradlew --stop'` and `sim shutdown` (both take the lock, so they never cut another
+  Gradle daemon while `gradle.properties` (JVM args) is the same, so `check` should show 1; after the last Mac step of a session: `cleanup` (see "Clean up after use"; it takes the lock, so it never cuts another
   container's run short; the next run boots the simulator again).
 - Known red on the Mac exactly as on CI: `KeychainSelfTests` -34018 (simulator app unsigned; status
   backlog item), not a setup problem.
 - Never install software or change settings on the Mac yourself; the build user is not an admin.
   Missing tool: tell the user what to install (`docs/ios-remote-mac.md`).
+
+## Clean up after use
+
+The Mac (16 GiB RAM, a nearly full disk) is cleaned like `.local/`: whatever a session used is released when it ends.
+
+- `gradle`, `native-tests`, `xcode-*`, `run` and `batch` shut down all simulators at the end of their locked session, success or
+  failure, and print a line saying which (opt out: `MAC_KEEP_SIM=1` or `--keep-sim`).
+- `sim boot|shot|launch|log` keep the simulator booted for the call sequence; end it with `sim shutdown`.
+- **Every Mac session ends with `scripts/mac-remote.sh cleanup`; a child runs it before `done`.** It shuts down simulators, kills
+  leftovers from this container's tree (`test.kexe`, `xcodebuild`, Gradle, `simctl spawn`), reports (does not kill) other
+  containers' leftovers with age/RSS/CPU, removes this container's old `build/release` archives (keeps the newest) and
+  `build/shots`, and prints memory and disk before/after (`--derived-data` also drops its DerivedData, which costs a slower next build).
+- `check` shows leftovers and the disk report (every tree's size and last modification; a warning above 85 % full).
+- Above 85 % full: do not delete anything yourself. `prune --trees <names>` / `--older-than <days>` / `--sims` is a dry run (it
+  lists what would go, with sizes) and `--yes` deletes other containers' trees: only the orchestrator runs it, with names the
+  maintainer gave. A child never uses `--yes`.
 
 ## Long runs: how the controller waits
 
