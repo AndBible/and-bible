@@ -95,23 +95,13 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun searchResults_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
-        // A results route with no searchText has nothing to search for.
-        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.SearchResults))
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchResults) }
+    fun standaloneResultsAreNoLongerLauncherScreens() {
+        assertFalse(Screen.entries.any { it.name == "SearchResults" || it.name == "EpubSearchResults" })
     }
 
     @Test
     fun epubSearch_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.EPUB_SEARCH, ScreenLauncher.MIGRATED[Screen.EpubSearch])
-    }
-
-    @Test
-    fun epubSearchResults_isNotMigrated_routeRequiresASearchText() {
-        // NavRoutes.epubSearchResults takes searchText as a NON-NULL parameter: there is no
-        // argument-free form of this route even in principle.
-        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.EpubSearchResults))
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.EpubSearchResults) }
     }
 
     // Converted from `targetFor(Screen.MyDocuments) == MyDocumentsComposeActivity::class.java` to

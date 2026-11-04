@@ -17,6 +17,14 @@
 
 package net.bible.sharedui.search
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
@@ -25,27 +33,34 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
+import net.bible.sharedcore.search.TranslationMatchVd
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
-import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -54,7 +69,7 @@ import net.bible.sharedui.strings.LocalStrings
  * the hosting `Row` (a top app bar's `actions`, or [SearchSheetContent]'s header) lays them out
  * exactly as if they were written inline.
  *
- * Lifted verbatim out of [SearchResultsScreen]'s toolbar, together with the chooser dialog it opens.
+ * Shared by the reading sheet header and its translation chooser dialog.
  * The chooser's open state lives here (not in the caller) because both the affordance and the dialog
  * are part of this action set.
  *
@@ -129,8 +144,7 @@ fun BibleResultsActions(
 
 /**
  * The SWORD/Bible result rows as `LazyColumn` items — one [BibleResultCard] per verse reference,
- * keyed by reference name, so the same rows can be listed either in [SearchResultsScreen] or in the
- * reading view's search sheet.
+ * keyed by reference name in the reading view's search sheet.
  *
  * @param expanded which reference names are expanded; owned by the caller (the host hoists it so
  *   expansion survives a re-search). A `SnapshotStateMap` is what makes toggling recompose.
@@ -151,5 +165,83 @@ fun LazyListScope.bibleResultRows(
             onSelect = onSelect,
             labelSingleMatchTranslation = labelSingleMatchTranslation,
         )
+    }
+}
+
+/** A verse card with collapsed translation chips and an optional per-translation breakdown. */
+@Composable
+internal fun BibleResultCard(
+    row: SwordResultRow,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onSelect: (referenceName: String, translationId: String?) -> Unit,
+    labelSingleMatchTranslation: Boolean = false,
+) {
+    val strings = LocalStrings.current
+    val multi = row.matches.size > 1
+    val cardModifier = Modifier.fillMaxWidth().let {
+        if (!multi) it.clickable { onSelect(row.referenceName, row.matches.firstOrNull()?.translationId) } else it
+    }
+    Card(cardModifier) {
+        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    row.referenceName,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                if (multi) {
+                    IconButton(onClick = onToggleExpand) {
+                        Icon(
+                            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = if (expanded) strings.collapseRow else strings.expandRow,
+                        )
+                    }
+                }
+            }
+            if (multi && expanded) {
+                // F20: expanded = per-translation breakdown only (no primary duplication).
+                Spacer(Modifier.height(4.dp))
+                row.matches.forEach { match: TranslationMatchVd ->
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(row.referenceName, match.translationId) }
+                            .padding(vertical = 4.dp),
+                    ) {
+                        Text(match.abbreviation, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            styledTextToAnnotatedString(match.preview),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+            } else {
+                // Collapsed (single OR multi): one primary preview.
+                if (!multi && labelSingleMatchTranslation) {
+                    // F27: single-match card gets the matched-translation label (chips are multi-only).
+                    row.matches.firstOrNull()?.let { match ->
+                        Text(match.abbreviation, style = MaterialTheme.typography.labelSmall)
+                        Spacer(Modifier.height(2.dp))
+                    }
+                }
+                Text(
+                    styledTextToAnnotatedString(row.primaryPreview),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (multi) {
+                    // F19: show which translations matched even while collapsed.
+                    Spacer(Modifier.height(8.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        row.matches.forEach { match ->
+                            AssistChip(
+                                onClick = { onSelect(row.referenceName, match.translationId) },
+                                label = { Text(match.abbreviation) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

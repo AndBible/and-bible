@@ -449,7 +449,7 @@ class ReadingSearchEntryPointsTest {
 
     /**
      * Review I2: a NEW query must open its results at the top — the screen this replaced created its
-     * `LazyListState` per screen (`SearchResultsScreen.kt:103`), while the host hoists one so the
+     * `LazyListState` per results container, while the host hoists one so the
      * scroll survives closing and reopening the sheet (F25). Both halves are asserted here, since the
      * fix must not undo F25: a run replaces the state, reopening the sheet for the query the results
      * already belong to does not.

@@ -24,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -41,50 +40,33 @@ import kotlinx.coroutines.delay
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.search.EpubSearchFormController
 import net.bible.sharedcore.search.EpubSearchMode
-import net.bible.sharedcore.search.EpubSearchResultsController
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchIndexProgressController
+import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchRequest
-import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
-import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.popOrExitOnFailedPop
-import net.bible.sharedui.search.EpubSearchResultsScreen
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.search.SearchIndexScreen
-import net.bible.sharedui.search.SearchResultsScreen
 import net.bible.sharedui.search.SearchScreen
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // The chain's arguments (plan D3)
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
-/**
- * The five arguments the classic `Search -> SearchIndex -> SearchIndexProgress -> SearchResults`
- * chain forwarded as an OPAQUE BUNDLE (plan D3), named.
- *
- * Classic forwarded the whole intent twice — `SearchIndexComposeActivity.kt:72-75`
- * (`putExtras(intent)` plus a `SEARCH_DOCUMENT` override) and
- * `SearchIndexProgressComposeActivity.kt:146` (`putExtras(intent.extras!!)` into whichever of four
- * screens it routed to). **In route-world there is no bundle**: an argument nobody names is an
- * argument silently lost. So each hop rebuilds the next route from these five, and this one type
- * plus [searchArgs] is what stops the three hops drifting apart.
- *
- * File-private on purpose — it is the internal shape of this cluster's forwarding, not part of
- * `:sharedUi`'s surface. `SEARCH_RESULTS_PATTERN` (Task 5) lives in this same file and reads it
- * the same way; `EPUB_SEARCH_RESULTS_PATTERN` does not, because its three arguments are its own.
- */
-private data class SearchArgs(
+/** Legacy index arguments plus an optional complete reading-search continuation. */
+internal data class SearchArgs(
     val searchText: String?,
     val highlightText: String?,
     val searchDocument: String?,
     val selectedTranslations: List<String>,
     val isStrongsSearch: Boolean,
+    val readingRequest: ReadingSearchRequest? = null,
 )
 
 /**
@@ -111,10 +93,13 @@ private fun NavBackStackEntry.searchArgs(): SearchArgs = SearchArgs(
         arguments?.read { getStringOrNull(NavRoutes.ARG_SELECTED_TRANSLATIONS) }
     ),
     isStrongsSearch = arguments?.read { getBooleanOrNull(NavRoutes.ARG_IS_STRONGS_SEARCH) } ?: false,
+    readingRequest = arguments?.read { getStringOrNull(NavRoutes.ARG_READING_SEARCH_REQUEST) }
+        ?.let(NavRoutes::readReadingSearch),
 )
 
-/** The four chain arguments every hop registers. [NavRoutes.ARG_IS_STRONGS_SEARCH] is added separately. */
+/** Register every legacy argument and the optional typed continuation at both index hops. */
 private fun chainArguments() = listOf(
+    navArgument(NavRoutes.ARG_READING_SEARCH_REQUEST) { type = NavType.StringType; nullable = true; defaultValue = null },
     navArgument(NavRoutes.ARG_SEARCH_TEXT) { type = NavType.StringType; nullable = true; defaultValue = null },
     navArgument(NavRoutes.ARG_SEARCH_HIGHLIGHT_TEXT) { type = NavType.StringType; nullable = true; defaultValue = null },
     navArgument(NavRoutes.ARG_SEARCH_DOCUMENT) { type = NavType.StringType; nullable = true; defaultValue = null },
@@ -125,27 +110,29 @@ private fun chainArguments() = listOf(
     navArgument(NavRoutes.ARG_IS_STRONGS_SEARCH) { type = NavType.BoolType; defaultValue = false },
 )
 
-/** `SEARCH_INDEX_PROGRESS_PATTERN` carrying these five arguments forward unchanged. */
+/** Carry every index argument forward unchanged, including the complete reading request. */
 private fun SearchArgs.indexProgressRoute(): String = NavRoutes.searchIndexProgress(
     searchText = searchText,
     highlightText = highlightText,
     searchDocument = searchDocument,
     selectedTranslations = selectedTranslations,
     isStrongsSearch = isStrongsSearch,
+    readingRequest = readingRequest,
 )
 
-/**
- * `SEARCH_RESULTS_PATTERN` carrying these five forward. [searchText] is required there (a results
- * screen with nothing to search for is not a state), so every caller checks it is non-empty first —
- * which is exactly the branch classic's `StringUtils.isNotEmpty(...SEARCH_TEXT)` already made.
- */
-private fun SearchArgs.resultsRoute(): String = NavRoutes.searchResults(
-    searchText = searchText.orEmpty(),
-    highlightText = highlightText,
-    searchDocument = searchDocument,
-    selectedTranslations = selectedTranslations,
-    isStrongsSearch = isStrongsSearch,
+/** Keep the decorated query while retaining the form's original settings for the reading sheet. */
+internal fun SearchRequest.toReadingSearchRequest(decoratedQuery: String, documentId: String?) = ReadingSearchRequest(
+    query = decoratedQuery,
+    documentId = documentId,
+    translationIds = translationIds,
+    strongsOrigin = isStrongsSearch,
+    preDecorated = true,
+    section = bibleSection,
+    type = searchType,
 )
+
+internal fun epubSearchContinuation(query: String, mode: EpubSearchMode, documentId: String): String =
+    NavRoutes.readingSearch(ReadingSearchRequest(query = query, documentId = documentId, epubMode = mode))
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // Deps
@@ -171,30 +158,12 @@ data class TranslationSelection(
 /**
  * Where a submitted search form must go next — the data half of classic
  * `SearchComposeActivity.onSubmit`'s branch. The DECISION's inputs are computed host-side (they are
- * all JSword: index status, `decorateSearchString`, `highlightSearchString`); the branch itself is
+ * all JSword: index status and `decorateSearchString`); the branch itself is
  * taken in this graph, because both arms are `navController.navigate(...)`.
  */
 sealed interface SearchSubmission {
-    /**
-     * `bibleSearchService.validateIndex(request)` said no. [documentId] is the FIRST selected
-     * translation without a usable index (classic's `firstOrNull { indexStatus != DONE }`), or null
-     * when none could be identified — in which case the index prompt falls back to the current
-     * page's document, exactly as classic `SearchIndexComposeActivity.kt:46` does.
-     */
-    data class NeedsIndex(val documentId: String?) : SearchSubmission
-
-    /**
-     * Everything is indexed. [decoratedQuery] is `decorate(request)`, [highlightText] the
-     * section-less `highlightSearchString(...)`, [searchDocument] the CURRENT page's document
-     * initials (classic passed that, not a selected translation) and [translationIds] the request's
-     * own selection.
-     */
-    data class Results(
-        val decoratedQuery: String,
-        val highlightText: String?,
-        val searchDocument: String?,
-        val translationIds: List<String>,
-    ) : SearchSubmission
+    data class NeedsIndex(val documentId: String?, val request: ReadingSearchRequest) : SearchSubmission
+    data class Results(val request: ReadingSearchRequest) : SearchSubmission
 }
 
 /**
@@ -311,50 +280,6 @@ class SearchIndexProgressDeps(
 )
 
 /**
- * `SEARCH_RESULTS_PATTERN`'s platform-supplied slots, ported from classic
- * `SearchResultsComposeActivity`. Everything here is JSword or an Android `Toast`/`Intent`.
- *
- * - [controllerFor] builds the `SearchResultsController` host-side: it needs `BibleSearchService`,
- *   the `SearchResultsCache` and the host's `lifecycleScope`.
- * - [isScriptureReference] and [openScriptureReference] are classic's ref-detection short circuit
- *   (`:90-95`) **split into its pure half and its effectful half**, deliberately. Classic called
- *   `linkControl.tryToOpenRef` — which both DECIDES and, if the text parses as a reference, opens
- *   it in the reading view and trims history — from `onCreate`, before `setContent`. A graph arm
- *   has no `onCreate`: the decision has to be made during composition (so the results screen is
- *   never drawn and no Lucene search is started for a query that is really a reference), but the
- *   mutation must NOT be, because a composition calculation may be abandoned or re-run. So
- *   [isScriptureReference] is `linkControl.resolveRef(...) != null`, a pure read of the window's
- *   default Bible (`WindowControl.defaultBibleDoc` + `SwordContentFacade.resolveRef`, neither of
- *   which mutates anything), safe inside `remember`; and [openScriptureReference] — the
- *   `showLink` + the ONE history pop, see the host's kdoc for why one — runs in a `LaunchedEffect`.
- * - [title] is `R.string.multi_search_results` with the result total and the number of translations
- *   currently selected, so it re-renders for free when the selector changes the selection.
- * - [showError] is classic's `Toast` (`:126-136`) — and a toast, not a dialog, deliberately: the
- *   shared screen has no error slot and classic showed a transient message then backed out.
- * - [openReference] is classic `onSelect` (`:171-183`) unchanged: resolve the `Key` on the chosen
- *   Book (falling back to the first of [selectedTranslations] when the row names no translation),
- *   set it on the active window and start `MainBibleActivity` with
- *   `FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP`. That start stays exactly as it is: the
- *   reading view is NOT part of this nav graph, so reaching it is still an Activity launch.
- * - [openResultsInWindow] is classic `openResultsInAWindow` (`:208-224`) minus its `finish()`,
- *   which is the graph's [popOrExit]: gather every displayed match into a `BookAndKeyList` and hand
- *   it to `linkControl.showLink`.
- */
-class SearchResultsDeps(
-    val controllerFor: () -> SearchResultsController,
-    val isScriptureReference: (searchText: String) -> Boolean,
-    val openScriptureReference: (searchText: String) -> Unit,
-    val title: (total: Int, selectedCount: Int) -> String,
-    val showError: () -> Unit,
-    val openReference: (
-        referenceName: String,
-        translationId: String?,
-        selectedTranslations: List<String>,
-    ) -> Unit,
-    val openResultsInWindow: (rows: List<SwordResultRow>, selectedTranslations: List<String>) -> Unit,
-)
-
-/**
  * What classic `EpubSearchComposeActivity.onCreate` read before it could draw the form: the
  * window/screen [title] (`R.string.search_in` with the document's abbreviation) and the
  * [documentId] the submitted query will be run against.
@@ -374,10 +299,6 @@ data class EpubSearchSetup(
  * - [loadMode]/[saveMode] bridge the classic settings key `epubSearch-SearchType`; the wire format
  *   (a JSword `SearchType` name, or null for FTS) is `:app`'s `EpubSearchModeWire.kt` and stays
  *   there because `:sharedCore` has no JSword.
- * - [modeWireName] is that same format in the write direction, needed HERE rather than only in
- *   [saveMode] because the submitted mode also travels to the results destination as
- *   [NavRoutes.ARG_EPUB_SEARCH_MODE] — see [EpubSearchResultsDeps.modeFromWireName] for why null
- *   still means FTS there.
  * - Classic's `help()` (`:115-132`, a **platform `AlertDialog` with an HTML link**,
  *   `LinkMovementMethod` on the message view) is now [EpubSearchFormController]'s own `helpOpen`
  *   state (platform-dialog removal Task 15), rendered by [EpubSearchScreen] itself: its text comes
@@ -395,75 +316,11 @@ class EpubSearchFormDeps(
     val prepare: () -> EpubSearchSetup?,
     val loadMode: () -> EpubSearchMode,
     val saveMode: (EpubSearchMode) -> Unit,
-    val modeWireName: (EpubSearchMode) -> String?,
     val askBeforeOpeningLink: () -> Boolean,
     val onOpenExternal: (String) -> Unit,
 )
 
-/**
- * The three outcomes of classic `EpubSearchResultsComposeActivity`'s two entry guards
- * (`:212-227`). A `null` [EpubSearchResultsDeps.resolve] is the third: the document is missing or
- * is not an EPUB, which classic logged and `finish()`ed on.
- */
-sealed interface EpubSearchTarget {
-    /** An indexed EPUB: run the search. [documentAbbreviation] is the title's `%2$s`. */
-    data class Ready(val documentId: String, val documentAbbreviation: String) : EpubSearchTarget
-
-    /**
-     * An EPUB with no FTS index yet. Classic started the index prompt carrying `SEARCH_DOCUMENT`
-     * and finished itself (`:220-227`); the graph navigates to
-     * `NavRoutes.searchIndex(searchDocument = documentId)` and pops itself, which is the same
-     * shape.
-     */
-    data class NeedsIndex(val documentId: String) : EpubSearchTarget
-}
-
-/**
- * `EPUB_SEARCH_RESULTS_PATTERN`'s platform-supplied slots, ported from classic
- * `EpubSearchResultsComposeActivity`.
- *
- * - [resolve] is its whole entry preamble: the `searchDocument` argument or (absent/empty) the
- *   active window's current Bible document, then `Books.installed().getBook(...)`, the `isEpub`
- *   guard and the `epubSearchService.isIndexed(...)` check — see [EpubSearchTarget].
- * - [modeFromWireName] parses [NavRoutes.ARG_EPUB_SEARCH_MODE]. The value is a **classic JSword
- *   `SearchType` name**, and **null means FTS** — classic wrote `searchType?.name` and read an
- *   absent extra back as the FTS radio, so an absent route argument must keep meaning exactly that
- *   (`:app`'s `epubSearchModeFromClassicName`, which also maps an UNKNOWN name to FTS).
- * - [controllerFor] builds the `EpubSearchResultsController` host-side with its `onSelect` already
- *   wired to the document: selecting a hit re-resolves `"<initials>:<fragmentId>"` plus the hit's
- *   ordinal to a real `Key` (`epubKeyFor`) and starts `MainBibleActivity`, exactly as classic did.
- * - [title] is `R.string.search_with_results2` INCLUDING classic's `MAX_SEARCH_RESULTS + "+"`
- *   overflow affordance — `SearchControl.MAX_SEARCH_RESULTS` is an `:app` constant, so the whole
- *   formatting stays host-side rather than leaking the cap into `commonMain`.
- * - [showError] is the same `Toast` as [SearchResultsDeps.showError].
- * - [logSearch] restores classic's one-line trace of what is being searched where
- *   (`EpubSearchResultsComposeActivity.kt:210`, `Log.i(TAG, "Searching '<text>' (<mode>) in <doc>")`).
- *   It is a deps slot rather than a call because `commonMain` has no logger at all in this project —
- *   there is no `expect`/`actual` log seam — and the trace is genuinely useful when a search comes
- *   back empty and the question is which document and mode it actually ran with.
- */
-class EpubSearchResultsDeps(
-    val resolve: (searchDocument: String?) -> EpubSearchTarget?,
-    val modeFromWireName: (String?) -> EpubSearchMode,
-    val controllerFor: (documentId: String) -> EpubSearchResultsController,
-    val logSearch: (documentId: String, searchText: String, mode: EpubSearchMode) -> Unit,
-    val title: (resultCount: Int, documentAbbreviation: String) -> String,
-    val showError: () -> Unit,
-)
-
-/**
- * Platform-supplied slots the search destinations need but `commonMain` cannot provide.
- * Mirrors [net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps]: [exitHost], [setWindowTitle] and
- * the two history-route halves are graph-wide and sit at the top level, one nested holder per
- * destination below.
- *
- * **Six holders, one per destination.** Task 4 declared the first three (`SEARCH_FORM_PATTERN`,
- * `SEARCH_INDEX_PATTERN`, `SEARCH_INDEX_PROGRESS_PATTERN`) and Task 5 appended its own three
- * (results, epub search, epub results) to the end of this constructor — a holder cannot exist
- * before the destination it supplies, because the host would have nothing to construct it from.
- * The cluster is complete: every route any arm in this file navigates to is registered by an arm
- * in this file.
- */
+/** Form and independent index-management destinations; results belong to the reading sheet. */
 class SearchNavDeps(
     val exitHost: () -> Unit,
     /**
@@ -474,8 +331,7 @@ class SearchNavDeps(
      */
     val setWindowTitle: (String) -> Unit,
     /**
-     * Reports the route `HistoryManager` should re-launch for what is CURRENTLY on screen. Four of
-     * this cluster's six destinations are `integrateWithHistoryManager = true` classically and
+     * Reports the route `HistoryManager` should re-launch for the form currently on screen. Forms
      * mutated their own intent to say which search they were showing; a nav destination has no
      * intent, so the host builds one from this route instead
      * (`NavHostComposeActivity.intentForHistoryList`).
@@ -493,7 +349,7 @@ class SearchNavDeps(
      * it disposes the exiting one. So on any A -> B where both publish a route, an unconditional
      * `DisposableEffect(Unit) { onDispose { clear() } }` on A runs after B has already published,
      * and wipes it: B shows with `isIntegrateWithHistoryManager == false` and nothing notices.
-     * `Search -> SearchResults` in this very cluster is exactly that shape.
+     * `Search form -> reading` in this very cluster is exactly that shape.
      */
     val clearHistoryRoute: (owner: Any) -> Unit,
     /**
@@ -507,12 +363,8 @@ class SearchNavDeps(
     val searchIndex: SearchIndexPromptDeps,
     // — SEARCH INDEX PROGRESS —
     val searchIndexProgress: SearchIndexProgressDeps,
-    // — SEARCH RESULTS —
-    val searchResults: SearchResultsDeps,
     // — EPUB SEARCH FORM —
     val epubSearch: EpubSearchFormDeps,
-    // — EPUB SEARCH RESULTS —
-    val epubSearchResults: EpubSearchResultsDeps,
 )
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -548,24 +400,7 @@ internal fun SearchIndexPromptBack(onCancel: () -> Unit) {
     PlatformBackHandler(enabled = true, onBack = onCancel)
 }
 
-/**
- * The search cluster's destinations. Registered into the app's single `NavHost` by the host
- * Activity, alongside the AI and reading-plan clusters.
- *
- * All six live here: the form, the index prompt and the index-progress screen (Task 4), then the
- * SWORD results, the EPUB search form and the EPUB results (Task 5). The rule that shapes this
- * file is plan D3: the classic chain forwarded an opaque bundle from hop to hop, and a route has
- * no bundle — so every hop rebuilds the next route from [SearchArgs], and the index hop
- * additionally overrides `searchDocument` with the document it actually indexed.
- *
- * The cluster is route-CLOSED: the form navigates to `SEARCH_INDEX_PATTERN` and
- * `SEARCH_RESULTS_PATTERN`; the index prompt to `SEARCH_INDEX_PROGRESS_PATTERN`; the progress
- * screen to `SEARCH_FORM_PATTERN`, [NavRoutes.EPUB_SEARCH], `SEARCH_RESULTS_PATTERN` or
- * `EPUB_SEARCH_RESULTS_PATTERN`; the results to `SEARCH_INDEX_PATTERN`; the EPUB form to
- * `EPUB_SEARCH_RESULTS_PATTERN`; and the EPUB results to `SEARCH_INDEX_PATTERN`. Every one of
- * those is registered below — navigating to an unregistered route throws at runtime, and nothing
- * else in the build checks this.
- */
+/** Forms and standalone index management. Every search continuation hands off to the reading sheet. */
 fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: SearchNavDeps) {
     // ——— SEARCH FORM ———
     composable(
@@ -652,7 +487,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 )
             }
             // Never an unconditional clear — see SearchNavDeps.clearHistoryRoute: this runs AFTER
-            // the entering destination has published its own route, and Search -> SearchResults is
+            // the entering destination has published its own route, and Search form -> reading is
             // the exact case that breaks.
             DisposableEffect(Unit) {
                 onDispose { deps.clearHistoryRoute(historyOwner) }
@@ -686,20 +521,12 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                             popUpTo(NavRoutes.SEARCH_FORM_PATTERN) { inclusive = true }
                         }
                         when (val next = d.submit(request)) {
-                            // Classic passed ONLY SEARCH_DOCUMENT to the index prompt — no search
-                            // text — which is why the chain comes back to the empty form rather
-                            // than to results once the index is built. Preserved exactly.
                             is SearchSubmission.NeedsIndex -> navController.navigate(
-                                NavRoutes.searchIndex(searchDocument = next.documentId),
+                                NavRoutes.searchIndex(searchDocument = next.documentId, readingRequest = next.request),
                                 popSelf,
                             )
                             is SearchSubmission.Results -> navController.navigate(
-                                NavRoutes.searchResults(
-                                    searchText = next.decoratedQuery,
-                                    highlightText = next.highlightText,
-                                    searchDocument = next.searchDocument,
-                                    selectedTranslations = next.translationIds,
-                                ),
+                                NavRoutes.readingSearch(next.request),
                                 popSelf,
                             )
                         }
@@ -828,200 +655,8 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         )
     }
 
-    // ——— SEARCH RESULTS ———
-    composable(
-        route = NavRoutes.SEARCH_RESULTS_PATTERN,
-        arguments = chainArguments(),
-    ) { backStackEntry ->
-        val d = deps.searchResults
-        val args = backStackEntry.searchArgs()
-        val searchText = args.searchText.orEmpty()
-
-        // Classic `SearchResultsComposeActivity.kt:78-79`, reproduced EXACTLY, including the order
-        // of the two fallbacks: the explicit selection, else a ONE-ELEMENT list built from the
-        // search document, else nothing. The middle leg is not a nicety — Task 6's `BibleView`
-        // call site sends no translations list at all, so the search document is the only thing it
-        // has to search in. (An EMPTY selectedTranslations here can only mean the argument was
-        // ABSENT: NavRoutes' searchChainRoute omits it when the list is empty, so "present but
-        // empty" — which classic would have honoured as an empty list — is not expressible.)
-        val selectedTranslations = remember(args) {
-            args.selectedTranslations.takeIf { it.isNotEmpty() }
-                ?: args.searchDocument?.let { listOf(it) }
-                ?: emptyList()
-        }
-
-        // The token this destination's history route is published under. Hoisted above the
-        // reference branch because BOTH branches publish: see the LaunchedEffect below for why the
-        // short-circuit has to publish before it jumps.
-        val historyOwner = remember { Any() }
-
-        // Classic's ref-detection short circuit (`:90-95`), split. DECIDING happens during
-        // composition, as classic decided before setContent: nothing is drawn and no Lucene search
-        // is started for a query that is really a reference. It is safe here because
-        // isScriptureReference only RESOLVES the text (see SearchResultsDeps). ACTING happens in an
-        // effect — it mutates the active window, navigates the reader and touches history, none of
-        // which belongs in a calculation `remember` is free to abandon or re-run.
-        val isReference = remember(searchText) { d.isScriptureReference(searchText) }
-        if (isReference) {
-            LaunchedEffect(Unit) {
-                // Publish FIRST, and this is load-bearing rather than tidy. Opening the reference
-                // ends in `setCurrentDocumentAndKey`, which calls `HistoryManager.recordIfCreated` synchronously, and
-                // `HistoryManager.createHistoryItem` then reads THIS HOST's
-                // `isIntegrateWithHistoryManager` + `intentForHistoryList` — i.e. whatever
-                // setHistoryRoute last published. Without this line the item it pushes is either
-                // absent (a cold entry, where nothing has published yet) or, coming from the search
-                // form, stamped with the FORM's route, because navigation-compose has not disposed
-                // the form yet. Publishing here makes it deterministically ONE item naming THIS
-                // destination — which is exactly the one openScriptureReference pops back off.
-                deps.setHistoryRoute(
-                    historyOwner,
-                    NavRoutes.searchResults(
-                        searchText = searchText,
-                        highlightText = args.highlightText,
-                        searchDocument = args.searchDocument,
-                        selectedTranslations = selectedTranslations,
-                        isStrongsSearch = args.isStrongsSearch,
-                    ),
-                )
-                d.openScriptureReference(searchText)
-                // Published only across the jump: this destination is leaving and must not be what
-                // a later `HistoryManager.recordIfCreated` call records. A no-op if the DisposableEffect below got there
-                // first (compare-and-clear by owner identity).
-                deps.clearHistoryRoute(historyOwner)
-                navController.popOrExit(deps.exitHost)
-            }
-            // Covers the case where the effect is cancelled between the publish and the clear.
-            DisposableEffect(Unit) {
-                onDispose { deps.clearHistoryRoute(historyOwner) }
-            }
-            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
-            // the destination so it registers after the NavHost's own callback and wins over it.
-            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
-        } else {
-            // Eager, inside remember, for the same reason: classic ran the search in onCreate, so
-            // the very first frame already showed the controller's `loading` state. Deferring to a
-            // LaunchedEffect would render one frame of "no results" before the search even starts.
-            val controller = remember {
-                d.controllerFor().also {
-                    it.run(
-                        SearchRequest(
-                            query = searchText,
-                            // The IDENTITY decorators, deliberately (classic `:97-101`): the
-                            // launcher already decorated the query into this route's searchText and
-                            // the service re-decorates internally, so ANY_WORDS + ALL reproduce the
-                            // already-decorated string instead of double-decorating it.
-                            searchType = SearchType.ANY_WORDS,
-                            bibleSection = SearchBibleSection.ALL,
-                            translationIds = selectedTranslations,
-                            currentBookName = "",
-                            isStrongsSearch = args.isStrongsSearch,
-                        )
-                    )
-                }
-            }
-
-            val loading by controller.loading.collectAsState()
-            val results by controller.results.collectAsState()
-            val rows by controller.displayed.collectAsState()
-            val scriptureShown by controller.scriptureShown.collectAsState()
-            val scriptureToggleVisible by controller.scriptureToggleVisible.collectAsState()
-            val error by controller.error.collectAsState()
-            val selected by controller.selectedTranslations.collectAsState()
-            val candidates by controller.candidates.collectAsState()
-
-            // Classic persisted the list position onto its OWN intent (`:158`, `:175`) so a
-            // recreate came back to the same row. A back-stack entry has no intent to write on;
-            // rememberSaveable is the equivalent, and it survives both a configuration change and
-            // the entry being saved while another destination is on top. An IntArray rather than a
-            // MutableState<Int> deliberately: this value is WRITTEN on every scroll and READ only
-            // once (LazyListState owns the position afterwards), so a snapshot state would
-            // recompose this whole arm for every row scrolled past, to no effect. IntArray is
-            // handled by rememberSaveable's default autoSaver.
-            val savedScrollIndex = rememberSaveable { intArrayOf(0) }
-
-            val title = d.title(results.total, selected.size)
-            LaunchedEffect(title) { deps.setWindowTitle(title) }
-
-            // Classic `:124-136`: a toast, then out. `finish()` becomes popOrExit.
-            LaunchedEffect(error) {
-                if (error != null) {
-                    d.showError()
-                    controller.dismissError()
-                    navController.popOrExit(deps.exitHost)
-                }
-            }
-
-            // THE HISTORY SEAM (`integrateWithHistoryManager = true`). Published from the LIVE
-            // selection rather than only from the route's own arguments, so a revert re-opens the
-            // results the user is actually looking at after the document selector changed them.
-            // The compare-and-clear on dispose is what makes Search -> SearchResults safe; see
-            // SearchNavDeps.clearHistoryRoute. (historyOwner is hoisted above the reference branch.)
-            LaunchedEffect(selected) {
-                deps.setHistoryRoute(
-                    historyOwner,
-                    NavRoutes.searchResults(
-                        searchText = searchText,
-                        highlightText = args.highlightText,
-                        searchDocument = args.searchDocument,
-                        selectedTranslations = selected,
-                        isStrongsSearch = args.isStrongsSearch,
-                    ),
-                )
-            }
-            DisposableEffect(Unit) {
-                onDispose { deps.clearHistoryRoute(historyOwner) }
-            }
-            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
-            // the destination so it registers after the NavHost's own callback and wins over it.
-            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
-
-            SearchResultsScreen(
-                title = title,
-                loading = loading,
-                rows = rows,
-                scriptureToggleVisible = scriptureToggleVisible,
-                scriptureShown = scriptureShown,
-                onToggleScripture = controller::toggleScripture,
-                onOpenInWindow = {
-                    d.openResultsInWindow(controller.displayed.value, selected)
-                    // Classic openResultsInAWindow ended in finish().
-                    navController.popOrExit(deps.exitHost)
-                },
-                onSelect = { referenceName, translationId ->
-                    d.openReference(referenceName, translationId, selected)
-                },
-                onNavigateUp = { navController.popOrExit(deps.exitHost) },
-                selectedAbbreviations = selected
-                    .mapNotNull { id -> candidates.firstOrNull { it.id == id }?.abbreviation }
-                    .joinToString(", "),
-                candidates = candidates,
-                selectedIds = selected,
-                onSelectTranslations = { ids ->
-                    controller.selectTranslations(ids) { unindexed, chosenIds ->
-                        // Classic `:193-205` built a Screen.SearchIndex intent carrying the four
-                        // extras below — and NOT the highlight text, which this cluster's results
-                        // screen never reads. Kept to the same four. Note there is no popUpTo:
-                        // classic did NOT finish() here, so the results stay on the back stack.
-                        navController.navigate(
-                            NavRoutes.searchIndex(
-                                searchText = searchText,
-                                searchDocument = unindexed.first(),
-                                selectedTranslations = chosenIds,
-                                isStrongsSearch = args.isStrongsSearch,
-                            )
-                        )
-                    }
-                },
-                initialScrollIndex = savedScrollIndex[0],
-                onScrollIndexChanged = { savedScrollIndex[0] = it },
-            )
-        }
-    }
-
     // ——— EPUB SEARCH FORM ———
-    // Argument-free: classic EpubSearchComposeActivity read no extras at all and took its document
-    // from the current page, which is why Screen.EpubSearch CAN be a MIGRATED row (unlike either
-    // results screen).
+    // The form resolves its document from the current page.
     composable(route = NavRoutes.EPUB_SEARCH) {
         val d = deps.epubSearch
         val setup = remember { d.prepare() }
@@ -1040,14 +675,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                     saveMode = d.saveMode,
                     onSubmit = { query, mode ->
                         navController.navigate(
-                            NavRoutes.epubSearchResults(
-                                searchText = query,
-                                // The classic JSword SearchType name, or null for FTS — the exact
-                                // `putExtra("searchType", mode.toClassicSearchTypeName())` classic
-                                // sent (`:107`), now a named route argument.
-                                epubMode = d.modeWireName(mode),
-                                searchDocument = setup.documentId,
-                            )
+                            epubSearchContinuation(query, mode, setup.documentId)
                         ) {
                             // Classic's `startActivity(...); finish()` (`:110-111`).
                             popUpTo(NavRoutes.EPUB_SEARCH) { inclusive = true }
@@ -1059,7 +687,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             // THE HISTORY SEAM (`integrateWithHistoryManager = true`). The route is argument-free,
             // so unlike the form in SEARCH_FORM_PATTERN there is nothing live to keep it in step
             // with — but the owner-token clear is still a compare-and-clear, because this screen's
-            // successor (EPUB_SEARCH_RESULTS_PATTERN) publishes its own route before this one is
+            // successor publishes its own route before this one is
             // disposed.
             val historyOwner = remember { Any() }
             LaunchedEffect(Unit) { deps.setHistoryRoute(historyOwner, NavRoutes.EPUB_SEARCH) }
@@ -1093,113 +721,17 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         }
     }
 
-    // ——— EPUB SEARCH RESULTS ———
-    composable(
-        route = NavRoutes.EPUB_SEARCH_RESULTS_PATTERN,
-        // NOT chainArguments(): this destination has three arguments of its own and classic read
-        // exactly three LITERAL extra names ("searchText"/"searchType"/"searchDocument") with no
-        // constants behind them. The chain's highlight/translations/strongs arguments were
-        // forwarded to it in classic's bundle and never read.
-        arguments = listOf(
-            navArgument(NavRoutes.ARG_SEARCH_TEXT) { type = NavType.StringType; nullable = true; defaultValue = null },
-            navArgument(NavRoutes.ARG_EPUB_SEARCH_MODE) { type = NavType.StringType; nullable = true; defaultValue = null },
-            navArgument(NavRoutes.ARG_SEARCH_DOCUMENT) { type = NavType.StringType; nullable = true; defaultValue = null },
-        ),
-    ) { backStackEntry ->
-        val d = deps.epubSearchResults
-        // Read plainly — no decodeArg; see searchArgs()'s kdoc. ARG_EPUB_SEARCH_MODE is read the
-        // same way, and its NULL is meaningful: null == FTS (classic's absent "searchType" extra).
-        val searchText = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_SEARCH_TEXT) }.orEmpty()
-        val epubMode = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_EPUB_SEARCH_MODE) }
-        val searchDocument = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_SEARCH_DOCUMENT) }
-
-        when (val target = remember(searchDocument) { d.resolve(searchDocument) }) {
-            // Not installed, or not an EPUB: classic logged and finished (`:214-219`).
-            null -> LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
-
-            is EpubSearchTarget.NeedsIndex -> LaunchedEffect(target) {
-                navController.navigate(NavRoutes.searchIndex(searchDocument = target.documentId)) {
-                    // Classic's `startActivity(...); finish()` (`:220-227`).
-                    popUpTo(NavRoutes.EPUB_SEARCH_RESULTS_PATTERN) { inclusive = true }
-                }
-            }
-
-            is EpubSearchTarget.Ready -> {
-                val mode = remember(epubMode) { d.modeFromWireName(epubMode) }
-                // Eager for the same reason as the SWORD results arm: classic ran the search in
-                // onCreate, so the first frame already showed `loading`.
-                val controller = remember(target, mode, searchText) {
-                    d.logSearch(target.documentId, searchText, mode)
-                    d.controllerFor(target.documentId).also { it.run(target.documentId, searchText, mode) }
-                }
-
-                val loading by controller.loading.collectAsState()
-                val results by controller.results.collectAsState()
-                val error by controller.error.collectAsState()
-
-                val title = d.title(results.size, target.documentAbbreviation)
-                LaunchedEffect(title) { deps.setWindowTitle(title) }
-
-                LaunchedEffect(error) {
-                    if (error) {
-                        d.showError()
-                        controller.dismissError()
-                        navController.popOrExit(deps.exitHost)
-                    }
-                }
-
-                // THE HISTORY SEAM (`integrateWithHistoryManager = true`). Published with the
-                // RESOLVED document rather than the possibly-absent argument, so a revert re-opens
-                // the book actually searched rather than whatever is current at revert time.
-                val historyOwner = remember { Any() }
-                LaunchedEffect(target) {
-                    deps.setHistoryRoute(
-                        historyOwner,
-                        NavRoutes.epubSearchResults(
-                            searchText = searchText,
-                            epubMode = epubMode,
-                            searchDocument = target.documentId,
-                        ),
-                    )
-                }
-                DisposableEffect(Unit) {
-                    onDispose { deps.clearHistoryRoute(historyOwner) }
-                }
-                // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
-                // the destination so it registers after the NavHost's own callback and wins over it.
-                PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
-
-                EpubSearchResultsScreen(
-                    title = title,
-                    loading = loading,
-                    rows = results,
-                    onSelect = controller::select,
-                    onNavigateUp = { navController.popOrExit(deps.exitHost) },
-                )
-            }
-        }
-    }
 }
 
-/**
- * Classic `jobFinished`'s four-way destination choice (`:141-152`), which is the whole reason the
- * chain's arguments had to be named: an empty `searchText` means the user reached the index prompt
- * from the search FORM (which sends only a document), so indexing returns them to the form; a
- * non-empty one means a link or a re-run already knows what to search for, so it goes straight to
- * the results carrying every argument forward.
- */
-private fun nextRouteAfterIndexing(args: SearchArgs, isEpub: Boolean): String =
-    if (args.searchText.isNullOrEmpty()) {
-        if (isEpub) NavRoutes.EPUB_SEARCH else NavRoutes.searchForm()
-    } else {
-        if (isEpub) {
-            // EPUB_SEARCH_RESULTS_PATTERN has no highlight/translations/strongs arguments at all —
-            // classic forwarded them in the bundle but EpubSearchResults never read them.
-            NavRoutes.epubSearchResults(
-                searchText = args.searchText,
-                searchDocument = args.searchDocument,
-            )
-        } else {
-            args.resultsRoute()
-        }
-    }
+/** Resume an indexed search without losing its typed payload or reopening a standalone results screen. */
+internal fun nextRouteAfterIndexing(args: SearchArgs, isEpub: Boolean): String = NavRoutes.readingSearch(
+    args.readingRequest ?: ReadingSearchRequest(
+        query = args.searchText?.takeIf { it.isNotEmpty() },
+        documentId = args.searchDocument,
+        translationIds = args.selectedTranslations,
+        strongsOrigin = args.isStrongsSearch,
+        // Legacy Bible callers passed an already-decorated Lucene query; EPUB queries are raw FTS.
+        preDecorated = !isEpub && !args.searchText.isNullOrEmpty(),
+        epubMode = if (isEpub) EpubSearchMode.FTS else null,
+    )
+)

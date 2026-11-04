@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
@@ -22,7 +21,6 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.cloud.DocumentSyncStarter
@@ -36,9 +34,7 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.search.BibleSearchService
-import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
-import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.control.backup.BackupControl
@@ -151,7 +147,6 @@ class AppHosts(
             shell = shell,
             strings = strings,
             appSettingsProvider = { koin.get<AppSettings>() },
-            userNotifierProvider = { koin.get<UserNotifier>() },
             notificationPermission = ports.notificationPermission,
             links = koin.get<ExternalLinks>(),
             searchControlProvider = { koin.get<SearchControl>() },
@@ -159,12 +154,6 @@ class AppHosts(
             searchIndexServiceProvider = { koin.get<SearchIndexService>() },
             windowControlProvider = { koin.get<WindowControl>() },
             pageControlProvider = { koin.get<PageControl>() },
-            searchResultsCacheProvider = { koin.get<SearchResultsCache>() },
-            epubSearchServiceProvider = { koin.get<EpubSearchService>() },
-            linkControlProvider = { koin.get<LinkControl>() },
-            fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
-            // The activity's history traversal wraps this same singleton.
-            historyManagerProvider = { koin.get<HistoryManager>() },
         )
     }
 
