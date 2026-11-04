@@ -20,7 +20,9 @@ TEST_RUNNER_TASK7_SYNC_FIXTURE_JSON=$(python3 -I -c '
 import json,sys
 print(json.dumps(dict(serverURL="https://localhost:"+sys.argv[1], username="fixture", password="disposable", trustedCertificateSha256=sys.argv[2], folderPath="", marker="3959", reference="John.3.16", versePhrase="For God", noteAccessibilityLabel="3959")))
 ' "$port" "$fingerprint")
-id=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="iPhone 16"))')
+id=$(xcrun simctl create "3959 Certificate disposable" com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-6)
+# The device was created by this invocation; deletion can never target another container's profile.
+trap 'test -z "$server_pid" || kill "$server_pid" 2>/dev/null || true; xcrun simctl shutdown "$id" 2>/dev/null || true; xcrun simctl delete "$id"; rm -rf "$scratch"' EXIT
 xcrun simctl boot "$id" 2>/dev/null || true
 xcrun simctl bootstatus "$id" -b
 # Reset only this explicitly disposable app, never the simulator or host settings.

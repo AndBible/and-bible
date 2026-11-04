@@ -577,7 +577,7 @@ final class EndToEndUITests: RealAppUITestCase {
 
     /// Independent paint oracle for #3959. OCR sees only pixels inside the pane, never offscreen AX phrases.
     /// This supplements, and deliberately does not replace, testRestoreKeepsLiveSettings's AX assertions.
-    private func paintedLovedLine(_ app: XCUIApplication, step: String) throws -> CGFloat {
+    private func paintedLovedLine(_ app: XCUIApplication, step: String) throws -> (height: CGFloat, top: CGFloat) {
         let pane = firstPane(app)
         harnessRequire(pane.waitForExistence(timeout: 20), app, "Visible reading pane for OCR: \(step)")
         guard let image = pane.screenshot().image.cgImage else {
@@ -589,18 +589,19 @@ final class EndToEndUITests: RealAppUITestCase {
         request.usesLanguageCorrection = false
         try VNImageRequestHandler(cgImage: image).perform([request])
         let observations = request.results ?? []
-        let lines = observations.compactMap { observation -> (String, CGFloat)? in
+        let lines = observations.compactMap { observation -> (String, CGFloat, CGFloat)? in
             guard let text = observation.topCandidates(1).first?.string else { return nil }
-            return (text, observation.boundingBox.height * CGFloat(image.height))
+            let box = observation.boundingBox
+            return (text, box.height * CGFloat(image.height), (1 - box.maxY) * CGFloat(image.height))
         }
-        attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1)]" }.joined(separator: "\n"))
+        attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1), top \($0.2)]" }.joined(separator: "\n"))
         shot(app, "ocr-\(step)")
         // This exact verse fragment must be painted, not just a chapter title or a matching word elsewhere.
         guard let line = lines.first(where: { $0.0.localizedCaseInsensitiveContains("loved the world") }) else {
             XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
             throw NSError(domain: "3959OCR", code: 2)
         }
-        return line.1
+        return (line.1, line.2)
     }
 
     func testIPadRestorePaintAndViewportIndependentOfAccessibility() throws {
@@ -616,11 +617,15 @@ final class EndToEndUITests: RealAppUITestCase {
         XCTAssertEqual(new, old + 4)
         // Both samples must contain the visible verse. An OCR miss fails; it is never treated as unchanged position.
         let grown = try paintedLovedLine(app, step: "restored-font-grown")
-        XCTAssertGreaterThan(grown, before * 1.08, "Painted John 3:16 text must grow after font +4")
+        XCTAssertGreaterThan(grown.height, before.height * 1.08, "Painted John 3:16 text must grow after font +4")
+        XCTAssertEqual(grown.top, before.top, accuracy: max(8, before.height * 2),
+                       "The visible verse's pane-relative top must stay within two original text lines")
         let (_, restored) = changeFontSize(app, by: -4)
         XCTAssertEqual(restored, old)
         let final = try paintedLovedLine(app, step: "restored-font-original")
-        XCTAssertEqual(final, before, accuracy: max(3, before * 0.12))
+        XCTAssertEqual(final.height, before.height, accuracy: max(3, before.height * 0.12))
+        XCTAssertEqual(final.top, before.top, accuracy: max(8, before.height),
+                       "Restoring font size must restore the visible verse's position within one text line")
         sendToBackground(app)
     }
 
