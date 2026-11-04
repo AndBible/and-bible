@@ -1,4 +1,5 @@
 import UIKit
+import Vision
 import XCTest
 
 /// I2 close-out end-to-end acceptance (spec section 5.3, phase 2 U1): ONE real user journey on a fresh install,
@@ -572,6 +573,55 @@ final class EndToEndUITests: RealAppUITestCase {
         back.tap()
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 30), app, "the reading host is shown after the text options")
         return (Int(old.rounded()), Int(current.rounded()))
+    }
+
+    /// Independent paint oracle for #3959. OCR sees only pixels inside the pane, never offscreen AX phrases.
+    /// This supplements, and deliberately does not replace, testRestoreKeepsLiveSettings's AX assertions.
+    private func paintedLovedLine(_ app: XCUIApplication, step: String) throws -> CGFloat {
+        let pane = firstPane(app)
+        harnessRequire(pane.waitForExistence(timeout: 20), app, "Visible reading pane for OCR: \(step)")
+        guard let image = pane.screenshot().image.cgImage else {
+            throw NSError(domain: "3959OCR", code: 1)
+        }
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["en-US"]
+        request.usesLanguageCorrection = false
+        try VNImageRequestHandler(cgImage: image).perform([request])
+        let observations = request.results ?? []
+        let lines = observations.compactMap { observation -> (String, CGFloat)? in
+            guard let text = observation.topCandidates(1).first?.string else { return nil }
+            return (text, observation.boundingBox.height * CGFloat(image.height))
+        }
+        attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1)]" }.joined(separator: "\n"))
+        shot(app, "ocr-\(step)")
+        // This exact verse fragment must be painted, not just a chapter title or a matching word elsewhere.
+        guard let line = lines.first(where: { $0.0.localizedCaseInsensitiveContains("loved the world") }) else {
+            XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
+            throw NSError(domain: "3959OCR", code: 2)
+        }
+        return line.1
+    }
+
+    func testIPadRestorePaintAndViewportIndependentOfAccessibility() throws {
+        guard isPad else { throw XCTSkip("iPad rendering acceptance") }
+        var app = readingOnKjv()
+        defer { app.terminate() }
+        let savedName = backupDatabaseToFiles(app)
+        app = relaunch(app)
+        restoreFromFilesRoot(app, fileName: savedName)
+        returnToReading(app)
+        let before = try paintedLovedLine(app, step: "restored-baseline")
+        let (old, new) = changeFontSize(app, by: 4)
+        XCTAssertEqual(new, old + 4)
+        // Both samples must contain the visible verse. An OCR miss fails; it is never treated as unchanged position.
+        let grown = try paintedLovedLine(app, step: "restored-font-grown")
+        XCTAssertGreaterThan(grown, before * 1.08, "Painted John 3:16 text must grow after font +4")
+        let (_, restored) = changeFontSize(app, by: -4)
+        XCTAssertEqual(restored, old)
+        let final = try paintedLovedLine(app, step: "restored-font-original")
+        XCTAssertEqual(final, before, accuracy: max(3, before * 0.12))
+        sendToBackground(app)
     }
 
     // MARK: pane measurements
