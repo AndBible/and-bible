@@ -189,22 +189,22 @@ class MigrationDataTest {
     fun aiV1PromptAndProviderSurvive() = runTest {
         migrated("net.bible.android.database.AiSettingsDatabase", 1, listOf(
             "INSERT INTO LlmProviderConfig (id,providerType,displayName,endpoint,apiFormat,defaultModel,isDefault,orderNumber) VALUES (X'41','CUSTOM','My provider','https://example.invalid','OPENAI','model',1,3)",
-            "INSERT INTO AgentPrompt (id,name,description,promptTemplate,showIn,orderNumber,createdAt,providerConfigId,modelOverride) VALUES (X'42','My prompt','description','Explain this','[\"BIBLE\"]',4,555,X'41','model')",
+            "INSERT INTO AgentPrompt (id,name,description,promptTemplate,showIn,orderNumber,createdAt,providerConfigId,modelOverride) VALUES (X'42','My prompt','description','Explain this','[\"VERSE_SELECTION\"]',4,555,X'41','model')",
         )) { db ->
             assertEquals(listOf(listOf("41", "CUSTOM", "My provider", "https://example.invalid", "OPENAI", "3")), db.rawRows("SELECT hex(id),providerType,displayName,endpoint,apiFormat,orderNumber FROM LlmProviderConfig", 6))
-            assertEquals(listOf(listOf("42", "My prompt", "description", "Explain this", "[\"BIBLE\"]", "4", "555", null)), db.rawRows("SELECT hex(id),name,description,promptTemplate,showIn,orderNumber,createdAt,configuredModelId FROM AgentPrompt", 8))
+            assertEquals(listOf(listOf("42", "My prompt", "description", "Explain this", "[\"VERSE_SELECTION\"]", "4", "555", null)), db.rawRows("SELECT hex(id),name,description,promptTemplate,showIn,orderNumber,createdAt,configuredModelId FROM AgentPrompt", 8))
         }
     }
 
     @Test
     fun aiV4SettingsDefaultsAndCustomTokensSurvive() = runTest {
         migrated("net.bible.android.database.AiSettingsDatabase", 4, listOf(
-            """INSERT INTO GlobalAiSettings VALUES (X'61','ASK','["read"]','["write"]','["KJV"]',0)""",
-            """INSERT INTO GlobalAiSettings VALUES (X'62','ALLOW','["search"]','[]','["DOC"]',7777)""",
+            """INSERT INTO GlobalAiSettings VALUES (X'61','ALWAYS_ASK','["SEARCH_BIBLE"]','["CREATE_BOOKMARK"]','["KJV"]',0)""",
+            """INSERT INTO GlobalAiSettings VALUES (X'62','ALLOW_ALL','["SEARCH_BIBLE"]','[]','["DOC"]',7777)""",
         )) { db ->
             assertEquals(listOf(
-                listOf("61", "ASK", "[\"read\"]", "[\"write\"]", "[\"KJV\"]", "15000"),
-                listOf("62", "ALLOW", """["search"]""", "[]", """["DOC"]""", "7777"),
+                listOf("61", "ALWAYS_ASK", "[\"SEARCH_BIBLE\"]", "[\"CREATE_BOOKMARK\"]", "[\"KJV\"]", "15000"),
+                listOf("62", "ALLOW_ALL", """["SEARCH_BIBLE"]""", "[]", """["DOC"]""", "7777"),
             ), db.rawRows("SELECT hex(id),agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens FROM GlobalAiSettings ORDER BY id", 6))
         }
     }
@@ -214,16 +214,16 @@ class MigrationDataTest {
         migrated("net.bible.android.database.AiSettingsDatabase", 9, listOf(
             "INSERT INTO LlmProviderConfig (id,providerType,displayName,endpoint,apiFormat,orderNumber) VALUES (X'71','CUSTOM','Provider','https://example.invalid','OPENAI',3)",
             "INSERT INTO LlmConfiguredModel (id,providerConfigId,modelId,orderNumber,inputPricePerMillion,outputPricePerMillion) VALUES (X'72',X'71','model-x',4,1.5,2.5)",
-            """INSERT INTO AgentPrompt (id,name,promptTemplate,showIn,configuredModelId) VALUES (X'73','Prompt','Question','["BIBLE"]',X'72')""",
-            """INSERT INTO GlobalAiSettings (id,agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens,hiddenBuiltInPrompts,maxIterations,commentaryDeselected,defaultModelId) VALUES (X'74','ASK','["read"]','["write"]','["KJV"]',4000,'["p"]',17,'["c"]',X'72')""",
+            """INSERT INTO AgentPrompt (id,name,promptTemplate,showIn,configuredModelId) VALUES (X'73','Prompt','Question','["VERSE_SELECTION"]',X'72')""",
+            """INSERT INTO GlobalAiSettings (id,agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens,hiddenBuiltInPrompts,maxIterations,commentaryDeselected,defaultModelId) VALUES (X'74','ALWAYS_ASK','["SEARCH_BIBLE"]','["CREATE_BOOKMARK"]','["KJV"]',4000,'["p"]',17,'["c"]',X'72')""",
             """INSERT INTO GlobalAiSettings (id,aiExcludedDocuments,commentaryMaxResponseTokens,hiddenBuiltInPrompts,commentaryDeselected) VALUES (X'75','[]',6789,'[]','[]')""",
         )) { db ->
             assertEquals(listOf(listOf("72", "71", "model-x", "4", "1.5", "2.5")),
                 db.rawRows("SELECT hex(id),hex(providerConfigId),modelId,orderNumber,inputPricePerMillion,outputPricePerMillion FROM LlmConfiguredModel", 6))
-            assertEquals(listOf(listOf("73", "Prompt", "Question", "[\"BIBLE\"]", "72")),
+            assertEquals(listOf(listOf("73", "Prompt", "Question", "[\"VERSE_SELECTION\"]", "72")),
                 db.rawRows("SELECT hex(id),name,promptTemplate,showIn,hex(configuredModelId) FROM AgentPrompt", 5))
             assertEquals(listOf(
-                listOf("74", "ASK", "[\"read\"]", "[\"write\"]", "[\"KJV\"]", "15000", "[\"p\"]", "17", "[\"c\"]", "72"),
+                listOf("74", "ALWAYS_ASK", "[\"SEARCH_BIBLE\"]", "[\"CREATE_BOOKMARK\"]", "[\"KJV\"]", "15000", "[\"p\"]", "17", "[\"c\"]", "72"),
                 listOf("75", null, null, null, "[]", "6789", "[]", "10", "[]", ""),
             ), db.rawRows("SELECT hex(id),agentPermissionMode,permanentlyAllowedTools,permanentlyDeniedTools,aiExcludedDocuments,commentaryMaxResponseTokens,hiddenBuiltInPrompts,maxIterations,commentaryDeselected,hex(defaultModelId) FROM GlobalAiSettings ORDER BY id", 10))
         }
