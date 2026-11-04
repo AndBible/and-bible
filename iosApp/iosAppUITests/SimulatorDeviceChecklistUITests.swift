@@ -5,9 +5,18 @@ import XCTest
 final class SimulatorDeviceChecklistUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
-    /// Remove the seeded legacy files and migration state so other UI suites start clean.
+    private static var hasDisposableSimulatorOptIn: Bool {
+        ProcessInfo.processInfo.environment["CHECKLIST_DISPOSABLE_SIMULATOR"] == "1"
+    }
+
+    private static var hasExtendedFixture: Bool {
+        guard let root = ProcessInfo.processInfo.environment["I3B_FIXTURE_DIR"], !root.isEmpty else { return false }
+        return FileManager.default.fileExists(atPath: root + "/extended/sidecar.json")
+    }
+
+    /// Remove the seeded legacy files only on the explicitly designated simulator with its fixture present.
     override class func tearDown() {
-        guard ProcessInfo.processInfo.environment["I3B_FIXTURE_DIR"]?.isEmpty == false else { return }
+        guard hasDisposableSimulatorOptIn, hasExtendedFixture else { return }
         MainActor.assumeIsolated {
             let app = XCUIApplication()
             app.launchArguments = ["-clearLegacySeed", "-task6ResetCrashState"]
@@ -19,11 +28,16 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
     }
 
     private func fixtureScenario(_ name: String) throws -> String {
+        guard Self.hasDisposableSimulatorOptIn else {
+            throw XCTSkip("Set TEST_RUNNER_CHECKLIST_DISPOSABLE_SIMULATOR=1 to run only on the disposable checklist simulator")
+        }
         guard let root = ProcessInfo.processInfo.environment["I3B_FIXTURE_DIR"], !root.isEmpty else {
             throw XCTSkip("Set TEST_RUNNER_I3B_FIXTURE_DIR to the unpacked I3B fixtures")
         }
         let path = root + "/" + name
-        XCTAssertTrue(FileManager.default.fileExists(atPath: path + "/sidecar.json"), "Missing fixture \(path)/sidecar.json")
+        guard FileManager.default.fileExists(atPath: path + "/sidecar.json") else {
+            throw XCTSkip("Missing fixture \(path)/sidecar.json")
+        }
         return path
     }
 
@@ -58,8 +72,15 @@ final class SimulatorDeviceChecklistUITests: XCTestCase {
 
     private func dismissSystemAlert(_ app: XCUIApplication) {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let alert = springboard.alerts.firstMatch
-        if alert.exists, alert.buttons.firstMatch.exists { alert.buttons.firstMatch.tap() }
+        let alerts = springboard.alerts
+        let iconAlert = alerts.containing(NSPredicate(format: "label CONTAINS[c] %@", "changed the icon for")).firstMatch
+        if iconAlert.exists, iconAlert.buttons.firstMatch.exists {
+            iconAlert.buttons.firstMatch.tap()
+            return
+        }
+        let notificationAlert = alerts.containing(NSPredicate(format: "label CONTAINS[c] %@", "would like to send you notifications")).firstMatch
+        let deny = notificationAlert.buttons["Don't Allow"]
+        if notificationAlert.exists && deny.exists { deny.tap() }
     }
 
     private func confirmButton(_ app: XCUIApplication) -> XCUIElement {
