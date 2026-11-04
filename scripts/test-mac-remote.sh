@@ -220,6 +220,121 @@ t_release_only_removes_own_token() {
     [ "$(owner_field token)" = foreign ] || fail "exit trap removed a lock it does not own"
 }
 
+# ---------------------------------------------------------------- queue admission (legacy clients ignore queue tickets)
+queue_count() { mr queue | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))'; }
+t_queue_fifo_three_waiters_behind_legacy_holder() {
+    new_env queue-fifo
+    sleep 60 & local hp=$!; bg_pids+=("$hp")
+    # Oldest clients write only this first line; they must still block new clients.
+    mkdir "$LOCK"; echo "legacy pid $$ since now" > "$LOCK/owner"
+    local a b c
+    MAC_CONTAINER=first "$SCRIPT" run 'echo first >> $HOME/order; sleep 1' > "$T/a.out" 2>&1 & a=$!; bg_pids+=("$a")
+    wait_for '[ "$(queue_count)" = 1 ]' || { fail "first not queued"; return; }
+    MAC_CONTAINER=second "$SCRIPT" run 'echo second >> $HOME/order; sleep 1' > "$T/b.out" 2>&1 & b=$!; bg_pids+=("$b")
+    wait_for '[ "$(queue_count)" = 2 ]' || { fail "second not queued"; return; }
+    MAC_CONTAINER=third "$SCRIPT" run 'echo third >> $HOME/order' > "$T/c.out" 2>&1 & c=$!; bg_pids+=("$c")
+    wait_for '[ "$(queue_count)" = 3 ]' || { fail "third not queued"; return; }
+    [ ! -e "$FAKE_HOME/order" ] && [ ! -s "$EVENTS" ] || fail "new client bypassed legacy holder"
+    rm -rf "$LOCK"; kill "$hp"
+    wait "$a" && wait "$b" && wait "$c" || fail "waiters failed: $(cat "$T/a.out" "$T/b.out" "$T/c.out")"
+    [ "$(tr '\n' ' ' < "$FAKE_HOME/order")" = 'first second third ' ] || fail "non-FIFO admission"
+    [ "$(queue_count)" = 0 ] || fail "acquired tickets leaked"
+}
+t_queue_timeout_and_cancel_remove_waiters() {
+    new_env queue-cancel
+    sleep 60 & local hp=$!; bg_pids+=("$hp")
+    mk_owner other "$hp"
+    MAC_LOCK_WAIT=1 mr gradle :a >/dev/null 2>&1; local rc=$?
+    [ "$rc" = 75 ] && [ "$(queue_count)" = 0 ] || fail "timeout leaked ticket or wrong code $rc"
+    "$SCRIPT" run 'echo should-not-run > $HOME/cancelled' > "$T/waiter.out" 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for '[ "$(queue_count)" = 1 ]' || { fail "waiter not queued"; return; }
+    mr cancel >/dev/null 2>&1
+    wait "$p" 2>/dev/null
+    wait_for '[ "$(queue_count)" = 0 ]' || fail "cancelled head leaked ticket"
+    [ "$(owner_field token)" = tok-other ] || fail "cancel touched foreign legacy holder"
+    kill "$hp"
+    mr run 'true' >/dev/null 2>&1 || fail "cancelled head blocked successor"
+    [ ! -e "$FAKE_HOME/cancelled" ] || fail "cancelled waiter ran later"
+}
+t_queue_controls_use_orchestrator_group_not_child_name() {
+    new_env queue-group
+    local reservation listing
+    reservation=$(JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue reserve 60) || { fail "reserve failed"; return; }
+    listing=$(JAILBEE_ROLE=child JAILBEE_ORCHESTRATOR=parent MAC_CONTAINER=kid mr queue)
+    grep -q '"group": "parent"' <<<"$listing" || fail "child could not list group"
+    JAILBEE_ROLE=child JAILBEE_ORCHESTRATOR=parent MAC_CONTAINER=kid mr queue release "$reservation" >/dev/null 2>&1 && fail "child controlled queue"
+    JAILBEE_ROLE=orchestrator MAC_CONTAINER=outsider mr queue release "$reservation" >/dev/null 2>&1 && fail "foreign orchestrator controlled queue"
+    JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue release "$reservation" || fail "group orchestrator could not release"
+    [ "$(queue_count)" = 0 ] || fail "reservation leaked"
+}
+t_queue_legacy_client_respects_new_holder_and_can_overtake_reservation() {
+    new_env queue-legacy
+    "$SCRIPT" run 'echo start >> $HOME/legacy-order; sleep 2; echo end >> $HOME/legacy-order' > "$T/new.out" 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for '[ -f "$FAKE_HOME/legacy-order" ]' || { fail "new holder not running"; return; }
+    # Same rename(2) gate used by the old script, without consulting tickets.
+    python3 - "$LOCK" <<'PY' || fail "legacy gate ignored new holder"
+import os, pathlib, sys, tempfile
+lock = pathlib.Path(sys.argv[1])
+pending = pathlib.Path(tempfile.mkdtemp(dir=lock.parent))
+(pending / 'owner').write_text('legacy owner')
+try:
+    try:
+        os.rename(pending, lock)
+    except OSError:
+        pass
+    else:
+        raise SystemExit('legacy client entered a new holder critical section')
+finally:
+    (pending / 'owner').unlink()
+    pending.rmdir()
+PY
+    wait "$p" || fail "new holder failed"
+    local reservation
+    reservation=$(JAILBEE_ROLE=orchestrator mr queue reserve 60) || { fail "reserve failed"; return; }
+    # Reservations do NOT create placeholder execution locks. Legacy clients
+    # are permitted to overtake a reservation, without weakening exclusivity.
+    mkdir "$LOCK" || fail "reservation unexpectedly took legacy lock"
+    echo "legacy pid $$ since now" > "$LOCK/owner"
+    JAILBEE_ROLE=orchestrator mr queue release "$reservation" || fail "release failed"
+    [ -f "$LOCK/owner" ] || fail "reservation release touched legacy lock"
+    rm -rf "$LOCK"
+}
+t_queue_child_registration_inherits_group_and_priority_changes_admission() {
+    new_env queue-priority
+    local reservation a b
+    reservation=$(JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue reserve 60) || { fail "reserve failed"; return; }
+    JAILBEE_ROLE=child JAILBEE_ORCHESTRATOR=parent MAC_CONTAINER=kid1 "$SCRIPT" run 'echo kid1 >> $HOME/priority-order' > "$T/a.out" 2>&1 & a=$!; bg_pids+=("$a")
+    wait_for '[ "$(queue_count)" = 2 ]' || { fail "first child not queued"; return; }
+    JAILBEE_ROLE=child JAILBEE_ORCHESTRATOR=parent MAC_CONTAINER=kid2 "$SCRIPT" run 'echo kid2 >> $HOME/priority-order' > "$T/b.out" 2>&1 & b=$!; bg_pids+=("$b")
+    wait_for '[ "$(queue_count)" = 3 ]' || { fail "second child not queued"; return; }
+    local ticket listing
+    listing=$(mr queue)
+    ticket=$(python3 -c 'import json,sys; print(next(r["ticket"] for r in json.load(sys.stdin) if r["identity"] == "kid2" and r["group"] == "parent"))' <<<"$listing")
+    [ -n "$ticket" ] || { fail "child group not inherited"; return; }
+    JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue priority "$ticket" 5 || fail "priority rejected"
+    wait "$b" || fail "promoted child failed"
+    [ "$(cat "$FAKE_HOME/priority-order")" = kid2 ] || fail "reservation/priority admission broken"
+    JAILBEE_ROLE=orchestrator MAC_CONTAINER=parent mr queue release "$reservation" || fail "release failed"
+    wait "$a" || fail "first child failed"
+    [ "$(tr '\n' ' ' < "$FAKE_HOME/priority-order")" = 'kid2 kid1 ' ] || fail "priority not respected"
+}
+t_queue_missing_embedded_helper_fails_closed() {
+    new_env queue-missing-helper
+    mkdir -p "$T/standalone"
+    cp "$SCRIPT" "$T/standalone/mac-remote.sh"
+    local out rc
+    out=$(bash "$T/standalone/mac-remote.sh" run true 2>&1); rc=$?
+    [ "$rc" != 0 ] && grep -q 'queue helper' <<<"$out" || fail "missing helper did not fail closed: $out"
+    [ ! -e "$T/out/runs" ] && [ ! -s "$EVENTS" ] || fail "missing helper started work"
+}
+t_queue_rejects_parallel_slots_before_connecting() {
+    new_env queue-slots
+    local out rc
+    out=$(MAC_SLOTS=2 mr run true 2>&1); rc=$?
+    [ "$rc" != 0 ] && grep -q 'MAC_SLOTS.*1' <<<"$out" || fail "unsafe slots accepted: $out"
+    [ ! -e "$T/out/runs" ] && [ ! -s "$EVENTS" ] || fail "unsafe slots started work"
+}
+
 # ---------------------------------------------------------------- run markers
 last_run() { ls -1d "$T/out/runs"/*/ 2>/dev/null | sort | tail -1 | sed 's:/$::'; }
 kv() { sed -n "s/^$2=//p" "$1" | head -1; }
@@ -714,7 +829,11 @@ t_prune_older_than_and_refusals() {
     out=$(mr prune --trees ../x 2>&1); [ $? = 2 ] || fail "bad name accepted: $out"
 }
 
-for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
+for t in t_queue_fifo_three_waiters_behind_legacy_holder t_queue_timeout_and_cancel_remove_waiters \
+    t_queue_controls_use_orchestrator_group_not_child_name t_queue_rejects_parallel_slots_before_connecting \
+    t_queue_legacy_client_respects_new_holder_and_can_overtake_reservation \
+    t_queue_child_registration_inherits_group_and_priority_changes_admission t_queue_missing_embedded_helper_fails_closed \
+    t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
     t_live_holder_with_matching_start_is_not_broken t_concurrent_stale_breakers_exactly_one_wins \

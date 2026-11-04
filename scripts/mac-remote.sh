@@ -10,6 +10,10 @@
 #                                               the holder is THIS container), remote log idle times
 #   scripts/mac-remote.sh cancel [run-id]       stop this container's running mac-remote runs (process trees,
 #                                               by pid) and release the Mac lock if its owner token is theirs
+#   scripts/mac-remote.sh queue                 list queued tickets (JSON: identity, group, arrival, priority, expiry)
+#   scripts/mac-remote.sh queue priority <ticket> <integer>  group orchestrator: higher priority goes first, ties FIFO
+#   scripts/mac-remote.sh queue reserve <seconds>           group orchestrator: reserve a FIFO place for 1-3600 seconds
+#   scripts/mac-remote.sh queue release <ticket>            group orchestrator: release its group's reservation
 #   scripts/mac-remote.sh sync                  rsync the working tree to the Mac (incremental)
 #   scripts/mac-remote.sh gradle <args...>      lock, sync, then ./gradlew -Dorg.gradle.native=false <args> on the Mac
 #   scripts/mac-remote.sh native-tests [--force] [mod...]
@@ -84,6 +88,8 @@
 #   MAC_SIM_IPHONE   iPhone simulator name (default "iPhone 16", as in CI; created if missing)
 #   MAC_SIM_IPAD     iPad simulator name (default "iPad Air 11-inch (M4)"; created if missing)
 #   MAC_TIMEOUT      seconds before one remote step (Gradle/xcodebuild/run) is killed (default 3000; 2400 for xcode-test)
+#   MAC_SLOTS        must be 1 (legacy lock compatibility; no parallel execution)
+#   JAILBEE_ROLE / JAILBEE_ORCHESTRATOR  children may inspect the queue; only their named parent controls its group
 #   MAC_LOCK_WAIT    seconds to wait for another container's build lock (default 5400; a dead holder's
 #                    lock is broken automatically, so this only bounds waiting behind live runs)
 #   MAC_HEARTBEAT    seconds between "heartbeat" lines a running step prints with the idle time of the newest
@@ -107,6 +113,13 @@ repo="${MAC_REPO_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SSH_CONFIG="${MAC_SSH_CONFIG:-$HOME/.ssh-mac/config}"
 HOST="${MAC_HOST:-andbible-mac}"
 NAME="${MAC_CONTAINER:-$(hostname)}"
+# Cooperative ownership: children belong to their parent, orchestrators to themselves.
+QUEUE_ROLE=orchestrator
+QUEUE_GROUP=$NAME
+if [ "${JAILBEE_ROLE:-}" = child ]; then
+    QUEUE_ROLE=child
+    QUEUE_GROUP=${JAILBEE_ORCHESTRATOR:-$NAME}
+fi
 SSH_BIN="${MAC_SSH_BIN:-ssh}"
 RSYNC_BIN="${MAC_RSYNC_BIN:-rsync}"
 WORKDIR="${MAC_WORKDIR:-work/$NAME}"
@@ -132,6 +145,9 @@ APP_ID="${MAC_APP_ID:-org.andbible.ios.dev}"
 APP_PROCESS="${MAC_APP_PRODUCT:-AndBibleDev}"
 
 die() { echo "mac-remote: $*" >&2; exit 1; }
+
+# Legacy clients cannot honor parallel slots. Fail before any SSH or run side effect.
+[ "${MAC_SLOTS:-1}" = 1 ] || die "MAC_SLOTS must be 1 while legacy clients use the build lock"
 
 [ -f "$SSH_CONFIG" ] || die "no ssh config at $SSH_CONFIG. Ask the user to run on the host: jailbee mount mac-ssh $NAME (see docs/ios-remote-mac.md)"
 
@@ -401,13 +417,31 @@ lock_release_if() {
 EOF
 }
 
+# Embed the local helper, not a file in the (not yet synced) source tree. A shell
+# function feeds Python via stdin on every call, so different script versions do
+# not overwrite a helper being used by an existing waiter.
+queue_helper_check() {
+    [ -s "$(dirname "${BASH_SOURCE[0]}")/mac-queue.py" ] || die "queue helper mac-queue.py is missing or empty"
+}
+queue_lib() {
+    printf 'QIDENTITY=%q QGROUP=%q QROLE=%q\n' "$NAME" "$QUEUE_GROUP" "$QUEUE_ROLE"
+    cat <<'EOF'
+mac_queue() {
+    python3 -I - --root "$HOME/work/.mac-queue" --identity "$QIDENTITY" --group "$QGROUP" --role "$QROLE" "$@" <<'__MR_QUEUE_PY__'
+EOF
+    cat "$(dirname "${BASH_SOURCE[0]}")/mac-queue.py"
+    printf '\n__MR_QUEUE_PY__\n}\n'
+}
+
 # Remote script part 1: wait for the lock, then print @@LOCKED-<run token> on stdout (the caller syncs the tree next).
 lock_script() {
     printf 'set -uo pipefail\nMYNAME=%q TOKEN=%q LPID=%q RUNID=%q LOCK_WAIT=%q POLL=%q MSG_EVERY=%q IDLE_MAX=%q\n' \
         "$NAME" "$TOKEN" "$$" "$RUN_ID" "$LOCK_WAIT" "$LOCK_POLL" "$LOCK_MSG_EVERY" "$IDLE_MAX"
     rlib
+    queue_lib
     cat <<'EOF'
 mkdir -p "$HOME/work"
+QTICKET=
 try_acquire() {
     local P="$L.pending.$TOKEN"
     rm -rf "$P"; mkdir "$P" || return 1
@@ -453,7 +487,7 @@ idle_arm() {
 }
 WD=
 # MR_SIMDOWN=1 (set by the container side for gradle/native-tests/xcode-*/run/batch) also covers abnormal ends (watchdog, idle guard)
-trap '[ "${MR_SIMDOWN:-}" = 1 ] && xcrun simctl shutdown all >/dev/null 2>&1; lock_release_if "$TOKEN"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
+trap '[ "${MR_SIMDOWN:-}" = 1 ] && xcrun simctl shutdown all >/dev/null 2>&1; lock_release_if "$TOKEN"; [ -z "$QTICKET" ] || mac_queue remove "$QTICKET"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
 trap 'exit 129' HUP INT TERM
 # Watchdog: the nearest sshd ancestor is this connection; when it is gone, stop this process group (also
 # a waiter, so a cancelled or killed local run never takes the lock later). Its fds go to /dev/null,
@@ -469,10 +503,20 @@ if [ -n "$sshd_pid" ]; then
       kill -TERM 0 ) </dev/null >/dev/null 2>&1 &
     WD=$!
 fi
+QTICKET=$(mac_queue register --pid "$$" --pstart "$(pstart_of $$)" --ticket "$TOKEN") || exit 74
+[ "$QTICKET" = "$TOKEN" ] || { echo 'mac-remote: queue registration returned no matching ticket' >&2; exit 74; }
 got=; t0=$SECONDS; last=-1000000
 while :; do
-    if try_acquire; then got=1; break; fi
-    if lock_stale; then break_lock && continue; fi
+    # Only the new-client head competes for the unchanged legacy lock. Old
+    # clients can still overtake us; FIFO is guaranteed only among new clients.
+    QHEAD=$(mac_queue head --ticket "$QTICKET") || exit 74
+    if [ "$QHEAD" = "$QTICKET" ]; then
+        if try_acquire; then
+            mac_queue remove "$QTICKET" || exit 74
+            QTICKET=; got=1; break
+        fi
+        if lock_stale; then break_lock && continue; fi
+    fi
     if [ $(( SECONDS - last )) -ge "$MSG_EVERY" ]; then
         last=$SECONDS
         echo "mac-remote: waiting $(( SECONDS - t0 )) s for the build lock held by: $(sed -n 1p "$L/owner" 2>/dev/null)" >&2
@@ -893,6 +937,7 @@ run_steps() {
         declare -F "step_script_$kind" >/dev/null || die "unknown step '${STEP[0]}' (steps: link gradle native-tests xcode-test xcode-build run)"
     done
     case "$label" in cleanup|prune|sim-*) PROLOGUE_NOTREE=1 ;; esac
+    queue_helper_check
     run_begin "$label" "$total" "${steps[@]}"
     RUN_REASON="no lock"
     session_open || exit $?
@@ -978,6 +1023,7 @@ kill_run() {   # pid: TERM the leader (its traps write the marker and close the 
     return 0
 }
 cmd_cancel() {
+    queue_helper_check
     local want="${1:-}" d id tokens="" found=0
     for d in $(ls -1d "$OUT"/runs/*/ 2>/dev/null | sort); do
         d=${d%/}; id=$(basename "$d")
@@ -1000,7 +1046,9 @@ cmd_cancel() {
     {
         printf 'TOKENS=%q\n' "$tokens"
         rlib
+        queue_lib
         cat <<'EOF'
+for TOK in $TOKENS; do mac_queue remove "$TOK" || exit 74; done
 for TOK in $TOKENS; do
     [ -d "$L" ] || { echo "mac-remote: remote lock already free"; break; }
     if [ "$(owner_get token)" = "$TOK" ]; then
@@ -1024,6 +1072,14 @@ EOF
 cmd="${1:-}"; shift || true
 if [ "${1:-}" = --keep-sim ]; then MAC_KEEP_SIM=1; shift; fi
 case "$cmd" in
+queue)
+    queue_helper_check
+    # Read-only listing is available to every group; controls are checked by the helper.
+    [ $# -gt 0 ] || set -- list
+    case "$1" in list|priority|reserve|release) ;; *) die "usage: queue [priority <ticket> <integer>|reserve <seconds>|release <ticket>]" ;; esac
+    remote "$(queue_lib)
+mac_queue $(q "$@")"
+    ;;
 cleanup)
     CLEANUP_DD=0; [ "${1:-}" != --derived-data ] || { CLEANUP_DD=1; shift; }
     run_steps cleanup 0 "$(q cleanup)"
