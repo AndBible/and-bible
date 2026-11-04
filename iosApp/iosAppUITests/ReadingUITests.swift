@@ -1,4 +1,5 @@
 import UIKit
+import Vision
 import XCTest
 
 /// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app on KJV: the tests launch with the
@@ -1125,6 +1126,62 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(entered, "a double tap did not enter full screen")
         paneMargin(app).doubleTap()
         XCTAssertTrue(waitUntil(timeout: 15) { toolbarShown(app) }, "the second double tap did not leave full screen")
+    }
+
+    /// Pixel-only pane witness. OCR cannot see cached/offscreen AX paragraphs.
+    private func paintedLines(_ pane: XCUIElement) throws -> [(text: String, top: CGFloat)] {
+        guard let image = pane.screenshot().image.cgImage else { throw NSError(domain: "3959PaneOCR", code: 1) }
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["en-US"]
+        request.usesLanguageCorrection = false
+        try VNImageRequestHandler(cgImage: image).perform([request])
+        return (request.results ?? []).compactMap { observation in
+            guard let text = observation.topCandidates(1).first?.string else { return nil }
+            return (text, 1 - observation.boundingBox.maxY)
+        }
+    }
+
+    func testIPadIndependentPanePaintSurvivesCleanRelaunch() throws {
+        guard isPad else { throw XCTSkip("iPad independent pane persistence") }
+        var app = try launchReading()
+        defer { app.terminate() }
+        addWindow(app, from: 1)
+        guard let tab = windowTabs(app).last else { XCTFail("second window tab missing"); return }
+        tab.press(forDuration: 1)
+        tapMenuItem(app, ["Synchronise"], "second-pane-sync-menu")
+        tapMenuItem(app, ["Disable synchronize"], "second-pane-disable-sync")
+        let ids = paneIds(app)
+        XCTAssertEqual(ids.count, 2)
+        let panes = ids.map { app.webViews.matching(identifier: $0).firstMatch }
+        guard panes.count == 2 else { return }
+        panes[1].tap()
+        panes[1].swipeLeft()
+        usleep(2_000_000)
+        let before = try panes.map { try paintedLines($0) }
+        let transcript = before.enumerated().map { "pane \($0.offset): \($0.element)" }.joined(separator: "\n")
+        let evidence = XCTAttachment(string: transcript); evidence.name = "independent-pane-before"; evidence.lifetime = .keepAlways; add(evidence)
+        let firstJohn3 = before[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
+        let secondJohn4 = before[1].first { $0.text.localizedCaseInsensitiveContains("Samaria") }
+        XCTAssertNotNil(firstJohn3, "First viewport must visibly show John 3:16")
+        XCTAssertNotNil(secondJohn4, "Second viewport must visibly show John 4:4 Samaria")
+        guard let firstJohn3, let secondJohn4 else { shot(app, "independent-pane-setup-failed"); return }
+        shot(app, "independent-pane-before")
+        sendToBackground(app)
+        app.terminate()
+        // No reset, openDocument or openRef: only persisted state can select these two passages.
+        app = launch(["-standardTestFixture"])
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60))
+        XCTAssertTrue(waitUntil(timeout: 30) { self.paneIds(app) == ids }, "Both persisted pane identities must return")
+        let after = try ids.map { try paintedLines(app.webViews.matching(identifier: $0).firstMatch) }
+        let firstAfter = after[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
+        let secondAfter = after[1].first { $0.text.localizedCaseInsensitiveContains("Samaria") }
+        XCTAssertNotNil(firstAfter, "First visible verse John 3:16 did not persist")
+        XCTAssertNotNil(secondAfter, "Second visible verse John 4:4 did not persist")
+        if let firstAfter { XCTAssertEqual(firstAfter.top, firstJohn3.top, accuracy: 0.04) }
+        if let secondAfter { XCTAssertEqual(secondAfter.top, secondJohn4.top, accuracy: 0.04) }
+        shot(app, "independent-pane-after")
+        sendToBackground(app)
     }
 
     // MARK: Task 11: swipe
