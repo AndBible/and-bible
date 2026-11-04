@@ -727,14 +727,34 @@ step_post_native_tests() {
     echo "mac-remote: native-tests exit $rc; XML under ${OUT#"$repo"/}/native-tests/<module>/test-results"
 }
 
-xcode_parse() {   # [iphone|ipad] [--release] [xcodebuild args...] -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP
+# The UI smoke set (issue #3949): one `Class/test` per line, `#` comments; `--smoke` turns it into -only-testing args.
+SMOKE_LIST="${MAC_SMOKE_LIST:-iosApp/iosAppUITests/smoke-tests.txt}"
+xcode_parse() {   # [iphone|ipad] [--release] [--smoke] [--parallel N] [xcodebuild args...]
+                  # -> XC_WHICH, XC_SIM, XC_ARGS, XC_CONFIG, XC_APP_ID, XC_APP, XC_PARALLEL
     XC_WHICH="${1:-iphone}"; [ $# -gt 0 ] && shift
     case "$XC_WHICH" in iphone) XC_SIM="$SIM_IPHONE" ;; ipad) XC_SIM="$SIM_IPAD" ;; *) echo "mac-remote: device must be iphone or ipad" >&2; return 1 ;; esac
-    XC_CONFIG=Debug XC_APP_ID=$APP_ID XC_APP=$APP_PROCESS
-    if [ "${1:-}" = --release ]; then
-        shift; XC_CONFIG=Release XC_APP_ID=org.andbible.ios XC_APP=AndBible
+    XC_CONFIG=Debug XC_APP_ID=$APP_ID XC_APP=$APP_PROCESS XC_PARALLEL=0
+    local smoke=() line
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --release) XC_CONFIG=Release XC_APP_ID=org.andbible.ios XC_APP=AndBible ;;
+            --smoke)
+                [ -f "$repo/$SMOKE_LIST" ] || { echo "mac-remote: --smoke: no list at $SMOKE_LIST" >&2; return 1; }
+                while IFS= read -r line || [ -n "$line" ]; do
+                    line="${line%%#*}"; line="${line//[[:space:]]/}"
+                    [ -n "$line" ] && smoke+=("-only-testing:iosAppUITests/$line")
+                done < "$repo/$SMOKE_LIST"
+                [ ${#smoke[@]} -gt 0 ] || { echo "mac-remote: --smoke: $SMOKE_LIST lists no tests" >&2; return 1; } ;;
+            --parallel)
+                case "${2:-}" in [1-9]) XC_PARALLEL=$2; shift ;; *) echo "mac-remote: --parallel needs a worker count 1-9" >&2; return 1 ;; esac ;;
+            *) break ;;
+        esac
+        shift
+    done
+    XC_ARGS=("${smoke[@]}" "$@")
+    if [ "$XC_PARALLEL" -gt 1 ]; then
+        XC_ARGS+=(-parallel-testing-enabled YES -parallel-testing-worker-count "$XC_PARALLEL")
     fi
-    XC_ARGS=("$@")
 }
 step_script_xcode() {   # <kind> <n> [dev] [args...]
     local kind=$1 n=$2 t; shift 2; t=$(step_timeout "$kind")
@@ -753,14 +773,37 @@ echo "mac-remote: simulator \$UDID"
 $([ $XC_CONFIG = Release ] && [ -z "${MAC_RELEASE_KEEP_INSTALL:-}" ] && echo "xcrun simctl uninstall \$UDID $XC_APP_ID 2>/dev/null; echo 'mac-remote: --release: uninstalled $XC_APP_ID (fresh install)'")
 if [ $kind = xcode-test ]; then
     # The app runs as its own process under XCUITest: its NSLog output only reaches the unified log.
-    xcrun simctl spawn \$UDID log stream --style compact --predicate 'process == "$XC_APP"' > build/app-$which.log 2>&1 &
+    # com.apple.dt.xctest is XCTest's own in-app accessibility-snapshot chatter (about a third of a full run's log);
+    # MAC_APP_LOG_XCTEST=1 keeps it.
+    PRED='process == "$XC_APP"$([ -n "${MAC_APP_LOG_XCTEST:-}" ] || echo ' AND subsystem != "com.apple.dt.xctest"')'
+    xcrun simctl spawn \$UDID log stream --style compact --predicate "\$PRED" > build/app-$which.log 2>&1 &
     LOGPID=\$!; sleep 2
+    rm -f build/app-$which-clone-*.log
+    CLONEPID=
+    if [ $XC_PARALLEL -gt 1 ]; then
+        # Parallel testing runs the tests in clones of the simulator (device set "testing"); stream each clone's app log too.
+        ( seen=; while :; do
+              for c in \$(xcrun simctl --set testing list devices 2>/dev/null | grep -i 'clone' | grep Booted | grep -oE '[0-9A-F]{8}-[0-9A-F-]{27}'); do
+                  case " \$seen " in *" \$c "*) ;; *) seen="\$seen \$c"
+                      xcrun simctl --set testing spawn \$c log stream --style compact --predicate "\$PRED" > build/app-$which-clone-\$c.log 2>&1 & ;; esac
+              done; sleep 5
+          done ) &
+        CLONEPID=\$!
+    fi
     $(for v in $(compgen -v TEST_RUNNER_ || true); do printf 'export %s=%q\n' "$v" "${!v}"; done)
     tmo $t xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \\
         -destination "platform=iOS Simulator,id=\$UDID" -resultBundlePath build/ios-$which.xcresult -configuration $XC_CONFIG $(q "${XC_ARGS[@]}") \\
         > build/xcodebuild-$which.log 2>&1; rc=\$?
     [ \$rc = 142 ] && echo "mac-remote: TIMEOUT: xcodebuild killed after ${t}s" >&2
     sleep 2; kill \$LOGPID 2>/dev/null
+    if [ -n "\$CLONEPID" ]; then
+        pkill -P \$CLONEPID 2>/dev/null; kill \$CLONEPID 2>/dev/null
+        for c in build/app-$which-clone-*.log; do
+            [ -f "\$c" ] || continue
+            printf '==== %s\\n' "\${c#build/}" >> build/app-$which.log; cat "\$c" >> build/app-$which.log
+        done
+        echo "mac-remote: parallel testing ($XC_PARALLEL workers): \$(ls build/app-$which-clone-*.log 2>/dev/null | wc -l | tr -d ' ') clone logs appended to app-$which.log"
+    fi
     [ -d build/ios-$which.xcresult ] && xcrun xcresulttool export attachments --path build/ios-$which.xcresult \\
         --output-path build/screenshots-$which >/dev/null 2>&1
     grep -E '^(Test Suite|Test Case .*(passed|failed|skipped))|error:|\\*\\* TEST' build/xcodebuild-$which.log | grep -vE "Test Suite '(All tests|.*\\.xctest)' started" | tail -60

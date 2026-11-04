@@ -489,6 +489,23 @@ t_xcode_test_evidence_per_run_with_latest_links() {
     [ -f "$T/out/xcode/xcodebuild-iphone.log" ] || fail "log compat path"
     grep -q '^env TEST_RUNNER_FOO=bar' "$EVENTS" || fail "TEST_RUNNER_* not forwarded: $(ev)"
 }
+t_xcode_test_smoke_parallel_and_log_filter() {
+    new_env xcode-smoke
+    mkdir -p "$T/repo/iosApp/iosAppUITests"
+    printf '# smoke\nAppUITests/testA   # first\n\nPocUITests/testB\n' > "$T/repo/iosApp/iosAppUITests/smoke-tests.txt"
+    mr xcode-test iphone --smoke --parallel 2 -skip-testing:iosAppUITests/Z >/dev/null 2>&1 || fail "smoke run failed: $(ev)"
+    grep -q 'xcodebuild test .*-only-testing:iosAppUITests/AppUITests/testA -only-testing:iosAppUITests/PocUITests/testB -skip-testing:iosAppUITests/Z -parallel-testing-enabled YES -parallel-testing-worker-count 2' "$EVENTS" \
+        || fail "smoke/parallel args not passed in order: $(ev)"
+    grep -q 'subsystem != "com.apple.dt.xctest"' "$(last_run)/step-1.sh" || fail "xctest log not filtered by default"
+    grep -q 'simctl --set testing' "$(last_run)/step-1.sh" || fail "no clone log streaming with --parallel"
+    MAC_APP_LOG_XCTEST=1 mr xcode-test iphone >/dev/null 2>&1
+    ! grep -q 'subsystem != ' "$(last_run)/step-1.sh" || fail "MAC_APP_LOG_XCTEST=1 still filters"
+    ! grep -q 'parallel-testing' "$(last_run)/step-1.sh" || fail "parallel flags without --parallel"
+    out=$(mr xcode-test iphone --parallel x 2>&1); [ $? != 0 ] || fail "bad worker count accepted: $out"
+    rm "$T/repo/iosApp/iosAppUITests/smoke-tests.txt"
+    out=$(mr xcode-test iphone --smoke 2>&1); [ $? != 0 ] && grep -q 'no list' <<<"$out" || fail "missing smoke list not refused: $out"
+}
+
 t_xcode_test_default_timeout_and_override() {
     new_env xcode-timeout
     out=$(MAC_TIMEOUT=1 XC_SLEEP=5 mr xcode-test iphone 2>&1); rc=$?
@@ -724,7 +741,7 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_cancel_kills_only_own_pids_and_releases_matching_lock t_cancel_releases_lock_of_a_lost_run_and_stops_its_holder t_cancel_leaves_foreign_lock_alone t_cancel_with_nothing_to_cancel \
     t_batch_stops_at_first_failing_step t_batch_keep_going_runs_every_step t_batch_keep_going_stops_after_a_failed_build_step t_batch_keep_going_with_no_sync t_batch_holds_lock_across_steps t_batch_link_and_unknown_step t_batch_native_then_xcode_sequence \
     t_native_tests_force_deletes_results t_native_tests_boots_simulator_and_fetches t_gradle_warns_for_native_test_task \
-    t_xcode_test_evidence_per_run_with_latest_links t_xcode_test_default_timeout_and_override \
+    t_xcode_test_evidence_per_run_with_latest_links t_xcode_test_smoke_parallel_and_log_filter t_xcode_test_default_timeout_and_override \
     t_heartbeat_shows_in_output_log t_sim_boot_goes_through_lock_and_marker \
     t_step_output_cannot_spoof_the_result t_bad_device_in_batch_is_rejected_before_locking \
     t_idle_guard_releases_lock_when_container_side_stalls t_timeout_kills_the_whole_process_group \
