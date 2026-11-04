@@ -16,7 +16,13 @@
  */
 package net.bible.sharedui.workspaces
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.LayoutDirection
+import net.bible.sharedui.theme.monoBorder
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -167,9 +173,15 @@ fun WorkspaceSelectorScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                AbReorderableColumn(items = workspaces, key = { it.id }, onMove = onMove) { item, handle ->
+                AbReorderableColumn(
+                    items = workspaces, key = { it.id }, onMove = onMove,
+                    initialScrollKey = workspaces.firstOrNull { it.isCurrent }?.id,
+                ) { item, handle ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { onSelect(item.id) }.padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                            .currentRowHighlight(item.isCurrent)
+                            .selectable(selected = item.isCurrent, onClick = { onSelect(item.id) })
+                            .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         // Drag handle hidden while filtering (parity: no reorder over a filtered/partial list).
@@ -285,6 +297,27 @@ fun WorkspaceSelectorScreen(
             onDismissRequest = onDismissPendingSelect,
         )
     }
+}
+
+/**
+ * Marks the current workspace row: a tinted container plus a 4dp accent bar at the leading edge.
+ * Pure monochrome (e-ink) gets no tint (no hue) but a 2dp ink outline and an ink bar instead.
+ */
+@Composable
+private fun Modifier.currentRowHighlight(current: Boolean): Modifier {
+    if (!current) return this
+    val mono = isPureMonochrome()
+    val scheme = MaterialTheme.colorScheme
+    val barColor = if (mono) scheme.onSurface else scheme.primary
+    val tint = if (mono) Color.Transparent else scheme.secondaryContainer
+    return this
+        .background(tint)
+        .monoBorder(width = 2.dp)
+        .drawBehind {
+            val bar = 4.dp.toPx()
+            val x = if (layoutDirection == LayoutDirection.Rtl) size.width - bar else 0f
+            drawRect(barColor, topLeft = Offset(x, 0f), size = Size(bar, size.height))
+        }
 }
 
 private data class IndexedLabel(val index: Int, val label: String)
