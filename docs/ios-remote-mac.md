@@ -226,6 +226,16 @@ scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulato
 scripts/mac-remote.sh cleanup                # end of every Mac session: simulators off, own leftovers killed, own junk removed
 ```
 
+`reset-tree` takes the execution lock and clears regenerable outputs of the selected tree: project
+`build/`, `.gradle/`, `.kotlin/` and `node_modules`. It deliberately makes the next build cold. It never
+clears external Xcode `ModuleCache.noindex`/`SDKStatCaches.noindex`. Use it for a demonstrably broken
+warm state, not routinely after a run. Safe explicit workdirs have the form `work/<name>`; nested paths,
+symlink aliases and custom `GRADLE_USER_HOME` are rejected rather than bypassing ownership/cache guards.
+
+A shared `run --no-sync`, `batch --no-sync` or `fetch` requires this client to own the last completed sync;
+otherwise sync first. The owner is invalidated before mutation and published only after successful sync
+and setup. Run metadata records the source revision, dirty-content fingerprint and selected tree.
+
 The sync sends the working tree only, uncommitted changes included: no `.git` (the container's git
 objects live in an alternate on the host, and the repository is meant to stay in the container),
 no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded paths survive
@@ -263,7 +273,9 @@ session has a watchdog that stops it (waiting or running) when its own ssh conne
 use a separate, non-multiplexed connection for that reason). A connection that only goes silent (network
 down; a SIGKILLed local script whose ssh child lingers) is covered by an idle guard: the Mac releases the lock
 and ends the session when no next step arrives within `MAC_IDLE_MAX` (default 1800 s; it must exceed the
-longest container-side sync or fetch). Each step runs from a script file in its own process group under
+longest instruction gap). Active sync/evidence transfers disarm that idle timer while retaining the
+execution lock and use a separate bounded lease, `MAC_TRANSFER_TIMEOUT` (default 1800 seconds per
+operation). Each step runs from a script file in its own process group under
 `MAC_TIMEOUT` plus a step-level watchdog (`MAC_STEP_MARGIN`, default 600 s), so a timeout kills every
 process the step started. ssh and rsync use `ServerAliveInterval=30`. Process start times are compared
 under `LC_ALL=C TZ=UTC0`. Watchdog events go to `~/work/.mac-remote-watchdog.log` (shown by `check`).
@@ -272,7 +284,12 @@ Container side, per call: `.local/mac/<container>/runs/<run-id>/` with `meta`, `
 an `exit` marker (code, reason `ok|failed|timeout|signal ...|cancelled|no lock|sync failed`, end time, failing step; timeouts are always
 exit 142; `no lock` = the lock wait ran out (75) or the connection failed, `sync failed` = rsync/ssh to the Mac
 failed before any step ran; the generated script of each step is kept as `step-<n>.sh`); the
-newest 20 run directories are kept. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
+newest 20 run directories are kept (not overwritten is not permanent retention).
+Native XML/HTML/status lives in `runs/<run-id>/native-tests/step<N>/<module>/`; legacy
+`native-tests/<module>` links to the latest capture. `run` snapshots only new/changed top-level
+`build/release` and `build/shots` artifacts under `runs/<run-id>/run/step<N>/` before releasing the lock.
+Missing optional artifacts are distinct from a failed transfer; capture failure fails an otherwise
+successful step. `xcode-test` / `xcode-build` evidence (logs, `.xcresult`,
 screenshots) is fetched into `runs/<run-id>/xcode/step<N>-<device>/`, and `.local/mac/<container>/xcode/<name>-<device>`
 are links to the latest run. `check` summarises the runs (running / exited N / LOST, elapsed, log idle
 time), the lock holder with its age and whether it is this container, and the idle time of the remote
@@ -296,11 +313,13 @@ The Mac has 16 GiB of RAM and a data volume that fills up; it is shared, so the 
   one line saying what was shut down. `MAC_KEEP_SIM=1` (or `--keep-sim` right after the command name) keeps them.
 - The `sim` helpers (`boot`, `shot`, `launch`, `log`, ...) leave the simulator booted, because they are a sequence of calls.
   End the sequence with `sim shutdown` or, better, `cleanup`.
-- **Every Mac session ends with `scripts/mac-remote.sh cleanup`** (a child includes it before `done`). It takes the lock, shuts
-  down all simulators, kills processes left over from this container's tree (`~/work/<container>/`: `test.kexe`, `xcodebuild`,
-  Gradle wrapper/daemons started there, `simctl spawn`), *reports* (never kills) such processes of other containers' trees with
-  age, RSS and CPU, removes this container's regenerable junk (`build/release` archives except the newest of each kind,
-  `build/shots`; `--derived-data` also its DerivedData) and prints memory and disk before and after.
+- **Every Mac session ends with `scripts/mac-remote.sh cleanup`** (a child includes it before `done`). It takes the lock,
+  shuts down simulators and prints memory/disk. In a shared tree it preserves warm compilation, node_modules, Gradle caches
+  and daemons. Only successfully captured release/shots scratch with a matching owner/content receipt is removed;
+  changed/foreign scratch and shared-tree processes are report-only. `--derived-data` explicitly removes tree-local
+  `build/dd-*`, never Xcode's global `ModuleCache.noindex` or `SDKStatCaches.noindex`. A private tree retains its previous
+  cleanup policy: kill own leftovers, report foreign leftovers, prune old release archives (newest kept), remove shots,
+  and optionally remove its own DerivedData.
 - `check` ends with a "leftovers" section and a disk report: free space, the size and last modification of every
   `~/work/<tree>`, and CoreSimulator, DerivedData, `~/.konan` and `~/.gradle`. It warns above 85 % full.
 - `prune [--trees <name...>] [--older-than <days>] [--sims] [--yes]` deletes **other** containers' trees (and their DerivedData) and,

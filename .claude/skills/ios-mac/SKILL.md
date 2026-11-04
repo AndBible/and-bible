@@ -50,9 +50,10 @@ is missing from egress: ask for `jailbee net egress add <mac-ip>:22 --repo`. Nev
 Results land in `.local/mac/<container>/`: `native-tests/<module>/test-results/…/*.xml`,
 `xcode/xcodebuild-<device>.log`, `xcode/app-<device>.log` (the app's unified log during the run),
 `xcode/screenshots-<device>/<Test>/<name>.png` (read them with the Read tool), `shots/`, `crashes/`.
-The `xcode/…` paths are links to the **latest** run; every run keeps its own evidence in
-`runs/<run-id>/xcode/step<N>-<device>/` (logs, `ios-<device>.xcresult`, screenshots), so a later run never
-overwrites it (the newest 20 run directories are kept, `MAC_KEEP_RUNS`).
+The `xcode/…` and `native-tests/<module>` paths are links to the **latest** run; every run keeps its own
+Xcode evidence in `runs/<run-id>/xcode/step<N>-<device>/` and Native XML/HTML/status in
+`runs/<run-id>/native-tests/step<N>/<module>/`. A later run never overwrites them, but retention still
+keeps only the newest 20 run directories (`MAC_KEEP_RUNS`). Preserve durable verification evidence in the status note.
 
 Every lock-taking call also writes a run record `runs/<run-id>/`: `meta` (command, local pid, token),
 `output.log` (everything the call printed, including a `heartbeat` line every 2 minutes while a step
@@ -83,6 +84,14 @@ Standalone `sync` also takes the execution lock. Keep old scripts on their defau
 never configure an old client with `MAC_WORKDIR=work/shared` (its standalone sync is unlocked).
 New and old clients respect the same `~/work/.build-lock`, but FIFO fairness applies only among new
 queued clients; old clients can still overtake them.
+
+`run --no-sync`, `batch --no-sync` and shared `fetch` require this client's last completed sync owner;
+resync after another client hands the tree over. Native evidence lives under
+`runs/<id>/native-tests/step<N>/<module>`; latest links are conveniences, not another run's proof.
+`run` captures only newly created/changed release/shots artifacts before releasing the lock.
+`reset-tree` explicitly clears selected-tree build/.gradle/.kotlin/node_modules caches under the lock;
+use it only for broken state. Safe custom workdirs are `work/<name>`; nested/symlink aliases and custom
+Gradle user homes fail closed.
 
 `MAC_SLOTS` is 1; larger values fail closed while legacy clients exist. Parallelism requires retiring
 old clients, separate warm trees, explicit per-run simulator UDIDs for all operations (including
@@ -136,7 +145,8 @@ Do not attempt concurrent light jobs by bypassing the lock.
   the container gate (verify, jvmTest, assemble) in the foreground at the same time, and read both
   results. Editing files after the call printed `synced` does not affect that Mac run; edits made while
   it waits for the lock are included. `run` syncs too; `run --no-sync` (and `batch --no-sync`) run in the
-  Mac tree as it is, e.g. to inspect or rerun what a previous run left there.
+  Mac tree as it is only while this client still owns the last completed sync. After another client's
+  source handoff, resync instead of inspecting their results as yours.
 - Mac runs enable the local Gradle build cache, including Gradle invoked inside Xcode. Test task
   outputs are excluded: tests must not be restored `FROM-CACHE`. Compilation may be cached.
   Count results from the fetched XML (classes, tests, failures, skipped), not from
@@ -189,10 +199,12 @@ The Mac (16 GiB RAM, a nearly full disk) is cleaned like `.local/`: whatever a s
 - `gradle`, `native-tests`, `xcode-*`, `run` and `batch` shut down all simulators at the end of their locked session, success or
   failure, and print a line saying which (opt out: `MAC_KEEP_SIM=1` or `--keep-sim`).
 - `sim boot|shot|launch|log` keep the simulator booted for the call sequence; end it with `sim shutdown`.
-- **Every Mac session ends with `scripts/mac-remote.sh cleanup`; a child runs it before `done`.** It shuts down simulators, kills
-  leftovers from this container's tree (`test.kexe`, `xcodebuild`, Gradle, `simctl spawn`), reports (does not kill) other
-  containers' leftovers with age/RSS/CPU, removes this container's old `build/release` archives (keeps the newest) and
-  `build/shots`, and prints memory and disk before/after (`--derived-data` also drops its DerivedData, which costs a slower next build).
+- **Every Mac session ends with `scripts/mac-remote.sh cleanup`; a child runs it before `done`.** It shuts down simulators
+  under the execution lock and prints memory/disk. In the shared tree, it preserves warm compilation outputs,
+  node_modules and daemons; it removes only successfully captured scratch whose receipt, source owner and content still
+  match this client. Foreign/changed scratch and shared-tree processes are report-only. `--derived-data` explicitly drops
+  tree-local `build/dd-*`, not Xcode's global ModuleCache/SDKStatCaches. In a private tree it retains the existing cleanup:
+  own leftovers killed, old release archives pruned (newest kept), shots removed and optional own DerivedData removed.
 - `check` shows leftovers and the disk report (every tree's size and last modification; a warning above 85 % full).
 - Above 85 % full: do not delete anything yourself. `prune --trees <names>` / `--older-than <days>` / `--sims` is a dry run (it
   lists what would go, with sizes) and `--yes` deletes other containers' trees: only the orchestrator runs it, with names the
