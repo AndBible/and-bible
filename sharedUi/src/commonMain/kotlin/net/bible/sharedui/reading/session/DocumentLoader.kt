@@ -213,6 +213,26 @@ class DocumentLoader(
         }
     }
 
+    /**
+     * Forgets the window this loader served, when its live page is handed to another window (a workspace switch
+     * reuses the outgoing web views, #3950): in-flight loads become stale, a page restart no longer resends the old
+     * window's document, and the next document re-uploads the labels (their styles are per workspace). The page keeps
+     * showing the old content until the new window's document replaces it.
+     */
+    fun forgetDocument() {
+        documentLoadingLock.withLock {
+            ++documentLoadGeneration
+            latestDocumentStr = null
+            needsDocument = false
+            initialAnchorOrdinal = null
+            initialHtmlId = null
+        }
+        labelsUploaded = false
+        session.firstDocument = null
+        session.initialKey = null
+        cancelPendingChapterLoads()
+    }
+
     private fun addChapter(chapter: Int) {
         when {
             chapter < session.minChapter -> session.minChapter = chapter

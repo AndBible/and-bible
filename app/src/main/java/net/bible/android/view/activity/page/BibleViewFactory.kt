@@ -73,6 +73,9 @@ class BibleViewFactory(
     }
 
     private val windowBibleViewMap: MutableMap<IdType, BibleView> = HashMap()
+
+    /** Live views of the workspace switched away from, waiting for an incoming window to take them over (#3950). */
+    private val spareViews = ArrayDeque<BibleView>()
     init {
         Log.i(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
     }
@@ -85,6 +88,7 @@ class BibleViewFactory(
             window.bibleView = it
             it.listenEvents = true
         },
+        adopt = { takeSpare(window)?.also { it.adoptWindow(window) } },
         create = {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
             val bibleView = BibleView(this.host, this.hostCallbacks, WeakReference(window), windowControl,
@@ -93,8 +97,10 @@ class BibleViewFactory(
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.initialise()
+            // By view, not by the creating window's id: a reused view serves another window by then.
             bibleView.onDestroy = {
-                windowBibleViewMap.remove(window.id)
+                windowBibleViewMap.values.remove(bibleView)
+                spareViews.remove(bibleView)
             }
             bibleView
         },
@@ -117,12 +123,51 @@ class BibleViewFactory(
             bw.doDestroy()
         }
         windowBibleViewMap.clear()
+        releaseSpares()
+    }
+
+    /**
+     * A workspace switch (#3950): instead of destroying the outgoing views, park them so the incoming windows take
+     * them over in [getOrCreateBibleView]. Destroying them and booting new WebViews (page load, the page's start-up,
+     * then the document) left every pane blank for 0.7-1.5 s on the emulator; a reused view keeps its old page on
+     * screen until the new document replaces it in one step. Views no incoming window takes are dropped by
+     * [releaseSpares] once the new panes are composed.
+     */
+    fun retireForReuse() {
+        Log.i(TAG, "retireForReuse ${windowBibleViewMap.size}")
+        for (bw in windowBibleViewMap.values) {
+            bw.retire()
+            spareViews.addLast(bw)
+        }
+        windowBibleViewMap.clear()
+    }
+
+    /** A parked view for [window]: its own old view when the same workspace is reloaded, else the oldest one. */
+    private fun takeSpare(window: Window): BibleView? {
+        val own = spareViews.firstOrNull { it.windowRef.get()?.id == window.id }
+        if (own != null) {
+            spareViews.remove(own)
+            return own
+        }
+        return spareViews.removeFirstOrNull()
+    }
+
+    /** Destroys the parked views of [retireForReuse] that no window took over. */
+    fun releaseSpares() {
+        if (spareViews.isEmpty()) return
+        Log.i(TAG, "releaseSpares ${spareViews.size}")
+        while (spareViews.isNotEmpty()) {
+            val bw = spareViews.removeFirst()
+            bw.onDestroy = null
+            bw.doDestroy()
+        }
     }
 
     companion object {
         /**
-         * Cached/created decision of [getOrCreateBibleView], generic so it can be tested without a
-         * real [BibleView]. A cached view is only rebound. A created view is registered in [map],
+         * Cached/adopted/created decision of [getOrCreateBibleView], generic so it can be tested without a
+         * real [BibleView]. A cached view is only rebound. Otherwise a parked view is taken over ([adopt],
+         * null when none is parked) or a new one is created; either is registered in [map],
          * assigned to the window via [assign], and only THEN, if the window's last load was dropped
          * (see [Window.loadPending]), [load] re-runs it, so the load finds the view.
          */
@@ -130,12 +175,13 @@ class BibleViewFactory(
             window: Window,
             map: MutableMap<IdType, V>,
             rebind: (V) -> Unit,
+            adopt: () -> V? = { null },
             create: () -> V,
             assign: (V) -> Unit,
             load: () -> Unit,
         ): V {
             map[window.id]?.let { rebind(it); return it }
-            val view = create()
+            val view = adopt() ?: create()
             map[window.id] = view
             assign(view)
             if (window.takeLoadPending()) load()
