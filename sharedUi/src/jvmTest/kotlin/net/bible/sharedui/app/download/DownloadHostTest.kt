@@ -18,6 +18,17 @@ import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import net.bible.sharedui.app.download.DownloadHostPlatform
+import net.bible.android.control.download.repoIdentity
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.NullBackend
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import kotlin.test.assertSame
 
 class DownloadHostTest {
@@ -56,10 +67,14 @@ class DownloadHostTest {
             error("unexpected ${m.name}")
         } as T
 
-    private fun host(settings: AppSettings, language: String = "en") = DownloadHost(
+    private fun host(
+        settings: AppSettings,
+        language: String = "en",
+        platform: DownloadHostPlatform = unused(),
+    ) = DownloadHost(
         shell = shell,
         strings = iosStrings("en"),
-        platform = unused(),
+        platform = platform,
         notificationPermission = unused(),
         clipboard = unused(),
         openInstallZip = { _, _, _ -> },
@@ -192,5 +207,44 @@ class DownloadHostTest {
         // An out-of-range stored index falls back to ALL.
         val outOfRange = IntSettings(mapOf("selected_document_filter_no" to 999))
         assertEquals(DocTypeFilter.ALL, host(outOfRange).initialTypeFilter(addons = false))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun aboutActionShowsAboutForTheSelectedCatalogueBook() {
+        // Pins what iOS FeatureUITests.testDownloadAboutDialog needed from the host: About on a selected row reaches showAbout(book).
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        try {
+            val shown = mutableListOf<Book>()
+            val platform = Proxy.newProxyInstance(
+                DownloadHostPlatform::class.java.classLoader, arrayOf(DownloadHostPlatform::class.java),
+            ) { _, m, args ->
+                if (m.name == "showAbout") { shown += args!![0] as Book; Unit } else error("unexpected ${m.name}")
+            } as DownloadHostPlatform
+            val book = SwordBook(
+                SwordBookMetaData("""
+                    [engKJV2006eb]
+                    Description=King James Version
+                    ModDrv=RawText
+                    Versification=KJV
+                    Lang=en
+                """.trimIndent().encodeToByteArray(), "engKJV2006eb"),
+                NullBackend(),
+            )
+            val host = host(IntSettings(), platform = platform)
+            val controller = host.downloadControllerFor(DocTypeFilter.ALL)
+            host.setDownloadDocuments(listOf(row(book.repoIdentity, english)))
+            // The catalogue load needs the network and the install manager; seed the session's docId -> Book map directly.
+            val sessionField = DownloadHost::class.java.getDeclaredField("session").apply { isAccessible = true }
+            val session = sessionField.get(host)
+            session.javaClass.getDeclaredField("booksById").apply { isAccessible = true }
+                .set(session, mapOf(book.repoIdentity to book))
+            controller.toggle(book.repoIdentity)
+            controller.about()
+            assertEquals(1, shown.size)
+            assertSame(book, shown.single())
+        } finally {
+            Dispatchers.resetMain()
+        }
     }
 }

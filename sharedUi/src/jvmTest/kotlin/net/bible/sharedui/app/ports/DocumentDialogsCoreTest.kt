@@ -10,6 +10,8 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedui.strings.keyed.StringTable
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.sword.NullBackend
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import kotlin.test.*
 
@@ -43,6 +45,23 @@ class DocumentDialogsCoreTest {
         assertContains(html, "Description<br>Second")
         assertContains(html, "second<br>first")
         assertContains(html, "Key instructions")
+    }
+    @Test fun aboutHtmlOfSwordBookShowsVersificationAndOsisId() {
+        // Pins what iOS FeatureUITests.testDownloadAboutDialog asserted: "Versification: KJV" and "OSIS ID: <initials>".
+        val swordBook = SwordBook(
+            SwordBookMetaData("""
+                [engKJV2006eb]
+                Description=King James Version
+                ModDrv=RawText
+                Versification=KJV
+                Lang=en
+            """.trimIndent().encodeToByteArray(), "engKJV2006eb"),
+            NullBackend(),
+        )
+        val html = core().aboutHtml(swordBook, installed = null)
+        // The test table renders a key followed by its comma-joined arguments.
+        assertContains(html, "module_about_versificationKJV")
+        assertContains(html, "module_about_osisIdengKJV2006eb")
     }
     @Test fun aboutHtmlSortsSwordHistoryByNumericVersionNewestFirst() {
         val metadata = SwordBookMetaData("""
