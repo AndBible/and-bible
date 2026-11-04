@@ -26,6 +26,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,6 +42,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * The workspace quick sheet on an e-ink device with animations off sometimes opened showing only its first row
@@ -105,6 +109,40 @@ class AbModalBottomSheetContentGrowthTest {
 
     @Test fun takeoverSheetOpensFullyWhenContentGrowsWhileOpening() =
         assertFullyOpenWhateverTheGrowthFrame(EmptyCoroutineContext)
+
+    /**
+     * The resettle must never re-open a sheet that a caller closes while (or right after) it opens. From frame 1: a
+     * hide() before the first frame runs before Material's own show effect, which then opens the sheet regardless.
+     */
+    private fun assertHideRightAfterOpenStaysClosed(effectContext: CoroutineContext) {
+        for (frames in 1..3) {
+            lateinit var state: SheetState
+            lateinit var scope: CoroutineScope
+            var dismissCalls = 0
+            runComposeUiTest(effectContext = effectContext) {
+                mainClock.autoAdvance = false
+                setContent {
+                    AbTheme(darkTheme = false, disableAnimations = true) {
+                        state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                        scope = rememberCoroutineScope()
+                        AbModalBottomSheet(onDismissRequest = { dismissCalls++ }, sheetState = state) {
+                            Text("sheet", Modifier.height(200.dp))
+                        }
+                    }
+                }
+                repeat(frames) { mainClock.advanceTimeByFrame() }
+                runOnIdle { scope.launch { state.hide() } }
+                mainClock.advanceTimeBy(5_000)
+                assertEquals(SheetValue.Hidden, state.currentValue, "hide after $frames frames")
+                assertTrue(dismissCalls <= 1, "hide after $frames frames reported $dismissCalls dismisses")
+            }
+        }
+    }
+
+    @Test fun androidZeroScaleHideRightAfterOpenStaysClosed() =
+        assertHideRightAfterOpenStaysClosed(ZeroMotionDurationScale)
+
+    @Test fun takeoverHideRightAfterOpenStaysClosed() = assertHideRightAfterOpenStaysClosed(EmptyCoroutineContext)
 
     private companion object {
         const val FOOTER = "growth-footer"

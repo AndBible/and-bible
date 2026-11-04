@@ -263,8 +263,18 @@ private fun ResettleStrandedSheet(sheetState: SheetState, instantMotion: Boolean
                 slideTarget = target
                 return@collect
             }
-            val stranded = slideTarget?.takeIf { it != SheetValue.Hidden && sheetState.currentValue != it }
+            var stranded = slideTarget?.takeIf { it != SheetValue.Hidden && sheetState.currentValue != it }
             slideTarget = null
+            if (stranded != null) {
+                // A slide that was cancelled by the next one (a hide right after the show) also stops short; give the
+                // next one a frame to start, and act only if the sheet still rests where it stopped. A stranded sheet
+                // does not move; one that a newer slide (even a zero-duration one) took over has moved or is moving.
+                val restingAt = runCatching { sheetState.requireOffset() }.getOrDefault(Float.NaN)
+                withFrameNanos { }
+                if (sheetState.isAnimationRunning || runCatching { sheetState.requireOffset() }.getOrNull() != restingAt ||
+                    sheetState.currentValue == stranded
+                ) stranded = null
+            }
             if (stranded != null) {
                 try {
                     withContext(noMotionIf(currentInstantMotion)) {
