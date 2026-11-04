@@ -62,9 +62,9 @@ PY
     ;;
   tls-native)
     # Keep the server and its marker inside one bounded, lock-held remote step.
-    scratch=$(mktemp -d /tmp/checklist-3945-tls.XXXXXX)
     marker=/tmp/andbible-checklist-3945-tls-port
     test ! -e "$marker"
+    scratch=$(mktemp -d /tmp/checklist-3945-tls.XXXXXX)
     server_pid=""
     trap 'test -z "$server_pid" || kill "$server_pid" 2>/dev/null || true; rm -f "$marker"; rm -rf "$scratch"' EXIT
     openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=localhost \
@@ -77,8 +77,18 @@ PY
     IOS_TEST_SIMULATOR=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="Checklist-3945-iOS-26-5"))')
     xcrun simctl boot "$IOS_TEST_SIMULATOR" 2>/dev/null || true
     xcrun simctl bootstatus "$IOS_TEST_SIMULATOR" -b
+    rm -rf sharedLogic/build/test-results/iosSimulatorArm64Test
     ./gradlew -Dorg.gradle.native=false :sharedLogic:iosSimulatorArm64Test --tests '*IosWebDavTlsChecklistTest' > "$OUT/tls-native.log" 2>&1
     grep -E 'CHECKLIST-TLS|BUILD SUCCESSFUL|FAILED' "$OUT/tls-native.log"
+    python3 -I - <<'PY'
+import pathlib, xml.etree.ElementTree as ET
+files = list(pathlib.Path('sharedLogic/build/test-results/iosSimulatorArm64Test').glob('*.xml'))
+cases = [c for f in files for c in ET.parse(f).iter('testcase') if 'IosWebDavTlsChecklistTest' in c.get('classname', '')]
+assert len(cases) == 1 and not list(cases[0]), 'TLS checklist did not execute one successful test'
+output = '\n'.join(ET.parse(f).getroot().findtext('system-out', '') for f in files)
+assert output.count('CHECKLIST-TLS PASS:') == 3 and 'CHECKLIST-TLS NOT RUN' not in output, output
+print('PASS TLS evidence: one executed test, three live challenge assertions')
+PY
     ;;
   background-hook)
     id=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="Checklist-3945-iOS-26-5"))')
