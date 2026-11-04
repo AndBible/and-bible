@@ -48,6 +48,13 @@
 #   shot, launch, shutdown — all take the one Mac-wide build lock and write a run marker under
 #   .local/mac/<container>/runs/<run-id>/ (meta, output.log, steps, exit); sync, fetch, check, cancel,
 #   sim list/log/sample/crashes do not)
+#   scripts/mac-remote.sh cleanup               lock, then clean up after use: shut down all simulators, kill processes left over
+#                                               from THIS container's tree (~/work/<container>/: test.kexe, xcodebuild, gradle
+#                                               wrapper/daemons, simctl spawn), report (never kill) such processes of other
+#                                               containers' trees with age/RSS/CPU, print free memory before and after.
+#                                               Every Mac session ends with it (or `sim shutdown`); `check` lists the leftovers
+#   (gradle, native-tests, xcode-*, run and batch shut down all simulators when their locked session ends, success or
+#   failure, unless MAC_KEEP_SIM=1 or --keep-sim; the `sim` helpers keep the simulator booted for their call sequence)
 #   scripts/mac-remote.sh fetch <remote-rel-path> [local-dir]
 #                                               copy a path from the remote tree to .local/mac/<container>/
 #   scripts/mac-remote.sh sim <sub>             simulator helpers, on the booted simulator unless noted:
@@ -74,6 +81,8 @@
 #   MAC_HEARTBEAT    seconds between "heartbeat" lines a running step prints with the idle time of the newest
 #                    remote log (default 120), so a hang shows in output.log and `check`
 #   MAC_KEEP_RUNS    run directories (markers, logs, evidence) kept per container (default 20)
+#   MAC_KEEP_SIM    1: do not shut down the simulators at the end of a gradle/native-tests/xcode-*/run/batch session
+#                    (same as --keep-sim right after the command name)
 #   MAC_RELEASE_KEEP_INSTALL  non-empty: `--release` does NOT uninstall org.andbible.ios first (a test over seeded app data)
 #   TEST_RUNNER_*    forwarded to `xcode-test`; xcodebuild hands them to the UI tests without the prefix
 #                    (e.g. TEST_RUNNER_FILES_TEST_PHOTO_LABEL for FilesUITests, see docs/ios-remote-mac.md)
@@ -157,6 +166,47 @@ sim_boot() {
     fi
     xcrun simctl bootstatus "\$udid" -b >/dev/null 2>&1 || xcrun simctl boot "\$udid" 2>/dev/null || true
     echo "\$udid"
+}
+EOF
+}
+
+# Remote snippets (portable bash 3.2). sims_down: shut down every booted simulator and say which.
+sims_down_script() {
+    cat <<'EOF'
+__booted=$(xcrun simctl list devices booted 2>/dev/null | sed -n 's/^ *\(.*\) ([0-9A-F-]\{36\}) (Booted).*/\1/p' | tr '\n' ',' | sed 's/,$//; s/,/, /g')
+xcrun simctl shutdown all >/dev/null 2>&1
+if [ -n "$__booted" ]; then echo "mac-remote: cleanup: shut down simulators: $__booted"; else echo "mac-remote: cleanup: no simulator was booted"; fi
+EOF
+}
+# Free memory line (GiB free+inactive, and the system's free percentage).
+mem_line_script() {
+    cat <<'EOF'
+mem_line() { echo "mac-remote: memory $1: $(vm_stat 2>/dev/null | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{n=$3} END{printf "%.1f GiB free+inactive", (f+n)*ps/1073741824}'); $(memory_pressure 2>/dev/null | sed -n 's/^System-wide memory free percentage: *//p' | sed 's/^/system free /')"; }
+EOF
+}
+# Processes left over under ~/work. Prints "<mine|other> <pid> <etime> <rss-MiB> <cpu%> <command>" lines.
+# A process belongs to a tree when its command line mentions /work/<tree>/ or its cwd is inside it (gradle daemons).
+leftovers_script() {
+    cat <<'EOF'
+leftovers() {   # $1 = this container's name; prints classified lines
+    ps -axww -o pid=,etime=,rss=,pcpu=,command= 2>/dev/null | while read -r pid et rss cpu cmd; do
+        [ "$pid" != "$$" ] || continue
+        case "$cmd" in
+            *test.kexe*|*xcodebuild*|*gradlew*|*GradleWrapperMain*|*GradleDaemon*|*KotlinCompileDaemon*|*"simctl spawn"*|*xcodegen*|*node*"/work/"*|*xctest*) ;;
+            *) continue ;;
+        esac
+        case "$cmd" in *.step-*|*.build-lock*|*mac-remote-watchdog*|*"ps -axww"*|"bash -s"*|*sshd*) continue ;; esac
+        where=$(printf '%s\n' "$cmd" | sed -n 's|.*/work/\([^/ ]*\)/.*|\1|p' | sed -n 1p)
+        if [ -z "$where" ]; then
+            case "$cmd" in *Gradle*|*xcodebuild*|*test.kexe*)
+                cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | sed -n 1p)
+                where=$(printf '%s\n' "$cwd" | sed -n 's|.*/work/\([^/ ]*\)\(/.*\)\{0,1\}$|\1|p' | sed -n 1p) ;;
+            esac
+        fi
+        [ -n "$where" ] || continue
+        if [ "$where" = "$1" ]; then k=mine; else k=other; fi
+        printf '%s %s %s %s %s %s [%s]\n' "$k" "$pid" "$et" "$((rss / 1024))" "$cpu" "$(printf '%s' "$cmd" | cut -c1-110)" "$where"
+    done
 }
 EOF
 }
@@ -262,7 +312,8 @@ idle_arm() {
     __idle=$!
 }
 WD=
-trap 'lock_release_if "$TOKEN"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
+# MR_SIMDOWN=1 (set by the container side for gradle/native-tests/xcode-*/run/batch) also covers abnormal ends (watchdog, idle guard)
+trap '[ "${MR_SIMDOWN:-}" = 1 ] && xcrun simctl shutdown all >/dev/null 2>&1; lock_release_if "$TOKEN"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
 trap 'exit 129' HUP INT TERM
 # Watchdog: the nearest sshd ancestor is this connection; when it is gone, stop this process group (also
 # a waiter, so a cancelled or killed local run never takes the lock later). Its fds go to /dev/null,
@@ -642,7 +693,34 @@ step_script_sim_boot() { local n=$1; shift; echo "sim_boot $(q "$1")"; }
 step_script_sim_shot() { local n=$1; shift; echo "mkdir -p build/shots && xcrun simctl io booted screenshot $(q "build/shots/$1.png") >/dev/null 2>&1"; }
 step_post_sim_shot() { local n=$1 rc=$2; shift 2; fetch "build/shots/$1.png" "$OUT/shots"; }
 step_script_sim_launch() { local n=$1; shift; echo "xcrun simctl terminate booted $(q "$1") 2>/dev/null; xcrun simctl launch booted $(q "$1")"; }
-step_script_sim_shutdown() { echo "xcrun simctl shutdown all"; }
+step_script_sim_shutdown() { sims_down_script; }
+# `cleanup`: shut down simulators, kill this container's leftover processes, report other containers' ones.
+step_script_cleanup() {
+    cat <<EOF
+$(mem_line_script)
+$(leftovers_script)
+ME=$(q "$NAME")
+mem_line before
+$(sims_down_script)
+mine=\$(leftovers "\$ME" | grep '^mine ')
+if [ -n "\$mine" ]; then
+    echo "mac-remote: cleanup: killing leftover processes of this container (\$ME):"
+    echo "\$mine" | sed 's/^mine /  /'
+    for p in \$(echo "\$mine" | awk '{print \$2}'); do kill -TERM "\$p" 2>/dev/null; done
+    sleep 3
+    for p in \$(echo "\$mine" | awk '{print \$2}'); do kill -0 "\$p" 2>/dev/null && { echo "  pid \$p still alive, KILL"; kill -KILL "\$p" 2>/dev/null; }; done
+else
+    echo "mac-remote: cleanup: no leftover processes of this container (\$ME)"
+fi
+other=\$(leftovers "\$ME" | grep '^other ')
+if [ -n "\$other" ]; then
+    echo "mac-remote: cleanup: leftovers of OTHER containers' trees (reported, not killed; pid age rss-MiB cpu% command):"
+    echo "\$other" | sed 's/^other /  /'
+fi
+mem_line after
+return 0
+EOF
+}
 
 # Run one or more steps under one lock: label, sync (1/0), then one quoted step per argument.
 run_steps() {
@@ -662,6 +740,11 @@ run_steps() {
     RUN_REASON=
     if [ "$sync" = 1 ]; then RUN_REASON="sync failed"; sync_tree; RUN_REASON=; fi
     session_send "$(prologue)" || true
+    # shut the simulators down when the session ends (unless kept; sim helpers and cleanup manage them themselves)
+    auto_down=1
+    case "$label" in sim-*|cleanup) auto_down=0 ;; esac
+    [ "${MAC_KEEP_SIM:-0}" != 1 ] || auto_down=0
+    [ "$auto_down" != 1 ] || session_send "MR_SIMDOWN=1" || true
     for step in "${steps[@]}"; do
         n=$((n + 1))
         eval "STEP=($step)"
@@ -681,6 +764,8 @@ run_steps() {
             [ "${KEEP_GOING:-0}" = 1 ] && [ -n "$RS_PID_" ] && [ "$builds" = 0 ] || break
         fi
     done
+    [ "$auto_down" != 1 ] || [ -z "$RS_PID_" ] || session_send "$(sims_down_script)
+MR_SIMDOWN=" || true
     session_close
     if [ "$total" -gt 1 ]; then
         echo "mac-remote: batch result:"
@@ -778,13 +863,18 @@ EOF
 }
 
 cmd="${1:-}"; shift || true
+if [ "${1:-}" = --keep-sim ]; then MAC_KEEP_SIM=1; shift; fi
 case "$cmd" in
+cleanup)
+    run_steps cleanup 0 "$(q cleanup)"
+    ;;
 check)
     list_runs
     echo
     {
         printf 'TREE=$HOME/%s\nMYNAME=%q\n' "$(q "$TREE")" "$NAME"
         rlib
+        leftovers_script
         cat <<'EOF'
 ram=$(sysctl -n hw.memsize 2>/dev/null || echo 0); cpus=$(sysctl -n hw.ncpu 2>/dev/null || echo ?)
 echo "host: $(hostname)  user: $(whoami)  macOS $(sw_vers -productVersion 2>/dev/null) $(uname -m)  RAM $((ram/1073741824)) GiB  cpus $cpus"
@@ -809,6 +899,8 @@ for f in "$TREE"/build/xcodebuild-*.log "$TREE"/build/app-*.log "$TREE"/build/bi
     [ -f "$f" ] && echo "remote log ${f#$TREE/}: last written $(( (now - $(mtime "$f")) / 60 )) min ago"
 done
 echo "free memory: $(vm_stat 2>/dev/null | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{n=$3} END{printf "%.1f", (f+n)*ps/1073741824}') GiB; Gradle daemons: $(pgrep -f GradleDaemon | wc -l | tr -d ' '); Kotlin daemons: $(pgrep -f KotlinCompileDaemon | wc -l | tr -d ' ')"
+echo "leftovers (processes in ~/work trees; pid age rss-MiB cpu% command [tree]; 'mac-remote.sh cleanup' kills this container's):"
+lo=$(leftovers "$MYNAME"); [ -n "$lo" ] && echo "$lo" | sed 's/^/  /' || echo "  none"
 [ -f ~/work/.mac-remote-watchdog.log ] && { echo "watchdog (last 3):"; tail -3 ~/work/.mac-remote-watchdog.log; }
 echo "trees: $(ls ~/work 2>/dev/null | tr '\n' ' ')"
 EOF
