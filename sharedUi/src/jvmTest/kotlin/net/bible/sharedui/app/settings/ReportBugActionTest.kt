@@ -4,6 +4,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.strings.LocalStrings

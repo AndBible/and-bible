@@ -3,7 +3,7 @@ package net.bible.sharedui
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.history.HistoryEntry
 import net.bible.sharedui.history.HistoryScreen
 import net.bible.sharedui.strings.LocalStrings

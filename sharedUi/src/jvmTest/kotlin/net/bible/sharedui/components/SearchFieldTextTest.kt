@@ -11,7 +11,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.SearchBibleSection

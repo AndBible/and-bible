@@ -9,7 +9,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.ai.RecommendedSetupVd
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings

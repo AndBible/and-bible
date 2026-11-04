@@ -2,6 +2,7 @@ package net.bible.sharedui.app.settings
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.settings.DesktopUpdateCheckSetting
