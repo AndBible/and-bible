@@ -2393,7 +2393,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.jar",
+        "url": "https://plugins.gradle.org/m2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.jar",
         "sha512": "9b039f7b9535d5686542a0352e2c39410df3e75f192f02a466a5e46b31f81584c00597a738d36afe05939c00ee8e366fdb1b52c87486bb9718954bb49e247935",
         "dest": "offline-repository/com/github/ben-manes/caffeine/caffeine/2.9.3",
         "dest-filename": "caffeine-2.9.3.jar",
@@ -2401,7 +2401,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.module",
+        "url": "https://plugins.gradle.org/m2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.module",
         "sha512": "6e713a9168f2a7bcdbec5467c0df286909eede64f9d7d8014c01b229f296031bebece0f50d60960fcb4385f7ee9fd023077226ada1431784aa425c7e35a0dc6d",
         "dest": "offline-repository/com/github/ben-manes/caffeine/caffeine/2.9.3",
         "dest-filename": "caffeine-2.9.3.module",
@@ -2409,7 +2409,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.pom",
+        "url": "https://plugins.gradle.org/m2/com/github/ben-manes/caffeine/caffeine/2.9.3/caffeine-2.9.3.pom",
         "sha512": "cd24b83e01965880037b9094a32d671b8cb5c73514818da1bb63c30ccd0d33b6d5af0580b977f52147c0a71083e2a53833ee3795b9516a22d30f813e37984d27",
         "dest": "offline-repository/com/github/ben-manes/caffeine/caffeine/2.9.3",
         "dest-filename": "caffeine-2.9.3.pom",
@@ -2809,7 +2809,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_annotations/2.28.0/error_prone_annotations-2.28.0.jar",
+        "url": "https://plugins.gradle.org/m2/com/google/errorprone/error_prone_annotations/2.28.0/error_prone_annotations-2.28.0.jar",
         "sha512": "7af1de57fa662b27965c24894d2b2f23c43e60cc6ee48742c527784fa382372eb61bc97e8d578a8104874574ccda24ba1bda994273ea314672e9b225bc0fc2ca",
         "dest": "offline-repository/com/google/errorprone/error_prone_annotations/2.28.0",
         "dest-filename": "error_prone_annotations-2.28.0.jar",
@@ -2817,7 +2817,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_annotations/2.28.0/error_prone_annotations-2.28.0.pom",
+        "url": "https://plugins.gradle.org/m2/com/google/errorprone/error_prone_annotations/2.28.0/error_prone_annotations-2.28.0.pom",
         "sha512": "86e5eb9bb19c5ccaa77eafec1e7c336c6e5b6badbcef0462c9a0068d03b9551c6851d7ba2582c387a10cd345b91c09886eeb5ee11d0b3bfcc8c72c5dc2962d4a",
         "dest": "offline-repository/com/google/errorprone/error_prone_annotations/2.28.0",
         "dest-filename": "error_prone_annotations-2.28.0.pom",
@@ -2841,7 +2841,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_parent/2.28.0/error_prone_parent-2.28.0.pom",
+        "url": "https://plugins.gradle.org/m2/com/google/errorprone/error_prone_parent/2.28.0/error_prone_parent-2.28.0.pom",
         "sha512": "c18f454b8757e3abfd877a5d4f58d13c4b9bce6acaf1fa21606c04d1a69f1dc61aa7ce89524ec27084f6750ff586f9f8801136e0bce78ba08195e30b915ab2ca",
         "dest": "offline-repository/com/google/errorprone/error_prone_parent/2.28.0",
         "dest-filename": "error_prone_parent-2.28.0.pom",
@@ -11329,7 +11329,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.jar",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.jar",
         "sha512": "9da867702ff016cc60311c4e76543bc3ba8eebb641b208ef53f0f60207ea320ee8bdd4d5b90e27104894c024a1aac9bfa1561ce328ed73abd8223c0096fe79f4",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-api/1.41.0",
         "dest-filename": "opentelemetry-api-1.41.0.jar",
@@ -11337,7 +11337,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.module",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.module",
         "sha512": "5adf8f286051785019ce0ad9d48466b3f995599ba46d6d8980476c2214ecd1689196250be500bfa06eb45a37f7b95865d85e299497eb76d24e8fd90c16742d65",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-api/1.41.0",
         "dest-filename": "opentelemetry-api-1.41.0.module",
@@ -11345,7 +11345,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.pom",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-api/1.41.0/opentelemetry-api-1.41.0.pom",
         "sha512": "08a5c21a7a09dcd9f7bc211dc1fbf059e898200b2b277915dce11a9842759fd0a07a33414c99b92ff59c62e0e947ba450161cc5d12fc8b16bf11637caf75d475",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-api/1.41.0",
         "dest-filename": "opentelemetry-api-1.41.0.pom",
@@ -11353,7 +11353,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.jar",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.jar",
         "sha512": "d08d73d65d1fb8c1efa0a0c5dc0891dfafc52f3166603790f8842702de6b527f3103e41cee6418aaa90e7124a8ba61fac7cb0c8f64158d569eab38f4ae8a3126",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-context/1.41.0",
         "dest-filename": "opentelemetry-context-1.41.0.jar",
@@ -11361,7 +11361,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.module",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.module",
         "sha512": "e3b36bc8192c859ae93c8cbeeadf90219eb58bab7ea8f258684ecc110114afb7e421e0f0b5c4f38191286420fc74b79a3bebc88451f2a2a0a3534fabf94c952f",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-context/1.41.0",
         "dest-filename": "opentelemetry-context-1.41.0.module",
@@ -11369,7 +11369,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.pom",
+        "url": "https://plugins.gradle.org/m2/io/opentelemetry/opentelemetry-context/1.41.0/opentelemetry-context-1.41.0.pom",
         "sha512": "15806fa710fcbb1ddb5fb88c31e7ee3d8d15dfec502994d3c7ce18c21bc0852bb5445369357c11bee7dfb38d0f8f1368b1f4abc5727ca5a5a48c0d5ed70da18b",
         "dest": "offline-repository/io/opentelemetry/opentelemetry-context/1.41.0",
         "dest-filename": "opentelemetry-context-1.41.0.pom",
@@ -11497,6 +11497,22 @@
     },
     {
         "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.17.0/jna-platform-5.17.0.jar",
+        "sha512": "a063a0059d80e44c0bdd780a85e0ede610445ce3f3c57d9b88b7686b2cdf47b357c96e994f67ad35d34160d2cbb25a29172a8b1beb74a226dc0c51aa9185f042",
+        "dest": "offline-repository/net/java/dev/jna/jna-platform/5.17.0",
+        "dest-filename": "jna-platform-5.17.0.jar",
+        "sha256": "b7e3d46c87bad2eb409b0e704916bcd81206168e357312dfddd0e253679cd9e0"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.17.0/jna-platform-5.17.0.pom",
+        "sha512": "04e32a1277d98ee1d2856e41ba34b90af08e55f382b71d5ddf3bf8c88a5f9dbd6dc409fb469925fd2aa90c45d4fbfec44d9d3b53973cf21e2888ab18d697bad5",
+        "dest": "offline-repository/net/java/dev/jna/jna-platform/5.17.0",
+        "dest-filename": "jna-platform-5.17.0.pom",
+        "sha256": "0a30b797adb6822147ef98cb249ef3fbf4a243542aa86bf9f42fad9e68305a44"
+    },
+    {
+        "type": "file",
         "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.6.0/jna-platform-5.6.0.jar",
         "sha512": "e55cb2eb60742d4a1de61e5d85b4c71d1a6769ef793b9cb5454ed1775ed593201e3c833e42ea033c99ee256217fde17bac5b93c8f12cbb90795c14956eb31d61",
         "dest": "offline-repository/net/java/dev/jna/jna-platform/5.6.0",
@@ -11526,6 +11542,22 @@
         "dest": "offline-repository/net/java/dev/jna/jna/5.13.0",
         "dest-filename": "jna-5.13.0.pom",
         "sha256": "f515c2578178f45247ecca7a9e1db109531b1c42f2424e253ceeb0f6b8d42374"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna/5.17.0/jna-5.17.0.jar",
+        "sha512": "33f352528fc70a07ffc9184ff80647b02c51ea26ceb11ce70eea4adbd9419a6f811bc11746dc73ddf40ff2a21daedbeaabd349e901f30ec5e841a1f5fc6f1b52",
+        "dest": "offline-repository/net/java/dev/jna/jna/5.17.0",
+        "dest-filename": "jna-5.17.0.jar",
+        "sha256": "b3a9408e7c51e08ef0e3bfcc08f443f6ec0f6191ba8cd7c18d53d2b22e5bdbc0"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna/5.17.0/jna-5.17.0.pom",
+        "sha512": "a6f2113363012952f1cb05611fb0dd709ce67d73c297c1ad6105ba0109c44ffad6a446ff4acc87c4a1843af253772d669bccdd136ef3aac264b8246a25949e75",
+        "dest": "offline-repository/net/java/dev/jna/jna/5.17.0",
+        "dest-filename": "jna-5.17.0.pom",
+        "sha256": "501a0ff05d84a4ad10f6de25be94f49398b70a31be8f3a0ed9f4c6b44fbefee4"
     },
     {
         "type": "file",
@@ -11945,7 +11977,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.jar",
+        "url": "https://plugins.gradle.org/m2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.jar",
         "sha512": "823ea28e3c822ff48e4e985a421fa0b53ca3419e2c0635c3d4d0a9822399b6491780e26a9161d4733857c97987bff2d725ff4453b2c22ed412eef46ea27f5d84",
         "dest": "offline-repository/org/checkerframework/checker-qual/3.43.0",
         "dest-filename": "checker-qual-3.43.0.jar",
@@ -11953,7 +11985,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.module",
+        "url": "https://plugins.gradle.org/m2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.module",
         "sha512": "b5f80edd3661a81288365222b95a85e19096e4bd5485f59b7d72b807553ba8c0dbb1cee300a987f6a0ced3d4114b494cbabe82f52e48f596ae17fab1f1898eba",
         "dest": "offline-repository/org/checkerframework/checker-qual/3.43.0",
         "dest-filename": "checker-qual-3.43.0.module",
@@ -11961,7 +11993,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.pom",
+        "url": "https://plugins.gradle.org/m2/org/checkerframework/checker-qual/3.43.0/checker-qual-3.43.0.pom",
         "sha512": "b7bdf783e5ea98ee0e11d264f4a0022fd5ae4c228a00e2e8ba2f36c1a3991903ac334ea030bcbf1837e4097599f7cd0a599e0b4c03b35d5dc7550b4d93efda0f",
         "dest": "offline-repository/org/checkerframework/checker-qual/3.43.0",
         "dest-filename": "checker-qual-3.43.0.pom",
@@ -12825,6 +12857,102 @@
     },
     {
         "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1/hot-reload-annotations-jvm-1.1.1.jar",
+        "sha512": "4de3673f93fd4b2eefef424e28f56119389aad5ce1690e6d9dd97cd4908db47bdf0899c3f75640bc735e181044748b64b53846ace0bef0b6d1a25ad5277fef25",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1",
+        "dest-filename": "hot-reload-annotations-jvm-1.1.1.jar",
+        "sha256": "f506e3980c67f876c9514be02095bcad3beff7af4fdedbbf597943d86df070f3"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1/hot-reload-annotations-jvm-1.1.1.module",
+        "sha512": "fb1c1c7dcf22540a08380ef8396ac3ff62f0c7231285ccc35307af5f74677f3b6ff9d28f5a8fbd4ede3bebd75b762266d24dda185c3dee787500a214db3638e4",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1",
+        "dest-filename": "hot-reload-annotations-jvm-1.1.1.module",
+        "sha256": "b732db72a7cc8539c1c8f35562631eab969e0033f70d4de6cd8717c12d366dd2"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1/hot-reload-annotations-jvm-1.1.1.pom",
+        "sha512": "046143fdea5100323e24bd0b010a615c343856771ddba56071b9ccb62d9450bde648166aa005f9ac7b23c06e74eda92c79f11552ec5a0e1704cd4f144481fef7",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations-jvm/1.1.1",
+        "dest-filename": "hot-reload-annotations-jvm-1.1.1.pom",
+        "sha256": "0d3e838fc5704a420692e4e4c46152d0498dfedf4cbfd42766a8e7941889916e"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1/hot-reload-annotations-1.1.1.module",
+        "sha512": "efa3a30e2ac0c07697e48594583f58e887349be7c2a41b1203359e8f767468ec4b03fb71c8333741db9dc955c729e41e03700ce3de182037b4a4c860144d5ef6",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1",
+        "dest-filename": "hot-reload-annotations-1.1.1.module",
+        "sha256": "1b3222762818dc8b2970db4d996f4900b96ab60d9918b3bf0467506084d8910c"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1/hot-reload-annotations-1.1.1.pom",
+        "sha512": "83b6f33eab80131f59a930d04fb5aa3e7b42a09dc72c0fd5e6de5169fdae0fd8656ce1ae67ddc12e09e7a87790063aa79f17b3756b2e906c0f1e3e253bec361b",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1",
+        "dest-filename": "hot-reload-annotations-1.1.1.pom",
+        "sha256": "e0c25caa7f23d7067e7504ecc58e0e10aede1330d6264fa20b5ec5f5980e466f"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1/../../hot-reload-annotations-jvm/1.1.1/hot-reload-annotations-jvm-1.1.1.module",
+        "sha512": "fb1c1c7dcf22540a08380ef8396ac3ff62f0c7231285ccc35307af5f74677f3b6ff9d28f5a8fbd4ede3bebd75b762266d24dda185c3dee787500a214db3638e4",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-annotations/1.1.1/../../hot-reload-annotations-jvm/1.1.1",
+        "dest-filename": "hot-reload-annotations-jvm-1.1.1.module",
+        "sha256": "b732db72a7cc8539c1c8f35562631eab969e0033f70d4de6cd8717c12d366dd2"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1/hot-reload-core-1.1.1.jar",
+        "sha512": "f561f19801f4cd14a076cd16e12bc0d7f1115789b7c5ff989c6afedf2e3a6d2be6a65e98a07ebd02fcc598462f21ed66bab15aee7d11aba345c9f9f013c33746",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1",
+        "dest-filename": "hot-reload-core-1.1.1.jar",
+        "sha256": "0c12f18cd6f5985af401ff0c3b0313e31696f28eadb2004680da11c7b016d69b"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1/hot-reload-core-1.1.1.module",
+        "sha512": "a6633b3ee4551fb2d2e99c00edef1fb579412bd7d0e035d8b1150a8984b132cf0330bb4f3278d771108e2d72475b568b0f565f8fef68db656cdd1ad17a4f9385",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1",
+        "dest-filename": "hot-reload-core-1.1.1.module",
+        "sha256": "119d6baa1f12f00fb2a21dd95f69240fc510d6a087d45bcf741da03a73240775"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1/hot-reload-core-1.1.1.pom",
+        "sha512": "93c42d677db9d5f9f5d0ead8692140da83f371dc3a75dbe9fd47710f867fd190c5c4813f5190f731a46789d8da9bf01e4f4b18fce7eb6b6e1815898918b955d2",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-core/1.1.1",
+        "dest-filename": "hot-reload-core-1.1.1.pom",
+        "sha256": "17de311c4fe63cae662e5d0fba0ad875659746b931d0fa2ffba0bd1f344311cd"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1/hot-reload-devtools-api-1.1.1.jar",
+        "sha512": "1394ee9fb1c9283feb3e716675e3d50c92a1cbbca4cfce496d5aea47ff5195a861b067c582e14b9189e15a83b7d2052eb672006e4b83bc28484de64305512548",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1",
+        "dest-filename": "hot-reload-devtools-api-1.1.1.jar",
+        "sha256": "5fb0aa6e4d3491ccf3ec671d3cbbf1f2bcfcf0e0676f3e2d85612cfde8df6d51"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1/hot-reload-devtools-api-1.1.1.module",
+        "sha512": "5c28973e343678642b9279ad00c92f79ba81e94effd911918dd9d6a47d7a02d3eed7bcf3588943e1b3eb03c109b8dbc8461a9fc18b3215ad4b4a5e45d696fa51",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1",
+        "dest-filename": "hot-reload-devtools-api-1.1.1.module",
+        "sha256": "f2201e813ff84527431ec57b8ffabd74d4155744d466bb9c521a8f407cdd0c53"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1/hot-reload-devtools-api-1.1.1.pom",
+        "sha512": "77a509000a122823433e3dd4e82e81d774aeb78a2716d6bbcc0424262844c97c6f49b7fd62322f6461661f198307e2e5bcfc4f92b8976246655894dad6d95957",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-devtools-api/1.1.1",
+        "dest-filename": "hot-reload-devtools-api-1.1.1.pom",
+        "sha256": "3352708e871945770ebb059bd287f150ea0edf188c2552c9a2ffa57b9cef30f5"
+    },
+    {
+        "type": "file",
         "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-gradle-plugin/1.1.1/hot-reload-gradle-plugin-1.1.1.jar",
         "sha512": "06d0fe16105a8217831054b49219e4be09f0f82bfbc08cc29a8091310506e73c7ee9225a79cd6f0bcd203a3f5ee1fd89e5d01b901a8762f92b7c13ad71920497",
         "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-gradle-plugin/1.1.1",
@@ -12846,6 +12974,102 @@
         "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-gradle-plugin/1.1.1",
         "dest-filename": "hot-reload-gradle-plugin-1.1.1.pom",
         "sha256": "1f337252a5ef89cbd41a9b153ac99145d2b9e0ae2ed266c68048f40541fca063"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1/hot-reload-orchestration-1.1.1.jar",
+        "sha512": "a426f00531a46dc45e6166218b59c21985e6cd6230ad4e862430d49e1bb5c03b594aaa0604f8e2a7a529c30287d0b5b2cb139b2d42f9aed83424e1acccd56634",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1",
+        "dest-filename": "hot-reload-orchestration-1.1.1.jar",
+        "sha256": "389c9f4ce15d4083a3ca487cf98208597c46e309f70e15d3d835dfe30ff89939"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1/hot-reload-orchestration-1.1.1.module",
+        "sha512": "01be3f18a641bc4125090138c07fa76b60ea588ae6cec5f3eb4e5ff37c6ec6eaaf8005d83e3ab454245d28ccf73b3819ee8283ddcb7fe9193988bf01d4cfaba8",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1",
+        "dest-filename": "hot-reload-orchestration-1.1.1.module",
+        "sha256": "cea2c685461ac0a62591dc0f57137995bc7f2f4c96561c7e761d2f4fcfb44341"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1/hot-reload-orchestration-1.1.1.pom",
+        "sha512": "7f1edec61ee4fd3ef03de050ebc351c5260f7612caf51d4e8ea3d772d383230922b80b72f8f0862d6a86121c5e8881522e04c52841ba2b0cc07994f7fe61e923",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-orchestration/1.1.1",
+        "dest-filename": "hot-reload-orchestration-1.1.1.pom",
+        "sha256": "573ae3c4423554720b4628a2f595971fd777af873aec67e0a2bd92125bbe2598"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1/hot-reload-runtime-api-jvm-1.1.1.jar",
+        "sha512": "06b8693f8f5378d46a9df7322be468427490c600aa1377f436c14d6f04de24f72c012e0cec99704a3e5488bab83b938749006adc1c0900f4fac004f548005419",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-jvm-1.1.1.jar",
+        "sha256": "022185abe7ddc3d8b8f6506737f8c55cabbe5fc8d49fe128377ff7184725eafc"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1/hot-reload-runtime-api-jvm-1.1.1.module",
+        "sha512": "2bc32f598f5d6eae58ca778b7172abc4f8ff17f4be63745f26b486fbd69ec3a89e9f0d90cbcb1d89c2411c1ac53725872acb5fb3accaa3614cd127ece44b919e",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-jvm-1.1.1.module",
+        "sha256": "bf75ad4f883ce32661a91b6d48cc5c30b935d20eed18202ede5f26e2175d1bef"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1/hot-reload-runtime-api-jvm-1.1.1.pom",
+        "sha512": "93c5fbf4195aef995c91f18d07ec78a134e4febac679f0e220e34961787243f87c1935641940ab8363222f2816145bb31ad708404c734b0b85b64c1764a208d6",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-jvm-1.1.1.pom",
+        "sha256": "0fe15984db97d3088f0370b0406d0e37619e6b00fb80d2ffc249495a13bd6617"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1/hot-reload-runtime-api-1.1.1.module",
+        "sha512": "d715603a5c74857e7ce2c708ba5a648b997759cd6be4f65178533dea80001b179fd24aabc201fc6cc64ba48df3dafb5a907212c10e51a969ff014e2386c3714c",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-1.1.1.module",
+        "sha256": "c4c18e3902e7f1b718e77e75d68d7e3d3afb2a00c6604167a5275a18a91c2b73"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1/hot-reload-runtime-api-1.1.1.pom",
+        "sha512": "2b75ddbd39e5c1873b3c32b2ebc567d901a0f749d3c93e9e65faf39278214aa43fede3049d8a3e1910b3a301712d91002c50f3569e7a3c0c22f74a068664e8ed",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-1.1.1.pom",
+        "sha256": "18e8640e5759cf1aa8e6970998d4d4650063f87f3beee064e1283c8b8b2b7b25"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1/../../hot-reload-runtime-api-jvm/1.1.1/hot-reload-runtime-api-jvm-1.1.1.module",
+        "sha512": "2bc32f598f5d6eae58ca778b7172abc4f8ff17f4be63745f26b486fbd69ec3a89e9f0d90cbcb1d89c2411c1ac53725872acb5fb3accaa3614cd127ece44b919e",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-api/1.1.1/../../hot-reload-runtime-api-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-api-jvm-1.1.1.module",
+        "sha256": "bf75ad4f883ce32661a91b6d48cc5c30b935d20eed18202ede5f26e2175d1bef"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1/hot-reload-runtime-jvm-1.1.1.jar",
+        "sha512": "e1e9b2d4ab00fd818779b56ba1d9360cdb6e066801ee8c38f23210f0b6f3ea03e2aca0770ed4653f79a35f0cd0d8a27c31ceb96457c47d74fac135c7dc59f748",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-jvm-1.1.1.jar",
+        "sha256": "f6240213b3585c2f36388f8c5974aaa95070fd01714e47ea35b48f8286ffef41"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1/hot-reload-runtime-jvm-1.1.1.module",
+        "sha512": "98f4b8ed42745dceb164391d42eb3fe37f76f54e6c6ec8ca000ded25d13e5266efea59cc35b1aba9934f7e5f71161f90462dff8c6ceac11091f24cde622b2a46",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-jvm-1.1.1.module",
+        "sha256": "2f4bd541fd0e7ded29112c564708c7ba1b9580692750acb4b89565ef0b475f95"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1/hot-reload-runtime-jvm-1.1.1.pom",
+        "sha512": "b36e213c0f1aeae0a1d57645713d53a795acaaef7acc7f681b0b80568d2f2291cf7e19b12467706bcab640a1f71e08482de8c834cf4740d3aaf322f2b65a759f",
+        "dest": "offline-repository/org/jetbrains/compose/hot-reload/hot-reload-runtime-jvm/1.1.1",
+        "dest-filename": "hot-reload-runtime-jvm-1.1.1.pom",
+        "sha256": "c1c9d7e699bba535a052dbf0eac297c67eb6cf03795fd025502f2f9ca1cd037b"
     },
     {
         "type": "file",
@@ -14641,6 +14865,14 @@
     },
     {
         "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-tooling-core/2.2.21/kotlin-tooling-core-2.2.21.pom",
+        "sha512": "39c22fd792a4f2f4f93d389565ae06a9e84f3d80d9f5e1315bf4bd52f1ebaab7ca0a415dbdb3f8c2c3b19fee81b94dc1f17dbb6004f63b189674875ae7e2a2f2",
+        "dest": "offline-repository/org/jetbrains/kotlin/kotlin-tooling-core/2.2.21",
+        "dest-filename": "kotlin-tooling-core-2.2.21.pom",
+        "sha256": "dd33e61932c1badf3dde85f204f634c8004be96427c3a1ca8866cc011d711dfa"
+    },
+    {
+        "type": "file",
         "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-tooling-core/2.4.21/kotlin-tooling-core-2.4.21.jar",
         "sha512": "c79d26c5ba8a9b2c42b7842c0256a983228e37c93126b7c5b961af350c4cda62787cbe1ab3bcb2da98af3c6ace752d794ffb8c38ccf9f1ef961d79ed44f4febf",
         "dest": "offline-repository/org/jetbrains/kotlin/kotlin-tooling-core/2.4.21",
@@ -14737,7 +14969,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/swift-export-embeddable/2.4.21/swift-export-embeddable-2.4.21.jar",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlin/swift-export-embeddable/2.4.21/swift-export-embeddable-2.4.21.jar",
         "sha512": "b351c8ad8ea5e46c1a1ea064f24fd934536686041a5f38ebeb5410c9f4ddc8b326b066f70a0ac8c08068839c790fdebdc0a51dec1a269a68d6f669059a4fc012",
         "dest": "offline-repository/org/jetbrains/kotlin/swift-export-embeddable/2.4.21",
         "dest-filename": "swift-export-embeddable-2.4.21.jar",
@@ -14745,7 +14977,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/swift-export-embeddable/2.4.21/swift-export-embeddable-2.4.21.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlin/swift-export-embeddable/2.4.21/swift-export-embeddable-2.4.21.pom",
         "sha512": "632a59400ac5481b3b0458b8dfa031f7c744553032d7afec463aa133aa74a1e3ca303423021367498a18b79c81ad431243e478966ea3f4e3cdd9ebb3b048f6e1",
         "dest": "offline-repository/org/jetbrains/kotlin/swift-export-embeddable/2.4.21",
         "dest-filename": "swift-export-embeddable-2.4.21.pom",
@@ -15505,7 +15737,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-bom/1.7.3/kotlinx-serialization-bom-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-bom/1.7.3/kotlinx-serialization-bom-1.7.3.pom",
         "sha512": "5132dead1b4cfb4aa4a1431ea1fa4ebafc8f9e34c7ca0f979a82c7aed04ce4644029078eb83332fa066fe6decf85c9ed96b9eb826edf119e11e4e8aca358a809",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-bom/1.7.3",
         "dest-filename": "kotlinx-serialization-bom-1.7.3.pom",
@@ -15537,7 +15769,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-cbor-jvm/1.7.3/kotlinx-serialization-cbor-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-cbor-jvm/1.7.3/kotlinx-serialization-cbor-jvm-1.7.3.pom",
         "sha512": "127c7f12bd2936abf08a6b49668d776de2ff17e6b6b8246597f910c91d6336b4fbccfcc6267a130108fe8d8f91728833f8cba576532145d76d4e79347a0ed36e",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-cbor-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-cbor-jvm-1.7.3.pom",
@@ -15569,7 +15801,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-cbor/1.7.3/kotlinx-serialization-cbor-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-cbor/1.7.3/kotlinx-serialization-cbor-1.7.3.pom",
         "sha512": "726c45943ac08ac598bb6154ca7b766cfb8b479e6e907e63048572559b12bfca999e4d85864f3019288729eed54921342cd9993b7923c576e25beea27c469214",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-cbor/1.7.3",
         "dest-filename": "kotlinx-serialization-cbor-1.7.3.pom",
@@ -15633,7 +15865,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.jar",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.jar",
         "sha512": "7b89cfd2eb13f75a47a2e6fc08e1731adb4ddf1533192dba467c208f2f467a9461ac019ee616347ec7b5db371322881ebec6cfb3ae8023aca1146cc9eddbef71",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-core-jvm-1.7.3.jar",
@@ -15641,7 +15873,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.module",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.module",
         "sha512": "1815e5f9c2440464e2527a7a703523e079814f3a688af8a7ca2e383c237e8f14b1cee4b18debf3e7a1b870074398efcea380b4c0234d2d054ec607548424c695",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-core-jvm-1.7.3.module",
@@ -15649,7 +15881,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3/kotlinx-serialization-core-jvm-1.7.3.pom",
         "sha512": "ee408d89057e2c4b786c7853dbc944a692e62429e640a709fdfd903ebfa5b5f32a0d7049edfaa1899971609f21823c0f1a2732a1b6f8ef97d08cda121030c40a",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-core-jvm-1.7.3.pom",
@@ -15729,7 +15961,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core/1.7.3/kotlinx-serialization-core-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-core/1.7.3/kotlinx-serialization-core-1.7.3.pom",
         "sha512": "a6bf65fcf1b3c321c65cd67f98c2f329e61a78dd0923153c9ba16f7715b582891981be9469b11cf78f21a61f71181d3b4d2a484ac8a57b92e2a88466c09d8f02",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-core/1.7.3",
         "dest-filename": "kotlinx-serialization-core-1.7.3.pom",
@@ -15777,7 +16009,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-hocon/1.7.3/kotlinx-serialization-hocon-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-hocon/1.7.3/kotlinx-serialization-hocon-1.7.3.pom",
         "sha512": "73a01ae2e2c248ca56541416bdeec66a5d5595af0ea552882d566e8fe2910c5bfaa6f5ab8a6dbd64bb36c1c6cf46468098d80c5911e9f520bd585cd8a527be2e",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-hocon/1.7.3",
         "dest-filename": "kotlinx-serialization-hocon-1.7.3.pom",
@@ -15817,7 +16049,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-io-jvm/1.7.3/kotlinx-serialization-json-io-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json-io-jvm/1.7.3/kotlinx-serialization-json-io-jvm-1.7.3.pom",
         "sha512": "ce69acd4ced950f1b8c18100494b364e6cff5a803d32726243d9fe401d02d8023ffd304d3f3d01b21a75ea4cdd1759f46b07aac290ddca3b4b69f791c14f2ffd",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json-io-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-json-io-jvm-1.7.3.pom",
@@ -15857,7 +16089,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-io/1.7.3/kotlinx-serialization-json-io-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json-io/1.7.3/kotlinx-serialization-json-io-1.7.3.pom",
         "sha512": "5299f339fc73a7e74c4a12ef3d01d13c2d443eeb100102fc6fc43edaea844cadaae5fd11974050c8267cc914f19f3227ebe5e6f69dd6d11ad0ebb476db453ef3",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json-io/1.7.3",
         "dest-filename": "kotlinx-serialization-json-io-1.7.3.pom",
@@ -15921,7 +16153,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-jvm/1.7.3/kotlinx-serialization-json-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json-jvm/1.7.3/kotlinx-serialization-json-jvm-1.7.3.pom",
         "sha512": "f8962761dec6bf187d1ecd17a8a62068276d1f9b0a0e9c224bb47567b518c608b0cb65eda40575cfe748542ea406a80479521d36b04e92e7599e4004abc13a9b",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-json-jvm-1.7.3.pom",
@@ -15969,7 +16201,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-okio-jvm/1.7.3/kotlinx-serialization-json-okio-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json-okio-jvm/1.7.3/kotlinx-serialization-json-okio-jvm-1.7.3.pom",
         "sha512": "132c60a3469f00dc07ab517992e4d3d88ebc9f60252a0a427c832ac2408da3dcce73acbd1fe59bf1e4e13086ddd7630ea9f5ef7b9c2abdfc26d51af198f58ffa",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json-okio-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-json-okio-jvm-1.7.3.pom",
@@ -16001,7 +16233,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-okio/1.7.3/kotlinx-serialization-json-okio-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json-okio/1.7.3/kotlinx-serialization-json-okio-1.7.3.pom",
         "sha512": "9bcd043d04522bcbf83f5074f82a035ceceb17eb7d79052f84bd70e287507ae26cf629856427575bdf24d2589d7734d35df7d82bb7792d5c972acf7c9c38a59f",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json-okio/1.7.3",
         "dest-filename": "kotlinx-serialization-json-okio-1.7.3.pom",
@@ -16065,7 +16297,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json/1.7.3/kotlinx-serialization-json-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-json/1.7.3/kotlinx-serialization-json-1.7.3.pom",
         "sha512": "7142e61776adf43787cc2f4fcdc7f975cfa972f33a9c7cb3fb7c0b50ef283aa6e840e1f6a450495ffa79ed62e32fb4b7c1ac6ade52a84add0d8a22ef80d00c49",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-json/1.7.3",
         "dest-filename": "kotlinx-serialization-json-1.7.3.pom",
@@ -16113,7 +16345,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-properties-jvm/1.7.3/kotlinx-serialization-properties-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-properties-jvm/1.7.3/kotlinx-serialization-properties-jvm-1.7.3.pom",
         "sha512": "5d09a138899a1215fea24ab582eb66552af1ce9ef35cbd757c4c179f8fcbc4751ab51eaacc9c7ac88644e020feadd60112b5b955488c3640b798d897cf91c95f",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-properties-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-properties-jvm-1.7.3.pom",
@@ -16145,7 +16377,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-properties/1.7.3/kotlinx-serialization-properties-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-properties/1.7.3/kotlinx-serialization-properties-1.7.3.pom",
         "sha512": "c95e3504167afd5677968801465ccbf59c3f5aa7a4917592598c6996709ba56c93a28687819c081633815bc586176d28641ec869fd431cd20ddc108bee103020",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-properties/1.7.3",
         "dest-filename": "kotlinx-serialization-properties-1.7.3.pom",
@@ -16177,7 +16409,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-protobuf-jvm/1.7.3/kotlinx-serialization-protobuf-jvm-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-protobuf-jvm/1.7.3/kotlinx-serialization-protobuf-jvm-1.7.3.pom",
         "sha512": "6d69d84360322ca09bc17771cbdbaf8a5b3dafaacea28460ef237a81b01c6bc5f7c0b9b495af1f832f69471dc475ddc7e286c366e0dc39f8f0d143c9f53a2ba2",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-protobuf-jvm/1.7.3",
         "dest-filename": "kotlinx-serialization-protobuf-jvm-1.7.3.pom",
@@ -16209,7 +16441,7 @@
     },
     {
         "type": "file",
-        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-protobuf/1.7.3/kotlinx-serialization-protobuf-1.7.3.pom",
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlinx/kotlinx-serialization-protobuf/1.7.3/kotlinx-serialization-protobuf-1.7.3.pom",
         "sha512": "d9198a2a9196d38e200ae8dabbcf3fb5dfe1be15a7da3dee2a62a528906d92fa16874f4bc17eaef983c9c50db6a6adb3814f4081b68e090948799fa41c70f0a4",
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-protobuf/1.7.3",
         "dest-filename": "kotlinx-serialization-protobuf-1.7.3.pom",

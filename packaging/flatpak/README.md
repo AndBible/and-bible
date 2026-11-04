@@ -6,6 +6,10 @@ The manifest targets x86-64 and uses the freedesktop 25.08 SDK, OpenJDK 17 and N
 
 Install `flatpak-node-generator` from flatpak-builder-tools commit `9d86d336a39b9af38b86f114b6ce5820fe260f91`, and provide JDK 17, the Android SDK, Node 24 and network access. Run `bash packaging/flatpak/update-sources.sh` from the repository root. The script generates npm cache sources without Playwright browsers, generates Gradle sources per project with flatpak-gradle-generator 1.8.0, merges them, downloads each remote input to verify the existing digest and add SHA-256, and replaces the source lists only on success. Review the diff and validate a clean offline build after changes to dependencies. Identical Maven mirror content is coalesced by digest; differing bytes at the same Maven path are retained in alternate repository roots, which the offline init script also registers. Only the reviewed, dependency-equivalent Kotlin marker POM digest pair may differ; any other conflicting Maven content fails generation and requires inspection. `python3 -I packaging/flatpak/test-source-merge.py` exercises this behavior. The classpath selection intentionally includes JVM development/compiler tooling and plugin buildscript dependencies as well as release runtime dependencies; a slightly larger pinned closure is preferable to missing lazily created packaging inputs.
 
+### Staleness guard
+
+The `flatpak-sources` job in `.github/workflows/desktop.yml` (the `flatpak` job needs it) runs `bash packaging/flatpak/check-sources.sh`. It reruns the Gradle source generator for all projects, merges the result and fails with the list of missing files when `gradle-sources.json` lacks any of them, so a new or bumped dependency fails in a normal job instead of deep inside flatpak-builder. It skips the SHA-256 downloads and the node sources, so it takes a few minutes. Extra stale entries do not fail it. The fix is `bash packaging/flatpak/update-sources.sh` and committing the result.
+
 Install the pinned node generator in an isolated tool environment:
 
 ```bash
