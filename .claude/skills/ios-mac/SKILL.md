@@ -34,7 +34,7 @@ is missing from egress: ask for `jailbee net egress add <mac-ip>:22 --repo`. Nev
 |------|---------|-----------|
 | CI `jsword-ios-tests` job (Native tests on the simulator) | `native-tests` | seconds if nothing changed; 3 min for the four small modules; +4 min when jsword recompiles |
 | Only some modules | `native-tests jsword sharedCore` | |
-| A real rerun on an unchanged tree (not `UP-TO-DATE`) | `native-tests --force sharedLogic sharedUi` | deletes those modules' remote test-results first |
+| A real rerun on an unchanged tree (not `UP-TO-DATE`) | `native-tests --force sharedLogic sharedUi` | test-scoped rerun; compilation stays incremental |
 | A whole checkpoint under one lock and one sync | `batch link native-tests "xcode-test iphone" "xcode-test ipad"` | stops at the first red step |
 | Survey: every step runs even after a red (one UI class per step) | `batch --keep-going "xcode-test iphone -only-testing:iosAppUITests/A" "xcode-test iphone -only-testing:iosAppUITests/B"` | exit and marker name the first red; a lost session or a failed `link`/`gradle` step still stops it |
 | What is running / who holds the Mac | `check` | seconds |
