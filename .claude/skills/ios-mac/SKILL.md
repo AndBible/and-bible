@@ -67,8 +67,8 @@ may control tickets in its own group (its children inherit `JAILBEE_ORCHESTRATOR
 
 ```bash
 scripts/mac-remote.sh queue priority <ticket> 10  # higher first, FIFO within equal priority
-scripts/mac-remote.sh queue reserve 120          # reserve a FIFO position for 120 seconds
-scripts/mac-remote.sh queue release <ticket>     # release that reservation
+scripts/mac-remote.sh queue reserve 120          # prints a reservation ticket; expires in 120 seconds
+scripts/mac-remote.sh queue release <ticket>     # pass the printed reservation ticket
 ```
 
 Reservations expire 1-3600 seconds after creation and never interrupt the current holder. Dead or
@@ -97,7 +97,8 @@ Do not attempt concurrent light jobs by bypassing the lock.
 - **Several containers share the Mac.** One Mac-wide lock (`~/work/.build-lock`) lets only one heavy
   step run at a time (16 GiB RAM, shared with the owner's session). `gradle`, `native-tests`,
   `xcode-test`, `xcode-build`, `run` and the simulator-driving `sim boot|shot|launch|shutdown` take
-  it; `sync`, `fetch`, `check` and `sim list|log|sample|crashes` do not. A call that finds the lock
+  it; new-client `sync` and shared-tree `fetch` also take it for coherent source/result ownership.
+  `check` and read-only `sim list|log|sample|crashes` do not. A call that finds the lock
   taken waits, printing the holder every 5 minutes (`MAC_LOCK_WAIT`, default 90 min). Waiting
   behind another container's run is normal: do not `unlock`, do not retry in a loop. When the wait
   message says "held by this container: probably a forgotten run of yours (local pid N)", the holder
