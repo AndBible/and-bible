@@ -22,6 +22,7 @@ Workspaces remember:
 
 Access the list of workspaces via the ‘dot’ menu or by swiping down on the verse selector.
 In the workspace selector sheet, tap **+**, enter a name and confirm to create a workspace and switch to it immediately. Cancelling leaves your current workspace unchanged.
+When switching workspaces, existing reading views are reused on Android, iOS and desktop. The previous text can remain briefly visible until the selected workspace's text replaces it.
 Choose **Manage workspaces** for the full list, which allows you to:
 
 - reorder workspaces

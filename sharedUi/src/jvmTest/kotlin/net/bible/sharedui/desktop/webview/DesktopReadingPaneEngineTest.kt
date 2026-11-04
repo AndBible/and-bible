@@ -16,7 +16,36 @@
  */
 package net.bible.sharedui.desktop.webview
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import net.bible.sharedui.desktop.webengine.DesktopWebPane
+import net.bible.sharedui.desktop.webengine.kcef.OsrFocus
+import net.bible.sharedui.desktop.webengine.kcef.OsrKeyboardSink
+import net.bible.sharedui.desktop.webengine.kcef.osrKeyboard
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.v2.runComposeUiTest
+import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.bibleview.UnimplementedBibleBridge
+import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.WindowStateValue
+import net.bible.sharedui.reading.SplitContent
+import net.bible.sharedui.reading.bridge.ReadingNavigator
+import net.bible.sharedui.reading.bridge.ReadingWindowSurface
+import net.bible.sharedui.reading.session.BibleWindowSession
+import kotlinx.coroutines.test.TestScope
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedui.desktop.webengine.FakeWebEngine
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
@@ -61,6 +90,128 @@ class DesktopReadingPaneEngineTest {
         engine.release("w1")
         assertTrue(fake.pane("w1").disposed)
         assertEquals(null, engine.paneFor("w1"))
+    }
+
+    @Test
+    fun rekeyKeepsPaneAndRoutesToNewOwner() {
+        val opened = mutableListOf<String>()
+        val inputIds = mutableListOf<String>()
+        val input = object : DesktopReadingInput {
+            override fun onPaneCreated(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { inputIds += "created:$windowId" }
+            override fun onPaneDisposed(windowId: String, pane: net.bible.sharedui.desktop.webengine.DesktopWebPane) { inputIds += "disposed:$windowId" }
+        }
+        engine.attach("old", false, bridge, {}, {}, input, { opened += "old:$it"; true })
+        val pane = fake.pane("old")
+        engine.rekey("old", "new")
+        engine.attach("new", false, bridge, {}, {}, input, { opened += "new:$it"; true })
+        assertSame(pane, engine.paneFor("new"))
+        assertEquals(1, fake.panes.size)
+        assertFalse(pane.disposed)
+        pane.navigate("osis://test")
+        pane.onMessage(readyMessage)
+        assertEquals(listOf("new:osis://test"), opened)
+        assertEquals(listOf("ready"), ready)
+        assertEquals(listOf("created:old", "disposed:old", "created:new"), inputIds)
+    }
+
+    @Test
+    fun eagerAdoptionComposesThroughSplitContent() = adoptionComposesThroughSplitContent(eager = true, osrLike = false)
+
+    @Test
+    fun lazyAdoptionComposesThroughSplitContent() = adoptionComposesThroughSplitContent(eager = false, osrLike = false)
+
+    @Test
+    fun eagerAdoptionComposesOsrLikePane() = adoptionComposesThroughSplitContent(eager = true, osrLike = true)
+
+    @Test
+    fun lazyAdoptionComposesOsrLikePane() = adoptionComposesThroughSplitContent(eager = false, osrLike = true)
+
+    @Test
+    fun eagerNewPaneComposesThroughSplitContent() = adoptionComposesThroughSplitContent(eager = true, osrLike = true, newPane = true)
+
+    @Test
+    fun lazyNewPaneComposesThroughSplitContent() = adoptionComposesThroughSplitContent(eager = false, osrLike = true, newPane = true)
+
+    @OptIn(ExperimentalTestApi::class)
+    private fun adoptionComposesThroughSplitContent(eager: Boolean, osrLike: Boolean, newPane: Boolean = false) = runComposeUiTest {
+        val compositionFake = FakeWebEngine()
+        val webEngine = object : net.bible.sharedui.desktop.webengine.DesktopWebEngine by compositionFake {
+            override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
+                val delegate = compositionFake.createPane(id, url, documentStartScripts, onMessage)
+                if (!osrLike) return delegate
+                return object : DesktopWebPane by delegate {
+                    private val focus = OsrFocus(object : OsrKeyboardSink {
+                        override fun setFocus(focused: Boolean) {}
+                        override fun sendKey(e: java.awt.event.KeyEvent) {}
+                    })
+                    private val frame = mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
+                    @Composable override fun Content(modifier: Modifier) {
+                        val scale = LocalDensity.current.density
+                        val image by frame
+                        DisposableEffect(scale) { onDispose {} }
+                        val focusManager = LocalFocusManager.current
+                        SideEffect { focus.clearFocus = { focusManager.clearFocus(force = true) } }
+                        DisposableEffect(Unit) { onDispose { focus.release() } }
+                        Canvas(modifier.onSizeChanged {}.onGloballyPositioned {}.pointerHoverIcon(PointerIcon.Default).osrKeyboard(focus).clipToBounds()) {
+                            image?.let { drawImage(it) }
+                        }
+                    }
+                }
+            }
+        }
+        val compositionEngine = DesktopReadingPaneEngine(webEngine, {})
+        val surface = object : ReadingWindowSurface {
+            override fun copyText(label: String?, text: String) {}
+            override fun shareText(text: String, subject: String?) {}
+            override fun shareHtml(html: String, title: String) {}
+            override fun stopSelection(removeRanges: Boolean) {}
+            override fun toast(text: String) {}
+            override fun openWebSearch(query: String) {}
+        }
+        val navigator = java.lang.reflect.Proxy.newProxyInstance(ReadingNavigator::class.java.classLoader, arrayOf(ReadingNavigator::class.java)) { _, _, _ -> null } as ReadingNavigator
+        fun createSession(windowId: String) = BibleWindowSession(null, BibleViewJsChannel(compositionEngine.jsHostFor(windowId)) {}, { TestScope() }, surface, navigator)
+        val sessions = mutableMapOf<String, BibleWindowSession>()
+        var adopted = false
+        val factory = desktopReadingPaneFactory(compositionEngine, { windowId ->
+            if (!newPane && !eager && windowId == "new" && !adopted) {
+                adopted = true
+                compositionEngine.rekey("old", "new")
+                sessions["new"] = sessions.getValue("old")
+            }
+            sessions.getOrPut(windowId) { createSession(windowId) }
+        }, { bridge })
+        val id = mutableStateOf("old")
+        fun layout(value: String): WindowLayoutState {
+            val window = WindowSnapshot(id = value, state = WindowStateValue.VISIBLE, weight = 1f, isVisible = true, isPinMode = true, isSynchronised = false, syncGroup = 0, isLinksWindow = false)
+            return WindowLayoutState(listOf(window), value, null, false, true)
+        }
+        setContent {
+            SplitContent(layout(id.value), {}, { _, _, _, _ -> }, pane = { factory(it, androidx.compose.ui.Modifier) })
+        }
+        waitForIdle()
+        val pane = compositionEngine.paneFor("old")
+        runOnIdle {
+            if (newPane) {
+                compositionEngine.release("old")
+                if (eager) {
+                    val session = createSession("new")
+                    sessions["new"] = session
+                    compositionEngine.attach("new", false, bridge, {}, { session.jsChannel.flush() })
+                }
+            } else if (eager) {
+                compositionEngine.rekey("old", "new")
+                sessions["new"] = sessions.getValue("old")
+            }
+            id.value = "new"
+        }
+        waitForIdle()
+        if (newPane) {
+            assertNotSame(pane, compositionEngine.paneFor("new"))
+            assertEquals(2, compositionFake.panes.size)
+        } else {
+            assertSame(pane, compositionEngine.paneFor("new"))
+            assertEquals(1, compositionFake.panes.size)
+        }
     }
 
     @Test

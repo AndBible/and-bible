@@ -36,5 +36,7 @@ object IosReadingPaneEngine : ReadingPaneEngine {
 
     override fun applyBackground(windowId: String, argb: Int) = IosReadingWebViews.applyBackground(windowId, argb)
 
+    override fun rekey(fromId: String, toId: String) = IosReadingWebViews.rekey(fromId, toId)
+
     override fun release(windowId: String) = IosReadingWebViews.release(windowId)
 }

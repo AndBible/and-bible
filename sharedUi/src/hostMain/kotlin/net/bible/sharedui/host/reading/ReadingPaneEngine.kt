@@ -54,6 +54,9 @@ interface ReadingPaneEngine {
     /** Paints the window's page background with [argb]; callable from any thread. A window without a web view is ignored. */
     fun applyBackground(windowId: String, argb: Int)
 
+    /** Moves the existing transport without recreating its page. */
+    fun rekey(fromId: String, toId: String) {}
+
     /** Drops the window's web view for good (window closed); the session is disposed by the caller. */
     fun release(windowId: String)
 }

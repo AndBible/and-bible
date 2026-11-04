@@ -1252,6 +1252,35 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: workspaces
 
+    /// Stable A/B fixture for frame-by-frame workspace-switch measurements (#3955). The recording is taken outside
+    /// XCTest with simctl, so polling the accessibility tree cannot hide a blank interval from the evidence.
+    func testWorkspaceSwitchMeasurement() throws {
+        var app = try launchReading()
+        guard openWorkspaceSelector(app, "measurement-create") else { return }
+        guard createWorkspace(app, named: "Switch measurement") else { return }
+        sendToBackground(app)
+        app.terminate()
+        app = launch(["-standardTestFixture", "-openDocument", "KJV", "-openRef", "John.3.16"])
+        XCTAssertTrue(john3Shown(app), "measurement workspace must show KJV John 3")
+        guard let title = toolbarTitle(app) else {
+            XCTFail("no toolbar title for workspace fling")
+            return
+        }
+        let titleFrame = title.frame
+        // The other default workspace may show Genesis rather than John. Keep the toolbar coordinates, not a
+        // reference to the outgoing title element, and require real page text regardless of the selected chapter.
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let start = origin.withOffset(CGVector(dx: titleFrame.maxX - 2, dy: titleFrame.midY))
+        let end = origin.withOffset(CGVector(dx: titleFrame.minX + 2, dy: titleFrame.midY))
+        for index in 0..<6 {
+            NSLog("WORKSPACE-SWITCH-MEASURE %d", index)
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .fast, thenHoldForDuration: 0)
+            _ = waitUntil(timeout: 4) { false }
+            XCTAssertGreaterThan(app.webViews.staticTexts.count, 10, "switch \(index) must restore reading text")
+        }
+        shot(app, "workspace-switch-measured")
+    }
+
     /// Overflow "Workspaces" -> "Manage workspaces…" opens the selector (title bar "New" action, per-row "Menu").
     private func openWorkspaceSelector(_ app: XCUIApplication, _ step: String) -> Bool {
         let more = byLabel(app, "More options")

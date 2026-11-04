@@ -41,7 +41,7 @@ fun desktopReadingPaneFactory(
     openLink: (windowId: String, url: String) -> Boolean = { _, _ -> false },
 ): ReadingPaneFactory = { windowId, modifier ->
     if (isOpen(windowId)) {
-        if (engine.paneFor(windowId) == null && !engine.hasFailed(windowId)) {
+        if (!engine.hasFailed(windowId)) {
             try {
                 val session = sessionFor(windowId)
                 val bridge = bridgeFor?.invoke(windowId) ?: ReadingBridge(session)

@@ -80,7 +80,7 @@ class DesktopReadingPaneEngine(
     /** The app graph that [surfaceFor]'s share and clipboard ports resolve from, on each use (a test seam). */
     private val koin: () -> Koin = { KoinPlatform.getKoin() },
 ) : ReadingPaneEngine {
-    private class Entry(val windowId: String) {
+    private class Entry(var windowId: String) {
         /** The current pane; state so that the pane composable follows a crash recreation. */
         var pane by mutableStateOf<DesktopWebPane?>(null)
         val pending = mutableListOf<() -> Unit>()
@@ -132,6 +132,17 @@ class DesktopReadingPaneEngine(
         e.pane?.setBackground(argb)
     }
 
+    override fun rekey(fromId: String, toId: String) {
+        if (fromId == toId) return
+        val e = entries.remove(fromId) ?: return
+        check(!entries.containsKey(toId))
+        e.pane?.let { e.wiring?.input?.onPaneDisposed(fromId, it) }
+        e.windowId = toId
+        entries[toId] = e
+        e.pane?.let { e.wiring?.input?.onPaneCreated(toId, it) }
+        entriesVersion++
+    }
+
     override fun release(windowId: String) {
         val e = entries.remove(windowId) ?: return
         entriesVersion++
@@ -170,7 +181,11 @@ class DesktopReadingPaneEngine(
         openLink: (String) -> Boolean = { false },
     ) {
         val e = entry(windowId)
-        if (e.pane != null || e.failed) return
+        if (e.pane != null) {
+            e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, log), onAttached, input, openLink)
+            return
+        }
+        if (e.failed) return
         val paneLog: (String) -> Unit = { msg -> log("bridge[$windowId]: $msg") }
         e.wiring = Wiring(dark, BridgeDispatcher(bridge, respondNull, paneLog), onAttached, input, openLink)
         try {
