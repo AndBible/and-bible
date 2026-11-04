@@ -3,14 +3,21 @@ import http.server
 import pathlib
 import ssl
 import sys
+from xml.sax.saxutils import escape
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
+    def do_MKCOL(self):
+        self.send_response(201)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_PROPFIND(self):
-        body = (b'<?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response>'
-                b'<d:href>/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/>'
-                b'</d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status>'
-                b'</d:propstat></d:response></d:multistatus>')
+        path = escape(self.path)
+        body = ('<?xml version="1.0"?><d:multistatus xmlns:d="DAV:"><d:response>'
+                f'<d:href>{path}</d:href><d:propstat><d:prop><d:resourcetype><d:collection/>'
+                '</d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK</d:status>'
+                '</d:propstat></d:response></d:multistatus>').encode()
         self.send_response(207)
         self.send_header("Content-Type", "application/xml")
         self.send_header("Content-Length", str(len(body)))
