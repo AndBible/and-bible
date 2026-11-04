@@ -1,5 +1,10 @@
 # iOS Files-provider test setup
 
+**Automatic since #3949:** `scripts/mac-remote.sh xcode-test` packages `tmp/h2-files/h2-kjv.zip` from `~/.sword` on sync and
+runs `prepare-ui-test-files.sh <udid>` on the booted simulator before every run: it removes the uniquely named export
+folders earlier UI runs left in local Files storage and seeds `H2 Fixtures` (`h2-kjv.zip`, `db-backup.abdb.zip`,
+`h2-bookmarks.csv`) and `H2 Backup` when missing or different. The manual steps below remain for runs outside that script.
+
 The full, unfiltered iOS UI suite expects real local Files-provider inputs. On each simulator used for the suite, seed the legacy file-provider fixture and the real KJV bootstrap once before running the suite. Tests still exercise the production Files importer and chooser; the suite does not inject fake configuration or application database state. Per-test filesystem presence alone is not proof of installation.
 
 ## Prepare the local archives (container)

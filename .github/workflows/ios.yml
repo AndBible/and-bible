@@ -93,7 +93,7 @@ jobs:
       - name: List available simulators (diagnostic)
         if: always()
         run: xcrun simctl list devices available
-      - name: Test (iPhone)
+      - name: Test (iPhone, UI smoke set)
         run: |
           mkdir -p build
           set -o pipefail
@@ -102,11 +102,19 @@ jobs:
           # to that simulator, and stream the app's unified log to a file for the duration of the run.
           UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPhone 16")
           xcrun simctl bootstatus "$UDID" -b || true
-          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev"' > build/app-iphone.log 2>&1 &
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev" AND subsystem != "com.apple.dt.xctest"' > build/app-iphone.log 2>&1 &
           echo $! > build/logstream-iphone.pid
           sleep 2
+          # The full UI suite (~110 tests, over an hour) runs on the Mac at batch ends (scripts/mac-remote.sh xcode-test);
+          # CI runs the unit tests plus the UI smoke set (iosApp/iosAppUITests/smoke-tests.txt, issue #3949).
+          SMOKE=()
+          while IFS= read -r line; do
+            line="${line%%#*}"; line="${line//[[:space:]]/}"
+            [ -n "$line" ] && SMOKE+=("-only-testing:iosAppUITests/$line")
+          done < iosApp/iosAppUITests/smoke-tests.txt
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
             -destination "platform=iOS Simulator,id=$UDID" \
+            -only-testing:iosAppUnitTests "${SMOKE[@]}" \
             -resultBundlePath build/ios-iphone.xcresult | tee build/xcodebuild-iphone.log
       - name: Stop app log stream (iphone)
         if: always()
@@ -123,7 +131,7 @@ jobs:
           # to that simulator, and stream the app's unified log to a file for the duration of the run.
           UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPad Air 11-inch (M2)")
           xcrun simctl bootstatus "$UDID" -b || true
-          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev"' > build/app-ipad.log 2>&1 &
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev" AND subsystem != "com.apple.dt.xctest"' > build/app-ipad.log 2>&1 &
           echo $! > build/logstream-ipad.pid
           sleep 2
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
