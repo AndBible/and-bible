@@ -1162,7 +1162,7 @@ final class ReadingUITests: RealAppUITestCase {
         let transcript = before.enumerated().map { "pane \($0.offset): \($0.element)" }.joined(separator: "\n")
         let evidence = XCTAttachment(string: transcript); evidence.name = "independent-pane-before"; evidence.lifetime = .keepAlways; add(evidence)
         let firstJohn3 = before[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
-        let secondJohn4 = before[1].first { $0.text.localizedCaseInsensitiveContains("Samaria") }
+        let secondJohn4 = before[1].first { $0.text.localizedCaseInsensitiveContains("through Samaria") }
         XCTAssertNotNil(firstJohn3, "First viewport must visibly show John 3:16")
         XCTAssertNotNil(secondJohn4, "Second viewport must visibly show John 4:4 Samaria")
         guard let firstJohn3, let secondJohn4 else { shot(app, "independent-pane-setup-failed"); return }
@@ -1175,7 +1175,7 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(waitUntil(timeout: 30) { self.paneIds(app) == ids }, "Both persisted pane identities must return")
         let after = try ids.map { try paintedLines(app.webViews.matching(identifier: $0).firstMatch) }
         let firstAfter = after[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
-        let secondAfter = after[1].first { $0.text.localizedCaseInsensitiveContains("Samaria") }
+        let secondAfter = after[1].first { $0.text.localizedCaseInsensitiveContains("through Samaria") }
         XCTAssertNotNil(firstAfter, "First visible verse John 3:16 did not persist")
         XCTAssertNotNil(secondAfter, "Second visible verse John 4:4 did not persist")
         if let firstAfter { XCTAssertEqual(firstAfter.top, firstJohn3.top, accuracy: 0.04) }
