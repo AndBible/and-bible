@@ -60,6 +60,42 @@ class DesktopReadingInputImplTest {
 
     private fun msg(body: String) = "{\"desktopInput\":$body}"
 
+    @Test fun panePressActivatesBeforePageAction() {
+        val activated = mutableListOf<String>()
+        val settings = java.lang.reflect.Proxy.newProxyInstance(
+            AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java),
+        ) { _, method, args -> if (method.name.startsWith("get")) args[1] else null } as AppSettings
+        val gestures = HostReadingGestures(
+            ReadingFullScreen(), settings, { false }, { _, _ -> }, onPaneActivated = { activated += it },
+        )
+        val paneInput = DesktopReadingInputImpl(
+            DesktopShortcuts(rec) { false }, DesktopReadingGestures({ gestures }), {}, x11Toolkit = false,
+        )
+        // Execute the actual installed script with a minimal DOM and deliver its native messages in order.
+        val harness = """
+            const listeners = {};
+            global.window = {
+              addEventListener: (name, fn) => (listeners[name] ||= []).push(fn),
+              androidBridge: { postMessage: text => console.log(text) }
+            };
+            global.document = { addEventListener: () => {} };
+            ${DesktopInputScript.compose()}
+            for (const fn of listeners.mousedown || []) fn({button: 0});
+            console.log('PAGE_ACTION');
+            for (const fn of listeners.click || []) fn({button: 0});
+        """.trimIndent()
+        val process = ProcessBuilder("node", "-e", harness).redirectErrorStream(true).start()
+        val lines = process.inputStream.bufferedReader().readLines()
+        assertEquals(0, process.waitFor(), lines.joinToString("\n"))
+        for (line in lines) {
+            if (line == "PAGE_ACTION") {
+                assertEquals(listOf("w2"), activated, "the clicked pane must be active before its page action")
+            } else {
+                paneInput.handleMessage("w2", line)
+            }
+        }
+    }
+
     @Test fun onlyTheEnvelopeIsConsumed() {
         assertFalse(input.handleMessage("w", "{\"method\":\"x\"}"))
         assertFalse(input.handleMessage("w", "plain"))
