@@ -161,7 +161,9 @@ final class SyncAcceptanceUITests: XCTestCase {
             XCTFail("Certificate acceptance requires the exact localhost fixture and its SHA-256")
             return
         }
-        let app = launch(settings: true, reference: fixture.reference)
+        let app = XCUIApplication()
+        app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-task5Settings"]
+        app.launch()
         guard syncUI.openDeviceSynchronization(app, "Certificate test did not reach synchronization settings") else { return }
         syncUI.rowButton(app, "Synchronization Backend").tap()
         let webdav = syncUI.label(app, "WebDAV")
@@ -212,6 +214,10 @@ final class SyncAcceptanceUITests: XCTestCase {
             syncUI.require(false, app, "Retry did not ask for the untrusted certificate again")
             return
         }
+        let body = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@",
+            "The certificate of localhost is not trusted by this device.")).firstMatch
+        syncUI.require(body.exists && !body.label.contains("Android"), app,
+                       "Certificate prompt must use device-neutral text on iOS")
         guard syncUI.trustPinnedCertificateIfShown(app, serverURL: fixture.serverURL, sha256: fingerprint) else { return }
         let start = syncUI.label(app, "Start syncing documents?")
         guard start.waitForExistence(timeout: 90) else {
