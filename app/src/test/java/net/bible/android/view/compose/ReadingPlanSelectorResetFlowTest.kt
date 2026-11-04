@@ -115,6 +115,10 @@ class ReadingPlanSelectorResetFlowTest {
         nav(activity).navigate(NavRoutes.dailyReading())
         idle()
         net.bible.test.awaitHostRoute(activity, NavRoutes.READING_PLAN_SELECTOR) { compose.waitForIdle() }
+        // Navigation completes before the selector's asynchronous plan list is loaded.
+        net.bible.test.awaitHostUntil("the selector has loaded the re-selectable plan") {
+            runCatching { compose.onNodeWithText(planName).assertExists() }.isSuccess
+        }
         compose.onNodeWithText(planName).performClick()
         idle()
         net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading()) { compose.waitForIdle() }
