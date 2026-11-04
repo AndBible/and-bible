@@ -193,6 +193,16 @@ extension RealAppUITestCase {
         let index = restore ? 1 : 0
         switchKind(app, "Database", index: index, on: database)
         switchKind(app, "Documents", index: index, on: !database)
+        // 2026-11-04 (#3949): the restore "Database" switch read off right after its tap but was back on when "Restore or
+        // Import from…" ran, so the database restore picker opened instead of InstallZip. Re-read after the screen settled
+        // and set the pair once more (evidence attached when it had flipped back).
+        usleep(1_500_000)
+        let switches = { (name: String) in app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", name)).element(boundBy: index) }
+        if switches("Database").isSelected != database || switches("Documents").isSelected == database {
+            attachTree(app, "backup-switch-flipped-back")
+            switchKind(app, "Database", index: index, on: database)
+            switchKind(app, "Documents", index: index, on: !database)
+        }
         if !restore {
             let application = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Application'"))
             harnessRequire(application.count == 1, app, "HARNESS: Application switch AX")

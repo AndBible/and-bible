@@ -1,0 +1,28 @@
+# iOS UI smoke set (issue #3949): `scripts/mac-remote.sh xcode-test <iphone|ipad> --smoke`, and the CI iPhone step.
+# Only real-app end-to-end paths that no shared Linux test can show, one per area, fast and stable; the full set
+# (no --smoke) runs at batch ends. One `Class/test` per line; `#` starts a comment.
+
+# First run: Welcome, Easy start network download, reading, relaunch back to reading (Release-capable)
+OnboardingUITests/testFreshInstallOnboardingOpensReading
+
+# Reading view: WKWebView panes, re-parenting, WebContent process loss, gestures, night mode, links, full screen
+ReadingUITests/testSplitThreeCloseMiddleReopenKeepsTextOnce
+ReadingUITests/testReparentAfterSheetKeepsVoiceOverOrder
+ReadingUITests/testPanesRecoverAfterWebContentKilledInBackground
+ReadingUITests/testSwipeLeftOpensNextChapter
+ReadingUITests/testNightModeLiveSwitchReachesPage
+ReadingUITests/testStrongsWordLinkOpensTheLinkWindow
+ReadingUITests/testOverflowFullScreenHidesChromeAndShowsOverlay
+PocUITests/testEdgeSwipeBack
+
+# Process-level: crash-loop gate, startup user message
+CrashRecoveryUITests/testTwoFatalForegroundCrashesRecoverAfterBackgroundRearm
+UserMessagesUITests/testStartupUserMessageAppearsInTheAppDialog
+
+# UIKit hand-offs: Files save picker round trip, share sheet, incoming archive through the production queue
+FilesUITests/testFileDeliverySavePreservesPayload
+FilesUITests/testProductionTextShareVisibleDismissAndRepresent
+IncomingFilesUITests/testColdSwordRegistersRecognizableBackendContent
+
+# System Dynamic Type reaches the Compose font scale
+DynamicTypeUITests/testMeasureFontScaleAtXXXL
