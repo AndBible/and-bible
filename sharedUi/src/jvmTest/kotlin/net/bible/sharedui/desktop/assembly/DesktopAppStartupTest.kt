@@ -237,10 +237,12 @@ class DesktopAppStartupTest {
                 override fun popBackStack() = false
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
             }
-            val host = net.bible.sharedui.host.reading.HostReadingHost(
-                scope, net.bible.sharedui.host.app.HostNavShell(scope, navigator), koin, DesktopReadingHostPlatform(FakeWindow()),
-            )
+            val previousRestoreAllowed = net.bible.sharedui.components.OverlayPresence.restoreAllowed
+            var host: net.bible.sharedui.host.reading.HostReadingHost? = null
             try {
+                host = net.bible.sharedui.host.reading.HostReadingHost(
+                    scope, net.bible.sharedui.host.app.HostNavShell(scope, navigator), koin, DesktopReadingHostPlatform(FakeWindow()),
+                )
                 val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
                 val icons = net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter)
                 val deps = host.deps(icons)
@@ -280,8 +282,13 @@ class DesktopAppStartupTest {
                 assertTrue(reads.any { it in written }, "BibleVerseChanged must invalidate the rail label")
                 assertTrue(topReads.any { it in written }, "BibleVerseChanged must invalidate the rail top label")
             } finally {
-                host.dispose()
-                scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+                try {
+                    host?.dispose()
+                } finally {
+                    net.bible.sharedui.components.OverlayPresence.restoreAllowed = previousRestoreAllowed
+                    scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+                }
+                assertSame(previousRestoreAllowed, net.bible.sharedui.components.OverlayPresence.restoreAllowed)
             }
         }
     }

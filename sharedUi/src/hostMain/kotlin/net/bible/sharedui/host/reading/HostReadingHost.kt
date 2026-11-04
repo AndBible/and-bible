@@ -468,12 +468,12 @@ class HostReadingHost(
         onLeaveFullScreen = onLeaveFullScreen,
     )
 
+    private val windowLabelFreshness = WindowLabelFreshness()
+
     /**
      * Android's `searchController.activeDocumentChanged()` call sites: search mode outlives a window switch and a document
      * swap, so the panel's target document follows them.
      */
-    private val windowLabelFreshness = WindowLabelFreshness()
-
     private val searchSubscriptions = Subscriptions().also { subscriptions ->
         subscriptions.add(
             PassageChangeMediator.changes.subscribeOnMain { change ->
