@@ -615,7 +615,14 @@ final class BackupUITests: RealAppUITestCase {
             // The long-press context menu is occasionally not up yet (seen once: "Missing control: Delete"); retry once.
             if !label(app, "Delete").waitForExistence(timeout: 5) { rows.firstMatch.press(forDuration: 1.2) }
             tapLabel(app, "Delete")
-            tapLabel(app, "Yes")
+            // The confirmation ("Delete <name>?") answers with "Delete" (was "Yes"); take the button under the message, not
+            // the toolbar's.
+            let message = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Delete King James'")).firstMatch
+            require(message.waitForExistence(timeout: 15), app, "Missing control: delete confirmation")
+            let confirm = app.buttons.matching(NSPredicate(format: "label == 'Delete'")).allElementsBoundByIndex
+                .first { $0.frame.minY > message.frame.maxY && $0.frame.minY < message.frame.maxY + 200 }
+            require(confirm != nil, app, "Missing control: Delete in the confirmation")
+            confirm!.tap()
             require(waitUntil(timeout: 30) { !rows.firstMatch.exists }, app, "KJV absent after actual uninstall")
             attachTree(app, "h2-kjv-absent-in-chooser")
             shot(app, "h2-kjv-absent-in-chooser")

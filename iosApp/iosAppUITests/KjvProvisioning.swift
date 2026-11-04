@@ -53,8 +53,19 @@ extension RealAppUITestCase {
         let app = launch(["-standardTestFixture", "-incomingRuntimeTest", "-incomingRuntimeControls", "-incomingPurgeLeftovers"])
         defer { app.terminate() }
         let welcome = element(app, "welcome-screen")
-        harnessRequire(waitUntil(timeout: 90) { welcome.exists || self.element(app, "incoming-runtime-ready").exists }, app,
-                       "HARNESS: incoming preflight after purging leftover fixtures")
+        // A half-removed fixture module makes startup show "An error has occurred. Missing data files ..." (seen
+        // 2026-11-04 for K4RawText in a parallel clone); the dialog hides the overlay, so answer it and keep waiting.
+        let errorOk = app.alerts.buttons["OK"].firstMatch
+        let missingData = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Missing data files'")).firstMatch
+        harnessRequire(waitUntil(timeout: 90) {
+            if missingData.exists {
+                self.attachTree(app, "purge-missing-data-files-dialog")
+                let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).allElementsBoundByIndex
+                    .first { $0.frame.minY > missingData.frame.maxY && $0.frame.minY < missingData.frame.maxY + 250 }
+                (ok ?? errorOk).tap()
+            }
+            return welcome.exists || self.element(app, "incoming-runtime-ready").exists
+        }, app, "HARNESS: incoming preflight after purging leftover fixtures")
     }
 
     /// Idempotent precondition: leaves KJV installed and the app terminated. Looks for a KJV chooser row on the
