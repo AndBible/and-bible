@@ -157,12 +157,25 @@ Only run Android builds when testing Android-specific integration.
 
 ## Emulator and WebView debugging
 
-See `docs/emulator-and-webview-debugging.md` (adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
+Use the `android-emulator` skill for emulator work. See `docs/emulator-and-webview-debugging.md`
+(adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
+For environment selection and automated-gate boundaries, use `verifying-on-a-runtime`.
 
 ## Remote Mac for iOS builds
 
-A real Mac reachable over SSH (optional mount `mac-ssh`, host alias `andbible-mac`) runs Xcode and
-simulator steps without a CI round trip; setup and use in `docs/ios-remote-mac.md`.
+Use the `ios-mac` skill. A real Mac reachable over SSH (optional mount `mac-ssh`, host alias
+`andbible-mac`) runs Xcode and simulator steps without a CI round trip; setup in `docs/ios-remote-mac.md`.
+
+## Desktop runtime verification
+
+- Windows checks run in this container with the `windows-vm` skill (`scripts/windows-vm.sh`,
+  `docs/windows-vm.md`), not on the maintainer's checklist. Never run the 6 GiB VM alongside
+  the Android emulator. Only one container may run a Windows VM at a time: obtain the
+  orchestrator's VM token before starting. Stop it and remove your own overlays/run scratch when done.
+- Linux CEF and WebKitGTK live checks use `desktop-linux-live` (`docs/desktop-linux-live.md`):
+  Xvfb + openbox, genuine click/key input, screenshots, isolated profiles and bounded cleanup.
+- Use `verifying-on-a-runtime` to choose the environment and distinguish runtime evidence
+  from JVM/Robolectric/Roborazzi gates and physical-hardware checks (issue #3946).
 
 ## Golden screenshots and process docs (submodules)
 
