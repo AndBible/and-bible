@@ -90,6 +90,22 @@ assert output.count('CHECKLIST-TLS PASS:') == 3 and 'CHECKLIST-TLS NOT RUN' not 
 print('PASS TLS evidence: one executed test, three live challenge assertions')
 PY
     ;;
+  oldest-runtime-smoke)
+    for version in 17-5 18-6; do
+      id=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; name=sys.argv[1]; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]==name))' "Checklist-3945-iOS-$version")
+      xcrun simctl boot "$id" 2>/dev/null || true
+      xcrun simctl bootstatus "$id" -b
+      result="$OUT/runtime-$version.xcresult"
+      test ! -e "$result"
+      xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
+        -destination "platform=iOS Simulator,id=$id" -resultBundlePath "$result" \
+        -only-testing:iosAppUITests/AppUITests/testFreshInstallEasyStartReadsJohn3 \
+        -only-testing:iosAppUITests/AppUITests/testRelaunchReopensWorkspace \
+        > "$OUT/runtime-$version.log" 2>&1
+      grep -E 'Test Case .* (passed|failed)|Executed |TEST SUCCEEDED' "$OUT/runtime-$version.log"
+      xcrun simctl shutdown "$id"
+    done
+    ;;
   background-hook)
     id=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="Checklist-3945-iOS-26-5"))')
     xcrun simctl boot "$id" 2>/dev/null || true
