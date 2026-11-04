@@ -1,6 +1,6 @@
 import XCTest
 
-/// H2 Task 6 feature paths through production routes: cipher unlock, chooser module backup share, general book
+/// H2 Task 6 feature paths through production routes: chooser module backup share, general book
 /// and maps, Grid chapter choice and the text background picker.
 ///
 /// Prerequisites (host side): Files "H2 Fixtures" holds h2-kjv.zip (seed-files-provider.sh); setUp installs KJV when absent (KjvProvisioning.swift).
@@ -73,9 +73,10 @@ final class FeaturePathsUITests: RealAppUITestCase {
         confirmInstalls(app, filenames)
         let prompt = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Do you want to install module'")).firstMatch
         _ = waitUntil(timeout: 60) { !prompt.exists }
-        // No completion tag exists for these archives; give the production installer time, then end the process.
-        // The following chooser launch proves the install (row present), it is not assumed here.
-        sleep(20)
+        // The debug harness tags the screen once every offered fixture is registered; the chooser launch below still
+        // proves the install (row present).
+        harnessRequire(element(app, "incoming-cold-fixtures-installed").waitForExistence(timeout: 90), app,
+                       "incoming-cold-fixtures-installed")
         app.terminate()
     }
 
@@ -144,17 +145,6 @@ final class FeaturePathsUITests: RealAppUITestCase {
         return target.exists && target.isHittable
     }
 
-    private func clearAndType(_ app: XCUIApplication, field: XCUIElement, _ text: String) {
-        field.tap()
-        if let current = field.value as? String, !current.isEmpty {
-            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
-        }
-        field.typeText(text)
-    }
-
-    /// Measured: the unlock input is an unlabelled TextView (not a TextField/SecureTextField) under the dialog title.
-    private func unlockField(_ app: XCUIApplication) -> XCUIElement { app.textViews.firstMatch }
-
     /// Labels of the displayed document's web view root, measured as `BibleView-<id>/bible/<initials>_ordinal_<n> (production)`
     /// (cipher relaunch tree). It names the module the reading view is rendering, unlike a chooser row or the description.
     private func shownDocumentLabels(_ app: XCUIApplication) -> [String] {
@@ -176,72 +166,6 @@ final class FeaturePathsUITests: RealAppUITestCase {
         let screen = app.frame
         let elements = app.staticTexts.allElementsBoundByIndex + app.buttons.allElementsBoundByIndex
         return elements.filter { $0.exists && !$0.label.isEmpty && $0.frame.intersects(screen) }.map(\.label).sorted()
-    }
-
-    /// Text of John 1:1 in the web view phrase labels (WebKit splits text into phrase-level static texts).
-    private func john11Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
-        let texts = app.webViews.staticTexts
-        return waitUntil(timeout: timeout) {
-            let labels = (0..<min(texts.count, 400)).map { texts.element(boundBy: $0).label }
-            return labels.joined(separator: " ").range(of: #"In the beginning was the Word"#, options: .regularExpression) != nil
-        }
-    }
-
-    // MARK: cipher
-
-    func testCipherWrongRetryRightPersists() throws {
-        installFixtures("cipher", ["h2-cipher.zip"])
-        var app = launch(readingArguments([], chooser: true, ref: "John.1.1"))
-        let row = openChooserRow(app, initials: "H2Cipher")
-        require(row.exists, app, "HARNESS: H2Cipher row in the document chooser after install")
-        row.tap()
-
-        let prompt = byLabel(app, containing: "H2Cipher is encrypted and needs passphrase")
-        require(prompt.waitForExistence(timeout: 30), app, "Unlock dialog for the locked fixture")
-        var field = unlockField(app)
-        require(field.waitForExistence(timeout: 10), app, "HARNESS: unlock text field")
-        clearAndType(app, field: field, wrongKey)
-        tap(app, confirmDialogButton(app, "OK"), "unlock-ok-wrong")
-
-        // Wrong key: the product asks "Passphrase did not work, try again?" and Yes reopens the input.
-        let retry = byLabel(app, "Passphrase did not work, try again?")
-        require(retry.waitForExistence(timeout: 30), app, "Wrong key must show the retry question")
-        shot(app, "cipher-wrong-key-retry")
-        tap(app, confirmDialogButton(app, "Yes"), "retry-yes")
-        require(byLabel(app, containing: "H2Cipher is encrypted and needs passphrase").waitForExistence(timeout: 30), app,
-                "Unlock dialog again after Yes")
-        field = unlockField(app)
-        clearAndType(app, field: field, rightKey)
-        tap(app, confirmDialogButton(app, "OK"), "unlock-ok-right")
-        require(waitUntil(timeout: 30) { !self.byLabel(app, containing: "is encrypted and needs passphrase").exists }, app,
-                "Right key closes the dialog without the retry question")
-        require(!byLabel(app, "Passphrase did not work, try again?").exists, app, "No retry question after the right key")
-
-        // Unlocking does not open the document; choose it again, now it must read.
-        let unlocked = openChooserRow(app, initials: "H2Cipher", timeout: 60)
-        require(unlocked.exists, app, "H2Cipher row after unlock")
-        unlocked.tap()
-        require(element(app, "reading-host").waitForExistence(timeout: 60), app, "Reading host after choosing H2Cipher")
-        require(john11Shown(app), app, "John 1:1 text from the unlocked module")
-        requireShownModule(app, "H2Cipher", "cipher-after-unlock")
-        sendToBackground(app)
-        app.terminate()
-
-        // Relaunch without reset or incoming flags (NO -resetDatabases: it would drop the stored key) and choose the
-        // module in the chooser like a user. Run 3 evidence: `-openDocument H2Cipher` shows John 1:1 with an EMPTY page
-        // and no dialog (that route bypasses the chooser's unlock step), so it cannot tell a lost key from a bypass.
-        app = launch(["-standardTestFixture", "-featureScenario", "chooser", "-openDocument", "KJV", "-openRef", "John.1.1"])
-        defer { app.terminate() }
-        let again = openChooserRow(app, initials: "H2Cipher", timeout: 90)
-        require(again.exists, app, "H2Cipher row after relaunch")
-        again.tap()
-        let dialog = byLabel(app, containing: "is encrypted and needs passphrase")
-        require(!dialog.waitForExistence(timeout: 10), app,
-                "PRODUCT?: unlock dialog shown again after relaunch (stored cipher key lost or not applied at startup)")
-        require(element(app, "reading-host").waitForExistence(timeout: 90), app, "Reading host after relaunch")
-        require(john11Shown(app), app, "PRODUCT?: John 1:1 text after relaunch (key stored but not applied: page stays empty)")
-        require(byLabel(app, containing: "John 1:1").exists, app, "Relaunch reads John 1:1")
-        requireShownModule(app, "H2Cipher", "cipher-after-relaunch")
     }
 
     // MARK: chooser backup

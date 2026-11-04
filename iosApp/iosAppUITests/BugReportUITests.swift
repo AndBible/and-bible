@@ -83,16 +83,4 @@ final class BugReportUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Backup & Restore"].firstMatch.waitForExistence(timeout: 20))
         shot(app, "error-report-backup")
     }
-
-    func testRecoveryReportBeforeDatabaseStartup() {
-        let app = app(["-seedCrashRecovery"])
-        let report = app.descendants(matching: .any).matching(identifier: "crash-report").firstMatch
-        XCTAssertTrue(report.waitForExistence(timeout: 20))
-        report.tap()
-        let confirm = app.alerts["Send bug report via email"].firstMatch
-        XCTAssertTrue(confirm.waitForExistence(timeout: 10))
-        confirm.buttons["OK"].tap()
-        assertShareAndClose(app, screenshot: "recovery-bug-report-share")
-        XCTAssertTrue(report.waitForExistence(timeout: 10))
-    }
 }

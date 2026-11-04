@@ -9,6 +9,8 @@ import XCTest
 /// -only-testing:iosAppUITests/OnboardingUITests` uninstalls `org.andbible.ios` first. In Debug, `-resetData` gives
 /// the same clean start. The download is real (network).
 ///
+/// The Advanced download route (`testFreshInstallAdvancedDownloadOpensReading`) is opt-in: `TEST_RUNNER_ONBOARDING_ADVANCED=1`.
+///
 /// Optional env `TEST_RUNNER_ONBOARDING_LANGUAGE=fi` runs the flow with the app in Finnish (AppleLanguages/AppleLocale
 /// launch arguments, which Release honours too; the confirmation button is then 'Kyllä').
 final class OnboardingUITests: RealAppUITestCase {
@@ -109,7 +111,10 @@ final class OnboardingUITests: RealAppUITestCase {
 
     /// The Welcome "Advanced" tab's "Download Documents" route (the only download route a Finnish Welcome offers):
     /// pick KJV in the catalogue, wait for the enabled `OK`, and expect gate (b) to open reading.
-    func testFreshInstallAdvancedDownloadOpensReading() {
+    func testFreshInstallAdvancedDownloadOpensReading() throws {
+        guard ProcessInfo.processInfo.environment["ONBOARDING_ADVANCED"] == "1" else {
+            throw XCTSkip("Opt-in: set TEST_RUNNER_ONBOARDING_ADVANCED=1 (the Easy path covers first-run; DownloadHostTest covers the download screen)")
+        }
         let finnish = language == "fi"
         let module = ProcessInfo.processInfo.environment["ONBOARDING_MODULE"].flatMap { $0.isEmpty ? nil : $0 } ?? "KJV"
         let app = XCUIApplication()

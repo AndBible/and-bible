@@ -33,6 +33,7 @@ internal object IosIncomingRuntimeHarness {
     private var failed by mutableStateOf(false)
     private var swordVerified by mutableStateOf(false)
     private var epubVerified by mutableStateOf(false)
+    private var coldInstalled by mutableStateOf(false)
     private val epubId get() = epubInitials("f-runtime.epub")
 
     /** Cold `-incomingFixture` aliases; a comma list offers several archives to the same production queue in order. */
@@ -143,6 +144,12 @@ internal object IosIncomingRuntimeHarness {
         return swordOk to epubOk
     }
 
+    /** Every H2 cold fixture offered at launch is registered (the installer finished), so a test can end the process. */
+    private fun coldFixturesInstalled(): Boolean {
+        val wanted = coldOffered.mapNotNull { h2Initials[it] }
+        return wanted.isNotEmpty() && wanted.all { Books.installed().getBook(it) != null }
+    }
+
     @Composable
     fun Overlay(strings: Strings, backupRoute: Boolean, openBackup: () -> Unit) {
         if (!Platform.isDebugBinary || !enabled) return
@@ -154,6 +161,7 @@ internal object IosIncomingRuntimeHarness {
                     val (sword, epub) = withContext(Dispatchers.Default) { verifyInstalled() }
                     swordVerified = sword
                     epubVerified = epub
+                    coldInstalled = withContext(Dispatchers.Default) { coldFixturesInstalled() }
                 } catch (error: CancellationException) { throw error }
                 catch (error: Exception) {
                     // Installation/optimization can temporarily expose an unreadable book. Retry actual content.
@@ -162,6 +170,8 @@ internal object IosIncomingRuntimeHarness {
                 delay(250)
             }
         }
+        // Shown without the controls too: the H2 install-then-relaunch tests wait on it instead of a fixed sleep.
+        if (coldInstalled) Text(strings.okay, Modifier.testTag("incoming-cold-fixtures-installed"))
         // Backend proof remains active even when diagnostics are hidden for normal navigation.
         if (!controlsVisible) return
         Column {

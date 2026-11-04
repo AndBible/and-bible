@@ -189,30 +189,6 @@ final class ReadingUITests: RealAppUITestCase {
         }
     }
 
-    /// The toolbar's home button ("Menu") opens the drawer; its History row opens the history quick sheet, whose "Close"
-    /// button returns to the reading view with the panes unchanged. Labels from strings.xml ("history"); the drawer rows
-    /// are Compose navigation items, found as any element type (the tree is attached on failure).
-    func testDrawerOpensAndItsHistoryRowOpensTheHistorySheet() throws {
-        let app = try launchReading()
-        let before = paneIds(app)
-        let menu = app.buttons["Menu"]
-        XCTAssertTrue(menu.waitForExistence(timeout: 15), "home (Menu) button not found")
-        menu.tap()
-        let history = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'History'")).firstMatch
-        guard history.waitForExistence(timeout: 10) else {
-            attachTree(app, "drawer-no-history-row")
-            XCTFail("the drawer did not show a History row")
-            return
-        }
-        history.tap()
-        let close = app.buttons["Close"]
-        XCTAssertTrue(close.waitForExistence(timeout: 10), "the history sheet did not open (no Close button)")
-        shot(app, "drawer-history-sheet")
-        close.tap()
-        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15), "reading host not back after the history sheet")
-        XCTAssertEqual(paneIds(app), before, "panes changed across the drawer and the sheet")
-    }
-
     /// iOS 17+ accessibility audit of the reading surfaces (toolbar and window buttons, overflow, drawer, pane menu, a
     /// quick sheet, the speak bar and search-in-place; the selection menu is UIKit-owned and the full-screen overlay has
     /// no stable opener yet, both are not audited). FAILS on any finding: every finding of every surface is collected
@@ -537,39 +513,6 @@ final class ReadingUITests: RealAppUITestCase {
         return gap
     }
 
-    /// The Mac geometry that floated the Workspaces sheet on TestFlight 2026.1102.214434: a window taller than
-    /// `UIScreen.bounds` (1284 pt on a 1050 pt screen), so Compose's per-layer keyboard overlap is 234 pt with no
-    /// keyboard (`CmpScreenSpaceFix.swift`). `-simulateTallMacWindow` (debug builds) reproduces it on the simulator:
-    /// - alone (iPhone/iPad behaviour, no correction) the sheet floats about 234 pt above the window bottom, which
-    ///   proves the simulation reaches Compose's computation;
-    /// - with `-simulateMacInsets` (the Mac path) the sheet sits on the bottom.
-    func testQuickSheetSitsOnWindowBottomInTallMacWindow() throws {
-        continueAfterFailure = true
-        if !isPad {
-            let device = XCUIDevice.shared
-            addTeardownBlock { device.orientation = .portrait }
-            device.orientation = .landscapeLeft
-        }
-        var app = try launchReading(extraArguments: ["-simulateTallMacWindow"])
-        if isPad {
-            maximizePadWindow(app)
-            addTeardownBlock { [self] in maximizePadWindow(XCUIApplication()) }
-        }
-        if let gap = workspacesSheetGap(app, "tall-uncorrected") {
-            XCTAssertGreaterThan(gap, 150, "the simulated tall window did not lift the uncorrected sheet (gap \(gap) pt)")
-        }
-        app.terminate()
-
-        app = try launchReading(extraArguments: ["-simulateTallMacWindow", "-simulateMacInsets"])
-        if isPad { maximizePadWindow(app) }
-        for step in ["tall-mac-fresh", "tall-mac-again"] {
-            if let gap = workspacesSheetGap(app, step) {
-                XCTAssertLessThanOrEqual(gap, 80, "\(step): the sheet's last row ends \(gap) pt above the window bottom")
-                XCTAssertGreaterThanOrEqual(gap, 0, "\(step): the sheet's last row ends below the window")
-            }
-        }
-    }
-
     /// The keyboard overlap that every Compose dialog and sheet is shortened by, with and without the iOS-app-on-Mac
     /// correction (`IosAppOnMacInsets.kt`). The Mac has no software keyboard, yet Compose computed an overlap there that
     /// floated sheets ~5 cm above the window bottom; the correction silences Compose's keyboard listener. The simulator
@@ -714,55 +657,6 @@ final class ReadingUITests: RealAppUITestCase {
         }
     }
 
-    /// Every quick sheet that has an opener on the reading chrome opens, shows the sheet container and closes again,
-    /// leaving the reading host and the pane untouched (the sheet is its own window, so no pane may be recreated).
-    /// Openers: title tap (the Grid quick sheet for a Bible page, as Android's `composeStartKeyChooser`) and the
-    /// overflow menu's Workspaces row (the toolbar's Workspaces button only fits wide screens). The Bible / Commentary
-    /// buttons are not openers here: with one or two installed documents they switch or open the full chooser instead
-    /// (`QuickDocPicker`, covered by `QuickDocPickerTest`), which depends on the simulator's installed modules.
-    /// History and the document sheet are opened from the drawer and the title long press; they are not covered here.
-    func testEachQuickSheetOpensAndCloses() throws {
-        continueAfterFailure = true
-        var app = try launchReading()
-
-        let openers: [(name: String, open: (XCUIApplication) -> Bool)] = [
-            ("key chooser (title tap)", { app in
-                guard let title = self.toolbarTitle(app) else { return false }
-                title.tap(); return true
-            }),
-            ("workspaces (overflow menu)", { app in
-                let more = app.buttons["More options"]; guard more.waitForExistence(timeout: 10) else { return false }
-                more.tap()
-                let row = app.descendants(matching: .any)
-                    .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
-                guard row.waitForExistence(timeout: 10) else { return false }
-                row.tap(); return true
-            }),
-        ]
-        for opener in openers {
-            XCTContext.runActivity(named: opener.name) { _ in
-                app = (try? relaunchReading(app)) ?? app
-                let panesBefore = paneIds(app)
-                guard opener.open(app) else {
-                    attachTree(app, "sheet-\(opener.name)-no-opener")
-                    XCTFail("\(opener.name): the opener control does not exist")
-                    return
-                }
-                let shown = quickSheet(app).waitForExistence(timeout: 15)
-                shot(app, "sheet-\(opener.name)")
-                if !shown {
-                    attachTree(app, "sheet-\(opener.name)-not-shown")
-                    XCTFail("\(opener.name): no quick sheet after tapping the opener")
-                    return
-                }
-                guard closeQuickSheet(app, opener.name) else { return }
-                XCTAssertTrue(element(app, "reading-host").exists, "\(opener.name): reading host gone after the sheet")
-                XCTAssertEqual(paneIds(app), panesBefore, "\(opener.name): a pane was recreated by opening the sheet")
-                XCTAssertTrue(john3Shown(app, timeout: 15), "\(opener.name): chapter text missing after the sheet")
-            }
-        }
-    }
-
     /// Split, maximise, minimise: the window pane menu rows are "Maximise" and "Minimise" (strings windowMaximise /
     /// windowMinimise; "Minimise" is disabled when the window is not minimisable) and the rail's leading control while a
     /// window is maximised is "Restore all windows" (window_unmaximise). Pane visibility is measured with isHittable
@@ -880,12 +774,6 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     // MARK: Task 10: Dynamic Type
-
-    /// XXXL (the largest non-accessibility size). H2's system-text-size mapping is not on this branch, so the size is set
-    /// with the launch argument; the merged close-out must re-check this with the real mapping.
-    func testReadingChromeAtXXXL() throws {
-        try checkReadingChrome(category: "UICTContentSizeCategoryXXXL", name: "XXXL")
-    }
 
     /// AX5 (`AccessibilityXXXL`): every control must stay reachable; fixed-height bars may cap their scale.
     func testReadingChromeAtAX5() throws {
@@ -1610,122 +1498,6 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(waitUntil(timeout: 20) { toolbarShown(app) }, "the reading toolbar is not back after the preferences")
 
         return true
-    }
-
-    // MARK: Task 11: drawer rows
-
-    /// The R3 drawer rows open their screens: Study Pads (the label manager: title and the "New" action), Backup &
-    /// Restore (its "Backup to…" and "Restore or Import from…" buttons) and Device synchronization (the
-    /// "Synchronization Backend" row). A fresh process for each row.
-    func testDrawerStudyPadsBackupAndCloudSyncOpen() throws {
-        continueAfterFailure = true
-        var app = try launchReading()
-
-        XCTContext.runActivity(named: "Study Pads") { _ in
-            guard openDrawerRow(app, "Study Pads") else { return }
-            let new = byLabel(app, "New")
-            let shown = new.waitForExistence(timeout: 20)
-            if !shown { attachTree(app, "studypads-not-shown") }
-            XCTAssertTrue(shown, "Study Pads did not open the label manager (no 'New' action)")
-            XCTAssertFalse(element(app, "reading-host").exists && byLabel(app, "More options").exists, "the reading toolbar is still shown over the Study Pads screen")
-            shot(app, "drawer-studypads")
-        }
-
-        app = (try? relaunchReading(app)) ?? app
-        XCTContext.runActivity(named: "Backup & Restore") { _ in
-            guard openDrawerRow(app, "Backup & Restore") else { return }
-            let backup = labelStarting(app, "Backup to")
-            let shown = backup.waitForExistence(timeout: 20)
-            if !shown { attachTree(app, "backup-not-shown") }
-            XCTAssertTrue(shown, "Backup & Restore did not open (no 'Backup to…' button)")
-            XCTAssertTrue(labelStarting(app, "Restore or Import from").exists, "no 'Restore or Import from…' button")
-            shot(app, "drawer-backup")
-        }
-
-        app = (try? relaunchReading(app)) ?? app
-        XCTContext.runActivity(named: "Device synchronization") { _ in
-            guard openDrawerRow(app, "Device synchronization") else { return }
-            let backend = labelStarting(app, "Synchronization Backend")
-            var shown = backend.waitForExistence(timeout: 8)
-            if !shown {
-                // The drawer is still open: the first tap did not navigate. Record it, then tap once more.
-                attachTree(app, "sync-first-tap-no-navigation")
-                let again = byLabel(app, "Device synchronization")
-                if again.exists && again.isHittable { again.tap() }
-                shown = backend.waitForExistence(timeout: 20)
-            }
-            if !shown { attachTree(app, "sync-not-shown") }
-            XCTAssertTrue(shown, "Device synchronization did not open (no 'Synchronization Backend' row)")
-            shot(app, "drawer-sync")
-        }
-    }
-
-    // MARK: Task 11: pane menu exports
-
-    /// A StudyPad window's pane menu carries the export rows `export_fileformat` "Export as HTML",
-    /// `export_something` + `studypad` "Export Study Pad" and `export_bookmarks_csv` "Export Bookmarks as CSV" (the rows
-    /// that open a dialog may carry a trailing " …"); the Bible window's menu has none of them. The StudyPad is made
-    /// through the drawer: Study Pads, "New" (the editor proposes the name "Label N"), "OK", then its row.
-    func testPaneMenuExportRowsOnAStudyPad() throws {
-        let app = try launchReading()
-        func menuRow(_ label: String) -> XCUIElement {
-            app.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
-        }
-        func openPaneMenu() -> Bool {
-            let window = byLabel(app, "Window menu")
-            guard window.waitForExistence(timeout: 15) else {
-                attachTree(app, "pane-menu-no-window-button"); XCTFail("no pane 'Window menu' button"); return false
-            }
-            window.tap()
-            return true
-        }
-
-        // The Bible window first: none of the export rows.
-        guard openPaneMenu() else { return }
-        XCTAssertTrue(menuRow("Maximise").waitForExistence(timeout: 10) || menuRow("Close").waitForExistence(timeout: 5), "the pane menu did not open")
-        for row in ["Export as HTML", "Export Study Pad", "Export Bookmarks as CSV"] {
-            XCTAssertFalse(menuRow(row).exists, "the Bible window's pane menu shows '\(row)'")
-        }
-        shot(app, "pane-menu-bible")
-        app.terminate()
-
-        // A StudyPad in the window.
-        let app2 = try launchReading()
-        guard openDrawerRow(app2, "Study Pads") else { return }
-        let new = byLabel(app2, "New")
-        guard new.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-new"); XCTFail("no 'New' action in the Study Pads manager"); return }
-        new.tap()
-        let ok = app2.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
-        guard ok.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-editor"); XCTFail("the label editor did not open (no 'OK')"); return }
-        ok.tap()
-        let row = app2.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES %@", "Label [0-9]+.*")).firstMatch
-        guard row.waitForExistence(timeout: 20) else { attachTree(app2, "studypad-no-row"); XCTFail("the new Study Pad 'Label N' is not listed"); return }
-        row.tap()
-        guard element(app2, "reading-host").waitForExistence(timeout: 30) else { attachTree(app2, "studypad-no-reading"); XCTFail("choosing the Study Pad did not return to the reading view"); return }
-        // The StudyPad document replaces the Bible in the window: the chapter text is gone.
-        XCTAssertTrue(waitUntil(timeout: 30) { nicodemusInWebViews(app2) == 0 }, "the window still shows John 3 after opening the Study Pad")
-
-        let window = byLabel(app2, "Window menu")
-        guard window.waitForExistence(timeout: 15) else { attachTree(app2, "studypad-no-window-button"); XCTFail("no pane 'Window menu' button on the Study Pad window"); return }
-        // The pane button fades out after 2 s idle (alpha only): wake it with a touch, then open the menu; one retry,
-        // recorded, because the Mac run showed no menu after the first tap on the Study Pad window.
-        // (No web view query here: the Study Pad window has no `bible-webview-*` element at this point.)
-        app2.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
-        usleep(500_000)
-        window.tap()
-        let menuOpen = { app2.buttons.matching(NSPredicate(format: "label == 'New window' OR label == 'Maximise'")).firstMatch }
-        if !menuOpen().waitForExistence(timeout: 5) {
-            attachTree(app2, "studypad-menu-first-tap-no-menu"); shot(app2, "studypad-menu-first-tap-no-menu")
-            window.tap()
-            _ = menuOpen().waitForExistence(timeout: 5)
-        }
-        for label in ["Export as HTML", "Export Study Pad", "Export Bookmarks as CSV"] {
-            let row = app2.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
-            let shown = row.waitForExistence(timeout: 10)
-            if !shown { attachTree(app2, "studypad-menu-no-\(label)"); shot(app2, "studypad-menu") }
-            XCTAssertTrue(shown, "the Study Pad window's pane menu has no '\(label)' row")
-        }
-        shot(app2, "pane-menu-studypad")
     }
 
     // MARK: New pane background

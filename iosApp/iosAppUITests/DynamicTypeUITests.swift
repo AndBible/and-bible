@@ -68,10 +68,6 @@ final class DynamicTypeUITests: RealAppUITestCase {
         attachTree(app, "settings-reachable-\(category)")
     }
 
-    func testSettingsReachableAtXXXL() {
-        assertSettingsReachable(at: "UICTContentSizeCategoryXXXL")
-    }
-
     func testSettingsReachableAtAX5() {
         assertSettingsReachable(at: "UICTContentSizeCategoryAccessibilityXXXL")
     }

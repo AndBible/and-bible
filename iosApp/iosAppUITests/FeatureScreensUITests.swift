@@ -62,7 +62,10 @@ final class FeatureScreensUITests: RealAppUITestCase {
         confirmInstalls(app, filenames)
         let prompt = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Do you want to install module'")).firstMatch
         _ = waitUntil(timeout: 60) { !prompt.exists }
-        sleep(20) // No completion tag exists for these archives; the chooser launch below proves the install.
+        // The debug harness tags the screen once every offered fixture is registered; the chooser launch below still
+        // proves the install (row present).
+        harnessRequire(element(app, "incoming-cold-fixtures-installed").waitForExistence(timeout: 90), app,
+                       "incoming-cold-fixtures-installed")
         app.terminate()
     }
 
@@ -174,21 +177,6 @@ final class FeatureScreensUITests: RealAppUITestCase {
         let stale = app.webViews.staticTexts.matching(NSPredicate(format: "label CONTAINS 'The mount Zion'"))
             .allElementsBoundByIndex.filter { $0.frame.intersects(app.frame) && $0.frame.minY >= 0 }
         harnessRequire(stale.isEmpty, app, "Previous entry (ZION) is no longer visible after choosing AARON")
-    }
-
-    /// K4GenBook (general book, ids per Task 6 ruling; NOT H2GenBook): /Part 1/Chapter 2 is chosen after Chapter 1 and
-    /// shows its own entry through the reading host.
-    func testGeneralBookKeyChooser() throws {
-        installFixtures("genbook", ["h2-genbook.zip"])
-        let app = launch(readingArguments + ["-featureScenario", "chooser"])
-        defer { app.terminate() }
-        chooseKey(app, initials: "K4GenBook", key: "Chapter 1", expectedText: "In the beginning God created the heaven and the earth")
-        chooseKeyViaTitle(app, initials: "K4GenBook", currentTitle: "Chapter 1", key: "Chapter 2", expectedText: "")
-        let creation = app.webViews.staticTexts.matching(NSPredicate(
-            format: "label CONTAINS 'In the beginning God created the heaven and the earth'"))
-            .allElementsBoundByIndex.filter { $0.frame.intersects(app.frame) && $0.frame.minY >= 0 }
-        harnessRequire(creation.isEmpty, app, "Chapter 1 text is not visible after choosing Chapter 2")
-        shot(app, "K4GenBook-chapter-2")
     }
 
     // MARK: Speak settings

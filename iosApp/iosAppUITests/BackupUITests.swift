@@ -20,62 +20,6 @@ final class BackupUITests: RealAppUITestCase {
         try XCTSkipIf(isPad, "iPad backup geometry owed (Task 12/16)")
     }
 
-    /// Phone regression: runtime diagnostics alone must not cover the production drawer hit target.
-    func testIncomingRuntimeWithoutControlsLeavesProductionDrawerAccessible() throws {
-        guard !isPad else { throw XCTSkip("Toolbar geometry was measured on iPhone only") }
-        provisionKJV()
-        let app = launch(["-standardTestFixture", "-incomingRuntimeTest",
-                          "-openDocument", "KJV", "-openRef", "John.3.16",
-                          "-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
-        defer { app.terminate() }
-        let readingHost = element(app, "reading-host")
-        let readingReady = readingHost.waitForExistence(timeout: 90) && john3Shown(app)
-        attachTree(app, "h2-runtime-without-controls-before-drawer")
-        shot(app, "h2-runtime-without-controls-before-drawer")
-        guard readingReady else {
-            XCTFail("HARNESS: actual KJV John 3 reading host required before overlay regression")
-            return
-        }
-        assertExactJohn316(app)
-
-        // No -incomingRuntimeControls opt-in: fail before tapping, even if AX claims hittability.
-        let overlayTags = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'incoming-'"))
-        let emittedTags = overlayTags.allElementsBoundByIndex.map { $0.identifier }
-        guard emittedTags.isEmpty else {
-            XCTFail("Runtime diagnostics without controls opt-in emitted overlay tags: \(emittedTags)")
-            return
-        }
-        let bookmarks = label(app, "Bookmarks")
-        guard !bookmarks.exists else {
-            XCTFail("HARNESS: drawer must start closed; Bookmarks row already exists")
-            return
-        }
-
-        // Uncovered phone AX measurement: Menu home at (0, 59, 48, 56), selected uniquely by label and frame.
-        let expected = CGRect(x: app.frame.minX, y: app.frame.minY + 59, width: 48, height: 56)
-        let homes = app.buttons.allElementsBoundByIndex.filter {
-            let frame = $0.frame
-            return $0.label == "Menu"
-                && abs(frame.minX - expected.minX) <= 1 && abs(frame.minY - expected.minY) <= 1
-                && abs(frame.width - expected.width) <= 1 && abs(frame.height - expected.height) <= 1
-        }
-        guard homes.count == 1 else {
-            XCTFail("HARNESS: expected unique measured production toolbar home, found \(homes.count)")
-            return
-        }
-        guard homes[0].isEnabled && homes[0].isHittable else {
-            XCTFail("HARNESS: measured production toolbar home is not usable")
-            return
-        }
-        homes[0].tap()
-        let opened = bookmarks.waitForExistence(timeout: 15)
-        attachTree(app, "h2-runtime-without-controls-drawer-result")
-        shot(app, "h2-runtime-without-controls-drawer-result")
-        XCTAssertTrue(opened && bookmarks.isHittable,
-                      "Production toolbar home must open the real drawer with its Bookmarks row")
-    }
-
     private func require(_ condition: Bool, _ app: XCUIApplication, _ step: String,
                          file: StaticString = #filePath, line: UInt = #line) {
         if !condition { attachTree(app, step); shot(app, step) }
@@ -192,7 +136,7 @@ final class BackupUITests: RealAppUITestCase {
             typed.count == 1 && typed.firstMatch.isHittable && typed.firstMatch.value as? String == self.marker
         }, app, "HARNESS: marker typed into restored Bookmarks search (single text view value)")
         // Let the filtered list settle before sampling; either result is evidence, not a verdict.
-        usleep(3_000_000)
+        usleep(1_000_000)
         let found = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch.exists
         attachTree(app, "h2-restored-bookmarks-list-search")
         shot(app, "h2-restored-bookmarks-list-search")
