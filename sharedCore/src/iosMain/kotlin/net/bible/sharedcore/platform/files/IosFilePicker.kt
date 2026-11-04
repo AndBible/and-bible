@@ -56,15 +56,28 @@ class IosDocumentPickerSession {
         picker: UIDocumentPickerViewController,
         isCurrent: () -> Boolean = { true },
         presenter: () -> UIViewController?,
+    ): List<NSURL> = pick(picker as UIViewController, isCurrent) { presentation ->
+        val host = presenter()
+        if (host == null) {
+            presentation.finish(emptyList())
+        } else {
+            picker.popoverPresentationController?.apply {
+                sourceView = host.view
+                sourceRect = host.view.bounds.useContents {
+                    platform.CoreGraphics.CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0)
+                }
+            }
+            presentation.present(host)
+        }
+    }
+
+    /** Keeps session ownership independent of the system browser and app-hosted scene lifecycle. */
+    internal suspend fun pick(
+        picker: UIViewController,
+        isCurrent: () -> Boolean = { true },
+        present: (FilePresentation<List<NSURL>>) -> Unit,
     ): List<NSURL> = withContext(Dispatchers.Main) {
         if (!cancelPrevious(isCurrent)) return@withContext emptyList()
-        val host = presenter() ?: return@withContext emptyList()
-        picker.popoverPresentationController?.apply {
-            sourceView = host.view
-            sourceRect = host.view.bounds.useContents {
-                platform.CoreGraphics.CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0)
-            }
-        }
         val completed = kotlinx.coroutines.CompletableDeferred<Unit>()
         try {
             suspendCancellableCoroutine { continuation ->
@@ -77,7 +90,12 @@ class IosDocumentPickerSession {
                 })
                 active = presentation
                 dismissal = completed
-                presentation.present(host)
+                try {
+                    present(presentation)
+                } catch (error: Exception) {
+                    presentation.finish(emptyList())
+                    throw error
+                }
             }
         } finally {
             // Retain staging in the caller until this particular sheet is gone, not a later session.
