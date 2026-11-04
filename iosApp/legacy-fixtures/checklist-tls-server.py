@@ -3,10 +3,27 @@ import http.server
 import pathlib
 import ssl
 import sys
+import time
+import os
 from xml.sax.saxutils import escape
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
+    def do_PUT(self):
+        remaining = int(self.headers.get("Content-Length", "0"))
+        while remaining:
+            chunk = self.rfile.read(min(remaining, 65536))
+            if not chunk:
+                return
+            remaining -= len(chunk)
+        delay = min(float(os.environ.get("CHECKLIST_PUT_DELAY", "0")), 30)
+        if delay:
+            print("CHECKLIST PUT waiting for real upload response", flush=True)
+            time.sleep(delay)
+        self.send_response(201)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_MKCOL(self):
         self.send_response(201)
         self.send_header("Content-Length", "0")

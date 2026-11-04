@@ -25,6 +25,22 @@ class PortSelectionTest(unittest.TestCase):
 
 
 class DavFolderTest(unittest.TestCase):
+    def test_put_payload_is_consumed_and_reported_created(self):
+        server = http.server.HTTPServer(("127.0.0.1", 0), server_module.Handler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=2)
+        try:
+            connection.request("PUT", "/sync/initial.gz", body=b"synthetic-database-bytes")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 201)
+            response.read()
+        finally:
+            connection.close()
+            server.shutdown()
+            server.server_close()
+            worker.join(timeout=2)
+
     def test_create_collection_and_listing_returns_requested_folder(self):
         server = http.server.HTTPServer(("127.0.0.1", 0), server_module.Handler)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
