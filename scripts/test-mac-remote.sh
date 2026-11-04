@@ -77,6 +77,17 @@ while [ $# -gt 0 ]; do [ "$1" = -resultBundlePath ] && { mkdir -p "$2"; echo "ru
 echo "Test Case '-[T t]' passed"
 exit "${XC_RC:-0}"
 EOS
+# BSD-flavoured stat/date/vm_stat shims for the fake Mac (the remote code uses `stat -f %m`, `date -r <epoch>`)
+cat > "$T/bin/stat" <<'EOS'
+#!/usr/bin/env bash
+if [ "${1:-}" = -f ] && [ "${2:-}" = "%m" ]; then shift 2; exec /usr/bin/stat -c %Y "$@"; fi
+exec /usr/bin/stat "$@"
+EOS
+cat > "$T/bin/date" <<'EOS'
+#!/usr/bin/env bash
+if [ "${1:-}" = -r ] && [[ "${2:-}" =~ ^[0-9]+$ ]]; then e=$2; shift 2; exec /usr/bin/date -d "@$e" "$@"; fi
+exec /usr/bin/date "$@"
+EOS
 chmod +x "$T/bin/"*
 
 new_env() {   # fresh fake Mac, fake repo and result dir for one test
@@ -667,6 +678,42 @@ t_sim_helpers_keep_simulator_booted() {
     [ -f "$FAKE_HOME/booted" ] || fail "sim launch shut the simulator down"
 }
 
+t_cleanup_removes_own_old_archives_and_shots() {
+    new_env cleanup-junk
+    r="$FAKE_HOME/work/testbox/and-bible/build/release"
+    mkdir -p "$r/old.xcarchive" "$r/new.xcarchive" "$r/export1" "$FAKE_HOME/work/testbox/and-bible/build/shots"
+    touch -d '2 days ago' "$r/old.xcarchive"; echo x > "$FAKE_HOME/work/testbox/and-bible/build/shots/a.png"
+    mkdir -p "$FAKE_HOME/work/otherbox/and-bible/build/release/old.xcarchive"
+    out=$(mr cleanup 2>&1) || fail "exit: $out"
+    [ -d "$r/new.xcarchive" ] && [ ! -d "$r/old.xcarchive" ] || fail "archive pruning wrong: $(ls "$r")"
+    [ -d "$r/export1" ] || fail "the only export dir must stay"
+    [ -e "$FAKE_HOME/work/testbox/and-bible/build/shots" ] && fail "shots kept"
+    [ -d "$FAKE_HOME/work/otherbox/and-bible/build/release/old.xcarchive" ] || fail "another container's tree was touched"
+    grep -q "disk (data volume)" <<<"$out" || fail "no disk line: $out"
+}
+t_prune_is_a_dry_run_unless_yes() {
+    new_env prune-dry
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible" "$FAKE_HOME/work/gone1/and-bible" "$FAKE_HOME/work/keep/and-bible"
+    head -c 100000 /dev/zero > "$FAKE_HOME/work/gone1/and-bible/big"
+    out=$(mr prune --trees gone1 testbox nosuch 2>&1) || fail "exit: $out"
+    [ -d "$FAKE_HOME/work/gone1" ] || fail "dry run deleted the tree"
+    grep -q "gone1:" <<<"$out" && grep -q "testbox: SKIPPED, this container's own tree" <<<"$out" && grep -q "nosuch: no such tree" <<<"$out" || fail "listing wrong: $out"
+    [ -d "$LOCK" ] && fail "dry run left a lock"
+    out=$(mr prune --trees gone1 --yes 2>&1) || fail "exit --yes: $out"
+    [ -e "$FAKE_HOME/work/gone1" ] && fail "gone1 not deleted"
+    [ -d "$FAKE_HOME/work/keep" ] || fail "unnamed tree deleted"
+    [ -d "$FAKE_HOME/work/testbox" ] || fail "own tree deleted"
+}
+t_prune_older_than_and_refusals() {
+    new_env prune-old
+    mkdir -p "$FAKE_HOME/work/testbox/and-bible" "$FAKE_HOME/work/stale/and-bible" "$FAKE_HOME/work/fresh/and-bible"
+    find "$FAKE_HOME/work/stale" -exec touch -d '40 days ago' {} +
+    out=$(mr prune --older-than 14 2>&1)
+    grep -q "stale:" <<<"$out" && ! grep -q "fresh:" <<<"$out" || fail "age selection wrong: $out"
+    out=$(mr prune 2>&1); [ $? = 2 ] || fail "prune without selection must fail: $out"
+    out=$(mr prune --trees ../x 2>&1); [ $? = 2 ] || fail "bad name accepted: $out"
+}
+
 for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired t_owner_record_has_token_pid_start \
     t_waiter_times_out_behind_live_foreign_holder t_wait_message_warns_when_holder_is_this_container \
     t_stale_lock_dead_pid_is_broken t_stale_lock_pid_reused_by_other_process_is_broken \
@@ -685,7 +732,8 @@ for t in t_gradle_exit_code_and_lock_released t_sync_happens_after_lock_acquired
     t_live_holder_is_not_broken_under_another_timezone t_pruning_keeps_a_live_runs_directory \
     t_abandoned_breaker_mutex_is_judged_by_its_pid t_step_script_is_kept_in_run_dir \
     t_app_id_and_product_follow_the_configuration t_version_xcconfig_is_generated_and_synced \
-    t_cleanup_shuts_down_simulators t_cleanup_kills_own_tree_and_reports_foreign t_gradle_shuts_down_simulators_unless_kept t_failed_batch_still_shuts_down_simulators t_sim_helpers_keep_simulator_booted; do run_test "$t"; done
+    t_cleanup_shuts_down_simulators t_cleanup_kills_own_tree_and_reports_foreign t_gradle_shuts_down_simulators_unless_kept t_failed_batch_still_shuts_down_simulators t_sim_helpers_keep_simulator_booted \
+    t_cleanup_removes_own_old_archives_and_shots t_prune_is_a_dry_run_unless_yes t_prune_older_than_and_refusals; do run_test "$t"; done
 
 echo "mac-remote tests: $pass passed, $failn failed"
 [ "$failn" = 0 ] && echo "MAC-REMOTE OK"

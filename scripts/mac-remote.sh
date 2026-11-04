@@ -53,6 +53,14 @@
 #                                               wrapper/daemons, simctl spawn), report (never kill) such processes of other
 #                                               containers' trees with age/RSS/CPU, print free memory before and after.
 #                                               Every Mac session ends with it (or `sim shutdown`); `check` lists the leftovers
+#       cleanup also removes this container's regenerable junk on the Mac (build/release archives except the newest of each
+#       kind, build/shots; --derived-data also its DerivedData) and prints the Mac's disk state before and after
+#   scripts/mac-remote.sh prune [--trees <name...>] [--older-than <days>] [--sims] [--yes]
+#                                               DELETES other containers' ~/work trees (+ their DerivedData) and, with --sims,
+#                                               simulator devices other than the script's iPhone/iPad. Dry run (listing with
+#                                               sizes) unless --yes; never touches this container's tree, the lock holder or a
+#                                               tree with running processes. Only the maintainer knows which containers are
+#                                               gone: the orchestrator asks and passes the names. check lists trees and sizes
 #   (gradle, native-tests, xcode-*, run and batch shut down all simulators when their locked session ends, success or
 #   failure, unless MAC_KEEP_SIM=1 or --keep-sim; the `sim` helpers keep the simulator booted for their call sequence)
 #   scripts/mac-remote.sh fetch <remote-rel-path> [local-dir]
@@ -140,12 +148,13 @@ q() { [ $# -eq 0 ] || printf '%q ' "$@"; }
 # because ssh starts the command through the user's zsh.
 remote() { "${SSH_RUN[@]}" "$HOST" 'bash -s' <<<"$1"; }
 
+PROLOGUE_NOTREE=0   # 1 for cleanup/prune: they work without this container's tree
 # Prologue for remote scripts: cd into the tree, helpers.
 prologue() {
     cat <<EOF
 set -uo pipefail
 TREE=\$HOME/$(q "$TREE")
-cd "\$TREE" 2>/dev/null || { echo "mac-remote: no remote tree at \$TREE; run sync first" >&2; exit 1; }
+cd "\$TREE" 2>/dev/null || $( [ "${PROLOGUE_NOTREE:-0}" = 1 ] && echo 'cd "$HOME"' || echo '{ echo "mac-remote: no remote tree at $TREE; run sync first" >&2; exit 1; }' )
 # timeout without coreutils: perl's alarm survives exec
 # tmo <seconds> cmd...: runs cmd in its own process group; on timeout (exit 142) or TERM the whole group is
 # stopped (TERM, then KILL after 3 s). Exit code: the command's, 128+signal if it was killed. perl (setpgrp, fork)
@@ -207,6 +216,137 @@ leftovers() {   # $1 = this container's name; prints classified lines
         if [ "$where" = "$1" ]; then k=mine; else k=other; fi
         printf '%s %s %s %s %s %s [%s]\n' "$k" "$pid" "$et" "$((rss / 1024))" "$cpu" "$(printf '%s' "$cmd" | cut -c1-110)" "$where"
     done
+}
+EOF
+}
+
+# Disk report (static remote function; no parameters but $1 = this container's name for the "mine" marker).
+disk_script() {
+    cat <<'EOF'
+gib() { awk -v k="$1" 'BEGIN{printf "%.1f GiB", k/1048576}'; }
+# newest mtime (epoch) of anything at depth <= 3 in a tree (rsync keeps source mtimes, so the tree dir itself says little)
+tree_mtime() { find "$1" -maxdepth 3 -print0 2>/dev/null | xargs -0 stat -f %m 2>/dev/null | sort -n | tail -1; }
+disk_report() {   # $1 = this container; $2 = "quiet" to print only the summary line
+    df -k ~ | awk 'NR==2{printf "mac-remote: disk (data volume): %.1f GiB free of %.1f GiB, %s used\n", $4/1048576, $2/1048576, $5}'
+    pct=$(df -k ~ | awk 'NR==2{gsub("%","",$5); print $5}')
+    if [ "${pct:-0}" -ge 85 ] 2>/dev/null; then
+        echo "mac-remote: WARNING: the Mac data volume is ${pct}% FULL (limit 85%). Ask the maintainer before 'mac-remote.sh prune' (it deletes other containers' trees)."
+    fi
+    [ "${2:-}" != quiet ] || return 0
+    dd_tmp=$(mktemp -d)
+    for t in ~/work/*/; do
+        t=${t%/}; ( du -sk "$t" 2>/dev/null | awk '{print $1}' > "$dd_tmp/$(basename "$t")" ) &
+    done
+    ( du -sk ~/Library/Developer/CoreSimulator/Devices 2>/dev/null | awk '{print $1}' > "$dd_tmp/.sim" ) &
+    ( du -sk ~/Library/Developer/Xcode/DerivedData 2>/dev/null | awk '{print $1}' > "$dd_tmp/.dd" ) &
+    ( du -sk ~/.konan 2>/dev/null | awk '{print $1}' > "$dd_tmp/.konan" ) &
+    ( du -sk ~/.gradle 2>/dev/null | awk '{print $1}' > "$dd_tmp/.gradle" ) &
+    wait
+    echo "mac-remote: caches: CoreSimulator/Devices $(gib "$(cat "$dd_tmp/.sim")"), DerivedData $(gib "$(cat "$dd_tmp/.dd")") ($(ls ~/Library/Developer/Xcode/DerivedData 2>/dev/null | wc -l | tr -d ' ') folders), ~/.konan $(gib "$(cat "$dd_tmp/.konan")"), ~/.gradle $(gib "$(cat "$dd_tmp/.gradle")")"
+    echo "mac-remote: ~/work trees, largest first (size, last modified; * = this container; a tree of a destroyed container is junk, but only the maintainer knows which):"
+    for t in ~/work/*/; do
+        t=${t%/}; n=$(basename "$t"); m=$(tree_mtime "$t")
+        mark=" "; [ "$n" != "$1" ] || mark="*"
+        echo "$(cat "$dd_tmp/$n") $mark $n $(date -r "${m:-0}" '+%F %H:%M')"
+    done | sort -rn | awk '{k=$1; $1=""; printf "  %7.1f GiB %s\n", k/1048576, substr($0,2)}'
+    rm -rf "$dd_tmp"
+}
+EOF
+}
+# Remove this container's regenerable junk (arg 1 = container, arg 2 = 1 to also remove its DerivedData).
+own_junk_script() {
+    cat <<'EOF'
+own_junk() {
+    local me=$1 dd=$2 tree=$HOME/work/$1/and-bible freed=0 f
+    if [ -d "$tree/build/release" ]; then
+        # keep the newest of each kind (xcarchive, ipa, export dir), delete the rest
+        for pat in '*.xcarchive' '*.ipa' 'export*'; do
+            for f in $(cd "$tree/build/release" && ls -dt $pat 2>/dev/null | sed 1d); do
+                echo "mac-remote: cleanup: removing build/release/$f ($(du -sh "$tree/build/release/$f" | awk '{print $1}'))"
+                rm -rf "$tree/build/release/$f"
+            done
+        done
+    fi
+    # screenshots were fetched into the container by the step that took them
+    if [ -d "$tree/build/shots" ] && [ -n "$(ls -A "$tree/build/shots" 2>/dev/null)" ]; then
+        echo "mac-remote: cleanup: removing build/shots ($(du -sh "$tree/build/shots" | awk '{print $1}'))"
+        rm -rf "$tree/build/shots"
+    fi
+    if [ "$dd" = 1 ]; then
+        for d in ~/Library/Developer/Xcode/DerivedData/*/; do
+            d=${d%/}
+            if grep -qs "/work/$me/" "$d/info.plist" "$d/Info.plist" 2>/dev/null; then
+                echo "mac-remote: cleanup: removing own DerivedData $(basename "$d") ($(du -sh "$d" | awk '{print $1}'))"
+                rm -rf "$d"
+            fi
+        done
+    else
+        echo "mac-remote: cleanup: own DerivedData kept (it speeds up builds); '--derived-data' removes it"
+    fi
+}
+EOF
+}
+# prune: delete OTHER containers' ~/work trees (and their DerivedData) and unneeded simulator devices. Dry run by default.
+prune_script() {
+    cat <<'EOF'
+prune() {   # args: [--trees name...] [--older-than days] [--sims] [--yes]; PRUNE_ME, PRUNE_KEEP_SIMS (names) are preset
+    local yes=0 older="" sims=0 mode="" names="" a t n d freed=0 now sz holder todo="" skipped=""
+    now=$(date +%s)
+    while [ $# -gt 0 ]; do
+        case "$1" in
+        --yes) yes=1 ;;
+        --sims) sims=1 ;;
+        --older-than) shift; older=${1:-}; case "$older" in ''|*[!0-9]*) echo "mac-remote: --older-than needs a number of days" >&2; return 2 ;; esac; mode=days ;;
+        --trees) mode=trees ;;
+        --*) echo "mac-remote: prune: unknown option $1" >&2; return 2 ;;
+        *) [ "$mode" = trees ] || { echo "mac-remote: prune: unexpected '$1' (names go after --trees)" >&2; return 2; }; names="$names $1" ;;
+        esac
+        shift
+    done
+    if [ -z "$names" ] && [ -z "$older" ] && [ "$sims" = 0 ]; then
+        echo "mac-remote: prune: nothing selected. Use --trees <name...>, --older-than <days> and/or --sims (add --yes to delete; default is a dry run)" >&2; return 2
+    fi
+    holder=$(sed -n 's/^container=//p' ~/work/.build-lock/owner 2>/dev/null | sed -n 1p)
+    busy=$(leftovers "$PRUNE_ME" | awk '{print $NF}' | tr -d '[]' | sort -u)
+    echo "mac-remote: prune ($([ "$yes" = 1 ] && echo DELETING || echo "dry run, nothing is deleted; add --yes")):"
+    for a in $names; do
+        case "$a" in */*|.*|'') echo "mac-remote: prune: bad tree name '$a'" >&2; return 2 ;; esac
+        [ -d "$HOME/work/$a" ] || { echo "  $a: no such tree"; continue; }
+        todo="$todo $a"
+    done
+    if [ -n "$older" ]; then
+        for t in ~/work/*/; do
+            n=$(basename "${t%/}")
+            m=$(tree_mtime "${t%/}")
+            [ $(( now - ${m:-0} )) -ge $(( older * 86400 )) ] || continue
+            case " $todo " in *" $n "*) ;; *) todo="$todo $n" ;; esac
+        done
+    fi
+    for n in $todo; do
+        if [ "$n" = "$PRUNE_ME" ]; then echo "  $n: SKIPPED, this container's own tree (use 'cleanup')"; continue; fi
+        if [ -n "$holder" ] && [ "$n" = "$holder" ] && [ "$holder" != "$PRUNE_ME" ]; then echo "  $n: SKIPPED, holds the build lock"; continue; fi
+        if echo "$busy" | grep -qx "$n"; then echo "  $n: SKIPPED, has running processes"; continue; fi
+        sz=$(du -sk "$HOME/work/$n" 2>/dev/null | awk '{print $1}')
+        dds=""
+        for d in ~/Library/Developer/Xcode/DerivedData/*/; do
+            d=${d%/}; grep -qs "/work/$n/" "$d/info.plist" "$d/Info.plist" 2>/dev/null && dds="$dds $d"
+        done
+        for d in $dds; do sz=$(( sz + $(du -sk "$d" 2>/dev/null | awk '{print $1}') )); done
+        echo "  $n: $(gib "$sz") (last modified $(date -r "$(tree_mtime "$HOME/work/$n")" '+%F %H:%M')); tree + $(echo $dds | wc -w | tr -d ' ') DerivedData folder(s)"
+        freed=$(( freed + sz ))
+        if [ "$yes" = 1 ]; then rm -rf "$HOME/work/$n" $dds; echo "    deleted"; fi
+    done
+    if [ "$sims" = 1 ]; then
+        echo "  simulators: 'simctl delete unavailable' and every device other than: $PRUNE_KEEP_SIMS"
+        xcrun simctl list devices unavailable 2>/dev/null | grep -c '(unavailable' | sed 's/^/    unavailable devices: /'
+        xcrun simctl list devices available 2>/dev/null | sed -n 's/^ *\(.*\) (\([0-9A-F-]\{36\}\)) (\(.*\))$/\2|\1|\3/p' | while IFS='|' read -r u nm st; do
+            case "|$PRUNE_KEEP_SIMS|" in *"|$nm|"*) continue ;; esac
+            echo "    $nm $u ($st)"
+            if [ "$yes" = 1 ]; then xcrun simctl shutdown "$u" >/dev/null 2>&1; xcrun simctl delete "$u" && echo "      deleted"; fi
+        done
+        [ "$yes" != 1 ] || xcrun simctl delete unavailable
+    fi
+    echo "mac-remote: prune: $([ "$yes" = 1 ] && echo freed || echo would free) about $(gib "$freed") of trees/DerivedData (simulators not counted)"
 }
 EOF
 }
@@ -699,8 +839,11 @@ step_script_cleanup() {
     cat <<EOF
 $(mem_line_script)
 $(leftovers_script)
+$(disk_script)
+$(own_junk_script)
 ME=$(q "$NAME")
 mem_line before
+disk_report "\$ME" quiet
 $(sims_down_script)
 mine=\$(leftovers "\$ME" | grep '^mine ')
 if [ -n "\$mine" ]; then
@@ -717,8 +860,23 @@ if [ -n "\$other" ]; then
     echo "mac-remote: cleanup: leftovers of OTHER containers' trees (reported, not killed; pid age rss-MiB cpu% command):"
     echo "\$other" | sed 's/^other /  /'
 fi
+own_junk "\$ME" $${CLEANUP_DD:-0}
 mem_line after
+disk_report "\$ME"
 return 0
+EOF
+}
+# `prune`: other containers' trees and unneeded simulators; dry run unless --yes.
+step_script_prune() {
+    local n=$1; shift
+    cat <<EOF
+$(leftovers_script)
+$(disk_script)
+$(prune_script)
+PRUNE_ME=$(q "$NAME")
+PRUNE_KEEP_SIMS=$(q "$SIM_IPHONE|$SIM_IPAD")
+prune $(q "$@")
+return \$?
 EOF
 }
 
@@ -734,6 +892,7 @@ run_steps() {
         case "${STEP[0]}" in xcode-test|xcode-build) ( xcode_parse "${STEP[@]:1}" ) || exit 1 ;; esac
         declare -F "step_script_$kind" >/dev/null || die "unknown step '${STEP[0]}' (steps: link gradle native-tests xcode-test xcode-build run)"
     done
+    case "$label" in cleanup|prune) PROLOGUE_NOTREE=1 ;; esac
     run_begin "$label" "$total" "${steps[@]}"
     RUN_REASON="no lock"
     session_open || exit $?
@@ -866,7 +1025,20 @@ cmd="${1:-}"; shift || true
 if [ "${1:-}" = --keep-sim ]; then MAC_KEEP_SIM=1; shift; fi
 case "$cmd" in
 cleanup)
+    CLEANUP_DD=0; [ "${1:-}" != --derived-data ] || { CLEANUP_DD=1; shift; }
     run_steps cleanup 0 "$(q cleanup)"
+    ;;
+prune)
+    # dry run (no --yes) needs no lock: it only lists; deleting runs as a locked step
+    case " $* " in
+    *" --yes "*) run_steps prune 0 "$(q prune "$@")" ;;
+    *) PROLOGUE_NOTREE=1
+       remote "$(prologue)
+__body() {
+$(step_script_prune 0 "$@")
+}
+__body" ;;
+    esac
     ;;
 check)
     list_runs
@@ -875,6 +1047,7 @@ check)
         printf 'TREE=$HOME/%s\nMYNAME=%q\n' "$(q "$TREE")" "$NAME"
         rlib
         leftovers_script
+        disk_script
         cat <<'EOF'
 ram=$(sysctl -n hw.memsize 2>/dev/null || echo 0); cpus=$(sysctl -n hw.ncpu 2>/dev/null || echo ?)
 echo "host: $(hostname)  user: $(whoami)  macOS $(sw_vers -productVersion 2>/dev/null) $(uname -m)  RAM $((ram/1073741824)) GiB  cpus $cpus"
@@ -899,6 +1072,7 @@ for f in "$TREE"/build/xcodebuild-*.log "$TREE"/build/app-*.log "$TREE"/build/bi
     [ -f "$f" ] && echo "remote log ${f#$TREE/}: last written $(( (now - $(mtime "$f")) / 60 )) min ago"
 done
 echo "free memory: $(vm_stat 2>/dev/null | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{n=$3} END{printf "%.1f", (f+n)*ps/1073741824}') GiB; Gradle daemons: $(pgrep -f GradleDaemon | wc -l | tr -d ' '); Kotlin daemons: $(pgrep -f KotlinCompileDaemon | wc -l | tr -d ' ')"
+disk_report "$MYNAME"
 echo "leftovers (processes in ~/work trees; pid age rss-MiB cpu% command [tree]; 'mac-remote.sh cleanup' kills this container's):"
 lo=$(leftovers "$MYNAME"); [ -n "$lo" ] && echo "$lo" | sed 's/^/  /' || echo "  none"
 [ -f ~/work/.mac-remote-watchdog.log ] && { echo "watchdog (last 3):"; tail -3 ~/work/.mac-remote-watchdog.log; }
