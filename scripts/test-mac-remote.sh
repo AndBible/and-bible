@@ -1197,7 +1197,89 @@ t_review_selected_custom_tree_prune_protected() {
     [ -f "$FAKE_HOME/work/custom/and-bible/gradlew" ] || fail 'age prune removed selected tree'
 }
 
-for t in t_review_receipt_generation_revoked_on_handoff t_review_crashes_locked_and_fetchable t_review_jvm_home_overrides_fail_closed t_review_nosync_metadata_uses_executed_source t_review_staged_fingerprint_tracks_all_states t_review_selected_custom_tree_prune_protected \
+t_review_idle_guard_disarm_never_releases_parent_lock() {
+    new_env review-guard-disarm
+    local steps=() i out rc
+    for i in $(seq 1 25); do steps+=("run test -d \$HOME/work/.build-lock"); done
+    out=$(mr batch "${steps[@]}" 2>&1); rc=$?
+    [ "$rc" = 0 ] || fail "disarmed guard released parent lock or corrupted process state: $out"
+    [ "$(grep -c 'end' "$(last_run)/steps")" = 25 ] || fail 'guard disarm prevented later steps'
+}
+
+t_review_maintenance_without_completed_source_owner() {
+    new_env review-ownerless; unset MAC_OWN_TREE
+    mr sim boot >/dev/null 2>&1 || fail 'fresh shared boot refused'
+    mr sim shutdown >/dev/null 2>&1 || fail 'fresh shared shutdown refused'
+    mr cleanup >/dev/null 2>&1 || fail 'fresh shared cleanup refused'
+    mr reset-tree >/dev/null 2>&1 || fail 'fresh shared reset refused'
+    mr sync >/dev/null 2>&1 || fail 'initial sync'
+    mkdir -p "$FAKE_HOME/work/shared/and-bible/sharedCore/build"
+    touch "$FAKE_HOME/work/shared/and-bible/sharedCore/build/partial"
+    echo unrelated > "$FAKE_HOME/.gradle/init.d/andbible-mac-build-cache.gradle"
+    mr sync >/dev/null 2>&1 && fail 'setup failure not triggered'
+    [ ! -f "$FAKE_HOME/work/shared/.mac-owner" ] || fail 'failed sync owner not invalidated'
+    mr sim boot >/dev/null 2>&1 || fail 'invalidated shared boot refused'
+    mr sim shutdown >/dev/null 2>&1 || fail 'invalidated shared shutdown refused'
+    mr cleanup >/dev/null 2>&1 || fail 'invalidated shared cleanup refused'
+    mr reset-tree >/dev/null 2>&1 || fail 'invalidated shared reset refused'
+    [ ! -e "$FAKE_HOME/work/shared/and-bible/sharedCore/build" ] || fail 'recovery reset did not execute'
+    [ "$(kv "$(last_run)/meta" source_revision)" = unknown ] || fail 'ownerless recovery misattributed source'
+    mr run --no-sync true >/dev/null 2>&1 && fail 'ownerless shared build accepted'
+    mr fetch gradlew >/dev/null 2>&1 && fail 'ownerless shared fetch accepted'
+    mr sim crashes >/dev/null 2>&1 && fail 'ownerless shared crash fetch accepted'
+}
+
+t_review_owner_exit_trap_is_parent_only_before_helper_reset() {
+    new_env review-owner-trap
+    # Execute the production owner trap in an inherited subshell before any
+    # helper reset instruction. Assert every owner-only side effect is skipped.
+    local body
+    body=$(python3 -I - "$SCRIPT" <<'EOS'
+import pathlib, re, sys
+s=pathlib.Path(sys.argv[1]).read_text()
+m=re.search(r"^trap '(.*)' EXIT$", s, re.M)
+print(m.group(1))
+EOS
+    )
+    mkdir -p "$T/trap-lock.pending.token"
+    local marker="$T/trap-actions"
+    (
+        export MR_SIMDOWN=1 TOKEN=token QTICKET=ticket L="$T/trap-lock" WD=
+        lock_release_if() { echo release >> "$marker"; }
+        mac_queue() { echo queue >> "$marker"; }
+        xcrun() { echo sim >> "$marker"; }
+        # Nested eval models the parent's inherited trap in a child.
+        ( eval "$body" )
+    )
+    [ ! -e "$marker" ] && [ -d "$T/trap-lock.pending.token" ] || fail 'child trap performed parent cleanup before helper reset'
+    # Normal parent exit, not merely syntax inspection, still releases the lock.
+    mr run true >/dev/null 2>&1 || fail 'normal parent run'
+    [ ! -e "$LOCK" ] || fail 'parent exit cleanup disabled'
+}
+
+t_review_genuine_idle_timeout_releases_parent_lock() {
+    new_env review-idle-timeout
+    # Load function definitions without CLI dispatch, then run the real lock
+    # session with no next instruction while its stdin remains open.
+    python3 -I - "$SCRIPT" "$T/library.sh" <<'EOS'
+import pathlib, sys
+s=pathlib.Path(sys.argv[1]).read_text().split('cmd="${1:-}"; shift || true')[0]
+pathlib.Path(sys.argv[2]).write_text(s)
+EOS
+    cp "$HERE/mac-queue.py" "$T/mac-queue.py"
+    MAC_IDLE_MAX=1 bash -c 'source "$1"; TOKEN=idle-test-token; RUN_ID=idle-test; lock_script' bash "$T/library.sh" > "$T/idle-session.sh"
+    ( /bin/cat "$T/idle-session.sh"; sleep 5 ) | HOME="$FAKE_HOME" bash -s > "$T/idle-session.log" 2>&1 & local p=$!; bg_pids+=("$p")
+    wait_for 'grep -q "@@LOCKED-idle-test-token" "$T/idle-session.log"' || fail 'idle session did not acquire'
+    wait_for '[ ! -e "$LOCK" ]' || fail 'genuine idle timeout failed to release parent lock'
+    wait "$p" 2>/dev/null
+    grep -q 'no instruction' "$FAKE_HOME/work/.mac-remote-watchdog.log" || fail 'idle timeout did not execute watchdog'
+}
+
+for t in t_review_genuine_idle_timeout_releases_parent_lock \
+    t_review_owner_exit_trap_is_parent_only_before_helper_reset \
+    t_review_maintenance_without_completed_source_owner \
+    t_review_idle_guard_disarm_never_releases_parent_lock \
+    t_review_receipt_generation_revoked_on_handoff t_review_crashes_locked_and_fetchable t_review_jvm_home_overrides_fail_closed t_review_nosync_metadata_uses_executed_source t_review_staged_fingerprint_tracks_all_states t_review_selected_custom_tree_prune_protected \
     t_warm_dirty_source_fingerprint_tracks_content \
     t_warm_prune_preserves_external_xcode_caches \
     t_warm_nosync_installs_cache_under_lock t_warm_reset_refuses_nested_external_symlink \

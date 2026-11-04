@@ -557,14 +557,17 @@ __idle=
 idle_disarm() { [ -z "$__idle" ] || kill "$__idle" 2>/dev/null; __idle=; }
 idle_arm() {
     idle_disarm
-    ( i=0; while [ "$i" -lt "$IDLE_MAX" ]; do sleep 1 >/dev/null 2>&1; i=$((i + 1)); done
+    ( trap - EXIT HUP INT TERM
+      i=0; while [ "$i" -lt "$IDLE_MAX" ]; do sleep 1 >/dev/null 2>&1; i=$((i + 1)); done
       echo "$(date '+%F %T') $MYNAME: no instruction from the container for ${IDLE_MAX}s, releasing the lock of run $RUNID" >> "$HOME/work/.mac-remote-watchdog.log"
       lock_release_if "$TOKEN"; kill -TERM $$; sleep 2; kill -KILL $$ ) </dev/null >/dev/null 2>&1 &
     __idle=$!
 }
 WD=
 # MR_SIMDOWN=1 (set by the container side for gradle/native-tests/xcode-*/run/batch) also covers abnormal ends (watchdog, idle guard)
-trap '[ "${MR_SIMDOWN:-}" = 1 ] && xcrun simctl shutdown all >/dev/null 2>&1; lock_release_if "$TOKEN"; [ -z "$QTICKET" ] || mac_queue remove "$QTICKET"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null' EXIT
+# A helper can receive TERM before its first trap-reset instruction. Gate the
+# owner's EXIT trap itself as well, so that fork/startup window cannot release it.
+trap 'if [ "$BASH_SUBSHELL" = 0 ]; then [ "${MR_SIMDOWN:-}" = 1 ] && xcrun simctl shutdown all >/dev/null 2>&1; lock_release_if "$TOKEN"; [ -z "$QTICKET" ] || mac_queue remove "$QTICKET"; rm -rf "$L.pending.$TOKEN"; [ -n "$WD" ] && kill $WD 2>/dev/null; fi' EXIT
 trap 'exit 129' HUP INT TERM
 # Watchdog: the nearest sshd ancestor is this connection; when it is gone, stop this process group (also
 # a waiter, so a cancelled or killed local run never takes the lock later). Its fds go to /dev/null,
@@ -575,7 +578,8 @@ while [ -n "$p" ] && [ "$p" -gt 1 ]; do
     p=$(ps -p "$p" -o ppid= 2>/dev/null | tr -d ' ')
 done
 if [ -n "$sshd_pid" ]; then
-    ( while ps -p "$sshd_pid" >/dev/null 2>&1; do sleep 10; done
+    ( trap - EXIT HUP INT TERM
+      while ps -p "$sshd_pid" >/dev/null 2>&1; do sleep 10; done
       echo "$(date '+%F %T') $MYNAME: ssh connection gone, stopping run $$" >> "$HOME/work/.mac-remote-watchdog.log"
       kill -TERM 0 ) </dev/null >/dev/null 2>&1 &
     WD=$!
@@ -641,11 +645,11 @@ EOF
 }
 
 recorded_source_metadata() {
-    local record
+    local record required=${1:-1}
     record=$(remote "$(locked_guard)
 cat \$HOME/$(q "$WORKDIR/.mac-owner") 2>/dev/null") || {
         # Older private trees can lack an owner record: never attribute local HEAD.
-        [ "$SHARED" = 0 ] || return 73
+        [ "$SHARED" = 0 ] || [ "$required" = 0 ] || return 73
         record=
     }
     SOURCE_REVISION=$(sed -n 's/^source_revision=//p' <<<"$record")
@@ -1007,7 +1011,7 @@ exit \$?"
 cat > \"$f\" <<'$eofm'
 $body
 $eofm
-( __i=0; while :; do sleep 1 >/dev/null 2>&1; __i=\$((__i + 1)); [ \$((__i % $HEARTBEAT)) = 0 ] || continue; echo \"mac-remote: heartbeat (step $n): newest build log: \$(f=\$(ls -t build/*.log 2>/dev/null | sed -n 1p); [ -n \"\$f\" ] && echo \"\$f idle \$(( \$(date +%s) - \$(mtime \"\$f\") )) s\" || echo none)\"; done ) </dev/null &
+( trap - EXIT HUP INT TERM; __i=0; while :; do sleep 1 >/dev/null 2>&1; __i=\$((__i + 1)); [ \$((__i % $HEARTBEAT)) = 0 ] || continue; echo \"mac-remote: heartbeat (step $n): newest build log: \$(f=\$(ls -t build/*.log 2>/dev/null | sed -n 1p); [ -n \"\$f\" ] && echo \"\$f idle \$(( \$(date +%s) - \$(mtime \"\$f\") )) s\" || echo none)\"; done ) </dev/null &
 __hb=\$!
 tmo $t bash \"$f\" </dev/null; __rc=\$?
 kill \$__hb 2>/dev/null; rm -f \"$f\"
@@ -1302,8 +1306,12 @@ run_steps() {
         transfer_end || die "lost transfer lease"
         RUN_REASON=
     else
-        case "$label" in run|batch|fetch|sim-shot|sim-crashes) remote "$(owner_guard)" || die "shared ownership check failed" ;; esac
-        recorded_source_metadata || die "cannot attribute selected remote source"
+        case "$label" in
+            run|batch|fetch|sim-shot|sim-crashes)
+                remote "$(owner_guard)" || die "shared ownership check failed"
+                recorded_source_metadata 1 || die "cannot attribute selected remote source" ;;
+            *) recorded_source_metadata 0 || die "cannot read selected remote provenance" ;;
+        esac
         case "$label" in run|batch)
             remote "$(locked_guard)
 $(prologue)
