@@ -158,13 +158,17 @@ class ReadingSearchState(
 
     /** Applies and persists a translation choice made in the settings sheet (comma-joined, as classic). */
     fun setSearchTranslations(ids: List<String>) {
-        searchTranslations.value = ids
+        val selection = effectiveStrongsSelection(ids)
+        searchTranslations.value = selection
         if (strongsOrigin) {
-            explicitTargetId = ids.firstOrNull()
+            explicitTargetId = selection.firstOrNull()
             invalidateStrongsValidation()
         }
-        settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, ids.joinToString(","))
+        settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, selection.joinToString(","))
     }
+
+    private fun effectiveStrongsSelection(ids: List<String>): List<String> =
+        if (strongsOrigin && ids.isEmpty()) listOfNotNull(explicitTargetId) else ids
 
     /** The persisted translation choice, restricted to [installed] initials; empty when none is saved. */
     fun loadPersistedTranslations(installed: Set<String>): List<String> =
@@ -726,18 +730,19 @@ class ReadingSearchState(
      * remembers the whole set so [onSearchIndexWorkEvent] can chain to any others.
      */
     fun onSearchTranslationsChosen(ids: List<String>) {
-        searchTranslations.value = ids
+        val selection = effectiveStrongsSelection(ids)
+        searchTranslations.value = selection
         if (strongsOrigin) {
-            if (ids.isEmpty()) return
-            explicitTargetId = ids.first()
-            bibleSearchService.persistSelection(ids, strongsSearch = true)
-            validateStrongs(ids) {
+            if (selection.isEmpty()) return
+            explicitTargetId = selection.first()
+            bibleSearchService.persistSelection(selection, strongsSearch = true)
+            validateStrongs(selection) {
                 val missing = strongsValidation?.missing.orEmpty()
                 if (missing.isNotEmpty()) {
-                    searchSelectorPendingIds = ids
+                    searchSelectorPendingIds = selection
                     controller.promptIndexFor(missing.first())
                 } else {
-                    searchResults.selectTranslations(ids) { unindexed, chosenIds ->
+                    searchResults.selectTranslations(selection) { unindexed, chosenIds ->
                         searchSelectorPendingIds = chosenIds
                         controller.promptIndexFor(unindexed.first())
                     }

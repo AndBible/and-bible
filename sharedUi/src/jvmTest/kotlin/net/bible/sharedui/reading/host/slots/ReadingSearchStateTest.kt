@@ -466,6 +466,69 @@ class ReadingSearchStateTest {
     }
 
     @Test
+    fun emptyStrongsSettingsSelectionRetainsTargetInsteadOfActiveUnindexedBible() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+            f.bible.unindexed = setOf("KJV")
+            f.state.setSearchTranslations(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.bible.strongsQueries.last())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsSettingsSelectionRetainsTargetInsteadOfActiveEpub() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            val epub = fakeSearchBook("EPUB")
+            f.platform.current = epub
+            f.platform.documents["EPUB"] = epub
+            f.platform.documentInfos["EPUB"] = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+            f.state.setSearchTranslations(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.lastSearchRequestForTest?.translationIds)
+            assertEquals(listOf("KJV"), f.bible.strongsQueries.last())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsResultsSelectionKeepsTargetAndSelection() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+            f.state.onSearchTranslationsChosen(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.lastSearchRequestForTest?.translationIds)
+            assertEquals(listOf("KJV"), f.state.searchTranslations.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsResultsSelectionCannotRetargetActiveEpub() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            val epub = fakeSearchBook("EPUB")
+            f.platform.current = epub
+            f.platform.documents["EPUB"] = epub
+            f.platform.documentInfos["EPUB"] = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+            f.state.onSearchTranslationsChosen(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.searchTranslations.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
     fun defaults() {
         val s = state(MapSettings())
         assertEquals(SearchType.ALL_WORDS, s.searchType.value)
