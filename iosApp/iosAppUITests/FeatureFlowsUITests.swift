@@ -505,6 +505,9 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         var app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"])
         defer { app.terminate() }
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 90), app, "KJV reading host")
+        tapRequired(app, button(app, "More options"), "baseline-more-options")
+        XCTAssertFalse(settingRow(app, "Font family").exists, "Fresh databases must not already offer Font family as recent")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
 
         openTextOptions(app)
         let strongs = settingRow(app, "Strong's numbers")
