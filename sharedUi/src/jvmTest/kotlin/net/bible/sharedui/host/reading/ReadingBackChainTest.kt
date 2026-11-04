@@ -20,7 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.desktop.reading.DesktopBackDispatcher
