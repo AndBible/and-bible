@@ -1252,6 +1252,32 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: workspaces
 
+    /// Stable A/B fixture for frame-by-frame workspace-switch measurements (#3955). The recording is taken outside
+    /// XCTest with simctl, so polling the accessibility tree cannot hide a blank interval from the evidence.
+    func testWorkspaceSwitchMeasurement() throws {
+        var app = try launchReading()
+        guard openWorkspaceSelector(app, "measurement-create") else { return }
+        guard createWorkspace(app, named: "Switch measurement") else { return }
+        sendToBackground(app)
+        app.terminate()
+        app = launch(["-standardTestFixture", "-openDocument", "KJV", "-openRef", "John.3.16"])
+        XCTAssertTrue(john3Shown(app), "measurement workspace must show KJV John 3")
+        for index in 0..<6 {
+            guard let title = toolbarTitle(app) else {
+                attachTree(app, "measurement-no-title-\(index)")
+                XCTFail("no toolbar title for workspace fling")
+                return
+            }
+            let start = title.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+            let end = title.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
+            NSLog("WORKSPACE-SWITCH-MEASURE %d", index)
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .fast, thenHoldForDuration: 0)
+            _ = waitUntil(timeout: 4) { false }
+            XCTAssertTrue(john3Shown(app), "switch \(index) must restore KJV text")
+        }
+        shot(app, "workspace-switch-measured")
+    }
+
     /// Overflow "Workspaces" -> "Manage workspaces…" opens the selector (title bar "New" action, per-row "Menu").
     private func openWorkspaceSelector(_ app: XCUIApplication, _ step: String) -> Bool {
         let more = byLabel(app, "More options")
