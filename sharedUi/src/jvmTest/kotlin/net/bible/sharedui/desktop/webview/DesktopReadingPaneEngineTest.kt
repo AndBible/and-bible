@@ -16,7 +16,19 @@
  */
 package net.bible.sharedui.desktop.webview
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.v2.runComposeUiTest
+import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.bibleview.UnimplementedBibleBridge
+import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.WindowStateValue
+import net.bible.sharedui.reading.SplitContent
+import net.bible.sharedui.reading.bridge.ReadingNavigator
+import net.bible.sharedui.reading.bridge.ReadingWindowSurface
+import net.bible.sharedui.reading.session.BibleWindowSession
+import kotlinx.coroutines.test.TestScope
 import net.bible.sharedcore.platform.desktop.DesktopDeviceSettings
 import net.bible.sharedui.desktop.webengine.FakeWebEngine
 import net.bible.sharedui.desktop.webengine.androidBridgeShim
@@ -83,6 +95,40 @@ class DesktopReadingPaneEngineTest {
         assertEquals(listOf("new:osis://test"), opened)
         assertEquals(listOf("ready"), ready)
         assertEquals(listOf("created:old", "disposed:old", "created:new"), inputIds)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun adoptedPaneComposesThroughSplitContent() = runComposeUiTest {
+        val host = engine.jsHostFor("old")
+        val surface = object : ReadingWindowSurface {
+            override fun copyText(label: String?, text: String) {}
+            override fun shareText(text: String, subject: String?) {}
+            override fun shareHtml(html: String, title: String) {}
+            override fun stopSelection(removeRanges: Boolean) {}
+            override fun toast(text: String) {}
+            override fun openWebSearch(query: String) {}
+        }
+        val navigator = java.lang.reflect.Proxy.newProxyInstance(ReadingNavigator::class.java.classLoader, arrayOf(ReadingNavigator::class.java)) { _, _, _ -> null } as ReadingNavigator
+        val session = BibleWindowSession(null, BibleViewJsChannel(host) {}, { TestScope() }, surface, navigator)
+        val factory = desktopReadingPaneFactory(engine, { session }, { bridge })
+        val id = mutableStateOf("old")
+        fun layout(value: String): WindowLayoutState {
+            val window = WindowSnapshot(id = value, state = WindowStateValue.VISIBLE, weight = 1f, isVisible = true, isPinMode = true, isSynchronised = false, syncGroup = 0, isLinksWindow = false)
+            return WindowLayoutState(listOf(window), value, null, false, true)
+        }
+        setContent {
+            SplitContent(layout(id.value), {}, { _, _, _, _ -> }, pane = { factory(it, androidx.compose.ui.Modifier) })
+        }
+        waitForIdle()
+        val pane = engine.paneFor("old")
+        runOnIdle {
+            engine.rekey("old", "new")
+            id.value = "new"
+        }
+        waitForIdle()
+        assertSame(pane, engine.paneFor("new"))
+        assertEquals(1, fake.panes.size)
     }
 
     @Test

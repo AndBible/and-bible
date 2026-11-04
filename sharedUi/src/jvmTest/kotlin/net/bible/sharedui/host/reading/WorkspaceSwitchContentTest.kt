@@ -159,12 +159,23 @@ class WorkspaceSwitchContentTest {
             assertFalse(originalPanes.single { it === adopted }.disposed)
 
             val staleView = incoming.bibleView
+            val previousGeneration = HostReadingWindows.switchGeneration
+            session.jsChannel.markClientReady()
             actions.switchToWorkspace(target.id.toString(), saveOutgoing = false)
             val reconstructed = repository.activeWindow
             assertEquals(incoming.id, reconstructed.id)
             assertTrue(incoming !== reconstructed)
             assertNull(incoming.bibleView)
             assertFalse(checkNotNull(staleView).listenEvents)
+            assertNotNull(reconstructed.bibleView, "same-ID owner must be adopted without pane recomposition")
+            assertFalse(session.jsChannel.loading, "adoption preserves page readiness")
+            val before = session.firstDocument
+            staleView.loadDocument(net.bible.android.control.page.ErrorDocument("stale", net.bible.android.control.page.ErrorSeverity.NORMAL), false, null, null, null, null)
+            assertSame(before, session.firstDocument, "late outgoing delivery must be ignored")
+            HostReadingWindows.releaseSpares(previousGeneration)
+            assertFalse(originalPanes.single { it === adopted }.disposed, "older cleanup must not dispose a newer switch's pane")
+            HostReadingWindows.releaseSpares()
+            assertFalse(originalPanes.single { it === adopted }.disposed, "cleanup must not dispose the displayed same-ID pane")
             assertSame(session, HostReadingWindows.sessionFor(id))
             assertSame(adopted, engine.paneFor(id))
             assertSame(reconstructed, session.window)

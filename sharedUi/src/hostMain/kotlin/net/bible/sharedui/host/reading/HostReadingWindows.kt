@@ -112,6 +112,16 @@ object HostReadingWindows {
         switchGeneration++
     }
 
+    /** Rebind existing transports before composition, including owners whose layout did not change. */
+    fun adoptVisibleWindows() {
+        val repository = binding?.koin?.get<WindowControl>()?.windowRepository ?: return
+        val windows = repository.visibleWindows
+        // Reserve matching identities before using any spare for a different window.
+        windows.filter { spares.containsKey(it.id.toString()) }.forEach { assembly(it.id.toString()) }
+        windows.filter { !assemblies.containsKey(it.id.toString()) && spares.isNotEmpty() }
+            .forEach { assembly(it.id.toString()) }
+    }
+
     fun releaseSpares(generation: Int = switchGeneration) {
         if (generation != switchGeneration) return
         for ((id, a) in spares.toMap()) disposeAssembly(id, a)

@@ -104,6 +104,9 @@ internal class HostReadingQuickActions(
             // rename there would write the old name back: Android's `switchWorkspace` never saves.
             if (saveOutgoing) repository.saveIntoDb()
             repository.loadFromDb(IdType(id), beforeApply = HostReadingWindows::parkForWorkspaceSwitch)
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                HostReadingWindows.adoptVisibleWindows()
+            }
             settings.setString("current_workspace_id", repository.id.toString())
             control.windowSync.reloadAllWindows()
             repository.updateAllWindowsTextDisplaySettings()
