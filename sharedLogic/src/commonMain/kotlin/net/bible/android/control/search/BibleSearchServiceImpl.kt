@@ -127,6 +127,18 @@ class BibleSearchServiceImpl(
             !isUsable(it)
         }
 
+    override fun unindexedStrongsAmong(translationIds: List<String>): List<String> = translationIds.filter { id ->
+        val book = SwordDocumentFacade.getDocumentByInitials(id)
+        if (book == null || !isUsable(id)) true else try {
+            !(book.find("+[Gen 1:1] strong:h7225")!!.getCardinality() > 0 ||
+                book.find("+[John 1:1] strong:g746")!!.getCardinality() > 0 ||
+                book.find("+[Gen 1:1] strong:g746")!!.getCardinality() > 0)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking Strong's index", e)
+            true
+        }
+    }
+
     /** DONE status and an index the current engine can open (an index of an older schema needs a rebuild). */
     private fun isUsable(docId: String): Boolean {
         val book = SwordDocumentFacade.getDocumentByInitials(docId) ?: return false

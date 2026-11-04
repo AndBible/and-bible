@@ -24,6 +24,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +57,7 @@ import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ReadingSearchController
 import net.bible.sharedcore.search.ReadingSearchPhase
+import net.bible.sharedcore.search.ReadingSearchRequest
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchIndexProgressController
@@ -113,6 +118,7 @@ class ReadingSearchState(
     internal val onLeaveFullScreen: () -> Unit,
     resultsScope: CoroutineScope = scope,
     private val pollPause: suspend () -> Unit = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },
+    private val indexValidationDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     private val bibleSearchService: BibleSearchService = services.bible
     internal val searchIndexService: SearchIndexService = services.index
@@ -235,10 +241,24 @@ class ReadingSearchState(
      * The search session state machine. Every effect it needs is injected here, which keeps the
      * machine itself platform-free and host-testable; see [ReadingSearchController].
      */
+    private var explicitTargetId: String? = null
+    private var strongsOrigin = false
+    private var strongsValidationJob: Job? = null
+    private var validatedStrongsUnindexed: List<String> = emptyList()
+
     val controller = ReadingSearchController(
         // `documentInfo` is truthful at its source: a scheduled/running build is not done (#2632).
-        resolveDoc = { platform.documentInfo(platform.currentDocument()) },
-        onUnavailable = { _searchUnavailableDocName.value = platform.currentDocument()?.name.orEmpty() },
+        resolveDoc = {
+            if (strongsOrigin && searchStrongsQuery != null && queries.query.value.trim() != searchStrongsQuery) {
+                explicitTargetId = null
+                strongsOrigin = false
+                refreshSearchTranslations()
+            }
+            val id = explicitTargetId
+            val info = platform.documentInfo(if (id == null) platform.currentDocument() else platform.documentByInitials(id))
+            if (strongsOrigin && info != null) info.copy(indexDone = true) else info
+        },
+        onUnavailable = { _searchUnavailableDocName.value = explicitTargetId ?: platform.currentDocument()?.name.orEmpty() },
         onLeaveFullScreen = onLeaveFullScreen,
         onStartIndexing = { docId -> startSearchIndexing(docId) },
         // Every document type reaches here: an EPUB runs `runEpubSearch`, everything else the SWORD `runSearch`.
@@ -248,7 +268,8 @@ class ReadingSearchState(
         // Task 11 chain so every unindexed choice is built before the search runs.
         firstUnindexedInSelection = {
             val selection = searchTranslations.value
-            bibleSearchService.unindexedAmong(selection).firstOrNull()?.also { searchSelectorPendingIds = selection }
+            (if (strongsOrigin) validatedStrongsUnindexed else bibleSearchService.unindexedAmong(selection))
+                .firstOrNull()?.also { searchSelectorPendingIds = selection }
         },
         // An F100 prompt that was abandoned must not leave its chain armed for an unrelated later build.
         onSelectionPromptDropped = { searchSelectorPendingIds = null },
@@ -343,7 +364,12 @@ class ReadingSearchState(
      * this: it goes through [openSearchStrongs], which needs its own flag.
      */
     fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) {
-        refreshSearchTranslations()
+        if (seedQuery != null || !controller.searchModeActive.value) {
+            strongsValidationJob?.cancel()
+            explicitTargetId = null
+            strongsOrigin = false
+        }
+        if (!strongsOrigin) refreshSearchTranslations()
         // The MRU store is shared with the classic/EPUB search Activities and this state outlives any
         // single search, so it is re-read here (a search performed there meanwhile would otherwise be
         // clobbered by this state's stale in-memory list on its next `recordRecentTerm`).
@@ -371,17 +397,44 @@ class ReadingSearchState(
      * own route. It declines when the active window's document is an EPUB (Strong's find-all is a
      * Bible concept) and when the active document cannot be searched at all.
      */
-    fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean {
-        val current = platform.currentDocument()
-        if (platform.documentInfo(current)?.isEpub == true) return false
-        if (searchKindFor(platform.documentInfo(current)) == SearchKind.Unavailable) return false
+    fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean =
+        openRequest(ReadingSearchRequest(query = "strong:$ref", documentId = translationIds.firstOrNull(),
+            translationIds = translationIds, strongsOrigin = true))
+
+    /** Applies a handoff without changing the active reading window. */
+    fun openRequest(request: ReadingSearchRequest): Boolean {
+        strongsValidationJob?.cancel()
+        explicitTargetId = request.documentId ?: if (request.strongsOrigin) request.translationIds.firstOrNull() else null
+        strongsOrigin = request.strongsOrigin
+        request.type?.let { searchType.value = it }
+        request.section?.let { searchSection.value = it }
+        request.epubMode?.let { persistEpubSearchMode(it) }
+        if (!request.strongsOrigin && explicitTargetId == null) {
+            openSearch(request.query, request.preDecorated)
+            return true
+        }
         refreshAvailableTranslations()
         queries.reloadRecentTerms()
-        searchTranslations.value = translationIds
-        val query = "strong:$ref"
-        searchStrongsQuery = query.trim()
-        searchPreDecoratedQuery = null
-        controller.open(query)
+        searchTranslations.value = request.translationIds
+        request.query?.let { queries.setQuery(it) }
+        searchStrongsQuery = request.query?.trim()?.takeIf { request.strongsOrigin }
+        searchPreDecoratedQuery = request.query?.trim()?.takeIf { request.preDecorated }
+        if (explicitTargetId == null || platform.documentByInitials(explicitTargetId!!) == null) {
+            _searchUnavailableDocName.value = explicitTargetId.orEmpty()
+            return true
+        }
+        if (!request.strongsOrigin) {
+            controller.open(request.query)
+            return true
+        }
+        val selection = request.translationIds.ifEmpty { listOf(explicitTargetId!!) }
+        searchTranslations.value = selection
+        strongsValidationJob = scope.launch {
+            validatedStrongsUnindexed = withContext(indexValidationDispatcher) {
+                bibleSearchService.unindexedStrongsAmong(selection)
+            }
+            controller.open(request.query)
+        }
         return true
     }
 
@@ -402,6 +455,9 @@ class ReadingSearchState(
 
     /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */
     fun leaveSearch() {
+        strongsValidationJob?.cancel()
+        explicitTargetId = null
+        strongsOrigin = false
         controller.closeSheet()
         if (controller.closeSearchMode()) onSearchModeClosed()
     }
@@ -413,6 +469,9 @@ class ReadingSearchState(
      * dropdown already down or the settings sheet already open.
      */
     private fun onSearchModeClosed() {
+        strongsValidationJob?.cancel()
+        explicitTargetId = null
+        strongsOrigin = false
         stopSearchIndexFeed()
         searchPreDecoratedQuery = null
         searchStrongsQuery = null
@@ -627,9 +686,29 @@ class ReadingSearchState(
      */
     fun onSearchTranslationsChosen(ids: List<String>) {
         searchTranslations.value = ids
-        searchResults.selectTranslations(ids) { unindexed, chosenIds ->
-            searchSelectorPendingIds = chosenIds
-            controller.promptIndexFor(unindexed.first())
+        if (strongsOrigin) {
+            if (ids.isEmpty()) return
+            explicitTargetId = ids.first()
+            strongsValidationJob?.cancel()
+            strongsValidationJob = scope.launch {
+                validatedStrongsUnindexed = withContext(indexValidationDispatcher) {
+                    bibleSearchService.unindexedStrongsAmong(ids)
+                }
+                if (validatedStrongsUnindexed.isNotEmpty()) {
+                    searchSelectorPendingIds = ids
+                    controller.promptIndexFor(validatedStrongsUnindexed.first())
+                } else {
+                    searchResults.selectTranslations(ids) { unindexed, chosenIds ->
+                        searchSelectorPendingIds = chosenIds
+                        controller.promptIndexFor(unindexed.first())
+                    }
+                }
+            }
+        } else {
+            searchResults.selectTranslations(ids) { unindexed, chosenIds ->
+                searchSelectorPendingIds = chosenIds
+                controller.promptIndexFor(unindexed.first())
+            }
         }
     }
 
@@ -638,7 +717,7 @@ class ReadingSearchState(
      * decided from the LIVE target (what `settingsClosed()` will then apply), not from the phase.
      */
     fun searchSettingsForEpub(): Boolean =
-        platform.documentInfo(platform.currentDocument())?.isEpub == true
+        platform.documentInfo(explicitTargetId?.let { platform.documentByInitials(it) } ?: platform.currentDocument())?.isEpub == true
 
     /** The active window's book name, for the Bible settings form. */
     fun currentBookName(): String = platform.currentBookName()
@@ -697,7 +776,10 @@ class ReadingSearchState(
      * so an in-flight index build would otherwise keep this state alive through it after its owner
      * is gone.
      */
-    fun dispose() = stopSearchIndexFeed()
+    fun dispose() {
+        strongsValidationJob?.cancel()
+        stopSearchIndexFeed()
+    }
 
     /**
      * A work event of the job feed. Its listener fires off the main thread, so everything is hopped
@@ -726,20 +808,30 @@ class ReadingSearchState(
         if (stopIndexFeed == null || searchIndexResolution?.isActive == true) return
         val poll = searchIndexPoll ?: return
         searchIndexResolution = scope.launch(start = CoroutineStart.LAZY) {
-            val indexDone = awaitIndexDone(
+            val statusDone = awaitIndexDone(
                 poll = poll,
                 indexDone = { isSearchIndexDone() },
                 pause = pollPause,
                 indexRunning = { searchIndexDocument?.indexStatus.isInProgress },
                 buildActive = { !indexJobs.isEveryJobFinished() },
             )
+            val selection = searchSelectorPendingIds
+            val indexDone = if (statusDone && strongsOrigin) {
+                val remaining = withContext(indexValidationDispatcher) {
+                    bibleSearchService.unindexedStrongsAmong(selection ?: listOfNotNull(searchIndexDocument?.initials))
+                }
+                validatedStrongsUnindexed = remaining
+                searchIndexDocument?.initials !in remaining
+            } else statusDone
             // Re-read rather than reuse the gate's answer: the poll may have straddled a new job's start.
             if (!indexDone && indexJobs.isEveryJobFinished()) searchIndexProgress.showError()
             searchIndexResolution = null
             stopSearchIndexFeed()
             // A selection holding more than one unindexed translation chains to the next one instead
             // of letting `onIndexingFinished` re-run against only the just-built translation.
-            val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) { bibleSearchService.unindexedAmong(it) }
+            val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) {
+                if (strongsOrigin) validatedStrongsUnindexed else bibleSearchService.unindexedAmong(it)
+            }
             if (next != null) {
                 controller.promptIndexFor(next, keepInterceptedSearch = true)
             } else {

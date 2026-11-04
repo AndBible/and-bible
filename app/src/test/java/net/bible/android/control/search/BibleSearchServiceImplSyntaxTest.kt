@@ -31,6 +31,7 @@ import net.bible.sharedcore.search.SearchType
 import org.crosswire.jsword.book.Books
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -66,6 +67,23 @@ class BibleSearchServiceImplSyntaxTest {
         }
         fail("expected SearchSyntaxException")
         throw AssertionError()
+    }
+
+    @Test fun strongsSentinelValidationRejectsMissingAndStaleIndexes() {
+        val service = GlobalContext.get().get<BibleSearchServiceImpl>()
+        assertEquals(emptyList<String>(), service.unindexedStrongsAmong(listOf("KJV")))
+        assertEquals(listOf("MISSING"), service.unindexedStrongsAmong(listOf("KJV", "MISSING")))
+        FtsTestSupport.dropIndex(kjv)
+        kjv.indexStatus = org.crosswire.jsword.index.IndexStatus.DONE
+        assertEquals(listOf("KJV"), service.unindexedStrongsAmong(listOf("KJV")))
+    }
+
+    @Test fun strongsRequestDecoratesOnceAndFindsTheRealVerse() {
+        val service = GlobalContext.get().get<BibleSearchServiceImpl>()
+        val strongs = request.copy(query = "strong:H7225", searchType = SearchType.ANY_WORDS, isStrongsSearch = true)
+        assertEquals("strong:H7225", service.decorate(strongs).trim())
+        val results = runBlocking { service.searchMulti(strongs) }
+        assertTrue(results.main.map { it.referenceName }.toString(), results.main.any { it.referenceName.contains("1:1") })
     }
 
     @Test fun unsupportedSyntaxMessageComesFromCoreStrings() {
