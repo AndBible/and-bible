@@ -769,7 +769,7 @@ step_script_xcode() {   # <kind> <n> [dev] [args...]
     xcode_parse "$@" || return 1
     local which=$XC_WHICH
     cat <<EOF
-mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which
+mkdir -p build && rm -rf build/ios-$which.xcresult build/screenshots-$which build/failures-$which.txt
 # bibleview-js: npm ci only when package-lock.json changed (macOS-native node_modules live on the Mac)
 ( cd app/bibleview-js
   stamp=node_modules/.mac-remote-lock-sha; sha=\$(shasum package-lock.json | cut -d' ' -f1)
@@ -818,6 +818,18 @@ if [ $kind = xcode-test ]; then
     fi
     [ -d build/ios-$which.xcresult ] && xcrun xcresulttool export attachments --path build/ios-$which.xcresult \\
         --output-path build/screenshots-$which >/dev/null 2>&1
+    # Parallel testing prints no per-test failure messages to the log: list them from the result bundle.
+    [ -d build/ios-$which.xcresult ] && xcrun xcresulttool get test-results tests --path build/ios-$which.xcresult 2>/dev/null \\
+        | python3 -c 'import json,sys
+def walk(n, cls=""):
+    t = n.get("nodeType", ""); name = n.get("name", "")
+    if t == "Test Suite": cls = name
+    if t == "Test Case" and n.get("result") == "Failed":
+        msgs = [c.get("name", "") for c in n.get("children", []) if c.get("nodeType") == "Failure Message"]
+        print("FAILED " + cls + "/" + name + ": " + (msgs[0][:300] if msgs else "?"))
+    for c in n.get("children", []): walk(c, cls)
+for n in json.load(sys.stdin).get("testNodes", []): walk(n)' > build/failures-$which.txt 2>/dev/null
+    [ -s build/failures-$which.txt ] && cat build/failures-$which.txt
     grep -E '^(Test Suite|Test Case .*(passed|failed|skipped))|error:|\\*\\* TEST' build/xcodebuild-$which.log | grep -vE "Test Suite '(All tests|.*\\.xctest)' started" | tail -60
     echo "app log: \$(wc -l < build/app-$which.log) lines, WEBVIEW-TERMINATED: \$(grep -c WEBVIEW-TERMINATED build/app-$which.log), js[ lines: \$(grep -c 'js\\[' build/app-$which.log)"
     return \$rc
@@ -842,7 +854,7 @@ step_post_xcode() {   # <kind> <n> <rc> [dev] [args...]
     xcode_parse "$@" || return 0
     local which=$XC_WHICH ev="$RUNDIR/xcode/step$n-$XC_WHICH" f
     mkdir -p "$ev" "$OUT/xcode"
-    for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult"; do
+    for f in "build/xcodebuild-$which.log" "build/app-$which.log" "build/screenshots-$which" "build/ios-$which.xcresult" "build/failures-$which.txt"; do
         fetch "$f" "$ev" >/dev/null 2>&1 || true
     done
     # xcresulttool names attachments by UUID; manifest.json maps them to the names the tests gave
