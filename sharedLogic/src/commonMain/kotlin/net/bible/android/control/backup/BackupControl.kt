@@ -1154,6 +1154,10 @@ class BackupControl(
                     if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
                     val segments = name.split('/')
+                    // Archives must not be able to plant a journal that cold startup treats as trusted ownership.
+                    if (segments.first().startsWith(".sword-install-", ignoreCase = true)) {
+                        throw IOException("ZIP entry uses the private install transaction namespace")
+                    }
                     // "epub/<name>/..." is an EPUB entry, and so is the bare directory entry "epub/<name>/".
                     val isEpubEntry = segments[0] == "epub" && (segments.size >= 3 || (segments.size == 2 && ze.isDirectory))
                     if (isEpubEntry) {
@@ -1203,6 +1207,18 @@ class BackupControl(
             fun isPublished(path: Path) = path.toString().lowercase() in publishedKeys
             val dataRoot = (targetDirectory / SwordConstants.DIR_DATA).normalized()
             val installed = Books.installed().getBooks()
+            val incomingInitials = bufferedConfs.map { (conf, bytes) -> SwordBookMetaData(bytes, conf.name).initials }.toSet()
+            // Another registered module may share a DataPath. Never publish (or later recover by deleting)
+            // its files while leaving that owner's conf discoverable.
+            for (other in installed) {
+                if (other.initials in incomingInitials || other.bookMetaData.driver !is SwordBookDriver) continue
+                val location = other.bookMetaData.location?.getPath()?.let { it.toPath().normalized() } ?: continue
+                if (staged.keys.any { path ->
+                        val candidate = path.normalized().toString().replace('\\', '/').lowercase()
+                        val owner = location.toString().replace('\\', '/').lowercase()
+                        candidate == owner || candidate.startsWith("$owner/")
+                    }) throw IOException("Archive replaces data shared with module ${other.initials}")
+            }
             for ((conf, bytes) in bufferedConfs) {
                 val incoming = SwordBookMetaData(bytes, conf.name)
                 val previous = installed.firstOrNull { it.initials == incoming.initials } ?: continue
@@ -1211,7 +1227,8 @@ class BackupControl(
                 val oldDir = metadata.location?.getPath()?.let { it.toPath() }?.normalized()
                 // Restrict deletion to a private module directory beneath modules/, not a shared root or symlink.
                 if (oldDir != null && oldDir != dataRoot && oldDir.toString().startsWith("$dataRoot/") &&
-                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) == oldDir &&
+                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) ==
+                        (fileSystem.canonicalize(targetDirectory) / oldDir.relativeTo(targetDirectory)).normalized() &&
                     installed.none { other ->
                         other.initials != previous.initials && other.bookMetaData.location?.getPath()?.let {
                             val otherDir = it.toPath().normalized()
