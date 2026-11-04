@@ -107,8 +107,11 @@ class OldMonolithicMigrationChainTest {
             sql("INSERT INTO bookmark_label (bookmark_id, label_id) VALUES (1, 1)")
             sql("INSERT INTO mynote (_id, key, versification, mynote, last_updated_on, created_on) VALUES (1, 'Gen.1.2', NULL, 'my note', 222, 111)")
             sql("INSERT INTO mynote (_id, key, versification, mynote, last_updated_on, created_on) VALUES (2, 'bad key', 'KJV', 'dropped', 1, 1)")
+            sql("INSERT INTO readingplan (_id, plan_code, plan_start_date, plan_current_day) VALUES (8, 'personal-plan', 1234, 5)")
+            sql("INSERT INTO readingplan_status (_id, plan_code, plan_day, reading_status) VALUES (9, 'personal-plan', 4, 'READ')")
         }
         migrate(name)
+        assertEquals(69L, userVersion(file))
         openSqlite(file.path, readOnly = true).use { db ->
             // 33->34 copies bookmarks that parse (the id is kept), 37->38 appends the parsable my notes
             val bookmarks = db.queryRows("SELECT id, createdAt, lastUpdatedOn, notes, playbackSettings, v11n FROM Bookmark ORDER BY id") {
@@ -118,6 +121,11 @@ class OldMonolithicMigrationChainTest {
                 listOf<Any?>(1L, 111L, 111L, null, "speak", "KJV"),   // lastUpdatedOn = createdAt (37->38)
                 listOf<Any?>(2L, 111L, 222L, "my note", null, "KJV"),
             ), bookmarks)
+            assertEquals(listOf(1L to 1L), db.queryRows("SELECT bookmarkId, labelId FROM BookmarkToLabel WHERE bookmarkId = 1") { it.getLong(0) to it.getLong(1) })
+            assertEquals(listOf(listOf<Any?>(8L, "personal-plan", 1234L, 5L)),
+                db.queryRows("SELECT _id, plan_code, plan_start_date, plan_current_day FROM readingplan") { listOf(it.getLong(0), it.getText(1), it.getLong(2), it.getLong(3)) })
+            assertEquals(listOf(listOf<Any?>(9L, "personal-plan", 4L, "READ")),
+                db.queryRows("SELECT _id, plan_code, plan_day, reading_status FROM readingplan_status") { listOf(it.getLong(0), it.getText(1), it.getLong(2), it.getText(3)) })
             // 38->39: SPEAK label renamed and coloured, the style-less one gets the BLUE_HIGHLIGHT default
             val labels = db.queryRows("SELECT id, name, color FROM Label ORDER BY id") { Triple(it.getLong(0), it.getText(1), it.getLong(2)) }
             assertEquals("NoStyle", labels[1].second)
