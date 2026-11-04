@@ -369,6 +369,23 @@ class ModuleArchiveInterruptionTest {
         }
     }
 
+    @Test fun identicalSharedDataCanBeReinstalledWithoutTouchingItsOwner() {
+        installGen1()
+        val sharedConf = File(dest, "mods.d/shared.conf")
+        sharedConf.writeText(generation(1).first().second.decodeToString().replace("[$INITIALS]", "[SharedOwner]"))
+        rescan()
+        assertNotNull(Books.installed().getBook("SharedOwner"))
+        try {
+            val archive = zip(generation(1), "identical-shared.zip")
+            runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) }
+            assertTrue(matches(generation(1)))
+            assertTrue(sharedConf.isFile)
+            assertNotNull(Books.installed().getBook("SharedOwner"))
+        } finally {
+            Books.installed().getBook("SharedOwner")?.let { Books.installed().removeBook(it) }
+        }
+    }
+
     @Test fun replacementIncludingAllSharedDataOwnersCanPublish() {
         installGen1()
         val sharedConf = File(dest, "mods.d/shared.conf")

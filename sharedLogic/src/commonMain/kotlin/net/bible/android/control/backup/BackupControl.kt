@@ -1213,11 +1213,32 @@ class BackupControl(
             for (other in installed) {
                 if (other.initials in incomingInitials || other.bookMetaData.driver !is SwordBookDriver) continue
                 val location = other.bookMetaData.location?.getPath()?.let { it.toPath().normalized() } ?: continue
-                if (staged.keys.any { path ->
-                        val candidate = path.normalized().toString().replace('\\', '/').lowercase()
-                        val owner = location.toString().replace('\\', '/').lowercase()
-                        candidate == owner || candidate.startsWith("$owner/")
-                    }) throw IOException("Archive replaces data shared with module ${other.initials}")
+                val shared = staged.keys.filter { path ->
+                    val candidate = path.normalized().toString().replace('\\', '/').lowercase()
+                    val owner = location.toString().replace('\\', '/').lowercase()
+                    candidate == owner || candidate.startsWith("$owner/")
+                }
+                for (path in shared) {
+                    val part = staged.getValue(path)
+                    val size = fileSystem.metadataOrNull(path)?.size
+                    val identical = size != null && size == fileSystem.metadata(part).size &&
+                        fileSystem.source(path).buffer().use { live ->
+                            fileSystem.source(part).buffer().use { pending ->
+                                var remaining = size
+                                var equal = true
+                                while (remaining > 0 && equal) {
+                                    val count = minOf(8192L, remaining)
+                                    equal = live.readByteString(count) == pending.readByteString(count)
+                                    remaining -= count
+                                }
+                                equal
+                            }
+                        }
+                    if (!identical) throw IOException("Archive replaces data shared with module ${other.initials}")
+                    // Unchanged shared files are not transaction-owned: neither publish nor recovery may touch them.
+                    fileSystem.delete(part)
+                    staged.remove(path)
+                }
             }
             for ((conf, bytes) in bufferedConfs) {
                 val incoming = SwordBookMetaData(bytes, conf.name)
