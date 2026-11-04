@@ -892,7 +892,7 @@ run_steps() {
         case "${STEP[0]}" in xcode-test|xcode-build) ( xcode_parse "${STEP[@]:1}" ) || exit 1 ;; esac
         declare -F "step_script_$kind" >/dev/null || die "unknown step '${STEP[0]}' (steps: link gradle native-tests xcode-test xcode-build run)"
     done
-    case "$label" in cleanup|prune) PROLOGUE_NOTREE=1 ;; esac
+    case "$label" in cleanup|prune|sim-*) PROLOGUE_NOTREE=1 ;; esac
     run_begin "$label" "$total" "${steps[@]}"
     RUN_REASON="no lock"
     session_open || exit $?
