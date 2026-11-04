@@ -1026,6 +1026,79 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    @Test fun finalFixHeldStrongsValidationSurvivesActualActivityRecreationUntilAcknowledged() {
+        val previousFirstTime = firstTime
+        firstTime = false
+        resetComposeUiDispatcher()
+        val koin = GlobalContext.get()
+        val original = koin.get<BibleSearchService>()
+        val factory = net.bible.test.KoinFactorySnapshot.of<BibleSearchService>()
+        val probes = java.util.concurrent.atomic.AtomicInteger()
+        val release = java.util.concurrent.CountDownLatch(1)
+        val executed = java.util.concurrent.CopyOnWriteArrayList<SearchRequest>()
+        val service = object : BibleSearchService by original {
+            override fun unindexedStrongsAmong(translationIds: List<String>): List<String> {
+                if (probes.incrementAndGet() <= 2) {
+                    check(release.await(30, java.util.concurrent.TimeUnit.SECONDS)) { "held probe was not released" }
+                }
+                return emptyList()
+            }
+            override fun unindexedAmong(translationIds: List<String>) = emptyList<String>()
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                executed += request
+                return MultiSearchResults.EMPTY
+            }
+        }
+        val fixtureModule = module { single<BibleSearchService> { service } }
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            loadKoinModules(fixtureModule)
+            val initial = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(initial) { compose.waitForIdle() }
+            fun handoff(query: String) = NavHostComposeActivity.intentFor(initial, NavRoutes.readingSearch(
+                net.bible.sharedcore.search.ReadingSearchRequest(
+                    query = query, documentId = "KJV", translationIds = listOf("KJV"), strongsOrigin = true,
+                ),
+            ))
+            controller.newIntent(handoff("strong:H430"))
+            net.bible.test.awaitHostCondition("first validation entered", timeoutMs = 5_000) { probes.get() == 1 }
+            controller.newIntent(handoff("strong:G746"))
+            net.bible.test.awaitHostCondition("newest validation entered", timeoutMs = 5_000) { probes.get() == 2 }
+            assertTrue(executed.isEmpty(), "validation is still held")
+            val oldHost = assertNotNull(initial.composeReadingViewHost)
+            val restored = controller.recreate().get()
+            net.bible.test.awaitReadingGraph(restored) { compose.waitForIdle() }
+            release.countDown()
+            net.bible.test.awaitHostCondition("newest request accepted by recreated host", timeoutMs = 10_000) {
+                executed.size == 1 && restored.composeReadingViewHost?.searchController?.phase?.value is ReadingSearchPhase.Results
+            }
+            assertEquals(listOf("strong:G746"), executed.map { it.query })
+            assertEquals("strong:G746", restored.composeReadingViewHost!!.searchController.queries.query.value)
+            assertNull(oldHost.lastSearchRequestForTest, "the destroyed host cannot accept a cancelled validation")
+            val pending = NavHostComposeActivity::class.java.getDeclaredField("pendingReadingSearchRoute").apply { isAccessible = true }
+            assertNull(pending.get(restored), "acceptance acknowledges the retained handoff")
+            val again = controller.recreate().get()
+            net.bible.test.awaitReadingGraph(again) { compose.waitForIdle() }
+            compose.waitForIdle()
+            assertEquals(1, executed.size, "an acknowledged request must not replay on the next recreation")
+            assertFalse(again.composeReadingViewHost!!.searchController.searchModeActive.value)
+        } finally {
+            release.countDown()
+            net.bible.test.closeReadingHostsBeforeReset(
+                mutableListOf(controller), reset = {}, restoreBeforeReset = {
+                    unloadKoinModules(fixtureModule)
+                    factory.restore()
+                    firstTime = previousFirstTime
+                },
+            )
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
     @Test fun consumedInitialSearchDoesNotReplayAfterRecreation() {
         firstTime = false
         resetComposeUiDispatcher()

@@ -2,12 +2,91 @@ package net.bible.sharedcore.search
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchResultsControllerTest {
+    @Test fun finalFixNewestRunOwnsRowsSelectionAndCacheAfterReverseCompletion() = runTest(UnconfinedTestDispatcher()) {
+        val old = CompletableDeferred<MultiSearchResults>()
+        val newest = CompletableDeferred<MultiSearchResults>()
+        val service = object : BibleSearchService by fake {
+            override suspend fun searchMulti(request: SearchRequest) = withContext(NonCancellable) {
+                if (request.query == "old") old.await() else newest.await()
+            }
+        }
+        val cache = SearchResultsCache()
+        val c = SearchResultsController(service, backgroundScope, cache)
+        val a = SearchRequest("old", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), "")
+        val b = a.copy(query = "new", translationIds = listOf("ESV"))
+        val expected = MultiSearchResults(listOf(row("John 1:1")), emptyList(), 1)
+        c.run(a)
+        c.run(b)
+        newest.complete(expected)
+        old.complete(MultiSearchResults(listOf(row("Gen 1:1")), emptyList(), 99))
+        assertEquals(expected, c.results.value, "late old rows must not replace the newest request")
+        assertEquals(listOf("ESV"), c.selectedTranslations.value)
+        assertEquals(expected, cache.get(b), "a stale completion must not evict the newest cache entry")
+        assertFalse(c.loading.value)
+        assertNull(c.error.value)
+    }
+
+    @Test fun finalFixStaleFailureCannotEndNewLoadingOrShowError() = runTest(UnconfinedTestDispatcher()) {
+        val old = CompletableDeferred<Unit>()
+        val newest = CompletableDeferred<MultiSearchResults>()
+        val service = object : BibleSearchService by fake {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults = withContext(NonCancellable) {
+                if (request.query == "old") { old.await(); error("old failed") } else newest.await()
+            }
+        }
+        val c = SearchResultsController(service, backgroundScope)
+        val request = SearchRequest("old", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), "")
+        try {
+            c.run(request)
+            c.run(request.copy(query = "new"))
+            old.complete(Unit)
+            assertTrue(c.loading.value, "the newest search still owns loading")
+            assertNull(c.error.value, "a superseded failure is not the current search's failure")
+        } finally { newest.complete(MultiSearchResults.EMPTY) }
+    }
+
+    @Test fun finalFixClearRetiresPendingSelectionRun() = runTest(UnconfinedTestDispatcher()) {
+        val gate = CompletableDeferred<MultiSearchResults>()
+        val service = object : BibleSearchService by fake {
+            override suspend fun searchMulti(request: SearchRequest) =
+                if (request.translationIds == listOf("ESV")) withContext(NonCancellable) { gate.await() }
+                else MultiSearchResults.EMPTY
+        }
+        val c = SearchResultsController(service, backgroundScope)
+        c.run(SearchRequest("light", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        c.selectTranslations(listOf("ESV")) { _, _ -> fail("indexed selection") }
+        c.clear()
+        gate.complete(MultiSearchResults(listOf(row("John 1:1")), emptyList(), 1))
+        assertEquals(MultiSearchResults.EMPTY, c.results.value, "leaving must retire an in-flight selector search")
+        assertFalse(c.loading.value)
+        assertNull(c.error.value)
+    }
+
+    @Test fun finalFixCachedRunRetiresAnOlderPendingRun() = runTest(UnconfinedTestDispatcher()) {
+        val old = CompletableDeferred<MultiSearchResults>()
+        val service = object : BibleSearchService by fake {
+            override suspend fun searchMulti(request: SearchRequest) = withContext(NonCancellable) { old.await() }
+        }
+        val cache = SearchResultsCache()
+        val request = SearchRequest("cached", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("ESV"), "")
+        val expected = MultiSearchResults(listOf(row("John 1:1")), emptyList(), 1)
+        cache.put(request, expected)
+        val c = SearchResultsController(service, backgroundScope, cache)
+        c.run(request.copy(query = "old"))
+        c.run(request)
+        old.complete(MultiSearchResults(listOf(row("Gen 1:1")), emptyList(), 99))
+        assertEquals(expected, c.results.value)
+        assertEquals(expected, cache.get(request))
+    }
+
     private fun row(name: String) = SwordResultRow(name, emptyList(), StyledText.plain(name))
     private val fake = object : BibleSearchService {
         var toggleVisible = true; var showingScripture = true

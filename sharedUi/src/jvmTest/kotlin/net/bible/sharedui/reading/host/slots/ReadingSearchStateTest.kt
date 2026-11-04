@@ -36,6 +36,8 @@ import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedcore.search.ProgressJob
+import org.crosswire.jsword.index.IndexStatus
 
 class ReadingSearchStateTest {
     private class MapSettings(val strings: MutableMap<String, String?> = mutableMapOf()) : AppSettings {
@@ -167,6 +169,95 @@ class ReadingSearchStateTest {
             assertTrue(request.isStrongsSearch)
         } finally {
             f.state.dispose()
+        }
+    }
+
+    @Test
+    fun finalFixStrongsHandoffAttachesExistingBuildAndPreservesSelectionChain() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            val target = f.platform.documents.getValue("KJV")
+            target.indexStatus = status
+            f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, false)
+            f.bible.unindexed = setOf("KJV", "ESV")
+            f.jobs.running = true
+            f.jobs.jobs = listOf(ProgressJob("existing", "Existing KJV build", 42, false))
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV", "ESV"))
+                assertEquals(ReadingSearchPhase.Indexing("KJV", false), f.state.controller.phase.value, "$status attaches")
+                assertEquals(42, f.state.searchIndexProgress.jobs.value.single().percent)
+                assertTrue(f.index.created.isEmpty(), "attaching must not create (and therefore delete) an index")
+                assertNull(f.state.lastSearchRequestForTest)
+                target.indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value,
+                    "completion must retain the full selected-translation chain")
+                f.state.controller.acceptIndexing()
+                assertEquals(listOf("ESV"), f.index.created, "only the missing non-running index may be created")
+                f.bible.unindexed = emptySet()
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+                assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+                assertTrue(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            } finally { f.state.dispose() }
+        }
+    }
+
+    @Test
+    fun finalFixStrongsSelectionChainAttachesNextAlreadyRunningTranslation() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            f.bible.unindexed = setOf("KJV", "ESV")
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV", "ESV"))
+                f.state.controller.acceptIndexing()
+                f.platform.documents.getValue("ESV").indexStatus = status
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = true
+                f.jobs.jobs = listOf(ProgressJob("existing-esv", "Existing ESV build", 55, false))
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Indexing("ESV", false), f.state.controller.phase.value, "$status chain attaches")
+                assertEquals(listOf("KJV"), f.index.created)
+                assertEquals(listOf("KJV", "ESV"), f.state.searchSelectorPendingIds)
+                f.platform.documents.getValue("ESV").indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = emptySet()
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+                assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+            } finally { f.state.dispose() }
+        }
+    }
+
+    @Test
+    fun finalFixStrongsResultsSelectorAttachesExistingBuildWithoutRecreatingIt() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV"))
+                val previous = f.state.lastSearchRequestForTest
+                f.platform.documents.getValue("ESV").indexStatus = status
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = true
+                f.state.onSearchTranslationsChosen(listOf("ESV"))
+                assertEquals(ReadingSearchPhase.Indexing("ESV", false), f.state.controller.phase.value, "$status selector attaches")
+                assertTrue(f.index.created.isEmpty())
+                assertEquals(previous, f.state.lastSearchRequestForTest, "do not search a partial index")
+                f.platform.documents.getValue("ESV").indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = emptySet()
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+                assertEquals(listOf("ESV"), f.state.lastSearchRequestForTest?.translationIds)
+                assertTrue(f.index.created.isEmpty())
+            } finally { f.state.dispose() }
         }
     }
 

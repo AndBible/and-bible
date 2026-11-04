@@ -781,8 +781,9 @@ class HostReadingHost(
         closeDrawer = { hostState.closeDrawer() },
         isSearchSheetVisible = { searchState.controller.sheetVisible.value },
         closeSearchSheet = { searchState.controller.closeSheet() },
-        isSearchBarOpen = { searchState.searchBar.value != null },
+        isSearchBarOpen = { searchState.controller.searchModeActive.value },
         closeSearchBar = { searchState.leaveSearch() },
+        reopenSearchResults = { searchState.controller.reopenResultsOnBack() },
     )
 
     init {

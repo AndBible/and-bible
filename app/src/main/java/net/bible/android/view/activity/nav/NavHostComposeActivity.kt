@@ -475,6 +475,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private var pendingNewIntentRoute: String? = null
     private var pendingReadingSearchRoute: String? = null
+    private var deliveringReadingSearch: Any? = null
+    private var deliveringReadingSearchRoute: String? = null
+    private var deliveringReadingSearchHost: ComposeReadingViewHost? = null
+    private var deliveringReadingSearchArrival = 0L
     private var readingResumeReady = false
 
     internal fun requestReadingSearch(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean {
@@ -487,9 +491,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (paused || !readingResumeReady || !ReadingHostPresence.isForeground(this) || navController?.currentDestination?.route != NavRoutes.READING) return
         val route = pendingReadingSearchRoute ?: return
         val host = composeReadingViewHost ?: return
-        pendingReadingSearchRoute = null
-        intent?.removeExtra(EXTRA_ROUTE)
-        host.openSearchRequest(NavRoutes.readReadingSearch(route))
+        if (deliveringReadingSearchRoute == route && deliveringReadingSearchHost === host &&
+            deliveringReadingSearchArrival == intentArrival) return
+        val delivery = Any()
+        val arrival = intentArrival
+        deliveringReadingSearch = delivery
+        deliveringReadingSearchRoute = route
+        deliveringReadingSearchHost = host
+        deliveringReadingSearchArrival = intentArrival
+        // Keep the saved-state route until the host has accepted it, not merely started IO validation.
+        host.openSearchRequest(NavRoutes.readReadingSearch(route)) {
+            if (deliveringReadingSearch === delivery && pendingReadingSearchRoute == route && intentArrival == arrival) {
+                pendingReadingSearchRoute = null
+                deliveringReadingSearch = null
+                deliveringReadingSearchRoute = null
+                deliveringReadingSearchHost = null
+                intent?.removeExtra(EXTRA_ROUTE)
+            }
+        }
     }
 
     /**

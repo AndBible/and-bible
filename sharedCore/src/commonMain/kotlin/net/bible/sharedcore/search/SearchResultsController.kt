@@ -1,6 +1,8 @@
 package net.bible.sharedcore.search
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -21,6 +23,37 @@ class SearchResultsController(
 
     private var storedRequest: SearchRequest? = null
     private var isStrongsSearch: Boolean = false
+    private var searchJob: Job? = null
+    private var generation = 0L
+
+    // Cancellation is cooperative; generation also fences a blocking service's late completion.
+    private fun retireSearch(): Long {
+        generation++
+        searchJob?.cancel()
+        searchJob = null
+        return generation
+    }
+
+    private fun search(request: SearchRequest, owner: Long) {
+        _results.value = MultiSearchResults.EMPTY
+        _error.value = null
+        _loading.value = true
+        searchJob = scope.launch {
+            try {
+                val result = service.searchMulti(request)
+                if (owner == generation) {
+                    _results.value = result
+                    cache.put(request, result)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (owner == generation) _error.value = e.message ?: "error"
+            } finally {
+                if (owner == generation) _loading.value = false
+            }
+        }
+    }
 
     val displayed: StateFlow<List<SwordResultRow>> =
         combine(_results, _scriptureShown) { r, s -> if (s) r.main else r.other }
@@ -41,6 +74,8 @@ class SearchResultsController(
      * is not even among the selector's candidates and so vanishes on the next confirm.
      */
     fun run(request: SearchRequest, userSelection: List<String> = request.translationIds) {
+        val owner = retireSearch()
+        _error.value = null
         storedRequest = request
         isStrongsSearch = request.isStrongsSearch
         _selectedTranslations.value = userSelection
@@ -56,18 +91,7 @@ class SearchResultsController(
             _loading.value = false
             return
         }
-        // F91: a new query must not show the previous query's count and rows while it loads.
-        _results.value = MultiSearchResults.EMPTY
-        _loading.value = true
-        scope.launch {
-            try {
-                val r = service.searchMulti(request)
-                _results.value = r
-                cache.put(request, r)
-            }
-            catch (e: Exception) { _error.value = e.message ?: "error" }
-            finally { _loading.value = false }
-        }
+        search(request, owner)
     }
 
     /**
@@ -78,6 +102,10 @@ class SearchResultsController(
      */
     fun selectTranslations(ids: List<String>, onNeedIndex: (unindexed: List<String>, ids: List<String>) -> Unit) {
         if (ids.isEmpty()) return
+        val owner = retireSearch()
+        _results.value = MultiSearchResults.EMPTY
+        _error.value = null
+        _loading.value = false
         _selectedTranslations.value = ids
         service.persistSelection(ids, isStrongsSearch)
         val unindexed = service.unindexedAmong(ids)
@@ -87,18 +115,7 @@ class SearchResultsController(
         }
         val request = (storedRequest ?: return).copy(translationIds = ids)
         storedRequest = request
-        // F91: a new query must not show the previous query's count and rows while it loads.
-        _results.value = MultiSearchResults.EMPTY
-        _loading.value = true
-        scope.launch {
-            try {
-                val r = service.searchMulti(request)
-                _results.value = r
-                cache.put(request, r)
-            }
-            catch (e: Exception) { _error.value = e.message ?: "error" }
-            finally { _loading.value = false }
-        }
+        search(request, owner)
     }
 
     fun toggleScripture() { _scriptureShown.value = !_scriptureShown.value }
@@ -107,6 +124,8 @@ class SearchResultsController(
     /** Drop the rows: the search session has ended (spec D7). The persisted translation selection
      *  and the candidate list are NOT session state and stay. */
     fun clear() {
+        retireSearch()
+        storedRequest = null
         _results.value = MultiSearchResults.EMPTY
         _error.value = null
         _loading.value = false

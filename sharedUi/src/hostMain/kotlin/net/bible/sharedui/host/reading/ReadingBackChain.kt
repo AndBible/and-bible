@@ -19,7 +19,7 @@ package net.bible.sharedui.host.reading
 /**
  * The shared reading host's back chain (Esc, Alt+Left and the mouse back button on desktop; the hardware back where the
  * host has one). It closes the topmost of: the drawer, then the search sheet (the results or the "index needed"
- * prompt), then search mode itself, as the Android back does; only when none of them is open the press is passed on
+ * prompt), then reopens results after a result tap, then closes search mode, as Android does; only when none applies the press is passed on
  * to what is below the reading view.
  */
 internal class ReadingBackChain(
@@ -29,12 +29,14 @@ internal class ReadingBackChain(
     private val closeSearchSheet: () -> Unit,
     private val isSearchBarOpen: () -> Boolean,
     private val closeSearchBar: () -> Unit,
+    private val reopenSearchResults: () -> Boolean = { false },
 ) {
     /** One back press: closes the topmost of the three, or calls [passThrough] when none is open. */
     fun onBack(passThrough: () -> Unit) {
         when {
             isDrawerOpen() -> closeDrawer()
             isSearchSheetVisible() -> closeSearchSheet()
+            reopenSearchResults() -> Unit
             isSearchBarOpen() -> closeSearchBar()
             else -> passThrough()
         }

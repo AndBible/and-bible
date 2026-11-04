@@ -309,7 +309,7 @@ class ReadingSearchState(
             }
             val id = explicitTargetId
             val info = platform.documentInfo(if (id == null) platform.currentDocument() else platform.documentByInitials(id))
-            if (strongsOrigin && info != null) info.copy(indexDone = true) else info
+            if (strongsOrigin && info != null && !isSearchIndexRunning(info.docId)) info.copy(indexDone = true) else info
         },
         onUnavailable = { _searchUnavailableDocName.value = explicitTargetId ?: platform.currentDocument()?.name.orEmpty() },
         onLeaveFullScreen = onLeaveFullScreen,
@@ -330,7 +330,7 @@ class ReadingSearchState(
         tryOpenReference = { query -> platform.tryOpenReference(query) },
         onReferenceOpened = { leaveSearch() },
         queries = queries,
-        isIndexing = { docId -> platform.documentByInitials(docId)?.indexStatus.isInProgress },
+        isIndexing = ::isSearchIndexRunning,
         onObserveIndexing = { docId -> attachToRunningSearchIndex(docId) },
         deferSearch = { resume ->
             val ids = searchTranslations.value
@@ -463,14 +463,14 @@ class ReadingSearchState(
             translationIds = translationIds, strongsOrigin = true, section = SearchBibleSection.ALL))
 
     /** Applies a handoff without changing the active reading window. */
-    fun openRequest(request: ReadingSearchRequest): Boolean {
+    fun openRequest(request: ReadingSearchRequest, onAccepted: () -> Unit = {}): Boolean {
         invalidateStrongsValidation()
-        if (request.documentId != null || request.strongsOrigin) {
-            stopSearchIndexFeed()
-            controller.closeSheet()
-            controller.closeSearchMode()
-            searchSelectorPendingIds = null
-        }
+        searchResults.clear()
+        epubSearchResults.clear()
+        stopSearchIndexFeed()
+        controller.closeSheet()
+        controller.closeSearchMode()
+        searchSelectorPendingIds = null
         explicitTargetId = request.documentId ?: if (request.strongsOrigin) request.translationIds.firstOrNull() else null
         strongsOrigin = request.strongsOrigin
         request.type?.let { searchType.value = it }
@@ -478,6 +478,7 @@ class ReadingSearchState(
         request.epubMode?.let { persistEpubSearchMode(it) }
         if (!request.strongsOrigin && explicitTargetId == null) {
             openSearch(request.query, request.preDecorated)
+            onAccepted()
             return true
         }
         refreshAvailableTranslations()
@@ -488,15 +489,20 @@ class ReadingSearchState(
         searchPreDecoratedQuery = request.query?.trim()?.takeIf { request.preDecorated }
         if (explicitTargetId == null || platform.documentByInitials(explicitTargetId!!) == null) {
             _searchUnavailableDocName.value = explicitTargetId.orEmpty()
+            onAccepted()
             return true
         }
         if (!request.strongsOrigin) {
             controller.open(request.query)
+            onAccepted()
             return true
         }
         val selection = request.translationIds.ifEmpty { listOf(explicitTargetId!!) }
         searchTranslations.value = selection
-        validateStrongs(selection) { controller.open(request.query) }
+        validateStrongs(selection) {
+            controller.open(request.query)
+            onAccepted()
+        }
         return true
     }
 
@@ -816,6 +822,9 @@ class ReadingSearchState(
         refreshSearchIndexJobs()
     }
 
+    private fun isSearchIndexRunning(docId: String): Boolean =
+        platform.documentByInitials(docId)?.indexStatus.isInProgress
+
     /**
      * Re-attaches to a build that is already scheduled or running (the sheet was reopened, or the
      * host was recreated). Subscribe first, then read the state: a build that ended between
@@ -823,6 +832,7 @@ class ReadingSearchState(
      * here is what resolves it. With a job still running, its own finished event will.
      */
     private fun attachToRunningSearchIndex(docId: String) {
+        if (strongsOrigin && searchSelectorPendingIds == null) searchSelectorPendingIds = searchTranslations.value
         observeSearchIndexing(docId)
         scope.launch {
             if (isSearchIndexDone() || indexJobs.isEveryJobFinished()) resolveSearchIndexBuild()
