@@ -1,0 +1,23 @@
+// Integration assertion over the REAL task graph, including lazily registered tasks.
+// TaskOutputsInternal is intentional test-only introspection (Gradle wrapper is pinned).
+gradle.projectsEvaluated {
+    def root = gradle.rootProject
+    root.tasks.register('checkBuildCachePolicy') {
+        doLast {
+            assert gradle.startParameter.buildCacheEnabled: 'Local build cache must be enabled by default'
+            int checked = 0
+            root.allprojects.each { project ->
+                project.tasks.findAll {
+                    it instanceof org.gradle.api.tasks.testing.AbstractTestTask ||
+                        it.name ==~ /(?i)(verify|record|compare).*Roborazzi.*/
+                }.each { task ->
+                    assert !task.outputs.upToDateSpec.isSatisfiedBy(task): "${task.path} can skip as UP-TO-DATE"
+                    assert task.outputs.doNotCacheIfSpecs.any { it.isSatisfiedBy(task) }: "${task.path} can reuse cached results"
+                    checked++
+                }
+            }
+            assert checked > 0: 'No test tasks inspected'
+            println "PASS: ${checked} test/Roborazzi tasks execute without cached results in ${root.name}"
+        }
+    }
+}

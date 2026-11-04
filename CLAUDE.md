@@ -74,6 +74,16 @@ make instrumented-tests     # Run Android instrumented tests
 make accrescent            # Build Accrescent release APK
 ```
 
+### Gradle Build Cache and Test Gates
+
+Local task-output caching is enabled (`org.gradle.caching=true`). JailBee containers share
+`~/.gradle/caches/build-cache-1`, not their module `build/` directories. Tests (JVM and
+Native, including the `kdom` composite build) and Roborazzi record/verify/compare tasks
+never reuse cached test results or skip as `UP-TO-DATE`; repeating the gate runs tests
+again while leaving compilation reusable. For an expensive full rebuild, pass
+`--rerun-tasks --no-build-cache`. See `.jailbee/AGENT-GUIDE.md` for retention installation,
+cache-policy regression tests, and shared-cache safety. Never delete the shared cache.
+
 ### Fast Development Workflow
 For rapid iteration, prefer Vue.js development:
 ```bash

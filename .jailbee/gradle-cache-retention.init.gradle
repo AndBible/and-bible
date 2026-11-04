@@ -1,0 +1,10 @@
+// Installed in GRADLE_USER_HOME/init.d by install-gradle-cache-retention.sh.
+// Dynamic Groovy keeps old wrappers sharing this home source-compatible.
+// Gradle 8.8 introduced caches.buildCache; older versions keep their defaults.
+if (org.gradle.util.GradleVersion.current().baseVersion >= org.gradle.util.GradleVersion.version('8.8')) {
+    beforeSettings { settings ->
+        settings.caches {
+            buildCache.setRemoveUnusedEntriesAfterDays(3)
+        }
+    }
+}

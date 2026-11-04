@@ -25,6 +25,36 @@ Each rule: the instruction, then why. Background and measurements:
 - In Claude Code's Bash, plain `grep` skips binary-looking files; use `grep -a` on `/proc/*/cmdline`.
   Why: given a `/proc/<pid>/cmdline` file path directly, a plain grep treats it as binary and silently matches nothing.
 
+### Shared local build cache and real test runs
+
+- `org.gradle.caching=true` reuses task outputs from the default
+  `${GRADLE_USER_HOME:-$HOME/.gradle}/caches/build-cache-1`. JailBee shares this home
+  between containers; module `build/` directories remain container-local. Do not delete
+  shared cache entries, locks, or the cache directory to make a build cold.
+- Test tasks (`AbstractTestTask`, including JVM and Kotlin/Native tests) and Roborazzi
+  record/verify/compare tasks neither load nor store cached results. They also opt out of
+  local `UP-TO-DATE` skipping, so a requested gate really runs its tests even after a
+  previous green invocation. This also applies to the separate `kdom` included build.
+- To repeat a gate, request it again, for example
+  `./gradlew :app:verifyRoborazziStandardGoogleplayDebug`. Compilation can still be
+  `UP-TO-DATE` or `FROM-CACHE`; the test task must not be. For a full rebuild of all
+  selected dependencies use `--rerun-tasks --no-build-cache` (expensive).
+  `--no-build-cache` alone does not disable local `UP-TO-DATE` checks.
+- Scoped test runs still overwrite JUnit XML. Do not report their counts as a full gate.
+  Use `scripts/test-gradle-build-cache.sh` for the small cache-policy regression test
+  (one Gradle invocation at a time; no other build may be running).
+- `bash scripts/install-gradle-cache-retention.sh` installs the versioned init script
+  into the active Gradle home's `init.d/`, atomically and idempotently. `on_start` runs
+  it for new/restarted JailBee containers; run it once manually in existing containers.
+  It retains build-cache entries for three unused days, with Gradle's default periodic
+  cleanup (normally at most daily, at daemon shutdown). This is age retention, not a
+  hard byte quota; monitor disk usage. Do not run manual cache pruning alongside live
+  containers. Gradle 9 no longer supports retention in `settings.gradle.kts`.
+- Custom Exec/JavaExec/Sync and fixture-generator tasks have not been opted into
+  caching. In particular npm/BibleView builds and `generateIosStrings` remain
+  non-cacheable: declaring outputs is not proof that environment/toolchain inputs
+  are complete. Audit inputs and relocation before adding `@CacheableTask`/`cacheIf`.
+
 ### Recovery recipes (only when the failure actually happens)
 
 - Gradle client `SIGSEGV` in `ld-linux`/`libnative-platform` on exit: rerun with `-Dorg.gradle.native=false`, and use it for every run of that session.

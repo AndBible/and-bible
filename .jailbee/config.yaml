@@ -354,6 +354,10 @@ golden:
 autostart:
   step_timeout: 600
   on_start:
+    - stage: gradle-cache-retention
+      steps:
+        - name: install-gradle-cache-retention
+          run: "bash scripts/install-gradle-cache-retention.sh"
     - stage: test-sword-modules
       steps:
         - name: extract-testmods
