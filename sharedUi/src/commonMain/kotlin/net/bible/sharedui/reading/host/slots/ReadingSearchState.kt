@@ -159,6 +159,10 @@ class ReadingSearchState(
     /** Applies and persists a translation choice made in the settings sheet (comma-joined, as classic). */
     fun setSearchTranslations(ids: List<String>) {
         searchTranslations.value = ids
+        if (strongsOrigin) {
+            explicitTargetId = ids.firstOrNull()
+            invalidateStrongsValidation()
+        }
         settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, ids.joinToString(","))
     }
 
@@ -244,14 +248,42 @@ class ReadingSearchState(
     private var explicitTargetId: String? = null
     private var strongsOrigin = false
     private var strongsValidationJob: Job? = null
-    private var validatedStrongsUnindexed: List<String> = emptyList()
+    private data class StrongsValidation(val query: String, val ids: List<String>, val missing: List<String>)
+    private var strongsValidation: StrongsValidation? = null
+    private var validationGeneration = 0L
+
+    private fun invalidateStrongsValidation() {
+        validationGeneration++
+        strongsValidationJob?.cancel()
+        strongsValidationJob = null
+        strongsValidation = null
+    }
+
+    private fun validateStrongs(ids: List<String>, continuation: () -> Unit) {
+        invalidateStrongsValidation()
+        val generation = validationGeneration
+        val query = queries.query.value.trim()
+        val target = explicitTargetId
+        val selection = ids.toList()
+        strongsValidationJob = scope.launch {
+            val missing = withContext(indexValidationDispatcher) {
+                bibleSearchService.unindexedStrongsAmong(selection)
+            }
+            if (generation != validationGeneration || !strongsOrigin || explicitTargetId != target ||
+                queries.query.value.trim() != query || searchTranslations.value != selection) return@launch
+            strongsValidation = StrongsValidation(query, selection, missing)
+            continuation()
+        }
+    }
 
     val controller = ReadingSearchController(
         // `documentInfo` is truthful at its source: a scheduled/running build is not done (#2632).
         resolveDoc = {
             if (strongsOrigin && searchStrongsQuery != null && queries.query.value.trim() != searchStrongsQuery) {
+                invalidateStrongsValidation()
                 explicitTargetId = null
                 strongsOrigin = false
+                searchSelectorPendingIds = null
                 refreshSearchTranslations()
             }
             val id = explicitTargetId
@@ -268,7 +300,7 @@ class ReadingSearchState(
         // Task 11 chain so every unindexed choice is built before the search runs.
         firstUnindexedInSelection = {
             val selection = searchTranslations.value
-            (if (strongsOrigin) validatedStrongsUnindexed else bibleSearchService.unindexedAmong(selection))
+            (if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(selection))
                 .firstOrNull()?.also { searchSelectorPendingIds = selection }
         },
         // An F100 prompt that was abandoned must not leave its chain armed for an unrelated later build.
@@ -279,6 +311,15 @@ class ReadingSearchState(
         queries = queries,
         isIndexing = { docId -> platform.documentByInitials(docId)?.indexStatus.isInProgress },
         onObserveIndexing = { docId -> attachToRunningSearchIndex(docId) },
+        deferSearch = { resume ->
+            val ids = searchTranslations.value
+            val cached = strongsValidation
+            if (strongsOrigin && ids.isNotEmpty() &&
+                (cached == null || cached.ids != ids || cached.query != queries.query.value.trim())) {
+                validateStrongs(ids, resume)
+                true
+            } else false
+        },
     )
 
     /** Phase-derived inputs for [searchBar], pre-combined so [searchBarCore] stays inside `combine`'s typed overload. */
@@ -365,7 +406,7 @@ class ReadingSearchState(
      */
     fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) {
         if (seedQuery != null || !controller.searchModeActive.value) {
-            strongsValidationJob?.cancel()
+            invalidateStrongsValidation()
             explicitTargetId = null
             strongsOrigin = false
         }
@@ -393,9 +434,8 @@ class ReadingSearchState(
      * ANY_WORDS for it and decorates `strong:$ref` exactly once. [translationIds] is the Strong's
      * Bible selection the caller already resolved.
      *
-     * Returns whether it actually opened the search; `false` means the caller must fall back to its
-     * own route. It declines when the active window's document is an EPUB (Strong's find-all is a
-     * Bible concept) and when the active document cannot be searched at all.
+     * Accepts the handoff independently of the active document; a missing selected Bible reports
+     * unavailable in the reading host rather than falling back to another search route.
      */
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean =
         openRequest(ReadingSearchRequest(query = "strong:$ref", documentId = translationIds.firstOrNull(),
@@ -403,7 +443,13 @@ class ReadingSearchState(
 
     /** Applies a handoff without changing the active reading window. */
     fun openRequest(request: ReadingSearchRequest): Boolean {
-        strongsValidationJob?.cancel()
+        invalidateStrongsValidation()
+        if (request.documentId != null || request.strongsOrigin) {
+            stopSearchIndexFeed()
+            controller.closeSheet()
+            controller.closeSearchMode()
+            searchSelectorPendingIds = null
+        }
         explicitTargetId = request.documentId ?: if (request.strongsOrigin) request.translationIds.firstOrNull() else null
         strongsOrigin = request.strongsOrigin
         request.type?.let { searchType.value = it }
@@ -429,12 +475,7 @@ class ReadingSearchState(
         }
         val selection = request.translationIds.ifEmpty { listOf(explicitTargetId!!) }
         searchTranslations.value = selection
-        strongsValidationJob = scope.launch {
-            validatedStrongsUnindexed = withContext(indexValidationDispatcher) {
-                bibleSearchService.unindexedStrongsAmong(selection)
-            }
-            controller.open(request.query)
-        }
+        validateStrongs(selection) { controller.open(request.query) }
         return true
     }
 
@@ -455,7 +496,7 @@ class ReadingSearchState(
 
     /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */
     fun leaveSearch() {
-        strongsValidationJob?.cancel()
+        invalidateStrongsValidation()
         explicitTargetId = null
         strongsOrigin = false
         controller.closeSheet()
@@ -469,7 +510,7 @@ class ReadingSearchState(
      * dropdown already down or the settings sheet already open.
      */
     private fun onSearchModeClosed() {
-        strongsValidationJob?.cancel()
+        invalidateStrongsValidation()
         explicitTargetId = null
         strongsOrigin = false
         stopSearchIndexFeed()
@@ -689,14 +730,12 @@ class ReadingSearchState(
         if (strongsOrigin) {
             if (ids.isEmpty()) return
             explicitTargetId = ids.first()
-            strongsValidationJob?.cancel()
-            strongsValidationJob = scope.launch {
-                validatedStrongsUnindexed = withContext(indexValidationDispatcher) {
-                    bibleSearchService.unindexedStrongsAmong(ids)
-                }
-                if (validatedStrongsUnindexed.isNotEmpty()) {
+            bibleSearchService.persistSelection(ids, strongsSearch = true)
+            validateStrongs(ids) {
+                val missing = strongsValidation?.missing.orEmpty()
+                if (missing.isNotEmpty()) {
                     searchSelectorPendingIds = ids
-                    controller.promptIndexFor(validatedStrongsUnindexed.first())
+                    controller.promptIndexFor(missing.first())
                 } else {
                     searchResults.selectTranslations(ids) { unindexed, chosenIds ->
                         searchSelectorPendingIds = chosenIds
@@ -820,7 +859,7 @@ class ReadingSearchState(
                 val remaining = withContext(indexValidationDispatcher) {
                     bibleSearchService.unindexedStrongsAmong(selection ?: listOfNotNull(searchIndexDocument?.initials))
                 }
-                validatedStrongsUnindexed = remaining
+                strongsValidation = StrongsValidation(queries.query.value.trim(), selection ?: searchTranslations.value, remaining)
                 searchIndexDocument?.initials !in remaining
             } else statusDone
             // Re-read rather than reuse the gate's answer: the poll may have straddled a new job's start.
@@ -830,10 +869,10 @@ class ReadingSearchState(
             // A selection holding more than one unindexed translation chains to the next one instead
             // of letting `onIndexingFinished` re-run against only the just-built translation.
             val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) {
-                if (strongsOrigin) validatedStrongsUnindexed else bibleSearchService.unindexedAmong(it)
+                if (strongsOrigin) strongsValidation?.missing.orEmpty() else bibleSearchService.unindexedAmong(it)
             }
             if (next != null) {
-                controller.promptIndexFor(next, keepInterceptedSearch = true)
+                controller.promptIndexFor(next, keepInterceptedSearch = true, preserveHidden = true)
             } else {
                 searchSelectorPendingIds = null
                 controller.onIndexingFinished(indexDone)

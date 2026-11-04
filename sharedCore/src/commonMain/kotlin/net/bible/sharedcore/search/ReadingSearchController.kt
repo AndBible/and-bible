@@ -80,6 +80,8 @@ class ReadingSearchController(
     private val isIndexing: (docId: String) -> Boolean = { false },
     /** Reattaches progress/completion observation without starting another build. */
     private val onObserveIndexing: (docId: String) -> Unit = {},
+    /** Return true when validation will resume this action asynchronously. */
+    private val deferSearch: (resume: () -> Unit) -> Boolean = { false },
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
     val phase: StateFlow<ReadingSearchPhase> = _phase.asStateFlow()
@@ -273,6 +275,7 @@ class ReadingSearchController(
             return
         }
         if (keepIndexingInFlight()) return
+        if (deferSearch { submit() }) return
         when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> {
@@ -362,14 +365,16 @@ class ReadingSearchController(
      * routing through the SAME phase, rather than adding a parallel "index this other document" path,
      * is what lets the existing indexing pipeline serve a document the active window isn't showing.
      */
-    fun promptIndexFor(docId: String, keepInterceptedSearch: Boolean = false): Boolean {
+    fun promptIndexFor(docId: String, keepInterceptedSearch: Boolean = false, preserveHidden: Boolean = false): Boolean {
         val forEpub = forEpubOf(_phase.value) ?: return false
         // A results-selector choice IS the whole search, so it drops an F100 interception; the host's
         // chain to the NEXT unindexed translation of an F100 prompt passes `true` to keep it.
         if (!keepInterceptedSearch) interceptedSearchDocId = null
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
-        _sheetVisible.value = true
-        requestFieldRelease()
+        if (!preserveHidden || _sheetVisible.value) {
+            _sheetVisible.value = true
+            requestFieldRelease()
+        }
         indexPromptIsExplicit = true
         return true
     }
@@ -472,7 +477,9 @@ class ReadingSearchController(
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
         if (keepIndexingInFlight()) return
-        when (val kind = searchKindFor(resolveDoc())) {
+        val kind = searchKindFor(resolveDoc())
+        if (deferSearch { settingsClosed() }) return
+        when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> promptIndexImplicitly(kind.docId, kind.forEpub)
             is SearchKind.Bible -> if (!promptForUnindexedSelection(kind.docId)) runSearch(kind.docId, false, q)
