@@ -33,7 +33,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -59,6 +59,12 @@ import androidx.compose.ui.test.performClick
  *
  * The clock does not auto-advance; [FEW_FRAMES] frames are far shorter than the library's sheet motion and the
  * navigation crossfade, so "settled within a few frames" proves the animation was skipped.
+ *
+ * Runs on the v2 [runComposeUiTest] (a queued `StandardTestDispatcher` for the composition and its effects). The
+ * deprecated v1 one uses an unconfined dispatcher, and the JVM-wide `GlobalSnapshotManager` (started by the first
+ * Compose scene in the JVM) applies global writes from the AWT thread: under v1 that thread resumed the sheet's
+ * `snapshotFlow`s, so [InstantSheetMotion][net.bible.sharedui.components.AbModalBottomSheet] and Material's hide ran
+ * on two threads at once and the scrim dismiss sometimes ended Expanded with no report (about 1 in 10 runs).
  */
 @OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
 class DisableAnimationsSharedTest {
