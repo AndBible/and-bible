@@ -29,8 +29,10 @@ case "${1:-}" in
     new="$PWD/build/dd-iphone/Build/Products/Debug-iphonesimulator/AndBibleDev.app"
     test -d "$old" && test -d "$new"
     bundle=org.andbible.ios.dev
+    # The preceding install-over smoke created this disposable fixture simulator.
     xcrun simctl terminate "$id" "$bundle" 2>/dev/null || true
     xcrun simctl uninstall "$id" "$bundle" 2>/dev/null || true
+    rm -f "$OUT/seeded-done.json"
     xcrun simctl install "$id" "$old"
     xcrun simctl launch "$id" "$bundle"
     sleep 10
@@ -53,7 +55,30 @@ assert v.get('nothingToMigrate') is False, v
 print('PASS seeded migration committed; nothingToMigrate=false')
 PY
     xcrun simctl io "$id" screenshot "$OUT/seeded-new-app.png" >/dev/null 2>&1
+    xcrun simctl terminate "$id" "$bundle"
+    python3 -I iosApp/legacy-fixtures/checklist-migration-evidence.py "$data" \
+      sharedLogic/src/jvmTest/resources/legacymigration/fixtures/1.0.2/26/extended.zip | tee "$OUT/seeded-oracle.txt"
     find "$data" -name '*.sqlite3' -o -name '*report*' > "$OUT/seeded-data-paths.txt"
+    ;;
+  tls-native)
+    # Keep the server and its marker inside one bounded, lock-held remote step.
+    scratch=$(mktemp -d /tmp/checklist-3945-tls.XXXXXX)
+    marker=/tmp/andbible-checklist-3945-tls-port
+    test ! -e "$marker"
+    server_pid=""
+    trap 'test -z "$server_pid" || kill "$server_pid" 2>/dev/null || true; rm -f "$marker"; rm -rf "$scratch"' EXIT
+    openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=localhost \
+      -keyout "$scratch/key.pem" -out "$scratch/cert.pem" > "$OUT/tls-certificate.log" 2>&1
+    python3 -I iosApp/legacy-fixtures/checklist-tls-server.py "$scratch/cert.pem" "$scratch/key.pem" "$marker" > "$OUT/tls-server.log" 2>&1 &
+    server_pid=$!
+    for _ in {1..50}; do test ! -s "$marker" || break; sleep 0.1; done
+    test -s "$marker"
+    export IOS_TEST_SIMULATOR
+    IOS_TEST_SIMULATOR=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="Checklist-3945-iOS-26-5"))')
+    xcrun simctl boot "$IOS_TEST_SIMULATOR" 2>/dev/null || true
+    xcrun simctl bootstatus "$IOS_TEST_SIMULATOR" -b
+    ./gradlew -Dorg.gradle.native=false :sharedLogic:iosSimulatorArm64Test --tests '*IosWebDavTlsChecklistTest' > "$OUT/tls-native.log" 2>&1
+    grep -E 'CHECKLIST-TLS|BUILD SUCCESSFUL|FAILED' "$OUT/tls-native.log"
     ;;
   background-hook)
     id=$(xcrun simctl list devices available -j | python3 -I -c 'import json,sys; print(next(d["udid"] for ds in json.load(sys.stdin)["devices"].values() for d in ds if d["name"]=="Checklist-3945-iOS-26-5"))')
