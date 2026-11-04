@@ -33,6 +33,10 @@ on:
       - "gradle/**"
       - ".github/workflows/desktop.yml"
 permissions: {contents: read}
+# The WebKitGTK variant (desktopWebkitGtk, andbible-webkitgtk .deb) is paused in CI until it works better.
+# Set to 'true' to build, test, upload and release it again.
+env:
+  WEBKITGTK_ENABLED: 'false'
 concurrency: {group: "desktop-${{ github.ref }}", cancel-in-progress: true}
 jobs:
   linux-packages:
@@ -74,6 +78,7 @@ jobs:
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
           ./gradlew "-PdesktopReleaseKind=$kind" :desktopApp:test :desktopApp:packageDeb :desktopApp:desktopTarball :desktopApp:packageAppImage
       - name: WebKitGTK desktop tests and package
+        if: env.WEBKITGTK_ENABLED == 'true'
         env:
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
@@ -83,7 +88,8 @@ jobs:
           if [[ "$REF_TYPE" == tag && "$REF_NAME" == production-* ]]; then kind=production; fi
           ./gradlew "-PdesktopReleaseKind=$kind" :desktopWebkitGtk:test :desktopWebkitGtk:packageDeb
       # v4
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - if: env.WEBKITGTK_ENABLED == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: andbible-desktop-webkitgtk-deb
           path: desktopWebkitGtk/build/compose/binaries/main/deb/*.deb
@@ -254,7 +260,9 @@ jobs:
             cp -- "${files[0]}" "release/$dest"
           }
           copy_one andbible-desktop-deb '*.deb' "andbible-desktop-$TAG-amd64.deb"
-          copy_one andbible-desktop-webkitgtk-deb '*.deb' "andbible-desktop-webkitgtk-$TAG-amd64.deb"
+          if [[ "$WEBKITGTK_ENABLED" == true ]]; then
+            copy_one andbible-desktop-webkitgtk-deb '*.deb' "andbible-desktop-webkitgtk-$TAG-amd64.deb"
+          fi
           copy_one andbible-desktop-appimage '*.AppImage' "andbible-desktop-$TAG-x86_64.AppImage"
           copy_one andbible-desktop-tarball '*.tar.gz' "andbible-desktop-$TAG-linux-x64.tar.gz"
           copy_one andbible-desktop-windows-x64 '*.msi' "andbible-desktop-$TAG-x64.msi"
