@@ -55,6 +55,11 @@ navigate to the top left main menu (☰) and click `Settings`. These
 settings apply to the local device only and are separate from the text display
 settings hierarchy described above.
 
+Single-choice settings such as **Color mode**, and the **Strong's numbers** options
+opened by long-pressing the reading toolbar button, show inset radio-button rows.
+Tap anywhere on an option's row, including the space beside the radio button, to
+select it.
+
 ### General
 
 - **Application language:** Choose the language for the application interface
