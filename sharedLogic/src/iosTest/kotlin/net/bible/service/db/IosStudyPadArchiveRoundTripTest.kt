@@ -57,11 +57,19 @@ import kotlin.time.Duration.Companion.minutes
 /** Exercises the real StudyPad ZIP exporter and importer with Native SQLite databases. */
 class IosStudyPadArchiveRoundTripTest {
     private var previousHost: DatabaseHost? = null
+    private var previousReady = false
+    private var previousFactory: (() -> DatabaseContainer)? = null
+    private var previousInstance: DatabaseContainer? = null
+    private val testDirs = mutableListOf<Path>()
     private lateinit var bytes: ByteArray
 
     @BeforeTest
     fun setUp() {
         previousHost = try { DatabaseContainer.host } catch (_: IllegalStateException) { null }
+        previousReady = DatabaseContainer.ready
+        previousFactory = DatabaseContainer.containerFactory
+        previousInstance = try { DatabaseContainer.instance } catch (_: Exception) { null }
+        DatabaseContainer.detachInstanceForTest()
         startKoin { modules(module { single<DateTimeFormats> { FixedDateTimeFormats } }) }
     }
 
@@ -71,7 +79,10 @@ class IosStudyPadArchiveRoundTripTest {
         DatabaseContainer.ready = false
         DatabaseContainer.forgetReplacesForTest()
         DatabaseContainer.detachInstanceForTest()
+        previousFactory?.let { DatabaseContainer.containerFactory = it }
+        DatabaseContainer.ready = previousReady
         previousHost?.let(DatabaseContainer::installHost)
+        testDirs.forEach { FileSystem.SYSTEM.deleteRecursively(it, mustExist = false) }
     }
 
     @Test
@@ -79,7 +90,11 @@ class IosStudyPadArchiveRoundTripTest {
         val sourceDir = newTestDir()
         DatabaseContainer.installHost(FakeDatabaseHost(sourceDir))
         val source = DatabaseContainer.create()
-        val sourceDao = source.bookmarkDb.bookmarkDao()
+        DatabaseContainer.containerFactory = { source }
+        DatabaseContainer.ready = true
+        testDirs += sourceDir.toPath()
+        try {
+            val sourceDao = source.bookmarkDb.bookmarkDao()
         val label = BookmarkEntities.Label(name = "Archive round trip pad")
         val bookmark = BookmarkEntities.BibleBookmark(
             kjvOrdinalStart = 4321, kjvOrdinalEnd = 4322, ordinalStart = 4321, ordinalEnd = 4322,
@@ -102,7 +117,7 @@ class IosStudyPadArchiveRoundTripTest {
         }
         val expectedLink = assertNotNull(sourceDao.getBibleBookmarkToLabel(bookmark.id, label.id))
 
-        val filesDir = newTestDir().toPath()
+        val filesDir = trackTestDir()
         FileSystem.SYSTEM.createDirectories(sourceDir.toPath() / "tmp")
         val environment = TestEnvironment(sourceDir)
         lateinit var backupHost: CapturingBackupHost
@@ -111,16 +126,12 @@ class IosStudyPadArchiveRoundTripTest {
             testCloudSync(environment), TestNotifier(), testDirectories(filesDir),
         )
         backupHost = CapturingBackupHost { bytes = it }
-        try {
-            assertTrue(
-                net.bible.service.db.exportStudyPads(
-                    listOf(label), backupHost, StubCoreStrings(), environment, backup,
-                    chooseDestination = { SaveOrShare.SAVE },
-                ),
-            )
-        } finally {
-            source.closeOwned()
-        }
+        assertTrue(
+            net.bible.service.db.exportStudyPads(
+                listOf(label), backupHost, StubCoreStrings(), environment, backup,
+                chooseDestination = { SaveOrShare.SAVE },
+            ),
+        )
 
         // Read the ZIP independently of the importer and validate its real embedded database payload.
         val archive = filesDir / "export.abdb.zip"
@@ -135,7 +146,7 @@ class IosStudyPadArchiveRoundTripTest {
             AndBibleBackupManifest.fromJson(payloads.getValue(ANDBIBLE_BACKUP_MANIFEST_FILENAME).utf8()).backupType,
         )
 
-        val unpackDir = newTestDir().toPath()
+        val unpackDir = trackTestDir()
         ArchiveUtils.unzip(archive, unpackDir)
         val payloadDbFile = unpackDir / "db/${BookmarkDatabase.dbFileName}"
         val payloadDb = buildAppDatabase<BookmarkDatabase>(payloadDbFile.toString(), *bookmarkMigrations)
@@ -155,6 +166,7 @@ class IosStudyPadArchiveRoundTripTest {
 
         // Import the extracted payload through the production install committer into a separate empty database.
         val importDir = newTestDir()
+        testDirs += importDir.toPath()
         DatabaseContainer.installHost(FakeDatabaseHost(importDir))
         val imported = DatabaseContainer.create()
         DatabaseContainer.containerFactory = { imported }
@@ -174,7 +186,12 @@ class IosStudyPadArchiveRoundTripTest {
         } finally {
             imported.closeOwned()
         }
+        } finally {
+            source.closeOwned()
+        }
     }
+
+    private fun trackTestDir(): Path = newTestDir().toPath().also(testDirs::add)
 
     private suspend fun DatabaseContainer.closeOwned() {
         DatabaseContainer.aiLifetime.replace { closeAllOwned(it) }
