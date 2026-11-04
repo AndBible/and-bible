@@ -68,4 +68,14 @@ cp build/3959-certificate.log build/shots/3959-certificate.log
 cp "$scratch/server.log" build/shots/3959-certificate-server.log
 xcrun simctl io "$id" screenshot build/shots/3959-certificate-final.png >/dev/null 2>&1 || true
 xcrun xcresulttool get test-results tests --path "$result" --format json > build/shots/3959-certificate-tests.json || true
+xcrun xcresulttool get test-results summary --path "$result" --format json > build/shots/3959-certificate-summary.json || true
+if test "$status" -eq 0; then
+  python3 -I - build/shots/3959-certificate-summary.json <<'PY'
+import json, sys
+summary = json.load(open(sys.argv[1]))
+assert summary.get('passedTests') == 1, summary
+assert summary.get('failedTests') == 0 and summary.get('skippedTests') == 0, summary
+print('PASS certificate acceptance: exactly one executed, unskipped test')
+PY
+fi
 exit "$status"
