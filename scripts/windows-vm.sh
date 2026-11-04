@@ -17,7 +17,7 @@ RUNS="$VM_DIR/runs/$VM_ID"
 QEMU=${QEMU:-qemu-system-x86_64}
 
 usage() {
-  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|key combo|mouse {move|click|down|up|wheel} x y [button|notches]|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|gui-run command|dev-gradle args...}' >&2
+  printf '%s\n' 'Usage: windows-vm.sh {install|start|stop|status|ssh [cmd]|scp-to src dst|scp-from src dst|shot name|type text|type-stdin|key combo|mouse {move|click|down|up|wheel} x y [button|notches]|dev-start|dev-reset|push-repo [--clean] [dir]|dev-provision|gui-run command|dev-gradle args...}' >&2
   exit 2
 }
 error() { printf 'windows-vm: %s\n' "$*" >&2; exit 1; }
@@ -501,11 +501,22 @@ import sys
 Image.open(sys.argv[1]).save(sys.argv[2], format="PNG")
 PY
 rm -f "$raw" ;;
-  type|key) [[ $# -ge 1 ]] || usage; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); mode=$cmd; [[ $mode == type || $# == 1 ]] || usage; python3 - "$qmp_sock" "$mode" "$*" "${WINDOWS_VM_QMP_TIMEOUT:-3}" <<'PYQMP'
+  type|type-stdin|key) [[ $# -ge 1 || $cmd == type-stdin ]] || usage; run_dir=$(<"$STATE/run-dir"); qmp_sock=$(qmp_path "$run_dir"); mode=$cmd; [[ $mode != key || $# == 1 ]] || usage; [[ $mode != type-stdin || $# == 0 ]] || usage; if [[ $mode == type-stdin ]]; then exec 3<&0; fi; python3 - "$qmp_sock" "$mode" "$*" "${WINDOWS_VM_QMP_TIMEOUT:-3}" <<'PYQMP'
 import json, socket, sys, time
 path, mode, text, timeout = sys.argv[1:]
 timeout=float(timeout)
-if mode == "type" and (not text.isascii() or any(not ch.isprintable() for ch in text)): raise SystemExit("type accepts printable ASCII only")
+if mode == "type-stdin":
+    with open(3, "rb") as source:
+        data = source.read()
+    if data.endswith(b"\r\n"):
+        data = data[:-2]
+    elif data.endswith(b"\n"):
+        data = data[:-1]
+    try:
+        text = data.decode("ascii")
+    except UnicodeDecodeError:
+        raise SystemExit("type-stdin accepts printable ASCII only")
+if mode in ("type", "type-stdin") and (not text.isascii() or any(not ch.isprintable() for ch in text)): raise SystemExit(f"{mode} accepts printable ASCII only")
 shift={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"minus","+":"equal",":":"semicolon","?":"slash","<":"comma",">":"dot","\"":"apostrophe","{":"bracket_left","}":"bracket_right","|":"backslash","~":"grave_accent"}
 plain={".":"dot",",":"comma","/":"slash","-":"minus","=":"equal",";":"semicolon","'":"apostrophe","\\":"backslash","[":"bracket_left","]":"bracket_right","`":"grave_accent"}
 valid_qcodes=set("abcdefghijklmnopqrstuvwxyz0123456789")|{"ctrl","alt","alt_r","meta_l","shift","delete","esc","ret","tab","spc","backspace","up","down","left","right","home","end","pgup","pgdn","insert","print","pause","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12"}

@@ -1,5 +1,9 @@
 # Emulator and WebView debugging
 
+Use the `android-emulator` project skill for emulator commands. Use `verifying-on-a-runtime`
+when choosing Android, iOS (`ios-mac`), Windows (`windows-vm`) or Linux desktop
+(`desktop-linux-live`) verification; runtime evidence and automated gates are separate.
+
 How to verify AndBible on an emulator and debug the BibleView (Vue.js) running inside the
 Android WebView, from a dev container or any Linux box where the helper scripts in `scripts/`
 apply. All scripts are plain bash (plus one Python and one Node helper) and have usage text in

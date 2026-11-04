@@ -1,5 +1,10 @@
 # Remote Mac for iOS builds
 
+Use the `ios-mac` project skill for remote builds, simulator driving and cleanup. Use
+`verifying-on-a-runtime` to choose between iOS simulator, Android (`android-emulator`),
+Windows (`windows-vm`) and Linux desktop (`desktop-linux-live`); a simulator does not
+prove a real iOS-on-Mac app launch or physical-device/GPU behavior (issue #3946).
+
 A real Mac shortens the iOS development loop: instead of commit, push from the host, wait for the
 GitHub macOS runner (`.github/workflows/ios.yml`) and read the result with `gh`, a jailbee container
 syncs its working tree to the Mac over SSH, runs the Gradle / `xcodebuild` steps there and copies the

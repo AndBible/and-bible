@@ -318,6 +318,7 @@ golden:
     - qemu-system-x86
     - qemu-utils
     - ovmf
+    - xorriso      # Windows answer ISO creation and windows-vm shell tests
     - python3-pil   # scripts/windows-vm.sh shot: QMP screendump (PPM) -> PNG
     - php-curl
     - php-intl
