@@ -1262,18 +1262,21 @@ final class ReadingUITests: RealAppUITestCase {
         app.terminate()
         app = launch(["-standardTestFixture", "-openDocument", "KJV", "-openRef", "John.3.16"])
         XCTAssertTrue(john3Shown(app), "measurement workspace must show KJV John 3")
+        guard let title = toolbarTitle(app) else {
+            XCTFail("no toolbar title for workspace fling")
+            return
+        }
+        let titleFrame = title.frame
+        // The other default workspace may show Genesis rather than John. Keep the toolbar coordinates, not a
+        // reference to the outgoing title element, and require real page text regardless of the selected chapter.
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let start = origin.withOffset(CGVector(dx: titleFrame.maxX - 2, dy: titleFrame.midY))
+        let end = origin.withOffset(CGVector(dx: titleFrame.minX + 2, dy: titleFrame.midY))
         for index in 0..<6 {
-            guard let title = toolbarTitle(app) else {
-                attachTree(app, "measurement-no-title-\(index)")
-                XCTFail("no toolbar title for workspace fling")
-                return
-            }
-            let start = title.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
-            let end = title.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
             NSLog("WORKSPACE-SWITCH-MEASURE %d", index)
             start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .fast, thenHoldForDuration: 0)
             _ = waitUntil(timeout: 4) { false }
-            XCTAssertTrue(john3Shown(app), "switch \(index) must restore KJV text")
+            XCTAssertGreaterThan(app.webViews.staticTexts.count, 10, "switch \(index) must restore reading text")
         }
         shot(app, "workspace-switch-measured")
     }
