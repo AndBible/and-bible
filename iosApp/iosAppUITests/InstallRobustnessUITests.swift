@@ -69,7 +69,11 @@ final class InstallRobustnessUITests: RealAppUITestCase {
         app.terminate()
 
         // 3. Relaunch without reset, fixture or delay: the store must be consistent.
-        app = launch(["-standardTestFixture", "-featureScenario", "chooser", "-openDocument", "KJV", "-openRef", "Gen.1.1"])
+        app = launch(["-standardTestFixture", "-featureScenario", "chooser", "-openDocument", "KJV", "-openRef", "Gen.1.1",
+                      "-incomingRuntimeTest", "-incomingRuntimeControls", "-incomingVerifyStore"])
+        require(element(app, "incoming-runtime-ready").waitForExistence(timeout: 60), app,
+                "startup recovery leaves a registered module or no fixture files")
+        let storeAbsent = element(app, "incoming-sword-store-absent").exists
         // A half-committed module must not surface as a startup error either: 2026-11-04 (#3949) a later launch in the same
         // simulator clone showed "An error has occurred. Missing data files for old and new testaments in ...
         // modules/K4RawText" after this test had passed with K4RawText absent from the chooser.
@@ -82,7 +86,10 @@ final class InstallRobustnessUITests: RealAppUITestCase {
         require(chooserHasRow(app, initials: "KJV") != nil, app, "HARNESS: the chooser lists KJV (so an absent K4RawText means absent)")
         let listed = chooserHasRow(app, initials: "K4RawText") != nil
         app.terminate()
-        guard listed else { return } // absent: consistent
+        guard listed else {
+            XCTAssertTrue(storeAbsent, "Absent from chooser must also mean no files in modules/ or mods.d/")
+            return
+        }
         // Listed: both an OT and an NT verse of the fixture must read.
         for (ref, text) in [("Gen.1.1", "In the beginning God created the heaven and the earth."),
                             ("John.1.1", "In the beginning was the Word")] {

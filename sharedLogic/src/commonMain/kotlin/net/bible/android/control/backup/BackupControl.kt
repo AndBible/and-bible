@@ -1131,9 +1131,8 @@ class BackupControl(
         val confFiles = ArrayList<Path>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
-        // Data first, conf last: data entries are written to ".part" siblings and conf entries (small) are buffered,
-        // so nothing in the live module tree changes until the whole archive was read and written successfully.
-        // An interrupted install then leaves no conf next to partial data and an installed module stays readable.
+        // Stage outside the live tree. A durable publish journal lets cold startup remove an interrupted generation.
+        val transaction = net.bible.service.installzip.SwordInstallTransaction(targetDirectory)
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
@@ -1175,7 +1174,9 @@ class BackupControl(
                             bufferedConfs[file] = zip.entry.buffer().readByteArray()
                         } else {
                             val parts = if (isEpubEntry) epubStaged else staged
-                            val part = parts.getOrPut(file) { file.parent!! / (file.name + ".part") }
+                            val part = parts.getOrPut(file) {
+                                if (isEpubEntry) file.parent!! / (file.name + ".part") else transaction.stage(file)
+                            }
                             fileSystem.write(part) { writeAll(zip.entry) }
                         }
                     } catch (e: IOException) {
@@ -1227,6 +1228,9 @@ class BackupControl(
                     if (!isPublished(oldConf) && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
                 }
             }
+            transaction.beginPublish(staged.keys + bufferedConfs.keys + obsoleteFiles + bufferedConfs.keys.flatMap {
+                listOf(it.parent!! / (it.name + ".old"), it.parent!! / (it.name + ".tmp"))
+            })
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
             // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
             // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
@@ -1258,6 +1262,7 @@ class BackupControl(
                 .onFailure { Log.w(TAG, "Could not remove obsolete module file $obsolete", it) }
             for (old in asides.values) runCatching { fileSystem.delete(old) }
             asides.clear()
+            transaction.complete()
             // One failing EPUB must not stop the others, nor the SWORD registration below: collect and rethrow later.
             for (name in epubModules) {
                 val dir = targetDirectory / "epub" / name
@@ -1279,6 +1284,9 @@ class BackupControl(
             // be mixed, so the module stays absent (conf not restored) and the aside copy is dropped.
             for ((file, old) in asides) runCatching {
                 if (!dataReplaced && !fileSystem.exists(file)) fileSystem.atomicMove(old, file) else fileSystem.delete(old)
+            }
+            if (fileSystem.exists(transaction.staging)) {
+                if (dataReplaced) transaction.rollback() else transaction.complete()
             }
         }
         // Load configuration files & register SWORD books

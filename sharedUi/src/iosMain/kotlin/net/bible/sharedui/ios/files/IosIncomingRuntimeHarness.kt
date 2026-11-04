@@ -55,6 +55,8 @@ internal object IosIncomingRuntimeHarness {
     private var coldOffered = emptyList<String>()
     private var removeColdFixtures = false
     private var purgeLeftovers = false
+    private var verifyStore = false
+    private var swordStoreAbsent by mutableStateOf(false)
 
     fun prepareLaunch() {
         if (!Platform.isDebugBinary) return
@@ -63,6 +65,7 @@ internal object IosIncomingRuntimeHarness {
         controlsVisible = enabled && "-incomingRuntimeControls" in args
         removeColdFixtures = enabled && "-incomingRemoveFixtures" in args
         purgeLeftovers = enabled && "-incomingPurgeLeftovers" in args
+        verifyStore = enabled && "-incomingVerifyStore" in args
         if (!enabled) return
         val index = args.indexOf("-incomingFixture")
         if (index >= 0) {
@@ -101,6 +104,16 @@ internal object IosIncomingRuntimeHarness {
         if (failed) return false
         return try {
             withContext(Dispatchers.Default) {
+                if (verifyStore) {
+                    val root = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.AppDirectories>().modulesDir
+                    val files = okio.FileSystem.SYSTEM
+                    swordStoreAbsent = !files.exists(root / "mods.d/K4RawText.conf") &&
+                        files.listOrNull(root / "modules/K4RawText").orEmpty().isEmpty()
+                    check(Books.installed().getBook("K4RawText") != null || swordStoreAbsent) {
+                        "Unregistered SWORD fixture left files in the module store"
+                    }
+                    return@withContext
+                }
                 if (purgeLeftovers) {
                     // Debug-only: removes the SWORD and EPUB fixtures a previous incoming test left behind (never KJV),
                     // through the production delete path, so a later class can pass the absence checks below.
@@ -177,6 +190,7 @@ internal object IosIncomingRuntimeHarness {
         Column {
             if (ready && !failed) Text(strings.okay, Modifier.testTag("incoming-runtime-ready"))
             if (failed) Text(strings.errorOccurred, Modifier.testTag("incoming-runtime-error"))
+            if (verifyStore && swordStoreAbsent) Text(strings.okay, Modifier.testTag("incoming-sword-store-absent"))
             if (swordVerified) Text(strings.okay, Modifier.testTag("incoming-sword-content-verified"))
             if (epubVerified) Text(strings.okay, Modifier.testTag("incoming-epub-content-verified"))
             if (backupRoute) Text(strings.okay, Modifier.testTag("incoming-backup-route-ready"))

@@ -279,6 +279,50 @@ class ModuleArchiveInterruptionTest {
         }
     }
 
+    /** A process kill skips finally: replay the exact disk snapshots through the next startup, not an exception path. */
+    @Test fun startupRecoversEveryKilledArchiveStepWithoutOrphanFiles() {
+        val old = generation(1)
+        for (changedPath in listOf(false, true)) {
+        val new = generation(2).map { (name, bytes) ->
+            if (!changedPath) name to bytes
+            else if (name.startsWith("mods.d/")) name to bytes.decodeToString()
+                .replace("modules/$INITIALS", "modules/relocated").encodeToByteArray()
+            else name.replace("modules/$INITIALS", "modules/relocated") to bytes
+        }
+        val archive = zip(new, "crash.zip")
+        for (overwrite in listOf(false, true)) {
+            dest.deleteRecursively(); dest.mkdirs()
+            if (overwrite) installGen1()
+            val snapshots = mutableListOf<File>()
+            fun capture() {
+                val copy = File(work, "snapshot-${snapshots.size}")
+                dest.copyRecursively(copy, overwrite = true)
+                snapshots += copy
+            }
+            val control = backupControl()
+            control.onPublishStep = { capture() }
+            runBlocking {
+                control.extractAndRegisterModuleArchive({ archive.source() }, new.size) { capture() }
+            }
+            capture() // completed install must survive recovery too
+            for ((step, copy) in snapshots.withIndex()) {
+                dest.deleteRecursively()
+                copy.copyRecursively(dest, overwrite = true)
+                net.bible.sharedlogic.platform.host.HostSwordEnvironment.createModuleFolders(dest.absolutePath.toPath())
+                val label = "overwrite=$overwrite crash snapshot=$step"
+                val state = assertConsistent(label, listOf(old, new))
+                if (state == "absent") {
+                    assertEquals(emptyList(), File(dest, "modules").walkTopDown().filter { it.isFile }.toList(),
+                        "$label: absent module must not leave any data files")
+                    assertEquals(emptyList(), File(dest, "mods.d").walkTopDown().filter { it.isFile }.toList(),
+                        "$label: absent module must not leave any conf files")
+                }
+                copy.deleteRecursively()
+            }
+        }
+        }
+    }
+
     private fun installGen1() = runBlocking { backupControl().extractAndRegisterModuleArchive({ zip(generation(1), "gen1.zip").source() }) }
 
     /** A staging directory left by a crashed EPUB install is swept; unrelated directories are not touched. */
