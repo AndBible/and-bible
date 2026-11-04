@@ -1018,7 +1018,7 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: full screen
 
-    /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar and shows the Bible reference overlay with
+    /// Overflow "Fullscreen" (`toggle_fullscreen`) removes the toolbar; scrolling shows the Bible reference overlay with
     /// Android's real short-name form `KJV:Joh 3:16` (`bibleOverlayText`: "<abbreviation>:<title>" with short book names;
     /// ruling R5). A double tap on the pane leaves full screen (the chrome returns, the overlay goes), a second one
     /// enters it again by double tap (the locked path) and a third leaves.
@@ -1038,17 +1038,16 @@ final class ReadingUITests: RealAppUITestCase {
         if !chromeGone { attachTree(app, "fullscreen-chrome-still-shown") }
         XCTAssertTrue(chromeGone, "the toolbar is still shown in full screen")
 
-        // The overlay shows only while the window buttons are shown, i.e. within 2 s of the last touch on a pane
-        // (`windowButtonsVisibility`, restarted by `ReadingHostState.onBibleViewTouched`). It has usually timed out by now,
-        // so a single tap at the pane margin (a double tap would leave full screen) starts the countdown and the overlay is
-        // looked for straight away.
+        // Since #2848 (1bb9e2fbfe) only SCROLLING reveals the overlay (taps keep the separate window-button timer), and it
+        // hides 2 s after the last scroll (`ReadingChromeHideDelayMillis`). So: a short drag on the pane, then a tight poll of
+        // one element query with 0.1 s sleeps for at most 1.8 s; a miss drags again, three tries in all.
         // The overlay shows the CURRENT verse (it follows the scroll position, as on Android), so any verse of John 3.
         let overlay = labelStarting(app, "KJV:Joh 3:")
-        // The overlay lives ~2 s after a tap and accessibility queries are slow (iPad), so: tap, then a tight poll of one
-        // element query with 0.1 s sleeps for at most 1.8 s; a miss re-taps (restarting the timer), three tries in all.
         var overlayShown = false
-        for _ in 0..<3 where !overlayShown {
-            paneMargin(app).tap()
+        for attempt in 0..<3 where !overlayShown {
+            let from = firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: attempt % 2 == 0 ? 0.6 : 0.45))
+            let to = firstPane(app).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: attempt % 2 == 0 ? 0.45 : 0.6))
+            from.press(forDuration: 0.05, thenDragTo: to)
             let deadline = Date().addingTimeInterval(1.8)
             while Date() < deadline {
                 if overlay.exists { overlayShown = true; break }
@@ -1056,30 +1055,18 @@ final class ReadingUITests: RealAppUITestCase {
             }
         }
         shot(app, "fullscreen-overlay")
-        var diagnosis = ""
-        if !overlayShown {
-            attachTree(app, "fullscreen-no-overlay")
-            // Diagnose a second cause: with the pane menu open the buttons are forced visible and the timer is suspended, so
-            // the overlay must be there if the host's text and Bible flag are right.
-            let windowMenu = byLabel(app, "Window menu")
-            if windowMenu.waitForExistence(timeout: 3) {
-                windowMenu.tap()
-                let menuUp = app.buttons.matching(NSPredicate(format: "label == 'New window' OR label == 'Maximise'")).firstMatch.waitForExistence(timeout: 5)
-                let overlayWithMenu = labelStarting(app, "KJV:").exists
-                attachTree(app, "fullscreen-pane-menu-open")
-                diagnosis = " (pane menu opened: \(menuUp), overlay with the menu open: \(overlayWithMenu))"
-            }
-        }
-        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:<verse>' is not shown right after a tap in full screen\(diagnosis)")
+        if !overlayShown { attachTree(app, "fullscreen-no-overlay") }
+        XCTAssertTrue(overlayShown, "the Bible reference overlay 'KJV:Joh 3:<verse>' is not shown right after a scroll in full screen")
         if overlayShown {
             XCTAssertNotNil(overlay.label.range(of: "^KJV:Joh 3:[0-9]+$", options: .regularExpression),
                             "the overlay text '\(overlay.label)' is not of the form 'KJV:Joh 3:<verse>'")
         }
         if !overlayShown { return }
 
-        // Full-screen content stays below the top safe area: the window buttons are shown (overlay is up), and the pane's
+        // Full-screen content stays below the top safe area: a tap shows the window buttons, and the pane's
         // window-menu button starts at least 40 pt down on an iPhone (status bar / Dynamic Island inset 47-59 pt).
         // iPad has no such inset in this layout, so only a sanity check there.
+        paneMargin(app).tap()
         let windowMenuButton = byLabel(app, "Window menu")
         if windowMenuButton.waitForExistence(timeout: 3) {
             let minY = windowMenuButton.frame.minY

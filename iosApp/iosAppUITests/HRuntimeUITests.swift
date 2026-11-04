@@ -247,9 +247,15 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapText(app, "Providers", swipes: 0)
         tapText(app, fixtureProvider)
         tapButton(app, "Delete")
-        require(text(app, "Delete provider \"\(fixtureProvider)\"? Prompts using this provider will revert to the default.")
-            .waitForExistence(timeout: 10), app, "named-provider-delete-confirmation-missing")
-        tapButton(app, "Yes")
+        let confirmation = text(app, "Delete provider \"\(fixtureProvider)\"? Prompts using this provider will revert to the default.")
+        require(confirmation.waitForExistence(timeout: 10), app, "named-provider-delete-confirmation-missing")
+        // The confirmation's own button is "Delete" (was "Yes"); the editor behind it has a "Delete" too, so take the one
+        // right under the message.
+        let message = confirmation.frame
+        let confirm = app.buttons.matching(NSPredicate(format: "label == 'Delete'")).allElementsBoundByIndex
+            .first { $0.frame.minY > message.maxY && $0.frame.minY < message.maxY + 200 }
+        require(confirm != nil, app, "missing-button-Delete-in-confirmation")
+        confirm!.tap()
         // Delete closes its confirmation, not the still-open editor (same real common flow on Android).
         require(waitUntil(timeout: 10) { !self.text(app, "Delete provider \"\(self.fixtureProvider)\"? Prompts using this provider will revert to the default.").exists },
                 app, "provider-delete-confirmation-not-dismissed")

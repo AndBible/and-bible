@@ -12,6 +12,7 @@ import XCTest
 final class SyncSettingsUITests: RealAppUITestCase {
     private let publicHttpURL = "http://example.org/nc"
     private let localHttpURL = "http://127.0.0.1:8080/nc"
+    private let localHttpsURL = "https://127.0.0.1:8080/nc"
 
     private func openSyncFromSettings(_ app: XCUIApplication) {
         harnessRequire(waitForSettingsRoot(app), app, "Settings root did not appear")
@@ -64,12 +65,18 @@ final class SyncSettingsUITests: RealAppUITestCase {
         harnessRequire(waitUntil(timeout: 10) { !refusal.exists }, app, "https-required dialog did not close")
         harnessRequire(!serverURLRowLabel(app).contains("example.org"), app, "Rejected public http URL was stored")
 
-        // Loopback plain http is allowed (no server needs to be reachable to save it).
+        // Loopback plain http is refused too: Nextcloud accepts only https on every platform (ba85e07d4e).
         replaceSettingsText(app, rowKey: "cloud_sync_server_url", with: localHttpURL)
-        harnessRequire(closeSettingsEditor(app), app, "Editor did not close for the local http URL")
-        harnessRequire(!refusal.exists, app, "Loopback http URL was refused")
+        harnessRequire(refusal.waitForExistence(timeout: 15), app, "Loopback http URL did not show the https-required message")
+        harnessRequire(ok.waitForExistence(timeout: 5), app, "https-required dialog (loopback) has no OK")
+        ok.tap()
+        harnessRequire(waitUntil(timeout: 10) { !refusal.exists }, app, "https-required dialog (loopback) did not close")
+        // A loopback https URL is saved (no server needs to be reachable to save it).
+        replaceSettingsText(app, rowKey: "cloud_sync_server_url", with: localHttpsURL)
+        harnessRequire(closeSettingsEditor(app), app, "Editor did not close for the local https URL")
+        harnessRequire(!refusal.exists, app, "Loopback https URL was refused")
         harnessRequire(waitUntil(timeout: 15) { self.serverURLRowLabel(app).contains("127.0.0.1:8080/nc") }, app,
-                       "Loopback http URL was not saved")
+                       "Loopback https URL was not saved")
 
         // Categories: off in the saved state (switching on needs a real sign-in).
         harnessRequire(bookmarksSwitchIsOff(app), app, "Bookmarks category must be off without a signed-in account")
