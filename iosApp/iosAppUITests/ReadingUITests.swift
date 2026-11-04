@@ -717,15 +717,29 @@ final class ReadingUITests: RealAppUITestCase {
         device.orientation = .portrait
         XCTAssertTrue(waitUntil(timeout: 10) { app.windows.firstMatch.frame.height > app.windows.firstMatch.frame.width },
                       "could not start in portrait")
+        addWindow(app, from: 1)
+        let originalPanes = Set(paneIds(app))
+        XCTAssertEqual(originalPanes.count, 2)
 
-        // Open a sheet that is wired at HEAD (title tap), else the workspaces one.
-        var opened = false
-        if let title = toolbarTitle(app) { title.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
-        if !opened {
-            let ws = byLabel(app, "Workspaces")
-            if ws.waitForExistence(timeout: 5) { ws.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
+        func checkPanes(_ step: String) {
+            assertTextOncePerPane(app, panes: 2, step)
+            XCTAssertEqual(Set(paneIds(app)), originalPanes, "\(step): pane identities changed")
+            XCTAssertTrue(waitUntil(timeout: 15) { Set(visiblePaneIds(app)) == originalPanes },
+                          "\(step): both panes must be visible")
+            let window = app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1)
+            let panes = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+                .allElementsBoundByIndex
+            for pane in panes where originalPanes.contains(pane.identifier) {
+                XCTAssertGreaterThan(pane.frame.width, 0, "\(step): empty pane \(pane.identifier)")
+                XCTAssertGreaterThan(pane.frame.height, 0, "\(step): empty pane \(pane.identifier)")
+                XCTAssertTrue(window.contains(pane.frame), "\(step): pane \(pane.identifier) \(pane.frame) outside \(window)")
+            }
         }
-        guard opened else {
+        checkPanes("portrait before rotation")
+
+        // Open the key chooser, so reopening in landscape uses the same content.
+        if let title = toolbarTitle(app) { title.tap() }
+        guard quickSheet(app).waitForExistence(timeout: 15) else {
             attachTree(app, "rotation-no-sheet"); XCTFail("no quick sheet could be opened for the rotation test"); return
         }
         let close = byLabel(app, "Close")
@@ -748,6 +762,21 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertGreaterThan(landscapeSheet.height, 100, "sheet collapsed in landscape: \(landscapeSheet)")
         XCTAssertTrue(close.exists && close.isHittable, "Close not reachable in landscape")
         XCTAssertTrue(win.insetBy(dx: -1, dy: -1).contains(close.frame), "Close \(close.frame) outside window \(win)")
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "ab-quick-sheet").count, 1,
+                       "landscape must have exactly one quick sheet host")
+        guard closeQuickSheet(app, "landscape rotation") else { return }
+        checkPanes("landscape after rotation")
+        guard let landscapeTitle = toolbarTitle(app) else {
+            attachTree(app, "rotation-landscape-no-title")
+            XCTFail("no title to reopen the key chooser in landscape")
+            return
+        }
+        landscapeTitle.tap()
+        guard quickSheetShown(app, timeout: 15) else {
+            attachTree(app, "rotation-landscape-no-sheet")
+            XCTFail("could not reopen the key chooser in landscape")
+            return
+        }
 
         // Back to portrait: not stuck at the landscape (or a half) height.
         device.orientation = .portrait
@@ -763,13 +792,11 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertEqual(backClose.minY, portraitClose.minY, accuracy: 4, "Close moved: sheet did not return to its place")
         XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(backSheet), "sheet outside window in portrait")
 
-        // The sheet still closes, and the pane is intact and inside the window.
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "ab-quick-sheet").count, 1,
+                       "portrait must have exactly one quick sheet host")
         if closeQuickSheet(app, "rotation") {
             XCTAssertTrue(element(app, "reading-host").exists, "reading host missing after rotation")
-            XCTAssertTrue(john3Shown(app, timeout: 15), "chapter text missing after rotation")
-            let pane = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'")).firstMatch
-            XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(pane.frame),
-                          "pane \(pane.frame) outside the window after rotation")
+            checkPanes("portrait after rotation")
         }
     }
 
