@@ -634,6 +634,8 @@ class HostReadingHost(
     /** Strong's find-all in the reading view's search; false: not handled, the caller falls back to its own route. */
     fun openSearchStrongs(ref: String, documentInitials: List<String>): Boolean = searchState.openSearchStrongs(ref, documentInitials)
 
+    fun openSearchRequest(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean = searchState.openRequest(request)
+
     /**
      * The text-selection menu's "Search": the reading view's search opens and runs [text] as a phrase search, decorated
      * exactly as Android's `BibleView` does before it hands the query to the hosted search (`preDecorated = true`).
@@ -817,4 +819,5 @@ fun hostReadingNavDeps(
     onScreenTurnedOff = {},
     setWindowTitle = shell::setWindowTitle,
     results = results,
+    onSearchHandoff = { request -> net.bible.sharedui.host.app.HostRootLinks.openRoute(NavRoutes.readingSearch(request)) },
 )

@@ -443,7 +443,7 @@ class ReadingSearchState(
      */
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean =
         openRequest(ReadingSearchRequest(query = "strong:$ref", documentId = translationIds.firstOrNull(),
-            translationIds = translationIds, strongsOrigin = true))
+            translationIds = translationIds, strongsOrigin = true, section = SearchBibleSection.ALL))
 
     /** Applies a handoff without changing the active reading window. */
     fun openRequest(request: ReadingSearchRequest): Boolean {
@@ -607,7 +607,7 @@ class ReadingSearchState(
         return SearchRequest(
             query = query,
             searchType = if (preDecorated || strongsSearch) SearchType.ANY_WORDS else searchType.value,
-            bibleSection = if (preDecorated || strongsSearch) SearchBibleSection.ALL else searchSection.value,
+            bibleSection = if (preDecorated) SearchBibleSection.ALL else searchSection.value,
             // The persisted selection, plus the document this search is running for when that
             // document is already indexed (F44/B4). The flag is read for `docId`: after
             // `promptIndexFor` the phase addresses a translation the active window is not showing.

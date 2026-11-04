@@ -1,5 +1,10 @@
 package net.bible.sharedcore.nav
 
+import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.ReadingSearchRequest
+import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchType
+
 /**
  * Routes for the Compose navigation graph (`:sharedUi`'s `NavHost`), and the typed builders that
  * are the ONLY sanctioned way to construct one.
@@ -124,6 +129,42 @@ object NavRoutes {
         val arguments = routeArguments(route)
         val plan = arguments[ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
         return plan to arguments[ARG_DAY]?.toIntOrNull()
+    }
+
+    // A non-empty prefix makes an empty seed distinct from an absent query even in Navigation.
+    const val READING_SEARCH_PATTERN = "reading/search?request={request}"
+
+    fun readingSearch(request: ReadingSearchRequest): String {
+        val fields = listOf(
+            request.query, request.documentId, request.translationIds.joinToString(",") { "1" + encodeArg(it) },
+            request.strongsOrigin.toString(), request.preDecorated.toString(), request.section?.name,
+            request.type?.name, request.epubMode?.name,
+        )
+        val payload = fields.joinToString("/") { if (it == null) "0" else "1" + encodeArg(it) }
+        return "reading/search?request=${encodeArg(payload)}"
+    }
+
+    fun readReadingSearch(route: String): ReadingSearchRequest {
+        return decodeReadingSearchArgument(decodeArg(requireNotNull(routeArguments(route)["request"])))
+    }
+
+    /** Decodes the argument after Navigation has removed the outer URI encoding. */
+    fun decodeReadingSearchArgument(payload: String): ReadingSearchRequest {
+        val fields = payload.split('/').map { field ->
+            require(field.startsWith('0') || field.startsWith('1'))
+            if (field == "0") null else decodeArg(field.substring(1))
+        }
+        require(fields.size == 8)
+        return ReadingSearchRequest(
+            query = fields[0], documentId = fields[1],
+            translationIds = fields[2]?.takeIf { it.isNotEmpty() }?.split(',')?.map {
+                require(it.startsWith('1'))
+                decodeArg(it.substring(1))
+            } ?: emptyList(),
+            strongsOrigin = fields[3].toBoolean(), preDecorated = fields[4].toBoolean(),
+            section = fields[5]?.let(SearchBibleSection::valueOf), type = fields[6]?.let(SearchType::valueOf),
+            epubMode = fields[7]?.let(EpubSearchMode::valueOf),
+        )
     }
 
     // ——— slice 5: Search ———

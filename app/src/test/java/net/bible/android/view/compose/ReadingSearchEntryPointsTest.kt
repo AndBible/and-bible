@@ -112,13 +112,9 @@ import kotlin.test.assertTrue
  * diffs, readable by inspection (see the task report for this noted as a scoping decision, not an
  * oversight).
  *
- * Entry point 8's REAL call site ([LinkControl.showAllOccurrences]) can only be driven through its
- * classic branch here: `checkStrongs` needs a genuine Lucene index on disk, which this test's KJV
- * fixture module does not have (confirmed: `~/.sword` ships the KJV text but no search index), so
- * `needToIndex` is always `true` and the host is never even consulted — which is itself a correct,
- * useful assertion (the not-indexed branch must stay classic even when hosted, per the task's
- * resolution 3). Entry point 8's HOSTED behaviour ([ComposeReadingViewHost.openSearchStrongs]'s raw
- * query + forced `ANY_WORDS`/`isStrongsSearch`) is covered directly instead.
+ * Entry point 8 exercises the real [LinkControl.showAllOccurrences] call with the unindexed KJV
+ * fixture, both with a reading host and without one. The former must open the sheet's index prompt;
+ * the latter must hand the search to reading rather than launch the standalone index destination.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -301,39 +297,22 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    /**
-     * Strong's is Bible-only and used to be guarded by the SAME predicate that excluded EPUBs.
-     * Removing that predicate must not let a Strong's find-all open over an EPUB.
-     *
-     * F43 Task 6 fix round 1: the RETURN VALUE assertion is the whole point of this test. The first
-     * cut of this fix let `composeSearchStrongsIfHosted` return `true` unconditionally whenever a
-     * host was mounted, so `LinkControl.showAllOccurrences` (`ref: MainBibleActivity.kt:1250`, itself
-     * called from `LinkControl.kt:388-393`) treated the EPUB decline as "handled" and never fell
-     * through to the classic Strong's search — the find-all did NOTHING at all, worse than before
-     * this batch (which correctly ran the classic search, since Strong's find-all searches
-     * Strong's-enabled BIBLES, not the open document). Asserting only `searchModeActive` stays false
-     * would NOT have caught that regression — a `true` return with search mode still closed is
-     * exactly what the regression produced.
-     */
-    @Test fun composeSearchStrongsIfHostedRefusesAnEpub() {
+    /** A Strong's request targets its selected Bible, not the active EPUB. */
+    @Test fun composeSearchStrongsIfHostedTargetsBibleFromEpub() {
         activity.composeReadingViewHost = host()
         val epub = givenCurrentDocumentIsAnEpub()
         try {
             val handled = activity.readingCommands.composeSearchStrongsIfHosted("H430", listOf("KJV"))
 
-            assertFalse(handled, "an EPUB decline must be reported to the caller so it can fall back")
-            assertFalse(activity.composeReadingViewHost!!.searchController.searchModeActive.value,
-                "Strong's must not open a search over an EPUB")
+            assertTrue(handled)
+            assertEquals("strong:H430", activity.composeReadingViewHost!!.searchController.queries.query.value)
+            assertEquals(SearchBibleSection.ALL, activity.composeReadingViewHost!!.buildSearchRequest("KJV", "strong:H430").bibleSection)
         } finally {
             Books.installed().removeBook(epub)
         }
     }
 
-    /**
-     * The companion to the test above: with a normal (non-EPUB) document current, Strong's find-all
-     * must still open and report `true` — otherwise an implementation that always returns `false`
-     * would pass the EPUB-refusal test above for the wrong reason.
-     */
+    /** A Bible request is accepted and its query is retained while validation runs asynchronously. */
     @Test fun composeSearchStrongsIfHostedOpensForANonEpubDocument() {
         activity.composeReadingViewHost = host()
         // sanity: KJV (set in setUp) is not an EPUB.
@@ -342,7 +321,7 @@ class ReadingSearchEntryPointsTest {
         val handled = activity.readingCommands.composeSearchStrongsIfHosted("H430", listOf("KJV"))
 
         assertTrue(handled, "a non-EPUB document must open the Strong's search")
-        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+        assertEquals("strong:H430", activity.composeReadingViewHost!!.searchController.queries.query.value)
     }
 
     /**
@@ -353,7 +332,7 @@ class ReadingSearchEntryPointsTest {
      * `LinkControl.showAllOccurrences` returned without its classic search route. Exercised through
      * [net.bible.android.platform.AndroidLinkPlatform], the exact seam `LinkControl` calls.
      */
-    @Test fun strongsFindAllFromADictionaryWindowFallsBackToTheClassicSearch() {
+    @Test fun strongsFindAllFromADictionaryWindowTargetsTheSelectedBible() {
         activity.composeReadingViewHost = host()
         val dictionary = Books.installed().getBook("StrongsGreek")
         assertNotNull(dictionary, "test Sword modules must include StrongsGreek")
@@ -362,10 +341,13 @@ class ReadingSearchEntryPointsTest {
         val handled = net.bible.android.platform.AndroidLinkPlatform()
             .searchStrongsInReadingView("g02316", listOf("KJV"))
 
-        assertFalse(handled, "a search the reading view cannot run must fall back to the caller's route")
+        assertTrue(handled)
         val host = activity.composeReadingViewHost!!
-        assertFalse(host.searchController.searchModeActive.value)
-        assertNull(host.searchUnavailableDocName.value, "no 'cannot be searched' message for a Bible search")
+        assertEquals("strong:g02316", host.searchController.queries.query.value)
+        val request = host.buildSearchRequest("KJV", "strong:g02316")
+        assertTrue(request.isStrongsSearch)
+        assertEquals(listOf("KJV"), request.translationIds)
+        assertNull(host.searchUnavailableDocName.value, "the active dictionary is not the search target")
     }
 
     // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
@@ -897,10 +879,9 @@ class ReadingSearchEntryPointsTest {
             val handled = activeReadingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
             assertTrue(handled)
-            // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
-            // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
+            // The self-launch returns to reading and waits for a host instead of opening a standalone index.
             assertNull(shadowOf(activeReadingHost).nextStartedActivityForResult)
-            assertEquals("search/index", activeReadingHost.currentRouteForTest()?.substringBefore('?'))
+            assertEquals(NavRoutes.READING, activeReadingHost.currentRouteForTest()?.substringBefore('?'))
         } finally {
             // Restore only after overriding the field; setup failures leave Activity ownership untouched.
             if (readingViewHostOverridden && readingHost != null) {
@@ -913,33 +894,184 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
-
-    /**
-     * The not-indexed branch must stay classic REGARDLESS of whether a Compose host is mounted —
-     * task resolution 3: prompting to index a document other than the active window's is Task 11's
-     * machinery, which does not exist yet. KJV's `Feature=StrongsNumbers` without a real Lucene
-     * index (see the class kdoc) makes this branch the only one reachable through the real
-     * `LinkControl` call site in this test environment, which is itself the guarantee under test.
-     */
-    @Test fun showAllOccurrencesKeepsTheClassicIndexRouteEvenWhenHosted() {
-        activity.composeReadingViewHost = host()
-
-        GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
-
-        assertNotNull(shadowOf(activity).nextStartedActivity, "classic SearchIndex intent must still launch")
-        assertFalse(
-            activity.composeReadingViewHost!!.searchController.searchModeActive.value,
-            "must NOT retarget while the search document is not indexed",
+    @Test fun coldReadingSearchStartsReadingAndDeliversRequest() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val request = net.bible.sharedcore.search.ReadingSearchRequest(query = "cold", documentId = "KJV")
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.readingSearch(request)),
         )
+        try {
+            val host = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(host) { compose.waitForIdle() }
+            compose.waitUntil(5_000) { host.composeReadingViewHost?.searchController?.queries?.query?.value == "cold" }
+            assertEquals(NavRoutes.READING, host.currentRouteForTest())
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
-    @Test fun showAllOccurrencesFallsBackToClassicIndexRouteWhenNotHosted() {
-        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+    @Test fun inGraphSearchHandoffReturnsToReading() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val host = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(host) { compose.waitForIdle() }
+            host.navigate(NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(query = "graph", documentId = "KJV")))
+            compose.waitUntil(5_000) { host.composeReadingViewHost?.searchController?.queries?.query?.value == "graph" }
+            assertEquals(NavRoutes.READING, host.currentRouteForTest())
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
 
-        GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+    @Test fun pausedPendingSearchSurvivesRecreationAndNewestWins() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val initial = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(initial) { compose.waitForIdle() }
+            controller.pause()
+            for (query in listOf("older", "newest")) {
+                controller.newIntent(NavHostComposeActivity.intentFor(initial, NavRoutes.readingSearch(
+                    net.bible.sharedcore.search.ReadingSearchRequest(query = query, documentId = "KJV"),
+                )))
+            }
+            assertFalse(initial.composeReadingViewHost!!.searchController.searchModeActive.value)
+            val restored = controller.recreate().resume().visible().get()
+            net.bible.test.awaitReadingGraph(restored) { compose.waitForIdle() }
+            compose.waitUntil(5_000) { restored.composeReadingViewHost?.searchController?.queries?.query?.value == "newest" }
+            assertEquals("newest", restored.composeReadingViewHost!!.searchController.queries.query.value)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
 
-        assertNotNull(shadowOf(activity).nextStartedActivity)
+    @Test fun consumedInitialSearchDoesNotReplayAfterRecreation() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val request = net.bible.sharedcore.search.ReadingSearchRequest(query = "once", documentId = "KJV")
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.readingSearch(request)),
+        )
+        try {
+            val initial = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(initial) { compose.waitForIdle() }
+            compose.waitUntil(5_000) { initial.composeReadingViewHost?.searchController?.queries?.query?.value == "once" }
+            val restored = controller.recreate().get()
+            net.bible.test.awaitReadingGraph(restored) { compose.waitForIdle() }
+            compose.waitForIdle()
+            assertFalse(restored.composeReadingViewHost!!.searchController.searchModeActive.value)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    @Test fun hiddenCachedHostReceivesSearchOnlyAfterReadingReturns() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val host = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(host) { compose.waitForIdle() }
+            val cached = assertNotNull(host.composeReadingViewHost)
+            host.navigate(NavRoutes.SETTINGS)
+            compose.waitUntil(5_000) { host.currentRouteForTest() == NavRoutes.SETTINGS }
+            controller.pause()
+            controller.newIntent(NavHostComposeActivity.intentFor(host, NavRoutes.readingSearch(
+                net.bible.sharedcore.search.ReadingSearchRequest(query = "hidden", documentId = "KJV"),
+            )))
+            assertFalse(cached.searchController.searchModeActive.value)
+            controller.resume()
+            compose.waitUntil(5_000) { cached.searchController.queries.query.value == "hidden" }
+            assertEquals(NavRoutes.READING, host.currentRouteForTest())
+            assertSame(cached, host.composeReadingViewHost)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
+    // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
+
+    @Test fun showAllOccurrencesOpensUnindexedTargetInHostedSheet() {
+        val key = SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        val previous = CommonUtils.settings.getString(key, null)
+        try {
+            CommonUtils.settings.setString(key, "KJV")
+            onASetUpReadingHost { readingActivity ->
+                net.bible.test.awaitReadingGraph(readingActivity) { compose.waitForIdle() }
+                val readingHost = assertNotNull(readingActivity.composeReadingViewHost)
+                assertEquals(NavRoutes.READING, readingActivity.currentRouteForTest(), "reading route before LinkControl")
+                assertSame(readingActivity, CurrentActivityHolder.currentActivity, "LinkPlatform must reach this activity")
+                assertTrue(ReadingHostPresence.isForeground(readingActivity), "reading activity must be foreground")
+                assertTrue(ReadingViewVisibility.isVisible, "reading destination must be visible")
+                assertSame(android.os.Looper.getMainLooper(), android.os.Looper.myLooper(), "LinkControl invocation thread")
+                GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+                assertEquals("strong:H430", readingHost.searchController.queries.query.value, "request must reach the visible host")
+                try {
+                    net.bible.test.awaitHostCondition("Strong's sheet", timeoutMs = 10_000) {
+                        readingHost.searchController.sheetVisible.value
+                    }
+                } catch (e: AssertionError) {
+                    throw AssertionError("Strong's delivery timed out: route=${readingActivity.currentRouteForTest()}, " +
+                        "foreground=${ReadingHostPresence.isForeground(readingActivity)}, visible=${ReadingViewVisibility.isVisible}, " +
+                        "hostSame=${readingActivity.composeReadingViewHost === readingHost}, " +
+                        "phase=${readingHost.searchController.phase.value}, query=${readingHost.searchController.queries.query.value}, " +
+                        "unavailable=${readingHost.searchUnavailableDocName.value}, " +
+                        "started=${shadowOf(readingActivity).nextStartedActivity}", e)
+                }
+                assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), readingHost.searchController.phase.value)
+                assertNull(shadowOf(readingActivity).nextStartedActivity, "a hosted request must not launch a separate destination")
+            }
+        } finally {
+            CommonUtils.settings.setString(key, previous)
+        }
+    }
+
+    @Test fun showAllOccurrencesWithoutHostNavigatesToReading() {
+        val key = SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        val previous = CommonUtils.settings.getString(key, null)
+        try {
+            CommonUtils.settings.setString(key, "KJV")
+            assertNull(activity.composeReadingViewHost)
+
+            GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.OT)
+
+            val started = assertNotNull(shadowOf(activity).nextStartedActivity)
+            val route = assertNotNull(started.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+            assertTrue(route.substringBefore('?').startsWith("reading"), "expected reading handoff, got $route")
+            val request = NavRoutes.readReadingSearch(route)
+            assertEquals("strong:H430", request.query)
+            assertEquals("KJV", request.documentId)
+            assertEquals(listOf("KJV"), request.translationIds)
+            assertTrue(request.strongsOrigin)
+            assertEquals(SearchBibleSection.OLD_TESTAMENT, request.section)
+        } finally {
+            CommonUtils.settings.setString(key, previous)
+        }
     }
 
     // ---- Step 2: a result tap navigates without an Activity round trip --------------------------

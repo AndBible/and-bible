@@ -478,6 +478,7 @@ private fun HostAppContent(
         welcome.afterRestore = gate::afterExternalFlow
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
             shell.routeChanged(destination.route)
+            HostRootLinks.onDestinationChanged()
             // A chooser left without an answer (Android's cancel arm); an answer published before the pop is still pending.
             if (destination.route?.substringBefore('?') == NavRoutes.READING) readingResults.readingReached()
             gate.onDestination(
@@ -602,7 +603,7 @@ private class ReadingHostHolder(
         ).also {
             host = it
             backRoute.chain = it.backChain
-            HostRootLinks.attachReading(it.navigator, it::openSearchStrongs)
+            HostRootLinks.attachReading(it.navigator, it::openSearchStrongs, it::openSearchRequest)
             HostReadingWindows.bind(it, HostReadingReady.scope, koin, koin.get<NightModeState>(), platform.paneEngine)
         }
 }

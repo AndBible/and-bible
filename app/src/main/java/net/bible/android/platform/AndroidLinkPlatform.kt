@@ -17,9 +17,21 @@ class AndroidLinkPlatform : LinkPlatform {
             ?.composeSearchStrongsIfHosted(ref, documentInitials) == true
     }
 
+    override fun openSearchInReadingView(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean {
+        val activity = CurrentActivityHolder.currentActivity as? NavHostComposeActivity ?: return false
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) return false
+        if (!net.bible.sharedcore.reading.ReadingViewVisibility.isVisible) return false
+        return activity.composeReadingViewHost?.openSearchRequest(request) ?: false
+    }
+
     override fun openRoute(route: String) {
         val activity = CurrentActivityHolder.currentActivity!!
-        activity.startActivity(NavHostComposeActivity.intentFor(activity, route))
+        val intent = NavHostComposeActivity.intentFor(activity, route)
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            activity.startActivity(intent)
+        } else {
+            android.os.Handler(android.os.Looper.getMainLooper()).post { activity.startActivity(intent) }
+        }
     }
 
     override fun reportJsError() {

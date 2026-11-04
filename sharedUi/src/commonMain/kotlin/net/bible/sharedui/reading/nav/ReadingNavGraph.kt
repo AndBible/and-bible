@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.savedstate.read
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.nav.NavResultChannel
@@ -192,6 +193,7 @@ class ReadingNavDeps(
      * remember" into "the compiler remembers".
      */
     val results: List<ReadingResultCollector<*>>,
+    val onSearchHandoff: (net.bible.sharedcore.search.ReadingSearchRequest) -> Unit = {},
 )
 
 /**
@@ -276,6 +278,12 @@ class ReadingResultCollector<T>(
  */
 @Suppress("UNUSED_PARAMETER")
 fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: ReadingNavDeps) {
+    composable(route = NavRoutes.READING_SEARCH_PATTERN) { entry ->
+        LaunchedEffect(entry) {
+            val argument = requireNotNull(entry.arguments?.read { getStringOrNull("request") })
+            deps.onSearchHandoff(NavRoutes.decodeReadingSearchArgument(argument))
+        }
+    }
     composable(route = NavRoutes.READING) {
         // The effect below is keyed on Unit and so captures whatever it captures ONCE. Publishing
         // `deps.onKey` and friends straight into it would therefore pin the lambdas of the deps

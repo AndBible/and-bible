@@ -126,7 +126,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import okio.buffer
 import org.crosswire.jsword.book.sword.SwordGenBook
-import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -464,7 +463,6 @@ class BibleView(
                 val selText = sel?.text?:text?:return true
                 val currentBible = currentPageManager.currentBible.currentDocument ?: return true
                 // Section-less decorated query for highlighting result previews (mirrors Search.kt).
-                val highlightText = searchControl.highlightSearchString(selText, SearchType.PHRASE)
                 val searchText = searchControl.decorateSearchString(
                     selText,
                     SearchType.PHRASE,
@@ -482,32 +480,9 @@ class BibleView(
                     return true
                 }
 
-                // nav-graph slice 5/Task 6: the search cluster lives in the graph now, so the
-                // screen's arguments travel IN the route. `ScreenLauncher.intentFor(..., Screen
-                // .SearchIndex)` resolves to the nav host with an ARGUMENT-FREE route, and the
-                // three-key bundle this used to putExtras() would land nowhere (the host reads
-                // only EXTRA_ROUTE) -- see NavHostRoutingGuardTest
-                // .migratedScreenArgumentIsNeverDroppedByAPutExtra. No SELECTED_TRANSLATIONS and
-                // no IS_STRONGS_SEARCH here, exactly as the classic bundle carried neither.
-                val route = if (currentBible.indexStatus.isInProgress) {
-                    NavRoutes.searchIndexProgress(
-                        searchText = searchText,
-                        highlightText = highlightText,
-                        searchDocument = currentBible.initials,
-                    )
-                } else if (currentBible.indexStatus != IndexStatus.DONE) {
-                    NavRoutes.searchIndex(
-                        searchText = searchText,
-                        highlightText = highlightText,
-                        searchDocument = currentBible.initials,
-                    )
-                } else {
-                    NavRoutes.searchResults(
-                        searchText = searchText,
-                        highlightText = highlightText,
-                        searchDocument = currentBible.initials,
-                    )
-                }
+                val route = NavRoutes.readingSearch(net.bible.sharedcore.search.ReadingSearchRequest(
+                    query = searchText, documentId = currentBible.initials, preDecorated = true,
+                ))
                 host.hostContext.startActivity(NavHostComposeActivity.intentFor(host.hostContext, route))
 
                 return true

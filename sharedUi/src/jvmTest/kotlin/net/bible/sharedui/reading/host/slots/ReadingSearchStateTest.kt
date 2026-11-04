@@ -154,6 +154,23 @@ class ReadingSearchStateTest {
     }
 
     @Test
+    fun scopedStrongsHandoffRunsOldTestamentSearch() {
+        val f = strongsFixture()
+        try {
+            f.state.openRequest(net.bible.sharedcore.search.ReadingSearchRequest(
+                query = "strong:H430", documentId = "KJV", translationIds = listOf("KJV"),
+                strongsOrigin = true, section = SearchBibleSection.OLD_TESTAMENT,
+            ))
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), f.state.controller.phase.value)
+            val request = assertNotNull(f.state.lastSearchRequestForTest)
+            assertEquals(SearchBibleSection.OLD_TESTAMENT, request.bibleSection)
+            assertTrue(request.isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
     fun strongsSelectionIndexesEachSelectedBibleBeforeRunning() {
         val f = strongsFixture()
         f.bible.unindexed = setOf("KJV", "ESV")
