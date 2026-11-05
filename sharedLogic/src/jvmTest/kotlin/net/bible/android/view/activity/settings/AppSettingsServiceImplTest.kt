@@ -41,6 +41,24 @@ class AppSettingsServiceImplTest {
         }
     }
 
+    @Test fun bluetoothSwitchPersistsAcrossServiceRecreation() = kotlinx.coroutines.test.runTest {
+        val initialService = service()
+        val controller = AppSettingsController(initialService, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        fun checked() = (controller.state.value.items.single { it.key == "enable_bluetooth_pref" } as SettingsItem.SwitchRow).checked
+
+        assertTrue(checked())
+        controller.onSwitch("enable_bluetooth_pref", false)
+        testScheduler.runCurrent()
+        assertFalse(checked())
+        assertFalse(db.getBoolean("enable_bluetooth_pref", true))
+        assertFalse(service().snapshot.value.enableBluetooth)
+
+        controller.onSwitch("enable_bluetooth_pref", true)
+        testScheduler.runCurrent()
+        assertTrue(checked())
+        assertTrue(service().snapshot.value.enableBluetooth)
+    }
+
     @Test fun deviceLocalRoutingAndDefaults() {
         val s = service()
         assertEquals("system", s.snapshot.value.nightMode)
@@ -49,7 +67,10 @@ class AppSettingsServiceImplTest {
         assertEquals(100, s.snapshot.value.fontSizeMultiplier)
         s.setBool("discrete_mode", true)
         s.setString("night_mode_pref3", "manual")
+        s.setBool("screen_keep_on_pref", true)
         s.setString("locale_pref", "fi")
+        assertTrue(service().snapshot.value.screenKeepOn)
+        assertEquals("fi", local.getString("locale_pref", null))
         s.setBool("eink_mode", true)
         assertTrue(local.getBoolean("discrete_mode", false))
         assertEquals("manual", local.getString("night_mode_pref3", null))
