@@ -47,8 +47,12 @@ class InstallInspectorBackslashTest {
     private lateinit var savedDownloadDir: File
     private lateinit var savedInstance: Any
     private var savedHomeProperty: String? = null
+    private var savedScanDefaults = true
 
     @BeforeTest fun setUp() {
+        kotlin.test.assertNull(org.koin.mp.KoinPlatform.getKoinOrNull(), "a Koin context leaked into this test")
+        savedScanDefaults = org.crosswire.jsword.book.sword.SwordBookPath.scanDefaultLocations
+        org.crosswire.jsword.book.sword.SwordBookPath.scanDefaultLocations = false
         val instanceField = CWProject::class.java.getDeclaredField("instance").apply { isAccessible = true }
         savedInstance = instanceField.get(null)
         savedHomeProperty = System.getProperty("jsword.home")
@@ -59,7 +63,6 @@ class InstallInspectorBackslashTest {
         savedDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
         work = Files.createTempDirectory("backslash-work").toFile()
         dest = File(work, "modules").apply { mkdirs() }
-        runCatching { stopKoin() }
         startKoin { modules(module { single<AppDirectories> { TestDirs(dest.absolutePath.toPath()) } }) }
         SwordBookPathJvm.setDownloadDir(dest)
     }
@@ -67,6 +70,7 @@ class InstallInspectorBackslashTest {
     @AfterTest fun tearDown() {
         stopKoin()
         SwordBookPathJvm.setDownloadDir(savedDownloadDir)
+        org.crosswire.jsword.book.sword.SwordBookPath.scanDefaultLocations = savedScanDefaults
         CWProject::class.java.getDeclaredField("instance").apply { isAccessible = true }.set(null, savedInstance)
         if (savedHomeProperty == null) System.clearProperty("jsword.home") else System.setProperty("jsword.home", savedHomeProperty)
         Books.installed().getBook(INITIALS)?.let { Books.installed().removeBook(it) }
@@ -163,6 +167,67 @@ class InstallInspectorBackslashTest {
         }
         assertFalse(File(work, "evil").exists())
         assertFalse(File(work.parentFile, "evil").exists())
+    }
+
+    @Test fun rawTextArchiveRunsThroughInstallerAndReadsGenesis() = runBlocking {
+        // Do not replace an existing registered book or write to the user's SWORD directory.
+        kotlin.test.assertNull(Books.installed().getBook("K4RawText"))
+        val root = File("../jsword/src/commonTest/resources/k4-modules/space dir/ä")
+        val conf = File(root, "mods.d/K4RawText.conf")
+        check(conf.isFile)
+        val entries = listOf("mods.d/K4RawText.conf" to conf.readBytes()) +
+            File(root, "modules/K4RawText").listFiles()!!.sortedBy { it.name }
+                .map { "modules/K4RawText/${it.name}" to it.readBytes() }
+        val archive = zip(entries)
+        val watcher = net.bible.android.control.versification.BookInstallWatcher(
+            net.bible.sharedcore.platform.OrderedLauncher(this),
+            stub<net.bible.sharedcore.cloud.DocumentSyncStarter>(),
+            stub<net.bible.service.cloudsync.DocumentSyncProvider>(),
+            blank<net.bible.service.cloudsync.documents.DocumentSyncSettings>(),
+            stub<net.bible.sharedlogic.platform.AddonCatalog>(),
+        )
+        val runner = InstallJobRunner(
+            InstallInspector(::determineLocalFileType),
+            DefaultInstallCommitter(backupControl(), stub(), stub(), {}, { watcher }),
+        )
+        val acquired = File(work, "acquired.zip").absolutePath.toPath()
+        val phases = mutableListOf<InstallPhase>()
+        try {
+            val invalid = File(work, "invalid.zip").apply { writeBytes(byteArrayOf(0x50, 0x4b, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) }
+            val invalidResult = runner.runJob(
+                source = InstallSource(invalid.toURI().toString(), null, "invalid.zip", null),
+                acquireTo = acquired,
+                openStream = { InstallStream(invalid.source(), invalid.length()) },
+                isStudyPadExport = { false },
+                studyPadStats = { error("not a StudyPad") },
+                swordZipScan = ::scanSwordZip,
+                epubUpgradeCheck = { error("not an EPUB") },
+                onPhase = { phases += it },
+                awaitDecision = { error("invalid archive must not request a decision") },
+            )
+            assertEquals(InstallPhase.Error(InstallError.INVALID_FILE, "invalid.zip"), invalidResult)
+            assertFalse(File(acquired.toString()).exists())
+            kotlin.test.assertNull(Books.installed().getBook("K4RawText"))
+            phases.clear()
+            val result = runner.runJob(
+                source = InstallSource(archive.toURI().toString(), null, "fixture.zip", null),
+                acquireTo = acquired,
+                openStream = { InstallStream(archive.source(), archive.length()) },
+                isStudyPadExport = { false },
+                studyPadStats = { error("not a StudyPad") },
+                swordZipScan = ::scanSwordZip,
+                epubUpgradeCheck = { error("not an EPUB") },
+                onPhase = { phases += it },
+                awaitDecision = { error("fresh install must not request overwrite") },
+            )
+            assertEquals(InstallPhase.Done, result)
+            assertEquals(InstallPhase.Done, phases.last())
+            assertFalse(File(acquired.toString()).exists(), "acquired archive must be deleted")
+            val book = kotlin.test.assertNotNull(Books.installed().getBook("K4RawText"))
+            assertEquals("In the beginning God created the heaven and the earth.", book.getRawText(book.getKey("Gen.1.1")).trim())
+        } finally {
+            Books.installed().getBook("K4RawText")?.let { Books.installed().removeBook(it) }
+        }
     }
 
     private companion object {
