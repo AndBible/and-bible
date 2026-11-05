@@ -50,10 +50,34 @@ class RealFileFixturesTest {
     @Before fun before() = DatabaseContainer.reset()
     @After fun after() = DatabaseContainer.reset()
 
-    private fun replaceFixture(write: suspend () -> Unit) = runBlocking {
-        DatabaseContainer.aiLifetime.replace { token ->
-            DatabaseContainer.resetOwned(token)
-            write()
+    /**
+     * Replaces database files under replacement admission. Admission excludes only its own users, so any build of
+     * the container between the reset and the end of [write] is recorded with its builder's stack and fails the
+     * test: such a container may keep serving the database it opened before the copy (#3947, zero rows).
+     */
+    private fun replaceFixture(beforeWrite: suspend () -> Unit = {}, write: suspend () -> Unit) = runBlocking {
+        val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
+        val resetting = ThreadLocal.withInitial { false }
+        val original = DatabaseContainer.containerFactory
+        synchronized(DatabaseContainer.Companion) {
+            DatabaseContainer.containerFactory = {
+                if (!resetting.get()) builds += Throwable("container built by thread ${Thread.currentThread().name}")
+                original()
+            }
+        }
+        try {
+            DatabaseContainer.aiLifetime.replace { token ->
+                resetting.set(true)
+                try { DatabaseContainer.resetOwned(token) } finally { resetting.set(false) }
+                beforeWrite()
+                write()
+            }
+        } finally {
+            synchronized(DatabaseContainer.Companion) { DatabaseContainer.containerFactory = original }
+        }
+        builds.firstOrNull()?.let {
+            throw AssertionError("HARNESS FAILURE: DatabaseContainer was built ${builds.size} time(s) while fixture " +
+                "files were replaced; it may serve the pre-copy database", it)
         }
     }
 
@@ -216,6 +240,27 @@ class RealFileFixturesTest {
             scope.cancel()
         }
         primary?.let { throw it }
+    }
+
+    /**
+     * #3947 "bookmark fixture returns zero rows": a connection opened between the reset and the copy keeps
+     * serving the empty database it created (deterministically 0 rows instead of 3). Replacement admission only
+     * excludes admission users; `DatabaseContainer.instance` is built by whoever asks. The fixture must report
+     * such a build, with the builder's stack, instead of letting the test read the pre-copy database.
+     */
+    @Test fun containerBuiltWhileTheFixtureFileIsReplacedIsReported() {
+        var builder: Thread? = null
+        val failure = runCatching {
+            replaceFixture(beforeWrite = {
+                // A non-admission actor (e.g. a leaked coroutine of a previous test) in the reset/copy window.
+                val actor = Thread { runBlocking { DatabaseContainer.instance.bookmarkDb.bookmarkDao().allBookmarks() } }
+                builder = actor
+                actor.start(); actor.join()
+            }) { copyFixture(BookmarkDatabase.dbFileName) }
+        }.exceptionOrNull()
+        assertTrue("expected a harness report of the interleaved build, got $failure (rows now " +
+            "${openBookmarkCount().getOrNull()})", failure is AssertionError && failure.message!!.startsWith("HARNESS"))
+        assertTrue("report must name the builder thread", failure!!.cause!!.message!!.contains(builder!!.name))
     }
 
     /**
