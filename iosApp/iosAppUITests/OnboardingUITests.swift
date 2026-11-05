@@ -145,6 +145,7 @@ final class OnboardingUITests: RealAppUITestCase {
         app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch.tap()
         sendToBackground(app)
         app.terminate()
+        app.launchArguments = []
         app.launch()
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading did not open after the cancel")
         sleep(3)
