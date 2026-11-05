@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible tidak dapat memulai WebView2, yang diperlukan untuk menampilkan teks Alkitab. Pasang atau perbaiki Microsoft Edge WebView2 Evergreen Runtime dari:\n%1$s\n\nRincian ada di berkas log:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible memerlukan grafis Direct3D untuk menampilkan teks Alkitab dengan WebView2. Perender grafis saat ini adalah %1$s. Periksa driver grafis dan dukungan Direct3D Anda.\n\nRincian ada di berkas log:\n%2$s</string>
+  <string name="desktop_update_setting_title">Periksa pembaruan</string>
+  <string name="desktop_update_setting_summary">Sekali sehari, dari github.com</string>
+  <string name="desktop_update_consent_title">Periksa pembaruan?</string>
+  <string name="desktop_update_consent_message">AndBible dapat memeriksa github.com sekali sehari untuk versi yang lebih baru. GitHub melihat alamat IP Anda; tidak ada hal lain yang dikirim. Anda dapat mengubahnya nanti di Pengaturan.</string>
+  <string name="desktop_update_consent_yes">Periksa pembaruan</string>
+  <string name="desktop_update_consent_no">Jangan periksa</string>
+  <string name="desktop_update_available_title">Versi baru tersedia</string>
+  <string name="desktop_update_available_message">AndBible %1$s tersedia. Anda memakai %2$s.</string>
+  <string name="desktop_update_download">Unduh</string>
+  <string name="desktop_update_later">Nanti</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studi Alkitab</string>
   <string name="app_name_medium">Studi Alkitab (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d hasil pencarian</string>
   <string name="search_showing_first">Terlalu banyak hasil pencarian. Tampilkan hanya yg pertama %d</string>
   <string name="search_bible_section_group_prompt">Cari di mana</string>
+  <string name="search_type_prompt">Jenis pencarian</string>
+  <string name="search_show_results">Tampilkan hasil pencarian</string>
   <string name="search_all_bible">Seluruh Alkitab</string>
   <string name="search_new_testament">Perjanjian Baru</string>
   <string name="search_old_testament">Perjanjian Lama</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Temukan \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Terjemahan</string>
+  <string name="recent_searches">Pencarian terbaru</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Tutup pencarian</string>
+  <string name="search_options">Pengaturan pencarian</string>
+  <string name="search_submit">Cari</string>
+  <string name="search_clear">Hapus teks pencarian</string>
+  <string name="search_engine_changed_reindex">Mesin pencarian telah diperbarui. Indeks pencarian perlu dibuat ulang; ini mungkin memakan waktu.</string>
+  <string name="search_unsupported_syntax">Pencarian ini memakai sintaks yang tidak didukung: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Setelah pengindeksan selesai, pencarian akan berjalan otomatis.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s tidak dapat dicari</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Dokumen ini tidak dapat dicari</string>
+  <string name="search_indexing_notification_title">Membuat indeks pencarian</string>
   <string name="choose_translations">Pilih terjemahan…</string>
   <string name="multi_search_results">%1$d ayat dalam %2$d terjemahan</string>
   <string name="search_index_not_created">tidak ada indeks</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Pilih bagaimana warna ditampilkan. Mode e-ink warna tetap menggunakan dasar hitam &amp; putih namun menampilkan warna penanda buku, indikator jendela aktif, dan garis bantu dalam warna — untuk layar e-ink berwarna.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Hitam &amp; putih</string>
+  <string name="prefs_display_color_mode_monochrome">Monokrom</string>
   <string name="prefs_display_color_mode_color_eink">E-ink warna</string>
+  <string name="prefs_theme_palette_style_title">Gaya tema</string>
+  <string name="prefs_theme_palette_style_summary">Cara warna aplikasi diturunkan dari warna ruang kerja. Hanya berlaku saat Mode warna adalah Normal.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal spot (lembut, tetap abu-abu)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelity (warna persis)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal spot (asli)</string>
+  <string name="prefs_theme_palette_style_content">Content (mendekati warna)</string>
+  <string name="prefs_theme_palette_style_neutral">Netral (redup)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monokrom (abu-abu)</string>
+  <string name="prefs_theme_palette_style_vibrant">Cerah</string>
+  <string name="prefs_theme_palette_style_expressive">Ekspresif</string>
+  <string name="prefs_theme_palette_style_rainbow">Pelangi</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Salad buah</string>
   <string name="prefs_eink_settings_cat">Pengaturan E-ink</string>
   <string name="prefs_eink_display_title">Fitur E-ink</string>
   <string name="prefs_eink_display_summary">Aktifkan fitur khusus e-ink (tombol gulir halaman, garis pembantu gulir)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Tandai pasal secara otomatis sebagai sudah dibaca saat Anda menggulirnya</string>
   <string name="reading_progress_read_count_scale">Jumlah\nBacaan</string>
   <string name="reading_progress_percent_read_scale">Persen\nDibaca</string>
+  <string name="monochrome_activity_count">Jumlah aktivitas: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Jumlah: %d</string>
+  <string name="monochrome_level">Tingkat: %d/4</string>
+  <string name="monochrome_buckets">Abu-abu: tidak ada; berkontur: sebagian; terisi: penuh atau tingkat tertinggi. Pilih item untuk nilai pastinya.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Riwayat Bacaan</string>
   <string name="reading_progress_history_for">Kemajuan bacaan untuk %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Edit pengaturan tampilan teks untuk ruang kerja ini</string>
   <string name="global_text_options_link">Opsi teks global</string>
   <string name="global_text_options_link_summary">Edit pengaturan tampilan teks default untuk semua ruang kerja</string>
+  <string name="text_options_inherited_workspace">Ruang kerja</string>
+  <string name="text_options_inherited_global">Global</string>
   <string name="prefs_font_and_colors_title">Font &amp; Warna</string>
   <string name="prefs_text_layout_title">Tata Letak Teks</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morfologi</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Ruang kerja</string>
   <string name="copy_settings_to_window">Jendela %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Default global</string>
+  <string name="copy_settings_to_workspaces">Ke ruang kerja lain…</string>
+  <string name="copy_settings_to_global_defaults">Ke default global…</string>
+  <string name="menu_back">Kembali</string>
   <string name="change_to_normal">Ubah ke jendela normal</string>
   <string name="window_pin_mode">Sematkan</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">Tidak dapat terhubung ke server dokumen berikut: \n\n%s\n\n</string>
   <string name="failed_downloads_message">File berikut tidak dapat diunduh:\n\n%s\n\n</string>
   <string name="cant_delete_document">Dokumen ini tidak dapat dihapus.</string>
+  <string name="bad_document_warning">Dokumen ini memiliki masalah yang diketahui.</string>
   <!--Install zip file-->
   <string name="install_zip">Buka Dokumen dari Zip</string>
   <string name="install_zip_module">Instal Modul Alkitab</string>
@@ -365,6 +427,11 @@
   <string name="delete_index">Hapus indeks pencarian</string>
   <string name="about">Tentang</string>
   <string name="delete_doc">Hapus %s?</string>
+  <string name="interrupted_downloads_title">Unduhan terputus</string>
+  <string name="interrupted_downloads_message">Dokumen-dokumen ini tidak terpasang karena unduhannya terputus:</string>
+  <string name="interrupted_downloads_question">Unduh lagi?</string>
+  <string name="download_again">Unduh lagi</string>
+  <string name="delete_docs_confirm">Hapus dokumen-dokumen ini?</string>
   <string name="delete_search_index_doc">Hapus indeks dari %s?</string>
   <!--Verse context menu-->
   <string name="notes">Catatan kaki dan referensi</string>
@@ -385,6 +452,7 @@
   <string name="assign_labels">Tetapkan label</string>
   <string name="new_item">Baru</string>
   <string name="label_name_prompt">Nama</string>
+  <string name="new_label_default_name">Label %d</string>
   <string name="label_unlabelled">Tanpa label</string>
   <string name="add_bookmark1">Penanda Buku</string>
   <string name="add_bookmark3">Pilihan</string>
@@ -432,6 +500,8 @@
   <string name="rewind">Mundur</string>
   <string name="forward">Maju</string>
   <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
+  <string name="tts_engine_not_available">Teks-ke-ucapan tidak berfungsi di perangkat ini. Pastikan mesin ucapan terpasang dan diaktifkan di pengaturan teks-ke-ucapan sistem.</string>
+  <string name="tts_audio_focus_denied">Ucapan tidak dapat dimulai karena aplikasi lain sedang memakai audio.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Kecepatan berbicara</string>
   <string name="speak_and_play_earcons_title">Bicara dan putar efek suara untuk</string>
@@ -441,6 +511,10 @@
   <string name="speak_bookmarks_menu_title">Bicara dari penanda buku</string>
   <string name="speak_advanced_settings">Pengaturan Lanjutan</string>
   <string name="speak_sleep_timer_title">Waktu tidur</string>
+  <string name="speak_sleep_timer_minutes">%d mnt</string>
+  <string name="speak_sleep_timer_custom">Kustom…</string>
+  <string name="speak_sleep_timer_off">Mati</string>
+  <string name="speak_other_settings">Lainnya</string>
   <string name="speak_no_books_available">Tidak ada buku tersedia untuk bicara</string>
   <string name="speak_general_error">Bicara tidak dapat dimulai untuk kitab ini</string>
   <string name="repeat_passage">Pengulangan bagian</string>
@@ -469,6 +543,11 @@
   <string name="speak_autobookmarking_disabled">Penanda buku otomatis dinonaktifkan!</string>
   <string name="system_speak_settings">Buka pengaturan sistem bicara</string>
   <string name="auto_assing_labels_help1">Di sini Anda dapat mengatur label mana yang ditetapkan secara otomatis ke penanda buku yang Anda buat.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Di sini Anda dapat menambah, mengedit, dan menghapus label, serta mengatur label mana yang ditetapkan otomatis ke penanda buku yang Anda buat.\n\nLabel terbaru: label yang baru-baru ini dipakai.\nLabel lainnya: semua label lain.\n\nGunakan opsi filter pada bilah pencarian untuk hanya melihat label yang ditetapkan otomatis atau label favorit.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Pengaturan ini berlaku untuk %s.</string>
   <string name="setting_scope_window">jendela ini</string>
@@ -575,6 +654,9 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="loading_backup">Memuat basis data dari cadangan...</string>
   <string name="backup_success2">Catatanku, Penanda Buku, Lembar Studi, Rencana Bacaan, dan Ruang Kerja berhasil dicadangkan.</string>
   <string name="backup_modules_success">Modul yang dipilih berhasil dicadangkan.</string>
+  <string name="backup_modules_conflict">Pencadangan tidak dibuat: %1$s dan %2$s sama-sama berisi berkas %3$s, dengan isi yang berbeda. Pilih salah satunya saja lalu coba lagi.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (versi %2$s, folder %3$s)</string>
   <string name="backup_modules_email_subject_2">Cadangan modul %s</string>
   <string name="backup_modules_email_message_2">Terlampir adalah cadangan modul %1$s Anda, yang berisi modul-modul berikut: %2$s</string>
   <string name="backup_email_subject_2">Cadangan database %s</string>
@@ -583,6 +665,9 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="exported_studypads_message">Database %s Anda yang berisi Penanda Buku dan Catatan terkait Lembar Studi yang dipilih terlampir</string>
   <string name="restore_unsuccessfull">Pemulihan basis data tidak berhasil. Mungkin terdapat kesalahan pada file basis data yang diberikan.</string>
   <string name="send_backup_file">Kirim file cadangan</string>
+  <string name="export_destination_title">Ekspor ke mana?</string>
+  <string name="export_destination_message">Simpan hasil ekspor ke ponsel ini, atau kirim ke tempat lain dengan Bagikan.</string>
+  <string name="send_export_file">Kirim berkas ekspor</string>
   <string name="backup_modules_title">Pilih modul yang akan dicadangkan</string>
   <string name="install_zip_canceled">Instalasi modul dibatalkan</string>
   <string name="ask_restore_or_import">Database untuk %s dapat dipulihkan (yaitu database yang ada dihapus dan database yang dipilih dimuat) atau diimpor (database yang dipilih diimpor ke database yang ada). Apa yang ingin Anda lakukan?</string>
@@ -623,12 +708,25 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="doc_type_book">Buku</string>
   <string name="doc_type_map">Peta</string>
   <string name="doc_type_addons">Add-on</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Lainnya</string>
+  <string name="document_type_label">Jenis dokumen</string>
   <!--Languages-->
   <string name="lang_default">Default</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Batalkan</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Kembali</string>
+  <string name="settings_editor_close">Tutup</string>
+  <string name="settings_editor_apply">Terapkan</string>
   <string name="discard_changes_confirmation">Buang perubahan yang belum disimpan?</string>
+  <string name="discard">Buang</string>
+  <string name="remove">Hapus</string>
+  <string name="overwrite">Timpa</string>
+  <string name="set_current_day_action">Atur hari</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
   <string name="error">Salah</string>
@@ -638,6 +736,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="watch_tutorial_video">Lihat video tutorial (dalam bahasa Inggris)</string>
   <string name="verse_not_found">Ayat tidak dapat ditemukan</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Lanjutkan</string>
   <string name="report_error">Kirim laporan</string>
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
   <string name="error_occurred_crash_last_time">Terakhir kali Anda menggunakan aplikasi, aplikasi berhenti. Untuk membantu kami memperbaiki bug, kami akan sangat berterima kasih jika Anda mengirimkan laporan bug.</string>
@@ -648,8 +747,14 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="error_key_not_in_document2">%1$s tidak ditemukan dalam dokumen %2$s.</string>
   <string name="empty_list">Tidak ada item untuk ditampilkan</string>
   <string name="error_skip">Lewati</string>
+  <string name="debug_test_error">Galat uji (build debug)</string>
+  <string name="bug_report_prepare_failed">Laporan tidak dapat disiapkan atau dibagikan. Anda dapat mencoba lagi, atau gunakan Cadangkan &amp; Pulihkan untuk menyimpan data Anda.</string>
   <string name="bug_report_email_title">Kirim laporan bug melalui email</string>
   <string name="bug_report_email_text">Selanjutnya, silakan pilih aplikasi email pilihan Anda (misalnya Gmail) untuk mengirim laporan ke tim pengembang.</string>
+  <string name="bug_report_manual_title">Kirim laporan lewat email</string>
+  <string name="bug_report_manual_text_saved">Laporan disimpan di</string>
+  <string name="bug_report_manual_text_unsaved">Tidak ada program email yang dapat dibuka di perangkat ini.\n\nSilakan kirim laporan lewat email ke</string>
+  <string name="bug_report_copy_address">Salin alamat</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks ke bicara</string>
   <string name="notification_channel_progress_status">Notifikasi status perkembangan untuk pengunduhan dokumen dll.</string>
@@ -673,6 +778,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="search_settings">Pengaturan pencarian</string>
   <string name="dismiss">Tutup</string>
   <string name="workspace_listing_with_current">%s (saat ini)</string>
+  <string name="workspace_manage_workspaces">Kelola ruang kerja…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
   <string name="beta_notice_content_1">
@@ -711,7 +817,10 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="help_search_title">Pencarian</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Teks pencarian dapat menyertakan karakter khusus seperti *, AND, OR, NOT</string>
+  <string name="help_search_bible">Pilih cara kata-kata dicocokkan: Semua kata menemukan ayat yang memuat setiap kata, Salah satu kata menemukan ayat yang memuat setidaknya satu kata, dan Frasa menemukan kata-kata yang berdampingan dalam urutan itu.\n\nDalam pencarian Anda juga dapat memakai * dan ? sebagai wildcard (misalnya bless* cocok dengan blessed dan blessing), menggabungkan istilah dengan AND, OR, dan NOT, serta mencari nomor Strong secara langsung (misalnya strong:h0430).</string>
+  <string name="help_search_epub">Pilih cara kata-kata dicocokkan: Semua kata menemukan bagian yang memuat setiap kata, Salah satu kata menemukan bagian yang memuat setidaknya satu kata, dan Frasa menemukan kata-kata yang berdampingan dalam urutan itu.\n\nSintaks kueri mentah meneruskan teks Anda ke mesin pencarian tanpa perubahan, sehingga Anda dapat menulis kueri sendiri: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" untuk frasa persis, bless* untuk mencocokkan kata apa pun yang diawali bless, dan grace NEAR faith untuk menemukan keduanya berdekatan.</string>
   <string name="help_search_details">Silakan lihat %s untuk detail lebih lanjut.</string>
+  <string name="help_search_syntax">Sintaks pencarian</string>
   <string name="help_fts5">Sintaksis Kueri Teks Lengkap FTS5</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <string name="help_workspaces_text">Ruang kerja memungkinkan memiliki beberapa lingkungan kerja yang bergantung pada konteks. Fungsi ruang kerja dapat diakses melalui item Ruang Kerja di menu opsi (sudut kanan atas). Cara cepat untuk mengakses ruang kerja adalah dengan gerakan geser ke bawah dari toolbar. Anda juga dapat menggunakan gerakan geser ke kiri dan ke kanan di atas toolbar untuk beralih ke ruang kerja sebelumnya / berikutnya.</string>
@@ -720,6 +829,12 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="help_window_pinning_title">Penyematan jendela</string>
   <string name="help_window_pinning_text">Anda dapat mengaktifkan penyematan jendela dari menu opsi (tiga titik, sudut kanan atas). Jika penyematan jendela diaktifkan, Anda dapat menampilkan banyak jendela yang disematkan di tampilan Alkitab, tetapi hanya satu jendela yang tidak disematkan. Jendela yang disematkan ditampilkan terlebih dahulu, kemudian jendela yang tidak disematkan. Anda mungkin ingin membuka dokumen Alkitab sebagai jendela yang disematkan, dan tafsiran dan peta dll. sebagai jendela yang tidak disematkan. Maka Anda dapat dengan mudah selalu membuka dokumen Alkitab, dan beralih dengan cepat antara tafsiran dan materi tambahan lainnya saat belajar Alkitab.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Belum ada dokumen di pustaka Anda. Tambahkan beberapa untuk memulai.</string>
+  <string name="welcome_redownload_row_hint">Pilih dari dokumen yang dipasang sebelumnya</string>
+  <string name="welcome_download_row_hint">Jelajahi katalog daring</string>
+  <string name="welcome_restore_row_hint">Berkas basis data berisi penanda buku dan catatan</string>
+  <string name="welcome_link_website">Situs web</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Anda harus memilih file yang ingin Anda muat ke %s.</string>
@@ -735,9 +850,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="format_studypads">Lembar Studi dari database AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Tutup</string>
+  <string name="reading_toolbar_options">Opsi lainnya</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Saya mengerti</string>
-  <string name="first_time_help_show_next_time">Tampilkan lagi lain kali</string>
   <string name="strongs_mode_title">Pilih mode Strong</string>
   <string name="download_dialog_message">Kitab-kitab berikut tidak dapat diunduh:</string>
   <string name="journal_description">Lembar studi yang dapat diedit pengguna dengan teks khusus dan penanda buku</string>
@@ -762,6 +876,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="prefs_experimental_features_summary">Pilih fitur eksperimental yang akan diaktifkan. Fitur-fitur ini masih dalam pengembangan dan mungkin berubah atau dihapus</string>
   <string name="experimental_feature_bookmark_edit_actions">Tindakan edit penanda buku</string>
   <string name="experimental_feature_add_paragraph_break">Tambah penanda buku jeda paragraf</string>
+  <string name="experimental_feature_toolbar_literal_color">Gunakan warna ruang kerja apa adanya untuk bilah alat bacaan (bukan warna tema)</string>
   <string name="raw_llm_log_title">Log LLM Mentah</string>
   <string name="raw_llm_log_empty">Tidak ada data log mentah yang tersedia</string>
   <string name="raw_llm_log_copied">Log disalin ke clipboard</string>
@@ -848,6 +963,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="display_mode_underline">Garis bawah</string>
   <string name="display_mode_marker">Penanda saja</string>
   <string name="display_mode_hidden">Tersembunyi</string>
+  <string name="display_mode_inherit">Sama dengan pilihan</string>
   <string name="workspace_override_indicator">Label ini memiliki mode tampilan khusus ruang kerja</string>
   <string name="primary_label">Label utama</string>
   <string name="favourite_label">Label favorit</string>
@@ -861,6 +977,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="book_menu_show_long_book_name">Tampilkan nama kitab panjang</string>
   <string name="book_menu_show_progress_bars">Tampilkan bilah kemajuan</string>
   <string name="reset_workspace_labels">Apakah Anda ingin mengatur ulang pengaturan penetapan otomatis dan favorit untuk ruang kerja ini?</string>
+  <string name="clear_auto_assign_labels">Hapus label tetapan otomatis</string>
+  <string name="reset_workspace_auto_assign_labels">Apakah Anda ingin menghapus semua label tetapan otomatis dari ruang kerja ini?</string>
   <string name="reset_hide_labels">Apakah Anda ingin mengatur ulang pengaturan penyembunyian label yang ditentukan?</string>
   <string name="reorder">Susun Ulang</string>
   <string name="system_items">Tindakan sistem</string>
@@ -932,6 +1050,27 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="instructions_for_translators">petunjuk bagi penerjemah</string>
   <string name="questions_title">Ada pertanyaan?</string>
   <string name="bookmark_style">Gaya penanda buku</string>
+  <string name="bookmark_style_preview_sample">Karena begitu besar kasih Allah akan dunia</string>
+  <string name="bookmark_style_selection">Penanda buku pilihan teks</string>
+  <string name="bookmark_style_whole_verse">Penanda buku seluruh ayat</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Gunakan gaya berbeda untuk penanda buku seluruh ayat</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Pilihan</string>
+  <string name="bookmark_style_tag_whole_verse">Seluruh ayat</string>
+  <string name="bookmark_style_tag_workspace">Ruang kerja</string>
+  <string name="show_style_examples">Tampilkan contoh gaya</string>
+  <string name="labels_search_section">Cari</string>
+  <string name="labels_filter_section">Tampilkan</string>
+  <string name="labels_filter_auto_assign">Hanya label tetapan otomatis</string>
+  <string name="labels_filter_favourite">Hanya label favorit</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Centang label untuk menetapkannya ke penanda buku ini.</string>
+  <string name="manage_labels_help_primary">Label utama. Warna dan gayanya yang ditampilkan penanda buku.</string>
+  <string name="manage_labels_help_autoassign">Tetapkan label ini secara otomatis ke setiap penanda buku baru. Petir berongga berarti mati.</string>
+  <string name="manage_labels_help_favourite">Simpan label di favorit Anda untuk akses cepat.</string>
+  <string name="manage_labels_help_styles">Di bawah nama, contoh kecil menampilkan tampilan label: Pilihan untuk penanda buku pilihan teks, Seluruh ayat untuk penanda buku seluruh ayat, dan tag Ruang kerja untuk gaya yang ditimpa ruang kerja ini. Contoh yang abu-abu tanpa dekorasi berarti penanda buku label itu tidak digambar. Sembunyikan contoh dari menu ⋮.</string>
+  <string name="manage_labels_help_reorder">Urutkan ulang daftar dari menu ⋮.</string>
   <string name="added_to_bookmark">Ditambahkan ke penanda buku ini</string>
   <string name="strongs_links">Tautan</string>
   <string name="strongs_text_and_links">Teks dan Tautan</string>
@@ -970,6 +1109,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_group_n">Grup %d</string>
   <string name="disable_sync">Nonaktifkan sinkronisasi</string>
   <string name="open_in_window">Buka hasil di jendela</string>
+  <string name="open_result_in_links_window">Buka hasil di jendela tautan</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Repositori kustom</string>
@@ -980,7 +1120,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="delete_custom_repository">Apakah Anda ingin menghapus repositori kustom %s?</string>
   <string name="custom_repositories_help1">Untuk menambahkan repositori kustom baru, ketik atau salin &amp; tempel URL repositori kustom di sini.</string>
   <string name="custom_repositories_help2">Anda dapat membaca informasi lebih lanjut tentang repositori kustom di %s.</string>
-  <string name="wiki_page">Halaman WIKI</string>
   <string name="custom_repositories_help0">Anda dapat menginstal dokumen dari repositori khusus eksternal dengan menginstal repositori khusus.</string>
   <string name="duplicate_custom_repository">Repositori dengan nama %s sudah ada, tidak dapat menambahkan yang lain.</string>
   <string name="packages_dir">Direktori paket (file Zip)</string>
@@ -1020,6 +1159,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="reading_progress_new_cycle_confirm">Mulai siklus bacaan baru? Ini akan mulai melacak progres Anda dari awal, sambil menyimpan data siklus sebelumnya.</string>
   <string name="reading_progress_previous_cycle">Siklus sebelumnya</string>
   <string name="reading_progress_next_cycle">Siklus berikutnya</string>
+  <string name="cloud_merge_data">Gabungkan data</string>
   <string name="cloud_fetch_and_restore_initial">Salin dari Cloud ke perangkat ini</string>
   <string name="cloud_create_new">Salin dari perangkat ini ke Cloud</string>
   <string name="cloud_disable_sync">Batalkan &amp; nonaktifkan sinkronisasi</string>
@@ -1033,6 +1173,19 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_adapter_summary">Saat ini: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Alamat folder WebDAV, mis. https://nas.local/dav/ atau https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Sinkronisasi memerlukan alamat https:// yang aman.</string>
+  <string name="webdav_certificate_title">Sertifikat server</string>
+  <string name="webdav_forget_certificate_message">Lupakan sertifikat server tepercaya? Anda akan diminta mengonfirmasi sertifikat lagi pada koneksi berikutnya.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Sertifikat server tidak tepercaya</string>
+  <string name="webdav_untrusted_certificate_message">Sertifikat %1$s tidak dipercaya oleh Android. Percayai hanya jika Anda mengenalinya, misalnya karena Anda sendiri yang menyiapkan server ini.\n\nSubjek: %2$s\nPenerbit: %3$s\nBerlaku: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Percayai sertifikat ini</string>
+  <string name="webdav_wrong_credentials">Nama pengguna atau kata sandi salah.</string>
+  <string name="webdav_not_a_folder">Alamat ini bukan folder WebDAV.</string>
+  <string name="webdav_certificate_changed">Sertifikat server telah berubah. Sinkronisasi dijeda sampai Anda mengonfirmasi sertifikat baru, yang akan ditanyakan AndBible saat berikutnya dibuka atau menyinkronkan di latar depan.</string>
+  <string name="webdav_storage_full">Penyimpanan server penuh.</string>
   <string name="auth_server_uri">URL server</string>
   <string name="auth_username">Nama pengguna</string>
   <string name="auth_password">Kata sandi</string>
@@ -1042,6 +1195,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_general_settings">Info &amp; pengaturan umum</string>
   <string name="sync_introduction">Pengantar</string>
   <string name="are_you_sure">Apakah Anda yakin?</string>
+  <string name="are_you_sure_merge">Data di perangkat ini dan %s di cloud akan sama-sama dipertahankan. Jika item yang sama diubah di keduanya, perubahan yang lebih baru dipertahankan. Data perangkat ini akan dikirim ke perangkat Anda yang lain.</string>
   <string name="are_you_sure_reset_local">Ini akan mengatur ulang database lokal Anda untuk %s dengan konten yang saat ini tersimpan di layanan cloud.</string>
   <string name="are_you_sure_reset_cloud">Ini akan mengatur ulang database cloud Anda untuk %s dengan konten yang Anda miliki di perangkat ini.</string>
   <string name="sync_cant_fetch">Versi database atau file patch yang tersimpan di Cloud lebih tinggi dari yang didukung aplikasi ini.</string>
@@ -1076,6 +1230,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="pref_font_size_multiplier_title">Pengali ukuran font</string>
   <string name="pref_font_size_multiplier_summary_1">Kalikan ukuran font teks dengan angka ini.</string>
   <string name="pref_font_size_multiplier_summary_2">Berguna jika Anda memiliki perangkat yang disinkronkan yang digunakan dengan font lebih besar.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Nilai saat ini: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Tindakan untuk gestur geser kiri / kanan</string>
   <string name="prefs_bible_view_swipe_mode_summary">Gestur geser kiri / kanan dapat digunakan untuk pergi ke halaman / pasal berikutnya.</string>
@@ -1196,6 +1351,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="prompt_max_iterations_unlimited">Tidak terbatas</string>
   <string name="prompt_max_iterations_global_default">Default global (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Ganti iterasi maksimum global untuk prompt ini. 0 = tidak terbatas.\nSaat ini: %s</string>
+  <string name="prompt_max_iterations_use_global">Gunakan pengaturan global (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Kelola Prompt AI</string>
   <string name="manage_prompts_summary">Buat dan edit prompt AI</string>
@@ -1329,6 +1485,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="built_in_prompt_notice">Ini adalah prompt bawaan dan tidak dapat diedit. Gunakan \"Salin untuk dikustomisasi\" untuk membuat salinan yang dapat diedit.</string>
   <string name="copy_to_customize">Salin untuk dikustomisasi</string>
   <string name="prompt_copied">Prompt disalin</string>
+  <string name="prompt_copy_failed">Prompt tidak dapat disalin. Mungkin telah dihapus.</string>
   <string name="delete_prompt_confirmation">Hapus prompt \"%s\"?</string>
   <string name="prompt_name_required">Nama prompt diperlukan</string>
   <string name="prompt_template_required">Template prompt diperlukan</string>
@@ -1536,6 +1693,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="tool_option_default_disabled">Default (dinonaktifkan)</string>
   <string name="tool_option_default_allowed">Default (diizinkan)</string>
   <string name="tool_option_default_denied">Default (ditolak)</string>
+  <string name="tool_description_info">Tampilkan deskripsi alat</string>
+  <string name="tool_permission_mixed">Campuran</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Default</string>
@@ -1581,6 +1740,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="my_document_pages_empty">Tidak ada halaman dalam dokumen ini.</string>
   <string name="my_document_page_rename_title">Ganti nama halaman</string>
   <string name="my_document_page_delete_confirmation">Hapus halaman \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Hapus halaman-halaman ini?</string>
+  <string name="my_documents_switch_document">Ganti dokumen</string>
   <string name="my_document_new_page_name">Halaman %1$d</string>
   <string name="my_document_create_page_title">Halaman baru</string>
   <string name="my_document_content_type_label">Jenis konten</string>
@@ -1677,4 +1838,91 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="document_sync_started">Sinkronisasi dokumen dimulai</string>
   <string name="document_sync_enable_dialog_title">Mulai menyinkronkan dokumen?</string>
   <string name="document_sync_enable_dialog_nothing">Belum ada dokumen untuk ditransfer. Dokumen yang baru dipasang akan disinkronkan secara otomatis.</string>
+  <string name="help_document_sync_text">Sinkronisasi dokumen menyalin Alkitab, tafsiran, dan dokumen lain yang terpasang ke cloud dan menjaganya tetap sinkron di semua perangkat Anda. Gunakan tampilan ini untuk melihat apa yang tersimpan di cloud, mengunduh atau mengunggah dokumen satu per satu, menghapus dokumen, dan mengatur apa yang disinkronkan ke perangkat ini.</string>
+  <string name="background_image_title">Gambar latar</string>
+  <string name="background_image_none">Tanpa latar</string>
+  <string name="background_image_import">Impor dari galeri…</string>
+  <string name="background_image_empty">Belum ada gambar yang diimpor. Ketuk \"Impor dari galeri…\" untuk menambahkan.</string>
+  <string name="background_image_importing">Mengimpor…</string>
+  <string name="background_image_delete_title">Hapus gambar?</string>
+  <string name="background_image_delete_confirm">Hapus gambar latar ini? Ruang kerja yang masih memakainya akan kembali tanpa gambar.</string>
+  <string name="background_image_day">Gambar latar (siang)</string>
+  <string name="background_image_night">Gambar latar (malam)</string>
+  <string name="background_image_opacity_day">Opasitas gambar latar (siang)</string>
+  <string name="background_image_opacity_night">Opasitas gambar latar (malam)</string>
+  <string name="background_image_change">Ubah</string>
+  <string name="color_picker_title">Pilih Warna</string>
+  <string name="color_picker_presets">Prasetel</string>
+  <string name="color_picker_custom">Kustom</string>
+  <string name="bookmark_expand_row">Tampilkan teks lengkap</string>
+  <string name="bookmark_collapse_row">Tampilkan lebih sedikit</string>
+  <string name="bookmark_label_filter">Filter menurut label</string>
+  <string name="document_quick_all_documents">Semua dokumen…</string>
+  <string name="document_quick_tab_recent">Terbaru</string>
+  <string name="document_quick_tab_for_verse">Ayat ini</string>
+  <string name="document_quick_tab_last_filter">Filter terakhir</string>
+  <string name="document_quick_tab_all">Semua</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filter dan urutkan</string>
+  <string name="doc_arrange_repository">Repositori</string>
+  <string name="doc_arrange_all_repositories">Semua repositori</string>
+  <string name="doc_arrange_sort">Urutan</string>
+  <string name="doc_arrange_group_by">Kelompokkan menurut</string>
+  <string name="doc_arrange_remember">Ingat pengaturan ini</string>
+  <string name="doc_arrange_reset">Atur ulang ke default</string>
+  <string name="doc_arrange_more_filters">Filter lainnya</string>
+  <string name="doc_arrange_reorder">Susun ulang</string>
+  <string name="doc_sort_ascending">Menaik</string>
+  <string name="doc_sort_descending">Menurun</string>
+  <string name="doc_sort_status">Status</string>
+  <string name="doc_sort_recommended">Yang direkomendasikan dahulu</string>
+  <string name="doc_sort_name">Nama</string>
+  <string name="doc_sort_size">Ukuran</string>
+  <string name="doc_group_none">Tanpa pengelompokan</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Sedang mengunduh</string>
+  <string name="doc_group_status_update_available">Pembaruan tersedia</string>
+  <string name="doc_group_status_installed">Terpasang</string>
+  <string name="doc_group_status_not_installed">Belum terpasang</string>
+  <string name="prompt_filter_title">Filter prompt</string>
+  <string name="prompt_filter_type">Jenis</string>
+  <string name="prompt_type_addon">Add-on</string>
+  <string name="prompt_type_user">Kustom</string>
+  <string name="prompt_filter_clear">Hapus filter</string>
+  <string name="prompt_favorite_add">Tambahkan ke favorit</string>
+  <string name="prompt_favorite_remove">Hapus dari favorit</string>
+  <string name="window_unmaximise">Pulihkan semua jendela</string>
+  <string name="window_menu_button">Menu jendela</string>
+  <string name="paste_from_clipboard">Tempel</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Gagang seret</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Memperbarui data Anda…</string>
+  <string name="legacy_migration_progress_neutral">Memperbarui…</string>
+  <string name="legacy_migration_failed_title">Data Anda tidak dapat diperbarui</string>
+  <string name="legacy_migration_failed_message">Data Anda dari versi aplikasi sebelumnya aman dan tidak berubah di perangkat ini. Pilih langkah berikutnya.</string>
+  <string name="legacy_migration_failed_keychain">Kata sandi tersimpan dari versi sebelumnya tidak dapat dibaca. Buka kunci perangkat Anda, lalu tutup dan buka kembali aplikasi.</string>
+  <string name="legacy_migration_rollback_pending">Pembaruan terputus dan belum sepenuhnya dibatalkan. Tutup dan buka kembali aplikasi untuk menyelesaikan pembatalannya.</string>
+  <string name="legacy_migration_save_old_data">Simpan data lama</string>
+  <string name="legacy_migration_send_report">Kirim laporan galat</string>
+  <string name="legacy_migration_try_again">Coba lagi</string>
+  <string name="legacy_migration_try_again_hint">Tutup aplikasi dan buka lagi untuk mencoba kembali.</string>
+  <string name="legacy_migration_restore_backup">Pulihkan cadangan</string>
+  <string name="legacy_migration_start_fresh">Mulai tanpa data lama</string>
+  <string name="legacy_migration_start_fresh_confirm">Data lama Anda tetap ada di perangkat ini. Anda dapat mengimpornya nanti di Pengaturan.</string>
+  <string name="legacy_import_title">Impor data dari versi aplikasi sebelumnya</string>
+  <string name="legacy_import_summary">Ganti data saat ini dengan data versi aplikasi sebelumnya</string>
+  <string name="legacy_import_confirm">Ini menggantikan ruang kerja, penanda buku, dan data Anda yang lain dengan data versi aplikasi sebelumnya. Salinan data Anda saat ini disimpan di perangkat ini.</string>
+  <string name="legacy_import_reopen">Tutup aplikasi dan buka lagi untuk mengimpor data Anda.</string>
+  <string name="legacy_notice_icloud">Sinkronisasi kini memakai iCloud Drive. Aktifkan kembali di Pengaturan → Sinkronisasi. Perangkat ini mempertahankan data yang dimilikinya; perubahan dari perangkat Anda yang lain akan tiba setelah sinkronisasi disiapkan kembali. Untuk mengosongkan data iCloud lama: Pengaturan → nama Anda → iCloud → Kelola Penyimpanan → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Koneksi Nextcloud Anda dibawa serta, tetapi sinkronisasi mati. Aktifkan di Pengaturan → Sinkronisasi lalu pilih untuk mengambil dari cloud atau membuat baru.</string>
+  <string name="legacy_notice_nextcloud_unsent">Beberapa perubahan di perangkat ini belum terkirim ke Nextcloud. Perubahan itu tidak dikirim dan hanya tersimpan di perangkat ini.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Ini adalah aplikasi studi Alkitab luring yang andal namun mudah digunakan.</string>
+  <string name="webdav_untrusted_certificate_message_device">Sertifikat %1$s tidak dipercaya oleh perangkat ini. Percayai hanya jika Anda mengenalinya, misalnya karena Anda sendiri yang menyiapkan server ini.\n\nSubjek: %2$s\nPenerbit: %3$s\nBerlaku: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Repositori kustom harus memakai alamat https:// yang aman.</string>
+  <string name="custom_repository_https_required_refresh">%1$s memakai alamat http://. Hanya repositori https:// yang dapat dipakai.</string>
 </resources>

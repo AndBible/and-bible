@@ -8,6 +8,7 @@ noteTextWithoutType: Nota kaki
 crossReferenceText: Rujukan silang
 findAllOccurrences: Cari semua kejadian
 reportError: Laporkan ralat
+retryLoad: Cuba lagi
 errorTitle: Ralat berlaku
 warningTitle: Amaran
 normalTitle: Sila ambil perhatian
@@ -36,6 +37,7 @@ createdAt: "Dibuat: %s"
 lastUpdatedOn: "Dikemas kini terakhir: %s"
 strongsAndMorph: "Definisi & Morfologi"
 externalLink: Buka pautan luaran
+internalLink: Buka pautan dalaman
 referenceLink: Buka pautan rujukan
 openFootnote: Buka nota kaki
 noMyNotesTitle: Tiada Nota Saya untuk bab ini.
@@ -92,6 +94,7 @@ editActionModeAppend: Tambah teks di akhir
 editActionModePrepend: Tambah teks di awal
 editActionContentLabel: Kandungan
 editActionContentPlaceholder: Masukkan teks yang hendak ditambah ke dokumen...
+editActionContentRequired: Masukkan kandungan atau pilih Tiada.
 experimentalFeatureTitle: Eksperimental
 experimentalFeatureHelpTitle: Tentang Ciri Eksperimental
 experimentalFeatureHelpContent: Ciri eksperimental adalah keupayaan baharu yang masih dalam pembangunan dan pengujian. Ia mungkin tidak berfungsi dengan sempurna dan boleh berubah dengan ketara atau dibuang dalam versi aplikasi masa hadapan.

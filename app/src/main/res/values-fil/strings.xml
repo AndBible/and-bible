@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">Hindi masimulan ng AndBible ang WebView2, na kailangan para maipakita ang teksto ng Bibliya. I-install o ayusin ang Microsoft Edge WebView2 Evergreen Runtime mula sa:\n%1$s\n\nMakikita ang mga detalye sa log file:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">Kailangan ng AndBible ang Direct3D graphics para maipakita ang teksto ng Bibliya gamit ang WebView2. Ang kasalukuyang graphics renderer ay %1$s. Tingnan ang iyong graphics driver at suporta sa Direct3D.\n\nMakikita ang mga detalye sa log file:\n%2$s</string>
+  <string name="desktop_update_setting_title">Tingnan kung may update</string>
+  <string name="desktop_update_setting_summary">Minsan isang araw, mula sa github.com</string>
+  <string name="desktop_update_consent_title">Tingnan kung may update?</string>
+  <string name="desktop_update_consent_message">Maaaring tingnan ng AndBible ang github.com minsan isang araw para sa mas bagong bersyon. Makikita ng GitHub ang iyong IP address; wala nang ibang ipinapadala. Maaari mo itong baguhin sa Mga Setting.</string>
+  <string name="desktop_update_consent_yes">Tingnan kung may update</string>
+  <string name="desktop_update_consent_no">Huwag tingnan</string>
+  <string name="desktop_update_available_title">May bagong bersyon</string>
+  <string name="desktop_update_available_message">Available na ang AndBible %1$s. Ang gamit mo ay %2$s.</string>
+  <string name="desktop_update_download">I-download</string>
+  <string name="desktop_update_later">Mamaya na</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Pag-aaral ng Bibliya</string>
   <string name="app_name_medium">Pag-aaral ng Bibliya (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d mga tugmang nahanap</string>
   <string name="search_showing_first">Masyadong maraming tugma. Ipinapakita ang unang %d</string>
   <string name="search_bible_section_group_prompt">Hanapin Saan</string>
+  <string name="search_type_prompt">Uri ng paghahanap</string>
+  <string name="search_show_results">Ipakita ang mga resulta ng paghahanap</string>
   <string name="search_all_bible">Buong Bibliya</string>
   <string name="search_new_testament">Bagong Tipan</string>
   <string name="search_old_testament">Lumang Tipan</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Hanapin ang \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Mga Salin</string>
+  <string name="recent_searches">Mga kamakailang paghahanap</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Isara ang paghahanap</string>
+  <string name="search_options">Mga setting ng paghahanap</string>
+  <string name="search_submit">Hanapin</string>
+  <string name="search_clear">I-clear ang teksto ng paghahanap</string>
+  <string name="search_engine_changed_reindex">Na-update ang search engine. Kailangang gawing muli ang search index; maaaring magtagal ito.</string>
+  <string name="search_unsupported_syntax">Gumagamit ang paghahanap na ito ng syntax na hindi suportado: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Kapag natapos na ang pag-index, awtomatikong tatakbo ang paghahanap.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">Hindi mahahanap sa %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Hindi mahahanap sa dokumentong ito</string>
+  <string name="search_indexing_notification_title">Ginagawa ang search index</string>
   <string name="choose_translations">Pumili ng mga salin…</string>
   <string name="multi_search_results">%1$d mga talata sa %2$d mga salin</string>
   <string name="search_index_not_created">walang index</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Piliin kung paano ipapakita ang mga kulay. Ang color e-ink ay nagpapanatili ng itim at puting base ngunit nagpapakita ng mga kulay ng bookmark, ang tagapahiwatig ng aktibong window, at mga tulong na linya sa kulay — para sa mga color e-ink na screen.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Itim at puti</string>
+  <string name="prefs_display_color_mode_monochrome">Monochrome</string>
   <string name="prefs_display_color_mode_color_eink">Color e-ink</string>
+  <string name="prefs_theme_palette_style_title">Istilo ng tema</string>
+  <string name="prefs_theme_palette_style_summary">Kung paano hinango ang mga kulay ng app mula sa kulay ng workspace. Ilalapat lamang kapag Normal ang Color mode.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal spot (malambot, nananatiling grey)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelity (eksaktong kulay)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal spot (orihinal)</string>
+  <string name="prefs_theme_palette_style_content">Content (malapit sa kulay)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutral (mahinahon)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monochrome (grey)</string>
+  <string name="prefs_theme_palette_style_vibrant">Vibrant</string>
+  <string name="prefs_theme_palette_style_expressive">Expressive</string>
+  <string name="prefs_theme_palette_style_rainbow">Rainbow</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Fruit salad</string>
   <string name="prefs_eink_settings_cat">Mga setting ng E-ink</string>
   <string name="prefs_eink_display_title">Mga tampok ng E-ink</string>
   <string name="prefs_eink_display_summary">I-enable ang mga tampok na partikular sa e-ink (mga button na scroll ng pahina, mga linya ng tulong sa pag-scroll)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Awtomatikong markahan ang mga kabanata bilang nabasa kapag ni-scroll mo ang mga ito</string>
   <string name="reading_progress_read_count_scale">Bilang\nNabasa</string>
   <string name="reading_progress_percent_read_scale">Porsyento\nNabasa</string>
+  <string name="monochrome_activity_count">Bilang ng aktibidad: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Bilang: %d</string>
+  <string name="monochrome_level">Antas: %d/4</string>
+  <string name="monochrome_buckets">Grey: wala; may balangkas: bahagya; puno: buo o pinakamataas na antas. Pumili ng aytem para sa eksaktong halaga.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Kasaysayan ng Pagbabasa</string>
   <string name="reading_progress_history_for">Progreso sa pagbabasa para sa %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">I-edit ang mga setting sa pagpapakita ng teksto para sa workspace na ito</string>
   <string name="global_text_options_link">Mga global na opsyon sa teksto</string>
   <string name="global_text_options_link_summary">I-edit ang mga default na setting sa pagpapakita ng teksto para sa lahat ng workspace</string>
+  <string name="text_options_inherited_workspace">Workspace</string>
+  <string name="text_options_inherited_global">Global</string>
   <string name="prefs_font_and_colors_title">Font at Mga Kulay</string>
   <string name="prefs_text_layout_title">Layout ng Teksto</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s at Morpolohiya</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Workspace</string>
   <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Mga global na default</string>
+  <string name="copy_settings_to_workspaces">Sa ibang mga workspace…</string>
+  <string name="copy_settings_to_global_defaults">Sa mga global default…</string>
+  <string name="menu_back">Bumalik</string>
   <string name="change_to_normal">Baguhin sa normal na window</string>
   <string name="window_pin_mode">I-pin</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">Hindi makakonekta sa sumusunod na document server: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Hindi ma-download ang mga sumusunod na file:\n\n%s\n\n</string>
   <string name="cant_delete_document">Hindi maaaring tanggalin ang dokumentong ito.</string>
+  <string name="bad_document_warning">May mga kilalang problema ang dokumentong ito.</string>
   <!--Install zip file-->
   <string name="install_zip">I-load ang Mga Dokumento Mula sa Mga File</string>
   <string name="install_zip_module">I-install ang Bible Module</string>
@@ -348,6 +410,11 @@
   <string name="delete_index">Tanggalin ang search index</string>
   <string name="about">Tungkol sa</string>
   <string name="delete_doc">Tanggalin ang %s?</string>
+  <string name="interrupted_downloads_title">Naputol ang pag-download</string>
+  <string name="interrupted_downloads_message">Hindi na-install ang mga dokumentong ito dahil naputol ang pag-download:</string>
+  <string name="interrupted_downloads_question">I-download muli?</string>
+  <string name="download_again">I-download muli</string>
+  <string name="delete_docs_confirm">Tanggalin ang mga dokumentong ito?</string>
   <string name="delete_search_index_doc">Tanggalin ang index ng %s?</string>
   <!--Verse context menu-->
   <string name="notes">Mga talababa at sanggunian</string>
@@ -368,6 +435,7 @@
   <string name="assign_labels">Magtalaga ng mga label</string>
   <string name="new_item">Bago</string>
   <string name="label_name_prompt">Pangalan</string>
+  <string name="new_label_default_name">Label %d</string>
   <string name="label_unlabelled">Walang label</string>
   <string name="add_bookmark1">Bookmark</string>
   <string name="add_bookmark3">Seleksyon</string>
@@ -415,6 +483,8 @@
   <string name="rewind">I-rewind</string>
   <string name="forward">I-forward</string>
   <string name="tts_lang_not_available">Hindi available ang wika.</string>
+  <string name="tts_engine_not_available">Hindi gumagana ang text-to-speech sa device na ito. Tiyaking may naka-install at naka-enable na speech engine sa mga setting ng text-to-speech ng system.</string>
+  <string name="tts_audio_focus_denied">Hindi nasimulan ang pagsasalita dahil ginagamit ng ibang app ang audio.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Bilis ng pagsasalita</string>
   <string name="speak_and_play_earcons_title">Magsalita at mag-play ng earcon sounds para sa</string>
@@ -424,6 +494,10 @@
   <string name="speak_bookmarks_menu_title">Magsalita mula sa bookmark</string>
   <string name="speak_advanced_settings">Mga Advanced na Setting</string>
   <string name="speak_sleep_timer_title">Sleep timer</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Custom…</string>
+  <string name="speak_sleep_timer_off">Naka-off</string>
+  <string name="speak_other_settings">Iba pa</string>
   <string name="speak_no_books_available">Walang available na aklat para basahin</string>
   <string name="speak_general_error">Hindi masimulan ang pagsasalita para sa aklat na ito</string>
   <string name="repeat_passage">Ulitin ang talata</string>
@@ -452,6 +526,11 @@
   <string name="speak_autobookmarking_disabled">Naka-disable ang autobookmarking!</string>
   <string name="system_speak_settings">Buksan ang mga setting ng TTS ng sistema</string>
   <string name="auto_assing_labels_help1">Dito maaari mong ayusin kung aling mga label ang awtomatikong itinatakda sa mga bookmark na iyong nilikha.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Dito maaari kang magdagdag, mag-edit at mag-alis ng mga label, at ayusin kung alin ang awtomatikong itatalaga sa mga bookmark na gagawin mo.\n\nMga kamakailang label: mga label na kamakailang ginamit.\nIba pang label: lahat ng iba pang label.\n\nGamitin ang mga opsyon sa filter ng search bar para makita lamang ang mga awtomatikong itinalaga o paboritong label.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Ang setting na ito ay nalalapat sa %s.</string>
   <string name="setting_scope_window">ang window na ito</string>
@@ -529,6 +608,9 @@
   <string name="loading_backup">Nilo-load ang database mula sa backup…</string>
   <string name="backup_success2">Matagumpay na na-backup ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace.</string>
   <string name="backup_modules_success">Matagumpay na na-backup ang mga napiling module.</string>
+  <string name="backup_modules_conflict">Hindi nagawa ang backup: parehong naglalaman ang %1$s at %2$s ng file na %3$s, na magkaiba ang laman. Pumili ng isa lamang sa kanila at subukang muli.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (bersyon %2$s, folder %3$s)</string>
   <string name="backup_modules_email_subject_2">%s backup ng mga module</string>
   <string name="backup_modules_email_message_2">Naka-attach ang iyong backup ng mga module na %1$s, na naglalaman ng mga sumusunod na module: %2$s</string>
   <string name="backup_email_subject_2">%s backup ng database</string>
@@ -537,6 +619,9 @@
   <string name="exported_studypads_message">Naka-attach ang iyong database ng %s na naglalaman ng Mga Bookmark at Tala na may kaugnayan sa mga napiling StudyPad</string>
   <string name="restore_unsuccessfull">Hindi matagumpay ang pag-restore ng database. Marahil ay nagbigay ka ng di-wastong file ng database.</string>
   <string name="send_backup_file">Magpadala ng backup file</string>
+  <string name="export_destination_title">I-export saan?</string>
+  <string name="export_destination_message">I-save ang export sa teleponong ito, o ipadala sa iba gamit ang Share.</string>
+  <string name="send_export_file">Magpadala ng export file</string>
   <string name="backup_modules_title">Piliin kung aling mga module ang iba-backup</string>
   <string name="install_zip_canceled">Kinansela ang pag-install ng module</string>
   <string name="ask_restore_or_import">Ang database para sa %s ay maaaring i-restore (ibig sabihin, tinanggal ang kasalukuyang database at ikine-load ang napiling database) o mai-import (ini-import ang napiling database sa kasalukuyang database). Ano ang nais mong gawin?</string>
@@ -577,12 +662,25 @@
   <string name="doc_type_book">Aklat</string>
   <string name="doc_type_map">Mapa</string>
   <string name="doc_type_addons">Mga Add-on</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Iba pa</string>
+  <string name="document_type_label">Uri ng dokumento</string>
   <!--Languages-->
   <string name="lang_default">Default</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Kanselahin</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Bumalik</string>
+  <string name="settings_editor_close">Isara</string>
+  <string name="settings_editor_apply">Ilapat</string>
   <string name="discard_changes_confirmation">Itapon ang mga hindi nai-save na pagbabago?</string>
+  <string name="discard">Itapon</string>
+  <string name="remove">Alisin</string>
+  <string name="overwrite">Palitan</string>
+  <string name="set_current_day_action">Itakda ang araw</string>
   <string name="yes">Oo</string>
   <string name="no">Hindi</string>
   <string name="error">Error</string>
@@ -592,6 +690,7 @@
   <string name="watch_tutorial_video">Panoorin ang tutorial video (Ingles)</string>
   <string name="verse_not_found">Hindi nahanap ang talata</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Magpatuloy</string>
   <string name="report_error">Magpadala ng Ulat</string>
   <string name="error_occurred">May naganap na error</string>
   <string name="error_occurred_crash_last_time">Nang huling gamitin mo ang application, nag-crash ito. Para matulungan kami sa pag-aayos ng bug, magpapasalamat kami kung magpapadala ka ng ulat ng bug.</string>
@@ -602,8 +701,14 @@
   <string name="error_key_not_in_document2">Hindi nahanap ang %1$s sa dokumento %2$s.</string>
   <string name="empty_list">Walang mga item na ipapakita</string>
   <string name="error_skip">Laktawan</string>
+  <string name="debug_test_error">Test error (debug build)</string>
+  <string name="bug_report_prepare_failed">Hindi naihanda o naibahagi ang ulat. Maaari kang subukang muli, o gamitin ang Backup at Restore para i-save ang iyong data.</string>
   <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
   <string name="bug_report_email_text">Susunod, mangyaring piliin ang iyong gustong email application (tulad ng Gmail) para ipadala ang ulat sa team ng developer.</string>
+  <string name="bug_report_manual_title">Ipadala ang ulat sa pamamagitan ng email</string>
+  <string name="bug_report_manual_text_saved">Na-save ang ulat sa</string>
+  <string name="bug_report_manual_text_unsaved">Walang email program na mabuksan sa device na ito.\n\nPakipadala ang ulat sa pamamagitan ng email sa</string>
+  <string name="bug_report_copy_address">Kopyahin ang address</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text to speech</string>
   <string name="notification_channel_progress_status">Notification ng status ng pag-unlad para sa mga pag-download ng dokumento atbp.</string>
@@ -627,6 +732,7 @@
   <string name="search_settings">Hanapin ang mga setting</string>
   <string name="dismiss">Isara</string>
   <string name="workspace_listing_with_current">%s (kasalukuyan)</string>
+  <string name="workspace_manage_workspaces">Pamahalaan ang mga workspace…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ito ay beta version!</string>
   <string name="beta_notice_content_1">Sa beta version, may mga bagong feature na hindi pa maayos na nasubok, at kaya ang paggamit ng beta ay maaaring magdulot ng hindi inaasahang gawi, i.e. mga bug. Inirerekomenda na ang mga ordinaryong mambabasa ng Bibliya ay gumamit ng stable version sa halip.</string>
@@ -654,7 +760,10 @@
   <string name="help_search_title">Paghahanap</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Ang teksto ng paghahanap ay maaaring magsama ng mga espesyal na karakter tulad ng *, AND, OR, NOT</string>
+  <string name="help_search_bible">Piliin kung paano itutugma ang mga salita: Ang Lahat ng salita ay naghahanap ng mga talatang may bawat salita, ang Alinmang salita ay naghahanap ng mga talatang may kahit isa, at ang Parirala ay naghahanap ng mga salitang magkakatabi sa ganoong pagkakasunod-sunod.\n\nSa loob ng paghahanap, maaari mo ring gamitin ang * at ? bilang mga wildcard (halimbawa, ang bless* ay tumutugma sa blessed at blessing), pagsamahin ang mga termino gamit ang AND, OR at NOT, at direktang hanapin ang mga numero ni Strong (halimbawa strong:h0430).</string>
+  <string name="help_search_epub">Piliin kung paano itutugma ang mga salita: Ang Lahat ng salita ay naghahanap ng mga sipi na may bawat salita, ang Alinmang salita ay naghahanap ng mga sipi na may kahit isa, at ang Parirala ay naghahanap ng mga salitang magkakatabi sa ganoong pagkakasunod-sunod.\n\nIpinapasa ng Raw query syntax ang iyong teksto sa search engine nang walang pagbabago, kaya maaari kang magsulat ng sarili mong query: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" para sa eksaktong parirala, bless* para tumugma sa anumang salitang nagsisimula sa bless, at grace NEAR faith para hanapin ang mga ito na magkalapit.</string>
   <string name="help_search_details">Pakitingnan ang %s para sa higit pang detalye.</string>
+  <string name="help_search_syntax">Syntax ng paghahanap</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Mga Workspace</string>
   <string name="help_workspaces_text">Ang mga workspace ay nagbibigay-daan sa pagkakaroon ng maraming context-dependent na kapaligiran sa pagtatrabaho. Ang mga function ng workspace ay maa-access sa pamamagitan ng item na Mga Workspace sa options menu (kanang sulok sa itaas). Mabilis na paraan para ma-access ang mga workspace ay ang pag-swipe-down na kilos mula sa toolbar. Maaari ka ring gumamit ng mga kilos na swipe-left at swipe-right sa toolbar para lumipat sa nakaraan / susunod na workspace.</string>
@@ -663,6 +772,12 @@
   <string name="help_window_pinning_title">Pag-pin ng window</string>
   <string name="help_window_pinning_text">Maaari mong paganahin ang pag-pin ng window mula sa options menu (tatlong tuldok, kanang sulok sa itaas). Kung pinagana ang pag-pin ng window, maaari kang magpakita ng maraming naka-pin na window sa Bible view, ngunit isang hindi naka-pin na window lamang. Ang mga naka-pin na window ay unang ipinapakita, at pagkatapos ay ang mga hindi naka-pin na window. Maaaring gusto mong buksan ang mga dokumento ng Bibliya bilang mga naka-pin na window, at mga komentaryo at mapa atbp. bilang mga hindi naka-pin na window. Pagkatapos ay madali mong maaaring palaging buksan ang mga dokumento ng Bibliya, at mabilis na lumipat sa pagitan ng mga komentaryo at iba pang dagdag na materyal habang nag-aaral ng Bibliya.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Wala pang mga dokumento sa iyong library. Magdagdag ng ilan para makapagsimula.</string>
+  <string name="welcome_redownload_row_hint">Pumili mula sa mga dokumentong na-install noon</string>
+  <string name="welcome_download_row_hint">Mag-browse sa online na katalogo</string>
+  <string name="welcome_restore_row_hint">Database file na may mga bookmark at tala</string>
+  <string name="welcome_link_website">Website</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Kailangan mong piliin ang file na gusto mong i-load sa %s.</string>
@@ -678,9 +793,8 @@
   <string name="format_studypads">Mga StudyPad mula sa mga database ng AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Isara</string>
+  <string name="reading_toolbar_options">Higit pang opsyon</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Naiintindihan ko</string>
-  <string name="first_time_help_show_next_time">Ipakita muli sa susunod na pagkakataon</string>
   <string name="strongs_mode_title">Pumili ng Strong\'s mode</string>
   <string name="download_dialog_message">Hindi ma-download ang mga sumusunod na aklat:</string>
   <string name="journal_description">Mga study pad na maaaring i-edit ng user na may custom na teksto at mga bookmark</string>
@@ -705,6 +819,7 @@
   <string name="prefs_experimental_features_summary">Pumili kung aling mga experimental na feature ang ibibigay-daan. Ang mga feature na ito ay nasa pag-unlad pa at maaaring magbago o maalis</string>
   <string name="experimental_feature_bookmark_edit_actions">Mga aksyon sa pag-edit ng bookmark</string>
   <string name="experimental_feature_add_paragraph_break">Magdagdag ng paragraph break na bookmark</string>
+  <string name="experimental_feature_toolbar_literal_color">Gamitin ang literal na kulay ng workspace para sa reading toolbar (sa halip na kulay ng tema)</string>
   <string name="raw_llm_log_title">Raw na LLM Log</string>
   <string name="raw_llm_log_empty">Walang available na raw na log data</string>
   <string name="raw_llm_log_copied">Nakopya ang log sa clipboard</string>
@@ -791,6 +906,7 @@
   <string name="display_mode_underline">Salungguhit</string>
   <string name="display_mode_marker">Marker lamang</string>
   <string name="display_mode_hidden">Nakatago</string>
+  <string name="display_mode_inherit">Kapareho ng napili</string>
   <string name="workspace_override_indicator">Ang label na ito ay may workspace-specific na display mode</string>
   <string name="primary_label">Pangunahing label</string>
   <string name="favourite_label">Paboritong label</string>
@@ -804,6 +920,8 @@
   <string name="book_menu_show_long_book_name">Ipakita ang mahabang pangalan ng aklat</string>
   <string name="book_menu_show_progress_bars">Ipakita ang mga progress bar</string>
   <string name="reset_workspace_labels">Gusto mo bang i-reset ang mga setting ng auto-assign at paborito para sa workspace na ito?</string>
+  <string name="clear_auto_assign_labels">I-clear ang mga auto-assign na label</string>
+  <string name="reset_workspace_auto_assign_labels">Gusto mo bang alisin ang lahat ng auto-assign na label mula sa workspace na ito?</string>
   <string name="reset_hide_labels">Gusto mo bang i-reset ang setting para sa pagtatago ng mga tinukoy na label?</string>
   <string name="reorder">Muling ayusin</string>
   <string name="system_items">Mga aksyon ng sistema</string>
@@ -875,6 +993,27 @@
   <string name="instructions_for_translators">mga tagubilin para sa mga tagasalin</string>
   <string name="questions_title">Mga Katanungan?</string>
   <string name="bookmark_style">Estilo ng bookmark</string>
+  <string name="bookmark_style_preview_sample">Sapagka\'t gayon na lamang ang pag-ibig ng Dios sa sanglibutan</string>
+  <string name="bookmark_style_selection">Mga bookmark ng napiling teksto</string>
+  <string name="bookmark_style_whole_verse">Mga bookmark ng buong talata</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Gumamit ng ibang istilo para sa mga bookmark ng buong talata</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Pinili</string>
+  <string name="bookmark_style_tag_whole_verse">Buong talata</string>
+  <string name="bookmark_style_tag_workspace">Workspace</string>
+  <string name="show_style_examples">Ipakita ang mga halimbawa ng istilo</string>
+  <string name="labels_search_section">Hanapin</string>
+  <string name="labels_filter_section">Ipakita</string>
+  <string name="labels_filter_auto_assign">Mga auto-assign na label lamang</string>
+  <string name="labels_filter_favourite">Mga paboritong label lamang</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Lagyan ng tsek ang isang label para itakda ito sa bookmark na ito.</string>
+  <string name="manage_labels_help_primary">Ang pangunahing label. Ang kulay at istilo nito ang ipinapakita ng bookmark.</string>
+  <string name="manage_labels_help_autoassign">Awtomatikong itakda ang label na ito sa bawat bagong bookmark. Ang guwang na kidlat ay nangangahulugang naka-off.</string>
+  <string name="manage_labels_help_favourite">Itago ang label sa iyong mga paborito para sa mabilis na pag-access.</string>
+  <string name="manage_labels_help_styles">Sa ilalim ng pangalan, may maliit na halimbawang nagpapakita ng itsura ng label: Pinili para sa bookmark ng napiling teksto, Buong talata para sa bookmark ng buong talata, at tag na Workspace para sa istilong pinapalitan ng workspace na ito. Ang kulay-abong halimbawang walang palamuti ay nangangahulugang hindi ipinapakita ang mga bookmark ng label. Itago ang mga halimbawa mula sa menu na ⋮.</string>
+  <string name="manage_labels_help_reorder">Ayusin muli ang listahan mula sa menu na ⋮.</string>
   <string name="added_to_bookmark">Itinalaga sa bookmark na ito</string>
   <string name="strongs_links">Mga Link</string>
   <string name="strongs_text_and_links">Teksto at Mga Link</string>
@@ -913,6 +1052,7 @@
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Huwag paganahin ang pag-synchronize</string>
   <string name="open_in_window">Buksan ang mga resulta sa isang window</string>
+  <string name="open_result_in_links_window">Buksan ang resulta sa links window</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Mga custom na repository</string>
@@ -923,7 +1063,6 @@
   <string name="delete_custom_repository">Nais mo bang alisin ang custom na repository %s?</string>
   <string name="custom_repositories_help1">Para magdagdag ng bagong custom na repository, i-type o kopyahin at i-paste ang custom na URL ng repository dito.</string>
   <string name="custom_repositories_help2">Maaari kang magbasa ng karagdagang impormasyon tungkol sa mga custom na repository sa %s.</string>
-  <string name="wiki_page">Pahina ng WIKI</string>
   <string name="custom_repositories_help0">Maaari kang mag-install ng mga dokumento mula sa panlabas na custom na mga repository sa pamamagitan ng pag-install ng mga custom na repository.</string>
   <string name="duplicate_custom_repository">Mayroon nang repository na may pangalang %s, hindi maaaring magdagdag ng isa pa.</string>
   <string name="packages_dir">Direktoryo ng mga pakete (Mga Zip file)</string>
@@ -963,6 +1102,7 @@
   <string name="reading_progress_new_cycle_confirm">Magsimula ng bagong iklo ng pagbabasa? Magsisimula itong mag-track ng iyong pag-unlad mula sa simula, habang pinapanatili ang data ng iyong nakaraang iklo.</string>
   <string name="reading_progress_previous_cycle">Nakaraang iklo</string>
   <string name="reading_progress_next_cycle">Susunod na iklo</string>
+  <string name="cloud_merge_data">Pagsamahin ang data</string>
   <string name="cloud_fetch_and_restore_initial">Kopyahin mula sa Cloud papunta sa device na ito</string>
   <string name="cloud_create_new">Kopyahin mula sa device na ito papunta sa Cloud</string>
   <string name="cloud_disable_sync">Kanselahin at huwag paganahin ang synchronization</string>
@@ -976,6 +1116,19 @@
   <string name="sync_adapter_summary">Kasalukuyan: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Address ng WebDAV folder, hal. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Nangangailangan ang sync ng ligtas na https:// address.</string>
+  <string name="webdav_certificate_title">Sertipiko ng server</string>
+  <string name="webdav_forget_certificate_message">Kalimutan ang pinagkakatiwalaang sertipiko ng server? Hihilingin sa iyong kumpirmahin muli ang sertipiko sa susunod na koneksyon.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Hindi pinagkakatiwalaang sertipiko ng server</string>
+  <string name="webdav_untrusted_certificate_message">Ang sertipiko ng %1$s ay hindi pinagkakatiwalaan ng Android. Pagkatiwalaan lamang ito kung kilala mo ito, halimbawa dahil ikaw mismo ang nag-set up ng server na ito.\n\nPaksa: %2$s\nNag-isyu: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Pagkatiwalaan ang sertipikong ito</string>
+  <string name="webdav_wrong_credentials">Maling username o password.</string>
+  <string name="webdav_not_a_folder">Hindi WebDAV folder ang address.</string>
+  <string name="webdav_certificate_changed">Nagbago ang sertipiko ng server. Naka-pause ang synchronization hanggang makumpirma mo ang bagong sertipiko, na itatanong ng AndBible sa susunod na pagbukas nito o pag-sync sa foreground.</string>
+  <string name="webdav_storage_full">Puno na ang storage ng server.</string>
   <string name="auth_server_uri">URL ng Server</string>
   <string name="auth_username">Pangalan ng user</string>
   <string name="auth_password">Password</string>
@@ -985,6 +1138,7 @@
   <string name="sync_general_settings">Impormasyon at mga pangkalahatang setting</string>
   <string name="sync_introduction">Panimula</string>
   <string name="are_you_sure">Sigurado ka ba?</string>
+  <string name="are_you_sure_merge">Pareho ang data sa device na ito at ang %s sa cloud ay mananatili. Kung ang parehong aytem ay binago sa pareho, ang mas bagong pagbabago ang mananatili. Ipapadala ang data ng device na ito sa iyong iba pang mga device.</string>
   <string name="are_you_sure_reset_local">Ire-reset nito ang iyong lokal na database para sa %s gamit ang nilalaman na kasalukuyang nakaimbak sa cloud service.</string>
   <string name="are_you_sure_reset_cloud">Ire-reset nito ang iyong cloud database para sa %s gamit ang nilalaman na mayroon ka sa device na ito.</string>
   <string name="sync_cant_fetch">Ang bersyon ng database o patch file na nakaimbak sa Cloud ay mas mataas kaysa sa sinusuportahan ng app na ito.</string>
@@ -1019,6 +1173,7 @@
   <string name="pref_font_size_multiplier_title">Multiplier ng laki ng font</string>
   <string name="pref_font_size_multiplier_summary_1">I-multiply ang mga laki ng font ng teksto sa bilang na ito.</string>
   <string name="pref_font_size_multiplier_summary_2">Kapaki-pakinabang kung mayroon kang naka-synchronize na device na ginagamit na may mas malaking font.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Kasalukuyang halaga: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Aksyon para sa swipe kaliwa / kanan na kilos</string>
   <string name="prefs_bible_view_swipe_mode_summary">Ang swipe kaliwa / kanan na kilos ay maaaring gamitin para pumunta sa susunod na pahina / kabanata.</string>
@@ -1139,6 +1294,7 @@
   <string name="prompt_max_iterations_unlimited">Walang limitasyon</string>
   <string name="prompt_max_iterations_global_default">Global default (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">I-override ang global max na iterasyon para sa prompt na ito. 0 = walang limitasyon.\nKasalukuyan: %s</string>
+  <string name="prompt_max_iterations_use_global">Gamitin ang global na setting (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Pamahalaan ang Mga AI Prompt</string>
   <string name="manage_prompts_summary">Lumikha at mag-edit ng mga AI prompt</string>
@@ -1272,6 +1428,7 @@
   <string name="built_in_prompt_notice">Ito ay isang built-in na prompt at hindi maaaring i-edit. Gamitin ang \"Kopyahin para i-customize\" upang gumawa ng maaaring i-edit na kopya.</string>
   <string name="copy_to_customize">Kopyahin para i-customize</string>
   <string name="prompt_copied">Nakopya ang prompt</string>
+  <string name="prompt_copy_failed">Hindi makopya ang prompt. Maaaring natanggal na ito.</string>
   <string name="delete_prompt_confirmation">Tanggalin ang prompt na \"%s\"?</string>
   <string name="prompt_name_required">Kailangan ang pangalan ng prompt</string>
   <string name="prompt_template_required">Kailangan ang template ng prompt</string>
@@ -1479,6 +1636,8 @@
   <string name="tool_option_default_disabled">Default (hindi pinagana)</string>
   <string name="tool_option_default_allowed">Default (pinapayagan)</string>
   <string name="tool_option_default_denied">Default (tinatanggihan)</string>
+  <string name="tool_description_info">Ipakita ang paglalarawan ng tool</string>
+  <string name="tool_permission_mixed">Halo</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Default</string>
@@ -1524,6 +1683,8 @@
   <string name="my_document_pages_empty">Walang pahina sa dokumentong ito.</string>
   <string name="my_document_page_rename_title">Palitan ang pangalan ng pahina</string>
   <string name="my_document_page_delete_confirmation">Tanggalin ang pahinang \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Tanggalin ang mga pahinang ito?</string>
+  <string name="my_documents_switch_document">Lumipat ng dokumento</string>
   <string name="my_document_new_page_name">Pahina %1$d</string>
   <string name="my_document_create_page_title">Bagong pahina</string>
   <string name="my_document_content_type_label">Uri ng nilalaman</string>
@@ -1620,4 +1781,91 @@
   <string name="document_sync_started">Nagsimula ang pag-sync ng dokumento</string>
   <string name="document_sync_enable_dialog_title">Simulan ang pag-sync ng mga dokumento?</string>
   <string name="document_sync_enable_dialog_nothing">Wala pang dokumentong ililipat. Awtomatikong mag-si-sync ang mga bagong naka-install na dokumento.</string>
+  <string name="help_document_sync_text">Kinokopya ng document sync ang iyong mga naka-install na Bibliya, komentaryo at iba pang dokumento sa cloud at pinapanatili silang naka-sync sa lahat ng iyong device. Gamitin ang view na ito para makita kung ano ang nakaimbak sa cloud, mag-download o mag-upload ng mga indibidwal na dokumento, mag-alis ng mga dokumento, at kontrolin kung ano ang nagsi-sync sa device na ito.</string>
+  <string name="background_image_title">Background image</string>
+  <string name="background_image_none">Walang background</string>
+  <string name="background_image_import">I-import mula sa gallery…</string>
+  <string name="background_image_empty">Wala pang na-import na larawan. I-tap ang \"I-import mula sa gallery…\" para magdagdag.</string>
+  <string name="background_image_importing">Ini-import…</string>
+  <string name="background_image_delete_title">Tanggalin ang larawan?</string>
+  <string name="background_image_delete_confirm">Tanggalin ang background image na ito? Ang mga workspace na gumagamit pa nito ay babalik sa walang larawan.</string>
+  <string name="background_image_day">Background image (araw)</string>
+  <string name="background_image_night">Background image (gabi)</string>
+  <string name="background_image_opacity_day">Opacity ng background image (araw)</string>
+  <string name="background_image_opacity_night">Opacity ng background image (gabi)</string>
+  <string name="background_image_change">Baguhin</string>
+  <string name="color_picker_title">Pumili ng Kulay</string>
+  <string name="color_picker_presets">Mga preset</string>
+  <string name="color_picker_custom">Custom</string>
+  <string name="bookmark_expand_row">Ipakita ang buong teksto</string>
+  <string name="bookmark_collapse_row">Ipakita nang mas maikli</string>
+  <string name="bookmark_label_filter">I-filter ayon sa label</string>
+  <string name="document_quick_all_documents">Lahat ng dokumento…</string>
+  <string name="document_quick_tab_recent">Kamakailan</string>
+  <string name="document_quick_tab_for_verse">Ang talatang ito</string>
+  <string name="document_quick_tab_last_filter">Huling filter</string>
+  <string name="document_quick_tab_all">Lahat</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">I-filter at ayusin</string>
+  <string name="doc_arrange_repository">Repository</string>
+  <string name="doc_arrange_all_repositories">Lahat ng repository</string>
+  <string name="doc_arrange_sort">Pagkakasunod-sunod</string>
+  <string name="doc_arrange_group_by">Pangkatin ayon sa</string>
+  <string name="doc_arrange_remember">Tandaan ang mga setting na ito</string>
+  <string name="doc_arrange_reset">I-reset sa mga default</string>
+  <string name="doc_arrange_more_filters">Higit pang filter</string>
+  <string name="doc_arrange_reorder">Ayusin muli</string>
+  <string name="doc_sort_ascending">Pataas</string>
+  <string name="doc_sort_descending">Pababa</string>
+  <string name="doc_sort_status">Katayuan</string>
+  <string name="doc_sort_recommended">Inirerekomenda muna</string>
+  <string name="doc_sort_name">Pangalan</string>
+  <string name="doc_sort_size">Laki</string>
+  <string name="doc_group_none">Walang pagpapangkat</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Dina-download</string>
+  <string name="doc_group_status_update_available">May update</string>
+  <string name="doc_group_status_installed">Naka-install</string>
+  <string name="doc_group_status_not_installed">Hindi naka-install</string>
+  <string name="prompt_filter_title">I-filter ang mga prompt</string>
+  <string name="prompt_filter_type">Uri</string>
+  <string name="prompt_type_addon">Add-on</string>
+  <string name="prompt_type_user">Custom</string>
+  <string name="prompt_filter_clear">I-clear ang mga filter</string>
+  <string name="prompt_favorite_add">Idagdag sa mga paborito</string>
+  <string name="prompt_favorite_remove">Alisin sa mga paborito</string>
+  <string name="window_unmaximise">Ibalik ang lahat ng window</string>
+  <string name="window_menu_button">Menu ng window</string>
+  <string name="paste_from_clipboard">I-paste</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Hawakan para i-drag</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Ina-update ang iyong data…</string>
+  <string name="legacy_migration_progress_neutral">Ina-update…</string>
+  <string name="legacy_migration_failed_title">Hindi ma-update ang iyong data</string>
+  <string name="legacy_migration_failed_message">Ligtas at hindi nabago ang iyong data mula sa nakaraang bersyon ng app sa device na ito. Piliin kung ano ang susunod na gagawin.</string>
+  <string name="legacy_migration_failed_keychain">Hindi nabasa ang mga naka-save na password mula sa nakaraang bersyon. I-unlock ang iyong device, pagkatapos isara at buksan muli ang app.</string>
+  <string name="legacy_migration_rollback_pending">Naputol ang update at hindi pa ganap na nababawi. Isara at buksan muli ang app para matapos ang pagbawi.</string>
+  <string name="legacy_migration_save_old_data">I-save ang lumang data</string>
+  <string name="legacy_migration_send_report">Magpadala ng ulat ng error</string>
+  <string name="legacy_migration_try_again">Subukang muli</string>
+  <string name="legacy_migration_try_again_hint">Isara ang app at buksan itong muli para subukang muli.</string>
+  <string name="legacy_migration_restore_backup">Mag-restore ng backup</string>
+  <string name="legacy_migration_start_fresh">Magsimula nang walang lumang data</string>
+  <string name="legacy_migration_start_fresh_confirm">Mananatili ang iyong lumang data sa device na ito. Maaari mo itong i-import mamaya sa Mga Setting.</string>
+  <string name="legacy_import_title">I-import ang data mula sa nakaraang bersyon ng app</string>
+  <string name="legacy_import_summary">Palitan ang kasalukuyang data ng data mula sa nakaraang bersyon ng app</string>
+  <string name="legacy_import_confirm">Papalitan nito ang iyong kasalukuyang mga workspace, bookmark at iba pang data ng data mula sa nakaraang bersyon ng app. May itatabing kopya ng iyong kasalukuyang data sa device na ito.</string>
+  <string name="legacy_import_reopen">Isara ang app at buksan itong muli para ma-import ang iyong data.</string>
+  <string name="legacy_notice_icloud">Gumagamit na ngayon ng iCloud Drive ang sync. I-on itong muli sa Mga Setting → Sync. Pinananatili ng device na ito ang mayroon ito; darating ang mga pagbabago mula sa iyong iba pang device kapag naka-set up nang muli ang sync. Para mapalaya ang lumang data sa iCloud: Mga Setting → iyong pangalan → iCloud → Manage Storage → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Nadala ang iyong koneksyon sa Nextcloud, ngunit naka-off ang sync. I-on ito sa Mga Setting → Sync at piliing kumuha mula sa cloud o gumawa ng bago.</string>
+  <string name="legacy_notice_nextcloud_unsent">Ang ilang pagbabago sa device na ito ay hindi pa naipapadala sa Nextcloud. Hindi ito naipadala at mananatili lamang sa device na ito.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Isa itong makapangyarihan ngunit madaling gamitin na offline na application sa pag-aaral ng Bibliya.</string>
+  <string name="webdav_untrusted_certificate_message_device">Ang sertipiko ng %1$s ay hindi pinagkakatiwalaan ng device na ito. Pagkatiwalaan lamang ito kung kilala mo ito, halimbawa dahil ikaw mismo ang nag-set up ng server na ito.\n\nPaksa: %2$s\nNag-isyu: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Dapat gumamit ng ligtas na https:// address ang mga custom na repository.</string>
+  <string name="custom_repository_https_required_refresh">Gumagamit ng http:// address ang %1$s. Mga https:// repository lamang ang magagamit.</string>
 </resources>
