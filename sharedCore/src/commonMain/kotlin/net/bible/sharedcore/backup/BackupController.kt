@@ -35,7 +35,7 @@ class BackupController(
     private val service: BackupService,
     private val scope: CoroutineScope,
 ) {
-    private val _state = MutableStateFlow(BackupState())
+    private val _state = MutableStateFlow(BackupState(loaded = false))
     val state: StateFlow<BackupState> = _state.asStateFlow()
 
     /**
@@ -50,7 +50,7 @@ class BackupController(
     fun load() {
         scope.launch {
             val loaded = service.load()
-            _state.value = loaded.copy(toggles = loaded.toggles + userToggles)
+            _state.value = loaded.copy(toggles = loaded.toggles + userToggles, loaded = true)
         }
     }
 

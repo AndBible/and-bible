@@ -56,6 +56,23 @@ private class FakeBackupService(
 }
 
 class BackupControllerTest {
+    /**
+     * CI run 42104803796: before the first load() completes the screen showed every switch OFF and usable; the load then
+     * switched Database back ON, so a tap made in between read the placeholder state. The state says it is unloaded.
+     */
+    @Test fun stateIsUnloadedUntilTheFirstLoadCompletes() = runTest {
+        val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDatabase to true))
+        val c = BackupController(svc, this)
+        assertFalse(c.state.value.loaded)
+
+        c.load()
+        assertFalse(c.state.value.loaded, "still unloaded while the service load runs")
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(c.state.value.loaded)
+        assertEquals(true, c.state.value.toggles[ToggleKind.RestoreDatabase])
+    }
+
     /** F103: before DB init the service cannot persist, so load() keeps answering defaults. */
     @Test fun aToggleSurvivesAReloadThatStillReturnsTheDefaults() = runTest {
         val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDocuments to false, ToggleKind.RestoreDatabase to true))

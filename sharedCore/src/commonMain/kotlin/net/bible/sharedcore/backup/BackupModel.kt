@@ -39,6 +39,12 @@ data class BackupState(
     val backupFiles: List<BackupFileRow> = emptyList(),
     val resettableDbs: List<ResetDbRow> = emptyList(),
     val crash: CrashInfo? = null,
+    /**
+     * False only for [BackupController]'s placeholder before its first [BackupService.load] answers: the screen then
+     * disables the switches and actions, because [toggles] is still empty (every switch would read OFF) and the load
+     * would flip them to the persisted values under the user's finger.
+     */
+    val loaded: Boolean = true,
 )
 
 /**
