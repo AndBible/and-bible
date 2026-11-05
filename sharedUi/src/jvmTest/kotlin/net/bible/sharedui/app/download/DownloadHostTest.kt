@@ -126,11 +126,13 @@ class DownloadHostTest {
     private val rows get() = listOf(row("KJV", english), row("Fin", finnish))
 
     /** Replaces only network/lifecycle ports; the Welcome and Download navigation and consent policy are production. */
-    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
     @Test
     fun advancedWelcomeReachesProductionDownloadConsentBeforeCatalogueWork() {
-        val mainThread = kotlinx.coroutines.newSingleThreadContext("welcome-consent-main")
-        Dispatchers.setMain(mainThread)
+        // The Compose test body (composition, NavHost, lifecycle) runs on the test thread, and androidx.lifecycle's
+        // main-thread check asks Dispatchers.Main.immediate whether a dispatch is needed. A separate Main thread
+        // therefore always fails that check; an unconfined Main treats the calling (test) thread as main.
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         try {
             for (language in listOf("en", "fi")) {
                 runComposeUiTest {
@@ -243,7 +245,6 @@ class DownloadHostTest {
             }
         } finally {
             Dispatchers.resetMain()
-            mainThread.close()
         }
     }
 
