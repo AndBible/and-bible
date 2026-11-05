@@ -50,6 +50,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -792,14 +793,23 @@ class BibleView(
         }
     }
 
+    /** The `androidBridge` object the page posts to; exposed so tests drive the production entry (#3975). */
+    @VisibleForTesting
+    var androidBridgeEndpoint: AndroidBridgeEndpoint? = null
+        private set
+
     fun setBibleJavascriptInterface(bibleJavascriptInterface: BibleJavascriptInterface) {
         this.bibleJavascriptInterface = bibleJavascriptInterface
         val dispatcher = net.bible.sharedcore.bibleview.BridgeDispatcher(
             bridge = bibleJavascriptInterface,
             respondNull = { callId -> emit(BibleViewEvents.response(callId, null)) },
             log = { Log.e(TAG, it) },
+            // Guarded calls of a replaced page are dropped (#3975); the interface delegates the gate to ReadingBridge.
+            gate = bibleJavascriptInterface,
         )
-        addJavascriptInterface(AndroidBridgeEndpoint(dispatcher, bibleJavascriptInterface::getActiveLanguages), "androidBridge")
+        val endpoint = AndroidBridgeEndpoint(dispatcher, bibleJavascriptInterface::getActiveLanguages)
+        androidBridgeEndpoint = endpoint
+        addJavascriptInterface(endpoint, "androidBridge")
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -905,6 +915,9 @@ class BibleView(
      */
     fun retire() {
         listenEvents = false
+        // The parked page still calls the bridge; with no admitted document none of its guarded calls (scroll reports,
+        // paging, links, ...) reaches the outgoing window, which a later write would sync into the new workspace (#3975).
+        documentLoader.forgetDocument()
         val win = windowRef.get()
         if (win != null && win.bibleView === this) win.bibleView = null
     }
@@ -1574,6 +1587,11 @@ class BibleView(
     }
 
     override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) = documentLoader.scrollOrJumpToVerse(key, forceNow)
+
+    override fun documentRequested(): Long = documentLoader.documentRequested()
+
+    override fun documentRequestEnded(request: Long, unchanged: Boolean, failure: Throwable?) =
+        documentLoader.documentRequestEnded(request, unchanged, failure)
 
     override fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) =
         documentLoader.scrollOrJumpToOrdinal(ordinal, htmlId, bookInitials, osisRef, forceNow)

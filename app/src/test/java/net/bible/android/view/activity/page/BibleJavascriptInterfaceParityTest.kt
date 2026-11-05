@@ -50,6 +50,6 @@ class BibleJavascriptInterfaceParityTest {
     }
 
     @Test fun parserSeesTheWholeType() {
-        assertEquals(88, tsMembers().size)
+        assertEquals(89, tsMembers().size)
     }
 }

@@ -21,6 +21,7 @@ import {isInViewport, setupWindowEventListener, waitNextAnimationFrame} from "@/
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
+import {documentEpoch} from "@/bridge/document-generation";
 
 export type UseScroll = ReturnType<typeof useScroll>;
 
@@ -230,12 +231,16 @@ export function useScroll(
             bookInitials?: Nullable<string>,
             osisRef?: Nullable<string>,
         }) {
+        // This setup belongs to the document added just before it; it stops if that one is replaced meanwhile (#3975).
+        const epoch = documentEpoch();
         await documentPromise.value;
+        if (epoch !== documentEpoch()) return;
         console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
 
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: true});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+        if (epoch !== documentEpoch()) return;
 
         if (jumpToOrdinal != null) {
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});

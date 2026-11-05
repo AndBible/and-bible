@@ -30,12 +30,21 @@ class BibleViewJsChannel(private val host: JsHost, private val log: (String) -> 
     private val queue = ArrayDeque<() -> Unit>()
 
     /** Queues or runs [call]; false when dropped because the page is still loading. */
-    fun execute(call: JsCall): Boolean {
+    fun execute(call: JsCall, onFailure: ((Exception) -> Unit)? = null): Boolean {
         if (loading) {
             log("HTML not yet ready, js execution is doomed to fail. ${call.js}")
             return false
         }
-        runOnMain { executeNow(call) }
+        runOnMain {
+            try {
+                executeNow(call)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (onFailure == null) throw e
+                onFailure(e)
+            }
+        }
         return true
     }
 

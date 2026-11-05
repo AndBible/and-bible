@@ -8,6 +8,7 @@ noteTextWithoutType: Footnotes
 crossReferenceText: Cross references
 findAllOccurrences: Find all occurrences
 reportError: Report an error
+retryLoad: Try again
 errorTitle: Error occurred
 warningTitle: Warning
 normalTitle: Please note

@@ -34,9 +34,20 @@ abstract class CachedKeyPage internal constructor(
 	shareKeyBetweenDocs: Boolean,
     pageManager: CurrentPageManager
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
-    private var mCachedGlobalKeyList: MutableList<Key>? = null
+    /** A key list and the book it was built from: a list is only ever used for its own book (#3975). */
+    private class KeyListCache(val document: Book, val keys: List<Key>)
 
-    @VisibleForTesting fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
+    private class CacheState(val generation: Long, val cache: KeyListCache?)
+    private val cacheState = kotlinx.atomicfu.atomic(CacheState(0, null))
+
+    private fun clearKeyListCache() {
+        while (true) {
+            val state = cacheState.value
+            if (cacheState.compareAndSet(state, CacheState(state.generation + 1, null))) return
+        }
+    }
+
+    @VisibleForTesting fun hasCachedKeyListForTest() = cacheState.value.cache != null
 
     private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
         // Clears the key cache when pages in the current MyDocument change.
@@ -44,7 +55,7 @@ abstract class CachedKeyPage internal constructor(
         val doc = currentDocument
         if (doc != null && doc.isMyDocument && doc.initials == change.initials) {
             Log.d(TAG, "Clearing cached key list for updated MyDocument: ${change.initials}")
-            mCachedGlobalKeyList = null
+            clearKeyListCache()
         }
     }
 
@@ -53,46 +64,44 @@ abstract class CachedKeyPage internal constructor(
 
 
 	override fun setCurrentDocument(doc: Book?) {
-		if (doc != null && doc != currentDocument) {
-			mCachedGlobalKeyList = null
+		if (doc !== currentDocument) {
+			clearKeyListCache()
 		}
 		super.setCurrentDocument(doc)
 	}
 
-    //TODO remove this and do binary search of globalkeylist// root key has no name and can be ignored but also check for any other keys with no name// this cache is cleared in setCurrentDoc
-    /** make dictionary key lookup much faster
-     *
-     * @return
-     */
+    /** The current document's key list (named keys only), built on first use; makes dictionary key lookup faster. */
     val cachedGlobalKeyList: List<Key>?
-        get() {
-            var keylist = mCachedGlobalKeyList
-            val doc = currentDocument
-            if (doc != null && keylist == null) {
-                try {
-                    Log.i(TAG, "Start to create cached key list for $doc")
-                    // this cache is cleared in setCurrentDoc
-                    keylist = ArrayList()
-                    for (key in doc.getGlobalKeyList()) { // root key has no name and can be ignored but also check for any other keys with no name
-                        if (!key.getName().isNullOrEmpty()) {
-                            keylist.add(key)
-                        }
-                    }
-                } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
-                    requestGarbageCollection()
-                    Log.e(TAG, "out of memory", oom)
-                    throw oom
-                } catch (e: Exception) {
-                    keylist = null
-                    requestGarbageCollection()
-                    Log.e(TAG, "Error getting keys for $doc", e)
-                    notifier.showError(strings.errorOccurred, e)
-                }
-                Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
-            }
-			mCachedGlobalKeyList = keylist
-            return keylist
+        get() = currentDocument?.let { keyListOf(it) }
+
+    /**
+     * [doc]'s key list. The cached list is used only if it was built for [doc]; a list built here is published as the
+     * cache only while [doc] is still the page's document, so a read of an outgoing book that finishes after the page
+     * switched (off main, [getKeyPlus] with a captured book) never becomes the next book's list (#3975).
+     */
+    fun keyListOf(doc: Book): List<Key>? {
+        val before = cacheState.value
+        before.cache?.takeIf { it.document === doc }?.let { return it.keys }
+        val keylist: List<Key>? = try {
+            Log.i(TAG, "Start to create cached key list for $doc")
+            // root key has no name and can be ignored but also check for any other keys with no name
+            doc.getGlobalKeyList().filter { !it.getName().isNullOrEmpty() }
+        } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
+            requestGarbageCollection()
+            Log.e(TAG, "out of memory", oom)
+            throw oom
+        } catch (e: Exception) {
+            requestGarbageCollection()
+            Log.e(TAG, "Error getting keys for $doc", e)
+            notifier.showError(strings.errorOccurred, e)
+            null
         }
+        Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
+        if (keylist != null && currentDocument === doc) {
+            cacheState.compareAndSet(before, CacheState(before.generation, KeyListCache(doc, keylist)))
+        }
+        return keylist
+    }
 
     /** add or subtract a number of pages from the current position and return Verse
      */
@@ -100,12 +109,22 @@ abstract class CachedKeyPage internal constructor(
         return getKeyPlus(key, num)
     }
 
+    /** [num] keys after (before, if negative) [currentKey] in the current document; see the three-argument form. */
     fun getKeyPlus(currentKey: Key?, num: Int): Key {
+        val doc = currentDocument ?: return currentKey ?: DefaultLeafKeyList("")
+        return getKeyPlus(currentKey, num, doc)
+    }
+
+    /**
+     * [num] keys after (before, if negative) [currentKey] in [document]'s key list, whatever the page shows now: infinite
+     * scroll reads the next entry of the book its page came from (#3975).
+     */
+    fun getKeyPlus(currentKey: Key?, num: Int, document: Book): Key {
         // Guard before indexing: the key list can be null or empty (the underlying
         // document was deactivated concurrently, building it failed, or the
         // document genuinely has no keys). Indexing an empty list at [0] below
         // would otherwise throw. Fall back to the current key.
-        val keyList = cachedGlobalKeyList?.takeIf { it.isNotEmpty() } ?: return currentKey ?: DefaultLeafKeyList("")
+        val keyList = keyListOf(document)?.takeIf { it.isNotEmpty() } ?: return currentKey ?: DefaultLeafKeyList("")
         val keyPos = keyList.indexOf(currentKey)
         // move forward or backward to new posn
         var newKeyPos = keyPos + num

@@ -38,6 +38,8 @@ import net.bible.android.control.page.OrdinalRange
 object UriConstants {
     const val SCHEME_DOWNLOAD = "download"
     const val SCHEME_ERROR = "ab-error"
+    /** The retry link of an error document shown after a failed load (`ErrorDocument.retry`): loads the window again. */
+    const val SCHEME_RETRY = "ab-retry"
     const val SCHEME_W = "ab-w"
     const val SCHEME_REFERENCE = "osis"
     const val MULTI_REFERENCE = "multi"
@@ -63,8 +65,22 @@ class ReadingLinkHandler(
 ) {
     private val linkControl get() = session.linkControl
 
-    /** Opens [url]; true when it was handled, false for an unknown scheme or unusable parameters. */
+    /**
+     * Opens [url]; true when it was handled, false for an unknown scheme or unusable parameters.
+     *
+     * A link of a page that does not show the window's admitted document is swallowed (true, nothing opened): the old
+     * page of an adopted or parked web view, or a page whose window has requested another document (#3975). The link
+     * navigation carries no document generation, so the page's own report of what it shows decides
+     * ([BibleWindowSession.pageShowsAdmittedDocument]).
+     */
     fun handle(url: String): Boolean {
+        if (!session.pageShowsAdmittedDocument()) {
+            val state = session.admission.state
+            // A page that never reports documentShown (an old or broken BibleView-JS) loses every link: visible here.
+            Log.w(TAG, "Link of a page that does not show the admitted document ignored: $url (shown ${state.shown}, " +
+                "admitted ${state.admitted?.generation}, pending ${state.pending != null})")
+            return true
+        }
         val link = parseLink(url)
         if (link == null) {
             Log.e(TAG, "Unsupported link $url")
@@ -110,7 +126,10 @@ class ReadingLinkHandler(
                 // The label lookup suspends, so launch; the context-menu window mode is read now because
                 // the menu handler resets it as soon as this synchronous URL handler returns.
                 val windowMode = linkControl.windowMode
-                session.scope.launch(Dispatchers.Main) { linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) }
+                val ticket = session.documentTicket()
+                session.scope.launch(Dispatchers.Main) {
+                    linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) { session.holdsDocument(ticket) }
+                }
                 true
             }
             UriConstants.SCHEME_REFERENCE -> {
@@ -146,6 +165,10 @@ class ReadingLinkHandler(
             }
             UriConstants.SCHEME_ERROR -> {
                 linkControl.errorLink()
+                true
+            }
+            UriConstants.SCHEME_RETRY -> {
+                session.windowOrNull?.loadText()
                 true
             }
             UriConstants.SCHEME_DOWNLOAD -> {

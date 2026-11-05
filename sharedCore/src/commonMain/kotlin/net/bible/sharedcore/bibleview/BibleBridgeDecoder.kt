@@ -78,6 +78,7 @@ object BibleBridgeDecoder {
         "setBookmarkEditAction" to Entry("SS") { a, b -> b.setBookmarkEditAction(a.str(0), a.str(1)) },
         "console" to Entry("SS") { a, b -> b.console(a.str(0), a.str(1)) },
         "selectionCleared" to Entry("") { _, b -> b.selectionCleared() },
+        "documentShown" to Entry("L") { a, b -> b.documentShown(a.long(0)) },
         "reportInputFocus" to Entry("B") { a, b -> b.reportInputFocus(a.bool(0)) },
         "openEpubLink" to Entry("SSS") { a, b -> b.openEpubLink(a.str(0), a.str(1), a.str(2)) },
         "openExternalLink" to Entry("S") { a, b -> b.openExternalLink(a.str(0)) },

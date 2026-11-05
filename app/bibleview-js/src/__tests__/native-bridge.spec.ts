@@ -2,11 +2,13 @@ import {describe, it, expect, beforeEach, vi} from "vitest";
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {installNativeBridge} from "@/bridge/native-bridge";
+import {adoptDocumentGeneration, resetDocumentGeneration} from "@/bridge/document-generation";
 
 type AnyWindow = Omit<Window, "android"> & Record<string, any>;
 const w = window as AnyWindow;
 
 function reset() {
+    resetDocumentGeneration();
     delete w.android;
     delete w.androidBridge;
     delete w.webkit;
@@ -22,7 +24,7 @@ describe("native bridge", () => {
         w.androidBridge = {postMessage: (m: string) => posted.push(m), getActiveLanguages: () => '["fi"]'};
         installNativeBridge(w);
         w.android.addBookmark("KJV", 1, 2, false);
-        expect(posted).toEqual(['{"method":"addBookmark","args":["KJV",1,2,false]}']);
+        expect(posted).toEqual(['{"method":"addBookmark","args":["KJV",1,2,false],"documentGeneration":0}']);
     });
 
     it("marks the document as desktop-host only for the desktop shim", () => {
@@ -49,8 +51,8 @@ describe("native bridge", () => {
         w.android.scrolledToOrdinal("KJVA:Eph.2", 36300);
         w.android.setClientReady();
         expect(posted).toEqual([
-            {method: "scrolledToOrdinal", args: ["KJVA:Eph.2", 36300]},
-            {method: "setClientReady", args: []},
+            {method: "scrolledToOrdinal", args: ["KJVA:Eph.2", 36300], documentGeneration: 0},
+            {method: "setClientReady", args: [], documentGeneration: 0},
         ]);
     });
 
@@ -107,7 +109,7 @@ describe("native bridge", () => {
         w.webkit = {messageHandlers: {bridge: {postMessage: (m: unknown) => posted.push(m)}}};
         installNativeBridge(w);
         window.dispatchEvent(new ErrorEvent("error", {message: "boom", filename: "a.js", lineno: 3}));
-        expect(posted).toContainEqual({method: "console", args: ["error", "boom (a.js:3)"]});
+        expect(posted).toContainEqual({method: "console", args: ["error", "boom (a.js:3)"], documentGeneration: 0});
     });
 
     it("forwards exactly one error after repeated installation and proxy recreation", () => {
@@ -121,7 +123,7 @@ describe("native bridge", () => {
         delete w.android;
         installNativeBridge(w);
         window.dispatchEvent(new ErrorEvent("error", {message: "once", filename: "b.js", lineno: 1}));
-        expect(posted).toEqual([{method: "console", args: ["error", "once (b.js:1)"]}]);
+        expect(posted).toEqual([{method: "console", args: ["error", "once (b.js:1)"], documentGeneration: 0}]);
     });
 
     it("forwards unhandled rejections once through the current transport", () => {
@@ -133,7 +135,7 @@ describe("native bridge", () => {
         // jsdom does not expose PromiseRejectionEvent; dispatch the browser event with its reason.
         const event = Object.assign(new Event("unhandledrejection"), {reason: "rejected later"});
         window.dispatchEvent(event);
-        expect(android).toEqual(['{"method":"console","args":["error","unhandled rejection: rejected later"]}']);
+        expect(android).toEqual(['{"method":"console","args":["error","unhandled rejection: rejected later"],"documentGeneration":0}']);
         expect(ios).toEqual([]);
     });
 
@@ -156,8 +158,8 @@ describe("native bridge", () => {
         expect(w.android.webview).toBe(webview);
         window.dispatchEvent(new ErrorEvent("error", {message: "startup", filename: "main.js", lineno: 1}));
         expect(posted).toEqual([
-            '{"method":"setClientReady","args":[]}',
-            '{"method":"console","args":["error","startup (main.js:1)"]}',
+            '{"method":"setClientReady","args":[],"documentGeneration":0}',
+            '{"method":"console","args":["error","startup (main.js:1)"],"documentGeneration":0}',
         ]);
     });
 
@@ -180,5 +182,38 @@ describe("native bridge", () => {
         const main = readFileSync(resolve(__dirname, "../main.ts"), "utf8");
         const firstImport = main.split("\n").find(l => l.startsWith("import "));
         expect(firstImport).toBe('import "@/bridge/native-bridge";');
+    });
+});
+
+describe("native bridge document generation (#3975)", () => {
+    beforeEach(reset);
+
+    it("every call carries the generation of the current document, on both transports", async () => {
+        const android: string[] = [];
+        w.androidBridge = {postMessage: (m: string) => android.push(m), getActiveLanguages: () => "[]"};
+        installNativeBridge(w);
+        await adoptDocumentGeneration(12);
+        w.android.scrolledToOrdinal("KJV:John.3", 5);
+        expect(JSON.parse(android[0])).toEqual({method: "scrolledToOrdinal", args: ["KJV:John.3", 5], documentGeneration: 12});
+
+        reset();
+        const ios: unknown[] = [];
+        w.webkit = {messageHandlers: {bridge: {postMessage: (m: unknown) => ios.push(m)}}};
+        installNativeBridge(w);
+        await adoptDocumentGeneration(13);
+        w.android.saveState("s");
+        expect(ios).toEqual([{method: "saveState", args: ["s"], documentGeneration: 13}]);
+    });
+
+    it("keeps the old generation until the cleared content has rendered away", async () => {
+        const android: string[] = [];
+        w.androidBridge = {postMessage: (m: string) => android.push(m), getActiveLanguages: () => "[]"};
+        installNativeBridge(w);
+        await adoptDocumentGeneration(4);
+        const adopted = adoptDocumentGeneration(5);
+        w.android.scrolledToOrdinal("", 1);
+        await adopted;
+        w.android.scrolledToOrdinal("", 2);
+        expect(android.map(m => JSON.parse(m).documentGeneration)).toEqual([4, 5]);
     });
 });

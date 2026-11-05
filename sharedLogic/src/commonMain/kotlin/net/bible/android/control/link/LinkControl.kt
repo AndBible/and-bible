@@ -420,10 +420,15 @@ class LinkControl constructor(
 
     /**
      * Opens the StudyPad of [labelId], scrolled to [entryId]. Call on the main thread (it shows the link);
-     * [windowMode] is read when the call is made, before the label lookup suspends.
+     * [windowMode] is read when the call is made, before the label lookup suspends. [stillWanted] is asked after the
+     * lookup, right before the link is shown: false (the page that asked was replaced meanwhile) opens nothing.
      */
-    suspend fun openStudyPad(labelId: IdType, entryId: IdType?, windowMode: WindowMode = this.windowMode): Boolean {
+    suspend fun openStudyPad(
+        labelId: IdType, entryId: IdType?, windowMode: WindowMode = this.windowMode,
+        stillWanted: () -> Boolean = { true },
+    ): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
+        if (!stillWanted()) return false
         val key = StudyPadKey(label, entryId)
         showLink(fakeBookFactory.journalDocument, key, windowMode = windowMode)
         return true

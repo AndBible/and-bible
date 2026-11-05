@@ -189,7 +189,9 @@ internal class ContentBridgeFamily(
 
     fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             showPromptSelector(
                 Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text),
                 PromptContext.VERSE_SELECTION,
@@ -199,7 +201,9 @@ internal class ContentBridgeFamily(
 
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             showPromptSelector(
                 Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text),
                 PromptContext.VERSE_SELECTION,
@@ -220,7 +224,9 @@ internal class ContentBridgeFamily(
      */
     fun noteEditorLlmAction(contextJson: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val ctx = try {
                 AppJson.decodeFromString<NoteEditorLlmContext>(contextJson)
             } catch (e: kotlinx.serialization.SerializationException) {
@@ -241,6 +247,8 @@ internal class ContentBridgeFamily(
                 }
             }
 
+            // The bookmark read suspended: the selector takes the active window's category NOW (#3975 review C2).
+            if (!session.holdsDocument(ticket)) return@launch
             val selection = Selection(
                 bookInitials = bookInitials,
                 startOrdinal = startOrdinal,
@@ -315,8 +323,9 @@ internal class ContentBridgeFamily(
         // The asking window travels with the request: the host must not guess it (the active window can differ).
         // `windowOrNull` is never null for a live Android BibleView (its session is built with the window).
         val windowId = session.windowOrNull?.id ?: return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
-            if (session.isDisposed) return@launch
+            if (!session.holdsDocument(ticket)) return@launch
             session.hostSheets?.showRegenerate(id, windowId)
         }
     }
@@ -325,13 +334,21 @@ internal class ContentBridgeFamily(
     fun deleteMyDocumentPage(pageId: String) {
         if (session.isDisposed) return
         val id = IdType(pageId)
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
-            if (session.isDisposed) return@launch
+            if (!session.holdsDocument(ticket)) return@launch
+            // What the asking window shows when it asks, before the dialog: the page being deleted. The window may move
+            // on while the dialog is open (#3975 review C3, codex I2).
+            val shown = session.windowOrNull?.let { ShownPage(it) }
             session.hostSheets?.showDeleteDocumentPageConfirm {
                 MyDocumentBookManager.launcher.launch(documentQueue()) {
                     MyDocumentBookManager.deleteAIDocumentPage(id)
                     withContext(Dispatchers.Main) {
-                        if (session.isDisposed) return@withContext
+                        // The confirmed deletion stands. The window is closed or switched to its Bible only while it
+                        // still shows the deleted page: not once it shows another document or page (#3975 review C3).
+                        // The deletion's own refresh may already have reloaded the page, so this compares what the
+                        // window shows, not the document generation.
+                        if (session.isDisposed || shown == null || !shown.stillShown(session.windowOrNull)) return@withContext
                         val window = session.window
                         if (session.windowControl.isWindowRemovable(window)) {
                             session.windowControl.closeWindow(window)
@@ -342,6 +359,17 @@ internal class ContentBridgeFamily(
                 }
             }
         }
+    }
+
+    /** The document page a window shows: its page object, book and key (the key by its osisRef). */
+    private class ShownPage(private val window: net.bible.android.control.page.window.Window) {
+        private val page = window.pageManager.currentPage
+        private val initials = page.currentDocument?.initials
+        private val keyRef = page.key?.getOsisRef()
+
+        fun stillShown(now: net.bible.android.control.page.window.Window?): Boolean =
+            now === window && window.pageManager.currentPage === page &&
+                page.currentDocument?.initials == initials && page.key?.getOsisRef() == keyRef
     }
 
     fun openPromptEditor(promptId: String) {

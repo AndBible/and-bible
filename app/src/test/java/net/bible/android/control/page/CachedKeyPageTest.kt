@@ -198,4 +198,115 @@ class CachedKeyPageTest {
         }
     }
 
+
+    private fun keyedBook(initials: String, keys: List<Key>, onRead: () -> Unit = {}): Book {
+        val meta = mock(BookMetaData::class.java)
+        `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+        return mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(this.initials).thenReturn(initials)
+            `when`(getGlobalKeyList()).thenAnswer {
+                onRead()
+                DefaultKeyList().apply { keys.forEach { addAll(it) } }
+            }
+        }
+    }
+
+    /**
+     * C3 (#3975 rework 5): the next general book entry is computed off main. A key list built for the outgoing book
+     * (A) that finishes after the window selected book B must not become B's cache: B's next key after b1 is b2, not
+     * A's first entry.
+     */
+    @Test
+    fun aKeyListBuiltForTheOutgoingBookIsNotUsedForTheNextOne() {
+        val manager = createPageManager()
+        try {
+            val page = manager.currentGeneralBook
+            val a1 = DefaultLeafKeyList("a1", "a1")
+            val a2 = DefaultLeafKeyList("a2", "a2")
+            val b1 = DefaultLeafKeyList("b1", "b1")
+            val b2 = DefaultLeafKeyList("b2", "b2")
+            val entered = java.util.concurrent.CountDownLatch(1)
+            val release = java.util.concurrent.CountDownLatch(1)
+            val bookA = keyedBook("BookA", listOf(a1, a2)) {
+                entered.countDown()
+                release.await(5, java.util.concurrent.TimeUnit.SECONDS)
+            }
+            val bookB = keyedBook("BookB", listOf(b1, b2))
+            page.onlySetCurrentDocument(bookA)
+            var nextOfA: Key? = null
+            val reader = Thread { nextOfA = page.getKeyPlus(a1, 1) }.apply { start() }
+            org.junit.Assert.assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            page.setCurrentDocument(bookB)
+            release.countDown()
+            reader.join(5_000)
+            assertThat("A's read answers A's next entry", nextOfA, equalTo(a2 as Key))
+            assertThat("B's next entry after b1", page.getKeyPlus(b1, 1), equalTo(b2 as Key))
+        } finally {
+            manager.destroy()
+        }
+    }
+
+    /** Independent v5 review: a document update must invalidate an in-flight old snapshot too. */
+    @Test
+    fun reviewV5AnUpdateDuringKeyListConstructionCannotRepublishTheOldList() {
+        val manager = createPageManager()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        var reader: Thread? = null
+        try {
+            val page = manager.currentGeneralBook
+            val a = DefaultLeafKeyList("a", "a")
+            val b = DefaultLeafKeyList("b", "b")
+            val c = DefaultLeafKeyList("c", "c")
+            val keys = java.util.concurrent.atomic.AtomicReference<List<Key>>(listOf(a, b))
+            val meta = mock(BookMetaData::class.java)
+            `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+            `when`(meta.getProperty("AndBibleMyDocument")).thenReturn("1")
+            val book = mock(Book::class.java).apply {
+                `when`(bookMetaData).thenReturn(meta)
+                `when`(initials).thenReturn("MyDoc_3975_inflight")
+                `when`(getGlobalKeyList()).thenAnswer {
+                    val snapshot = keys.get()
+                    entered.countDown()
+                    check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                    DefaultKeyList().apply { snapshot.forEach { addAll(it) } }
+                }
+            }
+            page.onlySetCurrentDocument(book)
+            reader = Thread { page.keyListOf(book) }.apply { start() }
+            org.junit.Assert.assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            keys.set(listOf(a, b, c))
+            MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated(book.initials))
+            release.countDown()
+            reader.join(5_000)
+            org.junit.Assert.assertFalse(reader.isAlive)
+            assertThat("the new entry is visible to paging after the update", page.getKeyPlus(b, 1), equalTo(c as Key))
+        } finally {
+            release.countDown()
+            reader?.join(5_000)
+            manager.destroy()
+        }
+    }
+
+    /** C3: the next key of a captured book is read from that book's key list, whatever the page shows now. */
+    @Test
+    fun theNextKeyOfACapturedBookIsReadFromThatBook() {
+        val manager = createPageManager()
+        try {
+            val page = manager.currentGeneralBook
+            val a1 = DefaultLeafKeyList("a1", "a1")
+            val a2 = DefaultLeafKeyList("a2", "a2")
+            val b1 = DefaultLeafKeyList("b1", "b1")
+            val b2 = DefaultLeafKeyList("b2", "b2")
+            val bookA = keyedBook("BookA", listOf(a1, a2))
+            val bookB = keyedBook("BookB", listOf(b1, b2))
+            page.onlySetCurrentDocument(bookB)
+            assertThat(page.getKeyPlus(b1, 1), equalTo(b2 as Key))
+            assertThat(page.getKeyPlus(a1, 1, bookA), equalTo(a2 as Key))
+            assertThat("B's cache is kept", page.getKeyPlus(b1, 1), equalTo(b2 as Key))
+        } finally {
+            manager.destroy()
+        }
+    }
 }

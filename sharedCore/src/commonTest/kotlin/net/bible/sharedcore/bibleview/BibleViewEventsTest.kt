@@ -29,6 +29,7 @@ class BibleViewEventsTest {
         assertEquals("bibleView.emit(\"close_modals\")", e.closeModals().js)
         assertEquals("bibleView.emit(\"export_html\")", e.exportHtml().js)
         assertEquals("bibleView.emit(\"clear_document\")", e.clearDocument().js)
+        assertEquals("bibleView.emit(\"clear_document\", 42)", e.clearDocument(42).js)
     }
 
     @Test fun scrollToVerseKeepsKeyPresence() {

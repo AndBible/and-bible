@@ -12,7 +12,7 @@ class PocBibleViewControllerTest {
     private val logged = mutableListOf<String>()
     private val controller = PocBibleViewController("w1", """{"id":"poc-eph2"}""", darkTheme = true)
     private val bridge = controller.bridge({ evaluated += it.js }, { logged += it })
-    private val dispatcher = BridgeDispatcher(bridge, { }, { })
+    private val dispatcher = BridgeDispatcher(bridge, { }, { }, net.bible.sharedcore.bibleview.OpenDocumentGate)
 
     @Test fun clientReadySendsConfigThenDocument() {
         assertEquals(BridgeResult.Handled, dispatcher.dispatch("""{"method":"setClientReady","args":[]}"""))

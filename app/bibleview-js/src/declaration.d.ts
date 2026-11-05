@@ -56,6 +56,7 @@ type TranslatedStrings = {
     crossReferenceText: string
     findAllOccurrences: string
     reportError: string
+    retryLoad: string
     errorTitle: string
     warningTitle: string
     normalTitle: string

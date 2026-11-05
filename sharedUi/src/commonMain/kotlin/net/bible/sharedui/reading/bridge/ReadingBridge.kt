@@ -19,6 +19,7 @@
 
 package net.bible.sharedui.reading.bridge
 
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,9 +41,10 @@ import net.bible.android.view.activity.page.refChooserVerseName
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.sharedcore.bibleview.DocumentGenerationGate
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import org.crosswire.jsword.book.sword.SwordGenBook
 import net.bible.sharedcore.bibleview.BibleViewEvents
-import net.bible.android.common.toV11n
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedui.reading.session.BibleWindowSession
@@ -67,7 +69,7 @@ class ReadingBridge(
     private val progressJsActionsProvider: () -> ProgressJsActions = { KoinPlatform.getKoin().get() },
     private val speakerProvider: () -> ReadingSpeaker = { KoinPlatform.getKoin().get<SpeakControl>().asReadingSpeaker() },
     private val bookmarkJsActionsProvider: () -> BookmarkJsActions = { KoinPlatform.getKoin().get() },
-) : BibleBridge {
+) : BibleBridge, DocumentGenerationGate {
     private val orderedLauncher: OrderedLauncher by lazy { KoinPlatform.getKoin().get() }
     private val speakControl: SpeakControl by lazy { KoinPlatform.getKoin().get() }
     private val currentPageManager get() = session.window.pageManager
@@ -84,11 +86,18 @@ class ReadingBridge(
 
     private val contentFamily by lazy { ContentBridgeFamily(session, bookmarkJsActionsProvider()) }
 
-    /** Opens the compare document for [selection] (the platform view's selection menu action). */
-    fun compareSelection(selection: Selection?) = progressSpeak.compareSelection(selection)
+    /**
+     * Opens the compare document for [selection] (the platform view's selection menu action). Like a link, only from a
+     * page that shows the window's admitted document (#3975).
+     */
+    fun compareSelection(selection: Selection?) {
+        if (session.pageShowsAdmittedDocument()) progressSpeak.compareSelection(selection)
+    }
 
-    /** Opens the memorize document for [selection] (the platform view's selection menu action). */
-    fun memorizeSelection(selection: Selection?) = progressSpeak.memorizeSelection(selection)
+    /** Opens the memorize document for [selection] (the platform view's selection menu action); see [compareSelection]. */
+    fun memorizeSelection(selection: Selection?) {
+        if (session.pageShowsAdmittedDocument()) progressSpeak.memorizeSelection(selection)
+    }
 
     /** Opens an EPUB link for an already resolved [book] (the platform view's `epub-ref:` links). */
     fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) =
@@ -116,18 +125,57 @@ class ReadingBridge(
         }
     }
 
+    /**
+     * A guarded call ([net.bible.sharedcore.bibleview.BridgeGenerationPolicy.guarded], such as [scrolledToOrdinal]) of
+     * [generation] belongs to the document this window's page holds: the one the window admitted last and has not
+     * since replaced by requesting another (osTicket 3508, #3975).
+     */
+    override fun isAdmitted(generation: Long?): Boolean =
+        !session.isDisposed && generation != null && generation != NO_DOCUMENT_GENERATION &&
+            generation == session.documentGeneration
+
+    /**
+     * Runs a guarded call on the main thread, where navigation, document admission and view rebinds happen, and only if
+     * the page's admission state admits it there ([net.bible.sharedui.reading.session.DocumentAdmission.admits]: its
+     * generation, no request of another document, the window still shows the admitted source) for the window the call
+     * was dispatched to. The check and the call's effect are one main-thread step, so nothing on the main thread can
+     * replace the document in between. Page keys and documents change on the main thread; the one production change
+     * off it is a key-less dictionary page selecting its first entry while `Window.fetchDocument` reads it (IO), which
+     * happens only during that window's own pending request (#3975 rework 5).
+     */
+    override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+        val window = session.windowOrNull
+        if (session.isDisposed) return drop()
+        // ATOMIC: the block runs even if the scope is cancelled meanwhile, so a deferred call is always answered.
+        session.scope.launch(Dispatchers.Main.immediate, start = CoroutineStart.ATOMIC) {
+            if (session.admission.admits(generation) && session.windowOrNull === window) call() else drop()
+        }
+    }
+
+    /** Paging is admitted against the document the page holds; see [SessionPaging.runForPageDocument]. */
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+        if (session.isDisposed) return drop()
+        session.paging.runForPageDocument(generation, call, drop)
+    }
+
+    /**
+     * The page's top visible verse (Bible, MyNotes) or entry (commentary, general book, StudyPad). Reached only for the
+     * admitted document: the dispatcher drops reports of a replaced page by their document generation.
+     */
     override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         if (session.isDisposed) return
+        // Not while any request is pending, even one of the page's own document: it reads the key this report would
+        // write, and a report that lands first makes it stale. Dropping one loses nothing; the page reports again (#3975).
+        if (session.admission.state.pending != null) {
+            Log.i(TAG, "scrolledToOrdinal dropped: a document request is pending")
+            return
+        }
         val doc = session.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
             val versification = when (doc) {
                 is BibleDocument -> (session.initialKey as Verse).versification
                 is MyNotesDocument -> KJVA
                 else -> throw RuntimeException("Unsupported doc")
-            }
-            if (!isInLoadedChapters(ordinal, versification)) {
-                Log.w(TAG, "Ignoring scroll report $keyStr:$ordinal outside the loaded chapters")
-                return
             }
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal, versification, session.window)
         } else if (doc is OsisDocument || doc is StudyPadDocument || doc is MultiFragmentDocument) {
@@ -145,30 +193,9 @@ class ReadingBridge(
         }
     }
 
-    /**
-     * Whether a verse the page reports is part of the document Android last admitted: within its loaded chapters
-     * (`session.minChapter..maxChapter` of the initial key's book). The page reports its scroll position asynchronously, so a report can belong to the page's previous
-     * document, which is still on screen until JS has processed the replacement: after a chapter change, and above
-     * all in a web view a workspace switch handed to another window (#3950), whose old page reports the outgoing
-     * window's verse (osTicket 3508). Such a report must not move the window.
-     */
-    private fun isInLoadedChapters(ordinal: Int, versification: org.crosswire.jsword.versification.Versification): Boolean {
-        val initial = session.initialKey as? Verse ?: return false
-        val min = session.minChapter
-        val max = session.maxChapter
-        if (min < 0 || max < min) return false
-        return try {
-            val v11n = initial.versification
-            // A book's first chapter document also carries the book introduction (chapter 0).
-            val first = Verse(v11n, initial.book, if (min == 1) 0 else min, 0)
-            // A document opened at the introduction (chapter 0) also carries chapter 1.
-            val lastChapter = if (max == 0) 1 else max
-            val last = Verse(v11n, initial.book, lastChapter, v11n.getLastVerse(initial.book, lastChapter))
-            // Compared in the reporting document's versification (MyNotes: KJVA, built from the chapter converted).
-            ordinal in first.toV11n(versification).ordinal..last.toV11n(versification).ordinal
-        } catch (e: Exception) {
-            false
-        }
+    override fun documentShown(generation: Long) {
+        if (session.isDisposed) return
+        session.admission.shown(generation)
     }
 
     override fun setClientReady() {
@@ -215,10 +242,11 @@ class ReadingBridge(
         val page = manager.currentPage
         val document = page.currentDocument
         val generation = (page as? CurrentGeneralBookPage)?.selectionGeneration
+        val ticket = session.documentTicket()
         orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
                 withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document &&
+                    if (session.holdsDocument(ticket) && manager.currentPage === page && page.currentDocument === document &&
                         (page as? CurrentGeneralBookPage)?.selectionGeneration == generation) page.move()
                 }
             } catch (e: Exception) {
@@ -293,7 +321,9 @@ class ReadingBridge(
     override fun onKeyDown(key: String) {
         if (session.isDisposed) return
         Log.i(TAG, "key $key")
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val keys = session.keyActions
             when (key) {
                 "AltArrowDown", "AltArrowRight" -> session.windowControl.focusNextWindow()

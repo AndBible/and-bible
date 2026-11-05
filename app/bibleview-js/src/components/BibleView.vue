@@ -170,6 +170,7 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import ReadingProgress from "@/components/ReadingProgress.vue";
 import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
 import {backgroundImageLayer} from "@/code/background-image";
+import {adoptDocumentGeneration} from "@/bridge/document-generation";
 
 const isDesktopHost = document.documentElement.classList.contains("desktop-host");
 console.log("BibleView setup");
@@ -327,7 +328,7 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
     }
 })
 
-setupEventBusListener("clear_document", function clearDocument() {
+setupEventBusListener("clear_document", function clearDocument(nativeDocumentGeneration?: number) {
     documentGeneration++;
     loadingCount.value = 0;
     footNoteCount = 0;
@@ -337,6 +338,9 @@ setupEventBusListener("clear_document", function clearDocument() {
     clearLog();
     globalBookmarks.clearBookmarks();
     documents.splice(0)
+    // Calls about the old content keep its generation until it has left the DOM (#3975). Then native learns that the
+    // page shows the new document: it admits link navigations (which carry no generation) only from such a page.
+    adoptDocumentGeneration(nativeDocumentGeneration).then(() => android.documentShown(nativeDocumentGeneration ?? 0));
     scroll.scrollToId("top", {now: true});
 });
 

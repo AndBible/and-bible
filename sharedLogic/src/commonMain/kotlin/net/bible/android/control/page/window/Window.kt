@@ -267,9 +267,13 @@ class Window (
         suspend fun isCurrentRequest(): Boolean {
             // key can enter an independent blockingAtEdge bridge; do not start it after cancellation.
             currentCoroutineContext().ensureActive()
+            // A page without a key (a dictionary just selected) gets its first entry while it is fetched
+            // (CurrentPageBase.currentPageContent): that key is this request's own, not a newer one (#3975).
             return generation == contentLoadGeneration &&
                 pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
-                currentPage.key?.getOsisRef() == sourceKey
+                (currentPage.key?.getOsisRef().let { currentKey ->
+                    currentKey == sourceKey || (sourceKey == null && currentKey == currentPage.fallbackKey()?.getOsisRef())
+                })
         }
         val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             pageManager.currentBibleVerse.verse
@@ -287,6 +291,12 @@ class Window (
         displayedKey = currentPage.key
         Log.i(TAG, "updateText ${this.hashCode()}")
 
+        // From here until the document is admitted (or the request ends without one), the view's page still shows the
+        // outgoing content, and its reports must not move this window off the requested key (#3975).
+        val requestView = bibleView
+        val viewRequest = requestView?.documentRequested()
+        var unchanged = false
+        var failed: Throwable? = null
         updateScope.launch(Dispatchers.IO) {
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -310,6 +320,7 @@ class Window (
                 val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
                     pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
+                    unchanged = true
                     return@launch
                 }
                 checksum
@@ -323,10 +334,24 @@ class Window (
             lastChecksum = checksum
 
             onLoadDelivered(viewReady)
-            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId, windowContentGeneration = generation)
+            try {
+                bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId, windowContentGeneration = generation)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A delivery that fails (an unreadable label or content read) is reported to the view, which shows an
+                // error document with a retry instead of the window's old page (#3975); it no longer ends the app.
+                Log.e(TAG, "Delivering the document failed", e)
+                failed = e
+            }
 
             if(notifyLocationChange)
                 PassageChangeMediator.contentChangeFinished()
+            }.invokeOnCompletion { cause ->
+                val failure = failed ?: cause?.takeUnless { it is kotlinx.coroutines.CancellationException }
+                // The view no longer holds the content the checksum was taken from (an error document replaces it).
+                if (failure != null) lastChecksum = 0
+                if (viewRequest != null) requestView.documentRequestEnded(viewRequest, unchanged, failure)
             }
         }
 

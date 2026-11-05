@@ -44,7 +44,11 @@ class DesktopBibleWebViews(private val engine: DesktopWebEngine, private val log
             if (p == null) pending += call.js else p.post { p.evaluate(call.js, null) }
         }
         val paneLog: (String) -> Unit = { msg -> log("bridge[$windowId]: $msg") }
-        val dispatcher = BridgeDispatcher(controller.bridge(sink, paneLog), { callId -> sink(BibleViewEvents.response(callId, null)) }, paneLog)
+        // The PoC page serves no window document: nothing to guard (#3975).
+        val dispatcher = BridgeDispatcher(
+            controller.bridge(sink, paneLog), { callId -> sink(BibleViewEvents.response(callId, null)) }, paneLog,
+            net.bible.sharedcore.bibleview.OpenDocumentGate,
+        )
         // No neutral document-start scripts: console and error forwarding live in the bundle (main.ts, native-bridge.ts)
         // and the engine's shim carries the active languages.
         val created = engine.createPane(windowId, engine.bundleUrl("en", controller.darkTheme), emptyList()) { text ->

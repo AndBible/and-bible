@@ -24,6 +24,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
@@ -242,6 +243,7 @@ class WorkspaceSwitchContentTest {
             }
             assertEquals(3, fake.panes.size)
             val originalPanes = fake.panes.toList()
+            val outgoingGenerations = outgoing.map { HostReadingWindows.sessionFor(it.id.toString()).documentGeneration }
             repository.saveIntoDb()
             repository.persistence.awaitPersisted()
             dao.insertWorkspace(target)
@@ -259,6 +261,12 @@ class WorkspaceSwitchContentTest {
             engine.attach(id, false, HostReadingWindows.bridgeFor(id), {}, { session.jsChannel.flush() })
             val adopted = assertNotNull(engine.paneFor(id))
             assertTrue(originalPanes.any { it === adopted }, "the incoming window must adopt an outgoing native pane")
+            // #3975: the adopted pane's old page still posts with its old document generation; a call that acts on
+            // the window's current state implicitly must not reach the incoming window.
+            val staleGeneration = outgoingGenerations[originalPanes.indexOfFirst { it === adopted }]
+            (adopted as net.bible.sharedui.desktop.webengine.FakePane).onMessage(
+                """{"method":"saveState","args":["outgoing page"],"documentGeneration":$staleGeneration}""")
+            assertTrue(incoming.pageManager.jsState != "outgoing page", "a stale page call must not reach the incoming window")
             assertTrue(outgoing.all { it.bibleView == null }, "outgoing owners must detach their views")
             assertSame(adopted, engine.paneFor(id))
             // Simulate the completed-composition cleanup seam.
@@ -288,6 +296,119 @@ class WorkspaceSwitchContentTest {
             assertSame(session, HostReadingWindows.sessionFor(id))
             assertSame(adopted, engine.paneFor(id))
             assertSame(reconstructed, session.window)
+            HostReadingWindows.releaseSpares()
+        }
+    }
+
+    /** Waits (letting the main thread run) until [session] has admitted a document other than [not]. */
+    private suspend fun awaitAdmitted(session: net.bible.sharedui.reading.session.BibleWindowSession, not: Long = -1L): Long {
+        kotlinx.coroutines.withTimeout(20_000) {
+            while (session.documentGeneration == net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION ||
+                session.documentGeneration == not) kotlinx.coroutines.delay(20)
+        }
+        return session.documentGeneration
+    }
+
+    /** Lets queued main-thread work (a guarded call's main-thread step) run. */
+    private suspend fun settleMain() = repeat(5) { kotlinx.coroutines.delay(20) }
+
+    private fun message(method: String, args: String, generation: Long) =
+        """{"method":"$method","args":[$args],"documentGeneration":$generation}"""
+
+    /**
+     * #3975 reviews A1, A2, A4, through the desktop host's real pane message and link paths: after a workspace switch
+     * the adopted pane's old page (a) has its modals closed, (b) cannot reach the incoming window with a call of its old
+     * document or with a link, while (c) the same calls of the incoming window's own document do reach it. (c) fails if
+     * the gate drops everything; (b) fails if it drops nothing.
+     */
+    @Test fun anAdoptedPanesOldPageCannotReachTheIncomingWindowButItsNewDocumentCan() = runBlocking {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        HostReadingReady.ensure(HostStartup.stringTable)
+        val koin = KoinPlatform.getKoin()
+        val scope = HostReadingReady.scope
+        val control = koin.get<WindowControl>()
+        val repository = control.windowRepository
+        val fake = FakeWebEngine()
+        val engine = DesktopReadingPaneEngine(fake, {}, koin = { koin })
+        val target = WorkspaceEntities.Workspace(name = "Target", contentsText = null, orderNumber = 1)
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val book = assertNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+
+        withContext(Dispatchers.Main) {
+            val host = HostReadingHost(scope, HostNavShell(scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+            HostReadingWindows.bind(host, scope, koin, Day, engine)
+            fun attach(id: String) {
+                val session = HostReadingWindows.sessionFor(id)
+                engine.attach(id, false, HostReadingWindows.bridgeFor(id), {}, { session.jsChannel.flush() },
+                    openLink = { HostReadingWindows.openLink(id, it) })
+                session.jsChannel.markClientReady()
+            }
+            val outgoing = repository.activeWindow
+            outgoing.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 6:58"))
+            val outgoingId = outgoing.id.toString()
+            attach(outgoingId)
+            val outgoingSession = HostReadingWindows.sessionFor(outgoingId)
+            outgoing.loadText()
+            val old = awaitAdmitted(outgoingSession)
+            val pane = engine.paneFor(outgoingId) as net.bible.sharedui.desktop.webengine.FakePane
+            pane.onMessage(message("documentShown", "$old", old))
+            yield() // documentShown reaches the admission state on the main thread, posted like any bridge call
+            assertTrue(outgoingSession.pageShowsAdmittedDocument(), "fixture: the outgoing page shows its document")
+            repository.saveIntoDb()
+            repository.persistence.awaitPersisted()
+            dao.insertWorkspace(target)
+
+            val actions = HostReadingQuickActions(
+                windowControl = { control }, fakeBookFactory = { koin.get() }, settings = koin.get(),
+                scope = scope, toast = {}, chooserTarget = { error("not used by workspace switch") },
+            )
+            pane.evaluated.clear()
+            actions.switchToWorkspace(target.id.toString(), saveOutgoing = false)
+            val incoming = repository.activeWindow
+            val id = incoming.id.toString()
+            attach(id)
+            val adopted = engine.paneFor(id) as net.bible.sharedui.desktop.webengine.FakePane
+            assertSame(pane, adopted, "fixture: the incoming window adopts the outgoing pane")
+            // A2: the old page's modals are closed when the pane is handed over.
+            assertTrue(adopted.evaluated.any { it.contains("\"close_modals\"") }, "close_modals: ${adopted.evaluated}")
+
+            incoming.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 6:5"))
+            incoming.loadText()
+            val new = awaitAdmitted(HostReadingWindows.sessionFor(id), not = old)
+            val state = { repository.windowList.map { it.id to it.pageManager.currentPage.key?.getOsisRef() } }
+            val before = state()
+
+            // The old page, before it has processed the new document's clear_document: its calls carry the old
+            // generation, and it still reports showing the old document.
+            adopted.onMessage(message("saveState", "\"outgoing page\"", old))
+            adopted.onMessage(message("scrolledToOrdinal", "\"John.6\",${org.crosswire.jsword.passage.KeyUtil.getVerse(book.getKey("John 6:58")).ordinal}", old))
+            adopted.navigate("osis://?osis=Gen.2.1")
+            settleMain()
+            assertTrue(incoming.pageManager.jsState != "outgoing page", "a call of the old document must not reach the incoming window")
+            assertEquals(before, state(), "neither the old page's report nor its link may move or open a window")
+
+            // The page has shown the incoming window's document: its calls and links act.
+            adopted.onMessage(message("documentShown", "$new", new))
+            yield() // documentShown reaches the admission state on the main thread, posted like any bridge call
+            adopted.onMessage(message("saveState", "\"incoming page\"", new))
+            settleMain()
+            assertEquals("incoming page", incoming.pageManager.jsState, "a call of the window's own document must reach it")
+            adopted.navigate("osis://?osis=Gen.2.1")
+            settleMain()
+            assertTrue(before != state(), "a link of the window's own document must open")
             HostReadingWindows.releaseSpares()
         }
     }

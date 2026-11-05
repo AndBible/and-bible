@@ -99,7 +99,12 @@ enum class ErrorSeverity {
     NORMAL, WARNING, ERROR
 }
 
-class ErrorDocument(private val errorMessage: String?, private val severity: ErrorSeverity): SynchronousDocument {
+/** An error page. [retry]: the page offers a retry link (`ab-retry://`) that loads the window's document again. */
+class ErrorDocument(
+    private val errorMessage: String?,
+    private val severity: ErrorSeverity,
+    private val retry: Boolean = false,
+): SynchronousDocument {
     init {
         if(severity == ErrorSeverity.ERROR) {
             Log.e("ErrorDocument", "ErrorDocument created: ${Log.getStackTraceString(Exception())}")
@@ -113,7 +118,8 @@ class ErrorDocument(private val errorMessage: String?, private val severity: Err
             "id" to wrapString(Uuid.random().toString()),
             "type" to wrapString("error"),
             "errorMessage" to wrapString(errorMessage?:""),
-            "severity" to wrapString(severity.name)
+            "severity" to wrapString(severity.name),
+            "retry" to retry.toString(),
         )
     }
 }

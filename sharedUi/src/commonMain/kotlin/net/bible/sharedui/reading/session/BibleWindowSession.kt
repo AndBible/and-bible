@@ -20,6 +20,7 @@
 package net.bible.sharedui.reading.session
 
 import kotlin.concurrent.Volatile
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -121,6 +122,42 @@ class BibleWindowSession(
     var firstKey: Key? = null
     var lastKey: Key? = null
 
+    /**
+     * The admission state of this window's page: which of its calls, links and chapter requests may act on the window
+     * (osTicket 3508, #3975). Driven by [DocumentLoader], mutated on the main thread only.
+     */
+    val admission = DocumentAdmission(this)
+
+    /**
+     * The generation guarded bridge calls are admitted with now ([NO_DOCUMENT_GENERATION] when none, also while the
+     * view is parked for reuse or a different document is requested); see [DocumentAdmission.generation].
+     */
+    val documentGeneration: Long get() = admission.generation
+
+    /**
+     * Main thread: whether what the page shows is the document whose calls the window admits now: false for a page
+     * that still shows a replaced document (also an adopted or parked view's old page), and while a different document
+     * is requested. A link navigation carries no generation, so it is admitted only then.
+     */
+    fun pageShowsAdmittedDocument(): Boolean = !isDisposed && admission.pageShowsAdmittedDocument()
+
+    /**
+     * The document and window this session holds now. A guarded bridge call that acts later (after queued writes, an
+     * IO read, a hop to the main thread) takes one when it runs and acts only if [holdsDocument] still holds then: a
+     * navigation, a new document request or a view rebind in between makes it stale (#3975). A native caller (selection
+     * menu, hardware key) takes one the same way.
+     */
+    fun documentTicket(): DocumentTicket = DocumentTicket(documentGeneration, windowOrNull)
+
+    /**
+     * Main thread: whether [ticket]'s document is still the one this session's window holds (see [documentTicket]): the
+     * same window and admitted generation and, for an admitted document, the window still shows its source. A ticket
+     * of no document ([NO_DOCUMENT_GENERATION]) holds while still none is admitted.
+     */
+    fun holdsDocument(ticket: DocumentTicket): Boolean =
+        !isDisposed && windowOrNull === ticket.window && ticket.generation == documentGeneration &&
+            (ticket.generation == NO_DOCUMENT_GENERATION || admission.admits(ticket.generation))
+
     @Volatile var minChapter: Int = -1
     @Volatile var maxChapter: Int = -1
 
@@ -164,6 +201,13 @@ interface SessionPaging {
     fun requestMoreToEnd(callId: Long)
     fun setClientReady()
     fun parseRef(callId: Long, s: String)
+
+    /**
+     * Runs a chapter request ([call]) of the page whose document has [generation] if that is the document the page
+     * holds (main thread, see [DocumentAdmission.runPaging], #3975). Exactly one of [call] and [drop] runs, once. The
+     * default drops: a paging seam that cannot tell the page's document fails closed.
+     */
+    fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) = drop()
 }
 
 /** Sheets the reading host shows on behalf of the session. */
@@ -180,3 +224,7 @@ interface ReadingSheets {
     /** Asks whether the AI document page should be deleted; [onConfirm] runs only on "yes". */
     fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit)
 }
+
+/** See [BibleWindowSession.documentTicket]. */
+@kotlin.native.HiddenFromObjC
+class DocumentTicket internal constructor(val generation: Long, val window: Window?)

@@ -126,10 +126,11 @@ internal class LinkBridgeFamily(
         val windowMode = linkControl.windowMode
         val page = session.window.pageManager.currentPage
         val sourceDocument = page.currentDocument
+        val ticket = session.documentTicket()
         epubLinks.launch("epub-links") {
             val key = withContext(Dispatchers.IO) { backend.getKey(keyStr, idStr) }
             withContext(Dispatchers.Main) {
-                if (!viewIsCurrent() || session.window.pageManager.currentPage !== page || page.currentDocument != sourceDocument) return@withContext
+                if (!viewIsCurrent() || !session.holdsDocument(ticket) || session.window.pageManager.currentPage !== page || page.currentDocument != sourceDocument) return@withContext
                 key?.let { linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr), windowMode = windowMode) }
             }
         }
@@ -137,9 +138,11 @@ internal class LinkBridgeFamily(
 
     fun openExternalLink(link: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         when (val action = classifyExternalLink(link)) {
             is ExternalLinkAction.AppLink -> session.scope.launch(Dispatchers.Main) {
-                session.linkControl.loadApplicationUrl(action.link)
+                // Navigates the active window: only while the page that showed the link is still this window's (#3975).
+                if (session.holdsDocument(ticket)) session.linkControl.loadApplicationUrl(action.link)
             }
             is ExternalLinkAction.Browser -> session.navigator.openExternalUrl(action.url)
             ExternalLinkAction.Ignored -> {}
@@ -156,22 +159,29 @@ internal class LinkBridgeFamily(
     fun openStudyPad(labelId: String, bookmarkId: String) {
         if (session.isDisposed) return
         // After this window's queued writes (e.g. the note save JS sent just before), so the opened
-        // document is loaded with them.
+        // document is loaded with them. The navigation itself only while the page is still this window's (#3975).
+        val ticket = session.documentTicket()
         bookmarkJsActions.afterQueuedWrites(windowId, session.scope, Dispatchers.Main) {
-            session.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
+            // Checked again after the label lookup suspends: the active window can change meanwhile (#3975 review C2).
+            if (session.holdsDocument(ticket)) {
+                session.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId)) { session.holdsDocument(ticket) }
+            }
         }
     }
 
     fun openMyNotes(v11n: String, ordinal: Int) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         bookmarkJsActions.afterQueuedWrites(windowId, session.scope, Dispatchers.Main) {
-            session.linkControl.openMyNotes(v11n, ordinal)
+            if (session.holdsDocument(ticket)) session.linkControl.openMyNotes(v11n, ordinal)
         }
     }
 
     fun openAiDocPage(documentInitials: String, pageKey: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val book = Books.installed().getBook(documentInitials) ?: return@launch
             val key = try {
                 book.getKey(pageKey)

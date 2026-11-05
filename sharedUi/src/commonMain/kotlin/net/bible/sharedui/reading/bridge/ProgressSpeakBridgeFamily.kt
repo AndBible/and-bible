@@ -55,7 +55,9 @@ internal class ProgressSpeakBridgeFamily(
 
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }
@@ -75,8 +77,10 @@ internal class ProgressSpeakBridgeFamily(
     fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
         val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
+        val ticket = session.documentTicket()
         progressJsActions.addTargetIfNeededThen(windowId, verseRange, session.scope, Dispatchers.Main) {
-            memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+            // The target is kept; opening the memorize document only while the page is still this window's (#3975).
+            if (session.holdsDocument(ticket)) memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
@@ -147,7 +151,9 @@ internal class ProgressSpeakBridgeFamily(
 
     fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val v11n = Versifications.instance().getVersification(v11nName)
             val verse = Verse(v11n, ordinal).toV11n(book.versification)
@@ -160,7 +166,9 @@ internal class ProgressSpeakBridgeFamily(
 
     fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val v11n = Versifications.instance().getVersification(v11nName)
             val startVerse = Verse(v11n, ordinal).toV11n(book.versification)
@@ -174,7 +182,9 @@ internal class ProgressSpeakBridgeFamily(
 
     fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val book = Books.installed().getBook(bookInitials)
             val origKey = try {
                 book!!.getKey(osisRef)

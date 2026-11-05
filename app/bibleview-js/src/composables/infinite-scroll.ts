@@ -69,7 +69,15 @@ export function useInfiniteScroll(
 
     let clearDocumentCount = 0;
 
+    /**
+     * The page's document was replaced (clear_document). Everything still pending for the previous document is
+     * dropped: queued chapter requests, a chapter buffered while the finger was down, a load-more-at-top waiting for
+     * touchend. Content of the previous document inserted into the next one would report its verses with the next
+     * document's generation, which native cannot tell from a genuine report (#3975).
+     */
     function documentsCleared() {
+        textToBeInsertedAtTop = null;
+        addMoreAtTopOnTouchUp = false;
         addChaptersToTop.splice(0);
         addChaptersToEnd.splice(0);
         clearDocumentCount++;
@@ -125,6 +133,8 @@ export function useInfiniteScroll(
                         console.log("inf: Reached end of content")
                     }
                 }
+                // The end insert awaited a tick: the document may have been replaced meanwhile.
+                if(clearCountStart !== clearDocumentCount) return;
                 if(topChaps.length > 0) {
                     const validTopChaps = filterNotNull(topChaps);
                     if(validTopChaps.length > 0) {
@@ -232,8 +242,9 @@ export function useInfiniteScroll(
         touchDown = false;
         touchStartY = null;
         if (textToBeInsertedAtTop) {
-            insertThisTextAtTop(textToBeInsertedAtTop);
+            const docs = textToBeInsertedAtTop;
             textToBeInsertedAtTop = null;
+            insertThisTextAtTop(docs);
         }
         if (addMoreAtTopOnTouchUp) {
             addMoreAtTopOnTouchUp = false;
@@ -247,12 +258,15 @@ export function useInfiniteScroll(
         } else {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
+            const clearCountStart = clearDocumentCount;
 
             if (docs) {
                 docs.reverse();
                 bibleViewDocuments.unshift(...docs);
             }
             await nextTick();
+            // The document was replaced while the chapter rendered: the position belongs to the next one (#3975).
+            if (clearCountStart !== clearDocumentCount) return;
 
             // do no try to get scrollPosition here because it has not settled
             const adjustedTop = origPosition - priorHeight + bodyHeight();

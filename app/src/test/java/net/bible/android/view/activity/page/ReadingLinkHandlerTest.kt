@@ -125,8 +125,13 @@ class ReadingLinkHandlerTest {
             windowControlProvider = { windowControl },
             linkControlProvider = { linkControl },
         )
+        // The page shows the window's admitted document (what documentShown after a clear_document reports).
+        session.admission.admitCurrentForTest(1, shown = true)
+        this.session = session
         handler = ReadingLinkHandler(session) { _, _, _, _ -> epubOpened++ }
     }
+
+    private lateinit var session: BibleWindowSession
 
     @After fun tearDown() {
         hostScope.cancel()
@@ -217,5 +222,69 @@ class ReadingLinkHandlerTest {
         // The old code only needed `type` to be present; an empty one is fine for g/h names.
         assertTrue(handler.handle("ab-find-all://?type=&name=G1"))
         assertFalse(handler.handle("ab-find-all://?type=&name=word"))
+    }
+
+    /**
+     * #3975 review A1: a link navigation carries no document generation. A page that still shows a replaced document
+     * (the old page of an adopted web view, or a page whose window has requested another document) opens nothing.
+     */
+    @Test fun aLinkOfAPageThatDoesNotShowTheAdmittedDocumentOpensNothing() {
+        val documentBefore = shownDocument
+        val keyBefore = shownKey
+        session.admission.admitCurrentForTest(2) // the window admitted a document the page has not shown yet
+        assertTrue("swallowed, so the web view does not navigate", handler.handle("osis://?osis=Gen.2.1"))
+        handler.handle("https://andbible.org")
+        session.admission.admitCurrentForTest(2, shown = true)
+        repo.activeWindow.pageManager.currentBible.doSetKey(Verse(Versifications.instance().getVersification("KJV"), BibleBook.EXOD, 1, 1))
+        session.admission.request() // another document requested
+        handler.handle("osis://?osis=Gen.3.1")
+        repo.activeWindow.pageManager.setCurrentDocumentAndKey(documentBefore!!, keyBefore!!)
+        assertEquals(documentBefore, shownDocument)
+        assertEquals(keyBefore, shownKey)
+        assertTrue(navigator.webLinks.isEmpty())
+
+        session.admission.admitCurrentForTest(2, shown = true)
+        assertTrue(handler.handle("osis://?osis=Gen.2.1"))
+        assertTrue("the admitted page's link opens", shownKey?.getOsisRef() != keyBefore?.getOsisRef())
+    }
+
+    /**
+     * #3975 review C2: a StudyPad link reads its label (suspending) before it opens the StudyPad in the active
+     * window. If the page's document is replaced during that read, nothing opens.
+     */
+    @Test fun aStudyPadLinkOfAPageReplacedDuringTheLabelReadOpensNothing() {
+        val label = kotlinx.coroutines.runBlocking {
+            GlobalContext.get().get<BookmarkControl>().insertOrUpdateLabel(BookmarkEntities.Label(name = "pad").apply { new = true })
+        }
+        val main = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        val documentBefore = shownDocument
+        val keyBefore = shownKey
+        // The link's coroutine starts on the main thread and suspends in the label read; the page is replaced while the
+        // read is in flight. A read that happens to complete inside the first main-thread task leaves no such window
+        // (the StudyPad opens for the page that was still current): reset and try again.
+        var raced = false
+        for (attempt in 1..20) {
+            main.idle()
+            session.admission.admitCurrentForTest(1, shown = true)
+            assertTrue(handler.handle("journal://?id=${label.id}"))
+            main.runOneTask()
+            if (shownDocument != documentBefore) {
+                repo.activeWindow.pageManager.setCurrentDocumentAndKey(documentBefore!!, keyBefore!!)
+                continue
+            }
+            session.admission.forget()
+            raced = true
+            break
+        }
+        assertTrue("the label read was never in flight after the first main-thread task", raced)
+        val end = System.currentTimeMillis() + 1_500
+        while (System.currentTimeMillis() < end) { main.idle(); Thread.sleep(20) }
+        assertEquals("no StudyPad opened for a replaced page", documentBefore, shownDocument)
+
+        session.admission.admitCurrentForTest(1, shown = true)
+        assertTrue(handler.handle("journal://?id=${label.id}"))
+        val end2 = System.currentTimeMillis() + 10_000
+        while (shownDocument == documentBefore && System.currentTimeMillis() < end2) { main.idle(); Thread.sleep(20) }
+        assertEquals(fakeBooks.journalDocument, shownDocument)
     }
 }

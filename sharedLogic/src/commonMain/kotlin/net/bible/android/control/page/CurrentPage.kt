@@ -89,6 +89,9 @@ interface CurrentPage {
     /** get current key */
     val key: Key?
 
+    /** Default entry used when a page is loaded without a key. */
+    fun fallbackKey(): Key? = null
+
     val displayKey: Key?
 
 	/** set key and update screens  */

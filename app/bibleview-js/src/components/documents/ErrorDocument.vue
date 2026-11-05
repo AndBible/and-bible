@@ -22,6 +22,10 @@
     <h3 v-if="severity === ErrorSeverity.NORMAL">{{ strings.normalTitle }}</h3>
     <OsisSegment convert :osis-template="document.errorMessage"/>
     <br/>
+    <template v-if="document.retry">
+      <a class="retry-load" href="ab-retry://">{{ strings.retryLoad }}</a>
+      <br/>
+    </template>
     <a v-if="severity > ErrorSeverity.WARNING" href="ab-error://">{{ strings.reportError }}</a>
   </div>
 </template>
