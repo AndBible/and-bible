@@ -59,9 +59,6 @@ If using Nextcloud instead of Google Drive:
 3. Optionally specify a folder path on the server.
 4. Toggle on the data categories you want to sync.
 
-On Android, Nextcloud sync also supports account and folder names containing
-XML-special characters such as `&`; enter the names normally, without XML escaping.
-
 Nextcloud and WebDAV server addresses work with or without a trailing `/`.
 AndBible removes trailing slashes and surrounding whitespace when saving the
 address, and also handles trailing slashes in previously saved addresses.
