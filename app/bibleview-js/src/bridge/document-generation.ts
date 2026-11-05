@@ -27,6 +27,7 @@ import {nextTick} from "vue";
 export const NO_DOCUMENT_GENERATION = 0;
 
 let generation = NO_DOCUMENT_GENERATION;
+let epoch = 0;
 
 export function documentGeneration(): number {
     return generation;
@@ -39,9 +40,20 @@ export function documentGeneration(): number {
  */
 export function adoptDocumentGeneration(next: number | null | undefined): Promise<void> {
     const value = next ?? NO_DOCUMENT_GENERATION;
+    epoch++;
     return nextTick(() => {
         generation = value;
     });
+}
+
+/**
+ * Counts the page's documents: it changes synchronously when a document is cleared. Work that awaits something on
+ * behalf of a document (its render, a chapter answer) captures it first and gives up if it changed in between: it
+ * would otherwise act on the NEXT document's DOM, and whatever that causes (a scroll and its position report) would
+ * carry the next document's generation (#3975).
+ */
+export function documentEpoch(): number {
+    return epoch;
 }
 
 /** For tests. */

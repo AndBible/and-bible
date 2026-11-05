@@ -258,12 +258,15 @@ export function useInfiniteScroll(
         } else {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
+            const clearCountStart = clearDocumentCount;
 
             if (docs) {
                 docs.reverse();
                 bibleViewDocuments.unshift(...docs);
             }
             await nextTick();
+            // The document was replaced while the chapter rendered: the position belongs to the next one (#3975).
+            if (clearCountStart !== clearDocumentCount) return;
 
             // do no try to get scrollPosition here because it has not settled
             const adjustedTop = origPosition - priorHeight + bodyHeight();
