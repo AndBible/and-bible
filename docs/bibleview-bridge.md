@@ -51,17 +51,27 @@ A web view outlives its document, and since #3950/#3955 even its window: a works
 view to an incoming window, and its old page stays on screen and keeps calling until the new document replaces it.
 Calls of such a page must not act on the window that now owns the view (osTicket 3508, #3975).
 
-- `DocumentLoader` gives each admitted document a generation (`BibleWindowSession.documentGeneration`;
-  `NO_DOCUMENT_GENERATION` = 0 while none is admitted, also while a view is parked for reuse) and sends it with the
-  document's `clear_document`.
+- `DocumentLoader` gives each admitted document a generation and sends it with the document's `clear_document`.
+  `BibleWindowSession.documentGeneration` is the generation calls are admitted for: `NO_DOCUMENT_GENERATION` (0)
+  while none is admitted, while a view is parked for reuse, and from the moment the window REQUESTS another document
+  or key (`Window.loadText` -> `WindowView.documentRequested`) until it is admitted. A request that ends without a new
+  document (unchanged content, superseded read) admits the page's document again (`documentRequestEnded`). A jump
+  inside the loaded document requests nothing, so the page's reports keep counting.
 - The page switches to that generation once the cleared content has left the DOM
   (`src/bridge/document-generation.ts`), and `native-bridge.ts` puts it on every call's envelope
-  (`{method, args, documentGeneration}`).
-- `BridgeDispatcher` drops a `BridgeGenerationPolicy.guarded` call whose generation is not the bridge's
-  `DocumentGenerationGate.admittedDocumentGeneration` (a deferred one is answered with null). Unguarded calls
-  (id-addressed data writes, UI, the live page's own state) always pass: dropping a note save would lose input.
-- Native switches generation at admission, the page only after it has cleared the old content: a guarded tap in that
-  gap (normally milliseconds) is dropped silently. That is the intended trade-off.
+  (`{method, args, documentGeneration}`). `clear_document` also drops everything still pending for the old content
+  (infinite scroll's buffered chapters and queued requests), so no old content is inserted under the new generation.
+- `BridgeDispatcher` sends a `BridgeGenerationPolicy.guarded` call through a `DocumentGenerationGate`: dropped at once
+  when its generation is not admitted (a deferred one is answered with null), otherwise run by the gate on the main
+  thread and only if the generation is still admitted there for the same window (`ReadingBridge.runAdmitted`). The gate
+  is the bridge itself; a bridge without one gets `ClosedDocumentGate` (guarded calls always dropped), a bridge with no
+  window document (the PoC) passes `OpenDocumentGate` explicitly. Handlers that act later still (after queued writes,
+  an IO read, a hop to Main) take a `session.documentTicket()` and act only while `session.holdsDocument(ticket)`.
+- Guarded is the default: a call is unguarded only when dropping it would lose user data (id- or range-addressed
+  writes) or wedge the live page's own state. Navigation (links, compare/memorize, chapter paging), speech, the prompt
+  selector, keyboard shortcuts and workspace settings are guarded.
+- A guarded tap between the request of a new document and the page clearing the old one is dropped silently. That is
+  the intended trade-off.
 
 ## Adding a JS-to-native method
 
@@ -77,8 +87,10 @@ Calls of such a page must not act on the window that now owns the view (osTicket
 4. Add the Android `override` to `BibleJavascriptInterface.kt`; keep handler behavior and
    threading there. Add the logging no-op to `UnimplementedBibleBridge`, which the iOS PoC
    inherits, unless iOS implements the operation.
-5. Classify it in `BridgeGenerationPolicy` (`guarded` if it acts on the window's current document or state
-   implicitly, else `unguarded`); `BridgeGenerationPolicyTest` fails for an unclassified method.
+5. Classify it in `BridgeGenerationPolicy` (`guarded` unless dropping it from a replaced page would lose user data or
+   wedge the page; anything that navigates or acts on the current or active window is guarded);
+   `BridgeGenerationPolicyTest` fails for an unclassified method. A guarded handler that acts after a hop (queued
+   writes, IO, `launch(Main)`) rechecks `session.holdsDocument(ticket)` at the point it acts.
 6. Add meaningful decoder/behavior coverage. `BibleJavascriptInterfaceParityTest` and
    `BibleBridgeDecoderTest` must pass; they guard agreement between the TS contract,
    common contract/decoder and Android implementation. Check deferred failure replies too.
