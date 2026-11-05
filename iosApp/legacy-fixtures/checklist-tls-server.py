@@ -16,10 +16,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not chunk:
                 return
             remaining -= len(chunk)
-        evidence = os.environ.get("CHECKLIST_UPLOAD_EVIDENCE")
+        evidence = os.environ.get("CHECKLIST_UPLOAD_EVIDENCE") if self.path.endswith("/initial.sqlite3.gz") else None
         if evidence:
             pathlib.Path(evidence, "upload-started").touch()
-        delay = min(float(os.environ.get("CHECKLIST_PUT_DELAY", "0")), 30)
+        delay = min(float(os.environ.get("CHECKLIST_PUT_DELAY", "0")), 30) if evidence else 0
         if delay:
             print("CHECKLIST PUT waiting for real upload response", flush=True)
             time.sleep(delay)

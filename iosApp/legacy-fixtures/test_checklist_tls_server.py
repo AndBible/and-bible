@@ -5,6 +5,8 @@ import unittest
 import http.client
 import http.server
 import threading
+import tempfile
+from unittest.mock import patch
 
 MODULE = pathlib.Path(__file__).with_name("checklist-tls-server.py")
 spec = importlib.util.spec_from_file_location("checklist_tls_server", MODULE)
@@ -25,6 +27,27 @@ class PortSelectionTest(unittest.TestCase):
 
 
 class DavFolderTest(unittest.TestCase):
+    def test_device_identity_put_cannot_mark_database_upload_complete(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(server_module.os.environ, CHECKLIST_UPLOAD_EVIDENCE=directory):
+            server = http.server.HTTPServer(("127.0.0.1", 0), server_module.Handler)
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=2)
+            try:
+                connection.request("PUT", "/sync/device-known-identity", body=b"identity")
+                self.assertEqual(connection.getresponse().status, 201)
+                self.assertFalse(pathlib.Path(directory, "upload-completed").exists())
+                connection.request("PUT", "/sync/initial.sqlite3.gz", body=b"database")
+                response = connection.getresponse()
+                response.read()
+                self.assertEqual(response.status, 201)
+                self.assertTrue(pathlib.Path(directory, "upload-completed").exists())
+            finally:
+                connection.close()
+                server.shutdown()
+                server.server_close()
+                worker.join(timeout=2)
+
     def test_put_payload_is_consumed_and_reported_created(self):
         server = http.server.HTTPServer(("127.0.0.1", 0), server_module.Handler)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
