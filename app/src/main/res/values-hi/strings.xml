@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible WebView2 शुरू नहीं कर सका, जो बाइबल का पाठ दिखाने के लिए आवश्यक है। Microsoft Edge WebView2 Evergreen Runtime यहाँ से इंस्टॉल या रिपेयर करें:\n%1$s\n\nविवरण लॉग फ़ाइल में हैं:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">WebView2 के साथ बाइबल का पाठ दिखाने के लिए AndBible को Direct3D ग्राफ़िक्स चाहिए। वर्तमान ग्राफ़िक्स रेंडरर %1$s है। अपना ग्राफ़िक्स ड्राइवर और Direct3D सपोर्ट जाँचें।\n\nविवरण लॉग फ़ाइल में हैं:\n%2$s</string>
+  <string name="desktop_update_setting_title">अपडेट की जाँच करें</string>
+  <string name="desktop_update_setting_summary">दिन में एक बार, github.com से</string>
+  <string name="desktop_update_consent_title">अपडेट की जाँच करें?</string>
+  <string name="desktop_update_consent_message">AndBible नए संस्करण के लिए दिन में एक बार github.com देख सकता है। GitHub आपका IP पता देख सकता है; इसके अलावा कुछ नहीं भेजा जाता। आप इसे बाद में सेटिंग्स में बदल सकते हैं।</string>
+  <string name="desktop_update_consent_yes">अपडेट की जाँच करें</string>
+  <string name="desktop_update_consent_no">जाँच न करें</string>
+  <string name="desktop_update_available_title">नया संस्करण उपलब्ध है</string>
+  <string name="desktop_update_available_message">AndBible %1$s उपलब्ध है। आपके पास %2$s है।</string>
+  <string name="desktop_update_download">डाउनलोड करें</string>
+  <string name="desktop_update_later">बाद में</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">बाइबिल अध्ययन</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d परिणाम मिला</string>
   <string name="search_showing_first">बहुत सारे खोज परिणाम, पहले के %d</string>
   <string name="search_bible_section_group_prompt">खोज सीमा</string>
+  <string name="search_type_prompt">खोज का प्रकार</string>
+  <string name="search_show_results">खोज परिणाम दिखाएँ</string>
   <string name="search_all_bible">संपूर्ण बाइबल</string>
   <string name="search_new_testament">नया नियम</string>
   <string name="search_old_testament">पुराना नियम</string>
@@ -80,6 +94,28 @@
   <string name="search_what">\"%s\" खोजें</string>
   <!--Multi-translation search-->
   <string name="search_translations">अनुवाद</string>
+  <string name="recent_searches">हाल की खोजें</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">खोज बंद करें</string>
+  <string name="search_options">खोज सेटिंग्स</string>
+  <string name="search_submit">खोजें</string>
+  <string name="search_clear">खोज का पाठ मिटाएँ</string>
+  <string name="search_engine_changed_reindex">खोज इंजन अपडेट हो गया है। खोज सूचकांक दोबारा बनाना होगा; इसमें कुछ समय लग सकता है।</string>
+  <string name="search_unsupported_syntax">इस खोज में ऐसा सिंटैक्स है जो समर्थित नहीं है: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">सूचकांक बनना पूरा होने पर खोज अपने आप चलेगी।</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s में खोज नहीं की जा सकती</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">इस दस्तावेज़ में खोज नहीं की जा सकती</string>
+  <string name="search_indexing_notification_title">खोज सूचकांक बनाया जा रहा है</string>
   <string name="choose_translations">अनुवाद चुनें…</string>
   <string name="multi_search_results">%2$d अनुवादों में %1$d छंद</string>
   <string name="search_index_not_created">कोई सूचकांक नहीं</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">रंग कैसे दिखाए जाएं यह चुनें। कलर ई-इंक एक ब्लैक एंड व्हाइट आधार बनाए रखता है लेकिन बुकमार्क रंग, सक्रिय-विंडो संकेतक और सहायक रेखाओं को रंग में दिखाता है — कलर ई-इंक स्क्रीन के लिए।</string>
   <string name="prefs_display_color_mode_normal">सामान्य</string>
   <string name="prefs_display_color_mode_bw">ब्लैक एंड व्हाइट</string>
+  <string name="prefs_display_color_mode_monochrome">एकवर्णी</string>
   <string name="prefs_display_color_mode_color_eink">कलर ई-इंक</string>
+  <string name="prefs_theme_palette_style_title">थीम शैली</string>
+  <string name="prefs_theme_palette_style_summary">कार्यक्षेत्र के रंग से ऐप के रंग कैसे बनते हैं। केवल तब लागू होता है जब रंग मोड सामान्य हो।</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">टोनल स्पॉट (मुलायम, स्लेटी रखता है)</string>
+  <string name="prefs_theme_palette_style_fidelity">फ़िडेलिटी (सटीक रंग)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">टोनल स्पॉट (मूल)</string>
+  <string name="prefs_theme_palette_style_content">कंटेंट (रंग के करीब)</string>
+  <string name="prefs_theme_palette_style_neutral">न्यूट्रल (धीमा)</string>
+  <string name="prefs_theme_palette_style_monochrome">एकवर्णी (स्लेटी)</string>
+  <string name="prefs_theme_palette_style_vibrant">चटक</string>
+  <string name="prefs_theme_palette_style_expressive">भावपूर्ण</string>
+  <string name="prefs_theme_palette_style_rainbow">इंद्रधनुष</string>
+  <string name="prefs_theme_palette_style_fruit_salad">फ्रूट सलाद</string>
   <string name="prefs_eink_settings_cat">E-ink सेटिंग्स</string>
   <string name="prefs_eink_display_title">E-ink फ़ीचर</string>
   <string name="prefs_eink_display_summary">E-ink विशिष्ट सुविधाएँ सक्षम करें (पेज स्क्रॉल बटन, स्क्रॉल सहायक रेखाएं)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">जब आप अध्यायों से स्क्रॉल करते हैं तो स्वचालित रूप से उन्हें पढ़ा हुआ चिह्नित करें</string>
   <string name="reading_progress_read_count_scale">पढ़ा\nगया</string>
   <string name="reading_progress_percent_read_scale">प्रतिशत\nपढ़ा</string>
+  <string name="monochrome_activity_count">गतिविधि की संख्या: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">संख्या: %d</string>
+  <string name="monochrome_level">स्तर: %d/4</string>
+  <string name="monochrome_buckets">स्लेटी: कुछ नहीं; रूपरेखा: आंशिक; भरा हुआ: पूर्ण या उच्चतम स्तर। सटीक मान देखने के लिए किसी आइटम को चुनें।</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">पठन इतिहास</string>
   <string name="reading_progress_history_for">%1$s के लिए पठन प्रगति</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">इस कार्यक्षेत्र के लिए टेक्स्ट प्रदर्शन सेटिंग्स संपादित करें</string>
   <string name="global_text_options_link">वैश्विक टेक्स्ट विकल्प</string>
   <string name="global_text_options_link_summary">सभी कार्यक्षेत्रों के लिए डिफ़ॉल्ट टेक्स्ट प्रदर्शन सेटिंग्स संपादित करें</string>
+  <string name="text_options_inherited_workspace">कार्यक्षेत्र</string>
+  <string name="text_options_inherited_global">वैश्विक</string>
   <string name="prefs_font_and_colors_title">फ़ॉन्ट और रंग</string>
   <string name="prefs_text_layout_title">टेक्स्ट लेआउट</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s और आकृति विज्ञान</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace"> कार्यक्षेत्र</string>
   <string name="copy_settings_to_window">विंडो %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">वैश्विक डिफ़ॉल्ट</string>
+  <string name="copy_settings_to_workspaces">अन्य कार्यक्षेत्रों में…</string>
+  <string name="copy_settings_to_global_defaults">वैश्विक डिफ़ॉल्ट में…</string>
+  <string name="menu_back">वापस</string>
   <string name="change_to_normal">सामान्य विंडो में परिवर्तन</string>
   <string name="window_pin_mode">पिन</string>
   <!--Notes screen-->
@@ -311,6 +372,7 @@
   <string name="failed_repositories_message">निम्न दस्तावेज़ सर्वर से कनेक्ट नहीं हो सका: \n\n%s\n\n</string>
   <string name="failed_downloads_message">निम्न फ़ाइलों को डाउनलोड नहीं किया जा सका: \ n \ n%s \ n \ n</string>
   <string name="cant_delete_document">इस दस्तावेज़ को हटाया नहीं जा सकता।</string>
+  <string name="bad_document_warning">इस दस्तावेज़ में ज्ञात समस्याएँ हैं।</string>
   <!--Install zip file-->
   <string name="install_zip">फ़ाइलों से दस्तावेज़ लोड करें</string>
   <string name="install_zip_module"> बाइबिल मॉड्यूल इंस्रेंटॉल करें</string>
@@ -377,6 +439,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="delete_index">खोज सूचकांक मिटाओ</string>
   <string name="about">बाइबिल विवरण</string>
   <string name="delete_doc">%s किताब मिटाओ</string>
+  <string name="interrupted_downloads_title">डाउनलोड बाधित हुआ</string>
+  <string name="interrupted_downloads_message">ये दस्तावेज़ इंस्टॉल नहीं हुए क्योंकि इनका डाउनलोड बाधित हो गया था:</string>
+  <string name="interrupted_downloads_question">उन्हें दोबारा डाउनलोड करें?</string>
+  <string name="download_again">दोबारा डाउनलोड करें</string>
+  <string name="delete_docs_confirm">इन दस्तावेज़ों को मिटाएँ?</string>
   <string name="delete_search_index_doc">%s किताब की खोज सूचकांक मिटाओ</string>
   <!--Verse context menu-->
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
@@ -397,6 +464,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="assign_labels">लेबल लिखना/देना</string>
   <string name="new_item">नया</string>
   <string name="label_name_prompt">नाम</string>
+  <string name="new_label_default_name">लेबल %d</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
   <string name="add_bookmark1">बुकमार्क</string>
   <string name="add_bookmark3">चयन</string>
@@ -444,6 +512,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="rewind">उल्टा फिराना</string>
   <string name="forward">आगे बढ़ाना</string>
   <string name="tts_lang_not_available">भाषा मौजूद नही</string>
+  <string name="tts_engine_not_available">इस डिवाइस पर टेक्स्ट-टू-स्पीच काम नहीं कर रहा है। जाँचें कि सिस्टम की टेक्स्ट-टू-स्पीच सेटिंग्स में कोई स्पीच इंजन इंस्टॉल और चालू है।</string>
+  <string name="tts_audio_focus_denied">बोलना शुरू नहीं हो सका क्योंकि कोई दूसरा ऐप ऑडियो का उपयोग कर रहा है।</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">बोलने की गति</string>
   <string name="speak_and_play_earcons_title"> बोलो और आवाज़ सुनाओ</string>
@@ -453,6 +523,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_bookmarks_menu_title">बुकमार्क से बोलो</string>
   <string name="speak_advanced_settings"> एडवांस सेटिंग</string>
   <string name="speak_sleep_timer_title"> सोने का टाइमर</string>
+  <string name="speak_sleep_timer_minutes">%d मिनट</string>
+  <string name="speak_sleep_timer_custom">अपनी पसंद…</string>
+  <string name="speak_sleep_timer_off">बंद</string>
+  <string name="speak_other_settings">अन्य</string>
   <string name="speak_no_books_available">बोलने के लिए कोई किताब उपलब्ध नहीं है</string>
   <string name="speak_general_error">इस पुस्तक के लिए बोलना प्रारंभ नहीं किया जा सका</string>
   <string name="repeat_passage"> गद्यांश को दोहराएं</string>
@@ -481,6 +555,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_autobookmarking_disabled"> ऑटोबोकमार्किंग अक्षम!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिंग्स खोलें</string>
   <string name="auto_assing_labels_help1">यहां आप समायोजित कर सकते हैं कि आपके द्वारा बनाए गए बुकमार्क को कौन से लेबल स्वचालित रूप से असाइन किए जाते हैं।</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">यहाँ आप लेबल जोड़ सकते हैं, संपादित कर सकते हैं और हटा सकते हैं, और यह तय कर सकते हैं कि आपके बनाए बुकमार्क को कौन-से लेबल अपने आप दिए जाएँ।\n\nहाल के लेबल: हाल में उपयोग किए गए लेबल।\nअन्य लेबल: बाकी सभी लेबल।\n\nकेवल अपने आप दिए गए या पसंदीदा लेबल देखने के लिए खोज बार के फ़िल्टर विकल्पों का उपयोग करें।</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">यह सेटिंग %s पर लागू होती है।</string>
   <string name="setting_scope_window">यह विंडो</string>
@@ -588,6 +667,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
   <string name="backup_success2">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक बैकअप लिए गए।</string>
   <string name="backup_modules_success">चयनित मॉड्यूल का सफलतापूर्वक बैकअप लिया गया।</string>
+  <string name="backup_modules_conflict">बैकअप नहीं बना: %1$s और %2$s दोनों में फ़ाइल %3$s है, पर उनकी सामग्री अलग है। उनमें से केवल एक चुनें और फिर कोशिश करें।</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (संस्करण %2$s, फ़ोल्डर %3$s)</string>
   <string name="backup_modules_email_subject_2">%s मॉड्यूल बैकअप</string>
   <string name="backup_modules_email_message_2">संलग्न आपका %1$s मॉड्यूल बैकअप है, जिसमें निम्नलिखित मॉड्यूल हैं: %2$s</string>
   <string name="backup_email_subject_2">%s डेटाबेस बैकअप</string>
@@ -596,6 +678,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="exported_studypads_message">आपका %s डेटाबेस जिसमें चयनित StudyPads से संबंधित बुकमार्क और नोट्स हैं, संलग्न है</string>
   <string name="restore_unsuccessfull">डेटाबेस रिस्टोर करना असफल रहा। शायद आपने गलत डेटाबेस फाइल चुना।</string>
   <string name="send_backup_file">बैकअप फाइल भेजे</string>
+  <string name="export_destination_title">कहाँ निर्यात करें?</string>
+  <string name="export_destination_message">निर्यात को इस फ़ोन में सेव करें, या शेयर से कहीं और भेजें।</string>
+  <string name="send_export_file">निर्यात फ़ाइल भेजें</string>
   <string name="backup_modules_title"> बैकअप के लिए मॉड्यूल का चयन करें</string>
   <string name="install_zip_canceled">मॉड्यूल का इंस्टॉल होना रद्द</string>
   <string name="ask_restore_or_import">%s का डेटाबेस या तो पुनर्स्थापित किया जा सकता है (यानी मौजूदा डेटाबेस हटा दिया जाता है और चयनित डेटाबेस लोड किया जाता है) या आयात किया जा सकता है (चयनित डेटाबेस मौजूदा डेटाबेस में आयात किया जाता है)। आप क्या करना चाहते हैं?</string>
@@ -637,12 +722,25 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="doc_type_book">पुस्तक</string>
   <string name="doc_type_map">नक्शा</string>
   <string name="doc_type_addons">ऐड-ऑन</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">अन्य</string>
+  <string name="document_type_label">दस्तावेज़ का प्रकार</string>
   <!--Languages-->
   <string name="lang_default">डिफॉल्ट</string>
   <!--General-->
   <string name="okay">ठीक है</string>
   <string name="cancel">रद्द करें</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">वापस</string>
+  <string name="settings_editor_close">बंद करें</string>
+  <string name="settings_editor_apply">लागू करें</string>
   <string name="discard_changes_confirmation">बिना सहेजे बदलाव छोड़ें?</string>
+  <string name="discard">छोड़ दें</string>
+  <string name="remove">हटाएँ</string>
+  <string name="overwrite">अधिलेखित करें</string>
+  <string name="set_current_day_action">दिन तय करें</string>
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
   <string name="error">त्रुटि</string>
@@ -652,6 +750,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="watch_tutorial_video"> ट्यूटोरियल वीडियो देखें (अंग्रेजी में)</string>
   <string name="verse_not_found"> छंद नहीं मिला</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">जारी रखें</string>
   <string name="report_error"> रिपोर्ट भेजो</string>
   <string name="error_occurred">एक गलती हुई है</string>
   <string name="error_occurred_crash_last_time">पिछली बार जब आपने एप्लिकेशन का उपयोग किया था, तो यह क्रैश हो गया था। बग को ठीक करने में हमारी सहायता करने के लिए, यदि आप हमें बग रिपोर्ट भेजते हैं तो हम इसकी सराहना करेंगे।</string>
@@ -662,8 +761,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error_key_not_in_document2">%1$s, %2$s दस्तावेज़ में नहीं मिली</string>
   <string name="empty_list">कुछ मौजूद नहीं</string>
   <string name="error_skip">छोड़ें</string>
+  <string name="debug_test_error">परीक्षण त्रुटि (डीबग बिल्ड)</string>
+  <string name="bug_report_prepare_failed">रिपोर्ट तैयार या शेयर नहीं हो सकी। आप फिर कोशिश कर सकते हैं, या अपना डेटा सेव करने के लिए बैकअप और रीस्टोर का उपयोग करें।</string>
   <string name="bug_report_email_title">ईमेल द्वारा बग रिपोर्ट भेजें</string>
   <string name="bug_report_email_text">इसके बाद, कृपया डेवलपर टीम को रिपोर्ट भेजने के लिए अपना पसंदीदा ईमेल एप्लिकेशन (जैसे Gmail) चुनें।</string>
+  <string name="bug_report_manual_title">रिपोर्ट ईमेल से भेजें</string>
+  <string name="bug_report_manual_text_saved">रिपोर्ट यहाँ सेव की गई:</string>
+  <string name="bug_report_manual_text_unsaved">इस डिवाइस पर कोई ईमेल प्रोग्राम नहीं खुल सका।\n\nकृपया रिपोर्ट इस ईमेल पते पर भेजें:</string>
+  <string name="bug_report_copy_address">पता कॉपी करें</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>
   <string name="notification_channel_progress_status"> पुस्तक डाउनलोड आदि के प्रगति की स्थिति के लिए नोटिफिकेशन।</string>
@@ -687,6 +792,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="search_settings">खोज सेटिंग्स</string>
   <string name="dismiss">खारिज करें</string>
   <string name="workspace_listing_with_current">%s (वर्तमान)</string>
+  <string name="workspace_manage_workspaces">कार्यक्षेत्र प्रबंधित करें…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">यह बीटा संस्करण है!</string>
   <string name="beta_notice_content_1">
@@ -741,7 +847,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="help_search_title"> खोज</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">खोज टेक्स्ट में विशेष वर्ण जैसे *, AND, OR, NOT शामिल हो सकते हैं</string>
+  <string name="help_search_bible">चुनें कि शब्द कैसे मिलाए जाएँ: सभी शब्द उन छंदों को खोजता है जिनमें हर शब्द हो, कोई भी शब्द उन्हें जिनमें कम से कम एक हो, और वाक्यांश उन शब्दों को इसी क्रम में एक-दूसरे के बगल में खोजता है।\n\nखोज में आप वाइल्डकार्ड के रूप में * और ? भी उपयोग कर सकते हैं (जैसे bless* से blessed और blessing मिलते हैं), शब्दों को AND, OR और NOT से जोड़ सकते हैं, और Strong के नंबर सीधे खोज सकते हैं (जैसे strong:h0430)।</string>
+  <string name="help_search_epub">चुनें कि शब्द कैसे मिलाए जाएँ: सभी शब्द उन अंशों को खोजता है जिनमें हर शब्द हो, कोई भी शब्द उन्हें जिनमें कम से कम एक हो, और वाक्यांश उन शब्दों को इसी क्रम में एक-दूसरे के बगल में खोजता है।\n\nकच्चा क्वेरी सिंटैक्स आपका पाठ बिना बदले खोज इंजन को देता है, इसलिए आप अपनी क्वेरी लिख सकते हैं: grace AND faith, grace OR faith, grace NOT faith, सटीक वाक्यांश के लिए \"hope of glory\", bless* से bless से शुरू होने वाला कोई भी शब्द, और grace NEAR faith से उन्हें पास-पास खोजने के लिए।</string>
   <string name="help_search_details">अधिक जानकारी के लिए कृपया %s देखें।</string>
+  <string name="help_search_syntax">खोज सिंटैक्स</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title"> कार्यस्थानों</string>
   <string name="help_workspaces_text">
@@ -768,6 +877,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 अन्य अतिरिक्त सामग्री के बीच शीघ्रता से स्विच कर सकते हैं, जब आप बाइबिल का अध्ययन करते हैं।
  </string>
   <!--Welcome text-->
+  <string name="welcome_intro">आपकी लाइब्रेरी में अभी कोई दस्तावेज़ नहीं है। शुरू करने के लिए कुछ जोड़ें।</string>
+  <string name="welcome_redownload_row_hint">पहले इंस्टॉल किए गए दस्तावेज़ों में से चुनें</string>
+  <string name="welcome_download_row_hint">ऑनलाइन सूची देखें</string>
+  <string name="welcome_restore_row_hint">बुकमार्क और टिप्पणियों वाली डेटाबेस फ़ाइल</string>
+  <string name="welcome_link_website">वेबसाइट</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">आपको वह फ़ाइल चुननी होगी जिसे आप %s में लोड करना चाहते हैं। </string>
@@ -783,9 +898,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="format_studypads">AndBible डेटाबेस से StudyPads (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">बंद करे</string>
+  <string name="reading_toolbar_options">अधिक विकल्प</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">मै समझता हुँ</string>
-  <string name="first_time_help_show_next_time">अगली बार फिर दिखाओ</string>
   <string name="strongs_mode_title">स्ट्रॉन्ग्स मोड चुनें</string>
   <string name="download_dialog_message">निम्नलिखित पुस्तकें डाउनलोड नहीं की जा सकीं:</string>
   <string name="journal_description">कस्टम टेक्स्ट और बुकमार्क के साथ उपयोगकर्ता-संपादन योग्य स्टडी पैड</string>
@@ -810,6 +924,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prefs_experimental_features_summary">कौन से प्रयोगात्मक फ़ीचर सक्षम करने हैं चुनें। ये फ़ीचर अभी विकास में हैं और बदल या हटाए जा सकते हैं</string>
   <string name="experimental_feature_bookmark_edit_actions">बुकमार्क संपादन क्रियाएं</string>
   <string name="experimental_feature_add_paragraph_break">अनुच्छेद विराम बुकमार्क जोड़ें</string>
+  <string name="experimental_feature_toolbar_literal_color">पठन टूलबार के लिए (थीम के रंग के बजाय) कार्यक्षेत्र का वास्तविक रंग उपयोग करें</string>
   <string name="raw_llm_log_title">Raw LLM Log</string>
   <string name="raw_llm_log_empty">कोई raw log डेटा उपलब्ध नहीं है</string>
   <string name="raw_llm_log_copied">Log क्लिपबोर्ड पर कॉपी किया गया</string>
@@ -914,6 +1029,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="display_mode_underline">रेखांकन</string>
   <string name="display_mode_marker">केवल मार्कर</string>
   <string name="display_mode_hidden">छुपा हुआ</string>
+  <string name="display_mode_inherit">चयन के समान</string>
   <string name="workspace_override_indicator">इस लेबल का कार्यक्षेत्र-विशिष्ट प्रदर्शन मोड है</string>
   <string name="primary_label">प्राथमिक लेबल</string>
   <string name="favourite_label">पसंदीदा लेबल</string>
@@ -927,6 +1043,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="book_menu_show_long_book_name">लंबा पुस्तक नाम दिखाएं</string>
   <string name="book_menu_show_progress_bars">प्रगति बार दिखाएं</string>
   <string name="reset_workspace_labels">क्या आप इस कार्यक्षेत्र के लिए ऑटो-असाइन और पसंदीदा सेटिंग्स रीसेट करना चाहते हैं?</string>
+  <string name="clear_auto_assign_labels">स्वतः-दिए जाने वाले लेबल साफ़ करें</string>
+  <string name="reset_workspace_auto_assign_labels">क्या आप इस कार्यक्षेत्र से सभी स्वतः-दिए जाने वाले लेबल हटाना चाहते हैं?</string>
   <string name="reset_hide_labels">क्या आप निर्दिष्ट लेबल सेटिंग छिपाने के लिए सेटिंग्स रीसेट करना चाहते हैं?</string>
   <string name="reorder">पुनर्निर्माण</string>
   <string name="system_items">सिस्टम क्रियाएं</string>
@@ -998,6 +1116,27 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="instructions_for_translators">अनुवादकों के लिए निर्देश</string>
   <string name="questions_title">कोई सवाल?</string>
   <string name="bookmark_style">बुकमार्क शैली</string>
+  <string name="bookmark_style_preview_sample">क्योंकि परमेश्वर ने जगत से ऐसा प्रेम रखा</string>
+  <string name="bookmark_style_selection">चुने हुए पाठ के बुकमार्क</string>
+  <string name="bookmark_style_whole_verse">पूरे छंद के बुकमार्क</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">पूरे छंद के बुकमार्क के लिए अलग शैली उपयोग करें</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">चयन</string>
+  <string name="bookmark_style_tag_whole_verse">पूरा छंद</string>
+  <string name="bookmark_style_tag_workspace">कार्यक्षेत्र</string>
+  <string name="show_style_examples">शैली के उदाहरण दिखाएँ</string>
+  <string name="labels_search_section">खोज</string>
+  <string name="labels_filter_section">दिखाएँ</string>
+  <string name="labels_filter_auto_assign">केवल स्वतः-दिए जाने वाले लेबल</string>
+  <string name="labels_filter_favourite">केवल पसंदीदा लेबल</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">इस बुकमार्क को कोई लेबल देने के लिए उस पर टिक करें।</string>
+  <string name="manage_labels_help_primary">मुख्य लेबल। बुकमार्क में उसी का रंग और शैली दिखती है।</string>
+  <string name="manage_labels_help_autoassign">इस लेबल को हर नए बुकमार्क पर अपने आप लगाएँ। खोखला बोल्ट का मतलब बंद है।</string>
+  <string name="manage_labels_help_favourite">त्वरित पहुँच के लिए लेबल को अपने पसंदीदा में रखें।</string>
+  <string name="manage_labels_help_styles">नाम के नीचे एक छोटा उदाहरण लेबल का रूप दिखाता है: पाठ-चयन बुकमार्क के लिए चयन, पूरे छंद वाले के लिए पूरा छंद, और जिस शैली को यह कार्यक्षेत्र बदलता है उसके लिए कार्यक्षेत्र टैग। बिना सजावट का धुँधला उदाहरण बताता है कि लेबल के बुकमार्क नहीं दिखाए जाते। उदाहरणों को ⋮ मेनू से छिपाएँ।</string>
+  <string name="manage_labels_help_reorder">सूची का क्रम ⋮ मेनू से बदलें।</string>
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
   <string name="strongs_links">लिंक</string>
   <string name="strongs_text_and_links">टेक्स्ट और लिंक</string>
@@ -1036,6 +1175,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sync_group_n">समूह %d</string>
   <string name="disable_sync">सिंक्रनाइज़ेशन अक्षम करें</string>
   <string name="open_in_window">परिणाम एक विंडो में खोलें</string>
+  <string name="open_result_in_links_window">परिणाम को लिंक विंडो में खोलें</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">कस्टम रिपॉज़िटरी</string>
@@ -1046,7 +1186,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="delete_custom_repository">क्या आप कस्टम रिपॉज़िटरी %s हटाना चाहते हैं?</string>
   <string name="custom_repositories_help1">नई कस्टम रिपॉज़िटरी जोड़ने के लिए, यहाँ कस्टम रिपॉज़िटरी URL टाइप करें या कॉपी &amp; पेस्ट करें।</string>
   <string name="custom_repositories_help2">आप %s में कस्टम रिपॉज़िटरी के बारे में अधिक जानकारी पढ़ सकते हैं।</string>
-  <string name="wiki_page">WIKI पेज</string>
   <string name="custom_repositories_help0">आप कस्टम रिपॉज़िटरी इंस्टॉल करके बाहरी कस्टम रिपॉज़िटरी से दस्तावेज़ इंस्टॉल कर सकते हैं।</string>
   <string name="duplicate_custom_repository">%s नाम की रिपॉज़िटरी पहले से मौजूद है, दूसरी नहीं जोड़ी जा सकती।</string>
   <string name="packages_dir">पैकेज निर्देशिका (Zip फ़ाइलें)</string>
@@ -1086,6 +1225,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="reading_progress_new_cycle_confirm">नया पठन चक्र शुरू करें? यह शुरुआत से आपकी प्रगति ट्रैक करना शुरू कर देगा, जबकि आपके पिछले चक्र का डेटा सुरक्षित रहेगा।</string>
   <string name="reading_progress_previous_cycle">पिछला चक्र</string>
   <string name="reading_progress_next_cycle">अगला चक्र</string>
+  <string name="cloud_merge_data">डेटा मर्ज करें</string>
   <string name="cloud_fetch_and_restore_initial">क्लाउड से इस डिवाइस पर कॉपी करें</string>
   <string name="cloud_create_new">इस डिवाइस से क्लाउड पर कॉपी करें</string>
   <string name="cloud_disable_sync">रद्द करें और सिंक्रनाइज़ेशन अक्षम करें</string>
@@ -1099,6 +1239,19 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sync_adapter_summary">वर्तमान: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV फ़ोल्डर का पता, जैसे https://nas.local/dav/ या https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">सिंक के लिए सुरक्षित https:// पता आवश्यक है।</string>
+  <string name="webdav_certificate_title">सर्वर प्रमाणपत्र</string>
+  <string name="webdav_forget_certificate_message">विश्वसनीय सर्वर प्रमाणपत्र भूल जाएँ? अगले कनेक्शन पर आपसे प्रमाणपत्र की दोबारा पुष्टि माँगी जाएगी।</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">अविश्वसनीय सर्वर प्रमाणपत्र</string>
+  <string name="webdav_untrusted_certificate_message">%1$s का प्रमाणपत्र Android द्वारा विश्वसनीय नहीं माना गया है। इसे तभी भरोसेमंद मानें जब आप इसे पहचानते हों, जैसे कि आपने यह सर्वर स्वयं सेट किया हो।\n\nविषय: %2$s\nजारीकर्ता: %3$s\nवैध: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">इस प्रमाणपत्र पर भरोसा करें</string>
+  <string name="webdav_wrong_credentials">उपयोगकर्ता नाम या पासवर्ड गलत है।</string>
+  <string name="webdav_not_a_folder">यह पता WebDAV फ़ोल्डर नहीं है।</string>
+  <string name="webdav_certificate_changed">सर्वर प्रमाणपत्र बदल गया है। जब तक आप नए प्रमाणपत्र की पुष्टि नहीं करते, सिंक रुका रहेगा; AndBible इसके बारे में अगली बार खुलने या अग्रभूमि में सिंक होने पर पूछेगा।</string>
+  <string name="webdav_storage_full">सर्वर का संग्रहण भरा हुआ है।</string>
   <string name="auth_server_uri">सर्वर URL</string>
   <string name="auth_username">उपयोगकर्ता नाम</string>
   <string name="auth_password">पासवर्ड</string>
@@ -1108,6 +1261,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sync_general_settings">जानकारी और सामान्य सेटिंग्स</string>
   <string name="sync_introduction">परिचय</string>
   <string name="are_you_sure">क्या आप सुनिश्चित हैं?</string>
+  <string name="are_you_sure_merge">इस डिवाइस का डेटा और क्लाउड में मौजूद %s, दोनों रखे जाएँगे। जहाँ एक ही आइटम दोनों जगह बदला गया हो, वहाँ नया बदलाव रखा जाएगा। इस डिवाइस का डेटा आपके अन्य डिवाइसों को भेजा जाएगा।</string>
   <string name="are_you_sure_reset_local">यह %s के लिए आपका स्थानीय डेटाबेस क्लाउड सेवा में वर्तमान में संग्रहीत सामग्री से रीसेट कर देगा।</string>
   <string name="are_you_sure_reset_cloud">यह %s के लिए आपका क्लाउड डेटाबेस इस डिवाइस पर मौजूद सामग्री से रीसेट कर देगा।</string>
   <string name="sync_cant_fetch">क्लाउड में संग्रहीत डेटाबेस या पैच फ़ाइल का संस्करण इस ऐप द्वारा समर्थित संस्करण से अधिक है। </string>
@@ -1142,6 +1296,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="pref_font_size_multiplier_title">फ़ॉन्ट आकार गुणक</string>
   <string name="pref_font_size_multiplier_summary_1">टेक्स्ट फ़ॉन्ट आकार को इस संख्या से गुणा करें।</string>
   <string name="pref_font_size_multiplier_summary_2">उपयोगी यदि आपके पास एक सिंक्रनाइज़ड डिवाइस है जो बड़े फ़ॉन्ट के साथ उपयोग किया जाता है।</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">वर्तमान मान: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">बाएं/दाएं स्वाइप जेस्चर की क्रिया</string>
   <string name="prefs_bible_view_swipe_mode_summary">बाएं/दाएं स्वाइप जेस्चर का उपयोग अगले पेज/अध्याय पर जाने के लिए किया जा सकता है।</string>
@@ -1262,6 +1417,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prompt_max_iterations_unlimited">असीमित</string>
   <string name="prompt_max_iterations_global_default">वैश्विक डिफ़ॉल्ट (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">इस प्रॉम्प्ट के लिए वैश्विक अधिकतम पुनरावृत्तियां ओवरराइड करें। 0 = असीमित।\nवर्तमान: %s</string>
+  <string name="prompt_max_iterations_use_global">वैश्विक सेटिंग उपयोग करें (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AI प्रॉम्प्ट प्रबंधित करें</string>
   <string name="manage_prompts_summary">AI प्रॉम्प्ट बनाएं और संपादित करें</string>
@@ -1395,6 +1551,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="built_in_prompt_notice">यह एक बिल्ट-इन प्रॉम्प्ट है और संपादित नहीं किया जा सकता। एक संपादन योग्य कॉपी बनाने के लिए \"कस्टमाइज़ करने के लिए कॉपी करें\" का उपयोग करें।</string>
   <string name="copy_to_customize">कस्टमाइज़ करने के लिए कॉपी करें</string>
   <string name="prompt_copied">प्रॉम्प्ट कॉपी किया गया</string>
+  <string name="prompt_copy_failed">प्रॉम्प्ट कॉपी नहीं हो सका। हो सकता है उसे मिटा दिया गया हो।</string>
   <string name="delete_prompt_confirmation">प्रॉम्प्ट \"%s\" हटाएं?</string>
   <string name="prompt_name_required">प्रॉम्प्ट नाम आवश्यक है</string>
   <string name="prompt_template_required">प्रॉम्प्ट टेम्पलेट आवश्यक है</string>
@@ -1602,6 +1759,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="tool_option_default_disabled">डिफ़ॉल्ट (अक्षम)</string>
   <string name="tool_option_default_allowed">डिफ़ॉल्ट (अनुमति)</string>
   <string name="tool_option_default_denied">डिफ़ॉल्ट (अस्वीकार)</string>
+  <string name="tool_description_info">टूल का विवरण दिखाएँ</string>
+  <string name="tool_permission_mixed">मिश्रित</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">मॉडल</string>
   <string name="prompt_model_default">डिफ़ॉल्ट</string>
@@ -1647,6 +1806,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="my_document_pages_empty">इस दस्तावेज़ में कोई पेज नहीं है।</string>
   <string name="my_document_page_rename_title">पेज का नाम बदलें</string>
   <string name="my_document_page_delete_confirmation">पेज \"%s\" हटाएं?</string>
+  <string name="my_document_pages_delete_confirmation">इन पेजों को मिटाएँ?</string>
+  <string name="my_documents_switch_document">दस्तावेज़ बदलें</string>
   <string name="my_document_new_page_name">पेज %1$d</string>
   <string name="my_document_create_page_title">नया पेज</string>
   <string name="my_document_content_type_label">सामग्री प्रकार</string>
@@ -1743,4 +1904,91 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="document_sync_started">दस्तावेज़ सिंक शुरू हुआ</string>
   <string name="document_sync_enable_dialog_title">दस्तावेज़ सिंक करना शुरू करें?</string>
   <string name="document_sync_enable_dialog_nothing">अभी स्थानांतरित करने के लिए कोई दस्तावेज़ नहीं है। नए इंस्टॉल किए गए दस्तावेज़ स्वचालित रूप से सिंक होंगे।</string>
+  <string name="help_document_sync_text">दस्तावेज़ सिंक आपकी इंस्टॉल की हुई बाइबिलों, कमेंटरियों और अन्य दस्तावेज़ों को क्लाउड में कॉपी करता है और उन्हें आपके सभी डिवाइसों पर सिंक रखता है। इस दृश्य से आप देख सकते हैं कि क्लाउड में क्या सहेजा है, अलग-अलग दस्तावेज़ डाउनलोड या अपलोड कर सकते हैं, दस्तावेज़ हटा सकते हैं, और तय कर सकते हैं कि इस डिवाइस पर क्या सिंक हो।</string>
+  <string name="background_image_title">पृष्ठभूमि चित्र</string>
+  <string name="background_image_none">कोई पृष्ठभूमि नहीं</string>
+  <string name="background_image_import">गैलरी से आयात करें…</string>
+  <string name="background_image_empty">अभी कोई चित्र आयात नहीं किया गया है। जोड़ने के लिए \"गैलरी से आयात करें…\" पर टैप करें।</string>
+  <string name="background_image_importing">आयात हो रहा है…</string>
+  <string name="background_image_delete_title">चित्र मिटाएँ?</string>
+  <string name="background_image_delete_confirm">यह पृष्ठभूमि चित्र मिटाएँ? इसे उपयोग करने वाले कार्यक्षेत्र बिना चित्र के हो जाएँगे।</string>
+  <string name="background_image_day">पृष्ठभूमि चित्र (दिन)</string>
+  <string name="background_image_night">पृष्ठभूमि चित्र (रात)</string>
+  <string name="background_image_opacity_day">पृष्ठभूमि चित्र की अपारदर्शिता (दिन)</string>
+  <string name="background_image_opacity_night">पृष्ठभूमि चित्र की अपारदर्शिता (रात)</string>
+  <string name="background_image_change">बदलें</string>
+  <string name="color_picker_title">रंग चुनें</string>
+  <string name="color_picker_presets">प्रीसेट</string>
+  <string name="color_picker_custom">अपनी पसंद</string>
+  <string name="bookmark_expand_row">पूरा पाठ दिखाएँ</string>
+  <string name="bookmark_collapse_row">कम दिखाएँ</string>
+  <string name="bookmark_label_filter">लेबल से फ़िल्टर करें</string>
+  <string name="document_quick_all_documents">सभी दस्तावेज़…</string>
+  <string name="document_quick_tab_recent">हाल के</string>
+  <string name="document_quick_tab_for_verse">यह छंद</string>
+  <string name="document_quick_tab_last_filter">पिछला फ़िल्टर</string>
+  <string name="document_quick_tab_all">सभी</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">फ़िल्टर और क्रम</string>
+  <string name="doc_arrange_repository">रिपॉज़िटरी</string>
+  <string name="doc_arrange_all_repositories">सभी रिपॉज़िटरी</string>
+  <string name="doc_arrange_sort">क्रम</string>
+  <string name="doc_arrange_group_by">समूह बनाएँ</string>
+  <string name="doc_arrange_remember">ये सेटिंग्स याद रखें</string>
+  <string name="doc_arrange_reset">डिफ़ॉल्ट पर रीसेट करें</string>
+  <string name="doc_arrange_more_filters">और फ़िल्टर</string>
+  <string name="doc_arrange_reorder">क्रम बदलें</string>
+  <string name="doc_sort_ascending">आरोही</string>
+  <string name="doc_sort_descending">अवरोही</string>
+  <string name="doc_sort_status">स्थिति</string>
+  <string name="doc_sort_recommended">अनुशंसित पहले</string>
+  <string name="doc_sort_name">नाम</string>
+  <string name="doc_sort_size">आकार</string>
+  <string name="doc_group_none">कोई समूह नहीं</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">डाउनलोड हो रहे हैं</string>
+  <string name="doc_group_status_update_available">अपडेट उपलब्ध है</string>
+  <string name="doc_group_status_installed">इंस्टॉल किए हुए</string>
+  <string name="doc_group_status_not_installed">इंस्टॉल नहीं किए हुए</string>
+  <string name="prompt_filter_title">प्रॉम्प्ट फ़िल्टर करें</string>
+  <string name="prompt_filter_type">प्रकार</string>
+  <string name="prompt_type_addon">ऐड-ऑन</string>
+  <string name="prompt_type_user">अपना</string>
+  <string name="prompt_filter_clear">फ़िल्टर साफ़ करें</string>
+  <string name="prompt_favorite_add">पसंदीदा में जोड़ें</string>
+  <string name="prompt_favorite_remove">पसंदीदा से हटाएँ</string>
+  <string name="window_unmaximise">सभी विंडो पहले जैसी करें</string>
+  <string name="window_menu_button">विंडो मेनू</string>
+  <string name="paste_from_clipboard">चिपकाएँ</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">खींचने का हैंडल</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">आपका डेटा अपडेट हो रहा है…</string>
+  <string name="legacy_migration_progress_neutral">अपडेट हो रहा है…</string>
+  <string name="legacy_migration_failed_title">आपका डेटा अपडेट नहीं हो सका</string>
+  <string name="legacy_migration_failed_message">ऐप के पिछले संस्करण का आपका डेटा इस डिवाइस पर सुरक्षित और अपरिवर्तित है। चुनें कि आगे क्या करना है।</string>
+  <string name="legacy_migration_failed_keychain">पिछले संस्करण के सहेजे हुए पासवर्ड पढ़े नहीं जा सके। अपना डिवाइस अनलॉक करें, फिर ऐप बंद करके दोबारा खोलें।</string>
+  <string name="legacy_migration_rollback_pending">अपडेट बाधित हो गया था और अभी पूरी तरह वापस नहीं हुआ है। इसे पूरा करने के लिए ऐप बंद करके दोबारा खोलें।</string>
+  <string name="legacy_migration_save_old_data">पुराना डेटा सेव करें</string>
+  <string name="legacy_migration_send_report">त्रुटि रिपोर्ट भेजें</string>
+  <string name="legacy_migration_try_again">फिर कोशिश करें</string>
+  <string name="legacy_migration_try_again_hint">फिर कोशिश करने के लिए ऐप बंद करके दोबारा खोलें।</string>
+  <string name="legacy_migration_restore_backup">बैकअप रीस्टोर करें</string>
+  <string name="legacy_migration_start_fresh">पुराने डेटा के बिना शुरू करें</string>
+  <string name="legacy_migration_start_fresh_confirm">आपका पुराना डेटा इस डिवाइस पर बना रहेगा। आप उसे बाद में सेटिंग्स में आयात कर सकते हैं।</string>
+  <string name="legacy_import_title">ऐप के पिछले संस्करण का डेटा आयात करें</string>
+  <string name="legacy_import_summary">वर्तमान डेटा को ऐप के पिछले संस्करण के डेटा से बदलें</string>
+  <string name="legacy_import_confirm">यह आपके वर्तमान कार्यक्षेत्रों, बुकमार्क और अन्य डेटा को ऐप के पिछले संस्करण के डेटा से बदल देता है। आपके वर्तमान डेटा की एक प्रति इस डिवाइस पर रखी जाती है।</string>
+  <string name="legacy_import_reopen">अपना डेटा आयात करने के लिए ऐप बंद करके दोबारा खोलें।</string>
+  <string name="legacy_notice_icloud">सिंक अब iCloud Drive का उपयोग करता है। इसे सेटिंग्स → सिंक में फिर से चालू करें। इस डिवाइस के पास जो था वह बना रहता है; आपके अन्य डिवाइसों के बदलाव सिंक दोबारा सेट होने पर आएँगे। पुराना iCloud डेटा खाली करने के लिए: सेटिंग्स → आपका नाम → iCloud → संग्रहण प्रबंधित करें → AndBible।</string>
+  <string name="legacy_notice_nextcloud">आपका Nextcloud कनेक्शन साथ आ गया है, पर सिंक बंद है। इसे सेटिंग्स → सिंक में चालू करें और क्लाउड से लाना या नया बनाना चुनें।</string>
+  <string name="legacy_notice_nextcloud_unsent">इस डिवाइस के कुछ बदलाव अभी Nextcloud को नहीं भेजे गए थे। वे भेजे नहीं गए और केवल इसी डिवाइस पर रहेंगे।</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">यह एक शक्तिशाली, फिर भी उपयोग में आसान, ऑफ़लाइन बाइबिल अध्ययन ऐप है।</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s का प्रमाणपत्र इस डिवाइस द्वारा विश्वसनीय नहीं माना गया है। इसे तभी भरोसेमंद मानें जब आप इसे पहचानते हों, जैसे कि आपने यह सर्वर स्वयं सेट किया हो।\n\nविषय: %2$s\nजारीकर्ता: %3$s\nवैध: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">कस्टम रिपॉज़िटरी में सुरक्षित https:// पता होना चाहिए।</string>
+  <string name="custom_repository_https_required_refresh">%1$s http:// पते का उपयोग करता है। केवल https:// रिपॉज़िटरी उपयोग की जा सकती हैं।</string>
 </resources>
