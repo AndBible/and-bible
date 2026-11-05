@@ -232,7 +232,7 @@ extension RealAppUITestCase {
         let navigation = localRoot(app).navigationBars["FullDocumentManagerViewControllerNavigationBar"]
         let title = navigation.staticTexts.matching(NSPredicate(format:
             "label == %@ OR label == %@", name, "\(name), Actions Menu")).firstMatch
-        if title.exists { return }
+        if title.waitForExistence(timeout: 5) { return }
         // The Files picker reopens in its last folder (e.g. "H2 Backup/Database-<uuid>"), where the back
         // button carries the parent folder name, not the root name. Walk up until the root title shows.
         for _ in 0..<8 where !title.exists {
