@@ -349,14 +349,13 @@ final class FeatureScreensUITests: RealAppUITestCase {
                 || waitUntil(timeout: 5) { app.state != .runningForeground }
         }
         if wentToBackground {
-            // Settings becomes foreground before our scene finishes its outgoing transition on iPad.
-            // Activating during that transition races the pending background event (seen in parallel runs).
-            harnessRequire(waitUntil(timeout: 20) {
-                let state = app.state
-                return state == .runningBackground || state == .runningBackgroundSuspended
-            }, app, "App finished backgrounding for iOS Settings")
+            // Parallel simulator clones can report a stale app.state in either direction: Settings
+            // was visible while it said foreground, and this sheet was visible while it said background.
+            // Finish the system handoff via Home, activate once, then prove the retained UI is usable.
+            XCUIDevice.shared.press(.home)
             app.activate()
-            harnessRequire(app.wait(for: .runningForeground, timeout: 30), app, "App reactivated after iOS Settings")
+            harnessRequire(system.waitForExistence(timeout: 30) && waitForStableOnScreen(app, system),
+                           app, "Speak sheet usable after iOS Settings")
             shot(app, "speak-after-system-settings")
         } else {
             attachTree(app, "system-tts-row-no-background"); shot(app, "system-tts-row-no-background")
