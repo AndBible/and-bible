@@ -23,7 +23,7 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertEqual(info['CFBundleVersion'], '$(CURRENT_PROJECT_VERSION)')
         self.assertEqual(info['CFBundleDisplayName'], '$(APP_DISPLAY_NAME)')
         self.assertEqual(info['AndBibleICloudContainer'], '$(ICLOUD_CONTAINER)')
-        self.assertEqual(info['AndBibleCommit'], '$(AND_BIBLE_COMMIT)')
+        self.assertEqual(info['AndBibleCommit'], '$(AND_BIBLE_COMMIT_HASH)')
 
     def test_document_types_have_a_name(self):
         # App Store Connect rejects an upload whose document type lacks CFBundleTypeName (ITMS-90149).
@@ -55,6 +55,9 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertIn('archive:\n      config: Release', project)
         self.assertIn('profile:\n      config: Release', project)
         self.assertIn('DEVELOPMENT_TEAM[sdk=iphonesimulator*]', project)
+        self.assertIn('postBuildScripts:\n      - name: "Record source commit"', project)
+        self.assertIn('inputFiles:\n          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)', project)
+        self.assertIn('scripts/write-commit-info.sh', project)
 
     def test_base_xcconfig(self):
         text = (root / 'iosApp/Config/Base.xcconfig').read_text()
@@ -96,7 +99,7 @@ class ReleaseConfigTest(unittest.TestCase):
     def test_version_xcconfig_includes_git_commit_from_script_root(self):
         text = self.run_script('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
         commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
-        self.assertIn(f'AND_BIBLE_COMMIT = {commit}\n', text)
+        self.assertIn(f'AND_BIBLE_COMMIT_HASH = {commit}\n', text)
 
     def test_version_xcconfig_accepts_commit_override(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,7 +108,37 @@ class ReleaseConfigTest(unittest.TestCase):
             out = pathlib.Path(tmp) / 'Version.xcconfig'
             env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out), AND_BIBLE_COMMIT='a' * 40)
             subprocess.run([str(root / 'scripts/ios-version-xcconfig.sh')], env=env, check=True)
-            self.assertIn(f'AND_BIBLE_COMMIT = {"a" * 40}\n', out.read_text())
+            self.assertIn(f'AND_BIBLE_COMMIT_HASH = {"a" * 40}\n', out.read_text())
+
+    def test_version_xcconfig_prefers_mac_owner_over_stub_git(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = pathlib.Path(tmp) / 'and-bible'
+            scripts = repo / 'scripts'
+            scripts.mkdir(parents=True)
+            (scripts / 'ios-version-xcconfig.sh').write_bytes((root / 'scripts/ios-version-xcconfig.sh').read_bytes())
+            (scripts / 'ios-version-xcconfig.sh').chmod(0o755)
+            for name in ['lib-version.sh', 'ios-commit.sh']:
+                source = root / 'scripts' / name
+                target = scripts / name
+                target.write_bytes(source.read_bytes())
+                target.chmod(0o755)
+            (repo / 'version.properties').write_text('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
+            subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+            subprocess.run(['git', '-C', str(repo), 'config', 'user.email', 'test@example.invalid'], check=True)
+            subprocess.run(['git', '-C', str(repo), 'config', 'user.name', 'Test'], check=True)
+            (repo / 'stub.txt').write_text('mac stub')
+            subprocess.run(['git', '-C', str(repo), 'add', 'stub.txt'], check=True)
+            subprocess.run(['git', '-C', str(repo), 'commit', '-qm', 'stub'], check=True)
+            (repo.parent / '.mac-owner').write_text(f'container=test\nsource_revision={"b" * 40}\nsource_dirty=0\ntoken=test\n')
+            out = pathlib.Path(tmp) / 'Version.xcconfig'
+            env = dict(os.environ, VERSION_FILE=str(repo / 'version.properties'), VERSION_XCCONFIG=str(out))
+            env.pop('AND_BIBLE_COMMIT', None)
+            subprocess.run([str(scripts / 'ios-version-xcconfig.sh')], env=env, check=True)
+            self.assertIn(f'AND_BIBLE_COMMIT_HASH = {"b" * 40}\n', out.read_text())
+            resolved = subprocess.check_output([str(scripts / 'ios-commit.sh'), str(repo)], text=True, env=dict(env, AND_BIBLE_COMMIT_HASH='c' * 40))
+            self.assertEqual(resolved, 'b' * 40)
+            (repo.parent / '.mac-owner').write_text('container=test\nsource_revision=invalid\nsource_dirty=0\ntoken=test\n')
+            self.assertEqual(subprocess.check_output([str(scripts / 'ios-commit.sh'), str(repo)], text=True), '')
 
     def test_version_xcconfig_is_blank_without_git(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -115,13 +148,15 @@ class ReleaseConfigTest(unittest.TestCase):
             (scripts / 'ios-version-xcconfig.sh').write_bytes((root / 'scripts/ios-version-xcconfig.sh').read_bytes())
             (scripts / 'ios-version-xcconfig.sh').chmod(0o755)
             (scripts / 'lib-version.sh').write_bytes((root / 'scripts/lib-version.sh').read_bytes())
+            (scripts / 'ios-commit.sh').write_bytes((root / 'scripts/ios-commit.sh').read_bytes())
+            (scripts / 'ios-commit.sh').chmod(0o755)
             version_file = isolated / 'version.properties'
             version_file.write_text('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
             out = isolated / 'Version.xcconfig'
             env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out))
             env.pop('AND_BIBLE_COMMIT', None)
             subprocess.run([str(scripts / 'ios-version-xcconfig.sh')], cwd=isolated, env=env, check=True)
-            self.assertIn('AND_BIBLE_COMMIT = \n', out.read_text())
+            self.assertIn('AND_BIBLE_COMMIT_HASH = \n', out.read_text())
 
     def test_version_xcconfig_rejects_invalid_commit_override(self):
         with tempfile.TemporaryDirectory() as tmp:

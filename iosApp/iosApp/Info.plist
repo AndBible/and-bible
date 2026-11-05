@@ -80,7 +80,7 @@
     <key>AndBibleICloudContainer</key>
     <string>$(ICLOUD_CONTAINER)</string>
     <key>AndBibleCommit</key>
-    <string>$(AND_BIBLE_COMMIT)</string>
+    <string>$(AND_BIBLE_COMMIT_HASH)</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
         <string>org.andbible.ios.remote-sync-refresh</string>

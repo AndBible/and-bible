@@ -819,7 +819,13 @@ t_version_xcconfig_is_generated_and_synced() {
     new_env xcconfig
     rm -f "$T/repo/iosApp/Config/Version.xcconfig"
     mr gradle :zzz >/dev/null 2>&1
-    grep -q '^MARKETING_VERSION = ' "$FAKE_HOME/work/testbox/and-bible/iosApp/Config/Version.xcconfig" || fail "Version.xcconfig missing from the synced tree"
+    local config="$FAKE_HOME/work/testbox/and-bible/iosApp/Config/Version.xcconfig"
+    grep -q '^MARKETING_VERSION = ' "$config" || fail "Version.xcconfig missing from the synced tree"
+    local revision stub
+    revision=$(git -C "$HERE/.." rev-parse HEAD)
+    stub=$(git -C "$FAKE_HOME/work/testbox/and-bible" rev-parse HEAD)
+    [ "$stub" != "$revision" ] || fail "fixture needs a distinct Mac stub revision"
+    grep -qx "AND_BIBLE_COMMIT_HASH = $revision" "$config" || fail "source revision did not travel with the synced tree"
 }
 
 t_submodule_symlinks_are_not_synced() {
