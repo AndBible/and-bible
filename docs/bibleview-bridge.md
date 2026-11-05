@@ -51,14 +51,26 @@ A web view outlives its document, and since #3950/#3955 even its window: a works
 view to an incoming window, and its old page stays on screen and keeps calling until the new document replaces it.
 Calls of such a page must not act on the window that now owns the view (osTicket 3508, #3975).
 
-- `DocumentLoader` gives each admitted document a generation and sends it with the document's `clear_document`.
-  `BibleWindowSession.documentGeneration` is the generation calls are admitted for: `NO_DOCUMENT_GENERATION` (0)
-  while none is admitted, while a view is parked for reuse, and from the moment the window REQUESTS another document
-  or key (`Window.loadText` -> `WindowView.documentRequested`) until it is admitted. A request that ends without a new
-  document (unchanged commentary, superseded or failed read) admits the page's document again, but only while the
-  window still shows the page and book that document was loaded from; after a failed load of another document the
-  gate stays closed until the next admission. A jump inside the loaded document requests nothing, so the page's
-  reports keep counting.
+- Admission is ONE state per window, `DocumentAdmission` (`session.admission`), replaced only on the main thread
+  and driven by `DocumentLoader`. It holds the admitted document (its generation, sent with its `clear_document`, its
+  immutable `DocumentSource` = window, page object, module and document context, and the contexts the page holds:
+  the loaded chapter plus what infinite scroll added), the pending request (`Window.loadText` ->
+  `WindowView.documentRequested`) with whether it changes the document, and the generation the page reports it shows
+  (`documentShown`). The document context is the Bible book + chapter (Bible, MyNotes), the Bible book (commentary),
+  the key (StudyPad, multi-reference, dictionary, map); a general book or EPUB is one document.
+- Everything is derived from that state where a call acts, on the main thread (`DocumentAdmission.admits`): the call's
+  generation is the admitted one, no request of a different document is pending, and the window still shows the
+  admitted source (`DocumentSource.of(window)` compared with it). The last check makes a page change that has not
+  been requested yet safe: an off-main sync or restore, the gap between `setCurrentDocument` and `loadText`.
+  `session.documentGeneration` (the dispatcher's first, off-main check) is the admitted generation, 0 while none is,
+  while a view is parked for reuse, and while a different document is requested. A request of the SAME document (a
+  reload of the shown chapter, an unchanged synced commentary) keeps the page's calls admitted; only scroll reports
+  (`scrolledToOrdinal`) wait for no request at all, because the request reads the key they write.
+- A request ends (`documentRequestEnded(request, unchanged, failure)`): `unchanged` (the commentary checksum matched)
+  makes the page's document stand for the request; a `failure` of a request of a different document admits an error
+  document with a retry link (`ErrorDocument(retry = true)`, `ab-retry://` -> `window.loadText()`), so the window is
+  never left closed silently; otherwise the page's document counts again only while the window still shows it.
+  `Window.loadText` reports a failing delivery instead of letting it end the app.
 - JS (`src/bridge/document-generation.ts`): `clear_document` switches the page to the new generation once the cleared
   content has left the DOM, and `native-bridge.ts` puts it on every call's envelope
   (`{method, args, documentGeneration}`). Then the page posts `documentShown(generation)`.
@@ -74,21 +86,25 @@ Calls of such a page must not act on the window that now owns the view (osTicket
     `session.holdsDocument(ticket)` right before it acts, after its last suspension (e.g. `LinkControl.openStudyPad`'s
     `stillWanted`, after the label read).
   - `paging` (`requestMoreToBeginning`, `requestMoreToEnd`): admitted against the document the PAGE holds
-    (`DocumentLoader.runForPageDocument`), on the calling thread. While a new document is requested the call waits for
-    the outcome: it runs when the request ends without a document, and is answered null when a new document replaces
-    the page's. A dropped request answers null, which ends infinite scroll for good, so it must not be dropped while
-    the page's document is merely being re-checked.
+    (`DocumentAdmission.runPaging`), on the main thread, in the same step as its synchronous effects: a Bible chapter
+    is reserved in the loaded range and read off main from the module and Bible book captured there
+    (`CurrentBiblePage.getDocumentForChapter(chapter, document, bibleBook)`); a commentary block or general book entry
+    is computed off main from the captured module under a per-direction lock and moves the cursor on main only while
+    the page's document is still admitted. A call of a replaced page is answered null at once. While a different
+    document is requested, or the window does not show the page's document, the call waits: it runs when the page's
+    document stands again and is answered null when a new document replaces it. A dropped request answers null,
+    which ends infinite scroll for good, so it must not be dropped while the page's document may still stand.
   - `unguarded`: user data addressed explicitly (ids, book + ordinals), answers to the page, the live page's own state.
   The gate is the bridge itself; a bridge without one gets `ClosedDocumentGate` (guarded and paging calls always
   dropped), a bridge with no window document (the PoC) passes `OpenDocumentGate` explicitly.
 - Link navigations (`window.location.assign` and plain anchors: Android `shouldOverrideUrlLoading` and the long-press
   menu, iOS and desktop link navigation) carry no generation. `ReadingLinkHandler` opens a link only while the page
-  shows the admitted document (`session.pageShowsAdmittedDocument()`: its last `documentShown` equals
-  `documentGeneration`); the host's `openLink` does not even activate the window otherwise. The selection menu's
+  shows the admitted document (`session.pageShowsAdmittedDocument()`: its last `documentShown` is admitted,
+  `DocumentAdmission.admits`); a swallowed link is logged with the admission state; the host's `openLink` does not even activate the window otherwise. The selection menu's
   compare and memorize use the same check. A restarted page shows nothing until its `documentShown`.
 - Reusing a web view for another window closes the old page's modals (`close_modals`) on every platform.
-- A guarded tap between the request of a new document and the page showing it is dropped silently. That is the
-  intended trade-off.
+- A guarded tap between the request of a DIFFERENT document and the page showing it is dropped (logged). That is
+  the intended trade-off.
 
 ## Adding a JS-to-native method
 
@@ -142,10 +158,11 @@ A malformed envelope cannot promise a deferred response without a usable method 
 ## Threading
 
 Android dispatch is synchronous on WebView's JavaBridge thread, just as the old annotated
-methods were. Unguarded and paging calls run there; guarded calls are moved to the main
-thread by the gate (`ReadingBridge.runAdmitted`), where navigation, document admission and
-view rebinds happen, so a guarded call can run after an unguarded one the page posted
-later. WebKit invokes the iOS message handler on main.
+methods were. Unguarded calls run there; guarded and paging calls are moved to the main
+thread by the gate (`ReadingBridge.runAdmitted`, `DocumentAdmission.runPaging`), where
+navigation, document admission and view rebinds happen and the admission state lives, so
+they can run after an unguarded call the page posted later. `documentShown` updates the
+admission state on main too. WebKit invokes the iOS message handler on main.
 
 `BibleViewJsChannel` preserves Android's native-to-JS timing rules:
 

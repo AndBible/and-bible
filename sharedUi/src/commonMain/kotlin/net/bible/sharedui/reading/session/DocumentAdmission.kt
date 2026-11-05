@@ -24,6 +24,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.Window
@@ -35,8 +36,8 @@ import org.crosswire.jsword.versification.BibleBook
 
 /**
  * What a window shows, as far as admission needs it: the window, its current page object, the module, and the
- * document context inside the module ([context]: Bible and MyNotes book + chapter, commentary Bible book, other
- * documents their key). Immutable: read from the window once ([of]) and compared later (#3975).
+ * document context inside the module ([context]: Bible and MyNotes book + chapter, commentary Bible book, StudyPad,
+ * multi-reference, dictionary and map pages their key; a general book or EPUB is one document). Immutable: read from the window once ([of]) and compared later (#3975).
  */
 @kotlin.native.HiddenFromObjC
 class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book?, val context: String?) {
@@ -60,6 +61,10 @@ class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book
                 DocumentCategory.BIBLE, DocumentCategory.MYNOTE ->
                     window.pageManager.currentBibleVerse.verse.let { chapterContext(it.book, it.chapter) }
                 DocumentCategory.COMMENTARY -> page.key?.let { KeyUtil.getVerse(it).book.osis }
+                // A general book's (EPUB's) key follows the page's scroll reports and infinite scroll, entry by entry:
+                // the book is the document. A StudyPad or multi-reference page is its key.
+                DocumentCategory.GENERAL_BOOK ->
+                    if ((page as? CurrentGeneralBookPage)?.isSpecialDoc == true) page.key?.getOsisRef() else null
                 else -> page.key?.getOsisRef()
             }
         } catch (e: Exception) {

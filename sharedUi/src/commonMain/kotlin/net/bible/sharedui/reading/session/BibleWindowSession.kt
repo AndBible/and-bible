@@ -204,7 +204,7 @@ interface SessionPaging {
 
     /**
      * Runs a chapter request ([call]) of the page whose document has [generation] if that is the document the page
-     * holds; waits while the window has requested a newer one (#3975). Exactly one of [call] and [drop] runs, once. The
+     * holds (main thread, see [DocumentAdmission.runPaging], #3975). Exactly one of [call] and [drop] runs, once. The
      * default drops: a paging seam that cannot tell the page's document fails closed.
      */
     fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) = drop()

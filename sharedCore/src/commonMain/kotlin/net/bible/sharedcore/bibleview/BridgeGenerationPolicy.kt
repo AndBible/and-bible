@@ -43,10 +43,12 @@ interface DocumentGenerationGate {
     fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit)
 
     /**
-     * Runs a [BridgeGenerationPolicy.paging] call if [generation] is the document the page holds, even while the window
-     * has requested a newer one: the call only extends the page's own content and changes nothing of the window. While
-     * a request is pending it waits for its outcome (run when the request ends without a new document, dropped when
-     * one replaces the page's); a replaced page's call is dropped at once. Exactly one of [call] and [drop] runs, once.
+     * Runs a [BridgeGenerationPolicy.paging] call if [generation] is the document the page holds, on the thread that
+     * owns window state and in the same step as the check, so its synchronous effects (the loaded range, the module it
+     * reads) cannot apply to a document admitted in between. The call only extends the page's own content. While a
+     * request of another document is pending, or the window does not show the page's document, it waits (run when the
+     * page's document stands again, dropped when another replaces it); a replaced page's call is dropped at once.
+     * Exactly one of [call] and [drop] runs, once.
      */
     fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit)
 }

@@ -564,8 +564,8 @@ class DocumentLoader(
         }
     }
 
-    private fun contextOfKey(key: Key): String? =
-        if (isCommentary) (key as? Verse)?.book?.osis else key.getOsisRef()
+    /** The admission context [key] adds ([DocumentSource]): a commentary block's Bible book; a general book is one. */
+    private fun contextOfKey(key: Key): String? = if (isCommentary) (key as? Verse)?.book?.osis else null
 
     /**
      * The page reports it has (re)started: it holds no labels and no document. Usually this is the first page of the
