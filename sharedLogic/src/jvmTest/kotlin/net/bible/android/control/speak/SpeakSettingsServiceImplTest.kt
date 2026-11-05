@@ -49,7 +49,14 @@ class SpeakSettingsServiceImplTest {
     @AfterTest
     fun restoreGlobals() {
         try {
-            originalStore?.let { SpeakSettings.store = it }
+            if (originalStore != null) {
+                SpeakSettings.store = originalStore
+            } else {
+                SpeakSettings::class.java.getDeclaredField("store").apply {
+                    isAccessible = true
+                    set(SpeakSettings, null)
+                }
+            }
             SpeakSettings.currentSettings = originalSettings
         } finally {
             Dispatchers.resetMain()
