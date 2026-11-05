@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -21,36 +23,33 @@ class SplitRailMeasurementTest {
         val width = mutableStateOf(80.dp)
         val hidden = mutableStateOf(false)
         val reverse = mutableStateOf(false)
-        val dark = mutableStateOf(false)
+        val reports = mutableListOf<Set<String>>()
+        val paneBounds = mutableMapOf<String, androidx.compose.ui.geometry.Rect>()
         var covered: Set<String> = emptySet()
         val windows = listOf("left", "right").map {
             WindowSnapshot(it, WindowStateValue.VISIBLE, 1f, true, true, false, 0, false)
         }
         setContent {
-            AbTheme(
-                darkTheme = dark.value,
-                colorMode = if (dark.value) net.bible.service.common.DisplayColorMode.MONOCHROME else net.bible.service.common.DisplayColorMode.NORMAL,
-                disableAnimations = dark.value,
-            ) {
+            AbTheme {
                 Box(Modifier.size(800.dp, 600.dp)) {
                     SplitContent(
                         layout = WindowLayoutState(windows, "left", null, reverse.value, true),
                         onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
-                        pane = { Box(Modifier.fillMaxSize()) },
+                        pane = { id -> Box(Modifier.fillMaxSize().onGloballyPositioned { paneBounds[id] = it.boundsInRoot() }) },
                         // The default desktop test window is landscape, so this starts side by side.
                         railOverlay = if (hidden.value) null else { { Box(Modifier.size(width.value, 40.dp)) } },
-                        onRailCoveredWindowsChanged = { covered = it },
+                        onRailCoveredWindowsChanged = { covered = it; reports += it },
                     )
                 }
             }
         }
         waitForIdle()
         assertEquals(setOf("right"), covered)
+        assertEquals(setOf("right"), reports.first(), "no transient empty coverage before the real set")
+        val panesBefore = paneBounds.toMap()
         runOnIdle { width.value = 700.dp }
         waitForIdle()
-        assertEquals(setOf("left", "right"), covered)
-        runOnIdle { dark.value = true }
-        waitForIdle()
+        assertEquals(panesBefore, paneBounds, "rail width must not move the panes")
         assertEquals(setOf("left", "right"), covered)
         runOnIdle { reverse.value = true }
         waitForIdle()

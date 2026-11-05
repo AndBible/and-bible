@@ -164,7 +164,12 @@ fun SplitContent(
     // Measurement is not Compose state: a document inset must never resize the split or rail.
     val paneBounds = remember { mutableMapOf<String, Rect>() }
     val railBounds = remember { arrayOfNulls<Rect>(1) }
-    val reportCoverage = { onCoverageChanged(railCoveredWindows(paneBounds, railBounds[0])) }
+    // Nothing is reported until every visible pane (and the rail, when shown) has been measured:
+    // a report from the first SideEffect, before layout, would be a transient empty set.
+    val reportCoverage = {
+        val measured = windows.all { it.id in paneBounds } && (railOverlay == null || railBounds[0] != null)
+        if (measured) onCoverageChanged(railCoveredWindows(paneBounds, railBounds[0]))
+    }
     SideEffect {
         paneBounds.keys.retainAll(windows.map { it.id }.toSet())
         if (railOverlay == null) railBounds[0] = null
