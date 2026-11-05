@@ -1,0 +1,14 @@
+- Searches now all end in the reading-view search sheet, with a links-window toggle (#3965)
+- Workspace switching reuses the outgoing web views, so the screen no longer goes blank for a long time (#3950, #3955)
+- Windows desktop release uses WebView2 only; the KCEF fallback is removed (#3966)
+- Monochrome mode: links in BibleView now render in grayscale (3493f51f9d)
+- Module installs are atomic, with recovery at startup (#3962)
+- Desktop: pressing a window activates it, and rail labels follow document changes (#3939, #3940)
+- Desktop: clicking the page margin no longer jumps the page (#3963)
+- Desktop: rail labels no longer clip at Windows display scaling, and Windows app icons are fixed (#3937, #3938, #3943)
+- Sheet and preference choice rows have 16 dp side padding (#3941)
+- iOS: VoiceOver/accessibility in the WebView is restored after returning from another screen (#3958)
+- Fixed a crash from retained SQLite DAOs used after their database is closed (#3947)
+- Bookmark migration from v3 to v4 no longer fails on bookmarks with a NULL book (#3953)
+
+Developer-only test build!!
