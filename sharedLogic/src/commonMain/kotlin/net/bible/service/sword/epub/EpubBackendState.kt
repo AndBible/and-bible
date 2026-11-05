@@ -439,8 +439,9 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         _lastAccess = lastAccess
     }
 
+    /** Deletes this module, retiring this state first even when it is not the registered owner (#3947). */
     fun delete() {
-        deleteEpubModule(epubDir)
+        deleteEpubModule(epubDir, retiring = this)
     }
 
     suspend fun getKey(originalKey: String, htmlId: String): Key? {

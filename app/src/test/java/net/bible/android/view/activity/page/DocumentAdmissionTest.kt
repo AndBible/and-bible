@@ -1022,9 +1022,8 @@ class DocumentAdmissionTest {
     fun rework6EpubPagingScrollRoundTripsTheAddedEntry() {
         val fixture = net.bible.service.sword.epub.EpubBackendStateTest()
         fixture.setUp()
-        val state = net.bible.service.sword.epub.EpubBackendState(
-            okio.Path.Companion.run { fixture.buildEpub("admission-3975").toOkioPath() },
-            testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(org.robolectric.RuntimeEnvironment.getApplication()))
+        val state = fixture.openState(fixture.buildEpub("admission-3975"), testCoreStrings(),
+            net.bible.android.platform.AndroidAppEnvironment(org.robolectric.RuntimeEnvironment.getApplication()))
         val metadata = state.getBookMetaData()
         val epub = org.crosswire.jsword.book.sword.SwordGenBook(metadata, net.bible.service.sword.epub.EpubBackend(state, metadata))
         Books.installed().addBook(epub)

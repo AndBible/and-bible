@@ -139,7 +139,7 @@ class SpeakWindowMenuTest : SpeakIntegrationTestBase() {
             "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Chapter Two</title></head><body>" +
                 (1..30).joinToString("") { "<p>Paragraph $it has readable speech content.</p>" } + "</body></html>",
         )
-        val state = EpubBackendState(directory.toOkioPath(),
+        val state = fixture.openState(directory,
             testCoreStrings(), AndroidAppEnvironment(app)).also { epubState = it }
         val metadata = state.getBookMetaData()
         val document = SwordGenBook(metadata, EpubBackend(state, metadata)).also {

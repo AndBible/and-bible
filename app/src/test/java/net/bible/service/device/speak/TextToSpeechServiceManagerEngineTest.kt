@@ -402,7 +402,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             java.io.File(dir, "OEBPS/ch1.xhtml").writeText(
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>One</title></head><body>" +
                     (1..50).joinToString("") { "<p>Sentence $it is readable.</p>" } + "</body></html>")
-            state = net.bible.service.sword.epub.EpubBackendState(dir.toOkioPath(), testCoreStrings(),
+            state = fixture.openState(dir, testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(app))
             acquiredState = state
             val metadata = state.getBookMetaData()
@@ -1185,8 +1185,8 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             engine.languages = mapOf(Locale.UK to SpeakLanguageResult.AVAILABLE,
                 Locale.ENGLISH to SpeakLanguageResult.AVAILABLE)
             configureFreshControl()
-            val epubState = net.bible.service.sword.epub.EpubBackendState(
-                fixture.buildEpub("held-speech-ordinal").toOkioPath(), testCoreStrings(),
+            val epubState = fixture.openState(
+                fixture.buildEpub("held-speech-ordinal"), testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(app))
             state = epubState
             val metadata = epubState.getBookMetaData()

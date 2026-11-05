@@ -56,6 +56,7 @@ class EpubStoreEdgeResolutionTest {
     private lateinit var epubRoot: File
     private lateinit var originalDownloadDir: File
     private val createdDbFilenames = mutableListOf<String>()
+    private val ownership = EpubFixtureOwnership()
 
     @Before
     fun setUp() {
@@ -67,8 +68,7 @@ class EpubStoreEdgeResolutionTest {
     @After
     fun tearDown() {
         try {
-            epubRoot.deleteRecursively()
-            createdDbFilenames.forEach { application.deleteDatabase(it) }
+            ownership.cleanUp(epubRoot, createdDbFilenames)
         } finally {
             SwordBookPathJvm.setDownloadDir(originalDownloadDir)
         }
@@ -108,7 +108,7 @@ class EpubStoreEdgeResolutionTest {
         return dir
     }
 
-    private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+    private fun newState(dir: File) = ownership.track(EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application)))
 
     /**
      * Koin cannot be stopped for this: `EpubBackendState.getBookMetaData` already resolves `AppDirectories` at
