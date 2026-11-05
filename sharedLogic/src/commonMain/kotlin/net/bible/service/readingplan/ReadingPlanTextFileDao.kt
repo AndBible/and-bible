@@ -181,9 +181,6 @@ class ReadingPlanTextFileDao(
      * Default to KJV.
      * If specified Versification is not found then use NRSVA because it includes most books possible
      */
-    private fun getReadingPlanVersification(planCode: String): Versification =
-        getReadingPlanVersification(getPlanProperties(planCode))
-
     private fun getReadingPlanVersification(properties: ReadingPlanProperties, versificationString: String? = null): Versification =
         try {
             val versificationName = versificationString ?: properties.map[VERSIFICATION] ?: DEFAULT_VERSIFICATION
@@ -200,8 +197,10 @@ class ReadingPlanTextFileDao(
         info.planName = getPlanName(planCode)
         info.planDescription = getPlanDescription(planCode)
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
-        info.versification = getReadingPlanVersification(planCode)
-        info.isDateBasedPlan = getPlanProperties(planCode).isDateBasedPlan
+        // The loader result already applies a provided module's conf versification override.
+        val properties = getPlanProperties(planCode)
+        info.versification = properties.versification
+        info.isDateBasedPlan = properties.isDateBasedPlan
         info.startDate = repository.getStartDate(planCode)
 
         return info
