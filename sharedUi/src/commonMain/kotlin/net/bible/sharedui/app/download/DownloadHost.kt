@@ -20,6 +20,7 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.download.PendingRepoInstall
 import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.UserMessages
@@ -885,6 +886,11 @@ class DownloadHost(
                 val booksToDownload: List<SwordDocumentInfo> =
                     AppJson.decodeFromString(ListSerializer(SwordDocumentInfo.serializer()), documentIds)
                 downloadRequestedBooks(session, booksToDownload)
+                // A request the loaded catalogue no longer offers can never succeed: stop reporting it (#3973). With
+                // no catalogue (offline) it stays, to be retried later or cancelled from the notice.
+                val missing = booksToDownload.filter { it.initials in session.booksNotFound }
+                    .map { PendingRepoInstall(it.repository, it.initials) }
+                if (missing.isNotEmpty()) downloadControl.forgetInterruptedInstallsMissingFrom(missing, session.allBooks)
                 if (session.booksNotFound.size > 0) {
                     warnUserBooksNotDownloaded(session)
                 }

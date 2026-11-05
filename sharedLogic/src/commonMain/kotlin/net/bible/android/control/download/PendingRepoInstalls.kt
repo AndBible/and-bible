@@ -29,9 +29,24 @@ class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
      */
     private val lock = reentrantLock()
 
-    fun add(request: PendingRepoInstall) = update { if (request in it) it else it + request }
+    /** Written durably (see [DeviceLocalPrefs.setStringDurably]): a process killed right after this must still find it. */
+    fun add(request: PendingRepoInstall) = update(durable = true) { if (request in it) it else it + request }
 
     fun forget(requests: Collection<PendingRepoInstall>) = update { it - requests.toSet() }
+
+    /**
+     * Forgets the [requested] installs that a successfully loaded [catalogue] no longer offers (module removed, or its
+     * repository renamed): "Download again" could never succeed, so the notice must not come back at every launch.
+     * An empty [catalogue] means it did not load (offline, error): nothing is forgotten, so the user can retry later
+     * or press Cancel. Returns the forgotten requests.
+     */
+    fun forgetNotInCatalogue(requested: Collection<PendingRepoInstall>, catalogue: Collection<PendingRepoInstall>): List<PendingRepoInstall> {
+        if (catalogue.isEmpty()) return emptyList()
+        val offered = catalogue.toSet()
+        val gone = requested.filter { it !in offered }
+        if (gone.isNotEmpty()) forget(gone)
+        return gone
+    }
 
     /**
      * The requests whose module is still not installed according to [isInstalled] (called with the initials).
@@ -45,10 +60,10 @@ class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
         missing
     }
 
-    private fun update(change: (List<PendingRepoInstall>) -> List<PendingRepoInstall>) = lock.withLock {
+    private fun update(durable: Boolean = false, change: (List<PendingRepoInstall>) -> List<PendingRepoInstall>) = lock.withLock {
         val before = read()
         val after = change(before)
-        if (after != before) write(after)
+        if (after != before) write(after, durable)
     }
 
     private fun read(): List<PendingRepoInstall> {
@@ -62,8 +77,13 @@ class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
         }
     }
 
-    private fun write(requests: List<PendingRepoInstall>) {
-        if (requests.isEmpty()) prefs.remove(KEY) else prefs.setString(KEY, AppJson.encodeToString(SERIALIZER, requests))
+    private fun write(requests: List<PendingRepoInstall>, durable: Boolean = false) {
+        if (requests.isEmpty()) {
+            prefs.remove(KEY)
+        } else {
+            val json = AppJson.encodeToString(SERIALIZER, requests)
+            if (durable) prefs.setStringDurably(KEY, json) else prefs.setString(KEY, json)
+        }
     }
 
     companion object {

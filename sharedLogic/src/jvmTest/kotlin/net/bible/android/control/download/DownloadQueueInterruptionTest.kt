@@ -27,7 +27,9 @@ class DownloadQueueInterruptionTest {
         val map = mutableMapOf<String, Any>()
         override fun getString(key: String, default: String?) = map[key] as? String ?: default
         override fun getBoolean(key: String, default: Boolean) = map[key] as? Boolean ?: default
+        val durableKeys = mutableListOf<String>()
         override fun setString(key: String, value: String) { map[key] = value }
+        override fun setStringDurably(key: String, value: String) { durableKeys.add(key); setString(key, value) }
         override fun setBoolean(key: String, value: Boolean) { map[key] = value }
         override fun remove(key: String) { map.remove(key) }
     }
@@ -124,6 +126,50 @@ class DownloadQueueInterruptionTest {
     @Test
     fun unreadableStoredValueIsTreatedAsEmpty() {
         prefs.setString(PendingRepoInstalls.KEY, "{not json")
+        assertEquals(emptyList(), nextLaunch().interrupted(isInstalled = { false }))
+    }
+
+    @Test
+    fun addIsWrittenDurablyBeforeTheTransferStarts() {
+        PendingRepoInstalls(prefs).add(kjvRequest)
+        assertEquals(listOf(PendingRepoInstalls.KEY), prefs.durableKeys)
+    }
+
+    @Test
+    fun requestMissingFromALoadedCatalogueIsForgotten() {
+        val store = PendingRepoInstalls(prefs)
+        val nasb = PendingRepoInstall("Lockman (CrossWire)", "NASB")
+        store.add(kjvRequest)
+        store.add(nasb)
+        // The catalogue has NASB but no longer KJV from CrossWire (module removed or repository renamed).
+        store.forgetNotInCatalogue(listOf(kjvRequest, nasb), listOf(nasb, PendingRepoInstall("CrossWire", "ESV")))
+        assertEquals(listOf(nasb), nextLaunch().interrupted(isInstalled = { false }))
+    }
+
+    @Test
+    fun requestIsKeptWhenTheCatalogueDidNotLoad() {
+        val store = PendingRepoInstalls(prefs)
+        store.add(kjvRequest)
+        store.forgetNotInCatalogue(listOf(kjvRequest), emptyList())
+        assertEquals(listOf(kjvRequest), nextLaunch().interrupted(isInstalled = { false }))
+    }
+
+    @Test
+    fun racingDuplicateRequestsRunOneTransferAndKeepTheRecordUntilItIsSettled() = runBlocking {
+        val transfers = java.util.concurrent.atomic.AtomicInteger()
+        val gate = CompletableDeferred<Unit>()
+        val q = queue()
+        val jobs = List(32) {
+            launch(Dispatchers.Default) {
+                q.addDocumentToDownloadQueue(kjv, "CrossWire") { transfers.incrementAndGet(); gate.await() }
+            }
+        }
+        withTimeout(10_000) { while (transfers.get() == 0) kotlinx.coroutines.yield() }
+        kotlinx.coroutines.delay(300) // let every duplicate reach the queue (and, if it is not atomic, start)
+        assertEquals(1, transfers.get(), "duplicates must not start a second transfer")
+        assertEquals(listOf(kjvRequest), nextLaunch().interrupted(isInstalled = { false }))
+        gate.complete(Unit)
+        jobs.forEach { it.join() }
         assertEquals(emptyList(), nextLaunch().interrupted(isInstalled = { false }))
     }
 }

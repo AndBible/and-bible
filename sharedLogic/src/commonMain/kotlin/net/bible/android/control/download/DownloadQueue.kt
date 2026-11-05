@@ -56,8 +56,9 @@ class DownloadQueue(
     /** [transfer] downloads and installs [document] from the repository named [repoName]. */
     internal suspend fun addDocumentToDownloadQueue(document: Book, repoName: String, transfer: suspend () -> Unit) {
         val repoIdentity = document.repoIdentity
-        if (!withMonitor(beingQueued) { beingQueued.contains(repoIdentity) }) {
-            withMonitor(beingQueued) { beingQueued.add(repoIdentity) }
+        // One atomic test-and-set: a racing duplicate must not start a second transfer, whose finisher would forget
+        // the first one's pending record.
+        if (withMonitor(beingQueued) { beingQueued.add(repoIdentity) }) {
             withMonitor(downloadError) { downloadError.remove(repoIdentity) }
             withContext(Dispatchers.IO) {
                 Log.i(TAG, "Downloading " + document.osisID + " from repo " + repoName)

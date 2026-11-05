@@ -153,6 +153,15 @@ class DownloadControl(
         pendingInstalls?.forget(requests)
     }
 
+    /**
+     * Forgets the interrupted [requests] that [catalogue] (a successfully loaded repository book list; empty = not
+     * loaded, nothing forgotten) no longer offers, so a removed module or renamed repository does not bring the notice
+     * back at every launch.
+     */
+    fun forgetInterruptedInstallsMissingFrom(requests: Collection<PendingRepoInstall>, catalogue: Collection<Book>) {
+        pendingInstalls?.forgetNotInCatalogue(requests, catalogue.map { PendingRepoInstall(it.repo ?: "", it.initials) })
+    }
+
     fun cancelDownload(document: Book) {
         val job = JobManager.findJob(INSTALL_BOOK.replace("%s", document.repoIdentity))
         job?.cancel()

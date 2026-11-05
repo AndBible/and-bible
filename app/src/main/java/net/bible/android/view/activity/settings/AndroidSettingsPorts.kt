@@ -13,6 +13,7 @@ class AndroidDeviceLocalPrefs : DeviceLocalPrefs {
     override fun getString(key: String, default: String?) = CommonUtils.realSharedPreferences.getString(key, default)
     override fun getBoolean(key: String, default: Boolean) = CommonUtils.realSharedPreferences.getBoolean(key, default)
     override fun setString(key: String, value: String) { CommonUtils.realSharedPreferences.edit().putString(key, value).apply() }
+    override fun setStringDurably(key: String, value: String) { CommonUtils.realSharedPreferences.edit().putString(key, value).commit() }
     override fun setBoolean(key: String, value: Boolean) { CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply() }
     override fun remove(key: String) { CommonUtils.realSharedPreferences.edit().remove(key).apply() }
 }
