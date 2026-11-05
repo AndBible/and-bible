@@ -6,8 +6,8 @@ import XCTest
 /// debug-only `-openRef John.3.16` on `-openDocument KJV` (see `IosDebugLaunchArgs.kt`), `-resetDatabases` (fresh
 /// one-window workspace, installed modules kept) and `-standardTestFixture` (English UI, no disguise), so no test
 /// inherits the windows, document or language another one left. When KJV is not installed (a `-resetData` test ran
-/// before: Welcome, or reading without John 3), the launch provisions it through the real Easy start, as `AppUITests`
-/// does; the suite does not depend on the run order. Labels were confirmed against Mac element trees.
+/// before: Welcome, or NASB reading), the launch provisions it through the shared local KJV install helper;
+/// the suite does not depend on the run order or an Easy start network download. Labels were confirmed against Mac trees.
 final class ReadingUITests: RealAppUITestCase {
     /// 'Nicodemus' is a phrase label three times in KJV John 3 (verses 1, 4 and 9), in every pane showing the chapter.
     private let nicodemusPerPane = 3
@@ -21,17 +21,23 @@ final class ReadingUITests: RealAppUITestCase {
         var app = launch(arguments)
         let welcome = element(app, "welcome-screen"), host = element(app, "reading-host")
         XCTAssertTrue(waitUntil(timeout: 60) { welcome.exists || host.exists }, "neither Welcome nor reading shown")
-        if welcome.exists || !john3Shown(app, timeout: 30) {
+        // NASB also renders John 3 with three 'Nicodemus' labels. It is not the KJV fixture: the
+        // rail queries and Strong's tests below require KJV, which may not be installed after onboarding.
+        if welcome.exists || !kjvJohn3Shown(app, timeout: 30) {
             app.terminate()
-            let fresh = freshReading()
-            selectKJV(fresh)
-            sendToBackground(fresh)
-            fresh.terminate()
+            ensureKJVInstalled()
             app = launch(arguments)
         }
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown")
-        XCTAssertTrue(john3Shown(app), "John 3 not rendered in the first window")
+        let fixtureShown = kjvJohn3Shown(app, timeout: 60)
+        if !fixtureShown { attachTree(app, "reading-fixture-not-kjv-john3") }
+        XCTAssertTrue(fixtureShown, "KJV John 3 must be active before using KJV rail tabs or Strong's links")
         return app
+    }
+
+    private func kjvJohn3Shown(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let module = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'King James Version'")).firstMatch
+        return module.waitForExistence(timeout: timeout) && john3Shown(app, timeout: timeout)
     }
 
     /// All 'Nicodemus' labels in the whole app tree (every pane's web view together). The query returns each element
@@ -108,6 +114,11 @@ final class ReadingUITests: RealAppUITestCase {
     /// the accessibility tree (a re-parented WKWebView must neither drop out nor appear twice), the closed window's pane
     /// is gone and the reopened window gets a fresh pane id (its own session and web view).
     func testSplitThreeCloseMiddleReopenKeepsTextOnce() throws {
+        // Reproduce the smoke ordering that exposed #3974: no KJV left by an earlier test.
+        // The shared launch helper must establish KJV, not accept the bundled NASB's John 3.
+        let empty = launch(["-standardTestFixture", "-resetData"])
+        XCTAssertTrue(element(empty, "welcome-screen").waitForExistence(timeout: 60), "fresh fixture must show Welcome")
+        empty.terminate()
         let app = try launchReading()
         assertTextOncePerPane(app, panes: 1, "single window")
         addWindow(app, from: 1)
