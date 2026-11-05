@@ -670,3 +670,27 @@ export function formatExportLink({ref, v11n, doc}: {ref: string, v11n: string, d
 export function filterNotNull<T>(args: (T|null)[]): T[] {
     return args.filter(v => v !== null) as T[];
 }
+
+const GENERIC_FONT_FAMILIES = new Set([
+    "serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui", "ui-serif", "ui-sans-serif",
+    "ui-monospace", "ui-rounded", "emoji", "math", "fangsong",
+]);
+
+const PLAIN_IDENT = /^-?[A-Za-z_\u00A0-\uFFFF][\w\-\u00A0-\uFFFF]*$/;
+const RESERVED_FAMILY_WORDS = new Set(["inherit", "initial", "unset", "revert", "revert-layer", "default"]);
+
+/**
+ * A `font-family` value for a single family name as chosen in the font chooser. CSS generic keywords and names
+ * that are already valid unquoted (identifier words, e.g. `Study Font`) stay as they are; every other name (digit
+ * first, special characters, reserved words) becomes a quoted CSS string. A value that is already a quoted string
+ * or a comma separated list is passed through unchanged.
+ */
+export function cssFontFamily(name: string | undefined | null): string {
+    const trimmed = (name ?? "").trim();
+    if (trimmed === "" || GENERIC_FONT_FAMILIES.has(trimmed.toLowerCase())) return trimmed;
+    if (trimmed.includes(",") || /^(["']).*\1$/s.test(trimmed)) return trimmed;
+    const words = trimmed.split(/ +/);
+    if (words.every((w) => PLAIN_IDENT.test(w) && !RESERVED_FAMILY_WORDS.has(w.toLowerCase()))) return trimmed;
+    const escaped = trimmed.replace(/[\\"]/g, "\\$&").replace(/[\n\r\f]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
+    return `"${escaped}"`;
+}

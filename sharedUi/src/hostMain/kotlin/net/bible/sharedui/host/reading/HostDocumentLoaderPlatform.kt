@@ -67,6 +67,11 @@ class HostDocumentLoaderPlatform(
     private val onPageBackground: (Int) -> Unit = {},
     /** False on a platform without speech: the BibleView "SPEAK" action button is then switched off in the JS config. */
     private val speakSupported: () -> Boolean = { true },
+    /** Modules providing fonts, from the app's one bound add-on scanner (the chooser's catalog), never a fresh scan. */
+    private val fontModuleNames: () -> List<String> = {
+        KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedlogic.addons.SharedAddonScanner>()
+            ?.fonts()?.map { it.module }?.distinct().orEmpty()
+    },
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
     override val topOffset: Float get() = if (isTopWindow) offsets().top else 0f
@@ -135,8 +140,7 @@ class HostDocumentLoaderPlatform(
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
             notesContentType = s.getString("notes_content_type", "HTML") ?: "HTML",
-            fontModuleNames = net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() })
-                .fonts().map { it.module }.distinct(),
+            fontModuleNames = fontModuleNames(),
         )
     }
 

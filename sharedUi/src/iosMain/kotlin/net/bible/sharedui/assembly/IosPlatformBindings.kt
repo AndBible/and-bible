@@ -171,12 +171,19 @@ internal fun buildIosCoreModule(config: IosAppConfig, extra: List<Module>, parts
 @OptIn(ExperimentalForeignApi::class)
 internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformParts): Module {
     // One scanner for both add-on ports, so a clearCaches() on the catalog also reloads the prompt packs.
-    val scanner = SharedAddonScanner(books = { Books.installed().getBooks() })
+    // It applies the same add-on filter as Android's AndBibleAddons, and is also the one catalog behind the font
+    // chooser, fonts.css and the BibleView config (bound below), so they cannot disagree or rescan per request.
+    val scanner = SharedAddonScanner(books = {
+        Books.installed().getBooks(
+            net.bible.service.sword.AndBibleAddonFilter { org.koin.mp.KoinPlatform.getKoin().get<AppEnvironment>().versionNumber },
+        )
+    })
     val promptPacks = SharedPromptPackSource(scanner)
 
     return module {
         // --- device, sandbox and settings
         single { parts.deviceSettings }
+        single { scanner }
         single<SecretStore> { parts.secrets }
         single { parts.environment }
         single<AppEnvironment> { get<IosAppEnvironment>() }

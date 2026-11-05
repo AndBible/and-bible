@@ -58,7 +58,7 @@ final class ImportedFontUITests: RealAppUITestCase {
                   let words = report["verse16"] as? [[String: Any]], words.count == 4 else { return false }
             evidence = json
             let widths = words.compactMap { $0["width"] as? Double }
-            // DejaVu Sans Mono is genuinely loaded, not merely a CSS family falling back to the system font.
+            // StudyMono is genuinely loaded, not merely a CSS family falling back to the system font.
             return family.contains("StudyMono") && faces.contains { ($0["family"] as? String)?.contains("StudyMono") == true && $0["status"] as? String == "loaded" }
                 && widths.count == 4 && abs(widths[0] - widths[1]) < 0.1 && abs(widths[0] - widths[3]) > 2
         }

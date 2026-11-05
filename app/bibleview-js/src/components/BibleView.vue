@@ -123,7 +123,7 @@ import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
 import {clearLog, useAndroid} from "@/composables/android";
-import {Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
+import {cssFontFamily, Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox.vue";
 import BookmarkModal from "@/components/modals/BookmarkModal.vue";
 import DevelopmentMode from "@/components/DevelopmentMode.vue";
@@ -401,7 +401,7 @@ const contentStyle = computed(() => {
           hyphens: ${config.hyphenation ? "auto" : "none"};
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
-          font-family: ${config.fontFamily};
+          font-family: ${cssFontFamily(config.fontFamily)};
           font-size: ${config.fontSize*appSettings.fontSizeMultiplier}px;
           --font-size: ${config.fontSize*appSettings.fontSizeMultiplier}px;
           `;
@@ -419,7 +419,7 @@ const modalStyle = computed(() => {
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
           --font-size:${config.fontSize*appSettings.fontSizeMultiplier}px;
-          --font-family:${config.fontFamily};`
+          --font-family:${cssFontFamily(config.fontFamily)};`
 });
 
 const topStyle = computed(() => {

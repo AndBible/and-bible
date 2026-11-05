@@ -79,9 +79,7 @@ class SharedTextDisplayPrefItems(
     private val settings: () -> AppSettings,
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
     private val showMarginPageJumpTip: Boolean = true,
-    private val installedFonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = {
-        net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() }).fonts()
-    },
+    private val installedFonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
     private val baseFonts: List<SettingsItem.Choice> = listOf(
         // Only CSS generic families are portable across WebView engines.
         genericFontChoice("sans-serif"),

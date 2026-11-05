@@ -57,6 +57,7 @@ class PageAssetRoutesTest {
     private fun routes(
         verify: ((Path, Path) -> Boolean)? = { f, s -> f.name == "feat.js" && fs.exists(s) },
         epub: PageAssetEpubSource? = null,
+        fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
     ) = PageAssetRoutes(
         backgrounds = { mapOf("D3DBackground" to image) },
         bookLocation = { if (it == "KJV" || it == "AssetFont") book else null },
@@ -64,6 +65,7 @@ class PageAssetRoutesTest {
         verify = verify,
         epub = epub,
         log = { logs.add(it) },
+        fonts = fonts,
     )
 
     private fun PageAsset?.file(): Path = assertIs<PageAsset.File>(this).path
@@ -101,7 +103,7 @@ class PageAssetRoutesTest {
     }
 
     @Test fun installedFontStylesheetDefinesTheFamilyAndFile() {
-        // The real registry is the default source used by both the chooser and the asset route.
+        // A scanner over the book, the same catalog object the chooser and the asset route share.
         val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
             """[AssetFont]
 ModDrv=RawGenBook
@@ -111,11 +113,9 @@ AndBibleProvidesFont=Outside;../../secret.txt
 """.encodeToByteArray(), "AssetFont")
         metadata.location = org.crosswire.common.util.NetUtil.fileKUri(book, directory = true)
         val fontBook = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
-        org.crosswire.jsword.book.Books.installed().addBook(fontBook)
-        try {
-            val css = assertNotNull(routes().resolve("/fonts/AssetFont/fonts.css"))
-            assertEquals("@font-face { font-family: 'Study Font'; src: url('css/extra.woff2'); }\n", css.text())
-        } finally { org.crosswire.jsword.book.Books.installed().removeBook(fontBook) }
+        val scanner = net.bible.sharedlogic.addons.SharedAddonScanner({ listOf(fontBook) })
+        val css = assertNotNull(routes(fonts = { scanner.fonts() }).resolve("/fonts/AssetFont/fonts.css"))
+        assertEquals("@font-face { font-family: 'Study Font'; src: url('css/extra.woff2'); }\n", css.text())
     }
 
     @Test fun fontCssEscapesNamesAndEncodesFileUrlsWithoutExposingTraversal() {

@@ -246,6 +246,15 @@ class DesktopAppStartupTest {
         assertEquals(74f, platform.bottomOffset, "a wide rail also covers the left pane")
         offsets.setRailCoveredWindows(emptySet())
         assertEquals(34f, platform.bottomOffset, "hiding the rail must preserve the safe area")
+        var catalogReads = 0
+        val withFonts = net.bible.sharedui.host.reading.HostDocumentLoaderPlatform(
+            window = { left }, windowControl = { control }, settings = { koin.get() },
+            nightModeState = { object : net.bible.sharedlogic.platform.NightModeState { override val nightMode = false } },
+            offsets = { offsets }, isPortrait = { false }, isBeta = { false },
+            fontModuleNames = { catalogReads++; listOf("StudyFonts") },
+        )
+        assertEquals(listOf("StudyFonts"), withFonts.configInputs(emptyList()).fontModuleNames)
+        assertEquals(1, catalogReads, "the config reads the injected catalog once per build")
     }
 
     @Test fun railLabelsFollowARealDocumentChange() = kotlinx.coroutines.runBlocking {

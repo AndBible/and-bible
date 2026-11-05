@@ -77,9 +77,8 @@ class PageAssetRoutes(
     private val log: (String) -> Unit = {},
     private val mimeType: (String) -> String = ::pageAssetMimeType,
     private val fs: FileSystem = FileSystem.SYSTEM,
-    private val fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = {
-        net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() }).fonts()
-    },
+    /** The installed add-on fonts; platforms pass the app's one bound catalog so the CSS matches the chooser. */
+    private val fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
 ) {
     private val epubLogged = atomic(false)
     private val epubStyleLogged = atomic(false)

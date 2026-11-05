@@ -158,6 +158,7 @@ internal fun iosPageAssetRoutes(currentDocument: () -> Document?): PageAssetRout
         bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
         verify = null,
         epub = IosEpubAssets(currentDocument),
+        fonts = { koin.getOrNull<net.bible.sharedlogic.addons.SharedAddonScanner>()?.fonts().orEmpty() },
         log = { nsLog("bibleview scheme: $it") },
     )
 }

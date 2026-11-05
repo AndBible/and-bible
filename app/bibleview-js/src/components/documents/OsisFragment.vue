@@ -17,7 +17,7 @@
 
 <template>
   <div :id="`frag-${uniqueId}`" :lang="fragment.language" :dir="fragment.direction"
-       :style="{fontFamily: config.fontFamily === 'sans-serif' ? undefined : config.fontFamily}">
+       :style="{fontFamily: config.fontFamily === 'sans-serif' ? undefined : cssFontFamily(config.fontFamily)}">
     <div :class="[`sword-${fragment.bookInitials}`, {'italic-non-strongs': fragment.hasStrongs && config.nonStrongsWordItalic}]">
       <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
     </div>
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
-import {highlightVerseRange, osisToTemplateString} from "@/utils";
+import {cssFontFamily, highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
 import {customCssKey, osisFragmentKey, hideTitlesKey} from "@/types/constants";

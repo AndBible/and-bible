@@ -272,15 +272,21 @@ AndBibleProvidesFont=Study Font;Study Font.ttf
 """.encodeToByteArray(), "TTF_Study Font")
             metadata.location = org.crosswire.common.util.NetUtil.fileKUri(dir, directory = true)
             val book = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
-            val items = items()
+            var installed = emptyList<org.crosswire.jsword.book.Book>()
+            val scanner = net.bible.sharedlogic.addons.SharedAddonScanner({ installed })
+            val items = SharedTextDisplayPrefItems(
+                strings = { StringTable.of("en", { lookup("en", it) }, { n, c -> lookupPlural("en", n, c) }, { lookupArray("en", it) }) },
+                contentSource = { source }, windowControl = { error("unused") }, documentControl = { error("unused") },
+                settings = { appSettings }, installedFonts = { scanner.fonts() },
+            )
             assertFalse(items.fonts.any { it.value == "Study Font" })
-            org.crosswire.jsword.book.Books.installed().addBook(book)
+            installed = listOf(book); scanner.clearCaches()
             try {
                 assertTrue(items.fonts.any { it.value == "Study Font" }, "installed font must be offered, not only CSS generics")
                 items.item(bundle, Types.FONTFAMILY).value = "Study Font"
                 val restored = SettingsBundle.fromJson(bundle.toJson())
                 assertEquals("Study Font", items.item(restored, Types.FONTFAMILY).value)
-            } finally { org.crosswire.jsword.book.Books.installed().removeBook(book) }
+            } finally { installed = emptyList(); scanner.clearCaches() }
             assertFalse(items.fonts.any { it.value == "Study Font" }, "uninstalled fonts disappear without rebuilding the picker")
         } finally { fs.deleteRecursively(dir) }
     }

@@ -10,7 +10,9 @@ import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
 import java.net.URLConnection
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -27,6 +29,7 @@ class DesktopPageAssetRoutes(
     bookStyleFile: (String) -> String?,
     verify: (file: Path, signature: Path) -> Boolean,
     log: (String) -> Unit = {},
+    fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
 ) : DesktopPageAssets {
     private val routes = PageAssetRoutes(
         backgrounds = { backgrounds().mapValues { it.value.toOkioPath() } },
@@ -36,6 +39,7 @@ class DesktopPageAssetRoutes(
         epub = null,
         log = log,
         mimeType = ::mimeFor,
+        fonts = fonts,
     )
 
     override fun resolve(path: String): BundleResource? = when (val asset = routes.resolve(path)) {
@@ -46,13 +50,30 @@ class DesktopPageAssetRoutes(
     }
 
     private val generatedCss = mutableMapOf<String, Path>()
+    private val generatedBytes = mutableMapOf<String, ByteArray>()
 
-    /** Reuse one file per module route instead of leaking a temp file on every settings update. */
+    /**
+     * Reuse one file per module route instead of leaking a temp file on every settings update. The file is only
+     * rewritten when its content changed, and then atomically (temp file + move), so the engine never reads a
+     * half-written stylesheet.
+     */
     private fun generatedCssFile(route: String, bytes: ByteArray): Path = synchronized(generatedCss) {
         if (bytes.isEmpty()) return@synchronized emptyCssFile()
-        val file = generatedCss[route]?.takeIf { Files.isRegularFile(it) }
-            ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); generatedCss[route] = it }
-        Files.write(file, bytes)
+        val existing = generatedCss[route]?.takeIf { Files.isRegularFile(it) }
+        if (existing != null && generatedBytes[route]?.contentEquals(bytes) == true) return@synchronized existing
+        val file = existing ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); generatedCss[route] = it }
+        val staging = Files.createTempFile(file.parent, "andbible-fonts", ".tmp")
+        try {
+            Files.write(staging, bytes)
+            try {
+                Files.move(staging, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+            } catch (_: AtomicMoveNotSupportedException) {
+                Files.move(staging, file, StandardCopyOption.REPLACE_EXISTING)
+            }
+        } finally {
+            Files.deleteIfExists(staging)
+        }
+        generatedBytes[route] = bytes
         file
     }
 
@@ -96,6 +117,7 @@ class DesktopPageAssetRoutes(
                 bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
                 verify = { file, signature -> verifier.verify(file, signature) },
                 log = log,
+                fonts = { KoinPlatform.getKoin().get<net.bible.sharedlogic.addons.SharedAddonScanner>().fonts() },
             )
         }
     }

@@ -69,6 +69,17 @@ class SharedAddonScannerTest {
         assertEquals(2, calls)
     }
 
+    @Test fun fontsAreServedFromTheSameCachedBookListAsEveryOtherView() {
+        var calls = 0
+        val scanner = SharedAddonScanner({ calls++; listOf(fakeAddonBook("A", "/a", plans = listOf("p.properties"))) }, fs)
+        repeat(3) { scanner.fonts() }
+        scanner.readingPlans()
+        assertEquals(1, calls, "repeated font scans must not re-query the installed books")
+        scanner.clearCaches()
+        scanner.fonts()
+        assertEquals(2, calls)
+    }
+
     @Test fun catalogClearCachesRequeriesBooksAndFiresPromptReloadedOnce() {
         var installed = listOf(fakeAddonBook("A", "/a", plans = listOf("one.properties")))
         val scanner = SharedAddonScanner({ installed }, fs)
