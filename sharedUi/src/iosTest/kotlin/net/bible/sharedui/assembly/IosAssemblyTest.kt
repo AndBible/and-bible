@@ -574,6 +574,9 @@ class IosAssemblyTest {
             // The one add-on scanner behind AddonCatalog, the prompt packs and the font catalog (#3970); a concrete
             // helper read by the iOS scheme handler, not a port of the shared graph.
             net.bible.sharedlogic.addons.SharedAddonScanner::class,
+            // Optional iOS-only seam (#3973) read through getOrNull by SharedBindings; Android has no binding, so it is
+            // deliberately not in IOS_BOUND_PORT_TYPES (IosPortParityTest would require it on Android).
+            net.bible.android.control.download.DownloadKeepAlive::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */
