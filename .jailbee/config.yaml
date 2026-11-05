@@ -15,6 +15,18 @@
 new:
   clone_from: local
 
+# Warm build outputs for HEAD forks (orchestrator children): btrfs reflinks of
+# the orchestrator's Git-ignored build outputs, so a child's first Gradle/npm run
+# is incremental instead of cold (a cold compile is 10-20 min). Only HEAD forks
+# are seeded; `--ref` forks (rework/review children) and dirty sources skip with
+# a note. The shared Gradle cache (`shared_caches`) still holds dependencies and
+# the task-output cache; these are the per-checkout outputs it does not cover.
+fork:
+  warm_paths:
+    - .gradle
+    - "*/build"
+    - app/bibleview-js/node_modules
+
 # ---------------------------------------------------------------------------
 # Resources
 # ---------------------------------------------------------------------------
