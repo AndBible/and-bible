@@ -200,6 +200,7 @@ object DesktopAppStartup {
         saveWorkspace: suspend (Koin) -> Unit = { HostWorkspaceSaver.saveNow(it) },
     ) {
         val koin = koinApp?.koin ?: return
+        if (!opened || !DatabaseContainer.ready) return
         try {
             val saved = runBlocking { withTimeoutOrNull(timeoutMs) { saveWorkspace(koin) } }
             if (saved == null) Log.w(TAG, "Workspace save did not finish within $timeoutMs ms before exit")
