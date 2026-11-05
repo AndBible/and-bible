@@ -3,6 +3,18 @@ package net.bible.sharedcore.search
 enum class SearchType { ALL_WORDS, ANY_WORDS, PHRASE }
 enum class SearchBibleSection { ALL, OLD_TESTAMENT, NEW_TESTAMENT, CURRENT_BOOK }
 
+/** Search intent handed to a reading host; origin is independent of the query syntax. */
+data class ReadingSearchRequest(
+    val query: String? = null,
+    val documentId: String? = null,
+    val translationIds: List<String> = emptyList(),
+    val strongsOrigin: Boolean = false,
+    val preDecorated: Boolean = false,
+    val section: SearchBibleSection? = null,
+    val type: SearchType? = null,
+    val epubMode: EpubSearchMode? = null,
+)
+
 /** A styled span of result text. Host builds these from the OSIS/JDOM Strong's walk; :sharedUi → AnnotatedString. */
 data class StyledRun(val text: String, val bold: Boolean = false, val highlight: Boolean = false)
 data class StyledText(val runs: List<StyledRun>) {

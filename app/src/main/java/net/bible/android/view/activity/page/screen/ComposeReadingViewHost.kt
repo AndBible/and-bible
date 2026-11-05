@@ -791,6 +791,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean =
         searchState.openSearchStrongs(ref, translationIds)
 
+    fun openSearchRequest(request: net.bible.sharedcore.search.ReadingSearchRequest, onAccepted: () -> Unit = {}): Boolean =
+        searchState.openRequest(request, onAccepted)
+
     /** The three-stage back for search; returns whether the press was consumed. */
     fun closeSearchIfOpen(): Boolean = searchState.closeSearchIfOpen()
 

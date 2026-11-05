@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalDensity
@@ -24,6 +27,7 @@ import kotlin.test.assertTrue
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedui.search.BibleResultsActions
+import net.bible.sharedui.search.SearchResultTargetActions
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowPaneMenuItem
@@ -236,6 +240,58 @@ class BarFontScaleCoverageTest {
         val underCap = textWidth(system, cap, title, bar)
         val noCap = textWidth(system, null, title, bar)
         assertEquals(noCap, underCap, "the translation chooser dialog must follow the system scale even though the bar is capped")
+    }
+
+    @Test
+    fun bibleResultsOverflowTogglesResultTargetWithoutInvokingBulkAction() = runComposeUiTest {
+        val strings = iosStrings("en")
+        var checked by mutableStateOf(false)
+        var bulkOpened = false
+        setContent {
+            Themed {
+                AbTopAppBar(title = {}, actions = {
+                    BibleResultsActions(
+                        candidates = emptyList(), selectedIds = emptyList(), selectedAbbreviations = "",
+                        scriptureToggleVisible = false, scriptureShown = true,
+                        onToggleScripture = {}, onOpenInWindow = { bulkOpened = true },
+                        onSelectTranslations = {}, openResultInLinksWindow = checked,
+                        onOpenResultInLinksWindowChange = { checked = it },
+                    )
+                })
+            }
+        }
+        onNodeWithContentDescription(strings.menu).performClick()
+        onNodeWithText(strings.openResultsInWindow).assertExists()
+        onNodeWithText(strings.openResultInLinksWindow).performClick()
+        waitForIdle()
+        assertTrue(checked)
+        assertTrue(!bulkOpened)
+        onNodeWithContentDescription(strings.menu).performClick()
+        onNodeWithText(strings.openResultInLinksWindow).performClick()
+        waitForIdle()
+        assertTrue(!checked)
+    }
+
+    @Test
+    fun epubResultsOverflowTogglesResultTargetWithoutBulkAction() = runComposeUiTest {
+        val strings = iosStrings("en")
+        var checked by mutableStateOf(false)
+        setContent {
+            Themed {
+                AbTopAppBar(title = {}, actions = {
+                    SearchResultTargetActions(checked, { checked = it })
+                })
+            }
+        }
+        onNodeWithContentDescription(strings.menu).performClick()
+        onNodeWithText(strings.openResultsInWindow).assertDoesNotExist()
+        onNodeWithText(strings.openResultInLinksWindow).performClick()
+        waitForIdle()
+        assertTrue(checked)
+        onNodeWithContentDescription(strings.menu).performClick()
+        onNodeWithText(strings.openResultInLinksWindow).performClick()
+        waitForIdle()
+        assertTrue(!checked)
     }
 
     /** Composes [content] and reports whether [text] is in the tree, optionally after [act]. */

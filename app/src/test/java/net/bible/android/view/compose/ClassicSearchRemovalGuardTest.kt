@@ -174,8 +174,8 @@ class ClassicSearchRemovalGuardTest {
      */
     @Test fun screenLauncherDoesNotBranchForSearch() = ClassicRemovalScan.assertLauncherArmsUnconditional(
         listOf(
-            "Screen.SearchIndexProgress", "Screen.SearchIndex", "Screen.SearchResults",
-            "Screen.Search", "Screen.EpubSearch", "Screen.EpubSearchResults",
+            "Screen.SearchIndexProgress", "Screen.SearchIndex",
+            "Screen.Search", "Screen.EpubSearch",
         ),
         "these search arms still branch on the flag (or are missing entirely) — S1 collapses " +
             "them to the Compose class unconditionally",

@@ -396,7 +396,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
         // meaningful intent with a meaningless one, and `savedStartRoute` only pins the START route,
         // not `getIntent()` itself, which `bootstrapIfNeeded` reads `openLink` off.
-        val route = intent.getStringExtra(EXTRA_ROUTE)?.let(::gatedReadingRoute) ?: return
+        val rawRoute = intent.getStringExtra(EXTRA_ROUTE) ?: return
+        val isSearchHandoff = rawRoute.substringBefore('?') == "reading/search"
+        val route = gatedReadingRoute(if (isSearchHandoff) NavRoutes.READING else rawRoute)
+        if (isSearchHandoff) pendingReadingSearchRoute = rawRoute
         val arrival = ++intentArrival
         setIntent(intent)
 
@@ -446,7 +449,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             return
         }
         navigateNewIntentRoute(route)
-        if (route == NavRoutes.READING) applyPendingDeepLinkIfForeground()
+        if (route == NavRoutes.READING) {
+            deliverPendingReadingSearch()
+            applyPendingDeepLinkIfForeground()
+        }
     }
 
     private fun navigateNewIntentRoute(route: String) {
@@ -468,6 +474,42 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * composition consumes it. Null whenever nothing is pending.
      */
     private var pendingNewIntentRoute: String? = null
+    private var pendingReadingSearchRoute: String? = null
+    private var deliveringReadingSearch: Any? = null
+    private var deliveringReadingSearchRoute: String? = null
+    private var deliveringReadingSearchHost: ComposeReadingViewHost? = null
+    private var deliveringReadingSearchArrival = 0L
+    private var readingResumeReady = false
+
+    internal fun requestReadingSearch(request: net.bible.sharedcore.search.ReadingSearchRequest): Boolean {
+        if (!::appHosts.isInitialized) return false
+        applyNewIntent(intentFor(this, NavRoutes.readingSearch(request)))
+        return true
+    }
+
+    private fun deliverPendingReadingSearch() {
+        if (paused || !readingResumeReady || !ReadingHostPresence.isForeground(this) || navController?.currentDestination?.route != NavRoutes.READING) return
+        val route = pendingReadingSearchRoute ?: return
+        val host = composeReadingViewHost ?: return
+        if (deliveringReadingSearchRoute == route && deliveringReadingSearchHost === host &&
+            deliveringReadingSearchArrival == intentArrival) return
+        val delivery = Any()
+        val arrival = intentArrival
+        deliveringReadingSearch = delivery
+        deliveringReadingSearchRoute = route
+        deliveringReadingSearchHost = host
+        deliveringReadingSearchArrival = intentArrival
+        // Keep the saved-state route until the host has accepted it, not merely started IO validation.
+        host.openSearchRequest(NavRoutes.readReadingSearch(route)) {
+            if (deliveringReadingSearch === delivery && pendingReadingSearchRoute == route && intentArrival == arrival) {
+                pendingReadingSearchRoute = null
+                deliveringReadingSearch = null
+                deliveringReadingSearchRoute = null
+                deliveringReadingSearchHost = null
+                intent?.removeExtra(EXTRA_ROUTE)
+            }
+        }
+    }
 
     /**
      * `launchSingleTop`: re-delivering a route whose destination is already on top must not stack a
@@ -484,7 +526,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun navigateToRoute(controller: NavHostController, route: String) {
         recordHistoryOnLeavingReading(route)
         try {
-            controller.navigate(route) { launchSingleTop = true }
+            controller.navigate(route) {
+                launchSingleTop = true
+                if (controller.currentDestination?.route == NavRoutes.READING_SEARCH_PATTERN) {
+                    popUpTo(NavRoutes.READING_SEARCH_PATTERN) { inclusive = true }
+                }
+            }
         } catch (e: IllegalArgumentException) {
             Log.w(TAG_NAV_HOST, "Ignoring an unroutable EXTRA_ROUTE: $route", e)
         }
@@ -1474,6 +1521,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
+        readingResumeReady = false
         paused = true
         // Fix batch 1 §2.1 (F93/F94): classic MainBibleActivity.onPause saved here (`47dc2f73f^`
         // :1872). Every reload path -- a new host, process death, resume-reclaim -- reads the DB, so
@@ -1541,8 +1589,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // this runs inline exactly as before.
         lifecycleScope.launch {
             if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+            if (paused || !ReadingHostPresence.isForeground(this@NavHostComposeActivity)) return@launch
+            readingResumeReady = true
             applyBootstrapUiIfForeground()
             applyPendingDeepLinkIfForeground()
+            deliverPendingReadingSearch()
             applyPendingActivityResult()
         }
     }
@@ -2598,6 +2649,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
+        pendingReadingSearchRoute?.let { outState.putString("pending_reading_search", it) }
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
         // `SettingsHost.maybeRecreateForSettingsKey` IS the recreate -- and `discrete_mode`, the key whose
         // launcher-alias swap only `preferenceSettingsChanged` performs, is one of its four.
@@ -2827,6 +2879,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // A state loss is recoverable; a launch crash loop is not.
         // After process death the system re-delivers the ORIGINAL launch intent; its link was already applied.
         if (savedInstanceState != null) intent.removeExtra("openLink")
+        val launchRoute = intent.getStringExtra(EXTRA_ROUTE)
+        pendingReadingSearchRoute = if (savedInstanceState != null) savedInstanceState.getString("pending_reading_search")
+            else launchRoute?.takeIf { it.substringBefore('?') == "reading/search" }
+        if (launchRoute?.substringBefore('?') == "reading/search") intent.putExtra(EXTRA_ROUTE, NavRoutes.READING)
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
@@ -2974,6 +3030,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { controller, destination, _ ->
+                        deliverPendingReadingSearch()
                         applyReadingReturnDebts(destination.route)
                         answerAbandonedReadingRequests(destination.route)
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
@@ -3043,6 +3100,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // 71-parameter list is two things to keep true where only one would ever
                             // be edited. R8 extracted it from `install` for exactly that reason.
                             val host = remember { readingViewHost() }
+                            LaunchedEffect(host) { deliverPendingReadingSearch() }
                             host.ReadingView()
                         },
                         onKey = { key -> readingViewKeyPressed(key) },
@@ -3052,6 +3110,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         // T8c: the answers this destination's own launches produce -- see
                         // `readingResultCollectors` and the block comment above it.
                         results = readingResultCollectors,
+                        onSearchHandoff = { request ->
+                            requestReadingSearch(request)
+                        },
                     )
                 }
                 AppRoot(

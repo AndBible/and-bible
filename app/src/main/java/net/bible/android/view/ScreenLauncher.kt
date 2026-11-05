@@ -34,7 +34,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
  * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
  * `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, SearchIndexProgress, SearchIndex, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, Search, EpubSearch, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -108,13 +108,6 @@ object ScreenLauncher {
         // Both of its callers (SearchControl.getSearchIntent, classic
         // SearchIndexProgressComposeActivity) build it with no extras.
         Screen.EpubSearch to NavRoutes.EPUB_SEARCH,
-        // Screen.SearchResults and Screen.EpubSearchResults are deliberately NOT here, again for
-        // Screen.RawLlmLog's reason: a results route with no searchText renders an empty search
-        // with nothing to run (and NavRoutes.epubSearchResults cannot even be called without one —
-        // its searchText parameter is non-null). Every real edge builds
-        // NavRoutes.searchResults(...)/epubSearchResults(...) with a query: the graph's own arms,
-        // and BibleView/LinkControl once Task 6 rewrites them.
-
         // — slice 6: the settings cluster (part A) —
         // The REFRESH_DISPLAY_ON_FINISH edge survives this row untouched: MenuCommandHandler.kt:182-186
         // launches Screen.Settings with that request code through startActivityForResult, and the
@@ -239,7 +232,6 @@ object ScreenLauncher {
         Screen.Calculator -> CalculatorComposeActivity::class.java
         Screen.SearchIndexProgress -> targetForMigratedScreen(screen)
         Screen.SearchIndex -> targetForMigratedScreen(screen)
-        Screen.SearchResults -> targetForMigratedScreen(screen)
         Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
         Screen.DailyReadingList -> targetForMigratedScreen(screen)
         Screen.ReadingPlan -> targetForMigratedScreen(screen)
@@ -251,7 +243,6 @@ object ScreenLauncher {
         Screen.Download -> targetForMigratedScreen(screen)
         Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
-        Screen.EpubSearchResults -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> targetForMigratedScreen(screen)
         Screen.CloudDocuments -> targetForMigratedScreen(screen)
@@ -289,43 +280,9 @@ object ScreenLauncher {
     }
 
     /**
-     * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
-     * has no Activity of its own: the ten AI screens (nav-graph Task 10), the reading-plan, search
-     * and settings clusters (nav-graph 3/5/6 Tasks 1-8), the bookmark cluster --
-     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7) -- and the seven nav-graph
-     * slice 4 destinations whose classic Activities Task 9 deleted: `MyDocuments` (Task 6's arm was
-     * already pointed here; the class itself was deleted only now), `MyDocumentPages`, `Download`,
-     * `CustomRepositories`, `CustomRepositoryEditor`, `ProgressStatus` and `CloudDocuments`.
-     * Thirty-four of these 43 arms reach the graph through [MIGRATED] via [intentFor]/[open]
-     * (and slice 8's ten -- the five choosers, `WorkspaceSelector`, `TextDisplaySettings`, `Backup`,
-     * `Startup` → WELCOME, `InstallZip`), so [intentFor] never falls through to [targetFor] for
-     * them; the other NINE -- `RawLlmLog`,
-     * `SearchResults`, `EpubSearchResults`, `SearchIndexProgress`, `LabelEdit`, `ManageLabels`,
-     * `MyDocumentPages`, `Download` and `CustomRepositoryEditor` -- are deliberately absent from
-     * [MIGRATED]. The first six: an argument-free route would render an empty screen with nothing
-     * to show (the first four) or the argument is required and non-null (the label pair, whose
-     * `data`/`ManageLabelsData` payload has no meaningful empty default). The last three, added by
-     * Task 9's deletion: `MyDocumentPages`'s route takes three REQUIRED arguments
-     * (documentId/documentInitials/documentName) with no empty default; `Download`'s route takes
-     * five arguments and every real caller needs to choose among them (firstDownload/addons/search/
-     * etc.), so a bare argument-free entry has no caller that actually wants it; and
-     * `CustomRepositoryEditor`'s `repositoryId` is OPTIONAL but its absence means "new repository",
-     * a meaning only the `CustomRepositories` arm's own `navigate(customRepositoryEditor(null))`
-     * call may supply deliberately. So reaching any of the nine by a bare [Screen] throws here
-     * instead. The label pair's six outside callers
-     * (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`, `CurrentGeneralBookPage`,
-     * `TextDisplaySettingsComposeActivity`) build
-     * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of
-     * going through [intentFor], for the same reason `RawLlmLog`'s callers already did (see
-     * `BibleJavascriptInterface.kt:1094`, `LinkControl.kt:428`, `SearchControl.kt:109`).
-     *
-     * This throws rather than returning a real class so that misuse (a future caller reintroducing
-     * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
-     * that no longer exists.
-     *
-     * The arms are kept as 43 SEPARATE arms -- never merged into one combined
-     * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
-     * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
+     * Reject direct Activity launches for graph-only screens. Keep a separate arm per screen so
+     * the removal guards can verify every retained entry point. Argument-bearing routes are built
+     * explicitly by their callers rather than given an argument-free alias in [MIGRATED].
      */
     private fun targetForMigratedScreen(screen: Screen): Nothing =
         error("$screen is fully migrated into the Compose nav graph; use MIGRATED/intentFor, not targetFor")

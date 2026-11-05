@@ -19,6 +19,7 @@
 package net.bible.sharedui.host.app
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentPage
 import net.bible.sharedcore.log.Log
@@ -44,22 +45,73 @@ object HostRootLinks {
     private var shell: HostNavShell? = null
     private var navigator: HostReadingNavigator? = null
     private var strongsSearch: ((String, List<String>) -> Boolean)? = null
+    private var openSearch: ((net.bible.sharedcore.search.ReadingSearchRequest) -> Boolean)? = null
+    private var pendingSearch: net.bible.sharedcore.search.ReadingSearchRequest? = null
+    private var pendingNeedsNavigation = false
+    private var active = false
+    private var requestReading: (() -> Boolean)? = null
 
     /** The app root registers its shell. */
     fun attachShell(shell: HostNavShell) {
         this.shell = shell
+        onDestinationChanged()
+    }
+
+    fun setActive(value: Boolean) {
+        active = value
+        if (active) onDestinationChanged()
+    }
+
+    fun setReadingNavigator(navigate: (() -> Boolean)?) {
+        requestReading = navigate
+        onDestinationChanged()
+    }
+
+    fun onDestinationChanged() {
+        if (!active) return
+        val currentShell = shell ?: return
+        if (pendingSearch == null) return
+        val route = currentShell.currentRoute.value ?: return
+        if (route == NavRoutes.READING) {
+            pendingNeedsNavigation = false
+            deliverPendingSearch()
+        } else if (pendingNeedsNavigation) {
+            val navigate = requestReading ?: return
+            pendingNeedsNavigation = false
+            if (!navigate()) pendingNeedsNavigation = true
+        }
     }
 
     /** The reading host registers what the ports need from it. */
-    fun attachReading(navigator: HostReadingNavigator, strongsSearch: (String, List<String>) -> Boolean) {
+    fun attachReading(navigator: HostReadingNavigator, strongsSearch: (String, List<String>) -> Boolean,
+                      openSearch: ((net.bible.sharedcore.search.ReadingSearchRequest) -> Boolean)? = null) {
         this.navigator = navigator
         this.strongsSearch = strongsSearch
+        attachSearch(openSearch)
+    }
+
+    internal fun attachSearch(open: ((net.bible.sharedcore.search.ReadingSearchRequest) -> Boolean)?) {
+        openSearch = open
+        deliverPendingSearch()
+    }
+
+    fun deliverPendingSearch() {
+        if (!active || shell?.currentRoute?.value != NavRoutes.READING) return
+        val request = pendingSearch ?: return
+        val open = openSearch ?: return
+        pendingSearch = null
+        open(request)
     }
 
     fun reset() {
         shell = null
         navigator = null
         strongsSearch = null
+        openSearch = null
+        pendingSearch = null
+        pendingNeedsNavigation = false
+        active = false
+        requestReading = null
     }
 
     private fun onMain(what: String, block: (HostNavShell) -> Unit) {
@@ -72,7 +124,18 @@ object HostRootLinks {
     }
 
     /** `LinkPlatform.openRoute`: Android starts the nav-host activity on [route]. */
-    fun openRoute(route: String) = onMain("openRoute($route)") { it.navigate(route) }
+    fun openRoute(route: String) {
+        if (route.substringBefore('?') != "reading/search") {
+            onMain("openRoute($route)") { it.navigate(route) }
+            return
+        }
+        val request = NavRoutes.readReadingSearch(route)
+        CoroutineScope(mainContext).launch {
+            pendingSearch = request
+            pendingNeedsNavigation = true
+            onDestinationChanged()
+        }
+    }
 
     /** `SpeakPlatform.bringReadingToFront`: pops back to the reading destination, or opens it. */
     fun bringReadingToFront() = onMain("bringReadingToFront") { it.openReading() }

@@ -80,6 +80,8 @@ class ReadingSearchController(
     private val isIndexing: (docId: String) -> Boolean = { false },
     /** Reattaches progress/completion observation without starting another build. */
     private val onObserveIndexing: (docId: String) -> Unit = {},
+    /** Return true when validation will resume this action asynchronously. */
+    private val deferSearch: (resume: () -> Unit) -> Boolean = { false },
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
     val phase: StateFlow<ReadingSearchPhase> = _phase.asStateFlow()
@@ -201,6 +203,7 @@ class ReadingSearchController(
                 requestFieldRelease()
                 if (isIndexing(kind.docId)) {
                     _phase.value = ReadingSearchPhase.Indexing(kind.docId, kind.forEpub)
+                    interceptedSearchDocId = kind.docId
                     // Attaching may resolve immediately; do not overwrite its sheet/IME decision.
                     onObserveIndexing(kind.docId)
                 } else {
@@ -273,6 +276,7 @@ class ReadingSearchController(
             return
         }
         if (keepIndexingInFlight()) return
+        if (deferSearch { submit() }) return
         when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> {
@@ -323,6 +327,7 @@ class ReadingSearchController(
         requestFieldRelease()
         indexPromptIsExplicit = false
         dropInterceptedSearch()
+        attachIfIndexing(docId, forEpub)
     }
 
     /**
@@ -344,6 +349,7 @@ class ReadingSearchController(
         requestFieldRelease()
         indexPromptIsExplicit = true
         resultTapPending = false
+        attachIfIndexing(docId, forEpub = false)
         return true
     }
 
@@ -362,15 +368,25 @@ class ReadingSearchController(
      * routing through the SAME phase, rather than adding a parallel "index this other document" path,
      * is what lets the existing indexing pipeline serve a document the active window isn't showing.
      */
-    fun promptIndexFor(docId: String, keepInterceptedSearch: Boolean = false): Boolean {
+    fun promptIndexFor(docId: String, keepInterceptedSearch: Boolean = false, preserveHidden: Boolean = false): Boolean {
         val forEpub = forEpubOf(_phase.value) ?: return false
         // A results-selector choice IS the whole search, so it drops an F100 interception; the host's
         // chain to the NEXT unindexed translation of an F100 prompt passes `true` to keep it.
         if (!keepInterceptedSearch) interceptedSearchDocId = null
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
-        _sheetVisible.value = true
-        requestFieldRelease()
+        if (!preserveHidden || _sheetVisible.value) {
+            _sheetVisible.value = true
+            requestFieldRelease()
+        }
         indexPromptIsExplicit = true
+        attachIfIndexing(docId, forEpub)
+        return true
+    }
+
+    private fun attachIfIndexing(docId: String, forEpub: Boolean): Boolean {
+        if (!isIndexing(docId)) return false
+        _phase.value = ReadingSearchPhase.Indexing(docId, forEpub)
+        onObserveIndexing(docId)
         return true
     }
 
@@ -404,6 +420,7 @@ class ReadingSearchController(
 
     fun acceptIndexing() {
         val p = _phase.value as? ReadingSearchPhase.NeedsIndex ?: return
+        if (attachIfIndexing(p.docId, p.forEpub)) return
         onStartIndexing(p.docId)
         _phase.value = ReadingSearchPhase.Indexing(p.docId, p.forEpub)
         _sheetVisible.value = true
@@ -472,7 +489,9 @@ class ReadingSearchController(
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
         if (keepIndexingInFlight()) return
-        when (val kind = searchKindFor(resolveDoc())) {
+        val kind = searchKindFor(resolveDoc())
+        if (deferSearch { settingsClosed() }) return
+        when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> promptIndexImplicitly(kind.docId, kind.forEpub)
             is SearchKind.Bible -> if (!promptForUnindexedSelection(kind.docId)) runSearch(kind.docId, false, q)

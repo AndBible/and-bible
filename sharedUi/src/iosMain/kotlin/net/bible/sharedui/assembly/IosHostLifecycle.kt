@@ -20,6 +20,8 @@ package net.bible.sharedui.assembly
 
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationState
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillResignActiveNotification
@@ -30,6 +32,9 @@ import platform.UIKit.UIApplicationWillResignActiveNotification
  */
 @kotlin.native.HiddenFromObjC
 object IosHostLifecycle : HostLifecycle {
+    override fun isActive(): Boolean =
+        UIApplication.sharedApplication.applicationState == UIApplicationState.UIApplicationStateActive
+
     /** The UIKit notification behind [event]. */
     internal fun notificationName(event: HostLifecycleEvent): String? = when (event) {
         HostLifecycleEvent.Active -> UIApplicationDidBecomeActiveNotification

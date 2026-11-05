@@ -1,5 +1,10 @@
 package net.bible.sharedcore.nav
 
+import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.ReadingSearchRequest
+import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchType
+
 /**
  * Routes for the Compose navigation graph (`:sharedUi`'s `NavHost`), and the typed builders that
  * are the ONLY sanctioned way to construct one.
@@ -126,6 +131,42 @@ object NavRoutes {
         return plan to arguments[ARG_DAY]?.toIntOrNull()
     }
 
+    // A non-empty prefix makes an empty seed distinct from an absent query even in Navigation.
+    const val READING_SEARCH_PATTERN = "reading/search?request={request}"
+
+    fun readingSearch(request: ReadingSearchRequest): String {
+        val fields = listOf(
+            request.query, request.documentId, request.translationIds.joinToString(",") { "1" + encodeArg(it) },
+            request.strongsOrigin.toString(), request.preDecorated.toString(), request.section?.name,
+            request.type?.name, request.epubMode?.name,
+        )
+        val payload = fields.joinToString("/") { if (it == null) "0" else "1" + encodeArg(it) }
+        return "reading/search?request=${encodeArg(payload)}"
+    }
+
+    fun readReadingSearch(route: String): ReadingSearchRequest {
+        return decodeReadingSearchArgument(decodeArg(requireNotNull(routeArguments(route)["request"])))
+    }
+
+    /** Decodes the argument after Navigation has removed the outer URI encoding. */
+    fun decodeReadingSearchArgument(payload: String): ReadingSearchRequest {
+        val fields = payload.split('/').map { field ->
+            require(field.startsWith('0') || field.startsWith('1'))
+            if (field == "0") null else decodeArg(field.substring(1))
+        }
+        require(fields.size == 8)
+        return ReadingSearchRequest(
+            query = fields[0], documentId = fields[1],
+            translationIds = fields[2]?.takeIf { it.isNotEmpty() }?.split(',')?.map {
+                require(it.startsWith('1'))
+                decodeArg(it.substring(1))
+            } ?: emptyList(),
+            strongsOrigin = fields[3].toBoolean(), preDecorated = fields[4].toBoolean(),
+            section = fields[5]?.let(SearchBibleSection::valueOf), type = fields[6]?.let(SearchType::valueOf),
+            epubMode = fields[7]?.let(EpubSearchMode::valueOf),
+        )
+    }
+
     // ——— slice 5: Search ———
     const val ARG_SEARCH_TEXT: String = "searchText"
     const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
@@ -135,7 +176,7 @@ object NavRoutes {
     const val ARG_SEARCH_TYPE: String = "searchType"
     const val ARG_SEARCH_SECTION: String = "searchSection"
     const val ARG_BIBLE_BOOK: String = "bibleBook"
-    const val ARG_EPUB_SEARCH_MODE: String = "epubMode"
+    const val ARG_READING_SEARCH_REQUEST: String = "readingSearchRequest"
 
     const val EPUB_SEARCH: String = "search/epub"
     const val SEARCH_FORM_PATTERN: String =
@@ -143,28 +184,20 @@ object NavRoutes {
             "&$ARG_SEARCH_TYPE={$ARG_SEARCH_TYPE}" +
             "&$ARG_SEARCH_SECTION={$ARG_SEARCH_SECTION}" +
             "&$ARG_BIBLE_BOOK={$ARG_BIBLE_BOOK}"
-    const val SEARCH_RESULTS_PATTERN: String =
-        "search/results?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
-            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
     const val SEARCH_INDEX_PATTERN: String =
         "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
             "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
             "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
             "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
+            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
     const val SEARCH_INDEX_PROGRESS_PATTERN: String =
         "search/indexProgress?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
             "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
             "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
             "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
-            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
-    const val EPUB_SEARCH_RESULTS_PATTERN: String =
-        "search/epubResults?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
-            "&$ARG_EPUB_SEARCH_MODE={$ARG_EPUB_SEARCH_MODE}" +
-            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}"
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}" +
+            "&$ARG_READING_SEARCH_REQUEST={$ARG_READING_SEARCH_REQUEST}"
 
     fun searchForm(
         searchText: String? = null,
@@ -178,21 +211,14 @@ object NavRoutes {
         optional(ARG_BIBLE_BOOK, bibleBook)
     }
 
-    fun searchResults(
-        searchText: String,
-        highlightText: String? = null,
-        searchDocument: String? = null,
-        selectedTranslations: List<String> = emptyList(),
-        isStrongsSearch: Boolean = false,
-    ): String = searchChainRoute("search/results", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
-
     fun searchIndex(
         searchText: String? = null,
         highlightText: String? = null,
         searchDocument: String? = null,
         selectedTranslations: List<String> = emptyList(),
         isStrongsSearch: Boolean = false,
-    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+        readingRequest: ReadingSearchRequest? = null,
+    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
 
     fun searchIndexProgress(
         searchText: String? = null,
@@ -200,21 +226,10 @@ object NavRoutes {
         searchDocument: String? = null,
         selectedTranslations: List<String> = emptyList(),
         isStrongsSearch: Boolean = false,
-    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+        readingRequest: ReadingSearchRequest? = null,
+    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch, readingRequest)
 
-    fun epubSearchResults(searchText: String, epubMode: String? = null, searchDocument: String? = null): String =
-        buildRoute("search/epubResults") {
-            required(ARG_SEARCH_TEXT, searchText)
-            optional(ARG_EPUB_SEARCH_MODE, epubMode)
-            optional(ARG_SEARCH_DOCUMENT, searchDocument)
-        }
-
-    /**
-     * The five arguments the classic `SearchIndex -> SearchIndexProgress -> SearchResults` chain
-     * forwarded as an opaque `putExtras(intent)` bundle (plan D3). Naming them here is what makes
-     * the chain's third hop keep the scope the first hop was given: a route has no bundle, so an
-     * argument nobody names is an argument silently lost.
-     */
+    /** Legacy index arguments plus the complete reading-search payload, when continuing a form submission. */
     private fun searchChainRoute(
         base: String,
         searchText: String?,
@@ -222,7 +237,9 @@ object NavRoutes {
         searchDocument: String?,
         selectedTranslations: List<String>,
         isStrongsSearch: Boolean,
+        readingRequest: ReadingSearchRequest?,
     ): String = buildRoute(base) {
+        optional(ARG_READING_SEARCH_REQUEST, readingRequest?.let(::readingSearch))
         optional(ARG_SEARCH_TEXT, searchText)
         optional(ARG_SEARCH_HIGHLIGHT_TEXT, highlightText)
         optional(ARG_SEARCH_DOCUMENT, searchDocument)

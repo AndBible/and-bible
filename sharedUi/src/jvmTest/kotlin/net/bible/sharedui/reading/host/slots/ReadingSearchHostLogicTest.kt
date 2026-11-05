@@ -691,6 +691,49 @@ class ReadingSearchHostLogicTest {
     }
 
     @Test
+    fun checkedResultTargetOpensLinksWindowAndBackReopensResults() {
+        val f = SearchFixture()
+        val book = fakeSearchBook("ESV")
+        f.platform.documents["ESV"] = book
+        try {
+            f.state.openSearch("light")
+            f.state.setOpenResultInLinksWindow(true)
+            f.state.onSearchResultSelected("Genesis 1:3", "ESV")
+            assertTrue(f.platform.shown.isEmpty())
+            assertEquals(book, f.platform.singleLinksShown.single().first)
+            assertEquals("Genesis 1:3", f.platform.singleLinksShown.single().second.getName())
+            assertFalse(f.state.controller.sheetVisible.value)
+            assertTrue(f.state.controller.reopenResultsOnBack())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun epubResultsUseTypedTargetPreferenceAndReopenAfterEitherRoute() {
+        val f = SearchFixture()
+        val book = fakeSearchBook("EPUB")
+        f.platform.current = book
+        f.platform.documents["EPUB"] = book
+        f.platform.info = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+        try {
+            f.state.openSearch("light")
+            assertEquals(ReadingSearchPhase.Results("EPUB", true), f.state.controller.phase.value)
+            f.state.onEpubSearchResultSelected("EPUB:chapter1", 7)
+            assertEquals(book, f.platform.shown.single().first)
+            assertEquals(7, (f.platform.shown.single().second as net.bible.service.sword.BookAndKey).ordinal?.start)
+            assertTrue(f.platform.singleLinksShown.isEmpty())
+            assertFalse(f.state.controller.sheetVisible.value)
+            assertTrue(f.state.controller.reopenResultsOnBack())
+            f.state.setOpenResultInLinksWindow(true)
+            f.state.onEpubSearchResultSelected("EPUB:chapter1", 7)
+            assertEquals(book, f.platform.singleLinksShown.single().first)
+            assertEquals(7, (f.platform.singleLinksShown.single().second as net.bible.service.sword.BookAndKey).ordinal?.start)
+            assertEquals(1, f.platform.shown.size)
+            assertFalse(f.state.controller.sheetVisible.value)
+            assertTrue(f.state.controller.reopenResultsOnBack())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
     fun resultSelectionForAnUnresolvableTranslationNavigatesNowhere() {
         val f = SearchFixture()
         f.state.openSearch()

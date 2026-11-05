@@ -18,6 +18,7 @@ package net.bible.sharedui.reading.host.slots
 
 import java.lang.reflect.Proxy
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import net.bible.sharedcore.platform.AppSettings
@@ -38,18 +39,19 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 
-/** In-memory [AppSettings]; only strings are stored (the search state persists nothing else). */
+/** In-memory settings shared by search state instances in tests. */
 class MapSearchSettings(val strings: MutableMap<String, String?> = mutableMapOf()) : AppSettings {
+    val booleans = mutableMapOf<String, Boolean>()
     override fun getString(key: String, default: String?) = strings[key] ?: default
     override fun getLong(key: String, default: Long) = default
     override fun getInt(key: String, default: Int) = default
-    override fun getBoolean(key: String, default: Boolean) = default
+    override fun getBoolean(key: String, default: Boolean) = booleans[key] ?: default
     override fun getDouble(key: String, default: Double) = default
     override fun getFloat(key: String, default: Float) = default
     override fun setString(key: String, value: String?) { strings[key] = value }
     override fun setLong(key: String, value: Long?) = Unit
     override fun setInt(key: String, value: Int?) = Unit
-    override fun setBoolean(key: String, value: Boolean?) = Unit
+    override fun setBoolean(key: String, value: Boolean?) { if (value == null) booleans.remove(key) else booleans[key] = value }
     override fun setDouble(key: String, value: Double?) = Unit
     override fun setFloat(key: String, value: Float?) = Unit
 }
@@ -94,9 +96,11 @@ class FakeSearchPlatform : ReadingSearchPlatform {
     var current: Book? = fakeSearchBook("KJV")
     var info: SearchDocumentInfo? = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, isEpub = false, indexDone = true)
     val documents = mutableMapOf<String, Book>()
+    val documentInfos = mutableMapOf<String, SearchDocumentInfo>()
     var bibles: List<Pair<String, String>> = listOf("KJV" to "KJV")
     var referenceOpens = false
     val shown = mutableListOf<Pair<Book, Key>>()
+    val singleLinksShown = mutableListOf<Pair<Book, Key>>()
     val linkWindows = mutableListOf<BookAndKeyList>()
 
     override fun currentDocument() = current
@@ -105,14 +109,15 @@ class FakeSearchPlatform : ReadingSearchPlatform {
     val notMarkedIndexed = mutableSetOf<String>()
     override fun documentInfo(book: Book?) = when {
         book == null -> null
-        book.initials in notMarkedIndexed -> info?.copy(indexDone = false)
-        else -> info
+        book.initials in notMarkedIndexed -> (documentInfos[book.initials] ?: info)?.copy(indexDone = false)
+        else -> documentInfos[book.initials] ?: info
     }
     override fun documentByInitials(initials: String) = documents[initials]
     override fun swordBookByInitials(initials: String) = documents[initials]
     override fun installedBibles() = bibles
     override fun tryOpenReference(query: String) = referenceOpens
     override fun showInActiveWindow(book: Book, key: Key) { shown += book to key }
+    override fun showInLinksWindow(book: Book, key: Key) { singleLinksShown += book to key }
     override fun showInLinksWindow(list: BookAndKeyList) { linkWindows += list }
 }
 
@@ -148,6 +153,11 @@ class FakeBibleSearch(var unindexed: Set<String> = emptySet()) : BibleSearchServ
     val persisted = mutableListOf<List<String>>()
     /** Every argument [unindexedAmong] (the full index validation) was asked about. */
     val unindexedQueries = mutableListOf<List<String>>()
+    val strongsQueries = mutableListOf<List<String>>()
+    override fun unindexedStrongsAmong(translationIds: List<String>): List<String> {
+        strongsQueries += translationIds
+        return translationIds.filter { it in unindexed }
+    }
     override fun validateIndex(request: SearchRequest) = true
     override fun decorate(request: SearchRequest) = request.query
     override suspend fun searchMulti(request: SearchRequest) = MultiSearchResults.EMPTY
@@ -181,6 +191,7 @@ class SearchFixture(
     val settings: MapSearchSettings = MapSearchSettings(),
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined),
     val pollPause: suspend () -> Unit = {},
+    indexValidationDispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
     indexJobs: SearchIndexJobs = jobs,
 ) {
     var leftFullScreen = 0
@@ -192,5 +203,6 @@ class SearchFixture(
         services = ReadingSearchServices(bible, FakeEpubSearch(), SearchResultsCache(), index),
         onLeaveFullScreen = { leftFullScreen++ },
         pollPause = pollPause,
+        indexValidationDispatcher = indexValidationDispatcher,
     )
 }

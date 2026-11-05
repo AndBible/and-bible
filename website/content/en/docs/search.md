@@ -9,9 +9,21 @@ Its availability follows the active window's document. If Find is greyed out for
 non-searchable document, select a Bible window or choose a searchable document;
 Find becomes available again.
 
-Search results appear in a sheet on top of the reading text, like a dialog; it does not
-add a bottom margin to the reading windows. Tap a result to close the sheet and open
-the passage. Press Back to return to the results list.
+All searches open their results in the reading view's search sheet, including searches
+started from selected text, a Strong's link, or another screen. There is no separate
+full-screen results screen. The sheet appears on top of the reading text, like a dialog;
+it does not add a bottom margin to the reading windows. Tap a result to hide the sheet
+and open the passage. Press Back to return to the results list.
+
+In the results sheet's overflow menu, **Open result in links window** controls where an
+individual result opens. When checked, the result opens in the links window; when unchecked,
+it opens in the active window. This choice takes precedence over the general Links window
+setting. Strong's-link searches default to the links window, while searches you type default
+to the active window (including a Strong's number you type yourself). AndBible remembers your
+choice separately for these two kinds of search.
+
+The separate **Open results in a window** action still opens the whole Bible result list
+in a reading window; it does not change the destination of individual result taps.
 
 Tap the **X in the results
 sheet** to hide the results without leaving search mode; the **X in the search
@@ -133,6 +145,17 @@ The default that is used if the parameter is not given is 0.5, so `believe~` is 
 
 Use `strong:` followed by a Strong's number to find verses where that number appears. For example
 `strong:h7225` finds Hebrew word H7225, and `strong:g746` finds Greek word G746.
+
+You can also choose **Find all occurrences** from a Strong's definition or dictionary link.
+The results open in the same reading-view search sheet, even if the active window displays a
+dictionary, an EPUB, or a different Bible. The search uses the selected Strong's-enabled Bible
+translations, not the document you happen to be reading.
+
+If a selected translation needs a usable Strong's search index, the sheet asks to index that
+translation by name and shows its progress. With several selected translations, it asks for
+any remaining indexes before running the waiting search automatically. Hiding progress does
+not cancel indexing. A failed build stays in the search sheet so you can retry; cancelling an
+index prompt leaves search without opening a separate results screen.
 
 ### Not supported
 

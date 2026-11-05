@@ -488,6 +488,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val create: String get() = context.getString(R.string.index_create)
     override val rebuildIndex: String get() = context.getString(R.string.rebuild_index)
     override val openResultsInWindow: String get() = context.getString(R.string.open_in_window)
+    override val openResultInLinksWindow: String get() = context.getString(R.string.open_result_in_links_window)
     override fun createIndexFor(documentName: String): String =
         context.getString(R.string.create_index_for, documentName)
     override fun rebuildIndexFor(documentName: String): String =

@@ -220,35 +220,13 @@ class NavHostRoutingGuardTest {
         assertEquals(NavRoutes.EPUB_SEARCH, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
     }
 
-    /**
-     * A second slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows] — see
-     * [searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt] for the full reasoning
-     * and for why Task 9 turned this into the `assertFailsWith` form.
-     *
-     * `Screen.SearchResults` specifically: a results route with no `searchText` has nothing to
-     * search for. Every real edge builds `NavRoutes.searchResults(...)` with a query (the graph's
-     * `SEARCH_FORM_PATTERN`/`SEARCH_INDEX_PROGRESS_PATTERN` arms; `BibleView` and `LinkControl`
-     * since Task 6), bypassing this map.
-     */
     @Test
-    fun searchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
-        assertTrue(Screen.SearchResults !in ScreenLauncher.MIGRATED)
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchResults) }
-    }
-
-    /**
-     * The EPUB twin of [searchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt], and for the
-     * same reason: `NavRoutes.EPUB_SEARCH_RESULTS_PATTERN`'s `searchText` is REQUIRED
-     * (`NavRoutes.epubSearchResults` takes it as a non-null parameter), so there is no argument-free
-     * route to map here even in principle. Every real edge builds one with a query — the graph's
-     * `EPUB_SEARCH` arm on submit, and its `SEARCH_INDEX_PROGRESS_PATTERN` arm after an epub index
-     * completes. Task 9 converted this to the `assertFailsWith<IllegalStateException>` form when it
-     * deleted `EpubSearchResultsComposeActivity`.
-     */
-    @Test
-    fun epubSearchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
-        assertTrue(Screen.EpubSearchResults !in ScreenLauncher.MIGRATED)
-        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.EpubSearchResults) }
+    fun standaloneResultsAreNotScreenLauncherTargets() {
+        assertFalse(Screen.entries.any { it.name in setOf("SearchResults", "EpubSearchResults") })
+        val bases = registeredRoutePatterns().map { it.substringBefore('?') }
+        assertFalse("search/results" in bases)
+        assertFalse("search/epubResults" in bases)
+        assertTrue(NavRoutes.READING_SEARCH_PATTERN in registeredRoutePatterns())
     }
 
     @Test
@@ -707,7 +685,7 @@ class NavHostRoutingGuardTest {
      *    never produces. A real precedent already exists in the tree:
      *    `app/src/main/java/net/bible/android/view/activity/page/BibleView.kt` spreads
      *    `ScreenLauncher.intentFor(` across several lines with the screen chosen by an `if`
-     *    expression (not a live miss today — `Screen.SearchIndex`/`Screen.SearchResults` aren't
+     *    expression (not a live miss today — `Screen.SearchIndex` aren't
      *    migrated yet — but it WILL be, in a later slice). Fixed by locating each call by its own
      *    `(` / matching `)` (brace-balance, reusing the same technique as the `.apply` block scan)
      *    rather than by a marker glued to one particular argument.
@@ -737,7 +715,7 @@ class NavHostRoutingGuardTest {
      *    one of them searched literally for `"putExtra("` / `\.putExtra\s*\(`, and the character
      *    after `putExtra` in `putExtras(` is `s`, not `(`. Live today:
      *    `LinkControl.kt`'s `intent.putExtras(searchParams)` after a plain assignment, targeting
-     *    `Screen.SearchIndex`/`Screen.SearchResults` (not migrated yet, so not a live BUG today --
+     *    `Screen.SearchIndex` (not migrated yet, so not a live BUG today --
      *    but the guard existed to catch exactly this shape the day one of those screens migrates,
      *    and it silently would not have). Fixed by giving every check the shared
      *    [PUT_EXTRA_METHODS] alternation (`putExtras?`) instead of the bare singular name — see its
@@ -1142,6 +1120,17 @@ class NavHostRoutingGuardTest {
                 "nobody reads and silently dropped -- see this test's kdoc. Offenders:\n" +
                 offenders.joinToString("\n"),
         )
+    }
+
+    @Test
+    fun searchGraphRoutesResultsToReadingInsteadOfStandaloneDestinations() {
+        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
+        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
+        val source = withoutComments(graph.readText())
+        assertTrue(source.contains("NavRoutes.readingSearch("), "search continuations must use the reading handoff")
+        for (removed in listOf("NavRoutes.SEARCH_RESULTS_PATTERN", "NavRoutes.EPUB_SEARCH_RESULTS_PATTERN", "NavRoutes.searchResults(", "NavRoutes.epubSearchResults(", "SearchResultsDeps", "EpubSearchResultsDeps", "SearchResultsScreen", "EpubSearchResultsScreen")) {
+            assertFalse(source.contains(removed), "standalone results route remains: $removed")
+        }
     }
 
     /**

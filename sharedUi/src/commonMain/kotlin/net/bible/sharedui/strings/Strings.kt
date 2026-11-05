@@ -504,6 +504,7 @@ interface Strings {
     val create: String
     val rebuildIndex: String
     val openResultsInWindow: String
+    val openResultInLinksWindow: String
     fun createIndexFor(documentName: String): String
     fun rebuildIndexFor(documentName: String): String
     val rebuildIndexButton: String

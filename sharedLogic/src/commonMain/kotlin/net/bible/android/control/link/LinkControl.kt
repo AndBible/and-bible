@@ -39,11 +39,8 @@ import net.bible.service.sword.bookAndKeyListOf
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Passage
@@ -53,7 +50,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import okio.FileNotFoundException
 import net.bible.sharedlogic.util.decodeUrl
 
 
@@ -347,84 +343,21 @@ class LinkControl constructor(
         val selection = remembered.ifEmpty { listOf(strongsBible) }
         val searchBible = selection.first()
 
-        // The document that will actually be searched must be indexed with Strong's numbers;
-        // otherwise route to SearchIndex to build the index (rather than silently returning
-        // "0 verses").
-        val needToIndex = !checkStrongs(searchBible)
-        if (needToIndex) {
-            Log.i(TAG, "Index status is NOT DONE")
-        }
-
-        // F6 Task 8b entry point 8: retarget into the reading view's search when a Compose host is
-        // mounted AND the search document is already indexed. Classic's not-indexed branch is kept
-        // unconditionally below — prompting for an index of a document other than the active
-        // window's is Task 11's machinery, which does not exist yet.
-        //
-        // Recorded Plan-A gap (review item C): `checkStrongs(searchBible)` above checks the
-        // RESOLVED Strong's Bible (the remembered/auto-detected translation), but
-        // `ReadingSearchController.open` derives its `NeedsIndex`/`Results` phase from the ACTIVE
-        // WINDOW's document (`ComposeReadingViewHost.searchController`'s `resolveDoc`, which reads
-        // `activity.documentControl.currentDocument`). If the Bible being READ is unindexed while
-        // the remembered Strong's Bible is indexed (the case just above returns `true` and this
-        // branch is taken), the reading view can raise an "index this document?" prompt for the
-        // READ document — which is not the one this find-all is actually about — instead of running
-        // immediately. Not fixed here: the same "index a document other than the active window's"
-        // gap Task 11 exists for.
-        if (!needToIndex && platform.searchStrongsInReadingView(ref, selection.map { it.initials })) {
-            return
-        }
-
-        // The below uses ANY_WORDS because that does not add anything to the search string
-		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-        // Section-less decorated query for highlighting result previews (mirrors Search.kt); shows
-        // which word the Strong's number matched.
-        val highlightText = searchControl.highlightSearchString("strong:$ref", SearchType.ANY_WORDS)
-        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
-        Log.i(TAG, "Search text:$searchText")
-        // nav-graph slice 5/Task 6: the search cluster lives in the graph, so every argument
-        // travels IN the route. This used to build a four-key Bundle plus a fifth
-        // putStringArrayListExtra and hang them on `ScreenLauncher.intentFor(..., Screen
-        // .SearchIndex/SearchResults)`; since Task 4 migrated `Screen.SearchIndex` that intent is
-        // the nav host with an ARGUMENT-FREE route and every one of those extras was silently
-        // dropped -- a Strong's link into an unindexed module indexed the CURRENT page's book
-        // instead of `searchBible` and then landed on an empty search form. `isStrongsSearch` is
-        // unconditionally true here (that is what this whole function is).
-        // (else branch = an indexed Strong's module is in place, so run the search directly --
-        // the normal situation.)
-        val route = if (needToIndex) {
-            NavRoutes.searchIndex(
-                searchText = searchText,
-                highlightText = highlightText,
-                searchDocument = searchBible.initials,
-                selectedTranslations = selection.map { it.initials },
-                isStrongsSearch = true,
-            )
-        } else {
-            NavRoutes.searchResults(
-                searchText = searchText,
-                highlightText = highlightText,
-                searchDocument = searchBible.initials,
-                selectedTranslations = selection.map { it.initials },
-                isStrongsSearch = true,
-            )
-        }
-        platform.openRoute(route)
+        val request = net.bible.sharedcore.search.ReadingSearchRequest(
+            query = "strong:$ref",
+            documentId = searchBible.initials,
+            translationIds = selection.map { it.initials },
+            strongsOrigin = true,
+            section = when (bibleSection) {
+                SearchBibleSection.ALL -> net.bible.sharedcore.search.SearchBibleSection.ALL
+                SearchBibleSection.OT -> net.bible.sharedcore.search.SearchBibleSection.OLD_TESTAMENT
+                SearchBibleSection.NT -> net.bible.sharedcore.search.SearchBibleSection.NEW_TESTAMENT
+                SearchBibleSection.CURRENT_BOOK -> net.bible.sharedcore.search.SearchBibleSection.CURRENT_BOOK
+            },
+        )
+        if (!platform.openSearchInReadingView(request)) platform.openRoute(NavRoutes.readingSearch(request))
     }
 
-    /** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers
-     */
-    private fun checkStrongs(bible: Book): Boolean {
-        return try {
-            bible.indexStatus == IndexStatus.DONE &&
-                (bible.find("+[Gen 1:1] strong:h7225")!!.getCardinality() > 0 || bible.find("+[John 1:1] strong:g746")!!.getCardinality() > 0 || bible.find("+[Gen 1:1] strong:g746")!!.getCardinality() > 0)
-        } catch (be: BookException) {
-            Log.e(TAG, "Error checking strongs numbers", be)
-            false
-        } catch (e: FileNotFoundException) {
-            Log.e(TAG, "Error checking strongs numbers", e)
-            false
-        }
-    }
     fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
         val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
         return SwordContentFacade.resolveRef(searchRef, searchDoc.language.code, searchDoc.versification)

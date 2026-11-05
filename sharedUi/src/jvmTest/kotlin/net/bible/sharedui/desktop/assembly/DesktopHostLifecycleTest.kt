@@ -26,6 +26,21 @@ import kotlin.test.assertEquals
 class DesktopHostLifecycleTest {
     private val all = listOf(Active, ResignActive, Background)
 
+    @Test fun snapshotReflectsStateBeforeAndAfterAttachment() {
+        val lifecycle = DesktopHostLifecycle()
+        assertEquals(false, lifecycle.isActive())
+        lifecycle.onWindowActivated()
+        assertEquals(true, lifecycle.isActive(), "late observer must see the current active state")
+        val snapshots = mutableListOf<Boolean>()
+        lifecycle.observe(all) { snapshots += lifecycle.isActive() }
+        lifecycle.onWindowDeactivated()
+        assertEquals(false, lifecycle.isActive())
+        lifecycle.onWindowActivated()
+        assertEquals(listOf(false, true), snapshots, "state updates before callbacks")
+        lifecycle.onExit()
+        assertEquals(false, lifecycle.isActive())
+    }
+
     @Test fun windowCloseSendsResignThenBackground() {
         val lifecycle = DesktopHostLifecycle()
         val seen = mutableListOf<HostLifecycleEvent>()

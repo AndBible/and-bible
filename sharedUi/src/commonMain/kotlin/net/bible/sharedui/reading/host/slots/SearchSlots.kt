@@ -27,6 +27,7 @@ import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.PollOutcome
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedui.search.BibleResultsActions
+import net.bible.sharedui.search.SearchResultTargetActions
 import net.bible.sharedui.search.BibleSearchSettings
 import net.bible.sharedui.search.EpubSearchSettings
 import net.bible.sharedui.search.SearchIndexPanel
@@ -121,6 +122,7 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
         return
     }
     val resultsPhase = phase as? ReadingSearchPhase.Results ?: return
+    val openResultInLinksWindow by state.openResultInLinksWindow.collectAsState()
     if (resultsPhase.forEpub) {
         val loading by state.epubSearchResults.loading.collectAsState()
         val rows by state.epubSearchResults.results.collectAsState()
@@ -142,7 +144,9 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
             listState = state.searchResultsListState.value,
             onDismissError = state.epubSearchResults::dismissError,
             onClose = { controller.closeSheet() },
-            actions = {},
+            actions = {
+                SearchResultTargetActions(openResultInLinksWindow, state::setOpenResultInLinksWindow)
+            },
         ) {
             epubResultRows(rows = rows, onSelect = state.epubSearchResults::select)
         }
@@ -178,6 +182,8 @@ internal fun SearchSheetSlotContent(state: ReadingSearchState, strings: Strings)
                 scriptureShown = scriptureShown,
                 onToggleScripture = searchResults::toggleScripture,
                 onOpenInWindow = state::openSearchResultsInWindow,
+                openResultInLinksWindow = openResultInLinksWindow,
+                onOpenResultInLinksWindowChange = state::setOpenResultInLinksWindow,
                 onSelectTranslations = { ids -> state.onSearchTranslationsChosen(ids) },
             )
         },

@@ -20,13 +20,24 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.ReadingSearchPhase
+import net.bible.sharedcore.search.SearchDocumentCategory
+import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedcore.search.ProgressJob
+import org.crosswire.jsword.index.IndexStatus
 
 class ReadingSearchStateTest {
     private class MapSettings(val strings: MutableMap<String, String?> = mutableMapOf()) : AppSettings {
@@ -93,6 +104,592 @@ class ReadingSearchStateTest {
         settings.strings["epubSearch-SearchType"] = "ANY_WORDS"
         s.reloadEpubSearchMode()
         assertEquals(EpubSearchMode.ANY_WORD, s.epubSearchMode.value)
+    }
+
+    private fun assertStrongsTargetsSelectedBible(active: SearchDocumentInfo) {
+        val f = SearchFixture()
+        val kjv = fakeSearchBook("KJV")
+        val activeBook = fakeSearchBook(active.docId)
+        f.platform.current = activeBook
+        f.platform.documents[active.docId] = activeBook
+        f.platform.documents["KJV"] = kjv
+        f.platform.documentInfos[active.docId] = active
+        f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), f.state.controller.phase.value)
+            assertTrue(f.state.searchSheetVisible.value)
+            assertEquals(listOf("KJV"), f.state.searchResults.selectedTranslations.value)
+            val request = assertNotNull(f.state.lastSearchRequestForTest)
+            assertEquals(listOf("KJV"), request.translationIds)
+            assertEquals("strong:H430", request.query)
+            assertEquals(SearchType.ANY_WORDS, request.searchType)
+            assertEquals(SearchBibleSection.ALL, request.bibleSection)
+            assertTrue(request.isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun strongsSearchUsesSelectedBibleWhenDictionaryIsActive() =
+        assertStrongsTargetsSelectedBible(SearchDocumentInfo("DICT", SearchDocumentCategory.DICTIONARY, false, true))
+
+    @Test
+    fun strongsSearchUsesSelectedBibleWhenEpubIsActive() =
+        assertStrongsTargetsSelectedBible(SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true))
+
+    @Test
+    fun strongsSearchUsesSelectedBibleWhenAnotherUnindexedBibleIsActive() =
+        assertStrongsTargetsSelectedBible(SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false))
+
+    private fun strongsFixture(fixture: SearchFixture = SearchFixture()): SearchFixture = fixture.also { f ->
+        val dictionary = fakeSearchBook("DICT")
+        f.platform.current = dictionary
+        f.platform.documents["DICT"] = dictionary
+        f.platform.documentInfos["DICT"] = SearchDocumentInfo("DICT", SearchDocumentCategory.DICTIONARY, false, true)
+        for (id in listOf("KJV", "ESV")) {
+            f.platform.documents[id] = fakeSearchBook(id)
+            f.platform.documentInfos[id] = SearchDocumentInfo(id, SearchDocumentCategory.BIBLE, false, true)
+        }
+        f.platform.bibles = listOf("KJV" to "KJV", "ESV" to "ESV")
+    }
+
+    @Test
+    fun scopedStrongsHandoffRunsOldTestamentSearch() {
+        val f = strongsFixture()
+        try {
+            f.state.openRequest(net.bible.sharedcore.search.ReadingSearchRequest(
+                query = "strong:H430", documentId = "KJV", translationIds = listOf("KJV"),
+                strongsOrigin = true, section = SearchBibleSection.OLD_TESTAMENT,
+            ))
+            assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), f.state.controller.phase.value)
+            val request = assertNotNull(f.state.lastSearchRequestForTest)
+            assertEquals(SearchBibleSection.OLD_TESTAMENT, request.bibleSection)
+            assertTrue(request.isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun finalFixStrongsHandoffAttachesExistingBuildAndPreservesSelectionChain() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            val target = f.platform.documents.getValue("KJV")
+            target.indexStatus = status
+            f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, false)
+            f.bible.unindexed = setOf("KJV", "ESV")
+            f.jobs.running = true
+            f.jobs.jobs = listOf(ProgressJob("existing", "Existing KJV build", 42, false))
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV", "ESV"))
+                assertEquals(ReadingSearchPhase.Indexing("KJV", false), f.state.controller.phase.value, "$status attaches")
+                assertEquals(42, f.state.searchIndexProgress.jobs.value.single().percent)
+                assertTrue(f.index.created.isEmpty(), "attaching must not create (and therefore delete) an index")
+                assertNull(f.state.lastSearchRequestForTest)
+                target.indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value,
+                    "completion must retain the full selected-translation chain")
+                f.state.controller.acceptIndexing()
+                assertEquals(listOf("ESV"), f.index.created, "only the missing non-running index may be created")
+                f.bible.unindexed = emptySet()
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+                assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+                assertTrue(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            } finally { f.state.dispose() }
+        }
+    }
+
+    @Test
+    fun finalFixStrongsSelectionChainAttachesNextAlreadyRunningTranslation() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            f.bible.unindexed = setOf("KJV", "ESV")
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV", "ESV"))
+                f.state.controller.acceptIndexing()
+                f.platform.documents.getValue("ESV").indexStatus = status
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = true
+                f.jobs.jobs = listOf(ProgressJob("existing-esv", "Existing ESV build", 55, false))
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Indexing("ESV", false), f.state.controller.phase.value, "$status chain attaches")
+                assertEquals(listOf("KJV"), f.index.created)
+                assertEquals(listOf("KJV", "ESV"), f.state.searchSelectorPendingIds)
+                f.platform.documents.getValue("ESV").indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = emptySet()
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+                assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+            } finally { f.state.dispose() }
+        }
+    }
+
+    @Test
+    fun finalFixStrongsResultsSelectorAttachesExistingBuildWithoutRecreatingIt() {
+        for (status in listOf(IndexStatus.CREATING, IndexStatus.SCHEDULED)) {
+            val f = strongsFixture()
+            try {
+                f.state.openSearchStrongs("H430", listOf("KJV"))
+                val previous = f.state.lastSearchRequestForTest
+                f.platform.documents.getValue("ESV").indexStatus = status
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+                f.bible.unindexed = setOf("ESV")
+                f.jobs.running = true
+                f.state.onSearchTranslationsChosen(listOf("ESV"))
+                assertEquals(ReadingSearchPhase.Indexing("ESV", false), f.state.controller.phase.value, "$status selector attaches")
+                assertTrue(f.index.created.isEmpty())
+                assertEquals(previous, f.state.lastSearchRequestForTest, "do not search a partial index")
+                f.platform.documents.getValue("ESV").indexStatus = IndexStatus.DONE
+                f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, true)
+                f.bible.unindexed = emptySet()
+                f.jobs.running = false
+                f.jobs.emit(Any(), finished = true)
+                assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+                assertEquals(listOf("ESV"), f.state.lastSearchRequestForTest?.translationIds)
+                assertTrue(f.index.created.isEmpty())
+            } finally { f.state.dispose() }
+        }
+    }
+
+    @Test
+    fun strongsSelectionIndexesEachSelectedBibleBeforeRunning() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV", "ESV")
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV", "ESV")))
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            f.state.controller.acceptIndexing()
+            assertEquals(ReadingSearchPhase.Indexing("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.index.created)
+            f.bible.unindexed = setOf("ESV")
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value)
+            f.state.controller.acceptIndexing()
+            assertEquals(listOf("KJV", "ESV"), f.index.created)
+            f.bible.unindexed = emptySet()
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV", "ESV"), f.state.lastSearchRequestForTest?.translationIds)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun failedStrongsIndexBuildKeepsPromptInSheet() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV")
+        f.platform.documentInfos["KJV"] = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, false)
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            f.state.controller.acceptIndexing()
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            assertTrue(f.state.searchSheetVisible.value)
+            assertNotNull(f.state.searchIndexProgress.error.value)
+            assertNull(f.state.lastSearchRequestForTest)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun completedTextOnlyIndexDoesNotRunStrongsSearch() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV")
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            f.state.controller.acceptIndexing()
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            assertNotNull(f.state.searchIndexProgress.error.value)
+            assertNull(f.state.lastSearchRequestForTest)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun cancellingStrongsIndexPromptLeavesSearchWithoutStartingBuild() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV")
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            f.state.leaveSearch()
+            assertEquals(ReadingSearchPhase.Closed, f.state.controller.phase.value)
+            assertFalse(f.state.searchSheetVisible.value)
+            assertTrue(f.index.created.isEmpty())
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun strongsSettingsRerunRetainsTargetAfterActiveWindowChanges() {
+        val f = strongsFixture()
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.lastSearchRequestForTest?.translationIds)
+            assertTrue(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun ordinarySearchAfterLeavingStrongsUsesActiveBible() {
+        val f = strongsFixture()
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            f.state.leaveSearch()
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.openSearch("light")
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertFalse(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun missingStrongsTargetDoesNotFallBackToActiveBible() {
+        val f = SearchFixture()
+        f.platform.documents["KJV"] = f.platform.current!!
+        try {
+            f.state.openSearchStrongs("H430", listOf("MISSING"))
+            assertEquals(ReadingSearchPhase.Closed, f.state.controller.phase.value)
+            assertNotNull(f.state.searchUnavailableDocName.value)
+            assertNull(f.state.lastSearchRequestForTest)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun strongsProbeIsDeferredAndCancelledHandoffCannotReplaceNewSearch() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val f = strongsFixture(SearchFixture(indexValidationDispatcher = dispatcher))
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertTrue(f.bible.strongsQueries.isEmpty(), "probe must not run inline")
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.openSearch("light")
+            runCurrent()
+            assertTrue(f.bible.strongsQueries.isEmpty(), "cancelled probe must not execute")
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertEquals("light", f.state.lastSearchRequestForTest?.query)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun newerStrongsHandoffCancelsTheEarlierDeferredProbe() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val f = strongsFixture(SearchFixture(indexValidationDispatcher = dispatcher))
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            assertTrue(f.state.openSearchStrongs("G746", listOf("ESV")))
+            assertTrue(f.bible.strongsQueries.isEmpty())
+            runCurrent()
+            assertEquals(listOf(listOf("ESV")), f.bible.strongsQueries)
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertEquals("strong:G746", f.state.lastSearchRequestForTest?.query)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun strongsSelectorChangesTheSearchedAndDisplayedTranslations() {
+        val f = strongsFixture()
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            assertEquals(listOf("ESV"), f.state.searchResults.selectedTranslations.value)
+            assertEquals(listOf("ESV"), f.state.searchTranslations.value)
+            assertEquals(listOf("ESV"), f.bible.strongsQueries.last())
+            f.state.controller.settingsClosed()
+            assertEquals(listOf("ESV"), assertNotNull(f.state.lastSearchRequestForTest).translationIds)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun editedStrongsQuerySubmittedAsOrdinarySearchUsesActiveBible() {
+        val f = strongsFixture()
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.queries.setQuery("light")
+            f.state.controller.submit()
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertFalse(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun editedStrongsQuerySettingsRerunUsesActiveBible() {
+        val f = strongsFixture()
+        try {
+            assertTrue(f.state.openSearchStrongs("H430", listOf("KJV")))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.queries.setQuery("light")
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertFalse(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+        } finally {
+            f.state.dispose()
+        }
+    }
+
+    @Test
+    fun settingsSelectionValidatesNewUnindexedBibleRatherThanOldSelection() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.bible.unindexed = setOf("ESV")
+            f.state.setSearchTranslations(listOf("ESV"))
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value)
+            assertEquals(listOf("ESV"), f.bible.strongsQueries.last())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun settingsSelectionDropsOldMissingBibleAndRunsOnlyNewSelection() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV")
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.state.setSearchTranslations(listOf("ESV"))
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertEquals(listOf("ESV"), f.state.lastSearchRequestForTest?.translationIds)
+        } finally { f.state.dispose() }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun pendingSelectorCannotOverwriteSubmittedOrdinarySearch() = runTest {
+        val f = strongsFixture(SearchFixture(indexValidationDispatcher = StandardTestDispatcher(testScheduler)))
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            runCurrent()
+            f.bible.unindexed = setOf("ESV")
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            f.platform.current = f.platform.documents.getValue("KJV")
+            f.state.queries.setQuery("light")
+            f.state.controller.submit()
+            runCurrent()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals("light", f.state.lastSearchRequestForTest?.query)
+        } finally { f.state.dispose() }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun pendingSelectorCannotOverwriteOrdinarySettingsRerun() = runTest {
+        val f = strongsFixture(SearchFixture(indexValidationDispatcher = StandardTestDispatcher(testScheduler)))
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            runCurrent()
+            f.bible.unindexed = setOf("ESV")
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            f.platform.current = f.platform.documents.getValue("KJV")
+            f.state.queries.setQuery("light")
+            f.state.controller.settingsClosed()
+            runCurrent()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals("light", f.state.lastSearchRequestForTest?.query)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun newStrongsHandoffRetiresOldBuildAndItsCompletion() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV")
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.state.controller.acceptIndexing()
+            assertEquals(ReadingSearchPhase.Indexing("KJV", false), f.state.controller.phase.value)
+            f.state.openSearchStrongs("G746", listOf("ESV"))
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            f.bible.unindexed = emptySet()
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.Results("ESV", false), f.state.controller.phase.value)
+            assertEquals("strong:G746", f.state.lastSearchRequestForTest?.query)
+            assertEquals(listOf("ESV"), f.state.lastSearchRequestForTest?.translationIds)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun hiddenStrongsIndexChainDoesNotShowSheetOrReleaseFocus() {
+        val f = strongsFixture()
+        f.bible.unindexed = setOf("KJV", "ESV")
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV", "ESV"))
+            f.state.controller.acceptIndexing()
+            f.state.controller.closeSheet()
+            f.state.controller.imeRequestHandled()
+            f.bible.unindexed = setOf("ESV")
+            f.jobs.emit(Any(), finished = true)
+            assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value)
+            assertFalse(f.state.searchSheetVisible.value)
+            assertNull(f.state.controller.imeRequest.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun strongsSelectorPersistsConfirmedUnindexedSelectionBeforeBuild() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.bible.unindexed = setOf("ESV")
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            assertEquals(ReadingSearchPhase.NeedsIndex("ESV", false), f.state.controller.phase.value)
+            assertEquals(listOf("ESV"), f.bible.persisted.lastOrNull())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsSettingsSelectionRetainsTargetInsteadOfActiveUnindexedBible() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+            f.bible.unindexed = setOf("KJV")
+            f.state.setSearchTranslations(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.bible.strongsQueries.last())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsSettingsSelectionRetainsTargetInsteadOfActiveEpub() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            val epub = fakeSearchBook("EPUB")
+            f.platform.current = epub
+            f.platform.documents["EPUB"] = epub
+            f.platform.documentInfos["EPUB"] = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+            f.state.setSearchTranslations(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.lastSearchRequestForTest?.translationIds)
+            assertEquals(listOf("KJV"), f.bible.strongsQueries.last())
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsResultsSelectionKeepsTargetAndSelection() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.platform.documentInfos["ESV"] = SearchDocumentInfo("ESV", SearchDocumentCategory.BIBLE, false, false)
+            f.state.onSearchTranslationsChosen(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.lastSearchRequestForTest?.translationIds)
+            assertEquals(listOf("KJV"), f.state.searchTranslations.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun emptyStrongsResultsSelectionCannotRetargetActiveEpub() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            val epub = fakeSearchBook("EPUB")
+            f.platform.current = epub
+            f.platform.documents["EPUB"] = epub
+            f.platform.documentInfos["EPUB"] = SearchDocumentInfo("EPUB", SearchDocumentCategory.GENERAL_BOOK, true, true)
+            f.state.onSearchTranslationsChosen(emptyList())
+            f.state.controller.settingsClosed()
+            assertEquals(ReadingSearchPhase.Results("KJV", false), f.state.controller.phase.value)
+            assertEquals(listOf("KJV"), f.state.searchTranslations.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun resultTargetDefaultsFollowRequestOriginRatherThanQuerySyntax() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.queries.setQuery("edited")
+            assertTrue(f.state.openResultInLinksWindow.value, "editing must not change the displayed results' origin")
+            f.platform.current = f.platform.documents.getValue("KJV")
+            f.state.openSearch("strong:H430")
+            assertTrue(f.state.openResultInLinksWindow.value, "reopening the same result set retains its origin")
+            assertTrue(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            f.state.controller.submit()
+            assertFalse(assertNotNull(f.state.lastSearchRequestForTest).isStrongsSearch)
+            assertFalse(f.state.openResultInLinksWindow.value, "a newly submitted typed Strong's query uses the typed default")
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun resultTargetFollowsOriginOfEachRerun() {
+        val f = strongsFixture()
+        try {
+            f.state.openSearchStrongs("H430", listOf("KJV"))
+            f.state.controller.settingsClosed()
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.onSearchTranslationsChosen(listOf("ESV"))
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.platform.current = f.platform.documents.getValue("ESV")
+            f.state.queries.setQuery("light")
+            assertTrue(f.state.openResultInLinksWindow.value)
+            f.state.controller.submit()
+            assertFalse(f.state.openResultInLinksWindow.value)
+        } finally { f.state.dispose() }
+    }
+
+    @Test
+    fun resultTargetPreferencesPersistIndependentlyAcrossStates() {
+        val settings = MapSearchSettings()
+        val first = strongsFixture(SearchFixture(settings = settings))
+        try {
+            first.state.openSearchStrongs("H430", listOf("KJV"))
+            first.state.setOpenResultInLinksWindow(false)
+            first.platform.current = first.platform.documents.getValue("KJV")
+            first.state.openSearch("light")
+            first.state.setOpenResultInLinksWindow(true)
+        } finally { first.state.dispose() }
+        val second = strongsFixture(SearchFixture(settings = settings))
+        try {
+            second.state.openSearchStrongs("H430", listOf("KJV"))
+            assertFalse(second.state.openResultInLinksWindow.value)
+            second.platform.current = second.platform.documents.getValue("KJV")
+            second.state.openSearch("light")
+            assertTrue(second.state.openResultInLinksWindow.value)
+        } finally { second.state.dispose() }
     }
 
     @Test

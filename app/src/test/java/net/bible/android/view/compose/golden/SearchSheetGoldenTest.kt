@@ -18,6 +18,7 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
 import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.SearchSheetContent
+import net.bible.sharedui.search.SearchResultTargetMenuRows
 import net.bible.sharedui.search.bibleResultRows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -136,6 +138,10 @@ class SearchSheetGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun results_rtl() = captureRtl("SearchSheet", "results", heightDp = 400, content = sheet())
+
+    @Test fun checkedResultTargetMenu() = captureMatrix("SearchSheet", "checkedResultTargetMenu") {
+        Column { SearchResultTargetMenuRows(true, {}, {}, {}) }
+    }
 
     @Test fun loading() =
         captureGolden("SearchSheet", "loading", EDGE_MODE, content = sheet(countLabel = "", loading = true))

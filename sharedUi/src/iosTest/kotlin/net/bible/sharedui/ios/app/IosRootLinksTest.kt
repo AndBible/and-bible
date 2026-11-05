@@ -49,6 +49,8 @@ class IosRootLinksTest {
 
     @BeforeTest fun attach() {
         HostRootLinks.mainContext = Dispatchers.Unconfined
+        HostRootLinks.setActive(true)
+        HostRootLinks.setReadingNavigator { shell.openReading(); true }
         HostRootLinks.attachShell(shell)
     }
 
@@ -86,6 +88,30 @@ class IosRootLinksTest {
         assertTrue(HostRootLinks.isOnReadingScreen())
         shell.routeChanged("${NavRoutes.READING}?x=1")
         assertTrue(HostRootLinks.isOnReadingScreen(), "arguments do not matter")
+    }
+
+    @Test fun hiddenHostWaitsForReadingAndOnlyNewestRequestIsDeliveredOnce() {
+        val received = mutableListOf<net.bible.sharedcore.search.ReadingSearchRequest>()
+        HostRootLinks.attachSearch { received += it; true }
+        shell.routeChanged("settings/app")
+        val first = net.bible.sharedcore.search.ReadingSearchRequest(query = "first")
+        val latest = net.bible.sharedcore.search.ReadingSearchRequest(query = "latest")
+        HostRootLinks.openRoute(NavRoutes.readingSearch(first))
+        HostRootLinks.openRoute(NavRoutes.readingSearch(latest))
+        assertTrue(received.isEmpty())
+        shell.routeChanged(NavRoutes.READING)
+        HostRootLinks.deliverPendingSearch()
+        HostRootLinks.deliverPendingSearch()
+        assertEquals(listOf(latest), received)
+    }
+
+    @Test fun readingWithoutHostWaitsUntilHostAttaches() {
+        shell.routeChanged(NavRoutes.READING)
+        val request = net.bible.sharedcore.search.ReadingSearchRequest(query = "waiting")
+        HostRootLinks.openRoute(NavRoutes.readingSearch(request))
+        val received = mutableListOf<net.bible.sharedcore.search.ReadingSearchRequest>()
+        HostRootLinks.attachSearch { received += it; true }
+        assertEquals(listOf(request), received)
     }
 
     @Test fun portsDoNothingBeforeTheRootIsAttached() {

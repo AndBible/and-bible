@@ -41,6 +41,9 @@ class DesktopHostLifecycle(val events: DesktopLifecycleEvents = DesktopLifecycle
     }
 
     private val registrations = CopyOnWriteArrayList<Registration>()
+    @Volatile private var windowActive = false
+
+    override fun isActive(): Boolean = windowActive
 
     override fun observe(events: List<HostLifecycleEvent>, onEvent: (HostLifecycleEvent) -> Unit): () -> Unit {
         val registration = Registration(events.toList(), onEvent)
@@ -62,6 +65,7 @@ class DesktopHostLifecycle(val events: DesktopLifecycleEvents = DesktopLifecycle
     }
 
     private fun deliver(event: HostLifecycleEvent) {
+        windowActive = event == HostLifecycleEvent.Active
         // A snapshot (CopyOnWriteArrayList); an observer removed while this event is delivered gets no further call.
         for (registration in registrations) {
             if (registration.active && event in registration.events) registration.onEvent(event)

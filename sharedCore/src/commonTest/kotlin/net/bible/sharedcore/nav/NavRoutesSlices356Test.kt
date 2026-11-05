@@ -1,5 +1,9 @@
 package net.bible.sharedcore.nav
 
+import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.ReadingSearchRequest
+import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -29,17 +33,17 @@ class NavRoutesSlices356Test {
     }
 
     @Test
-    fun searchResultsCarriesEveryArgumentTheChainNeeds() {
+    fun searchIndexCarriesEveryLegacyArgumentTheChainNeeds() {
         // D3: there is no bundle pass-through in route-world. Every argument the classic
         // SearchIndex -> SearchIndexProgress -> SearchResults chain forwarded must be nameable.
-        val route = NavRoutes.searchResults(
+        val route = NavRoutes.searchIndex(
             searchText = "strong:G26",
             highlightText = "G26",
             searchDocument = "KJV",
             selectedTranslations = listOf("KJV", "ESV"),
             isStrongsSearch = true,
         )
-        assertTrue(route.startsWith("search/results?"))
+        assertTrue(route.startsWith("search/index?"))
         for (name in listOf(
             NavRoutes.ARG_SEARCH_TEXT, NavRoutes.ARG_SEARCH_HIGHLIGHT_TEXT,
             NavRoutes.ARG_SEARCH_DOCUMENT, NavRoutes.ARG_SELECTED_TRANSLATIONS,
@@ -51,7 +55,7 @@ class NavRoutesSlices356Test {
     fun freeTextSearchArgumentsAreEncoded() {
         // A decorated query contains spaces and '+' — both must survive the round trip.
         val q = "+\"in the beginning\" -foo"
-        val route = NavRoutes.searchResults(searchText = q, searchDocument = "KJV")
+        val route = NavRoutes.searchIndex(searchText = q, searchDocument = "KJV")
         assertTrue(!route.contains(" "), "route must not contain a raw space: $route")
         val encoded = route.substringAfter("${NavRoutes.ARG_SEARCH_TEXT}=").substringBefore("&")
         assertEquals(q, NavRoutes.decodeArg(encoded))
@@ -61,12 +65,31 @@ class NavRoutesSlices356Test {
     fun everyPatternRegistersEveryArgumentItsBuilderCanEmit() {
         // A pattern that forgets an argument silently drops it at navigate time.
         fun argsIn(s: String) = Regex("[?&]([A-Za-z]+)=").findAll(s).map { it.groupValues[1] }.toSet()
-        assertTrue(argsIn(NavRoutes.SEARCH_RESULTS_PATTERN).containsAll(
-            argsIn(NavRoutes.searchResults("q", "h", "KJV", listOf("KJV"), true))))
+        assertTrue(argsIn(NavRoutes.SEARCH_INDEX_PROGRESS_PATTERN).containsAll(
+            argsIn(NavRoutes.searchIndexProgress("q", "h", "KJV", listOf("KJV"), true))))
         assertTrue(argsIn(NavRoutes.SEARCH_INDEX_PATTERN).containsAll(
             argsIn(NavRoutes.searchIndex("q", "h", "KJV", listOf("KJV"), true))))
         assertTrue(argsIn(NavRoutes.DAILY_READING_PATTERN).containsAll(
             argsIn(NavRoutes.dailyReading("NIV", 3))))
+    }
+
+    @Test
+    fun bothIndexHopsPreserveTheCompleteReadingContinuation() {
+        val request = ReadingSearchRequest(
+            query = "+[John] 100% & \"love\"", documentId = "Book / 1",
+            translationIds = listOf("A,B", "C%"), strongsOrigin = true, preDecorated = true,
+            section = SearchBibleSection.CURRENT_BOOK, type = SearchType.PHRASE, epubMode = EpubSearchMode.ANY_WORD,
+        )
+        for ((pattern, route) in listOf(
+            NavRoutes.SEARCH_INDEX_PATTERN to NavRoutes.searchIndex(searchDocument = "Other", readingRequest = request),
+            NavRoutes.SEARCH_INDEX_PROGRESS_PATTERN to NavRoutes.searchIndexProgress(searchDocument = "Other", readingRequest = request),
+        )) {
+            val argument = NavRoutes.ARG_READING_SEARCH_REQUEST
+            assertTrue(pattern.contains("$argument={$argument}"))
+            val encoded = route.substringAfter("$argument=").substringBefore('&')
+            // Navigation removes the outer query-argument encoding, leaving the complete handoff route.
+            assertEquals(request, NavRoutes.readReadingSearch(NavRoutes.decodeArg(encoded)))
+        }
     }
 
     // ——— readDailyReading: the inverse of dailyReading (whole-branch review M5) ———————————————

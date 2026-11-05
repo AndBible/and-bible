@@ -17,6 +17,8 @@ interface BibleSearchService {
     fun persistSelection(translationIds: List<String>, strongsSearch: Boolean)
     /** The subset of [translationIds] that lack a usable search index. */
     fun unindexedAmong(translationIds: List<String>): List<String>
+    /** Runs potentially expensive Strong's sentinel queries; callers must dispatch off the UI thread. */
+    fun unindexedStrongsAmong(translationIds: List<String>): List<String> = unindexedAmong(translationIds)
 }
 
 interface SearchIndexService {

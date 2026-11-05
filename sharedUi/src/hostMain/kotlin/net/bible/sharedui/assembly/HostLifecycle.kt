@@ -49,4 +49,7 @@ fun interface HostLifecycle {
      * fired. The returned function unregisters them all (in the same order); call it once.
      */
     fun observe(events: List<HostLifecycleEvent>, onEvent: (HostLifecycleEvent) -> Unit): () -> Unit
+
+    /** Current state on the UI thread; conservative until a host can determine it. */
+    fun isActive(): Boolean = false
 }

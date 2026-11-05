@@ -11,6 +11,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.Executors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
@@ -90,6 +91,106 @@ class WorkspaceSwitchContentTest {
             root.toFile().deleteRecursively()
             Dispatchers.resetMain()
             main.close()
+        }
+    }
+
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    @Test fun finalFixActualHostBackReopensSameResultsForBothResultTargets() {
+        runBlocking {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        HostReadingReady.ensure(HostStartup.stringTable)
+        val koin = KoinPlatform.getKoin()
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + main)
+        val restoreAllowed = net.bible.sharedui.components.OverlayPresence.restoreAllowed
+        val originalSearch = koin.get<net.bible.sharedcore.search.BibleSearchService>()
+        val searchKey = org.koin.core.definition.indexKey(net.bible.sharedcore.search.BibleSearchService::class, null,
+            org.koin.core.qualifier.StringQualifier("_root_"))
+        val searchFactory = checkNotNull(koin.instanceRegistry.instances[searchKey])
+        val fixtureModule = org.koin.dsl.module {
+            single<net.bible.sharedcore.search.BibleSearchService> {
+                object : net.bible.sharedcore.search.BibleSearchService by originalSearch {
+                    override fun unindexedAmong(translationIds: List<String>) = emptyList<String>()
+                    override suspend fun searchMulti(request: net.bible.sharedcore.search.SearchRequest): net.bible.sharedcore.search.MultiSearchResults =
+                        error("the host must retain cached rows without rerunning search")
+                }
+            }
+        }
+        koin.loadModules(listOf(fixtureModule))
+        withContext(main) {
+            val host = HostReadingHost(scope, HostNavShell(scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+            try {
+                // Inspect the real host's state; the production back chain and navigation are not replaced.
+                val search = HostReadingHost::class.java.getDeclaredField("searchState").apply { isAccessible = true }
+                    .get(host) as net.bible.sharedui.reading.host.slots.ReadingSearchState
+                val book = assertNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+                book.indexStatus = org.crosswire.jsword.index.IndexStatus.DONE
+                val repository = koin.get<WindowControl>().windowRepository
+                val cache = koin.get<net.bible.sharedcore.search.SearchResultsCache>()
+                val source = repository.activeWindow
+                val request = net.bible.sharedcore.search.SearchRequest(
+                    "light", net.bible.sharedcore.search.SearchType.ANY_WORDS,
+                    net.bible.sharedcore.search.SearchBibleSection.ALL, listOf("K4RawText"),
+                    koin.get<net.bible.android.control.search.SearchControl>().currentBookName,
+                )
+                val rows = net.bible.sharedcore.search.MultiSearchResults(
+                    listOf(net.bible.sharedcore.search.SwordResultRow("Gen.1.2", emptyList(), net.bible.sharedcore.search.StyledText.plain("light"))),
+                    emptyList(), 1,
+                )
+                for (links in listOf(false, true)) {
+                    repository.activeWindow = source
+                    source.pageManager.setCurrentDocumentAndKey(book, book.getKey("Gen.1.1"))
+                    cache.put(request.copy(currentBookName = koin.get<net.bible.android.control.search.SearchControl>().currentBookName), rows)
+                    host.openSearchRequest(net.bible.sharedcore.search.ReadingSearchRequest(
+                        query = "light", documentId = "K4RawText", translationIds = listOf("K4RawText"), preDecorated = true,
+                    ))
+                    search.setOpenResultInLinksWindow(links)
+                    kotlinx.coroutines.withTimeout(5_000) { search.searchBar.first { it != null } }
+                    assertEquals(net.bible.sharedcore.search.ReadingSearchPhase.Results("K4RawText", false), search.controller.phase.value)
+                    assertEquals(rows, search.searchResults.results.value)
+                    val listState = search.searchResultsListState.value
+                    search.searchResultsExpanded["Gen.1.2"] = true
+                    search.onSearchResultSelected("Gen.1.2", "K4RawText")
+                    assertFalse(search.searchSheetVisible.value)
+                    if (links) assertTrue(source.targetLinksWindow.isLinksWindow)
+                    else assertEquals("Gen.1.2", source.pageManager.currentBible.singleKey.getOsisRef())
+                    var passed = false
+                    host.backChain.onBack { passed = true }
+                    assertFalse(passed)
+                    assertTrue(search.searchSheetVisible.value, "first Back must reopen results (links=$links)")
+                    assertTrue(search.controller.searchModeActive.value)
+                    assertEquals("light", search.queries.query.value)
+                    assertEquals(rows, search.searchResults.results.value)
+                    assertSame(listState, search.searchResultsListState.value)
+                    assertEquals(true, search.searchResultsExpanded["Gen.1.2"])
+                    host.backChain.onBack { passed = true }
+                    assertFalse(search.searchSheetVisible.value)
+                    assertTrue(search.controller.searchModeActive.value)
+                    host.backChain.onBack { passed = true }
+                    assertFalse(search.controller.searchModeActive.value)
+                    assertFalse(passed)
+                }
+            } finally {
+                host.dispose()
+                net.bible.sharedui.components.OverlayPresence.restoreAllowed = restoreAllowed
+                scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+                koin.unloadModules(listOf(fixtureModule))
+                koin.instanceRegistry.saveMapping(true, searchKey, searchFactory)
+            }
+        }
+        scope.coroutineContext[kotlinx.coroutines.Job]?.join()
         }
     }
 
