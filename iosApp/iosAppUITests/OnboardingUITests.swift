@@ -135,13 +135,13 @@ final class OnboardingUITests: RealAppUITestCase {
         if !retried { attachTree(app, "interrupted-install-retry") }
         XCTAssertTrue(retried, "Download again did not request the document from the Download screen")
 
-        // Not installed, so still pending: reported again at the next launch until the user cancels it. Every kill is
-        // from the background: a foreground kill counts as a crash and would open the crash-recovery gate.
+        // A missing catalogue entry is a settled error and is forgotten. Seed a separate interrupted request to
+        // exercise Cancel; every kill is from the background to avoid opening the crash-recovery gate.
         sendToBackground(app)
         app.terminate()
-        app.launchArguments = []
+        app.launchArguments = ["-seedInterruptedInstall", "\(marker)@CrossWire"]
         app.launch()
-        XCTAssertTrue(again.waitForExistence(timeout: 60), "a still-missing interrupted install was not reported again")
+        XCTAssertTrue(again.waitForExistence(timeout: 60), "the separate interrupted install was not reported")
         app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch.tap()
         sendToBackground(app)
         app.terminate()
