@@ -125,6 +125,21 @@ class DocumentLoader(
     private var lastDocumentRequest = 0L
     private var pendingDocumentRequest = 0L
 
+    /**
+     * The generation the page's chapter requests are admitted against ([runForPageDocument]): [admittedGeneration] while
+     * the window still shows that document, [NO_DOCUMENT_GENERATION] once it does not (forgotten, or a load of another
+     * document failed). Guarded by [documentLoadingLock].
+     */
+    private var pagingGeneration = NO_DOCUMENT_GENERATION
+
+    /** The page and book [admittedGeneration] was loaded from: a request that ends without a document re-admits it
+     *  only while the window still shows them (#3975 review C4). Guarded by [documentLoadingLock]. */
+    private var admittedPage: net.bible.android.control.page.CurrentPage? = null
+    private var admittedBook: org.crosswire.jsword.book.Book? = null
+
+    /** Chapter requests waiting for the pending document request's outcome (see [runForPageDocument]). */
+    private val waitingPaging = mutableListOf<Pair<() -> Unit, () -> Unit>>()
+
     var latestDocumentStr: String? = null
         private set
     private var needsDocument: Boolean = false
@@ -196,6 +211,7 @@ class DocumentLoader(
         var docStr = withContext(Dispatchers.IO) { document.contentJson() }
         // This independent cache replays concurrent bookmark changes; populate before first config.
         refreshFavouriteLabels()
+        var replaced: List<Pair<() -> Unit, () -> Unit>> = emptyList()
         withContext(Dispatchers.Main) {
             documentLoadingLock.withLock {
                 if (generation != documentLoadGeneration ||
@@ -219,8 +235,13 @@ class DocumentLoader(
                 session.firstDocument = document
                 // From now on only calls of the page that received this document act on the window (#3975).
                 admittedGeneration = generation
+                pagingGeneration = generation
+                admittedPage = currentPage
+                admittedBook = sourceDocument
                 pendingDocumentRequest = 0L
                 session.documentGeneration = generation
+                // Chapter requests of the replaced page: answered null, the page is about to be cleared.
+                replaced = takeWaitingPaging()
                 if (docStr.length > MAX_DOC_STR_LENGTH) {
                     val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
                     docStr = errorDoc.asJson
@@ -231,8 +252,12 @@ class DocumentLoader(
                 platform.enableZoomForMap(session.pageControl.currentPageManager.isMapShown)
                 if (!session.jsChannel.loading) replaceDocument()
             }
+            replaced.forEach { (_, drop) -> drop() }
         }
     }
+
+    private fun takeWaitingPaging(): List<Pair<() -> Unit, () -> Unit>> =
+        waitingPaging.toList().also { waitingPaging.clear() }
 
     /**
      * Forgets the window this loader served, when its live page is handed to another window (a workspace switch
@@ -241,16 +266,21 @@ class DocumentLoader(
      * showing the old content until the new window's document replaces it.
      */
     fun forgetDocument() {
-        documentLoadingLock.withLock {
+        val waiting = documentLoadingLock.withLock {
             ++documentLoadGeneration
             admittedGeneration = NO_DOCUMENT_GENERATION
+            pagingGeneration = NO_DOCUMENT_GENERATION
+            admittedPage = null
+            admittedBook = null
             pendingDocumentRequest = 0L
             session.documentGeneration = NO_DOCUMENT_GENERATION
             latestDocumentStr = null
             needsDocument = false
             initialAnchorOrdinal = null
             initialHtmlId = null
+            takeWaitingPaging()
         }
+        waiting.forEach { (_, drop) -> drop() }
         labelsUploaded = false
         session.firstDocument = null
         session.initialKey = null
@@ -276,12 +306,48 @@ class DocumentLoader(
 
     /**
      * The request [request] ended. If no document was admitted for it and no newer request followed (the content
-     * proved unchanged, the read was superseded or failed), the page's current document is admitted again.
+     * proved unchanged, the read was superseded or failed), the page's document is admitted again, but only while the
+     * window still shows the page and book it was loaded from: after a failed load of ANOTHER document the window holds
+     * that one, and the page's calls about its old document must stay out (#3975 review C4). Chapter requests that
+     * waited for the outcome run, or are answered null when the page's document is no longer the window's.
      */
-    fun documentRequestEnded(request: Long) = documentLoadingLock.withLock {
-        if (pendingDocumentRequest != request) return@withLock
-        pendingDocumentRequest = 0L
-        session.documentGeneration = admittedGeneration
+    fun documentRequestEnded(request: Long) {
+        val (readmitted, waiting) = documentLoadingLock.withLock {
+            if (pendingDocumentRequest != request) return@withLock null
+            pendingDocumentRequest = 0L
+            val page = admittedPage
+            val stillShown = admittedGeneration != NO_DOCUMENT_GENERATION && page != null &&
+                session.windowOrNull?.pageManager?.currentPage === page && page.currentDocument == admittedBook
+            if (stillShown) {
+                session.documentGeneration = admittedGeneration
+            } else {
+                pagingGeneration = NO_DOCUMENT_GENERATION
+            }
+            stillShown to takeWaitingPaging()
+        } ?: return
+        waiting.forEach { (call, drop) -> if (readmitted) call() else drop() }
+    }
+
+    /**
+     * Runs the page's chapter request [call] if [generation] is the document the page holds (#3975 review A3). While
+     * the window has requested another document the request waits: it runs if the request ends without a document
+     * (unchanged commentary, failed or superseded read), and is answered null ([drop]) if a new document replaces the
+     * page's. Dropping it at once would answer null, which ends infinite scroll for good when no new document follows.
+     * Runs on the calling thread (the bridge thread on Android): paging touches only the page's own chapter range.
+     */
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+        val run = documentLoadingLock.withLock {
+            when {
+                session.isDisposed || generation == null || generation == NO_DOCUMENT_GENERATION ||
+                    generation != pagingGeneration -> false
+                pendingDocumentRequest != 0L -> {
+                    waitingPaging += call to drop
+                    null
+                }
+                else -> true
+            }
+        } ?: return
+        if (run) call() else drop()
     }
 
     private fun addChapter(chapter: Int) {

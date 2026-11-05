@@ -141,6 +141,12 @@ class ReadingBridge(
         }
     }
 
+    /** Paging is admitted against the document the page holds; see [SessionPaging.runForPageDocument]. */
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+        if (session.isDisposed) return drop()
+        session.paging.runForPageDocument(generation, call, drop)
+    }
+
     /**
      * The page's top visible verse (Bible, MyNotes) or entry (commentary, general book, StudyPad). Reached only for the
      * admitted document: the dispatcher drops reports of a replaced page by their document generation.

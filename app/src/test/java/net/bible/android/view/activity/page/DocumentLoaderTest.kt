@@ -315,6 +315,139 @@ class DocumentLoaderTest {
         assertTrue("restart: ${host.evaluated}", host.evaluated.any { it.contains("bibleView.emit(\"clear_document\", $a)") })
     }
 
+    /**
+     * The [WindowView] a real `Window.loadText` delivers to, forwarding to [loader] like `BibleView`/`HostWindowView`.
+     * [failLoadOf] makes the delivery of a document throw before it is admitted (a failing content or label read).
+     */
+    private inner class LoaderView(private val failLoadOf: (Document) -> Boolean = { false }) : net.bible.android.control.page.window.WindowView {
+        val requestsEnded = java.util.concurrent.LinkedBlockingQueue<Long>()
+        override val verseRangeLoaded: VerseRange? = null
+        override var lastUpdated: Long = 1L
+        override val firstDocument get() = session.firstDocument
+        override var listenEvents = true
+        override fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) {}
+        override fun highlightBibleOrdinalRange(range: IntRange) {}
+        override fun destroy() {}
+        override suspend fun loadDocument(document: Document, updateLocation: Boolean, key: org.crosswire.jsword.passage.Key?,
+                                          anchorOrdinal: net.bible.android.control.page.OrdinalRange?, htmlId: String?, windowContentGeneration: Long?) {
+            check(!failLoadOf(document)) { "content of $document unreadable" }
+            loader.loadDocument(document, updateLocation, key, anchorOrdinal, htmlId, windowContentGeneration)
+        }
+        override fun scrollOrJumpToVerse(key: org.crosswire.jsword.passage.Key, forceNow: Boolean) {}
+        override fun scrollOrJumpToOrdinal(ordinal: net.bible.android.control.page.OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) {}
+        override fun hasChapterLoaded(chapter: Int) = session.hasChapterLoaded(chapter)
+        override fun requestFocus() = false
+        override fun updateTextDisplaySettings(onAttach: Boolean) {}
+        override fun adjustLoadingCount(adj: Int) = true
+        @Volatile var lastRequest = 0L
+        override fun documentRequested() = loader.documentRequested().also { lastRequest = it }
+        override fun documentRequestEnded(request: Long) {
+            loader.documentRequestEnded(request)
+            requestsEnded.add(request)
+        }
+
+        /** Waits until the newest request (a page change and an explicit loadText each make one) has ended. */
+        fun awaitLastRequestEnded() {
+            val deadline = System.currentTimeMillis() + 10_000
+            while (lastRequest !in requestsEnded) {
+                check(System.currentTimeMillis() < deadline) { "request $lastRequest never ended" }
+                Thread.sleep(10)
+            }
+        }
+    }
+
+    /** What the page posts, through the production dispatcher and the session's [ReadingBridge] gate. */
+    private fun dispatcher() = net.bible.sharedcore.bibleview.BridgeDispatcher(
+        net.bible.sharedui.reading.bridge.ReadingBridge(session),
+        { callId -> session.jsChannel.execute(BibleViewEvents.response(callId, null)) }, {},
+    )
+
+    private fun kjvVerse(book: BibleBook, chapter: Int, verse: Int) =
+        Verse((Books.installed().getBook("KJV") as org.crosswire.jsword.book.sword.SwordBook).versification, book, chapter, verse)
+
+    /** Shows [verse] of [initials] through a real `Window.loadText` and waits until its document is admitted. */
+    private fun admitThroughLoadText(view: LoaderView, initials: String, verse: Verse): Long {
+        val before = session.documentGeneration
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook(initials), verse)
+        window.loadText()
+        runBlocking(Dispatchers.IO) {
+            withTimeout(10_000) {
+                while (session.documentGeneration == NO_DOCUMENT_GENERATION || session.documentGeneration == before) Thread.sleep(10)
+            }
+        }
+        view.requestsEnded.clear()
+        return session.documentGeneration
+    }
+
+    /**
+     * #3975 review C4: a load of ANOTHER document that fails before admission must not admit the page's old document
+     * again: the window now holds the new document (and key), and the old page's report would move it.
+     */
+    @Test
+    fun aFailedLoadOfAnotherDocumentDoesNotAdmitThePagesDocumentAgain() {
+        val view = LoaderView(failLoadOf = { (it as? net.bible.android.control.page.BibleDocument)?.swordBook?.initials == "ESV2011" })
+        window.bibleView = view
+        val john = kjvVerse(BibleBook.JOHN, 6, 1)
+        val a = admitThroughLoadText(view, "KJV", john)
+
+        val genesis = kjvVerse(BibleBook.GEN, 1, 1)
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("ESV2011"), genesis)
+        window.loadText()
+        view.awaitLastRequestEnded()
+
+        dispatcher().dispatch("""{"method":"scrolledToOrdinal","args":["John.6",${kjvVerse(BibleBook.JOHN, 6, 20).ordinal}],"documentGeneration":$a}""")
+        assertEquals("the old page's report must not move the window off the requested document",
+            genesis.ordinal, window.pageManager.currentBible.currentBibleVerse.verse.ordinal)
+        assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+    }
+
+    /** A request for the SAME document that ends without a new one (unchanged content, failed read) admits it again. */
+    @Test
+    fun aRequestOfTheSameDocumentThatEndsWithoutOneAdmitsThePagesDocumentAgain() {
+        val view = LoaderView(failLoadOf = { (it as? net.bible.android.control.page.BibleDocument)?.verseRange?.start?.chapter == 8 })
+        window.bibleView = view
+        val a = admitThroughLoadText(view, "KJV", kjvVerse(BibleBook.JOHN, 6, 1))
+
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), kjvVerse(BibleBook.JOHN, 8, 1))
+        window.loadText()
+        view.awaitLastRequestEnded()
+        assertEquals(a, session.documentGeneration)
+    }
+
+    /**
+     * #3975 review A3: a chapter request of the page while a new document is requested is not dropped (a dropped one
+     * answers null, which makes infinite scroll stop for good when no new document follows, e.g. an unchanged
+     * commentary). It waits for the request: answered after it ends without a document, with null once a new document
+     * replaces the page's.
+     */
+    @Test
+    fun aChapterRequestDuringADocumentRequestWaitsForItsOutcome() = runBlocking {
+        val view = LoaderView()
+        window.bibleView = view
+        val a = admitThroughLoadText(view, "KJV", kjvVerse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+
+        val request = loader.documentRequested()
+        dispatcher().dispatch("""{"method":"requestMoreToEnd","args":[51],"documentGeneration":$a}""")
+        assertFalse("not answered while the request is pending: ${host.evaluated}",
+            host.evaluated.any { it.startsWith("bibleView.response(51, ") })
+        loader.documentRequestEnded(request)
+        awaitEvaluated { sent -> sent.any { it.startsWith("bibleView.response(51, ") } }
+        val answer = host.evaluated.single { it.startsWith("bibleView.response(51, ") }
+        assertFalse("the next chapter, not null: $answer", answer == BibleViewEvents.response(51, null).js + ";")
+
+        // A request that ends in a new document: the waiting chapter request is answered with null (its page is cleared).
+        val second = loader.documentRequested()
+        dispatcher().dispatch("""{"method":"requestMoreToEnd","args":[52],"documentGeneration":$a}""")
+        loader.loadDocument(doc("B"), false, null, null, null, null)
+        loader.documentRequestEnded(second)
+        assertTrue(host.evaluated.toString(), host.evaluated.contains(BibleViewEvents.response(52, null).js + ";"))
+
+        // A chapter request of a replaced page is answered with null at once.
+        dispatcher().dispatch("""{"method":"requestMoreToEnd","args":[53],"documentGeneration":$a}""")
+        assertTrue(host.evaluated.toString(), host.evaluated.contains(BibleViewEvents.response(53, null).js + ";"))
+    }
+
     @Test
     fun staleLoadIsDropped() = runBlocking {
         val aEntered = CountDownLatch(1)

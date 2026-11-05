@@ -8,7 +8,8 @@ package net.bible.sharedcore.bibleview
  *
  * A [BridgeGenerationPolicy.guarded] call goes through [gate] (#3975): dropped at once when its document generation is
  * not admitted, otherwise run by the gate where window state lives, which checks the generation again there. The
- * default gate is the bridge itself, or [ClosedDocumentGate] (guarded calls always dropped) when it has none.
+ * default gate is the bridge itself, or [ClosedDocumentGate] (guarded calls always dropped) when it has none. A
+ * [BridgeGenerationPolicy.paging] call goes through [DocumentGenerationGate.runForPageDocument].
  */
 class BridgeDispatcher(
     private val bridge: BibleBridge,
@@ -20,7 +21,10 @@ class BridgeDispatcher(
         parseBridgeMessage(raw).fold({ dispatch(it) }) { e -> error("malformed bridge message: ${e.message}") }
 
     fun dispatch(message: BridgeMessage): BridgeResult = try {
-        if (message.method in BridgeGenerationPolicy.guarded) {
+        if (message.method in BridgeGenerationPolicy.paging) {
+            gate.runForPageDocument(message.documentGeneration, call = { execute(message) }, drop = { drop(message) })
+            BridgeResult.Handled
+        } else if (message.method in BridgeGenerationPolicy.guarded) {
             if (!gate.isAdmitted(message.documentGeneration)) {
                 drop(message)
                 BridgeResult.Dropped(message.method)

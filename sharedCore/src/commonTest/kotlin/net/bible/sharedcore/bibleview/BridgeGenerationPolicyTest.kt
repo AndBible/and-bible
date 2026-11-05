@@ -21,6 +21,10 @@ class BridgeGenerationPolicyTest {
             main.addLast { if (isAdmitted(generation)) call() else drop() }
         }
         fun runMain() { while (main.isNotEmpty()) main.removeFirst()() }
+        /** The page's own document: [pageDocument], which stays while a newer one is requested ([admitted] 0). */
+        var pageDocument = admitted
+        override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) =
+            if (generation != null && generation != NO_DOCUMENT_GENERATION && generation == pageDocument) call() else drop()
         override fun scrolledToOrdinal(keyStr: String, ordinal: Int) { calls += "scrolledToOrdinal $ordinal" }
         override fun saveBookmarkNote(bookmarkId: String, note: String?) { calls += "saveBookmarkNote $note" }
         override fun requestMoreToEnd(callId: Long) { calls += "requestMoreToEnd $callId" }
@@ -36,9 +40,11 @@ class BridgeGenerationPolicyTest {
 
     @Test fun everyBridgeMethodIsClassifiedExactlyOnce() {
         val methods = BibleBridgeDecoder.entries.keys
-        assertEquals(emptySet(), BridgeGenerationPolicy.guarded intersect BridgeGenerationPolicy.unguarded)
-        assertEquals(emptySet(), methods - (BridgeGenerationPolicy.guarded + BridgeGenerationPolicy.unguarded), "unclassified")
-        assertEquals(emptySet(), (BridgeGenerationPolicy.guarded + BridgeGenerationPolicy.unguarded) - methods, "not a bridge method")
+        val sets = listOf(BridgeGenerationPolicy.guarded, BridgeGenerationPolicy.paging, BridgeGenerationPolicy.unguarded)
+        for (i in sets.indices) for (j in sets.indices) if (i < j) assertEquals(emptySet(), sets[i] intersect sets[j])
+        val all = sets.flatten().toSet()
+        assertEquals(emptySet(), methods - all, "unclassified")
+        assertEquals(emptySet(), all - methods, "not a bridge method")
     }
 
     /**
@@ -100,10 +106,21 @@ class BridgeGenerationPolicyTest {
         assertTrue(bridge.calls.isEmpty())
     }
 
-    @Test fun aStaleDeferredCallIsAnsweredWithNull() {
-        assertIs<BridgeResult.Dropped>(dispatcher.dispatch("""{"method":"requestMoreToEnd","args":[9],"documentGeneration":6}"""))
+    @Test fun aStalePagingCallIsAnsweredWithNull() {
+        dispatcher.dispatch("""{"method":"requestMoreToEnd","args":[9],"documentGeneration":6}""")
         assertEquals(listOf(9L), answered)
         assertTrue(bridge.calls.isEmpty())
+    }
+
+    /**
+     * Review A3 (#3975): a chapter request of the page's own document runs while the window has requested a newer
+     * document (no guarded call is admitted then); dropping it would end infinite scroll for good.
+     */
+    @Test fun aPagingCallOfThePagesDocumentRunsWhileANewerOneIsRequested() {
+        bridge.admitted = NO_DOCUMENT_GENERATION
+        dispatcher.dispatch("""{"method":"requestMoreToEnd","args":[9],"documentGeneration":7}""")
+        assertEquals(listOf("requestMoreToEnd 9"), bridge.calls)
+        assertTrue(answered.isEmpty())
     }
 
     /** A note the user typed in the old page must still be saved: id-addressed data writes are never dropped. */
@@ -138,18 +155,16 @@ class BridgeGenerationPolicyTest {
     @Test fun aCallWhoseDocumentIsReplacedBeforeItRunsIsDropped() {
         assertEquals(BridgeResult.Handled, dispatcher.dispatch(
             """{"method":"scrolledToOrdinal","args":["Gen.1",5],"documentGeneration":7}"""))
-        assertEquals(BridgeResult.Handled, dispatcher.dispatch(
-            """{"method":"requestMoreToEnd","args":[11],"documentGeneration":7}"""))
         bridge.admitted = NO_DOCUMENT_GENERATION // a new page was requested meanwhile
         bridge.runMain()
         assertTrue(bridge.calls.isEmpty())
-        assertEquals(listOf(11L), answered)
     }
 
     @Test fun aThrowingGuardedCallRunOnTheMainThreadIsAnsweredAndContained() {
         val throwing = object : UnimplementedBibleBridge({}, {}), DocumentGenerationGate {
             override fun isAdmitted(generation: Long?) = true
             override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
+            override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
             override fun requestMoreToEnd(callId: Long) = error("boom")
         }
         val result = BridgeDispatcher(throwing, { answered += it }, {})

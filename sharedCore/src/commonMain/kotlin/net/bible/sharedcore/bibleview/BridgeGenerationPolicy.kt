@@ -41,18 +41,28 @@ interface DocumentGenerationGate {
      * runs [drop]. Exactly one of them runs, once. Neither may throw into the caller's thread.
      */
     fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit)
+
+    /**
+     * Runs a [BridgeGenerationPolicy.paging] call if [generation] is the document the page holds, even while the window
+     * has requested a newer one: the call only extends the page's own content and changes nothing of the window. While
+     * a request is pending it waits for its outcome (run when the request ends without a new document, dropped when
+     * one replaces the page's); a replaced page's call is dropped at once. Exactly one of [call] and [drop] runs, once.
+     */
+    fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit)
 }
 
 /** Drops every guarded call: the gate of a bridge that has none (see [DocumentGenerationGate]). */
 object ClosedDocumentGate : DocumentGenerationGate {
     override fun isAdmitted(generation: Long?) = false
     override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = drop()
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) = drop()
 }
 
 /** Admits every call on the calling thread: only for bridges that serve no window document (the PoC controller). */
 object OpenDocumentGate : DocumentGenerationGate {
     override fun isAdmitted(generation: Long?) = true
     override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
 }
 
 /** The gate [BridgeDispatcher] uses for this bridge by default: the bridge itself, or [ClosedDocumentGate]. */
@@ -73,6 +83,10 @@ fun BibleBridge.documentGenerationGate(): DocumentGenerationGate = this as? Docu
  *   resolves the active window and can replace its document), speech that follows the text, the prompt selector of the
  *   active window's document category, keyboard shortcuts, workspace settings. From a replaced page it would change the
  *   wrong window, so it is dropped (a deferred one is answered with null). Dropping one loses at most a tap.
+ * - [paging]: infinite scroll asks for the chapter before or after the page's content. It is admitted against the
+ *   document the PAGE holds, not the window's current one ([DocumentGenerationGate.runForPageDocument]): dropping it
+ *   while a new document is merely requested would answer null, which ends infinite scroll for good when no new
+ *   document follows (an unchanged commentary, a failed load).
  * - [unguarded]: the call writes user data addressed explicitly (bookmark/label/StudyPad/MyDocument id, book +
  *   ordinals), answers the page itself, only opens UI that does not depend on the window's document, or reports the
  *   state of the live page itself (modal, editing, focus, client ready, console). Dropping it would lose user input (a
@@ -86,8 +100,8 @@ fun BibleBridge.documentGenerationGate(): DocumentGenerationGate = this as? Docu
  */
 object BridgeGenerationPolicy {
     val guarded: Set<String> = setOf(
-        // Position and paging of the window's document.
-        "scrolledToOrdinal", "requestMoreToBeginning", "requestMoreToEnd", "goToNextChapter", "goToPreviousChapter",
+        // Position and chapter navigation of the window's document.
+        "scrolledToOrdinal", "goToNextChapter", "goToPreviousChapter",
         // The page's restore state is stored on the window.
         "saveState",
         // Workspace settings of the current workspace.
@@ -104,6 +118,8 @@ object BridgeGenerationPolicy {
         // Act on the window's current document or the window itself.
         "shareHtml", "deleteMyDocumentPage", "regenerateMyDocumentPage",
     )
+
+    val paging: Set<String> = setOf("requestMoreToBeginning", "requestMoreToEnd")
 
     val unguarded: Set<String> = setOf(
         // The live page's own lifecycle and UI state.
