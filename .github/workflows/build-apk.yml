@@ -87,7 +87,10 @@ jobs:
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app/build/outputs/apk/standardGithub/release/*-unsigned.apk
         $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/calculator-$TAG_NAME.apk app/build/outputs/apk/discreteGithub/release/*-unsigned.apk
         rm -f keystore.jks
-    - name: Create release
+    # Releases are immutable: assets can only be added while the release is a draft. Always create a
+    # draft. test-/production- tags also get desktop packages: the Desktop workflow's release-assets job
+    # uploads them and publishes the draft. Other tags (alpha-/beta-) are published right here.
+    - name: Create draft release
       if: contains(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v3
       env:
@@ -98,10 +101,19 @@ jobs:
         name: ${{ env.RELEASE_TITLE }}
         body_path: ./RELEASENOTES.txt
         prerelease: true
+        draft: true
         fail_on_unmatched_files: true
         files: |
           ./andbible-${{ env.TAG_NAME }}.apk
           ./calculator-${{ env.TAG_NAME }}.apk
+
+    - name: Publish release (tags without desktop packages)
+      if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref_name, 'test-') && !startsWith(github.ref_name, 'production-')
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      run: gh release edit "$TAG_NAME" --draft=false
 
     - name: Before saving cache
       run: |

@@ -4,13 +4,14 @@
 # env:   BATCH   shared folder under .local/ (default .local/bug-batch), must hold issues/<n>.md
 #        RUNNER  runner flags (default: --agent claude-jb --profile codex --model opus)
 #        BRANCH  branch name (default fix/issue-<n>; use fix/issue-<n>-2 for a rework)
+#        SPAWN_FLAGS extra spawn flags, e.g. "--mount mac-ssh --loose" for a Mac child
 #        MODEL_NAME  model named in the commit trailer (default: jb.codex.capable via claude-jb)
 set -euo pipefail
 n=$1; task=$2; extra=$3; tests=$4
 BATCH=${BATCH:-.local/bug-batch}
 test -f "$BATCH/issues/$n.md" || { echo "missing $BATCH/issues/$n.md" >&2; exit 2; }
 # shellcheck disable=SC2086
-jailbee-inbox send spawn --branch "${BRANCH:-fix/issue-$n}" --note "GitHub #$n" ${RUNNER:---agent claude-jb --profile codex --model opus} --wait - <<EOF
+jailbee inbox send spawn --branch "${BRANCH:-fix/issue-$n}" --note "GitHub #$n" ${SPAWN_FLAGS:-} ${RUNNER:---agent claude-jb --profile codex --model opus} --wait - <<EOF
 Task: $task (GitHub issue #$n, AndBible/and-bible).
 
 Context:
@@ -24,6 +25,7 @@ Context:
 - Keep the change focused on this issue; no unrelated refactoring. English strings only. If user-visible behaviour changes, update the matching website/content/en/docs page.
 - Do not re-record Roborazzi goldens; if your change could move a golden, say so in the report (the orchestrator runs the full verify gate).
 - Do not run the full :app verify gate; run only the tests relevant to your change.
+- GitHub: never stage GitHub writes and never write files under ~/.jailbee/*outbox* by hand. A follow-up issue or comment goes to the orchestrator as a message with the exact title, body and labels.
 - Independent code review happens on the orchestrator side after your \`done\` (you cannot dispatch reviewers). Do not wait for or ask for a review before sending \`done\`.
 
 Acceptance: $tests
