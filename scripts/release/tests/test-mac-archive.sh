@@ -23,6 +23,7 @@ echo "xcodebuild $*" >> "$STUB_DIR/calls"
 echo "$*" >> "$STUB_DIR/xcodebuild.argv"
 case "$*" in
 *" archive"*)
+    [ -z "${STUB_ARCHIVE_SLEEP:-}" ] || sleep "$STUB_ARCHIVE_SLEEP"
     [ "${STUB_ARCHIVE_RC:-0}" = 0 ] || { echo "error: archive broke"; exit "$STUB_ARCHIVE_RC"; }
     ap=$(echo "$*" | sed -n 's/.*-archivePath \([^ ]*\).*/\1/p')
     mkdir -p "$ap/Products/Applications/AndBible.app"; echo "x=1" > "$ap/Products/Applications/AndBible.app/Info.plist" ;;
@@ -180,6 +181,21 @@ test_summary_written_on_failure() {
     [ -f "$(SUM)" ] || return "$(fail "no summary")"
     [ "$(tail -1 "$(SUM)")" = "result=FAIL archive" ] || return "$(fail "last line: $(tail -1 "$(SUM)")")"
     grep -q "^build=$BUILD" "$(SUM)" || return "$(fail "no build line")"
+}
+test_term_writes_summary_and_detaches() {
+    mk_tree; cd "$W" || return 1
+    STUB_ARCHIVE_SLEEP=30 ANDBIBLE_TEST_EXPORT_PATH="$T/bin:/usr/bin:/bin" PATH="$T/bin:$PATH" \
+        perl -e 'setpgrp(0,0); exec @ARGV' bash "$SCRIPT" "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" export > "$T/out.txt" 2>&1 &
+    local pid=$! i
+    for i in $(seq 100); do grep -q archive "$STUB_DIR/calls" 2>/dev/null && break; sleep 0.1; done
+    kill -TERM -- -"$pid"; wait "$pid"; RC=$?
+    [ "$RC" = 143 ] || return "$(fail "rc=$RC, want 143")"
+    [ "$(tail -1 "$(SUM)")" = "result=FAIL archive" ] || return "$(fail "summary after TERM: $(cat "$(SUM)" 2>&1)")"
+    grep -q 'detach\|eject' "$STUB_DIR/detach.calls" || return "$(fail "no detach after TERM")"
+}
+test_die_message_has_no_exit_code() {
+    mk_tree; sed -i 's/^MARKETING_VERSION = .*/MARKETING_VERSION = 9.9.9/' "$W/iosApp/Config/Version.xcconfig"
+    run; grep -q "'9.9.9' != '$VERSION'\$" "$T/out.txt" || return "$(fail "message: $(cat "$T/out.txt")")"
 }
 test_get_task_allow_absent_passes() {
     mk_tree; STUB_GTA=absent run export; [ "$RC" = 0 ] || return "$(fail "absent get-task-allow refused: $(cat "$T/out.txt")")"

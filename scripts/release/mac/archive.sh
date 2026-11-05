@@ -36,7 +36,9 @@ cleanup() {
 	exit $rc
 }
 trap cleanup EXIT
-die() { echo "$*" >&2; exit "${2:-1}"; }
+trap 'exit 143' TERM HUP
+trap 'exit 130' INT
+die() { echo "$1" >&2; exit "${2:-1}"; }
 
 case "$DEST" in upload|export) ;; *) STEP=args; die "bad destination '$DEST' (upload|export)" 2 ;; esac
 STEP=key

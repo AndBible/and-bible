@@ -21,13 +21,15 @@ cat > "$T/bin/ssh" <<'EOS'
 echo "ssh $*" >> "$STUB_DIR/calls"
 printf 'ssh %s\n' "$*" >> "$STUB_DIR/argv"
 if [ ! -t 0 ]; then n=$(wc -c); echo "stdin $n" >> "$STUB_DIR/stdin"; fi
-case "$*" in *"hdiutil detach"*) [ -z "${STUB_DETACH_SLEEP:-}" ] || { echo detach-start > "$STUB_DIR/detach-started"; sleep "$STUB_DETACH_SLEEP"; echo detach-done > "$STUB_DIR/detach-done"; } ;; esac
+case "$*" in *"hdiutil detach"*) [ -z "${STUB_DETACH_SLEEP:-}" ] || { echo detach-start > "$STUB_DIR/detach-started"; trap '' TERM; if [ -n "${STUB_DETACH_EXEC:-}" ]; then exec sleep "$STUB_DETACH_SLEEP"; fi; sleep "$STUB_DETACH_SLEEP"; echo detach-done > "$STUB_DIR/detach-done"; } ;; esac
 case "$*" in *"hdiutil info"*) echo 0 ;; *"ram://"*) echo "-rw------- 40" ;; esac
+case "$*" in *"hdiutil detach"*) [ -z "${STUB_DETACH_RC:-}" ] || exit "$STUB_DETACH_RC" ;; esac
 exit "${STUB_SSH_RC:-0}"
 EOS
 cat > "$T/bin/gpg" <<'EOS'
 #!/usr/bin/env bash
 echo gpg >> "$STUB_DIR/gpgcalls"
+[ -z "${STUB_GPG_DIRTY:-}" ] || echo edit > "$REPO_ROOT/edited-during-wait.txt"
 [ "${STUB_GPG_RC:-0}" = 0 ] || { echo "gpg: Bad PIN" >&2; exit "$STUB_GPG_RC"; }
 echo "$STUB_SENTINEL"
 EOS
@@ -37,7 +39,14 @@ echo "mac-remote $*" >> "$STUB_DIR/argv"
 echo "$1" >> "$STUB_DIR/mrcalls"
 case "$1" in
 check) cat "$STUB_DIR/check.out" ;;
-run) [ -z "${STUB_RUN_MARK:-}" ] || echo started > "$STUB_RUN_MARK"; [ -z "${STUB_RUN_SLEEP:-}" ] || sleep "$STUB_RUN_SLEEP"; exit "${STUB_RUN_RC:-0}" ;;
+run) b=$(echo "$2" | awk '{print $7}')
+    if [ "${STUB_CAPTURE:-1}" = 1 ] && [ -z "${STUB_RUN_SLEEP:-}" ]; then
+        d="$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-$b"; mkdir -p "$d/export" "$d/ipa" "$d/upload"
+        echo "build log" > "$d/archive.log"; echo "result=PASS upload" > "$d/summary.txt"; echo ents > "$d/release.entitlements"
+        echo ipaents > "$d/ipa-entitlements.txt"; echo big > "$d/export/AndBible.ipa"; echo big > "$d/ipa/x"; echo big > "$d/upload/y"
+        mkdir -p "$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-OTHER"; echo other > "$MAC_LOCAL_DIR/runs/r1/run/step1/release/testflight-OTHER/summary.txt"
+    fi
+    [ -z "${STUB_RUN_MARK:-}" ] || echo started > "$STUB_RUN_MARK"; [ -z "${STUB_RUN_SLEEP:-}" ] || sleep "$STUB_RUN_SLEEP"; exit "${STUB_RUN_RC:-0}" ;;
 fetch) exit "${STUB_FETCH_RC:-0}" ;;
 esac
 EOS
@@ -46,7 +55,7 @@ printf 'ASC_KEY_ID=KEYID12345\nASC_ISSUER_ID=issuer-0000\n' > "$T/secrets/asc-ap
 : > "$T/secrets/AuthKey_KEYID12345.p8.gpg"
 
 mk_repo() {   # fresh temp repo with jsword, kdom, docs/superpowers submodules
-    R="$T/repo"; rm -rf "$R" "$T/sub" "$STUB_DIR"; mkdir -p "$STUB_DIR" "$T/sub"
+    R="$T/repo"; rm -rf "$R" "$T/sub" "$STUB_DIR" "$T/maclocal"; mkdir -p "$STUB_DIR" "$T/sub"
     local s
     for s in jsword kdom superpowers; do
         git init -q "$T/sub/$s"; git -C "$T/sub/$s" -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
@@ -64,7 +73,7 @@ mk_repo() {   # fresh temp repo with jsword, kdom, docs/superpowers submodules
     echo "build lock: free" > "$STUB_DIR/check.out"
 }
 build() {   # build [args]: run ios-build with the stubs; output in $T/out, status in $RC
-    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" \
+    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
         MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac bash "$SCRIPT" "$@" > "$T/out" 2>&1
     RC=$?
@@ -96,8 +105,45 @@ test_key_never_in_argv_or_output() {
     grep -q 'release-secrets\.' "$STUB_DIR/argv" "$T/out" && return "$(fail "RAM dir path leaked")"
     grep -q "^stdin $((${#SENTINEL} + 1))$" "$STUB_DIR/stdin" || return "$(fail "key not streamed on stdin: $(cat "$STUB_DIR/stdin")")"
     grep -q 'testflight rc=0 in [0-9]*s (destination upload)' "$T/out" || return "$(fail "final line: $(tail -3 "$T/out")")"
-    grep -q 'mac-remote fetch build/release/testflight-.*/ .*/.local/release/testflight/' "$STUB_DIR/argv" || return "$(fail "fetch argv")"
+    [ ! -e "$STUB_DIR/mrcalls" ] || ! grep -qx fetch "$STUB_DIR/mrcalls" || return "$(fail "fetch used although the run capture exists")"
     true
+}
+evdir() { echo "$R/.local/release/testflight/$(sed -n 's/^build //p' "$T/out")"; }
+test_evidence_from_run_capture() {
+    mk_repo; build
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    local e; e=$(evdir)
+    for f in archive.log summary.txt release.entitlements ipa-entitlements.txt; do [ -f "$e/$f" ] || return "$(fail "missing $f in $e")"; done
+    [ ! -e "$e/export" ] && [ ! -e "$e/ipa" ] && [ ! -e "$e/upload" ] || return "$(fail "big dirs copied: $(ls "$e")")"
+    [ "$(cat "$e/summary.txt")" = "result=PASS upload" ] || return "$(fail "wrong summary (other build picked?)")"
+    # detach exactly once, before the evidence step, and no fetch
+    [ "$(grep -c 'hdiutil detach' "$STUB_DIR/argv")" = 1 ] || return "$(fail "detach count: $(grep -c 'hdiutil detach' "$STUB_DIR/argv")")"
+    ! grep -qx fetch "$STUB_DIR/mrcalls" || return "$(fail "fetch called")"
+}
+test_fetch_fallback_when_capture_missing() {
+    mk_repo; export STUB_CAPTURE=0; build; unset STUB_CAPTURE
+    [ "$RC" = 0 ] || return "$(fail "rc=$RC: $(cat "$T/out")")"
+    grep -qx fetch "$STUB_DIR/mrcalls" || return "$(fail "no fetch fallback")"
+    grep -q 'mac-remote fetch build/release/testflight-.*/ .*/.local/release/testflight/' "$STUB_DIR/argv" || return "$(fail "fetch argv")"
+    export STUB_CAPTURE=0 STUB_FETCH_RC=1; build; unset STUB_CAPTURE STUB_FETCH_RC
+    [ "$RC" = 0 ] || return "$(fail "missing evidence turned a good run into rc=$RC")"
+    grep -q 'WARNING' "$T/out" || return "$(fail "no warning: $(cat "$T/out")")"
+    export STUB_CAPTURE=0 STUB_FETCH_RC=1 STUB_RUN_RC=4; build; unset STUB_CAPTURE STUB_FETCH_RC STUB_RUN_RC
+    [ "$RC" = 4 ] || return "$(fail "run rc lost: $RC")"
+}
+test_tree_edited_during_decrypt_refuses() {
+    mk_repo; export STUB_GPG_DIRTY=1; build; unset STUB_GPG_DIRTY
+    [ "$RC" != 0 ] && grep -q 'not clean' "$T/out" || return "$(fail "rc=$RC $(cat "$T/out")")"
+    ! grep -qx run "$STUB_DIR/mrcalls" || return "$(fail "run called on an edited tree")"
+    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+}
+test_detach_ssh_is_bounded() {
+    mk_repo; export STUB_DETACH_SLEEP=30 STUB_DETACH_EXEC=1 MAC_DETACH_TIMEOUT=1 MAC_DETACH_KILL_AFTER=1
+    local t0=$SECONDS; build; unset STUB_DETACH_SLEEP STUB_DETACH_EXEC MAC_DETACH_TIMEOUT MAC_DETACH_KILL_AFTER
+    [ $((SECONDS - t0)) -lt 15 ] || return "$(fail "stalled detach not bounded: $((SECONDS - t0))s")"
+    grep -q 'WARNING: could not detach' "$T/out" || return "$(fail "no warning: $(cat "$T/out")")"
+    grep -q 'ServerAliveInterval=10' "$STUB_DIR/argv" && grep -q 'ServerAliveCountMax=3' "$STUB_DIR/argv" || return "$(fail "no keepalive options")"
+    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
 }
 test_dirty_parent_refuses() {
     mk_repo; echo x > untracked.txt; build
@@ -146,7 +192,7 @@ test_detach_on_run_failure() {
 }
 test_detach_on_interrupt() {
     mk_repo; export STUB_RUN_SLEEP=20 STUB_RUN_MARK="$T/runmark"; rm -f "$T/runmark"
-    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" \
+    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
         MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
         perl -e '$SIG{INT}="DEFAULT"; setpgrp(0,0); exec @ARGV' bash "$SCRIPT" > "$T/out" 2>&1 &
@@ -162,7 +208,7 @@ test_detach_on_interrupt() {
 }
 test_second_interrupt_during_detach() {
     mk_repo; export STUB_RUN_SLEEP=20 STUB_RUN_MARK="$T/runmark" STUB_DETACH_SLEEP=2; rm -f "$T/runmark"
-    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" \
+    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" MAC_LOCAL_DIR="$T/maclocal" \
         RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
         MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
         perl -e '$SIG{INT}="DEFAULT"; setpgrp(0,0); exec @ARGV' bash "$SCRIPT" > "$T/out" 2>&1 &
@@ -183,7 +229,11 @@ test_failed_detach_warns() {
     mk_repo
     export STUB_SSH_RC=1; build; unset STUB_SSH_RC
     grep -q 'WARNING: could not detach /Volumes/asckey-' "$T/out" || return "$(fail "no detach warning: $(cat "$T/out")")"
-    grep -q "hdiutil detach /Volumes/asckey-" "$T/out" || return "$(fail "no manual command")"
+    grep -q "scripts/mac-remote.sh ssh 'hdiutil detach -force /Volumes/asckey-" "$T/out" || return "$(fail "no manual command: $(cat "$T/out")")"
+    # the detach itself failing (remote command nonzero because the volume is still there) also warns
+    mk_repo; export STUB_DETACH_RC=1; build; unset STUB_DETACH_RC
+    grep -q 'WARNING: could not detach /Volumes/asckey-' "$T/out" || return "$(fail "no warning on failed detach: $(cat "$T/out")")"
+    grep -q '! -e /Volumes/asckey-' "$STUB_DIR/argv" || return "$(fail "remote command does not verify the volume is gone")"
 }
 test_ramdir_gone_after_success() {
     mk_repo; build
