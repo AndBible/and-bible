@@ -1466,7 +1466,7 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     private func positionNoteCaretAtStart(_ editor: XCUIElement) -> Bool {
-        editor.typeKey(XCUIKeyboardKey.home, modifierFlags: [])
+        editor.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
         editor.typeText("Q")
         guard waitUntil(timeout: 10, { (editor.value as? String) == "Qalpha beta" }) else {
             XCTFail("note editor caret was not at start: \(editor.value ?? "nil")"); return false
@@ -1502,6 +1502,7 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     func testNoteEditorControlFMovesCaret() throws {
+        try XCTSkipIf(isPad, "iPad caret-start fixture cannot establish offset 0: tap and unmodified Home both leave sentinel at end; no Ctrl+F sent. See issue 3972 follow-up evidence.")
         try assertNoteEditorControlCaret("f", fromStart: true, expected: "aXlpha beta")
     }
 
