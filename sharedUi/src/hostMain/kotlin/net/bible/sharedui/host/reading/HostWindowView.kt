@@ -59,6 +59,10 @@ internal class HostWindowView(
 
     override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) = loader.scrollOrJumpToVerse(key, forceNow)
 
+    override fun documentRequested(): Long = loader.documentRequested()
+
+    override fun documentRequestEnded(request: Long) = loader.documentRequestEnded(request)
+
     override fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) =
         loader.scrollOrJumpToOrdinal(ordinal, htmlId, bookInitials, osisRef, forceNow)
 

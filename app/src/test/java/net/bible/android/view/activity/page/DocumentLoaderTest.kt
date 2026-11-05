@@ -274,6 +274,47 @@ class DocumentLoaderTest {
         assertFalse("nothing sent yet: ${host.evaluated}", host.evaluated.any { it.contains("clear_document") })
     }
 
+    /**
+     * #3975 review B (4): a requested document invalidates the outgoing one at once; a request that ends without a new
+     * admission (unchanged content, superseded or failed read) admits the page's document again, an older request's end
+     * never does while a newer one is pending, and an admission settles every request.
+     */
+    @Test
+    fun aDocumentRequestSuspendsTheAdmittedGenerationUntilItEnds() = runBlocking {
+        loader.loadDocument(doc("A"), false, null, null, null, null)
+        val a = session.documentGeneration
+
+        val first = loader.documentRequested()
+        assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+        val second = loader.documentRequested()
+        loader.documentRequestEnded(first)
+        assertEquals("a newer request is still pending", NO_DOCUMENT_GENERATION, session.documentGeneration)
+        loader.documentRequestEnded(second)
+        assertEquals("no document came: the page's document counts again", a, session.documentGeneration)
+
+        val third = loader.documentRequested()
+        loader.loadDocument(doc("B"), false, null, null, null, null)
+        val b = session.documentGeneration
+        assertTrue("admitted", b != NO_DOCUMENT_GENERATION && b != a)
+        loader.documentRequestEnded(third)
+        assertEquals(b, session.documentGeneration)
+
+        loader.documentRequested()
+        loader.forgetDocument()
+        assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+    }
+
+    /** A page that (re)starts while a newer document is requested still gets its document with that document's generation. */
+    @Test
+    fun aRestartedPageGetsItsDocumentsGenerationWhileANewerOneIsRequested() = runBlocking {
+        loader.loadDocument(doc("A"), false, null, null, null, null)
+        val a = session.documentGeneration
+        loader.documentRequested()
+        host.evaluated.clear()
+        loader.setClientReady()
+        assertTrue("restart: ${host.evaluated}", host.evaluated.any { it.contains("bibleView.emit(\"clear_document\", $a)") })
+    }
+
     @Test
     fun staleLoadIsDropped() = runBlocking {
         val aEntered = CountDownLatch(1)

@@ -189,7 +189,9 @@ internal class ContentBridgeFamily(
 
     fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             showPromptSelector(
                 Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text),
                 PromptContext.VERSE_SELECTION,
@@ -199,7 +201,9 @@ internal class ContentBridgeFamily(
 
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             showPromptSelector(
                 Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text),
                 PromptContext.VERSE_SELECTION,
@@ -220,7 +224,9 @@ internal class ContentBridgeFamily(
      */
     fun noteEditorLlmAction(contextJson: String) {
         if (session.isDisposed) return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val ctx = try {
                 AppJson.decodeFromString<NoteEditorLlmContext>(contextJson)
             } catch (e: kotlinx.serialization.SerializationException) {
@@ -315,8 +321,9 @@ internal class ContentBridgeFamily(
         // The asking window travels with the request: the host must not guess it (the active window can differ).
         // `windowOrNull` is never null for a live Android BibleView (its session is built with the window).
         val windowId = session.windowOrNull?.id ?: return
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
-            if (session.isDisposed) return@launch
+            if (!session.holdsDocument(ticket)) return@launch
             session.hostSheets?.showRegenerate(id, windowId)
         }
     }
@@ -325,13 +332,15 @@ internal class ContentBridgeFamily(
     fun deleteMyDocumentPage(pageId: String) {
         if (session.isDisposed) return
         val id = IdType(pageId)
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
-            if (session.isDisposed) return@launch
+            if (!session.holdsDocument(ticket)) return@launch
             session.hostSheets?.showDeleteDocumentPageConfirm {
                 MyDocumentBookManager.launcher.launch(documentQueue()) {
                     MyDocumentBookManager.deleteAIDocumentPage(id)
                     withContext(Dispatchers.Main) {
-                        if (session.isDisposed) return@withContext
+                        // The confirmed deletion stands; the window bookkeeping only for the window that asked (#3975).
+                        if (session.isDisposed || session.windowOrNull !== ticket.window) return@withContext
                         val window = session.window
                         if (session.windowControl.isWindowRemovable(window)) {
                             session.windowControl.closeWindow(window)

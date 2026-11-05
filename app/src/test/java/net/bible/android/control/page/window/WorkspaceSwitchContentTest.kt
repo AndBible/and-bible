@@ -241,10 +241,103 @@ class WorkspaceSwitchContentTest {
             before, incoming.pageManager.currentBible.currentBibleVerse.verse)
     }
 
-    /** A scroll report as the page posts it: through the view's dispatcher, echoing the page's document generation. */
+    /**
+     * A call as the page posts it, through the `androidBridge` object [BibleView] registers with the WebView (the
+     * production entry: endpoint, dispatcher, BibleJavascriptInterface and its gate), echoing [generation] (#3975).
+     */
+    private fun post(view: BibleView, method: String, args: String, generation: Long) =
+        checkNotNull(view.androidBridgeEndpoint) { "the view registered its androidBridge" }
+            .postMessage("""{"method":"$method","args":[$args],"documentGeneration":$generation}""")
+
     private fun staleReport(view: BibleView, keyStr: String, ordinal: Int, generation: Long) =
-        net.bible.sharedcore.bibleview.BridgeDispatcher(view.readingBridge, {}, {}).dispatch(
-            """{"method":"scrolledToOrdinal","args":["$keyStr",$ordinal],"documentGeneration":$generation}""")
+        post(view, "scrolledToOrdinal", "\"$keyStr\",$ordinal", generation)
+
+    private fun verseOf(window: Window) = window.pageManager.currentBible.currentBibleVerse.verse
+
+    /** Shows [chapter]:1 of John in [window] and waits until its view has admitted that document. */
+    private fun admitJohn(window: Window, chapter: Int, verse: Int = 1): org.crosswire.jsword.passage.Verse {
+        val view = window.bibleView as BibleView
+        val v11n = verseOf(window).versification
+        val target = org.crosswire.jsword.passage.Verse(v11n, org.crosswire.jsword.versification.BibleBook.JOHN, chapter, verse)
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), target)
+        awaitHostUntil("John $chapter must be admitted to ${window.displayId}'s view") {
+            (view.session.initialKey as? org.crosswire.jsword.passage.Verse)?.let { it.book == target.book && it.chapter == chapter } == true &&
+                view.session.documentGeneration != net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+        }
+        return target
+    }
+
+    private fun john(window: Window, chapter: Int, verse: Int) = org.crosswire.jsword.passage.Verse(
+        verseOf(window).versification, org.crosswire.jsword.versification.BibleBook.JOHN, chapter, verse)
+
+    /**
+     * #3975 review A: through the production entry, a report of the admitted document moves the window. Together with
+     * the stale-report tests above (also through the production entry) this fails if the gate is removed or replaced:
+     * an open gate lets the stale reports through, a missing (closed) one drops this one.
+     */
+    @Test fun aReportOfTheAdmittedDocumentMovesTheWindowThroughTheProductionEntry() {
+        val window = workspaceA().oldWindows[0]
+        val view = window.bibleView as BibleView
+        admitJohn(window, 6)
+
+        staleReport(view, "John.6", john(window, 6, 20).ordinal, view.session.documentGeneration)
+
+        assertEquals(john(window, 6, 20), verseOf(window))
+    }
+
+    /**
+     * #3975 review B (3): the dispatcher's check runs on the JavaBridge thread, but the window changes on the main
+     * thread. The call runs on the main thread, and only if its document is still admitted THERE: a navigation queued
+     * between the dispatch and the run drops it.
+     */
+    @Test fun aCallFromTheBridgeThreadActsOnTheMainThreadOnlyIfItsDocumentIsStillAdmittedThere() {
+        val window = workspaceA().oldWindows[0]
+        val view = window.bibleView as BibleView
+        val start = admitJohn(window, 6)
+        val generation = view.session.documentGeneration
+
+        kotlin.concurrent.thread { staleReport(view, "John.6", john(window, 6, 20).ordinal, generation) }.join()
+        assertEquals("the report must not act on the bridge thread", start, verseOf(window))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("a report of the admitted document acts once it runs on the main thread", john(window, 6, 20), verseOf(window))
+
+        kotlin.concurrent.thread { staleReport(view, "John.6", john(window, 6, 30).ordinal, generation) }.join()
+        val requested = john(window, 8, 1)
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), requested)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("the report queued before the navigation must not undo it", requested, verseOf(window))
+    }
+
+    /**
+     * #3975 review B (4): navigating requests a new document, which is admitted only after an asynchronous read. Until
+     * then the page still shows (and reports) the outgoing chapter; such a report must not move the window off the
+     * requested verse. A jump inside the loaded document requests nothing, so the page's reports keep counting.
+     */
+    @Test fun aReportOfTheOutgoingDocumentCannotUndoANavigationBeforeItsDocumentIsAdmitted() {
+        val window = workspaceA().oldWindows[0]
+        val view = window.bibleView as BibleView
+        admitJohn(window, 6)
+        val outgoing = view.session.documentGeneration
+
+        val requested = john(window, 8, 1)
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), requested)
+        staleReport(view, "John.6", john(window, 6, 20).ordinal, outgoing)
+        assertEquals("the outgoing page's report must not move the window off the requested verse", requested, verseOf(window))
+
+        awaitHostUntil("John 8 must be admitted") {
+            (view.session.initialKey as? org.crosswire.jsword.passage.Verse)?.chapter == 8 &&
+                view.session.documentGeneration != net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+        }
+        assertEquals(requested, verseOf(window))
+        val admitted = view.session.documentGeneration
+        assertTrue("a new document, a new generation", admitted != outgoing)
+
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), john(window, 8, 10))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("a jump inside the loaded chapter requests no new document", admitted, view.session.documentGeneration)
+        staleReport(view, "John.8", john(window, 8, 12).ordinal, admitted)
+        assertEquals(john(window, 8, 12), verseOf(window))
+    }
 
     private fun scenario(animationsOff: Boolean) {
         CommonUtils.settings.setBoolean("disable_animations", animationsOff)

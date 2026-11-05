@@ -221,7 +221,8 @@ private object IosWebViewHolder {
         }
         val log: (String) -> Unit = { msg -> nsLog("bridge[$windowId]: $msg") }
         val bridge = controller.bridge(sink, log)
-        val dispatcher = BridgeDispatcher(bridge, { callId -> sink(BibleViewEvents.response(callId, null)) }, log)
+        // The PoC page serves no window document: nothing to guard (#3975).
+        val dispatcher = BridgeDispatcher(bridge, { callId -> sink(BibleViewEvents.response(callId, null)) }, log, net.bible.sharedcore.bibleview.OpenDocumentGate)
         val handler = IosBridgeMessageHandler(dispatcher)
         val navDelegate = IosNavDelegate(windowId)
 

@@ -35,6 +35,16 @@ interface WindowView {
     fun updateTextDisplaySettings(onAttach: Boolean = false)
     /** Returns whether the adjustment reached the page. */
     fun adjustLoadingCount(adj: Int): Boolean
+
+    /**
+     * The window requests a new document or key for this view ([Window.loadText]); until [loadDocument] admits it,
+     * the page's calls about its outgoing document must not act on the window (#3975). Returns a token for
+     * [documentRequestEnded].
+     */
+    fun documentRequested(): Long = 0L
+
+    /** The request [request] ended, admitted or not (see [documentRequested]). */
+    fun documentRequestEnded(request: Long) {}
 }
 
 /** The display title of one text display setting type, as shown in the settings pickers. */

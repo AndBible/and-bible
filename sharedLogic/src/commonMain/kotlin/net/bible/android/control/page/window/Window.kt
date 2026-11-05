@@ -287,6 +287,10 @@ class Window (
         displayedKey = currentPage.key
         Log.i(TAG, "updateText ${this.hashCode()}")
 
+        // From here until the document is admitted (or the request ends without one), the view's page still shows the
+        // outgoing content, and its reports must not move this window off the requested key (#3975).
+        val requestView = bibleView
+        val viewRequest = requestView?.documentRequested()
         updateScope.launch(Dispatchers.IO) {
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -327,7 +331,7 @@ class Window (
 
             if(notifyLocationChange)
                 PassageChangeMediator.contentChangeFinished()
-            }
+            }.invokeOnCompletion { if (viewRequest != null) requestView.documentRequestEnded(viewRequest) }
         }
 
     private var lastChecksum = 0

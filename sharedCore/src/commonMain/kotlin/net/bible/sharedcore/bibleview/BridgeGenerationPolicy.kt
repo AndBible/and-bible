@@ -21,13 +21,42 @@ package net.bible.sharedcore.bibleview
 const val NO_DOCUMENT_GENERATION = 0L
 
 /**
- * A [BibleBridge] that serves one window's document. [admittedDocumentGeneration] is the generation of the document it
- * last admitted ([NO_DOCUMENT_GENERATION] when none, e.g. a web view parked for reuse), the one the page receives with
- * that document's `clear_document` and echoes in every call ([BridgeMessage.documentGeneration]).
+ * Admits the [BridgeGenerationPolicy.guarded] calls of the page whose document a window currently holds (#3975).
+ *
+ * The page stamps every call with the generation of the document it received with its `clear_document`
+ * ([BridgeMessage.documentGeneration]). [BridgeDispatcher] asks [isAdmitted] on the calling thread (Android: the
+ * JavaBridge thread) and then hands the call to [runAdmitted], which runs it on the thread that owns the window's
+ * state (main) only if the generation is STILL admitted there for the same window: a navigation or view rebind that
+ * happened in between drops it.
+ *
+ * A bridge that does not implement the gate gets [ClosedDocumentGate]: its guarded calls are always dropped (fail
+ * closed). A bridge with no window documents to protect must say so explicitly with [OpenDocumentGate].
  */
 interface DocumentGenerationGate {
-    val admittedDocumentGeneration: Long
+    /** Whether a guarded call of [generation] belongs to the document admitted right now. */
+    fun isAdmitted(generation: Long?): Boolean
+
+    /**
+     * Runs [call] where window state is changed (the main thread) if [generation] is still admitted there; otherwise
+     * runs [drop]. Exactly one of them runs, once. Neither may throw into the caller's thread.
+     */
+    fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit)
 }
+
+/** Drops every guarded call: the gate of a bridge that has none (see [DocumentGenerationGate]). */
+object ClosedDocumentGate : DocumentGenerationGate {
+    override fun isAdmitted(generation: Long?) = false
+    override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = drop()
+}
+
+/** Admits every call on the calling thread: only for bridges that serve no window document (the PoC controller). */
+object OpenDocumentGate : DocumentGenerationGate {
+    override fun isAdmitted(generation: Long?) = true
+    override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
+}
+
+/** The gate [BridgeDispatcher] uses for this bridge by default: the bridge itself, or [ClosedDocumentGate]. */
+fun BibleBridge.documentGenerationGate(): DocumentGenerationGate = this as? DocumentGenerationGate ?: ClosedDocumentGate
 
 /**
  * Which bridge calls [BridgeDispatcher] drops when they come from a page whose document is not the admitted one.
@@ -37,16 +66,21 @@ interface DocumentGenerationGate {
  * keeps calling until the new document replaces it (osTicket 3508, #3975). Such a call reaches the bridge of the window
  * that now owns the view.
  *
- * - [guarded]: the call acts on the window's (or workspace's) CURRENT document or state implicitly: its position,
- *   paging, restore state, navigation of the window, workspace settings. From a replaced page it would change the wrong
- *   window, so it is dropped (a deferred one is answered with null).
- * - [unguarded]: the call addresses its target explicitly (bookmark/label/page id, book + ordinals), only opens UI, or
- *   reports the state of the live page itself (modal, editing, focus, client ready, console). Dropping it would lose user
- *   input (a note save of an editor the replacement closed) or wedge the page's UI state.
+ * The rule fails closed: a call is [guarded] unless dropping it would lose user data or wedge the page.
  *
- * Accepted residue: a guarded tap the user makes in the few milliseconds between native admitting a document and the
- * page clearing the old one is dropped without feedback; an unguarded call of a replaced page still shows its UI (note
- * editor, prompt selector) for, or credits reading progress to, the window that now owns the view.
+ * - [guarded]: the call navigates, or acts on the window's (or the active window's, or workspace's) CURRENT document or
+ *   state implicitly: its position, paging, restore state, navigation from a link or a verse action (`LinkControl`
+ *   resolves the active window and can replace its document), speech that follows the text, the prompt selector of the
+ *   active window's document category, keyboard shortcuts, workspace settings. From a replaced page it would change the
+ *   wrong window, so it is dropped (a deferred one is answered with null). Dropping one loses at most a tap.
+ * - [unguarded]: the call writes user data addressed explicitly (bookmark/label/StudyPad/MyDocument id, book +
+ *   ordinals), answers the page itself, only opens UI that does not depend on the window's document, or reports the
+ *   state of the live page itself (modal, editing, focus, client ready, console). Dropping it would lose user input (a
+ *   note save of an editor the replacement closed) or wedge the page's UI state.
+ *
+ * Accepted residue: a guarded tap the user makes between native requesting a new document and the page clearing the
+ * old one is dropped without feedback; an unguarded call of a replaced page still shows its UI (note editor, reading
+ * progress, help) for, or credits reading progress to, the window that now owns the view.
  *
  * Every bridge method is in exactly one set (`BridgeGenerationPolicyTest`); classify a new method when adding it.
  */
@@ -58,8 +92,15 @@ object BridgeGenerationPolicy {
         "saveState",
         // Workspace settings of the current workspace.
         "setStudyPadCursor", "toggleCompareDocument", "setLimitAmbiguousModalSize",
-        // Navigate the window (or the active window) from a link in the page's document.
-        "openEpubLink", "openStudyPad", "openMyNotes", "openAiDocPage",
+        // Navigate the window or the active window: links in the page's document (in-app osis:, sword:, MyBible and
+        // MySword links; a browser link is only a tap), verse actions that open a document.
+        "openEpubLink", "openStudyPad", "openMyNotes", "openAiDocPage", "openExternalLink", "compare", "memorize",
+        // Speech follows the spoken text in the window.
+        "speak", "speakMemorizationLoop", "speakGeneric",
+        // The prompt selector takes the active window's document category.
+        "llmAction", "llmActionGeneric", "noteEditorLlmAction",
+        // Shortcuts act on this view's window or the active one.
+        "onKeyDown",
         // Act on the window's current document or the window itself.
         "shareHtml", "deleteMyDocumentPage", "regenerateMyDocumentPage",
     )
@@ -67,7 +108,7 @@ object BridgeGenerationPolicy {
     val unguarded: Set<String> = setOf(
         // The live page's own lifecycle and UI state.
         "setClientReady", "console", "selectionCleared", "reportInputFocus", "setEditing", "reportModalState", "toast",
-        "onKeyDown", "crash",
+        "crash",
         // Deferred reads answering the page itself.
         "parseRef", "refChooserDialog", "getMyDocumentPageRawContent",
         // Bookmark, label and StudyPad data, addressed by id.
@@ -77,16 +118,14 @@ object BridgeGenerationPolicy {
         "updateStudyPadTextEntryText", "updateBookmarkToLabel", "updateGenericBookmarkToLabel", "setAsPrimaryLabel",
         "setAsPrimaryLabelGeneric", "toggleBookmarkLabel", "toggleGenericBookmarkLabel", "setBookmarkCustomIcon",
         "setGenericBookmarkCustomIcon", "setBookmarkWholeVerse", "setGenericBookmarkWholeVerse",
-        // Bookmark creation and verse actions, addressed by book + ordinals.
+        // Bookmark and memorization data and verse sharing, addressed by book + ordinals.
         "addBookmark", "addGenericBookmark", "addParagraphBreakBookmark", "addGenericParagraphBreakBookmark",
-        "createWholePageBookmark", "shareBookmarkVerse", "shareVerse", "copyVerse", "compare", "memorize",
+        "createWholePageBookmark", "shareBookmarkVerse", "shareVerse", "copyVerse",
         "markAsMemorized", "addMemorizationTarget", "unmarkMemorized", "removeMemorizationTarget", "recordChapterRead",
-        "openChapterReadHistory", "speak", "speakMemorizationLoop", "speakGeneric", "llmAction", "llmActionGeneric",
-        "noteEditorLlmAction",
         // MyDocument data, addressed by page id or book.
         "saveMyDocumentPageContent", "reloadMyDocumentPage", "shareMyDocumentContent", "copyMyDocumentContent",
         // Global settings and UI that does not depend on the window's document.
-        "setReadingProgressSettings", "openReadingProgress", "openReadingProgressSettings", "showHelpDialog",
-        "helpDialog", "helpBookmarks", "openExternalLink", "openDownloads", "openPromptEditor",
+        "setReadingProgressSettings", "openReadingProgress", "openReadingProgressSettings", "openChapterReadHistory",
+        "showHelpDialog", "helpDialog", "helpBookmarks", "openDownloads", "openPromptEditor",
     )
 }

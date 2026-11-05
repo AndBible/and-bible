@@ -19,6 +19,7 @@
 
 package net.bible.sharedui.reading.bridge
 
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,6 +42,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.DocumentGenerationGate
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import org.crosswire.jsword.book.sword.SwordGenBook
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.log.Log
@@ -117,11 +119,27 @@ class ReadingBridge(
     }
 
     /**
-     * The generation of the document this window's page holds. [net.bible.sharedcore.bibleview.BridgeDispatcher] drops a
-     * [net.bible.sharedcore.bibleview.BridgeGenerationPolicy.guarded] call (such as [scrolledToOrdinal]) of any other
-     * generation: it comes from a page the window has since replaced (osTicket 3508, #3975).
+     * A guarded call ([net.bible.sharedcore.bibleview.BridgeGenerationPolicy.guarded], such as [scrolledToOrdinal]) of
+     * [generation] belongs to the document this window's page holds: the one the window admitted last and has not
+     * since replaced by requesting another (osTicket 3508, #3975).
      */
-    override val admittedDocumentGeneration: Long get() = session.documentGeneration
+    override fun isAdmitted(generation: Long?): Boolean =
+        !session.isDisposed && generation != null && generation != NO_DOCUMENT_GENERATION &&
+            generation == session.documentGeneration
+
+    /**
+     * Runs a guarded call on the main thread, where navigation, document admission and view rebinds happen, and only if
+     * its generation is still admitted there for the window the call was dispatched to. The check and the call's
+     * effect are one main-thread step, so nothing can replace the document in between.
+     */
+    override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+        val window = session.windowOrNull
+        if (session.isDisposed) return drop()
+        // ATOMIC: the block runs even if the scope is cancelled meanwhile, so a deferred call is always answered.
+        session.scope.launch(Dispatchers.Main.immediate, start = CoroutineStart.ATOMIC) {
+            if (isAdmitted(generation) && session.windowOrNull === window) call() else drop()
+        }
+    }
 
     /**
      * The page's top visible verse (Bible, MyNotes) or entry (commentary, general book, StudyPad). Reached only for the
@@ -196,10 +214,11 @@ class ReadingBridge(
         val page = manager.currentPage
         val document = page.currentDocument
         val generation = (page as? CurrentGeneralBookPage)?.selectionGeneration
+        val ticket = session.documentTicket()
         orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
                 withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document &&
+                    if (session.holdsDocument(ticket) && manager.currentPage === page && page.currentDocument === document &&
                         (page as? CurrentGeneralBookPage)?.selectionGeneration == generation) page.move()
                 }
             } catch (e: Exception) {
@@ -274,7 +293,9 @@ class ReadingBridge(
     override fun onKeyDown(key: String) {
         if (session.isDisposed) return
         Log.i(TAG, "key $key")
+        val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
+            if (!session.holdsDocument(ticket)) return@launch
             val keys = session.keyActions
             when (key) {
                 "AltArrowDown", "AltArrowRight" -> session.windowControl.focusNextWindow()

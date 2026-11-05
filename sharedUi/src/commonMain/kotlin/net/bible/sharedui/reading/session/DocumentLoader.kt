@@ -115,6 +115,16 @@ class DocumentLoader(
     /** The generation of the most recently admitted load (for tests). */
     val loadGeneration: Long get() = documentLoadGeneration
 
+    /**
+     * The generation of the document the page holds or is about to receive (sent with its `clear_document`);
+     * [NO_DOCUMENT_GENERATION] when none. [BibleWindowSession.documentGeneration] is this, except while a newer
+     * document is requested ([documentRequested]): then it is [NO_DOCUMENT_GENERATION], so the page's calls about the
+     * outgoing document no longer reach the window (#3975). Guarded by [documentLoadingLock].
+     */
+    private var admittedGeneration = NO_DOCUMENT_GENERATION
+    private var lastDocumentRequest = 0L
+    private var pendingDocumentRequest = 0L
+
     var latestDocumentStr: String? = null
         private set
     private var needsDocument: Boolean = false
@@ -208,6 +218,8 @@ class DocumentLoader(
                 }
                 session.firstDocument = document
                 // From now on only calls of the page that received this document act on the window (#3975).
+                admittedGeneration = generation
+                pendingDocumentRequest = 0L
                 session.documentGeneration = generation
                 if (docStr.length > MAX_DOC_STR_LENGTH) {
                     val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
@@ -231,6 +243,9 @@ class DocumentLoader(
     fun forgetDocument() {
         documentLoadingLock.withLock {
             ++documentLoadGeneration
+            admittedGeneration = NO_DOCUMENT_GENERATION
+            pendingDocumentRequest = 0L
+            session.documentGeneration = NO_DOCUMENT_GENERATION
             latestDocumentStr = null
             needsDocument = false
             initialAnchorOrdinal = null
@@ -238,7 +253,6 @@ class DocumentLoader(
         }
         labelsUploaded = false
         session.firstDocument = null
-        session.documentGeneration = NO_DOCUMENT_GENERATION
         session.initialKey = null
         // The old window's chapters; a report or chapter request of the old page must not match them (osTicket 3508).
         requestMoreLock.withLock {
@@ -246,6 +260,28 @@ class DocumentLoader(
             session.maxChapter = -1
         }
         cancelPendingChapterLoads()
+    }
+
+    /**
+     * The window asked for another document or key (`Window.loadText`), which [loadDocument] admits later. From now on
+     * until then the page still shows the outgoing document, and its calls about it must not move the window off the
+     * newly selected key: a scroll report would overwrite it and a later load could then discard the requested
+     * document (#3975). Returns the request token for [documentRequestEnded].
+     */
+    fun documentRequested(): Long = documentLoadingLock.withLock {
+        pendingDocumentRequest = ++lastDocumentRequest
+        session.documentGeneration = NO_DOCUMENT_GENERATION
+        pendingDocumentRequest
+    }
+
+    /**
+     * The request [request] ended. If no document was admitted for it and no newer request followed (the content
+     * proved unchanged, the read was superseded or failed), the page's current document is admitted again.
+     */
+    fun documentRequestEnded(request: Long) = documentLoadingLock.withLock {
+        if (pendingDocumentRequest != request) return@withLock
+        pendingDocumentRequest = 0L
+        session.documentGeneration = admittedGeneration
     }
 
     private fun addChapter(chapter: Int) {
@@ -276,7 +312,8 @@ class DocumentLoader(
         var generation = NO_DOCUMENT_GENERATION
         val documentStr = documentLoadingLock.withLock {
             if (latestDocumentStr == null || !needsDocument) return@withLock null
-            generation = session.documentGeneration
+            // The admitted one, even while a newer document is requested: this page gets this document.
+            generation = admittedGeneration
             needsDocument = false
             session.contentVisible = true
             requestMoreLock.withLock {

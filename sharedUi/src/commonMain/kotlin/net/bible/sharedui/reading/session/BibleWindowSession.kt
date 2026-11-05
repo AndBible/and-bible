@@ -129,6 +129,18 @@ class BibleWindowSession(
      */
     @Volatile var documentGeneration: Long = NO_DOCUMENT_GENERATION
 
+    /**
+     * The document and window this session holds now. A guarded bridge call that acts later (after queued writes, an
+     * IO read, a hop to the main thread) takes one when it runs and acts only if [holdsDocument] still holds then: a
+     * navigation, a new document request or a view rebind in between makes it stale (#3975). A native caller (selection
+     * menu, hardware key) takes one the same way.
+     */
+    fun documentTicket(): DocumentTicket = DocumentTicket(documentGeneration, windowOrNull)
+
+    /** Whether [ticket]'s document is still the one this session's window holds (see [documentTicket]). */
+    fun holdsDocument(ticket: DocumentTicket): Boolean =
+        !isDisposed && ticket.generation == documentGeneration && windowOrNull === ticket.window
+
     @Volatile var minChapter: Int = -1
     @Volatile var maxChapter: Int = -1
 
@@ -188,3 +200,7 @@ interface ReadingSheets {
     /** Asks whether the AI document page should be deleted; [onConfirm] runs only on "yes". */
     fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit)
 }
+
+/** See [BibleWindowSession.documentTicket]. */
+@kotlin.native.HiddenFromObjC
+class DocumentTicket internal constructor(val generation: Long, val window: Window?)

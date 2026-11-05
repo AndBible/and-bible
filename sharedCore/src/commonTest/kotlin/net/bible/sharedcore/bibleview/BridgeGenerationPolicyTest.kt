@@ -8,9 +8,19 @@ import kotlin.test.assertTrue
 
 /** #3975: the document-generation gate of [BridgeDispatcher] and the classification of every bridge method. */
 class BridgeGenerationPolicyTest {
+    /**
+     * A gate like ReadingBridge's: [runAdmitted] queues the call for "the main thread" ([runMain]) and checks the
+     * generation again when it runs there.
+     */
     private class GatedBridge(var admitted: Long) : UnimplementedBibleBridge({}, {}), DocumentGenerationGate {
         val calls = mutableListOf<String>()
-        override val admittedDocumentGeneration get() = admitted
+        val main = ArrayDeque<() -> Unit>()
+        override fun isAdmitted(generation: Long?) =
+            generation != null && admitted != NO_DOCUMENT_GENERATION && generation == admitted
+        override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+            main.addLast { if (isAdmitted(generation)) call() else drop() }
+        }
+        fun runMain() { while (main.isNotEmpty()) main.removeFirst()() }
         override fun scrolledToOrdinal(keyStr: String, ordinal: Int) { calls += "scrolledToOrdinal $ordinal" }
         override fun saveBookmarkNote(bookmarkId: String, note: String?) { calls += "saveBookmarkNote $note" }
         override fun requestMoreToEnd(callId: Long) { calls += "requestMoreToEnd $callId" }
@@ -22,6 +32,7 @@ class BridgeGenerationPolicyTest {
 
     private fun scroll(generation: String?) = dispatcher.dispatch(
         """{"method":"scrolledToOrdinal","args":["Gen.1",5]${generation?.let { ",\"documentGeneration\":$it" } ?: ""}}""")
+            .also { bridge.runMain() }
 
     @Test fun everyBridgeMethodIsClassifiedExactlyOnce() {
         val methods = BibleBridgeDecoder.entries.keys
@@ -42,6 +53,27 @@ class BridgeGenerationPolicyTest {
         )
         assertEquals(emptySet(), mustPass intersect BridgeGenerationPolicy.guarded)
         assertEquals(emptySet(), mustPass - BridgeGenerationPolicy.unguarded)
+    }
+
+    /**
+     * Review lens (#3975): every call that navigates, or acts on the active or current window (its document, position,
+     * speech that follows the text, the prompt selector of its document category, keyboard shortcuts), is guarded.
+     */
+    @Test fun navigationAndCurrentWindowActionsAreGuarded() {
+        val mustGuard = setOf(
+            // Navigation of the window or the active window (LinkControl resolves the active window).
+            "goToNextChapter", "goToPreviousChapter", "openEpubLink", "openStudyPad", "openMyNotes", "openAiDocPage",
+            "openExternalLink", "compare", "memorize",
+            // Speech moves the window along the text it speaks.
+            "speak", "speakMemorizationLoop", "speakGeneric",
+            // The prompt selector reads the active window's document category.
+            "llmAction", "llmActionGeneric", "noteEditorLlmAction",
+            // Keyboard shortcuts act on this view's window or the active one.
+            "onKeyDown",
+            // The window's document itself.
+            "shareHtml", "deleteMyDocumentPage", "regenerateMyDocumentPage",
+        )
+        assertEquals(emptySet(), mustGuard - BridgeGenerationPolicy.guarded)
     }
 
     @Test fun theEnvelopeCarriesTheGeneration() {
@@ -82,10 +114,47 @@ class BridgeGenerationPolicyTest {
         assertEquals(listOf("saveBookmarkNote text"), bridge.calls)
     }
 
-    @Test fun aBridgeWithoutAGateIsNotGuarded() {
+    /** Review A (#3975): a bridge that does not implement the gate must not let guarded calls through (fail closed). */
+    @Test fun aBridgeWithoutAGateDropsGuardedCalls() {
         val plain = RecordingBridge()
+        assertEquals(BridgeResult.Dropped("scrolledToOrdinal"), BridgeDispatcher(plain, {}, {})
+            .dispatch("""{"method":"scrolledToOrdinal","args":["k",1],"documentGeneration":1}"""))
+        assertTrue(plain.calls.isEmpty())
         assertEquals(BridgeResult.Handled, BridgeDispatcher(plain, {}, {})
+            .dispatch("""{"method":"saveBookmarkNote","args":["b","text"]}"""))
+    }
+
+    @Test fun anExplicitlyOpenGateAdmitsEverything() {
+        val plain = RecordingBridge()
+        assertEquals(BridgeResult.Handled, BridgeDispatcher(plain, {}, {}, OpenDocumentGate)
             .dispatch("""{"method":"scrolledToOrdinal","args":["k",1]}"""))
         assertEquals(1, plain.calls.size)
+    }
+
+    /**
+     * Review B (#3975): the generation is checked again where the call runs. A navigation (or a view rebind) between
+     * the dispatch on the bridge thread and the run on the main thread drops the call; a deferred one is answered.
+     */
+    @Test fun aCallWhoseDocumentIsReplacedBeforeItRunsIsDropped() {
+        assertEquals(BridgeResult.Handled, dispatcher.dispatch(
+            """{"method":"scrolledToOrdinal","args":["Gen.1",5],"documentGeneration":7}"""))
+        assertEquals(BridgeResult.Handled, dispatcher.dispatch(
+            """{"method":"requestMoreToEnd","args":[11],"documentGeneration":7}"""))
+        bridge.admitted = NO_DOCUMENT_GENERATION // a new page was requested meanwhile
+        bridge.runMain()
+        assertTrue(bridge.calls.isEmpty())
+        assertEquals(listOf(11L), answered)
+    }
+
+    @Test fun aThrowingGuardedCallRunOnTheMainThreadIsAnsweredAndContained() {
+        val throwing = object : UnimplementedBibleBridge({}, {}), DocumentGenerationGate {
+            override fun isAdmitted(generation: Long?) = true
+            override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) = call()
+            override fun requestMoreToEnd(callId: Long) = error("boom")
+        }
+        val result = BridgeDispatcher(throwing, { answered += it }, {})
+            .dispatch("""{"method":"requestMoreToEnd","args":[4],"documentGeneration":1}""")
+        assertEquals(BridgeResult.Handled, result)
+        assertEquals(listOf(4L), answered)
     }
 }
