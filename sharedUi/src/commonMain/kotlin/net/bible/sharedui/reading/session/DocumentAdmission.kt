@@ -24,8 +24,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -156,10 +154,11 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
 
     private val requestTokens = atomic(0L)
 
-    /** A chapter request waiting since [since]; main thread only. */
-    private class WaitingPaging(val generation: Long, val call: () -> Unit, val drop: () -> Unit, val since: TimeMark)
+    /** A waiting chapter request; main thread only. */
+    private class WaitingPaging(val generation: Long, val call: () -> Unit, val drop: () -> Unit)
     private val waitingPaging = mutableListOf<WaitingPaging>()
     private var recheckScheduled = false
+    private var recheckDelay = PAGING_RECHECK
 
     /** Set by [DocumentLoader]: shows an error document for [target] after its request failed (main thread). */
     internal var onLoadFailed: (target: DocumentSource, failure: Throwable) -> Unit = { _, _ -> }
@@ -185,6 +184,9 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         val admitted = s.admitted ?: return false
         return generation == admitted.generation && s.pending?.changesDocument != true && admitted.shows(live())
     }
+
+    /** Main thread: whether the admitted document (if any) shows what the window shows now. */
+    fun showsWindow(): Boolean = state.admitted?.shows(live()) ?: true
 
     /** Main thread: whether the page reports it shows the document whose calls are admitted now (links, selection). */
     fun pageShowsAdmittedDocument(): Boolean {
@@ -299,45 +301,41 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
      */
     fun runPaging(generation: Long?, call: () -> Unit, drop: () -> Unit) = onMain { evaluatePaging(generation, call, drop) }
 
-    private fun evaluatePaging(generation: Long?, call: () -> Unit, drop: () -> Unit, since: TimeMark? = null) {
+    private fun evaluatePaging(generation: Long?, call: () -> Unit, drop: () -> Unit) {
         val s = state
         val admitted = s.admitted
         when {
             session.isDisposed || admitted == null || generation == null || generation != admitted.generation -> drop()
             s.pending?.changesDocument == true || !admitted.shows(live()) -> {
-                val waitingSince = since ?: TimeSource.Monotonic.markNow()
-                if (waitingSince.elapsedNow() >= MAX_PAGING_WAIT) {
-                    Log.w(TAG, "A chapter request waited too long for the page's document to stand again; answered null")
-                    drop()
-                } else {
-                    waitingPaging += WaitingPaging(generation, call, drop, waitingSince)
-                    scheduleRecheck()
-                }
+                waitingPaging += WaitingPaging(generation, call, drop)
+                scheduleRecheck()
             }
             else -> call()
         }
     }
 
     /**
-     * Waiting chapter requests are settled by every transition, and also re-checked periodically: the window can show
-     * the page's document again without any transition (an off-main page change undone before its request), and a
-     * request that can never run is answered null after [MAX_PAGING_WAIT] instead of leaving the page's infinite scroll
-     * waiting for good.
+     * Waiting chapter requests are settled by every transition, and also re-checked periodically (250 ms, backing off
+     * to 5 s while they keep waiting): the window can show the page's document again without any transition (an
+     * off-main page change undone before its request). They are never dropped while the page's document may still
+     * stand, since a null answer ends the page's infinite scroll; the next document drops them.
      */
     private fun scheduleRecheck() {
         if (recheckScheduled) return
         recheckScheduled = true
         session.scope.launch(Dispatchers.Main) {
-            delay(PAGING_RECHECK)
+            delay(recheckDelay)
             recheckScheduled = false
+            recheckDelay = minOf(recheckDelay * 2, MAX_PAGING_RECHECK)
             settleWaitingPaging()
+            if (waitingPaging.isEmpty()) recheckDelay = PAGING_RECHECK
         }
     }
 
     private fun settleWaitingPaging() {
         val waiting = waitingPaging.toList()
         waitingPaging.clear()
-        waiting.forEach { evaluatePaging(it.generation, it.call, it.drop, it.since) }
+        waiting.forEach { evaluatePaging(it.generation, it.call, it.drop) }
     }
 
     private fun dropWaitingPaging() {
@@ -349,6 +347,6 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     private companion object {
         const val TAG = "DocumentAdmission"
         val PAGING_RECHECK = 250.milliseconds
-        val MAX_PAGING_WAIT = 10.seconds
+        val MAX_PAGING_RECHECK = 5.seconds
     }
 }

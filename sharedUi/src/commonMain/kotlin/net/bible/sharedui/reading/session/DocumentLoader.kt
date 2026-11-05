@@ -248,7 +248,12 @@ class DocumentLoader(
                     // the page still shows the previous document, whose calls are closed now. An error document with a
                     // retry replaces it, instead of a window whose page belongs to no admitted document.
                     Log.e(TAG, "Delivering admitted document $generation failed; showing an error document", e)
-                    showLoadError(source, e)
+                    try {
+                        showLoadError(source, e)
+                    } catch (again: Exception) {
+                        // The web view takes no call at all; the next load or page restart sends the error document.
+                        Log.e(TAG, "Delivering the error document failed too", again)
+                    }
                 }
             }
         }
@@ -520,6 +525,9 @@ class DocumentLoader(
     /** Tests: makes the read of a chapter for which this answers true fail. */
     var chapterReadFailureForTest: ((Int) -> Boolean)? = null
 
+    /** Tests: makes the read of a commentary block / general book entry for which this answers true fail. */
+    var entryReadFailureForTest: ((Key) -> Boolean)? = null
+
     private fun requestMoreChapter(callId: Long, newChap: Int) {
         val page = window.pageManager.currentBible
         val book = page.currentDocument as? org.crosswire.jsword.book.sword.SwordBook ?: return answerNull(callId)
@@ -571,6 +579,7 @@ class DocumentLoader(
         val book = page.currentDocument ?: return answerNull(callId)
         val mutex = if (forward) endCursor else beginningCursor
         chapterLoadJobs += session.scope.launch(Dispatchers.Main.immediate) {
+            var previous: Key? = null
             val next: Key? = mutex.withLock {
                 if (admission.admittedGeneration != generation) return@withLock null
                 val cursor = (if (forward) session.lastKey else session.firstKey) ?: return@withLock null
@@ -597,17 +606,28 @@ class DocumentLoader(
                     admission.runPaging(generation, call = { requestMoreKey(callId, forward) }, drop = { answerNull(callId) })
                     return@launch
                 }
+                previous = cursor
                 if (forward) session.lastKey = next else session.firstKey = next
                 admission.addContext(generation, contextOfKey(next, isCommentaryPage))
                 next
             }
             if (next == null) return@launch answerNull(callId)
             val json = try {
-                withContext(Dispatchers.IO) { page.getPageContent(next, book).contentJson() }
+                withContext(Dispatchers.IO) {
+                    check(entryReadFailureForTest?.invoke(next) != true) { "entry $next unreadable" }
+                    page.getPageContent(next, book).contentJson()
+                }
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Chapter load failed for call $callId", e)
+                // Main again: the page will not hold the entry. Release its context, and the cursor unless a later
+                // request of this direction has moved on from it.
+                if (admission.admittedGeneration == generation) {
+                    if (forward && session.lastKey == next) session.lastKey = previous
+                    if (!forward && session.firstKey == next) session.firstKey = previous
+                    admission.removeContext(generation, contextOfKey(next, isCommentaryPage))
+                }
                 null
             }
             emit(BibleViewEvents.response(callId, json?.let { JsExpr(it) }))
@@ -635,6 +655,12 @@ class DocumentLoader(
         labelsUploaded = false
         replaceDocument()
         updateActive()
+        // The window may stand where only the old page reached (a chapter or entry infinite scroll added): the replayed
+        // document does not hold it, so the window would stay closed for that page. Load where the window is instead.
+        if (!admission.showsWindow()) {
+            Log.i(TAG, "The restarted page does not hold the window's position; reloading it")
+            session.windowOrNull?.loadText()
+        }
     }
 
     override fun parseRef(callId: Long, s: String) {

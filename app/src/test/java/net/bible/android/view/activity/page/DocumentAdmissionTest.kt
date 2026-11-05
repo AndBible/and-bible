@@ -701,4 +701,47 @@ class DocumentAdmissionTest {
             loader.chapterReadFailureForTest = null
         }
     }
+
+    /**
+     * Review of rework 5 (I1): the window scrolled into the chapter infinite scroll added (John 7) when the page
+     * restarts; the replay holds John 6 only. The window must not stay gated: it loads where it is (John 7) and the
+     * new page's calls are admitted.
+     */
+    @Test
+    fun aPageRestartAfterScrollingIntoAnAddedChapterLoadsTheWindowsPosition() {
+        val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        post("requestMoreToEnd", "[67]", a)
+        waitUntil("67 answered") { notNull(67) }
+        post("scrolledToOrdinal", "[\"John.7\",${verse(BibleBook.JOHN, 7, 3).ordinal}]", a)
+        onMain {}
+        assertEquals("John.7.3", shownVerse.getOsisID())
+        val before = view.lastRequest
+        onMain { loader.setClientReady() }
+        waitUntil("a new request after the restart: ${stateText()}", 5_000) { view.lastRequest != before }
+        view.awaitLastRequestEnded()
+        waitUntil("John 7 admitted: ${stateText()}", 5_000) { "John.7" in (admitted()?.loaded ?: emptySet()) }
+        val g = session.documentGeneration
+        post("saveState", "[\"after restart\"]", g)
+        onMain {}
+        assertEquals("after restart", window.pageManager.jsState)
+    }
+
+    /** Review of rework 5 (M1): a general book entry whose read fails is not kept as a context of the page. */
+    @Test
+    fun aFailedEntryReadIsNotKeptAsAContext() {
+        val book = myDocument("MyDoc_3975c", "page_a", "page_b")
+        val keys = book.getGlobalKeyList().toList()
+        val a = showEntry(book, keys[0])
+        loader.entryReadFailureForTest = { true }
+        try {
+            post("requestMoreToEnd", "[68]", a)
+            waitUntil("68 answered") { response(68).isNotEmpty() }
+            onMain {}
+            assertEquals(listOf(nullResponse(68)), response(68))
+            assertFalse("page_b not a context: ${stateText()}", keys[1].getOsisRef() in admitted()!!.contexts)
+            assertEquals("the cursor did not move", keys[0].getOsisRef(), session.lastKey?.getOsisRef())
+        } finally {
+            loader.entryReadFailureForTest = null
+        }
+    }
 }

@@ -61,7 +61,8 @@ Calls of such a page must not act on the window that now owns the view (osTicket
   Bible book (commentary), and the key for every other page (general book, EPUB, MyDocument / AI page, StudyPad,
   multi-reference, dictionary, map): another entry that replaces the page is another document. A loaded document's
   contexts are the chapters of its range; infinite scroll adds a chapter or entry when it reserves it and removes it
-  again when its read fails; a page restart (`setClientReady`) resets them to the replayed document's.
+  again when its read fails; a page restart (`setClientReady`) resets them to the replayed document's, and if the
+  window stands outside it (it had scrolled into an added chapter) the window loads its position again.
 - Everything is derived from that state where a call acts, on the main thread (`DocumentAdmission.admits`): the call's
   generation is the admitted one, no request of a different document is pending, and the window still shows the
   admitted source (`DocumentSource.of(window)` compared with it). The last check makes a page change that has not
@@ -98,8 +99,8 @@ Calls of such a page must not act on the window that now owns the view (osTicket
     is computed off main from the captured module under a per-direction lock and moves the cursor on main only while
     the page's document is still admitted. A call of a replaced page is answered null at once. While a different
     document is requested, or the window does not show the page's document, the call waits: it runs when the page's
-    document stands again (re-checked every 250 ms as well, since the window can return to it without any transition;
-    answered null after 10 s) and is answered null when a new document replaces it. A general book's next entry is
+    document stands again (also re-checked periodically, 250 ms backing off to 5 s, since the window can return to it
+    without any transition) and is answered null when a new document replaces it. A general book's next entry is
     read from the captured module's own key list (`CachedKeyPage.getKeyPlus(key, num, document)`; a key list is
     cached only for the book it was built from). A dropped request answers null,
     which ends infinite scroll for good, so it must not be dropped while the page's document may still stand.
