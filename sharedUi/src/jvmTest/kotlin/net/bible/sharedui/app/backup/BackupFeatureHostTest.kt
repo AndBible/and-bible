@@ -1,6 +1,10 @@
 package net.bible.sharedui.app.backup
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
+import net.bible.sharedui.backup.nav.backupNavGraph
+import okio.Path.Companion.toPath
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -90,6 +94,40 @@ class BackupFeatureHostTest {
         lateinit var nav: NavHostController
         runComposeUiTest { setContent { nav = rememberNavController() } }
         return nav
+    }
+
+    @Test
+    fun finnishBackupHostRendersRealRoute() = runComposeUiTest {
+        val path = java.nio.file.Files.createTempDirectory("backup-fi-")
+        val language = iosStrings("fi")
+        try {
+            setContent {
+                val nav = rememberNavController()
+                val deps = androidx.compose.runtime.remember {
+                    val environment = Proxy.newProxyInstance(AppEnvironment::class.java.classLoader, arrayOf(AppEnvironment::class.java)) { _, m, _ ->
+                        when (m.name) {
+                            "getDbBackupPath" -> path.resolve("backups").toString()
+                            "getLastCrashTime" -> 0L
+                            else -> if (m.returnType == Boolean::class.javaPrimitiveType) false else null
+                        }
+                    } as AppEnvironment
+                    val dirs = Proxy.newProxyInstance(AppDirectories::class.java.classLoader, arrayOf(AppDirectories::class.java)) { _, _, _ -> path.toString().toPath() } as AppDirectories
+                    val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, _, args -> args?.getOrNull(1) } as AppSettings
+                    BackupFeatureHost(shell, language, FakeBackupHost(), { bareBackupControl }, { settings }, { environment },
+                        { net.bible.sharedui.strings.keyed.KeyedCoreStrings(net.bible.sharedui.assembly.hostStringTable("fi")) },
+                        { dirs }, { unused<DateTimeFormats>() }).navDeps(nav)
+                }
+                androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides language) {
+                    net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                        net.bible.sharedui.components.AbNavHost(nav, startDestination = net.bible.sharedcore.nav.NavRoutes.BACKUP) {
+                            backupNavGraph(nav, deps)
+                        }
+                    }
+                }
+            }
+            assertTrue(onAllNodesWithText("Varmuuskopioi & palauta").fetchSemanticsNodes().isNotEmpty())
+            onAllNodesWithText("Backup & Restore").assertCountEquals(0)
+        } finally { path.toFile().deleteRecursively() }
     }
 
     @Test
