@@ -1389,6 +1389,43 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "control-b-one-back")
     }
 
+    /// A real WebKit note editor owns word movement and Control caret navigation, not reading actions.
+    func testNoteEditorKeepsHardwareNavigationChords() throws {
+        let app = try launchReading()
+        let number = app.webViews.staticTexts.matching(NSPredicate(format: "label == '16'")).firstMatch
+        guard number.waitForExistence(timeout: 30), number.isHittable else {
+            attachTree(app, "note-keyboard-no-verse"); XCTFail("John 3:16 is not hittable"); return
+        }
+        number.tap()
+        let action = app.webViews.descendants(matching: .any).matching(NSPredicate(format:
+            "label == 'Note' OR label == 'Write a note'")).firstMatch
+        guard action.waitForExistence(timeout: 20), action.isHittable else {
+            attachTree(app, "note-keyboard-no-action"); XCTFail("no note action"); return
+        }
+        action.tap()
+        let editor = app.webViews.textViews.firstMatch
+        guard editor.waitForExistence(timeout: 30) else {
+            attachTree(app, "note-keyboard-no-editor"); XCTFail("no WebKit note editor"); return
+        }
+        editor.tap()
+        editor.typeText("alpha beta")
+        editor.typeKey(XCUIKeyboardKey.leftArrow, modifierFlags: .command)
+        editor.typeKey(XCUIKeyboardKey.rightArrow, modifierFlags: .option)
+        editor.typeText("X")
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaX beta") == true },
+                      "Option+Right should move by a word before insertion: \(editor.value ?? "nil")")
+        editor.typeKey("b", modifierFlags: .control)
+        editor.typeText("Y")
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaYX beta") == true },
+                      "Control+B should move the caret backward: \(editor.value ?? "nil")")
+        editor.typeKey("f", modifierFlags: .control)
+        editor.typeText("Z")
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaYXZ beta") == true },
+                      "Control+F should move the caret forward: \(editor.value ?? "nil")")
+        XCTAssertFalse(element(app, "reading-search-field").exists, "editor chords opened reading search")
+        XCTAssertFalse(app.buttons["Back"].exists, "editor chords opened the passage chooser")
+    }
+
     /// Unconsumed editing chords must not bubble into the reading host.
     func testSearchFieldKeepsItsKeyboardChords() throws {
         let app = try launchReading()
