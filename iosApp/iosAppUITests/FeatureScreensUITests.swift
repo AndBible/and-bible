@@ -343,10 +343,9 @@ final class FeatureScreensUITests: RealAppUITestCase {
             for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
             harnessRequire(waitForStableOnScreen(app, system), app, "system TTS row settled (attempt \(attempt))")
             system.tap()
-            // XCTest's own idle wait after the tap can take ~12 s; the hand-off is seen when iOS Settings reaches the
-            // foreground or the app leaves it. Once either is seen, never tap again.
+            // Require the external app, not AndBible's stale process state, as proof of handoff.
+            // Once Settings is observed, never tap again.
             wentToBackground = settings.wait(for: .runningForeground, timeout: 20)
-                || waitUntil(timeout: 5) { app.state != .runningForeground }
         }
         if wentToBackground {
             // Parallel simulator clones can report a stale app.state in either direction: Settings
