@@ -45,7 +45,9 @@ final class ReadingAccessibilityProbe {
       const fixture = ['K4GenBook', 'H2Maps'].find(id =>
         [...document.querySelectorAll('[data-book-initials]')].some(node =>
           rendered(node) && node.dataset.bookInitials === id && node.innerText.includes('In the beginning God created the heaven and the earth')));
-      return JSON.stringify({genesisFixture:fixture || null, verse16:words.map(w => measure(verse,w))});
+      const fontFamily = verse ? getComputedStyle(verse).fontFamily : null;
+      const fontFaces = [...document.fonts].map(f => ({family:f.family,status:f.status}));
+      return JSON.stringify({genesisFixture:fixture || null, verse16:words.map(w => measure(verse,w)), fontFamily, fontFaces});
     })()
     """#
 
