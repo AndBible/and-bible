@@ -343,14 +343,18 @@ final class FeatureScreensUITests: RealAppUITestCase {
             for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
             harnessRequire(waitForStableOnScreen(app, system), app, "system TTS row settled (attempt \(attempt))")
             system.tap()
-            // XCTest's own idle wait after the tap can take ~12 s; the hand-off is seen when iOS Settings reaches the
-            // foreground or the app leaves it. Once either is seen, never tap again.
+            // Require the external app, not AndBible's stale process state, as proof of handoff.
+            // Once Settings is observed, never tap again.
             wentToBackground = settings.wait(for: .runningForeground, timeout: 20)
-                || waitUntil(timeout: 5) { app.state != .runningForeground }
         }
         if wentToBackground {
+            // Parallel simulator clones can report a stale app.state in either direction: Settings
+            // was visible while it said foreground, and this sheet was visible while it said background.
+            // Finish the system handoff via Home, activate once, then prove the retained UI is usable.
+            XCUIDevice.shared.press(.home)
             app.activate()
-            harnessRequire(waitUntil(timeout: 30) { app.state == .runningForeground }, app, "App reactivated after iOS Settings")
+            harnessRequire(system.waitForExistence(timeout: 30) && waitForStableOnScreen(app, system),
+                           app, "Speak sheet usable after iOS Settings")
             shot(app, "speak-after-system-settings")
         } else {
             attachTree(app, "system-tts-row-no-background"); shot(app, "system-tts-row-no-background")
