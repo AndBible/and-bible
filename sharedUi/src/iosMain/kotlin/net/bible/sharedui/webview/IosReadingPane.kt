@@ -14,7 +14,10 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.flow.collectLatest
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BridgeDispatcher
@@ -371,6 +374,7 @@ fun iosReadingPaneFactory(
         // Bumped when the view reaches a window (the moment the new holder is live) and, as a fallback, two frames after
         // this holder composed.
         var attachGeneration by remember { mutableIntStateOf(0) }
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
         DisposableEffect(entry.webView) {
             val bump: () -> Unit = { attachGeneration++ }
             entry.webView.onWindowAttachForAccessibility = bump
@@ -380,6 +384,18 @@ fun iosReadingPaneFactory(
             withFrameNanos { }
             withFrameNanos { }
             attachGeneration++
+        }
+        // The incoming pane exists while the navigation crossfade still covers it, so native focusability can
+        // cache an outdated beyond-bounds callback. RESUMED marks the route transition's completion; invalidate
+        // the current pane after two frames so accessibility sync can bind it again.
+        LaunchedEffect(entry.webView, lifecycle) {
+            lifecycle.currentStateFlow.collectLatest { state ->
+                if (state == Lifecycle.State.RESUMED) {
+                    withFrameNanos { }
+                    withFrameNanos { }
+                    attachGeneration++
+                }
+            }
         }
         UIKitView(
             // Detach from any previous (disposed) interop holder before re-parenting the cached view.

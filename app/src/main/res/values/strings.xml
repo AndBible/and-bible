@@ -21,6 +21,8 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="desktop_webview2_startup_error">AndBible could not start WebView2, which is required to display Bible text. Install or repair the Microsoft Edge WebView2 Evergreen Runtime from:\n%1$s\n\nDetails are in the log file:\n%2$s</string>
+    <string name="desktop_webview2_graphics_error">AndBible requires Direct3D graphics to display Bible text with WebView2. The current graphics renderer is %1$s. Check your graphics driver and Direct3D support.\n\nDetails are in the log file:\n%2$s</string>
     <string name="desktop_update_setting_title">Check for updates</string>
     <string name="desktop_update_setting_summary">Once a day, from github.com</string>
     <string name="desktop_update_consent_title">Check for updates?</string>

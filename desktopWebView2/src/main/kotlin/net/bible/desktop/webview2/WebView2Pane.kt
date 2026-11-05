@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.awtEventOrNull
@@ -30,6 +31,7 @@ import com.sun.jna.WString
 import com.sun.jna.platform.win32.WinDef
 import kotlinx.coroutines.CoroutineDispatcher
 import net.bible.sharedui.desktop.webengine.DesktopWebPane
+import net.bible.sharedui.desktop.webengine.NativePaneAttachment
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.util.Timer
@@ -58,6 +60,7 @@ internal class WebView2Pane(
     private val hostWindow: () -> java.awt.Window?,
 ) : DesktopWebPane {
     private val sta = runtime.sta
+    private val attachment = NativePaneAttachment(sta::post)
 
     @Volatile
     private var disposed = false
@@ -314,6 +317,7 @@ internal class WebView2Pane(
     @Composable
     override fun Content(modifier: Modifier) {
         val window = hostWindow()
+        val mount = remember(window) { Any() }
         val density = LocalDensity.current.density
         DisposableEffect(window) {
             // Only Skiko's Direct3D path composes the canvas with alpha: with SOFTWARE or OPENGL the cleared hole is black
@@ -322,22 +326,32 @@ internal class WebView2Pane(
                 if (api != org.jetbrains.skiko.GraphicsApi.DIRECT3D) log("Compose renders with $api: the page below the canvas is hidden")
             }
             val frame = window?.let { WinDef.HWND(Native.getComponentPointer(it)) }
-            if (frame != null) sta.post { attach(frame) }
+            trace("mount ${System.identityHashCode(mount)} frame=$frame")
+            if (frame != null) attachment.attach(mount) {
+                trace("attach ${System.identityHashCode(mount)}")
+                attach(frame)
+            }
             // A moved frame changes no Compose layout, but WebView2 needs it for IME candidate and accessibility positions.
             val moves = object : java.awt.event.ComponentAdapter() {
                 override fun componentMoved(e: java.awt.event.ComponentEvent?) {
-                    sta.post { controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged) }
+                    attachment.update(mount) { controller?.call(Wv2.Controller.NotifyParentWindowPositionChanged) }
                 }
             }
             window?.addComponentListener(moves)
             onDispose {
                 window?.removeComponentListener(moves)
-                sta.post { detach() }
+                trace("unmount ${System.identityHashCode(mount)}")
+                attachment.detach(mount) {
+                    trace("detach ${System.identityHashCode(mount)}")
+                    detach()
+                }
             }
         }
-        DisposableEffect(density) {
-            scale = density.toDouble()
-            sta.post { controller?.call(Wv2.Controller.put_RasterizationScale, scale) }
+        DisposableEffect(mount, density) {
+            attachment.update(mount) {
+                scale = density.toDouble()
+                controller?.call(Wv2.Controller.put_RasterizationScale, scale)
+            }
             onDispose { }
         }
         Box(
@@ -345,7 +359,10 @@ internal class WebView2Pane(
                 .onGloballyPositioned { c ->
                     val p = c.positionInWindow()
                     val b = Bounds(p.x.roundToInt(), p.y.roundToInt(), c.size.width, c.size.height)
-                    sta.post { place(b) }
+                    attachment.update(mount) {
+                        trace("place ${System.identityHashCode(mount)} $b attached=$attachedTo")
+                        place(b)
+                    }
                 }
                 // Punch a hole in the Compose canvas: the page's visual below shows through. Anything Compose draws later
                 // (drawers, sheets, menus) lands above it.
@@ -403,6 +420,12 @@ internal class WebView2Pane(
                     }
                 },
         )
+    }
+
+    private fun trace(message: String) {
+        if (System.getProperty("andbible.webview2.trace") == "true") {
+            log("lifecycle pane=${System.identityHashCode(this)} thread=${Thread.currentThread().name} $message")
+        }
     }
 
     private fun sendMouse(kind: Int, keys: Int, data: Int, x: Int, y: Int) {
@@ -488,7 +511,7 @@ internal class WebView2Pane(
         if (disposed) return
         disposed = true
         replies.close()
-        sta.post {
+        attachment.close {
             whenReady.clear()
             controller?.call(Wv2.Controller.Close)
             listOf(webView, controller, composition, visual, target, dcomp).forEach { it?.release() }

@@ -11,6 +11,7 @@ struct iOSApp: App {
         IosPlatformBootstrap.shared.registerBackgroundTasks()
         #if DEBUG
         IosPlatformBootstrap.shared.prepareFilesPortTestLaunch()
+        ReadingAccessibilityProbe.installIfRequested()
         #endif
     }
 
