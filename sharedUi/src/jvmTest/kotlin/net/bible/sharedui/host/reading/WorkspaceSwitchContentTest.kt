@@ -13,6 +13,7 @@ import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import java.nio.file.Files
 import java.nio.file.Path
@@ -370,7 +371,7 @@ class WorkspaceSwitchContentTest {
             host.deps(icons)
         } }
         try {
-            androidx.compose.ui.test.v2.runComposeUiTest {
+            runComposeUiTest {
                 setContent {
                     androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en")) {
                         net.bible.sharedui.theme.AbTheme(darkTheme = false) {
@@ -505,7 +506,7 @@ class WorkspaceSwitchContentTest {
             HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
         } }
         try {
-            androidx.compose.ui.test.v2.runComposeUiTest {
+            runComposeUiTest {
                 setContent {
                     androidx.compose.runtime.CompositionLocalProvider(
                         net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en"),

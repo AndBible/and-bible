@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.v2.runComposeUiTest
 import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.android.control.versification.BookInstallWatcher
@@ -132,7 +133,7 @@ class DownloadHostTest {
         Dispatchers.setMain(mainThread)
         try {
             for (language in listOf("en", "fi")) {
-                androidx.compose.ui.test.v2.runComposeUiTest {
+                runComposeUiTest {
                     val settings = IntSettings()
                     val strings = iosStrings(language)
                     val calls = java.util.concurrent.CopyOnWriteArrayList<String>()
