@@ -5,7 +5,6 @@ import net.bible.test.testCoreStrings
 
 import kotlinx.coroutines.runBlocking
 import net.bible.test.testOrderedLauncher
-import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
@@ -28,8 +27,14 @@ class BookmarkControlSpecialLabelRaceTest {
      * check-then-insert with no lock, so two threads on a fresh DB both insert. Measured 265/300
      * iterations failed (271 at the RED run) before the fix; getOrCreateSpecialLabel now does check+insert
      * under one lock, so it must report 0.
+     *
+     * Real threads and durable commits, no virtual time: every round commits a delete and an insert to the real
+     * bookmark database file (TRUNCATE journal, fsync per commit). `runTest`'s 60 s wall-clock budget made this a
+     * load-dependent red (#3947): with the host disk busy (48 fsync writers plus 12 busy loops) the body took over
+     * 60 s while every thread was still committing. The body therefore runs in `runBlocking`, and a stuck round (a
+     * real deadlock) fails with the stuck threads' stacks after [ROUND_DEADLINE_MS] instead of hanging the suite.
      */
-    @Test fun twoThreadsCreatingTheSameSpecialLabel() = runTest {
+    @Test fun twoThreadsCreatingTheSameSpecialLabel() = runBlocking {
         val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
         val failures = AtomicInteger()
         val first = AtomicInteger()
@@ -37,8 +42,17 @@ class BookmarkControlSpecialLabelRaceTest {
             bc.deleteLabel(bc.paragraphBreakLabel())
             val barrier = CyclicBarrier(2)
             val ts = List(2) { Thread { barrier.await(); try { runBlocking { bc.paragraphBreakLabel() } } catch (e: Exception) { if (failures.getAndIncrement() == 0) System.err.println("REPRO " + e.message?.take(80)) } }.also { it.start() } }
-            ts.forEach { it.join() }
+            ts.forEach { it.join(ROUND_DEADLINE_MS) }
+            ts.filter { it.isAlive }.takeIf { it.isNotEmpty() }?.let { stuck ->
+                org.junit.Assert.fail("special-label round stuck for ${ROUND_DEADLINE_MS} ms:\n" +
+                    stuck.joinToString("\n\n") { t -> t.name + "\n" + t.stackTrace.joinToString("\n") { "  at $it" } })
+            }
         }
         org.junit.Assert.assertEquals("special-label creation must be race-free", 0, failures.get())
+    }
+
+    private companion object {
+        /** A round is two label writes; even a badly loaded disk finishes it in seconds, a deadlock never does. */
+        const val ROUND_DEADLINE_MS = 120_000L
     }
 }

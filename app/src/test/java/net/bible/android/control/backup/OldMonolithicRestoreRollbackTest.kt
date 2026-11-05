@@ -272,8 +272,11 @@ class OldMonolithicRestoreRollbackTest {
             restore = async(kotlinx.coroutines.Dispatchers.IO) {
                 backup.restoreOldMonolithicDatabase(source.inputStream().source())
             }
-            kotlinx.coroutines.withTimeout(2_000) { waiting.await() }
-            kotlinx.coroutines.withTimeout(2_000) {
+            // Both bounds only detect the circular wait (a hang); they are not a speed budget. The second phase is
+            // real file and database I/O (replacement drains, failed restore rollback): 0.1 s on an idle disk,
+            // 1.2-1.6 s with the host disk loaded, and a full gate on a loaded host overran a 2 s bound (#3947).
+            kotlinx.coroutines.withTimeout(CIRCULAR_WAIT_GUARD_MS) { waiting.await() }
+            kotlinx.coroutines.withTimeout(CIRCULAR_WAIT_GUARD_MS) {
                 DatabaseContainer.replacingDatabases { syncFinished.complete(true) }
                 assertFalse(restore.await())
             }
@@ -333,5 +336,10 @@ class OldMonolithicRestoreRollbackTest {
             assertTrue(restore())
         } finally { DatabaseContainer.containerFactory = real }
         assertFalse(rollbackDir.exists())
+    }
+
+    private companion object {
+        /** A circular wait never finishes; slow disk I/O does. Generous so load cannot fail the test. */
+        const val CIRCULAR_WAIT_GUARD_MS = 60_000L
     }
 }
