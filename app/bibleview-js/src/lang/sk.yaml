@@ -2,12 +2,13 @@
 bookmarks: Záložky
 bookmarksAndNotes: Záložky a Moje poznámky
 openMyNotes: Otvoriť v Mojich poznámkach
-openStudyPad: Otvoriť v Študijnej zložke (%s)
-noteText: Poznámky (%s)
+openStudyPad: "Otvoriť v Študijnej zložke (%s)"
+noteText: "Poznámky (%s)"
 noteTextWithoutType: Poznámky pod čiarou
 crossReferenceText: Krížové referencie
 findAllOccurrences: Nájsť všetky výskyty
 reportError: Nahlásiť chybu
+retryLoad: Skúsiť znova
 errorTitle: Vyskytla sa chyba
 warningTitle: Varovanie
 normalTitle: Upozornenie
@@ -23,28 +24,27 @@ myDocumentEmptyPlaceholder: Klepnutím začnete upravovať túto stránku
 inputPlaceholder: Sem písať
 inputReference: Vložiť referenciu na Bibliu
 invalidReference: Verš nebol nájdený
-bookmarkAccurate: Záložka bola vytvorená v %s
+bookmarkAccurate: "Záložka bola vytvorená v %s"
 bookmarkInaccurate: "Záložky knihy nie sú uložené, obsah sa zobrazuje v %s."
 defaultBook: prednastavený dokument Biblie
 ok: OK
 yes: "Áno"
-ambiguousSelection: "Ktorú akciu chcete vykonať?"
+ambiguousSelection: Ktorú akciu chcete vykonať?
 cancel: Zrušiť
-removeBookmarkConfirmationTitle: "Odstrániť záložku?"
-removeBookmarkConfirmation: "Naozaj chcete odstrániť túto záložku?"
+removeBookmarkConfirmationTitle: Odstrániť záložku?
+removeBookmarkConfirmation: Naozaj chcete odstrániť túto záložku?
 createdAt: "Vytvorená: %s"
 lastUpdatedOn: "Posledná aktualizácia: %s"
 strongsAndMorph: Definícia a Morfológia
 externalLink: Otvoriť externý odkaz
+internalLink: Otvoriť interný odkaz
 referenceLink: Otvoriť referenčný odkaz
 openFootnote: Otvoriť poznámku pod čiarou
 noMyNotesTitle: Nie je Moja poznámka pre túto kapitolu.
-noMyNotesDescription: >-
-  Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
-emptyStudyPad: >-
-  Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
-doYouWantToDeleteEntry: "Zmazať túto položku študijnej zložky?"
-removeStudyPadConfirmationTitle: "Odstrániť túto položku študijnej zložky?"
+noMyNotesDescription: Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
+emptyStudyPad: Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
+doYouWantToDeleteEntry: Zmazať túto položku študijnej zložky?
+removeStudyPadConfirmationTitle: Odstrániť túto položku študijnej zložky?
 dragHelp: Ťahaním zoradiť
 openAll: Otvoriť všetky odkazy
 editBookmarkPlaceholder: Klepnutím upraviť Moje poznámky pre túto záložku
@@ -93,10 +93,11 @@ editActionModeNone: Žiadny
 editActionModeAppend: Pripojiť text
 editActionModePrepend: Pridať text na začiatok
 editActionContentLabel: Obsah
-editActionContentPlaceholder: "Zadajte text, ktorý sa má pridať do dokumentu..."
+editActionContentPlaceholder: Zadajte text, ktorý sa má pridať do dokumentu...
+editActionContentRequired: Zadajte obsah alebo vyberte Žiadne.
 experimentalFeatureTitle: Experimentálne
 experimentalFeatureHelpTitle: O experimentálnych funkciách
-experimentalFeatureHelpContent: "Experimentálne funkcie sú nové možnosti, ktoré sú stále vo vývoji a testovaní. Nemusia fungovať dokonale a môžu sa výrazne zmeniť alebo byť v budúcich verziách aplikácie odstránené."
+experimentalFeatureHelpContent: Experimentálne funkcie sú nové možnosti, ktoré sú stále vo vývoji a testovaní. Nemusia fungovať dokonale a môžu sa výrazne zmeniť alebo byť v budúcich verziách aplikácie odstránené.
 insertParagraphBreak: Vložiť zalomenie odseku
 insertSubtitle: Vložiť podnadpis
 xmlParseError: Chyba analýzy XML

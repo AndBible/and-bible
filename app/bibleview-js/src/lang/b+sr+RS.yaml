@@ -2,12 +2,13 @@
 bookmarks: Обележивачи
 bookmarksAndNotes: Обележивачи и Моје белешке
 openMyNotes: Отвори у Мојим Белешкама
-openStudyPad: Отвори у Радној Свесци (%s)
-noteText: Фусноте (%s)
+openStudyPad: "Отвори у Радној Свесци (%s)"
+noteText: "Фусноте (%s)"
 noteTextWithoutType: Фусноте
 crossReferenceText: Референце
 findAllOccurrences: Пронађи сва појављивања
 reportError: Пријави грешку
+retryLoad: Покушај поново
 errorTitle: Догодила се грешка
 warningTitle: Упозорење
 normalTitle: Молимо Вас обратите пажњу
@@ -23,28 +24,27 @@ myDocumentEmptyPlaceholder: Тапни да почнеш уређивати ов
 inputPlaceholder: Напишите овде
 inputReference: Унесите библијску референцу
 invalidReference: Стих није пронађен
-bookmarkAccurate: Обележивач је направљњен у %s
+bookmarkAccurate: "Обележивач је направљњен у %s"
 bookmarkInaccurate: "Обележивач детаља о књизи није ускладиштен, садржај је приказан у %s."
 defaultBook: основни библијски документ
 ok: ОК
 yes: "Да"
-ambiguousSelection: "Коју радњу желите да предузмете?"
+ambiguousSelection: Коју радњу желите да предузмете?
 cancel: Откажи
-removeBookmarkConfirmationTitle: "Уклони oбележивач?"
-removeBookmarkConfirmation: "Да ли сте сигурни да желите да уклоните овај обележивач?"
+removeBookmarkConfirmationTitle: Уклони oбележивач?
+removeBookmarkConfirmation: Да ли сте сигурни да желите да уклоните овај обележивач?
 createdAt: "Направљено: %s"
 lastUpdatedOn: "Последњи пут ажурирано: %s"
 strongsAndMorph: Дефиниција и морфологија
 externalLink: Отвори спољашњи линк
+internalLink: Отвори унутрашњу везу
 referenceLink: Отвори линк за референцу
 openFootnote: Отвори фусноте
 noMyNotesTitle: Без Моје Белешке за ову главу.
-noMyNotesDescription: >-
-  Почните креирањем  обележивача у библијском документу. Обележивачи ће затим бити приказани овде и можете им додати ваше личне белешке.
-emptyStudyPad: >-
-  Радна Свеска је празна. Крените са њеним попуњавањем тако што ћете унети овде текст или креирањем обележивача са ознаком обележивача која одговара овој радној свесци.
-doYouWantToDeleteEntry: "Избрисати унос ове радне свеске?"
-removeStudyPadConfirmationTitle: "Уклонити унос радне свеске?"
+noMyNotesDescription: Почните креирањем  обележивача у библијском документу. Обележивачи ће затим бити приказани овде и можете им додати ваше личне белешке.
+emptyStudyPad: Радна Свеска је празна. Крените са њеним попуњавањем тако што ћете унети овде текст или креирањем обележивача са ознаком обележивача која одговара овој радној свесци.
+doYouWantToDeleteEntry: Избрисати унос ове радне свеске?
+removeStudyPadConfirmationTitle: Уклонити унос радне свеске?
 dragHelp: Задржите и повуците ради мењања редоследа
 openAll: Отвори све референце
 editBookmarkPlaceholder: Додирните ради уређивања Моје Белешке за овај обележивач
@@ -54,7 +54,7 @@ assignLabelsMenuEntry1: Изаберите или уредите ознаке...
 favouriteLabels: Омиљене Ознаке
 recentLabels: Недавне Ознаке
 bookmarkLabels: Ознаке обележивача
-refParserHelp: Молимо инсталирајте %s модул како бисте користили референце у другим језимима мимо Енглеског.
+refParserHelp: "Молимо инсталирајте %s модул како бисте користили референце у другим језимима мимо Енглеског."
 openDownloads: Идите на Преузимање додатака
 verseShare: Дели
 verseSpeak: Изговори
@@ -94,6 +94,7 @@ editActionModeAppend: Додај текст на крај
 editActionModePrepend: Додај текст на почетак
 editActionContentLabel: Садржај
 editActionContentPlaceholder: Унеси текст за додавање у документ...
+editActionContentRequired: Унесите садржај или изаберите Ништа.
 experimentalFeatureTitle: Експериментално
 experimentalFeatureHelpTitle: О експерименталним функцијама
 experimentalFeatureHelpContent: Експерименталне функције су нове могућности које се још развијају и тестирају. Можда неће савршено радити и могу се значајно мењати или уклонити у будућим верзијама апликације.

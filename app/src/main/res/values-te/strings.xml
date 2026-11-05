@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">బైబిల్ వచనాన్ని చూపించడానికి అవసరమైన WebView2ని AndBible ప్రారంభించలేకపోయింది. Microsoft Edge WebView2 Evergreen Runtimeను ఇక్కడ నుండి ఇన్‌స్టాల్ చేయండి లేదా రిపేర్ చేయండి:\n%1$s\n\nవివరాలు లాగ్ ఫైల్‌లో ఉన్నాయి:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">WebView2తో బైబిల్ వచనాన్ని చూపించడానికి AndBibleకు Direct3D గ్రాఫిక్స్ అవసరం. ప్రస్తుత గ్రాఫిక్స్ రెండరర్ %1$s. మీ గ్రాఫిక్స్ డ్రైవర్‌ను మరియు Direct3D మద్దతును తనిఖీ చేయండి.\n\nవివరాలు లాగ్ ఫైల్‌లో ఉన్నాయి:\n%2$s</string>
+  <string name="desktop_update_setting_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
+  <string name="desktop_update_setting_summary">రోజుకు ఒకసారి, github.com నుండి</string>
+  <string name="desktop_update_consent_title">అప్‌డేట్‌ల కోసం తనిఖీ చేయాలా?</string>
+  <string name="desktop_update_consent_message">AndBible కొత్త వెర్షన్ కోసం రోజుకు ఒకసారి github.comను తనిఖీ చేయగలదు. GitHubకు మీ IP చిరునామా కనిపిస్తుంది; ఇంకేమీ పంపబడదు. మీరు దీన్ని తర్వాత సెట్టింగ్‌లలో మార్చవచ్చు.</string>
+  <string name="desktop_update_consent_yes">అప్‌డేట్‌ల కోసం తనిఖీ చేయండి</string>
+  <string name="desktop_update_consent_no">తనిఖీ చేయవద్దు</string>
+  <string name="desktop_update_available_title">కొత్త వెర్షన్ అందుబాటులో ఉంది</string>
+  <string name="desktop_update_available_message">AndBible %1$s అందుబాటులో ఉంది. మీ వద్ద %2$s ఉంది.</string>
+  <string name="desktop_update_download">డౌన్‌లోడ్ చేయండి</string>
+  <string name="desktop_update_later">తర్వాత</string>
   <string name="app_name_andbible">అండ్ బైబిల్</string>
   <string name="app_name_short">బైబిల్ అధ్యయనం</string>
   <string name="app_name_medium">బైబిల్ అధ్యయనం (అండ్ బైబిల్)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d సరిపోలికలు కనుగొనబడ్డాయి</string>
   <string name="search_showing_first"> చాలా సరిపోలికలు . మొదట చూపబడినవి %d</string>
   <string name="search_bible_section_group_prompt">ఎక్కడ శోధించాలీ</string>
+  <string name="search_type_prompt">వెతుకు రకం</string>
+  <string name="search_show_results">వెతుకు ఫలితాలను చూపించండి</string>
   <string name="search_all_bible">బైబిలు మొత్తం</string>
   <string name="search_new_testament">క్రొత్త నిబంధనలో</string>
   <string name="search_old_testament">పాత నిబంధనలో</string>
@@ -80,6 +94,28 @@
   <string name="search_what">\"%s\" కనుగొనండి</string>
   <!--Multi-translation search-->
   <string name="search_translations">అనువాదాలు</string>
+  <string name="recent_searches">ఇటీవలి వెతుకులాటలు</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">వెతుకును మూసివేయండి</string>
+  <string name="search_options">వెతుకు సెట్టింగ్‌లు</string>
+  <string name="search_submit">వెతకండి</string>
+  <string name="search_clear">వెతుకు పాఠ్యాన్ని తుడిచివేయండి</string>
+  <string name="search_engine_changed_reindex">వెతుకు ఇంజిన్ అప్‌డేట్ చేయబడింది. వెతుకు సూచికను మళ్లీ సృష్టించాలి; దీనికి కొంత సమయం పట్టవచ్చు.</string>
+  <string name="search_unsupported_syntax">ఈ వెతుకులాట మద్దతు లేని సింటాక్స్‌ను ఉపయోగిస్తోంది: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">సూచిక సృష్టి పూర్తయిన తర్వాత వెతుకులాట స్వయంచాలకంగా నడుస్తుంది.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s‌లో వెతకడం సాధ్యం కాదు</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">ఈ పత్రంలో వెతకడం సాధ్యం కాదు</string>
+  <string name="search_indexing_notification_title">వెతుకు సూచికను సృష్టిస్తోంది</string>
   <string name="choose_translations">అనువాదాలను ఎంచుకోండి…</string>
   <string name="multi_search_results">%2$d అనువాదాల్లో %1$d వచనాలు</string>
   <string name="search_index_not_created">సూచిక లేదు</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">రంగులు ఎలా ప్రదర్శించబడతాయో ఎంచుకోండి. కలర్ ఇ-ఇంక్ నలుపు &amp; తెలుపు ఆధారాన్ని కొనసాగిస్తూ బుక్‌మార్క్ రంగులు, యాక్టివ్-విండో సూచిక మరియు హెల్పర్ లైన్‌లను రంగులో చూపిస్తుంది — కలర్ ఇ-ఇంక్ స్క్రీన్‌ల కోసం.</string>
   <string name="prefs_display_color_mode_normal">సాధారణం</string>
   <string name="prefs_display_color_mode_bw">నలుపు &amp; తెలుపు</string>
+  <string name="prefs_display_color_mode_monochrome">ఏకవర్ణం</string>
   <string name="prefs_display_color_mode_color_eink">కలర్ ఇ-ఇంక్</string>
+  <string name="prefs_theme_palette_style_title">థీమ్ శైలి</string>
+  <string name="prefs_theme_palette_style_summary">కార్యస్థలం రంగు నుండి యాప్ రంగులు ఎలా రూపొందించబడతాయి. రంగు విధానం సాధారణంగా ఉన్నప్పుడు మాత్రమే వర్తిస్తుంది.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">టోనల్ స్పాట్ (మృదువైనది, బూడిద రంగును ఉంచుతుంది)</string>
+  <string name="prefs_theme_palette_style_fidelity">ఫిడెలిటీ (ఖచ్చితమైన రంగు)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">టోనల్ స్పాట్ (అసలైనది)</string>
+  <string name="prefs_theme_palette_style_content">కంటెంట్ (రంగుకు దగ్గరగా)</string>
+  <string name="prefs_theme_palette_style_neutral">తటస్థం (మసకబారినది)</string>
+  <string name="prefs_theme_palette_style_monochrome">ఏకవర్ణం (బూడిద)</string>
+  <string name="prefs_theme_palette_style_vibrant">ఉజ్వలం</string>
+  <string name="prefs_theme_palette_style_expressive">భావప్రకటన</string>
+  <string name="prefs_theme_palette_style_rainbow">ఇంద్రధనస్సు</string>
+  <string name="prefs_theme_palette_style_fruit_salad">ఫ్రూట్ సలాడ్</string>
   <string name="prefs_eink_settings_cat">ఇ-ఇంక్ సెట్టింగులు</string>
   <string name="prefs_eink_display_title">ఇ-ఇంక్ సౌలభ్యాలు</string>
   <string name="prefs_eink_display_summary">ఇ-ఇంక్ నిర్దిష్ట సౌలభ్యాలను ప్రారంభించండి (పేజీ స్క్రోల్ బటన్లు, స్క్రోల్ సహాయ రేఖలు)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">స్క్రోల్ చేసేటప్పుడు అధ్యాయాలను స్వయంచాలకంగా చదివినట్లు గుర్తించండి</string>
   <string name="reading_progress_read_count_scale">చదివిన\nలెక్క</string>
   <string name="reading_progress_percent_read_scale">చదివిన\nశాతం</string>
+  <string name="monochrome_activity_count">కార్యకలాపాల సంఖ్య: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">సంఖ్య: %d</string>
+  <string name="monochrome_level">స్థాయి: %d/4</string>
+  <string name="monochrome_buckets">బూడిద: ఏమీ లేదు; అంచు మాత్రమే: పాక్షికం; నింపినది: పూర్తి లేదా అత్యధిక స్థాయి. ఖచ్చితమైన విలువల కోసం ఒక అంశాన్ని ఎంచుకోండి.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">చదవడం చరిత్ర</string>
   <string name="reading_progress_history_for">%1$s కోసం చదవడం పురోగతి</string>
@@ -197,6 +253,8 @@
   <string name="workspace_text_options_link_summary">ఈ వర్క్‌స్పేస్ కోసం వచన ప్రదర్శన సెట్టింగులు సవరించండి</string>
   <string name="global_text_options_link">గ్లోబల్ వచన ఎంపికలు</string>
   <string name="global_text_options_link_summary">అన్ని వర్క్‌స్పేస్‌ల కోసం డిఫాల్ట్ వచన ప్రదర్శన సెట్టింగులు సవరించండి</string>
+  <string name="text_options_inherited_workspace">కార్యస్థలం</string>
+  <string name="text_options_inherited_global">సార్వత్రికం</string>
   <string name="prefs_font_and_colors_title">ఫాంట్ &amp; రంగులు</string>
   <string name="prefs_text_layout_title">వచన లేఔట్</string>
   <string name="prefs_strongs_and_morphology_title">స్ట్రాంగ్స్ &amp; మార్ఫాలజీ</string>
@@ -273,6 +331,9 @@
   <string name="copy_settings_to_workspace">కార్యస్థలం</string>
   <string name="copy_settings_to_window">విండో %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">గ్లోబల్ డిఫాల్ట్‌లు</string>
+  <string name="copy_settings_to_workspaces">ఇతర కార్యస్థలాలకు…</string>
+  <string name="copy_settings_to_global_defaults">సార్వత్రిక డిఫాల్ట్‌లకు…</string>
+  <string name="menu_back">వెనుకకు</string>
   <string name="change_to_normal">సాధారణ విండోకు మార్చండి</string>
   <string name="window_pin_mode">పిన్</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">కింది డాక్యుమెంట్ సర్వర్‌కి కనెక్ట్ చేయడం సాధ్యపడలేదు: \n\n%s\n\n</string>
   <string name="failed_downloads_message">కింది ఫైల్‌లను డౌన్‌లోడ్ చేయడం సాధ్యపడలేదు:\n\n%s\n\n</string>
   <string name="cant_delete_document">ఈ పత్రాన్ని తొలగించడం సాధ్యం కాదు.</string>
+  <string name="bad_document_warning">ఈ పత్రంలో తెలిసిన సమస్యలు ఉన్నాయి.</string>
   <!--Install zip file-->
   <string name="install_zip">ఫైల్‌ల నుండి పత్రాలను లోడ్ చేయండి</string>
   <string name="install_zip_module">బైబిల్ మాడ్యూల్‌ను ఇన్‌స్టాల్ చేయండి</string>
@@ -370,6 +432,11 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="delete_index">విషయ సూచికను తొలగించు</string>
   <string name="about">గురించి</string>
   <string name="delete_doc">%s? తొలగించు</string>
+  <string name="interrupted_downloads_title">డౌన్‌లోడ్ నిలిచిపోయింది</string>
+  <string name="interrupted_downloads_message">డౌన్‌లోడ్ నిలిచిపోయినందున ఈ పత్రాలు ఇన్‌స్టాల్ కాలేదు:</string>
+  <string name="interrupted_downloads_question">వాటిని మళ్లీ డౌన్‌లోడ్ చేయాలా?</string>
+  <string name="download_again">మళ్లీ డౌన్‌లోడ్ చేయండి</string>
+  <string name="delete_docs_confirm">ఈ పత్రాలను తొలగించాలా?</string>
   <string name="delete_search_index_doc">%s విషయ సూచికను తొలగించాలి?</string>
   <!--Verse context menu-->
   <string name="notes">పుట్ నోట్స్ మరియు రెపరెన్సులు</string>
@@ -390,6 +457,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="assign_labels">గుర్తులను నిర్నయించుట</string>
   <string name="new_item">కొత్త</string>
   <string name="label_name_prompt">పేరు</string>
+  <string name="new_label_default_name">లేబుల్ %d</string>
   <string name="label_unlabelled">గుర్తించనిది</string>
   <string name="add_bookmark1">బుక్మార్క్</string>
   <string name="add_bookmark3">ఎంపిక</string>
@@ -440,6 +508,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="rewind">రీవైండ్</string>
   <string name="forward">ముందుకు</string>
   <string name="tts_lang_not_available">భాష లభించడం లేదు.</string>
+  <string name="tts_engine_not_available">ఈ పరికరంలో టెక్స్ట్-టు-స్పీచ్ పని చేయడం లేదు. సిస్టమ్ టెక్స్ట్-టు-స్పీచ్ సెట్టింగ్‌లలో స్పీచ్ ఇంజిన్ ఇన్‌స్టాల్ చేయబడి, ప్రారంభించబడిందో లేదో తనిఖీ చేయండి.</string>
+  <string name="tts_audio_focus_denied">మరొక యాప్ ఆడియోను ఉపయోగిస్తున్నందున ప్రసంగం ప్రారంభం కాలేదు.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">మాటల వేగం</string>
   <string name="speak_and_play_earcons_title">ఇయర్‌కాన్ సౌండ్‌లను మాట్లాడండి మరియు ప్లే చేయండి</string>
@@ -449,6 +519,10 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="speak_bookmarks_menu_title">బుక్‌మార్క్ నుండి మాట్లాడండి</string>
   <string name="speak_advanced_settings">ఆధునిక సెట్టింగులు</string>
   <string name="speak_sleep_timer_title">స్లీప్ టైమర్</string>
+  <string name="speak_sleep_timer_minutes">%d నిమి</string>
+  <string name="speak_sleep_timer_custom">అనుకూలం…</string>
+  <string name="speak_sleep_timer_off">ఆఫ్</string>
+  <string name="speak_other_settings">ఇతర</string>
   <string name="speak_no_books_available">మాట్లాడేందుకు పుస్తకాలు అందుబాటులో లేవు</string>
   <string name="speak_general_error">ఈ పుస్తకం కోసం ప్రసంగం \"స్పీక్\" ప్రారంభించబడలేదు</string>
   <string name="repeat_passage">రిపీట్ పాసేజ్</string>
@@ -477,6 +551,11 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="speak_autobookmarking_disabled">ఆటోబుక్‌మార్కింగ్ నిలిపివేయబడింది!</string>
   <string name="system_speak_settings">సిస్టమ్ TTS సెట్టింగ్‌లను తెరవండి</string>
   <string name="auto_assing_labels_help1">మీరు సృష్టించే బుక్‌మార్క్‌లకు ఆటోమేటిక్‌గా ఏ లేబుల్‌లు కేటాయించబడతాయో ఇక్కడ మీరు సర్దుబాటు చేయవచ్చు.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">ఇక్కడ మీరు లేబుల్స్‌ను జోడించవచ్చు, సవరించవచ్చు, తొలగించవచ్చు, మరియు మీరు సృష్టించే బుక్ మార్క్‌స్‌కు ఏవి స్వయంచాలకంగా కేటాయించబడాలో సర్దుబాటు చేయవచ్చు.\n\nఇటీవలి లేబుల్స్: ఇటీవల ఉపయోగించిన లేబుల్స్.\nఇతర లేబుల్స్: మిగిలిన అన్ని లేబుల్స్.\n\nస్వయంచాలకంగా కేటాయించబడినవి లేదా ఇష్టమైన లేబుల్స్ మాత్రమే చూడటానికి వెతుకు పట్టీలోని ఫిల్టర్ ఎంపికలను ఉపయోగించండి.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">ఈ సెట్టింగ్ %s కి వర్తిస్తుంది.</string>
   <string name="setting_scope_window">ఈ విండో</string>
@@ -584,6 +663,9 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="loading_backup">బ్యాకప్ నుండి డేటాబేస్ లోడ్ అవుతోంది…</string>
   <string name="backup_success2">నా నోట్స్, బుక్‌మార్క్‌లు, స్టడీ ప్యాడ్‌లు, రీడింగ్ ప్లాన్‌లు మరియు వర్క్‌స్పేస్‌లు విజయవంతంగా బ్యాకప్ చేయబడ్డాయి.</string>
   <string name="backup_modules_success">ఎంచుకున్న మాడ్యూల్స్ విజయవంతంగా బ్యాకప్ చేయబడ్డాయి.</string>
+  <string name="backup_modules_conflict">బ్యాకప్ చేయబడలేదు: %1$s మరియు %2$s రెండూ %3$s ఫైల్‌ను కలిగి ఉన్నాయి, కానీ విషయాలు వేరుగా ఉన్నాయి. వాటిలో ఒకదాన్ని మాత్రమే ఎంచుకుని మళ్లీ ప్రయత్నించండి.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (వెర్షన్ %2$s, ఫోల్డర్ %3$s)</string>
   <string name="backup_modules_email_subject_2">%s మాడ్యూల్స్ బ్యాకప్</string>
   <string name="backup_modules_email_message_2">కింది మాడ్యూల్‌లను కలిగి ఉన్న మీ %1$s మాడ్యూల్స్ బ్యాకప్ జోడించబడింది: %2$s</string>
   <string name="backup_email_subject_2">%s డేటాబేస్ బ్యాకప్</string>
@@ -592,6 +674,9 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="exported_studypads_message">ఎంచుకున్న స్టడీప్యాడ్‌లకు సంబంధించిన బుక్‌మార్క్‌లు మరియు నోట్స్ కలిగిన మీ %s డేటాబేస్ జతచేయబడింది</string>
   <string name="restore_unsuccessfull">డేటాబేస్‌ని పునరుద్ధరించడం విఫలమైంది. బహుశా మీరు చెల్లని డేటాబేస్ ఫైల్ ఇచ్చారు.</string>
   <string name="send_backup_file">బ్యాకప్ ఫైల్‌ను పంపండి</string>
+  <string name="export_destination_title">ఎక్కడికి ఎగుమతి చేయాలి?</string>
+  <string name="export_destination_message">ఎగుమతిని ఈ ఫోన్‌లో సేవ్ చేయండి, లేదా షేర్ ద్వారా వేరే చోటికి పంపండి.</string>
+  <string name="send_export_file">ఎగుమతి ఫైల్‌ను పంపండి</string>
   <string name="backup_modules_title">ఏ మాడ్యూల్‌లను బ్యాకప్ చేయాలో ఎంచుకోండి</string>
   <string name="install_zip_canceled">మాడ్యూల్ ఇన్‌స్టాల్ రద్దు చేయబడింది</string>
   <string name="ask_restore_or_import">%s కోసం డేటాబేస్‌ను పునరుద్ధరించవచ్చు (అంటే ఉన్న డేటాబేస్ తొలగించి ఎంచుకున్న డేటాబేస్ లోడ్ చేయబడుతుంది) లేదా దిగుమతి చేయవచ్చు (ఎంచుకున్న డేటాబేస్ ఉన్న డేటాబేస్‌లోకి దిగుమతి చేయబడుతుంది). మీరు ఏమి చేయాలనుకుంటున్నారు?</string>
@@ -632,12 +717,25 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="doc_type_book">పుస్తకము</string>
   <string name="doc_type_map">పటము</string>
   <string name="doc_type_addons">Add-ons</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">ఇతర</string>
+  <string name="document_type_label">పత్రం రకం</string>
   <!--Languages-->
   <string name="lang_default">డిఫాల్ట్</string>
   <!--General-->
   <string name="okay">ఒకె</string>
   <string name="cancel">క్యాన్సిల్</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">వెనుకకు</string>
+  <string name="settings_editor_close">మూసివేయండి</string>
+  <string name="settings_editor_apply">వర్తింపజేయండి</string>
   <string name="discard_changes_confirmation">సేవ్ చేయని మార్పులను విస్మరించాలా?</string>
+  <string name="discard">విస్మరించండి</string>
+  <string name="remove">తీసివేయండి</string>
+  <string name="overwrite">తిరిగి రాయండి</string>
+  <string name="set_current_day_action">రోజును సెట్ చేయండి</string>
   <string name="yes">అవును</string>
   <string name="no">కాదు</string>
   <string name="error">తప్పయింది</string>
@@ -647,6 +745,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="watch_tutorial_video">ట్యుటోరియల్ వీడియో (ఇంగ్లీష్) చూడండి</string>
   <string name="verse_not_found">వచనం దొరకలేదు</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">కొనసాగించండి</string>
   <string name="report_error">నివేదికను పంపు</string>
   <string name="error_occurred">ఒక తప్పు జరిగింది</string>
   <string name="error_occurred_crash_last_time">చివరిసారి మీరు అప్లికేషన్‌ను ఉపయోగించినప్పుడు, అది క్రాష్ అయింది. బగ్‌ని పరిష్కరించడంలో మాకు సహాయం చేయడానికి, మీరు మాకు బగ్ నివేదికను పంపితే మేము అభినందిస్తాము.</string>
@@ -657,8 +756,14 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="error_key_not_in_document2">పత్రం %2$sలో %1$s కనుగొనబడలేదు.</string>
   <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <string name="error_skip">దాటవేయండి</string>
+  <string name="debug_test_error">పరీక్ష లోపం (డీబగ్ బిల్డ్)</string>
+  <string name="bug_report_prepare_failed">నివేదికను సిద్ధం చేయడం లేదా షేర్ చేయడం సాధ్యం కాలేదు. మీరు మళ్లీ ప్రయత్నించవచ్చు, లేదా మీ డేటాను సేవ్ చేయడానికి బ్యాకప్ మరియు పునరుద్ధరణను ఉపయోగించండి.</string>
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>
+  <string name="bug_report_manual_title">నివేదికను ఇమెయిల్ ద్వారా పంపండి</string>
+  <string name="bug_report_manual_text_saved">నివేదిక సేవ్ చేయబడింది:</string>
+  <string name="bug_report_manual_text_unsaved">ఈ పరికరంలో ఏ ఇమెయిల్ ప్రోగ్రామ్ తెరవబడలేదు.\n\nదయచేసి నివేదికను ఈ చిరునామాకు ఇమెయిల్ ద్వారా పంపండి:</string>
+  <string name="bug_report_copy_address">చిరునామాను కాపీ చేయండి</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">వచనం నుండి బిగ్గరగా చదువు</string>
   <string name="notification_channel_progress_status">డాక్యుమెంట్ డౌన్‌లోడ్‌లు మొదలైన వాటి కోసం ప్రోగ్రెస్ స్టేటస్ నోటిఫికేషన్.</string>
@@ -682,6 +787,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="search_settings">శోధన సెట్టింగులు</string>
   <string name="dismiss">రద్దు చేయండి</string>
   <string name="workspace_listing_with_current">%s (ప్రస్తుతం)</string>
+  <string name="workspace_manage_workspaces">కార్యస్థలాలను నిర్వహించండి…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">ఇది బీటా వెర్షన్!</string>
   <string name="beta_notice_content_1">
@@ -728,7 +834,10 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="help_search_title">వెతకండి</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">శోధన వచనంలో *, AND, OR, NOT వంటి ప్రత్యేక అక్షరాలు ఉండవచ్చు</string>
+  <string name="help_search_bible">పదాలు ఎలా సరిపోలాలో ఎంచుకోండి: అన్ని పదాలు అనేది ప్రతి పదం ఉన్న వచనాలను కనుగొంటుంది, ఏదైనా పదం అనేది కనీసం ఒక పదం ఉన్న వచనాలను కనుగొంటుంది, మరియు పదబంధం అనేది పదాలను ఆ క్రమంలో ఒకదాని పక్కన ఒకటి ఉన్నప్పుడు కనుగొంటుంది.\n\nవెతుకులాటలో మీరు * మరియు ? లను వైల్డ్‌కార్డ్‌లుగా కూడా ఉపయోగించవచ్చు (ఉదాహరణకు bless* అనేది blessed మరియు blessing లకు సరిపోలుతుంది), పదాలను AND, OR మరియు NOT తో కలపవచ్చు, మరియు స్ట్రాంగ్ సంఖ్యలను నేరుగా వెతకవచ్చు (ఉదాహరణకు strong:h0430).</string>
+  <string name="help_search_epub">పదాలు ఎలా సరిపోలాలో ఎంచుకోండి: అన్ని పదాలు అనేది ప్రతి పదం ఉన్న భాగాలను కనుగొంటుంది, ఏదైనా పదం అనేది కనీసం ఒక పదం ఉన్న భాగాలను కనుగొంటుంది, మరియు పదబంధం అనేది పదాలను ఆ క్రమంలో ఒకదాని పక్కన ఒకటి ఉన్నప్పుడు కనుగొంటుంది.\n\nముడి క్వెరీ సింటాక్స్ మీ పాఠ్యాన్ని మార్పు లేకుండా వెతుకు ఇంజిన్‌కు పంపుతుంది, కాబట్టి మీరు మీ స్వంత క్వెరీ రాయవచ్చు: grace AND faith, grace OR faith, grace NOT faith, ఖచ్చితమైన పదబంధం కోసం \"hope of glory\", bless తో మొదలయ్యే ఏ పదానికైనా సరిపోలడానికి bless*, మరియు అవి దగ్గరగా ఉన్నవి కనుగొనడానికి grace NEAR faith.</string>
   <string name="help_search_details">దయచేసి మరిన్ని వివరాల కోసం %s చూడండి.</string>
+  <string name="help_search_syntax">వెతుకు సింటాక్స్</string>
   <string name="help_fts5">FTS5 పూర్తి-వచన ప్రశ్న సింటాక్స్</string>
   <string name="help_workspaces_title">కార్యస్థలాలు</string>
   <string name="help_workspaces_text">
@@ -752,6 +861,12 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
 బైబిల్ పత్రాలను ఎల్లప్పుడూ తెరవండి మరియు వ్యాఖ్యానాల మధ్య త్వరగా మారండి మరియు
 మీరు బైబిల్ అధ్యయనం చేసినప్పుడు ఇతర అదనపు విషయాలు.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">మీ లైబ్రరీలో ఇంకా పత్రాలు లేవు. ప్రారంభించడానికి కొన్నింటిని జోడించండి.</string>
+  <string name="welcome_redownload_row_hint">ఇంతకు ముందు ఇన్‌స్టాల్ చేసిన పత్రాల నుండి ఎంచుకోండి</string>
+  <string name="welcome_download_row_hint">ఆన్‌లైన్ జాబితాను చూడండి</string>
+  <string name="welcome_restore_row_hint">బుక్ మార్క్‌స్ మరియు నోట్స్ ఉన్న డేటాబేస్ ఫైల్</string>
+  <string name="welcome_link_website">వెబ్‌సైట్</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">మీరు %s కు లోడ్ చేయాలనుకుంటున్న ఫైల్‌ను ఎంచుకోవాలి.</string>
@@ -767,9 +882,8 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="format_studypads">AndBible డేటాబేస్‌ల నుండి స్టడీప్యాడ్‌లు (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">మూసివేయండి</string>
+  <string name="reading_toolbar_options">మరిన్ని ఎంపికలు</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">నాకు అర్థమైనది</string>
-  <string name="first_time_help_show_next_time">తదుపరిసారి మళ్లీ చూపించు</string>
   <string name="strongs_mode_title">స్ట్రాంగ్స్ మోడ్‌ని ఎంచుకోండి</string>
   <string name="download_dialog_message">కింది పుస్తకాలను డౌన్‌లోడ్ చేయడం సాధ్యపడలేదు:</string>
   <string name="journal_description">అనుకూల వచనం మరియు బుక్‌మార్క్‌లతో వినియోగదారు సవరించగలిగే స్టడీ ప్యాడ్‌లు</string>
@@ -794,6 +908,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="prefs_experimental_features_summary">ప్రారంభించాల్సిన ప్రయోగాత్మక సౌలభ్యాలను ఎంచుకోండి. ఈ సౌలభ్యాలు ఇంకా అభివృద్ధిలో ఉన్నాయి మరియు మారవచ్చు లేదా తొలగించబడవచ్చు</string>
   <string name="experimental_feature_bookmark_edit_actions">బుక్‌మార్క్ సవరణ చర్యలు</string>
   <string name="experimental_feature_add_paragraph_break">పేరా విరామం బుక్‌మార్క్ జోడించు</string>
+  <string name="experimental_feature_toolbar_literal_color">చదువు టూల్‌బార్ కోసం థీమ్ రంగుకు బదులుగా కార్యస్థలం యొక్క అసలు రంగును ఉపయోగించండి</string>
   <string name="raw_llm_log_title">రా LLM లాగ్</string>
   <string name="raw_llm_log_empty">రా లాగ్ డేటా అందుబాటులో లేదు</string>
   <string name="raw_llm_log_copied">లాగ్ క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది</string>
@@ -892,6 +1007,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="display_mode_underline">అండర్‌లైన్</string>
   <string name="display_mode_marker">మార్కర్ మాత్రమే</string>
   <string name="display_mode_hidden">దాచబడింది</string>
+  <string name="display_mode_inherit">ఎంపిక వలెనే</string>
   <string name="workspace_override_indicator">ఈ లేబుల్‌కు వర్క్‌స్పేస్-నిర్దిష్ట ప్రదర్శన మోడ్ ఉంది</string>
   <string name="primary_label">ప్రాథమిక లేబుల్</string>
   <string name="favourite_label">ఇష్టమైన లేబుల్</string>
@@ -905,6 +1021,8 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="book_menu_show_long_book_name">పూర్తి పుస్తకం పేరు చూపించు</string>
   <string name="book_menu_show_progress_bars">ప్రోగ్రెస్ బార్లు చూపించు</string>
   <string name="reset_workspace_labels">మీరు ఈ కార్యస్థలం కోసం స్వీయ-అసైన్ మరియు ఇష్టమైన సెట్టింగ్‌లను రీసెట్ చేయాలనుకుంటున్నారా?</string>
+  <string name="clear_auto_assign_labels">స్వయంచాలక కేటాయింపు లేబుల్స్‌ను తుడిచివేయండి</string>
+  <string name="reset_workspace_auto_assign_labels">ఈ కార్యస్థలం నుండి అన్ని స్వయంచాలక కేటాయింపు లేబుల్స్‌ను తీసివేయాలనుకుంటున్నారా?</string>
   <string name="reset_hide_labels">మీరు పేర్కొన్న లేబుల్ సెట్టింగ్‌లను దాచడం కోసం సెట్టింగ్‌ని రీసెట్ చేయాలనుకుంటున్నారా?</string>
   <string name="reorder">తిరిగి క్రమబద్ధీకరించు</string>
   <string name="system_items">సిస్టమ్ చర్యలు</string>
@@ -976,6 +1094,27 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="instructions_for_translators">అనువాదకులకు సూచనలు</string>
   <string name="questions_title">ప్రశ్నలు?</string>
   <string name="bookmark_style">బుక్‌మార్క్ శైలి</string>
+  <string name="bookmark_style_preview_sample">దేవుడు లోకమును ఎంతో ప్రేమించెను</string>
+  <string name="bookmark_style_selection">పాఠ్య ఎంపిక బుక్ మార్క్‌స్</string>
+  <string name="bookmark_style_whole_verse">మొత్తం వచనపు బుక్ మార్క్‌స్</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">మొత్తం వచనపు బుక్ మార్క్‌స్ కోసం వేరే శైలిని ఉపయోగించండి</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">ఎంపిక</string>
+  <string name="bookmark_style_tag_whole_verse">మొత్తం వచనం</string>
+  <string name="bookmark_style_tag_workspace">కార్యస్థలం</string>
+  <string name="show_style_examples">శైలి ఉదాహరణలను చూపించండి</string>
+  <string name="labels_search_section">వెతకండి</string>
+  <string name="labels_filter_section">చూపించు</string>
+  <string name="labels_filter_auto_assign">స్వయంచాలక కేటాయింపు లేబుల్స్ మాత్రమే</string>
+  <string name="labels_filter_favourite">ఇష్టమైన లేబుల్స్ మాత్రమే</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">ఈ బుక్ మార్క్‌కు లేబుల్‌ను కేటాయించడానికి దానిని టిక్ చేయండి.</string>
+  <string name="manage_labels_help_primary">ప్రాథమిక లేబుల్. బుక్ మార్క్ చూపించే రంగు మరియు శైలి దీనివే.</string>
+  <string name="manage_labels_help_autoassign">ఈ లేబుల్‌ను ప్రతి కొత్త బుక్ మార్క్‌కు స్వయంచాలకంగా కేటాయించండి. ఖాళీ మెరుపు గుర్తు అంటే ఆఫ్.</string>
+  <string name="manage_labels_help_favourite">త్వరగా చేరుకోవడానికి లేబుల్‌ను మీ ఇష్టమైన వాటిలో ఉంచండి.</string>
+  <string name="manage_labels_help_styles">పేరు కింద ఒక చిన్న ఉదాహరణ లేబుల్ రూపాన్ని చూపుతుంది: పాఠ్య ఎంపిక బుక్ మార్క్ కోసం ఎంపిక, మొత్తం వచనపు బుక్ మార్క్ కోసం మొత్తం వచనం, మరియు ఈ కార్యస్థలం మార్చిన శైలి కోసం కార్యస్థలం ట్యాగ్. అలంకరణ లేని బూడిద రంగు ఉదాహరణ అంటే ఆ లేబుల్ బుక్ మార్క్‌స్ చూపబడవు. ఉదాహరణలను ⋮ మెనూ నుండి దాచవచ్చు.</string>
+  <string name="manage_labels_help_reorder">జాబితా క్రమాన్ని ⋮ మెనూ నుండి మార్చండి.</string>
   <string name="added_to_bookmark">ఈ బుక్‌మార్క్‌కు కేటాయించబడింది</string>
   <string name="strongs_links">లింకులు</string>
   <string name="strongs_text_and_links">టెక్స్ట్ మరియు లింకులు</string>
@@ -1029,6 +1168,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="sync_group_n">గ్రూప్ %d</string>
   <string name="disable_sync">సమకాలీకరణను నిలిపివేయండి</string>
   <string name="open_in_window">విండోలో ఫలితాలను తెరవండి</string>
+  <string name="open_result_in_links_window">ఫలితాన్ని లింక్స్ విండోలో తెరవండి</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">కస్టమ్ రిపోజిటరీలు</string>
@@ -1039,7 +1179,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="delete_custom_repository">మీరు అనుకూల రిపోజిటరీ %s ని తీసివేయాలనుకుంటున్నారా?</string>
   <string name="custom_repositories_help1">కొత్త అనుకూల రిపోజిటరీని జోడించడానికి, టైప్ చేయండి లేదా కాపీ &amp; అనుకూల రిపోజిటరీ URLని ఇక్కడ అతికించండి.</string>
   <string name="custom_repositories_help2">కస్టమ్ రిపోజిటరీల గురించి మరింత సమాచారాన్ని మీరు %s లో చదవవచ్చు.</string>
-  <string name="wiki_page">WIKI పేజీ</string>
   <string name="custom_repositories_help0">మీరు కస్టమ్ రిపోజిటరీలను ఇన్‌స్టాల్ చేయడం ద్వారా బాహ్య అనుకూల రిపోజిటరీల నుండి పత్రాలను ఇన్‌స్టాల్ చేయవచ్చు.</string>
   <string name="duplicate_custom_repository">%s పేరుతో రిపోజిటరీ ఇప్పటికే ఉంది, మరొకటి జోడించడం సాధ్యం కాదు.</string>
   <string name="packages_dir">ప్యాకేజీల డైరెక్టరీ (జిప్ ఫైల్స్)</string>
@@ -1086,6 +1225,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="reading_progress_new_cycle_confirm">కొత్త చదివే సైకిల్ ప్రారంభించాలా? ఇది మీ మునుపటి సైకిల్ డేటాను సంరక్షిస్తూ మొదటి నుండి ప్రోగ్రెస్ ట్రాక్ చేయడం ప్రారంభిస్తుంది.</string>
   <string name="reading_progress_previous_cycle">మునుపటి సైకిల్</string>
   <string name="reading_progress_next_cycle">తదుపరి సైకిల్</string>
+  <string name="cloud_merge_data">డేటాను విలీనం చేయండి</string>
   <string name="cloud_fetch_and_restore_initial">క్లౌడ్ నుండి ఈ పరికరానికి కాపీ చేయండి</string>
   <string name="cloud_create_new">ఈ పరికరం నుండి క్లౌడ్‌కి కాపీ చేయండి</string>
   <string name="cloud_disable_sync">రద్దు &amp; సమకాలీకరణను నిలిపివేయండి</string>
@@ -1099,6 +1239,19 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="sync_adapter_summary">ప్రస్తుత: %s</string>
   <string name="adapters_google_drive">గూగుల్ డ్రైవ్</string>
   <string name="adapters_next_cloud">నెక్స్ట్ క్లౌడ్</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV ఫోల్డర్ చిరునామా, ఉదా. https://nas.local/dav/ లేదా https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">సింక్ కోసం సురక్షితమైన https:// చిరునామా అవసరం.</string>
+  <string name="webdav_certificate_title">సర్వర్ సర్టిఫికెట్</string>
+  <string name="webdav_forget_certificate_message">నమ్మదగిన సర్వర్ సర్టిఫికెట్‌ను మరచిపోవాలా? తదుపరి కనెక్షన్‌లో సర్టిఫికెట్‌ను మళ్లీ నిర్ధారించమని అడగబడుతుంది.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">నమ్మదగని సర్వర్ సర్టిఫికెట్</string>
+  <string name="webdav_untrusted_certificate_message">%1$s యొక్క సర్టిఫికెట్‌ను Android నమ్మడం లేదు. మీరు దానిని గుర్తిస్తేనే నమ్మండి, ఉదాహరణకు ఈ సర్వర్‌ను మీరే ఏర్పాటు చేసుకున్నట్లయితే.\n\nవిషయం: %2$s\nజారీ చేసినవారు: %3$s\nచెల్లుబాటు: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">ఈ సర్టిఫికెట్‌ను నమ్మండి</string>
+  <string name="webdav_wrong_credentials">యూజర్‌నేమ్ లేదా పాస్‌వర్డ్ తప్పు.</string>
+  <string name="webdav_not_a_folder">ఈ చిరునామా WebDAV ఫోల్డర్ కాదు.</string>
+  <string name="webdav_certificate_changed">సర్వర్ సర్టిఫికెట్ మారింది. మీరు కొత్త సర్టిఫికెట్‌ను నిర్ధారించే వరకు సింక్రొనైజేషన్ నిలిపివేయబడుతుంది; AndBible తదుపరిసారి తెరిచినప్పుడు లేదా ముందుభాగంలో సింక్ చేసినప్పుడు దాని గురించి అడుగుతుంది.</string>
+  <string name="webdav_storage_full">సర్వర్ నిల్వ నిండిపోయింది.</string>
   <string name="auth_server_uri">సర్వర్ URL</string>
   <string name="auth_username">వినియోగదారు పేరు</string>
   <string name="auth_password">పాస్వర్డ్</string>
@@ -1108,6 +1261,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="sync_general_settings">సమాచారం &amp; సాధారణ సెట్టింగులు</string>
   <string name="sync_introduction">పరిచయం</string>
   <string name="are_you_sure">మీరు ఖచ్చిత్వం తో ఉన్నారా? </string>
+  <string name="are_you_sure_merge">ఈ పరికరంలోని డేటా మరియు క్లౌడ్‌లోని %s రెండూ ఉంచబడతాయి. ఒకే అంశం రెండింటిలోనూ మార్చబడిన చోట, కొత్త మార్పు ఉంచబడుతుంది. ఈ పరికరం డేటా మీ ఇతర పరికరాలకు పంపబడుతుంది.</string>
   <string name="are_you_sure_reset_local">ఇది ప్రస్తుతం క్లౌడ్ సేవలో నిల్వ చేయబడిన %s కంటెంట్‌తో మీ స్థానిక డేటాబేస్‌ని రీసెట్ చేస్తుంది.</string>
   <string name="are_you_sure_reset_cloud">ఇది మీరు ఈ పరికరంలో కలిగి ఉన్న %s కంటెంట్‌తో మీ క్లౌడ్ డేటాబేస్‌ని రీసెట్ చేస్తుంది.</string>
   <string name="sync_cant_fetch">క్లౌడ్‌లో నిల్వ చేయబడిన డేటాబేస్ లేదా ప్యాచ్ ఫైల్ వెర్షన్ ఈ యాప్ ద్వారా సపోర్ట్ చేసే దాని కంటే ఎక్కువగా ఉంది.</string>
@@ -1144,6 +1298,7 @@ Don\'t show this message again
   <string name="pref_font_size_multiplier_title">ఫాంట్ పరిమాణ గుణకం</string>
   <string name="pref_font_size_multiplier_summary_1">వచన ఫాంట్ పరిమాణాలను ఈ సంఖ్యతో గుణించండి.</string>
   <string name="pref_font_size_multiplier_summary_2">పెద్ద ఫాంట్‌తో ఉపయోగించే సమకాలీన పరికరం ఉంటే ఉపయోగకరం.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">ప్రస్తుత విలువ: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">స్వైప్ ఎడమ / కుడి జెస్చర్ చర్య</string>
   <string name="prefs_bible_view_swipe_mode_summary">తదుపరి పేజీ / అధ్యాయానికి వెళ్ళడానికి స్వైప్ ఎడమ / కుడి జెస్చర్ ఉపయోగించవచ్చు.</string>
@@ -1264,6 +1419,7 @@ Don\'t show this message again
   <string name="prompt_max_iterations_unlimited">అపరిమితం</string>
   <string name="prompt_max_iterations_global_default">గ్లోబల్ డిఫాల్ట్ (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">ఈ ప్రాంప్ట్ కోసం గ్లోబల్ గరిష్ట ఇటరేషన్లను ఓవర్‌రైడ్ చేయండి. 0 = అపరిమితం.\nప్రస్తుతం: %s</string>
+  <string name="prompt_max_iterations_use_global">సార్వత్రిక సెట్టింగ్‌ను ఉపయోగించండి (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AI ప్రాంప్ట్‌లు నిర్వహించండి</string>
   <string name="manage_prompts_summary">AI ప్రాంప్ట్‌లు సృష్టించండి మరియు సవరించండి</string>
@@ -1397,6 +1553,7 @@ Don\'t show this message again
   <string name="built_in_prompt_notice">ఇది అంతర్నిర్మిత ప్రాంప్ట్ మరియు సవరించలేరు. సవరించదగిన కాపీ సృష్టించడానికి \"అనుకూలీకరించడానికి కాపీ చేయండి\" ఉపయోగించండి.</string>
   <string name="copy_to_customize">అనుకూలీకరించడానికి కాపీ చేయండి</string>
   <string name="prompt_copied">ప్రాంప్ట్ కాపీ చేయబడింది</string>
+  <string name="prompt_copy_failed">ప్రాంప్ట్‌ను కాపీ చేయడం సాధ్యం కాలేదు. అది తొలగించబడి ఉండవచ్చు.</string>
   <string name="delete_prompt_confirmation">ప్రాంప్ట్ \"%s\" తొలగించాలా?</string>
   <string name="prompt_name_required">ప్రాంప్ట్ పేరు అవసరం</string>
   <string name="prompt_template_required">ప్రాంప్ట్ టెంప్లేట్ అవసరం</string>
@@ -1604,6 +1761,8 @@ Don\'t show this message again
   <string name="tool_option_default_disabled">డిఫాల్ట్ (నిలిపివేయబడింది)</string>
   <string name="tool_option_default_allowed">డిఫాల్ట్ (అనుమతించబడింది)</string>
   <string name="tool_option_default_denied">డిఫాల్ట్ (తిరస్కరించబడింది)</string>
+  <string name="tool_description_info">టూల్ వివరణను చూపించండి</string>
+  <string name="tool_permission_mixed">మిశ్రమం</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">మోడల్</string>
   <string name="prompt_model_default">డిఫాల్ట్</string>
@@ -1649,6 +1808,8 @@ Don\'t show this message again
   <string name="my_document_pages_empty">ఈ పత్రంలో పేజీలు లేవు.</string>
   <string name="my_document_page_rename_title">పేజీ పేరు మార్చు</string>
   <string name="my_document_page_delete_confirmation">పేజీ \"%s\" తొలగించాలా?</string>
+  <string name="my_document_pages_delete_confirmation">ఈ పేజీలను తొలగించాలా?</string>
+  <string name="my_documents_switch_document">పత్రాన్ని మార్చండి</string>
   <string name="my_document_new_page_name">పేజీ %1$d</string>
   <string name="my_document_create_page_title">కొత్త పేజీ</string>
   <string name="my_document_content_type_label">కంటెంట్ రకం</string>
@@ -1745,4 +1906,91 @@ Don\'t show this message again
   <string name="document_sync_started">పత్రాల సింక్ ప్రారంభమైంది</string>
   <string name="document_sync_enable_dialog_title">పత్రాలను సింక్ చేయడం ప్రారంభించాలా?</string>
   <string name="document_sync_enable_dialog_nothing">ఇంకా బదిలీ చేయడానికి పత్రాలు లేవు. కొత్తగా ఇన్‌స్టాల్ చేసిన పత్రాలు స్వయంచాలకంగా సింక్ అవుతాయి.</string>
+  <string name="help_document_sync_text">పత్రాల సింక్ మీరు ఇన్‌స్టాల్ చేసిన బైబిళ్లను, వ్యాఖ్యానాలను మరియు ఇతర పత్రాలను క్లౌడ్‌కు కాపీ చేసి, మీ పరికరాల్లో వాటిని సమకాలీకరణలో ఉంచుతుంది. క్లౌడ్‌లో ఏమి నిల్వ ఉందో చూడటానికి, వ్యక్తిగత పత్రాలను డౌన్‌లోడ్ లేదా అప్‌లోడ్ చేయడానికి, పత్రాలను తీసివేయడానికి, మరియు ఈ పరికరానికి ఏది సింక్ కావాలో నియంత్రించడానికి ఈ వీక్షణను ఉపయోగించండి.</string>
+  <string name="background_image_title">నేపథ్య చిత్రం</string>
+  <string name="background_image_none">నేపథ్యం లేదు</string>
+  <string name="background_image_import">గ్యాలరీ నుండి దిగుమతి చేయండి…</string>
+  <string name="background_image_empty">ఇంకా దిగుమతి చేసిన చిత్రాలు లేవు. ఒకదాన్ని జోడించడానికి \"గ్యాలరీ నుండి దిగుమతి చేయండి…\"ను నొక్కండి.</string>
+  <string name="background_image_importing">దిగుమతి అవుతోంది…</string>
+  <string name="background_image_delete_title">చిత్రాన్ని తొలగించాలా?</string>
+  <string name="background_image_delete_confirm">ఈ నేపథ్య చిత్రాన్ని తొలగించాలా? దీన్ని ఇంకా ఉపయోగిస్తున్న కార్యస్థలాలకు చిత్రం ఉండదు.</string>
+  <string name="background_image_day">నేపథ్య చిత్రం (పగలు)</string>
+  <string name="background_image_night">నేపథ్య చిత్రం (రాత్రి)</string>
+  <string name="background_image_opacity_day">నేపథ్య చిత్రం అపారదర్శకత (పగలు)</string>
+  <string name="background_image_opacity_night">నేపథ్య చిత్రం అపారదర్శకత (రాత్రి)</string>
+  <string name="background_image_change">మార్చండి</string>
+  <string name="color_picker_title">రంగును ఎంచుకోండి</string>
+  <string name="color_picker_presets">ప్రీసెట్‌లు</string>
+  <string name="color_picker_custom">అనుకూలం</string>
+  <string name="bookmark_expand_row">పూర్తి పాఠ్యాన్ని చూపించండి</string>
+  <string name="bookmark_collapse_row">తక్కువ చూపించండి</string>
+  <string name="bookmark_label_filter">లేబుల్ ద్వారా ఫిల్టర్ చేయండి</string>
+  <string name="document_quick_all_documents">అన్ని పత్రాలు…</string>
+  <string name="document_quick_tab_recent">ఇటీవలి</string>
+  <string name="document_quick_tab_for_verse">ఈ వచనం</string>
+  <string name="document_quick_tab_last_filter">చివరి ఫిల్టర్</string>
+  <string name="document_quick_tab_all">అన్నీ</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">ఫిల్టర్ మరియు క్రమం</string>
+  <string name="doc_arrange_repository">రిపాజిటరీ</string>
+  <string name="doc_arrange_all_repositories">అన్ని రిపాజిటరీలు</string>
+  <string name="doc_arrange_sort">క్రమబద్ధీకరణ</string>
+  <string name="doc_arrange_group_by">సమూహపరచు</string>
+  <string name="doc_arrange_remember">ఈ సెట్టింగ్‌లను గుర్తుంచుకోండి</string>
+  <string name="doc_arrange_reset">డిఫాల్ట్‌లకు మళ్లీ సెట్ చేయండి</string>
+  <string name="doc_arrange_more_filters">మరిన్ని ఫిల్టర్లు</string>
+  <string name="doc_arrange_reorder">క్రమం మార్చండి</string>
+  <string name="doc_sort_ascending">ఆరోహణ</string>
+  <string name="doc_sort_descending">అవరోహణ</string>
+  <string name="doc_sort_status">స్థితి</string>
+  <string name="doc_sort_recommended">సిఫార్సు చేసినవి మొదట</string>
+  <string name="doc_sort_name">పేరు</string>
+  <string name="doc_sort_size">పరిమాణం</string>
+  <string name="doc_group_none">సమూహం లేదు</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">డౌన్‌లోడ్ అవుతోంది</string>
+  <string name="doc_group_status_update_available">అప్‌డేట్ అందుబాటులో ఉంది</string>
+  <string name="doc_group_status_installed">ఇన్‌స్టాల్ చేయబడింది</string>
+  <string name="doc_group_status_not_installed">ఇన్‌స్టాల్ చేయబడలేదు</string>
+  <string name="prompt_filter_title">ప్రాంప్ట్‌లను ఫిల్టర్ చేయండి</string>
+  <string name="prompt_filter_type">రకం</string>
+  <string name="prompt_type_addon">యాడ్-ఆన్</string>
+  <string name="prompt_type_user">అనుకూలం</string>
+  <string name="prompt_filter_clear">ఫిల్టర్లను తుడిచివేయండి</string>
+  <string name="prompt_favorite_add">ఇష్టమైన వాటికి జోడించండి</string>
+  <string name="prompt_favorite_remove">ఇష్టమైన వాటి నుండి తీసివేయండి</string>
+  <string name="window_unmaximise">అన్ని విండోలను పునరుద్ధరించండి</string>
+  <string name="window_menu_button">విండో మెనూ</string>
+  <string name="paste_from_clipboard">అతికించండి</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">లాగే హ్యాండిల్</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">మీ డేటాను అప్‌డేట్ చేస్తోంది…</string>
+  <string name="legacy_migration_progress_neutral">అప్‌డేట్ చేస్తోంది…</string>
+  <string name="legacy_migration_failed_title">మీ డేటాను అప్‌డేట్ చేయడం సాధ్యం కాలేదు</string>
+  <string name="legacy_migration_failed_message">యాప్ యొక్క మునుపటి వెర్షన్ నుండి మీ డేటా ఈ పరికరంలో సురక్షితంగా, మార్పు లేకుండా ఉంది. తరువాత ఏమి చేయాలో ఎంచుకోండి.</string>
+  <string name="legacy_migration_failed_keychain">మునుపటి వెర్షన్ నుండి సేవ్ చేసిన పాస్‌వర్డ్‌లను చదవడం సాధ్యం కాలేదు. మీ పరికరాన్ని అన్‌లాక్ చేసి, ఆపై యాప్‌ను మూసి మళ్లీ తెరవండి.</string>
+  <string name="legacy_migration_rollback_pending">అప్‌డేట్ నిలిచిపోయింది మరియు ఇంకా పూర్తిగా రద్దు కాలేదు. రద్దును పూర్తి చేయడానికి యాప్‌ను మూసి మళ్లీ తెరవండి.</string>
+  <string name="legacy_migration_save_old_data">పాత డేటాను సేవ్ చేయండి</string>
+  <string name="legacy_migration_send_report">లోప నివేదికను పంపండి</string>
+  <string name="legacy_migration_try_again">మళ్లీ ప్రయత్నించండి</string>
+  <string name="legacy_migration_try_again_hint">మళ్లీ ప్రయత్నించడానికి యాప్‌ను మూసి మళ్లీ తెరవండి.</string>
+  <string name="legacy_migration_restore_backup">బ్యాకప్‌ను పునరుద్ధరించండి</string>
+  <string name="legacy_migration_start_fresh">పాత డేటా లేకుండా ప్రారంభించండి</string>
+  <string name="legacy_migration_start_fresh_confirm">మీ పాత డేటా ఈ పరికరంలోనే ఉంటుంది. మీరు దానిని తర్వాత సెట్టింగ్‌లలో దిగుమతి చేసుకోవచ్చు.</string>
+  <string name="legacy_import_title">యాప్ మునుపటి వెర్షన్ నుండి డేటాను దిగుమతి చేయండి</string>
+  <string name="legacy_import_summary">ప్రస్తుత డేటాను యాప్ మునుపటి వెర్షన్ డేటాతో భర్తీ చేయండి</string>
+  <string name="legacy_import_confirm">ఇది మీ ప్రస్తుత కార్యస్థలాలను, బుక్ మార్క్‌స్‌ను మరియు ఇతర డేటాను యాప్ మునుపటి వెర్షన్ డేటాతో భర్తీ చేస్తుంది. మీ ప్రస్తుత డేటా కాపీ ఈ పరికరంలో ఉంచబడుతుంది.</string>
+  <string name="legacy_import_reopen">మీ డేటాను దిగుమతి చేయడానికి యాప్‌ను మూసి మళ్లీ తెరవండి.</string>
+  <string name="legacy_notice_icloud">సింక్ ఇప్పుడు iCloud Driveను ఉపయోగిస్తుంది. సెట్టింగ్‌లు → సింక్‌లో దాన్ని మళ్లీ ఆన్ చేయండి. ఈ పరికరం తన వద్ద ఉన్నదాన్ని ఉంచుకుంటుంది; సింక్ మళ్లీ ఏర్పాటు చేసిన తర్వాత మీ ఇతర పరికరాల నుండి మార్పులు వస్తాయి. పాత iCloud డేటాను ఖాళీ చేయడానికి: సెట్టింగ్‌లు → మీ పేరు → iCloud → నిల్వను నిర్వహించండి → AndBible.</string>
+  <string name="legacy_notice_nextcloud">మీ Nextcloud కనెక్షన్ తీసుకురాబడింది, కానీ సింక్ ఆఫ్‌లో ఉంది. సెట్టింగ్‌లు → సింక్‌లో దాన్ని ఆన్ చేసి, క్లౌడ్ నుండి తెచ్చుకోవడం లేదా కొత్తది సృష్టించడం ఎంచుకోండి.</string>
+  <string name="legacy_notice_nextcloud_unsent">ఈ పరికరంలోని కొన్ని మార్పులు ఇంకా Nextcloudకు పంపబడలేదు. అవి పంపబడలేదు మరియు ఈ పరికరంలో మాత్రమే ఉంటాయి.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">ఇది శక్తివంతమైన, అయినా ఉపయోగించడానికి సులభమైన, ఆఫ్‌లైన్ బైబిల్ అధ్యయన యాప్.</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s యొక్క సర్టిఫికెట్‌ను ఈ పరికరం నమ్మడం లేదు. మీరు దానిని గుర్తిస్తేనే నమ్మండి, ఉదాహరణకు ఈ సర్వర్‌ను మీరే ఏర్పాటు చేసుకున్నట్లయితే.\n\nవిషయం: %2$s\nజారీ చేసినవారు: %3$s\nచెల్లుబాటు: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">అనుకూల రిపాజిటరీలు సురక్షితమైన https:// చిరునామాను ఉపయోగించాలి.</string>
+  <string name="custom_repository_https_required_refresh">%1$s http:// చిరునామాను ఉపయోగిస్తోంది. https:// రిపాజిటరీలను మాత్రమే ఉపయోగించగలరు.</string>
 </resources>
