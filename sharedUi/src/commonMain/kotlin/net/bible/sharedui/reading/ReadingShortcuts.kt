@@ -9,7 +9,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 
-/** Maps unhandled native/Compose chords to the same commands as BibleView's keyboard listener. */
+/** Maps native/Compose chords to BibleView's supported commands; keep keyboard.ts in sync. */
 internal fun readingShortcut(code: String, ctrl: Boolean, alt: Boolean, meta: Boolean = false, editing: Boolean = false): String? {
     if (meta || ctrl && alt) return null
     if (ctrl) {
@@ -21,6 +21,10 @@ internal fun readingShortcut(code: String, ctrl: Boolean, alt: Boolean, meta: Bo
     }
     return null
 }
+
+/** Only called with codes accepted by [readingShortcut], never arbitrary page text. */
+internal fun readingShortcutScript(code: String, ctrl: Boolean, alt: Boolean): String =
+    "window.dispatchEvent(new CustomEvent('andbible-native-reading-key', {detail:{code:'$code',ctrlKey:$ctrl,altKey:$alt}}));"
 
 internal fun readingShortcut(event: KeyEvent, editing: Boolean = false): String? {
     if (event.type != KeyEventType.KeyDown) return null

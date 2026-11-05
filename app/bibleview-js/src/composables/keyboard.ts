@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {setupDocumentEventListener} from "@/utils";
+import {setupDocumentEventListener, setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
 import {computed, ComputedRef, onBeforeUnmount, onMounted, ref, watch} from "vue";
@@ -63,7 +63,7 @@ export function useKeyboard(
         return false;
     }
 
-    setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+    function handleReadingKey(e: KeyboardEvent) {
         if(executeCustomHandlers(e)) {
             e.preventDefault();
             e.stopPropagation();
@@ -99,6 +99,18 @@ export function useKeyboard(
             e.preventDefault();
             e.stopPropagation();
         }
+    }
+
+    setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+        // UIKit owns modified reading chords on iOS: WKContentView can bubble a press without a DOM keydown.
+        // Never execute the same chord again if WebKit also emits it. Plain arrows/Space stay DOM-owned.
+        if ((window as any).webkit?.messageHandlers?.bridge && (e.ctrlKey || e.altKey)) return;
+        handleReadingKey(e);
+    });
+    setupWindowEventListener("andbible-native-reading-key", (event: Event) => {
+        const detail = (event as CustomEvent<KeyboardEventInit>).detail;
+        const key = detail.code?.startsWith("Key") ? detail.code.slice(3).toLowerCase() : detail.code;
+        handleReadingKey(new KeyboardEvent("keydown", {...detail, key}));
     });
 
     return {editorMode, setupKeyboardListener};

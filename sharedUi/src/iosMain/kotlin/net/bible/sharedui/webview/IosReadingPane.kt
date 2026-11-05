@@ -33,6 +33,7 @@ import platform.UIKit.UIMenuBuilderProtocol
 import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import net.bible.sharedui.reading.bridge.ReadingBridge
+import net.bible.sharedui.reading.readingShortcutScript
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.session.BibleWindowSession
 import platform.Foundation.NSLocale
@@ -67,10 +68,6 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     WKWebView(frame, configuration) {
     var onAttached: (() -> Unit)? = null
 
-    /** Only keys WebKit did not handle reach here; never intercept a DOM/editor key on its way in. */
-    var onUnhandledShortcut: ((String) -> Unit)? = null
-    var isEditing: () -> Boolean = { false }
-
     override fun pressesBegan(presses: Set<*>, withEvent: platform.UIKit.UIPressesEvent?) {
         val unhandled = presses.filterNot { value ->
             val key = (value as? platform.UIKit.UIPress)?.key ?: return@filterNot false
@@ -84,18 +81,27 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
                 else -> return@filterNot false
             }
             val flags = key.modifierFlags
-            val command = net.bible.sharedui.reading.readingShortcut(
+            net.bible.sharedui.reading.readingShortcut(
                 code,
                 ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
                 alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
                 meta = flags and platform.UIKit.UIKeyModifierCommand != 0L,
-                editing = isEditing(),
             ) ?: return@filterNot false
-            val deliver = onUnhandledShortcut ?: return@filterNot false
-            deliver(command)
+            // Native is the sole owner of modified iOS chords. JS checks its editor synchronously;
+            // its DOM listener ignores these chords even if WebKit also delivers a keydown.
+            deliverReadingShortcut(code,
+                ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
+                alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+            )
             true
         }.toSet()
         if (unhandled.isNotEmpty()) super.pressesBegan(unhandled, withEvent)
+    }
+
+    internal fun deliverReadingShortcut(code: String, ctrl: Boolean, alt: Boolean) {
+        evaluateJavaScript(readingShortcutScript(code, ctrl, alt)) { _, error ->
+            if (error != null) nsLog("bridge: reading shortcut failed ${error.localizedDescription}")
+        }
     }
 
     init {
@@ -262,8 +268,6 @@ object IosReadingWebViews {
         entry.gestureRecognisers = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
-        entry.webView.onUnhandledShortcut = null
-        entry.webView.isEditing = { false }
         entry.webView.bibleSchemeHandler?.currentDocument = { null }
     }
 
@@ -315,8 +319,6 @@ object IosReadingWebViews {
         )
         val handler = IosBridgeMessageHandler(dispatcher)
         entry.webView.onAttached = { session.jsChannel.flush() }
-        entry.webView.onUnhandledShortcut = bridge::onKeyDown
-        entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).
         entry.webView.bibleSchemeHandler?.currentDocument = { session.firstDocument }
         entry.handler = handler // strong reference: WebKit holds the handler weakly

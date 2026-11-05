@@ -53,6 +53,49 @@ describe("reading shortcut ownership", () => {
         expect(commands).toEqual([]);
     });
 
+    it("uses one native owner on iOS even when WebKit also sends the DOM keydown", () => {
+        window.webkit = {messageHandlers: {bridge: {}}};
+        try {
+            const {commands, press} = keyboard();
+            press("KeyF", {ctrlKey: true});
+            expect(commands).toEqual([]);
+            window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {
+                detail: {code: "KeyF", ctrlKey: true},
+            }));
+            expect(commands).toEqual(["CtrlKeyF"]);
+        } finally { delete window.webkit; }
+    });
+
+    it("preserves the key value required by priority handlers on the native route", () => {
+        const {commands, api} = keyboard();
+        let receivedKey;
+        // Register within a component so the composable's mount/unmount owns the handler.
+        wrappers.push(mount(defineComponent({setup() {
+            api.setupKeyboardListener(e => { receivedKey = e.key; return e.key === "b"; });
+            return () => null;
+        }})));
+        window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {
+            detail: {code: "KeyB", ctrlKey: true},
+        }));
+        expect(receivedKey).toBe("b");
+        expect(commands).toEqual([]);
+    });
+
+    it("checks editor ownership at dispatch time for the native iOS route", async () => {
+        const {commands, api} = keyboard();
+        // Prove the native route is live before checking the editor gate.
+        window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {
+            detail: {code: "KeyB", ctrlKey: true},
+        }));
+        expect(commands).toEqual(["CtrlKeyB"]);
+        api.editorMode.value++;
+        // No nextTick: a delayed native setEditing notification must not decide ownership.
+        window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {
+            detail: {code: "KeyB", ctrlKey: true},
+        }));
+        expect(commands).toEqual(["CtrlKeyB"]);
+    });
+
     it("delivers each supported reading chord once", () => {
         const {commands, press} = keyboard();
         for (const code of ["KeyF", "KeyB", "KeyC", "KeyW"]) press(code, {ctrlKey: true});

@@ -118,10 +118,12 @@ object IosAppHostPlatform : AppHostPlatform {
         val id = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
             .activeWindow.id.toString()
         if (!HostReadingWindows.hasAssembly(id)) return false
-        val command = net.bible.sharedui.reading.readingShortcut(
-            event, editing = HostReadingWindows.sessionFor(id).editingTextInJs,
-        ) ?: return false
-        HostReadingWindows.bridgeFor(id).onKeyDown(command)
+        val command = net.bible.sharedui.reading.readingShortcut(event) ?: return false
+        // Use the same sole JS dispatch as UIKit; the editor state is read there, without a bridge round-trip race.
+        val ctrl = command.startsWith("Ctrl")
+        val code = command.removePrefix(if (ctrl) "Ctrl" else "Alt")
+        (net.bible.sharedui.webview.IosReadingWebViews.webViewFor(id) as net.bible.sharedui.webview.ReadingWkWebView)
+            .deliverReadingShortcut(code, ctrl, alt = !ctrl)
         return true
     }
 
