@@ -3,7 +3,7 @@ import {mount} from "@vue/test-utils";
 import StrongsDocument from "@/components/documents/StrongsDocument.vue";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, customCssKey, stringsKey} from "@/types/constants";
 
-vi.mock("@/components/documents/OsisFragment.vue", () => ({default: {props: ["fragment"], template: '<div class="fragment">{{ fragment.keyName }}</div>'}}));
+vi.mock("@/components/documents/OsisFragment.vue", () => ({default: {props: ["fragment"], template: '<div class="fragment">{{ fragment.bookInitials }}:{{ fragment.keyName }}</div>'}}));
 vi.mock("@/components/tabs/TabNavigation.vue", () => ({default: {
     props: ["tabs", "activeTab"],
     emits: ["tab-change"],
@@ -42,14 +42,14 @@ describe("StrongsDocument.vue", () => {
     it("shows the initial dictionaries and saves changed selections", async () => {
         const {wrapper, android} = mountDocument();
         try {
-            expect(wrapper.findAll(".strongs-entry .fragment").map(node => node.text())).toEqual(["1"]);
-            expect(wrapper.findAll(".morph-entry .fragment").map(node => node.text())).toEqual(["N-NSM"]);
+            expect(wrapper.findAll(".strongs-entry .fragment").map(node => node.text())).toEqual(["GREEK_A:1"]);
+            expect(wrapper.findAll(".morph-entry .fragment").map(node => node.text())).toEqual(["MORPH_A:N-NSM"]);
             expect(wrapper.findAll(".find-all a").map(node => node.attributes("href"))).toEqual([
                 "ab-find-all://?type=greek&name=1",
             ]);
 
             await wrapper.findAll("nav button")[1].trigger("click");
-            expect(wrapper.findAll(".strongs-entry .fragment").map(node => node.text())).toEqual(["1"]);
+            expect(wrapper.findAll(".strongs-entry .fragment").map(node => node.text())).toEqual(["GREEK_B:1"]);
             expect(wrapper.findAll("nav button")[1].attributes("data-active")).toBe("true");
             expect(android.saveState).toHaveBeenCalledWith({selectedStrongsDict: "GREEK_B", selectedMorphDict: "MORPH_A"});
         } finally {
