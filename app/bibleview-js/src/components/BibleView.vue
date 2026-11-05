@@ -205,7 +205,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId, scrollY} = scroll;
+const {doScrolling, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -257,7 +257,7 @@ onUnmounted(() => {
     contentResizeObserver = null;
 })
 
-const {currentVerse, currentKey} = useVerseNotifier(calculatedConfig, android, scroll, lineHeight);
+const {currentVerse, currentKey, updateCurrentVerse} = useVerseNotifier(calculatedConfig, android, scroll, lineHeight);
 const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
 
 const customFeatures = useCustomFeatures(android);
@@ -309,9 +309,20 @@ function addDocuments(...docs: AnyDocument[]) {
 }
 
 setupEventBusListener("config_changed", async (deferred: Deferred) => {
-    const verseBeforeConfigChange = currentVerse.value;
+    // A navigation suppresses scroll notifications, so currentVerse can still name the
+    // previous viewport. Measure before reflow, including a position partway through a verse.
+    updateCurrentVerse(true);
+    const anchorId = `o-${currentVerse.value}`;
+    const anchor = document.getElementById(anchorId);
+    if (!anchor) return;
+    const top = anchor.getBoundingClientRect().top;
+    const generation = documentGeneration;
     await deferred.wait();
-    scrollToId(`o-${verseBeforeConfigChange}`, {now: true})
+    if (generation !== documentGeneration) return;
+    const reflowedAnchor = document.getElementById(anchorId);
+    if (reflowedAnchor) {
+        doScrolling(window.scrollY + reflowedAnchor.getBoundingClientRect().top - top, 0);
+    }
 })
 
 setupEventBusListener("clear_document", function clearDocument() {

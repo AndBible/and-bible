@@ -261,7 +261,9 @@ its windows. These settings are synced across devices.
 
 The font size, top margin, and line spacing sliders show the current value
 as you drag, including its unit. Tap **OK** to apply the value or **Cancel**
-to discard the change.
+to discard the change. When you change the font size, font family, line spacing,
+or text scaling, the current reading verse stays at the same position in the window,
+including after restoring a database backup.
 
 - **Colors:** Adjust text color, background color, and background noise
     (a subtle texture overlay on the background). The texture also extends behind
