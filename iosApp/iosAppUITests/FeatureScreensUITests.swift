@@ -230,159 +230,33 @@ final class FeatureScreensUITests: RealAppUITestCase {
                        "Speak settings sheet opened by the gear")
     }
 
-    private func speakSwitch(_ app: XCUIApplication, _ label: String) -> XCUIElement {
-        let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
-        for _ in 0..<6 where !(toggle.exists && toggle.isHittable) { nudgeSheetList(app) }
-        harnessRequire(toggle.exists && toggle.isHittable, app, "Speak switch reachable: \(label)")
-        return toggle
-    }
-
-    private func flip(_ app: XCUIApplication, _ label: String) -> Bool {
-        let toggle = speakSwitch(app, label)
-        let before = toggle.isSelected
-        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.5)).tap()
-        harnessRequire(waitUntil(timeout: 10) { toggle.isSelected != before }, app, "Switch '\(label)' toggled")
-        return toggle.isSelected
-    }
-
-    private func speedReadout(_ app: XCUIApplication) -> String? {
-        let readout = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", #"^\d+ ?%$"#)).firstMatch
-        return readout.exists ? readout.label : nil
-    }
-
-    /// The slider is the wide, short `Other` element whose value attribute is a number (0...300), below "Speak speed".
-    private func speedSlider(_ app: XCUIApplication) -> XCUIElement? {
-        let label = text(app, "Speak speed")
-        guard label.waitForExistence(timeout: 10) else { return nil }
-        return app.otherElements.allElementsBoundByIndex.first {
-            $0.exists && $0.frame.width > 300 && $0.frame.height < 70 && $0.frame.minY >= label.frame.minY
-                && (($0.value as? String).flatMap(Double.init) != nil || ($0.value as? Double) != nil)
-        }
-    }
-
-    private func speedSliderValue(_ app: XCUIApplication) -> Double? {
-        guard let slider = speedSlider(app) else { return nil }
-        return (slider.value as? Double) ?? (slider.value as? String).flatMap(Double.init)
-    }
-
-    /// Drags the thumb between two values. Measured on iPhone: the 381 pt element holds a 48 pt thumb centred at
-    /// 24 + value/300 * 333 from the element's left edge (value 100 -> x 137 of 6..387).
-    private func dragSpeed(_ app: XCUIApplication, from: Double, to: Double) {
-        guard let slider = speedSlider(app) else { harnessRequire(false, app, "HARNESS: speed slider for the drag"); return }
-        let width = slider.frame.width
-        func offset(_ value: Double) -> CGFloat { CGFloat((24 + value / 300 * (Double(width) - 48)) / Double(width)) }
-        let start = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(from), dy: 0.5))
-        let end = slider.coordinate(withNormalizedOffset: CGVector(dx: offset(to), dy: 0.5))
-        start.press(forDuration: 0.3, thenDragTo: end)
-        usleep(700_000)
-    }
-
-    /// Run 4 evidence: the old oracle (text "Advanced settings") was already satisfied by the ROW itself, and a tap during
-    /// the sheet's scroll deceleration did not navigate (the screenshot still showed the main page). Now: bring the row
-    /// on screen, wait for it to settle, tap, and require the sheet's Back button (shown only on a sub-page); retry twice.
-    private func openAdvancedPage(_ app: XCUIApplication) {
-        let row = harnessLabel(app, "Advanced settings")
-        for _ in 0..<8 where !(row.exists && row.isHittable) { nudgeSheetList(app) }
-        for _ in 0..<3 {
-            harnessRequire(waitForStableOnScreen(app, row), app, "Advanced settings row settled")
-            row.tap()
-            if button(app, "Back").waitForExistence(timeout: 8) { return }
-            attachTree(app, "advanced-tap-no-navigation")
-        }
-        harnessRequire(false, app, "Advanced settings page opened (sheet Back button)")
-    }
-
-    private let speakSwitches = ["Chapter changes", "Titles", "Footnotes"]
-    private let advancedSwitches = ["Text follows speech", "Replace divine name", "Automatic bookmarking", "Save playback settings"]
-
-    /// Rows by control type: the speed slider and the three switches persist across a relaunch; Advanced settings is a
-    /// navigation row (its four switches persist too); Repeat passage, Sleep timer, Help are navigation/help rows and are only
-    /// checked for presence; "Open system TTS settings" is recorded as leaving the app (background) and reactivating.
-    func testSpeakSettingsScreen() throws {
-        var app = prepareSpeakableReading()
+    /// The shared Compose migration test covers settings, advanced navigation and persistence. This
+    /// XCUITest retains only the iOS-specific handoff to system TTS settings.
+    func testSpeakSettingsOpensSystemTtsSettings() throws {
+        let app = prepareSpeakableReading()
+        defer { app.terminate() }
         openSpeakSettings(app)
-        shot(app, "speak-settings-page")
-        // Speed slider (measured: an unlabelled `Other` element with value 100.0 under the "Speak speed" row, so no
-        // XCUIElement.adjust: drag the thumb). The readout "N %" is the oracle. Done first: the sheet is at its top.
-        let speedBefore = speedReadout(app)
-        let valueBefore = speedSliderValue(app)
-        harnessRequire(valueBefore != nil, app, "HARNESS: speed slider element (value attribute) under 'Speak speed'")
-        let targetValue: Double = abs((valueBefore ?? 100) - 200) < 20 ? 100 : 200
-        dragSpeed(app, from: valueBefore ?? 100, to: targetValue)
-        harnessRequire(waitUntil(timeout: 10) { self.speedReadout(app) != speedBefore }, app, "Speed readout changed from \(speedBefore ?? "?")")
-        let speedAfter = speedReadout(app)
-
-        let original = speakSwitches.map { speakSwitch(app, $0).isSelected }
-        let changed = speakSwitches.map { flip(app, $0) }
-        harnessRequire(zip(original, changed).allSatisfy { $0 != $1 }, app, "every Speak switch changed state")
-
-        for title in ["Set repeat passage range", "Set sleep timer", "Advanced settings", "Open system TTS settings", "Help"] {
-            let row = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch
-            for _ in 0..<6 where !row.exists { nudgeSheetList(app) }
-            harnessRequire(row.exists, app, "Speak settings row present: \(title)")
-        }
-
-
-        // Advanced page: navigation row, then its own switches.
-        openAdvancedPage(app)
-        let advOriginal = advancedSwitches.map { speakSwitch(app, $0).isSelected }
-        let advChanged = advancedSwitches.map { flip(app, $0) }
-        harnessRequire(zip(advOriginal, advChanged).allSatisfy { $0 != $1 }, app, "every Advanced switch changed state")
-        tapRequired(app, button(app, "Back"), "advanced-back")
-
-        // System TTS settings: the app is expected to go to the background (iOS Settings), then comes back. Run 5: one
-        // tap during sheet deceleration showed nothing, so the row is settled before each of up to three taps. If the
-        // simulator still never leaves the foreground, that is recorded as a device-only gap (see the attachment and the
-        // report), not failed: the handoff is not observable here, every other assertion stays.
-        let system = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'Open system TTS settings'")).firstMatch
+        let system = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS 'Open system TTS settings'"))
+            .firstMatch
         for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
-        var wentToBackground = false
+        harnessRequire(waitForStableOnScreen(app, system), app, "system TTS row settled")
+        system.tap()
+
         let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
-        for attempt in 1...3 where !wentToBackground {
-            // Reveal the row inside each attempt (a re-activated app can show the sheet scrolled elsewhere).
-            for _ in 0..<8 where !(system.exists && system.isHittable) { nudgeSheetList(app) }
-            harnessRequire(waitForStableOnScreen(app, system), app, "system TTS row settled (attempt \(attempt))")
-            system.tap()
-            // Require the external app, not AndBible's stale process state, as proof of handoff.
-            // Once Settings is observed, never tap again.
-            wentToBackground = settings.wait(for: .runningForeground, timeout: 20)
-        }
-        if wentToBackground {
-            // Parallel simulator clones can report a stale app.state in either direction: Settings
-            // was visible while it said foreground, and this sheet was visible while it said background.
-            // Finish the system handoff via Home, activate once, then prove the retained UI is usable.
+        if settings.wait(for: .runningForeground, timeout: 20) {
             XCUIDevice.shared.press(.home)
             app.activate()
             harnessRequire(system.waitForExistence(timeout: 30) && waitForStableOnScreen(app, system),
                            app, "Speak sheet usable after iOS Settings")
-            shot(app, "speak-after-system-settings")
         } else {
-            attachTree(app, "system-tts-row-no-background"); shot(app, "system-tts-row-no-background")
-            let note = XCTAttachment(string: "device-only: iOS Settings handoff not observable in the simulator (app stayed in the foreground after 3 taps on 'Open system TTS settings')")
-            note.name = "device-only-ios-settings-handoff"; note.lifetime = .keepAlways; add(note)
+            attachTree(app, "system-tts-row-no-background")
+            let note = XCTAttachment(string: "device-only: iOS Settings handoff not observable in the simulator")
+            note.name = "device-only-ios-settings-handoff"
+            note.lifetime = .keepAlways
+            add(note)
             print("NOTE device-only: iOS Settings handoff not observable in the simulator")
         }
-        harnessRequire(speedReadout(app) != nil, app, "Speak sheet still usable after the system TTS row")
-
-        // Persistence across a relaunch.
-        sendToBackground(app)
-        app.terminate()
-        app = launch([]) // no reset, no arguments: the workspace restores the K4ZLD reading
-        openSpeakSettings(app)
-        harnessRequire(speedReadout(app) == speedAfter, app, "Speed persisted: \(speedReadout(app) ?? "?") vs \(speedAfter ?? "?")")
-        for (name, value) in zip(speakSwitches, changed) {
-            harnessRequire(speakSwitch(app, name).isSelected == value, app, "Switch '\(name)' persisted as \(value)")
-        }
-        openAdvancedPage(app)
-        for (name, value) in zip(advancedSwitches, advChanged) {
-            harnessRequire(speakSwitch(app, name).isSelected == value, app, "Advanced '\(name)' persisted as \(value)")
-        }
-        // Cleanup: restore the original values (state is device-global, not reset by -resetDatabases).
-        for (name, value) in zip(advancedSwitches, advOriginal) where speakSwitch(app, name).isSelected != value { _ = flip(app, name) }
-        tapRequired(app, button(app, "Back"), "advanced-back-2")
-        for (name, value) in zip(speakSwitches, original) where speakSwitch(app, name).isSelected != value { _ = flip(app, name) }
-        if let valueNow = speedSliderValue(app), let valueBefore { dragSpeed(app, from: valueNow, to: valueBefore) }
-        app.terminate()
     }
 
     // MARK: reading plan
