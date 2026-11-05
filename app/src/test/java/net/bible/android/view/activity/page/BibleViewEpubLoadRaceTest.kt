@@ -488,6 +488,9 @@ class BibleViewEpubLoadRaceTest {
             links.windowMode = net.bible.android.control.link.WindowMode.WINDOW_MODE_THIS
             val source = window.pageManager.currentPage.currentDocument
             assertNotEquals(target, source)
+            // The page shows the window's admitted document (#3975: links of any other page open nothing).
+            view.session.documentGeneration = 1
+            view.session.shownGeneration = 1
             assertTrue(view.openLink(Uri.parse("epub-ref://?book=${target.initials}&toKey=ch1&toId=")))
             if (changeSource) {
                 val page = window.pageManager.currentPage

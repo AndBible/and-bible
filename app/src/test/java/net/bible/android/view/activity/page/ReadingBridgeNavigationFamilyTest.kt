@@ -407,4 +407,79 @@ class ReadingBridgeNavigationFamilyTest {
         assertNotSame(moved, repo.activeWindow)
         assertTrue(second.id == moved.id)
     }
+
+    /** Records what the session asks the reading host to show. */
+    private class RecordingSheets : net.bible.sharedui.reading.session.ReadingSheets {
+        val prompts = mutableListOf<net.bible.android.view.activity.page.Selection>()
+        var confirmDelete: (() -> Unit)? = null
+        override fun showReadHistory(bookId: String, chapter: Int) {}
+        override fun showCompare(range: org.crosswire.jsword.passage.VerseRange) {}
+        override fun showShare(input: net.bible.sharedcore.reading.ShareVersesInput) {}
+        override fun showPromptSelector(selection: net.bible.android.view.activity.page.Selection,
+                                        context: net.bible.service.llm.PromptContext,
+                                        category: net.bible.android.control.page.DocumentCategory?) { prompts += selection }
+        override fun showRegenerate(pageId: net.bible.android.database.IdType, windowId: net.bible.android.database.IdType) {}
+        override fun showHelp(title: String?, html: String) {}
+        override fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) { confirmDelete = onConfirm }
+    }
+
+    /**
+     * #3975 review C2: the note editor's AI button reads the bookmark (a suspending database read) before it opens the
+     * prompt selector with the ACTIVE window's document category. If the page's document is replaced during that read,
+     * the selector must not open: checking only before the read let the old page's tap open it for the new document.
+     */
+    @Test fun theNoteEditorPromptSelectorIsNotShownForAPageReplacedDuringTheBookmarkRead() {
+        val view = newView()
+        val sheets = RecordingSheets().also { view.session.hostSheets = it }
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 2)
+        val context = """{"entityType":"BOOKMARK_NOTE","entityId":"${net.bible.android.database.IdType()}","currentText":"x","contentType":"HTML"}"""
+        val main = shadowOf(Looper.getMainLooper())
+
+        main.idle()
+        call(view, "noteEditorLlmAction", "[${org.json.JSONObject.quote(context)}]", 2)
+        // Starts on the main thread and suspends in the bookmark read; nothing else runs on the main thread meanwhile.
+        main.runOneTask()
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION)
+        idleUntil(timeoutMs = 1_500) { false }
+        assertTrue("no prompt selector for a replaced page: ${sheets.prompts}", sheets.prompts.isEmpty())
+
+        // Control: the same tap of the admitted page opens it.
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 3)
+        call(view, "noteEditorLlmAction", "[${org.json.JSONObject.quote(context)}]", 3)
+        idleUntil { sheets.prompts.isNotEmpty() }
+        assertEquals(1, sheets.prompts.size)
+    }
+
+    /**
+     * #3975 review C3: after a confirmed AI page deletion the asking window is closed or switched to its Bible only while
+     * it still shows the deleted page. A window that meanwhile shows another document keeps it.
+     */
+    @Test fun aDeleteFollowUpLeavesAWindowThatNowShowsAnotherDocument() {
+        val view = newView()
+        val sheets = RecordingSheets().also { view.session.hostSheets = it }
+        val window = repo.activeWindow
+        val dictionary = Books.installed().getBook("StrongsGreek")!!
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 2)
+        val main = shadowOf(Looper.getMainLooper())
+
+        // Control: the window still shows the page when the deletion completes, so it leaves it (for its Bible).
+        window.pageManager.setCurrentDocument(dictionary)
+        call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 2)
+        idleUntil { sheets.confirmDelete != null }
+        sheets.confirmDelete!!.invoke()
+        idleUntil { window.pageManager.currentPage.currentDocument != dictionary }
+        assertEquals("the window left the deleted page", kjv, window.pageManager.currentPage.currentDocument)
+
+        // The window shows another document by the time the deletion completes: it stays there.
+        sheets.confirmDelete = null
+        window.pageManager.setCurrentDocument(dictionary)
+        call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 2)
+        idleUntil { sheets.confirmDelete != null }
+        sheets.confirmDelete!!.invoke()
+        val other = Books.installed().getBook("StrongsHebrew")!!
+        window.pageManager.setCurrentDocument(other)
+        main.idle()
+        idleUntil(timeoutMs = 1_500) { false }
+        assertEquals("a window that shows another document keeps it", other, window.pageManager.currentPage.currentDocument)
+    }
 }

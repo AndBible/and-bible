@@ -125,8 +125,14 @@ class ReadingLinkHandlerTest {
             windowControlProvider = { windowControl },
             linkControlProvider = { linkControl },
         )
+        // The page shows the window's admitted document (what documentShown after a clear_document reports).
+        session.documentGeneration = 1
+        session.shownGeneration = 1
+        this.session = session
         handler = ReadingLinkHandler(session) { _, _, _, _ -> epubOpened++ }
     }
+
+    private lateinit var session: BibleWindowSession
 
     @After fun tearDown() {
         hostScope.cancel()
@@ -217,5 +223,53 @@ class ReadingLinkHandlerTest {
         // The old code only needed `type` to be present; an empty one is fine for g/h names.
         assertTrue(handler.handle("ab-find-all://?type=&name=G1"))
         assertFalse(handler.handle("ab-find-all://?type=&name=word"))
+    }
+
+    /**
+     * #3975 review A1: a link navigation carries no document generation. A page that still shows a replaced document
+     * (the old page of an adopted web view, or a page whose window has requested another document) opens nothing.
+     */
+    @Test fun aLinkOfAPageThatDoesNotShowTheAdmittedDocumentOpensNothing() {
+        val documentBefore = shownDocument
+        val keyBefore = shownKey
+        session.documentGeneration = 2 // the window admitted a document the page has not shown yet
+        assertTrue("swallowed, so the web view does not navigate", handler.handle("osis://?osis=Gen.2.1"))
+        handler.handle("https://andbible.org")
+        session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION // another one requested
+        handler.handle("osis://?osis=Gen.3.1")
+        assertEquals(documentBefore, shownDocument)
+        assertEquals(keyBefore, shownKey)
+        assertTrue(navigator.webLinks.isEmpty())
+
+        session.documentGeneration = 2
+        session.shownGeneration = 2
+        assertTrue(handler.handle("osis://?osis=Gen.2.1"))
+        assertTrue("the admitted page's link opens", shownKey?.getOsisRef() != keyBefore?.getOsisRef())
+    }
+
+    /**
+     * #3975 review C2: a StudyPad link reads its label (suspending) before it opens the StudyPad in the active
+     * window. If the page's document is replaced during that read, nothing opens.
+     */
+    @Test fun aStudyPadLinkOfAPageReplacedDuringTheLabelReadOpensNothing() {
+        val label = kotlinx.coroutines.runBlocking {
+            GlobalContext.get().get<BookmarkControl>().insertOrUpdateLabel(BookmarkEntities.Label(name = "pad").apply { new = true })
+        }
+        val main = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        main.idle()
+        val documentBefore = shownDocument
+        assertTrue(handler.handle("journal://?id=${label.id}"))
+        // The link's coroutine starts on the main thread and suspends in the label read.
+        main.runOneTask()
+        session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+        val end = System.currentTimeMillis() + 1_500
+        while (System.currentTimeMillis() < end) { main.idle(); Thread.sleep(20) }
+        assertEquals("no StudyPad opened for a replaced page", documentBefore, shownDocument)
+
+        session.documentGeneration = 1
+        assertTrue(handler.handle("journal://?id=${label.id}"))
+        val end2 = System.currentTimeMillis() + 10_000
+        while (shownDocument == documentBefore && System.currentTimeMillis() < end2) { main.idle(); Thread.sleep(20) }
+        assertEquals(fakeBooks.journalDocument, shownDocument)
     }
 }
