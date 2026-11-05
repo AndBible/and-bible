@@ -596,15 +596,19 @@ final class EndToEndUITests: RealAppUITestCase {
             guard let text = observation.topCandidates(1).first?.string else { return nil }
             let box = observation.boundingBox
             return (text, box.height * CGFloat(image.height), (1 - box.maxY) * CGFloat(image.height))
-        }
+        }.sorted { $0.2 < $1.2 }
         attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1), top \($0.2)]" }.joined(separator: "\n"))
         shot(app, "ocr-\(step)")
         // This exact verse fragment must be painted, not just a chapter title or a matching word elsewhere.
-        guard let line = lines.first(where: { $0.0.localizedCaseInsensitiveContains("loved the world") }) else {
-            XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
-            throw NSError(domain: "3959OCR", code: 2)
+        for index in lines.indices {
+            let line = lines[index]
+            let next = index + 1 < lines.count ? lines[index + 1].0 : ""
+            if (line.0 + " " + next).localizedCaseInsensitiveContains("loved the world") {
+                return (line.1, line.2)
+            }
         }
-        return (line.1, line.2)
+        XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
+        throw NSError(domain: "3959OCR", code: 2)
     }
 
     func testIPadRestorePaintAndViewportIndependentOfAccessibility() throws {
