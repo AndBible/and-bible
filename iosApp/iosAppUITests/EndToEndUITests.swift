@@ -1,4 +1,5 @@
 import UIKit
+import Vision
 import XCTest
 
 /// I2 close-out end-to-end acceptance (spec section 5.3, phase 2 U1): ONE real user journey on a fresh install,
@@ -598,6 +599,72 @@ final class EndToEndUITests: RealAppUITestCase {
         back.tap()
         harnessRequire(element(app, "reading-host").waitForExistence(timeout: 30), app, "the reading host is shown after the text options")
         return (Int(old.rounded()), Int(current.rounded()))
+    }
+
+    /// Independent paint oracle for #3959. OCR sees only pixels inside the pane, never offscreen AX phrases.
+    /// This supplements, and deliberately does not replace, testRestoreKeepsLiveSettings's AX assertions.
+    private func paintedLovedLine(_ app: XCUIApplication, step: String) throws -> (height: CGFloat, top: CGFloat) {
+        // Preserve the pre-restore on-screen pane rectangle. AX disappearance must not erase this independent oracle.
+        let frame = lastPaneFrame
+        guard frame.width > 40, frame.height > 80, app.frame.width > 0,
+              let full = app.screenshot().image.cgImage else { throw NSError(domain: "3959OCR", code: 1) }
+        let scale = CGFloat(full.width) / app.frame.width
+        let crop = CGRect(x: frame.minX * scale, y: frame.minY * scale,
+                          width: frame.width * scale, height: frame.height * scale).integral
+        guard let image = full.cropping(to: crop) else { throw NSError(domain: "3959OCR", code: 3) }
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["en-US"]
+        request.usesLanguageCorrection = false
+        try VNImageRequestHandler(cgImage: image).perform([request])
+        let observations = request.results ?? []
+        let lines = observations.compactMap { observation -> (String, CGFloat, CGFloat)? in
+            guard let text = observation.topCandidates(1).first?.string else { return nil }
+            let box = observation.boundingBox
+            return (text, box.height * CGFloat(image.height), (1 - box.maxY) * CGFloat(image.height))
+        }.sorted { $0.2 < $1.2 }
+        attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1), top \($0.2)]" }.joined(separator: "\n"))
+        shot(app, "ocr-\(step)")
+        // This exact verse fragment must be painted, not just a chapter title or a matching word elsewhere.
+        for index in lines.indices {
+            let line = lines[index]
+            let next = index + 1 < lines.count ? lines[index + 1].0 : ""
+            if (line.0 + " " + next).localizedCaseInsensitiveContains("loved the world") {
+                return (line.1, line.2)
+            }
+        }
+        XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
+        throw NSError(domain: "3959OCR", code: 2)
+    }
+
+    func testIPadRestorePaintAndViewportIndependentOfAccessibility() throws {
+        guard isPad else { throw XCTSkip("iPad rendering acceptance") }
+        var app = readingOnKjv()
+        defer { app.terminate() }
+        let initialPane = firstPane(app)
+        harnessRequire(initialPane.waitForExistence(timeout: 20), app, "Initial visible pane before backup")
+        lastPaneFrame = initialPane.frame
+        let savedName = backupDatabaseToFiles(app)
+        app = relaunch(app)
+        restoreFromFilesRoot(app, fileName: savedName)
+        returnToReading(app)
+        // The original rectangle is valid only with unchanged window/orientation; a screenshot crop must remain onscreen.
+        XCTAssertTrue(app.frame.insetBy(dx: -1, dy: -1).contains(lastPaneFrame))
+        let before = try paintedLovedLine(app, step: "restored-baseline")
+        let (old, new) = changeFontSize(app, by: 4)
+        XCTAssertEqual(new, old + 4)
+        // Both samples must contain the visible verse. An OCR miss fails; it is never treated as unchanged position.
+        let grown = try paintedLovedLine(app, step: "restored-font-grown")
+        XCTAssertGreaterThan(grown.height, before.height * 1.08, "Painted John 3:16 text must grow after font +4")
+        XCTAssertEqual(grown.top, before.top, accuracy: max(8, before.height * 2),
+                       "The visible verse's pane-relative top must stay within two original text lines")
+        let (_, restored) = changeFontSize(app, by: -4)
+        XCTAssertEqual(restored, old)
+        let final = try paintedLovedLine(app, step: "restored-font-original")
+        XCTAssertEqual(final.height, before.height, accuracy: max(3, before.height * 0.12))
+        XCTAssertEqual(final.top, before.top, accuracy: max(8, before.height),
+                       "Restoring font size must restore the visible verse's position within one text line")
+        sendToBackground(app)
     }
 
     // MARK: pane measurements

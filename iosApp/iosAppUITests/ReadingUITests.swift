@@ -1,4 +1,5 @@
 import UIKit
+import Vision
 import XCTest
 
 /// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app on KJV: the tests launch with the
@@ -717,15 +718,29 @@ final class ReadingUITests: RealAppUITestCase {
         device.orientation = .portrait
         XCTAssertTrue(waitUntil(timeout: 10) { app.windows.firstMatch.frame.height > app.windows.firstMatch.frame.width },
                       "could not start in portrait")
+        addWindow(app, from: 1)
+        let originalPanes = Set(paneIds(app))
+        XCTAssertEqual(originalPanes.count, 2)
 
-        // Open a sheet that is wired at HEAD (title tap), else the workspaces one.
-        var opened = false
-        if let title = toolbarTitle(app) { title.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
-        if !opened {
-            let ws = byLabel(app, "Workspaces")
-            if ws.waitForExistence(timeout: 5) { ws.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
+        func checkPanes(_ step: String) {
+            assertTextOncePerPane(app, panes: 2, step)
+            XCTAssertEqual(Set(paneIds(app)), originalPanes, "\(step): pane identities changed")
+            XCTAssertTrue(waitUntil(timeout: 15) { Set(visiblePaneIds(app)) == originalPanes },
+                          "\(step): both panes must be visible")
+            let window = app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1)
+            let panes = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+                .allElementsBoundByIndex
+            for pane in panes where originalPanes.contains(pane.identifier) {
+                XCTAssertGreaterThan(pane.frame.width, 0, "\(step): empty pane \(pane.identifier)")
+                XCTAssertGreaterThan(pane.frame.height, 0, "\(step): empty pane \(pane.identifier)")
+                XCTAssertTrue(window.contains(pane.frame), "\(step): pane \(pane.identifier) \(pane.frame) outside \(window)")
+            }
         }
-        guard opened else {
+        checkPanes("portrait before rotation")
+
+        // Open the key chooser, so reopening in landscape uses the same content.
+        if let title = toolbarTitle(app) { title.tap() }
+        guard quickSheet(app).waitForExistence(timeout: 15) else {
             attachTree(app, "rotation-no-sheet"); XCTFail("no quick sheet could be opened for the rotation test"); return
         }
         let close = byLabel(app, "Close")
@@ -748,6 +763,21 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertGreaterThan(landscapeSheet.height, 100, "sheet collapsed in landscape: \(landscapeSheet)")
         XCTAssertTrue(close.exists && close.isHittable, "Close not reachable in landscape")
         XCTAssertTrue(win.insetBy(dx: -1, dy: -1).contains(close.frame), "Close \(close.frame) outside window \(win)")
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "ab-quick-sheet").count, 1,
+                       "landscape must have exactly one quick sheet host")
+        guard closeQuickSheet(app, "landscape rotation") else { return }
+        checkPanes("landscape after rotation")
+        guard let landscapeTitle = toolbarTitle(app) else {
+            attachTree(app, "rotation-landscape-no-title")
+            XCTFail("no title to reopen the key chooser in landscape")
+            return
+        }
+        landscapeTitle.tap()
+        guard quickSheetShown(app, timeout: 15) else {
+            attachTree(app, "rotation-landscape-no-sheet")
+            XCTFail("could not reopen the key chooser in landscape")
+            return
+        }
 
         // Back to portrait: not stuck at the landscape (or a half) height.
         device.orientation = .portrait
@@ -763,13 +793,11 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertEqual(backClose.minY, portraitClose.minY, accuracy: 4, "Close moved: sheet did not return to its place")
         XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(backSheet), "sheet outside window in portrait")
 
-        // The sheet still closes, and the pane is intact and inside the window.
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "ab-quick-sheet").count, 1,
+                       "portrait must have exactly one quick sheet host")
         if closeQuickSheet(app, "rotation") {
             XCTAssertTrue(element(app, "reading-host").exists, "reading host missing after rotation")
-            XCTAssertTrue(john3Shown(app, timeout: 15), "chapter text missing after rotation")
-            let pane = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'")).firstMatch
-            XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(pane.frame),
-                          "pane \(pane.frame) outside the window after rotation")
+            checkPanes("portrait after rotation")
         }
     }
 
@@ -1100,6 +1128,72 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(waitUntil(timeout: 15) { toolbarShown(app) }, "the second double tap did not leave full screen")
     }
 
+    /// Pixel-only pane witness. OCR cannot see cached/offscreen AX paragraphs.
+    private func paintedLines(_ pane: XCUIElement) throws -> [(text: String, top: CGFloat)] {
+        guard let image = pane.screenshot().image.cgImage else { throw NSError(domain: "3959PaneOCR", code: 1) }
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["en-US"]
+        request.usesLanguageCorrection = false
+        try VNImageRequestHandler(cgImage: image).perform([request])
+        return (request.results ?? []).compactMap { observation in
+            guard let text = observation.topCandidates(1).first?.string else { return nil }
+            return (text, 1 - observation.boundingBox.maxY)
+        }.sorted { $0.top < $1.top }
+    }
+
+    private func john44Top(_ lines: [(text: String, top: CGFloat)]) -> CGFloat? {
+        for index in lines.indices {
+            let next = index + 1 < lines.count ? lines[index + 1].text : ""
+            if (lines[index].text + " " + next).localizedCaseInsensitiveContains("must needs go through Samaria") {
+                return lines[index].top
+            }
+        }
+        return nil
+    }
+
+    func testIPadIndependentPanePaintSurvivesCleanRelaunch() throws {
+        guard isPad else { throw XCTSkip("iPad independent pane persistence") }
+        var app = try launchReading()
+        defer { app.terminate() }
+        addWindow(app, from: 1)
+        guard let tab = windowTabs(app).last else { XCTFail("second window tab missing"); return }
+        tab.press(forDuration: 1)
+        tapMenuItem(app, ["Synchronise"], "second-pane-sync-menu")
+        tapMenuItem(app, ["Disable synchronize"], "second-pane-disable-sync")
+        let ids = paneIds(app)
+        XCTAssertEqual(ids.count, 2)
+        let panes = ids.map { app.webViews.matching(identifier: $0).firstMatch }
+        guard panes.count == 2 else { return }
+        // A text tap opens the bookmark popup, which paints over the independent OCR witness.
+        panes[1].swipeLeft()
+        usleep(2_000_000)
+        let before = try panes.map { try paintedLines($0) }
+        let transcript = before.enumerated().map { "pane \($0.offset): \($0.element)" }.joined(separator: "\n")
+        let evidence = XCTAttachment(string: transcript); evidence.name = "independent-pane-before"; evidence.lifetime = .keepAlways; add(evidence)
+        let firstJohn3 = before[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
+        let secondJohn4 = john44Top(before[1])
+        XCTAssertNotNil(firstJohn3, "First viewport must visibly show John 3:16")
+        XCTAssertNotNil(secondJohn4, "Second viewport must visibly show John 4:4 Samaria")
+        guard let firstJohn3, let secondJohn4 else { shot(app, "independent-pane-setup-failed"); return }
+        shot(app, "independent-pane-before")
+        sendToBackground(app)
+        app.terminate()
+        // No reset, openDocument or openRef: only persisted state can select these two passages.
+        app = launch(["-standardTestFixture"])
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60))
+        XCTAssertTrue(waitUntil(timeout: 30) { self.paneIds(app) == ids }, "Both persisted pane identities must return")
+        let after = try ids.map { try paintedLines(app.webViews.matching(identifier: $0).firstMatch) }
+        let firstAfter = after[0].first { $0.text.localizedCaseInsensitiveContains("loved the world") }
+        let secondAfter = john44Top(after[1])
+        XCTAssertNotNil(firstAfter, "First visible verse John 3:16 did not persist")
+        XCTAssertNotNil(secondAfter, "Second visible verse John 4:4 did not persist")
+        if let firstAfter { XCTAssertEqual(firstAfter.top, firstJohn3.top, accuracy: 0.04) }
+        if let secondAfter { XCTAssertEqual(secondAfter, secondJohn4, accuracy: 0.04) }
+        shot(app, "independent-pane-after")
+        sendToBackground(app)
+    }
+
     // MARK: Task 11: swipe
 
     /// A swipe from right to left reads on: in chapter mode (`bible_view_swipe_mode`, default CHAPTER) John 3
@@ -1243,6 +1337,30 @@ final class ReadingUITests: RealAppUITestCase {
     }
 
     // MARK: Task 11: in-place search
+
+    /// Sends a hardware keyboard shortcut to the reading WebView, whose keydown handler opens search via the bridge.
+    func testControlFOpensInPlaceSearch() throws {
+        let app = try launchReading()
+        let field = element(app, "reading-search-field")
+        guard !field.exists else {
+            XCTFail("search must be closed before Ctrl+F")
+            return
+        }
+        let pane = firstPane(app)
+        guard pane.waitForExistence(timeout: 15) else {
+            attachTree(app, "control-f-no-pane")
+            XCTFail("no reading WebView to receive Ctrl+F")
+            return
+        }
+        // The right margin is a production page-jump target, not a neutral focus target.
+        pane.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        shot(app, "control-f-before-event")
+        pane.typeKey("f", modifierFlags: .control)
+        let opened = field.waitForExistence(timeout: 15)
+        shot(app, "control-f-after-event")
+        if !opened { attachTree(app, "control-f-search-not-shown") }
+        XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
+    }
 
     /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
     /// when the prompt "An index is required to search" appears: "Create"), the sheet shows "<n> verses in 1

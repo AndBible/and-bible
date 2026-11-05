@@ -444,6 +444,24 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Font size'")).firstMatch
     }
 
+    private func settingRow(_ app: XCUIApplication, _ title: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+    }
+
+    private func chooseFontFamily(_ app: XCUIApplication, _ family: String) {
+        let row = settingRow(app, "Font family")
+        tapRequired(app, row, "font-family-row")
+        let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", family)).firstMatch
+        tapRequired(app, choice, "font-family-choice-\(family)")
+    }
+
+    private func recentTextOption(_ app: XCUIApplication, _ label: String) -> XCUIElement {
+        tapRequired(app, button(app, "More options"), "more-options")
+        let item = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch
+        harnessRequire(item.waitForExistence(timeout: 15), app, "Recent text option '\(label)' is listed")
+        return item
+    }
+
     /// The numeric readout of the font size editor ("NN pt" or "NN %"); used as the oracle while bisecting the slider.
     private func fontReadout(_ app: XCUIApplication) -> Int? {
         let readout = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", #"^\d+ ?(pt|%)$"#)).firstMatch
@@ -485,6 +503,44 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         harnessRequire(current == target, app, "HARNESS: font slider reached \(target) from \(old) (is \(current))")
         tapRequired(app, button(app, "OK"), "font-size-ok")
         return (Int(old), Int(current))
+    }
+
+    func testTextDisplayMetadataFontFamilyRecentsPersistAcrossRelaunch() throws {
+        var app = launch(["-standardTestFixture", "-resetDatabases", "-openDocument", "KJV", "-openRef", "John.3.16"])
+        defer { app.terminate() }
+        harnessRequire(element(app, "reading-host").waitForExistence(timeout: 90), app, "KJV reading host")
+        tapRequired(app, button(app, "More options"), "baseline-more-options")
+        XCTAssertFalse(settingRow(app, "Font family").exists, "Fresh databases must not already offer Font family as recent")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
+
+        openTextOptions(app)
+        let redLetters = redLettersSwitch(app)
+        XCTAssertTrue(redLetters.isEnabled, "KJV words-of-Christ metadata enables red letters")
+        // These rows are below the lazy list's first screen; their labels do not exist until scrolled into view.
+        let strongs = revealSettingsRow(app, "STRONGS")
+        XCTAssertTrue(strongs.isEnabled, "KJV metadata enables Strong's numbers")
+        let morphology = revealSettingsRow(app, "MORPH")
+        XCTAssertTrue(morphology.isEnabled, "KJV metadata enables morphological codes")
+        _ = revealSettingsRow(app, "FONTFAMILY")
+        chooseFontFamily(app, "Monospace")
+        let fontRow = settingRow(app, "Font family")
+        XCTAssertTrue(fontRow.label.contains("Monospace"), "Font family row reflects the selected generic family")
+        closeTextOptions(app)
+
+        let recentFont = recentTextOption(app, "Font family")
+        XCTAssertTrue(recentFont.exists, "Font family is offered as a recent text option")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
+        sendToBackground(app)
+        app.terminate()
+
+        // A clean relaunch deliberately supplies neither -resetDatabases nor a document/reference override.
+        app = launch(["-standardTestFixture"])
+        harnessRequire(element(app, "reading-host").waitForExistence(timeout: 90), app, "Reading host after clean relaunch")
+        let persistedRecentFont = recentTextOption(app, "Font family")
+        XCTAssertTrue(persistedRecentFont.exists, "Recent font-family option persisted across relaunch")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
+        openTextOptions(app)
+        XCTAssertTrue(settingRow(app, "Font family").label.contains("Monospace"), "Generic font family persisted across relaunch")
     }
 
     /// (1) turning red letters OFF only must not change the text metrics of the tracked phrases (it recolours words of

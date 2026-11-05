@@ -256,3 +256,30 @@ showed its first-run Welcome screen (no documents installed); the new app instal
 present, `nothingToMigrate` false) and shows its Welcome screen; no crash reports. The filtered app log captured 0
 lines (the `LegacyMigration`/`I2P2` messages are not in the unified log of a Debug simulator launch), so `done.json`
 is the evidence, not the log.
+
+## Residual simulator acceptance (#3959)
+
+The focused controls run only through `scripts/mac-remote.sh run` under its shared Mac lock:
+
+```bash
+scripts/mac-remote.sh batch --keep-going \
+  "run bash iosApp/legacy-fixtures/check-3959-certificate-ui.sh" \
+  "run bash iosApp/legacy-fixtures/check-3959-offline.sh" \
+  "run bash iosApp/legacy-fixtures/check-3959-checker-capability.sh" cleanup
+```
+
+- Certificate UI: creates its own disposable iPhone/iOS 18.6 simulator, two ephemeral loopback certificates and a DAV
+  listener. Drives the production Cancel/verified Trust flow, swaps the certificate at the same endpoint, then requires
+  another decision after a fresh process. Fixture credentials are synthetic. Both certificates, server processes and
+  the created simulator are removed by the exit trap. Logs/summary/final screenshot go to `build/shots/3959-*` for the
+  normal `run` evidence capture. This is not HTTP Basic/Digest credential-prompt cancellation.
+- Offline: starts a disposable simulator app suspended and attempts a real process-local Seatbelt network deny. A failed
+  syscall is BLOCKED. Even a successful syscall remains PARTIAL until an independent outbound-denial witness plus
+  migration record/notices/relaunch assertions exist; the script deliberately exits nonzero rather than accepting it.
+- Checker: loads the real Main Thread Checker library, verifies its image in LLDB, backgrounds the app and preserves logs.
+  This is supplemental capability evidence only, not a real long-sync or exactly-once execution-allowance claim.
+
+The XCTest additions live in the existing Reading, EndToEnd, FeatureFlows and SyncAcceptance classes. The independent
+Vision OCR tests sample only painted pane pixels and compare verse wording/relative offsets; the existing AX-based restore
+assertion remains unchanged and must be reported separately. Compile/runtime results belong to the acceptance status note,
+not this usage guide. Local fixture controls: `python3 -I -m unittest discover -s iosApp/legacy-fixtures -p 'test_*.py'`.
