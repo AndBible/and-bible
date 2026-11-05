@@ -36,6 +36,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -152,8 +157,19 @@ fun SplitContent(
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     railOverlay: (@Composable BoxScope.() -> Unit)? = null,
     paneBackground: (windowId: String) -> Color? = { null },
+    onRailCoveredWindowsChanged: (Set<String>) -> Unit = {},
 ) {
     val windows = layout.windows.filter { it.isVisible }
+    val onCoverageChanged by rememberUpdatedState(onRailCoveredWindowsChanged)
+    // Measurement is not Compose state: a document inset must never resize the split or rail.
+    val paneBounds = remember { mutableMapOf<String, Rect>() }
+    val railBounds = remember { arrayOfNulls<Rect>(1) }
+    val reportCoverage = { onCoverageChanged(railCoveredWindows(paneBounds, railBounds[0])) }
+    SideEffect {
+        paneBounds.keys.retainAll(windows.map { it.id }.toSet())
+        if (railOverlay == null) railBounds[0] = null
+        reportCoverage()
+    }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
         // Captured here (BoxWithConstraintsScope is the only implicit receiver in scope) so the
@@ -205,7 +221,10 @@ fun SplitContent(
                             windows = windows,
                             weights = weights,
                             isHorizontal = isHorizontal,
-                            paneModifier = paneModifier(paneWeight(index)),
+                            paneModifier = paneModifier(paneWeight(index)).onGloballyPositioned {
+                                paneBounds[w.id] = it.boundsInRoot()
+                                reportCoverage()
+                            },
                             weightedExtentPx = { weightedExtentPx },
                             onWindowActivated = onWindowActivated,
                             onDragChange = { drag = it },
@@ -233,7 +252,12 @@ fun SplitContent(
             }
         }
         bottomOverlay?.invoke(this)
-        railOverlay?.invoke(this)
+        if (railOverlay != null) {
+            Box(Modifier.align(Alignment.BottomEnd).onGloballyPositioned {
+                railBounds[0] = it.boundsInRoot()
+                reportCoverage()
+            }) { railOverlay() }
+        }
     }
 }
 

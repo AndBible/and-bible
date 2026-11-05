@@ -106,4 +106,5 @@ class BibleViewHostCallbacks(
 
     /** The host's [ReadingInsets.offsetsChanged], read when BibleView starts listening. */
     val insetsChanges: () -> Events<OffsetsChange>,
+    val bottomOffsetForWindow: ((windowId: String, isBottomWindow: Boolean) -> Int)? = null,
 )

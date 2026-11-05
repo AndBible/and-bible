@@ -217,6 +217,37 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun sideBySidePaneWithoutRailKeepsOnlyTheSystemInset() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val koin = KoinPlatform.getKoin()
+        val control = koin.get<net.bible.android.control.page.window.WindowControl>()
+        kotlinx.coroutines.withContext(mainThread) { control.windowRepository.initialize() }
+        val repo = control.windowRepository
+        val left = repo.activeWindow
+        kotlinx.coroutines.withContext(mainThread) { repo.addNewWindow(left).apply { isPinMode = true } }
+        repo.workspaceSettings.restoreButtonsVisible = true
+        val offsets = net.bible.sharedui.reading.session.ReadingOffsets(restoreButtonsVisible = { true })
+        offsets.setSystemBottomInset(34f)
+        offsets.setRailCoveredWindows(setOf(repo.lastVisibleWindow!!.id.toString()))
+        val platform = net.bible.sharedui.host.reading.HostDocumentLoaderPlatform(
+            window = { left }, windowControl = { control }, settings = { koin.get() },
+            nightModeState = { object : net.bible.sharedlogic.platform.NightModeState { override val nightMode = false } },
+            offsets = { offsets }, isPortrait = { false }, isBeta = { false },
+        )
+        assertEquals(34f, platform.bottomOffset, "the rail is at the end pane, not under the left pane")
+        assertTrue(platform.configInputs(emptyList()).isBottomWindow, "every side-by-side pane paints its system-inset band")
+        offsets.setRailCoveredWindows(setOf(left.id.toString(), repo.lastVisibleWindow!!.id.toString()))
+        assertEquals(74f, platform.bottomOffset, "a wide rail also covers the left pane")
+        offsets.setRailCoveredWindows(emptySet())
+        assertEquals(34f, platform.bottomOffset, "hiding the rail must preserve the safe area")
+    }
+
     @Test fun railLabelsFollowARealDocumentChange() = kotlinx.coroutines.runBlocking {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->

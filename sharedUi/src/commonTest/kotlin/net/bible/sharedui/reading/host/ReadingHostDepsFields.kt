@@ -48,6 +48,7 @@ object ReadingHostDepsFields {
         "onDrawerIdleClosed",
         "onDrawerClosed",
         "paneBackground",
+        "onRailCoveredWindowsChanged",
         "windowLabel",
         "windowIcon",
         "windowTopLabel",

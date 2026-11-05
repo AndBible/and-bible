@@ -277,6 +277,7 @@ class ReadingCommands(
         imeHeight = { hostCallbacks.readingInsets().imeHeight },
         topOffset2 = { hostCallbacks.readingInsets().topOffset2 },
         bottomOffsetForWebView = { hostCallbacks.readingInsets().bottomOffsetForWebView },
+        bottomOffsetForWindow = { id, bottom -> hostCallbacks.readingInsets().bottomOffsetForWindow(id, bottom) },
         insetsChanges = { hostCallbacks.readingInsets().offsetsChanged },
     )
 
