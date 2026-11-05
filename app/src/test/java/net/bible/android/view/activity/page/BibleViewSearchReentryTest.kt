@@ -15,6 +15,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.search.ReadingSearchRequest
 import org.crosswire.jsword.index.IndexStatus
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -29,7 +30,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BibleViewSearchReentryTest {
     @Test
-    fun selectionSearchAttachesToScheduledAndCreatingIndexesWithItsQuery() {
+    fun selectionSearchHandsOffItsQueryForScheduledAndCreatingIndexes() {
         val koin = GlobalContext.get()
         val windowControl = koin.get<WindowControl>()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument!!
@@ -61,8 +62,8 @@ class BibleViewSearchReentryTest {
                 action.invoke(view, mock<ActionMode>(), menuItem)
                 val intent = shadowOf(activity.get()).nextStartedActivity
                 assertEquals(
-                    NavRoutes.searchIndexProgress(searchText = " \"light\"", highlightText = "\"light\"", searchDocument = book.initials),
-                    intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+                    ReadingSearchRequest(query = " \"light\"", documentId = book.initials, preDecorated = true),
+                    NavRoutes.readReadingSearch(requireNotNull(intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))),
                 )
             }
         } finally {
