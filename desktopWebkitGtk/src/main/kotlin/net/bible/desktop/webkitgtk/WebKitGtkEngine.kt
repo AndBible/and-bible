@@ -18,7 +18,6 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.Timer
@@ -68,16 +67,20 @@ class WebKitGtkEngine(
         languagesSource = source
     }
 
+    @Volatile private var paneWindowId: (String) -> (() -> String?) = { id -> { id } }
+
+    override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) { paneWindowId = source }
+
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_BASE/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         val thread = gtk()
-        val handler = BundleSchemeHandler(bundleDir, pageAssets)
-        thread.call { BundleScheme.install(handler, log) }
+        val handler = BundleSchemeHandler(bundleDir, pageAssets.forPane(paneWindowId(id)))
+        thread.call { BundleScheme.install(log) }
         val scripts = listOf(androidBridgeShim(WEBKIT_POST_MESSAGE_JS, languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url))) + documentStartScripts
         // Panes stay referenced for the process lifetime: their JNA callbacks may still fire (a late evaluate result or
         // signal) after dispose, and a collected callback crashes JNA. Experiment only: one engine per process.
-        return WebKitGtkPane(id, url, thread, scripts, onMessage) { msg -> log("webkitgtk[$id]: $msg") }.also { retained += it }
+        return WebKitGtkPane(id, url, thread, scripts, onMessage, handler) { msg -> log("webkitgtk[$id]: $msg") }.also { retained += it }
     }
 
     private val retained = java.util.Collections.synchronizedList(mutableListOf<WebKitGtkPane>())
@@ -130,13 +133,18 @@ class WebKitGtkEngine(
 
 /**
  * The process-wide `andbible://` scheme registration. A second registration of a scheme on the same context is a GLib
- * critical, so it happens once and dispatches to the handler of the most recent engine.
+ * critical, so it happens once and dispatches by the WebView that issued each request.
  */
 private const val GTK_PHASE_CAPTURE = 1
 private const val X_REVERT_TO_PARENT = 2
 
 internal object BundleScheme {
-    private val handler = AtomicReference<BundleSchemeHandler?>()
+    private val handlers = mutableMapOf<Pointer, BundleSchemeHandler>()
+
+    // GTK thread only: register before loading and forget before destroying the WebView.
+    fun bind(view: Pointer, handler: BundleSchemeHandler) { handlers[view] = handler }
+    fun unbind(view: Pointer) { handlers.remove(view) }
+    fun resolve(view: Pointer?, uri: String): Pair<Path, String>? = handlers[view]?.resolve(uri)
     private var registered = false
     private var log: (String) -> Unit = {}
 
@@ -156,8 +164,7 @@ internal object BundleScheme {
         private set
 
     /** GTK thread only. */
-    fun install(bundle: BundleSchemeHandler, logger: (String) -> Unit) {
-        handler.set(bundle)
+    fun install(logger: (String) -> Unit) {
         log = logger
         // One engine (one GTK thread) per process: the context and the scheme belong to the first engine's GTK thread.
         if (registered) return
@@ -174,7 +181,7 @@ internal object BundleScheme {
         val wk = Gtk.webkit
         try {
             val uri = wk.webkit_uri_scheme_request_get_uri(request)
-            val resource = handler.get()?.resolve(uri)
+            val resource = resolve(wk.webkit_uri_scheme_request_get_web_view(request), uri)
             if (resource == null) {
                 log("bundle: 404 for $uri")
                 notFound(request)
@@ -240,6 +247,7 @@ internal class WebKitGtkPane(
     private val gtk: GtkThread,
     scripts: List<String>,
     private val onMessage: (String) -> Unit,
+    private val bundleHandler: BundleSchemeHandler,
     private val log: (String) -> Unit,
 ) : DesktopWebPane {
     @Volatile
@@ -474,6 +482,7 @@ internal class WebKitGtkPane(
         // Let window.open reach decide-policy (otherwise WebKit drops it silently); it is always cancelled and reported.
         wk.webkit_settings_set_javascript_can_open_windows_automatically(wk.webkit_web_view_get_settings(v), 1)
         view = v
+        BundleScheme.bind(v, bundleHandler)
         val rgb = if (WebKitGtkEngine.isNight(url)) 0f else 1f
         wk.webkit_web_view_set_background_color(v, GdkRGBA(rgb, rgb, rgb, 1f))
         Gtk.gobject.g_signal_connect_data(v, "decide-policy", decidePolicyCallback, null, null, 0)
@@ -603,6 +612,7 @@ internal class WebKitGtkPane(
         gtk.post {
             val win = window ?: return@post
             window = null
+            view?.let(BundleScheme::unbind)
             view = null
             Gtk.gtk.gtk_window_destroy(win)
         }

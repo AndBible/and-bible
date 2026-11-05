@@ -80,7 +80,7 @@ class DesktopReadingPaneEngine(
     /** The app graph that [surfaceFor]'s share and clipboard ports resolve from, on each use (a test seam). */
     private val koin: () -> Koin = { KoinPlatform.getKoin() },
 ) : ReadingPaneEngine {
-    private class Entry(var windowId: String) {
+    private class Entry(@Volatile var windowId: String) {
         /** The current pane; state so that the pane composable follows a crash recreation. */
         var pane by mutableStateOf<DesktopWebPane?>(null)
         val pending = mutableListOf<() -> Unit>()
@@ -101,6 +101,14 @@ class DesktopReadingPaneEngine(
     )
 
     private val entries = ConcurrentHashMap<String, Entry>()
+
+    init {
+        engine.setPaneWindowIdSource { paneId ->
+            val owner = entries[paneId]
+            val currentOwner: () -> String? = { owner?.windowId?.takeIf { entries[it] === owner } }
+            currentOwner
+        }
+    }
 
     /** Renderer deaths per window; survives [release] (recovery releases the window) so a crash loop is capped. */
     private val deaths = mutableMapOf<String, Int>()

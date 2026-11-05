@@ -150,6 +150,7 @@ interface WebKit : Library {
     fun webkit_security_manager_register_uri_scheme_as_cors_enabled(manager: Pointer, scheme: String)
 
     fun webkit_uri_scheme_request_get_uri(request: Pointer): String
+    fun webkit_uri_scheme_request_get_web_view(request: Pointer): Pointer?
     fun webkit_uri_scheme_response_new(stream: Pointer, streamLength: Long): Pointer
     fun webkit_uri_scheme_response_set_content_type(response: Pointer, contentType: String)
     fun webkit_uri_scheme_request_finish_with_response(request: Pointer, response: Pointer)

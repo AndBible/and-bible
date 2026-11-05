@@ -190,7 +190,17 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
         dao.styleSheets(frag.originalId)
             .map { file.parent!!.child(it.styleSheetFile).normalized() }
-            .filter { KFiles.exists(it) }
+            .filter { file ->
+                try {
+                    val root = FileSystem.SYSTEM.canonicalize(rootFolder)
+                    val real = FileSystem.SYSTEM.canonicalize(file)
+                    FileSystem.SYSTEM.metadata(real).isRegularFile && real.root == root.root &&
+                        real.segments.size > root.segments.size &&
+                        real.segments.take(root.segments.size) == root.segments
+                } catch (_: Exception) {
+                    false
+                }
+            }
             .joinToString("\n") { KFiles.readUtf8(it) }
     }
 

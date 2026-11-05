@@ -31,7 +31,6 @@ If you use one of these and something looks wrong, please [report it](#reporting
 - Desktop notifications.
 - Google Drive sync. Use Nextcloud (WebDAV) for synchronising on desktop.
 - Speak (text to speech).
-- Images and styles of EPUB books are not shown.
 - Fonts that come with some modules are not used.
 - The app does not follow the dark mode of your operating system. Choose *Manual* in
   *Application preferences* under *Night mode switching*, and use the *Night mode* menu item to switch.
