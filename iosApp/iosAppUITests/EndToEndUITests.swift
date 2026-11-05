@@ -612,27 +612,9 @@ final class EndToEndUITests: RealAppUITestCase {
         let crop = CGRect(x: frame.minX * scale, y: frame.minY * scale,
                           width: frame.width * scale, height: frame.height * scale).integral
         guard let image = full.cropping(to: crop) else { throw NSError(domain: "3959OCR", code: 3) }
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.recognitionLanguages = ["en-US"]
-        request.usesLanguageCorrection = false
-        try VNImageRequestHandler(cgImage: image).perform([request])
-        let observations = request.results ?? []
-        let lines = observations.compactMap { observation -> (String, CGFloat, CGFloat)? in
-            guard let text = observation.topCandidates(1).first?.string else { return nil }
-            let box = observation.boundingBox
-            return (text, box.height * CGFloat(image.height), (1 - box.maxY) * CGFloat(image.height))
-        }.sorted { $0.2 < $1.2 }
-        attachText("ocr-\(step)", lines.map { "\($0.0) [height \($0.1), top \($0.2)]" }.joined(separator: "\n"))
+        let measurement = try measurePaintedLovedLine(in: image) { attachText("ocr-\(step)", $0) }
         shot(app, "ocr-\(step)")
-        // This exact verse fragment must be painted, not just a chapter title or a matching word elsewhere.
-        for index in lines.indices {
-            let line = lines[index]
-            let next = index + 1 < lines.count ? lines[index + 1].0 : ""
-            if (line.0 + " " + next).localizedCaseInsensitiveContains("loved the world") {
-                return (line.1, line.2)
-            }
-        }
+        if let measurement { return (measurement.height, measurement.top) }
         XCTFail("John 3:16 'loved the world' is not visibly painted inside the pane (\(step))")
         throw NSError(domain: "3959OCR", code: 2)
     }

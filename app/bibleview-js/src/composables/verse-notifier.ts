@@ -63,8 +63,8 @@ export function useVerseNotifier(
 
     // Throttle is preferred over debounce because do not want that bible ref display is
     // totally frozen during scrolling
-    const onScroll = throttle(() => {
-        if (isScrolling.value) {
+    function updateCurrentVerse(force = false) {
+        if (isScrolling.value && !force) {
             // Programmatic scrolling (scrollToId, toolbar offset compensation) moves scrollY
             // without the user scrolling, and a config change reflows the document underneath
             // it. Re-anchor rather than leaving the anchor in the pre-jump coordinate system.
@@ -99,7 +99,7 @@ export function useVerseNotifier(
                             // previously confirmed one within the same document - a superscript verse
                             // number can visually bleed into the line above (negative top offset) and
                             // make the elementFromPoint probe hit the next verse too early (#3865).
-                            if (scrollingUp && currentVerse.value !== null && newKey === currentKey.value
+                            if (!force && scrollingUp && currentVerse.value !== null && newKey === currentKey.value
                                 && newVerse > currentVerse.value) {
                                 return;
                             }
@@ -118,8 +118,9 @@ export function useVerseNotifier(
                 y += lineHeight.value * 0.6;
             }
         }
-    }, 50);
+    }
+    const onScroll = throttle(() => updateCurrentVerse(), 50);
 
     setupWindowEventListener('scroll', onScroll)
-    return {currentVerse, currentKey}
+    return {currentVerse, currentKey, updateCurrentVerse}
 }

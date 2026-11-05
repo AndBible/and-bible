@@ -400,7 +400,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
             "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers", "showOrdinals",
-            "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin",
+            "fontSize", "fontFamily", "lineSpacing", "hyphenation", "justifyText", "marginSize", "topMargin",
             "showTitleScrollButton"
         ];
         return compareConfig(newConfig, keys);
@@ -420,7 +420,10 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         ) {
             const defer = new Deferred();
             const isBible = documentType.value === "bible"
-            const needsRefreshLocation = !initial && (isBible || documentType.value === "osis") && getNeedRefreshLocation(newConfig);
+            const fontScaleChanged = newAppSettings.fontSizeMultiplier !== undefined
+                && newAppSettings.fontSizeMultiplier !== appSettings.fontSizeMultiplier;
+            const needsRefreshLocation = !initial && (isBible || documentType.value === "osis")
+                && (getNeedRefreshLocation(newConfig) || fontScaleChanged);
             const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
 
             if (needsRefreshLocation) emit("config_changed", defer)
