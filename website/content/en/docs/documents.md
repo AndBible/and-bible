@@ -159,6 +159,11 @@ or stops sending data for five seconds, the download times out; a large download
 can continue for longer as long as data keeps arriving. If a download fails, check
 your connection and try again.
 
+If the app is closed, or the system stops it, before a download has finished, the
+document is not installed. The next time you open the app it tells you which
+documents were not installed and offers *Download again*. On iOS a download keeps
+running for a short while after you switch to another app.
+
 ## Load Documents
 
 To load a document from your device’s filesystem:

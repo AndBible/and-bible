@@ -545,6 +545,28 @@ private fun HostAppContent(
             )
         },
     )
+    // #3973: a repository install an earlier run could not finish (suspended or terminated mid-transfer) is reported
+    // with a retry instead of the module silently missing. Main app only, once per composition of the app root.
+    if (nightObserver != null) LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.first()
+        // Welcome (no usable Bible) offers the download itself and owns its initialisation: report from reading only.
+        if (navController.currentDestination?.route?.substringBefore('?') == NavRoutes.WELCOME) return@LaunchedEffect
+        try {
+            val control = withContext(Dispatchers.Default) { koin.get<net.bible.android.control.download.DownloadControl>() }
+            val dialogs = koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>()
+            net.bible.sharedui.app.download.InterruptedInstallsNotice.show(
+                interrupted = { withContext(Dispatchers.Default) { control.interruptedInstalls() } },
+                forget = { withContext(Dispatchers.Default) { control.forgetInterruptedInstalls(it) } },
+                ask = dialogs::await,
+                strings = strings,
+                openDownload = { ids -> shell.navigate(NavRoutes.download(documentIds = ids)) },
+            )
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("IosApp: interrupted install notice failed: ${e.stackTraceToString()}")
+        }
+    }
     LaunchedEffect(appHosts, navController) {
         // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
         navController.currentBackStackEntryFlow.first()

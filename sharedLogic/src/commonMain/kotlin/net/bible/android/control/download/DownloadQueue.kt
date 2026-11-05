@@ -36,23 +36,45 @@ import net.bible.sharedlogic.sync.withMonitor
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private val notifier: UserNotifier, private val strings: CoreStrings) {
+class DownloadQueue(
+    private val onProgress: (DocumentStatus) -> Unit,
+    private val notifier: UserNotifier,
+    private val strings: CoreStrings,
+    /** Remembers each request until it reaches an outcome the user has seen (#3973); null keeps nothing. */
+    private val pending: PendingRepoInstalls? = null,
+    /** Keeps the process running while a transfer is in flight (iOS: a UIKit background task); none elsewhere. */
+    private val keepAlive: DownloadKeepAlive = DownloadKeepAlive.None,
+) {
     // Every access holds the set's own monitor, as Collections.synchronizedSet did.
     private val beingQueued = HashSet<String>()
     private val downloadError = HashSet<String>()
     private val TAG = this::class.simpleName ?: "DownloadQueue"
 
-    suspend fun addDocumentToDownloadQueue(document: Book, repo: Repository) {
+    suspend fun addDocumentToDownloadQueue(document: Book, repo: Repository) =
+        addDocumentToDownloadQueue(document, repo.repoName) { repo.downloadDocument(document) }
+
+    /** [transfer] downloads and installs [document] from the repository named [repoName]. */
+    internal suspend fun addDocumentToDownloadQueue(document: Book, repoName: String, transfer: suspend () -> Unit) {
         val repoIdentity = document.repoIdentity
         if (!withMonitor(beingQueued) { beingQueued.contains(repoIdentity) }) {
             withMonitor(beingQueued) { beingQueued.add(repoIdentity) }
             withMonitor(downloadError) { downloadError.remove(repoIdentity) }
             withContext(Dispatchers.IO) {
-                Log.i(TAG, "Downloading " + document.osisID + " from repo " + repo.repoName)
+                Log.i(TAG, "Downloading " + document.osisID + " from repo " + repoName)
+                val request = PendingRepoInstall(repoName, document.initials)
+                // Settled = an outcome the user saw: installed, an error shown or their own cancel. Only an install
+                // stopped with the app (scope cancelled, process suspended or killed) stays pending for the next launch.
+                var settled = false
+                var release: (() -> Unit)? = null
                 try {
-                    repo.downloadDocument(document)
+                    // Bookkeeping must never stop the download itself.
+                    try { pending?.add(request) } catch (e: Exception) { Log.e(TAG, "Could not record the pending install of $document", e) }
+                    release = keepAlive.hold("download ${document.initials}")
+                    transfer()
+                    settled = true
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
                 } catch (e: DownloadCancelledException) {
+                    settled = true
                     Log.e(TAG, "Cancelled downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
                 } catch (e: CancellationException) {
@@ -61,6 +83,7 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
                     throw e
                 } catch (e: DownloadException) {
+                    settled = true
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     withMonitor(downloadError) { downloadError.add(repoIdentity) }
@@ -73,17 +96,23 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                         notifier.showError(errorMessage)
                     }
                 } catch (e: InstallException) {
+                    settled = true
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     withMonitor(downloadError) { downloadError.add(repoIdentity) }
                     notifier.showError(strings.errorDownloading)
                 } catch (e: Exception) {
+                    settled = true
                     Log.e(TAG, "Error downloading $document", e)
                     notifier.showError(strings.errorOccurred, e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     withMonitor(downloadError) { downloadError.add(repoIdentity) }
                 }
                 finally {
+                    if (settled) {
+                        try { pending?.forget(listOf(request)) } catch (e: Exception) { Log.e(TAG, "Could not clear the pending install of $document", e) }
+                    }
+                    release?.invoke()
                     withMonitor(beingQueued) { beingQueued.remove(repoIdentity) }
                 }
             }
@@ -91,6 +120,8 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
     }
 
     fun isInQueue(document: Book): Boolean = withMonitor(beingQueued) { beingQueued.contains(document.repoIdentity) }
+    fun isInQueue(request: PendingRepoInstall): Boolean =
+        withMonitor(beingQueued) { beingQueued.contains("${request.repository}--${request.initials}") }
     fun isErrorDownloading(document: Book): Boolean = withMonitor(downloadError) { downloadError.contains(document.repoIdentity) }
 
 }

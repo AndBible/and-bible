@@ -188,6 +188,8 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single { parts.environment }
         single<AppEnvironment> { get<IosAppEnvironment>() }
         single<AppDirectories> { parts.directories }
+        // #3973: a repository transfer runs inside a UIKit background task, so a short app switch does not stop it.
+        single<net.bible.android.control.download.DownloadKeepAlive> { IosDownloadKeepAlive }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { IosAppStartup.databasesOpen }) }
 
         // --- strings (retained wrappers read the current language per access)

@@ -118,7 +118,13 @@ import org.koin.dsl.module
 fun buildSharedBindings() = module {
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { FakeBookFactory(get()) }
-    single { DownloadControl(get(), get(), get()) }
+    single {
+        DownloadControl(
+            get(), get(), get(),
+            pendingInstalls = getOrNull<net.bible.sharedcore.settings.DeviceLocalPrefs>()?.let { net.bible.android.control.download.PendingRepoInstalls(it) },
+            keepAlive = getOrNull<net.bible.android.control.download.DownloadKeepAlive>() ?: net.bible.android.control.download.DownloadKeepAlive.None,
+        )
+    }
     single { SwordContentFacade(get(), get(), get(), get(), get(), get<SaxTextPolicy>()) }
     single {
         ReadingPlanTextFileDao(

@@ -240,8 +240,38 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
                 UserMessages.toast(windowRepository.name)
             }
             checkDocBackupDBInSync()
+            showInterruptedInstallsNotice()
         }
         initialized = true
+    }
+
+    /**
+     * #3973: a repository install an earlier run requested but could not finish (the process was killed
+     * mid-transfer) is reported with a "Download again" that reopens the download of exactly those documents.
+     * Launched, not awaited: the dialog must not hold up the rest of the bootstrap.
+     */
+    private fun showInterruptedInstallsNotice() {
+        host.lifecycleScope.launch(Dispatchers.Main) {
+            try {
+                val control: net.bible.android.control.download.DownloadControl = getKoin().get()
+                net.bible.sharedui.app.download.InterruptedInstallsNotice.show(
+                    interrupted = { kotlinx.coroutines.withContext(Dispatchers.IO) { control.interruptedInstalls() } },
+                    forget = { kotlinx.coroutines.withContext(Dispatchers.IO) { control.forgetInterruptedInstalls(it) } },
+                    ask = appDialogs::await,
+                    strings = net.bible.sharedui.strings.AndroidStrings(host),
+                    openDownload = { ids ->
+                        val intent = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+                            host, net.bible.sharedcore.nav.NavRoutes.download(documentIds = ids),
+                        )
+                        host.startActivityForResult(intent, net.bible.android.view.activity.base.IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                    },
+                )
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Interrupted install notice failed", e)
+            }
+        }
     }
 
     /**

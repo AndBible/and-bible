@@ -33,6 +33,7 @@ import kotlin.native.Platform
  * - `-legacyMigrationStepDelayMs <ms>`: [legacyStepDelayMs], delay after the legacy migration's MAP step.
  * - `-seedLegacyFixture <dir>`: [legacySeedDir], see `IosLegacyDebugSeed` (simulator end to end of the legacy migration).
  * - `-clearLegacySeed`: [clearLegacySeed], undoes the seed so other suites do not inherit it.
+ * - `-seedInterruptedInstall <initials>@<repository>`: [seedInterruptedInstall] (#3973 next-launch report).
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
  * - `-seedPageAssets` / `-probePageAssets` / `-clearPageAssets`: page asset route fixture and probe (#3918), see `IosPageAssetsDebugSeed`.
  *   `-openDocument` may then name a non-Bible book (the EPUB): `-openRef` is looked up in that book, else its first key.
@@ -81,6 +82,20 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
     fun normalizeStandardFixture() {
         val settings = net.bible.sharedcore.platform.IosDeviceSettings()
         net.bible.sharedui.app.applyDebugStandardFixture(Platform.isDebugBinary, arguments, settings::setString, settings::setBoolean)
+    }
+
+    /**
+     * Debug only: `-seedInterruptedInstall <initials>@<repository>` records that install as requested but unfinished,
+     * as a transfer stopped with the app leaves it (#3973), so a UI test can check the next-launch report and retry.
+     */
+    fun seedInterruptedInstall() {
+        val value = argumentValue("-seedInterruptedInstall") ?: return
+        val initials = value.substringBefore('@')
+        val repository = value.substringAfter('@', "")
+        if (initials.isEmpty() || repository.isEmpty()) return
+        net.bible.android.control.download.PendingRepoInstalls(net.bible.sharedcore.platform.IosDeviceSettings())
+            .add(net.bible.android.control.download.PendingRepoInstall(repository, initials))
+        nsLog("-seedInterruptedInstall: $initials from $repository")
     }
 
     val referenceApplied: Boolean get() = openRef() == null || openRefDone
@@ -134,6 +149,8 @@ internal object IosDebugLaunchArgs : HostDebugArgs {
             FileSystem.SYSTEM.deleteRecursively(dirs.internalFilesDir)
             FileSystem.SYSTEM.deleteRecursively(dirs.modulesDir)
             deleteDatabases(support)
+            // The requested-install record describes the modules just deleted (#3973).
+            net.bible.sharedcore.platform.IosDeviceSettings().remove(net.bible.android.control.download.PendingRepoInstalls.KEY)
         }.onFailure { nsLog("-resetData failed: ${it.stackTraceToString()}") }
         nsLog("-resetData: app data deleted")
     }

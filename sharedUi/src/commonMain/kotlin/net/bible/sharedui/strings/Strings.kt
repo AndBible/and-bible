@@ -466,6 +466,10 @@ interface Strings {
     val deleteIndexLabel: String
     val unlockModule: String
     fun deleteDoc(name: String): String
+    val interruptedDownloadsTitle: String
+    val interruptedDownloadsMessage: String
+    val interruptedDownloadsQuestion: String
+    val downloadAgain: String
     fun deleteSearchIndexDoc(name: String): String
     val cantDeleteDocument: String
     val downloadDocuments: String

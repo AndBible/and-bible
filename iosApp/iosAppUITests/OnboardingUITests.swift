@@ -34,9 +34,10 @@ final class OnboardingUITests: RealAppUITestCase {
     }
 
     func testFreshInstallOnboardingOpensReading() {
-        // Only -resetData (ignored by Release builds); no fixture, no feature scenario, no -openRef.
+        // Only -resetData and the crash-gate reset (both ignored by Release builds); no fixture, no feature scenario,
+        // no -openRef. A foreground kill by an earlier test would otherwise open the crash-recovery gate, not Welcome.
         let app = XCUIApplication()
-        app.launchArguments = ["-resetData"] + languageArguments()
+        app.launchArguments = ["-resetData", "-task6ResetCrashState"] + languageArguments()
         app.launch()
         let welcome = element(app, "welcome-screen")
         dismissNotices(app, until: welcome)
@@ -107,6 +108,49 @@ final class OnboardingUITests: RealAppUITestCase {
         if !back { attachTree(again, "onboarding-relaunch") }
         XCTAssertTrue(back, "relaunch after onboarding did not reopen reading (welcome shown: \(element(again, "welcome-screen").exists))")
         sendToBackground(again)
+        if language == nil { checkInterruptedInstallReport(again) }
+    }
+
+    /// #3973: an install requested by an earlier run but stopped with the app is reported at the next launch with
+    /// "Download again" (retry) and "Cancel" (forget). The record is seeded with a module no repository has, so the
+    /// retry is visible as the Download screen's "could not be downloaded" message and nothing gets installed.
+    private func checkInterruptedInstallReport(_ previous: XCUIApplication) {
+        let marker = "NoSuchModule3973"
+        previous.terminate()
+        let app = XCUIApplication()
+        app.launchArguments = ["-seedInterruptedInstall", "\(marker)@CrossWire"]
+        app.launch()
+        let again = app.buttons.matching(NSPredicate(format: "label == 'Download again'")).firstMatch
+        let reported = again.waitForExistence(timeout: 60)
+        shot(app, "interrupted-install-report")
+        if !reported { attachTree(app, "interrupted-install-report") }
+        XCTAssertTrue(reported, "the interrupted install was not reported at launch")
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch.exists,
+                      "the report does not name the interrupted document")
+        again.tap()
+        confirmDownloadIfAsked(app) // the Download screen's own consent question, as on every first visit
+        let notFound = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'could not be downloaded'")).firstMatch
+        let retried = notFound.waitForExistence(timeout: 120)
+        shot(app, "interrupted-install-retry")
+        if !retried { attachTree(app, "interrupted-install-retry") }
+        XCTAssertTrue(retried, "Download again did not request the document from the Download screen")
+
+        // Not installed, so still pending: reported again at the next launch until the user cancels it. Every kill is
+        // from the background: a foreground kill counts as a crash and would open the crash-recovery gate.
+        sendToBackground(app)
+        app.terminate()
+        app.launchArguments = []
+        app.launch()
+        XCTAssertTrue(again.waitForExistence(timeout: 60), "a still-missing interrupted install was not reported again")
+        app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch.tap()
+        sendToBackground(app)
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading did not open after the cancel")
+        sleep(3)
+        XCTAssertFalse(again.exists, "a cancelled interrupted install was reported again")
+        shot(app, "interrupted-install-cancelled")
+        sendToBackground(app)
     }
 
     /// The Welcome "Advanced" tab's "Download Documents" route (the only download route a Finnish Welcome offers):

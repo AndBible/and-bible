@@ -40,13 +40,20 @@ const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNotifier, private val strings: net.bible.sharedcore.platform.CoreStrings, private val env: net.bible.sharedcore.platform.AppEnvironment)
+class DownloadControl(
+    private val notifier: net.bible.sharedcore.platform.UserNotifier,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val env: net.bible.sharedcore.platform.AppEnvironment,
+    /** Requested repository installs not yet settled (#3973); null where the host keeps no device-local prefs. */
+    private val pendingInstalls: PendingRepoInstalls? = null,
+    keepAlive: DownloadKeepAlive = DownloadKeepAlive.None,
+)
 {
     private val _progress = EventSource<DocumentStatus>()
     /** Every per-document install status change: progress from JSword jobs and the queue's outcome (replaces `DocumentDownloadEvent`). */
     val progress: Events<DocumentStatus> get() = _progress
 
-    private val downloadQueue = DownloadQueue(_progress::emit, notifier, strings)
+    private val downloadQueue = DownloadQueue(_progress::emit, notifier, strings, pendingInstalls, keepAlive)
     private val documentDownloadProgressCache = DocumentDownloadProgressCache(_progress::emit)
 
     /** pre-download document checks
@@ -130,6 +137,21 @@ class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNo
         }
     }
 
+
+    /**
+     * Repository installs requested in an earlier run that were stopped with the app before they finished (#3973),
+     * minus any whose module is installed by now. Excludes downloads running in this process.
+     */
+    fun interruptedInstalls(): List<PendingRepoInstall> {
+        val store = pendingInstalls ?: return emptyList()
+        return store.interrupted { initials -> SwordDocumentFacade.getDocumentByInitials(initials) != null }
+            .filterNot { downloadQueue.isInQueue(it) }
+    }
+
+    /** Stops reporting [requests] (the user declined to download them again). */
+    fun forgetInterruptedInstalls(requests: Collection<PendingRepoInstall>) {
+        pendingInstalls?.forget(requests)
+    }
 
     fun cancelDownload(document: Book) {
         val job = JobManager.findJob(INSTALL_BOOK.replace("%s", document.repoIdentity))
