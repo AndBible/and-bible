@@ -21,9 +21,9 @@ import {useScroll} from "@/composables/scroll";
 import {computed, ComputedRef, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {sortBy} from "lodash";
 
-const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
+const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyM", "KeyO"]);
 const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB", "KeyW"]);
-const editorCtrlKeys: Set<string> = new Set(["KeyB"]);
+const editorCtrlKeys: Set<string> = new Set(["KeyB", "KeyC"]);
 
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
@@ -69,12 +69,14 @@ export function useKeyboard(
             e.stopPropagation();
             return;
         }
+        // Keep this chord contract aligned with sharedUi's ReadingShortcuts.kt. Command is not Control.
+        if (e.metaKey || (e.ctrlKey && e.altKey)) return;
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
             console.log("Base listener", e);
             let key = e.code;
-            if (e.ctrlKey && editorCtrlKeys.has(e.code) && isEditing.value) {
-                // Ctrl+B should not open Book selector in text editor mode
-                return
+            if (isEditing.value && (e.altKey || (e.ctrlKey && editorCtrlKeys.has(e.code)))) {
+                // The editor owns copy, bold and Option navigation, without a delayed native editing flag.
+                return;
             }
             if (e.altKey) {
                 key = "Alt" + key;

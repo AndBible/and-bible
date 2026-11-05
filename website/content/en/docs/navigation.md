@@ -134,7 +134,11 @@ For more information about managing workspaces, see [Workspaces](workspaces.md).
 
 With the reading view open, **Ctrl+F** opens the in-place search field, including
 on iPhone and iPad with a connected keyboard. You can also open the same search
-from **Find** in the main menu.
+from **Find** in the main menu. These are **Control** shortcuts, not Command
+shortcuts on an Apple keyboard. While a native text field has focus, its own
+keyboard commands take precedence over reading shortcuts. In the Bible text's
+note editor, copying, bold formatting and Option/Alt navigation stay with the
+editor.
 
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 
