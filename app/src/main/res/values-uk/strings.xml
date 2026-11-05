@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible не вдалося запустити WebView2, який потрібен для показу тексту Біблії. Встановіть або відновіть Microsoft Edge WebView2 Evergreen Runtime за адресою:\n%1$s\n\nПодробиці в файлі журналу:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">Для показу тексту Біблії через WebView2 AndBible потребує графіки Direct3D. Поточний графічний рендерер: %1$s. Перевірте графічний драйвер і підтримку Direct3D.\n\nПодробиці в файлі журналу:\n%2$s</string>
+  <string name="desktop_update_setting_title">Перевіряти оновлення</string>
+  <string name="desktop_update_setting_summary">Раз на день, з github.com</string>
+  <string name="desktop_update_consent_title">Перевіряти оновлення?</string>
+  <string name="desktop_update_consent_message">AndBible може раз на день перевіряти github.com на наявність нової версії. GitHub бачить вашу IP-адресу; більше нічого не надсилається. Пізніше це можна змінити в налаштуваннях.</string>
+  <string name="desktop_update_consent_yes">Перевіряти оновлення</string>
+  <string name="desktop_update_consent_no">Не перевіряти</string>
+  <string name="desktop_update_available_title">Доступна нова версія</string>
+  <string name="desktop_update_available_message">Доступний AndBible %1$s. У вас %2$s.</string>
+  <string name="desktop_update_download">Завантажити</string>
+  <string name="desktop_update_later">Пізніше</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Дослідження Біблії</string>
   <string name="app_name_medium">Дослідження Біблії (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d знайдено</string>
   <string name="search_showing_first">Занадто багато збігів. Показані перші %d</string>
   <string name="search_bible_section_group_prompt">Де шукати</string>
+  <string name="search_type_prompt">Тип пошуку</string>
+  <string name="search_show_results">Показати результати пошуку</string>
   <string name="search_all_bible">Вся Біблія</string>
   <string name="search_new_testament">Новий Заповіт</string>
   <string name="search_old_testament">Старий Заповіт</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Знайти \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Переклади</string>
+  <string name="recent_searches">Недавні пошуки</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Закрити пошук</string>
+  <string name="search_options">Налаштування пошуку</string>
+  <string name="search_submit">Шукати</string>
+  <string name="search_clear">Очистити текст пошуку</string>
+  <string name="search_engine_changed_reindex">Пошуковий рушій оновлено. Потрібно знову створити пошуковий індекс; це може тривати певний час.</string>
+  <string name="search_unsupported_syntax">Цей пошук використовує непідтримуваний синтаксис: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Коли індексування завершиться, пошук запуститься автоматично.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">У ресурсі %1$s не можна шукати</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">У цьому ресурсі не можна шукати</string>
+  <string name="search_indexing_notification_title">Створення пошукового індексу</string>
   <string name="choose_translations">Вибрати переклади…</string>
   <string name="multi_search_results">%1$d віршів у %2$d перекладах</string>
   <string name="search_index_not_created">індекс відсутній</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Виберіть, як відображаються кольори. Колірний e-ink зберігає чорно-білу основу, але показує кольори закладок, індикатор активного вікна та допоміжні лінії в кольорі — для кольорових екранів e-ink.</string>
   <string name="prefs_display_color_mode_normal">Звичайний</string>
   <string name="prefs_display_color_mode_bw">Чорно-білий</string>
+  <string name="prefs_display_color_mode_monochrome">Монохромний</string>
   <string name="prefs_display_color_mode_color_eink">Колірний e-ink</string>
+  <string name="prefs_theme_palette_style_title">Стиль теми</string>
+  <string name="prefs_theme_palette_style_summary">Як кольори застосунку виводяться з кольору робочої області. Діє лише тоді, коли режим кольорів — звичайний.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Тональна пляма (м\'яка, зберігає сірий)</string>
+  <string name="prefs_theme_palette_style_fidelity">Точність (точний колір)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Тональна пляма (оригінал)</string>
+  <string name="prefs_theme_palette_style_content">Вміст (близько до кольору)</string>
+  <string name="prefs_theme_palette_style_neutral">Нейтральний (приглушений)</string>
+  <string name="prefs_theme_palette_style_monochrome">Монохромний (сірий)</string>
+  <string name="prefs_theme_palette_style_vibrant">Яскравий</string>
+  <string name="prefs_theme_palette_style_expressive">Виразний</string>
+  <string name="prefs_theme_palette_style_rainbow">Веселка</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Фруктовий салат</string>
   <string name="prefs_eink_settings_cat">Налаштування E-ink</string>
   <string name="prefs_eink_display_title">Функції E-ink</string>
   <string name="prefs_eink_display_summary">Увімкнути функції для E-ink-пристроїв (кнопки прокручування сторінок, допоміжні лінії прокручування)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Автоматично позначати розділи як прочитані під час прокручування</string>
   <string name="reading_progress_read_count_scale">Кількість\nпрочитань</string>
   <string name="reading_progress_percent_read_scale">Відсоток\nпрочитань</string>
+  <string name="monochrome_activity_count">Кількість дій: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Кількість: %d</string>
+  <string name="monochrome_level">Рівень: %d/4</string>
+  <string name="monochrome_buckets">Сірий: немає; контур: частково; заповнений: повністю або найвищий рівень. Виберіть елемент, щоб побачити точні значення.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Журнал читання</string>
   <string name="reading_progress_history_for">Прогрес читання для %1$s</string>
@@ -197,6 +253,8 @@
   <string name="workspace_text_options_link_summary">Змінити налаштування відображення тексту для цієї робочої області</string>
   <string name="global_text_options_link">Глобальні параметри тексту</string>
   <string name="global_text_options_link_summary">Змінити стандартні налаштування відображення тексту для всіх робочих областей</string>
+  <string name="text_options_inherited_workspace">Робоча область</string>
+  <string name="text_options_inherited_global">Глобально</string>
   <string name="prefs_font_and_colors_title">Шрифт і кольори</string>
   <string name="prefs_text_layout_title">Макет тексту</string>
   <string name="prefs_strongs_and_morphology_title">Стронг і морфологія</string>
@@ -273,6 +331,9 @@
   <string name="copy_settings_to_workspace">Робоча область</string>
   <string name="copy_settings_to_window">Вікно %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Глобальні стандарти</string>
+  <string name="copy_settings_to_workspaces">В інші робочі області…</string>
+  <string name="copy_settings_to_global_defaults">У глобальні типові значення…</string>
+  <string name="menu_back">Назад</string>
   <string name="change_to_normal">Перейти до звичайного вікна</string>
   <string name="window_pin_mode">Прикріпити</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">Не вдалося підключитися до сервера ресурсів: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Не вдалося завантажити файли:\n\n%s\n\n</string>
   <string name="cant_delete_document">Цей ресурс не можна видалити.</string>
+  <string name="bad_document_warning">Цей ресурс має відомі проблеми.</string>
   <!--Install zip file-->
   <string name="install_zip">Завантажувати ресурси з файлів</string>
   <string name="install_zip_module">Завантажити біблійний модуль</string>
@@ -376,6 +438,11 @@
   <string name="delete_index">Видалити індекс пошуку</string>
   <string name="about">Про</string>
   <string name="delete_doc">Видалити %s?</string>
+  <string name="interrupted_downloads_title">Завантаження перервано</string>
+  <string name="interrupted_downloads_message">Ці ресурси не встановлено, бо їх завантаження було перервано:</string>
+  <string name="interrupted_downloads_question">Завантажити їх знову?</string>
+  <string name="download_again">Завантажити знову</string>
+  <string name="delete_docs_confirm">Видалити ці ресурси?</string>
   <string name="delete_search_index_doc">Видалити індекс %s?</string>
   <!--Verse context menu-->
   <string name="notes">Виноски та посилання</string>
@@ -396,6 +463,7 @@
   <string name="assign_labels">Призначення етикетки</string>
   <string name="new_item">Нова</string>
   <string name="label_name_prompt">Назва</string>
+  <string name="new_label_default_name">Мітка %d</string>
   <string name="label_unlabelled">Без мітки</string>
   <string name="add_bookmark1">Закладка</string>
   <string name="add_bookmark3">Виділення</string>
@@ -446,6 +514,8 @@
   <string name="rewind">Назад</string>
   <string name="forward">Вперед</string>
   <string name="tts_lang_not_available">Мова недоступна.</string>
+  <string name="tts_engine_not_available">Перетворення тексту на мовлення не працює на цьому пристрої. Переконайтеся, що мовленнєвий рушій встановлено й увімкнено в системних налаштуваннях перетворення тексту на мовлення.</string>
+  <string name="tts_audio_focus_denied">Не вдалося почати озвучення, бо інший застосунок використовує звук.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Швидкість озвучення</string>
   <string name="speak_and_play_earcons_title">Слухати і відтворювати короткі звуки для</string>
@@ -455,6 +525,10 @@
   <string name="speak_bookmarks_menu_title">Прослухати із закладки</string>
   <string name="speak_advanced_settings">Розширене налаштування</string>
   <string name="speak_sleep_timer_title">Таймер снy</string>
+  <string name="speak_sleep_timer_minutes">%d хв</string>
+  <string name="speak_sleep_timer_custom">Власний…</string>
+  <string name="speak_sleep_timer_off">Вимкнено</string>
+  <string name="speak_other_settings">Інше</string>
   <string name="speak_no_books_available">Немає книг для прослуховування</string>
   <string name="speak_general_error">Не вдалося запустити Озвучення для цієї книги</string>
   <string name="repeat_passage">Повторити уривок</string>
@@ -483,6 +557,11 @@
   <string name="speak_autobookmarking_disabled">Автоматичне створення закладок вимкнуто!</string>
   <string name="system_speak_settings">Відкрити системні налаштування TTS</string>
   <string name="auto_assing_labels_help1">Тут ви можете налаштувати, які мітки автоматично призначаються створеним вами закладкам.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Тут можна додавати, змінювати й видаляти мітки та налаштовувати, які з них автоматично призначаються закладкам, що ви створюєте.\n\nНедавні мітки: нещодавно використані мітки.\nІнші мітки: усі решта міток.\n\nВикористайте параметри фільтра в рядку пошуку, щоб бачити лише автоматично призначені або улюблені мітки.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Цей параметр застосовується до %s.</string>
   <string name="setting_scope_window">це вікно</string>
@@ -588,6 +667,9 @@
   <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
   <string name="backup_success2">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області, резервне копіювання яких успішно виконано.</string>
   <string name="backup_modules_success">Резервне копіювання вибраних модулів виконано успішно.</string>
+  <string name="backup_modules_conflict">Резервну копію не створено: %1$s і %2$s обидва містять файл %3$s з різним вмістом. Виберіть лише один із них і спробуйте знову.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (версія %2$s, тека %3$s)</string>
   <string name="backup_modules_email_subject_2">%s резервне копіювання модулів</string>
   <string name="backup_modules_email_message_2">Вкладено %1$s резервну копію ваших модулів, яка містить наступні модулі: %2$s</string>
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
@@ -596,6 +678,9 @@
   <string name="exported_studypads_message">Під\'єднано вашу базу даних \"%s\", що містить Закладки та Нотатки, пов\'язані з вибраний StudyPad-ом</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
   <string name="send_backup_file">Надіслати файл резервної копії</string>
+  <string name="export_destination_title">Куди експортувати?</string>
+  <string name="export_destination_message">Збережіть експорт на цей телефон або надішліть його кудись через «Поділитись».</string>
+  <string name="send_export_file">Надіслати файл експорту</string>
   <string name="backup_modules_title">Виберіть модулі для резервного копіювання</string>
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
   <string name="ask_restore_or_import">База даних для %s може бути або відновлена (тобто наявну базу даних буде видалено і замінено вибраною) або імпортована (вибрану базу даних буде імпортовано до наявної). Що ви хочете зробити?</string>
@@ -637,12 +722,25 @@
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
   <string name="doc_type_addons">Додаткові компоненти</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Інше</string>
+  <string name="document_type_label">Тип ресурсу</string>
   <!--Languages-->
   <string name="lang_default">За замовчуванням</string>
   <!--General-->
   <string name="okay">ОК</string>
   <string name="cancel">Скасувати</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Назад</string>
+  <string name="settings_editor_close">Закрити</string>
+  <string name="settings_editor_apply">Застосувати</string>
   <string name="discard_changes_confirmation">Відхилити незбережені зміни?</string>
+  <string name="discard">Відхилити</string>
+  <string name="remove">Вилучити</string>
+  <string name="overwrite">Перезаписати</string>
+  <string name="set_current_day_action">Встановити день</string>
   <string name="yes">Так</string>
   <string name="no">Ні</string>
   <string name="error">Помилка</string>
@@ -652,6 +750,7 @@
   <string name="watch_tutorial_video">Дивитись навчальне відео (на англ.)</string>
   <string name="verse_not_found">Вірш не знайдено</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Продовжити</string>
   <string name="report_error">Надіслати звіт</string>
   <string name="error_occurred">Сталася помилка</string>
   <string name="error_occurred_crash_last_time">Востаннє, коли ви користувались програмою, вона аварійно завершила роботу. Щоб допомогти нам у виправленні помилки, ми будемо вдячні, якщо ви надішлете нам звіт про помилку.</string>
@@ -662,8 +761,14 @@
   <string name="error_key_not_in_document2">%1$s не знайдено в ресурсі %2$s.</string>
   <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
+  <string name="debug_test_error">Тестова помилка (збірка для налагодження)</string>
+  <string name="bug_report_prepare_failed">Не вдалося підготувати або надіслати звіт. Можна спробувати знову або скористатися «Резервне копіювання й відновлення», щоб зберегти свої дані.</string>
   <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
+  <string name="bug_report_manual_title">Надіслати звіт електронною поштою</string>
+  <string name="bug_report_manual_text_saved">Звіт збережено в</string>
+  <string name="bug_report_manual_text_unsaved">Не вдалося відкрити жодну поштову програму на цьому пристрої.\n\nБудь ласка, надішліть звіт електронною поштою на адресу</string>
+  <string name="bug_report_copy_address">Скопіювати адресу</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Синтез мовлення</string>
   <string name="notification_channel_progress_status">Сповіщення про стан виконання завантаження модулів і т.д.</string>
@@ -687,6 +792,7 @@
   <string name="search_settings">Налаштування пошуку</string>
   <string name="dismiss">Відхилити</string>
   <string name="workspace_listing_with_current">%s (поточн.)</string>
+  <string name="workspace_manage_workspaces">Керування робочими областями…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Це бета-версія!</string>
   <string name="beta_notice_content_1">
@@ -737,7 +843,10 @@
   <string name="help_search_title">Пошук</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Текст пошуку може містити спеціальні символи: *, AND, OR, NOT</string>
+  <string name="help_search_bible">Виберіть, як зіставляються слова: «Усі слова» знаходить вірші, що містять кожне слово, «Будь-яке слово» — вірші, що містять принаймні одне, а «Фраза» — слова поруч у цьому порядку.\n\nУ пошуку також можна використовувати * та ? як символи підстановки (наприклад, bless* знаходить blessed і blessing), поєднувати терміни за допомогою AND, OR і NOT та шукати номери Стронга безпосередньо (наприклад, strong:h0430).</string>
+  <string name="help_search_epub">Виберіть, як зіставляються слова: «Усі слова» знаходить уривки, що містять кожне слово, «Будь-яке слово» — уривки, що містять принаймні одне, а «Фраза» — слова поруч у цьому порядку.\n\n«Необроблений синтаксис запиту» передає ваш текст пошуковому рушію без змін, тож можна писати власний запит: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" для точної фрази, bless* для будь-якого слова, що починається з bless, і grace NEAR faith, щоб знайти їх поруч.</string>
   <string name="help_search_details">Будь ласка, перегляньте %s для отримання додаткової інформації</string>
+  <string name="help_search_syntax">Синтаксис пошуку</string>
   <string name="help_fts5">Синтаксис повнотекстових запитів FTS5</string>
   <string name="help_workspaces_title">Робочі області</string>
   <string name="help_workspaces_text">
@@ -761,6 +870,12 @@
 мати відкритими біблійні ресурси та швидко перемикатися між коментарями та
 іншим додатковим матеріалом під час вивчення Біблії.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">У вашій бібліотеці ще немає ресурсів. Додайте кілька, щоб почати.</string>
+  <string name="welcome_redownload_row_hint">Вибрати з раніше встановлених ресурсів</string>
+  <string name="welcome_download_row_hint">Переглянути онлайн-каталог</string>
+  <string name="welcome_restore_row_hint">Файл бази даних із закладками та примітками</string>
+  <string name="welcome_link_website">Вебсайт</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Ви повинні вибрати файл, який ви хочете завантажити в %s.</string>
@@ -776,9 +891,8 @@
   <string name="format_studypads">Блокноти з баз даних AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Закрити</string>
+  <string name="reading_toolbar_options">Більше параметрів</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Зрозуміло</string>
-  <string name="first_time_help_show_next_time">Показати знову наступного разу</string>
   <string name="strongs_mode_title">Виберіть режим Стронга</string>
   <string name="download_dialog_message">Не вдалося завантажити слідуючі книги:</string>
   <string name="journal_description">Редаговані користувачем блокноти зі спеціальним текстом та закладками</string>
@@ -803,6 +917,7 @@
   <string name="prefs_experimental_features_summary">Вибрати, які експериментальні функції увімкнути. Ці функції ще в розробці та можуть змінитися або бути видалені</string>
   <string name="experimental_feature_bookmark_edit_actions">Дії редагування закладок</string>
   <string name="experimental_feature_add_paragraph_break">Додати закладку розриву абзацу</string>
+  <string name="experimental_feature_toolbar_literal_color">Використовувати точний колір робочої області для панелі читання (замість кольору теми)</string>
   <string name="raw_llm_log_title">Журнал необробленого ШІ</string>
   <string name="raw_llm_log_empty">Немає даних необробленого журналу</string>
   <string name="raw_llm_log_copied">Журнал скопійовано до буфера обміну</string>
@@ -911,6 +1026,7 @@
   <string name="display_mode_underline">Підкреслення</string>
   <string name="display_mode_marker">Лише маркер</string>
   <string name="display_mode_hidden">Приховано</string>
+  <string name="display_mode_inherit">Так само, як вибір</string>
   <string name="workspace_override_indicator">Ця мітка має специфічний для робочої області режим відображення</string>
   <string name="primary_label">Основна мітка</string>
   <string name="favourite_label">Улюблена мітка</string>
@@ -924,6 +1040,8 @@
   <string name="book_menu_show_long_book_name">Показати довгу назву книги</string>
   <string name="book_menu_show_progress_bars">Показати смуги прогресу</string>
   <string name="reset_workspace_labels">Скинути налаштування автоматичного призначення та налаштування улюблених для цієї робочої області?</string>
+  <string name="clear_auto_assign_labels">Очистити мітки автопризначення</string>
+  <string name="reset_workspace_auto_assign_labels">Видалити всі мітки автопризначення з цієї робочої області?</string>
   <string name="reset_hide_labels">Скинути налаштування для приховування заданих налаштувань мітків?</string>
   <string name="reorder">Змінити порядок</string>
   <string name="system_items">Дії системи</string>
@@ -995,6 +1113,27 @@
   <string name="instructions_for_translators">інструкція для перекладачів</string>
   <string name="questions_title">Маєте запитання?</string>
   <string name="bookmark_style">Стиль закладки</string>
+  <string name="bookmark_style_preview_sample">Бо так Бог полюбив світ</string>
+  <string name="bookmark_style_selection">Закладки виділеного тексту</string>
+  <string name="bookmark_style_whole_verse">Закладки цілого вірша</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Використовувати інший стиль для закладок цілого вірша</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Виділення</string>
+  <string name="bookmark_style_tag_whole_verse">Цілий вірш</string>
+  <string name="bookmark_style_tag_workspace">Робоча область</string>
+  <string name="show_style_examples">Показати приклади стилів</string>
+  <string name="labels_search_section">Пошук</string>
+  <string name="labels_filter_section">Показати</string>
+  <string name="labels_filter_auto_assign">Лише мітки автопризначення</string>
+  <string name="labels_filter_favourite">Лише улюблені мітки</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Позначте мітку, щоб призначити її цій закладці.</string>
+  <string name="manage_labels_help_primary">Основна мітка. Її колір і стиль показує закладка.</string>
+  <string name="manage_labels_help_autoassign">Призначати цю мітку автоматично кожній новій закладці. Порожній болт означає «вимкнено».</string>
+  <string name="manage_labels_help_favourite">Тримати мітку в улюблених для швидкого доступу.</string>
+  <string name="manage_labels_help_styles">Під назвою невеликий приклад показує вигляд мітки: «Виділення» для закладки виділеного тексту, «Цілий вірш» для закладки цілого вірша та позначка «Робоча область» для стилю, який ця робоча область перевизначає. Сірий приклад без оформлення означає, що закладки цієї мітки не малюються. Приховати приклади можна в меню ⋮.</string>
+  <string name="manage_labels_help_reorder">Змінити порядок списку можна в меню ⋮.</string>
   <string name="added_to_bookmark">Призначено цій закладці</string>
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
@@ -1046,6 +1185,7 @@
   <string name="sync_group_n">Група %d</string>
   <string name="disable_sync">Вимкнути синхронізацію</string>
   <string name="open_in_window">Відкрийте результати у вікні</string>
+  <string name="open_result_in_links_window">Відкрити результат у вікні посилань</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Індивідуальні сховища</string>
@@ -1056,7 +1196,6 @@
   <string name="delete_custom_repository">Ви хочете видалити індивідуальне сховище %s?</string>
   <string name="custom_repositories_help1">Щоб додати нове індивідуальне сховище, введіть або скопіюйте &amp; вставте тут URL-адресу спеціального сховища.</string>
   <string name="custom_repositories_help2">Ви можете прочитати більше інформації про індивідуальні сховища в %s.</string>
-  <string name="wiki_page">Сторінка WIKI</string>
   <string name="custom_repositories_help0">Ви можете встановити ресурси із зовнішніх сховищ, встановивши індивідуальні, особисті сховища.</string>
   <string name="duplicate_custom_repository">Сховище із назвою %s вже існує, не можна додати те саме.</string>
   <string name="packages_dir">Каталог пакетів (Zip-файли)</string>
@@ -1102,6 +1241,7 @@
   <string name="reading_progress_new_cycle_confirm">Розпочати новий цикл читання? Це почне відстеження прогресу з початку, зберігаючи дані попереднього циклу.</string>
   <string name="reading_progress_previous_cycle">Попередній цикл</string>
   <string name="reading_progress_next_cycle">Наступний цикл</string>
+  <string name="cloud_merge_data">Об\'єднати дані</string>
   <string name="cloud_fetch_and_restore_initial">Копіювати з хмари на цей пристрій</string>
   <string name="cloud_create_new">Копіювати з цього пристрою в хмару</string>
   <string name="cloud_disable_sync">Скасувати та відключити синхронізацію</string>
@@ -1115,6 +1255,19 @@
   <string name="sync_adapter_summary">Поточний: %s</string>
   <string name="adapters_google_drive">Диск Google</string>
   <string name="adapters_next_cloud">Наступна хмара</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Адреса теки WebDAV, наприклад https://nas.local/dav/ або https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Для синхронізації потрібна захищена адреса https://.</string>
+  <string name="webdav_certificate_title">Сертифікат сервера</string>
+  <string name="webdav_forget_certificate_message">Забути довірений сертифікат сервера? Під час наступного з\'єднання вас попросять підтвердити сертифікат знову.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Недовірений сертифікат сервера</string>
+  <string name="webdav_untrusted_certificate_message">Сертифікат %1$s не є довіреним для Android. Довіряйте йому лише якщо ви його впізнаєте, наприклад, якщо ви самі налаштували цей сервер.\n\nСуб\'єкт: %2$s\nВидавець: %3$s\nДійсний: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Довіряти цьому сертифікату</string>
+  <string name="webdav_wrong_credentials">Неправильне ім\'я користувача або пароль.</string>
+  <string name="webdav_not_a_folder">Ця адреса не є текою WebDAV.</string>
+  <string name="webdav_certificate_changed">Сертифікат сервера змінився. Синхронізацію призупинено, доки ви не підтвердите новий сертифікат; AndBible запитає про це під час наступного відкриття або синхронізації на передньому плані.</string>
+  <string name="webdav_storage_full">Сховище сервера заповнене.</string>
   <string name="auth_server_uri">URL сервера</string>
   <string name="auth_username">Ім\'я користувача</string>
   <string name="auth_password">Пароль</string>
@@ -1124,6 +1277,7 @@
   <string name="sync_general_settings">Інформація та загальні налаштування</string>
   <string name="sync_introduction">Вступ</string>
   <string name="are_you_sure">Ви впевнені?</string>
+  <string name="are_you_sure_merge">Буде збережено і дані на цьому пристрої, і %s у хмарі. Якщо один і той самий елемент змінено в обох місцях, зберігається новіша зміна. Дані цього пристрою буде надіслано на ваші інші пристрої.</string>
   <string name="are_you_sure_reset_local">Це скине вашу локальну базу даних для %s, і замінить контентом який наразі зберігається в хмарній службі.</string>
   <string name="are_you_sure_reset_cloud">Це скине вашу хмарну базу даних для %s, і замінить контентом який ви маєте на цьому пристрої.</string>
   <string name="sync_cant_fetch">Версія бази даних або файлу виправлення, що зберігається в хмарі, є вищою за ту, що підтримується цією програмою.</string>
@@ -1160,6 +1314,7 @@
   <string name="pref_font_size_multiplier_title">Multiplicateur de taille de police</string>
   <string name="pref_font_size_multiplier_summary_1">Помножити розмір шрифту на це число.</string>
   <string name="pref_font_size_multiplier_summary_2">Корисно, якщо у вас є синхронізований пристрій, що використовується з більшим шрифтом.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">  Поточне значення: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Дія для жесту проведення вліво/вправо</string>
   <string name="prefs_bible_view_swipe_mode_summary">Жест проведення вліво/вправо можна використовувати для переходу до наступної сторінки/розділу.</string>
@@ -1280,6 +1435,7 @@
   <string name="prompt_max_iterations_unlimited">Необмежено</string>
   <string name="prompt_max_iterations_global_default">Глобальне значення за замовчуванням (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Перевизначити глобальне максимальне число ітерацій для цього промпту. 0 = необмежено.\nПоточне: %s</string>
+  <string name="prompt_max_iterations_use_global">Використовувати глобальне налаштування (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Керування промптами ШІ</string>
   <string name="manage_prompts_summary">Створення та редагування промптів ШІ</string>
@@ -1413,6 +1569,7 @@
   <string name="built_in_prompt_notice">Це вбудований промпт, який не можна змінити. Використайте «Скопіювати для налаштування», щоб створити редаговану копію.</string>
   <string name="copy_to_customize">Скопіювати для налаштування</string>
   <string name="prompt_copied">Промпт скопійовано</string>
+  <string name="prompt_copy_failed">Не вдалося скопіювати промпт. Можливо, його видалено.</string>
   <string name="delete_prompt_confirmation">Видалити промпт «%s»?</string>
   <string name="prompt_name_required">Необхідно вказати назву промпту</string>
   <string name="prompt_template_required">Необхідно вказати шаблон промпту</string>
@@ -1620,6 +1777,8 @@
   <string name="tool_option_default_disabled">За замовчуванням (вимкнено)</string>
   <string name="tool_option_default_allowed">За замовчуванням (дозволено)</string>
   <string name="tool_option_default_denied">За замовчуванням (заборонено)</string>
+  <string name="tool_description_info">Показати опис інструмента</string>
+  <string name="tool_permission_mixed">Змішано</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Модель</string>
   <string name="prompt_model_default">За замовчуванням</string>
@@ -1665,6 +1824,8 @@
   <string name="my_document_pages_empty">У цьому ресурсі немає сторінок.</string>
   <string name="my_document_page_rename_title">Перейменувати сторінку</string>
   <string name="my_document_page_delete_confirmation">Видалити сторінку \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Видалити ці сторінки?</string>
+  <string name="my_documents_switch_document">Змінити ресурс</string>
   <string name="my_document_new_page_name">Сторінка %1$d</string>
   <string name="my_document_create_page_title">Нова сторінка</string>
   <string name="my_document_content_type_label">Тип вмісту</string>
@@ -1761,4 +1922,91 @@
   <string name="document_sync_started">Синхронізацію ресурсів розпочато</string>
   <string name="document_sync_enable_dialog_title">Розпочати синхронізацію ресурсів?</string>
   <string name="document_sync_enable_dialog_nothing">Поки що немає ресурсів для передачі. Нещодавно встановлені ресурси синхронізуватимуться автоматично.</string>
+  <string name="help_document_sync_text">Синхронізація ресурсів копіює ваші встановлені Біблії, коментарі та інші ресурси в хмару й підтримує їх синхронізованими на ваших пристроях. У цьому поданні можна побачити, що зберігається в хмарі, завантажувати чи вивантажувати окремі ресурси, видаляти ресурси та керувати тим, що синхронізується на цей пристрій.</string>
+  <string name="background_image_title">Фонове зображення</string>
+  <string name="background_image_none">Без фону</string>
+  <string name="background_image_import">Імпортувати з галереї…</string>
+  <string name="background_image_empty">Імпортованих зображень ще немає. Торкніться «Імпортувати з галереї…», щоб додати.</string>
+  <string name="background_image_importing">Імпорт…</string>
+  <string name="background_image_delete_title">Видалити зображення?</string>
+  <string name="background_image_delete_confirm">Видалити це фонове зображення? Робочі області, що його ще використовують, повернуться до стану без зображення.</string>
+  <string name="background_image_day">Фонове зображення (день)</string>
+  <string name="background_image_night">Фонове зображення (ніч)</string>
+  <string name="background_image_opacity_day">Непрозорість фонового зображення (день)</string>
+  <string name="background_image_opacity_night">Непрозорість фонового зображення (ніч)</string>
+  <string name="background_image_change">Змінити</string>
+  <string name="color_picker_title">Виберіть колір</string>
+  <string name="color_picker_presets">Набори</string>
+  <string name="color_picker_custom">Власний</string>
+  <string name="bookmark_expand_row">Показати весь текст</string>
+  <string name="bookmark_collapse_row">Показати менше</string>
+  <string name="bookmark_label_filter">Фільтрувати за міткою</string>
+  <string name="document_quick_all_documents">Усі ресурси…</string>
+  <string name="document_quick_tab_recent">Недавні</string>
+  <string name="document_quick_tab_for_verse">Цей вірш</string>
+  <string name="document_quick_tab_last_filter">Останній фільтр</string>
+  <string name="document_quick_tab_all">Усі</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Фільтр і сортування</string>
+  <string name="doc_arrange_repository">Репозиторій</string>
+  <string name="doc_arrange_all_repositories">Усі репозиторії</string>
+  <string name="doc_arrange_sort">Порядок сортування</string>
+  <string name="doc_arrange_group_by">Групувати за</string>
+  <string name="doc_arrange_remember">Запам\'ятати ці налаштування</string>
+  <string name="doc_arrange_reset">Скинути до типових</string>
+  <string name="doc_arrange_more_filters">Більше фільтрів</string>
+  <string name="doc_arrange_reorder">Змінити порядок</string>
+  <string name="doc_sort_ascending">За зростанням</string>
+  <string name="doc_sort_descending">За спаданням</string>
+  <string name="doc_sort_status">Стан</string>
+  <string name="doc_sort_recommended">Спочатку рекомендовані</string>
+  <string name="doc_sort_name">Назва</string>
+  <string name="doc_sort_size">Розмір</string>
+  <string name="doc_group_none">Без групування</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Завантажується</string>
+  <string name="doc_group_status_update_available">Доступне оновлення</string>
+  <string name="doc_group_status_installed">Встановлено</string>
+  <string name="doc_group_status_not_installed">Не встановлено</string>
+  <string name="prompt_filter_title">Фільтр промптів</string>
+  <string name="prompt_filter_type">Тип</string>
+  <string name="prompt_type_addon">Додаток</string>
+  <string name="prompt_type_user">Власний</string>
+  <string name="prompt_filter_clear">Очистити фільтри</string>
+  <string name="prompt_favorite_add">Додати до улюблених</string>
+  <string name="prompt_favorite_remove">Вилучити з улюблених</string>
+  <string name="window_unmaximise">Відновити всі вікна</string>
+  <string name="window_menu_button">Меню вікна</string>
+  <string name="paste_from_clipboard">Вставити</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Маркер перетягування</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Оновлення ваших даних…</string>
+  <string name="legacy_migration_progress_neutral">Оновлення…</string>
+  <string name="legacy_migration_failed_title">Не вдалося оновити ваші дані</string>
+  <string name="legacy_migration_failed_message">Ваші дані з попередньої версії застосунку в безпеці й не змінені на цьому пристрої. Виберіть, що робити далі.</string>
+  <string name="legacy_migration_failed_keychain">Не вдалося прочитати збережені паролі з попередньої версії. Розблокуйте пристрій, потім закрийте й знову відкрийте застосунок.</string>
+  <string name="legacy_migration_rollback_pending">Оновлення було перервано й ще не повністю скасовано. Закрийте й знову відкрийте застосунок, щоб завершити скасування.</string>
+  <string name="legacy_migration_save_old_data">Зберегти старі дані</string>
+  <string name="legacy_migration_send_report">Надіслати звіт про помилку</string>
+  <string name="legacy_migration_try_again">Спробувати знову</string>
+  <string name="legacy_migration_try_again_hint">Закрийте застосунок і відкрийте його знову, щоб спробувати ще раз.</string>
+  <string name="legacy_migration_restore_backup">Відновити резервну копію</string>
+  <string name="legacy_migration_start_fresh">Почати без старих даних</string>
+  <string name="legacy_migration_start_fresh_confirm">Ваші старі дані залишаються на цьому пристрої. Імпортувати їх можна пізніше в налаштуваннях.</string>
+  <string name="legacy_import_title">Імпортувати дані з попередньої версії застосунку</string>
+  <string name="legacy_import_summary">Замінити поточні дані даними попередньої версії застосунку</string>
+  <string name="legacy_import_confirm">Це замінить ваші поточні робочі області, закладки та інші дані даними попередньої версії застосунку. Копію ваших поточних даних буде збережено на цьому пристрої.</string>
+  <string name="legacy_import_reopen">Закрийте застосунок і відкрийте його знову, щоб імпортувати дані.</string>
+  <string name="legacy_notice_icloud">Синхронізація тепер використовує iCloud Drive. Увімкніть її знову в Налаштування → Синхронізація. Цей пристрій зберігає те, що мав; зміни з інших пристроїв надійдуть, коли синхронізацію буде налаштовано знову. Щоб звільнити старі дані iCloud: Налаштування → ваше ім\'я → iCloud → Керування сховищем → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Ваше з\'єднання з Nextcloud перенесено, але синхронізація вимкнена. Увімкніть її в Налаштування → Синхронізація та виберіть: отримати з хмари чи створити нову.</string>
+  <string name="legacy_notice_nextcloud_unsent">Деякі зміни на цьому пристрої ще не було надіслано до Nextcloud. Їх не надіслано, і вони залишаються лише на цьому пристрої.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Це потужний, але простий у користуванні застосунок для вивчення Біблії офлайн.</string>
+  <string name="webdav_untrusted_certificate_message_device">Сертифікат %1$s не є довіреним для цього пристрою. Довіряйте йому лише якщо ви його впізнаєте, наприклад, якщо ви самі налаштували цей сервер.\n\nСуб\'єкт: %2$s\nВидавець: %3$s\nДійсний: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Власні репозиторії мають використовувати захищену адресу https://.</string>
+  <string name="custom_repository_https_required_refresh">%1$s використовує адресу http://. Можна використовувати лише репозиторії з https://.</string>
 </resources>

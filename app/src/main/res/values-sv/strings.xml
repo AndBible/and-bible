@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible kunde inte starta WebView2, som krävs för att visa bibeltext. Installera eller reparera Microsoft Edge WebView2 Evergreen Runtime från:\n%1$s\n\nDetaljer finns i loggfilen:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible kräver Direct3D-grafik för att visa bibeltext med WebView2. Den nuvarande grafikrenderaren är %1$s. Kontrollera din grafikdrivrutin och ditt Direct3D-stöd.\n\nDetaljer finns i loggfilen:\n%2$s</string>
+  <string name="desktop_update_setting_title">Sök efter uppdateringar</string>
+  <string name="desktop_update_setting_summary">En gång per dag, från github.com</string>
+  <string name="desktop_update_consent_title">Söka efter uppdateringar?</string>
+  <string name="desktop_update_consent_message">AndBible kan söka på github.com en gång per dag efter en nyare version. GitHub ser din IP-adress; inget annat skickas. Du kan ändra detta senare i Inställningar.</string>
+  <string name="desktop_update_consent_yes">Sök efter uppdateringar</string>
+  <string name="desktop_update_consent_no">Sök inte</string>
+  <string name="desktop_update_available_title">Ny version tillgänglig</string>
+  <string name="desktop_update_available_message">AndBible %1$s är tillgänglig. Du har %2$s.</string>
+  <string name="desktop_update_download">Ladda ner</string>
+  <string name="desktop_update_later">Senare</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studera Bibeln</string>
   <string name="app_name_medium">Studera Bibeln (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d matchningar funna</string>
   <string name="search_showing_first">För många matchningar. Visar de %d första </string>
   <string name="search_bible_section_group_prompt">Sök här</string>
+  <string name="search_type_prompt">Söktyp</string>
+  <string name="search_show_results">Visa sökresultat</string>
   <string name="search_all_bible">Hela Bibeln</string>
   <string name="search_new_testament">Nya Testamentet</string>
   <string name="search_old_testament">Gamla Testamentet</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Hitta \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Översättningar</string>
+  <string name="recent_searches">Senaste sökningar</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Stäng sökning</string>
+  <string name="search_options">Sökinställningar</string>
+  <string name="search_submit">Sök</string>
+  <string name="search_clear">Rensa söktext</string>
+  <string name="search_engine_changed_reindex">Sökmotorn har uppdaterats. Sökindexet måste skapas på nytt; detta kan ta en stund.</string>
+  <string name="search_unsupported_syntax">Sökningen använder syntax som inte stöds: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">När indexeringen är klar körs sökningen automatiskt.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s kan inte genomsökas</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Det här dokumentet kan inte genomsökas</string>
+  <string name="search_indexing_notification_title">Skapar sökindex</string>
   <string name="choose_translations">Välj översättningar…</string>
   <string name="multi_search_results">%1$d verser i %2$d översättningar</string>
   <string name="search_index_not_created">inget index</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Välj hur färger visas. Färg-e-ink behåller en svartvit grund men visar bokmärkesfärger, indikatorn för det aktiva fönstret och hjälplinjer i färg – för e-inkskärmar med färg.</string>
   <string name="prefs_display_color_mode_normal">Normalt</string>
   <string name="prefs_display_color_mode_bw">Svartvitt</string>
+  <string name="prefs_display_color_mode_monochrome">Monokrom</string>
   <string name="prefs_display_color_mode_color_eink">Färg-e-ink</string>
+  <string name="prefs_theme_palette_style_title">Temastil</string>
+  <string name="prefs_theme_palette_style_summary">Hur appens färger härleds från arbetsytans färg. Gäller endast när färgläget är Normal.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal spot (mjuk, behåller grått)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelity (exakt färg)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal spot (original)</string>
+  <string name="prefs_theme_palette_style_content">Content (nära färgen)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutral (dämpad)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monokrom (grå)</string>
+  <string name="prefs_theme_palette_style_vibrant">Livfull</string>
+  <string name="prefs_theme_palette_style_expressive">Expressiv</string>
+  <string name="prefs_theme_palette_style_rainbow">Regnbåge</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Fruktsallad</string>
   <string name="prefs_eink_settings_cat">E-ink-inställningar</string>
   <string name="prefs_eink_display_title">E-ink-funktioner</string>
   <string name="prefs_eink_display_summary">Aktivera e-ink-specifika funktioner (skrollningsknappar, skrollningshjälplinjer)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Markera automatiskt kapitel som lästa när du skrollar igenom dem</string>
   <string name="reading_progress_read_count_scale">Antal\nlästa</string>
   <string name="reading_progress_percent_read_scale">Procent\nläst</string>
+  <string name="monochrome_activity_count">Antal aktiviteter: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Antal: %d</string>
+  <string name="monochrome_level">Nivå: %d/4</string>
+  <string name="monochrome_buckets">Grått: ingen; kontur: delvis; fylld: full eller högsta nivå. Välj ett objekt för exakta värden.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Läshistorik</string>
   <string name="reading_progress_history_for">Läsningsframsteg för %1$s</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">Redigera textvisningsinställningar för den här arbetsytan</string>
   <string name="global_text_options_link">Globala textalternativ</string>
   <string name="global_text_options_link_summary">Redigera standardinställningar för textvisning för alla arbetsytor</string>
+  <string name="text_options_inherited_workspace">Arbetsyta</string>
+  <string name="text_options_inherited_global">Globalt</string>
   <string name="prefs_font_and_colors_title">Teckensnitt &amp; Färger</string>
   <string name="prefs_text_layout_title">Textlayout</string>
   <string name="prefs_strongs_and_morphology_title">Strongs &amp; Morfologi</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace">Arbetsyta</string>
   <string name="copy_settings_to_window">Fönster %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Globala standardvärden</string>
+  <string name="copy_settings_to_workspaces">Till andra arbetsytor…</string>
+  <string name="copy_settings_to_global_defaults">Till globala standardvärden…</string>
+  <string name="menu_back">Tillbaka</string>
   <string name="change_to_normal">Ändra till normalt fönster</string>
   <string name="window_pin_mode">Nåla fast</string>
   <!--Notes screen-->
@@ -310,6 +371,7 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="failed_repositories_message">Kunde inte ansluta till följande dokumentserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Följande filer kunde inte laddas ner:\n\n%s\n\n</string>
   <string name="cant_delete_document">Detta dokument kan inte raderas.</string>
+  <string name="bad_document_warning">Det här dokumentet har kända problem.</string>
   <!--Install zip file-->
   <string name="install_zip">Läs in dokument från filer</string>
   <string name="install_zip_module">Installera Bibelmodul</string>
@@ -378,6 +440,11 @@ i GT och NT varje dag.
   <string name="delete_index">Radera sökindex</string>
   <string name="about">Om</string>
   <string name="delete_doc">Radera %s?</string>
+  <string name="interrupted_downloads_title">Nedladdningen avbröts</string>
+  <string name="interrupted_downloads_message">Dessa dokument installerades inte eftersom nedladdningen avbröts:</string>
+  <string name="interrupted_downloads_question">Ladda ner dem igen?</string>
+  <string name="download_again">Ladda ner igen</string>
+  <string name="delete_docs_confirm">Radera dessa dokument?</string>
   <string name="delete_search_index_doc">Radera indexet för %s?</string>
   <!--Verse context menu-->
   <string name="notes">Fotnoter och hänvisningar</string>
@@ -398,6 +465,7 @@ i GT och NT varje dag.
   <string name="assign_labels">Tilldela etiketter</string>
   <string name="new_item">Ny</string>
   <string name="label_name_prompt">Namn</string>
+  <string name="new_label_default_name">Etikett %d</string>
   <string name="label_unlabelled">Ingen etikett</string>
   <string name="add_bookmark1">Bokmärke</string>
   <string name="add_bookmark3">Markering</string>
@@ -448,6 +516,8 @@ i GT och NT varje dag.
   <string name="rewind">Tillbaka</string>
   <string name="forward">Framåt</string>
   <string name="tts_lang_not_available">Språket är inte tillgängligt.</string>
+  <string name="tts_engine_not_available">Text till tal fungerar inte på den här enheten. Kontrollera att en talmotor är installerad och aktiverad i systemets inställningar för text till tal.</string>
+  <string name="tts_audio_focus_denied">Uppläsningen kunde inte starta eftersom en annan app använder ljudet.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Talhastighet</string>
   <string name="speak_and_play_earcons_title">Läs upp och spela ljudsignaler för</string>
@@ -457,6 +527,10 @@ i GT och NT varje dag.
   <string name="speak_bookmarks_menu_title">Tal från bokmärke</string>
   <string name="speak_advanced_settings">Avancerade inställningar</string>
   <string name="speak_sleep_timer_title">Sovtimer</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Anpassad…</string>
+  <string name="speak_sleep_timer_off">Av</string>
+  <string name="speak_other_settings">Övrigt</string>
   <string name="speak_no_books_available">Ingen bok tillgänglig för uppläsning</string>
   <string name="speak_general_error">Uppläsning kunde inte startas för denna bok</string>
   <string name="repeat_passage">Upprepa avsnitt</string>
@@ -485,6 +559,11 @@ i GT och NT varje dag.
   <string name="speak_autobookmarking_disabled">Automatisk bokmärkning inaktiverad!</string>
   <string name="system_speak_settings">Öppna systemets text-till-tal-inställningar</string>
   <string name="auto_assing_labels_help1">Här kan du ändra vilka etiketter som tilldelas automatiskt till bokmärken som du skapar.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Här kan du lägga till, redigera och ta bort etiketter, och justera vilka som tilldelas automatiskt till bokmärken du skapar.\n\nSenaste etiketter: nyligen använda etiketter.\nÖvriga etiketter: alla andra etiketter.\n\nAnvänd sökfältets filteralternativ för att bara se automatiskt tilldelade etiketter eller favoritetiketter.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Denna inställningen gäller för %s</string>
   <string name="setting_scope_window">Detta fönster</string>
@@ -595,6 +674,9 @@ i GT och NT varje dag.
   <string name="loading_backup">Läser in databas från säkerhetskopia...</string>
   <string name="backup_success2">Egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor säkerhetskopierades.</string>
   <string name="backup_modules_success">Markerade moduler har säkerhetskopierats.</string>
+  <string name="backup_modules_conflict">Säkerhetskopian gjordes inte: %1$s och %2$s innehåller båda filen %3$s, med olika innehåll. Välj bara en av dem och försök igen.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (version %2$s, mapp %3$s)</string>
   <string name="backup_modules_email_subject_2">Säkerhetskopia av %s-moduler</string>
   <string name="backup_modules_email_message_2">Säkerhetskopian av dina %1$s-moduler är bifogad och innehåller följande moduler: %2$s</string>
   <string name="backup_email_subject_2">Säkerhetskopia av %s-databas</string>
@@ -603,6 +685,9 @@ i GT och NT varje dag.
   <string name="exported_studypads_message">Din %s-databas som innehåller bokmärken och anteckningar relaterade till markerade studieblock är bifogad</string>
   <string name="restore_unsuccessfull">Databasen kunde inte återställas. Du kanske angav en ogiltig databasfil.</string>
   <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
+  <string name="export_destination_title">Exportera till var?</string>
+  <string name="export_destination_message">Spara exporten på den här telefonen, eller skicka den vidare med Dela.</string>
+  <string name="send_export_file">Skicka en exportfil</string>
   <string name="backup_modules_title">Välj vilka moduler att säkerhetskopiera</string>
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
   <string name="ask_restore_or_import">Databasen för %s kan antingen återställas (dvs. den existerande databasen tas bort och den markerade databasen läses in) eller importeras (den markerade databasen importeras in i den existerande databasen). Vad vill du göra?</string>
@@ -644,12 +729,25 @@ i GT och NT varje dag.
   <string name="doc_type_book">Bok</string>
   <string name="doc_type_map">Karta</string>
   <string name="doc_type_addons">Tillägg</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Övrigt</string>
+  <string name="document_type_label">Dokumenttyp</string>
   <!--Languages-->
   <string name="lang_default">Standard</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Avbryt</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Tillbaka</string>
+  <string name="settings_editor_close">Stäng</string>
+  <string name="settings_editor_apply">Tillämpa</string>
   <string name="discard_changes_confirmation">Ignorera osparade ändringar?</string>
+  <string name="discard">Förkasta</string>
+  <string name="remove">Ta bort</string>
+  <string name="overwrite">Skriv över</string>
+  <string name="set_current_day_action">Ange dag</string>
   <string name="yes">Ja</string>
   <string name="no">Nej</string>
   <string name="error">Fel</string>
@@ -659,6 +757,7 @@ i GT och NT varje dag.
   <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
   <string name="verse_not_found">Versen hittades inte</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Fortsätt</string>
   <string name="report_error">Skicka rapport</string>
   <string name="error_occurred">Det har skett ett fel</string>
   <string name="error_occurred_crash_last_time">Senast du använde appen kraschade den. Vi skulle uppskatta om du sände oss en buggrapport för att hjälpa oss åtgärda buggen.</string>
@@ -669,8 +768,14 @@ i GT och NT varje dag.
   <string name="error_key_not_in_document2">%1$s hittades inte i dokument %2$s.</string>
   <string name="empty_list">Inga poster att visa</string>
   <string name="error_skip">Hoppa över</string>
+  <string name="debug_test_error">Testfel (felsökningsbygge)</string>
+  <string name="bug_report_prepare_failed">Rapporten kunde inte förberedas eller delas. Du kan försöka igen, eller använda Säkerhetskopiera och återställ för att spara dina data.</string>
   <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
   <string name="bug_report_email_text">Välj nu den e-postapp du föredrar (t.ex. Gmail) för att skicka rapporten till utvecklarna.</string>
+  <string name="bug_report_manual_title">Skicka rapporten med e-post</string>
+  <string name="bug_report_manual_text_saved">Rapporten sparades till</string>
+  <string name="bug_report_manual_text_unsaved">Inget e-postprogram kunde öppnas på den här enheten.\n\nSkicka rapporten med e-post till</string>
+  <string name="bug_report_copy_address">Kopiera adress</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text till tal</string>
   <string name="notification_channel_progress_status">Avisering om hur nerladdning av dokument etc. förlöper.</string>
@@ -694,6 +799,7 @@ i GT och NT varje dag.
   <string name="search_settings">Sökinställningar</string>
   <string name="dismiss">Avböj</string>
   <string name="workspace_listing_with_current">%s (nuvarande)</string>
+  <string name="workspace_manage_workspaces">Hantera arbetsytor…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Detta är en beta version!</string>
   <string name="beta_notice_content_1">
@@ -748,7 +854,10 @@ i GT och NT varje dag.
   <string name="help_search_title">Sök</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
+  <string name="help_search_bible">Välj hur orden matchas: Alla ord hittar verser som innehåller varje ord, Något ord hittar verser som innehåller minst ett, och Fras hittar orden bredvid varandra i den ordningen.\n\nI en sökning kan du också använda * och ? som jokertecken (till exempel matchar välsign* välsignad och välsignelse), kombinera termer med AND, OR och NOT, och söka direkt på Strongs nummer (till exempel strong:h0430).</string>
+  <string name="help_search_epub">Välj hur orden matchas: Alla ord hittar avsnitt som innehåller varje ord, Något ord hittar avsnitt som innehåller minst ett, och Fras hittar orden bredvid varandra i den ordningen.\n\nRå frågesyntax skickar din text oförändrad till sökmotorn, så att du kan skriva din egen fråga: nåd AND tro, nåd OR tro, nåd NOT tro, \"hoppet om härligheten\" för en exakt fras, välsign* för att matcha alla ord som börjar med välsign, och nåd NEAR tro för att hitta dem nära varandra.</string>
   <string name="help_search_details">Se %s för mer information.</string>
+  <string name="help_search_syntax">Söksyntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Arbetsytor</string>
   <string name="help_workspaces_text">
@@ -775,6 +884,12 @@ i GT och NT varje dag.
         annat extramaterial när du studerar Bibeln.
     </string>
   <!--Welcome text-->
+  <string name="welcome_intro">Det finns inga dokument i ditt bibliotek ännu. Lägg till några för att komma igång.</string>
+  <string name="welcome_redownload_row_hint">Välj bland dokument som installerats tidigare</string>
+  <string name="welcome_download_row_hint">Bläddra i onlinekatalogen</string>
+  <string name="welcome_restore_row_hint">Databasfil med bokmärken och anteckningar</string>
+  <string name="welcome_link_website">Webbplats</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>
@@ -790,9 +905,8 @@ i GT och NT varje dag.
   <string name="format_studypads">Studieblock från AndBible-databaser (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Stäng</string>
+  <string name="reading_toolbar_options">Fler alternativ</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Jag förstår</string>
-  <string name="first_time_help_show_next_time">Visa igen nästa gång</string>
   <string name="strongs_mode_title">Välj läge för Strongs</string>
   <string name="download_dialog_message">Följande böcker kunde inte laddas ner:</string>
   <string name="journal_description">Redigerbara studieblock med anpassad text och bokmärken</string>
@@ -817,6 +931,7 @@ i GT och NT varje dag.
   <string name="prefs_experimental_features_summary">Välj vilka experimentella funktioner du vill aktivera. Dessa funktioner utvecklas fortfarande och kan komma att ändras eller tas bort.</string>
   <string name="experimental_feature_bookmark_edit_actions">Åtgärder vid bokmärkesredigering</string>
   <string name="experimental_feature_add_paragraph_break">Lägg till bokmärke för styckebrytning</string>
+  <string name="experimental_feature_toolbar_literal_color">Använd arbetsytans exakta färg för läsverktygsfältet (i stället för temafärgen)</string>
   <string name="raw_llm_log_title">Rå LLM-logg</string>
   <string name="raw_llm_log_empty">Ingen råloggdata tillgänglig</string>
   <string name="raw_llm_log_copied">Loggen kopierades till urklipp</string>
@@ -925,6 +1040,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="display_mode_underline">Understrykning</string>
   <string name="display_mode_marker">Endast markör</string>
   <string name="display_mode_hidden">Dold</string>
+  <string name="display_mode_inherit">Samma som markeringen</string>
   <string name="workspace_override_indicator">Den här etiketten har ett arbetsytespecifikt visningsläge</string>
   <string name="primary_label">Primär etikett</string>
   <string name="favourite_label">Favoritmarkerad etikett</string>
@@ -938,6 +1054,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="book_menu_show_long_book_name">Visa långt boknamn</string>
   <string name="book_menu_show_progress_bars">Visa förloppsindikatorer</string>
   <string name="reset_workspace_labels">Vill du återställa inställningarna för att tilldela automatiskt och favoritmarkera i denna arbetsyta?</string>
+  <string name="clear_auto_assign_labels">Rensa automatiskt tilldelade etiketter</string>
+  <string name="reset_workspace_auto_assign_labels">Vill du ta bort alla automatiskt tilldelade etiketter från den här arbetsytan?</string>
   <string name="reset_hide_labels">Vill du återställa inställningarna för att dölja valda etiketter?</string>
   <string name="reorder">Ordna om</string>
   <string name="system_items">Systemåtgärder</string>
@@ -1009,6 +1127,27 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="instructions_for_translators">Instruktioner för översättare</string>
   <string name="questions_title">Frågor?</string>
   <string name="bookmark_style">Bokmärkesstil</string>
+  <string name="bookmark_style_preview_sample">Ty så älskade Gud världen</string>
+  <string name="bookmark_style_selection">Bokmärken för textmarkering</string>
+  <string name="bookmark_style_whole_verse">Bokmärken för hela verser</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Använd en annan stil för bokmärken för hela verser</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Markering</string>
+  <string name="bookmark_style_tag_whole_verse">Hel vers</string>
+  <string name="bookmark_style_tag_workspace">Arbetsyta</string>
+  <string name="show_style_examples">Visa stilexempel</string>
+  <string name="labels_search_section">Sök</string>
+  <string name="labels_filter_section">Visa</string>
+  <string name="labels_filter_auto_assign">Endast automatiskt tilldelade etiketter</string>
+  <string name="labels_filter_favourite">Endast favoritetiketter</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Kryssa i en etikett för att tilldela den till det här bokmärket.</string>
+  <string name="manage_labels_help_primary">Den primära etiketten. Dess färg och stil är vad bokmärket visar.</string>
+  <string name="manage_labels_help_autoassign">Tilldela den här etiketten automatiskt till varje nytt bokmärke. En ihålig blixt betyder av.</string>
+  <string name="manage_labels_help_favourite">Behåll etiketten bland dina favoriter för snabb åtkomst.</string>
+  <string name="manage_labels_help_styles">Under namnet visar ett litet exempel etikettens utseende: Markering för ett bokmärke för textmarkering, Hel vers för ett bokmärke för hel vers, och en arbetsytetagg för en stil som den här arbetsytan åsidosätter. Ett nedtonat exempel utan dekoration betyder att etikettens bokmärken inte ritas. Dölj exemplen från ⋮-menyn.</string>
+  <string name="manage_labels_help_reorder">Ändra ordning på listan från ⋮-menyn.</string>
   <string name="added_to_bookmark">Tilldelad till detta bokmärke</string>
   <string name="strongs_links">Länkar</string>
   <string name="strongs_text_and_links">Text och Länkar</string>
@@ -1061,6 +1200,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sync_group_n">Grupp %d</string>
   <string name="disable_sync">Inaktivera synkronisering</string>
   <string name="open_in_window">Öppna resultat i ett fönster</string>
+  <string name="open_result_in_links_window">Öppna resultatet i länkfönstret</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Anpassade kataloger</string>
@@ -1071,7 +1211,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="delete_custom_repository">Vill du ta bort den anpassade katalogen %s?</string>
   <string name="custom_repositories_help1">För att lägga till en ny anpassad katalog; skriv eller kopiera och klistra in den anpassade katalogens URL här.</string>
   <string name="custom_repositories_help2">Du kan läsa mer om anpassade kataloger på %s.</string>
-  <string name="wiki_page">Wiki-sida</string>
   <string name="custom_repositories_help0">Du kan installera dokument från externa anpassade kataloger genom att installera anpassade kataloger.</string>
   <string name="duplicate_custom_repository">Katalog med namnet %s existerar redan, kan inte lägga till ytterligare en.</string>
   <string name="packages_dir">Paketkatalog (zip-filer)</string>
@@ -1118,6 +1257,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="reading_progress_new_cycle_confirm">Starta en ny läscykel? Detta börjar spåra dina framsteg från början, men bevarar data från din tidigare cykel.</string>
   <string name="reading_progress_previous_cycle">Föregående cykel</string>
   <string name="reading_progress_next_cycle">Nästa cykel</string>
+  <string name="cloud_merge_data">Slå ihop data</string>
   <string name="cloud_fetch_and_restore_initial">Kopiera från molnet till denna enhet</string>
   <string name="cloud_create_new">Kopiera från denna enhet till molnet</string>
   <string name="cloud_disable_sync">Avbryt &amp; inaktivera synkronisering</string>
@@ -1131,6 +1271,19 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sync_adapter_summary">Nuvarande: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adress till WebDAV-mappen, t.ex. https://nas.local/dav/ eller https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Synkronisering kräver en säker https://-adress.</string>
+  <string name="webdav_certificate_title">Servercertifikat</string>
+  <string name="webdav_forget_certificate_message">Glömma det betrodda servercertifikatet? Du får bekräfta certifikatet igen vid nästa anslutning.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Obetrott servercertifikat</string>
+  <string name="webdav_untrusted_certificate_message">Certifikatet för %1$s är inte betrott av Android. Lita bara på det om du känner igen det, till exempel för att du själv har installerat den här servern.\n\nÄmne: %2$s\nUtfärdare: %3$s\nGiltigt: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Lita på det här certifikatet</string>
+  <string name="webdav_wrong_credentials">Fel användarnamn eller lösenord.</string>
+  <string name="webdav_not_a_folder">Adressen är inte en WebDAV-mapp.</string>
+  <string name="webdav_certificate_changed">Servercertifikatet har ändrats. Synkroniseringen är pausad tills du bekräftar det nya certifikatet, vilket AndBible frågar om nästa gång den öppnas eller synkroniserar i förgrunden.</string>
+  <string name="webdav_storage_full">Serverns lagringsutrymme är fullt.</string>
   <string name="auth_server_uri">Serverns URL</string>
   <string name="auth_username">Användarnamn</string>
   <string name="auth_password">Lösenord</string>
@@ -1140,6 +1293,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sync_general_settings">Info &amp; allmänna inställningar</string>
   <string name="sync_introduction">Introduktion</string>
   <string name="are_you_sure">Är du säker?</string>
+  <string name="are_you_sure_merge">Både data på den här enheten och %s i molnet behålls. Där samma objekt har ändrats på båda behålls den nyare ändringen. Den här enhetens data skickas till dina andra enheter.</string>
   <string name="are_you_sure_reset_local">Det här kommer att återställa din lokala databas för %s med innehållet som just nu är lagrat i molnet.</string>
   <string name="are_you_sure_reset_cloud">Det här kommer att återställa din molndatabas för %s med innehållet du har på denna enhet.</string>
   <string name="sync_cant_fetch">Den molnlagrade databas- eller patch-filens version är högre än den som stöds av denna app.</string>
@@ -1176,6 +1330,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="pref_font_size_multiplier_title">Faktor för textstorlek</string>
   <string name="pref_font_size_multiplier_summary_1">Multiplicera textstorlekar med detta tal.</string>
   <string name="pref_font_size_multiplier_summary_2">Användbart om du har en synkroniserad enhet som använder större typsnitt.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Nuvarande värde: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Åtgärd vid svepgest till vänster/höger</string>
   <string name="prefs_bible_view_swipe_mode_summary">Du kan svepa till vänster/höger för att gå till nästa sida/kapitel.</string>
@@ -1296,6 +1451,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prompt_max_iterations_unlimited">Obegränsat</string>
   <string name="prompt_max_iterations_global_default">Globalt standard (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Åsidosätt globalt maximalt antal iterationer för denna prompt. 0 = obegränsat.\nAktuellt: %s</string>
+  <string name="prompt_max_iterations_use_global">Använd den globala inställningen (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Hantera AI-prompter</string>
   <string name="manage_prompts_summary">Skapa och redigera AI-prompter</string>
@@ -1429,6 +1585,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="built_in_prompt_notice">Det här är en inbyggd prompt och kan inte redigeras. Använd \"Kopiera för att anpassa\" för att skapa en redigerbar kopia.</string>
   <string name="copy_to_customize">Kopiera för att anpassa</string>
   <string name="prompt_copied">Prompt kopierad</string>
+  <string name="prompt_copy_failed">Prompten kunde inte kopieras. Den kan ha raderats.</string>
   <string name="delete_prompt_confirmation">Radera prompten \"%s\"?</string>
   <string name="prompt_name_required">Promptnamn krävs</string>
   <string name="prompt_template_required">Promptmall krävs</string>
@@ -1636,6 +1793,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="tool_option_default_disabled">Standard (inaktiverad)</string>
   <string name="tool_option_default_allowed">Standard (tillåten)</string>
   <string name="tool_option_default_denied">Standard (nekad)</string>
+  <string name="tool_description_info">Visa verktygsbeskrivning</string>
+  <string name="tool_permission_mixed">Blandat</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
@@ -1681,6 +1840,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_page_rename_title">Byt namn på sida</string>
   <string name="my_document_page_delete_confirmation">Ta bort sidan \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Radera dessa sidor?</string>
+  <string name="my_documents_switch_document">Byt dokument</string>
   <string name="my_document_new_page_name">Sida %1$d</string>
   <string name="my_document_create_page_title">Ny sida</string>
   <string name="my_document_content_type_label">Innehållstyp</string>
@@ -1767,29 +1928,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_summary_download">Ladda ner %1$d</string>
   <string name="cloud_doc_summary_download_size">Ladda ner %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiska nedladdningar startar vid Wi-Fi-anslutning.</string>
-  <plurals name="cloud_doc_sync_now_count">
-    <item quantity="one">%1$d dokument</item>
-    <item quantity="other">%1$d dokument</item>
-  </plurals>
-  <plurals name="cloud_doc_sync_now_count_size">
-    <item quantity="one">%1$d dokument (%2$s)</item>
-    <item quantity="other">%1$d dokument (%2$s)</item>
-  </plurals>
   <string name="cloud_doc_sync_now_count_none">Inget att överföra</string>
   <string name="cloud_doc_selected_count">%1$d valda</string>
   <string name="cloud_doc_bulk_skipped">Hoppade över %1$d ej tillämpliga</string>
-  <plurals name="cloud_doc_bulk_remove_all_confirm">
-    <item quantity="one">Ta bort %1$d dokument från molnet och alla dina enheter, inklusive denna?</item>
-    <item quantity="other">Ta bort %1$d dokument från molnet och alla dina enheter, inklusive denna?</item>
-  </plurals>
-  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
-    <item quantity="one">Ta bort %1$d dokument från molnet? Kopior på den här enheten bevaras.</item>
-    <item quantity="other">Ta bort %1$d dokument från molnet? Kopior på den här enheten bevaras.</item>
-  </plurals>
-  <plurals name="cloud_doc_bulk_purge_confirm">
-    <item quantity="one">Ta bort %1$d dokument permanent från molnhistoriken?</item>
-    <item quantity="other">Ta bort %1$d dokument permanent från molnhistoriken?</item>
-  </plurals>
   <string name="document_sync_notification_title">Synkroniserar dokument</string>
   <string name="document_sync_downloading">Laddar ner %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Laddar upp %1$s (%2$d/%3$d)</string>
@@ -1797,4 +1938,91 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="document_sync_started">Dokumentsynkronisering startad</string>
   <string name="document_sync_enable_dialog_title">Börja synkronisera dokument?</string>
   <string name="document_sync_enable_dialog_nothing">Inga dokument att överföra ännu. Nyinstallerade dokument synkroniseras automatiskt.</string>
+  <string name="help_document_sync_text">Dokumentsynkronisering kopierar dina installerade biblar, kommentarer och andra dokument till molnet och håller dem synkroniserade mellan dina enheter. Använd den här vyn för att se vad som finns lagrat i molnet, ladda ner eller ladda upp enskilda dokument, ta bort dokument och styra vad som synkroniseras till den här enheten.</string>
+  <string name="background_image_title">Bakgrundsbild</string>
+  <string name="background_image_none">Ingen bakgrund</string>
+  <string name="background_image_import">Importera från galleriet…</string>
+  <string name="background_image_empty">Inga importerade bilder ännu. Tryck på \"Importera från galleriet…\" för att lägga till en.</string>
+  <string name="background_image_importing">Importerar…</string>
+  <string name="background_image_delete_title">Radera bilden?</string>
+  <string name="background_image_delete_confirm">Radera den här bakgrundsbilden? Arbetsytor som fortfarande använder den återgår till ingen bild.</string>
+  <string name="background_image_day">Bakgrundsbild (dag)</string>
+  <string name="background_image_night">Bakgrundsbild (natt)</string>
+  <string name="background_image_opacity_day">Bakgrundsbildens opacitet (dag)</string>
+  <string name="background_image_opacity_night">Bakgrundsbildens opacitet (natt)</string>
+  <string name="background_image_change">Ändra</string>
+  <string name="color_picker_title">Välj en färg</string>
+  <string name="color_picker_presets">Förval</string>
+  <string name="color_picker_custom">Anpassad</string>
+  <string name="bookmark_expand_row">Visa hela texten</string>
+  <string name="bookmark_collapse_row">Visa mindre</string>
+  <string name="bookmark_label_filter">Filtrera efter etikett</string>
+  <string name="document_quick_all_documents">Alla dokument…</string>
+  <string name="document_quick_tab_recent">Senaste</string>
+  <string name="document_quick_tab_for_verse">Den här versen</string>
+  <string name="document_quick_tab_last_filter">Senaste filter</string>
+  <string name="document_quick_tab_all">Alla</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtrera och sortera</string>
+  <string name="doc_arrange_repository">Förråd</string>
+  <string name="doc_arrange_all_repositories">Alla förråd</string>
+  <string name="doc_arrange_sort">Sorteringsordning</string>
+  <string name="doc_arrange_group_by">Gruppera efter</string>
+  <string name="doc_arrange_remember">Kom ihåg dessa inställningar</string>
+  <string name="doc_arrange_reset">Återställ till standard</string>
+  <string name="doc_arrange_more_filters">Fler filter</string>
+  <string name="doc_arrange_reorder">Ändra ordning</string>
+  <string name="doc_sort_ascending">Stigande</string>
+  <string name="doc_sort_descending">Fallande</string>
+  <string name="doc_sort_status">Status</string>
+  <string name="doc_sort_recommended">Rekommenderade först</string>
+  <string name="doc_sort_name">Namn</string>
+  <string name="doc_sort_size">Storlek</string>
+  <string name="doc_group_none">Ingen gruppering</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Laddar ner</string>
+  <string name="doc_group_status_update_available">Uppdatering tillgänglig</string>
+  <string name="doc_group_status_installed">Installerade</string>
+  <string name="doc_group_status_not_installed">Inte installerade</string>
+  <string name="prompt_filter_title">Filtrera promptar</string>
+  <string name="prompt_filter_type">Typ</string>
+  <string name="prompt_type_addon">Tillägg</string>
+  <string name="prompt_type_user">Egen</string>
+  <string name="prompt_filter_clear">Rensa filter</string>
+  <string name="prompt_favorite_add">Lägg till i favoriter</string>
+  <string name="prompt_favorite_remove">Ta bort från favoriter</string>
+  <string name="window_unmaximise">Återställ alla fönster</string>
+  <string name="window_menu_button">Fönstermeny</string>
+  <string name="paste_from_clipboard">Klistra in</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Dragreglage</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Uppdaterar dina data…</string>
+  <string name="legacy_migration_progress_neutral">Uppdaterar…</string>
+  <string name="legacy_migration_failed_title">Dina data kunde inte uppdateras</string>
+  <string name="legacy_migration_failed_message">Dina data från den tidigare versionen av appen är säkra och oförändrade på den här enheten. Välj vad du vill göra härnäst.</string>
+  <string name="legacy_migration_failed_keychain">Sparade lösenord från den tidigare versionen kunde inte läsas. Lås upp enheten och stäng sedan appen och öppna den igen.</string>
+  <string name="legacy_migration_rollback_pending">Uppdateringen avbröts och är ännu inte helt ångrad. Stäng appen och öppna den igen för att slutföra ångrandet.</string>
+  <string name="legacy_migration_save_old_data">Spara gamla data</string>
+  <string name="legacy_migration_send_report">Skicka felrapport</string>
+  <string name="legacy_migration_try_again">Försök igen</string>
+  <string name="legacy_migration_try_again_hint">Stäng appen och öppna den igen för att försöka igen.</string>
+  <string name="legacy_migration_restore_backup">Återställ en säkerhetskopia</string>
+  <string name="legacy_migration_start_fresh">Starta utan gamla data</string>
+  <string name="legacy_migration_start_fresh_confirm">Dina gamla data finns kvar på den här enheten. Du kan importera dem senare i Inställningar.</string>
+  <string name="legacy_import_title">Importera data från den tidigare appversionen</string>
+  <string name="legacy_import_summary">Ersätt nuvarande data med data från den tidigare appversionen</string>
+  <string name="legacy_import_confirm">Detta ersätter dina nuvarande arbetsytor, bokmärken och andra data med data från den tidigare appversionen. En kopia av dina nuvarande data behålls på den här enheten.</string>
+  <string name="legacy_import_reopen">Stäng appen och öppna den igen för att importera dina data.</string>
+  <string name="legacy_notice_icloud">Synkroniseringen använder nu iCloud Drive. Slå på den igen i Inställningar → Synkronisering. Den här enheten behåller det den hade; ändringar från dina andra enheter kommer när synkroniseringen har ställts in igen. För att frigöra de gamla iCloud-data: Inställningar → ditt namn → iCloud → Hantera lagring → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Din Nextcloud-anslutning fördes över, men synkroniseringen är avstängd. Slå på den i Inställningar → Synkronisering och välj att hämta från molnet eller skapa nytt.</string>
+  <string name="legacy_notice_nextcloud_unsent">Vissa ändringar på den här enheten hade ännu inte skickats till Nextcloud. De skickades inte och finns bara kvar på den här enheten.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Det är ett kraftfullt men lättanvänt bibelstudieprogram som fungerar offline.</string>
+  <string name="webdav_untrusted_certificate_message_device">Certifikatet för %1$s är inte betrott av den här enheten. Lita bara på det om du känner igen det, till exempel för att du själv har installerat den här servern.\n\nÄmne: %2$s\nUtfärdare: %3$s\nGiltigt: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Anpassade förråd måste använda en säker https://-adress.</string>
+  <string name="custom_repository_https_required_refresh">%1$s använder en http://-adress. Endast https://-förråd kan användas.</string>
 </resources>
