@@ -230,6 +230,11 @@ class DocumentLoader(
         labelsUploaded = false
         session.firstDocument = null
         session.initialKey = null
+        // The old window's chapters; a report or chapter request of the old page must not match them (osTicket 3508).
+        requestMoreLock.withLock {
+            session.minChapter = -1
+            session.maxChapter = -1
+        }
         cancelPendingChapterLoads()
     }
 

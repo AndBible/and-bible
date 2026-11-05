@@ -42,6 +42,7 @@ import net.bible.service.sword.epub.EpubBackend
 import net.bible.sharedcore.bibleview.BibleBridge
 import org.crosswire.jsword.book.sword.SwordGenBook
 import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.android.common.toV11n
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedui.reading.session.BibleWindowSession
@@ -119,12 +120,16 @@ class ReadingBridge(
         if (session.isDisposed) return
         val doc = session.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
-            currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
-                when (doc) {
-                    is BibleDocument -> (session.initialKey as Verse).versification
-                    is MyNotesDocument -> KJVA
-                    else -> throw RuntimeException("Unsupported doc")
-                }, session.window)
+            val versification = when (doc) {
+                is BibleDocument -> (session.initialKey as Verse).versification
+                is MyNotesDocument -> KJVA
+                else -> throw RuntimeException("Unsupported doc")
+            }
+            if (!isInLoadedChapters(ordinal, versification)) {
+                Log.w(TAG, "Ignoring scroll report $keyStr:$ordinal outside the loaded chapters")
+                return
+            }
+            currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal, versification, session.window)
         } else if (doc is OsisDocument || doc is StudyPadDocument || doc is MultiFragmentDocument) {
             val curPage = currentPageManager.currentPage
             // Commentaries and general books are addressed by a single osisRef key. When infinite
@@ -138,6 +143,25 @@ class ReadingBridge(
             }
             curPage.anchorOrdinal = OrdinalRange(ordinal)
         }
+    }
+
+    /**
+     * Whether a verse the page reports is part of the document Android last admitted: its book and one of its loaded
+     * chapters. The page reports its scroll position asynchronously, so a report can belong to the page's previous
+     * document, which is still on screen until JS has processed the replacement: after a chapter change, and above
+     * all in a web view a workspace switch handed to another window (#3950), whose old page reports the outgoing
+     * window's verse (osTicket 3508). Such a report must not move the window.
+     */
+    private fun isInLoadedChapters(ordinal: Int, versification: org.crosswire.jsword.versification.Versification): Boolean {
+        val initial = session.initialKey as? Verse ?: return false
+        val verse = try {
+            Verse(versification, ordinal).toV11n(initial.versification)
+        } catch (e: Exception) {
+            return false
+        }
+        if (verse.book != initial.book) return false
+        // A book's first chapter document also carries the book introduction (chapter 0).
+        return session.hasChapterLoaded(verse.chapter) || (verse.chapter == 0 && session.hasChapterLoaded(1))
     }
 
     override fun setClientReady() {

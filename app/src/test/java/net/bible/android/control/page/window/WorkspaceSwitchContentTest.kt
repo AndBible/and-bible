@@ -164,6 +164,40 @@ class WorkspaceSwitchContentTest {
         assertEquals("unused outgoing views must be destroyed", 2, oldViews.count { it.session.isDisposed })
     }
 
+    /**
+     * osTicket 3508 (regression of #3950): an adopted view still shows the outgoing window's page until the incoming
+     * window's document replaces it, and that old page keeps reporting its scroll position (a forced re-measure on
+     * `config_changed`, scroll events of the resize into the new pane). A report that reaches Android after the new
+     * document has been admitted must not move the incoming window to the outgoing window's verse: that moved
+     * window 1 of the new workspace to the Bible location of the workspace the user came from (and synced it).
+     */
+    @Test fun anAdoptedViewsOldPageCannotMoveTheIncomingWindow() {
+        val a = workspaceA()
+        val oldViews = a.oldWindows.map { it.bibleView as BibleView }
+        val bId = newWorkspaceB(a.repo)
+
+        a.activity.lifecycleScope.launch { a.activity.readingCommands.switchWorkspace(bId) }
+        settleWorkspaceSwitches()
+        compose.waitForIdle()
+
+        val incoming = a.repo.windowList.single()
+        val view = a.factory.getOrCreateBibleView(incoming)
+        assertTrue("fixture: workspace B's window adopts an outgoing view", oldViews.any { it === view })
+        awaitHostUntil("workspace B's document must be admitted to the adopted view") {
+            view.session.firstDocument is net.bible.android.control.page.BibleDocument
+        }
+        val before = incoming.pageManager.currentBible.currentBibleVerse.verse
+        // Where the outgoing page was (as window 1 of the reported workspace): Luke 12:49.
+        val oldVerse = org.crosswire.jsword.passage.Verse(before.versification, org.crosswire.jsword.versification.BibleBook.LUKE, 12, 49)
+        assertFalse("fixture: B's window must not already be in Luke 12", before.book == oldVerse.book && before.chapter == 12)
+
+        // The old page (Luke 12) reports its top verse after B's document was admitted, before JS cleared it.
+        view.readingBridge.scrolledToOrdinal("Luke.12", oldVerse.ordinal)
+
+        val after = incoming.pageManager.currentBible.currentBibleVerse.verse
+        assertEquals("the outgoing page's verse must not move workspace B's window", before, after)
+    }
+
     private fun scenario(animationsOff: Boolean) {
         CommonUtils.settings.setBoolean("disable_animations", animationsOff)
         val a = workspaceA()
