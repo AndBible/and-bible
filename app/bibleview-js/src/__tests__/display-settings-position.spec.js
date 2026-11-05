@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {mount, flushPromises} from "@vue/test-utils";
-import {h, ref} from "vue";
+import {h, nextTick, ref} from "vue";
 import BibleView from "@/components/BibleView.vue";
 import {emit} from "@/eventbus";
 
@@ -50,6 +50,8 @@ async function loadAtVerse() {
     vi.spyOn(anchor, "getBoundingClientRect").mockImplementation(() => ({
         top: (window.bibleViewDebug.config.fontSize === 16
             && window.bibleViewDebug.config.lineSpacing === 10
+            && !window.bibleViewDebug.config.expandXrefs
+            && !window.bibleViewDebug.config.showPageNumber
             && window.bibleViewDebug.appSettings.fontSizeMultiplier === 1 ? 1000 : 1600) - window.scrollY,
     }));
     emit("setup_content", {jumpToOrdinal: 26683, jumpToAnchor: null, jumpToId: null, topOffset: 0, bottomOffset: 0});
@@ -105,6 +107,8 @@ describe("display-setting reading position (#3971)", () => {
     it.each([
         {config: {lineSpacing: 15}, appSettings: {}},
         {config: {}, appSettings: {fontSizeMultiplier: 1.5}},
+        {config: {expandXrefs: true}, appSettings: {}},
+        {config: {showPageNumber: true}, appSettings: {}},
     ])("preserves position for other text reflow settings: %j", async settings => {
         await loadAtVerse();
         emit("set_config", {...settings, initial: false});
@@ -115,15 +119,25 @@ describe("display-setting reading position (#3971)", () => {
     it("does not scroll a replacement document when a config update is still pending", async () => {
         await loadAtVerse();
         emit("set_config", {config: {fontSize: 20}, appSettings: {}, initial: false});
+        // The document is replaced before the config listener resumes; the new one must not be moved.
         document.getElementById("top").innerText = "";
         emit("clear_document");
-        window.scrollY = 0;
+        window.bibleViewDebug.documents.push({id: "replacement-KJV:John.3", type: "bible"});
+        await nextTick();
+        window.scrollTo.mockClear();
         await flushPromises();
-        expect(window.scrollY).toBe(0);
+        expect(window.scrollTo).not.toHaveBeenCalled();
+    });
+
+    it("does not scroll when the setting does not move the verse", async () => {
+        await loadAtVerse();
+        window.scrollTo.mockClear();
+        emit("set_config", {config: {}, appSettings: {nightMode: true}, initial: false});
+        await flushPromises();
+        expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
     it("leaves an empty document alone when no verse can be measured", async () => {
-        window.bibleViewDebug.documents.splice(0);
         await flushPromises();
         anchor = null;
         window.scrollTo.mockClear();

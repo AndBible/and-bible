@@ -394,18 +394,6 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         return compareConfig(newConfig, keys);
     }
 
-    function getNeedRefreshLocation(newConfig: Config) {
-        // Anything that changes location of text in a significant way, needs location refresh
-        const keys: (keyof Config)[] = [
-            "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
-            "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers", "showOrdinals",
-            "fontSize", "fontFamily", "lineSpacing", "hyphenation", "justifyText", "marginSize", "topMargin",
-            "showTitleScrollButton"
-        ];
-        return compareConfig(newConfig, keys);
-    }
-
     setupEventBusListener("set_config",
         async function setConfig(
             {
@@ -420,10 +408,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         ) {
             const defer = new Deferred();
             const isBible = documentType.value === "bible"
-            const fontScaleChanged = newAppSettings.fontSizeMultiplier !== undefined
-                && newAppSettings.fontSizeMultiplier !== appSettings.fontSizeMultiplier;
-            const needsRefreshLocation = !initial && (isBible || documentType.value === "osis")
-                && (getNeedRefreshLocation(newConfig) || fontScaleChanged);
+            // Any non-initial change may reflow text (a hand-kept key list kept going stale), so the
+            // listener measures the reading position before the change and restores it only if it moved.
+            const needsRefreshLocation = !initial && (isBible || documentType.value === "osis");
             const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
 
             if (needsRefreshLocation) emit("config_changed", defer)

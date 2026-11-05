@@ -321,7 +321,9 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
     if (generation !== documentGeneration) return;
     const reflowedAnchor = document.getElementById(anchorId);
     if (reflowedAnchor) {
-        doScrolling(window.scrollY + reflowedAnchor.getBoundingClientRect().top - top, 0);
+        // Settings that do not move the text (colours) must not cause a scroll.
+        const delta = reflowedAnchor.getBoundingClientRect().top - top;
+        if (Math.abs(delta) >= 0.5) doScrolling(window.scrollY + delta, 0);
     }
 })
 
