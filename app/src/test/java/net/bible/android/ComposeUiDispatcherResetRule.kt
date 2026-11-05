@@ -33,9 +33,10 @@ import org.junit.rules.ExternalResource
  * nothing. Evidence (fix batch 2, task 6): a second host in one JVM had both flags `true`, a first
  * host had both `false`; the same test is green alone and red after any earlier host test.
  *
- * Resetting the two flags in `before()` makes a class independent of whatever ran before it.
- * Leftover queued continuations belong to cancelled jobs and simply run (harmlessly) on the next
- * dispatch. No-op if the dispatcher was never created in this sandbox.
+ * Re-post the dispatcher's callbacks in `before()` rather than clearing its flags. Its queues can
+ * still contain live work (notably GlobalSnapshotManager's process-wide collector), and clearing
+ * `scheduledFrameDispatch` also tells the callback to skip retained frame waiters. Re-posting lets
+ * the dispatcher drain its queues and clear its own flags, without relying on a new dispatch.
  *
  * ```
  * @get:Rule val composeDispatcherReset = ComposeUiDispatcherResetRule()
@@ -43,16 +44,6 @@ import org.junit.rules.ExternalResource
  */
 class ComposeUiDispatcherResetRule : ExternalResource() {
     override fun before() {
-        val companion = Class.forName("androidx.compose.ui.platform.AndroidUiDispatcher")
-            .getDeclaredField("Companion").get(null)
-        val main = companion.javaClass.methods.first { it.name == "getMain" }.invoke(companion)
-            as kotlin.coroutines.CoroutineContext
-        val dispatcher = main[kotlin.coroutines.ContinuationInterceptor] ?: return
-        val lock = dispatcher.javaClass.getDeclaredField("lock").also { it.isAccessible = true }.get(dispatcher)
-        synchronized(lock) {
-            for (name in listOf("scheduledTrampolineDispatch", "scheduledFrameDispatch")) {
-                dispatcher.javaClass.getDeclaredField(name).also { it.isAccessible = true }.setBoolean(dispatcher, false)
-            }
-        }
+        net.bible.test.resetComposeUiDispatcher()
     }
 }
