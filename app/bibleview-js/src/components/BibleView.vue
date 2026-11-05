@@ -682,6 +682,14 @@ a {
   .night & {
     color: #7b7bff;
   }
+
+  // Links can carry their own colors, including clicked references and rendered HTML.
+  .pureMonochrome & {
+    color: black !important;
+  }
+  .pureMonochrome.night & {
+    color: white !important;
+  }
 }
 
 .bookmark-marker {
