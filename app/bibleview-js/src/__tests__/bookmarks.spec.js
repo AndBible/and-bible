@@ -21,7 +21,8 @@ import {mount} from "@vue/test-utils";
 import Color from "color";
 import {useConfig} from "@/composables/config";
 import {abbreviated} from "@/utils";
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import {EditActionMode} from "@/types/client-objects";
 
 window.bibleViewDebug = {}
 
@@ -539,6 +540,78 @@ describe("pure monochrome frame edges", () => {
         expect(bookmarkHighlightColor(label, 1, {...settings, pureMonochromeMode: true}).alpha()).toBe(0);
         expect(bookmarkHighlightColor(label, 1, settings).rgb().array()).toEqual([210, 210, 210]);
         expect(bookmarkHighlightColor(label, 1, {...settings, nightMode: true}).rgb().array()).toEqual([180, 180, 180]);
+    });
+});
+
+describe("bookmark edit action rendering", () => {
+    let wrapper, gb, errors;
+    const ordinals = [1, 3, 4, 5, 9];
+    const bookmark = (ordinal, editAction = {mode: null, content: null}) => ({
+        id: ordinal, ordinalRange: [ordinal, ordinal], offsetRange: null,
+        labels: [1], bookInitials: "KJV", notes: null, wholeVerse: true,
+        type: "bookmark", editAction,
+    });
+    const highlighted = () => [...document.querySelectorAll("#doc-edit-actions .bookmarked")].map(e => e.id);
+
+    beforeEach(async () => {
+        errors = vi.spyOn(console, "error").mockImplementation(() => {});
+        wrapper = mount(defineComponent({setup() {
+            const {config, appSettings} = useConfig();
+            gb = useGlobalBookmarks(config);
+            useBookmarks("edit-actions", [1, 9], gb, "KJV", null, true, ref(true),
+                {adjustedColor: c => Color(c)}, config, appSettings);
+            return () => h("div", {id: "doc-edit-actions"}, ordinals.map(ord => h("span", {id: `o-${ord}`}, `Verse ${ord}`)));
+        }}), {attachTo: document.body, global: {config: {errorHandler: () => {}}}});
+        gb.updateBookmarkLabels([{id: 1, color: 0xFFFF0000,
+            displayStyle: "HIGHLIGHT", displayStyleWholeVerse: "HIGHLIGHT"}]);
+        await nextTick();
+    });
+    afterEach(() => {
+        window.bibleViewDebug.removeHighLights();
+        wrapper.unmount();
+        vi.restoreAllMocks();
+    });
+
+    it.each([EditActionMode.PREPEND, EditActionMode.APPEND].flatMap(mode =>
+        [null, "", " \n "].map(content => [mode, content])))
+    ("ignores %s edit actions with empty content %j without losing later highlights", async (mode, content) => {
+        gb.updateBookmarks(ordinals.map(ord => bookmark(ord, ord === 3 ? {mode, content} : undefined)));
+        await nextTick();
+        expect(highlighted()).toEqual(["o-1", "o-3", "o-4", "o-5", "o-9"]);
+        expect(document.querySelectorAll("#doc-edit-actions .bookmark-edit-action")).toHaveLength(0);
+        expect(errors).not.toHaveBeenCalled();
+    });
+
+    it("logs a failing range and still highlights later ranges, including after a redraw", async () => {
+        const failure = new Error("Unable to update verse DOM");
+        vi.spyOn(document.querySelector("#doc-edit-actions #o-3").classList, "add")
+            .mockImplementation(() => {throw failure;});
+        gb.updateBookmarks(ordinals.map(ord => bookmark(ord)));
+        await nextTick();
+        expect(highlighted()).toEqual(["o-1", "o-4", "o-5", "o-9"]);
+        expect(errors).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+            documentId: "edit-actions", bookmarks: [3], ordinalAndOffsetRange: [[3, 0], [3, null]],
+        }), failure);
+        window.bibleViewDebug.removeHighLights();
+        expect(highlighted()).toEqual([]);
+        expect(() => window.bibleViewDebug.addHighLights()).not.toThrow();
+        expect(highlighted()).toEqual(["o-1", "o-4", "o-5", "o-9"]);
+    });
+
+    it.each([EditActionMode.PREPEND, EditActionMode.APPEND])
+    ("preserves valid %s text, formatting and redraw cleanup", async mode => {
+        gb.updateBookmarks([bookmark(3, {mode, content: "Added<br/><subtitle>Heading</subtitle>"})]);
+        await nextTick();
+        const verse = document.querySelector("#doc-edit-actions #o-3");
+        const edit = document.querySelector("#doc-edit-actions .bookmark-edit-action");
+        expect(mode === EditActionMode.PREPEND ? verse.previousSibling : verse.nextSibling).toBe(edit);
+        expect(edit.textContent).toBe("AddedHeading");
+        expect(edit.querySelector(".paragraphBreak")).not.toBeNull();
+        expect(edit.querySelector("h3").textContent).toBe("Heading");
+        window.bibleViewDebug.removeHighLights();
+        expect(document.querySelectorAll(".bookmark-edit-action")).toHaveLength(0);
+        window.bibleViewDebug.addHighLights();
+        expect(document.querySelectorAll(".bookmark-edit-action")).toHaveLength(1);
     });
 });
 
