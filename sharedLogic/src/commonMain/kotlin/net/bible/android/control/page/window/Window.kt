@@ -304,6 +304,16 @@ class Window (
                 // The request owns the source before the first suspending page read.
                 if (!isCurrentRequest()) return@launch
                 fetchDocument(currentPage)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A read that throws (e.g. JSword naming a book the module's versification lacks) takes the same error
+                // document path as a failed delivery. Escaping this launch would reach the host scope, which has no
+                // handler: the uncaught exception would end the app (#3975).
+                Log.e(TAG, "Fetching the document failed", e)
+                failed = e
+                if (notifyLocationChange) PassageChangeMediator.contentChangeFinished()
+                return@launch
             } finally {
                 if (adjusted) b?.adjustLoadingCount(-1)
             }

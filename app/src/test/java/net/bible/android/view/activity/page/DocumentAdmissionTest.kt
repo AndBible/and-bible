@@ -60,7 +60,7 @@ import net.bible.sharedui.reading.session.DocumentLoaderPlatform
 import net.bible.sharedui.reading.session.ReadingLinkHandler
 import net.bible.test.DatabaseResetter
 import net.bible.test.testCoreStrings
-import net.bible.test.testWindowRepository
+import net.bible.test.TestWindowRepositories
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -134,11 +134,18 @@ class DocumentAdmissionTest {
     private val host = FakeHost()
     private val control = WindowControl()
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    /**
+     * What escaped the repository scope's launches. In the app that scope is the activity's `lifecycleScope`, which
+     * has no handler: anything recorded here would end the process (BibleApplication's uncaught handler).
+     */
+    private val uncaught = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(main)
-        repo = testWindowRepository()
+        repo = WindowRepository(TestWindowRepositories.scope().let { scope ->
+            CoroutineScope(scope.coroutineContext + kotlinx.coroutines.CoroutineExceptionHandler { _, e -> uncaught += e })
+        })
         control.windowRepository = repo
         originalRepo = CommonUtils.windowControl.windowRepository
         CommonUtils.windowControl.windowRepository = repo
@@ -197,6 +204,7 @@ class DocumentAdmissionTest {
             Dispatchers.resetMain()
             main.shutdown()
         }
+        assertTrue("a window load must not end the app with an uncaught exception: $uncaught", uncaught.isEmpty())
     }
 
     /** A window view that forwards to the loader, like BibleView; [failLoadOf] makes a delivery throw. */

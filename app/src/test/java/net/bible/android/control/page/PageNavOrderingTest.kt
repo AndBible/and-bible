@@ -192,6 +192,8 @@ class PageNavOrderingTest {
             }
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            // The BibleView session scope derives from the host's lifecycle scope, as on a real host.
+            whenever(host.lifecycle).thenReturn(activity.get().lifecycle)
             val callbacks = BibleViewHostCallbacks(
                 hostActivity = activity.get(), onNext = {}, onPrevious = {}, showLlmPromptSelector = { _, _ -> },
                 composeSearchIfHosted = { _, _ -> false }, composeOpenDrawerIfHosted = { false },

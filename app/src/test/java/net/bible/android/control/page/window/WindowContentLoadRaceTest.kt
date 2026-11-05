@@ -2,6 +2,8 @@ package net.bible.android.control.page.window
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.*
@@ -36,7 +38,20 @@ import org.robolectric.annotation.Config
 class WindowContentLoadRaceTest {
     private val dispatcher = StandardTestDispatcher()
     @Before fun setMain() { Dispatchers.setMain(dispatcher) }
+    /** Lifecycles of the mocked hosts; a real host's lifecycle ends with it, and with it the session scopes. */
+    private val hostLifecycles = mutableListOf<LifecycleRegistry>()
+
+    /** A host like the activities: a context, and a lifecycle whose scope the BibleView session derives from. */
+    private fun mockHost(): ReadingHostActivity = mock<ReadingHostActivity>().also { host ->
+        whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+        val lifecycle = LifecycleRegistry.createUnsafe(host).apply { currentState = Lifecycle.State.RESUMED }
+        hostLifecycles += lifecycle
+        whenever(host.lifecycle).thenReturn(lifecycle)
+    }
+
     @After fun resetMain() {
+        hostLifecycles.forEach { it.currentState = Lifecycle.State.DESTROYED }
+        hostLifecycles.clear()
         Dispatchers.resetMain()
         DatabaseResetter.resetDatabase()
     }
@@ -69,8 +84,7 @@ class WindowContentLoadRaceTest {
             control.windowRepository = repo
             repo.initializeAtEdge()
             val window = repo.activeWindow
-            val host = mock<ReadingHostActivity>()
-            whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            val host = mockHost()
             val callbacks = BibleViewHostCallbacks(mock(), {}, {}, { _, _ -> }, { _, _ -> false }, { false }, {}, { null }, { _, _ -> }, {}, { false }, { 0 }, { 0 }, { 0 }, { error("Unused") })
             val koin = GlobalContext.get()
             view = BibleView(host, callbacks, WeakReference(window), control, koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
@@ -122,8 +136,7 @@ class WindowContentLoadRaceTest {
             control.windowRepository = repo
             repo.initializeAtEdge()
             val window = repo.activeWindow
-            val host = mock<ReadingHostActivity>()
-            whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            val host = mockHost()
             val callbacks = BibleViewHostCallbacks(mock(), {}, {}, { _, _ -> }, { _, _ -> false }, { false }, {}, { null }, { _, _ -> }, {}, { false }, { 0 }, { 0 }, { 0 }, { error("Unused") })
             val koin = GlobalContext.get()
             val reader = BibleView(host, callbacks, WeakReference(window), control, koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
@@ -220,8 +233,7 @@ class WindowContentLoadRaceTest {
             control.windowRepository = repo
             repo.initializeAtEdge()
             val window = repo.activeWindow
-            val host = mock<ReadingHostActivity>()
-            whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            val host = mockHost()
             val callbacks = BibleViewHostCallbacks(mock(), {}, {}, { _, _ -> }, { _, _ -> false }, { false }, {}, { null }, { _, _ -> }, {}, { false }, { 0 }, { 0 }, { 0 }, { error("Unused") })
             val reader = BibleView(host, callbacks, WeakReference(window), control, koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
             view = reader
