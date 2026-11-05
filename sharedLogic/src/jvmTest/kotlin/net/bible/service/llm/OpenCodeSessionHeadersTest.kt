@@ -83,12 +83,16 @@ class OpenCodeSessionHeadersTest {
             "https://opencode.ai/zen/go/v1",
             "https://opencode.ai/zen/v1/",
             "https://OPENCODE.AI:443/zen/go/v1",
+            "https://api.opencode.ai/zen/v1",
+            "https://API.OpenCode.ai/zen/v1",
         )) {
             val headers = LlmProcessingService.buildProviderExtraHeaders(config(endpoint))
             assertFalse(headers["x-opencode-session"].isNullOrBlank(), endpoint)
         }
         for (endpoint in listOf(
             "https://opencode.ai.example.com/v1",
+            "https://evilopencode.ai/v1",
+            "https://api.evilopencode.ai/v1",
             "https://example.com/opencode.ai/v1",
             "https://opencode.ai@example.com/v1",
             "https://api.openai.com/v1",
