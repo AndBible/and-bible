@@ -162,7 +162,10 @@ internal class LinkBridgeFamily(
         // document is loaded with them. The navigation itself only while the page is still this window's (#3975).
         val ticket = session.documentTicket()
         bookmarkJsActions.afterQueuedWrites(windowId, session.scope, Dispatchers.Main) {
-            if (session.holdsDocument(ticket)) session.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
+            // Checked again after the label lookup suspends: the active window can change meanwhile (#3975 review C2).
+            if (session.holdsDocument(ticket)) {
+                session.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId)) { session.holdsDocument(ticket) }
+            }
         }
     }
 

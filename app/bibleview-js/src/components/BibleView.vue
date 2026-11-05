@@ -338,8 +338,9 @@ setupEventBusListener("clear_document", function clearDocument(nativeDocumentGen
     clearLog();
     globalBookmarks.clearBookmarks();
     documents.splice(0)
-    // Calls about the old content keep its generation until it has left the DOM (#3975).
-    adoptDocumentGeneration(nativeDocumentGeneration);
+    // Calls about the old content keep its generation until it has left the DOM (#3975). Then native learns that the
+    // page shows the new document: it admits link navigations (which carry no generation) only from such a page.
+    adoptDocumentGeneration(nativeDocumentGeneration).then(() => android.documentShown(nativeDocumentGeneration ?? 0));
     scroll.scrollToId("top", {now: true});
 });
 

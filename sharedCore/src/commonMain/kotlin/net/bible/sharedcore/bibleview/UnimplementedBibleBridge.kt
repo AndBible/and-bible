@@ -36,6 +36,7 @@ open class UnimplementedBibleBridge(
     override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) = unimplemented("setBookmarkEditAction", listOf(bookmarkId, valueStr))
     override fun console(loggerName: String, message: String) = unimplemented("console", listOf(loggerName, message))
     override fun selectionCleared() = unimplemented("selectionCleared", listOf())
+    override fun documentShown(generation: Long) = unimplemented("documentShown", listOf(generation))
     override fun reportInputFocus(newValue: Boolean) = unimplemented("reportInputFocus", listOf(newValue))
     override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) = unimplemented("openEpubLink", listOf(bookInitials, toKeyStr, toId))
     override fun openExternalLink(link: String) = unimplemented("openExternalLink", listOf(link))

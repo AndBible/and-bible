@@ -135,6 +135,21 @@ class BibleWindowSession(
      * navigation, a new document request or a view rebind in between makes it stale (#3975). A native caller (selection
      * menu, hardware key) takes one the same way.
      */
+    /**
+     * The generation of the document the page reports it shows (`documentShown`, sent once the content of that
+     * generation's `clear_document` has replaced the old one in the DOM); [NO_DOCUMENT_GENERATION] for a (re)started
+     * page that shows none yet. A link navigation carries no generation, so it is admitted only while the page shows
+     * the admitted document ([pageShowsAdmittedDocument]).
+     */
+    @Volatile var shownGeneration: Long = NO_DOCUMENT_GENERATION
+
+    /**
+     * Whether what the page shows is the document whose calls the window admits now: false for a page that still
+     * shows a replaced document (also an adopted or parked view's old page), and while a new document is requested.
+     */
+    fun pageShowsAdmittedDocument(): Boolean =
+        !isDisposed && shownGeneration != NO_DOCUMENT_GENERATION && shownGeneration == documentGeneration
+
     fun documentTicket(): DocumentTicket = DocumentTicket(documentGeneration, windowOrNull)
 
     /** Whether [ticket]'s document is still the one this session's window holds (see [documentTicket]). */

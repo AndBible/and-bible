@@ -26,6 +26,7 @@ import {emit} from "@/eventbus";
 import {documentGeneration, resetDocumentGeneration} from "@/bridge/document-generation";
 
 const reports = vi.hoisted(() => []);
+const shown = vi.hoisted(() => []);
 
 // The real BibleView, verse notifier and generation handling; native services replaced. The android mock records the
 // generation the native bridge would post with the report (native-bridge.ts reads the same documentGeneration()).
@@ -34,7 +35,10 @@ vi.mock("@/composables/fontawesome", () => ({useFontAwesome: () => {}}));
 vi.mock("@/composables/android", async () => {
     const {documentGeneration} = await import("@/bridge/document-generation");
     return {
-        useAndroid: () => ({scrolledToOrdinal: (key, ordinal) => reports.push({ordinal, generation: documentGeneration()})}),
+        useAndroid: () => ({
+            scrolledToOrdinal: (key, ordinal) => reports.push({ordinal, generation: documentGeneration()}),
+            documentShown: generation => shown.push({generation, oldContentInDom: document.querySelectorAll(".document").length}),
+        }),
         clearLog: () => {},
     };
 });
@@ -70,6 +74,7 @@ async function scrollOnto(ordinal) {
 
 beforeEach(() => {
     reports.splice(0);
+    shown.splice(0);
     resetDocumentGeneration();
     window.bibleViewDebug = {};
     vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
@@ -118,6 +123,19 @@ describe("scroll report generation (#3975)", () => {
         await flushPromises();
         await scrollOnto(40);
         expect(reports.at(-1)).toEqual({ordinal: 40, generation: 6});
+    });
+
+    it("tells native once the page shows the new document, not before (links carry no generation)", async () => {
+        emit("clear_document", 5);
+        await flushPromises();
+        window.bibleViewDebug.documents.push({id: "John.3", type: "bible"});
+        await flushPromises();
+        expect(shown).toEqual([{generation: 5, oldContentInDom: 0}]);
+
+        emit("clear_document", 6);
+        expect(shown.length).toBe(1);
+        await flushPromises();
+        expect(shown.at(-1)).toEqual({generation: 6, oldContentInDom: 0});
     });
 
     it("a clear without a generation leaves the page with none (native never admits it)", async () => {

@@ -623,6 +623,8 @@ class DocumentLoader(
      * waits in its loading state for good.
      */
     override fun setClientReady() = session.jsChannel.runOnMain {
+        // A (re)started page shows nothing until it reports the document it is sent below.
+        session.shownGeneration = NO_DOCUMENT_GENERATION
         session.jsChannel.markClientReady()
         documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
         labelsUploaded = false

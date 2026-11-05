@@ -63,8 +63,19 @@ class ReadingLinkHandler(
 ) {
     private val linkControl get() = session.linkControl
 
-    /** Opens [url]; true when it was handled, false for an unknown scheme or unusable parameters. */
+    /**
+     * Opens [url]; true when it was handled, false for an unknown scheme or unusable parameters.
+     *
+     * A link of a page that does not show the window's admitted document is swallowed (true, nothing opened): the old
+     * page of an adopted or parked web view, or a page whose window has requested another document (#3975). The link
+     * navigation carries no document generation, so the page's own report of what it shows decides
+     * ([BibleWindowSession.pageShowsAdmittedDocument]).
+     */
     fun handle(url: String): Boolean {
+        if (!session.pageShowsAdmittedDocument()) {
+            Log.w(TAG, "Link of a replaced page ignored: $url")
+            return true
+        }
         val link = parseLink(url)
         if (link == null) {
             Log.e(TAG, "Unsupported link $url")
@@ -110,7 +121,10 @@ class ReadingLinkHandler(
                 // The label lookup suspends, so launch; the context-menu window mode is read now because
                 // the menu handler resets it as soon as this synchronous URL handler returns.
                 val windowMode = linkControl.windowMode
-                session.scope.launch(Dispatchers.Main) { linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) }
+                val ticket = session.documentTicket()
+                session.scope.launch(Dispatchers.Main) {
+                    linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) { session.holdsDocument(ticket) }
+                }
                 true
             }
             UriConstants.SCHEME_REFERENCE -> {

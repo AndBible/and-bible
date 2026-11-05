@@ -247,6 +247,8 @@ internal class ContentBridgeFamily(
                 }
             }
 
+            // The bookmark read suspended: the selector takes the active window's category NOW (#3975 review C2).
+            if (!session.holdsDocument(ticket)) return@launch
             val selection = Selection(
                 bookInitials = bookInitials,
                 startOrdinal = startOrdinal,
@@ -336,11 +338,16 @@ internal class ContentBridgeFamily(
         session.scope.launch(Dispatchers.Main) {
             if (!session.holdsDocument(ticket)) return@launch
             session.hostSheets?.showDeleteDocumentPageConfirm {
+                // What the asking window shows when the user confirms: the page being deleted.
+                val shown = session.windowOrNull?.let { ShownPage(it) }
                 MyDocumentBookManager.launcher.launch(documentQueue()) {
                     MyDocumentBookManager.deleteAIDocumentPage(id)
                     withContext(Dispatchers.Main) {
-                        // The confirmed deletion stands; the window bookkeeping only for the window that asked (#3975).
-                        if (session.isDisposed || session.windowOrNull !== ticket.window) return@withContext
+                        // The confirmed deletion stands. The window is closed or switched to its Bible only while it
+                        // still shows the deleted page: not once it shows another document or page (#3975 review C3).
+                        // The deletion's own refresh may already have reloaded the page, so this compares what the
+                        // window shows, not the document generation.
+                        if (session.isDisposed || shown == null || !shown.stillShown(session.windowOrNull)) return@withContext
                         val window = session.window
                         if (session.windowControl.isWindowRemovable(window)) {
                             session.windowControl.closeWindow(window)
@@ -351,6 +358,17 @@ internal class ContentBridgeFamily(
                 }
             }
         }
+    }
+
+    /** The document page a window shows: its page object, book and key (the key by its osisRef). */
+    private class ShownPage(private val window: net.bible.android.control.page.window.Window) {
+        private val page = window.pageManager.currentPage
+        private val initials = page.currentDocument?.initials
+        private val keyRef = page.key?.getOsisRef()
+
+        fun stillShown(now: net.bible.android.control.page.window.Window?): Boolean =
+            now === window && window.pageManager.currentPage === page &&
+                page.currentDocument?.initials == initials && page.key?.getOsisRef() == keyRef
     }
 
     fun openPromptEditor(promptId: String) {

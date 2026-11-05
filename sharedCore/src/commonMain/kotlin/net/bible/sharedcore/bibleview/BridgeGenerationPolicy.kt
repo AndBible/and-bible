@@ -123,7 +123,7 @@ object BridgeGenerationPolicy {
 
     val unguarded: Set<String> = setOf(
         // The live page's own lifecycle and UI state.
-        "setClientReady", "console", "selectionCleared", "reportInputFocus", "setEditing", "reportModalState", "toast",
+        "setClientReady", "documentShown", "console", "selectionCleared", "reportInputFocus", "setEditing", "reportModalState", "toast",
         "crash",
         // Deferred reads answering the page itself.
         "parseRef", "refChooserDialog", "getMyDocumentPageRawContent",

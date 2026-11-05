@@ -86,11 +86,18 @@ class ReadingBridge(
 
     private val contentFamily by lazy { ContentBridgeFamily(session, bookmarkJsActionsProvider()) }
 
-    /** Opens the compare document for [selection] (the platform view's selection menu action). */
-    fun compareSelection(selection: Selection?) = progressSpeak.compareSelection(selection)
+    /**
+     * Opens the compare document for [selection] (the platform view's selection menu action). Like a link, only from a
+     * page that shows the window's admitted document (#3975).
+     */
+    fun compareSelection(selection: Selection?) {
+        if (session.pageShowsAdmittedDocument()) progressSpeak.compareSelection(selection)
+    }
 
-    /** Opens the memorize document for [selection] (the platform view's selection menu action). */
-    fun memorizeSelection(selection: Selection?) = progressSpeak.memorizeSelection(selection)
+    /** Opens the memorize document for [selection] (the platform view's selection menu action); see [compareSelection]. */
+    fun memorizeSelection(selection: Selection?) {
+        if (session.pageShowsAdmittedDocument()) progressSpeak.memorizeSelection(selection)
+    }
 
     /** Opens an EPUB link for an already resolved [book] (the platform view's `epub-ref:` links). */
     fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) =
@@ -174,6 +181,11 @@ class ReadingBridge(
             }
             curPage.anchorOrdinal = OrdinalRange(ordinal)
         }
+    }
+
+    override fun documentShown(generation: Long) {
+        if (session.isDisposed) return
+        session.shownGeneration = generation
     }
 
     override fun setClientReady() {

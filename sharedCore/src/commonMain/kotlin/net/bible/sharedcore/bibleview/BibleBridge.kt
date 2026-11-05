@@ -30,6 +30,13 @@ interface BibleBridge {
     fun setBookmarkEditAction(bookmarkId: String, valueStr: String)
     fun console(loggerName: String, message: String)
     fun selectionCleared()
+
+    /**
+     * The page shows the document of [generation] now: the content it was sent with that generation's
+     * `clear_document` has replaced the previous one in the DOM (#3975). Native admits link navigations only from a
+     * page that shows the window's admitted document.
+     */
+    fun documentShown(generation: Long)
     fun reportInputFocus(newValue: Boolean)
     fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String)
     fun openExternalLink(link: String)

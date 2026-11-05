@@ -223,7 +223,10 @@ object HostReadingWindows {
      * Main thread. False when the window has no assembly or the link is not handled.
      */
     fun openLink(windowId: String, url: String): Boolean {
-        val handler = assemblies[windowId]?.linkHandler ?: return false
+        val a = assemblies[windowId] ?: return false
+        val handler = a.linkHandler
+        // A link of a page that does not show the window's document neither activates the window nor opens (#3975).
+        if (!a.session.pageShowsAdmittedDocument()) return handler.handle(url)
         val commands = binding?.koin?.get<net.bible.sharedcore.window.WindowCommands>()
         return openLinkInWindow(commands, windowId, handler::handle, url)
     }
@@ -297,6 +300,9 @@ object HostReadingWindows {
             checkNotNull(panes).rekey(oldId, windowId)
             val window = checkNotNull(requireBinding().koin.get<WindowControl>().windowRepository.getWindow(IdType(windowId)))
             a.session.window = window
+            // A modal of the old window's page (bookmark editor, note, help) must not survive into the new window, as on
+            // Android (`BibleView.adoptWindow`, #3975 review A2).
+            a.session.emit(BibleViewEvents.closeModals())
             a.session.modalOpen = false
             a.session.editingTextInJs = false
             a.session.contentVisible = false

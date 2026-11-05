@@ -51,6 +51,7 @@ export type BibleJavascriptInterface = {
     genericAssignLabels: (bookmarkId: IdType) => void,
     console: (loggerName: string, message: string) => void
     selectionCleared: () => void,
+    documentShown: (generation: number) => void,
     reportInputFocus: (newValue: boolean) => void,
     openExternalLink: (link: string) => void,
     openEpubLink: (bookInitials: string, toKey: string, toId: string) => void,
@@ -351,6 +352,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
 
     function setClientReady() {
         window.android.setClientReady();
+    }
+
+    /** The page shows the document of [generation] now (see bridge/document-generation.ts, #3975). */
+    function documentShown(generation: number) {
+        window.android.documentShown(generation);
     }
 
     function reportInputFocus(value: boolean) {
@@ -675,6 +681,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         setLimitAmbiguousModalSize,
         setEditing,
         reportInputFocus,
+        documentShown,
         saveBookmarkNote,
         requestPreviousChapter,
         requestNextChapter,
