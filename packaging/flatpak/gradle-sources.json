@@ -11673,6 +11673,14 @@
     },
     {
         "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/apache/apache/17/apache-17.pom",
+        "sha512": "1f46cdfd0b29f7faabe6b0c3ec096408d52cf321db81100e69b737443f2b9e71b68a3bfa8f64e318c16859e2de8daafbf40bb0c375c10354a892217cfeee5bec",
+        "dest": "offline-repository/org/apache/apache/17",
+        "dest-filename": "apache-17.pom",
+        "sha256": "398044b74b5a719326be218ae08124e5e2f3318ab5d78fe199d504efc2e0d43f"
+    },
+    {
+        "type": "file",
         "url": "https://repo.maven.apache.org/maven2/org/apache/apache/18/apache-18.pom",
         "sha512": "9ef6f99b30fe2603ad8f2c88116072de36bd2dc99590fd9e7eecf153dbf50cbd766694d861e666138d2a26137be69fe98cc38a491f6a2a68e8d421d656731ed1",
         "dest": "offline-repository/org/apache/apache/18",
@@ -12014,6 +12022,22 @@
         "dest": "offline-repository/org/eclipse/ee4j/project/1.0.5",
         "dest-filename": "project-1.0.5.pom",
         "sha256": "916b4794d8d8220a59a3fdf6a64dbe794aeb23395e888b81ae36a9b5a2c591a6"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/freemarker/freemarker/2.3.32/freemarker-2.3.32.jar",
+        "sha512": "934c6c2bf47c1b88b1f81c25294cd83f5105f90f565e1fce75a09a54e51424fb8335542a6d5c3eb9df19dbc0007e869e9b6aebaf37880eac09759529dc0c5ca7",
+        "dest": "offline-repository/org/freemarker/freemarker/2.3.32",
+        "dest-filename": "freemarker-2.3.32.jar",
+        "sha256": "04d65ec1bde6cea20e3495d5e78ef96ab774d9936434861d3254bd88e7e94f92"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/freemarker/freemarker/2.3.32/freemarker-2.3.32.pom",
+        "sha512": "4ac2a905f63f0bb870843564f87f5c71b045bc094cc3226dd87e9273e150abf97b17b83aa99da6727ee93e87b0e71254a0b5ff90ef0cf4aa75b643c95371394b",
+        "dest": "offline-repository/org/freemarker/freemarker/2.3.32",
+        "dest-filename": "freemarker-2.3.32.pom",
+        "sha256": "07a07e2eaf0976022b540567c7df622712b9a0393a6c5f6d20e6ff1579222a01"
     },
     {
         "type": "file",
@@ -13878,6 +13902,54 @@
         "dest": "offline-repository/org/jetbrains/compose/ui/ui/1.11.1/../../ui-desktop/1.11.1",
         "dest-filename": "ui-desktop-1.11.1.module",
         "sha256": "276e8c4f8e73545c8381d03549072fbbb86c3b98f47f3a92e4dde63b78701ade"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/coverage-report/1.0.25/coverage-report-1.0.25.jar",
+        "sha512": "a05781dc712a3c84f86c6f0ded369d827fcf0c310c0beff83a38d8825a49b357737e19e3b766bc72c1bad55e3b3d7dc9e043184426dd95cce74a1d71699c7327",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/coverage-report/1.0.25",
+        "dest-filename": "coverage-report-1.0.25.jar",
+        "sha256": "8627281c15b1b5347ca618d0dbc2090aa92a096a867c1d030198a51efcc33bfe"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/coverage-report/1.0.25/coverage-report-1.0.25.pom",
+        "sha512": "9cc6c4439df5d48e76b46ca121eebd8c242480c66e0075a1177cf0917b8a9439dbd01be78298ec7c0a246a2f345011161d9e218f0363a083695d6847438342be",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/coverage-report/1.0.25",
+        "dest-filename": "coverage-report-1.0.25.pom",
+        "sha256": "56628a60ba695684cd701c5ee34b32328cd340d7f536151d6e085e3463b2ea58"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/intellij-coverage-agent/1.0.765/intellij-coverage-agent-1.0.765.jar",
+        "sha512": "ba0a65c262607e07bc5ca194e495279301908ad2882c06f2f7d6ccd1c736508e024a0585a13b513ea29643ca682daca1da25912327e9379461a1229fa48d2f77",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/intellij-coverage-agent/1.0.765",
+        "dest-filename": "intellij-coverage-agent-1.0.765.jar",
+        "sha256": "4f975ad5394fddfa253938a40b4e63db2d2f8d54940997e95c3d651da494c659"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/intellij-coverage-agent/1.0.765/intellij-coverage-agent-1.0.765.pom",
+        "sha512": "fe163a37c967274eab30db61f38df89bc9f312da95ed01a1f43d727dcf3d9b133ecffd7064657238f5a8924f4ab9cce54d9fa5d682720f443cb95a4d59374193",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/intellij-coverage-agent/1.0.765",
+        "dest-filename": "intellij-coverage-agent-1.0.765.pom",
+        "sha256": "6a4252220ac7f60cc9d7753c9a8b4cc27a4d0251f50cd1ebd2c83c39f7636ae0"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/intellij-coverage-reporter/1.0.765/intellij-coverage-reporter-1.0.765.jar",
+        "sha512": "900e929c5b6873334504fd2115a179ae0c70a6bef5d048df25302a11c7522830fb390965a2b1a8307091d5c0cae6b3411fa7320c8d8db04c56b2f174e407f68a",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/intellij-coverage-reporter/1.0.765",
+        "dest-filename": "intellij-coverage-reporter-1.0.765.jar",
+        "sha256": "50dde181ec9e8a7c45484762cba01feaa123e1e064e51c252549d5a6bafb7000"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/intellij-coverage-reporter/1.0.765/intellij-coverage-reporter-1.0.765.pom",
+        "sha512": "0436ee3fad9eb1a4d299706eadfd38d2a509f3fa45bab1965642cf701550f4f1b058a7bb2005ed6b032be3e85c813ee8c6ee539823a121ebca4c8043652d11f8",
+        "dest": "offline-repository/org/jetbrains/intellij/deps/intellij-coverage-reporter/1.0.765",
+        "dest-filename": "intellij-coverage-reporter-1.0.765.pom",
+        "sha256": "39af45dfe17266a823e0e44fc5c34062d55d309d59a7788c5740defa973b71b0"
     },
     {
         "type": "file",
@@ -16454,6 +16526,86 @@
         "dest": "offline-repository/org/jetbrains/kotlinx/kotlinx-serialization-protobuf/1.8.1",
         "dest-filename": "kotlinx-serialization-protobuf-1.8.1.pom",
         "sha256": "613b859486064ded13f98a500ad049dbce19a58fc33bf7776a3812c7d0a0fd10"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-features-jvm/0.9.11/kover-features-jvm-0.9.11.jar",
+        "sha512": "ff062159d9fbfe5cff108bd5a8b28c292482008fe90ce2da36bbea104b6adf85f4eb429c55cd6ff90af977b9f3210fb69942bb9b0b69834ac08874973c9493aa",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-features-jvm/0.9.11",
+        "dest-filename": "kover-features-jvm-0.9.11.jar",
+        "sha256": "bc850073b1b7fa39c81f8833cd2b1b1fe36e0786abbbf7f7fb9fd32f7bdf5bdc"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-features-jvm/0.9.11/kover-features-jvm-0.9.11.module",
+        "sha512": "3995b9d9596bbca94c2e765f018c17e93897cfc88db4c5be382dcdce1fdd02476ad32dd52521dec29cba81a833ed0cd7ee90acc4a951c13bfd2866513fb3ac5a",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-features-jvm/0.9.11",
+        "dest-filename": "kover-features-jvm-0.9.11.module",
+        "sha256": "e72d4828c1b827086c7d5735355f80bceb2dd91b1246eb8fe85dbc56ded201e3"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-features-jvm/0.9.11/kover-features-jvm-0.9.11.pom",
+        "sha512": "14ffd1cc5ad52d16cad94a77160216bb886de902d60fd2a2d5ddfc9444c39a950b85d37fa31c77ccb844fc33e2c3d0164857df952d400ee40b1c6bfd4d201f8f",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-features-jvm/0.9.11",
+        "dest-filename": "kover-features-jvm-0.9.11.pom",
+        "sha256": "1c215b83e4cecfcd0a7c45765ebe6c88441e403f2f33b29b01e9fcd4ed1cde63"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11/kover-gradle-plugin-0.9.11.jar",
+        "sha512": "a68f4d81a3e5434c5c301f8978e8071d67b0bfe1c219c78fdfc600effc22d38e07730acf7ecec46f1d6abc9366bdca0ef5aac26803904a7b8607a99723af7fb8",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11",
+        "dest-filename": "kover-gradle-plugin-0.9.11.jar",
+        "sha256": "617753b30fab53058713a9cda39a021ac523abcb0daee9ca0980c74926d069f4"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11/kover-gradle-plugin-0.9.11.module",
+        "sha512": "c84ebcc92b8886354fdfc576a8a685a18248dd52d0c0d97bd8dc84f640f643484cfad14d687ef12e1ceaeaf719d9518034c79bef0e67b1135190c58ff3c7950e",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11",
+        "dest-filename": "kover-gradle-plugin-0.9.11.module",
+        "sha256": "cd78ea61b87f0587bcd1da39ee7857702e48520219437eefbd911df9397959e3"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11/kover-gradle-plugin-0.9.11.pom",
+        "sha512": "588c177078a3d512cdee17b9a53dc407578bd2037bd9d282e76aa8190c387e955fe852849ed1791d52a6148a6779f7098d3462aaa4208c1d3ea5b8cf005b44f2",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-gradle-plugin/0.9.11",
+        "dest-filename": "kover-gradle-plugin-0.9.11.pom",
+        "sha256": "158a82b583bc9626039c3d17d65db369b90868f063a63c0820b544c2e098ed20"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11/kover-jvm-agent-0.9.11.jar",
+        "sha512": "550e1fe3918fc2628d6e11622302a4b7227ad22ecdfe3b0d3b78965c7fd6a6a70ba9523097e126209a6c69408e1511ff38404c71acce9e1aeb11e12eb41a964e",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11",
+        "dest-filename": "kover-jvm-agent-0.9.11.jar",
+        "sha256": "f1f861d50ccffd207ad6b4472da038d27961a396c5674ba7f850c01a15287bc0"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11/kover-jvm-agent-0.9.11.module",
+        "sha512": "2df94467cac0fe131e82b29f23b4fb0f70c43ebf5ab29320b80230de4f6e81c3915c5fbf4c5c2d0c4f80b7c926dc5f90e24cc1671f99edb15a750947a962bcaf",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11",
+        "dest-filename": "kover-jvm-agent-0.9.11.module",
+        "sha256": "7922d864d1a9b10ec072956ffde0f47f19e131cabff030b34727f31432fb6297"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11/kover-jvm-agent-0.9.11.pom",
+        "sha512": "d76f5abe7d42c5c57a56d08143a154b5b4b7ab7cb3cb07a26f403f15d72518d5dce6c9587639be75c3924e7fbb162aa1374e90557ae6f1232d0bcb4104db9f14",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover-jvm-agent/0.9.11",
+        "dest-filename": "kover-jvm-agent-0.9.11.pom",
+        "sha256": "78b4b9a467a7fb8371a73ab6f34b452394ec2f87bfb64dcdb372a8d936fa2ef3"
+    },
+    {
+        "type": "file",
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kover/org.jetbrains.kotlinx.kover.gradle.plugin/0.9.11/org.jetbrains.kotlinx.kover.gradle.plugin-0.9.11.pom",
+        "sha512": "2892a346e31b7c05b477d742d3872e7e67bfda688b29f170f011f1c761c0d1abea4efa87afd9bbf1f31c2d0fcc6fb579c5e82c4eda06f449d45577b034745773",
+        "dest": "offline-repository/org/jetbrains/kotlinx/kover/org.jetbrains.kotlinx.kover.gradle.plugin/0.9.11",
+        "dest-filename": "org.jetbrains.kotlinx.kover.gradle.plugin-0.9.11.pom",
+        "sha256": "2ac3170ec954ebca93275a18470cc2de4f8342933fe6fbbb521121ed142b0ca8"
     },
     {
         "type": "file",
