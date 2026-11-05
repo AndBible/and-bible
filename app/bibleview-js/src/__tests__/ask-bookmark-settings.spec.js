@@ -31,8 +31,7 @@ describe("bookmark settings edit action validation", () => {
     });
 
     it.each([EditActionMode.PREPEND, EditActionMode.APPEND].flatMap(mode =>
-        [null, "", " \n "].map(content => [mode, content])))
-    ("rejects saved %s mode with empty content %j, including header close", async (mode, content) => {
+        [null, "", " \n "].map(content => [mode, content])))("rejects saved %s mode with empty content %j, including header close", async (mode, content) => {
         const result = wrapper.vm.askBookmarkSettings(null, {mode, content});
         let resolved = false;
         result.then(() => {resolved = true;});
@@ -52,8 +51,7 @@ describe("bookmark settings edit action validation", () => {
         expect(await result).toEqual({customIcon: null, editAction: {mode, content: "Valid text"}});
     });
 
-    it.each([EditActionMode.PREPEND, EditActionMode.APPEND])
-    ("validates immediately when selecting %s and allows clearing the mode", async mode => {
+    it.each([EditActionMode.PREPEND, EditActionMode.APPEND])("validates immediately when selecting %s and allows clearing the mode", async mode => {
         const result = wrapper.vm.askBookmarkSettings(null, {mode: null, content: null});
         await flushPromises();
         // Select the edit action tab, then choose an insertion mode without typing.
@@ -69,6 +67,17 @@ describe("bookmark settings edit action validation", () => {
         expect(button().disabled).toBe(false);
         button().click();
         expect(await result).toEqual({customIcon: null, editAction: {mode: null, content: null}});
+    });
+
+    it("enables saving when the formatting button fills empty content", async () => {
+        const result = wrapper.vm.askBookmarkSettings(null, {mode: EditActionMode.APPEND, content: null});
+        await flushPromises();
+        expect(button().disabled).toBe(true);
+        document.querySelector(".format-button").click();
+        await flushPromises();
+        expect(button().disabled).toBe(false);
+        button().click();
+        expect((await result).editAction).toEqual({mode: EditActionMode.APPEND, content: "<br/>"});
     });
 
     it("allows a formatting-only paragraph break", async () => {

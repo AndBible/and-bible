@@ -77,7 +77,6 @@
               <textarea
                   ref="contentTextarea"
                   v-model="selectedEditAction.content"
-                  @input="validateContent"
                   :placeholder="strings.editActionContentPlaceholder"
                   class="content-textarea"
                   :class="{ 'has-error': validationError }"
@@ -266,11 +265,15 @@ async function insertSubtitle() {
 
 function validateContent() {
     const content = selectedEditAction.content;
-    if (!content || selectedEditAction.mode === null) {
+    if (selectedEditAction.mode === null) {
         validationError.value = null;
         return true;
     }
-    
+    if (!content?.trim()) {
+        validationError.value = strings.editActionContentRequired;
+        return false;
+    }
+
     const error = validateBookmarkEditActionContent(content, strings);
     validationError.value = error;
     return error === null;
@@ -317,6 +320,7 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
         selectedEditAction.content = currentEditAction.content;
     }
   
+    validateContent();
     show.value = true;
     deferred = new Deferred<BookmarkSettings | null>();
     const result = await deferred.wait();
@@ -325,13 +329,13 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
 
 defineExpose({ askBookmarkSettings });
 
-// Clear validation errors when mode changes to null
 watch(() => selectedEditAction.mode, (newMode) => {
     if (newMode === null) {
-        validationError.value = null;
         selectedEditAction.content = null;
     }
+    validateContent();
 });
+watch(() => selectedEditAction.content, validateContent);
 </script>
 
 <style scoped lang="scss">

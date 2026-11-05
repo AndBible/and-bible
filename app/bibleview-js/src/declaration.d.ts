@@ -140,6 +140,7 @@ type TranslatedStrings = {
     editActionModePrepend: string
     editActionContentLabel: string
     editActionContentPlaceholder: string
+    editActionContentRequired: string
     experimentalFeatureTitle: string
     experimentalFeatureHelpTitle: string
     experimentalFeatureHelpContent: string

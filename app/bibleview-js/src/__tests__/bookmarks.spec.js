@@ -573,8 +573,7 @@ describe("bookmark edit action rendering", () => {
     });
 
     it.each([EditActionMode.PREPEND, EditActionMode.APPEND].flatMap(mode =>
-        [null, "", " \n "].map(content => [mode, content])))
-    ("ignores %s edit actions with empty content %j without losing later highlights", async (mode, content) => {
+        [null, "", " \n "].map(content => [mode, content])))("ignores %s edit actions with empty content %j without losing later highlights", async (mode, content) => {
         gb.updateBookmarks(ordinals.map(ord => bookmark(ord, ord === 3 ? {mode, content} : undefined)));
         await nextTick();
         expect(highlighted()).toEqual(["o-1", "o-3", "o-4", "o-5", "o-9"]);
@@ -598,8 +597,7 @@ describe("bookmark edit action rendering", () => {
         expect(highlighted()).toEqual(["o-1", "o-4", "o-5", "o-9"]);
     });
 
-    it.each([EditActionMode.PREPEND, EditActionMode.APPEND])
-    ("preserves valid %s text, formatting and redraw cleanup", async mode => {
+    it.each([EditActionMode.PREPEND, EditActionMode.APPEND])("preserves valid %s text, formatting and redraw cleanup", async mode => {
         gb.updateBookmarks([bookmark(3, {mode, content: "Added<br/><subtitle>Heading</subtitle>"})]);
         await nextTick();
         const verse = document.querySelector("#doc-edit-actions #o-3");
