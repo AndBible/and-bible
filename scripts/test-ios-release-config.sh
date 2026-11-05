@@ -100,6 +100,7 @@ class ReleaseConfigTest(unittest.TestCase):
         text = self.run_script('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
         commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
         self.assertIn(f'AND_BIBLE_COMMIT_HASH = {commit}\n', text)
+        self.assertIn('AND_BIBLE_COMMIT_OVERRIDE = \n', text)
 
     def test_version_xcconfig_accepts_commit_override(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -109,6 +110,7 @@ class ReleaseConfigTest(unittest.TestCase):
             env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out), AND_BIBLE_COMMIT='a' * 40)
             subprocess.run([str(root / 'scripts/ios-version-xcconfig.sh')], env=env, check=True)
             self.assertIn(f'AND_BIBLE_COMMIT_HASH = {"a" * 40}\n', out.read_text())
+            self.assertIn(f'AND_BIBLE_COMMIT_OVERRIDE = {"a" * 40}\n', out.read_text())
 
     def test_version_xcconfig_prefers_mac_owner_over_stub_git(self):
         with tempfile.TemporaryDirectory() as tmp:
