@@ -81,7 +81,7 @@ class BibleViewOffsetsTest {
                 insets.setRailCoveredWindows(emptySet())
                 val hidden = shadowOf(view).lastEvaluatedJavascript
                 assertEquals(39f / density, view.bottomOffset, 0f)
-                assertEquals(hidden, true, hidden?.startsWith("bibleView.emit(\"set_offsets\", 0.0, ${39f / density}, true,"))
+                assertEquals("bibleView.emit(\"set_offsets\", 0.0, ${39f / density}, {\"immediate\": true, \"imeOpen\": false});", hidden)
                 insets.setRailCoveredWindows(setOf(window.id.toString()))
                 assertEquals(92f / density, view.bottomOffset, 0f)
             } finally { sub.cancel() }
