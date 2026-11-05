@@ -8,6 +8,19 @@ case of device failure. It is recommended to backup your database file
 often. The database contains your notes, bookmarks, application settings,
 reading plans, and other information.
 
+## Damaged app databases
+
+Before opening an app database, AndBible checks that its schema can be read.
+If SQLite reports corruption, AndBible closes that connection and checks again
+with a new connection. A single failed check, a lock, or an I/O error does not
+cause the database to be replaced.
+
+If both checks report corruption, AndBible moves the damaged database and any
+remaining journal or lock files aside under a name containing `.corrupt-` and
+a timestamp, then creates an empty replacement. The saved files are not restored
+automatically. Restore a known-good backup to recover your data. This automatic
+recovery does not apply to files selected for import or restore.
+
 ## Recovery after repeated crashes on iOS
 
 If AndBible detects repeated crashes within an hour, it offers a recovery screen
