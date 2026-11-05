@@ -114,6 +114,20 @@ object IosAppHostPlatform : AppHostPlatform {
     override fun readingPaneFactory(): ReadingPaneFactory =
         iosReadingPaneFactory(HostReadingWindows::sessionFor, HostReadingWindows::bridgeFor, { HostReadingWindows.nightMode }, HostReadingWindows::isOpen)
 
+    override fun onReadingKeyEvent(event: androidx.compose.ui.input.key.KeyEvent): Boolean {
+        val id = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
+            .activeWindow.id.toString()
+        if (!HostReadingWindows.hasAssembly(id) || HostReadingWindows.sessionFor(id).editingTextInJs) return false
+        val command = net.bible.sharedui.reading.readingShortcut(event) ?: return false
+        // The page also checks editor state synchronously if the bridge mirror is stale.
+        val ctrl = command.startsWith("Ctrl")
+        val code = command.removePrefix(if (ctrl) "Ctrl" else "Alt")
+        val webView = net.bible.sharedui.webview.IosReadingWebViews.webViewFor(id)
+            as? net.bible.sharedui.webview.ReadingWkWebView ?: return false
+        webView.deliverReadingShortcut(code, ctrl, alt = !ctrl)
+        return true
+    }
+
     override fun setIdleTimerDisabled(disabled: Boolean) {
         UIApplication.sharedApplication.idleTimerDisabled = disabled
     }

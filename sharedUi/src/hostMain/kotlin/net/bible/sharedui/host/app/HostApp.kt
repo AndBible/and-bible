@@ -711,7 +711,9 @@ private fun HostReadingDestination(
         val density = LocalDensity.current
         val topInset = if (host.fullScreen.state.value) with(density) { fullScreenReadingTopInsets().getTop(density).toDp() } else 0.dp
         CompositionLocalProvider(LocalReadingPane provides paneFactory, LocalReadingTopSafeInset provides topInset) {
-            ReadingHost(deps, Modifier.testTag("reading-host"))
+            net.bible.sharedui.reading.ReadingShortcutInput(platform::onReadingKeyEvent) { shortcutModifier ->
+                ReadingHost(deps, Modifier.testTag("reading-host").then(shortcutModifier))
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ import platform.UIKit.UIMenuBuilderProtocol
 import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import net.bible.sharedui.reading.bridge.ReadingBridge
+import net.bible.sharedui.reading.readingShortcutScript
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.session.BibleWindowSession
 import platform.Foundation.NSLocale
@@ -45,6 +46,12 @@ import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
 import platform.Foundation.setValue
 import platform.UIKit.UIColor
+import platform.UIKit.UIKeyboardHIDUsageKeyboardA
+import platform.UIKit.UIKeyboardHIDUsageKeyboardZ
+import platform.UIKit.UIKeyboardHIDUsageKeyboardRightArrow
+import platform.UIKit.UIKeyboardHIDUsageKeyboardLeftArrow
+import platform.UIKit.UIKeyboardHIDUsageKeyboardDownArrow
+import platform.UIKit.UIKeyboardHIDUsageKeyboardUpArrow
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 import platform.WebKit.WKWebView
@@ -60,6 +67,57 @@ import kotlinx.cinterop.ObjCObjectBase.OverrideInit
 internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>, configuration: WKWebViewConfiguration) :
     WKWebView(frame, configuration) {
     var onAttached: (() -> Unit)? = null
+    var isEditing: () -> Boolean = { false }
+    private val swallowedPresses = mutableSetOf<platform.UIKit.UIPress>()
+
+    override fun pressesBegan(presses: Set<*>, withEvent: platform.UIKit.UIPressesEvent?) {
+        val unhandled = presses.filterNot { value ->
+            val press = value as? platform.UIKit.UIPress ?: return@filterNot false
+            if (isEditing()) return@filterNot false
+            val key = press.key ?: return@filterNot false
+            val code = when (key.keyCode) {
+                in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
+                    "Key" + ('A' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt())
+                UIKeyboardHIDUsageKeyboardRightArrow -> "ArrowRight"
+                UIKeyboardHIDUsageKeyboardLeftArrow -> "ArrowLeft"
+                UIKeyboardHIDUsageKeyboardDownArrow -> "ArrowDown"
+                UIKeyboardHIDUsageKeyboardUpArrow -> "ArrowUp"
+                else -> return@filterNot false
+            }
+            val flags = key.modifierFlags
+            net.bible.sharedui.reading.readingShortcut(
+                code,
+                ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
+                alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+                meta = flags and platform.UIKit.UIKeyModifierCommand != 0L,
+            ) ?: return@filterNot false
+            // Native is the sole owner of modified iOS chords. JS checks its editor synchronously;
+            // its DOM listener ignores these chords even if WebKit also delivers a keydown.
+            deliverReadingShortcut(code,
+                ctrl = flags and platform.UIKit.UIKeyModifierControl != 0L,
+                alt = flags and platform.UIKit.UIKeyModifierAlternate != 0L,
+            )
+            swallowedPresses.add(press)
+            true
+        }.toSet()
+        if (unhandled.isNotEmpty()) super.pressesBegan(unhandled, withEvent)
+    }
+
+    override fun pressesEnded(presses: Set<*>, withEvent: platform.UIKit.UIPressesEvent?) {
+        val unhandled = presses.filterNot { it is platform.UIKit.UIPress && swallowedPresses.remove(it) }.toSet()
+        if (unhandled.isNotEmpty()) super.pressesEnded(unhandled, withEvent)
+    }
+
+    override fun pressesCancelled(presses: Set<*>, withEvent: platform.UIKit.UIPressesEvent?) {
+        val unhandled = presses.filterNot { it is platform.UIKit.UIPress && swallowedPresses.remove(it) }.toSet()
+        if (unhandled.isNotEmpty()) super.pressesCancelled(unhandled, withEvent)
+    }
+
+    internal fun deliverReadingShortcut(code: String, ctrl: Boolean, alt: Boolean) {
+        evaluateJavaScript(readingShortcutScript(code, ctrl, alt)) { _, error ->
+            if (error != null) nsLog("bridge: reading shortcut failed ${error.localizedDescription}")
+        }
+    }
 
     init {
         // UIKit's scroll-to-top (normally a status-bar tap) animated the reading page to the top of the loaded
@@ -225,6 +283,7 @@ object IosReadingWebViews {
         entry.gestureRecognisers = null
         // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
         entry.webView.onAttached = null
+        entry.webView.isEditing = { false }
         entry.webView.bibleSchemeHandler?.currentDocument = { null }
     }
 
@@ -244,6 +303,13 @@ object IosReadingWebViews {
             val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {
                 ReadingWkWebView(CGRectMake(0.0, 0.0, 0.0, 0.0), it)
             } as ReadingWkWebView
+            webView.configuration.userContentController.addUserScript(
+                WKUserScript(
+                    source = "window.__abNativeReadingChords = true;",
+                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                    forMainFrameOnly = true,
+                ),
+            )
             ReadingEntry(webView, navDelegate).also {
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.
@@ -276,6 +342,7 @@ object IosReadingWebViews {
         )
         val handler = IosBridgeMessageHandler(dispatcher)
         entry.webView.onAttached = { session.jsChannel.flush() }
+        entry.webView.isEditing = { session.editingTextInJs }
         // `/epub/<path>` reads the EPUB this window shows (Android `EpubResourcesAssetHandler`).
         entry.webView.bibleSchemeHandler?.currentDocument = { session.firstDocument }
         entry.handler = handler // strong reference: WebKit holds the handler weakly

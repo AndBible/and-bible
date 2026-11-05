@@ -2,7 +2,7 @@ package net.bible.android.view.compose
 
 import android.view.MotionEvent
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
