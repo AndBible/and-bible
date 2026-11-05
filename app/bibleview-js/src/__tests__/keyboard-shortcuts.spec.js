@@ -81,6 +81,20 @@ describe("reading shortcut ownership", () => {
         expect(commands).toEqual([]);
     });
 
+    it("leaves unsupported native chords available to DOM priority handlers on iOS", () => {
+        window.webkit = {messageHandlers: {bridge: {}}};
+        try {
+            const {api, press} = keyboard();
+            let notes = 0;
+            wrappers.push(mount(defineComponent({setup() {
+                api.setupKeyboardListener(e => { if (e.code === "KeyN") { notes++; return true; } return false; });
+                return () => null;
+            }})));
+            press("KeyN", {ctrlKey: true});
+            expect(notes).toBe(1);
+        } finally { delete window.webkit; }
+    });
+
     it("checks editor ownership at dispatch time for the native iOS route", async () => {
         const {commands, api} = keyboard();
         // Prove the native route is live before checking the editor gate.

@@ -104,7 +104,9 @@ export function useKeyboard(
     setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
         // UIKit owns modified reading chords on iOS: WKContentView can bubble a press without a DOM keydown.
         // Never execute the same chord again if WebKit also emits it. Plain arrows/Space stay DOM-owned.
-        if ((window as any).webkit?.messageHandlers?.bridge && (e.ctrlKey || e.altKey)) return;
+        const nativeChord = !e.metaKey && !(e.ctrlKey && e.altKey) &&
+            ((e.ctrlKey && ctrlKeys.has(e.code)) || (e.altKey && altKeys.has(e.code)));
+        if ((window as any).webkit?.messageHandlers?.bridge && nativeChord) return;
         handleReadingKey(e);
     });
     setupWindowEventListener("andbible-native-reading-key", (event: Event) => {
