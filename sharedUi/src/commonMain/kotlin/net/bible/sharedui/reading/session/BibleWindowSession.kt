@@ -20,6 +20,7 @@
 package net.bible.sharedui.reading.session
 
 import kotlin.concurrent.Volatile
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -120,6 +121,13 @@ class BibleWindowSession(
         }
     var firstKey: Key? = null
     var lastKey: Key? = null
+
+    /**
+     * The generation of the document [DocumentLoader] last admitted ([firstDocument]); [NO_DOCUMENT_GENERATION] when
+     * none is (also while the view is parked for reuse). It is sent to JS with the document's `clear_document`, and JS
+     * echoes it with every bridge call; the dispatcher drops guarded calls of any other generation (osTicket 3508, #3975).
+     */
+    @Volatile var documentGeneration: Long = NO_DOCUMENT_GENERATION
 
     @Volatile var minChapter: Int = -1
     @Volatile var maxChapter: Int = -1

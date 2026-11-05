@@ -51,6 +51,7 @@ import net.bible.android.view.activity.page.FavouriteLabelIdsCache
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.bibleview.JsExpr
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import net.bible.sharedcore.bibleview.SessionLock
 import net.bible.sharedcore.bibleview.SetupContent
 import net.bible.sharedcore.log.Log
@@ -206,6 +207,8 @@ class DocumentLoader(
                     session.maxChapter = chapter
                 }
                 session.firstDocument = document
+                // From now on only calls of the page that received this document act on the window (#3975).
+                session.documentGeneration = generation
                 if (docStr.length > MAX_DOC_STR_LENGTH) {
                     val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
                     docStr = errorDoc.asJson
@@ -235,6 +238,7 @@ class DocumentLoader(
         }
         labelsUploaded = false
         session.firstDocument = null
+        session.documentGeneration = NO_DOCUMENT_GENERATION
         session.initialKey = null
         // The old window's chapters; a report or chapter request of the old page must not match them (osTicket 3508).
         requestMoreLock.withLock {
@@ -269,8 +273,10 @@ class DocumentLoader(
         cancelPendingChapterLoads()
 
         val verse = if (isBible || session.firstDocument is MyNotesDocument) session.initialKey as? Verse else null
+        var generation = NO_DOCUMENT_GENERATION
         val documentStr = documentLoadingLock.withLock {
             if (latestDocumentStr == null || !needsDocument) return@withLock null
+            generation = session.documentGeneration
             needsDocument = false
             session.contentVisible = true
             requestMoreLock.withLock {
@@ -293,7 +299,7 @@ class DocumentLoader(
             else initialHtmlId
 
         emit(
-            BibleViewEvents.clearDocument() + configCommand(true) +
+            BibleViewEvents.clearDocument(generation) + configCommand(true) +
                 BibleViewEvents.addDocuments(JsExpr("$documentStr")) +
                 BibleViewEvents.setupContent(SetupContent(
                     jumpToOrdinal = verse?.ordinal,

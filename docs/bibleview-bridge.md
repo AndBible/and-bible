@@ -45,6 +45,24 @@ functions and `jsString` for strings, not interpolated user text. Encoding escap
 backslashes, control characters and U+2028/U+2029. Preserve omitted payload keys separately
 from keys explicitly sent as `null`.
 
+## Document generation (stale pages)
+
+A web view outlives its document, and since #3950/#3955 even its window: a workspace switch hands the outgoing
+view to an incoming window, and its old page stays on screen and keeps calling until the new document replaces it.
+Calls of such a page must not act on the window that now owns the view (osTicket 3508, #3975).
+
+- `DocumentLoader` gives each admitted document a generation (`BibleWindowSession.documentGeneration`;
+  `NO_DOCUMENT_GENERATION` = 0 while none is admitted, also while a view is parked for reuse) and sends it with the
+  document's `clear_document`.
+- The page switches to that generation once the cleared content has left the DOM
+  (`src/bridge/document-generation.ts`), and `native-bridge.ts` puts it on every call's envelope
+  (`{method, args, documentGeneration}`).
+- `BridgeDispatcher` drops a `BridgeGenerationPolicy.guarded` call whose generation is not the bridge's
+  `DocumentGenerationGate.admittedDocumentGeneration` (a deferred one is answered with null). Unguarded calls
+  (id-addressed data writes, UI, the live page's own state) always pass: dropping a note save would lose input.
+- Native switches generation at admission, the page only after it has cleared the old content: a guarded tap in that
+  gap (normally milliseconds) is dropped silently. That is the intended trade-off.
+
 ## Adding a JS-to-native method
 
 1. Add the TypeScript member to `BibleJavascriptInterface` in
@@ -59,7 +77,9 @@ from keys explicitly sent as `null`.
 4. Add the Android `override` to `BibleJavascriptInterface.kt`; keep handler behavior and
    threading there. Add the logging no-op to `UnimplementedBibleBridge`, which the iOS PoC
    inherits, unless iOS implements the operation.
-5. Add meaningful decoder/behavior coverage. `BibleJavascriptInterfaceParityTest` and
+5. Classify it in `BridgeGenerationPolicy` (`guarded` if it acts on the window's current document or state
+   implicitly, else `unguarded`); `BridgeGenerationPolicyTest` fails for an unclassified method.
+6. Add meaningful decoder/behavior coverage. `BibleJavascriptInterfaceParityTest` and
    `BibleBridgeDecoderTest` must pass; they guard agreement between the TS contract,
    common contract/decoder and Android implementation. Check deferred failure replies too.
 

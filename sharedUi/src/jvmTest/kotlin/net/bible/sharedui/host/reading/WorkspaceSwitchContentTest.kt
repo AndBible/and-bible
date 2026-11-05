@@ -242,6 +242,7 @@ class WorkspaceSwitchContentTest {
             }
             assertEquals(3, fake.panes.size)
             val originalPanes = fake.panes.toList()
+            val outgoingGenerations = outgoing.map { HostReadingWindows.sessionFor(it.id.toString()).documentGeneration }
             repository.saveIntoDb()
             repository.persistence.awaitPersisted()
             dao.insertWorkspace(target)
@@ -259,6 +260,12 @@ class WorkspaceSwitchContentTest {
             engine.attach(id, false, HostReadingWindows.bridgeFor(id), {}, { session.jsChannel.flush() })
             val adopted = assertNotNull(engine.paneFor(id))
             assertTrue(originalPanes.any { it === adopted }, "the incoming window must adopt an outgoing native pane")
+            // #3975: the adopted pane's old page still posts with its old document generation; a call that acts on
+            // the window's current state implicitly must not reach the incoming window.
+            val staleGeneration = outgoingGenerations[originalPanes.indexOfFirst { it === adopted }]
+            (adopted as net.bible.sharedui.desktop.webengine.FakePane).onMessage(
+                """{"method":"saveState","args":["outgoing page"],"documentGeneration":$staleGeneration}""")
+            assertTrue(incoming.pageManager.jsState != "outgoing page", "a stale page call must not reach the incoming window")
             assertTrue(outgoing.all { it.bibleView == null }, "outgoing owners must detach their views")
             assertSame(adopted, engine.paneFor(id))
             // Simulate the completed-composition cleanup seam.

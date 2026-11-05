@@ -85,7 +85,12 @@ object BibleViewEvents {
     fun removeRanges() = emit("remove_ranges")
     fun closeModals() = emit("close_modals")
     fun exportHtml() = emit("export_html")
-    fun clearDocument() = emit("clear_document")
+    /**
+     * Clears the page. [documentGeneration] is the generation of the document that follows; JS echoes it in its
+     * scroll reports until the next clear (omitted: JS reports generation 0, which native never admits).
+     */
+    fun clearDocument(documentGeneration: Long? = null) =
+        if (documentGeneration == null) emit("clear_document") else emit("clear_document", documentGeneration.toString())
 
     fun reloadAddons(fontModuleNames: List<String>, featureModuleNames: List<String>, styleModuleNames: List<String>) =
         emit("reload_addons", obj(

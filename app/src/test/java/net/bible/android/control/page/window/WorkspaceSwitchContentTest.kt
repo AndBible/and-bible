@@ -174,6 +174,7 @@ class WorkspaceSwitchContentTest {
     @Test fun anAdoptedViewsOldPageCannotMoveTheIncomingWindow() {
         val a = workspaceA()
         val oldViews = a.oldWindows.map { it.bibleView as BibleView }
+        val oldGenerations = oldViews.associateWith { it.session.documentGeneration }
         val bId = newWorkspaceB(a.repo)
 
         a.activity.lifecycleScope.launch { a.activity.readingCommands.switchWorkspace(bId) }
@@ -191,12 +192,59 @@ class WorkspaceSwitchContentTest {
         val oldVerse = org.crosswire.jsword.passage.Verse(before.versification, org.crosswire.jsword.versification.BibleBook.LUKE, 12, 49)
         assertFalse("fixture: B's window must not already be in Luke 12", before.book == oldVerse.book && before.chapter == 12)
 
-        // The old page (Luke 12) reports its top verse after B's document was admitted, before JS cleared it.
-        view.readingBridge.scrolledToOrdinal("Luke.12", oldVerse.ordinal)
+        // The old page (Luke 12) reports its top verse after B's document was admitted, before JS cleared it. It
+        // echoes the generation of the outgoing window's document.
+        staleReport(view, "Luke.12", oldVerse.ordinal, oldGenerations.getValue(view))
 
         val after = incoming.pageManager.currentBible.currentBibleVerse.verse
         assertEquals("the outgoing page's verse must not move workspace B's window", before, after)
     }
+
+    /**
+     * #3975: the outgoing page's stale report must be ignored even when the incoming window shows the very chapter the
+     * outgoing page was in (outgoing John 6:58, incoming John 6:5): a loaded-chapter check cannot tell those apart,
+     * only the generation of the document the report was rendered from can.
+     */
+    @Test fun anAdoptedViewsOldPageCannotMoveTheIncomingWindowWithinTheSameChapter() {
+        val a = workspaceA()
+        val kjv = Books.installed().getBook("KJV")
+        val outgoing = org.crosswire.jsword.passage.Verse(
+            a.oldWindows[0].pageManager.currentBible.currentBibleVerse.verse.versification,
+            org.crosswire.jsword.versification.BibleBook.JOHN, 6, 58)
+        a.oldWindows.forEach { it.pageManager.setCurrentDocumentAndKey(kjv, outgoing) }
+        val oldViews = a.oldWindows.map { it.bibleView as BibleView }
+        awaitHostUntil("fixture: the outgoing views hold John 6") {
+            oldViews.all { (it.session.initialKey as? org.crosswire.jsword.passage.Verse)?.chapter == 6 }
+        }
+        val oldGenerations = oldViews.associateWith { it.session.documentGeneration }
+        val bId = newWorkspaceB(a.repo)
+
+        a.activity.lifecycleScope.launch { a.activity.readingCommands.switchWorkspace(bId) }
+        settleWorkspaceSwitches()
+        compose.waitForIdle()
+
+        val incoming = a.repo.windowList.single()
+        val view = a.factory.getOrCreateBibleView(incoming)
+        assertTrue("fixture: workspace B's window adopts an outgoing view", oldViews.any { it === view })
+        val incomingVerse = org.crosswire.jsword.passage.Verse(outgoing.versification, outgoing.book, 6, 5)
+        incoming.pageManager.setCurrentDocumentAndKey(kjv, incomingVerse)
+        awaitHostUntil("workspace B's John 6 document must be admitted to the adopted view") {
+            (view.session.initialKey as? org.crosswire.jsword.passage.Verse)?.let { it.book == outgoing.book && it.chapter == 6 } == true &&
+                view.session.documentGeneration != oldGenerations.getValue(view)
+        }
+        val before = incoming.pageManager.currentBible.currentBibleVerse.verse
+        assertEquals("fixture", incomingVerse, before)
+
+        staleReport(view, "John.6", outgoing.ordinal, oldGenerations.getValue(view))
+
+        assertEquals("the outgoing page's John 6:58 must not move workspace B's window off John 6:5",
+            before, incoming.pageManager.currentBible.currentBibleVerse.verse)
+    }
+
+    /** A scroll report as the page posts it: through the view's dispatcher, echoing the page's document generation. */
+    private fun staleReport(view: BibleView, keyStr: String, ordinal: Int, generation: Long) =
+        net.bible.sharedcore.bibleview.BridgeDispatcher(view.readingBridge, {}, {}).dispatch(
+            """{"method":"scrolledToOrdinal","args":["$keyStr",$ordinal],"documentGeneration":$generation}""")
 
     private fun scenario(animationsOff: Boolean) {
         CommonUtils.settings.setBoolean("disable_animations", animationsOff)

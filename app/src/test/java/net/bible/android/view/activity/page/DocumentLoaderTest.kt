@@ -53,6 +53,7 @@ import net.bible.sharedui.reading.session.BibleWindowSession
 import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.DocumentLoader
 import net.bible.sharedui.reading.session.DocumentLoaderPlatform
+import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import net.bible.test.DatabaseResetter
 import net.bible.test.testCoreStrings
 import net.bible.test.testWindowRepository
@@ -195,6 +196,7 @@ class DocumentLoaderTest {
         ).map { net.bible.service.sword.BookAndKey(it, kjv) })
         window.pageManager.setCurrentDocumentAndKey(factory.multiDocument, refs)
         session.firstDocument = window.pageManager.currentPage.currentPageContent()
+        session.documentGeneration = 1
         net.bible.sharedui.reading.bridge.ReadingBridge(session).scrolledToOrdinal("", 5)
         val windowId = window.id
         repo.saveIntoDb(false)
@@ -229,6 +231,47 @@ class DocumentLoaderTest {
         withContext(Dispatchers.IO) { withTimeout(10_000) { while (session.firstDocument !== document) Thread.sleep(10) } }
         assertTrue("the admitted chapter", session.hasChapterLoaded(10))
         assertFalse("a chapter of the previous document", session.hasChapterLoaded(4))
+    }
+
+    /**
+     * #3975: every admitted document gets its own generation; the page receives it with the document's
+     * `clear_document` (also when a restarted page gets the document again) and echoes it in its scroll reports.
+     * Handing the page to another window forgets it, so no report of the old page matches.
+     */
+    @Test
+    fun theAdmittedDocumentsGenerationTravelsWithItsClearDocument() = runBlocking {
+        loader.loadDocument(doc("A"), false, null, null, null, null)
+        val a = session.documentGeneration
+        assertTrue("an admitted generation", a != NO_DOCUMENT_GENERATION)
+        assertEquals(loader.loadGeneration, a)
+        assertTrue(host.evaluated.toString(), host.evaluated.any { it.contains("bibleView.emit(\"clear_document\", $a)") })
+        host.evaluated.clear()
+
+        loader.loadDocument(doc("B"), false, null, null, null, null)
+        val b = session.documentGeneration
+        assertTrue("a new document, a new generation", b > a)
+        assertTrue(host.evaluated.toString(), host.evaluated.any { it.contains("bibleView.emit(\"clear_document\", $b)") })
+        host.evaluated.clear()
+
+        loader.setClientReady()
+        assertTrue("a restarted page gets the same generation: ${host.evaluated}",
+            host.evaluated.any { it.contains("bibleView.emit(\"clear_document\", $b)") })
+
+        loader.forgetDocument()
+        assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+    }
+
+    /** #3975: the generation changes at admission, before a booting page has received the document, so a report of
+     *  the page's previous document never matches the newly admitted one. */
+    @Test
+    fun theGenerationChangesWhenTheDocumentIsAdmitted() = runBlocking {
+        session.dispose()
+        setUpReloadedSession(clientReady = false)
+        session.documentGeneration = 99
+        loader.loadDocument(doc("A"), false, null, null, null, null)
+        withContext(Dispatchers.IO) { withTimeout(10_000) { while (session.firstDocument == null) Thread.sleep(10) } }
+        assertEquals(loader.loadGeneration, session.documentGeneration)
+        assertFalse("nothing sent yet: ${host.evaluated}", host.evaluated.any { it.contains("clear_document") })
     }
 
     @Test

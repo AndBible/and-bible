@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.sharedcore.bibleview.DocumentGenerationGate
 import net.bible.service.sword.SwordDocumentFacade
 
 /**
@@ -25,11 +26,12 @@ import net.bible.service.sword.SwordDocumentFacade
  * `ReadingBridge` of [bibleView] (`BibleBridge by ...`); `BibleJavascriptInterfaceIsAdapterTest`
  * keeps it that way. What stays here is Android-only: the `androidBridge` endpoint's
  * [getActiveLanguages] and the [notificationsEnabled] flag that [BibleView] toggles around the
- * action mode.
+ * action mode. It is also the bridge's [DocumentGenerationGate], so the dispatcher drops guarded calls of a replaced
+ * page (#3975).
  */
 class BibleJavascriptInterface(
     bibleView: BibleView
-) : BibleBridge by bibleView.readingBridge {
+) : BibleBridge by bibleView.readingBridge, DocumentGenerationGate by bibleView.readingBridge {
     var notificationsEnabled = false
 
     /** The language codes of the installed Bibles as a JSON list, for the `androidBridge` endpoint. */

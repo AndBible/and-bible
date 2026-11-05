@@ -15,7 +15,11 @@ class BridgeDispatcher(
         parseBridgeMessage(raw).fold({ dispatch(it) }) { e -> error("malformed bridge message: ${e.message}") }
 
     fun dispatch(message: BridgeMessage): BridgeResult = try {
-        if (BibleBridgeDecoder.decode(message.method, message.args, bridge)) {
+        if (isStale(message)) {
+            safeLog("bridge: dropped ${message.method} of a replaced page (generation ${message.documentGeneration})")
+            if (message.method in BibleBridgeDecoder.deferredMethods) answerNull(message)
+            BridgeResult.Dropped(message.method)
+        } else if (BibleBridgeDecoder.decode(message.method, message.args, bridge)) {
             BridgeResult.Handled
         } else {
             safeLog("bridge: unknown method ${message.method}")
@@ -24,6 +28,17 @@ class BridgeDispatcher(
     } catch (e: Throwable) {
         if (message.method in BibleBridgeDecoder.deferredMethods) answerNull(message)
         error("${message.method} failed: ${e.message}")
+    }
+
+    /**
+     * A [BridgeGenerationPolicy.guarded] call from a page whose document is not the one the bridge admitted: the page's
+     * previous document, or the old page of a web view handed to another window (#3950, osTicket 3508, #3975).
+     */
+    private fun isStale(message: BridgeMessage): Boolean {
+        if (message.method !in BridgeGenerationPolicy.guarded) return false
+        val gate = bridge as? DocumentGenerationGate ?: return false
+        val admitted = gate.admittedDocumentGeneration
+        return admitted == NO_DOCUMENT_GENERATION || message.documentGeneration != admitted
     }
 
     private fun answerNull(message: BridgeMessage) {

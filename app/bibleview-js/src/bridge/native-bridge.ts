@@ -20,6 +20,8 @@
 // to `webkit.messageHandlers.bridge` (IosBridgeMessageHandler.kt). Both end in the common Kotlin
 // BridgeDispatcher. Imported first by main.ts so nothing touches window.android before it exists.
 
+import {documentGeneration} from "@/bridge/document-generation";
+
 type Post = (method: string, args: unknown[]) => void;
 type BridgeWindow = Omit<Window, "android"> & Record<string, any>;
 
@@ -28,9 +30,10 @@ const nativeWarn = console.warn.bind(console);
 
 function transport(w: BridgeWindow): Post | null {
     const android = w.androidBridge;
-    if (android) return (method, args) => android.postMessage(JSON.stringify({method, args}));
+    // Every call carries the document generation of the content it came from (see document-generation.ts).
+    if (android) return (method, args) => android.postMessage(JSON.stringify({method, args, documentGeneration: documentGeneration()}));
     const ios = w.webkit?.messageHandlers?.bridge;
-    if (ios) return (method, args) => ios.postMessage({method, args});
+    if (ios) return (method, args) => ios.postMessage({method, args, documentGeneration: documentGeneration()});
     return null;
 }
 

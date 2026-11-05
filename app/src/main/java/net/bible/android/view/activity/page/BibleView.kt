@@ -905,6 +905,9 @@ class BibleView(
      */
     fun retire() {
         listenEvents = false
+        // The parked page still calls the bridge; with no admitted document none of its guarded calls (scroll reports,
+        // paging, links, ...) reaches the outgoing window, which a later write would sync into the new workspace (#3975).
+        documentLoader.forgetDocument()
         val win = windowRef.get()
         if (win != null && win.bibleView === this) win.bibleView = null
     }
