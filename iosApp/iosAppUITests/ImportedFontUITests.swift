@@ -8,7 +8,8 @@ final class ImportedFontUITests: RealAppUITestCase {
     }
 
     private func tapLabel(_ app: XCUIApplication, _ label: String) {
-        let target = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+        let target = label == "StudyMono" ? app.buttons[label].firstMatch :
+            app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
         for _ in 0..<6 {
             if target.waitForExistence(timeout: 2) && target.isHittable { break }
             // iOS omits the labels of offscreen Compose choices from AX. Scroll inside the sheet,
@@ -19,8 +20,22 @@ final class ImportedFontUITests: RealAppUITestCase {
         }
         if !target.exists || !target.isHittable { attachTree(app, "missing-\(label)"); shot(app, "missing-\(label)") }
         XCTAssertTrue(target.exists && target.isHittable, "Missing or not hittable: \(label)")
-        if label == "StudyMono" { shot(app, "imported-font-offered") }
+        if label == "StudyMono" {
+            var prior: CGRect?
+            XCTAssertTrue(waitUntil(timeout: 5) {
+                let now = target.frame
+                defer { prior = now }
+                return now == prior && target.isHittable
+            }, "Imported font row stopped scrolling")
+            shot(app, "imported-font-offered")
+        }
         target.tap()
+        if label == "StudyMono" {
+            let close = app.buttons["Close sheet"].firstMatch
+            let dismissed = waitUntil(timeout: 10, { !close.exists })
+            if !dismissed { shot(app, "font-choice-not-dismissed"); attachTree(app, "font-choice-not-dismissed") }
+            XCTAssertTrue(dismissed, "Production choice dismissed the font sheet")
+        }
     }
 
     private func openFonts(_ app: XCUIApplication) {
