@@ -2,14 +2,7 @@
 
 package net.bible.sharedui.reading
 
-import androidx.compose.ui.geometry.Rect
-
-/** Physical overlap, so a wide rail and RTL layouts reserve every covered bottom pane. */
-internal fun railCoveredWindows(panes: Map<String, Rect>, rail: Rect?): Set<String> =
-    if (rail == null || rail.isEmpty) emptySet()
-    else panes.filterValues { !it.isEmpty && it.overlaps(rail) }.keys
-
-/** Keeps rail coverage separate from system insets, which belong to every bottom pane. */
+/** Tracks bottom panes under the expanded full-width rail, independently of their system insets. */
 @kotlin.native.HiddenFromObjC
 class ReadingRailCoverage(private val onChanged: () -> Unit = {}) {
     private var coveredWindows: Set<String> = emptySet()

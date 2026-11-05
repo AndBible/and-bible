@@ -63,10 +63,12 @@ the dark theme), rather than fading to gray. Bottom-bar buttons have square bott
 corners; pinned and links windows have more rounded top corners than unpinned
 windows. With automatic pinning enabled, all window buttons use the pinned shape.
 
-The window-button bar floats at the bottom end of the reading area. In a
-side-by-side split, only windows underneath the bar reserve its strip; other
-windows can use that space for text. A wider bar can reserve space in more than
-one window. Navigation-bar and taskbar space is still kept clear in every bottom
+The expanded window-button bar spans the full width of the reading area, with
+its buttons aligned to the end. In a side-by-side split, every window reserves
+the same bottom strip so the buttons do not cover text. In a stacked split, only
+the lowest window reserves it. Collapsing or hiding the bar releases the strip
+in every window; the small expand, new-window or restore control does not reserve
+a strip. Navigation-bar and taskbar space is still kept clear in every bottom
 window.
 
 Swipe down on the button at the top right of a window, or long-press it, to

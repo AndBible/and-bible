@@ -28,6 +28,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -91,19 +92,13 @@ private val RailPaddingTop = 2.dp
  * `rebuildRestoreButtons()`) — a dumb renderer of [WindowTabBarModel] (the pure derivation from
  * `WindowLayoutState`, Task 4), reusing [WindowButton] (Task 3) for every tab.
  *
- * Layout: a [Row] (`wrapContentWidth`, [Arrangement.End], transparent — see below) always
- * shows the leading control for [WindowTabBarModel.leading] first, then — while
- * [WindowTabBarModel.showButtons] — a [LazyRow] rendering [WindowTabBarModel.entries] (window
- * tabs interleaved with group separators), itself packed to the end via
- * `Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End)`. The outer [Row] is
- * `wrapContentWidth` rather than `fillMaxWidth`, and the [LazyRow] sits in an
- * `AnimatedVisibility(Modifier.weight(1f, fill = false))` (so it measures to its actual tab-strip
- * width, never stretching to fill) — together these let the WHOLE bar shrink to just what it
- * needs and sit at its container's end edge, restoring classic `restoreButtonsContainer`'s
- * `wrap_content`-width, `bottom`+`end`-only-constrained container
- * (`res/layout/split_bible_area.xml:31-38`) and its inner row's `layout_gravity="end"` (`:39-44`) —
- * the bar FLOATS over the panes ([SplitContent]'s `railOverlay`) instead of taking a layout band
- * from them. When hidden (single/maximised, or collapsed), the lone leading control is pushed to
+ * Layout: a full-width [Row] ([Arrangement.End], transparent -- see below) shows the leading
+ * control for [WindowTabBarModel.leading], then -- while [WindowTabBarModel.showButtons] --
+ * a [LazyRow] rendering [WindowTabBarModel.entries] (window tabs interleaved with group separators).
+ * `AnimatedVisibility(Modifier.weight(1f, fill = false))` lets the tabs measure to their actual
+ * width, keeping all buttons together at the end of the full-width strip. The bar floats over
+ * the panes ([SplitContent]'s `railOverlay`) instead of taking a layout band from them.
+ * When hidden (single/maximised, or collapsed), the lone leading control is pushed to
  * the row's end by [Arrangement.End] — a small control sitting at the bottom-end corner, exactly
  * like classic's translated-off-screen restore bar leaves only its arrow visible. Showing/hiding
  * the [LazyRow] is wrapped in [AnimatedVisibility] (per [RailLeading.CollapseToggle]) so the strip
@@ -175,7 +170,7 @@ fun WindowTabBar(
     CappedBarFontScale {
         Row(
             modifier = modifier
-                .wrapContentWidth()
+                .then(if (model.showButtons) Modifier.fillMaxWidth() else Modifier.wrapContentWidth())
                 .padding(start = RailPaddingStart, top = RailPaddingTop, end = 0.dp, bottom = 0.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,

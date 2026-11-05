@@ -58,7 +58,7 @@ class ReadingOffsets(
     /** The top safe-area inset in dp, to be reported only while nothing else pads it (full screen); 0 otherwise. */
     fun setSystemTopInset(dp: Float) = change { if (systemTopInset != dp) { systemTopInset = dp; true } else false }
 
-    /** Aggregate ledger value; document hosts must use [bottomForWindow] to apply measured rail coverage. */
+    /** Aggregate ledger value; document hosts use [bottomForWindow] for the expanded rail's bottom panes. */
     val bottom: Float get() = systemBottom + railHeight
 
     private val systemBottom: Float get() = if (speakBarVisible || agentLogVisible) 0f else systemBottomInset
