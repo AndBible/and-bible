@@ -112,7 +112,8 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, net.bible.test.testSwordContentFacade(), mainDispatcher) }
         })
         // App/settings initialization can resolve the original control's lazy manager before
-        // test overrides. A fresh control guarantees that playback uses the fake manager.
+        // test overrides. Replace its subscriptions too, so a Books removal has only one owner.
+        speakControl.release()
         speakControl = GlobalContext.get().run {
             SpeakControl(lazy { get<TextToSpeechServiceManager>() }, windowControl, platform, notifier, get(), get(), get(), get(), get(), get())
         }
@@ -126,6 +127,108 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     fun releaseFreshControls() {
         freshControls.forEach { it.release() }
         freshControls.clear()
+    }
+
+    @Test
+    fun removingTheLastBibleStopsTheEngineAndPublishesStopped() = removeLastBible(paused = false)
+
+    @Test
+    fun removingTheLastPausedBibleClearsPlayback() = removeLastBible(paused = true)
+
+    private fun removeLastBible(paused: Boolean) {
+        start(supportedFinnish())
+        if (paused) {
+            speakControl.pause(willContinueAfterThis = false, toast = false)
+            joinSpeech()
+        }
+        val books = org.crosswire.jsword.book.Books.installed()
+        val otherBibles = books.getBooks { it.bookCategory == org.crosswire.jsword.book.BookCategory.BIBLE && it != book }
+        try {
+            otherBibles.forEach { books.removeBook(it) }
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            assertEquals(!paused, speakControl.isSpeaking)
+            assertEquals(paused, speakControl.isPaused)
+            assertRemovalStopsSpeech(expectEngineShutdown = !paused)
+        } finally {
+            otherBibles.forEach { books.addBook(it) }
+        }
+    }
+
+    @Test
+    fun removingAnotherBibleDuringEngineInitializationKeepsTheStart() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakBible(book, (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0))
+        val books = org.crosswire.jsword.book.Books.installed()
+        val other = books.getBooks { it.bookCategory == org.crosswire.jsword.book.BookCategory.BIBLE && it != book }.first()
+        try {
+            books.removeBook(other)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            platform.listener!!.onInit(true)
+            joinSpeech()
+            assertTrue(speakControl.isSpeaking)
+            assertTrue(engine.utteranceIds.isNotEmpty())
+        } finally {
+            speakControl.stop(force = true)
+            books.addBook(other)
+            joinSpeech()
+        }
+    }
+
+    @Test
+    fun removingTheBibleDuringEngineInitializationCancelsTheStart() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakBible(book, (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0))
+        assertEquals(1, platform.creations)
+        assertFalse(speakControl.isSpeaking)
+        assertRemovalStopsSpeech()
+    }
+
+    @Test
+    fun removingTheLegacySpokenBookStopsTheEngine() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.1.1")), false)
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        assertTrue(speakControl.isSpeaking)
+        assertRemovalStopsSpeech()
+    }
+
+    private fun assertRemovalStopsSpeech(expectEngineShutdown: Boolean = true) {
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val states = mutableListOf<SpeakPlaybackState>()
+        val subscription = SpeakChanges.changes.subscribe { change ->
+            if (change is SpeakChange.State) states += change.speakState
+        }
+        val listener = platform.listener!!
+        val queued = engine.utteranceIds.size
+        engine.calls.clear()
+        try {
+            org.crosswire.jsword.book.Books.installed().removeBook(book)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            joinSpeech()
+            assertFalse("Removal must stop the actual manager, not only hide the controls", manager.isSpeaking)
+            assertFalse(manager.isPaused)
+            assertTrue(speakControl.isStopped)
+            if (expectEngineShutdown) {
+                assertTrue("Removal must flush already buffered native speech", engine.calls.contains("stop"))
+                assertTrue(engine.calls.contains("shutdown"))
+            }
+            assertEquals("Notification and media controls need a stopped event", listOf(SpeakPlaybackState.SILENT), states)
+            // A delayed initialization/completion callback must not restart the removed source.
+            listener.onInit(true)
+            engine.utteranceIds.lastOrNull()?.let { listener.onUtteranceDone(it) }
+            joinSpeech()
+            assertFalse(manager.isSpeaking)
+            assertEquals(queued, engine.utteranceIds.size)
+        } finally {
+            subscription.cancel()
+            speakControl.stop(force = true)
+            org.crosswire.jsword.book.Books.installed().addBook(book)
+            joinSpeech()
+        }
     }
 
     @Test
