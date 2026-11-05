@@ -1465,6 +1465,19 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertFalse(app.buttons["Back"].exists, "editor chord opened the passage chooser")
     }
 
+    private func positionNoteCaretAtStart(_ editor: XCUIElement) -> Bool {
+        editor.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
+        editor.typeText("Q")
+        guard waitUntil(timeout: 10, { (editor.value as? String) == "Qalpha beta" }) else {
+            XCTFail("note editor caret was not at start: \(editor.value ?? "nil")"); return false
+        }
+        editor.typeText(XCUIKeyboardKey.delete.rawValue)
+        guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
+            XCTFail("note editor sentinel deletion failed: \(editor.value ?? "nil")"); return false
+        }
+        return true
+    }
+
     private func assertNoteEditorControlCaret(_ key: String, fromStart: Bool, expected: String) throws {
         let app = try launchReading()
         guard let editor = openNoteEditor(app) else { return }
@@ -1472,9 +1485,7 @@ final class ReadingUITests: RealAppUITestCase {
         guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
             XCTFail("note editor initial value incorrect: \(editor.value ?? "nil")"); return
         }
-        if fromStart {
-            editor.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
-        }
+        if fromStart && !positionNoteCaretAtStart(editor) { return }
         guard waitUntil(timeout: 5, { editor.debugDescription.contains("Keyboard Focused") }) else {
             XCTFail("note editor is not keyboard focused"); return
         }
