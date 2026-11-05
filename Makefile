@@ -134,6 +134,7 @@ push:
 # TestFlight internal build of the clean HEAD (one YubiKey touch): make testflight [DEST=export]
 # DEST=export builds and checks the IPA but does not upload it.
 testflight:
+	@case "$(DEST)" in ""|upload|export) ;; *) echo "testflight: DEST must be empty, upload or export (got '$(DEST)')" >&2; exit 1;; esac
 	@scripts/release/ios-build.sh $(if $(filter export,$(DEST)),--export-only,)
 
 .PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight

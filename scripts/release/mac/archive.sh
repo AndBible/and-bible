@@ -9,11 +9,15 @@
 #   the archive in build/release/AndBible-<build>.xcarchive. The key is read from <volume>/AuthKey_<key-id>.p8 only.
 set -uo pipefail
 [ $# -ge 7 ] || { echo "usage: $0 <volume> <key-id> <issuer-id> <team-id> <build> <version> <commit> [upload|export]" >&2; exit 2; }
+for a in "$1" "$2" "$3" "$4" "$5" "$6" "$7"; do [ -n "$a" ] || { echo "empty argument (volume, key-id, issuer, team, build, version and commit are all required)" >&2; exit 2; }; done
 VOL="$1" KEY_ID="$2" ISSUER="$3" TEAM="$4" BUILD="$5" VERSION="$6" COMMIT="$7" DEST="${8:-upload}"
 KEY="$VOL/AuthKey_${KEY_ID}.p8"
 BUNDLE_ID=org.andbible.ios ICLOUD=iCloud.org.andbible.ios
-# xcodebuild -exportArchive must not see Homebrew tools (rsync); the variable is a test seam only.
-EXPORT_PATH="${RELEASE_EXPORT_PATH:-/usr/bin:/bin:/usr/sbin:/sbin}"
+# xcodebuild -exportArchive must not see Homebrew tools (rsync). ANDBIBLE_TEST_EXPORT_PATH is a test-only seam.
+EXPORT_PATH=/usr/bin:/bin:/usr/sbin:/sbin
+if [ -n "${ANDBIBLE_TEST_EXPORT_PATH:-}" ]; then
+	EXPORT_PATH="$ANDBIBLE_TEST_EXPORT_PATH"; echo "WARNING: ANDBIBLE_TEST_EXPORT_PATH is set (test seam): export PATH=$EXPORT_PATH" >&2
+fi
 REL=build/release
 OUT="$REL/testflight-$BUILD"; mkdir -p "$OUT"
 ARCH="$REL/AndBible-$BUILD.xcarchive"
@@ -111,15 +115,17 @@ check() { # check <label> <ok-command...>
 	local label="$1"; shift
 	if "$@"; then CHECKS="$CHECKS $label=ok"; else CHECKS="$CHECKS $label=FAIL"; die "IPA check failed: $label"; fi
 }
-sig_has() { echo "$SIG" | grep -q "$1"; }
+sig_has() { echo "$SIG" | grep -qxF "$1"; }
+sig_starts() { echo "$SIG" | grep -qF "$1" && echo "$SIG" | grep "^Authority=" | grep -q "^$1"; }
 ents_has() { grep -q "$1" "$OUT/ipa-entitlements.txt"; }
 plist_is() { [ "$(plutil -extract "$1" raw -o - "$SAPP/Info.plist" 2>/dev/null)" = "$2" ]; }
-gta_false() { plutil -p - < "$OUT/ipa-entitlements.txt" 2>/dev/null | grep -q '"get-task-allow" => false'; }
-check identifier sig_has "^Identifier=$BUNDLE_ID\$"
-check team sig_has "^TeamIdentifier=$TEAM\$"
-check authority sig_has "^Authority=Apple Distribution"
+# get-task-allow: false or absent passes (absent = not debuggable); only true fails.
+gta_not_true() { [ "$(plutil -extract get-task-allow raw -o - "$OUT/ipa-entitlements.txt" 2>/dev/null)" != true ]; }
+check identifier sig_has "Identifier=$BUNDLE_ID"
+check team sig_has "TeamIdentifier=$TEAM"
+check authority sig_starts "Authority=Apple Distribution:"
 check icloud ents_has "$ICLOUD"
-check get-task-allow gta_false
+check get-task-allow gta_not_true
 check version plist_is CFBundleShortVersionString "$VERSION"
 check build plist_is CFBundleVersion "$BUILD"
 [ "$DEST" = upload ] || { RESULT="PASS export"; echo "PASS export (no upload)"; exit 0; }

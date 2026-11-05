@@ -49,7 +49,7 @@ case "$*" in
     echo "TeamIdentifier=${STUB_TEAM:-X6A6CDK8T7}" >&2 ;;
 *"-d --entitlements"*)
     [ "${STUB_NO_ICLOUD:-0}" = 1 ] || echo '<string>iCloud.org.andbible.ios</string>'
-    echo "get-task-allow=${STUB_GTA:-false}" ;;
+    [ "${STUB_GTA:-false}" = absent ] || echo "get-task-allow=${STUB_GTA:-false}" ;;
 esac
 exit 0
 EOS
@@ -94,9 +94,14 @@ mk_tree() {   # fresh Mac-like tree with synced files, key volume and matching x
     export STUB_DIR
     unset STUB_ARCHIVE_RC STUB_IDENT STUB_AUTH STUB_TEAM STUB_NO_ICLOUD STUB_GTA STUB_IPA_VERSION STUB_IPA_BUILD
 }
+run_args() {   # run_args <args...> verbatim
+    cd "$W" || return 1
+    ANDBIBLE_TEST_EXPORT_PATH="$T/bin:/usr/bin:/bin" PATH="$T/bin:$PATH" bash "$SCRIPT" "$@" > "$T/out.txt" 2>&1
+    RC=$?
+}
 run() {   # run [dest] -> rc in $RC, output in $OUT_TXT
     cd "$W" || return 1
-    RELEASE_EXPORT_PATH="$T/bin:/usr/bin:/bin" PATH="$T/bin:$PATH" bash "$SCRIPT" "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" "${1:-upload}" > "$T/out.txt" 2>&1
+    ANDBIBLE_TEST_EXPORT_PATH="$T/bin:/usr/bin:/bin" PATH="$T/bin:$PATH" bash "$SCRIPT" "$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT" "${1:-upload}" > "$T/out.txt" 2>&1
     RC=$?
 }
 SUM() { echo "$W/build/release/testflight-$BUILD/summary.txt"; }
@@ -175,6 +180,27 @@ test_summary_written_on_failure() {
     [ -f "$(SUM)" ] || return "$(fail "no summary")"
     [ "$(tail -1 "$(SUM)")" = "result=FAIL archive" ] || return "$(fail "last line: $(tail -1 "$(SUM)")")"
     grep -q "^build=$BUILD" "$(SUM)" || return "$(fail "no build line")"
+}
+test_get_task_allow_absent_passes() {
+    mk_tree; STUB_GTA=absent run export; [ "$RC" = 0 ] || return "$(fail "absent get-task-allow refused: $(cat "$T/out.txt")")"
+    mk_tree; STUB_GTA=false run export; [ "$RC" = 0 ] || return "$(fail "false get-task-allow refused")"
+}
+test_empty_args_refuse() {
+    local i args
+    for i in 1 2 3 4 5 6 7; do
+        mk_tree; args=("$W/vol" "$KEYID" issuer-0000 X6A6CDK8T7 "$BUILD" "$VERSION" "$COMMIT"); args[$((i-1))]=""
+        run_args "${args[@]}" export
+        [ "$RC" != 0 ] || return "$(fail "empty arg $i accepted")"
+        called xcodebuild && return "$(fail "xcodebuild ran with empty arg $i")"
+    done
+    return 0
+}
+test_inexact_identifier_refused() {
+    mk_tree; STUB_IDENT=org.andbible.ios.extra run; [ "$RC" != 0 ] || return "$(fail "identifier suffix accepted")"
+    [ ! -e "$STUB_DIR/upload-called" ] || return "$(fail "upload called")"
+}
+test_test_seam_warns() {
+    mk_tree; run export; grep -q 'WARNING: ANDBIBLE_TEST_EXPORT_PATH' "$T/out.txt" || return "$(fail "no warning")"
 }
 test_bad_destination_refuses() {
     mk_tree; run bogus; [ "$RC" != 0 ] || return "$(fail "bogus destination accepted")"
