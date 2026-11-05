@@ -38,6 +38,7 @@ import net.bible.sharedcore.llm.http.LlmHttpTransport
 import net.bible.sharedcore.llm.http.LlmTimeouts
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.crosswire.common.util.KUri
 
 private const val TAG = "LlmProcessingService"
 private const val LLM_TEMPERATURE = 0.3
@@ -133,8 +134,15 @@ object LlmProcessingService : KoinComponent {
      */
     internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig): Map<String, String> {
         val provider = providerConfig.resolveProvider()
-        return when (provider) {
-            LlmProvider.XAI -> mapOf("x-grok-conv-id" to kotlin.uuid.Uuid.random().toString())
+        val host = try {
+            KUri(providerConfig.resolveEndpoint()).getHost()
+        } catch (_: Exception) {
+            null
+        }
+        return when {
+            provider == LlmProvider.XAI -> mapOf("x-grok-conv-id" to kotlin.uuid.Uuid.random().toString())
+            host.equals("opencode.ai", ignoreCase = true) ->
+                mapOf("x-opencode-session" to kotlin.uuid.Uuid.random().toString())
             else -> emptyMap()
         }
     }
