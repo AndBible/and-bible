@@ -66,7 +66,7 @@ class NextCloudSearchMethod(
                 </d:select>
                 <d:from>
                     <d:scope>
-                        <d:href>/files/$userId/$folder</d:href>
+                        <d:href/>
                         <d:depth>infinity</d:depth>
                     </d:scope>
                 </d:from>
@@ -91,8 +91,11 @@ class NextCloudSearchMethod(
         """.trimIndent()
 
         return try {
-            val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            builder.parse(template.byteInputStream())
+            val builder = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder()
+            builder.parse(template.byteInputStream()).apply {
+                // Account and folder names are XML text, never markup in the query template.
+                getElementsByTagNameNS(DAV_NAMESPACE, "href").item(0).textContent = "/files/$userId/$folder"
+            }
         } catch (parserError: ParserConfigurationException) {
             System.err.println("ParserConfigurationException: " + parserError.getLocalizedMessage())
             return null
