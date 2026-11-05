@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 /**
- * #3973 follow-up seen on the iOS simulator: `withMonitor` is ONE process-wide mutex on Kotlin/Native, and an
+ * #3973 follow-up seen on the iOS simulator: `withMonitor` used ONE process-wide mutex on Kotlin/Native, and an
  * NSUserDefaults write runs foreign observers synchronously (NSUserDefaultsDidChangeNotification). Holding the monitor
  * across the prefs write let the main thread (blocked on `withMonitor` in `DownloadQueue.isInQueue`) and the writer
  * wait on each other: the onboarding download screen froze. The store must not hold the shared monitor while it

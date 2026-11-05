@@ -400,12 +400,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
+        // Lazy page/document resolution can read module storage; only format the prepared keys under BookName.
+        val titles = windowList.map { it.pageManager.currentPage.let { page -> page.singleKey to page.currentDocument?.abbreviation } }
         withMonitor(bookNameMonitor) {
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
-                for (it in windowList) {
-                    keyTitle.add("${it.pageManager.currentPage.singleKey?.getName()} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+                for ((key, abbreviation) in titles) {
+                    keyTitle.add("${key?.getName()} ($abbreviation)")
                 }
             } finally {
                 BookName.setFullBookName(prevFullBookNameValue)

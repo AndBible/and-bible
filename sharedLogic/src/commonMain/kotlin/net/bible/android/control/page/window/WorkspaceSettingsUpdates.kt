@@ -25,10 +25,9 @@ import net.bible.android.database.WorkspaceEntities.WorkspaceSettings
 
 /**
  * Guards read/modify/publish of the [WorkspaceSettings] collection snapshots (recent labels, study pad
- * cursors, hidden compare documents). It is deliberately not `withMonitor(settings)`: on iOS
- * `withMonitor` ignores its target and takes one process-wide mutex that is also held during long
- * document loads, so a bridge call would stall behind a load. This lock is per process, only held for
- * tiny critical sections, and must never be held while taking another lock or emitting events.
+ * cursors, hidden compare documents). This explicitly owned lock avoids the old Native monitor's
+ * process-wide document-load contention (#3978). It is per process, only held for tiny critical
+ * sections, and must never be held while taking another lock or emitting events.
  */
 private val workspaceSettingsLock = reentrantLock()
 

@@ -20,14 +20,20 @@ package net.bible.sharedlogic.sync
 /**
  * Common monitor primitive. On JVM and Android this is the very same object monitor as `synchronized(target)`,
  * so a block converted to it still excludes against plain `synchronized` blocks (and jsword) on the same object.
- * On iOS it is one process-wide reentrant lock (coarse but correct): all monitors share it, so a [withMonitor]
- * block must not block waiting for another thread that itself takes any monitor.
+ * On iOS every target identity owns an independent recursive mutex and condition. The short-lived registry
+ * lock is never held while entering a target lock or running its block. Idle targets consume no registry entries.
+ *
+ * Prefer an explicitly owned atomicfu lock for new code. Existing monitor sites are audited in
+ * `docs/monitor-usage-allowlist.txt`; the source guard rejects unreviewed additions. Keep critical sections
+ * limited to their owner's state. Never hold shared locks across preferences/Keychain/WebKit/Swift callbacks
+ * or unrelated file reads and rendering; snapshot, call outside the lock, then publish. SQLite connections
+ * still require their own per-connection exclusion, including queries and close.
  */
 expect inline fun <T> withMonitor(target: Any, block: () -> T): T
 
 /**
- * `Object.wait(timeoutMs)`; `0` waits without timeout. Must be called inside [withMonitor] on [target]. On iOS the
- * shared lock must be held exactly once (no nested [withMonitor]), or the wait cannot release it.
+ * `Object.wait(timeoutMs)`; `0` waits without timeout. Must be called inside [withMonitor] on [target].
+ * Releases every recursive acquisition of that target while waiting and restores the depth on return.
  */
 expect fun monitorWait(target: Any, timeoutMs: Long = 0)
 

@@ -49,8 +49,10 @@ internal fun pageTitleFor(key: Key?): String? =
  * `"KJV:John 3:16"`); null when there is no current key. Lifted from Android's `ReadingCommands.bibleOverlayText`.
  */
 fun bibleOverlayText(pageControl: PageControl): String? {
-    val abbreviation = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-    return withShortBookNames { overlayTextFor(abbreviation, pageTitleText(pageControl)) }
+    val page = pageControl.currentPageManager.currentPage
+    val document = page.currentDocument
+    val key = if (document?.bookCategory == BookCategory.BIBLE) pageControl.currentBibleVerse else page.displayKey
+    return withShortBookNames { overlayTextFor(document?.abbreviation, pageTitleFor(key)) }
 }
 
 /** `"<abbreviation>:<title>"`; null without a title. Pure, for tests. */

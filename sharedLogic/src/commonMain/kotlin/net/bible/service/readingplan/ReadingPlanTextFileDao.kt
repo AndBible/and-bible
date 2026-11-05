@@ -157,12 +157,7 @@ class ReadingPlanTextFileDao(
 
     /** get last day number - there may be missed days so cannot simply do props.size()
      */
-    fun getNumberOfPlanDays(planCode: String): Int {
-        if (cachedPlanProperties?.planCode == planCode)
-            return cachedPlanProperties?.numberOfPlanDays ?: 0
-
-        return getNumberOfPlanDays(getPlanProperties(planCode))
-    }
+    fun getNumberOfPlanDays(planCode: String): Int = getPlanProperties(planCode).numberOfPlanDays
 
     private fun getNumberOfPlanDays(properties: ReadingPlanProperties): Int {
         var maxDayNo = 0
@@ -186,12 +181,8 @@ class ReadingPlanTextFileDao(
      * Default to KJV.
      * If specified Versification is not found then use NRSVA because it includes most books possible
      */
-    private fun getReadingPlanVersification(planCode: String): Versification {
-        if (cachedPlanProperties?.planCode == planCode)
-            return cachedPlanProperties?.versification!!
-
-        return getReadingPlanVersification(getPlanProperties(planCode))
-    }
+    private fun getReadingPlanVersification(planCode: String): Versification =
+        getReadingPlanVersification(getPlanProperties(planCode))
 
     private fun getReadingPlanVersification(properties: ReadingPlanProperties, versificationString: String? = null): Versification =
         try {
@@ -240,8 +231,10 @@ class ReadingPlanTextFileDao(
 
     /* either load reading plan info from assets/readingplan or sdcard/jsword/readingplan
 	 */
-    private fun getPlanProperties(planCode: String): ReadingPlanProperties = withMonitor(this) {
-        if (planCode != cachedPlanProperties?.planCode) {
+    private fun getPlanProperties(planCode: String): ReadingPlanProperties {
+        withMonitor(this) { cachedPlanProperties?.takeIf { it.planCode == planCode } }?.let { return it }
+        // Load outside the cache monitor: platform asset/file reads may block or call back into Kotlin.
+        run {
             val filename = planCode + DOT_PROPERTIES
 
             // Read from the /assets directory
@@ -278,13 +271,14 @@ class ReadingPlanTextFileDao(
                 Log.i(TAG, "properties: $properties")
 
                 // cache it so we don't constantly reload the properties
-                cachedPlanProperties = properties
+                withMonitor(this) { cachedPlanProperties = properties }
+                return properties
 
             } catch (e: IOException) {
                 Log.e(TAG, "Failed to open reading plan property file", e)
+                throw e
             }
         }
-        cachedPlanProperties!!
     }
 
     /** The file's bytes one to one: [text] is ISO-8859-1 decoded (see [ReadingPlanSource.openBuiltInPlan]). */
