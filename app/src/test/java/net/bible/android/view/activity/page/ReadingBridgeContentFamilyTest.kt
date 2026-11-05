@@ -94,6 +94,8 @@ class ReadingBridgeContentFamilyTest {
     private val appScope = AppCoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val evaluated = CopyOnWriteArrayList<String>()
     private val surface = RecordingSurface()
+    /** What the page answers to `bibleView.querySelection()` (Ctrl+C). */
+    @Volatile private var selectionAnswer = "null"
     private val sheets = RecordingSheets()
 
     private class RecordingSurface : ReadingWindowSurface {
@@ -149,7 +151,7 @@ class ReadingBridgeContentFamilyTest {
             override fun post(block: () -> Unit) = block()
             override fun evaluate(js: String, callback: ((String) -> Unit)?) {
                 evaluated += js
-                callback?.invoke("null")
+                callback?.invoke(if (js == "bibleView.querySelection()") selectionAnswer else "null")
             }
         }
         val channel = BibleViewJsChannel(host) {}
@@ -201,6 +203,45 @@ class ReadingBridgeContentFamilyTest {
         val (label, text) = surface.copies.single()
         assertTrue("label names the verse: $label", label?.contains("John") == true)
         assertTrue("clipboard text is the KJV verse: $text", text.contains("For God so loved the world"))
+    }
+
+    /** A `bibleView.querySelection()` answer for text inside a `.document` element. */
+    private fun documentSelection(bookInitials: String, ordinal: Int, text: String) =
+        """{"bookInitials":"$bookInitials","osisRef":"John.3.16","startOrdinal":$ordinal,"startOffset":0,""" +
+            """"endOrdinal":$ordinal,"endOffset":${text.length},"bookmarks":[],"text":"$text"}"""
+
+    @Test fun ctrlCInABibleCopiesTheFormattedVerse() {
+        selectionAnswer = documentSelection("KJV", john316Ordinal(), "For God so loved the world")
+        bridge.copyCurrentSelection()
+        awaitMain { surface.copies.isNotEmpty() }
+        val (label, text) = surface.copies.single()
+        assertTrue("label names the verse: $label", label?.contains("John") == true)
+        // Formatted by the share options (reference, version); the selection's offsets cut the verse text.
+        assertTrue("clipboard text carries the reference: $text", text.contains("3:16") && text.contains("KJV"))
+        assertTrue("clipboard text is the KJV verse: $text", text.contains("For God so loved"))
+    }
+
+    @Test fun ctrlCInAFootnotePopupCopiesThePlainText() {
+        // #3462: popup text lies outside `.document`, so the page answers with a bare string.
+        selectionAnswer = "\"Or, only begotten\""
+        bridge.copyCurrentSelection()
+        awaitMain { surface.copies.isNotEmpty() }
+        assertEquals(listOf<Pair<String?, String>>(null to "Or, only begotten"), surface.copies.toList())
+    }
+
+    @Test fun ctrlCInANonBibleDocumentCopiesOnlyTheSelectedText() {
+        // #2860: the ordinals of a non-Bible document are not verses, so only the selected text is copied.
+        selectionAnswer = documentSelection("NOT-INSTALLED-BOOK", 3, "Selected paragraph")
+        bridge.copyCurrentSelection()
+        awaitMain { surface.copies.isNotEmpty() }
+        assertEquals(listOf<Pair<String?, String>>(null to "Selected paragraph"), surface.copies.toList())
+    }
+
+    @Test fun ctrlCWithoutSelectionCopiesNothing() {
+        bridge.copyCurrentSelection()
+        awaitMain { "bibleView.querySelection()" in evaluated }
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        assertTrue(surface.copies.isEmpty())
     }
 
     @Test fun regenerateCarriesTheAskingWindowsId() {
