@@ -22,7 +22,7 @@
 
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {flushPromises, mount} from "@vue/test-utils";
-import {defineComponent, h, reactive} from "vue";
+import {defineComponent, h, reactive, watch} from "vue";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 
 function deferred() {
@@ -114,5 +114,24 @@ describe("infinite scroll across clear_document (#3975)", () => {
         topRequests[1].resolve({id: "new.Gen.0", type: "bible"});
         await flushPromises();
         expect(documents.map(d => d.id)).toEqual(["new.Gen.0", "new.Gen.1"]);
+    });
+
+    it("a previous chapter answered with an end chapter is not inserted when the end insert replaced the document", async () => {
+        // Batch 1 (a top request) keeps the queue busy, so the next end and top requests are processed together.
+        scroll.loadTextAtTop();
+        scroll.loadTextAtEnd();
+        scroll.loadTextAtTop();
+        topRequests[0].resolve({id: "old.John.2", type: "bible"});
+        await flushPromises();
+        // The document is replaced while the end chapter is being inserted (before the top one is).
+        const stop = watch(() => documents.map(d => d.id), ids => {
+            if (ids.includes("old.John.4")) { stop(); replaceDocument(); }
+        }, {flush: "sync"});
+        endRequests[0].resolve({id: "old.John.4", type: "bible"});
+        topRequests[1].resolve({id: "old.John.1", type: "bible"});
+        await flushPromises();
+        await flushPromises();
+
+        expect(documents.map(d => d.id)).toEqual(["new.Gen.1"]);
     });
 });

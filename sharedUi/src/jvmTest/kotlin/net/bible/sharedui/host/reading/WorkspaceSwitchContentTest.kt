@@ -24,6 +24,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
@@ -364,6 +365,7 @@ class WorkspaceSwitchContentTest {
             val old = awaitAdmitted(outgoingSession)
             val pane = engine.paneFor(outgoingId) as net.bible.sharedui.desktop.webengine.FakePane
             pane.onMessage(message("documentShown", "$old", old))
+            yield() // documentShown reaches the admission state on the main thread, posted like any bridge call
             assertTrue(outgoingSession.pageShowsAdmittedDocument(), "fixture: the outgoing page shows its document")
             repository.saveIntoDb()
             repository.persistence.awaitPersisted()
@@ -400,6 +402,7 @@ class WorkspaceSwitchContentTest {
 
             // The page has shown the incoming window's document: its calls and links act.
             adopted.onMessage(message("documentShown", "$new", new))
+            yield() // documentShown reaches the admission state on the main thread, posted like any bridge call
             adopted.onMessage(message("saveState", "\"incoming page\"", new))
             settleMain()
             assertEquals("incoming page", incoming.pageManager.jsState, "a call of the window's own document must reach it")

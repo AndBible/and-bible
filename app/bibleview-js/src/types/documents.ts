@@ -94,6 +94,8 @@ export interface ErrorDocument extends BaseDocument {
     type: "error"
     errorMessage: string
     severity: "NORMAL" | "WARNING" | "ERROR"
+    /** A failed load of the window's document: the page offers an `ab-retry://` link that loads it again. */
+    retry?: boolean
 }
 
 export interface BibleDocumentType extends BaseOsisDocument {
