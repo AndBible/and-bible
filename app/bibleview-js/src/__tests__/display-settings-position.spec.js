@@ -76,6 +76,20 @@ describe("display-setting reading position (#3971)", () => {
         expect(anchor.getBoundingClientRect().top).toBe(2);
     });
 
+    it("uses the visible verse rather than a previous scroll notification", async () => {
+        await flushPromises();
+        const previous = document.createElement("span");
+        previous.className = "ordinal";
+        previous.dataset.ordinal = "26676";
+        anchor = previous;
+        window.dispatchEvent(new Event("scroll"));
+        await flushPromises();
+        // The subsequent programmatic navigation suppresses the notifier's scroll sample.
+        await loadAtVerse();
+        await growFont();
+        expect(anchor.getBoundingClientRect().top).toBe(2);
+    });
+
     it.each([
         {config: {lineSpacing: 15}, appSettings: {}},
         {config: {}, appSettings: {fontSizeMultiplier: 1.5}},
