@@ -1,8 +1,12 @@
 package net.bible.service.db
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupHost
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
@@ -54,8 +58,16 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
-/** Exercises the real StudyPad ZIP exporter and importer with Native SQLite databases. */
+/**
+ * Exercises the real StudyPad ZIP exporter and importer with Native SQLite databases.
+ *
+ * `BackupControl.saveOrShare` switches to `Dispatchers.Main` after delivering the archive. In a Native test the real
+ * Main is the main queue of the test thread, which `runTest` keeps parked in `runBlocking`: without a test Main the
+ * test suspends forever, and not even `runTest`'s timeout ends it (cancelling also needs that dispatch).
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class IosStudyPadArchiveRoundTripTest {
+    private val mainDispatcher = StandardTestDispatcher()
     private var previousHost: DatabaseHost? = null
     private var previousReady = false
     private var previousFactory: (() -> DatabaseContainer)? = null
@@ -69,12 +81,14 @@ class IosStudyPadArchiveRoundTripTest {
         previousReady = DatabaseContainer.ready
         previousFactory = DatabaseContainer.containerFactory
         previousInstance = DatabaseContainer.detachInstanceForTest()
+        Dispatchers.setMain(mainDispatcher)
         startKoin { modules(module { single<DateTimeFormats> { FixedDateTimeFormats } }) }
     }
 
     @AfterTest
     fun tearDown() {
         stopKoin()
+        Dispatchers.resetMain()
         DatabaseContainer.ready = false
         DatabaseContainer.forgetReplacesForTest()
         DatabaseContainer.detachInstanceForTest()
@@ -90,7 +104,7 @@ class IosStudyPadArchiveRoundTripTest {
     }
 
     @Test
-    fun exportedStudyPadArchiveImportsNotesLinksAndOrderedEntries() = runTest(timeout = 10.minutes) {
+    fun exportedStudyPadArchiveImportsNotesLinksAndOrderedEntries() = runTest(mainDispatcher, timeout = 5.minutes) {
         val sourceDir = newTestDir()
         DatabaseContainer.installHost(FakeDatabaseHost(sourceDir))
         val source = DatabaseContainer.create()
