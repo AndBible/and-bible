@@ -515,6 +515,53 @@ class DesktopAppStartupTest {
         assertEquals(StartupPhase.Ready, start())
     }
 
+    @Test fun shutdownHookRestoresTheWorkspaceAndReadingPositionAfterRestart() = kotlinx.coroutines.runBlocking {
+        val paths = paths()
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, start(paths))
+        val reading = net.bible.sharedui.host.app.HostReadingReady
+        try {
+            reading.ensure(HostStartup.stringTable)
+            val control = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
+            val id = control.windowRepository.id
+            kotlinx.coroutines.withContext(mainThread) {
+                control.windowRepository.name = "Terminated workspace"
+                val book = assertNotNull(Books.installed().getBook("K4RawText"))
+                control.activeWindow.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 3:16"))
+            }
+            var hook: Thread? = null
+            DesktopExitPersistence(registerHook = { hook = it })
+            assertNotNull(hook).run() // The exact body registered with Runtime, not the normal window-close path.
+            reading.resetForTest()
+            net.bible.service.startup.ReadingAppInit.resetForTest()
+            DesktopAppStartup.resetForTest()
+            assertEquals(StartupPhase.Ready, start(paths))
+            reading.ensure(HostStartup.stringTable)
+            val restored = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().windowRepository
+            assertEquals(id, restored.id)
+            assertEquals("John.3.16", restored.activeWindow.pageManager.currentBible.singleKey.getOsisRef())
+            assertEquals("Terminated workspace", restored.name)
+        } finally {
+            reading.resetForTest()
+            net.bible.service.startup.ReadingAppInit.resetForTest()
+        }
+    }
+
+    @Test fun exitWithOnlyKoinStartedDoesNotOpenOrSaveDatabases() {
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(
+            paths(), FakeWindow(), "en", openDatabases = false, repositories = { PropertyMap() },
+        ))
+        var saved = false
+        DesktopAppStartup.persistBeforeExit(saveWorkspace = { saved = true })
+        assertFalse(saved)
+        assertFalse(DesktopAppStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready)
+    }
+
     @Test fun exitRunsTheRegisteredTasksAfterTheWorkspaceSaveAndBounded() {
         assertEquals(StartupPhase.Ready, start())
         val koin = KoinPlatform.getKoin()

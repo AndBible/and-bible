@@ -58,6 +58,20 @@ class WebKitGtkEngineProviderTest {
     }
 
     @Test
+    fun jvmShutdownUsesTheGtkExitRatherThanRunningWebkitExitHandlersOnTheVmThread() {
+        val fake = FakeEngine()
+        val provider = WebKitGtkEngineProvider({ _, _ -> fake }, { throw AssertionError("JVM exit would deadlock during shutdown") })
+        provider.create(Path.of("."), paths) {}
+        assertEquals(143, assertFailsWith<Exited> { provider.afterJvmShutdown() }.status)
+        assertEquals(143, fake.exitedWith)
+    }
+
+    @Test
+    fun jvmShutdownWithoutAnEngineDoesNotStartAnExitRecursively() {
+        WebKitGtkEngineProvider({ _, _ -> FakeEngine() }, { throw AssertionError("recursive JVM exit") }).afterJvmShutdown()
+    }
+
+    @Test
     fun exitWithoutAnEngineFallsBackToTheJvmExit() {
         val provider = WebKitGtkEngineProvider({ _, _ -> FakeEngine() }, { throw Exited(it) })
         assertEquals(3, assertFailsWith<Exited> { provider.exitProcess(3) }.status)

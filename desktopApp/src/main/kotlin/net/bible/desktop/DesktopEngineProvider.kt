@@ -18,6 +18,8 @@ interface DesktopEngineProvider {
      */
     suspend fun awaitWindowReady(window: ComposeWindow) {}
     fun shutdown()
+    /** After the bounded JVM shutdown save; native engines may need to exit on their own thread. Never call JVM exit. */
+    fun afterJvmShutdown() {}
     fun exitProcess(status: Int): Nothing = kotlin.system.exitProcess(status)
 }
 
