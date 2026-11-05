@@ -41,11 +41,13 @@ class BookmarkControlSpecialLabelRaceTest {
         repeat(300) {
             bc.deleteLabel(bc.paragraphBreakLabel())
             val barrier = CyclicBarrier(2)
-            val ts = List(2) { Thread { barrier.await(); try { runBlocking { bc.paragraphBreakLabel() } } catch (e: Exception) { if (failures.getAndIncrement() == 0) System.err.println("REPRO " + e.message?.take(80)) } }.also { it.start() } }
+            val ts = List(2) { Thread { barrier.await(); try { runBlocking { bc.paragraphBreakLabel() } } catch (e: Exception) { if (failures.getAndIncrement() == 0) System.err.println("REPRO " + e.message?.take(80)) } }.also { it.isDaemon = true; it.start() } }
             ts.forEach { it.join(ROUND_DEADLINE_MS) }
             ts.filter { it.isAlive }.takeIf { it.isNotEmpty() }?.let { stuck ->
-                org.junit.Assert.fail("special-label round stuck for ${ROUND_DEADLINE_MS} ms:\n" +
-                    stuck.joinToString("\n\n") { t -> t.name + "\n" + t.stackTrace.joinToString("\n") { "  at $it" } })
+                val report = stuck.joinToString("\n\n") { t -> t.name + "\n" + t.stackTrace.joinToString("\n") { "  at $it" } }
+                // Do not leave stuck writers committing into later tests' databases.
+                stuck.forEach { it.interrupt() }
+                org.junit.Assert.fail("special-label round stuck for ${ROUND_DEADLINE_MS} ms:\n" + report)
             }
         }
         org.junit.Assert.assertEquals("special-label creation must be race-free", 0, failures.get())
