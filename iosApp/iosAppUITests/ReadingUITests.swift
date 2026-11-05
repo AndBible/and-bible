@@ -1421,6 +1421,12 @@ final class ReadingUITests: RealAppUITestCase {
         }
         editor.typeKey(XCUIKeyboardKey.leftArrow, modifierFlags: .option)
         editor.typeText("X")
+        guard waitUntil(timeout: 10, {
+            guard let value = editor.value as? String else { return false }
+            return value.filter { $0 == "X" }.count == 1 && value.replacingOccurrences(of: "X", with: "") == "alpha beta"
+        }) else {
+            XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
+        }
         // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
         XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha Xbeta" },
@@ -1444,6 +1450,12 @@ final class ReadingUITests: RealAppUITestCase {
         }
         editor.typeKey(XCUIKeyboardKey.rightArrow, modifierFlags: .option)
         editor.typeText("X")
+        guard waitUntil(timeout: 10, {
+            guard let value = editor.value as? String else { return false }
+            return value.filter { $0 == "X" }.count == 1 && value.replacingOccurrences(of: "X", with: "") == "alpha beta"
+        }) else {
+            XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
+        }
         // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
         XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alphaX beta" },
