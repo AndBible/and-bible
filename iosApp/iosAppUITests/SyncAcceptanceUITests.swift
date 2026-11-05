@@ -292,6 +292,11 @@ final class SyncAcceptanceUITests: XCTestCase {
         }
         let app = XCUIApplication()
         app.launchArguments = ["-task6ResetCrashState", "-standardTestFixture", "-task5Settings"]
+        guard let checker = ProcessInfo.processInfo.environment["TASK7_CHECKER_PATH"],
+              FileManager.default.fileExists(atPath: checker) else {
+            XCTFail("Actual long-sync acceptance requires the Main Thread Checker library"); return
+        }
+        app.launchEnvironment["DYLD_INSERT_LIBRARIES"] = checker
         app.launch()
         guard syncUI.openDeviceSynchronization(app, "Long-sync settings missing") else { return }
         syncUI.rowButton(app, "Synchronization Backend").tap()

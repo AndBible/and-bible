@@ -49,6 +49,8 @@ selector=testCertificateCancelThenTrustLocalhost
 if test "${1:-}" = long-sync; then
   selector=testActualDatabaseSyncContinuesAfterBackground
   export TEST_RUNNER_TASK7_LONG_SYNC_ACCEPTANCE=1
+  export TEST_RUNNER_TASK7_CHECKER_PATH="$(xcode-select -p)/usr/lib/libMainThreadChecker.dylib"
+  test -f "$TEST_RUNNER_TASK7_CHECKER_PATH"
 fi
 export TEST_RUNNER_TASK7_SYNC_FIXTURE_JSON
 TEST_RUNNER_TASK7_SYNC_FIXTURE_JSON=$(python3 -I -c '
