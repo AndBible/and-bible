@@ -435,11 +435,20 @@ class ReadingBridgeNavigationFamilyTest {
         val context = """{"entityType":"BOOKMARK_NOTE","entityId":"${net.bible.android.database.IdType()}","currentText":"x","contentType":"HTML"}"""
         val main = shadowOf(Looper.getMainLooper())
 
-        main.idle()
-        call(view, "noteEditorLlmAction", "[${org.json.JSONObject.quote(context)}]", 2)
-        // Starts on the main thread and suspends in the bookmark read; nothing else runs on the main thread meanwhile.
-        main.runOneTask()
-        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION)
+        // Starts on the main thread and suspends in the bookmark read; the page is replaced while the read is in
+        // flight. A read that completes inside the first main-thread task leaves no such window: try again.
+        var raced = false
+        for (attempt in 1..20) {
+            main.idle()
+            sheets.prompts.clear()
+            call(view, "noteEditorLlmAction", "[${org.json.JSONObject.quote(context)}]", 2)
+            main.runOneTask()
+            if (sheets.prompts.isNotEmpty()) continue
+            admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION)
+            raced = true
+            break
+        }
+        assertTrue("the bookmark read was never in flight after the first main-thread task", raced)
         idleUntil(timeoutMs = 1_500) { false }
         assertTrue("no prompt selector for a replaced page: ${sheets.prompts}", sheets.prompts.isEmpty())
 

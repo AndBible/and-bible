@@ -256,12 +256,26 @@ class ReadingLinkHandlerTest {
             GlobalContext.get().get<BookmarkControl>().insertOrUpdateLabel(BookmarkEntities.Label(name = "pad").apply { new = true })
         }
         val main = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
-        main.idle()
         val documentBefore = shownDocument
-        assertTrue(handler.handle("journal://?id=${label.id}"))
-        // The link's coroutine starts on the main thread and suspends in the label read.
-        main.runOneTask()
-        session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+        val keyBefore = shownKey
+        // The link's coroutine starts on the main thread and suspends in the label read; the page is replaced while the
+        // read is in flight. A read that happens to complete inside the first main-thread task leaves no such window
+        // (the StudyPad opens for the page that was still current): reset and try again.
+        var raced = false
+        for (attempt in 1..20) {
+            main.idle()
+            session.documentGeneration = 1
+            assertTrue(handler.handle("journal://?id=${label.id}"))
+            main.runOneTask()
+            if (shownDocument != documentBefore) {
+                repo.activeWindow.pageManager.setCurrentDocumentAndKey(documentBefore!!, keyBefore!!)
+                continue
+            }
+            session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+            raced = true
+            break
+        }
+        assertTrue("the label read was never in flight after the first main-thread task", raced)
         val end = System.currentTimeMillis() + 1_500
         while (System.currentTimeMillis() < end) { main.idle(); Thread.sleep(20) }
         assertEquals("no StudyPad opened for a replaced page", documentBefore, shownDocument)
