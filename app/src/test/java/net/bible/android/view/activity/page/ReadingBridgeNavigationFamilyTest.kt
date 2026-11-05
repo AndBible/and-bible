@@ -124,9 +124,61 @@ class ReadingBridgeNavigationFamilyTest {
             net.bible.android.misc.OsisFragment(
                 net.bible.service.sword.SwordContentFacade.readOsisFragment(book, key, strings = net.bible.test.testCoreStrings()), key, book),
             book, key)
-        view.initialKey = Verse(KJVA, BibleBook.JOHN, 3, 1)
-        BibleJavascriptInterface(view).scrolledToOrdinal("John.3.1", 5)
+        view.initialKey = key
+        view.session.minChapter = 1
+        view.session.maxChapter = 1
+        BibleJavascriptInterface(view).scrolledToOrdinal("Gen.1", 5)
         assertEquals(Verse(KJVA, 5).ordinal, bible.singleKey.ordinal)
+    }
+
+    /**
+     * osTicket 3508: a report of a verse outside the document Android admitted (the page's previous document, or the
+     * old page of a web view a workspace switch handed over) must not move the window; the book introduction that a
+     * first chapter document carries still counts.
+     */
+    @Test fun scrolledToOrdinalOutsideTheLoadedChaptersIsIgnored() {
+        val view = newView()
+        val bible = repo.activeWindow.pageManager.currentBible
+        val key = Verse(KJVA, BibleBook.GEN, 1, 1)
+        val book = kjv as org.crosswire.jsword.book.sword.SwordBook
+        view.firstDocument = net.bible.android.control.page.BibleDocument(
+            emptyList(), org.crosswire.jsword.passage.VerseRange(KJVA, key),
+            net.bible.android.misc.OsisFragment(
+                net.bible.service.sword.SwordContentFacade.readOsisFragment(book, key, strings = net.bible.test.testCoreStrings()), key, book),
+            book, key)
+        view.initialKey = key
+        view.session.minChapter = 1
+        view.session.maxChapter = 2
+        val bridge = BibleJavascriptInterface(view)
+
+        bridge.scrolledToOrdinal("Gen.2", Verse(KJVA, BibleBook.GEN, 2, 3).ordinal)
+        assertEquals(Verse(KJVA, BibleBook.GEN, 2, 3).ordinal, bible.singleKey.ordinal)
+
+        bridge.scrolledToOrdinal("Luke.12", Verse(KJVA, BibleBook.LUKE, 12, 49).ordinal)
+        assertEquals("another book", Verse(KJVA, BibleBook.GEN, 2, 3).ordinal, bible.singleKey.ordinal)
+        bridge.scrolledToOrdinal("Gen.3", Verse(KJVA, BibleBook.GEN, 3, 1).ordinal)
+        assertEquals("a chapter that is not loaded", Verse(KJVA, BibleBook.GEN, 2, 3).ordinal, bible.singleKey.ordinal)
+
+        bridge.scrolledToOrdinal("Gen.1", Verse(KJVA, BibleBook.GEN, 0, 0).ordinal)
+        assertEquals("the book introduction of chapter 1", Verse(KJVA, BibleBook.GEN, 0, 0).ordinal, bible.singleKey.ordinal)
+    }
+
+    /** osTicket 3508: the MyNotes document (KJVA ordinals) is checked against its own chapter too. */
+    @Test fun myNotesScrolledToOrdinalOutsideTheLoadedChapterIsIgnored() {
+        val view = newView()
+        val bible = repo.activeWindow.pageManager.currentBible
+        val key = Verse(KJVA, BibleBook.GEN, 2, 1)
+        view.firstDocument = net.bible.android.control.page.MyNotesDocument(
+            emptyList(), org.crosswire.jsword.passage.VerseRange(KJVA, key, Verse(KJVA, BibleBook.GEN, 2, 25)))
+        view.initialKey = key
+        view.session.minChapter = 2
+        view.session.maxChapter = 2
+        val bridge = BibleJavascriptInterface(view)
+
+        bridge.scrolledToOrdinal("", Verse(KJVA, BibleBook.GEN, 2, 7).ordinal)
+        assertEquals(Verse(KJVA, BibleBook.GEN, 2, 7).ordinal, bible.singleKey.ordinal)
+        bridge.scrolledToOrdinal("", Verse(KJVA, BibleBook.LUKE, 12, 49).ordinal)
+        assertEquals("another book", Verse(KJVA, BibleBook.GEN, 2, 7).ordinal, bible.singleKey.ordinal)
     }
 
     @Test fun multiReferenceScrollSurvivesWorkspaceReload() = kotlinx.coroutines.runBlocking {

@@ -116,9 +116,9 @@ class DocumentLoaderTest {
         setUpReloadedSession()
     }
 
-    private fun setUpReloadedSession() {
+    private fun setUpReloadedSession(clientReady: Boolean = true) {
         val channel = BibleViewJsChannel(host) {}
-        channel.markClientReady()
+        if (clientReady) channel.markClientReady()
         session = BibleWindowSession(
             window = window,
             jsChannel = channel,
@@ -209,6 +209,26 @@ class DocumentLoaderTest {
         awaitEvaluated { calls -> calls.any { it.contains("setup_content") } }
         val setup = host.evaluated.first { it.contains("setup_content") }
         assertTrue(setup, setup.contains("\"jumpToAnchor\": 5"))
+    }
+
+    /**
+     * osTicket 3508: the chapters of a newly admitted Bible document are exactly its own, also before the page has
+     * received it (a booting page defers replaceDocument). Merging them with the previous document's range let a
+     * stale scroll report of the previous page (same book, another chapter) pass ReadingBridge's loaded-chapter check.
+     */
+    @Test
+    fun anAdmittedBibleDocumentReplacesTheLoadedChapterRange() = runBlocking {
+        session.dispose()
+        setUpReloadedSession(clientReady = false)
+        session.minChapter = 3
+        session.maxChapter = 5
+        val key = Verse(window.pageManager.currentBible.currentBibleVerse.versificationOfLastSelectedVerse,
+            org.crosswire.jsword.versification.BibleBook.GEN, 10, 1)
+        val document = doc("Gen10")
+        loader.loadDocument(document, false, key, null, null, null)
+        withContext(Dispatchers.IO) { withTimeout(10_000) { while (session.firstDocument !== document) Thread.sleep(10) } }
+        assertTrue("the admitted chapter", session.hasChapterLoaded(10))
+        assertFalse("a chapter of the previous document", session.hasChapterLoaded(4))
     }
 
     @Test

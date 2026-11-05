@@ -198,7 +198,13 @@ class DocumentLoader(
                 initialAnchorOrdinal = location.second
                 initialHtmlId = location.third
                 session.contentVisible = false
-                (session.initialKey as? Verse)?.chapter?.let { addChapter(it) }
+                // Only the admitted document's chapter, not merged with the previous document's range: a stale
+                // scroll report of the previous page must not match it (osTicket 3508). replaceDocument sets the same.
+                val chapter = (session.initialKey as? Verse)?.chapter ?: -1
+                requestMoreLock.withLock {
+                    session.minChapter = chapter
+                    session.maxChapter = chapter
+                }
                 session.firstDocument = document
                 if (docStr.length > MAX_DOC_STR_LENGTH) {
                     val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
@@ -230,6 +236,11 @@ class DocumentLoader(
         labelsUploaded = false
         session.firstDocument = null
         session.initialKey = null
+        // The old window's chapters; a report or chapter request of the old page must not match them (osTicket 3508).
+        requestMoreLock.withLock {
+            session.minChapter = -1
+            session.maxChapter = -1
+        }
         cancelPendingChapterLoads()
     }
 
