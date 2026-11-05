@@ -822,6 +822,16 @@ t_version_xcconfig_is_generated_and_synced() {
     grep -q '^MARKETING_VERSION = ' "$FAKE_HOME/work/testbox/and-bible/iosApp/Config/Version.xcconfig" || fail "Version.xcconfig missing from the synced tree"
 }
 
+t_submodule_symlinks_are_not_synced() {
+    # A fork can check the goldens/superpowers submodules out as symlinks into another container; a directory-only
+    # exclude let rsync copy such a symlink, and the next client's guard refused the escaping link on the shared tree.
+    new_env submodule-symlink
+    mkdir -p "$T/repo/app/src/test" "$T/elsewhere"
+    ln -s "$T/elsewhere" "$T/repo/app/src/test/roborazzi"
+    mr gradle :zzz >/dev/null 2>&1
+    [ ! -L "$FAKE_HOME/work/testbox/and-bible/app/src/test/roborazzi" ] || fail "submodule symlink was synced to the Mac tree"
+}
+
 # ---------------------------------------------------------------- cleanup after use
 t_cleanup_shuts_down_simulators() {
     new_env cleanup
@@ -1336,7 +1346,7 @@ t_final_submodule_source_fingerprint_tracks_revision_and_contents() {
     done
 }
 
-for t in t_final_crashes_collection_is_current_run_only t_final_submodule_source_fingerprint_tracks_revision_and_contents \
+for t in t_submodule_symlinks_are_not_synced t_final_crashes_collection_is_current_run_only t_final_submodule_source_fingerprint_tracks_revision_and_contents \
     t_review_genuine_idle_timeout_releases_parent_lock \
     t_review_owner_exit_trap_is_parent_only_before_helper_reset \
     t_review_maintenance_without_completed_source_owner \
