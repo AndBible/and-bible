@@ -52,25 +52,28 @@ class RealFileFixturesTest {
 
     /**
      * Replaces database files under replacement admission. Admission excludes only its own users, so any build of
-     * the container between the reset and the end of [write] is recorded with its builder's stack and fails the
+     * the container after the reset and before the end of [write] is recorded with its builder's stack and fails the
      * test: such a container may keep serving the database it opened before the copy (#3947, zero rows).
      */
     private fun replaceFixture(beforeWrite: suspend () -> Unit = {}, write: suspend () -> Unit) = runBlocking {
         val builds = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
-        val resetting = ThreadLocal.withInitial { false }
+        // Only the reset/copy window counts: observers rebuild the container after replace (copy done), harmlessly.
+        val window = java.util.concurrent.atomic.AtomicBoolean(false)
         val original = DatabaseContainer.containerFactory
         synchronized(DatabaseContainer.Companion) {
             DatabaseContainer.containerFactory = {
-                if (!resetting.get()) builds += Throwable("container built by thread ${Thread.currentThread().name}")
+                if (window.get()) builds += Throwable("container built by thread ${Thread.currentThread().name}")
                 original()
             }
         }
         try {
             DatabaseContainer.aiLifetime.replace { token ->
-                resetting.set(true)
-                try { DatabaseContainer.resetOwned(token) } finally { resetting.set(false) }
-                beforeWrite()
-                write()
+                DatabaseContainer.resetOwned(token)
+                window.set(true)
+                try {
+                    beforeWrite()
+                    write()
+                } finally { window.set(false) }
             }
         } finally {
             synchronized(DatabaseContainer.Companion) { DatabaseContainer.containerFactory = original }
