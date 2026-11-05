@@ -130,6 +130,56 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     }
 
     @Test
+    fun removingAStoppedPreviouslySpokenBibleFiresNoEventAndTouchesNoEngine() {
+        start(supportedFinnish())
+        speakControl.stop()
+        joinSpeech()
+        assertTrue(speakControl.isStopped)
+        val states = mutableListOf<SpeakPlaybackState>()
+        val subscription = SpeakChanges.changes.subscribe { change ->
+            if (change is SpeakChange.State) states += change.speakState
+        }
+        engine.calls.clear()
+        try {
+            org.crosswire.jsword.book.Books.installed().removeBook(book)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            joinSpeech()
+            assertEquals("An idle removal must not publish a stop", emptyList<SpeakPlaybackState>(), states)
+            assertFalse(engine.calls.contains("shutdown"))
+            assertFalse(engine.calls.contains("stop"))
+        } finally {
+            subscription.cancel()
+            org.crosswire.jsword.book.Books.installed().addBook(book)
+            joinSpeech()
+        }
+    }
+
+    @Test
+    fun removingAnotherBibleMidSpeechKeepsSpeakingWithoutEvents() {
+        start(supportedFinnish())
+        val books = org.crosswire.jsword.book.Books.installed()
+        val other = books.getBooks { it.bookCategory == org.crosswire.jsword.book.BookCategory.BIBLE && it != book }.first()
+        val states = mutableListOf<SpeakPlaybackState>()
+        val subscription = SpeakChanges.changes.subscribe { change ->
+            if (change is SpeakChange.State) states += change.speakState
+        }
+        engine.calls.clear()
+        try {
+            books.removeBook(other)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            joinSpeech()
+            assertTrue(speakControl.isSpeaking)
+            assertEquals(emptyList<SpeakPlaybackState>(), states)
+            assertFalse(engine.calls.contains("shutdown"))
+        } finally {
+            subscription.cancel()
+            speakControl.stop(force = true)
+            books.addBook(other)
+            joinSpeech()
+        }
+    }
+
+    @Test
     fun removingTheLastBibleStopsTheEngineAndPublishesStopped() = removeLastBible(paused = false)
 
     @Test
