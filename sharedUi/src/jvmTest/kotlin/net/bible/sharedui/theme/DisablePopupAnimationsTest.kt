@@ -28,6 +28,8 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import net.bible.service.common.DisplayColorMode
@@ -198,5 +200,40 @@ class DisablePopupAnimationsTest {
         mainClock.advanceTimeByFrame()
         val pixels = onNodeWithTag("red").captureToImage().toPixelMap()
         assertEquals(Color.Red, pixels[pixels.width / 2, pixels.height / 2], "no fade-in frame")
+    }
+
+    @Test fun oversizedInstantMenuIsCappedInsideWindowAndScrollsToItsLastItem() = runComposeUiTest {
+        var open by mutableStateOf(false)
+        var windowHeight = 0
+        var margin = 0
+        var placed: Pair<Int, Int>? = null // popup content height, y
+        val recorder = object : androidx.compose.ui.window.PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: androidx.compose.ui.unit.IntRect, windowSize: androidx.compose.ui.unit.IntSize,
+                layoutDirection: androidx.compose.ui.unit.LayoutDirection, popupContentSize: androidx.compose.ui.unit.IntSize,
+            ): androidx.compose.ui.unit.IntOffset {
+                val at = net.bible.sharedui.components.InstantMenuPosition(0, 0, margin)
+                    .calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize)
+                placed = popupContentSize.height to at.y
+                windowHeight = windowSize.height
+                return at
+            }
+        }
+        setContent {
+            margin = with(androidx.compose.ui.platform.LocalDensity.current) { 48.dp.roundToPx() }
+            AbTheme(darkTheme = false, disableAnimations = true) {
+                AbDropdownMenu(open, { open = false }, positionProvider = recorder) {
+                    repeat(60) { AbMenuItem(text = "Item $it", onClick = {}) }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle { open = true }
+        waitForIdle()
+        val (height, y) = placed!!
+        assertEquals(true, y >= 0 && y + height <= windowHeight, "menu y=$y height=$height inside window $windowHeight")
+        assertEquals(true, height <= windowHeight - 2 * margin, "menu height $height capped to ${windowHeight - 2 * margin}")
+        onNodeWithText("Item 59").performScrollTo()
+        onNodeWithText("Item 59").assertIsDisplayed()
     }
 }

@@ -22,7 +22,9 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -67,6 +69,8 @@ import net.bible.sharedui.theme.isPureMonochrome
  * and iOS/desktop lack Android's zero-scale recomposer. With animations disabled there, use the same
  * Surface/scrollable Column in a Popup, composed only while open: no entry or retained exit frames.
  * Otherwise keep Material's transitions, positioning and keyboard handling unchanged.
+ *
+ * [positionProvider] applies only to the instant path; the Material [DropdownMenu] always positions itself.
  */
 @OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
@@ -95,6 +99,11 @@ fun AbDropdownMenu(
             )
         } else if (expanded) {
             val density = LocalDensity.current
+            val windowHeight = LocalWindowInfo.current.containerSize.height
+            val margin = with(density) { 48.dp.roundToPx() }
+            // Same cap as Material: the popup window is window-tall, so the column must stop short of the
+            // placement margins or the last items hang off the bottom and cannot be scrolled to.
+            val maxHeight = with(density) { (windowHeight - 2 * margin).coerceAtLeast(0).toDp() }
             val position = remember(offset, density) {
                 InstantMenuPosition(
                     with(density) { offset.x.roundToPx() },
@@ -115,7 +124,7 @@ fun AbDropdownMenu(
                     shadowElevation = shadowElevation, border = border,
                 ) {
                     Column(
-                        modifier.padding(vertical = 8.dp).width(IntrinsicSize.Max).verticalScroll(scrollState)
+                        modifier.heightIn(max = maxHeight).padding(vertical = 8.dp).width(IntrinsicSize.Max).verticalScroll(scrollState)
                             .onMenuArrowKey { next ->
                                 input.requestInputMode(InputMode.Keyboard)
                                 focus.moveFocus(if (next) FocusDirection.Next else FocusDirection.Previous)

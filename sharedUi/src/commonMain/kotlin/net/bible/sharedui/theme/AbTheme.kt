@@ -43,7 +43,13 @@ val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
  *  without re-deriving it from a colour. Defaults to `false` outside an [AbTheme]. */
 val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
-/** The host already disables Compose motion through its recomposer (Android, including goldens). */
+/**
+ * Whether the host already disables Compose motion through its recomposer (Android, including goldens).
+ * Set `true` only when the host's recomposer context carries the app motion-duration scale (Android's
+ * `AppMotionDurationScale`): menus then keep Material's transitions. `false` makes menus use the instant
+ * Popup path when [LocalDisableAnimations] is on. iOS and desktop leave it `false`. Only menus read it;
+ * sheets and navigation use their own [LocalDisableAnimations] fallbacks.
+ */
 @OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
 val LocalMotionDurationScaleHandledByHost = staticCompositionLocalOf { false }

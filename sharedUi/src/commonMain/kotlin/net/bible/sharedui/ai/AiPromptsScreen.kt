@@ -641,9 +641,6 @@ private fun CategoryRowOverflow(
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
         AbDropdownMenu(
             expanded = expanded, onDismissRequest = { expanded = false },
-            tonalElevation = androidx.compose.material3.MenuDefaults.TonalElevation,
-            shadowElevation = androidx.compose.material3.MenuDefaults.ShadowElevation,
-            border = null,
         ) {
             AbMenuItem(
                 text = if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel,
@@ -782,9 +779,6 @@ private fun PromptRowOverflow(
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
         AbDropdownMenu(
             expanded = expanded, onDismissRequest = { expanded = false },
-            tonalElevation = androidx.compose.material3.MenuDefaults.TonalElevation,
-            shadowElevation = androidx.compose.material3.MenuDefaults.ShadowElevation,
-            border = null,
         ) {
             if (prompt.isBuiltIn) {
                 AbMenuItem(

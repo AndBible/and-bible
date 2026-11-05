@@ -21,9 +21,25 @@ class InstantMenuPositionTest {
         ))
     }
 
-    @Test fun oversizedMenuStartsAtWindowEdgeNotOffscreenCentre() {
-        assertEquals(IntOffset(0, 48), InstantMenuPosition(0, 0, 48).calculatePosition(
-            IntRect(180, 480, 220, 520), IntSize(400, 600), LayoutDirection.Ltr, IntSize(450, 620),
+    @Test fun menuCappedToWindowMinusMarginsFillsTheMarginedWindowExactly() {
+        // AbDropdownMenu caps the column at window - 2 * margin, so the placement stays inside the window.
+        val size = IntSize(450, 600 - 2 * 48)
+        val at = InstantMenuPosition(0, 0, 48).calculatePosition(
+            IntRect(180, 480, 220, 520), IntSize(400, 600), LayoutDirection.Ltr, size,
+        )
+        assertEquals(IntOffset(0, 48), at)
+        assertEquals(600 - 48, at.y + size.height)
+    }
+
+    @Test fun mediumMenuCentresOnAnchorWhenNeitherSideFits() {
+        assertEquals(IntOffset(100, 50), InstantMenuPosition(0, 0, 48).calculatePosition(
+            IntRect(100, 250, 140, 290), IntSize(400, 600), LayoutDirection.Ltr, IntSize(80, 400),
+        ))
+    }
+
+    @Test fun menuTooTallForEveryAnchorPlacementFallsBackToBottomEdgeBelowCentre() {
+        assertEquals(IntOffset(100, 600 - 48 - 500), InstantMenuPosition(0, 0, 48).calculatePosition(
+            IntRect(100, 400, 140, 440), IntSize(400, 600), LayoutDirection.Ltr, IntSize(80, 500),
         ))
     }
 
