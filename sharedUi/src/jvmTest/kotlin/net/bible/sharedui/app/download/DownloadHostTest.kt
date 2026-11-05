@@ -2,6 +2,15 @@ package net.bible.sharedui.app.download
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.v2.runComposeUiTest
+import net.bible.sharedui.startup.nav.welcomeNavGraph
+import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.sharedcore.navigation.DocCategory
@@ -46,10 +55,11 @@ class DownloadHostTest {
 
     private class IntSettings(private val values: Map<String, Int> = emptyMap()) : AppSettings {
         val strings = mutableMapOf<String, String>()
+        val booleans = mutableMapOf<String, Boolean>()
         override fun getString(key: String, default: String?): String? = strings[key] ?: default
         override fun getLong(key: String, default: Long): Long = default
         override fun getInt(key: String, default: Int): Int = values[key] ?: default
-        override fun getBoolean(key: String, default: Boolean): Boolean = default
+        override fun getBoolean(key: String, default: Boolean): Boolean = booleans[key] ?: default
         override fun getDouble(key: String, default: Double): Double = default
         override fun getFloat(key: String, default: Float): Float = default
         override fun setString(key: String, value: String?) {
@@ -57,7 +67,9 @@ class DownloadHostTest {
         }
         override fun setLong(key: String, value: Long?) = Unit
         override fun setInt(key: String, value: Int?) = Unit
-        override fun setBoolean(key: String, value: Boolean?) = Unit
+        override fun setBoolean(key: String, value: Boolean?) {
+            if (value == null) booleans.remove(key) else booleans[key] = value
+        }
         override fun setDouble(key: String, value: Double?) = Unit
         override fun setFloat(key: String, value: Float?) = Unit
     }
@@ -71,9 +83,11 @@ class DownloadHostTest {
         settings: AppSettings,
         language: String = "en",
         platform: DownloadHostPlatform = unused(),
+        hostShell: HostShell = shell,
+        uiLanguage: String = "en",
     ) = DownloadHost(
-        shell = shell,
-        strings = iosStrings("en"),
+        shell = hostShell,
+        strings = iosStrings(uiLanguage),
         platform = platform,
         notificationPermission = unused(),
         clipboard = unused(),
@@ -110,6 +124,128 @@ class DownloadHostTest {
         0, false, false, false, false, false, null,
     )
     private val rows get() = listOf(row("KJV", english), row("Fin", finnish))
+
+    /** Replaces only network/lifecycle ports; the Welcome and Download navigation and consent policy are production. */
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class, ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
+    @Test
+    fun advancedWelcomeReachesProductionDownloadConsentBeforeCatalogueWork() {
+        val mainThread = kotlinx.coroutines.newSingleThreadContext("welcome-consent-main")
+        Dispatchers.setMain(mainThread)
+        try {
+            for (language in listOf("en", "fi")) {
+                runComposeUiTest {
+                    val settings = IntSettings()
+                    val strings = iosStrings(language)
+                    val calls = java.util.concurrent.CopyOnWriteArrayList<String>()
+                    lateinit var nav: androidx.navigation.NavHostController
+                    setContent {
+                        val scope = androidx.compose.runtime.rememberCoroutineScope()
+                        nav = androidx.navigation.compose.rememberNavController()
+                        val shell = androidx.compose.runtime.remember {
+                            object : HostShell by this@DownloadHostTest.shell {
+                                override val hostScope = scope
+                                override fun navigate(route: String) { nav.navigate(route) }
+                            }
+                        }
+                        val core = androidx.compose.runtime.remember {
+                            net.bible.sharedui.app.welcome.WelcomeFlowCore(
+                                versionText = { "v" }, supportedFormatsText = { "formats" }, language = { "en" },
+                                isDiscrete = { false }, knownInstalled = { emptyList() }, megabytesFree = { 1_000L },
+                                refuseDownload = { error("ample space") }, initialise = { calls += "initialize" },
+                                ensureSyncLoaded = { calls += "sync" }, navigate = shell::navigate, bookLabel = { it.name },
+                            )
+                        }
+                        val platform = androidx.compose.runtime.remember {
+                            object : net.bible.sharedui.app.welcome.WelcomeHostPlatform {
+                                override val windowTitle = "App"
+                                override val appName = "App"
+                                override val logo: @androidx.compose.runtime.Composable () -> androidx.compose.ui.graphics.painter.Painter? = { null }
+                                override val controller get() = core.controller
+                                override fun onDownload() { scope.launch { core.onDownload() } }
+                                override fun onImport() = Unit
+                                override fun onRestore() = Unit
+                                override fun onRedownload() = Unit
+                                override fun onEasyStart() = Unit
+                                override fun onOpenHomepage() = Unit
+                                override fun onOpenGithub() = Unit
+                                @androidx.compose.runtime.Composable override fun Dialogs() = Unit
+                            }
+                        }
+                        val download = androidx.compose.runtime.remember {
+                            host(settings, hostShell = shell, uiLanguage = language).navDeps(
+                                nav, net.bible.sharedui.nav.NavResultChannel { error("no repository result") },
+                                net.bible.sharedui.download.nav.CloudDocumentsDeps(
+                                    controllerFor = { error("cloud route not entered") }, title = "Cloud",
+                                    topBarActions = {}, openOrGate = { false }, seedItems = { emptyList() },
+                                    refreshFromNetwork = {}, subscribeProgress = { {} },
+                                    statusFilterLabels = { emptyList() }, categoryFilterLabels = { emptyList() },
+                                    countLabel = { _, _ -> "" },
+                                ),
+                            )
+                        }
+                        val live = download.download
+                        val isolatedDownload = androidx.compose.runtime.remember {
+                            net.bible.sharedui.download.nav.DownloadNavDeps(
+                                exitHost = { error("unexpected exit") }, setWindowTitle = {},
+                                repositoryEditorResults = download.repositoryEditorResults,
+                                customRepositories = download.customRepositories,
+                                customRepositoryEditor = download.customRepositoryEditor,
+                                progressStatus = download.progressStatus, cloudDocuments = download.cloudDocuments,
+                                download = net.bible.sharedui.download.nav.DownloadDeps(
+                                    controllerFor = live.controllerFor, sessionToken = live.sessionToken, title = live.title,
+                                    topBarActions = {}, askIfWantToProceed = live.askIfWantToProceed,
+                                    requestNotificationPermission = { calls += "permission" },
+                                    refreshCatalogue = { calls += "catalogue" }, onAutoDownload = { _, _ -> },
+                                    reloadCatalogueIfRequested = {}, onCancelDownload = {}, hasBible = live.hasBible,
+                                    subscribeDownloadProgress = { {} }, subscribeMonitoring = { {} },
+                                    persistTypeFilter = live.persistTypeFilter, initialTypeFilter = live.initialTypeFilter,
+                                ),
+                            )
+                        }
+                        androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides strings) {
+                            net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                                net.bible.sharedui.components.AbNavHost(nav, startDestination = net.bible.sharedcore.nav.NavRoutes.WELCOME) {
+                                    welcomeNavGraph(
+                                        net.bible.sharedui.app.welcome.WelcomeHost(shell, platform).navDeps(nav),
+                                    )
+                                    downloadNavGraph(nav, isolatedDownload)
+                                }
+                            }
+                        }
+                    }
+                    onNodeWithTag("welcome-easy-start").assertExists()
+                    onNodeWithText(strings.welcomeTabAdvanced).performClick()
+                    onNodeWithTag("welcome-easy-start").assertDoesNotExist()
+                    onNodeWithText(strings.welcomeImportButton).assertExists()
+                    onNodeWithText(strings.welcomeRestoreButton).assertExists()
+                    onNodeWithText(strings.welcomeHomepageLabel).assertExists()
+                    onNodeWithText(strings.welcomeGithubLabel).assertExists()
+                    onNodeWithText(strings.welcomeDownloadButton).performClick()
+                    waitUntil(timeoutMillis = 10_000) {
+                        onAllNodesWithText(strings.downloadQuestionTitle).fetchSemanticsNodes().isNotEmpty()
+                    }
+                    onNodeWithText(strings.downloadQuestionTitle).assertExists()
+                    assertEquals(listOf("initialize", "sync"), calls, "network and permissions wait for consent")
+                    onNodeWithText(strings.yes).performClick()
+                    waitUntil(timeoutMillis = 10_000) { "catalogue" in calls }
+                    waitForIdle()
+                    onNodeWithText(strings.downloadQuestionTitle).assertDoesNotExist()
+                    onNodeWithTag("welcome-screen").assertDoesNotExist()
+                    onNodeWithContentDescription(strings.languageLabel).assertExists()
+                    onNodeWithText(strings.downloadTitle).assertExists()
+                    if (language == "fi") {
+                        onAllNodesWithText("Download Documents").fetchSemanticsNodes().let { assertEquals(0, it.size) }
+                        onNodeWithContentDescription("Language").assertDoesNotExist()
+                    }
+                    assertEquals(listOf("initialize", "sync", "permission", "catalogue"), calls)
+                    assertEquals(false, settings.getBoolean("download_do_not_ask", false), "ordinary Yes is not permanent consent")
+                }
+            }
+        } finally {
+            Dispatchers.resetMain()
+            mainThread.close()
+        }
+    }
 
     @Test
     fun firstCatalogueUsesSystemLanguage() {

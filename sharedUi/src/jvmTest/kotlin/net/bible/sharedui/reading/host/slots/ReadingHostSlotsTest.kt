@@ -24,6 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
@@ -33,14 +36,26 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
 import java.lang.reflect.Proxy
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import java.util.concurrent.Executors
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.control.document.DocumentControl
@@ -73,6 +88,11 @@ import net.bible.sharedcore.speak.AdvancedSpeakVd
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakPlaybackVd
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.BibleSpeakSettingsController
+import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
+import net.bible.android.control.speak.AdvancedSpeakSettings
+import net.bible.android.control.speak.SpeakSettingsServiceImpl
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.sharedcore.speak.SpeakSheetPage
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportService
@@ -89,17 +109,60 @@ import net.bible.sharedui.strings.iosStrings
 
 @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 class ReadingHostSlotsTest {
+    private val speakMain = Executors.newSingleThreadExecutor { Thread(it, "reading-host-slots-main").apply { isDaemon = true } }.asCoroutineDispatcher()
+    private val speakStore = object : net.bible.android.control.speak.SpeakSettingsStore {
+        var json: String? = null
+        override fun load() = json
+        override fun save(json: String) { this.json = json }
+    }
+    private val speakAppSettings = MapSettings()
+    private val originalSpeakStore: net.bible.android.control.speak.SpeakSettingsStore? =
+        try { SpeakSettings.store } catch (_: UninitializedPropertyAccessException) { null }
+    private val originalSpeakSettings = SpeakSettings.currentSettings
+    private val createdSpeakServices = mutableListOf<SpeakSettingsServiceImpl>()
+    private val createdScopes = mutableListOf<CoroutineScope>()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @AfterTest
+    fun cleanSpeakServicesAndScopes() {
+        try {
+            createdSpeakServices.forEach { it.close() }
+            createdSpeakServices.clear()
+            createdScopes.forEach { it.cancel() }
+            createdScopes.clear()
+            if (originalSpeakStore != null) {
+                SpeakSettings.store = originalSpeakStore
+            } else {
+                SpeakSettings::class.java.getDeclaredField("store").apply {
+                    isAccessible = true
+                    set(SpeakSettings, null)
+                }
+            }
+            SpeakSettings.currentSettings = originalSpeakSettings
+        } finally {
+            Dispatchers.resetMain()
+            speakMain.close()
+        }
+    }
+
+    private fun productionSpeakSettingsService(): SpeakSettingsServiceImpl {
+        Dispatchers.setMain(speakMain)
+        SpeakSettings.store = speakStore
+        SpeakSettings.currentSettings = null
+        return SpeakSettingsServiceImpl(AdvancedSpeakSettings(speakAppSettings)).also(createdSpeakServices::add)
+    }
     private class MapSettings : AppSettings {
+        private val booleans = mutableMapOf<String, Boolean>()
         override fun getString(key: String, default: String?) = default
         override fun getLong(key: String, default: Long) = default
         override fun getInt(key: String, default: Int) = default
-        override fun getBoolean(key: String, default: Boolean) = default
+        override fun getBoolean(key: String, default: Boolean) = booleans[key] ?: default
         override fun getDouble(key: String, default: Double) = default
         override fun getFloat(key: String, default: Float) = default
         override fun setString(key: String, value: String?) = Unit
         override fun setLong(key: String, value: Long?) = Unit
         override fun setInt(key: String, value: Int?) = Unit
-        override fun setBoolean(key: String, value: Boolean?) = Unit
+        override fun setBoolean(key: String, value: Boolean?) { if (value == null) booleans.remove(key) else booleans[key] = value }
         override fun setDouble(key: String, value: Double?) = Unit
         override fun setFloat(key: String, value: Float?) = Unit
     }
@@ -361,8 +424,10 @@ class ReadingHostSlotsTest {
         textService: TextDisplaySettingsService = textSettingsService,
         speakPlatform: SpeakSettingsPlatform = FakeSpeakPlatform(),
         quick: QuickFakes = QuickFakes(),
+        speakSettingsService: SpeakSettingsService = FakeSpeakSettings(),
     ): Pair<ReadingHostSlots, ReadingHostState> {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        createdScopes += scope
         val windowControl = WindowControl()
         val hostState = ReadingHostState(
             scope = scope,
@@ -378,7 +443,7 @@ class ReadingHostSlotsTest {
             externalLinks = links,
             agentLog = AgentLogController(FakeAgentService(), scope, onCompletedToast = {}, onOpenRawLog = {}),
             speakTransport = SpeakTransportController(
-                FakeTransport(transportVisible), FakeSpeakSettings(), scope, onConfig = {},
+                FakeTransport(transportVisible), speakSettingsService, scope, onConfig = {},
             ),
             disableAnimations = { true },
             fullScreen = { fullScreen },
@@ -387,7 +452,7 @@ class ReadingHostSlotsTest {
             scope = scope,
             imagePicker = imagePicker,
             thumbnailFor = { null },
-            speakSettingsService = FakeSpeakSettings(),
+            speakSettingsService = speakSettingsService,
             speakPlatform = speakPlatform,
             gridPassages = GridPassageControllerFactory(
                 allocate(NavigationControl::class.java), windowControl, MapSettings(), { "Workspace" }, { true },
@@ -439,6 +504,77 @@ class ReadingHostSlotsTest {
         // two OK buttons now (help + question); the question's is the last one composed
         onAllNodesWithText(strings.okay).onLast().performClick()
         assertEquals(listOf("https://example.org/x"), links.opened)
+    }
+
+    @Test
+    fun speakSettingsAdvancedNavigationAndPersistenceUseProductionService() = runComposeUiTest {
+        val service = productionSpeakSettingsService()
+        val (initialSlots, _) = slots(speakSettingsService = service)
+        val currentSlots = mutableStateOf(initialSlots)
+        initialSlots.showSpeakSettings()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false, disableAnimations = true) { currentSlots.value.SpeakSettings() }
+            }
+        }
+
+        onNodeWithText(strings.speakSpeedTitle).performScrollTo().assertIsDisplayed()
+        onNodeWithText("100 %").assertIsDisplayed()
+        for (row in listOf(strings.setRepeatPassageRange, strings.confSpeakSleepTimer, strings.systemSpeakSettings, strings.helpLabel)) {
+            onNodeWithText(row).performScrollTo().assertExists()
+        }
+        onNodeWithText(strings.confChangeChapter).performScrollTo().performClick()
+        onNodeWithText(strings.confChangeTitle).performScrollTo().performClick()
+        onNodeWithText(strings.confSpeakFootnotes).performScrollTo().performClick()
+        onNodeWithText(strings.confChangeChapter).assertIsOff()
+        onNodeWithText(strings.confChangeTitle).assertIsOff()
+        onNodeWithText(strings.confSpeakFootnotes).assertIsOn()
+        waitUntil { service.playback.value.speakChapterChanges.not() && service.playback.value.speakTitles.not() && service.playback.value.speakFootnotes }
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).performScrollTo()
+            .performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(185f)) }
+        waitUntil { service.playback.value.speedPercent == 185 }
+
+        onNodeWithText(strings.speakAdvancedSettings).performScrollTo().performClick()
+        onNodeWithText(strings.confSpeakSynchronize).performScrollTo().performClick()
+        onNodeWithText(strings.confReplaceDivinename).performScrollTo().performClick()
+        onNodeWithText(strings.confSpeakAutoBookmark).performScrollTo().performClick()
+        onNodeWithText(strings.confSavePlaybackSettingsToBookmarks).performScrollTo().performClick()
+        onNodeWithText(strings.confSpeakSynchronize).assertIsOff()
+        onNodeWithText(strings.confReplaceDivinename).assertIsOn()
+        onNodeWithText(strings.confSpeakAutoBookmark).assertIsOn()
+        onNodeWithText(strings.confSavePlaybackSettingsToBookmarks).assertIsOn()
+        assertEquals(false, service.advanced.value.synchronize)
+        assertEquals(true, service.advanced.value.replaceDivineName)
+        assertEquals(true, service.advanced.value.autoBookmark)
+        assertEquals(true, service.advanced.value.restoreSettingsFromBookmarks)
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+        onNodeWithText(strings.speakSpeedTitle).assertIsDisplayed()
+
+        createdSpeakServices.last().close()
+        SpeakSettings.currentSettings = null
+        val reloaded = productionSpeakSettingsService()
+        val (reloadedSlots, _) = slots(speakSettingsService = reloaded)
+        reloadedSlots.showSpeakSettings()
+        runOnIdle { currentSlots.value = reloadedSlots }
+        for (row in listOf(strings.setRepeatPassageRange, strings.confSpeakSleepTimer, strings.systemSpeakSettings, strings.helpLabel)) {
+            onNodeWithText(row).performScrollTo().assertExists()
+        }
+        onNodeWithText("185 %").performScrollTo().assertIsDisplayed()
+        onNodeWithText(strings.confChangeChapter).assertIsOff()
+        onNodeWithText(strings.confChangeTitle).assertIsOff()
+        onNodeWithText(strings.confSpeakFootnotes).assertIsOn()
+        assertEquals(false, reloaded.playback.value.speakChapterChanges)
+        assertEquals(false, reloaded.playback.value.speakTitles)
+        assertEquals(true, reloaded.playback.value.speakFootnotes)
+        onNodeWithText(strings.speakAdvancedSettings).performScrollTo().performClick()
+        assertEquals(false, reloaded.advanced.value.synchronize)
+        assertEquals(true, reloaded.advanced.value.replaceDivineName)
+        assertEquals(true, reloaded.advanced.value.autoBookmark)
+        assertEquals(true, reloaded.advanced.value.restoreSettingsFromBookmarks)
+        onNodeWithText(strings.confSpeakSynchronize).assertIsOff()
+        onNodeWithText(strings.confReplaceDivinename).assertIsOn()
+        onNodeWithText(strings.confSpeakAutoBookmark).assertIsOn()
+        onNodeWithText(strings.confSavePlaybackSettingsToBookmarks).assertIsOn()
     }
 
     @Test

@@ -6,6 +6,14 @@
  */
 package net.bible.sharedui.host.reading
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import java.nio.file.Files
 import java.nio.file.Path
@@ -281,6 +289,254 @@ class WorkspaceSwitchContentTest {
             assertSame(adopted, engine.paneFor(id))
             assertSame(reconstructed, session.window)
             HostReadingWindows.releaseSpares()
+        }
+    }
+
+    @Test fun hostWindowCommandsRestoreSplitWindowIdentities() = runBlocking {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        HostReadingReady.ensure(HostStartup.stringTable)
+        val koin = KoinPlatform.getKoin()
+        val scope = HostReadingReady.scope
+        withContext(Dispatchers.Main) {
+            val host = HostReadingHost(scope, HostNavShell(scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+            val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+            val deps = host.deps(net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter))
+            val control = koin.get<WindowControl>()
+            val repository = control.windowRepository
+            try {
+                val first = control.activeWindow
+                deps.controller.onSetPin(first.id.toString(), true)
+                deps.controller.onAddWindow(first.id.toString())
+                val second = control.activeWindow
+                val ids = setOf(first.id, second.id)
+                assertEquals(2, ids.size)
+                assertEquals(ids, repository.visibleWindows.map { it.id }.toSet())
+                deps.handlePaneMenuItem(first.id.toString(), net.bible.android.view.activity.page.WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE)
+                assertEquals(first.id, repository.maximizedWindowId)
+                deps.controller.onUnMaximise()
+                assertNull(repository.maximizedWindowId)
+                assertEquals(ids, repository.visibleWindows.map { it.id }.toSet())
+                deps.handlePaneMenuItem(second.id.toString(), net.bible.android.view.activity.page.WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
+                assertEquals(setOf(first.id), repository.visibleWindows.map { it.id }.toSet())
+                deps.controller.onRestore(second.id.toString())
+                assertEquals(ids, repository.visibleWindows.map { it.id }.toSet())
+            } finally {
+                host.dispose()
+            }
+        }
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun toolbarUsesRealHostCallbacksForWorkspaceAndOverflow() {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        runBlocking {
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+            HostReadingReady.ensure(HostStartup.stringTable)
+        }
+        val koin = KoinPlatform.getKoin()
+        val host = runBlocking { withContext(Dispatchers.Main) {
+            HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+        } }
+        val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+        val icons = net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter)
+        val deps = runBlocking { withContext(Dispatchers.Main) {
+            val book = checkNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+            book.indexStatus = org.crosswire.jsword.index.IndexStatus.DONE
+            koin.get<WindowControl>().activeWindow.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 3:16"))
+            host.deps(icons)
+        } }
+        try {
+            runComposeUiTest {
+                setContent {
+                    androidx.compose.runtime.CompositionLocalProvider(net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en")) {
+                        net.bible.sharedui.theme.AbTheme(darkTheme = false) {
+                            val toolbar = deps.toolbar.collectAsState()
+                            net.bible.sharedui.reading.ReadingToolbar(
+                                // Desktop has no TTS; expose the iOS-supported button while keeping host callbacks real.
+                                toolbar.value.copy(speakable = true, speakStopped = true), icons, deps.toolbarCallbacks,
+                                searchBar = deps.searchBar.collectAsState().value,
+                                searchBarCallbacks = deps.searchBarCallbacks,
+                                overflowItems = deps.overflowItems.value,
+                                overflowExpanded = deps.overflowExpanded.value,
+                                onOverflowItemClick = deps.onOverflowItemClick,
+                                onOverflowDismiss = deps.onOverflowDismiss,
+                                modifier = androidx.compose.ui.Modifier.size(androidx.compose.ui.unit.Dp(1200f), androidx.compose.ui.unit.Dp(56f)),
+                            )
+                        }
+                    }
+                }
+                onNode(androidx.compose.ui.test.hasContentDescription("Speak")).performClick()
+                assertTrue(koin.get<net.bible.sharedcore.speak.SpeakTransportService>().state.value.visible)
+                onNode(androidx.compose.ui.test.hasContentDescription("Find")).performClick()
+                waitUntil(timeoutMillis = 5000) { deps.searchBar.value != null }
+                onNode(androidx.compose.ui.test.hasTestTag(net.bible.sharedui.reading.SEARCH_FIELD_TAG)).assertExists()
+                onNode(androidx.compose.ui.test.hasContentDescription(net.bible.sharedui.strings.iosStrings("en").searchClose)).performClick()
+                onNode(androidx.compose.ui.test.hasContentDescription("Workspaces")).performClick()
+                assertEquals(net.bible.sharedcore.reading.ReadingQuickSheet.Workspaces, host.hostState.quickSheet.value)
+                runBlocking { withContext(Dispatchers.Main) { host.hostState.closeQuickSheet() } }
+                onNode(androidx.compose.ui.test.hasContentDescription("More options")).performClick()
+                onNode(androidx.compose.ui.test.hasText("Night mode")).assertExists()
+                onNode(androidx.compose.ui.test.hasText("All text options …")).assertExists()
+            }
+        } finally {
+            runBlocking { withContext(Dispatchers.Main) { host.dispose() } }
+        }
+    }
+
+    @Test fun drawerProgressChapterReturnsToAskingWindow() = runBlocking {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        HostReadingReady.ensure(HostStartup.stringTable)
+        val koin = KoinPlatform.getKoin()
+        val scope = HostReadingReady.scope
+        val routes = kotlinx.coroutines.channels.Channel<String>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val navigator = object : HostNavigator {
+            override fun navigate(route: String) { routes.trySend(route) }
+            override fun popBackStack() = true
+            override fun popBackStackTo(route: String, inclusive: Boolean) = false
+        }
+        val shell = HostNavShell(scope, navigator)
+        val channels = net.bible.sharedui.host.app.hostResultChannels({ error("not used") }, {})
+        val control = koin.get<WindowControl>()
+        val results = HostReadingResults(
+            channels.keyChooser, channels.passage, channels.document, channels.myDocumentPages, channels.myDocuments,
+            channels.bookmark, channels.readingProgress, channels.workspace,
+            targetFor = { asker -> (asker as? net.bible.android.control.page.CurrentPageManager)?.let {
+                hostChooserTarget(koin, HostStartup.stringTable, it, scope)
+            } },
+            activeAskerProvider = { control.activeWindowPageManager },
+        )
+        val host = withContext(Dispatchers.Main) {
+            HostReadingHost(scope, shell, koin, DesktopReadingHostPlatform(WindowHandle), Day, readingResults = results)
+        }
+        try {
+            val painter = androidx.compose.ui.graphics.painter.ColorPainter(androidx.compose.ui.graphics.Color.Black)
+            val deps = withContext(Dispatchers.Main) {
+                val book = checkNotNull(org.crosswire.jsword.book.Books.installed().getBook("K4RawText"))
+                control.activeWindow.pageManager.setCurrentDocumentAndKey(book, book.getKey("John 3:16"))
+                host.deps(net.bible.sharedui.reading.ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter))
+            }
+            val asking = control.activeWindow
+            withContext(Dispatchers.Main) { deps.onDrawerItemClick("readingProgressButton") }
+            assertEquals(net.bible.sharedcore.nav.NavRoutes.readingProgress(0), kotlinx.coroutines.withTimeout(5000) { routes.receive() })
+            assertTrue(results.isAwaiting(ChooserKind.ReadingProgress))
+
+            val settings = net.bible.sharedui.app.settings.SettingsHost(
+                shell, net.bible.sharedui.strings.iosStrings("en"), { koin.get() },
+                koin.get(), koin.get(), koin.get(),
+                object : net.bible.sharedui.app.ports.SystemScreens { override fun openAppLinkSettings() = Unit },
+                object : net.bible.sharedui.app.ports.HelpDialogs { override fun show(topic: net.bible.sharedui.app.ports.HelpTopic) = Unit },
+                { error("unused") }, { error("unused") }, { error("unused") },
+                { koin.get<net.bible.android.control.progress.ReadingProgressServiceImpl>() },
+            )
+            val progress = settings.readingProgressControllerFor(0, {}, results::onReadingProgress)
+            progress.load()
+            val model = kotlinx.coroutines.withTimeout(20_000) { progress.model.first { it.ntBooks.isNotEmpty() } }
+            assertTrue(model.otBooks.isNotEmpty())
+            val john = model.ntBooks.single { it.bookId == "JOHN" }
+            progress.openChapterDetail(john.bookId)
+            val detail = kotlinx.coroutines.withTimeout(20_000) { progress.model.first { it.chapterDetail?.bookId == john.bookId } }.chapterDetail!!
+            assertTrue(detail.chapters.any { it.chapter == 4 })
+            withContext(Dispatchers.Main) { progress.chapterTap(john.bookId, 4) }
+            assertEquals("John.4.1", asking.pageManager.currentBible.singleKey.getOsisRef())
+            assertFalse(results.isAwaiting(ChooserKind.ReadingProgress))
+        } finally {
+            withContext(Dispatchers.Main) { host.dispose() }
+        }
+    }
+
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
+    @Test fun hostDrawerRowsRemainReachableAtAx5() {
+        val paths = DesktopPaths(
+            { name -> when (name) {
+                "XDG_DATA_HOME" -> root.resolve("data").toString()
+                "XDG_CONFIG_HOME" -> root.resolve("config").toString()
+                "XDG_CACHE_HOME" -> root.resolve("cache").toString()
+                else -> null
+            } }, "Linux", root.resolve("home"),
+        )
+        StartupFixture.files.forEach { (name, bytes) ->
+            val target = paths.sword.resolve(name)
+            Files.createDirectories(target.parent)
+            Files.write(target, bytes)
+        }
+        runBlocking {
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+            HostReadingReady.ensure(HostStartup.stringTable)
+        }
+        val koin = KoinPlatform.getKoin()
+        val host = runBlocking { withContext(Dispatchers.Main) {
+            HostReadingHost(HostReadingReady.scope, HostNavShell(HostReadingReady.scope, Navigator), koin, DesktopReadingHostPlatform(WindowHandle), Day)
+        } }
+        try {
+            runComposeUiTest {
+                setContent {
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        net.bible.sharedui.strings.LocalStrings provides net.bible.sharedui.strings.iosStrings("en"),
+                        androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(1f, 53f / 17f),
+                        net.bible.sharedui.components.LocalBarFontScaleCap provides 1.35f,
+                        net.bible.sharedui.reading.LocalDrawerRowsGrowWithText provides true,
+                    ) {
+                        net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                            androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.size(androidx.compose.ui.unit.Dp(390f), androidx.compose.ui.unit.Dp(844f))) {
+                                net.bible.sharedui.reading.ReadingDrawerContent(host.drawerMenuState.value, { null }, {})
+                            }
+                        }
+                    }
+                }
+                waitUntil(timeoutMillis = 5000) { host.drawerMenuState.value.groups.isNotEmpty() }
+                for (label in listOf("Choose Document", "Study Pads", "History", "Backup & Restore", "Device synchronization")) {
+                    onNode(hasScrollAction()).performScrollToNode(hasText(label))
+                    val row = onNode(hasText(label))
+                    row.assertIsDisplayed()
+                    val bounds = row.fetchSemanticsNode().boundsInRoot
+                    assertTrue(bounds.left >= 0f && bounds.right <= 390f && bounds.top >= 0f && bounds.bottom <= 844f,
+                        "$label must fit in the viewport at AX5: $bounds")
+                    val text = onNode(hasText(label), useUnmergedTree = true).fetchSemanticsNode()
+                    val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+                    text.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+                    assertFalse(layouts.single().didOverflowHeight, "$label must not be vertically clipped at AX5")
+                }
+            }
+        } finally {
+            runBlocking { withContext(Dispatchers.Main) { host.dispose() } }
         }
     }
 

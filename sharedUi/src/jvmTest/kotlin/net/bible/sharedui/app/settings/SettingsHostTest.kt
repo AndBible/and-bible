@@ -1,6 +1,14 @@
 package net.bible.sharedui.app.settings
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +25,7 @@ import net.bible.sharedui.app.ports.HelpTopic
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.SystemScreens
 import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.settings.nav.settingsNavGraph
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 import kotlin.test.Test
@@ -43,16 +52,17 @@ class SettingsHostTest {
 
     private class MapSettings : AppSettings {
         val ints = mutableMapOf<String, Int>()
+        val bools = mutableMapOf<String, Boolean>()
         override fun getString(key: String, default: String?) = default
         override fun getLong(key: String, default: Long) = default
         override fun getInt(key: String, default: Int) = ints[key] ?: default
-        override fun getBoolean(key: String, default: Boolean) = default
+        override fun getBoolean(key: String, default: Boolean) = bools[key] ?: default
         override fun getDouble(key: String, default: Double) = default
         override fun getFloat(key: String, default: Float) = default
         override fun setString(key: String, value: String?) = Unit
         override fun setLong(key: String, value: Long?) = Unit
         override fun setInt(key: String, value: Int?) { if (value == null) ints.remove(key) else ints[key] = value }
-        override fun setBoolean(key: String, value: Boolean?) = Unit
+        override fun setBoolean(key: String, value: Boolean?) { if (value == null) bools.remove(key) else bools[key] = value }
         override fun setDouble(key: String, value: Double?) = Unit
         override fun setFloat(key: String, value: Float?) = Unit
     }
@@ -69,8 +79,10 @@ class SettingsHostTest {
         strings: Strings = this.strings,
         appSettingsProvider: () -> AppSettings = { prefs },
         onReportBug: (() -> Unit)? = null,
+        hostShell: HostShell = shell,
+        serviceProvider: () -> net.bible.sharedcore.settings.AppSettingsService = { error("the app settings service must stay lazy") },
     ) = SettingsHost(
-        shell = shell,
+        shell = hostShell,
         strings = strings,
         appSettingsProvider = appSettingsProvider,
         platform = object : SettingsPlatform {
@@ -93,7 +105,7 @@ class SettingsHostTest {
         helpDialogs = object : HelpDialogs {
             override fun show(topic: HelpTopic) { calls += "help:$topic" }
         },
-        appSettingsServiceProvider = { error("the app settings service must stay lazy") },
+        appSettingsServiceProvider = serviceProvider,
         syncSettingsServiceProvider = { error("the sync settings service must stay lazy") },
         readingProgressSettingsServiceProvider = { error("the reading-progress settings service must stay lazy") },
         readingProgressServiceProvider = { error("the reading-progress service must stay lazy") },
@@ -133,6 +145,78 @@ class SettingsHostTest {
         host.maybeRecreateForSettingsKey("some_other_key")
         assertEquals(before, recreates)
         assertEquals(setOf("locale_pref", "night_mode_pref3", "display_color_mode", "theme_palette_style", "discrete_mode"), RECREATE_ON_CHANGE_KEYS)
+    }
+
+    @Test
+    fun localeChangeThroughHostRecreatesLanguageAndRetainsScreenPreference() {
+        val local = object : net.bible.sharedcore.settings.DeviceLocalPrefs {
+            val values = mutableMapOf<String, String>()
+            override fun getString(key: String, default: String?) = values[key] ?: default
+            override fun getBoolean(key: String, default: Boolean) = values[key]?.toBoolean() ?: default
+            override fun setString(key: String, value: String) { values[key] = value }
+            override fun setBoolean(key: String, value: Boolean) { values[key] = value.toString() }
+            override fun remove(key: String) { values.remove(key) }
+        }
+        val holder = net.bible.sharedui.assembly.HostStringTableHolder(net.bible.sharedui.assembly.hostStringTable("en"))
+        val navigator = object : net.bible.sharedui.host.app.HostNavigator {
+            override fun navigate(route: String) = Unit
+            override fun popBackStack() = false
+            override fun popBackStackTo(route: String, inclusive: Boolean) = false
+        }
+        val hostScope = CoroutineScope(Job())
+        val liveShell = net.bible.sharedui.host.app.HostNavShell(hostScope, navigator, recompose = {
+            holder.switchTo(local.getString("locale_pref", "en") ?: "en")
+        })
+        val options = object : net.bible.android.view.activity.settings.DictionaryOptionsProvider {
+            override val greekDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val hebrewDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val greekMorphOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+            override val wordLookupDictOptions = emptyList<net.bible.sharedcore.settings.DictOption>()
+        }
+        val flags = java.lang.reflect.Proxy.newProxyInstance(
+            net.bible.sharedcore.settings.SettingsPlatformFlags::class.java.classLoader,
+            arrayOf(net.bible.sharedcore.settings.SettingsPlatformFlags::class.java),
+        ) { _, method, _ -> if (method.returnType == Boolean::class.javaPrimitiveType) false else null } as net.bible.sharedcore.settings.SettingsPlatformFlags
+        val service = net.bible.android.view.activity.settings.AppSettingsServiceImpl(
+            options, prefs, local, net.bible.sharedui.strings.keyed.KeyedCoreStrings(holder.live), flags,
+        )
+        try {
+            runComposeUiTest {
+                setContent {
+                    val nav = rememberNavController()
+                    val languageStrings = iosStrings(holder.current.tag)
+                    val deps = androidx.compose.runtime.remember {
+                        host(strings = iosStrings { holder.current.tag }, hostShell = liveShell, serviceProvider = { service }).navDeps(
+                            nav, NavResultChannel<ReadingProgressResult> { },
+                        )
+                    }
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        net.bible.sharedui.strings.LocalStrings provides languageStrings,
+                        net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage provides true,
+                    ) {
+                        net.bible.sharedui.theme.AbTheme(darkTheme = false, disableAnimations = true) {
+                            net.bible.sharedui.components.AbNavHost(nav, startDestination = net.bible.sharedcore.nav.NavRoutes.SETTINGS) {
+                                settingsNavGraph(nav, deps)
+                            }
+                        }
+                    }
+                }
+                onNodeWithText(iosStrings("en").settings).assertExists()
+                onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-screen_keep_on_pref"))
+                onNodeWithTag("settings-row-screen_keep_on_pref").performClick()
+                onNodeWithTag("settings-row-screen_keep_on_pref").assertIsOn()
+                onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-locale_pref"))
+                onNodeWithTag("settings-row-locale_pref").performClick()
+                onNodeWithText("fi: Suomi").performScrollTo().performClick()
+                onNodeWithText(iosStrings("fi").settings).assertExists()
+                onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("settings-row-screen_keep_on_pref"))
+                onNodeWithTag("settings-row-screen_keep_on_pref").assertIsOn()
+            }
+            assertEquals("fi", holder.current.tag)
+            assertEquals(net.bible.sharedui.strings.lookup("fi", "studypads"), holder.live.text("studypads"))
+            assertTrue(service.snapshot.value.screenKeepOn)
+            assertTrue(prefs.getBoolean("screen_keep_on_pref", false))
+        } finally { hostScope.coroutineContext[Job]?.cancel() }
     }
 
     @Test
