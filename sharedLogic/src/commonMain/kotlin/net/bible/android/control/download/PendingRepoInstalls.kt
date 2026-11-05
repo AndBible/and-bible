@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import net.bible.sharedcore.platform.AppJson
 import net.bible.sharedcore.settings.DeviceLocalPrefs
-import net.bible.sharedlogic.sync.withMonitor
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 
 /** A repository install the user requested: [initials] from the repository named [repository]. */
 @Serializable
@@ -21,7 +22,12 @@ data class PendingRepoInstall(val repository: String, val initials: String)
  * never synced or restored onto another device.
  */
 class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
-    private val lock = Any()
+    /**
+     * This store's own lock, never `withMonitor`: on Kotlin/Native that is ONE process-wide mutex, and the prefs write
+     * below runs foreign code (NSUserDefaults posts its change notification synchronously). Holding the shared
+     * monitor there deadlocked the main thread waiting in `DownloadQueue.isInQueue` (#3973, iOS simulator).
+     */
+    private val lock = reentrantLock()
 
     fun add(request: PendingRepoInstall) = update { if (request in it) it else it + request }
 
@@ -32,14 +38,14 @@ class PendingRepoInstalls(private val prefs: DeviceLocalPrefs) {
      * Requests whose module did get installed (killed after the module was registered, or installed again since) are
      * forgotten for good.
      */
-    fun interrupted(isInstalled: (String) -> Boolean): List<PendingRepoInstall> = withMonitor(lock) {
+    fun interrupted(isInstalled: (String) -> Boolean): List<PendingRepoInstall> = lock.withLock {
         val all = read()
         val (installed, missing) = all.partition { isInstalled(it.initials) }
         if (installed.isNotEmpty()) write(missing)
         missing
     }
 
-    private fun update(change: (List<PendingRepoInstall>) -> List<PendingRepoInstall>) = withMonitor(lock) {
+    private fun update(change: (List<PendingRepoInstall>) -> List<PendingRepoInstall>) = lock.withLock {
         val before = read()
         val after = change(before)
         if (after != before) write(after)
