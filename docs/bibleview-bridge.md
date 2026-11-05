@@ -20,7 +20,7 @@ The iOS host currently uses the common contract for its PoC, not full Android fe
   arguments and calls `BibleBridge`. Android's `BibleJavascriptInterface` implements that
   contract; iOS uses the PoC implementation based on `UnimplementedBibleBridge`.
 
-There are 87 posted methods and one synchronous exception, `getActiveLanguages`.
+There are 88 posted methods and one synchronous exception, `getActiveLanguages`.
 The latter calls the Android endpoint directly; iOS reads injected `__activeLanguages__`
 (with an English fallback). It cannot use a return value from `postMessage`.
 Top-level `undefined` arguments become JSON `null` before posting.
@@ -55,23 +55,40 @@ Calls of such a page must not act on the window that now owns the view (osTicket
   `BibleWindowSession.documentGeneration` is the generation calls are admitted for: `NO_DOCUMENT_GENERATION` (0)
   while none is admitted, while a view is parked for reuse, and from the moment the window REQUESTS another document
   or key (`Window.loadText` -> `WindowView.documentRequested`) until it is admitted. A request that ends without a new
-  document (unchanged content, superseded read) admits the page's document again (`documentRequestEnded`). A jump
-  inside the loaded document requests nothing, so the page's reports keep counting.
-- The page switches to that generation once the cleared content has left the DOM
-  (`src/bridge/document-generation.ts`), and `native-bridge.ts` puts it on every call's envelope
-  (`{method, args, documentGeneration}`). `clear_document` also drops everything still pending for the old content
-  (infinite scroll's buffered chapters and queued requests), so no old content is inserted under the new generation.
-- `BridgeDispatcher` sends a `BridgeGenerationPolicy.guarded` call through a `DocumentGenerationGate`: dropped at once
-  when its generation is not admitted (a deferred one is answered with null), otherwise run by the gate on the main
-  thread and only if the generation is still admitted there for the same window (`ReadingBridge.runAdmitted`). The gate
-  is the bridge itself; a bridge without one gets `ClosedDocumentGate` (guarded calls always dropped), a bridge with no
-  window document (the PoC) passes `OpenDocumentGate` explicitly. Handlers that act later still (after queued writes,
-  an IO read, a hop to Main) take a `session.documentTicket()` and act only while `session.holdsDocument(ticket)`.
-- Guarded is the default: a call is unguarded only when dropping it would lose user data (id- or range-addressed
-  writes) or wedge the live page's own state. Navigation (links, compare/memorize, chapter paging), speech, the prompt
-  selector, keyboard shortcuts and workspace settings are guarded.
-- A guarded tap between the request of a new document and the page clearing the old one is dropped silently. That is
-  the intended trade-off.
+  document (unchanged commentary, superseded or failed read) admits the page's document again, but only while the
+  window still shows the page and book that document was loaded from; after a failed load of another document the
+  gate stays closed until the next admission. A jump inside the loaded document requests nothing, so the page's
+  reports keep counting.
+- JS (`src/bridge/document-generation.ts`): `clear_document` switches the page to the new generation once the cleared
+  content has left the DOM, and `native-bridge.ts` puts it on every call's envelope
+  (`{method, args, documentGeneration}`). Then the page posts `documentShown(generation)`.
+  `clear_document` also drops everything still pending for the old content: infinite scroll's buffered chapters,
+  queued requests and the scroll correction of a top insert, and a `setup_content` still awaiting the old document's
+  render (`documentEpoch()`), so no old work acts on the new DOM under the new generation.
+- Every call is in exactly one `BridgeGenerationPolicy` set (`BridgeGenerationPolicyTest`); `BridgeDispatcher` routes
+  by it through the bridge's `DocumentGenerationGate`:
+  - `guarded` (default for anything that navigates or acts on the current or active window): dropped at once when
+    its generation is not admitted; otherwise run on the main thread and only if the generation is still admitted
+    there for the same window (`ReadingBridge.runAdmitted`). A handler that acts after a further hop or suspension
+    (queued writes, an IO or database read, `launch(Main)`) takes a `session.documentTicket()` and checks
+    `session.holdsDocument(ticket)` right before it acts, after its last suspension (e.g. `LinkControl.openStudyPad`'s
+    `stillWanted`, after the label read).
+  - `paging` (`requestMoreToBeginning`, `requestMoreToEnd`): admitted against the document the PAGE holds
+    (`DocumentLoader.runForPageDocument`), on the calling thread. While a new document is requested the call waits for
+    the outcome: it runs when the request ends without a document, and is answered null when a new document replaces
+    the page's. A dropped request answers null, which ends infinite scroll for good, so it must not be dropped while
+    the page's document is merely being re-checked.
+  - `unguarded`: user data addressed explicitly (ids, book + ordinals), answers to the page, the live page's own state.
+  The gate is the bridge itself; a bridge without one gets `ClosedDocumentGate` (guarded and paging calls always
+  dropped), a bridge with no window document (the PoC) passes `OpenDocumentGate` explicitly.
+- Link navigations (`window.location.assign` and plain anchors: Android `shouldOverrideUrlLoading` and the long-press
+  menu, iOS and desktop link navigation) carry no generation. `ReadingLinkHandler` opens a link only while the page
+  shows the admitted document (`session.pageShowsAdmittedDocument()`: its last `documentShown` equals
+  `documentGeneration`); the host's `openLink` does not even activate the window otherwise. The selection menu's
+  compare and memorize use the same check. A restarted page shows nothing until its `documentShown`.
+- Reusing a web view for another window closes the old page's modals (`close_modals`) on every platform.
+- A guarded tap between the request of a new document and the page showing it is dropped silently. That is the
+  intended trade-off.
 
 ## Adding a JS-to-native method
 
@@ -88,9 +105,10 @@ Calls of such a page must not act on the window that now owns the view (osTicket
    threading there. Add the logging no-op to `UnimplementedBibleBridge`, which the iOS PoC
    inherits, unless iOS implements the operation.
 5. Classify it in `BridgeGenerationPolicy` (`guarded` unless dropping it from a replaced page would lose user data or
-   wedge the page; anything that navigates or acts on the current or active window is guarded);
-   `BridgeGenerationPolicyTest` fails for an unclassified method. A guarded handler that acts after a hop (queued
-   writes, IO, `launch(Main)`) rechecks `session.holdsDocument(ticket)` at the point it acts.
+   wedge the page; anything that navigates or acts on the current or active window is guarded; `paging` only for
+   chapter requests that extend the page's own content); `BridgeGenerationPolicyTest` fails for an unclassified
+   method. A guarded handler that acts after a hop or a suspension (queued writes, IO, a database read,
+   `launch(Main)`) rechecks `session.holdsDocument(ticket)` after its last suspension, right where it acts.
 6. Add meaningful decoder/behavior coverage. `BibleJavascriptInterfaceParityTest` and
    `BibleBridgeDecoderTest` must pass; they guard agreement between the TS contract,
    common contract/decoder and Android implementation. Check deferred failure replies too.
@@ -124,9 +142,10 @@ A malformed envelope cannot promise a deferred response without a usable method 
 ## Threading
 
 Android dispatch is synchronous on WebView's JavaBridge thread, just as the old annotated
-methods were; existing handlers retain their own main-thread/coroutine hops. WebKit invokes
-the iOS message handler on main. Sharing the dispatcher does not move Android handler work
-to main or into common code.
+methods were. Unguarded and paging calls run there; guarded calls are moved to the main
+thread by the gate (`ReadingBridge.runAdmitted`), where navigation, document admission and
+view rebinds happen, so a guarded call can run after an unguarded one the page posted
+later. WebKit invokes the iOS message handler on main.
 
 `BibleViewJsChannel` preserves Android's native-to-JS timing rules:
 
