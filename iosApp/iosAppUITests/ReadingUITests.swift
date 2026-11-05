@@ -1349,7 +1349,7 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: in-place search
 
-    /// Sends a real Control+F event: WebKit's DOM handler or its unhandled UIKit fallback opens search via the same bridge.
+    /// A real Control+F event follows the iOS native chord route to the page's single shortcut dispatcher.
     func testControlFOpensInPlaceSearch() throws {
         let app = try launchReading()
         let field = element(app, "reading-search-field")
@@ -1369,8 +1369,41 @@ final class ReadingUITests: RealAppUITestCase {
         pane.typeKey("f", modifierFlags: .control)
         let opened = field.waitForExistence(timeout: 15)
         shot(app, "control-f-after-event")
+        // Release the hardware modifier before leaving this test: XCTest/iOS can retain it across app relaunches.
+        pane.typeKey("f", modifierFlags: [])
         if !opened { attachTree(app, "control-f-search-not-shown") }
         XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
+    }
+
+    /// Ctrl+B must push exactly one chooser: one Back must return to reading, not uncover a second chooser.
+    func testControlBOpensExactlyOneChooser() throws {
+        let app = try launchReading()
+        firstPane(app).typeKey("b", modifierFlags: .control)
+        app.typeKey("b", modifierFlags: [])
+        let back = app.buttons["Back"]
+        XCTAssertTrue(back.waitForExistence(timeout: 15), "Ctrl+B must open the passage chooser")
+        back.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15),
+                      "one chord must push only one chooser; one Back must restore reading")
+        XCTAssertFalse(back.exists, "a duplicate chooser remains after one Back")
+        shot(app, "control-b-one-back")
+    }
+
+    /// Unconsumed editing chords must not bubble into the reading host.
+    func testSearchFieldKeepsItsKeyboardChords() throws {
+        let app = try launchReading()
+        guard openDrawerRow(app, "Find") else { return }
+        let field = element(app, "reading-search-field")
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") })
+        field.typeText("love")
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "love" })
+        field.typeKey("b", modifierFlags: .control)
+        XCTAssertTrue(field.exists, "Ctrl+B in the field must not open a Bible chooser")
+        XCTAssertFalse(app.buttons["Back"].exists, "editing chord escaped to reading navigation")
+        XCTAssertTrue(field.debugDescription.contains("Keyboard Focused"), "the field must keep keyboard focus")
+        // Whether UIKit/Compose inserts 'b' for Control+B is the editor's policy, not a reading action.
     }
 
     /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
