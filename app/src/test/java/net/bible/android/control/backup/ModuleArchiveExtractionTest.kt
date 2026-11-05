@@ -20,7 +20,7 @@ package net.bible.android.control.backup
 import kotlinx.coroutines.runBlocking
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.installzip.myBibleBytes
@@ -49,7 +49,7 @@ import java.util.zip.ZipOutputStream
  * or a misplaced manifest), so a refactor of the shared core can't silently regress any caller.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class ModuleArchiveExtractionTest {
     private lateinit var downloadDir: File
     private var booksBefore: Set<org.crosswire.jsword.book.Book> = emptySet()

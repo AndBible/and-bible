@@ -1,7 +1,7 @@
 package net.bible.shareddata
 
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.openSqlite
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.test.runTest
 import net.bible.android.database.OldMonolithicAppDatabase
@@ -26,7 +26,7 @@ class MigrationDataTest {
         val name = "data.sqlite3"
         val path = "$dir/$name"
         createFromExport(fqn, version, path)
-        val connection = BundledSQLiteDriver().open(path)
+        val connection = openSqlite(path)
         try {
             seed.forEach { connection.execSQL(it) }
         } finally {

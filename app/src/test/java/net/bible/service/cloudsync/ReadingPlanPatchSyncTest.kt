@@ -19,7 +19,7 @@ package net.bible.service.cloudsync
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -103,7 +103,7 @@ class ReadingPlanPatchSyncTest {
         fun open(path: String): ReadingPlanDatabase = Room.databaseBuilder(application, ReadingPlanDatabase::class.java, path)
             .addMigrations(*readingPlanMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         var db = open(file.absolutePath)
         val dbDef = SyncableDatabaseAccessor(db, { open(it) }, { db.close(); db = open(file.absolutePath); db },

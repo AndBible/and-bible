@@ -19,7 +19,7 @@ package net.bible.service.cloudsync
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -111,7 +111,7 @@ class ParentDeleteConflictSyncTest {
         Room.databaseBuilder(application, klass, path)
             .addMigrations(*migrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
 
     private suspend fun workspaceDevice() = newDevice(SyncableDatabaseDefinition.WORKSPACES) {

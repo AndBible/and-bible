@@ -19,7 +19,7 @@ package net.bible.service.common
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -189,7 +189,7 @@ class G2FixtureWriterTest {
         val patchDb = Room.databaseBuilder(application, BookmarkDatabase::class.java, patchDbFile.absolutePath)
             .addMigrations(*bookmarkMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         try {
             val dbDef = SyncableDatabaseAccessor(
@@ -197,7 +197,7 @@ class G2FixtureWriterTest {
                     Room.databaseBuilder(application, BookmarkDatabase::class.java, path)
                         .addMigrations(*bookmarkMigrations)
                         .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-                        .setDriver(BundledSQLiteDriver())
+                        .setDriver(sqliteDriverFactory())
                         .build()
                 }, { patchDb }, patchDbFile.path,
                 SyncableDatabaseDefinition.BOOKMARKS, deviceId = UUID.randomUUID().toString(),

@@ -19,7 +19,7 @@ package net.bible.service.sword.mysword
 
 import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import androidx.sqlite.SQLiteException
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
@@ -43,7 +43,7 @@ import java.nio.file.Files
 
 /** The MySword reader against minimal real `.mybible` files, opened read-only by the bundled SQLite. */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class MySwordBookTest {
     private lateinit var dir: File
     private val states = mutableListOf<SqliteVerseBackendState>()

@@ -3,7 +3,7 @@ package net.bible.shareddata
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.Dispatchers
 
 /**
@@ -15,7 +15,7 @@ inline fun <reified T : RoomDatabase> openTestDatabase(
     name: String,
     vararg migrations: Migration,
 ): T = Room.databaseBuilder<T>(name = "$dir/$name")
-    .setDriver(BundledSQLiteDriver())
+    .setDriver(sqliteDriverFactory())
     .setQueryCoroutineContext(Dispatchers.Default)
     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
     .addMigrations(*migrations)

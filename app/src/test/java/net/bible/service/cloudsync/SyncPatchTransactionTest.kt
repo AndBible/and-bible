@@ -21,7 +21,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -108,7 +108,7 @@ class SyncPatchTransactionTest {
         Room.databaseBuilder(application, BookmarkDatabase::class.java, path)
             .addMigrations(*bookmarkMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
 
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(10_000) { block() } }

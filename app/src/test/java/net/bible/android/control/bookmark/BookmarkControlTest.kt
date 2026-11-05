@@ -39,7 +39,7 @@ import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.openSqlite
 import androidx.sqlite.execSQL
 import androidx.room3.useWriterConnection
 import net.bible.android.BibleApplication.Companion.application
@@ -331,7 +331,7 @@ class BookmarkControlTest {
      */
     private fun runDeduplicateSpecialLabels() {
         val path = application.getDatabasePath(net.bible.android.database.BookmarkDatabase.dbFileName).path
-        BundledSQLiteDriver().open(path).use { connection ->
+        openSqlite(path).use { connection ->
             // Room may still be reading this file (its invalidation tracker refreshes asynchronously after the
             // writer-connection ALTERs above); without a busy timeout a write here fails at once with
             // "database is locked" instead of waiting for that read to finish.

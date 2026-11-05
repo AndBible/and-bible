@@ -20,7 +20,7 @@ package net.bible.service.cloudsync.merge
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import net.bible.android.database.migrations.Migration
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -94,7 +94,7 @@ class MergeApplyTest {
         fun open(path: String): T = Room.databaseBuilder(application, klass, path)
             .addMigrations(*migrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         var db = open(file.absolutePath)
         val dbDef = SyncableDatabaseAccessor(db, { open(it) }, { db.close(); db = open(file.absolutePath); db },

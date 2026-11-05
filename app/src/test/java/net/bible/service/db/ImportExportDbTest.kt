@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.useWriterConnection
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -98,7 +98,7 @@ class ImportExportDbTest {
         Room.databaseBuilder(application, BookmarkDatabase::class.java, path)
             .addMigrations(*bookmarkMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
 
     // ---- import ----
@@ -132,7 +132,7 @@ class ImportExportDbTest {
         val db = Room.databaseBuilder(application, net.bible.android.database.mydocument.MyDocumentDatabase::class.java, file.absolutePath)
             .addMigrations(*net.bible.android.database.migrations.myDocumentMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         val page: net.bible.android.database.mydocument.MyDocumentPage
         try {
@@ -169,7 +169,7 @@ class ImportExportDbTest {
         val db = Room.databaseBuilder(application, AiSettingsDatabase::class.java, file.absolutePath)
             .addMigrations(*aiSettingsMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         try {
             db.llmProviderConfigDao().insert(provider)

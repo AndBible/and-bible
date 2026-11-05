@@ -25,10 +25,20 @@ import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
 
 /**
- * Driver for every non-Room open and every Room builder ([buildAppDatabase]). The unit tests use the bundled
- * driver too, so nothing replaces this.
+ * Test-only connection decoration, installed by JVM fixtures, never by an app host. Keeping the default null
+ * leaves production on the unwrapped bundled driver, including its open flags and durability settings.
  */
-val sqliteDriverFactory: () -> SQLiteDriver = { BundledSQLiteDriver() }
+@kotlin.concurrent.Volatile
+var sqliteConnectionDecoratorForTest: ((String, SQLiteConnection) -> SQLiteConnection)? = null
+
+/** Driver for both Room builders and non-Room opens. Production always uses the bundled driver directly. */
+val sqliteDriverFactory: () -> SQLiteDriver = {
+    val decorate = sqliteConnectionDecoratorForTest
+    if (decorate == null) BundledSQLiteDriver() else object : SQLiteDriver {
+        private val delegate = BundledSQLiteDriver()
+        override fun open(fileName: String): SQLiteConnection = decorate(fileName, delegate.open(fileName))
+    }
+}
 
 /**
  * Opens a non-Room SQLite file (third-party modules, legacy files) with the bundled SQLite. Read-write opens
@@ -36,10 +46,9 @@ val sqliteDriverFactory: () -> SQLiteDriver = { BundledSQLiteDriver() }
  * Room uses the same bundled library, so POSIX locks on a file are shared with Room's connections.
  */
 fun openSqlite(path: String, readOnly: Boolean = false): SQLiteConnection {
-    val driver = sqliteDriverFactory()
-    return if (driver is BundledSQLiteDriver) {
-        driver.open(path, if (readOnly) SQLITE_OPEN_READONLY else SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE)
-    } else {
-        driver.open(path)
-    }
+    val connection = BundledSQLiteDriver().open(
+        path, if (readOnly) SQLITE_OPEN_READONLY else SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
+    )
+    // Read-only probes never commit and must not acquire extra schema locks to configure write durability.
+    return if (readOnly) connection else sqliteConnectionDecoratorForTest?.invoke(path, connection) ?: connection
 }

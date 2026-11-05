@@ -21,7 +21,7 @@ import net.bible.service.db.reset
 import kotlinx.coroutines.*
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.service.db.DatabaseContainer
@@ -45,7 +45,7 @@ import java.io.File
  * never be regenerated from a newer build; the contents are listed in the Task 3 notes of the D1 plan.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class RealFileFixturesTest {
     @Before fun before() = DatabaseContainer.reset()
     @After fun after() = DatabaseContainer.reset()
