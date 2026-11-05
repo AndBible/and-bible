@@ -211,8 +211,12 @@ class DocumentLoader(
                 // A Bible page's verse in the MODULE's versification, like its content: the window's verse can be in
                 // another one (a module switch keeps it), and the page's chapters, its jump target and its scroll
                 // reports' ordinals are the module's (#3975).
-                session.initialKey = (location.first as? Verse)?.takeIf { document is BibleDocument }
-                    ?.toV11n((document as BibleDocument).swordBook.versification) ?: location.first
+                val verse = location.first as? Verse
+                session.initialKey = when {
+                    verse != null && document is BibleDocument -> verse.toV11n(document.swordBook.versification)
+                    verse != null && document is MyNotesDocument -> verse.toV11n(net.bible.android.database.bookmarks.KJVA)
+                    else -> location.first
+                }
                 initialAnchorOrdinal = location.second
                 initialHtmlId = location.third
                 session.contentVisible = false
@@ -653,7 +657,23 @@ class DocumentLoader(
         session.jsChannel.markClientReady()
         documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
         labelsUploaded = false
-        replaceDocument()
+        try {
+            replaceDocument()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val target = admission.state.admitted?.source
+            if (target != null) {
+                Log.e(TAG, "Delivering restarted document failed; showing an error document", e)
+                try {
+                    showLoadError(target, e)
+                } catch (again: Exception) {
+                    Log.e(TAG, "Delivering the error document failed too", again)
+                }
+            } else {
+                Log.e(TAG, "Delivering restarted page failed without an admitted document", e)
+            }
+        }
         updateActive()
         // The window may stand where only the old page reached (a chapter or entry infinite scroll added): the replayed
         // document does not hold it, so the window would stay closed for that page. Load where the window is instead.

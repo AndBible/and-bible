@@ -37,10 +37,17 @@ abstract class CachedKeyPage internal constructor(
     /** A key list and the book it was built from: a list is only ever used for its own book (#3975). */
     private class KeyListCache(val document: Book, val keys: List<Key>)
 
-    /** Written from the thread that builds the list (often IO) and cleared on main; read whole, never field by field. */
-    @kotlin.concurrent.Volatile private var keyListCache: KeyListCache? = null
+    private class CacheState(val generation: Long, val cache: KeyListCache?)
+    private val cacheState = kotlinx.atomicfu.atomic(CacheState(0, null))
 
-    @VisibleForTesting fun hasCachedKeyListForTest() = keyListCache != null
+    private fun clearKeyListCache() {
+        while (true) {
+            val state = cacheState.value
+            if (cacheState.compareAndSet(state, CacheState(state.generation + 1, null))) return
+        }
+    }
+
+    @VisibleForTesting fun hasCachedKeyListForTest() = cacheState.value.cache != null
 
     private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
         // Clears the key cache when pages in the current MyDocument change.
@@ -48,7 +55,7 @@ abstract class CachedKeyPage internal constructor(
         val doc = currentDocument
         if (doc != null && doc.isMyDocument && doc.initials == change.initials) {
             Log.d(TAG, "Clearing cached key list for updated MyDocument: ${change.initials}")
-            keyListCache = null
+            clearKeyListCache()
         }
     }
 
@@ -57,8 +64,8 @@ abstract class CachedKeyPage internal constructor(
 
 
 	override fun setCurrentDocument(doc: Book?) {
-		if (doc != null && doc != currentDocument) {
-			keyListCache = null
+		if (doc !== currentDocument) {
+			clearKeyListCache()
 		}
 		super.setCurrentDocument(doc)
 	}
@@ -73,7 +80,8 @@ abstract class CachedKeyPage internal constructor(
      * switched (off main, [getKeyPlus] with a captured book) never becomes the next book's list (#3975).
      */
     fun keyListOf(doc: Book): List<Key>? {
-        keyListCache?.takeIf { it.document == doc }?.let { return it.keys }
+        val before = cacheState.value
+        before.cache?.takeIf { it.document === doc }?.let { return it.keys }
         val keylist: List<Key>? = try {
             Log.i(TAG, "Start to create cached key list for $doc")
             // root key has no name and can be ignored but also check for any other keys with no name
@@ -89,7 +97,9 @@ abstract class CachedKeyPage internal constructor(
             null
         }
         Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
-        if (keylist != null && currentDocument == doc) keyListCache = KeyListCache(doc, keylist)
+        if (keylist != null && currentDocument === doc) {
+            cacheState.compareAndSet(before, CacheState(before.generation, KeyListCache(doc, keylist)))
+        }
         return keylist
     }
 

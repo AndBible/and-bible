@@ -685,6 +685,39 @@ class DocumentAdmissionTest {
         }
     }
 
+    @Test
+    fun rework6NullDictionaryKeyRejectsAnUnrelatedKeyWithoutANewLoad() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        val dictionary = book("StrongsGreek")
+        val keys = dictionary.getGlobalKeyList().toList()
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val originalSink = net.bible.sharedcore.log.Log.sinkOverride
+        net.bible.sharedcore.log.Log.sinkOverride = { _, _, message, _ ->
+            if (message.startsWith("Loading document:") && message.contains(dictionary.initials)) {
+                entered.countDown()
+                check(release.await(10, TimeUnit.SECONDS))
+            }
+        }
+        try {
+            val before = session.documentGeneration
+            onMain {
+                window.pageManager.setCurrentDocument(dictionary)
+                window.pageManager.currentDictionary.doSetKey(null)
+                window.loadText()
+            }
+            assertTrue("dictionary fetch reached its read boundary", entered.await(10, TimeUnit.SECONDS))
+            onMain { window.pageManager.currentDictionary.doSetKey(keys[1]) }
+            release.countDown()
+            view.awaitLastRequestEnded()
+            onMain {}
+            assertEquals("stale fetch must not publish under an unrelated key", before, session.documentGeneration)
+        } finally {
+            release.countDown()
+            net.bible.sharedcore.log.Log.sinkOverride = originalSink
+        }
+    }
+
     /** Minor (opus): a chapter whose read fails is taken out of the page's range and contexts again. */
     @Test
     fun aFailedChapterReadIsNotKeptInThePagesRange() {
@@ -913,6 +946,106 @@ class DocumentAdmissionTest {
         onMain { session.dispose() }
         waitUntil("session timer cancelled") { owned.children.none() }
         assertTrue("host lifetime remains active", sessionScope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+    }
+
+    @Test
+    fun rework6EpubPagingScrollRoundTripsTheAddedEntry() {
+        val fixture = net.bible.service.sword.epub.EpubBackendStateTest()
+        fixture.setUp()
+        val state = net.bible.service.sword.epub.EpubBackendState(
+            okio.Path.Companion.run { fixture.buildEpub("admission-3975").toOkioPath() },
+            testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(org.robolectric.RuntimeEnvironment.getApplication()))
+        val metadata = state.getBookMetaData()
+        val epub = org.crosswire.jsword.book.sword.SwordGenBook(metadata, net.bible.service.sword.epub.EpubBackend(state, metadata))
+        Books.installed().addBook(epub)
+        try {
+            val keys = epub.getGlobalKeyList().toList()
+            assertTrue("fixture has at least two entries", keys.size >= 2)
+            val generation = showEntry(epub, keys[0])
+            post("requestMoreToEnd", "[87]", generation)
+            waitUntil("EPUB next entry delivered") { notNull(87) }
+            post("scrolledToOrdinal", "[\"${keys[1].getOsisRef()}\",2]", generation)
+            onMain {}
+            assertEquals(keys[1].getOsisRef(), window.pageManager.currentPage.key?.getOsisRef())
+            assertEquals(keys[1].getOsisRef(), epub.getKey(keys[1].getOsisRef()).getOsisRef())
+        } finally {
+            Books.installed().removeBook(epub)
+            state.close()
+            fixture.tearDown()
+        }
+    }
+
+    @Test
+    fun rework6LutherModuleUsesItsOwnMalachiChapterForForeignWindowVerse() {
+        val dir = java.nio.file.Files.createTempDirectory("luther-admission").toFile()
+        val initials = "Luther3975"
+        val data = java.io.File(dir, "module").apply { mkdirs() }
+        val luther = Versifications.instance().getVersification("Luther")!!
+        val mapped = Verse(luther, BibleBook.MAL, 3, 19)
+        val text = "<verse>Fixture verse</verse>".toByteArray(Charsets.UTF_8)
+        java.io.File(data, "ot").writeBytes(text)
+        java.io.RandomAccessFile(java.io.File(data, "ot.vss"), "rw").use { index ->
+            index.setLength((luther.getTestamentOrdinal(mapped.ordinal) + 1L) * 6)
+            index.seek(luther.getTestamentOrdinal(mapped.ordinal).toLong() * 6)
+            index.write(byteArrayOf(0, 0, 0, 0, text.size.toByte(), 0))
+        }
+        val confFile = java.io.File(dir, "fixture.conf").apply {
+            writeText("[$initials]\nDataPath=./module/\nModDrv=RawText\nEncoding=UTF-8\nSourceType=OSIS\nLang=en\nVersification=Luther\n")
+        }
+        val metadata = org.crosswire.jsword.book.sword.SwordBookMetaDataJvm.create(
+            confFile, org.crosswire.common.util.NetUtilJvm.getURI(dir))
+        metadata.setDriver(org.crosswire.jsword.book.sword.SwordBookDriver.instance())
+        val module = checkNotNull(metadata.bookType).createBook(metadata)
+        Books.installed().addBook(module)
+        val logs = Collections.synchronizedList(mutableListOf<String>())
+        val originalSink = net.bible.sharedcore.log.Log.sinkOverride
+        net.bible.sharedcore.log.Log.sinkOverride = { _, tag, message, failure ->
+            logs.add("$tag: $message ${failure?.stackTraceToString() ?: ""}")
+        }
+        try {
+            val stored = Verse(kjv, BibleBook.MAL, 4, 1)
+            onMain {
+                window.pageManager.currentBible.onlySetCurrentDocument(module)
+                window.pageManager.currentBibleVerse.setVerseSelected(kjv, stored)
+                window.loadText()
+            }
+            view.awaitLastRequestEnded()
+            try {
+                waitUntil("Luther Malachi loaded", 5_000) { session.firstDocument is BibleDocument }
+            } catch (e: IllegalStateException) {
+                throw AssertionError("Luther fixture failed: ${logs.joinToString("\n")}", e)
+            }
+            val initial = session.initialKey as Verse
+            assertEquals("Luther", initial.versification.name)
+            assertEquals(BibleBook.MAL, initial.book)
+            assertEquals(3, initial.chapter)
+            assertTrue("Luther chapter is admitted", "Mal.3" in admitted()!!.contexts)
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = originalSink
+            Books.installed().removeBook(module)
+            dir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun rework6WaitingPagingLogsOnceAtMaximumBackoff() {
+        val generation = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        val messages = Collections.synchronizedList(mutableListOf<String>())
+        val originalSink = net.bible.sharedcore.log.Log.sinkOverride
+        net.bible.sharedcore.log.Log.sinkOverride = { _, tag, message, _ ->
+            if (tag == "DocumentAdmission") messages.add(message)
+        }
+        try {
+            onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
+            post("requestMoreToEnd", "[86]", generation)
+            waitUntil("stall is logged at maximum backoff", 8_000) { messages.isNotEmpty() }
+            Thread.sleep(5_500)
+            assertEquals("one warning per continuous stall", 1, messages.size)
+            assertTrue("warning identifies the stalled paging request", messages.single().contains("paging", ignoreCase = true))
+            assertTrue("the request remains waiting", response(86).isEmpty())
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = originalSink
+        }
     }
 
     /** Review of rework 5 (M1): a general book entry whose read fails is not kept as a context of the page. */

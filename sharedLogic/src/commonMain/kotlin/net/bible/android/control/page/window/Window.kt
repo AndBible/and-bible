@@ -271,7 +271,9 @@ class Window (
             // (CurrentPageBase.currentPageContent): that key is this request's own, not a newer one (#3975).
             return generation == contentLoadGeneration &&
                 pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
-                (sourceKey == null || currentPage.key?.getOsisRef() == sourceKey)
+                (currentPage.key?.getOsisRef().let { currentKey ->
+                    currentKey == sourceKey || (sourceKey == null && currentKey == currentPage.fallbackKey()?.getOsisRef())
+                })
         }
         val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             pageManager.currentBibleVerse.verse

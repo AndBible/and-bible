@@ -69,7 +69,12 @@ class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book
         /** The chapter context of [verse], in the versification [verse] is in. */
         fun chapterContext(verse: Verse) = chapterContext(verse.book, verse.chapter)
 
-        /** The chapter contexts a Bible / MyNotes document of [range] holds (all chapters it spans). */
+        /**
+         * Contexts of a single-chapter Bible / MyNotes load, including chapters introduced by versification conversion.
+         * Same-book ranges are enumerated fully. A cross-book range has only its endpoints represented: conversion can
+         * cross books (e.g. Catholic Daniel 3 maps partly to PrAzar; see Catholic.properties), so this is defensive,
+         * not a complete enumeration of an arbitrary cross-book range.
+         */
         fun chapterContexts(range: VerseRange): Set<String?> {
             val start = range.start
             val end = range.end
@@ -206,6 +211,9 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     fun pageRestarted() {
         val admitted = state.admitted
         state = State(admitted?.withContexts(admitted.loaded), state.pending, NO_DOCUMENT_GENERATION)
+        // Calls belong to the old JS page; even answering them would target the new page's call IDs.
+        waitingPaging.clear()
+        recheckDelay = PAGING_RECHECK
     }
 
     /**
@@ -326,7 +334,11 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         session.scope.launch(Dispatchers.Main) {
             delay(recheckDelay)
             recheckScheduled = false
-            recheckDelay = minOf(recheckDelay * 2, MAX_PAGING_RECHECK)
+            val nextDelay = minOf(recheckDelay * 2, MAX_PAGING_RECHECK)
+            if (waitingPaging.isNotEmpty() && recheckDelay < MAX_PAGING_RECHECK && nextDelay == MAX_PAGING_RECHECK) {
+                Log.w(TAG, "Waiting paging requests reached the maximum 5 second recheck interval")
+            }
+            recheckDelay = nextDelay
             settleWaitingPaging()
             if (waitingPaging.isEmpty()) recheckDelay = PAGING_RECHECK
         }
