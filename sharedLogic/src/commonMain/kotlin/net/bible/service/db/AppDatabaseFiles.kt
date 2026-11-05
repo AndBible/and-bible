@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -83,11 +84,12 @@ internal fun sqlitePrimaryResultCode(e: Throwable): Int? =
 fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { it == SQLITE_CORRUPT || it == SQLITE_NOTADB }
 
 /**
- * Checks, before Room opens it, that [path] (when it exists) is a readable database: one raw open that reads the
- * schema (`sqlite_master`). On SQLITE_NOTADB or SQLITE_CORRUPT the file and its `-journal`/`-wal`/`-shm`/`.lck`
- * siblings are moved to `<name>.corrupt-<yyyyMMdd-HHmmss>[-n]` in the same directory and the new name is returned.
- * Any other error (busy/locked, read-only file system, I/O) leaves the file alone and returns null; Room then
- * reports that error itself. One check per call, no retry: it cannot loop.
+ * Checks, before Room opens it, that [path] (when it exists) has a readable schema (`sqlite_master`). A first
+ * SQLITE_NOTADB or SQLITE_CORRUPT is only a suspicion: the connection is closed and a fresh connection repeats
+ * the read. Only if both attempts report corruption are the file and its `-journal`/`-wal`/`-shm`/`.lck` siblings
+ * moved to `<name>.corrupt-<yyyyMMdd-HHmmss>[-n]` in the same directory and the new name returned.
+ * A successful read or any other error (busy/locked, read-only file system, I/O) on either attempt leaves the file
+ * alone and returns null; Room then reports any remaining error itself. At most two checks per call, no loop.
  *
  * Limits: only corruption visible when the schema is read is caught here. Corruption in a data page found later
  * (by a query) still throws at that query. The check's own open handles a `-journal`/`-wal` beside the file as
@@ -95,16 +97,20 @@ fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { 
  * may not survive into the moved-aside copy; `.lck` (and anything SQLite leaves alone) is moved with it.
  */
 @VisibleForTesting
-fun recoverIfCorrupt(path: String): String? {
+fun recoverIfCorrupt(path: String): String? = recoverIfCorrupt(path) { openSqlite(it) }
+
+internal fun recoverIfCorrupt(path: String, openConnection: (String) -> SQLiteConnection): String? {
     val fs = FileSystem.SYSTEM
     if (fs.metadataOrNull(path.toPath())?.isRegularFile != true) return null
-    val error = try {
-        openSqlite(path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
+    fun corruptionError(): SQLiteException? = try {
+        openConnection(path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
         null
     } catch (e: SQLiteException) {
-        e
+        e.takeIf(::isCorruptionError)
     }
-    if (error == null || !isCorruptionError(error)) return null
+    val firstError = corruptionError() ?: return null
+    Log.w(TAG, "Possible corruption in ${path.toPath().name}; confirming with a fresh connection", firstError)
+    val error = corruptionError() ?: return null
     val target = corruptTarget(path)
     if (!renamed(path, target)) {
         Log.e(TAG, "Corrupt database $path could not be moved aside", error)
