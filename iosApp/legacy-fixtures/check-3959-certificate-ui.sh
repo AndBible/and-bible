@@ -73,6 +73,19 @@ cp build/3959-certificate.log build/shots/3959-certificate.log
 cp "$scratch/server.log" build/shots/3959-certificate-server.log
 xcrun simctl spawn "$id" log show --style compact --last 15m --predicate 'process == "AndBibleDev"' > build/shots/3959-certificate-app.log
 xcrun simctl io "$id" screenshot build/shots/3959-certificate-final.png >/dev/null 2>&1 || true
+xcrun xcresulttool export attachments --path "$result" --output-path "$scratch/attachments" >/dev/null 2>&1 || true
+if test -f "$scratch/attachments/manifest.json"; then
+  python3 -I - "$scratch/attachments" "$PWD/build/shots" <<'PY'
+import json, pathlib, shutil, sys
+source, target = map(pathlib.Path, sys.argv[1:])
+for test in json.loads((source / 'manifest.json').read_text()):
+    for attachment in test.get('attachments', []):
+        name = attachment.get('suggestedHumanReadableName', '')
+        if name.startswith(('task7-localhost-certificate-verified', '3959-changed-certificate-rejected', '3959-real-sync-')):
+            file = source / attachment['exportedFileName']
+            shutil.copyfile(file, target / (name.split('_0_')[0] + file.suffix))
+PY
+fi
 xcrun xcresulttool get test-results tests --path "$result" --format json > build/shots/3959-certificate-tests.json || true
 xcrun xcresulttool get test-results summary --path "$result" --format json > build/shots/3959-certificate-summary.json || true
 if test "$status" -eq 0; then
