@@ -27,7 +27,7 @@ class ReadingPlanMonitorIsolationTest {
                     slowStarted.countDown()
                     check(releaseSlow.await(10, TimeUnit.SECONDS))
                 }
-                return "# $code\n1=Gen.1\n2=Gen.2\n"
+                return "# $code\n1=Gen.1\n2=Gen.2\n" + if (code == "slow") "3=Gen.3\n" else ""
             }
         }
         val scope = AppCoroutineScope()
@@ -52,7 +52,7 @@ class ReadingPlanMonitorIsolationTest {
             fast?.join(10_000)
             scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
         }
-        assertEquals(2, slowDays)
+        assertEquals(3, slowDays)
         assertEquals(2, fastDays)
     }
 

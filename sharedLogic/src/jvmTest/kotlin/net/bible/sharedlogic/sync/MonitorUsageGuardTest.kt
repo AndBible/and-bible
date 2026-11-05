@@ -39,11 +39,15 @@ class MonitorUsageGuardTest {
 
     @Test fun scannerDetectsAnUnlistedCallButNotImportsOrComments() {
         assertEquals(1, monitorCalls("fun newCode() = withMonitor(Any()) { foreignCall() }"))
+        assertEquals(1, monitorCalls("import net.bible.sharedlogic.sync.withMonitor as lock\nfun newCode() = lock(Any()) {}"))
         assertEquals(0, monitorCalls("import net.bible.sharedlogic.sync.withMonitor\n// withMonitor(a) {}\n/* monitorWait(a) */"))
     }
 
     private fun monitorCalls(source: String): Int {
         val withoutComments = source.replace(Regex("/\\*[\\s\\S]*?\\*/|//[^\\n]*"), "")
-        return Regex("\\b(?:withMonitor|monitorWait|monitorNotifyAll)\\s*\\(").findAll(withoutComments).count()
+        val aliases = Regex("import\\s+net\\.bible\\.sharedlogic\\.sync\\.(?:withMonitor|monitorWait|monitorNotifyAll)\\s+as\\s+(\\w+)")
+            .findAll(withoutComments).map { Regex.escape(it.groupValues[1]) }.toList()
+        val names = (listOf("withMonitor", "monitorWait", "monitorNotifyAll") + aliases).joinToString("|")
+        return Regex("\\b(?:$names)\\s*\\(").findAll(withoutComments).count()
     }
 }

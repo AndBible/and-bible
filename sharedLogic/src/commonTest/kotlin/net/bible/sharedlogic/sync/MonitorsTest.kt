@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertTrue
 import kotlin.time.TimeSource
 
@@ -130,6 +131,23 @@ class MonitorsTest {
         }
         setter.await()
         waiter.await()
+    }
+
+    @Test fun waitAndNotifyRequireOwnershipOfTheExactTarget() {
+        val held = Any()
+        val other = Any()
+        withMonitor(held) {
+            assertFails { monitorNotifyAll(other) }
+            assertFails { monitorWait(other, 1) }
+        }
+        assertFails { monitorNotifyAll(held) }
+        assertFails { monitorWait(held, 1) }
+    }
+
+    @Test fun exceptionFromBlockReleasesTheMonitor() = runTest {
+        val target = Any()
+        assertFails { withMonitor(target) { error("test failure") } }
+        assertEquals(42, withContext(Dispatchers.Default) { withMonitor(target) { 42 } })
     }
 
     @Test fun waitWithTimeoutReturnsAfterTimeout() = runTest {

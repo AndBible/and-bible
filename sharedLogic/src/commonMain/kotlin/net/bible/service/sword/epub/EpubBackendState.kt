@@ -126,12 +126,15 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
             }
             retired = true
             while (activeUsers != 0) monitorWait(lifetime)
+        }
+        // Retirement excludes new leases. Closing SQLite/Room can block; no lifetime lock is needed here.
+        try {
+            search.close()
+        } finally {
             try {
-                search.close()
+                readDb.close()
             } finally {
-                try {
-                    readDb.close()
-                } finally {
+                withMonitor(lifetime) {
                     closed = true
                     monitorNotifyAll(lifetime)
                 }
@@ -306,8 +309,16 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
      * (#2632) the index is reported as not done, for every caller (search routing, `documentInfo`,
      * `hasIndex`).
      */
-    val isIndexed get() = withMonitor(lifetime) {
-        if (retired || getBookMetaData().indexStatus.isInProgress) false else search.isIndexed
+    val isIndexed: Boolean get() {
+        val acquired = withMonitor(lifetime) {
+            if (retired) false else { activeUsers++; true }
+        }
+        if (!acquired) return false
+        return try {
+            !getBookMetaData().indexStatus.isInProgress && search.isIndexed
+        } finally {
+            releaseUse()
+        }
     }
 
     fun deleteSearchIndex() {

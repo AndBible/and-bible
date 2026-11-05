@@ -1,33 +1,33 @@
 # path | monitor call count | audit reason
-sharedLogic/src/androidMain/kotlin/net/bible/sharedlogic/sync/Monitors.android.kt | 3 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/control/download/DownloadQueue.kt | 9 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/ClientPageObjects.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/CurrentPageBase.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/window/WindowRepository.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/control/versification/BookInstallWatcher.kt | 2 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/android/view/activity/page/BibleOverlayText.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/common/BookKeyExtensions.kt | 2 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/common/KdomBuilderPool.kt | 2 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/download/DownloadManager.kt | 8 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/download/GenericFileDownloader.kt | 3 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/history/HistoryManager.kt | 9 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/readingplan/OneDaysReadingsDto.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/readingplan/ReadingPlanTextFileDao.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordContentFacade.kt | 6 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordDocumentFacade.kt | 1 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBackendState.kt | 9 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBook.kt | 4 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubReplace.kt | 4 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubSearch.kt | 7 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/esword/ESwordBook.kt | 5 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/index/IndexingQueue.kt | 13 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/mybible/MyBibleBook.kt | 5 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/mysword/MySwordBook.kt | 5 | AUDIT PENDING
-sharedLogic/src/commonMain/kotlin/net/bible/sharedlogic/sync/Monitors.kt | 3 | AUDIT PENDING
-sharedLogic/src/hostMain/kotlin/net/bible/sharedlogic/platform/host/HostSearchIndexScheduler.kt | 6 | AUDIT PENDING
-sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/sync/Monitors.ios.kt | 3 | AUDIT PENDING
-sharedLogic/src/jvmMain/kotlin/net/bible/sharedlogic/sync/Monitors.jvm.kt | 3 | AUDIT PENDING
-sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/page/Selection.kt | 1 | AUDIT PENDING
-sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/page/WindowPaneMenuStateBuilder.kt | 1 | AUDIT PENDING
-sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/readingplan/ReadingPlanHost.kt | 1 | AUDIT PENDING
-sharedUi/src/hostMain/kotlin/net/bible/sharedui/host/reading/HostSelectionMenuUi.kt | 1 | AUDIT PENDING
+# Count includes expect/actual declarations; imports/comments are excluded. New or moved sites need an audit.
+sharedLogic/src/androidMain/kotlin/net/bible/sharedlogic/sync/Monitors.android.kt | 3 | JVM object-monitor identity and wait/notify compatibility; unchanged.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/download/DownloadQueue.kt | 9 | Short operations on per-set queue/error membership; transfers, prefs and notifications outside.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/ClientPageObjects.kt | 1 | BookName formatting flag must be restored atomically with reference formatting.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/CurrentPageBase.kt | 1 | Per-document render exclusion; same Book target as SwordContentFacade, no process-wide mutex.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/page/window/WindowRepository.kt | 1 | BookName formatting flag; page/document snapshot outside, only names formatted inside.
+sharedLogic/src/commonMain/kotlin/net/bible/android/control/versification/BookInstallWatcher.kt | 1 | Listener replacement serialization; JSword listener list add/remove are in-memory, not listener invocations.
+sharedLogic/src/commonMain/kotlin/net/bible/android/view/activity/page/BibleOverlayText.kt | 1 | BookName short-name scope; caller must not do I/O or invoke host callbacks.
+sharedLogic/src/commonMain/kotlin/net/bible/service/common/BookKeyExtensions.kt | 2 | Scoped BookName full/truncation flags with finally restore; reference formatting only.
+sharedLogic/src/commonMain/kotlin/net/bible/service/common/KdomBuilderPool.kt | 2 | Pool take/return only; builder creation and parsing outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/download/DownloadManager.kt | 8 | Per-set error membership snapshots/updates; downloads and notifications outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/download/GenericFileDownloader.kt | 3 | Per-set URI error membership; I/O and notifications outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/history/HistoryManager.kt | 9 | Per-manager history state; navigation and persistence outside; no other monitor users share it.
+sharedLogic/src/commonMain/kotlin/net/bible/service/readingplan/ReadingPlanTextFileDao.kt | 2 | Cache lookup/publication only; asset and user-file reads outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordContentFacade.kt | 6 | Per-book rendering/plain-text cache; BibleNames parsing and BookName formatting have their own targets.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordDocumentFacade.kt | 1 | Per-book index scheduling/status transition, not a process-wide monitor; legacy observer semantics retained.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBackendState.kt | 10 | Lifetime state/wait/notify only; close outside; metadata uses backend target, not lifetime/global lock.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBook.kt | 4 | Registry membership/owner lookup only; installation, deletion and retirement outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubReplace.kt | 4 | Staging-name set only; directory enumeration and file moves outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubSearch.kt | 7 | Per-connection SQLite exclusion is required for queries/transactions/close; no unrelated connection shares it.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/esword/ESwordBook.kt | 5 | Backend identity owns one SQLite connection; recursive queries/metadata/close serialized per connection.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/index/IndexingQueue.kt | 13 | Per-queue worker/state/wait condition; legacy runIfIdle and observer ordering retained, not a global monitor.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/mybible/MyBibleBook.kt | 5 | Backend identity owns one SQLite connection; recursive queries/metadata/close serialized per connection.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/mysword/MySwordBook.kt | 5 | Backend identity owns one SQLite connection; recursive queries/metadata/close serialized per connection.
+sharedLogic/src/commonMain/kotlin/net/bible/sharedlogic/sync/Monitors.kt | 3 | Compatibility declarations only; new callers require explicit owned locks or audited exemption.
+sharedLogic/src/hostMain/kotlin/net/bible/sharedlogic/platform/host/HostSearchIndexScheduler.kt | 6 | Per-scheduler pending/running state only; resolve/build/status callbacks outside.
+sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/sync/Monitors.ios.kt | 3 | Per-identity Native recursive mutex and condition; registry lock never spans target enter/wait/block/dispose.
+sharedLogic/src/jvmMain/kotlin/net/bible/sharedlogic/sync/Monitors.jvm.kt | 3 | JVM object-monitor identity and wait/notify compatibility; unchanged.
+sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/page/Selection.kt | 1 | BookName formatting flag only, parsed reference prepared before entry.
+sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/page/WindowPaneMenuStateBuilder.kt | 1 | Scoped BookName formatting of window labels; no UI callbacks invoked.
+sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/readingplan/ReadingPlanHost.kt | 1 | Scoped BookName formatting of prepared daily readings; no persistence or UI callbacks.
+sharedUi/src/hostMain/kotlin/net/bible/sharedui/host/reading/HostSelectionMenuUi.kt | 1 | Reference resolved outside; scoped BookName formatting only inside.
