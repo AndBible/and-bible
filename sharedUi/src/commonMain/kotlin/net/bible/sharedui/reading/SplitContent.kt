@@ -36,11 +36,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -61,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedui.reading.host.LocalReadingTopSafeInset
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedcore.window.effectiveWeights
 import net.bible.sharedcore.window.separatorDrag
 import net.bible.sharedcore.window.separatorIsActive
@@ -120,16 +119,11 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * fullscreen bible-reference overlay. `null` by default, in which case nothing extra is drawn.
  *
  * [railOverlay], when non-null, is composed as a SIBLING of the panes container (like
- * [bottomOverlay]) but is the caller's to align — the window-tab rail aligns it `BottomEnd`,
- * mirroring classic `restoreButtonsContainer`'s `bottom`+`end`-only constraints
- * (`res/layout/split_bible_area.xml:31-38`), so the rail FLOATS over the panes instead of taking a
- * layout band from them. It is a separate slot from [bottomOverlay], not because the two would
- * conflict — both are ordinary caller-aligned `@Composable BoxScope.() -> Unit` slots, and each
- * overlay aligns itself independently, so there is no shared alignment or z-order to compete over —
- * but so [SplitContent] itself guarantees their relative stacking order rather than leaving it to
- * caller discipline: composed last, [railOverlay] always draws above [bottomOverlay]'s bottom-CENTRE
- * fullscreen bible-reference overlay where the two meet. Two distinctly-named slots also read more
- * clearly at the call site than one lambda expected to compose two unrelated pieces of chrome.
+ * [bottomOverlay]) at the bottom of the full reading width. The expanded rail reserves a strip in
+ * every bottom pane; a collapsed rail leaves only its end-aligned control and reserves nothing.
+ * It floats over the panes rather than changing their size. It is a separate slot from
+ * [bottomOverlay] so [SplitContent] guarantees their relative stacking order: composed last,
+ * [railOverlay] always draws above the bottom-centre fullscreen bible-reference overlay.
  *
  * [paneBackground] gives one pane its background colour, `null` for none — the default, which leaves
  * the pane a bare `Box` exactly as before this parameter existed, so no existing caller or golden
@@ -161,19 +155,8 @@ fun SplitContent(
 ) {
     val windows = layout.windows.filter { it.isVisible }
     val onCoverageChanged by rememberUpdatedState(onRailCoveredWindowsChanged)
-    // Measurement is not Compose state: a document inset must never resize the split or rail.
-    val paneBounds = remember { mutableMapOf<String, Rect>() }
-    val railBounds = remember { arrayOfNulls<Rect>(1) }
-    // Nothing is reported until every visible pane (and the rail, when shown) has been measured:
-    // a report from the first SideEffect, before layout, would be a transient empty set.
-    val reportCoverage = {
-        val measured = windows.all { it.id in paneBounds } && (railOverlay == null || railBounds[0] != null)
-        if (measured) onCoverageChanged(railCoveredWindows(paneBounds, railBounds[0]))
-    }
-    SideEffect {
-        paneBounds.keys.retainAll(windows.map { it.id }.toSet())
-        if (railOverlay == null) railBounds[0] = null
-        reportCoverage()
+    DisposableEffect(Unit) {
+        onDispose { onCoverageChanged(emptySet()) }
     }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
@@ -192,6 +175,12 @@ fun SplitContent(
             boxHeightPx = maxHeightPx,
             reverseSplitMode = layout.reverseSplitMode,
         )
+        // Visibility is semantic, not the bounds of the surviving collapse/add/restore control.
+        // Notify even without a layout pass so hosts replace the document's stale CSS offset.
+        val coveredWindows = if (railOverlay != null && buildWindowTabBar(layout).showButtons) {
+            (if (isHorizontal) windows else windows.takeLast(1)).mapTo(mutableSetOf()) { it.id }
+        } else emptySet()
+        SideEffect { onCoverageChanged(coveredWindows) }
         val weights = effectiveWeights(windows)
 
         // Transient live-drag override; null when no separator is currently being dragged, in
@@ -226,10 +215,7 @@ fun SplitContent(
                             windows = windows,
                             weights = weights,
                             isHorizontal = isHorizontal,
-                            paneModifier = paneModifier(paneWeight(index)).onGloballyPositioned {
-                                paneBounds[w.id] = it.boundsInRoot()
-                                reportCoverage()
-                            },
+                            paneModifier = paneModifier(paneWeight(index)),
                             weightedExtentPx = { weightedExtentPx },
                             onWindowActivated = onWindowActivated,
                             onDragChange = { drag = it },
@@ -258,10 +244,7 @@ fun SplitContent(
         }
         bottomOverlay?.invoke(this)
         if (railOverlay != null) {
-            Box(Modifier.align(Alignment.BottomEnd).onGloballyPositioned {
-                railBounds[0] = it.boundsInRoot()
-                reportCoverage()
-            }) { railOverlay() }
+            Box(Modifier.align(Alignment.BottomEnd).fillMaxWidth(), contentAlignment = Alignment.BottomEnd) { railOverlay() }
         }
     }
 }

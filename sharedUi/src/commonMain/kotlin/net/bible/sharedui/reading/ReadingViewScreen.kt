@@ -64,12 +64,9 @@ import net.bible.sharedcore.window.WindowLayoutState
  * [SplitContent] reclaims the full height via `Modifier.weight(1f)`.
  *
  * [tabBar] is an optional slot (its argument is whether it owns the nav bar's bottom inset; the host
- * pads with `readingRailInsetPadding(applyNavBarInset)`) floated over the split's bottom-end corner rather than rendered
- * in-flow in this `Column`: it is forwarded into [SplitContent]'s `railOverlay` (a sibling of the
- * panes container, inside `SplitContent`'s own `BoxWithConstraints`, aligned `BottomEnd`), so it
- * overlaps the panes instead of taking a layout band from them — matching classic
- * `restoreButtonsContainer`'s constraint-only-to-`bottom`+`end` container
- * (`res/layout/split_bible_area.xml:31-38`), never a full-width row. It's `null` by default, in
+ * pads with `readingRailInsetPadding(applyNavBarInset)`) floated over the split's full-width bottom
+ * strip rather than rendered in-flow in this `Column`: it is forwarded into [SplitContent]'s
+ * `railOverlay` (a sibling of the panes container), so it overlaps the panes without resizing them. It's `null` by default, in
  * which case nothing is rendered there — the restore-rail host (a later task) is the only caller
  * expected to pass it.
  *
@@ -255,7 +252,7 @@ fun ReadingViewScreen(
                     .onSizeChanged { splitHeightDp = with(density) { it.height.toDp() }.value },
                 paneOverlay = paneOverlay,
                 bottomOverlay = bottomOverlay,
-                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railNavInset) } } },
+                railOverlay = tabBar?.let { bar -> { bar(railNavInset) } },
                 paneBackground = if (mono) { { monoBackground } } else paneBackground,
                 onRailCoveredWindowsChanged = onRailCoveredWindowsChanged,
             )
