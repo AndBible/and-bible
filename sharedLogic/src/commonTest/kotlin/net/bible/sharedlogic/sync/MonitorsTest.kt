@@ -17,7 +17,13 @@
 
 package net.bible.sharedlogic.sync
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -71,6 +77,59 @@ class MonitorsTest {
                 assertTrue(waiter.await())
             }
         }
+    }
+
+    @Test fun unrelatedTargetsDoNotBlockEachOtherEvenWhenEqual() {
+        class EqualTarget {
+            override fun equals(other: Any?) = other is EqualTarget
+            override fun hashCode() = error("monitor identity must not call user hashCode")
+        }
+        val a = EqualTarget()
+        val b = EqualTarget()
+        val entered = atomic(false)
+        val finished = atomic(false)
+        val acquired = atomic(false)
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            withMonitor(a) {
+                scope.launch {
+                    entered.value = true
+                    withMonitor(b) { acquired.value = true }
+                    finished.value = true
+                }
+                val mark = TimeSource.Monotonic.markNow()
+                while (!finished.value && mark.elapsedNow() < 5.seconds) { }
+                assertTrue(entered.value, "second worker was not scheduled")
+                assertTrue(acquired.value, "an unrelated equal target blocked behind the held monitor (#3978)")
+            }
+        } finally {
+            scope.cancel()
+        }
+    }
+
+    @Test fun waitReleasesEveryReentrantAcquisitionAndRestoresDepth() = runTest {
+        val target = Any()
+        val waiting = atomic(false)
+        var signalled = false
+        val waiter = async(Dispatchers.Default) {
+            withMonitor(target) {
+                withMonitor(target) {
+                    waiting.value = true
+                    while (!signalled) monitorWait(target, 1000)
+                    // A second wait proves the first restored the recursion depth.
+                    monitorWait(target, 10)
+                }
+            }
+        }
+        val setter = async(Dispatchers.Default) {
+            while (!waiting.value) { }
+            withMonitor(target) {
+                signalled = true
+                monitorNotifyAll(target)
+            }
+        }
+        setter.await()
+        waiter.await()
     }
 
     @Test fun waitWithTimeoutReturnsAfterTimeout() = runTest {
