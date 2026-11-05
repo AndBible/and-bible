@@ -3,7 +3,7 @@
 MARKETING_VERSION = 0.0.0
 CURRENT_PROJECT_VERSION = 1
 
-// Generated from version.properties by scripts/ios-version-xcconfig.sh (untracked).
+// Generated from version.properties and the git revision by scripts/ios-version-xcconfig.sh (untracked).
 #include? "Version.xcconfig"
 // Developer-specific signing settings (DEVELOPMENT_TEAM), untracked; see Secrets.example.xcconfig.
 #include? "Secrets.xcconfig.local"

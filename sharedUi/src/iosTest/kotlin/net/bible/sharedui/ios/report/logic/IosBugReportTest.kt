@@ -45,9 +45,9 @@ class IosBugReportTest {
         listOf("org.test", "1.2", "iOS 18", "iPad", "123", "crash\nat actual.call", "current").forEach { assertTrue(it in body, "Missing $it") }
     }
     @Test fun reportHeaderListsExtraFactsAfterModel() {
-        val body = reportDetails(ReportDevice("id", "1.2", "iOS 18", "iPad", listOf("Build" to "42", "Platform" to "iOS app on Mac", "Locale" to "fi-FI")), 0, "", null)
+        val body = reportDetails(ReportDevice("id", "1.2", "iOS 18", "iPad", listOf("Build" to "42", "Platform" to "iOS app on Mac", "Locale" to "fi-FI", "Commit" to "abcdef123456")), 0, "", null)
         assertTrue(body.indexOf("Model: iPad") < body.indexOf("Build: 42"), body)
-        listOf("Platform: iOS app on Mac", "Locale: fi-FI").forEach { assertTrue(it in body, body) }
+        listOf("Platform: iOS app on Mac", "Locale: fi-FI", "Commit: abcdef123456").forEach { assertTrue(it in body, body) }
     }
     @Test fun recoveryRetainsStackAfterCrashTimeReset() {
         assertTrue("saved stack" in reportDetails(ReportDevice("id", "v", "os", "device"), 0, "saved stack", null))

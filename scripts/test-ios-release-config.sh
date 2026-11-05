@@ -23,6 +23,7 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertEqual(info['CFBundleVersion'], '$(CURRENT_PROJECT_VERSION)')
         self.assertEqual(info['CFBundleDisplayName'], '$(APP_DISPLAY_NAME)')
         self.assertEqual(info['AndBibleICloudContainer'], '$(ICLOUD_CONTAINER)')
+        self.assertEqual(info['AndBibleCommit'], '$(AND_BIBLE_COMMIT)')
 
     def test_document_types_have_a_name(self):
         # App Store Connect rejects an upload whose document type lacks CFBundleTypeName (ITMS-90149).
@@ -69,7 +70,7 @@ class ReleaseConfigTest(unittest.TestCase):
         self.assertIn('iosApp/Config/Version.xcconfig', text)
 
     def test_release_native_link_gets_larger_heap(self):
-        self.assertIn('if [ "$CONFIGURATION" = "Release" ]; then\n            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx6g"', project)
+        self.assertIn('if [ "$CONFIGURATION" = "Release" ]; then\n            EXTRA="-Pkotlin.native.disableCompilerDaemon=true -Pkotlin.native.jvmArgs=-Xmx8g"', project)
         self.assertIn('$EXTRA :sharedUi:embedAndSignAppleFrameworkForXcode', project)
 
     def test_release_requires_generated_version(self):
@@ -84,12 +85,52 @@ class ReleaseConfigTest(unittest.TestCase):
             version_file.write_text(props)
             out = pathlib.Path(tmp) / 'Version.xcconfig'
             env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out))
+            env.pop('AND_BIBLE_COMMIT', None)
             subprocess.run([str(root / 'scripts/ios-version-xcconfig.sh')], env=env, check=True)
             return out.read_text()
 
     def test_version_xcconfig(self):
         text = self.run_script('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
         self.assertIn('MARKETING_VERSION = 6.0.1228\n', text)
+
+    def test_version_xcconfig_includes_git_commit_from_script_root(self):
+        text = self.run_script('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
+        commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+        self.assertIn(f'AND_BIBLE_COMMIT = {commit}\n', text)
+
+    def test_version_xcconfig_accepts_commit_override(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            version_file = pathlib.Path(tmp) / 'version.properties'
+            version_file.write_text('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
+            out = pathlib.Path(tmp) / 'Version.xcconfig'
+            env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out), AND_BIBLE_COMMIT='a' * 40)
+            subprocess.run([str(root / 'scripts/ios-version-xcconfig.sh')], env=env, check=True)
+            self.assertIn(f'AND_BIBLE_COMMIT = {"a" * 40}\n', out.read_text())
+
+    def test_version_xcconfig_is_blank_without_git(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            isolated = pathlib.Path(tmp)
+            scripts = isolated / 'scripts'
+            scripts.mkdir()
+            (scripts / 'ios-version-xcconfig.sh').write_bytes((root / 'scripts/ios-version-xcconfig.sh').read_bytes())
+            (scripts / 'ios-version-xcconfig.sh').chmod(0o755)
+            (scripts / 'lib-version.sh').write_bytes((root / 'scripts/lib-version.sh').read_bytes())
+            version_file = isolated / 'version.properties'
+            version_file.write_text('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
+            out = isolated / 'Version.xcconfig'
+            env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out))
+            env.pop('AND_BIBLE_COMMIT', None)
+            subprocess.run([str(scripts / 'ios-version-xcconfig.sh')], cwd=isolated, env=env, check=True)
+            self.assertIn('AND_BIBLE_COMMIT = \n', out.read_text())
+
+    def test_version_xcconfig_rejects_invalid_commit_override(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            version_file = pathlib.Path(tmp) / 'version.properties'
+            version_file.write_text('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=\n')
+            out = pathlib.Path(tmp) / 'Version.xcconfig'
+            env = dict(os.environ, VERSION_FILE=str(version_file), VERSION_XCCONFIG=str(out), AND_BIBLE_COMMIT='unknown')
+            result = subprocess.run([str(root / 'scripts/ios-version-xcconfig.sh')], env=env, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
 
     def test_version_xcconfig_ignores_suffix(self):
         text = self.run_script('versionMajorMinor=6.0\nversionCode=1228\nversionNameSuffix=-beta\n')
