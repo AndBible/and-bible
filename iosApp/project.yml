@@ -138,6 +138,12 @@ targets:
       - name: "Copy bibleview-js bundle"
         basedOnDependencyAnalysis: false
         script: '"$SRCROOT/scripts/copy-bibleview.sh"'
+    postBuildScripts:
+      - name: "Record source commit"
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)
+        script: "$SRCROOT/scripts/write-commit-info.sh"
   iosAppUITests:
     type: bundle.ui-testing
     platform: iOS
