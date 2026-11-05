@@ -32,4 +32,24 @@ class AwaitHostConditionTest {
             assertTrue(e.message, Regex("after \\d+ ms").containsMatchIn(e.message!!))
         }
     }
+
+    /**
+     * #3947: the one SystemBarPolicyHostTest 60 s stall left no evidence of what the host was waiting for. A
+     * timeout must carry the stacks of the live threads and the main looper state, so the next stall is attributable.
+     */
+    @Test fun aTimeoutCarriesTheLiveThreadStacksAndTheMainLooperState() {
+        val gate = java.util.concurrent.CountDownLatch(1)
+        val blocked = Thread({ gate.await() }, "issue-3947-blocked-actor").apply { isDaemon = true; start() }
+        try {
+            awaitHostCondition("never ready", timeoutMs = 200) { false }
+            fail("must time out")
+        } catch (e: AssertionError) {
+            val report = e.message!!
+            assertTrue(report, report.contains("\"issue-3947-blocked-actor\""))
+            assertTrue(report, report.contains("CountDownLatch.await"))
+            assertTrue(report, report.contains("Main looper:"))
+        } finally {
+            gate.countDown(); blocked.join(5_000)
+        }
+    }
 }
