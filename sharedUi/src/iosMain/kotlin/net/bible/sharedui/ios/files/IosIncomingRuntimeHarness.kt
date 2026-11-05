@@ -45,6 +45,10 @@ internal object IosIncomingRuntimeHarness {
         "maps" to "h2-maps.zip",
         "dict" to "h2-dict.zip",
         "font" to "StudyMono.ttf",
+        // KJV for the UI tests that only need an installed KJV (KjvProvisioning.swift), without the Files picker. Bundled
+        // only when the build found tmp/h2-files/h2-kjv.zip (generate-files-test-fixtures.py); otherwise the offer reports
+        // `incoming-fixture-missing` and the test falls back to the Files picker install.
+        "kjv" to "h2-kjv.zip",
     )
     private val allowedOffers = coldFixtures.values.toSet() + "f-runtime.epub"
 
@@ -53,7 +57,11 @@ internal object IosIncomingRuntimeHarness {
         "h2-cipher.zip" to "H2Cipher", "h2-genbook.zip" to "K4GenBook",
         "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD", "StudyMono.ttf" to "TTF_StudyMono",
     )
+    /** Every cold fixture whose registration `incoming-cold-fixtures-installed` waits for: the test-owned H2 ones plus KJV,
+     *  which is never removed or required absent by the harness (it is the suite's shared reading fixture). */
+    private val installedInitials = h2Initials + ("h2-kjv.zip" to "KJV")
     private var coldOffered = emptyList<String>()
+    private var fixtureMissing by mutableStateOf(false)
     private var removeColdFixtures = false
     private var purgeLeftovers = false
     private var verifyStore = false
@@ -90,6 +98,12 @@ internal object IosIncomingRuntimeHarness {
         require(name in allowedOffers)
         nsLog("IncomingFilesHarness event=fixture-offer-start basename=$name")
         val resource = NSBundle.mainBundle.resourceURL!!.URLByAppendingPathComponent("files-port-fixtures/$name")!!
+        if (!NSFileManager.defaultManager.fileExistsAtPath(resource.path!!)) {
+            // An optional fixture (KJV) that this build did not bundle: say so instead of failing the whole harness.
+            nsLog("IncomingFilesHarness event=fixture-missing basename=$name")
+            fixtureMissing = true
+            return
+        }
         val folder = NSURL.fileURLWithPath(NSTemporaryDirectory()).URLByAppendingPathComponent("f-runtime-${NSUUID().UUIDString}", true)!!
         check(NSFileManager.defaultManager.createDirectoryAtURL(folder, true, null, null))
         val destination = folder.URLByAppendingPathComponent(name)!!
@@ -160,7 +174,7 @@ internal object IosIncomingRuntimeHarness {
 
     /** Every H2 cold fixture offered at launch is registered (the installer finished), so a test can end the process. */
     private fun coldFixturesInstalled(): Boolean {
-        val wanted = coldOffered.mapNotNull { h2Initials[it] }
+        val wanted = coldOffered.mapNotNull { installedInitials[it] }
         return wanted.isNotEmpty() && wanted.all { Books.installed().getBook(it) != null }
     }
 
@@ -186,6 +200,7 @@ internal object IosIncomingRuntimeHarness {
         }
         // Shown without the controls too: the H2 install-then-relaunch tests wait on it instead of a fixed sleep.
         if (coldInstalled) Text(strings.okay, Modifier.testTag("incoming-cold-fixtures-installed"))
+        if (fixtureMissing) Text(strings.errorOccurred, Modifier.testTag("incoming-fixture-missing"))
         // Backend proof remains active even when diagnostics are hidden for normal navigation.
         if (!controlsVisible) return
         Column {
