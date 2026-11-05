@@ -137,6 +137,16 @@ class DisableAnimationsMotionScaleTest {
         assertEquals(0f, probe.scale)
     }
 
+    @Test fun androidLocalsKeepMenusOnTheHostHandledMaterialPath() {
+        var hostHandled = false
+        launch {
+            net.bible.sharedui.ProvideAppLocals {
+                hostHandled = net.bible.sharedui.theme.LocalMotionDurationScaleHandledByHost.current
+            }
+        }
+        assertTrue("Android and GoldenHarness must retain Material menus", hostHandled)
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test fun bottomSheetWindowInheritsTheZeroScale() {
         CommonUtils.settings.setBoolean("disable_animations", true)

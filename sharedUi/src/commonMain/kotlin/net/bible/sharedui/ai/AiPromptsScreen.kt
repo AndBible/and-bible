@@ -56,7 +56,7 @@ import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -639,7 +639,12 @@ private fun CategoryRowOverflow(
     var expanded by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbDropdownMenu(
+            expanded = expanded, onDismissRequest = { expanded = false },
+            tonalElevation = androidx.compose.material3.MenuDefaults.TonalElevation,
+            shadowElevation = androidx.compose.material3.MenuDefaults.ShadowElevation,
+            border = null,
+        ) {
             AbMenuItem(
                 text = if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel,
                 onClick = { expanded = false; onSetHidden(!category.isHidden) },
@@ -775,7 +780,12 @@ private fun PromptRowOverflow(
     var expanded by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbDropdownMenu(
+            expanded = expanded, onDismissRequest = { expanded = false },
+            tonalElevation = androidx.compose.material3.MenuDefaults.TonalElevation,
+            shadowElevation = androidx.compose.material3.MenuDefaults.ShadowElevation,
+            border = null,
+        ) {
             if (prompt.isBuiltIn) {
                 AbMenuItem(
                     text = if (prompt.isHidden) strings.restoreLabel else strings.hidePromptLabel,

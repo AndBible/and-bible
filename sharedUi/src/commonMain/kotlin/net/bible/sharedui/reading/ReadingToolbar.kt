@@ -52,7 +52,7 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.text.BasicTextField
@@ -481,7 +481,7 @@ fun ReadingToolbar(
                                 },
                             )
                             UncappedFontScale {
-                                DropdownMenu(
+                                AbDropdownMenu(
                                     expanded = searchBar.recentMenuOpen,
                                     onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
                                     containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
@@ -515,7 +515,7 @@ fun ReadingToolbar(
                         Box {
                             ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
                             UncappedFontScale {
-                                DropdownMenu(
+                                AbDropdownMenu(
                                     expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false },
                                     containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
                                     tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,

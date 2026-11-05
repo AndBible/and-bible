@@ -123,7 +123,8 @@ select it.
     a thicker outline, while minimised windows use solid grey text and a dashed
     outline.
 - **Disable animations:** Turns off smooth scrolling and transition animations,
-    including sliding bottom sheets, dialogs and other animated controls.
+    including sliding bottom sheets, dialogs, window popup menus, toolbar menus,
+    and document filter dropdowns.
     Improves responsiveness on e-ink screens and very old devices. This is a
     separate setting; choosing a Color mode does not toggle it.
 

@@ -43,6 +43,11 @@ val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
  *  without re-deriving it from a colour. Defaults to `false` outside an [AbTheme]. */
 val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
+/** The host already disables Compose motion through its recomposer (Android, including goldens). */
+@OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@kotlin.native.HiddenFromObjC
+val LocalMotionDurationScaleHandledByHost = staticCompositionLocalOf { false }
+
 /**
  * AndBible's Material3 theme for the Compose UI path.
  *

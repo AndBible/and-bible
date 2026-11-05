@@ -12,6 +12,7 @@ import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.settings.LocalSettingsIcon
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalMotionDurationScaleHandledByHost
 import net.bible.sharedui.theme.LocalSystemBarSync
 
 /**
@@ -42,6 +43,8 @@ import net.bible.sharedui.theme.LocalSystemBarSync
 fun ProvideAppLocals(content: @Composable () -> Unit) {
     val context = LocalContext.current
     CompositionLocalProvider(
+        // AppWindowRecomposer already supplies zero motion; goldens use this provider too.
+        LocalMotionDurationScaleHandledByHost provides true,
         LocalStrings provides AndroidStrings(context),
         LocalCategoryIcon provides { category -> painterResource(categoryDrawableRes(category)) },
         LocalPinIcon provides { painterResource(R.drawable.ic_pin) },
