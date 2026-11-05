@@ -388,12 +388,18 @@ fun iosReadingPaneFactory(
         // The incoming pane exists while the navigation crossfade still covers it, so native focusability can
         // cache an outdated beyond-bounds callback. RESUMED marks the route transition's completion; invalidate
         // the current pane after two frames so accessibility sync can bind it again.
+        // At the same moment the web view takes first responder (unless it already has it or a text field elsewhere
+        // does): WebKit shows no edit menu for a long-press selection that only made its content view first responder
+        // during the gesture, so the first selection after launch or after a route return had no menu (issue #3968).
         LaunchedEffect(entry.webView, lifecycle) {
             lifecycle.currentStateFlow.collectLatest { state ->
                 if (state == Lifecycle.State.RESUMED) {
                     withFrameNanos { }
                     withFrameNanos { }
                     attachGeneration++
+                    entry.webView.window?.let { window ->
+                        claimFirstResponderForSelection(entry.webView, firstResponderIn(window))
+                    }
                 }
             }
         }
