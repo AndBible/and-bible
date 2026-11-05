@@ -23,7 +23,7 @@ import androidx.sqlite.execSQL
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.service.sword.epub.deleteEpubModule
 import net.bible.service.sword.epub.getEpubDatabase
 import org.junit.After
@@ -44,7 +44,7 @@ import java.io.File
  * `RealFileFixturesTest.corruptedFixtureIsMovedAsideAndRecreatedEmpty`.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class CorruptDatabaseRecoveryTest {
     @Before fun setUp() = net.bible.test.DatabaseResetter.resetDatabase()
     @After fun tearDown() = net.bible.test.DatabaseResetter.resetDatabase()

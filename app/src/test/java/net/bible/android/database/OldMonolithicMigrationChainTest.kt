@@ -24,7 +24,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.openSqlite
@@ -47,7 +47,7 @@ import java.io.File
  * colours, 53->54 shared preferences) produce the rows they did on the framework API.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class OldMonolithicMigrationChainTest {
     private val schemaDir = "net.bible.android.database.OldMonolithicAppDatabase"
 

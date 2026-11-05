@@ -19,7 +19,7 @@ package net.bible.service.cloudsync.merge
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -89,7 +89,7 @@ class MergeSnapshotTest {
         Room.databaseBuilder(application, BookmarkDatabase::class.java, path)
             .addMigrations(*bookmarkMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
 
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(20_000) { block() } }

@@ -25,7 +25,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.BookmarkDatabase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -44,7 +44,7 @@ import java.io.File
  * earlier version also covered no longer exists.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class RoomConnectionTransactionTest {
     private fun bothModes(block: suspend (mode: String, db: BookmarkDatabase) -> Unit) = runBlocking {
         for (mode in listOf("driver")) {

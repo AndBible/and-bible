@@ -73,6 +73,8 @@ class ModuleArchiveInterruptionTest {
         CWProject.instance().setFrontendName("jsword-test")
         savedDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
         work = Files.createTempDirectory("archive-int-work").toFile()
+        // Interruption snapshots must retain real SQLite journal/durability behavior.
+        net.bible.service.db.TestSqliteDurability.keepDurableDirectory(work.absolutePath)
         dest = File(work, "modules").apply { mkdirs() }
         runCatching { stopKoin() }
         startKoin {

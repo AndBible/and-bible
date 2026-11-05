@@ -87,7 +87,15 @@ open class TestBibleApplication : BibleApplication() {
 
     override fun getLocalizedResources(language: String): Resources = application.resources
 
+    /** Recovery and journal fixtures override this before startup opens any database. */
+    protected open val useNonDurableTestDatabases = true
+
     override fun onCreate() {
+        if (useNonDurableTestDatabases) {
+            net.bible.service.db.TestSqliteDurability.registerDirectory(applicationInfo.dataDir)
+        } else {
+            net.bible.service.db.TestSqliteDurability.keepDurableDirectory(applicationInfo.dataDir)
+        }
         net.bible.test.DatabaseResetter.requireNoRetainedWorkers()
         net.bible.test.ReadingFixtureOwners.requireEmpty()
         check(!terminationPending && startupRegistrationOwner == null) {

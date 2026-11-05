@@ -200,6 +200,7 @@ tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
     sourceSets.getByName("main").assets.setSrcDirs(emptyList<String>())
+    sourceSets.getByName("test").kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
     compileSdk = 36
 
     // version.properties (repo root) is the one version source for Android and iOS.

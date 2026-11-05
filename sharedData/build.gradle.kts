@@ -79,8 +79,9 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
-        jvmTest.dependencies {
-            implementation(libs.androidx.sqlite.bundled.jvm)
+        jvmTest {
+            kotlin.srcDir("src/jvmTestFixtures/kotlin")
+            dependencies { implementation(libs.androidx.sqlite.bundled.jvm) }
         }
     }
 }

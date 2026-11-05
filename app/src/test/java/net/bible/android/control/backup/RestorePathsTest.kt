@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
@@ -69,7 +69,7 @@ import kotlin.time.Duration.Companion.seconds
  * `java.util.zip` code) and the `old-release` fixtures (written by the released build 1117), and the filename parser.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class RestorePathsTest {
     @get:Rule val dialogReset = AppDialogControllerResetRule()
     private val testDispatcher = StandardTestDispatcher()

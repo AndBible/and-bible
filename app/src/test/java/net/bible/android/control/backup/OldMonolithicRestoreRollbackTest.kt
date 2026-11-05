@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.common.CommonUtils
@@ -36,7 +36,7 @@ import java.security.MessageDigest
  * were, instead of the empty ones Room creates after the old delete-then-copy.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class OldMonolithicRestoreRollbackTest {
     private val backup by lazy { net.bible.test.testBackupControl() }
     private lateinit var repo: WindowRepository

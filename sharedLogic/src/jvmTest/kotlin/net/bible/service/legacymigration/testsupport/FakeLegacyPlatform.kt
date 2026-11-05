@@ -41,6 +41,12 @@ class FakeLegacyPlatform(
     override val databasesDir: Path = (base / "databases").also { File(it.toString()).mkdirs() }
     override val secrets: SecretStore = InMemorySecretStore()
 
+    init {
+        // Legacy migration tests kill adoption at each file move and reopen WAL-bearing stores.
+        // Their fixture/staging trees intentionally opt out of the ordinary JVM no-fsync fixture.
+        net.bible.service.db.TestSqliteDurability.keepDurableDirectory(fixtureRoot.toString())
+    }
+
     override fun userDefaults(): Map<String, Any?> = userDefaults
     override fun legacyKeychain(service: String, account: String): String? = keychain[service to account]
 

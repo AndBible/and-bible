@@ -3,7 +3,7 @@ package net.bible.shareddata.fixtures
 import androidx.room3.RoomDatabase
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.openSqlite
 import androidx.sqlite.execSQL
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -114,7 +114,7 @@ fun exportedIdentityHash(dbClass: String, version: Int): String =
  */
 fun createFromExport(dbClass: String, version: Int, path: String) {
     val schema = export(dbClass, version)
-    val connection = BundledSQLiteDriver().open(path)
+    val connection = openSqlite(path)
     try {
         schema["entities"]!!.jsonArray.forEach { entity ->
             val e = entity.jsonObject

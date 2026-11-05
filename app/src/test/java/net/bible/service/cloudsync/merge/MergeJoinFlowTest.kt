@@ -19,7 +19,7 @@ package net.bible.service.cloudsync.merge
 
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
+import net.bible.android.DurableTestBibleApplication
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.bookmarkMigrations
@@ -87,7 +87,7 @@ import kotlin.time.Duration.Companion.seconds
  * rows.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@Config(application = DurableTestBibleApplication::class, sdk = [TEST_SDK])
 class MergeJoinFlowTest {
     private val dialogs: AppDialogController get() = get(AppDialogController::class.java)
     @get:Rule val dialogReset = AppDialogControllerResetRule()
@@ -143,7 +143,7 @@ class MergeJoinFlowTest {
         fun open(path: String): BookmarkDatabase = Room.databaseBuilder(application, BookmarkDatabase::class.java, path)
             .addMigrations(*bookmarkMigrations)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .setDriver(BundledSQLiteDriver())
+            .setDriver(sqliteDriverFactory())
             .build()
         var db = open(file.absolutePath)
         val dbDef = SyncableDatabaseAccessor(db, { open(it) }, { db.close(); db = open(file.absolutePath); db },

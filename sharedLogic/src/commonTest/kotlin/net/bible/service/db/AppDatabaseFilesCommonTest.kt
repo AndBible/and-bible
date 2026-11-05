@@ -28,7 +28,7 @@ class AppDatabaseFilesCommonTest {
     fun restoreHost() { previousHost?.let { DatabaseContainer.installHost(it) } }
 
     private fun host(): Pair<String, FakeDatabaseHost> {
-        val dir = newTestDir()
+        val dir = newTestDir(durable = true)
         return dir to FakeDatabaseHost(dir).also { DatabaseContainer.installHost(it) }
     }
 

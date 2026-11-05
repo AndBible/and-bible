@@ -108,6 +108,7 @@ kotlin {
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
         jvmTest {
+            kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
             kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/stubs")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/policy")
