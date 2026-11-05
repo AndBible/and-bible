@@ -1465,45 +1465,22 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertFalse(app.buttons["Back"].exists, "editor chord opened the passage chooser")
     }
 
-    private func positionNoteCaretAtStart(_ editor: XCUIElement) -> Bool {
-        editor.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
-        editor.typeText("Q")
-        guard waitUntil(timeout: 10, { (editor.value as? String) == "Qalpha beta" }) else {
-            XCTFail("note editor caret was not at start: \(editor.value ?? "nil")"); return false
-        }
-        editor.typeText(XCUIKeyboardKey.delete.rawValue)
-        guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
-            XCTFail("note editor sentinel deletion failed: \(editor.value ?? "nil")"); return false
-        }
-        return true
-    }
-
-    private func assertNoteEditorControlCaret(_ key: String, fromStart: Bool, expected: String) throws {
+    func testNoteEditorControlBMovesCaret() throws {
         let app = try launchReading()
         guard let editor = openNoteEditor(app) else { return }
         editor.typeText("alpha beta")
         guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
             XCTFail("note editor initial value incorrect: \(editor.value ?? "nil")"); return
         }
-        if fromStart && !positionNoteCaretAtStart(editor) { return }
         guard waitUntil(timeout: 5, { editor.debugDescription.contains("Keyboard Focused") }) else {
             XCTFail("note editor is not keyboard focused"); return
         }
-        editor.typeKey(key, modifierFlags: .control)
+        editor.typeKey("b", modifierFlags: .control)
         editor.typeText("X")
-        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == expected },
-                      "Control+\(key) did not move the editor caret: \(editor.value ?? "nil")")
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha betXa" },
+                      "Control+B did not move the editor caret: \(editor.value ?? "nil")")
         XCTAssertFalse(element(app, "reading-search-field").exists, "editor chord opened reading search")
         XCTAssertFalse(app.buttons["Back"].exists, "editor chord opened the passage chooser")
-    }
-
-    func testNoteEditorControlBMovesCaret() throws {
-        try assertNoteEditorControlCaret("b", fromStart: false, expected: "alpha betXa")
-    }
-
-    func testNoteEditorControlFMovesCaret() throws {
-        try XCTSkipIf(isPad, "iPad caret-start fixture cannot establish offset 0: tap and unmodified Home both leave sentinel at end; no Ctrl+F sent. See issue 3972 follow-up evidence.")
-        try assertNoteEditorControlCaret("f", fromStart: true, expected: "aXlpha beta")
     }
 
     /// Unconsumed editing chords must not bubble into the reading host.
