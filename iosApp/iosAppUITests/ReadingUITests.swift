@@ -1342,9 +1342,12 @@ final class ReadingUITests: RealAppUITestCase {
             XCTFail("no reading WebView to receive Ctrl+F")
             return
         }
-        paneMargin(app).tap()
-        app.typeKey("f", modifierFlags: .control)
+        // The right margin is a production page-jump target, not a neutral focus target.
+        pane.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        shot(app, "control-f-before-event")
+        pane.typeKey("f", modifierFlags: .control)
         let opened = field.waitForExistence(timeout: 15)
+        shot(app, "control-f-after-event")
         if !opened { attachTree(app, "control-f-search-not-shown") }
         XCTAssertTrue(opened, "Ctrl+F did not open the in-place search field")
     }
