@@ -21,7 +21,7 @@ class MonitorUsageGuardTest {
         val modules = listOf("jsword", "sharedCore", "sharedData", "sharedLogic", "sharedUi", "kdom")
         val actual = modules.flatMap { module ->
             File(root, "$module/src").walkTopDown().filter {
-                it.isFile && it.extension == "kt" && it.relativeTo(File(root, "$module/src")).path
+                it.isFile && it.extension == "kt" && it.relativeTo(File(root, "$module/src")).invariantSeparatorsPath
                     .substringBefore('/').endsWith("Main")
             }.mapNotNull { file ->
                 val count = monitorCalls(file.readText())
@@ -40,6 +40,8 @@ class MonitorUsageGuardTest {
     @Test fun scannerDetectsAnUnlistedCallButNotImportsOrComments() {
         assertEquals(1, monitorCalls("fun newCode() = withMonitor(Any()) { foreignCall() }"))
         assertEquals(1, monitorCalls("import net.bible.sharedlogic.sync.withMonitor as lock\nfun newCode() = lock(Any()) {}"))
+        assertEquals(1, monitorCalls("fun newCode() = withMonitor<Map<String, Int>>(Any()) { emptyMap() }"))
+        assertEquals(1, monitorCalls("val f = ::withMonitor"))
         assertEquals(0, monitorCalls("import net.bible.sharedlogic.sync.withMonitor\n// withMonitor(a) {}\n/* monitorWait(a) */"))
     }
 
@@ -48,6 +50,7 @@ class MonitorUsageGuardTest {
         val aliases = Regex("import\\s+net\\.bible\\.sharedlogic\\.sync\\.(?:withMonitor|monitorWait|monitorNotifyAll)\\s+as\\s+(\\w+)")
             .findAll(withoutComments).map { Regex.escape(it.groupValues[1]) }.toList()
         val names = (listOf("withMonitor", "monitorWait", "monitorNotifyAll") + aliases).joinToString("|")
-        return Regex("\\b(?:$names)\\s*\\(").findAll(withoutComments).count()
+        // A call, a call with explicit type arguments, or a function reference.
+        return Regex("(?:\\b(?:$names)\\s*(?:<[^\\n(]*>\\s*)?\\(|::\\s*(?:$names)\\b)").findAll(withoutComments).count()
     }
 }
