@@ -130,6 +130,12 @@ For more information about managing workspaces, see [Workspaces](workspaces.md).
 
 *AndBible* supports a variety of gestures and shortcuts for efficient navigation.
 
+### Keyboard Search
+
+With the reading view open, **Ctrl+F** opens the in-place search field, including
+on iPhone and iPad with a connected keyboard. You can also open the same search
+from **Find** in the main menu.
+
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 
 You can swipe left or right on the Bible text to navigate. The behavior can be

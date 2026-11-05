@@ -1349,7 +1349,7 @@ final class ReadingUITests: RealAppUITestCase {
 
     // MARK: Task 11: in-place search
 
-    /// Sends a hardware keyboard shortcut to the reading WebView, whose keydown handler opens search via the bridge.
+    /// Sends a real Control+F event: WebKit's DOM handler or its unhandled UIKit fallback opens search via the same bridge.
     func testControlFOpensInPlaceSearch() throws {
         let app = try launchReading()
         let field = element(app, "reading-search-field")

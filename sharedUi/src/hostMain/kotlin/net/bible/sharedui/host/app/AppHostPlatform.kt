@@ -82,6 +82,9 @@ interface AppHostPlatform {
     /** The reading view's pane factory over `HostReadingWindows`; called once per reading destination. */
     fun readingPaneFactory(): ReadingPaneFactory
 
+    /** Unhandled reading-screen keys; desktop keeps its window-level shortcut dispatcher. */
+    fun onReadingKeyEvent(event: androidx.compose.ui.input.key.KeyEvent): Boolean = false
+
     /** Keeps the display awake while [disabled] is true (iOS: `UIApplication.idleTimerDisabled`). */
     fun setIdleTimerDisabled(disabled: Boolean)
 

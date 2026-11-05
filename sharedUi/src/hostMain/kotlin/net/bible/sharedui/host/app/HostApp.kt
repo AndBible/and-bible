@@ -46,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -689,7 +690,7 @@ private fun HostReadingDestination(
         val density = LocalDensity.current
         val topInset = if (host.fullScreen.state.value) with(density) { fullScreenReadingTopInsets().getTop(density).toDp() } else 0.dp
         CompositionLocalProvider(LocalReadingPane provides paneFactory, LocalReadingTopSafeInset provides topInset) {
-            ReadingHost(deps, Modifier.testTag("reading-host"))
+            ReadingHost(deps, Modifier.testTag("reading-host").onKeyEvent(platform::onReadingKeyEvent))
         }
     }
 }
