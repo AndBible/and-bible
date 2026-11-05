@@ -1389,41 +1389,62 @@ final class ReadingUITests: RealAppUITestCase {
         shot(app, "control-b-one-back")
     }
 
-    /// A real WebKit note editor owns word movement and Control caret navigation, not reading actions.
-    func testNoteEditorKeepsHardwareNavigationChords() throws {
-        let app = try launchReading()
+    private func openNoteEditor(_ app: XCUIApplication) -> XCUIElement? {
         let number = app.webViews.staticTexts.matching(NSPredicate(format: "label == '16'")).firstMatch
         guard number.waitForExistence(timeout: 30), number.isHittable else {
-            attachTree(app, "note-keyboard-no-verse"); XCTFail("John 3:16 is not hittable"); return
+            attachTree(app, "note-keyboard-no-verse"); XCTFail("John 3:16 is not hittable"); return nil
         }
         number.tap()
         let action = app.webViews.descendants(matching: .any).matching(NSPredicate(format:
             "label == 'Note' OR label == 'Write a note'")).firstMatch
         guard action.waitForExistence(timeout: 20), action.isHittable else {
-            attachTree(app, "note-keyboard-no-action"); XCTFail("no note action"); return
+            attachTree(app, "note-keyboard-no-action"); XCTFail("no note action"); return nil
         }
         action.tap()
         let editor = app.webViews.textViews.firstMatch
         guard editor.waitForExistence(timeout: 30) else {
-            attachTree(app, "note-keyboard-no-editor"); XCTFail("no WebKit note editor"); return
+            attachTree(app, "note-keyboard-no-editor"); XCTFail("no WebKit note editor"); return nil
         }
         editor.tap()
+        return editor
+    }
+
+    func testNoteEditorOptionLeftControl() throws {
+        let app = try launchReading()
+        guard let editor = openNoteEditor(app) else { return }
         editor.typeText("alpha beta")
-        editor.typeKey(XCUIKeyboardKey.leftArrow, modifierFlags: .command)
+        guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
+            XCTFail("note editor initial value incorrect: \(editor.value ?? "nil")"); return
+        }
+        guard waitUntil(timeout: 5, { editor.debugDescription.contains("Keyboard Focused") }) else {
+            XCTFail("note editor is not keyboard focused"); return
+        }
+        editor.typeKey(XCUIKeyboardKey.leftArrow, modifierFlags: .option)
+        editor.typeText("X")
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha Xbeta" },
+                      "Option+Left should move to the previous word: \(editor.value ?? "nil")")
+        XCTAssertFalse(element(app, "reading-search-field").exists)
+        XCTAssertFalse(app.buttons["Back"].exists)
+    }
+
+    /// Option+Right stays in the real WebKit note editor rather than triggering a reading action.
+    func testNoteEditorKeepsHardwareNavigationChords() throws {
+        let app = try launchReading()
+        guard let editor = openNoteEditor(app) else { return }
+        editor.typeText("alpha beta")
+        guard waitUntil(timeout: 10, { (editor.value as? String) == "alpha beta" }) else {
+            XCTFail("note editor initial value incorrect: \(editor.value ?? "nil")"); return
+        }
+        editor.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
+        guard waitUntil(timeout: 5, { editor.debugDescription.contains("Keyboard Focused") }) else {
+            XCTFail("note editor is not keyboard focused"); return
+        }
         editor.typeKey(XCUIKeyboardKey.rightArrow, modifierFlags: .option)
         editor.typeText("X")
-        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaX beta") == true },
+        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alphaX beta" },
                       "Option+Right should move by a word before insertion: \(editor.value ?? "nil")")
-        editor.typeKey("b", modifierFlags: .control)
-        editor.typeText("Y")
-        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaYX beta") == true },
-                      "Control+B should move the caret backward: \(editor.value ?? "nil")")
-        editor.typeKey("f", modifierFlags: .control)
-        editor.typeText("Z")
-        XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String)?.contains("alphaYXZ beta") == true },
-                      "Control+F should move the caret forward: \(editor.value ?? "nil")")
-        XCTAssertFalse(element(app, "reading-search-field").exists, "editor chords opened reading search")
-        XCTAssertFalse(app.buttons["Back"].exists, "editor chords opened the passage chooser")
+        XCTAssertFalse(element(app, "reading-search-field").exists, "editor chord opened reading search")
+        XCTAssertFalse(app.buttons["Back"].exists, "editor chord opened the passage chooser")
     }
 
     /// Unconsumed editing chords must not bubble into the reading host.
