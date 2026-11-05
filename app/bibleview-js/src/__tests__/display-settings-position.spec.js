@@ -76,6 +76,18 @@ describe("display-setting reading position (#3971)", () => {
         expect(anchor.getBoundingClientRect().top).toBe(2);
     });
 
+    it.each([
+        {nightMode: false},
+        {nightMode: true},
+        {monochromeMode: true, einkMode: true},
+        {disableAnimations: true},
+    ])("retains the verse across display modes: %j", async appSettings => {
+        await loadAtVerse();
+        emit("set_config", {config: {fontSize: 20}, appSettings, initial: false});
+        await flushPromises();
+        expect(anchor.getBoundingClientRect().top).toBe(2);
+    });
+
     it("uses the visible verse rather than a previous scroll notification", async () => {
         await flushPromises();
         const previous = document.createElement("span");
