@@ -117,6 +117,7 @@ fun MainViewController(): UIViewController {
     IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     IosDebugLaunchArgs.normalizeStandardFixture()
+    IosDebugLaunchArgs.seedInterruptedInstall()
     val settings = IosDeviceSettings()
     val language = resolveDeviceUiLanguage(settings, ::iosPreferredLanguages)
     val layoutDirection = if (HostUiLanguage.isRtl(language)) LayoutDirection.Rtl else LayoutDirection.Ltr

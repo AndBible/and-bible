@@ -508,6 +508,9 @@
     <string name="delete_index">Delete search index</string>
     <string name="about">About</string>
     <string name="delete_doc">Delete %s?</string>
+    <string name="interrupted_downloads_title">Download interrupted</string>
+    <string name="interrupted_downloads_message">These documents were not installed because their download was interrupted:\n\n%s\n\nDownload them again?</string>
+    <string name="download_again">Download again</string>
     <string name="delete_docs_confirm">Delete these documents?</string>
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
