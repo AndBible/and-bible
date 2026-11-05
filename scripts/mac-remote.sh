@@ -893,7 +893,7 @@ mkdir -p \"\$TREE\"" || die "unsafe remote tree or lost lock"
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
     stats=$(timeout --kill-after=10 "${MAC_TRANSFER_TIMEOUT:-1800}" "${RSYNC[@]}" --delete --stats \
         --exclude='.git' --exclude='/.local/' --exclude='/docs/' --exclude='/website/' \
-        --exclude='/fastlane/' --exclude='/play/' --exclude='/app/src/test/roborazzi/' \
+        --exclude='/fastlane/' --exclude='/play/' --exclude='/app/src/test/roborazzi' \
         --exclude='/local.properties' --exclude='build/' --exclude='.gradle/' --exclude='.kotlin/' \
         --exclude='node_modules/' --exclude='/app/bibleview-js/dist/' \
         --exclude='/iosApp/iosApp.xcodeproj/' --exclude='*.xcresult' \
