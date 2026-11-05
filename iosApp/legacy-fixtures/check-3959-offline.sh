@@ -8,7 +8,7 @@ trap 'xcrun simctl shutdown "$id" 2>/dev/null || true; xcrun simctl delete "$id"
 bundle=org.andbible.ios.dev
 xcrun simctl boot "$id" 2>/dev/null || true
 xcrun simctl bootstatus "$id" -b
-products=$(xcodebuild -showBuildSettings -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator 2>/dev/null | /usr/bin/grep -m 1 ' BUILT_PRODUCTS_DIR = ' | cut -d= -f2- | xargs)
+products=$(xcodebuild -showBuildSettings -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator 2>/dev/null | python3 -I -c 'import sys; lines=sys.stdin.read().splitlines(); print(next(line.split("=", 1)[1].strip() for line in lines if " BUILT_PRODUCTS_DIR = " in line))')
 app="$products/AndBibleDev.app"
 test -d "$app"
 xcrun simctl install "$id" "$app"
