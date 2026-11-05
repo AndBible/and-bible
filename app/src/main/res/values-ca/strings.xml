@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">L\'AndBible no ha pogut iniciar WebView2, que és necessari per mostrar el text bíblic. Instal·la o repara el Microsoft Edge WebView2 Evergreen Runtime des de:\n%1$s\n\nEls detalls són al fitxer de registre:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">L\'AndBible requereix gràfics Direct3D per mostrar el text bíblic amb WebView2. El renderitzador gràfic actual és %1$s. Comprova el controlador gràfic i la compatibilitat amb Direct3D.\n\nEls detalls són al fitxer de registre:\n%2$s</string>
+  <string name="desktop_update_setting_title">Cerca actualitzacions</string>
+  <string name="desktop_update_setting_summary">Un cop al dia, des de github.com</string>
+  <string name="desktop_update_consent_title">Vols cercar actualitzacions?</string>
+  <string name="desktop_update_consent_message">L\'AndBible pot consultar github.com un cop al dia per veure si hi ha una versió més nova. GitHub veu la teva adreça IP; no s\'envia res més. Pots canviar-ho més endavant a la configuració.</string>
+  <string name="desktop_update_consent_yes">Cerca actualitzacions</string>
+  <string name="desktop_update_consent_no">No en cerquis</string>
+  <string name="desktop_update_available_title">Hi ha una versió nova disponible</string>
+  <string name="desktop_update_available_message">L\'AndBible %1$s està disponible. Tens la %2$s.</string>
+  <string name="desktop_update_download">Baixa</string>
+  <string name="desktop_update_later">Més tard</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Estudi Bíblic</string>
   <string name="app_name_medium">Estudi Bíblic (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d coincidències trobades</string>
   <string name="search_showing_first">Massa coincidències. Es mostren les primeres %d</string>
   <string name="search_bible_section_group_prompt">On cercar</string>
+  <string name="search_type_prompt">Tipus de cerca</string>
+  <string name="search_show_results">Mostra els resultats de la cerca</string>
   <string name="search_all_bible">Tota la Bíblia</string>
   <string name="search_new_testament">Nou Testament</string>
   <string name="search_old_testament">Antic Testament</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Cerca \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Traduccions</string>
+  <string name="recent_searches">Cerques recents</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Tanca la cerca</string>
+  <string name="search_options">Configuració de la cerca</string>
+  <string name="search_submit">Cerca</string>
+  <string name="search_clear">Esborra el text de cerca</string>
+  <string name="search_engine_changed_reindex">El motor de cerca s\'ha actualitzat. Cal tornar a crear l\'índex de cerca; això pot trigar una estona.</string>
+  <string name="search_unsupported_syntax">Aquesta cerca utilitza una sintaxi no admesa: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Quan acabi la indexació, la cerca s\'executarà automàticament.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">No es pot cercar a %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">No es pot cercar en aquest document</string>
+  <string name="search_indexing_notification_title">Creació de l\'índex de cerca</string>
   <string name="choose_translations">Trieu traduccions…</string>
   <string name="multi_search_results">%1$d versets en %2$d traduccions</string>
   <string name="search_index_not_created">sense índex</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Trieu com es mostren els colors. La tinta electrònica en color manté una base en blanc i negre però mostra els colors dels marcadors, l\'indicador de finestra activa i les línies auxiliars en color — per a pantalles de tinta electrònica en color.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Blanc i negre</string>
+  <string name="prefs_display_color_mode_monochrome">Monocrom</string>
   <string name="prefs_display_color_mode_color_eink">Tinta electrònica en color</string>
+  <string name="prefs_theme_palette_style_title">Estil del tema</string>
+  <string name="prefs_theme_palette_style_summary">Com es deriven els colors de l\'aplicació a partir del color de l\'espai de treball. S\'aplica només quan el mode de color és Normal.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Punt tonal (suau, manté el gris)</string>
+  <string name="prefs_theme_palette_style_fidelity">Fidelitat (color exacte)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Punt tonal (original)</string>
+  <string name="prefs_theme_palette_style_content">Contingut (proper al color)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutre (apagat)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monocrom (gris)</string>
+  <string name="prefs_theme_palette_style_vibrant">Vibrant</string>
+  <string name="prefs_theme_palette_style_expressive">Expressiu</string>
+  <string name="prefs_theme_palette_style_rainbow">Arc de Sant Martí</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Macedònia de fruites</string>
   <string name="prefs_eink_settings_cat">Configuració de tinta electrònica</string>
   <string name="prefs_eink_display_title">Funcions de tinta electrònica</string>
   <string name="prefs_eink_display_summary">Activa les funcions específiques de tinta electrònica (botons de desplaçament de pàgina, línies d\'ajuda de desplaçament)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Marca els capítols com a llegits automàticament quan els desplaceu</string>
   <string name="reading_progress_read_count_scale">Recompte\nde lectura</string>
   <string name="reading_progress_percent_read_scale">Percentatge\nlllegit</string>
+  <string name="monochrome_activity_count">Recompte d\'activitat: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Recompte: %d</string>
+  <string name="monochrome_level">Nivell: %d/4</string>
+  <string name="monochrome_buckets">Gris: cap; contorn: parcial; ple: complet o nivell més alt. Selecciona un element per veure els valors exactes.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Historial de lectura</string>
   <string name="reading_progress_history_for">Progrés de lectura per a %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Edita la configuració de visualització del text per a aquest espai de treball</string>
   <string name="global_text_options_link">Opcions de text globals</string>
   <string name="global_text_options_link_summary">Edita la configuració de visualització del text per defecte per a tots els espais de treball</string>
+  <string name="text_options_inherited_workspace">Espai de treball</string>
+  <string name="text_options_inherited_global">Global</string>
   <string name="prefs_font_and_colors_title">Tipus de lletra i colors</string>
   <string name="prefs_text_layout_title">Disseny del text</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s i morfologia</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Espai de treball</string>
   <string name="copy_settings_to_window">Finestra %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Valors per defecte globals</string>
+  <string name="copy_settings_to_workspaces">A altres espais de treball…</string>
+  <string name="copy_settings_to_global_defaults">A les opcions globals per defecte…</string>
+  <string name="menu_back">Enrere</string>
   <string name="change_to_normal">Canvia a finestra normal</string>
   <string name="window_pin_mode">Fixa</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">No s\'ha pogut connectar al servidor de documents següent: \n\n%s\n\n</string>
   <string name="failed_downloads_message">No s\'han pogut baixar els fitxers següents:\n\n%s\n\n</string>
   <string name="cant_delete_document">Aquest document no es pot suprimir.</string>
+  <string name="bad_document_warning">Aquest document té problemes coneguts.</string>
   <!--Install zip file-->
   <string name="install_zip">Carrega documents des de fitxers</string>
   <string name="install_zip_module">Instal·la mòdul de Bíblia</string>
@@ -348,6 +410,11 @@
   <string name="delete_index">Suprimeix l\'índex de cerca</string>
   <string name="about">Quant a</string>
   <string name="delete_doc">Suprimeix %s?</string>
+  <string name="interrupted_downloads_title">Baixada interrompuda</string>
+  <string name="interrupted_downloads_message">Aquests documents no s\'han instal·lat perquè la seva baixada es va interrompre:</string>
+  <string name="interrupted_downloads_question">Vols tornar-los a baixar?</string>
+  <string name="download_again">Torna a baixar</string>
+  <string name="delete_docs_confirm">Vols suprimir aquests documents?</string>
   <string name="delete_search_index_doc">Suprimeix l\'índex de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notes a peu de pàgina i referències</string>
@@ -368,6 +435,7 @@
   <string name="assign_labels">Assigna etiquetes</string>
   <string name="new_item">Nou</string>
   <string name="label_name_prompt">Nom</string>
+  <string name="new_label_default_name">Etiqueta %d</string>
   <string name="label_unlabelled">Sense etiqueta</string>
   <string name="add_bookmark1">Marcador</string>
   <string name="add_bookmark3">Selecció</string>
@@ -415,6 +483,8 @@
   <string name="rewind">Retrocedeix</string>
   <string name="forward">Avança</string>
   <string name="tts_lang_not_available">L\'idioma no està disponible.</string>
+  <string name="tts_engine_not_available">La síntesi de veu no funciona en aquest dispositiu. Comprova que hi hagi un motor de veu instal·lat i activat a la configuració de síntesi de veu del sistema.</string>
+  <string name="tts_audio_focus_denied">No s\'ha pogut iniciar la lectura perquè una altra aplicació està utilitzant l\'àudio.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Velocitat de la parla</string>
   <string name="speak_and_play_earcons_title">Parla i reprodueix sons d\'avís per a</string>
@@ -424,6 +494,10 @@
   <string name="speak_bookmarks_menu_title">Parla des del marcador</string>
   <string name="speak_advanced_settings">Configuració avançada</string>
   <string name="speak_sleep_timer_title">Temporitzador de son</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Personalitzat…</string>
+  <string name="speak_sleep_timer_off">Desactivat</string>
+  <string name="speak_other_settings">Altres</string>
   <string name="speak_no_books_available">No hi ha llibres disponibles per llegir</string>
   <string name="speak_general_error">No s\'ha pogut iniciar la parla per a aquest llibre</string>
   <string name="repeat_passage">Repeteix el passatge</string>
@@ -452,6 +526,11 @@
   <string name="speak_autobookmarking_disabled">Marcador automàtic desactivat!</string>
   <string name="system_speak_settings">Obre la configuració de TTS del sistema</string>
   <string name="auto_assing_labels_help1">Aquí pots ajustar quines etiquetes s\'assignen automàticament als marcadors que crees.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Aquí pots afegir, editar i eliminar etiquetes, i ajustar quines s\'assignen automàticament als marcadors que crees.\n\nEtiquetes recents: etiquetes utilitzades recentment.\nAltres etiquetes: totes les altres etiquetes.\n\nUtilitza les opcions de filtre de la barra de cerca per veure només les etiquetes d\'assignació automàtica o les preferides.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Aquesta configuració s\'aplica a %s.</string>
   <string name="setting_scope_window">aquesta finestra</string>
@@ -529,6 +608,9 @@
   <string name="loading_backup">S\'està carregant la base de dades des de la còpia de seguretat…</string>
   <string name="backup_success2">Les meves notes, marcadors, blocs d\'estudi, plans de lectura i espais de treball s\'han guardat correctament a la còpia de seguretat.</string>
   <string name="backup_modules_success">Els mòduls seleccionats s\'han guardat correctament a la còpia de seguretat.</string>
+  <string name="backup_modules_conflict">No s\'ha fet la còpia de seguretat: %1$s i %2$s contenen tots dos el fitxer %3$s, amb continguts diferents. Selecciona només un dels dos i torna-ho a provar.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (versió %2$s, carpeta %3$s)</string>
   <string name="backup_modules_email_subject_2">Còpia de seguretat dels mòduls %s</string>
   <string name="backup_modules_email_message_2">S\'adjunta la còpia de seguretat dels mòduls %1$s, que conté els mòduls següents: %2$s</string>
   <string name="backup_email_subject_2">Còpia de seguretat de la base de dades %s</string>
@@ -537,6 +619,9 @@
   <string name="exported_studypads_message">S\'adjunta la base de dades de %s que conté marcadors i notes relacionats amb els blocs d\'estudi seleccionats</string>
   <string name="restore_unsuccessfull">La restauració de la base de dades no ha tingut èxit. Potser has proporcionat un fitxer de base de dades no vàlid.</string>
   <string name="send_backup_file">Envia un fitxer de còpia de seguretat</string>
+  <string name="export_destination_title">Exportar on?</string>
+  <string name="export_destination_message">Desa l\'exportació en aquest telèfon, o envia-la a un altre lloc amb Comparteix.</string>
+  <string name="send_export_file">Envia un fitxer d\'exportació</string>
   <string name="backup_modules_title">Selecciona quins mòduls vols guardar a la còpia de seguretat</string>
   <string name="install_zip_canceled">Instal·lació del mòdul cancel·lada</string>
   <string name="ask_restore_or_import">La base de dades de %s es pot restaurar (és a dir, s\'elimina la base de dades existent i es carrega la seleccionada) o importar (la base de dades seleccionada s\'importa a l\'existent). Què vols fer?</string>
@@ -577,12 +662,25 @@
   <string name="doc_type_book">Llibre</string>
   <string name="doc_type_map">Mapa</string>
   <string name="doc_type_addons">Complements</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Altres</string>
+  <string name="document_type_label">Tipus de document</string>
   <!--Languages-->
   <string name="lang_default">Per defecte</string>
   <!--General-->
   <string name="okay">D\'acord</string>
   <string name="cancel">Cancel·la</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Enrere</string>
+  <string name="settings_editor_close">Tanca</string>
+  <string name="settings_editor_apply">Aplica</string>
   <string name="discard_changes_confirmation">Descarta els canvis no desats?</string>
+  <string name="discard">Descarta</string>
+  <string name="remove">Elimina</string>
+  <string name="overwrite">Sobreescriu</string>
+  <string name="set_current_day_action">Defineix el dia</string>
   <string name="yes">Sí</string>
   <string name="no">No</string>
   <string name="error">Error</string>
@@ -592,6 +690,7 @@
   <string name="watch_tutorial_video">Mira el vídeo tutorial (en anglès)</string>
   <string name="verse_not_found">No s\'ha trobat el verset</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Continua</string>
   <string name="report_error">Envia l\'informe</string>
   <string name="error_occurred">S\'ha produït un error</string>
   <string name="error_occurred_crash_last_time">L\'última vegada que has usat l\'aplicació, s\'ha produït una fallada. Per ajudar-nos a corregir l\'error, t\'agrairíem que ens enviessis un informe d\'error.</string>
@@ -602,8 +701,14 @@
   <string name="error_key_not_in_document2">No s\'ha trobat %1$s al document %2$s.</string>
   <string name="empty_list">No hi ha elements per mostrar</string>
   <string name="error_skip">Omet</string>
+  <string name="debug_test_error">Error de prova (compilació de depuració)</string>
+  <string name="bug_report_prepare_failed">No s\'ha pogut preparar ni compartir l\'informe. Pots tornar-ho a provar, o utilitzar Còpia de seguretat i restauració per desar les teves dades.</string>
   <string name="bug_report_email_title">Envia l\'informe d\'error per correu electrònic</string>
   <string name="bug_report_email_text">A continuació, selecciona la teva aplicació de correu electrònic preferida (per exemple, Gmail) per enviar l\'informe a l\'equip de desenvolupadors.</string>
+  <string name="bug_report_manual_title">Envia l\'informe per correu electrònic</string>
+  <string name="bug_report_manual_text_saved">L\'informe s\'ha desat a</string>
+  <string name="bug_report_manual_text_unsaved">No s\'ha pogut obrir cap programa de correu electrònic en aquest dispositiu.\n\nEnvia l\'informe per correu electrònic a</string>
+  <string name="bug_report_copy_address">Copia l\'adreça</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text a veu</string>
   <string name="notification_channel_progress_status">Notificació de progrés per a descàrregues de documents, etc.</string>
@@ -627,6 +732,7 @@
   <string name="search_settings">Cerca a la configuració</string>
   <string name="dismiss">Descarta</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
+  <string name="workspace_manage_workspaces">Gestiona els espais de treball…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aquesta és la versió beta!</string>
   <string name="beta_notice_content_1">En la versió beta hi ha noves funcions que encara no s\'han provat correctament, per la qual cosa usar la beta pot introduir comportaments inesperats, és a dir, errors. Es recomana que els lectors de la Bíblia habituals usin la versió estable.</string>
@@ -654,7 +760,10 @@
   <string name="help_search_title">Cerca</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">El text de cerca pot incloure caràcters especials com *, AND, OR, NOT</string>
+  <string name="help_search_bible">Tria com es combinen les paraules: Totes les paraules troba versets que continguin cada paraula, Qualsevol paraula en troba que continguin almenys una, i Frase troba les paraules una al costat de l\'altra en aquest ordre.\n\nDins d\'una cerca també pots utilitzar * i ? com a comodins (per exemple, beneir* coincideix amb beneït i beneint), combinar termes amb AND, OR i NOT, i cercar directament números de Strong (per exemple, strong:h0430).</string>
+  <string name="help_search_epub">Tria com es combinen les paraules: Totes les paraules troba passatges que continguin cada paraula, Qualsevol paraula en troba que continguin almenys una, i Frase troba les paraules una al costat de l\'altra en aquest ordre.\n\nLa sintaxi de consulta en brut passa el teu text al motor de cerca sense canvis, de manera que pots escriure la teva pròpia consulta: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" per a una frase exacta, bless* per coincidir amb qualsevol paraula que comenci per bless, i grace NEAR faith per trobar-les prop l\'una de l\'altra.</string>
   <string name="help_search_details">Consulta %s per a més detalls.</string>
+  <string name="help_search_syntax">Sintaxi de cerca</string>
   <string name="help_fts5">Sintaxi de consulta de text complet FTS5</string>
   <string name="help_workspaces_title">Espais de treball</string>
   <string name="help_workspaces_text">Els espais de treball permeten tenir múltiples entorns de treball dependents del context. Les funcions dels espais de treball són accessibles a través de l\'element Espais de treball al menú d\'opcions (cantonada superior dreta). Una manera ràpida d\'accedir als espais de treball és amb el gest de lliscar cap avall des de la barra d\'eines. També pots usar els gestos de lliscar a l\'esquerra i a la dreta sobre la barra d\'eines per canviar a l\'espai de treball anterior o al següent.</string>
@@ -663,6 +772,12 @@
   <string name="help_window_pinning_title">Fixació de finestres</string>
   <string name="help_window_pinning_text">Pots activar la fixació de finestres des del menú d\'opcions (tres punts, cantonada superior dreta). Si la fixació de finestres està activada, pots mostrar moltes finestres fixes a la vista de la Bíblia, però només una finestra no fixada. Les finestres fixes es mostren primer i després les no fixades. Potser voldràs obrir documents de la Bíblia com a finestres fixes i comentaris, mapes, etc. com a finestres no fixades. Així podràs tenir els documents de la Bíblia sempre oberts i canviar ràpidament entre comentaris i altres materials complementaris mentre estudies la Bíblia.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Encara no hi ha cap document a la teva biblioteca. Afegeix-ne alguns per començar.</string>
+  <string name="welcome_redownload_row_hint">Tria entre els documents instal·lats anteriorment</string>
+  <string name="welcome_download_row_hint">Explora el catàleg en línia</string>
+  <string name="welcome_restore_row_hint">Fitxer de base de dades amb marcadors i notes</string>
+  <string name="welcome_link_website">Lloc web</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Has de triar el fitxer que vols carregar a %s.</string>
@@ -678,9 +793,8 @@
   <string name="format_studypads">Blocs d\'estudi de bases de dades d\'AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Tanca</string>
+  <string name="reading_toolbar_options">Més opcions</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Entès</string>
-  <string name="first_time_help_show_next_time">Torna a mostrar la pròxima vegada</string>
   <string name="strongs_mode_title">Tria el mode Strong\'s</string>
   <string name="download_dialog_message">No s\'han pogut baixar els llibres següents:</string>
   <string name="journal_description">Blocs d\'estudi editables per l\'usuari amb text personalitzat i marcadors</string>
@@ -705,6 +819,7 @@
   <string name="prefs_experimental_features_summary">Selecciona quines funcions experimentals vols activar. Aquestes funcions encara estan en desenvolupament i poden canviar o eliminar-se</string>
   <string name="experimental_feature_bookmark_edit_actions">Accions d\'edició de marcadors</string>
   <string name="experimental_feature_add_paragraph_break">Afegeix un marcador de salt de paràgraf</string>
+  <string name="experimental_feature_toolbar_literal_color">Utilitza el color literal de l\'espai de treball per a la barra d\'eines de lectura (en lloc del color del tema)</string>
   <string name="raw_llm_log_title">Registre LLM en brut</string>
   <string name="raw_llm_log_empty">No hi ha dades de registre disponibles</string>
   <string name="raw_llm_log_copied">Registre copiat al porta-retalls</string>
@@ -791,6 +906,7 @@
   <string name="display_mode_underline">Subratllat</string>
   <string name="display_mode_marker">Només marcador</string>
   <string name="display_mode_hidden">Ocult</string>
+  <string name="display_mode_inherit">Igual que la selecció</string>
   <string name="workspace_override_indicator">Aquesta etiqueta té un mode de visualització específic per a l\'espai de treball</string>
   <string name="primary_label">Etiqueta principal</string>
   <string name="favourite_label">Etiqueta preferida</string>
@@ -804,6 +920,8 @@
   <string name="book_menu_show_long_book_name">Mostra el nom llarg del llibre</string>
   <string name="book_menu_show_progress_bars">Mostra les barres de progrés</string>
   <string name="reset_workspace_labels">Vols restablir la configuració d\'assignació automàtica i preferits per a aquest espai de treball?</string>
+  <string name="clear_auto_assign_labels">Esborra les etiquetes d\'assignació automàtica</string>
+  <string name="reset_workspace_auto_assign_labels">Vols eliminar totes les etiquetes d\'assignació automàtica d\'aquest espai de treball?</string>
   <string name="reset_hide_labels">Vols restablir la configuració per amagar les etiquetes especificades?</string>
   <string name="reorder">Reordena</string>
   <string name="system_items">Accions del sistema</string>
@@ -875,6 +993,27 @@
   <string name="instructions_for_translators">instruccions per als traductors</string>
   <string name="questions_title">Preguntes?</string>
   <string name="bookmark_style">Estil del marcador</string>
+  <string name="bookmark_style_preview_sample">Perquè Déu estimà tant el món</string>
+  <string name="bookmark_style_selection">Marcadors de selecció de text</string>
+  <string name="bookmark_style_whole_verse">Marcadors de verset sencer</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Utilitza un estil diferent per als marcadors de verset sencer</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Selecció</string>
+  <string name="bookmark_style_tag_whole_verse">Verset sencer</string>
+  <string name="bookmark_style_tag_workspace">Espai de treball</string>
+  <string name="show_style_examples">Mostra exemples d\'estil</string>
+  <string name="labels_search_section">Cerca</string>
+  <string name="labels_filter_section">Mostra</string>
+  <string name="labels_filter_auto_assign">Només etiquetes d\'assignació automàtica</string>
+  <string name="labels_filter_favourite">Només etiquetes preferides</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Marca una etiqueta per assignar-la a aquest marcador.</string>
+  <string name="manage_labels_help_primary">L\'etiqueta principal. El seu color i estil són els que mostra el marcador.</string>
+  <string name="manage_labels_help_autoassign">Assigna aquesta etiqueta automàticament a cada marcador nou. Un llamp buit vol dir desactivat.</string>
+  <string name="manage_labels_help_favourite">Mantén l\'etiqueta a les teves preferides per accedir-hi ràpidament.</string>
+  <string name="manage_labels_help_styles">Sota el nom, un petit exemple mostra l\'aspecte de l\'etiqueta: Selecció per a un marcador de selecció de text, Verset sencer per a un de verset sencer, i una etiqueta Espai de treball per a un estil que aquest espai de treball substitueix. Un exemple en gris sense decoració vol dir que els marcadors de l\'etiqueta no es dibuixen. Amaga els exemples des del menú ⋮.</string>
+  <string name="manage_labels_help_reorder">Reordena la llista des del menú ⋮.</string>
   <string name="added_to_bookmark">Assignat a aquest marcador</string>
   <string name="strongs_links">Enllaços</string>
   <string name="strongs_text_and_links">Text i enllaços</string>
@@ -913,6 +1052,7 @@
   <string name="sync_group_n">Grup %d</string>
   <string name="disable_sync">Desactiva la sincronització</string>
   <string name="open_in_window">Obre els resultats en una finestra</string>
+  <string name="open_result_in_links_window">Obre el resultat a la finestra d\'enllaços</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Repositoris personalitzats</string>
@@ -923,7 +1063,6 @@
   <string name="delete_custom_repository">Vols eliminar el repositori personalitzat %s?</string>
   <string name="custom_repositories_help1">Per afegir un nou repositori personalitzat, escriu o enganxa l\'URL del repositori personalitzat aquí.</string>
   <string name="custom_repositories_help2">Pots llegir més informació sobre els repositoris personalitzats a %s.</string>
-  <string name="wiki_page">Pàgina WIKI</string>
   <string name="custom_repositories_help0">Pots instal·lar documents des de repositoris personalitzats externs instal·lant repositoris personalitzats.</string>
   <string name="duplicate_custom_repository">Ja existeix un repositori amb el nom %s; no es pot afegir un altre.</string>
   <string name="packages_dir">Directori de paquets (fitxers Zip)</string>
@@ -963,6 +1102,7 @@
   <string name="reading_progress_new_cycle_confirm">Vols iniciar un nou cicle de lectura? Això començarà a fer un seguiment del teu progrés des de zero, conservant les dades del cicle anterior.</string>
   <string name="reading_progress_previous_cycle">Cicle anterior</string>
   <string name="reading_progress_next_cycle">Cicle següent</string>
+  <string name="cloud_merge_data">Combina les dades</string>
   <string name="cloud_fetch_and_restore_initial">Copia del núvol a aquest dispositiu</string>
   <string name="cloud_create_new">Copia d\'aquest dispositiu al núvol</string>
   <string name="cloud_disable_sync">Cancel·la i desactiva la sincronització</string>
@@ -976,6 +1116,19 @@
   <string name="sync_adapter_summary">Actual: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adreça de la carpeta WebDAV, p. ex. https://nas.local/dav/ o https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">La sincronització requereix una adreça segura https://.</string>
+  <string name="webdav_certificate_title">Certificat del servidor</string>
+  <string name="webdav_forget_certificate_message">Vols oblidar el certificat de servidor de confiança? Se\'t demanarà que tornis a confirmar el certificat en la propera connexió.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Certificat de servidor no fiable</string>
+  <string name="webdav_untrusted_certificate_message">Android no considera fiable el certificat de %1$s. Confia-hi només si el reconeixes, per exemple perquè has configurat tu mateix aquest servidor.\n\nSubjecte: %2$s\nEmissor: %3$s\nVàlid: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Confia en aquest certificat</string>
+  <string name="webdav_wrong_credentials">Nom d\'usuari o contrasenya incorrectes.</string>
+  <string name="webdav_not_a_folder">L\'adreça no és una carpeta WebDAV.</string>
+  <string name="webdav_certificate_changed">El certificat del servidor ha canviat. La sincronització està en pausa fins que confirmis el certificat nou, cosa que l\'AndBible et demanarà la propera vegada que s\'obri o sincronitzi en primer pla.</string>
+  <string name="webdav_storage_full">L\'emmagatzematge del servidor és ple.</string>
   <string name="auth_server_uri">URL del servidor</string>
   <string name="auth_username">Nom d\'usuari</string>
   <string name="auth_password">Contrasenya</string>
@@ -985,6 +1138,7 @@
   <string name="sync_general_settings">Informació i configuració general</string>
   <string name="sync_introduction">Introducció</string>
   <string name="are_you_sure">Segur?</string>
+  <string name="are_you_sure_merge">Es conservaran tant les dades d\'aquest dispositiu com les del %s al núvol. Quan un mateix element s\'hagi canviat en tots dos, es conservarà el canvi més recent. Les dades d\'aquest dispositiu s\'enviaran als teus altres dispositius.</string>
   <string name="are_you_sure_reset_local">Això restablirà la teva base de dades local per a %s amb el contingut emmagatzemat actualment al servei al núvol.</string>
   <string name="are_you_sure_reset_cloud">Això restablirà la teva base de dades al núvol per a %s amb el contingut que tens en aquest dispositiu.</string>
   <string name="sync_cant_fetch">La versió de la base de dades o del fitxer de pedaç emmagatzemat al núvol és superior a la que admet aquesta aplicació.</string>
@@ -1019,6 +1173,7 @@
   <string name="pref_font_size_multiplier_title">Multiplicador de mida de lletra</string>
   <string name="pref_font_size_multiplier_summary_1">Multiplica la mida de la lletra del text per aquest número.</string>
   <string name="pref_font_size_multiplier_summary_2">Útil si tens un dispositiu sincronitzat que s\'usa amb una lletra més gran.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Valor actual: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Acció per al gest de lliscar a l\'esquerra / dreta</string>
   <string name="prefs_bible_view_swipe_mode_summary">El gest de lliscar a l\'esquerra / dreta es pot fer servir per anar a la pàgina / capítol següent.</string>
@@ -1139,6 +1294,7 @@
   <string name="prompt_max_iterations_unlimited">Il·limitat</string>
   <string name="prompt_max_iterations_global_default">Valor predeterminat global (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Substitueix el màxim d\'iteracions global per a aquest missatge. 0 = il·limitat.\nActual: %s</string>
+  <string name="prompt_max_iterations_use_global">Utilitza la configuració global (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Gestiona els missatges de la IA</string>
   <string name="manage_prompts_summary">Crea i edita missatges de la IA</string>
@@ -1272,6 +1428,7 @@
   <string name="built_in_prompt_notice">Aquesta és una pregunta integrada i no es pot editar. Usa «Copia per personalitzar» per crear una còpia editable.</string>
   <string name="copy_to_customize">Copia per personalitzar</string>
   <string name="prompt_copied">Pregunta copiada</string>
+  <string name="prompt_copy_failed">No s\'ha pogut copiar la pregunta. Pot ser que s\'hagi suprimit.</string>
   <string name="delete_prompt_confirmation">Suprimeix la pregunta \"%s\"?</string>
   <string name="prompt_name_required">Cal indicar el nom de la pregunta</string>
   <string name="prompt_template_required">Cal indicar la plantilla de la pregunta</string>
@@ -1479,6 +1636,8 @@
   <string name="tool_option_default_disabled">Per defecte (desactivat)</string>
   <string name="tool_option_default_allowed">Per defecte (permès)</string>
   <string name="tool_option_default_denied">Per defecte (denegat)</string>
+  <string name="tool_description_info">Mostra la descripció de l\'eina</string>
+  <string name="tool_permission_mixed">Mixt</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Per defecte</string>
@@ -1524,6 +1683,8 @@
   <string name="my_document_pages_empty">No hi ha pàgines en aquest document.</string>
   <string name="my_document_page_rename_title">Reanomena la pàgina</string>
   <string name="my_document_page_delete_confirmation">Suprimeix la pàgina \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Vols suprimir aquestes pàgines?</string>
+  <string name="my_documents_switch_document">Canvia de document</string>
   <string name="my_document_new_page_name">Pàgina %1$d</string>
   <string name="my_document_create_page_title">Pàgina nova</string>
   <string name="my_document_content_type_label">Tipus de contingut</string>
@@ -1620,4 +1781,91 @@
   <string name="document_sync_started">S\'ha iniciat la sincronització de documents</string>
   <string name="document_sync_enable_dialog_title">Voleu començar a sincronitzar els documents?</string>
   <string name="document_sync_enable_dialog_nothing">Encara no hi ha documents per transferir. Els documents nous instal·lats es sincronitzaran automàticament.</string>
+  <string name="help_document_sync_text">La sincronització de documents copia al núvol les Bíblies, els comentaris i altres documents instal·lats, i els manté sincronitzats entre els teus dispositius. Utilitza aquesta vista per veure què hi ha emmagatzemat al núvol, baixar o pujar documents individuals, eliminar documents i controlar què se sincronitza amb aquest dispositiu.</string>
+  <string name="background_image_title">Imatge de fons</string>
+  <string name="background_image_none">Sense fons</string>
+  <string name="background_image_import">Importa de la galeria…</string>
+  <string name="background_image_empty">Encara no hi ha imatges importades. Toca \"Importa de la galeria…\" per afegir-ne una.</string>
+  <string name="background_image_importing">S\'està important…</string>
+  <string name="background_image_delete_title">Vols suprimir la imatge?</string>
+  <string name="background_image_delete_confirm">Vols suprimir aquesta imatge de fons? Els espais de treball que encara la utilitzen passaran a no tenir cap imatge.</string>
+  <string name="background_image_day">Imatge de fons (dia)</string>
+  <string name="background_image_night">Imatge de fons (nit)</string>
+  <string name="background_image_opacity_day">Opacitat de la imatge de fons (dia)</string>
+  <string name="background_image_opacity_night">Opacitat de la imatge de fons (nit)</string>
+  <string name="background_image_change">Canvia</string>
+  <string name="color_picker_title">Selecciona un color</string>
+  <string name="color_picker_presets">Predefinits</string>
+  <string name="color_picker_custom">Personalitzat</string>
+  <string name="bookmark_expand_row">Mostra el text complet</string>
+  <string name="bookmark_collapse_row">Mostra\'n menys</string>
+  <string name="bookmark_label_filter">Filtra per etiqueta</string>
+  <string name="document_quick_all_documents">Tots els documents…</string>
+  <string name="document_quick_tab_recent">Recents</string>
+  <string name="document_quick_tab_for_verse">Aquest verset</string>
+  <string name="document_quick_tab_last_filter">Últim filtre</string>
+  <string name="document_quick_tab_all">Tots</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtra i ordena</string>
+  <string name="doc_arrange_repository">Repositori</string>
+  <string name="doc_arrange_all_repositories">Tots els repositoris</string>
+  <string name="doc_arrange_sort">Ordre</string>
+  <string name="doc_arrange_group_by">Agrupa per</string>
+  <string name="doc_arrange_remember">Recorda aquesta configuració</string>
+  <string name="doc_arrange_reset">Restableix els valors per defecte</string>
+  <string name="doc_arrange_more_filters">Més filtres</string>
+  <string name="doc_arrange_reorder">Reordena</string>
+  <string name="doc_sort_ascending">Ascendent</string>
+  <string name="doc_sort_descending">Descendent</string>
+  <string name="doc_sort_status">Estat</string>
+  <string name="doc_sort_recommended">Primer els recomanats</string>
+  <string name="doc_sort_name">Nom</string>
+  <string name="doc_sort_size">Mida</string>
+  <string name="doc_group_none">Sense agrupació</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Baixant</string>
+  <string name="doc_group_status_update_available">Actualització disponible</string>
+  <string name="doc_group_status_installed">Instal·lat</string>
+  <string name="doc_group_status_not_installed">No instal·lat</string>
+  <string name="prompt_filter_title">Filtra les preguntes</string>
+  <string name="prompt_filter_type">Tipus</string>
+  <string name="prompt_type_addon">Complement</string>
+  <string name="prompt_type_user">Personalitzat</string>
+  <string name="prompt_filter_clear">Esborra els filtres</string>
+  <string name="prompt_favorite_add">Afegeix a les preferides</string>
+  <string name="prompt_favorite_remove">Elimina de les preferides</string>
+  <string name="window_unmaximise">Restaura totes les finestres</string>
+  <string name="window_menu_button">Menú de la finestra</string>
+  <string name="paste_from_clipboard">Enganxa</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Nansa d\'arrossegament</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">S\'estan actualitzant les teves dades…</string>
+  <string name="legacy_migration_progress_neutral">S\'està actualitzant…</string>
+  <string name="legacy_migration_failed_title">No s\'han pogut actualitzar les teves dades</string>
+  <string name="legacy_migration_failed_message">Les teves dades de la versió anterior de l\'aplicació són segures i no han canviat en aquest dispositiu. Tria què vols fer a continuació.</string>
+  <string name="legacy_migration_failed_keychain">No s\'han pogut llegir les contrasenyes desades de la versió anterior. Desbloqueja el dispositiu, i després tanca i torna a obrir l\'aplicació.</string>
+  <string name="legacy_migration_rollback_pending">L\'actualització s\'ha interromput i encara no s\'ha desfet del tot. Tanca i torna a obrir l\'aplicació per acabar de desfer-la.</string>
+  <string name="legacy_migration_save_old_data">Desa les dades antigues</string>
+  <string name="legacy_migration_send_report">Envia l\'informe d\'error</string>
+  <string name="legacy_migration_try_again">Torna-ho a provar</string>
+  <string name="legacy_migration_try_again_hint">Tanca l\'aplicació i obre-la de nou per tornar-ho a provar.</string>
+  <string name="legacy_migration_restore_backup">Restaura una còpia de seguretat</string>
+  <string name="legacy_migration_start_fresh">Comença sense les dades antigues</string>
+  <string name="legacy_migration_start_fresh_confirm">Les teves dades antigues es queden en aquest dispositiu. Pots importar-les més endavant a la configuració.</string>
+  <string name="legacy_import_title">Importa dades de la versió anterior de l\'aplicació</string>
+  <string name="legacy_import_summary">Substitueix les dades actuals per les de la versió anterior de l\'aplicació</string>
+  <string name="legacy_import_confirm">Això substitueix els teus espais de treball, marcadors i altres dades actuals per les de la versió anterior de l\'aplicació. Es conserva una còpia de les teves dades actuals en aquest dispositiu.</string>
+  <string name="legacy_import_reopen">Tanca l\'aplicació i obre-la de nou per importar les teves dades.</string>
+  <string name="legacy_notice_icloud">Ara la sincronització utilitza iCloud Drive. Torna-la a activar a Configuració → Sincronització. Aquest dispositiu conserva el que tenia; els canvis dels teus altres dispositius arribaran quan la sincronització torni a estar configurada. Per alliberar les dades antigues d\'iCloud: Configuració → el teu nom → iCloud → Gestiona l\'emmagatzematge → AndBible.</string>
+  <string name="legacy_notice_nextcloud">La teva connexió a Nextcloud s\'ha conservat, però la sincronització està desactivada. Activa-la a Configuració → Sincronització i tria si vols obtenir les dades del núvol o crear-ne de noves.</string>
+  <string name="legacy_notice_nextcloud_unsent">Alguns canvis d\'aquest dispositiu encara no s\'havien enviat a Nextcloud. No s\'han enviat i es queden només en aquest dispositiu.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">És una aplicació d\'estudi bíblic potent però fàcil d\'utilitzar, que funciona sense connexió.</string>
+  <string name="webdav_untrusted_certificate_message_device">Aquest dispositiu no considera fiable el certificat de %1$s. Confia-hi només si el reconeixes, per exemple perquè has configurat tu mateix aquest servidor.\n\nSubjecte: %2$s\nEmissor: %3$s\nVàlid: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Els repositoris personalitzats han d\'utilitzar una adreça segura https://.</string>
+  <string name="custom_repository_https_required_refresh">%1$s utilitza una adreça http://. Només es poden utilitzar repositoris https://.</string>
 </resources>
