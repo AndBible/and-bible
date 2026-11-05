@@ -42,6 +42,7 @@ object HostSwordEnvironment {
     /** Creates the module folder and its `mods.d`, `modules` and `search` subfolders (idempotent); no JSword state is touched. */
     fun createModuleFolders(modulesDir: Path) {
         val files = FileSystem.SYSTEM
+        net.bible.service.installzip.recoverInterruptedSwordInstalls(modulesDir)
         listOf(modulesDir, modulesDir / SwordConstants.DIR_CONF, modulesDir / SwordConstants.DIR_DATA, modulesDir / SearchFields.DIR_SEARCH)
             .forEach { files.createDirectories(it) }
     }

@@ -1131,9 +1131,8 @@ class BackupControl(
         val confFiles = ArrayList<Path>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
-        // Data first, conf last: data entries are written to ".part" siblings and conf entries (small) are buffered,
-        // so nothing in the live module tree changes until the whole archive was read and written successfully.
-        // An interrupted install then leaves no conf next to partial data and an installed module stays readable.
+        // Stage outside the live tree. A durable publish journal lets cold startup remove an interrupted generation.
+        val transaction = net.bible.service.installzip.SwordInstallTransaction(targetDirectory)
         val staged = LinkedHashMap<Path, Path>() // final path -> staged sibling
         val bufferedConfs = LinkedHashMap<Path, ByteArray>()
         val asides = LinkedHashMap<Path, Path>() // live conf -> its ".old" aside copy during the publish phase
@@ -1155,6 +1154,10 @@ class BackupControl(
                     if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
                     val segments = name.split('/')
+                    // Archives must not be able to plant a journal that cold startup treats as trusted ownership.
+                    if (segments.first().startsWith(".sword-install-", ignoreCase = true)) {
+                        throw IOException("ZIP entry uses the private install transaction namespace")
+                    }
                     // "epub/<name>/..." is an EPUB entry, and so is the bare directory entry "epub/<name>/".
                     val isEpubEntry = segments[0] == "epub" && (segments.size >= 3 || (segments.size == 2 && ze.isDirectory))
                     if (isEpubEntry) {
@@ -1175,7 +1178,9 @@ class BackupControl(
                             bufferedConfs[file] = zip.entry.buffer().readByteArray()
                         } else {
                             val parts = if (isEpubEntry) epubStaged else staged
-                            val part = parts.getOrPut(file) { file.parent!! / (file.name + ".part") }
+                            val part = parts.getOrPut(file) {
+                                if (isEpubEntry) file.parent!! / (file.name + ".part") else transaction.stage(file)
+                            }
                             fileSystem.write(part) { writeAll(zip.entry) }
                         }
                     } catch (e: IOException) {
@@ -1202,6 +1207,39 @@ class BackupControl(
             fun isPublished(path: Path) = path.toString().lowercase() in publishedKeys
             val dataRoot = (targetDirectory / SwordConstants.DIR_DATA).normalized()
             val installed = Books.installed().getBooks()
+            val incomingInitials = bufferedConfs.map { (conf, bytes) -> SwordBookMetaData(bytes, conf.name).initials }.toSet()
+            // Another registered module may share a DataPath. Never publish (or later recover by deleting)
+            // its files while leaving that owner's conf discoverable.
+            for (other in installed) {
+                if (other.initials in incomingInitials || other.bookMetaData.driver !is SwordBookDriver) continue
+                val location = other.bookMetaData.location?.getPath()?.let { it.toPath().normalized() } ?: continue
+                val shared = staged.keys.filter { path ->
+                    val candidate = path.normalized().toString().replace('\\', '/').lowercase()
+                    val owner = location.toString().replace('\\', '/').lowercase()
+                    candidate == owner || candidate.startsWith("$owner/")
+                }
+                for (path in shared) {
+                    val part = staged.getValue(path)
+                    val size = fileSystem.metadataOrNull(path)?.size
+                    val identical = size != null && size == fileSystem.metadata(part).size &&
+                        fileSystem.source(path).buffer().use { live ->
+                            fileSystem.source(part).buffer().use { pending ->
+                                var remaining = size
+                                var equal = true
+                                while (remaining > 0 && equal) {
+                                    val count = minOf(8192L, remaining)
+                                    equal = live.readByteString(count) == pending.readByteString(count)
+                                    remaining -= count
+                                }
+                                equal
+                            }
+                        }
+                    if (!identical) throw IOException("Archive replaces data shared with module ${other.initials}")
+                    // Unchanged shared files are not transaction-owned: neither publish nor recovery may touch them.
+                    fileSystem.delete(part)
+                    staged.remove(path)
+                }
+            }
             for ((conf, bytes) in bufferedConfs) {
                 val incoming = SwordBookMetaData(bytes, conf.name)
                 val previous = installed.firstOrNull { it.initials == incoming.initials } ?: continue
@@ -1210,7 +1248,8 @@ class BackupControl(
                 val oldDir = metadata.location?.getPath()?.let { it.toPath() }?.normalized()
                 // Restrict deletion to a private module directory beneath modules/, not a shared root or symlink.
                 if (oldDir != null && oldDir != dataRoot && oldDir.toString().startsWith("$dataRoot/") &&
-                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) == oldDir &&
+                    fileSystem.exists(oldDir) && fileSystem.canonicalize(oldDir) ==
+                        (fileSystem.canonicalize(targetDirectory) / oldDir.relativeTo(targetDirectory)).normalized() &&
                     installed.none { other ->
                         other.initials != previous.initials && other.bookMetaData.location?.getPath()?.let {
                             val otherDir = it.toPath().normalized()
@@ -1227,6 +1266,9 @@ class BackupControl(
                     if (!isPublished(oldConf) && oldConf.parent == conf.parent) obsoleteFiles.add(oldConf)
                 }
             }
+            transaction.beginPublish(staged.keys + bufferedConfs.keys + obsoleteFiles + bufferedConfs.keys.flatMap {
+                listOf(it.parent!! / (it.name + ".old"), it.parent!! / (it.name + ".tmp"))
+            })
             // Publish. An installed module's conf is first moved aside (".old", ignored by the scan), so a kill while
             // the data files are replaced leaves the module ABSENT, never the old conf next to mixed old/new data.
             // Then data files, then each new conf through "<conf>.tmp" + atomic move; only then are ".old" files dropped.
@@ -1258,6 +1300,7 @@ class BackupControl(
                 .onFailure { Log.w(TAG, "Could not remove obsolete module file $obsolete", it) }
             for (old in asides.values) runCatching { fileSystem.delete(old) }
             asides.clear()
+            transaction.complete()
             // One failing EPUB must not stop the others, nor the SWORD registration below: collect and rethrow later.
             for (name in epubModules) {
                 val dir = targetDirectory / "epub" / name
@@ -1279,6 +1322,9 @@ class BackupControl(
             // be mixed, so the module stays absent (conf not restored) and the aside copy is dropped.
             for ((file, old) in asides) runCatching {
                 if (!dataReplaced && !fileSystem.exists(file)) fileSystem.atomicMove(old, file) else fileSystem.delete(old)
+            }
+            if (fileSystem.exists(transaction.staging)) {
+                if (dataReplaced) transaction.rollback() else transaction.complete()
             }
         }
         // Load configuration files & register SWORD books

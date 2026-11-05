@@ -279,6 +279,132 @@ class ModuleArchiveInterruptionTest {
         }
     }
 
+    /** A process kill skips finally: replay the exact disk snapshots through the next startup, not an exception path. */
+    @Test fun startupRecoversEveryKilledArchiveStepWithoutOrphanFiles() {
+        val old = generation(1)
+        for (changedPath in listOf(false, true)) {
+            val new = generation(2).map { (name, bytes) ->
+                if (!changedPath) name to bytes
+                else if (name.startsWith("mods.d/")) name to bytes.decodeToString()
+                    .replace("modules/$INITIALS", "modules/relocated").encodeToByteArray()
+                else name.replace("modules/$INITIALS", "modules/relocated") to bytes
+            }
+            val archive = zip(new, "crash.zip")
+            for (overwrite in listOf(false, true)) {
+                dest.deleteRecursively(); dest.mkdirs()
+                if (overwrite) installGen1()
+                val snapshots = mutableListOf<File>()
+                fun capture() {
+                    val copy = File(work, "snapshot-${snapshots.size}")
+                    dest.copyRecursively(copy, overwrite = true)
+                    snapshots += copy
+                }
+                val control = backupControl()
+                control.onPublishStep = { capture() }
+                runBlocking {
+                    control.extractAndRegisterModuleArchive({ archive.source() }, new.size) { capture() }
+                }
+                capture() // completed install must survive recovery too
+                for ((step, copy) in snapshots.withIndex()) {
+                    dest.deleteRecursively()
+                    copy.copyRecursively(dest, overwrite = true)
+                    net.bible.sharedlogic.platform.host.HostSwordEnvironment.createModuleFolders(dest.absolutePath.toPath())
+                    val label = "changedPath=$changedPath overwrite=$overwrite crash snapshot=$step"
+                    val state = assertConsistent(label, listOf(old, new))
+                    if (state == "absent") {
+                        assertEquals(emptyList(), File(dest, "modules").walkTopDown().filter { it.isFile }.toList(),
+                            "$label: absent module must not leave any data files")
+                        assertEquals(emptyList(), File(dest, "mods.d").walkTopDown().filter { it.isFile }.toList(),
+                            "$label: absent module must not leave any conf files")
+                    }
+                    copy.deleteRecursively()
+                }
+            }
+        }
+    }
+
+    @Test fun interruptedRelocationCleansOldDataWhenStoreRootIsAnAlias() {
+        dest.deleteRecursively()
+        val realStore = File(work, "real-store").apply { mkdirs() }
+        Files.createSymbolicLink(dest.toPath(), realStore.toPath())
+        installGen1()
+        val relocated = generation(2).map { (name, bytes) ->
+            if (name.startsWith("mods.d/")) name to bytes.decodeToString()
+                .replace("modules/$INITIALS", "modules/relocated").encodeToByteArray()
+            else name.replace("modules/$INITIALS", "modules/relocated") to bytes
+        }
+        val archive = zip(relocated, "alias-relocation.zip")
+        val control = backupControl()
+        control.onPublishStep = { if (it == 1) throw IOException("injected publish interruption") }
+        assertTrue(runCatching { runBlocking { control.extractAndRegisterModuleArchive({ archive.source() }) } }.isFailure)
+        assertEquals(emptyList(), realStore.walkTopDown().filter { it.isFile }.toList(),
+            "root alias must not prevent removing the old generation after publication starts")
+    }
+
+    @Test fun archiveCannotForgeRecoveryJournal() {
+        val entries = generation(1) + (".sword-install-forged/publishing" to
+            "[\"mods.d/keep.conf\",\"modules/keep/data\"]".encodeToByteArray())
+        val archive = zip(entries, "forged.zip")
+        val result = runCatching { runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) } }
+        assertTrue(result.isFailure, "ZIP entries must not claim the private transaction namespace")
+        assertTrue(!File(dest, ".sword-install-forged").exists())
+    }
+
+    @Test fun replacingSharedDataWithoutAllOwnersIsRejectedBeforePublication() {
+        installGen1()
+        val sharedConf = File(dest, "mods.d/shared.conf")
+        sharedConf.writeText(generation(1).first().second.decodeToString().replace("[$INITIALS]", "[SharedOwner]"))
+        rescan()
+        val shared = assertNotNull(Books.installed().getBook("SharedOwner"))
+        try {
+            val replacement = zip(generation(2), "shared-replacement.zip")
+            val result = runCatching { runBlocking { backupControl().extractAndRegisterModuleArchive({ replacement.source() }) } }
+            assertTrue(result.isFailure, "must reject replacing data still owned by a module outside the archive")
+            assertTrue(matches(generation(1)), "rejection must preserve every byte of the installed generation")
+            assertTrue(sharedConf.isFile, "unrelated owner's conf must remain")
+            assertEquals("In the beginning God created the heaven and the earth.",
+                shared.getRawText(shared.getKey("Gen.1.1")).trim())
+        } finally {
+            Books.installed().getBook("SharedOwner")?.let { Books.installed().removeBook(it) }
+        }
+    }
+
+    @Test fun identicalSharedDataCanBeReinstalledWithoutTouchingItsOwner() {
+        installGen1()
+        val sharedConf = File(dest, "mods.d/shared.conf")
+        sharedConf.writeText(generation(1).first().second.decodeToString().replace("[$INITIALS]", "[SharedOwner]"))
+        rescan()
+        assertNotNull(Books.installed().getBook("SharedOwner"))
+        try {
+            val archive = zip(generation(1), "identical-shared.zip")
+            runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) }
+            assertTrue(matches(generation(1)))
+            assertTrue(sharedConf.isFile)
+            assertNotNull(Books.installed().getBook("SharedOwner"))
+        } finally {
+            Books.installed().getBook("SharedOwner")?.let { Books.installed().removeBook(it) }
+        }
+    }
+
+    @Test fun replacementIncludingAllSharedDataOwnersCanPublish() {
+        installGen1()
+        val sharedConf = File(dest, "mods.d/shared.conf")
+        sharedConf.writeText(generation(1).first().second.decodeToString().replace("[$INITIALS]", "[SharedOwner]"))
+        rescan()
+        assertNotNull(Books.installed().getBook("SharedOwner"))
+        try {
+            val new = generation(2)
+            val entries = new + ("mods.d/shared.conf" to
+                new.first().second.decodeToString().replace("[$INITIALS]", "[SharedOwner]").encodeToByteArray())
+            val archive = zip(entries, "all-shared-owners.zip")
+            runBlocking { backupControl().extractAndRegisterModuleArchive({ archive.source() }) }
+            assertTrue(matches(new))
+            assertNotNull(Books.installed().getBook("SharedOwner"))
+        } finally {
+            Books.installed().getBook("SharedOwner")?.let { Books.installed().removeBook(it) }
+        }
+    }
+
     private fun installGen1() = runBlocking { backupControl().extractAndRegisterModuleArchive({ zip(generation(1), "gen1.zip").source() }) }
 
     /** A staging directory left by a crashed EPUB install is swept; unrelated directories are not touched. */

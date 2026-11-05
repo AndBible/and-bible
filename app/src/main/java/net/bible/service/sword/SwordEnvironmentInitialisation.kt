@@ -46,6 +46,7 @@ import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.PassageType
 import java.io.File
+import okio.Path.Companion.toOkioPath
 import kotlin.concurrent.thread
 
 private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
@@ -65,6 +66,7 @@ object SwordEnvironmentInitialisation {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
 				// This folder we can always access freely without any extra permissions.
                 val moduleDir = SharedConstants.modulesDir
+                net.bible.service.installzip.recoverInterruptedSwordInstalls(moduleDir.toOkioPath())
 
                 // main module dir
                 ensureDirExists(moduleDir)
