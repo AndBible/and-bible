@@ -149,4 +149,13 @@ class IosAppEnvironmentTest {
         environment.close()
         environment.close()
     }
+
+    /**
+     * #3970: the add-on filter compares `AndBibleMinimumVersion` with [IosAppEnvironment.versionNumber]. The app's own
+     * add-ons (imported TTF fonts and prompt packs: 892, background images: 1112) carry Android version codes, so the
+     * iOS number must be on that scale; the bundle's CFBundleVersion (1 in every non-App-Store build) hid them all.
+     */
+    @Test fun versionNumberAcceptsTheAddonsTheAppCreates() = withEnvironment { environment ->
+        assertTrue(environment.versionNumber >= 1112, "versionNumber=${environment.versionNumber}")
+    }
 }
