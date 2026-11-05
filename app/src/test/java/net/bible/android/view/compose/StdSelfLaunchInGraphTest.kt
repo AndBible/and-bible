@@ -18,8 +18,9 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import androidx.activity.compose.setContent
 import kotlinx.coroutines.runBlocking
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
@@ -131,6 +132,43 @@ class StdSelfLaunchInGraphTest {
     @Test
     @Config(sdk = [28])
     fun onApi28TooTheChoiceApplies() = aStdChooseDocumentSelfLaunchNavigatesTheLiveGraphAndTheChoiceApplies()
+
+    /** A background apply must enqueue the host's effects, never resume them on its publisher. */
+    @Test
+    fun backgroundSnapshotNotificationsKeepHostEffectsOnMain() {
+        val controller = Robolectric.buildActivity(androidx.activity.ComponentActivity::class.java).setup()
+        val state = androidx.compose.runtime.mutableIntStateOf(0)
+        val threads = java.util.concurrent.CopyOnWriteArrayList<Thread>()
+        val main = Thread.currentThread()
+        val writer = Thread {
+            state.intValue = 1
+            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+        }.apply { isDaemon = true }
+        try {
+            controller.get().setContent {
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    androidx.compose.runtime.snapshotFlow { state.intValue }.collect { value ->
+                        if (value > 0) threads += Thread.currentThread()
+                    }
+                }
+            }
+            compose.waitForIdle()
+            writer.start()
+            writer.join(5_000)
+            org.junit.Assert.assertFalse("background snapshot publisher must finish", writer.isAlive)
+            compose.waitForIdle()
+            org.junit.Assert.assertTrue("the host effect must receive the changed state", threads.isNotEmpty())
+            org.junit.Assert.assertTrue("host effects must stay on Main; saw ${threads.map { it.name }}", threads.all { it === main })
+        } finally {
+            try {
+                writer.interrupt()
+                writer.join(5_000)
+                check(!writer.isAlive) { "Snapshot publisher did not terminate" }
+            } finally {
+                controller.close()
+            }
+        }
+    }
 
     @Test
     fun aStdPassageGridSelfLaunchNavigatesAndMovesTheWindow() {
