@@ -94,17 +94,27 @@ internal class NativeMonitor {
     private var owner: pthread_t? = null
 
     init {
-        memScoped {
-            val attr = alloc<pthread_mutexattr_t>()
-            check(pthread_mutexattr_init(attr.ptr) == 0)
-            try {
-                check(pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE) == 0)
-                check(pthread_mutex_init(mutex.ptr, attr.ptr) == 0)
-            } finally {
-                pthread_mutexattr_destroy(attr.ptr)
+        var mutexInitialised = false
+        try {
+            memScoped {
+                val attr = alloc<pthread_mutexattr_t>()
+                check(pthread_mutexattr_init(attr.ptr) == 0)
+                try {
+                    check(pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE) == 0)
+                    check(pthread_mutex_init(mutex.ptr, attr.ptr) == 0)
+                    mutexInitialised = true
+                } finally {
+                    pthread_mutexattr_destroy(attr.ptr)
+                }
             }
+            check(pthread_cond_init(condition.ptr, null) == 0)
+        } catch (e: Throwable) {
+            // The constructor failed, so no one can dispose this instance: free the native blocks here.
+            if (mutexInitialised) pthread_mutex_destroy(mutex.ptr)
+            nativeHeap.free(condition.rawPtr)
+            nativeHeap.free(mutex.rawPtr)
+            throw e
         }
-        check(pthread_cond_init(condition.ptr, null) == 0)
     }
 
     fun enter() {
@@ -187,12 +197,25 @@ actual inline fun <T> withMonitor(target: Any, block: () -> T): T {
 }
 
 @PublishedApi
-internal fun iosMonitorEnter(target: Any): NativeMonitor = MonitorRegistry.reserve(target).also { it.enter() }
+internal fun iosMonitorEnter(target: Any): NativeMonitor {
+    val monitor = MonitorRegistry.reserve(target)
+    try {
+        monitor.enter()
+    } catch (e: Throwable) {
+        // Not entered: give back the reservation so the registry does not leak.
+        MonitorRegistry.release(target, monitor)
+        throw e
+    }
+    return monitor
+}
 
 @PublishedApi
 internal fun iosMonitorExit(target: Any, monitor: NativeMonitor) {
-    monitor.exit()
-    MonitorRegistry.release(target, monitor)
+    try {
+        monitor.exit()
+    } finally {
+        MonitorRegistry.release(target, monitor)
+    }
 }
 
 actual fun monitorWait(target: Any, timeoutMs: Long) {
