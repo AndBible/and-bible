@@ -571,6 +571,9 @@ class IosAssemblyTest {
             // deliberately not in IOS_BOUND_PORT_TYPES (`:app`'s IosPortParityTest requires every listed port on Android too).
             net.bible.sharedui.app.settings.LegacyDataImport::class,
             HostReadingExtras::class,
+            // The one add-on scanner behind AddonCatalog, the prompt packs and the font catalog (#3970); a concrete
+            // helper read by the iOS scheme handler, not a port of the shared graph.
+            net.bible.sharedlogic.addons.SharedAddonScanner::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */
