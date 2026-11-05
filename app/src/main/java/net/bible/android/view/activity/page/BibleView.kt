@@ -1590,7 +1590,8 @@ class BibleView(
 
     override fun documentRequested(): Long = documentLoader.documentRequested()
 
-    override fun documentRequestEnded(request: Long) = documentLoader.documentRequestEnded(request)
+    override fun documentRequestEnded(request: Long, unchanged: Boolean, failure: Throwable?) =
+        documentLoader.documentRequestEnded(request, unchanged, failure)
 
     override fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) =
         documentLoader.scrollOrJumpToOrdinal(ordinal, htmlId, bookInitials, osisRef, forceNow)

@@ -43,8 +43,12 @@ interface WindowView {
      */
     fun documentRequested(): Long = 0L
 
-    /** The request [request] ended, admitted or not (see [documentRequested]). */
-    fun documentRequestEnded(request: Long) {}
+    /**
+     * The request [request] ended, admitted or not (see [documentRequested]). [unchanged]: the requested content is the
+     * one the view already shows (a commentary whose text did not change), so the page's document stands for the
+     * request. [failure]: the request failed before its document reached the view (not a supersession or cancel).
+     */
+    fun documentRequestEnded(request: Long, unchanged: Boolean = false, failure: Throwable? = null) {}
 }
 
 /** The display title of one text display setting type, as shown in the settings pickers. */

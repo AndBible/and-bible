@@ -136,15 +136,17 @@ class ReadingBridge(
 
     /**
      * Runs a guarded call on the main thread, where navigation, document admission and view rebinds happen, and only if
-     * its generation is still admitted there for the window the call was dispatched to. The check and the call's
-     * effect are one main-thread step, so nothing can replace the document in between.
+     * the page's admission state admits it there ([net.bible.sharedui.reading.session.DocumentAdmission.admits]: its
+     * generation, no request of another document, the window still shows the admitted source) for the window the call
+     * was dispatched to. The check and the call's effect are one main-thread step, so nothing can replace the document
+     * in between.
      */
     override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) {
         val window = session.windowOrNull
         if (session.isDisposed) return drop()
         // ATOMIC: the block runs even if the scope is cancelled meanwhile, so a deferred call is always answered.
         session.scope.launch(Dispatchers.Main.immediate, start = CoroutineStart.ATOMIC) {
-            if (isAdmitted(generation) && session.windowOrNull === window) call() else drop()
+            if (session.admission.admits(generation) && session.windowOrNull === window) call() else drop()
         }
     }
 
@@ -160,6 +162,11 @@ class ReadingBridge(
      */
     override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         if (session.isDisposed) return
+        // Not while any request is pending: it reads the key this report would write (#3975).
+        if (session.admission.state.pending != null) {
+            Log.i(TAG, "scrolledToOrdinal dropped: a document request is pending")
+            return
+        }
         val doc = session.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
             val versification = when (doc) {
@@ -185,7 +192,7 @@ class ReadingBridge(
 
     override fun documentShown(generation: Long) {
         if (session.isDisposed) return
-        session.shownGeneration = generation
+        session.admission.shown(generation)
     }
 
     override fun setClientReady() {

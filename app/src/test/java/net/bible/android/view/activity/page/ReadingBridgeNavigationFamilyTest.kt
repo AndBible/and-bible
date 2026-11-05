@@ -118,7 +118,7 @@ class ReadingBridgeNavigationFamilyTest {
     /** Admits [document] to [view]'s session as the document of [generation] (what DocumentLoader does). */
     private fun admit(view: BibleView, document: net.bible.android.control.page.Document?, generation: Long) {
         view.firstDocument = document
-        view.session.documentGeneration = generation
+        view.session.admission.admitCurrentForTest(generation)
     }
 
     /** A scroll report as the page posts it: through the dispatcher, with the page's document generation. */
@@ -468,11 +468,11 @@ class ReadingBridgeNavigationFamilyTest {
         val sheets = RecordingSheets().also { view.session.hostSheets = it }
         val window = repo.activeWindow
         val dictionary = Books.installed().getBook("StrongsGreek")!!
-        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 2)
         val main = shadowOf(Looper.getMainLooper())
 
         // Control: the window still shows the page when the deletion completes, so it leaves it (for its Bible).
         window.pageManager.setCurrentDocument(dictionary)
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 2)
         call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 2)
         idleUntil { sheets.confirmDelete != null }
         sheets.confirmDelete!!.invoke()
@@ -482,7 +482,8 @@ class ReadingBridgeNavigationFamilyTest {
         // The window shows another document by the time the deletion completes: it stays there.
         sheets.confirmDelete = null
         window.pageManager.setCurrentDocument(dictionary)
-        call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 2)
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 3)
+        call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 3)
         idleUntil { sheets.confirmDelete != null }
         sheets.confirmDelete!!.invoke()
         val other = Books.installed().getBook("StrongsHebrew")!!
@@ -490,5 +491,25 @@ class ReadingBridgeNavigationFamilyTest {
         main.idle()
         idleUntil(timeoutMs = 1_500) { false }
         assertEquals("a window that shows another document keeps it", other, window.pageManager.currentPage.currentDocument)
+    }
+
+    /**
+     * #3975 rework 4 (codex I2): the page the window showed when the user ASKED is the one whose deletion closes or
+     * switches it. Navigating to another document while the dialog is open, then confirming, leaves the window there.
+     */
+    @Test fun aDeleteConfirmedAfterTheWindowMovedOnLeavesTheWindow() {
+        val view = newView()
+        val sheets = RecordingSheets().also { view.session.hostSheets = it }
+        val window = repo.activeWindow
+        val dictionary = Books.installed().getBook("StrongsGreek")!!
+        window.pageManager.setCurrentDocument(dictionary)
+        admit(view, bibleDocument(Verse(KJVA, BibleBook.GEN, 1, 1)), 2)
+        call(view, "deleteMyDocumentPage", "[\"${net.bible.android.database.IdType()}\"]", 2)
+        idleUntil { sheets.confirmDelete != null }
+        val other = Books.installed().getBook("StrongsHebrew")!!
+        window.pageManager.setCurrentDocument(other) // while the dialog is open
+        sheets.confirmDelete!!.invoke()
+        idleUntil(timeoutMs = 1_500) { false }
+        assertEquals("the window moved on before the confirmation: it stays", other, window.pageManager.currentPage.currentDocument)
     }
 }

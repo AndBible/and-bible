@@ -38,6 +38,8 @@ import net.bible.android.control.page.OrdinalRange
 object UriConstants {
     const val SCHEME_DOWNLOAD = "download"
     const val SCHEME_ERROR = "ab-error"
+    /** The retry link of an error document shown after a failed load (`ErrorDocument.retry`): loads the window again. */
+    const val SCHEME_RETRY = "ab-retry"
     const val SCHEME_W = "ab-w"
     const val SCHEME_REFERENCE = "osis"
     const val MULTI_REFERENCE = "multi"
@@ -73,7 +75,10 @@ class ReadingLinkHandler(
      */
     fun handle(url: String): Boolean {
         if (!session.pageShowsAdmittedDocument()) {
-            Log.w(TAG, "Link of a replaced page ignored: $url")
+            val state = session.admission.state
+            // A page that never reports documentShown (an old or broken BibleView-JS) loses every link: visible here.
+            Log.w(TAG, "Link of a page that does not show the admitted document ignored: $url (shown ${state.shown}, " +
+                "admitted ${state.admitted?.generation}, pending ${state.pending != null})")
             return true
         }
         val link = parseLink(url)
@@ -160,6 +165,10 @@ class ReadingLinkHandler(
             }
             UriConstants.SCHEME_ERROR -> {
                 linkControl.errorLink()
+                true
+            }
+            UriConstants.SCHEME_RETRY -> {
+                session.windowOrNull?.loadText()
                 true
             }
             UriConstants.SCHEME_DOWNLOAD -> {

@@ -123,11 +123,23 @@ class BibleWindowSession(
     var lastKey: Key? = null
 
     /**
-     * The generation of the document [DocumentLoader] last admitted ([firstDocument]); [NO_DOCUMENT_GENERATION] when
-     * none is (also while the view is parked for reuse). It is sent to JS with the document's `clear_document`, and JS
-     * echoes it with every bridge call; the dispatcher drops guarded calls of any other generation (osTicket 3508, #3975).
+     * The admission state of this window's page: which of its calls, links and chapter requests may act on the window
+     * (osTicket 3508, #3975). Driven by [DocumentLoader], mutated on the main thread only.
      */
-    @Volatile var documentGeneration: Long = NO_DOCUMENT_GENERATION
+    val admission = DocumentAdmission(this)
+
+    /**
+     * The generation guarded bridge calls are admitted with now ([NO_DOCUMENT_GENERATION] when none, also while the
+     * view is parked for reuse or a different document is requested); see [DocumentAdmission.generation].
+     */
+    val documentGeneration: Long get() = admission.generation
+
+    /**
+     * Main thread: whether what the page shows is the document whose calls the window admits now: false for a page
+     * that still shows a replaced document (also an adopted or parked view's old page), and while a different document
+     * is requested. A link navigation carries no generation, so it is admitted only then.
+     */
+    fun pageShowsAdmittedDocument(): Boolean = !isDisposed && admission.pageShowsAdmittedDocument()
 
     /**
      * The document and window this session holds now. A guarded bridge call that acts later (after queued writes, an
@@ -135,26 +147,16 @@ class BibleWindowSession(
      * navigation, a new document request or a view rebind in between makes it stale (#3975). A native caller (selection
      * menu, hardware key) takes one the same way.
      */
-    /**
-     * The generation of the document the page reports it shows (`documentShown`, sent once the content of that
-     * generation's `clear_document` has replaced the old one in the DOM); [NO_DOCUMENT_GENERATION] for a (re)started
-     * page that shows none yet. A link navigation carries no generation, so it is admitted only while the page shows
-     * the admitted document ([pageShowsAdmittedDocument]).
-     */
-    @Volatile var shownGeneration: Long = NO_DOCUMENT_GENERATION
-
-    /**
-     * Whether what the page shows is the document whose calls the window admits now: false for a page that still
-     * shows a replaced document (also an adopted or parked view's old page), and while a new document is requested.
-     */
-    fun pageShowsAdmittedDocument(): Boolean =
-        !isDisposed && shownGeneration != NO_DOCUMENT_GENERATION && shownGeneration == documentGeneration
-
     fun documentTicket(): DocumentTicket = DocumentTicket(documentGeneration, windowOrNull)
 
-    /** Whether [ticket]'s document is still the one this session's window holds (see [documentTicket]). */
+    /**
+     * Main thread: whether [ticket]'s document is still the one this session's window holds (see [documentTicket]): the
+     * same window and admitted generation and, for an admitted document, the window still shows its source. A ticket
+     * of no document ([NO_DOCUMENT_GENERATION]) holds while still none is admitted.
+     */
     fun holdsDocument(ticket: DocumentTicket): Boolean =
-        !isDisposed && ticket.generation == documentGeneration && windowOrNull === ticket.window
+        !isDisposed && windowOrNull === ticket.window && ticket.generation == documentGeneration &&
+            (ticket.generation == NO_DOCUMENT_GENERATION || admission.admits(ticket.generation))
 
     @Volatile var minChapter: Int = -1
     @Volatile var maxChapter: Int = -1

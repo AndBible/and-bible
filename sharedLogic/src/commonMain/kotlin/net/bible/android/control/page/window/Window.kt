@@ -291,6 +291,8 @@ class Window (
         // outgoing content, and its reports must not move this window off the requested key (#3975).
         val requestView = bibleView
         val viewRequest = requestView?.documentRequested()
+        var unchanged = false
+        var failed: Throwable? = null
         updateScope.launch(Dispatchers.IO) {
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -314,6 +316,7 @@ class Window (
                 val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
                     pageManager.currentCommentary.anchorOrdinal = pageManager.currentCommentary._anchorOrdinal
+                    unchanged = true
                     return@launch
                 }
                 checksum
@@ -327,11 +330,25 @@ class Window (
             lastChecksum = checksum
 
             onLoadDelivered(viewReady)
-            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId, windowContentGeneration = generation)
+            try {
+                bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId, windowContentGeneration = generation)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A delivery that fails (an unreadable label or content read) is reported to the view, which shows an
+                // error document with a retry instead of the window's old page (#3975); it no longer ends the app.
+                Log.e(TAG, "Delivering the document failed", e)
+                failed = e
+            }
 
             if(notifyLocationChange)
                 PassageChangeMediator.contentChangeFinished()
-            }.invokeOnCompletion { if (viewRequest != null) requestView.documentRequestEnded(viewRequest) }
+            }.invokeOnCompletion { cause ->
+                val failure = failed ?: cause?.takeUnless { it is kotlinx.coroutines.CancellationException }
+                // The view no longer holds the content the checksum was taken from (an error document replaces it).
+                if (failure != null) lastChecksum = 0
+                if (viewRequest != null) requestView.documentRequestEnded(viewRequest, unchanged, failure)
+            }
         }
 
     private var lastChecksum = 0

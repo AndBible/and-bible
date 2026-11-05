@@ -196,7 +196,7 @@ class DocumentLoaderTest {
         ).map { net.bible.service.sword.BookAndKey(it, kjv) })
         window.pageManager.setCurrentDocumentAndKey(factory.multiDocument, refs)
         session.firstDocument = window.pageManager.currentPage.currentPageContent()
-        session.documentGeneration = 1
+        session.admission.admitCurrentForTest(1)
         net.bible.sharedui.reading.bridge.ReadingBridge(session).scrolledToOrdinal("", 5)
         val windowId = window.id
         repo.saveIntoDb(false)
@@ -267,7 +267,7 @@ class DocumentLoaderTest {
     fun theGenerationChangesWhenTheDocumentIsAdmitted() = runBlocking {
         session.dispose()
         setUpReloadedSession(clientReady = false)
-        session.documentGeneration = 99
+        session.admission.admitCurrentForTest(99)
         loader.loadDocument(doc("A"), false, null, null, null, null)
         withContext(Dispatchers.IO) { withTimeout(10_000) { while (session.firstDocument == null) Thread.sleep(10) } }
         assertEquals(loader.loadGeneration, session.documentGeneration)
@@ -283,15 +283,21 @@ class DocumentLoaderTest {
     fun aDocumentRequestSuspendsTheAdmittedGenerationUntilItEnds() = runBlocking {
         loader.loadDocument(doc("A"), false, null, null, null, null)
         val a = session.documentGeneration
+        val shown = window.pageManager.currentBible.currentBibleVerse.verse
 
+        // A request of another chapter (a different document) closes the page's generation.
+        window.pageManager.currentBible.doSetKey(Verse(shown.versification, shown.book, shown.chapter + 1, 1))
         val first = loader.documentRequested()
         assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+        window.pageManager.currentBible.doSetKey(kjvVerse(BibleBook.JOHN, 9, 1))
         val second = loader.documentRequested()
         loader.documentRequestEnded(first)
         assertEquals("a newer request is still pending", NO_DOCUMENT_GENERATION, session.documentGeneration)
+        window.pageManager.currentBible.doSetKey(shown)
         loader.documentRequestEnded(second)
         assertEquals("no document came: the page's document counts again", a, session.documentGeneration)
 
+        window.pageManager.currentBible.doSetKey(Verse(shown.versification, shown.book, shown.chapter + 1, 1))
         val third = loader.documentRequested()
         loader.loadDocument(doc("B"), false, null, null, null, null)
         val b = session.documentGeneration
@@ -341,8 +347,8 @@ class DocumentLoaderTest {
         override fun adjustLoadingCount(adj: Int) = true
         @Volatile var lastRequest = 0L
         override fun documentRequested() = loader.documentRequested().also { lastRequest = it }
-        override fun documentRequestEnded(request: Long) {
-            loader.documentRequestEnded(request)
+        override fun documentRequestEnded(request: Long, unchanged: Boolean, failure: Throwable?) {
+            loader.documentRequestEnded(request, unchanged, failure)
             requestsEnded.add(request)
         }
 
@@ -398,17 +404,20 @@ class DocumentLoaderTest {
         dispatcher().dispatch("""{"method":"scrolledToOrdinal","args":["John.6",${kjvVerse(BibleBook.JOHN, 6, 20).ordinal}],"documentGeneration":$a}""")
         assertEquals("the old page's report must not move the window off the requested document",
             genesis.ordinal, window.pageManager.currentBible.currentBibleVerse.verse.ordinal)
-        assertEquals(NO_DOCUMENT_GENERATION, session.documentGeneration)
+        assertTrue("an error document replaced the page", session.firstDocument is net.bible.android.control.page.ErrorDocument)
+        assertTrue(session.documentGeneration != a)
     }
 
-    /** A request for the SAME document that ends without a new one (unchanged content, failed read) admits it again. */
+    /** A request for the SAME document (a reload of the shown chapter) that fails keeps the page's document admitted. */
     @Test
     fun aRequestOfTheSameDocumentThatEndsWithoutOneAdmitsThePagesDocumentAgain() {
-        val view = LoaderView(failLoadOf = { (it as? net.bible.android.control.page.BibleDocument)?.verseRange?.start?.chapter == 8 })
+        var fail = false
+        val view = LoaderView(failLoadOf = { fail })
         window.bibleView = view
         val a = admitThroughLoadText(view, "KJV", kjvVerse(BibleBook.JOHN, 6, 1))
 
-        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), kjvVerse(BibleBook.JOHN, 8, 1))
+        fail = true
+        window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV"), kjvVerse(BibleBook.JOHN, 6, 30))
         window.loadText()
         view.awaitLastRequestEnded()
         assertEquals(a, session.documentGeneration)
@@ -427,16 +436,21 @@ class DocumentLoaderTest {
         val a = admitThroughLoadText(view, "KJV", kjvVerse(BibleBook.JOHN, 6, 1))
         host.evaluated.clear()
 
+        // A request of another chapter (a different document); it ends without one, back on John 6.
+        val john6 = kjvVerse(BibleBook.JOHN, 6, 1)
+        window.pageManager.currentBible.doSetKey(kjvVerse(BibleBook.JOHN, 9, 1))
         val request = loader.documentRequested()
         dispatcher().dispatch("""{"method":"requestMoreToEnd","args":[51],"documentGeneration":$a}""")
         assertFalse("not answered while the request is pending: ${host.evaluated}",
             host.evaluated.any { it.startsWith("bibleView.response(51, ") })
+        window.pageManager.currentBible.doSetKey(john6)
         loader.documentRequestEnded(request)
         awaitEvaluated { sent -> sent.any { it.startsWith("bibleView.response(51, ") } }
         val answer = host.evaluated.single { it.startsWith("bibleView.response(51, ") }
         assertFalse("the next chapter, not null: $answer", answer == BibleViewEvents.response(51, null).js + ";")
 
         // A request that ends in a new document: the waiting chapter request is answered with null (its page is cleared).
+        window.pageManager.currentBible.doSetKey(kjvVerse(BibleBook.JOHN, 9, 1))
         val second = loader.documentRequested()
         dispatcher().dispatch("""{"method":"requestMoreToEnd","args":[52],"documentGeneration":$a}""")
         loader.loadDocument(doc("B"), false, null, null, null, null)

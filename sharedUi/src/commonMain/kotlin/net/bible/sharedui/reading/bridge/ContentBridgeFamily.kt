@@ -337,9 +337,10 @@ internal class ContentBridgeFamily(
         val ticket = session.documentTicket()
         session.scope.launch(Dispatchers.Main) {
             if (!session.holdsDocument(ticket)) return@launch
+            // What the asking window shows when it asks, before the dialog: the page being deleted. The window may move
+            // on while the dialog is open (#3975 review C3, codex I2).
+            val shown = session.windowOrNull?.let { ShownPage(it) }
             session.hostSheets?.showDeleteDocumentPageConfirm {
-                // What the asking window shows when the user confirms: the page being deleted.
-                val shown = session.windowOrNull?.let { ShownPage(it) }
                 MyDocumentBookManager.launcher.launch(documentQueue()) {
                     MyDocumentBookManager.deleteAIDocumentPage(id)
                     withContext(Dispatchers.Main) {

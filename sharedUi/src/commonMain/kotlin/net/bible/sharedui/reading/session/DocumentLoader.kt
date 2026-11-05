@@ -25,6 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
@@ -108,37 +110,22 @@ class DocumentLoader(
     private val strings: () -> CoreStrings = { KoinPlatform.getKoin().get() },
 ) : SessionPaging {
     private val documentLoadingLock = SessionLock()
-    private val requestMoreLock = SessionLock()
     private val chapterLoadJobs = mutableListOf<Job>()
     private var documentLoadGeneration = 0L
+
+    /** Serialises the commentary / general book requests of one direction: each moves the cursor the next one reads. */
+    private val beginningCursor = Mutex()
+    private val endCursor = Mutex()
 
     /** The generation of the most recently admitted load (for tests). */
     val loadGeneration: Long get() = documentLoadGeneration
 
-    /**
-     * The generation of the document the page holds or is about to receive (sent with its `clear_document`);
-     * [NO_DOCUMENT_GENERATION] when none. [BibleWindowSession.documentGeneration] is this, except while a newer
-     * document is requested ([documentRequested]): then it is [NO_DOCUMENT_GENERATION], so the page's calls about the
-     * outgoing document no longer reach the window (#3975). Guarded by [documentLoadingLock].
-     */
-    private var admittedGeneration = NO_DOCUMENT_GENERATION
-    private var lastDocumentRequest = 0L
-    private var pendingDocumentRequest = 0L
+    /** The page's admission state (#3975); this loader drives its transitions, all on the main thread. */
+    private val admission get() = session.admission
 
-    /**
-     * The generation the page's chapter requests are admitted against ([runForPageDocument]): [admittedGeneration] while
-     * the window still shows that document, [NO_DOCUMENT_GENERATION] once it does not (forgotten, or a load of another
-     * document failed). Guarded by [documentLoadingLock].
-     */
-    private var pagingGeneration = NO_DOCUMENT_GENERATION
-
-    /** The page and book [admittedGeneration] was loaded from: a request that ends without a document re-admits it
-     *  only while the window still shows them (#3975 review C4). Guarded by [documentLoadingLock]. */
-    private var admittedPage: net.bible.android.control.page.CurrentPage? = null
-    private var admittedBook: org.crosswire.jsword.book.Book? = null
-
-    /** Chapter requests waiting for the pending document request's outcome (see [runForPageDocument]). */
-    private val waitingPaging = mutableListOf<Pair<() -> Unit, () -> Unit>>()
+    init {
+        session.admission.onLoadFailed = { target, failure -> showLoadError(target, failure) }
+    }
 
     var latestDocumentStr: String? = null
         private set
@@ -187,6 +174,7 @@ class DocumentLoader(
         } ?: return
         val currentPage = window.pageManager.currentPage
         val sourceDocument = currentPage.currentDocument
+        val source = DocumentSource.of(window)
         val workspaceId = session.windowControl.windowRepository.id
         val location = withContext(Dispatchers.Main) {
             var loadKey = key
@@ -211,7 +199,6 @@ class DocumentLoader(
         var docStr = withContext(Dispatchers.IO) { document.contentJson() }
         // This independent cache replays concurrent bookmark changes; populate before first config.
         refreshFavouriteLabels()
-        var replaced: List<Pair<() -> Unit, () -> Unit>> = emptyList()
         withContext(Dispatchers.Main) {
             documentLoadingLock.withLock {
                 if (generation != documentLoadGeneration ||
@@ -227,21 +214,16 @@ class DocumentLoader(
                 session.contentVisible = false
                 // Only the admitted document's chapter, not merged with the previous document's range: a stale
                 // scroll report of the previous page must not match it (osTicket 3508). replaceDocument sets the same.
-                val chapter = (session.initialKey as? Verse)?.chapter ?: -1
-                requestMoreLock.withLock {
-                    session.minChapter = chapter
-                    session.maxChapter = chapter
-                }
+                val loadedVerse = session.initialKey as? Verse
+                val chapter = loadedVerse?.chapter ?: -1
+                session.minChapter = chapter
+                session.maxChapter = chapter
                 session.firstDocument = document
-                // From now on only calls of the page that received this document act on the window (#3975).
-                admittedGeneration = generation
-                pagingGeneration = generation
-                admittedPage = currentPage
-                admittedBook = sourceDocument
-                pendingDocumentRequest = 0L
-                session.documentGeneration = generation
-                // Chapter requests of the replaced page: answered null, the page is about to be cleared.
-                replaced = takeWaitingPaging()
+                // From now on only calls of the page that received this document act on the window (#3975); chapter
+                // requests of the replaced page are answered null, the page is about to be cleared.
+                val loaded = if (loadedVerse != null && (isBible || document is MyNotesDocument))
+                    source.withContext(DocumentSource.chapterContext(loadedVerse.book, loadedVerse.chapter)) else source
+                admission.admit(generation, loaded)
                 if (docStr.length > MAX_DOC_STR_LENGTH) {
                     val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
                     docStr = errorDoc.asJson
@@ -252,12 +234,33 @@ class DocumentLoader(
                 platform.enableZoomForMap(session.pageControl.currentPageManager.isMapShown)
                 if (!session.jsChannel.loading) replaceDocument()
             }
-            replaced.forEach { (_, drop) -> drop() }
         }
     }
 
-    private fun takeWaitingPaging(): List<Pair<() -> Unit, () -> Unit>> =
-        waitingPaging.toList().also { waitingPaging.clear() }
+    /**
+     * Main thread: the request of [target] (another document) failed before its document reached the page. The page
+     * still shows the previous document, which the window no longer holds; instead of leaving it closed for good, an
+     * error document with a retry link (`ab-retry://`, [ReadingLinkHandler]) replaces it and is admitted for [target].
+     */
+    private fun showLoadError(target: DocumentSource, failure: Throwable) {
+        if (session.isDisposed || !platform.isCurrentView() || session.windowOrNull !== target.window) return
+        val errorDoc = ErrorDocument(strings().errorOccurred, ErrorSeverity.ERROR, retry = true)
+        val generation = documentLoadingLock.withLock {
+            ++documentLoadGeneration
+        }
+        Log.w(TAG, "Showing an error document (generation $generation) after: ${failure.message}")
+        session.contentVisible = false
+        session.initialKey = null
+        session.minChapter = -1
+        session.maxChapter = -1
+        session.firstDocument = errorDoc
+        admission.admit(generation, target)
+        documentLoadingLock.withLock {
+            latestDocumentStr = errorDoc.asJson
+            needsDocument = true
+        }
+        if (!session.jsChannel.loading) replaceDocument()
+    }
 
     /**
      * Forgets the window this loader served, when its live page is handed to another window (a workspace switch
@@ -266,89 +269,41 @@ class DocumentLoader(
      * showing the old content until the new window's document replaces it.
      */
     fun forgetDocument() {
-        val waiting = documentLoadingLock.withLock {
+        documentLoadingLock.withLock {
             ++documentLoadGeneration
-            admittedGeneration = NO_DOCUMENT_GENERATION
-            pagingGeneration = NO_DOCUMENT_GENERATION
-            admittedPage = null
-            admittedBook = null
-            pendingDocumentRequest = 0L
-            session.documentGeneration = NO_DOCUMENT_GENERATION
             latestDocumentStr = null
             needsDocument = false
             initialAnchorOrdinal = null
             initialHtmlId = null
-            takeWaitingPaging()
         }
-        waiting.forEach { (_, drop) -> drop() }
+        admission.forget()
         labelsUploaded = false
         session.firstDocument = null
         session.initialKey = null
         // The old window's chapters; a report or chapter request of the old page must not match them (osTicket 3508).
-        requestMoreLock.withLock {
-            session.minChapter = -1
-            session.maxChapter = -1
-        }
+        session.minChapter = -1
+        session.maxChapter = -1
         cancelPendingChapterLoads()
     }
 
     /**
-     * The window asked for another document or key (`Window.loadText`), which [loadDocument] admits later. From now on
-     * until then the page still shows the outgoing document, and its calls about it must not move the window off the
-     * newly selected key: a scroll report would overwrite it and a later load could then discard the requested
-     * document (#3975). Returns the request token for [documentRequestEnded].
+     * The window asked for another document or key (`Window.loadText`), which [loadDocument] admits later. Until then
+     * the page still shows the outgoing document; see [DocumentAdmission.request]. Returns the token for
+     * [documentRequestEnded].
      */
-    fun documentRequested(): Long = documentLoadingLock.withLock {
-        pendingDocumentRequest = ++lastDocumentRequest
-        session.documentGeneration = NO_DOCUMENT_GENERATION
-        pendingDocumentRequest
-    }
+    fun documentRequested(): Long = admission.request()
+
+    /** The request [request] ended; see [DocumentAdmission.requestEnded]. */
+    fun documentRequestEnded(request: Long, unchanged: Boolean = false, failure: Throwable? = null) =
+        admission.requestEnded(request, unchanged, failure)
 
     /**
-     * The request [request] ended. If no document was admitted for it and no newer request followed (the content
-     * proved unchanged, the read was superseded or failed), the page's document is admitted again, but only while the
-     * window still shows the page and book it was loaded from: after a failed load of ANOTHER document the window holds
-     * that one, and the page's calls about its old document must stay out (#3975 review C4). Chapter requests that
-     * waited for the outcome run, or are answered null when the page's document is no longer the window's.
+     * Runs the page's chapter request [call] on the main thread if [generation] is the document the page holds and the
+     * window still shows it; see [DocumentAdmission.runPaging]. [call] then reaches [requestMoreToBeginning] or
+     * [requestMoreToEnd] in the same main-thread step.
      */
-    fun documentRequestEnded(request: Long) {
-        val (readmitted, waiting) = documentLoadingLock.withLock {
-            if (pendingDocumentRequest != request) return@withLock null
-            pendingDocumentRequest = 0L
-            val page = admittedPage
-            val stillShown = admittedGeneration != NO_DOCUMENT_GENERATION && page != null &&
-                session.windowOrNull?.pageManager?.currentPage === page && page.currentDocument == admittedBook
-            if (stillShown) {
-                session.documentGeneration = admittedGeneration
-            } else {
-                pagingGeneration = NO_DOCUMENT_GENERATION
-            }
-            stillShown to takeWaitingPaging()
-        } ?: return
-        waiting.forEach { (call, drop) -> if (readmitted) call() else drop() }
-    }
-
-    /**
-     * Runs the page's chapter request [call] if [generation] is the document the page holds (#3975 review A3). While
-     * the window has requested another document the request waits: it runs if the request ends without a document
-     * (unchanged commentary, failed or superseded read), and is answered null ([drop]) if a new document replaces the
-     * page's. Dropping it at once would answer null, which ends infinite scroll for good when no new document follows.
-     * Runs on the calling thread (the bridge thread on Android): paging touches only the page's own chapter range.
-     */
-    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) {
-        val run = documentLoadingLock.withLock {
-            when {
-                session.isDisposed || generation == null || generation == NO_DOCUMENT_GENERATION ||
-                    generation != pagingGeneration -> false
-                pendingDocumentRequest != 0L -> {
-                    waitingPaging += call to drop
-                    null
-                }
-                else -> true
-            }
-        } ?: return
-        if (run) call() else drop()
-    }
+    override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) =
+        admission.runPaging(generation, call, drop)
 
     private fun addChapter(chapter: Int) {
         when {
@@ -379,13 +334,11 @@ class DocumentLoader(
         val documentStr = documentLoadingLock.withLock {
             if (latestDocumentStr == null || !needsDocument) return@withLock null
             // The admitted one, even while a newer document is requested: this page gets this document.
-            generation = admittedGeneration
+            generation = admission.admittedGeneration
             needsDocument = false
             session.contentVisible = true
-            requestMoreLock.withLock {
-                session.minChapter = verse?.chapter ?: -1
-                session.maxChapter = verse?.chapter ?: -1
-            }
+            session.minChapter = verse?.chapter ?: -1
+            session.maxChapter = verse?.chapter ?: -1
             latestDocumentStr
         } ?: return
 
@@ -502,119 +455,117 @@ class DocumentLoader(
 
     /** Cancel all in-flight chapter loads (stale after document replacement / navigation). */
     private fun cancelPendingChapterLoads() {
-        requestMoreLock.withLock {
-            if (chapterLoadJobs.isNotEmpty()) {
-                Log.i(TAG, "Cancelling ${chapterLoadJobs.size} pending chapter load(s)")
-                chapterLoadJobs.forEach { it.cancel() }
-                chapterLoadJobs.clear()
-            }
+        if (chapterLoadJobs.isNotEmpty()) {
+            Log.i(TAG, "Cancelling ${chapterLoadJobs.size} pending chapter load(s)")
+            chapterLoadJobs.forEach { it.cancel() }
+            chapterLoadJobs.clear()
         }
         emit(BibleViewEvents.resetLoadingCount())
     }
 
-    override fun requestMoreToBeginning(callId: Long) = requestMoreLock.withLock {
+    /**
+     * Main thread (reached through [runForPageDocument], which admitted the call against the page's document in the
+     * same step). A Bible chapter is reserved in the loaded range now and read off main from the module and book the
+     * page's content came from; a commentary block or general book entry is computed and read under the direction's
+     * cursor lock, see [requestMoreKey].
+     */
+    override fun requestMoreToBeginning(callId: Long) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
-            val newChap = session.minChapter - 1
-            if (newChap < 1) {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            addChapter(newChap)
-
-            val currentPage = window.pageManager.currentBible
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getDocumentForChapter(newChap)
-                doc.contentJson()
-            }
-        } else if (isCommentary) {
-            val currentPage = window.pageManager.currentCommentary
-            val first = session.firstKey as? Verse ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            val prevStart = currentPage.prevBlockStart(first) ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            session.firstKey = prevStart
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getPageContent(prevStart)
-                doc.contentJson()
-            }
+            requestMoreChapter(callId, session.minChapter - 1)
         } else {
-            val currentPage = window.pageManager.currentGeneralBook
-            val firstKey = session.firstKey
-            firstKey ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            val prevKey = currentPage.getKeyPlus(firstKey, -1)
-            if (prevKey == firstKey) {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-
-            session.firstKey = prevKey
-
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getPageContent(prevKey)
-                doc.contentJson()
-            }
+            requestMoreKey(callId, forward = false)
         }
     }
 
-    override fun requestMoreToEnd(callId: Long) = requestMoreLock.withLock {
+    /** Main thread; see [requestMoreToBeginning]. */
+    override fun requestMoreToEnd(callId: Long) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
-            val currentPage = window.pageManager.currentBible
-            val newChap = session.maxChapter + 1
-            val verse = currentPage.currentBibleVerse.verse
-            val lastChap = verse.versification.getLastChapter(verse.book)
-            if (newChap > lastChap) {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            addChapter(newChap)
-
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getDocumentForChapter(newChap)
-                doc.contentJson()
-            }
-        } else if (isCommentary) {
-            val currentPage = window.pageManager.currentCommentary
-            val last = session.lastKey as? Verse ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            val nextStart = currentPage.nextBlockStart(last) ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            session.lastKey = nextStart
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getPageContent(nextStart)
-                doc.contentJson()
-            }
+            requestMoreChapter(callId, session.maxChapter + 1)
         } else {
-            val currentPage = window.pageManager.currentGeneralBook
-            val lastKey = session.lastKey
-            lastKey ?: run {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            val nextKey = currentPage.getKeyPlus(lastKey, 1)
-            if (nextKey == lastKey) {
-                emit(BibleViewEvents.response(callId, null))
-                return@withLock
-            }
-            session.lastKey = nextKey
-            chapterLoadJobs += launchAnswer(callId) {
-                val doc = currentPage.getPageContent(nextKey)
-                doc.contentJson()
-            }
+            requestMoreKey(callId, forward = true)
         }
     }
+
+    private fun answerNull(callId: Long) {
+        emit(BibleViewEvents.response(callId, null))
+    }
+
+    private fun requestMoreChapter(callId: Long, newChap: Int) {
+        val page = window.pageManager.currentBible
+        val book = page.currentDocument as? org.crosswire.jsword.book.sword.SwordBook ?: return answerNull(callId)
+        val bibleBook = page.currentBibleVerse.verse.book
+        val lastChap = book.versification.getLastChapter(bibleBook)
+        if (newChap < 1 || newChap > lastChap) return answerNull(callId)
+        addChapter(newChap)
+        admission.addContext(admission.admittedGeneration, DocumentSource.chapterContext(bibleBook, newChap))
+        chapterLoadJobs += launchAnswer(callId) {
+            page.getDocumentForChapter(newChap, book, bibleBook).contentJson()
+        }
+    }
+
+    /**
+     * A commentary block or general book entry before or after the page's content. Requests of one direction are
+     * serialised (each moves the cursor, [BibleWindowSession.firstKey] / [BibleWindowSession.lastKey], that the next
+     * reads); the next key is computed off main from the module captured here, and the cursor moves on the main thread
+     * only while the page's document is still admitted. A page replaced meanwhile gets null (its page is cleared); a
+     * window that switched module without requesting yet makes the call wait again ([DocumentAdmission.runPaging]).
+     */
+    private fun requestMoreKey(callId: Long, forward: Boolean) {
+        val generation = admission.admittedGeneration
+        val isCommentaryPage = isCommentary
+        val page: net.bible.android.control.page.CurrentPageBase =
+            if (isCommentaryPage) window.pageManager.currentCommentary else window.pageManager.currentGeneralBook
+        val generalPage = page as? net.bible.android.control.page.CurrentGeneralBookPage
+        val book = page.currentDocument ?: return answerNull(callId)
+        val mutex = if (forward) endCursor else beginningCursor
+        chapterLoadJobs += session.scope.launch(Dispatchers.Main.immediate) {
+            val next: Key? = mutex.withLock {
+                if (admission.admittedGeneration != generation) return@withLock null
+                val cursor = (if (forward) session.lastKey else session.firstKey) ?: return@withLock null
+                val next = try {
+                    withContext(Dispatchers.IO) {
+                        net.bible.service.startup.ReadingAppInit.awaitCipherUnlock()
+                        if (isCommentaryPage) {
+                            val commentary = page as net.bible.android.control.page.CurrentCommentaryPage
+                            val verse = cursor as? Verse ?: return@withContext null
+                            if (forward) commentary.nextBlockStart(verse, book) else commentary.prevBlockStart(verse, book)
+                        } else {
+                            generalPage!!.getKeyPlus(cursor, if (forward) 1 else -1).takeIf { it != cursor }
+                        }
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Next key failed for call $callId", e)
+                    null
+                } ?: return@withLock null
+                if (admission.admittedGeneration != generation) return@withLock null
+                if (page.currentDocument != book) {
+                    // The window switched module without a request yet: wait for its outcome.
+                    admission.runPaging(generation, call = { requestMoreKey(callId, forward) }, drop = { answerNull(callId) })
+                    return@launch
+                }
+                if (forward) session.lastKey = next else session.firstKey = next
+                admission.addContext(generation, contextOfKey(next))
+                next
+            }
+            if (next == null) return@launch answerNull(callId)
+            val json = try {
+                withContext(Dispatchers.IO) { page.getPageContent(next, book).contentJson() }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Chapter load failed for call $callId", e)
+                null
+            }
+            emit(BibleViewEvents.response(callId, json?.let { JsExpr(it) }))
+        }
+    }
+
+    private fun contextOfKey(key: Key): String? =
+        if (isCommentary) (key as? Verse)?.book?.osis else key.getOsisRef()
 
     /**
      * The page reports it has (re)started: it holds no labels and no document. Usually this is the first page of the
@@ -624,7 +575,7 @@ class DocumentLoader(
      */
     override fun setClientReady() = session.jsChannel.runOnMain {
         // A (re)started page shows nothing until it reports the document it is sent below.
-        session.shownGeneration = NO_DOCUMENT_GENERATION
+        admission.pageRestarted()
         session.jsChannel.markClientReady()
         documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
         labelsUploaded = false

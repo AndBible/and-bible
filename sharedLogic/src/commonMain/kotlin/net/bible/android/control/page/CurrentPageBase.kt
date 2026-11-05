@@ -178,10 +178,22 @@ abstract class CurrentPageBase protected constructor(
     override val displayKey get() = annotateKey ?: key
 
     /** Subclasses (commentary) may supply a verse-range descriptor shown by the Vue side. */
-    protected open fun commentaryRangeFor(key: Key): CommentaryRangeInfo? = null
+    protected open fun commentaryRangeFor(key: Key, document: Book): CommentaryRangeInfo? = null
 
-    override suspend fun getPageContent(key: Key): Document = try {
-        val currentDocument = currentDocument!!
+    override suspend fun getPageContent(key: Key): Document {
+        val document = currentDocument ?: run {
+            Log.e(TAG, "Error getting bible text: no document")
+            return ErrorDocument(strings.errorOccurred, ErrorSeverity.ERROR)
+        }
+        return getPageContent(key, document)
+    }
+
+    /**
+     * The content of [key] read from [document], not from the page's current document: infinite scroll reads the
+     * module the page's content came from even if the window has switched module meanwhile (#3975).
+     */
+    open suspend fun getPageContent(key: Key, document: Book): Document = try {
+        val currentDocument = document
 
         val frag = withMonitor(currentDocument) {
             val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
@@ -223,7 +235,7 @@ abstract class CurrentPageBase protected constructor(
             sourcePromptName = promptName,
             sourceModelName = cacheEntry?.sourceModelName,
             aiDocMarkers = aiDocMarkers,
-            commentaryRange = commentaryRangeFor(key),
+            commentaryRange = commentaryRangeFor(key, currentDocument),
         )
     } catch (e: kotlinx.coroutines.CancellationException) {
         throw e

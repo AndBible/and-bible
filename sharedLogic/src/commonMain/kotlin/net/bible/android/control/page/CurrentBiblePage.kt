@@ -27,6 +27,8 @@ import net.bible.android.control.versification.wholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -64,10 +66,19 @@ class CurrentBiblePage(
         return getPageContent(wholeChapter)
     }
 
-    override suspend fun getPageContent(key: Key): Document {
+    /**
+     * [chapter] of [bibleBook] read from [document], not from the page's current module: infinite scroll extends the
+     * page's content with the module and book that content came from, even if the window has moved on (#3975).
+     */
+    suspend fun getDocumentForChapter(chapter: Int, document: SwordBook, bibleBook: BibleBook): Document {
+        val verseForFragment = Verse(document.versification, bibleBook, chapter, 1)
+        return getPageContent(wholeChapter(verseForFragment, showIntros), document)
+    }
+
+    override suspend fun getPageContent(key: Key, document: Book): Document {
         annotateKey = null
         val verseRange = key as VerseRange
-        val doc = super.getPageContent(verseRange)
+        val doc = super.getPageContent(verseRange, document)
         return if(doc is OsisDocument) {
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             val kjvRange = verseRange.toV11n(KJVA)

@@ -126,8 +126,7 @@ class ReadingLinkHandlerTest {
             linkControlProvider = { linkControl },
         )
         // The page shows the window's admitted document (what documentShown after a clear_document reports).
-        session.documentGeneration = 1
-        session.shownGeneration = 1
+        session.admission.admitCurrentForTest(1, shown = true)
         this.session = session
         handler = ReadingLinkHandler(session) { _, _, _, _ -> epubOpened++ }
     }
@@ -232,17 +231,19 @@ class ReadingLinkHandlerTest {
     @Test fun aLinkOfAPageThatDoesNotShowTheAdmittedDocumentOpensNothing() {
         val documentBefore = shownDocument
         val keyBefore = shownKey
-        session.documentGeneration = 2 // the window admitted a document the page has not shown yet
+        session.admission.admitCurrentForTest(2) // the window admitted a document the page has not shown yet
         assertTrue("swallowed, so the web view does not navigate", handler.handle("osis://?osis=Gen.2.1"))
         handler.handle("https://andbible.org")
-        session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION // another one requested
+        session.admission.admitCurrentForTest(2, shown = true)
+        repo.activeWindow.pageManager.currentBible.doSetKey(Verse(Versifications.instance().getVersification("KJV"), BibleBook.EXOD, 1, 1))
+        session.admission.request() // another document requested
         handler.handle("osis://?osis=Gen.3.1")
+        repo.activeWindow.pageManager.setCurrentDocumentAndKey(documentBefore!!, keyBefore!!)
         assertEquals(documentBefore, shownDocument)
         assertEquals(keyBefore, shownKey)
         assertTrue(navigator.webLinks.isEmpty())
 
-        session.documentGeneration = 2
-        session.shownGeneration = 2
+        session.admission.admitCurrentForTest(2, shown = true)
         assertTrue(handler.handle("osis://?osis=Gen.2.1"))
         assertTrue("the admitted page's link opens", shownKey?.getOsisRef() != keyBefore?.getOsisRef())
     }
@@ -264,14 +265,14 @@ class ReadingLinkHandlerTest {
         var raced = false
         for (attempt in 1..20) {
             main.idle()
-            session.documentGeneration = 1
+            session.admission.admitCurrentForTest(1, shown = true)
             assertTrue(handler.handle("journal://?id=${label.id}"))
             main.runOneTask()
             if (shownDocument != documentBefore) {
                 repo.activeWindow.pageManager.setCurrentDocumentAndKey(documentBefore!!, keyBefore!!)
                 continue
             }
-            session.documentGeneration = net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
+            session.admission.forget()
             raced = true
             break
         }
@@ -280,7 +281,7 @@ class ReadingLinkHandlerTest {
         while (System.currentTimeMillis() < end) { main.idle(); Thread.sleep(20) }
         assertEquals("no StudyPad opened for a replaced page", documentBefore, shownDocument)
 
-        session.documentGeneration = 1
+        session.admission.admitCurrentForTest(1, shown = true)
         assertTrue(handler.handle("journal://?id=${label.id}"))
         val end2 = System.currentTimeMillis() + 10_000
         while (shownDocument == documentBefore && System.currentTimeMillis() < end2) { main.idle(); Thread.sleep(20) }

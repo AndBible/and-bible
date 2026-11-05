@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -139,8 +140,7 @@ open class CurrentCommentaryPage internal constructor(
     }
 
     /** A resolver for the current commentary document, or null for non-commentary / special docs. */
-    private fun blockResolver(): CommentaryBlockResolver? {
-        val doc = currentDocument
+    private fun blockResolver(doc: Book? = currentDocument): CommentaryBlockResolver? {
         if (doc == null || doc.isSpecial || doc.doesNotExist) return null
         val book = doc as? AbstractPassageBook ?: return null
         if (book.bookCategory != BookCategory.COMMENTARY) return null
@@ -164,8 +164,8 @@ open class CurrentCommentaryPage internal constructor(
         return true
     }
 
-    override fun commentaryRangeFor(key: Key): CommentaryRangeInfo? {
-        val resolver = blockResolver() ?: return null
+    override fun commentaryRangeFor(key: Key, document: Book): CommentaryRangeInfo? {
+        val resolver = blockResolver(document) ?: return null
         val verse = KeyUtil.getVerse(key)
         val block = resolver.resolveBlock(verse)
         if (block.content == null) return null
@@ -174,15 +174,15 @@ open class CurrentCommentaryPage internal constructor(
         return CommentaryRangeInfo(block.start.getOsisRef(), block.end.getOsisRef(), name)
     }
 
-    /** Start verse of the next block after the block containing [verse], or null at the end. */
-    fun nextBlockStart(verse: Verse): Verse? {
-        val resolver = blockResolver() ?: return null
+    /** Start verse of the next block after the block containing [verse] in [document], or null at the end. */
+    fun nextBlockStart(verse: Verse, document: Book? = currentDocument): Verse? {
+        val resolver = blockResolver(document) ?: return null
         return resolver.nextBlockStart(resolver.resolveBlock(verse).end)
     }
 
-    /** Start verse of the previous block before the block containing [verse], or null at the start. */
-    fun prevBlockStart(verse: Verse): Verse? {
-        val resolver = blockResolver() ?: return null
+    /** Start verse of the previous block before the block containing [verse] in [document], or null at the start. */
+    fun prevBlockStart(verse: Verse, document: Book? = currentDocument): Verse? {
+        val resolver = blockResolver(document) ?: return null
         return resolver.prevBlockStart(resolver.resolveBlock(verse).start)
     }
 
