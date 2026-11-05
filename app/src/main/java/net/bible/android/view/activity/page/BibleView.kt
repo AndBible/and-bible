@@ -941,6 +941,9 @@ class BibleView(
     }
 
     fun doDestroy() {
+        // Android requires a WebView to leave the hierarchy before native destruction. Activity
+        // teardown can run while its Compose AndroidView holder still owns this view.
+        (parent as? ViewGroup)?.removeView(this)
         if(!toBeDestroyed) {
             destroy()
         }
