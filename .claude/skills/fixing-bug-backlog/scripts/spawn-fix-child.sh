@@ -4,13 +4,14 @@
 # env:   BATCH   shared folder under .local/ (default .local/bug-batch), must hold issues/<n>.md
 #        RUNNER  runner flags (default: --agent claude-jb --profile codex --model opus)
 #        BRANCH  branch name (default fix/issue-<n>; use fix/issue-<n>-2 for a rework)
+#        SPAWN_FLAGS extra spawn flags, e.g. "--mount mac-ssh --loose" for a Mac child
 #        MODEL_NAME  model named in the commit trailer (default: jb.codex.capable via claude-jb)
 set -euo pipefail
 n=$1; task=$2; extra=$3; tests=$4
 BATCH=${BATCH:-.local/bug-batch}
 test -f "$BATCH/issues/$n.md" || { echo "missing $BATCH/issues/$n.md" >&2; exit 2; }
 # shellcheck disable=SC2086
-jailbee-inbox send spawn --branch "${BRANCH:-fix/issue-$n}" --note "GitHub #$n" ${RUNNER:---agent claude-jb --profile codex --model opus} --wait - <<EOF
+jailbee inbox send spawn --branch "${BRANCH:-fix/issue-$n}" --note "GitHub #$n" ${SPAWN_FLAGS:-} ${RUNNER:---agent claude-jb --profile codex --model opus} --wait - <<EOF
 Task: $task (GitHub issue #$n, AndBible/and-bible).
 
 Context:
