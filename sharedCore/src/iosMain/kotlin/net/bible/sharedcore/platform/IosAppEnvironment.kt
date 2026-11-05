@@ -56,8 +56,12 @@ class IosAppEnvironment(
     override val applicationNameMedium: String
         get() = NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String ?: ""
     override val packageName: String get() = NSBundle.mainBundle.bundleIdentifier ?: ""
-    override val versionNumber: Long
-        get() = (NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleVersion") as? String)?.toLongOrNull() ?: 0L
+    /**
+     * The AndBible version code from `version.properties` (Android's `versionCode`), not CFBundleVersion: add-ons
+     * gate on it with `AndBibleMinimumVersion` (Android codes, e.g. 892 for imported fonts), and the bundle version is
+     * 1 outside App Store builds, which rejected every such add-on (#3970).
+     */
+    override val versionNumber: Long get() = ANDBIBLE_VERSION_CODE
     override val isMeteredNetwork: Boolean get() = metered.value
     override val lastCrashTime: Long get() = deviceSettings.getLong(CrashPreferences.TIME, 0L)
     override val apkPath: String? get() = null

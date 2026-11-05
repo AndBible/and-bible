@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
@@ -6,6 +7,34 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlinMultiplatformLibrary)
     alias(libs.plugins.kotlin.serialization)
+}
+
+/**
+ * Writes `AndBibleVersionCode.kt` (hostMain: iOS and JVM) with `versionCode` from the root `version.properties`, the
+ * one version source Android and the desktop launchers already read. iOS reports it as `AppEnvironment.versionNumber`
+ * (#3970).
+ */
+abstract class GenerateAndBibleVersionCode : DefaultTask() {
+    @get:InputFile @get:PathSensitive(PathSensitivity.NONE) abstract val versionFile: RegularFileProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+
+    @TaskAction fun generate() {
+        val code = Properties().apply { versionFile.get().asFile.inputStream().use { load(it) } }
+            .getProperty("versionCode")?.trim()
+        require(code != null && Regex("[1-9][0-9]*").matches(code)) { "version.properties: bad versionCode '$code'" }
+        val dir = outputDir.get().asFile.resolve("net/bible/sharedcore/platform").apply { mkdirs() }
+        dir.resolve("AndBibleVersionCode.kt").writeText(
+            "// Generated from version.properties by :sharedCore:generateAndBibleVersionCode; do not edit.\n" +
+                "package net.bible.sharedcore.platform\n\n" +
+                "/** The AndBible version code (Android `versionCode`) of this build. */\n" +
+                "const val ANDBIBLE_VERSION_CODE: Long = ${code}L\n",
+        )
+    }
+}
+
+val generateAndBibleVersionCode = tasks.register<GenerateAndBibleVersionCode>("generateAndBibleVersionCode") {
+    versionFile.set(rootProject.layout.projectDirectory.file("version.properties"))
+    outputDir.set(layout.buildDirectory.dir("generated/andbibleVersion/hostMain/kotlin"))
 }
 
 kotlin {
@@ -64,6 +93,8 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+        // iOS reports it as versionNumber; JVM tests use it to check the add-on version gate (#3970).
+        getByName("hostMain").kotlin.srcDir(generateAndBibleVersionCode.map { it.outputDir })
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
