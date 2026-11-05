@@ -9,7 +9,7 @@ const directory = dirname(fileURLToPath(import.meta.url));
 function rules(path) {
     const source = readFileSync(resolve(directory, path), "utf8");
     return compileString((path.endsWith(".vue") ? [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]).join("\n") : source)
-        .replace('@use "@/common.scss" as *;', readFileSync(resolve(directory, "../common.scss"), "utf8"))).css;
+        .replaceAll('@use "@/common.scss" as *;', readFileSync(resolve(directory, "../common.scss"), "utf8"))).css;
 }
 function declaration(css, selector, text) {
     const blocks = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
@@ -24,7 +24,10 @@ function cascaded(css, element, property) {
             if (selector.includes("@") || /^(from|to|[\d.]+%)$/.test(selector) || !element.matches(selector)) continue;
             const specificity = (selector.match(/[.:#][\w-]+/g) || []).length;
             for (const [, name, value] of body.matchAll(/([\w-]+)\s*:\s*([^;]+);/g)) {
-                if (name === property) matches.push({specificity, value: value.trim()});
+                if (name === property) {
+                    const important = /\s*!important\s*$/.test(value);
+                    matches.push({specificity: specificity + (important ? 10000 : 0), value: value.replace(/\s*!important\s*$/, "").trim()});
+                }
             }
         }
     }
@@ -147,6 +150,24 @@ describe("pure monochrome compiled styles", () => {
             expect(cascaded(css, icon, "color")).toBe(dark ? "white" : "black");
         });
     }
+    it("reading links, including clicked references, use ink in pure monochrome", () => {
+        const markdown = readFileSync(resolve(directory, "../lib/markdown-render.scss"), "utf8");
+        const markdownCss = compileString(`${markdown}\n.markdown-notes, .mydoc-markdown { @include markdown-content; }\n.night .markdown-notes, .night .mydoc-markdown { @include markdown-content-night; }`).css;
+        const css = rules("../components/BibleView.vue") + rules("../components/OSIS/Reference.vue") +
+            rules("../components/OSIS/Html.vue") + markdownCss;
+        for (const dark of [false, true]) {
+            const theme = `monochrome pureMonochrome${dark ? " night" : ""}`;
+            for (const [parent, classes] of [["document", "reference"], ["document", "reference clicked"],
+                ["document", "strongs"], ["document", "morph"], ["document", ""], ["osis-html", ""],
+                ["markdown-notes", ""], ["mydoc-markdown", ""]]) {
+                const container = stateElement(theme, parent);
+                const link = document.createElement("a");
+                link.className = classes;
+                container.appendChild(link);
+                expect(cascaded(css, link, "color"), `${theme} ${parent} ${classes}`).toBe(dark ? "white" : "black");
+            }
+        }
+    });
     it("legacy ambiguous strip and info links retain their original paints", () => {
         const stripCss = rules("../components/BookmarkButtons.vue");
         const linkCss = rules("../components/BibleView.vue") + rules("../components/modals/BookmarkModal.vue");
