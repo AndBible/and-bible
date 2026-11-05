@@ -156,6 +156,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
 
     fun setRailCoveredWindows(windowIds: Set<String>) = railCoverage.update(windowIds)
 
+    fun setRailLayout(covered: Set<String>, bottom: Set<String>?) = railCoverage.update(covered, bottom)
+
     fun bottomOffsetForWindow(windowId: String, isBottomWindow: Boolean): Int =
         railCoverage.bottomOffset(windowId, isBottomWindow, systemBottomForWebView.toFloat(), railHeightForWebView.toFloat()).toInt()
 

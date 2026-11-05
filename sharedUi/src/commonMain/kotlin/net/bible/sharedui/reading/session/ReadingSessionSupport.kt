@@ -67,6 +67,9 @@ class ReadingOffsets(
 
     fun setRailCoveredWindows(windowIds: Set<String>) = railCoverage.update(windowIds)
 
+    /** One layout pass: the rail-covered windows and the bottom-row windows (null = unknown, the host's rule applies). */
+    fun setRailLayout(covered: Set<String>, bottom: Set<String>?) = railCoverage.update(covered, bottom)
+
     fun bottomForWindow(windowId: String, isBottomWindow: Boolean): Float =
         railCoverage.bottomOffset(windowId, isBottomWindow, systemBottom, railHeight)
 

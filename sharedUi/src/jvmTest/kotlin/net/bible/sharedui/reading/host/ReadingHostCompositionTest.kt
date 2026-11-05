@@ -129,7 +129,7 @@ class ReadingHostCompositionTest {
         drawerMenu: DrawerMenuState = DrawerMenuState.EMPTY,
         quickSheetContent: @Composable (net.bible.sharedcore.reading.ReadingQuickSheet) -> Unit = {},
         fullScreen: androidx.compose.runtime.State<Boolean> = mutableStateOf(false),
-        onRailCoveredWindowsChanged: (Set<String>) -> Unit = {},
+        onRailLayoutChanged: (Set<String>, Set<String>?) -> Unit = { _, _ -> },
     ): ReadingHostDeps {
         val icon = ColorPainter(Color.Gray)
         return ReadingHostDeps(
@@ -147,7 +147,7 @@ class ReadingHostCompositionTest {
             drawerMenu = mutableStateOf(drawerMenu),
             quickSheetContent = quickSheetContent,
             fullScreen = fullScreen,
-            onRailCoveredWindowsChanged = onRailCoveredWindowsChanged,
+            onRailLayoutChanged = onRailLayoutChanged,
         )
     }
 
@@ -165,7 +165,7 @@ class ReadingHostCompositionTest {
         val coverage = mutableListOf<Set<String>>()
         val deps = deps(state, controller("w1", "w2"),
             fullScreen = fullScreen,
-            onRailCoveredWindowsChanged = { coverage += it },
+            onRailLayoutChanged = { covered, _ -> coverage += covered },
         )
         setContent {
             Themed {

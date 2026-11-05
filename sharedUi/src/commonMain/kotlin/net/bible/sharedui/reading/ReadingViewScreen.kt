@@ -197,7 +197,7 @@ fun ReadingViewScreen(
      * cutout band does not show the scaffold surface (F107).
      */
     edgeBackground: Color? = null,
-    onRailCoveredWindowsChanged: (Set<String>) -> Unit = {},
+    onRailLayoutChanged: (covered: Set<String>, bottom: Set<String>?) -> Unit = { _, _ -> },
 ) {
     val density = LocalDensity.current
     // Whether the column carries IME padding is this screen's own decision (not Compose's `ime`
@@ -254,7 +254,7 @@ fun ReadingViewScreen(
                 bottomOverlay = bottomOverlay,
                 railOverlay = tabBar?.let { bar -> { bar(railNavInset) } },
                 paneBackground = if (mono) { { monoBackground } } else paneBackground,
-                onRailCoveredWindowsChanged = onRailCoveredWindowsChanged,
+                onRailLayoutChanged = onRailLayoutChanged,
             )
             // The overlay's footprint. Zero when the panel is hidden.
             if (agentLogVisible) Spacer(Modifier.height(collapsedAgentHeightDp.dp))

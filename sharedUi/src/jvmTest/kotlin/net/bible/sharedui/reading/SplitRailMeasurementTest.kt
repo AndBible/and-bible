@@ -40,7 +40,11 @@ class SplitRailMeasurementTest {
     @Test fun darkMonochromeRailStillReleasesTheStrip() = checkRail(Check.Collapse, dark = true, mono = true)
     @Test fun animatedRailStillReleasesTheStrip() = checkRail(Check.Collapse, animations = true)
 
-    private enum class Check { FullWidth, Collapse, Hide, Stacked, Maximise, Single, Dispose }
+    @Test fun sideBySideLayoutOverridesAHostThatThinksItIsStacked() = checkRail(Check.HostSaysStacked)
+    @Test fun stackedLayoutOverridesAHostThatThinksItIsSideBySide() = checkRail(Check.HostSaysSideBySide)
+
+    private enum class Check { HostSaysStacked, HostSaysSideBySide,
+        FullWidth, Collapse, Hide, Stacked, Maximise, Single, Dispose }
 
     private fun checkRail(check: Check, dark: Boolean = false, mono: Boolean = false, animations: Boolean = false) = runSkikoComposeUiTest(
         size = Size(900f, 600f), density = Density(1f),
@@ -57,9 +61,15 @@ class SplitRailMeasurementTest {
         var changes = 0
         val ids = listOf("left", "middle", "right")
         lateinit var offsets: ReadingOffsets
+        // The host's own portrait rule; the two Host* checks make it disagree with the real layout.
+        val hostRule: (String) -> Boolean = when (check) {
+            Check.HostSaysStacked -> { id -> id == "right" }
+            Check.HostSaysSideBySide -> { _ -> true }
+            else -> { id -> !reverse.value || id == "right" }
+        }
         offsets = ReadingOffsets(restoreButtonsVisible = { expanded.value }) {
             changes++
-            pushed = ids.associateWith { offsets.bottomForWindow(it, !reverse.value || it == "right") }
+            pushed = ids.associateWith { offsets.bottomForWindow(it, hostRule(it)) }
         }
         offsets.setSystemBottomInset(34f)
         val windows = ids.map {
@@ -88,7 +98,7 @@ class SplitRailMeasurementTest {
                                 modifier = Modifier.onGloballyPositioned { railBounds = it.boundsInRoot() },
                             )
                         } },
-                        onRailCoveredWindowsChanged = offsets::setRailCoveredWindows,
+                        onRailLayoutChanged = offsets::setRailLayout,
                     )
                 }
             }
@@ -97,6 +107,17 @@ class SplitRailMeasurementTest {
         val panesBefore = paneBounds.toMap()
         val before = changes
         when (check) {
+            Check.HostSaysStacked -> {
+                assertEquals(mapOf("left" to 74f, "middle" to 74f, "right" to 74f), pushed)
+                onNodeWithContentDescription("Expand/collapse").performClick()
+                waitForIdle()
+                assertEquals(mapOf("left" to 34f, "middle" to 34f, "right" to 34f), pushed)
+            }
+            Check.HostSaysSideBySide -> {
+                runOnIdle { reverse.value = true }
+                waitForIdle()
+                assertEquals(mapOf("left" to 0f, "middle" to 0f, "right" to 74f), pushed)
+            }
             Check.FullWidth -> {
                 assertEquals(0f, railBounds.left)
                 assertEquals(900f, railBounds.right)
@@ -124,7 +145,9 @@ class SplitRailMeasurementTest {
                 }
                 waitForIdle()
                 assertEquals(before + 1, changes, "the visibility transition must resend document offsets exactly once")
-                assertEquals(mapOf("left" to 34f, "middle" to 34f, "right" to 34f), pushed)
+                // Closed windows are no longer in the layout, so only the survivor touches the bottom edge.
+                val expected = if (check == Check.Single) 0f else 34f
+                assertEquals(mapOf("left" to 34f, "middle" to expected, "right" to expected), pushed)
                 if (check == Check.Collapse || check == Check.Hide) {
                     assertEquals(panesBefore, paneBounds, "rail visibility must not resize the documents")
                     if (check == Check.Collapse) onNodeWithContentDescription("Expand/collapse").performClick()

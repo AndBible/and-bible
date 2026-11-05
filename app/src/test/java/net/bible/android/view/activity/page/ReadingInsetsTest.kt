@@ -44,6 +44,22 @@ class ReadingInsetsTest {
         assertEquals(0, i.bottomOffsetForWindow("left", true))
     }
 
+    @Test fun reportedBottomWindowsReplaceTheHostPortraitRule() {
+        rail = true
+        val i = insets()
+        i.setRailCoveredWindows(setOf("left", "right"))
+        // Before a layout report the host's rule decides.
+        assertEquals(0, i.bottomOffsetForWindow("left", false))
+        i.setRailLayout(setOf("left", "right"), setOf("left", "right"))
+        assertEquals(92, i.bottomOffsetForWindow("left", false))
+        assertEquals(92, i.bottomOffsetForWindow("right", false))
+        i.setRailLayout(setOf("left", "right"), setOf("right"))
+        assertEquals(0, i.bottomOffsetForWindow("left", true))
+        assertEquals(92, i.bottomOffsetForWindow("right", false))
+        i.setRailLayout(setOf("left", "right"), null)
+        assertEquals(92, i.bottomOffsetForWindow("left", true))
+    }
+
     @Test fun railLayoutPushesOffsetsOnlyWhenReservedWindowsChange() {
         val i = insets()
         val seen = mutableListOf<OffsetsChange>()

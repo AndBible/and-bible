@@ -151,12 +151,12 @@ fun SplitContent(
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     railOverlay: (@Composable BoxScope.() -> Unit)? = null,
     paneBackground: (windowId: String) -> Color? = { null },
-    onRailCoveredWindowsChanged: (Set<String>) -> Unit = {},
+    onRailLayoutChanged: (covered: Set<String>, bottom: Set<String>?) -> Unit = { _, _ -> },
 ) {
     val windows = layout.windows.filter { it.isVisible }
-    val onCoverageChanged by rememberUpdatedState(onRailCoveredWindowsChanged)
+    val onLayoutChanged by rememberUpdatedState(onRailLayoutChanged)
     DisposableEffect(Unit) {
-        onDispose { onCoverageChanged(emptySet()) }
+        onDispose { onLayoutChanged(emptySet(), null) }
     }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
@@ -180,7 +180,10 @@ fun SplitContent(
         val coveredWindows = if (railOverlay != null && buildWindowTabBar(layout).showButtons) {
             (if (isHorizontal) windows else windows.takeLast(1)).mapTo(mutableSetOf()) { it.id }
         } else emptySet()
-        SideEffect { onCoverageChanged(coveredWindows) }
+        // The windows touching the bottom edge in THIS layout (all of them side by side, else the last), whatever the rail
+        // does: hosts use it instead of their own portrait rule, which can disagree with the split axis.
+        val bottomWindows = (if (isHorizontal) windows else windows.takeLast(1)).mapTo(mutableSetOf()) { it.id }
+        SideEffect { onLayoutChanged(coveredWindows, bottomWindows) }
         val weights = effectiveWeights(windows)
 
         // Transient live-drag override; null when no separator is currently being dragged, in
