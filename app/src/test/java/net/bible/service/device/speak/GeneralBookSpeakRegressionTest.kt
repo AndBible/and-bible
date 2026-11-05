@@ -5,6 +5,9 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.SPEAK_KEY
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakPlaybackState
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.next
@@ -126,6 +129,29 @@ class GeneralBookSpeakRegressionTest : SpeakIntegrationTestBase() {
         assertSame(bibleWindow.pageManager, speakControl.speakPageManager)
         assertSame(book, GlobalContext.get().get<TextToSpeechServiceManager>().currentlyPlayingBook)
         assertSame(genBook, otherWindow.pageManager.currentPage.currentDocument)
+    }
+
+    @Test
+    fun removingTheSpokenGeneralBookStopsPlaybackAndControls() {
+        speakControl.speakGeneric(start("Part 1/Chapter 1"))
+        joinSpeech()
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        assertTrue(manager.isSpeaking)
+        val states = mutableListOf<SpeakPlaybackState>()
+        val subscription = SpeakChanges.changes.subscribe { change ->
+            if (change is SpeakChange.State) states += change.speakState
+        }
+        try {
+            Books.installed().removeBook(genBook)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            joinSpeech()
+            assertFalse(manager.isSpeaking)
+            assertFalse(manager.isPaused)
+            assertTrue(speakControl.isStopped)
+            assertEquals(listOf(SpeakPlaybackState.SILENT), states)
+        } finally {
+            subscription.cancel()
+        }
     }
 
     @Test
