@@ -163,6 +163,24 @@ class ReadingBridgeNavigationFamilyTest {
         assertEquals("the book introduction of chapter 1", Verse(KJVA, BibleBook.GEN, 0, 0).ordinal, bible.singleKey.ordinal)
     }
 
+    /** osTicket 3508: the MyNotes document (KJVA ordinals) is checked against its own chapter too. */
+    @Test fun myNotesScrolledToOrdinalOutsideTheLoadedChapterIsIgnored() {
+        val view = newView()
+        val bible = repo.activeWindow.pageManager.currentBible
+        val key = Verse(KJVA, BibleBook.GEN, 2, 1)
+        view.firstDocument = net.bible.android.control.page.MyNotesDocument(
+            emptyList(), org.crosswire.jsword.passage.VerseRange(KJVA, key, Verse(KJVA, BibleBook.GEN, 2, 25)))
+        view.initialKey = key
+        view.session.minChapter = 2
+        view.session.maxChapter = 2
+        val bridge = BibleJavascriptInterface(view)
+
+        bridge.scrolledToOrdinal("", Verse(KJVA, BibleBook.GEN, 2, 7).ordinal)
+        assertEquals(Verse(KJVA, BibleBook.GEN, 2, 7).ordinal, bible.singleKey.ordinal)
+        bridge.scrolledToOrdinal("", Verse(KJVA, BibleBook.LUKE, 12, 49).ordinal)
+        assertEquals("another book", Verse(KJVA, BibleBook.GEN, 2, 7).ordinal, bible.singleKey.ordinal)
+    }
+
     @Test fun multiReferenceScrollSurvivesWorkspaceReload() = kotlinx.coroutines.runBlocking {
         val manager = repo.activeWindow.pageManager
         val factory = GlobalContext.get().get<net.bible.service.download.FakeBookFactory>()
