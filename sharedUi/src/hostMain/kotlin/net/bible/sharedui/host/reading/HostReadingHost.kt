@@ -704,6 +704,7 @@ class HostReadingHost(
 
     private fun buildDeps(icons: ReadingToolbarIcons, paneIcons: HostPaneIcons?): ReadingHostDeps = ReadingHostDeps(
         state = hostState,
+        onRailCoveredWindowsChanged = offsets::setRailCoveredWindows,
         controller = readingViewController,
         toolbar = koin.get<ToolbarStateService>().toolbar,
         fullScreen = fullScreen.state,

@@ -26,6 +26,33 @@ class ReadingInsetsTest {
     @Test fun withTheSpeakBarUpTheWebViewNeedsNoBottomOffset() { transport = true; assertEquals(0, insets().bottomOffsetForWebView) }
     @Test fun withTheBarHiddenTheNavBarIsTheOffset() { assertEquals(39, insets().bottomOffsetForWebView) }
     @Test fun withTheBarAndTheRailOnlyTheRailCounts() { transport = true; rail = true; assertEquals(53, insets().bottomOffsetForWebView) }
+    @Test fun railCoverageIsPerWindowWhileTheNavBarIsShared() {
+        rail = true
+        val i = insets()
+        i.setRailCoveredWindows(setOf("right"))
+        assertEquals(39, i.bottomOffsetForWindow("left", true))
+        assertEquals(92, i.bottomOffsetForWindow("right", true))
+        assertEquals(0, i.bottomOffsetForWindow("right", false))
+        i.setRailCoveredWindows(setOf("left", "right"))
+        assertEquals(92, i.bottomOffsetForWindow("left", true))
+        rail = false
+        assertEquals(39, i.bottomOffsetForWindow("right", true))
+        transport = true
+        assertEquals(0, i.bottomOffsetForWindow("left", true))
+    }
+
+    @Test fun newRailMeasurementsPushOffsetsOnlyWhenCoverageChanges() {
+        val i = insets()
+        val seen = mutableListOf<OffsetsChange>()
+        val sub = i.offsetsChanged.subscribe { seen += it }
+        try {
+            i.setRailCoveredWindows(setOf("right"))
+            i.setRailCoveredWindows(setOf("right"))
+            i.setRailCoveredWindows(emptySet())
+            assertEquals(listOf(OffsetsChange(true), OffsetsChange(true)), seen)
+        } finally { sub.cancel() }
+    }
+
     @Test fun theSpeakBarTogglingAsksBibleViewForImmediateOffsets() {
         val i = insets()
         val seen = mutableListOf<OffsetsChange>()

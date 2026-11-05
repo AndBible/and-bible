@@ -70,7 +70,7 @@ class HostDocumentLoaderPlatform(
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
     override val topOffset: Float get() = if (isTopWindow) offsets().top else 0f
-    override val bottomOffset: Float get() = if (isBottomWindow) offsets().bottom else 0f
+    override val bottomOffset: Float get() = offsets().bottomForWindow(window().id.toString(), isBottomWindow)
 
     /** The mirror of [isBottomWindow]: every pane counts as top when the split is side by side. */
     private val isTopWindow: Boolean
@@ -106,7 +106,7 @@ class HostDocumentLoaderPlatform(
         return ConfigInputs(
             displaySettings = displaySettings,
             isActive = isActive,
-            isBottomWindow = repository.lastVisibleWindow == w,
+            isBottomWindow = isBottomWindow,
             hasActiveIndicator = hasActiveIndicator,
             nightMode = night,
             showErrorBox = isBeta() && s.getBoolean("show_errorbox", false),

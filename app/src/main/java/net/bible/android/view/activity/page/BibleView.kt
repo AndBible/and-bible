@@ -1523,12 +1523,12 @@ class BibleView(
                     / host.hostContext.resources.displayMetrics.density)
             else 0F
     
-    val bottomOffset
-        get() =
-            if(isBottomWindow)
-                (hostCallbacks.bottomOffsetForWebView()
-                    / host.hostContext.resources.displayMetrics.density)
-            else 0F
+    val bottomOffset: Float
+        get() {
+            val pixels = hostCallbacks.bottomOffsetForWindow?.invoke(window.id.toString(), isBottomWindow)
+                ?: if (isBottomWindow) hostCallbacks.bottomOffsetForWebView() else 0
+            return pixels / host.hostContext.resources.displayMetrics.density
+        }
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)

@@ -40,7 +40,8 @@ class BibleViewOffsetsTest {
             composeSearchIfHosted = { _, _ -> false }, composeOpenDrawerIfHosted = { false },
             openDrawerAndFocusIt = {}, composeReadingViewHost = { null }, showRegenerate = { _, _ -> },
             crashAllBibleViews = {}, currentNightMode = { false },
-            imeHeight = { 0 }, topOffset2 = { 0 }, bottomOffsetForWebView = { 300 }, insetsChanges = { error("Unused") })
+            imeHeight = { 0 }, topOffset2 = { 0 }, bottomOffsetForWebView = { error("Use the per-window ledger") },
+            bottomOffsetForWindow = { _, bottom -> if (bottom) 300 else 0 }, insetsChanges = { error("Unused") })
         val activity = Robolectric.buildActivity(Activity::class.java).setup()
         val view = BibleView(host, callbacks, WeakReference(window),
             koin.get(), koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())

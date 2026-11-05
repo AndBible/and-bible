@@ -144,10 +144,20 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     // pre-existing cases are byte-identical.
     // Fix batch 5 F111: the speak bar sits in the column BELOW the panes and pads the nav bar itself,
     // so while it is up the WebView already ends above both -- neither may be counted again.
-    val bottomOffsetForWebView get() =
+    val bottomOffsetForWebView get() = systemBottomForWebView + railHeightForWebView
+
+    private val systemBottomForWebView get() =
         (if (host.transportBarVisible()) 0 else (if (imePaddingApplied) 0 else bottomOffset1WithoutIme)) +
-            (if (host.restoreButtonsVisible()) host.windowButtonHeight() else 0) +
             (if (host.agentLogVisible()) host.agentLogHeight() else 0)
+    private val railHeightForWebView get() = if (host.restoreButtonsVisible()) host.windowButtonHeight() else 0
+    private val railCoverage = net.bible.sharedui.reading.ReadingRailCoverage {
+        _offsetsChanged.emit(OffsetsChange(immediate = true))
+    }
+
+    fun setRailCoveredWindows(windowIds: Set<String>) = railCoverage.update(windowIds)
+
+    fun bottomOffsetForWindow(windowId: String, isBottomWindow: Boolean): Int =
+        railCoverage.bottomOffset(windowId, isBottomWindow, systemBottomForWebView.toFloat(), railHeightForWebView.toFloat()).toInt()
 
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme

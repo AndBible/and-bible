@@ -165,6 +165,7 @@ class ReadingHostDeps(
 
     // --- panes, rail and ☰ menus ---
     val paneBackground: (windowId: String) -> Color? = { null },
+    val onRailCoveredWindowsChanged: (Set<String>) -> Unit = {},
     val windowLabel: (WindowSnapshot) -> String = { "" },
     val windowIcon: (WindowSnapshot) -> Painter? = { null },
     val windowTopLabel: (WindowSnapshot) -> String? = { null },
@@ -428,6 +429,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
             // host's `rebuild()`.
             key(gen) {
                 ReadingViewScreen(
+                    onRailCoveredWindowsChanged = deps.onRailCoveredWindowsChanged,
                     layout = layout,
                     toolbar = toolbarState,
                     toolbarIcons = deps.toolbarIcons(),

@@ -1416,6 +1416,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     private fun readingHostDeps() = ReadingHostDeps(
         state = hostState,
+        onRailCoveredWindowsChanged = activity.readingInsets::setRailCoveredWindows,
         controller = controller,
         toolbar = toolbarStateService.toolbar,
         toolbarCallbacks = ReadingToolbarCallbacks(
