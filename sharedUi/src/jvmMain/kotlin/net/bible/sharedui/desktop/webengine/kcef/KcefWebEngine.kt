@@ -55,6 +55,10 @@ class KcefWebEngine(
         languagesSource = source
     }
 
+    @Volatile private var paneWindowId: (String) -> (() -> String?) = { id -> { id } }
+
+    override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) { paneWindowId = source }
+
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_ORIGIN/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
@@ -63,7 +67,7 @@ class KcefWebEngine(
         val mode = KcefRenderingMode.current(log)
         val keyCodeFix = osrKeyCodeFix(mode, runCatching { java.awt.Toolkit.getDefaultToolkit().javaClass.name }.getOrDefault(""))
         val scripts = PaneFocusRequest.documentStartScripts(shim, documentStartScripts, keyCodeFix)
-        val handler = BundleRequestHandler(bundleDir, scripts, pageAssets)
+        val handler = BundleRequestHandler(bundleDir, scripts, pageAssets.forPane(paneWindowId(id)))
         val paneLog = { msg: String -> log("kcef[$id]: $msg") }
         return when (mode) {
             KcefRenderingMode.Osr -> KcefOsrPane(id, url, handler, onMessage, paneLog)

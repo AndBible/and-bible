@@ -1,12 +1,18 @@
 package net.bible.sharedui.desktop.webview
 
+import net.bible.android.control.page.OsisDocument
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.sharedlogic.platform.BackgroundImageCatalog
 import net.bible.sharedlogic.security.FeatureSignatureVerifier
 import net.bible.sharedui.desktop.webengine.BundleResource
 import net.bible.sharedui.desktop.webengine.DesktopPageAssets
 import net.bible.sharedui.webview.PageAsset
+import net.bible.sharedui.webview.PageAssetEpubSource
 import net.bible.sharedui.webview.PageAssetRoutes
 import okio.Path.Companion.toOkioPath
+import okio.buffer
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
 import java.net.URLConnection
@@ -20,23 +26,25 @@ import java.nio.file.Paths
  * The page asset routes of the desktop BibleView: the shared [PageAssetRoutes] (Android `BibleView` path handlers;
  * the route list and traversal rules are documented there) over `java.nio` paths, answering engine [BundleResource]s.
  *
- * Desktop has no EPUB resource source yet: `/epub/…` and `/module-style/epub/…` are a 404 logged once per route.
- * Generated font stylesheets are materialized as bounded, reusable files for the desktop engine.
+ * EPUB streams and generated stylesheets are materialized as reusable files for the desktop engines.
+ * [forPane] binds unqualified EPUB resources to the document shown in that pane.
  */
 class DesktopPageAssetRoutes(
-    backgrounds: () -> Map<String, Path>,
-    bookLocation: (String) -> Path?,
-    bookStyleFile: (String) -> String?,
-    verify: (file: Path, signature: Path) -> Boolean,
-    log: (String) -> Unit = {},
-    fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
+    private val backgrounds: () -> Map<String, Path>,
+    private val bookLocation: (String) -> Path?,
+    private val bookStyleFile: (String) -> String?,
+    private val verify: (file: Path, signature: Path) -> Boolean,
+    private val log: (String) -> Unit = {},
+    private val fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = { emptyList() },
+    private val epub: PageAssetEpubSource = DesktopEpubAssets({ null }),
+    private val currentBook: (String) -> Book? = { null },
 ) : DesktopPageAssets {
     private val routes = PageAssetRoutes(
         backgrounds = { backgrounds().mapValues { it.value.toOkioPath() } },
         bookLocation = { bookLocation(it)?.toOkioPath() },
         bookStyleFile = bookStyleFile,
         verify = { file, signature -> verify(file.toNioPath(), signature.toNioPath()) },
-        epub = null,
+        epub = epub,
         log = log,
         mimeType = ::mimeFor,
         fonts = fonts,
@@ -46,7 +54,34 @@ class DesktopPageAssetRoutes(
         null -> null
         is PageAsset.File -> BundleResource(asset.path.toNioPath(), asset.mimeType, fromBundle = false)
         is PageAsset.Bytes -> BundleResource(generatedCssFile(path, asset.bytes), asset.mimeType, fromBundle = false)
-        is PageAsset.Stream -> { asset.source.close(); null }
+        is PageAsset.Stream -> BundleResource(materializedStream(path, asset), asset.mimeType, fromBundle = false)
+    }
+
+    override fun forPane(id: () -> String?): DesktopPageAssets = DesktopPageAssetRoutes(
+        backgrounds, bookLocation, bookStyleFile, verify, log, fonts,
+        DesktopEpubAssets({ id()?.let(currentBook) }), currentBook,
+    )
+
+    private val resourceFiles = mutableMapOf<String, Path>()
+
+    /** Copy while holding the backend lease, closing it even on failure; one reusable file per pane/resource URL. */
+    private fun materializedStream(route: String, asset: PageAsset.Stream): Path = asset.source.buffer().use { source ->
+        synchronized(resourceFiles) {
+            val file = resourceFiles[route]?.takeIf { Files.isRegularFile(it) }
+                ?: Files.createTempFile("andbible-epub", ".asset").also { it.toFile().deleteOnExit(); resourceFiles[route] = it }
+            val staging = Files.createTempFile(file.parent, "andbible-epub", ".tmp")
+            try {
+                Files.newOutputStream(staging).use { source.inputStream().copyTo(it) }
+                try {
+                    Files.move(staging, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                } catch (_: AtomicMoveNotSupportedException) {
+                    Files.move(staging, file, StandardCopyOption.REPLACE_EXISTING)
+                }
+            } finally {
+                Files.deleteIfExists(staging)
+            }
+            file
+        }
     }
 
     private val generatedCss = mutableMapOf<String, Path>()
@@ -99,8 +134,23 @@ class DesktopPageAssetRoutes(
             MIME[name.substringAfterLast('.', "").lowercase()] ?: URLConnection.guessContentTypeFromName(name) ?: "application/octet-stream"
 
         /** Resolves through the Koin-bound [DesktopPageAssets] on each request; serves nothing until the app graph exists. */
-        fun koinBound(): DesktopPageAssets = DesktopPageAssets { path ->
-            KoinPlatform.getKoinOrNull()?.getOrNull<DesktopPageAssets>()?.resolve(path)
+        fun koinBound(): DesktopPageAssets = object : DesktopPageAssets {
+            override fun resolve(path: String): BundleResource? =
+                KoinPlatform.getKoinOrNull()?.getOrNull<DesktopPageAssets>()?.resolve(path)
+
+            override fun forPane(id: () -> String?): DesktopPageAssets = object : DesktopPageAssets {
+                private var owner: DesktopPageAssets? = null
+                private var scoped: DesktopPageAssets? = null
+
+                override fun resolve(path: String): BundleResource? = synchronized(this) {
+                    val current = KoinPlatform.getKoinOrNull()?.getOrNull<DesktopPageAssets>() ?: return@synchronized null
+                    if (owner !== current) {
+                        scoped = current.forPane(id)
+                        owner = current
+                    }
+                    scoped?.resolve(path)
+                }
+            }
         }
 
         /** The Koin-backed routes: installed books from JSword, backgrounds from [BackgroundImageCatalog]. */
@@ -118,6 +168,10 @@ class DesktopPageAssetRoutes(
                 verify = { file, signature -> verifier.verify(file, signature) },
                 log = log,
                 fonts = { KoinPlatform.getKoin().get<net.bible.sharedlogic.addons.SharedAddonScanner>().fonts() },
+                currentBook = { id ->
+                    val window = KoinPlatform.getKoinOrNull()?.getOrNull<WindowControl>()?.windowRepository?.getWindow(IdType(id))
+                    (window?.bibleView?.firstDocument as? OsisDocument)?.book
+                },
             )
         }
     }

@@ -58,12 +58,16 @@ class WebView2Engine private constructor(
         languagesSource = source
     }
 
+    @Volatile private var paneWindowId: (String) -> (() -> String?) = { id -> { id } }
+
+    override fun setPaneWindowIdSource(source: (String) -> (() -> String?)) { paneWindowId = source }
+
     override fun bundleUrl(lang: String, dark: Boolean): String = "$BUNDLE_ORIGIN/index.html?lang=$lang&night=$dark"
 
     override fun createPane(id: String, url: String, documentStartScripts: List<String>, onMessage: (String) -> Unit): DesktopWebPane {
         val langs = languagesSource?.let { runCatching(it).getOrNull() } ?: activeLanguagesJson(url)
         val shim = androidBridgeShim(POST_MESSAGE_JS, langs)
-        val handler = BundleRequestHandler(bundleDir, listOf(shim) + documentStartScripts, pageAssets)
+        val handler = BundleRequestHandler(bundleDir, listOf(shim) + documentStartScripts, pageAssets.forPane(paneWindowId(id)))
         return WebView2Pane(id, url, runtime, Wv2ResourceRouter(handler), onMessage, { log("webview2[$id]: $it") }, ::hostWindow)
     }
 

@@ -115,13 +115,12 @@ AndBibleProvidesFont=Desktop Study;css/extra.woff2
         assertNull(routes().resolve("/module-style/KJV/../../../secret.txt"))
     }
 
-    /** EPUB resources need the Android-only current-book lookup and a stream body (BundleResource is a file): 404, documented. */
-    @Test fun epubResourceServedOrDocumented() {
+    @Test fun missingEpubResourcesReturn404() {
         val r = routes()
         assertNull(r.resolve("/epub/KJV/x.xhtml"))
         assertNull(r.resolve("/epub/KJV/y.xhtml"))
         assertNull(r.resolve("/module-style/epub/KJV/ch1/style.css"))
-        assertEquals(2, logs.size, logs.toString())
+        assertTrue(logs.isEmpty(), logs.toString())
     }
 
     @Test fun traversalRefused() {

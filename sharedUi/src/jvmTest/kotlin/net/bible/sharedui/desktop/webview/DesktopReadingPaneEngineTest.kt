@@ -104,7 +104,10 @@ class DesktopReadingPaneEngineTest {
         }
         engine.attach("old", false, bridge, {}, {}, input, { opened += "old:$it"; true })
         val pane = fake.pane("old")
+        val currentOwner = fake.windowOwnerSource("old")
+        assertEquals("old", currentOwner())
         engine.rekey("old", "new")
+        assertEquals("new", currentOwner(), "EPUB requests follow the adopted pane's owner")
         engine.attach("new", false, bridge, {}, {}, input, { opened += "new:$it"; true })
         assertSame(pane, engine.paneFor("new"))
         assertEquals(1, fake.panes.size)
@@ -114,6 +117,8 @@ class DesktopReadingPaneEngineTest {
         assertEquals(listOf("new:osis://test"), opened)
         assertEquals(listOf("ready"), ready)
         assertEquals(listOf("created:old", "disposed:old", "created:new"), inputIds)
+        engine.release("new")
+        assertEquals(null, currentOwner(), "a released pane must not resolve another window's EPUB")
     }
 
     @Test
