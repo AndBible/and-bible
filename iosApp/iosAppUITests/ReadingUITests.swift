@@ -851,25 +851,18 @@ final class ReadingUITests: RealAppUITestCase {
         var app = try launchReading(extraArguments: sizeArguments)
         shot(app, "\(level)-reading")
 
-        // Toolbar: title, home (Menu) and overflow (More options) are reachable and do not overlap each other.
+        // Shared Ax5ReachabilityTest pins toolbar layout/non-overlap. Keep the UIKit trait ->
+        // accessibility/hit-testing boundary in the real host (including native window insets).
         let title = toolbarTitle(app)
         let menu = app.buttons["Menu"], more = byLabel(app, "More options")
-        var toolbarFrames: [(String, CGRect)] = []
         if let title = title {
-            if expectReachable(app, title, "toolbar title", level) { toolbarFrames.append(("title", title.frame)) }
+            expectReachable(app, title, "toolbar title", level)
         } else {
             attachTree(app, "\(level)-no-toolbar-title")
             XCTFail("\(level): no toolbar title found (a static text starting with 'John' in the top strip)")
         }
-        if expectReachable(app, menu, "Menu button", level) { toolbarFrames.append(("Menu", menu.frame)) }
-        if expectReachable(app, more, "More options button", level) { toolbarFrames.append(("More options", more.frame)) }
-        for (i, a) in toolbarFrames.enumerated() {
-            for b in toolbarFrames.dropFirst(i + 1) {
-                let overlap = a.1.intersection(b.1)
-                XCTAssertTrue(overlap.isNull || overlap.width < 2 || overlap.height < 2,
-                              "\(level): toolbar \(a.0) \(a.1) overlaps \(b.0) \(b.1)")
-            }
-        }
+        expectReachable(app, menu, "Menu button", level)
+        expectReachable(app, more, "More options button", level)
 
         // Drawer: the home button opens it; History, and the Task 4-6 rows (Study Pads, Backup & Restore, Device
         // synchronization), are reachable by label, scrolling the drawer if needed.

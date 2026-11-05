@@ -103,10 +103,11 @@ final class DynamicTypeUITests: RealAppUITestCase {
         return app
     }
 
-    /// Every screen is opened through its real route (the DEBUG feature scenarios used by the RTL and H2 walks, or the
-    /// Settings row for the text display screen), then its primary controls must be hittable and inside the window.
-    /// The legacy-migration progress view is NOT walked: its only debug route (`-seedLegacyFixture <dir>`, IosLegacyDebugSeed)
-    /// needs the unpacked legacy fixtures (opt-in `I3B_FIXTURE_DIR`, see LegacyMigrationUITests), so it has no standalone route here.
+    /// Native boundary: UIKit Dynamic Type must reach the real Compose host and expose hittable controls
+    /// inside native window insets. Portable phone geometry, consent scrolling and translated catalogue/label
+    /// content now live in Ax5ReachabilityTest, DownloadHostTest and FinnishHostWalkTest. This remains a
+    /// runtime walk because JVM bounds cannot prove UIKit accessibility frames or native hit testing.
+    /// Legacy migration still needs its opt-in fixture and has no standalone route here.
     func testAccessibilitySizeKeepsControlsReachable() {
         continueAfterFailure = true
 
