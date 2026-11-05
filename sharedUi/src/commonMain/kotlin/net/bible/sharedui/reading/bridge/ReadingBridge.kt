@@ -138,8 +138,10 @@ class ReadingBridge(
      * Runs a guarded call on the main thread, where navigation, document admission and view rebinds happen, and only if
      * the page's admission state admits it there ([net.bible.sharedui.reading.session.DocumentAdmission.admits]: its
      * generation, no request of another document, the window still shows the admitted source) for the window the call
-     * was dispatched to. The check and the call's effect are one main-thread step, so nothing can replace the document
-     * in between.
+     * was dispatched to. The check and the call's effect are one main-thread step, so nothing on the main thread can
+     * replace the document in between. Page keys and documents change on the main thread; the one production change
+     * off it is a key-less dictionary page selecting its first entry while `Window.fetchDocument` reads it (IO), which
+     * happens only during that window's own pending request (#3975 rework 5).
      */
     override fun runAdmitted(generation: Long?, call: () -> Unit, drop: () -> Unit) {
         val window = session.windowOrNull
@@ -162,7 +164,8 @@ class ReadingBridge(
      */
     override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         if (session.isDisposed) return
-        // Not while any request is pending: it reads the key this report would write (#3975).
+        // Not while any request is pending, even one of the page's own document: it reads the key this report would
+        // write, and a report that lands first makes it stale. Dropping one loses nothing; the page reports again (#3975).
         if (session.admission.state.pending != null) {
             Log.i(TAG, "scrolledToOrdinal dropped: a document request is pending")
             return

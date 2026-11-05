@@ -67,6 +67,13 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.system.Versifications
+import net.bible.android.common.toV11n
+import net.bible.android.database.mydocument.MyDocument
+import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -101,11 +108,14 @@ class DocumentAdmissionTest {
 
     private class FakeHost : JsHost {
         val evaluated: MutableList<String> = Collections.synchronizedList(mutableListOf())
+        /** The next evaluation matching this throws (once), like a WebView that fails to take the call. */
+        @Volatile var failOnce: ((String) -> Boolean)? = null
         override val isMainThread = true
         override val isAttached = true
         override val mainDispatcher: CoroutineDispatcher = Dispatchers.Unconfined
         override fun post(block: () -> Unit) = block()
         override fun evaluate(js: String, callback: ((String) -> Unit)?) {
+            failOnce?.let { fail -> if (fail(js)) { failOnce = null; throw IllegalStateException("evaluate failed") } }
             evaluated += js
             callback?.invoke("null")
         }
@@ -430,6 +440,265 @@ class DocumentAdmissionTest {
         view.awaitLastRequestEnded()
         waitUntil("Genesis admitted after the retry") {
             (session.firstDocument as? BibleDocument)?.verseRange?.start?.book == BibleBook.GEN
+        }
+    }
+
+    // ---- Rework 5 (#3975): findings of the v4 reviews ----
+
+    private val kjv get() = (book("KJV") as SwordBook).versification
+    private fun admitted() = session.admission.state.admitted
+    private fun stateText() = session.admission.state.let {
+        "shown ${it.shown} admitted ${it.admitted?.generation} ${it.admitted?.source} ${it.admitted?.contexts} pending ${it.pending?.target}"
+    }
+    private fun notNull(callId: Long) = response(callId).let { it.isNotEmpty() && it.single() != nullResponse(callId) }
+
+    /**
+     * O1 (opus), first case: the top of chapter 1 in a module with book introductions is chapter 0 (the introduction is
+     * loaded with chapter 1). A report there must not close the page for good: its calls and paging stay admitted.
+     */
+    @Test
+    fun aReportInTheBookIntroductionKeepsThePageAdmitted() {
+        val a = show("KJV", verse(BibleBook.GEN, 1, 1))
+        post("scrolledToOrdinal", "[\"Gen.1\",${verse(BibleBook.GEN, 0, 0).ordinal}]", a)
+        onMain {}
+        assertEquals("the report moved the window into the introduction", 0, shownVerse.chapter)
+        post("saveState", "[\"intro\"]", a)
+        onMain {}
+        assertEquals("admitted after an introduction report: ${stateText()}", "intro", window.pageManager.jsState)
+        post("requestMoreToEnd", "[61]", a)
+        waitUntil("61 answered") { response(61).isNotEmpty() }
+        assertTrue("Genesis 2, not null: ${response(61)}", notNull(61))
+        assertEquals(2, session.maxChapter)
+    }
+
+    /** O1, the same trap at load time: a window stored in the introduction (chapter 0) pages on from chapter 1. */
+    @Test
+    fun aWindowStoredInTheIntroductionPagesFromChapterOne() {
+        val a = show("KJV", verse(BibleBook.GEN, 0, 0))
+        post("requestMoreToEnd", "[62]", a)
+        waitUntil("62 answered") { response(62).isNotEmpty() }
+        assertTrue("Genesis 2, not null: ${response(62)} ${stateText()}", notNull(62))
+        assertTrue("Genesis 2, not chapter 1 again: ${response(62)}", response(62).single().contains("Gen.2"))
+    }
+
+    /**
+     * O1, second case: the window's verse is in another versification than its module (a module switch from a
+     * Synodal Bible keeps the Synodal verse: Psalm 9:22 Synodal is Psalm 10:1 KJV). The KJV page holds Psalm 10; its
+     * reports are KJV ordinals, its paging continues with Psalm 11, and its calls stay admitted.
+     */
+    @Test
+    fun aKjvPageOfAWindowHoldingASynodalVerseStaysAdmitted() {
+        val synodal = Versifications.instance().getVersification("Synodal")!!
+        val stored = Verse(synodal, BibleBook.PS, 9, 22)
+        assertEquals("fixture: Synodal Psalm 9:22 is KJV Psalm 10", 10, stored.toV11n(kjv).chapter)
+        val before = session.documentGeneration
+        onMain {
+            window.pageManager.currentBible.onlySetCurrentDocument(book("KJV"))
+            window.pageManager.currentBibleVerse.setVerseSelected(synodal, stored)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("KJV Psalm 10 admitted") { session.documentGeneration.let { it != NO_DOCUMENT_GENERATION && it != before } }
+        val a = session.documentGeneration
+
+        val reported = Verse(kjv, BibleBook.PS, 10, 5)
+        post("scrolledToOrdinal", "[\"Ps.10\",${reported.ordinal}]", a)
+        onMain {}
+        assertEquals("the report is a KJV ordinal", reported.getOsisID(), shownVerse.toV11n(kjv).getOsisID())
+        post("saveState", "[\"psalm\"]", a)
+        onMain {}
+        assertEquals("admitted after its own report: ${stateText()}", "psalm", window.pageManager.jsState)
+        post("requestMoreToEnd", "[63]", a)
+        waitUntil("63 answered") { response(63).isNotEmpty() }
+        assertTrue("KJV Psalm 11: ${response(63)} ${stateText()}", notNull(63) && response(63).single().contains("Ps.11"))
+        post("scrolledToOrdinal", "[\"Ps.11\",${Verse(kjv, BibleBook.PS, 11, 2).ordinal}]", a)
+        onMain {}
+        assertEquals("Ps.11.2", shownVerse.toV11n(kjv).getOsisID())
+        post("saveState", "[\"psalm 11\"]", a)
+        onMain {}
+        assertEquals("admitted in the scrolled-in chapter: ${stateText()}", "psalm 11", window.pageManager.jsState)
+    }
+
+    private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+
+    /** A registered MyDocument (a general book) with pages [pageKeys]; unregistered in [cleanUpMyDocument]. */
+    private fun myDocument(initials: String, vararg pageKeys: String): org.crosswire.jsword.book.Book = runBlocking {
+        MyDocumentBookManager.unregisterDocument(initials)
+        val document = MyDocument(name = "Test $initials", initials = initials)
+        dao.insert(document)
+        pageKeys.forEachIndexed { i, key ->
+            dao.insertPageWithContent(MyDocumentPage(documentId = document.id, title = "Title $key", pageKey = key,
+                contentType = MyDocumentContentType.MARKDOWN, orderNumber = i), "content of $key")
+        }
+        myDocuments += initials
+        MyDocumentBookManager.registerDocument(document)!!
+    }
+    private val myDocuments = mutableListOf<String>()
+
+    @After
+    fun cleanUpMyDocument() {
+        myDocuments.forEach { MyDocumentBookManager.unregisterDocument(it) }
+    }
+
+    private fun showEntry(book: org.crosswire.jsword.book.Book, key: Key): Long {
+        val before = session.documentGeneration
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(book, key)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("${book.initials} $key admitted: ${stateText()}") {
+            session.documentGeneration.let { it != NO_DOCUMENT_GENERATION && it != before }
+        }
+        return session.documentGeneration
+    }
+
+    /**
+     * O2 (opus) / C1 (codex): a general book page (MyDocument, AI documents, EPUB) that another entry of the same book
+     * replaces (a link to another entry, selecting another AI page) is a document change: the outgoing page's restore
+     * state must not be written to the window while the other entry is requested.
+     */
+    @Test
+    fun anEntryOfTheSameGeneralBookReplacingThePageIsADocumentChange() {
+        val book = myDocument("MyDoc_3975", "page_a", "page_b")
+        val keys = book.getGlobalKeyList().toList()
+        val a = showEntry(book, keys[0])
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(book, keys[1])
+            view.documentRequested()
+        }
+        post("saveState", "[\"state of a\"]", a)
+        onMain {}
+        assertFalse("A's restore state written while B is requested: ${stateText()}", window.pageManager.jsState == "state of a")
+    }
+
+    /** O2 counterpart: the page's own entry stays admitted (its scroll reports, saveState). */
+    @Test
+    fun aGeneralBookEntryStaysAdmittedForItsOwnCalls() {
+        val book = myDocument("MyDoc_3975b", "page_a", "page_b")
+        val keys = book.getGlobalKeyList().toList()
+        val a = showEntry(book, keys[0])
+        post("saveState", "[\"own\"]", a)
+        onMain {}
+        assertEquals("own entry admitted: ${stateText()}", "own", window.pageManager.jsState)
+    }
+
+    /**
+     * C2 (codex): a delivery that fails after the document was admitted (the WebView throws on `clear_document` for
+     * Genesis after John) must not leave native admitting a document the page never received: an error document with
+     * a retry replaces the page.
+     */
+    @Test
+    fun aDeliveryFailingAfterAdmissionShowsAnErrorDocument() {
+        val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+        host.failOnce = { it.contains("clear_document") }
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(book("KJV"), verse(BibleBook.GEN, 1, 1))
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("an error document is sent: ${stateText()}", 3_000) {
+            host.snapshot().any { it.contains("add_documents") && it.contains("'type': `error`") && it.contains("'retry': true") }
+        }
+        assertTrue(session.documentGeneration != a)
+    }
+
+    /**
+     * Minor (opus): a retry that fails again shows the error document again, instead of nothing.
+     */
+    @Test
+    fun aRetryThatFailsAgainShowsTheErrorDocumentAgain() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        view.failLoadOf = { (it as? BibleDocument)?.verseRange?.start?.book == BibleBook.GEN }
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(book("KJV"), verse(BibleBook.GEN, 1, 1))
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("first error document", 3_000) { host.snapshot().any { it.contains("'retry': true") } }
+        val first = session.documentGeneration
+        post("documentShown", "[$first]", first)
+        onMain {}
+        host.evaluated.clear()
+        assertTrue(onMain { ReadingLinkHandler(session) { _, _, _, _ -> }.handle("ab-retry://") })
+        view.awaitLastRequestEnded()
+        waitUntil("the error document again: ${stateText()}", 3_000) { host.snapshot().any { it.contains("'retry': true") } }
+        assertTrue("a new error generation", session.documentGeneration != first)
+    }
+
+    /**
+     * Further (codex): after infinite scroll (John 6 -> John 7) the page restarts (iOS WebContent restart) and only
+     * John 6 is replayed. The admitted contexts must be what was replayed: a request of John 7 is a document change.
+     */
+    @Test
+    fun aPageRestartResetsTheContextsToTheReplayedDocument() {
+        val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        post("requestMoreToEnd", "[64]", a)
+        waitUntil("64 answered") { notNull(64) }
+        onMain { loader.setClientReady() }
+        onMain {}
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(book("KJV"), verse(BibleBook.JOHN, 7, 1))
+            view.documentRequested()
+        }
+        post("saveState", "[\"restarted\"]", a)
+        onMain {}
+        assertFalse("John 7 is not in the replayed page: ${stateText()}", window.pageManager.jsState == "restarted")
+    }
+
+    /**
+     * Further (codex): a chapter request waiting because the window showed another module (no request yet) runs when
+     * the window returns to the page's module, even without a loadText.
+     */
+    @Test
+    fun aWaitingChapterRequestRunsWhenTheWindowReturnsToThePagesSource() {
+        val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
+        post("requestMoreToEnd", "[65]", a)
+        Thread.sleep(300)
+        onMain {}
+        assertTrue("waits while another module is shown", response(65).isEmpty())
+        onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("KJV")) }
+        waitUntil("65 answered after the return: ${stateText()}", 5_000) { response(65).isNotEmpty() }
+        assertTrue("John 7: ${response(65)}", notNull(65))
+    }
+
+    /**
+     * Further (codex): a dictionary page without a key selects its first entry while it is fetched (off main). The
+     * window's own load must not reject that key as a newer request; the dictionary is shown and admitted.
+     */
+    @Test
+    fun aDictionaryWithoutAKeyIsShownWithItsFirstEntry() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        val dictionary = book("StrongsGreek")
+        val before = session.documentGeneration
+        onMain {
+            window.pageManager.setCurrentDocument(dictionary)
+            window.pageManager.currentDictionary.doSetKey(null)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("the dictionary admitted: ${stateText()}", 5_000) {
+            session.documentGeneration.let { it != NO_DOCUMENT_GENERATION && it != before } &&
+                admitted()?.source?.book == dictionary
+        }
+    }
+
+    /** Minor (opus): a chapter whose read fails is taken out of the page's range and contexts again. */
+    @Test
+    fun aFailedChapterReadIsNotKeptInThePagesRange() {
+        val a = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        loader.chapterReadFailureForTest = { it == 7 }
+        try {
+            post("requestMoreToEnd", "[66]", a)
+            waitUntil("66 answered") { response(66).isNotEmpty() }
+            onMain {}
+            assertEquals("answered null", listOf(nullResponse(66)), response(66))
+            assertEquals("John 7 not kept", 6 to 6, session.minChapter to session.maxChapter)
+            assertFalse("John 7 not a context: ${stateText()}", "John.7" in admitted()!!.contexts)
+        } finally {
+            loader.chapterReadFailureForTest = null
         }
     }
 }

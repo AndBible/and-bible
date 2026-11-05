@@ -22,28 +22,39 @@ package net.bible.sharedui.reading.session
 import kotlin.concurrent.Volatile
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.VersePage
 import net.bible.android.control.page.window.Window
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.sharedcore.bibleview.NO_DOCUMENT_GENERATION
 import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 
 /**
  * What a window shows, as far as admission needs it: the window, its current page object, the module, and the
- * document context inside the module ([context]: Bible and MyNotes book + chapter, commentary Bible book, StudyPad,
- * multi-reference, dictionary and map pages their key; a general book or EPUB is one document). Immutable: read from the window once ([of]) and compared later (#3975).
+ * document context inside the module ([context]). Immutable: read from the window once ([of]) and compared later (#3975).
+ *
+ * Contexts: a Bible page's book + chapter in the MODULE's versification (the window's verse may be in another one, the
+ * page's content is not), a MyNotes page's in KJVA (its document's); a book introduction (chapter 0) belongs to
+ * chapter 1, which loads it. A commentary page's Bible book. Every other page (general book, EPUB, MyDocument / AI
+ * page, StudyPad, multi-reference, dictionary, map) is its key: an entry that replaces the page is another document,
+ * and infinite scroll adds the entries it brings in ([DocumentAdmission.addContext]).
  */
 @kotlin.native.HiddenFromObjC
 class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book?, val context: String?) {
-    /** The same source with [context] instead (the chapter a Bible document was actually loaded for). */
-    fun withContext(context: String?) = DocumentSource(window, page, book, context)
-
     override fun toString() = "DocumentSource(${window?.displayId}, ${book?.initials}, $context)"
 
     companion object {
@@ -54,17 +65,27 @@ class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book
             return DocumentSource(window, page, page.currentDocument, contextOf(window, page))
         }
 
-        fun chapterContext(book: BibleBook, chapter: Int) = "${book.osis}.$chapter"
+        /** A Bible chapter's context; the book introduction (chapter 0) is part of chapter 1's document. */
+        fun chapterContext(book: BibleBook, chapter: Int) = "${book.osis}.${maxOf(chapter, 1)}"
+
+        /** The chapter context of [verse], in the versification [verse] is in. */
+        fun chapterContext(verse: Verse) = chapterContext(verse.book, verse.chapter)
+
+        /** The chapter contexts a Bible / MyNotes document of [range] holds (all chapters it spans). */
+        fun chapterContexts(range: VerseRange): Set<String?> {
+            val start = range.start
+            val end = range.end
+            if (start.book != end.book) return setOf(chapterContext(start), chapterContext(end))
+            return (maxOf(start.chapter, 1)..maxOf(end.chapter, 1)).mapTo(mutableSetOf()) { chapterContext(start.book, it) }
+        }
 
         private fun contextOf(window: Window, page: CurrentPage): String? = try {
             when (page.documentCategory) {
-                DocumentCategory.BIBLE, DocumentCategory.MYNOTE ->
-                    window.pageManager.currentBibleVerse.verse.let { chapterContext(it.book, it.chapter) }
+                // The page's content is in the module's versification; the window's verse may not be (a module
+                // switch keeps the verse of the previous module's versification).
+                DocumentCategory.BIBLE -> chapterContext(window.pageManager.currentBibleVerse.getVerseSelected((page as VersePage).versification))
+                DocumentCategory.MYNOTE -> chapterContext(window.pageManager.currentBibleVerse.verse.toV11n(KJVA))
                 DocumentCategory.COMMENTARY -> page.key?.let { KeyUtil.getVerse(it).book.osis }
-                // A general book's (EPUB's) key follows the page's scroll reports and infinite scroll, entry by entry:
-                // the book is the document. A StudyPad or multi-reference page is its key.
-                DocumentCategory.GENERAL_BOOK ->
-                    if ((page as? CurrentGeneralBookPage)?.isSpecialDoc == true) page.key?.getOsisRef() else null
                 else -> page.key?.getOsisRef()
             }
         } catch (e: Exception) {
@@ -92,8 +113,20 @@ class DocumentSource(val window: Window?, val page: CurrentPage?, val book: Book
  */
 @kotlin.native.HiddenFromObjC
 class DocumentAdmission internal constructor(private val session: BibleWindowSession) {
-    /** The document the page holds and the contexts in it. */
-    class Admitted(val generation: Long, val source: DocumentSource, val contexts: Set<String?>) {
+    /**
+     * The document the page holds and the contexts in it: [loaded] are those of the document as delivered (what a
+     * restarted page is sent again), [contexts] adds what infinite scroll brought in. [isError]: an error document
+     * standing for [source] after its load failed.
+     */
+    class Admitted(
+        val generation: Long,
+        val source: DocumentSource,
+        val contexts: Set<String?>,
+        val loaded: Set<String?> = contexts,
+        val isError: Boolean = false,
+    ) {
+        fun withContexts(contexts: Set<String?>) = Admitted(generation, source, contexts, loaded, isError)
+
         /** Whether [target] is (still) shown by this document: same window, page object, module and a loaded context. */
         fun shows(target: DocumentSource): Boolean =
             target.window === source.window && target.page === source.page && target.book == source.book &&
@@ -122,12 +155,20 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     val admittedGeneration: Long get() = state.admitted?.generation ?: NO_DOCUMENT_GENERATION
 
     private val requestTokens = atomic(0L)
-    private val waitingPaging = mutableListOf<Pair<() -> Unit, () -> Unit>>()
+
+    /** A chapter request waiting since [since]; main thread only. */
+    private class WaitingPaging(val generation: Long, val call: () -> Unit, val drop: () -> Unit, val since: TimeMark)
+    private val waitingPaging = mutableListOf<WaitingPaging>()
+    private var recheckScheduled = false
 
     /** Set by [DocumentLoader]: shows an error document for [target] after its request failed (main thread). */
     internal var onLoadFailed: (target: DocumentSource, failure: Throwable) -> Unit = { _, _ -> }
 
-    /** Runs [block] on the main thread: inline when called there, otherwise posted (in order). Always runs once. */
+    /**
+     * Runs [block] on the main thread, once, even if the session's scope is cancelled meanwhile. Called there, it
+     * usually runs inline (`Main.immediate`); inside another immediate dispatch it may be queued behind it. From
+     * another thread it is posted, in order.
+     */
     internal fun onMain(block: () -> Unit) {
         session.scope.launch(Dispatchers.Main.immediate, start = CoroutineStart.ATOMIC) { block() }
     }
@@ -135,8 +176,8 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     private fun live() = DocumentSource.of(session.windowOrNull)
 
     /**
-     * Main thread: whether a guarded call of [generation] may act now (see the class comment). A call that writes the
-     * window's position ([acceptsPositionReport]) is stricter.
+     * Main thread: whether a guarded call of [generation] may act now (see the class comment). A scroll report is
+     * stricter: it also waits for no request at all (`ReadingBridge.scrolledToOrdinal`).
      */
     fun admits(generation: Long?): Boolean {
         if (session.isDisposed || generation == null || generation == NO_DOCUMENT_GENERATION) return false
@@ -144,13 +185,6 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         val admitted = s.admitted ?: return false
         return generation == admitted.generation && s.pending?.changesDocument != true && admitted.shows(live())
     }
-
-    /**
-     * Main thread: whether a scroll report of [generation] may write the window's position. Not while ANY request is
-     * pending: the request reads the key the report would write, and a report that lands first makes it stale. Dropping
-     * one report loses nothing, the page sends the next one when it scrolls again.
-     */
-    fun acceptsPositionReport(generation: Long?): Boolean = admits(generation) && state.pending == null
 
     /** Main thread: whether the page reports it shows the document whose calls are admitted now (links, selection). */
     fun pageShowsAdmittedDocument(): Boolean {
@@ -163,9 +197,13 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         state = State(state.admitted, state.pending, generation)
     }
 
-    /** Main thread: the page (re)started; it shows nothing until it reports the document it is sent. */
+    /**
+     * Main thread: the page (re)started; it shows nothing until it reports the document it is sent. It is sent the
+     * admitted document as delivered, so the contexts infinite scroll added are gone with the old page.
+     */
     fun pageRestarted() {
-        state = State(state.admitted, state.pending, NO_DOCUMENT_GENERATION)
+        val admitted = state.admitted
+        state = State(admitted?.withContexts(admitted.loaded), state.pending, NO_DOCUMENT_GENERATION)
     }
 
     /**
@@ -186,8 +224,8 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     /**
      * The request [token] ended without admitting a document, or after it (then a newer state already replaced it).
      * [unchanged]: the page's content stands for the request's target (unchanged commentary). [failure]: it failed; if
-     * it was a request of a different document an error document with a retry replaces the page's ([onLoadFailed]), so
-     * the window is never left silently closed. Otherwise the page's document is admitted again if the window still
+     * it was a request of a different document, or the page shows an error document (a retry that failed again), an
+     * error document with a retry replaces the page's ([onLoadFailed]), so the window is never left silently closed. Otherwise the page's document is admitted again if the window still
      * shows it; if not (a newer page change is on its way) the page stays closed until the next transition.
      */
     fun requestEnded(token: Long, unchanged: Boolean, failure: Throwable?) = onMain {
@@ -197,13 +235,13 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         if (admitted != null && unchanged) {
             admitted = if (pending.target.window === admitted.source.window && pending.target.page === admitted.source.page &&
                 pending.target.book == admitted.source.book) {
-                Admitted(admitted.generation, admitted.source, admitted.contexts + pending.target.context)
+                admitted.withContexts(admitted.contexts + pending.target.context)
             } else {
                 Admitted(admitted.generation, pending.target, setOf(pending.target.context))
             }
         }
         state = State(admitted, null, state.shown)
-        if (failure != null && pending.changesDocument) {
+        if (failure != null && (pending.changesDocument || admitted?.isError == true)) {
             Log.e(TAG, "Load of ${pending.target} failed; showing an error document", failure)
             onLoadFailed(pending.target, failure)
         } else if (admitted != null && !admitted.shows(live())) {
@@ -212,9 +250,13 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         settleWaitingPaging()
     }
 
-    /** Main thread: [generation], loaded from [source], replaces the page's document. Waiting chapter requests drop. */
-    fun admit(generation: Long, source: DocumentSource) {
-        state = State(Admitted(generation, source, setOf(source.context)), null, state.shown)
+    /**
+     * Main thread: [generation], loaded from [source], replaces the page's document; [contexts] are the ones it holds
+     * (a Bible document: the chapters of its range). [isError]: an error document standing for [source]. Waiting
+     * chapter requests drop.
+     */
+    fun admit(generation: Long, source: DocumentSource, contexts: Set<String?> = setOf(source.context), isError: Boolean = false) {
+        state = State(Admitted(generation, source, contexts, isError = isError), null, state.shown)
         dropWaitingPaging()
     }
 
@@ -237,7 +279,15 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     fun addContext(generation: Long, context: String?) {
         val admitted = state.admitted ?: return
         if (admitted.generation != generation) return
-        state = State(Admitted(generation, admitted.source, admitted.contexts + context), state.pending, state.shown)
+        state = State(admitted.withContexts(admitted.contexts + context), state.pending, state.shown)
+        settleWaitingPaging()
+    }
+
+    /** Main thread: the read of [context], reserved by [addContext], failed; the page does not hold it. */
+    fun removeContext(generation: Long, context: String?) {
+        val admitted = state.admitted ?: return
+        if (admitted.generation != generation || context in admitted.loaded) return
+        state = State(admitted.withContexts(admitted.contexts - context), state.pending, state.shown)
     }
 
     /**
@@ -249,32 +299,56 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
      */
     fun runPaging(generation: Long?, call: () -> Unit, drop: () -> Unit) = onMain { evaluatePaging(generation, call, drop) }
 
-    private fun evaluatePaging(generation: Long?, call: () -> Unit, drop: () -> Unit) {
+    private fun evaluatePaging(generation: Long?, call: () -> Unit, drop: () -> Unit, since: TimeMark? = null) {
         val s = state
         val admitted = s.admitted
         when {
             session.isDisposed || admitted == null || generation == null || generation != admitted.generation -> drop()
             s.pending?.changesDocument == true || !admitted.shows(live()) -> {
-                val gen: Long = generation
-                waitingPaging += { evaluatePaging(gen, call, drop) } to drop
+                val waitingSince = since ?: TimeSource.Monotonic.markNow()
+                if (waitingSince.elapsedNow() >= MAX_PAGING_WAIT) {
+                    Log.w(TAG, "A chapter request waited too long for the page's document to stand again; answered null")
+                    drop()
+                } else {
+                    waitingPaging += WaitingPaging(generation, call, drop, waitingSince)
+                    scheduleRecheck()
+                }
             }
             else -> call()
+        }
+    }
+
+    /**
+     * Waiting chapter requests are settled by every transition, and also re-checked periodically: the window can show
+     * the page's document again without any transition (an off-main page change undone before its request), and a
+     * request that can never run is answered null after [MAX_PAGING_WAIT] instead of leaving the page's infinite scroll
+     * waiting for good.
+     */
+    private fun scheduleRecheck() {
+        if (recheckScheduled) return
+        recheckScheduled = true
+        session.scope.launch(Dispatchers.Main) {
+            delay(PAGING_RECHECK)
+            recheckScheduled = false
+            settleWaitingPaging()
         }
     }
 
     private fun settleWaitingPaging() {
         val waiting = waitingPaging.toList()
         waitingPaging.clear()
-        waiting.forEach { (again, _) -> again() }
+        waiting.forEach { evaluatePaging(it.generation, it.call, it.drop, it.since) }
     }
 
     private fun dropWaitingPaging() {
         val waiting = waitingPaging.toList()
         waitingPaging.clear()
-        waiting.forEach { (_, drop) -> drop() }
+        waiting.forEach { it.drop() }
     }
 
     private companion object {
         const val TAG = "DocumentAdmission"
+        val PAGING_RECHECK = 250.milliseconds
+        val MAX_PAGING_WAIT = 10.seconds
     }
 }

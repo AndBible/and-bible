@@ -56,8 +56,12 @@ Calls of such a page must not act on the window that now owns the view (osTicket
   immutable `DocumentSource` = window, page object, module and document context, and the contexts the page holds:
   the loaded chapter plus what infinite scroll added), the pending request (`Window.loadText` ->
   `WindowView.documentRequested`) with whether it changes the document, and the generation the page reports it shows
-  (`documentShown`). The document context is the Bible book + chapter (Bible, MyNotes), the Bible book (commentary),
-  the key (StudyPad, multi-reference, dictionary, map); a general book or EPUB is one document.
+  (`documentShown`). The document context is the Bible book + chapter (Bible: in the module's versification, which
+  the window's verse need not be in; MyNotes: in KJVA; a book introduction, chapter 0, belongs to chapter 1), the
+  Bible book (commentary), and the key for every other page (general book, EPUB, MyDocument / AI page, StudyPad,
+  multi-reference, dictionary, map): another entry that replaces the page is another document. A loaded document's
+  contexts are the chapters of its range; infinite scroll adds a chapter or entry when it reserves it and removes it
+  again when its read fails; a page restart (`setClientReady`) resets them to the replayed document's.
 - Everything is derived from that state where a call acts, on the main thread (`DocumentAdmission.admits`): the call's
   generation is the admitted one, no request of a different document is pending, and the window still shows the
   admitted source (`DocumentSource.of(window)` compared with it). The last check makes a page change that has not
@@ -67,10 +71,12 @@ Calls of such a page must not act on the window that now owns the view (osTicket
   reload of the shown chapter, an unchanged synced commentary) keeps the page's calls admitted; only scroll reports
   (`scrolledToOrdinal`) wait for no request at all, because the request reads the key they write.
 - A request ends (`documentRequestEnded(request, unchanged, failure)`): `unchanged` (the commentary checksum matched)
-  makes the page's document stand for the request; a `failure` of a request of a different document admits an error
-  document with a retry link (`ErrorDocument(retry = true)`, `ab-retry://` -> `window.loadText()`), so the window is
-  never left closed silently; otherwise the page's document counts again only while the window still shows it.
-  `Window.loadText` reports a failing delivery instead of letting it end the app.
+  makes the page's document stand for the request; a `failure` of a request of a different document, or of a retry
+  from an error document, admits an error document with a retry link (`ErrorDocument(retry = true)`, `ab-retry://`
+  -> `window.loadText()`), so the window is never left closed silently; otherwise the page's document counts again
+  only while the window still shows it. `Window.loadText` reports a failing delivery instead of letting it end the
+  app; a delivery that fails after the document was admitted (the web view throws on `clear_document`) shows the
+  error document from `DocumentLoader.loadDocument` itself.
 - JS (`src/bridge/document-generation.ts`): `clear_document` switches the page to the new generation once the cleared
   content has left the DOM, and `native-bridge.ts` puts it on every call's envelope
   (`{method, args, documentGeneration}`). Then the page posts `documentShown(generation)`.
@@ -92,7 +98,10 @@ Calls of such a page must not act on the window that now owns the view (osTicket
     is computed off main from the captured module under a per-direction lock and moves the cursor on main only while
     the page's document is still admitted. A call of a replaced page is answered null at once. While a different
     document is requested, or the window does not show the page's document, the call waits: it runs when the page's
-    document stands again and is answered null when a new document replaces it. A dropped request answers null,
+    document stands again (re-checked every 250 ms as well, since the window can return to it without any transition;
+    answered null after 10 s) and is answered null when a new document replaces it. A general book's next entry is
+    read from the captured module's own key list (`CachedKeyPage.getKeyPlus(key, num, document)`; a key list is
+    cached only for the book it was built from). A dropped request answers null,
     which ends infinite scroll for good, so it must not be dropped while the page's document may still stand.
   - `unguarded`: user data addressed explicitly (ids, book + ordinals), answers to the page, the live page's own state.
   The gate is the bridge itself; a bridge without one gets `ClosedDocumentGate` (guarded and paging calls always

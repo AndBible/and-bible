@@ -267,9 +267,11 @@ class Window (
         suspend fun isCurrentRequest(): Boolean {
             // key can enter an independent blockingAtEdge bridge; do not start it after cancellation.
             currentCoroutineContext().ensureActive()
+            // A page without a key (a dictionary just selected) gets its first entry while it is fetched
+            // (CurrentPageBase.currentPageContent): that key is this request's own, not a newer one (#3975).
             return generation == contentLoadGeneration &&
                 pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
-                currentPage.key?.getOsisRef() == sourceKey
+                (sourceKey == null || currentPage.key?.getOsisRef() == sourceKey)
         }
         val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             pageManager.currentBibleVerse.verse

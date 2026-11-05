@@ -208,31 +208,48 @@ class DocumentLoader(
                     session.windowControl.windowRepository.id != workspaceId) return@withLock
                 labelOverrides = overrides
                 bookmarkLabels = labels
-                session.initialKey = location.first
+                // A Bible page's verse in the MODULE's versification, like its content: the window's verse can be in
+                // another one (a module switch keeps it), and the page's chapters, its jump target and its scroll
+                // reports' ordinals are the module's (#3975).
+                session.initialKey = (location.first as? Verse)?.takeIf { document is BibleDocument }
+                    ?.toV11n((document as BibleDocument).swordBook.versification) ?: location.first
                 initialAnchorOrdinal = location.second
                 initialHtmlId = location.third
                 session.contentVisible = false
                 // Only the admitted document's chapter, not merged with the previous document's range: a stale
                 // scroll report of the previous page must not match it (osTicket 3508). replaceDocument sets the same.
-                val loadedVerse = session.initialKey as? Verse
-                val chapter = loadedVerse?.chapter ?: -1
+                val chapter = loadedChapter(session.initialKey as? Verse)
                 session.minChapter = chapter
                 session.maxChapter = chapter
                 session.firstDocument = document
                 // From now on only calls of the page that received this document act on the window (#3975); chapter
-                // requests of the replaced page are answered null, the page is about to be cleared.
-                val loaded = if (loadedVerse != null && (isBible || document is MyNotesDocument))
-                    source.withContext(DocumentSource.chapterContext(loadedVerse.book, loadedVerse.chapter)) else source
-                admission.admit(generation, loaded)
-                if (docStr.length > MAX_DOC_STR_LENGTH) {
-                    val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
-                    docStr = errorDoc.asJson
-                    session.firstDocument = errorDoc
+                // requests of the replaced page are answered null, the page is about to be cleared. A Bible / MyNotes
+                // document holds the chapters of its range (an introduction is loaded with chapter 1).
+                val contexts = when (document) {
+                    is BibleDocument -> DocumentSource.chapterContexts(document.verseRange)
+                    is MyNotesDocument -> DocumentSource.chapterContexts(document.verseRange)
+                    else -> setOf(source.context)
                 }
-                latestDocumentStr = docStr
-                needsDocument = true
-                platform.enableZoomForMap(session.pageControl.currentPageManager.isMapShown)
-                if (!session.jsChannel.loading) replaceDocument()
+                admission.admit(generation, source, contexts)
+                try {
+                    if (docStr.length > MAX_DOC_STR_LENGTH) {
+                        val errorDoc = ErrorDocument(strings().errorPageTooLarge, ErrorSeverity.NORMAL)
+                        docStr = errorDoc.asJson
+                        session.firstDocument = errorDoc
+                    }
+                    latestDocumentStr = docStr
+                    needsDocument = true
+                    platform.enableZoomForMap(session.pageControl.currentPageManager.isMapShown)
+                    if (!session.jsChannel.loading) replaceDocument()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // The document is admitted but the page never received it (the WebView threw while it was sent):
+                    // the page still shows the previous document, whose calls are closed now. An error document with a
+                    // retry replaces it, instead of a window whose page belongs to no admitted document.
+                    Log.e(TAG, "Delivering admitted document $generation failed; showing an error document", e)
+                    showLoadError(source, e)
+                }
             }
         }
     }
@@ -243,7 +260,12 @@ class DocumentLoader(
      * error document with a retry link (`ab-retry://`, [ReadingLinkHandler]) replaces it and is admitted for [target].
      */
     private fun showLoadError(target: DocumentSource, failure: Throwable) {
-        if (session.isDisposed || !platform.isCurrentView() || session.windowOrNull !== target.window) return
+        if (session.isDisposed || !platform.isCurrentView() || session.windowOrNull !== target.window) {
+            // This page no longer serves target's window (disposed, or its view was handed on): the window's own view
+            // loads it; nothing of this page is admitted for it.
+            Log.w(TAG, "No error document for $target: the page no longer serves its window (${failure.message})")
+            return
+        }
         val errorDoc = ErrorDocument(strings().errorOccurred, ErrorSeverity.ERROR, retry = true)
         val generation = documentLoadingLock.withLock {
             ++documentLoadGeneration
@@ -254,7 +276,7 @@ class DocumentLoader(
         session.minChapter = -1
         session.maxChapter = -1
         session.firstDocument = errorDoc
-        admission.admit(generation, target)
+        admission.admit(generation, target, isError = true)
         documentLoadingLock.withLock {
             latestDocumentStr = errorDoc.asJson
             needsDocument = true
@@ -305,6 +327,9 @@ class DocumentLoader(
     override fun runForPageDocument(generation: Long?, call: () -> Unit, drop: () -> Unit) =
         admission.runPaging(generation, call, drop)
 
+    /** The chapter range a document loaded at [verse] starts with; its book introduction (chapter 0) is chapter 1's. */
+    private fun loadedChapter(verse: Verse?): Int = verse?.chapter?.let { maxOf(it, 1) } ?: -1
+
     private fun addChapter(chapter: Int) {
         when {
             chapter < session.minChapter -> session.minChapter = chapter
@@ -337,8 +362,8 @@ class DocumentLoader(
             generation = admission.admittedGeneration
             needsDocument = false
             session.contentVisible = true
-            session.minChapter = verse?.chapter ?: -1
-            session.maxChapter = verse?.chapter ?: -1
+            session.minChapter = loadedChapter(verse)
+            session.maxChapter = loadedChapter(verse)
             latestDocumentStr
         } ?: return
 
@@ -492,17 +517,42 @@ class DocumentLoader(
         emit(BibleViewEvents.response(callId, null))
     }
 
+    /** Tests: makes the read of a chapter for which this answers true fail. */
+    var chapterReadFailureForTest: ((Int) -> Boolean)? = null
+
     private fun requestMoreChapter(callId: Long, newChap: Int) {
         val page = window.pageManager.currentBible
         val book = page.currentDocument as? org.crosswire.jsword.book.sword.SwordBook ?: return answerNull(callId)
-        val bibleBook = page.currentBibleVerse.verse.book
+        // The page's book, in the module's versification its chapters are numbered in.
+        val bibleBook = (session.initialKey as? Verse)?.book ?: page.currentBibleVerse.getVerseSelected(book.versification).book
         val lastChap = book.versification.getLastChapter(bibleBook)
         if (newChap < 1 || newChap > lastChap) return answerNull(callId)
+        val generation = admission.admittedGeneration
+        val context = DocumentSource.chapterContext(bibleBook, newChap)
         addChapter(newChap)
-        admission.addContext(admission.admittedGeneration, DocumentSource.chapterContext(bibleBook, newChap))
+        admission.addContext(generation, context)
         chapterLoadJobs += launchAnswer(callId) {
-            page.getDocumentForChapter(newChap, book, bibleBook).contentJson()
+            try {
+                check(chapterReadFailureForTest?.invoke(newChap) != true) { "chapter $newChap unreadable" }
+                page.getDocumentForChapter(newChap, book, bibleBook).contentJson()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The page will not hold the chapter: release its reservation, so a later request can read it again.
+                withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main) { releaseChapter(generation, newChap, context) }
+                throw e
+            }
         }
+    }
+
+    /** Main thread: the read of [chapter], reserved for the page of [generation], failed. */
+    private fun releaseChapter(generation: Long, chapter: Int, context: String) {
+        if (admission.admittedGeneration != generation) return
+        when (chapter) {
+            session.maxChapter -> session.maxChapter = chapter - 1
+            session.minChapter -> session.minChapter = chapter + 1
+        }
+        admission.removeContext(generation, context)
     }
 
     /**
@@ -532,7 +582,7 @@ class DocumentLoader(
                             val verse = cursor as? Verse ?: return@withContext null
                             if (forward) commentary.nextBlockStart(verse, book) else commentary.prevBlockStart(verse, book)
                         } else {
-                            generalPage!!.getKeyPlus(cursor, if (forward) 1 else -1).takeIf { it != cursor }
+                            generalPage!!.getKeyPlus(cursor, if (forward) 1 else -1, book).takeIf { it != cursor }
                         }
                     }
                 } catch (e: kotlinx.coroutines.CancellationException) {
@@ -548,7 +598,7 @@ class DocumentLoader(
                     return@launch
                 }
                 if (forward) session.lastKey = next else session.firstKey = next
-                admission.addContext(generation, contextOfKey(next))
+                admission.addContext(generation, contextOfKey(next, isCommentaryPage))
                 next
             }
             if (next == null) return@launch answerNull(callId)
@@ -564,8 +614,9 @@ class DocumentLoader(
         }
     }
 
-    /** The admission context [key] adds ([DocumentSource]): a commentary block's Bible book; a general book is one. */
-    private fun contextOfKey(key: Key): String? = if (isCommentary) (key as? Verse)?.book?.osis else null
+    /** The admission context [key] adds ([DocumentSource]): a commentary block's Bible book, a general book's entry. */
+    private fun contextOfKey(key: Key, commentary: Boolean): String? =
+        if (commentary) (key as? Verse)?.book?.osis else key.getOsisRef()
 
     /**
      * The page reports it has (re)started: it holds no labels and no document. Usually this is the first page of the
@@ -574,8 +625,11 @@ class DocumentLoader(
      * waits in its loading state for good.
      */
     override fun setClientReady() = session.jsChannel.runOnMain {
-        // A (re)started page shows nothing until it reports the document it is sent below.
+        // A (re)started page shows nothing until it reports the document it is sent below, and holds only that
+        // document: what infinite scroll added to the old page is gone with it.
         admission.pageRestarted()
+        // So are the commentary / general book cursors: the replayed document starts at its key again.
+        session.initialKey = session.initialKey
         session.jsChannel.markClientReady()
         documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
         labelsUploaded = false
