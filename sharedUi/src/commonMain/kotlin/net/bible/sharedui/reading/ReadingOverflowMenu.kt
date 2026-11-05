@@ -22,7 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.isPureMonochrome
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -34,7 +34,7 @@ import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.UncappedFontScale
 
 /**
- * The reading-view toolbar's overflow ("3-dot") options menu: a Material3 [DropdownMenu] listing
+ * The reading-view toolbar's overflow ("3-dot") options menu: a Material3 [AbDropdownMenu] listing
  * [items] in order. Ported from classic `MainBibleActivity`'s inflated `R.menu.main_options_menu`
  * (Task 3 builds the real [OptionsMenuItem] list from `OptionsMenuItems` and dispatches [onItemClick]
  * by id). Stateless/controlled: [expanded] and dismissal are owned by the caller (Task 2 wires this
@@ -62,7 +62,7 @@ fun ReadingOverflowMenu(
     TrackOverlay(active = expanded)
     val mono = isPureMonochrome()
     UncappedFontScale {
-        DropdownMenu(
+        AbDropdownMenu(
             expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
             containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
             tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
@@ -76,7 +76,7 @@ fun ReadingOverflowMenu(
 
 /**
  * The menu's row content, factored out of [ReadingOverflowMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
+ * [AbDropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `ReadingOverflowMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup:

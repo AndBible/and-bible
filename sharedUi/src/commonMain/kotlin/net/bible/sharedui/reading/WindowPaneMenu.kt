@@ -25,7 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.isPureMonochrome
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +42,7 @@ import net.bible.sharedui.components.UncappedFontScale
 import net.bible.sharedui.strings.LocalStrings
 
 /**
- * The per-window (☰) pane popup menu: a Material3 [DropdownMenu] listing [items] in order, with
+ * The per-window (☰) pane popup menu: a Material3 [AbDropdownMenu] listing [items] in order, with
  * in-place submenu navigation. Ported from classic `SplitBibleArea`'s inflated window options
  * `PopupMenu` (Plan B Task 4 builds the real [WindowPaneMenuItem] list from classic
  * `getItemOptions` and dispatches [onItemClick] by id). Stateless/controlled: [expanded] and
@@ -86,7 +86,7 @@ fun WindowPaneMenu(
     val showBack = lastShown.showBack
     val mono = isPureMonochrome()
     UncappedFontScale {
-        DropdownMenu(
+        AbDropdownMenu(
             expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
             containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
             tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
@@ -113,7 +113,7 @@ private class LastShownLevel {
 
 /**
  * One level's row content, factored out of [WindowPaneMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
+ * [AbDropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `WindowPaneMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup —

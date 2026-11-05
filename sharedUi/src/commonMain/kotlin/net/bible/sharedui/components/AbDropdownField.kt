@@ -22,6 +22,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,15 +90,54 @@ fun <T> AbDropdownField(
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )
         val mono = isPureMonochrome()
-        ExposedDropdownMenu(
-            expanded = expanded && enabled, onDismissRequest = { expanded = false },
-            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
-            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
-            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-        ) {
+        val menuContent: @Composable ColumnScope.() -> Unit = {
             options.forEach { opt ->
                 DropdownMenuItem(text = { Text(optionLabel(opt)) }, onClick = { onSelect(opt); expanded = false })
             }
         }
+        if (useInstantMenus()) {
+            val density = LocalDensity.current
+            val imeBottom = WindowInsets.ime.getBottom(density)
+            val windowHeight = LocalWindowInfo.current.containerSize.height
+            val position = remember(density, imeBottom, windowHeight) {
+                InstantFieldMenuPosition(with(density) { 48.dp.roundToPx() }, windowHeight, imeBottom)
+            }
+            AbDropdownMenu(
+                expanded = expanded && enabled, onDismissRequest = { expanded = false },
+                // Material's public scope modifier tracks anchor width and visible-window/IME height.
+                modifier = Modifier.exposedDropdownSize(),
+                positionProvider = position,
+                content = menuContent,
+            )
+        } else {
+            ExposedDropdownMenu(
+                expanded = expanded && enabled, onDismissRequest = { expanded = false },
+                tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+                shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+                border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                content = menuContent,
+            )
+        }
+    }
+}
+
+/** Exposed menus choose below/above the field, never centred over it, and avoid the keyboard. */
+internal data class InstantFieldMenuPosition(val margin: Int, val windowHeight: Int, val imeBottom: Int) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        // Popup hosts may already exclude the IME from windowSize; do not subtract it twice.
+        val visibleHeight = if (windowHeight > 0) minOf(windowSize.height, windowHeight - imeBottom) else windowSize.height
+        val horizontal = InstantMenuPosition(0, 0, margin)
+            .calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize).x
+        val height = popupContentSize.height
+        val y = listOf(anchorBounds.bottom, anchorBounds.top - height)
+            .firstOrNull { it >= margin && it + height <= visibleHeight - margin }
+            ?: if (height >= visibleHeight - 2 * margin || anchorBounds.center.y < visibleHeight / 2) margin
+            else visibleHeight - margin - height
+        return IntOffset(horizontal, y)
     }
 }

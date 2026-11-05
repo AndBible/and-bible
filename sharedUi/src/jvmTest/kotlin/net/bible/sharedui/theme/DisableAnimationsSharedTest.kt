@@ -53,7 +53,7 @@ import androidx.compose.ui.test.performClick
 /**
  * osTicket 3499 on iOS (and desktop): those hosts cannot put the app's zero motion-duration scale into the recomposer
  * context the way Android's `AppWindowRecomposer` does (CMP 1.11's `ComposeUIViewController` creates its scene
- * privately, with no coroutine-context hook; Material 3 1.4's MotionScheme is internal). The shared fallback is in
+ * privately, with no coroutine-context hook; Material 3 1.4's MotionScheme is Kotlin-internal). The shared fallback is in
  * [AbModalBottomSheet] (every app sheet) and [AbNavHost], driven by `LocalDisableAnimations`, and this desktop test
  * sees exactly what iOS sees: a composition with no [androidx.compose.ui.MotionDurationScale].
  *
