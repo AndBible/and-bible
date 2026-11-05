@@ -257,7 +257,7 @@ jobs:
     if: github.ref_type == 'tag' && (startsWith(github.ref_name, 'test-') || startsWith(github.ref_name, 'production-'))
     needs: [linux-packages, windows]
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 75
     permissions: {contents: write}
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -286,9 +286,17 @@ jobs:
           copy_one andbible-desktop-appimage '*.AppImage' "andbible-desktop-$TAG-x86_64.AppImage"
           copy_one andbible-desktop-tarball '*.tar.gz' "andbible-desktop-$TAG-linux-x64.tar.gz"
           copy_one andbible-desktop-windows-x64 '*.msi' "andbible-desktop-$TAG-x64.msi"
-          deadline=$((SECONDS + 1800))
-          until gh release view "$TAG" >/dev/null 2>&1; do
-            if (( SECONDS >= deadline )); then printf 'Release was not created within 30 minutes\n' >&2; exit 1; fi
+          # Releases are immutable: assets can be added only to a draft. The APK workflow creates the
+          # draft with the two APKs; wait for it, add the desktop packages, then publish it.
+          apks_ready() {
+            gh release view "$TAG" --json isDraft,assets \
+              --jq "select(.isDraft) | [.assets[].name] | (index(\"andbible-$TAG.apk\") != null and index(\"calculator-$TAG.apk\") != null)" \
+              2>/dev/null | grep -qx true
+          }
+          deadline=$((SECONDS + 3600))
+          until apks_ready; do
+            if (( SECONDS >= deadline )); then printf 'Draft release with both APKs did not appear within 60 minutes\n' >&2; exit 1; fi
             sleep 60
           done
           gh release upload "$TAG" release/* --clobber
+          gh release edit "$TAG" --draft=false
