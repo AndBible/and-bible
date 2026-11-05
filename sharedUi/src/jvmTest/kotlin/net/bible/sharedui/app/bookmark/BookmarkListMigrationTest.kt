@@ -52,6 +52,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.assertNull
 
 /** Exercises the real Room-backed service and controller through the shared bookmark screen. */
@@ -141,6 +142,16 @@ class BookmarkListMigrationTest {
                     assertEquals(expected, actual)
                 }
                 checkOrder(listOf("seed beta", "seed gamma", "seed alpha"))
+                val expectedReferences = mapOf(
+                    "seed beta" to setOf("Genesis 1:1", "Gen 1:1"),
+                    "seed gamma" to setOf("John 3:16", "Joh 3:16"),
+                    "seed alpha" to setOf("Revelation of John 1:1", "Revelation 1:1", "Rev 1:1"),
+                )
+                controller.rows.value.forEach { row ->
+                    val note = row.notes!!.runs.joinToString("") { it.text }
+                    assertTrue(row.title in expectedReferences.getValue(note), "Wrong reference for $note: ${row.title}")
+                    onNodeWithText(row.title).assertExists()
+                }
                 onNodeWithContentDescription(strings.sortByBibleBookLabel).performClick()
                 checkOrder(listOf("seed alpha", "seed gamma", "seed beta"))
                 onNodeWithContentDescription(strings.sortByBibleBookLabel).performClick()
