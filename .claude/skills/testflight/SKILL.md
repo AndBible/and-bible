@@ -21,7 +21,7 @@ Chat with the maintainer in Finnish (AskUserQuestion forms too); this file and t
 ## 1. Prerequisites
 
 Check each one; when one is missing ask with AskUserQuestion to run the host command, and wait. Never look for
-keys elsewhere.
+keys elsewhere, and never print or cat `asc-api.env`, the key or gpg output.
 
 - Secrets: `~/.release-secrets/` has `asc-api.env` and `AuthKey_<id>.p8.gpg`. Host: `jailbee mount release-secrets <container> --for 2h`
   (env override: `RELEASE_SECRETS_SRC`).
@@ -57,7 +57,8 @@ volume: the output prints `mac asckey volumes after detach: ...`; if a WARNING s
 
 | Symptom | Fix |
 |---|---|
-| "Bad PIN" at decrypt | Happened once; ask the maintainer to retry, run again. |
+| "Bad PIN" at decrypt | Happened once; ask the maintainer to retry, run again. Rerunning after a decrypt failure is safe (nothing built or sent). A failure after the archive or upload step is never retried automatically. |
+| `result=FAIL upload` (network/upload failure after a good export) | Read `upload.log`; ask the maintainer to check App Store Connect whether the build arrived. Never rerun without a new ask (a rerun uses a new build number). |
 | Dirty tree refusal | Commit (or stash), rerun. |
 | Mac lock held by another container | Wait for it; do not `unlock` another container's lock. |
 | Version/commit mismatch with `Version.xcconfig` | Stale sync; rerun (the sync regenerates it). |
@@ -77,6 +78,6 @@ commit the gitlink bump (`git add docs/superpowers`) in and-bible. Never push.
 
 ## 7. Cleanup
 
-`scripts/mac-remote.sh cleanup` (also removes the archive and IPA under `build/release/` on the Mac). Remind the
+`scripts/mac-remote.sh cleanup` (it keeps the newest archive/IPA/export under `build/release/` on the Mac and deletes only older ones). Remind the
 maintainer to run on the host: `jailbee unmount release-secrets <container>`. Keep the `.local/release/testflight/<build>/`
 evidence only as long as the status entry needs it (`.local/` is shared scratch).
