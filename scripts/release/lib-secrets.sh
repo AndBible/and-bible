@@ -36,7 +36,7 @@ secrets_open() {
 secrets_decrypt() {
     local src="$1" name="$2" out
     [ -n "${SECRETS_DIR:-}" ] || { echo "secrets_decrypt: secrets_open first" >&2; return 1; }
-    [ -f "$src" ] || src="${RELEASE_SECRETS_SRC:-$HOME/.release-secrets}/$src"
+    case "$src" in */*) ;; *) src="${RELEASE_SECRETS_SRC:-$HOME/.release-secrets}/$src" ;; esac
     [ -f "$src" ] || { echo "secrets_decrypt: missing $1" >&2; return 1; }
     out="$SECRETS_DIR/$name"
     install -m 600 /dev/null "$out"
@@ -48,7 +48,9 @@ secrets_close() {
     [ -n "${SECRETS_DIR:-}" ] || return 0
     if [ -d "$SECRETS_DIR" ]; then
         find "$SECRETS_DIR" -type f -exec shred -u {} + 2>/dev/null
-        [ "${RELEASE_RAMDIR_MOUNT:-}" = none ] || sudo -n umount "$SECRETS_DIR" 2>/dev/null
+        if [ "${RELEASE_RAMDIR_MOUNT:-}" != none ] && ! sudo -n umount "$SECRETS_DIR" 2>/dev/null; then
+            echo "secrets: WARNING: could not unmount the RAM dir (files were shredded)" >&2
+        fi
         rm -rf "$SECRETS_DIR" 2>/dev/null
         echo "secrets: RAM dir closed" >&2
     fi

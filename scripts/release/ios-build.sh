@@ -44,6 +44,7 @@ echo "version $VERSION"
 echo "commit $COMMIT"
 
 # 2. Mac lock: stop (do not wait, do not decrypt) when another container holds it.
+# A stale ('holder GONE') lock of another container refuses too, deliberately: breaking it is mac-remote's call.
 check_out=$("$MAC_REMOTE" check 2>&1) || die "mac-remote check failed"
 if holder=$(printf '%s\n' "$check_out" | grep -m1 '^BUILD LOCK held by:'); then
     if ! printf '%s\n' "$check_out" | grep -q 'holder is THIS container'; then
@@ -80,11 +81,15 @@ fi
 # 3. Everything below is covered by the EXIT trap: the Mac volume is detached (if it was ever attached) and the
 #    container RAM dir closed after success, failure or a signal.
 mac_detach() {
-    local rc=$?
+    local rc=$? out
+    trap '' INT TERM HUP    # a second Ctrl-C must not interrupt the detach or the RAM dir cleanup
     trap - EXIT
     if [ -n "$VOL" ]; then
-        "${SSH[@]}" "d=\$(df /Volumes/$VOL 2>/dev/null | awk 'NR==2{print \$1}'); [ -n \"\$d\" ] && hdiutil detach \$d >/dev/null; hdiutil info | grep -c asckey || true" 2>&1 </dev/null \
-            | sed 's/^/mac asckey volumes after detach: /'
+        if out=$("${SSH[@]}" -o ConnectTimeout=20 "d=\$(df /Volumes/$VOL 2>/dev/null | awk 'NR==2{print \$1}'); [ -n \"\$d\" ] && hdiutil detach \$d >/dev/null; hdiutil info | grep -c asckey || true" 2>&1 </dev/null); then
+            echo "mac asckey volumes after detach: $out"
+        else
+            echo "ios-build: WARNING: could not detach /Volumes/$VOL on the Mac; the API key may still be there. Detach by hand: ssh ${MAC_HOST:-andbible-mac} 'hdiutil detach /Volumes/$VOL'" >&2
+        fi
     fi
     secrets_close
     exit "$rc"

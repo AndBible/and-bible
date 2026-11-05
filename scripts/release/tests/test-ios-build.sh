@@ -21,6 +21,7 @@ cat > "$T/bin/ssh" <<'EOS'
 echo "ssh $*" >> "$STUB_DIR/calls"
 printf 'ssh %s\n' "$*" >> "$STUB_DIR/argv"
 if [ ! -t 0 ]; then n=$(wc -c); echo "stdin $n" >> "$STUB_DIR/stdin"; fi
+case "$*" in *"hdiutil detach"*) [ -z "${STUB_DETACH_SLEEP:-}" ] || { echo detach-start > "$STUB_DIR/detach-started"; sleep "$STUB_DETACH_SLEEP"; echo detach-done > "$STUB_DIR/detach-done"; } ;; esac
 case "$*" in *"hdiutil info"*) echo 0 ;; *"ram://"*) echo "-rw------- 40" ;; esac
 exit "${STUB_SSH_RC:-0}"
 EOS
@@ -60,7 +61,7 @@ mk_repo() {   # fresh temp repo with jsword, kdom, docs/superpowers submodules
     git -c protocol.file.allow=always submodule add -q "$T/sub/superpowers" docs/superpowers
     git -c protocol.file.allow=always submodule add -q "$T/sub/superpowers" app/src/test/roborazzi
     git add -A; git commit -q -m init
-    printf 'ok\n' > "$STUB_DIR/check.out"; echo "build lock: free" > "$STUB_DIR/check.out"
+    echo "build lock: free" > "$STUB_DIR/check.out"
 }
 build() {   # build [args]: run ios-build with the stubs; output in $T/out, status in $RC
     PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" \
@@ -102,7 +103,7 @@ test_dirty_parent_refuses() {
     mk_repo; echo x > untracked.txt; build
     [ "$RC" != 0 ] && grep -q 'not clean' "$T/out" || return "$(fail "rc=$RC $(cat "$T/out")")"
     [ ! -e "$STUB_DIR/mrcalls" ] || return "$(fail "mac-remote called")"
-    git rm -q -f --cached untracked.txt 2>/dev/null; rm -f untracked.txt
+    rm -f untracked.txt
     echo more >> version.properties; build
     [ "$RC" != 0 ] || return "$(fail "tracked change accepted")"
 }
@@ -158,6 +159,31 @@ test_detach_on_interrupt() {
     [ "$RC" = 130 ] || return "$(fail "rc=$RC, want 130: $(cat "$T/out")")"
     grep -q 'hdiutil detach' "$STUB_DIR/argv" || return "$(fail "no detach after SIGINT")"
     [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+}
+test_second_interrupt_during_detach() {
+    mk_repo; export STUB_RUN_SLEEP=20 STUB_RUN_MARK="$T/runmark" STUB_DETACH_SLEEP=2; rm -f "$T/runmark"
+    PATH="$T/bin:$PATH" STUB_DIR="$STUB_DIR" STUB_SENTINEL="$SENTINEL" REPO_ROOT="$R" MAC_REMOTE="$T/mac-remote" \
+        RELEASE_SECRETS_SRC="$T/secrets" RELEASE_RAMDIR_MOUNT=none TMPDIR="$T/tmp" HOME="$T/home" \
+        MAC_SSH_CONFIG=/dev/null MAC_HOST=testmac \
+        perl -e '$SIG{INT}="DEFAULT"; setpgrp(0,0); exec @ARGV' bash "$SCRIPT" > "$T/out" 2>&1 &
+    local pid=$! i
+    unset STUB_RUN_SLEEP STUB_RUN_MARK STUB_DETACH_SLEEP
+    for i in $(seq 100); do [ -e "$T/runmark" ] && break; sleep 0.1; done
+    [ -e "$T/runmark" ] || { kill -9 -- -"$pid" 2>/dev/null; return "$(fail "run never started")"; }
+    kill -INT -- -"$pid"
+    for i in $(seq 100); do [ -e "$STUB_DIR/detach-started" ] && break; sleep 0.1; done
+    [ -e "$STUB_DIR/detach-started" ] || { kill -9 -- -"$pid" 2>/dev/null; return "$(fail "detach never started")"; }
+    kill -INT -- -"$pid"   # second Ctrl-C while the detach ssh runs
+    wait "$pid"; RC=$?
+    [ -e "$STUB_DIR/detach-done" ] || return "$(fail "detach interrupted by the second SIGINT")"
+    [ "$RC" = 130 ] || return "$(fail "rc=$RC, want 130")"
+    [ "$(ramdirs)" = 0 ] || return "$(fail "ramdir left")"
+}
+test_failed_detach_warns() {
+    mk_repo
+    export STUB_SSH_RC=1; build; unset STUB_SSH_RC
+    grep -q 'WARNING: could not detach /Volumes/asckey-' "$T/out" || return "$(fail "no detach warning: $(cat "$T/out")")"
+    grep -q "hdiutil detach /Volumes/asckey-" "$T/out" || return "$(fail "no manual command")"
 }
 test_ramdir_gone_after_success() {
     mk_repo; build
