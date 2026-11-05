@@ -81,7 +81,11 @@ keep / candidate (labels + Priority; candidates also require P1 or P2, Size, and
 PRs: reimplement (close with thanks; idea goes to an issue) · reject · review (stays open, In review;
 the maintainer's own PRs land here) · stale-draft.
 Decision file format: see "Decision file format" in
-`docs/superpowers/plans/2026-10-10-issue-triage-and-project-board.md`, Task 8.
+`docs/superpowers/plans/2026-10-10-issue-triage-and-project-board.md`, Task 8. Brand-new issues (not
+from an existing issue or PR) and comment-only notes on open issues go in the optional top-level
+`new_issues:` and `comments:` lists (format in the `decision_ops` docstring of `tools/triage/stage.py`;
+worked example `triage/decisions/open-work-2026-11-06.yaml`). New issues are auto-added to the board by
+project automation; `apply.py` treats that as a satisfied `board.add` and still sets the fields.
 
 ## Flows
 
