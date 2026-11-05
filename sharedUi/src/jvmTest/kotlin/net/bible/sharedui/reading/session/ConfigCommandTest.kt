@@ -88,6 +88,14 @@ class ConfigCommandTest {
     }
 
     @Test
+    fun hostConfigCarriesTheInstalledFontModules() {
+        val js = ConfigCommand.build(true, inputs().copy(fontModuleNames = listOf("TTF_Study Font"))).js
+        assertTrue(js.contains("fontModuleNames: [\"TTF_Study Font\"]"), js)
+        val android = ConfigCommand.build(true, inputs()).js
+        assertTrue(!android.contains("fontModuleNames:"), "Android retains its URL/reload_addons font source")
+    }
+
+    @Test
     fun speakButtonIsDisabledOnlyWhereSpeechIsUnsupported() {
         assertEquals(setOf("SHARE"), withSpeakGate(setOf("SHARE"), speakSupported = true))
         assertEquals(setOf("SHARE", "SPEAK"), withSpeakGate(setOf("SHARE"), speakSupported = false))

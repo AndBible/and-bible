@@ -204,6 +204,7 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
+    fontModuleNames: string[] | null,
     themeColors: ThemeColors | null,
 }
 
@@ -316,6 +317,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
+        fontModuleNames: null,
         themeColors: null,
     });
 

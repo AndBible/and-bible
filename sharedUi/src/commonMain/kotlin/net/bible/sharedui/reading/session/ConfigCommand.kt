@@ -60,6 +60,8 @@ data class ConfigInputs(
     val disableClickToEdit: Boolean,
     val llmConfigured: Boolean,
     val notesContentType: String,
+    /** Null preserves Android's separate URL/reload_addons source; host platforms supply their live font catalog. */
+    val fontModuleNames: List<String>? = null,
 )
 
 /** Builds the `set_config` JS call; pure, so equal inputs give the identical script. */
@@ -104,6 +106,7 @@ object ConfigCommand {
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: $llmConfigured,
                         notesContentType: "$notesContentType",
+                        ${fontModuleNames?.let { "fontModuleNames: ${json.encodeToString(it)}," }.orEmpty()}
                     },
                     initial: $initial,
                     }

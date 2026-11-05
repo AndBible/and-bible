@@ -135,6 +135,8 @@ class HostDocumentLoaderPlatform(
             disableClickToEdit = s.getBoolean("disable_click_to_edit", false),
             llmConfigured = llmConfigured(),
             notesContentType = s.getString("notes_content_type", "HTML") ?: "HTML",
+            fontModuleNames = net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() })
+                .fonts().map { it.module }.distinct(),
         )
     }
 

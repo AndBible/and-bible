@@ -198,6 +198,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 documentControl = { get() },
                 settings = { get() },
                 backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
+                installedFonts = { scanner.fonts() },
             )
         }
         single<net.bible.sharedlogic.platform.BackgroundImageCatalog> { get<AddonCatalog>() as SharedAddonCatalog }

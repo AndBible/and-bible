@@ -30,13 +30,15 @@ import org.crosswire.jsword.book.Book
 
 private const val TAG = "SharedAddonScanner"
 
+private fun safeFontPath(path: String): Boolean = path.isNotEmpty() && !path.startsWith('/') &&
+    '\\' !in path && ':' !in path && '\u0000' !in path && path.split('/').none { it == "." || it == ".." }
+
 /**
  * Platform-free reading of the add-on metadata that `AndBibleAddons` (`:app`, `java.io.File` API) reads on
- * Android: `AndBibleProvidesReadingPlan`, `AndBibleReadingPlanDateBased` and `AndBibleProvidesPrompts`, with
- * the same semantics (plan key = file name without its last extension, later books win, date-based flag is the
- * book-level property compared to `True` ignoring case, a prompt pack is listed only when its file is readable).
- * `AndBibleAddons` itself is not moved because Streams A and B use its `File` API; the oracle test in `:app`
- * compares the two on the same books. Bound on iOS only.
+ * Android: reading plans, prompts, background images and `AndBibleProvidesFont`. Plan keys are file names without
+ * their last extension, later books win, and date-based flags compare to `True` ignoring case. Fonts are listed
+ * only for regular files inside their module (including symlink resolution); malformed font markers are ignored.
+ * `AndBibleAddons` retains Android's `File` API; iOS and desktop use this scanner.
  *
  * [books] returns the installed add-on books (the platform applies `AndBibleAddonFilter`); the result is cached
  * until [clearCaches], as `AndBibleAddons` caches it. Deviation: a book without a location is skipped (Android
@@ -59,6 +61,26 @@ class SharedAddonScanner(
 
     /** `File(parent, child)` on Android drops leading separators of a relative-looking child; do the same. */
     private fun Path.child(name: String): Path = this / name.trimStart('/')
+
+    /** Live font metadata, shared by the chooser and BibleView's generated stylesheet. Later families win. */
+    fun fonts(): List<net.bible.sharedlogic.platform.AddonFont> {
+        val byName = linkedMapOf<String, net.bible.sharedlogic.platform.AddonFont>()
+        for (book in addons) {
+            val base = book.base() ?: continue
+            for (marker in book.bookMetaData.getValues("AndBibleProvidesFont").orEmpty()) {
+                val parts = marker.split(';', limit = 2)
+                if (parts.size != 2 || parts[0].isBlank() || !safeFontPath(parts[1])) continue
+                val file = base / parts[1]
+                val realBase = try { files.canonicalize(base) } catch (_: Exception) { continue }
+                val real = try { files.canonicalize(file) } catch (_: Exception) { continue }
+                if (real.root != realBase.root || real.segments.size <= realBase.segments.size ||
+                    real.segments.take(realBase.segments.size) != realBase.segments ||
+                    files.metadataOrNull(real)?.isRegularFile != true) continue
+                byName[parts[0]] = net.bible.sharedlogic.platform.AddonFont(book.initials, parts[0], parts[1])
+            }
+        }
+        return byName.values.toList()
+    }
 
     fun readingPlans(): Map<String, AddonReadingPlan> {
         val byCode = LinkedHashMap<String, AddonReadingPlan>()

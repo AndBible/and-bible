@@ -22,17 +22,25 @@ export function useAddonFonts() {
     const elements: HTMLElement[] = [];
 
     setupEventBusListener("reload_addons", ({fontModuleNames}: { fontModuleNames: string[] }) => {
-        reloadFonts(fontModuleNames)
+        reloadFonts(fontModuleNames, true)
     })
 
-    function reloadFonts(fontModuleNames: string[]) {
+    // Host platforms deliver a live list with set_config; Android keeps its URL/reload_addons source.
+    setupEventBusListener("set_config", ({appSettings}: {appSettings?: {fontModuleNames?: string[]}}) => {
+        if (appSettings?.fontModuleNames !== undefined) reloadFonts(appSettings.fontModuleNames);
+    })
+
+    let loadedModules: string[] | undefined;
+    function reloadFonts(fontModuleNames: string[], force = false) {
+        if (!force && loadedModules?.length === fontModuleNames.length && loadedModules.every((name, i) => name === fontModuleNames[i])) return;
+        loadedModules = [...fontModuleNames];
         for (const e of elements) {
             e.remove();
         }
         elements.splice(0);
         for (const modName of fontModuleNames) {
             const link = document.createElement("link");
-            link.href = `/fonts/${modName}/fonts.css`;
+            link.href = `/fonts/${encodeURIComponent(modName)}/fonts.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
             document.getElementsByTagName("head")[0].appendChild(link)

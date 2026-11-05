@@ -98,6 +98,26 @@ class SharedAddonScannerTest {
         assertEquals("/mods/photo/images/leaf.jpg".toPath(), inventory.getValue("Photo").path)
     }
 
+    @Test fun fontCatalogRejectsMalformedMissingAndEscapingFilesAndUsesTheLastFamily() {
+        touch("/mods/a/one.ttf")
+        touch("/mods/b/two.ttf")
+        touch("/outside.ttf")
+        fs.allowSymlinks = true
+        fs.createSymlink("/mods/a/link.ttf".toPath(), "/outside.ttf".toPath())
+        val a = FakeAddonBook(FakeAddonMetaData("A", "/mods/a", mapOf("AndBibleProvidesFont" to listOf(
+            "Study;one.ttf", "Malformed", ";one.ttf", "Missing;absent.ttf", "Outside;../../outside.ttf", "Link;link.ttf",
+        )), emptyMap()))
+        val b = FakeAddonBook(FakeAddonMetaData("B", "/mods/b", mapOf("AndBibleProvidesFont" to listOf("Study;two.ttf")), emptyMap()))
+        var installed = listOf(a)
+        val scanner = SharedAddonScanner({ installed }, fs)
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf")), scanner.fonts())
+        installed = listOf(a, b)
+        scanner.clearCaches()
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("B", "Study", "two.ttf")), scanner.fonts())
+        fs.delete("/mods/b/two.ttf".toPath())
+        assertEquals(listOf(net.bible.sharedlogic.platform.AddonFont("A", "Study", "one.ttf")), scanner.fonts())
+    }
+
     @Test fun promptPackSourceReadsTheScannerLive() {
         touch("/m/p.csv")
         val source = SharedPromptPackSource(SharedAddonScanner({ listOf(fakeAddonBook("M", "/m", prompts = "p.csv")) }, fs))
