@@ -130,4 +130,10 @@ push:
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push
+# Release pipeline (I4c-1)
+# TestFlight internal build of the clean HEAD (one YubiKey touch): make testflight [DEST=export]
+# DEST=export builds and checks the IPA but does not upload it.
+testflight:
+	@scripts/release/ios-build.sh $(if $(filter export,$(DEST)),--export-only,)
+
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push testflight
