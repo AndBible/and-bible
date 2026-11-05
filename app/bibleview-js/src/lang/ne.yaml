@@ -8,6 +8,7 @@ noteTextWithoutType: पादटिप्पणीहरू
 crossReferenceText: अन्तरसन्दर्भहरू
 findAllOccurrences: सबै उपस्थितिहरू फेला पार्नुहोस्
 reportError: त्रुटि रिपोर्ट गर्नुहोस्
+retryLoad: फेरि प्रयास गर्नुहोस्
 errorTitle: त्रुटि भयो
 warningTitle: चेतावनी
 normalTitle: कृपया ध्यान दिनुहोस्
@@ -36,6 +37,7 @@ createdAt: "बनाइयो: %s"
 lastUpdatedOn: "अन्तिम अपडेट: %s"
 strongsAndMorph: परिभाषा र आकारशास्त्र
 externalLink: बाह्य लिङ्क खोल्नुहोस्
+internalLink: आन्तरिक लिङ्क खोल्नुहोस्
 referenceLink: सन्दर्भ लिङ्क खोल्नुहोस्
 openFootnote: पादटिप्पणी खोल्नुहोस्
 noMyNotesTitle: यस अध्यायको लागि मेरा टिप्पणीहरू छैनन्।
@@ -92,6 +94,7 @@ editActionModeAppend: पाठ जोड्नुहोस्
 editActionModePrepend: पाठ अगाडि राख्नुहोस्
 editActionContentLabel: सामग्री
 editActionContentPlaceholder: कागजातमा थपिने पाठ प्रविष्ट गर्नुहोस्...
+editActionContentRequired: सामग्री लेख्नुहोस् वा कुनै पनि छैन चयन गर्नुहोस्।
 experimentalFeatureTitle: प्रायोगिक
 experimentalFeatureHelpTitle: प्रायोगिक सुविधाहरूको बारेमा
 experimentalFeatureHelpContent: प्रायोगिक सुविधाहरू नयाँ क्षमताहरू हुन् जुन अझै विकास र परीक्षण गरिँदैछन्। तिनीहरू पूर्ण रूपमा काम नगर्न सक्छन् र भविष्यका अनुप्रयोग संस्करणहरूमा महत्त्वपूर्ण रूपमा परिवर्तन वा हटाउन सकिन्छन्।

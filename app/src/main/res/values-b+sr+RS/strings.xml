@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible није могао да покрене WebView2, који је потребан за приказ текста Библије. Инсталирајте или поправите Microsoft Edge WebView2 Evergreen Runtime са:\n%1$s\n\nДетаљи су у датотеци дневника:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible захтева Direct3D графику за приказ текста Библије помоћу WebView2. Тренутни графички рендерер је %1$s. Проверите графички драјвер и подршку за Direct3D.\n\nДетаљи су у датотеци дневника:\n%2$s</string>
+  <string name="desktop_update_setting_title">Провери ажурирања</string>
+  <string name="desktop_update_setting_summary">Једном дневно, са github.com</string>
+  <string name="desktop_update_consent_title">Проверити ажурирања?</string>
+  <string name="desktop_update_consent_message">AndBible може једном дневно да провери github.com због новије верзије. GitHub види вашу IP адресу; ништа друго се не шаље. Ово можете касније променити у поставкама.</string>
+  <string name="desktop_update_consent_yes">Провери ажурирања</string>
+  <string name="desktop_update_consent_no">Не проверавај</string>
+  <string name="desktop_update_available_title">Доступна је нова верзија</string>
+  <string name="desktop_update_available_message">Доступан је AndBible %1$s. Ви имате %2$s.</string>
+  <string name="desktop_update_download">Преузми</string>
+  <string name="desktop_update_later">Касније</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Учење Библије</string>
   <string name="app_name_medium">Учење Библије (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">Пронађено %d резултата</string>
   <string name="search_showing_first">Превише резултата. Приказујем први %d</string>
   <string name="search_bible_section_group_prompt">Где тражити</string>
+  <string name="search_type_prompt">Врста претраге</string>
+  <string name="search_show_results">Прикажи резултате претраге</string>
   <string name="search_all_bible">Цела Библија</string>
   <string name="search_new_testament">Нови Завет</string>
   <string name="search_old_testament">Стари Завет</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Пронађите \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Преводи</string>
+  <string name="recent_searches">Недавне претраге</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Затвори претрагу</string>
+  <string name="search_options">Поставке претраге</string>
+  <string name="search_submit">Претражи</string>
+  <string name="search_clear">Обриши текст претраге</string>
+  <string name="search_engine_changed_reindex">Претраживач је ажуриран. Индекс претраге мора поново да се направи; ово може потрајати.</string>
+  <string name="search_unsupported_syntax">Ова претрага користи синтаксу која није подржана: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Када се индексирање заврши, претрага ће се аутоматски покренути.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s се не може претраживати</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Овај документ се не може претраживати</string>
+  <string name="search_indexing_notification_title">Прављење индекса претраге</string>
   <string name="choose_translations">Изаберите преводе…</string>
   <string name="multi_search_results">%1$d стихова у %2$d превода</string>
   <string name="search_index_not_created">нема индекса</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Изаберите како се боје приказују. Боја е-инк задржава црно-белу основу, али приказује боје обележивача, индикатор активног прозора и помоћне линије у боји — за е-инк екране у боји.</string>
   <string name="prefs_display_color_mode_normal">Нормално</string>
   <string name="prefs_display_color_mode_bw">Црно-бело</string>
+  <string name="prefs_display_color_mode_monochrome">Монохроматски</string>
   <string name="prefs_display_color_mode_color_eink">Е-инк у боји</string>
+  <string name="prefs_theme_palette_style_title">Стил теме</string>
+  <string name="prefs_theme_palette_style_summary">Како се боје апликације изводе из боје радне површи. Примењује се само када је режим боја Нормално.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Тонска тачка (меко, задржава сиво)</string>
+  <string name="prefs_theme_palette_style_fidelity">Верност (тачна боја)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Тонска тачка (оригинално)</string>
+  <string name="prefs_theme_palette_style_content">Садржај (близу боје)</string>
+  <string name="prefs_theme_palette_style_neutral">Неутрално (пригушено)</string>
+  <string name="prefs_theme_palette_style_monochrome">Монохроматски (сиво)</string>
+  <string name="prefs_theme_palette_style_vibrant">Живо</string>
+  <string name="prefs_theme_palette_style_expressive">Изражајно</string>
+  <string name="prefs_theme_palette_style_rainbow">Дуга</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Воћна салата</string>
   <string name="prefs_eink_settings_cat">Подешавања е-мастила</string>
   <string name="prefs_eink_display_title">Функције е-мастила</string>
   <string name="prefs_eink_display_summary">Омогући функције специфичне за е-мастило (дугмад за скроловање страница, линије помагача за скроловање)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Аутоматски означи поглавља као прочитана када их прескролујеш</string>
   <string name="reading_progress_read_count_scale">Прочитано\nБројем</string>
   <string name="reading_progress_percent_read_scale">Проценат\nПрочитаног</string>
+  <string name="monochrome_activity_count">Број активности: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Број: %d</string>
+  <string name="monochrome_level">Ниво: %d/4</string>
+  <string name="monochrome_buckets">Сиво: ништа; оивичено: делимично; попуњено: пуно или највиши ниво. Изаберите ставку за тачне вредности.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Историја читања</string>
   <string name="reading_progress_history_for">Напредак читања за %1$s</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">Уреди подешавања приказа текста за ову радну површ</string>
   <string name="global_text_options_link">Глобалне опције текста</string>
   <string name="global_text_options_link_summary">Уреди подразумевана подешавања приказа текста за све радне површи</string>
+  <string name="text_options_inherited_workspace">Радна површ</string>
+  <string name="text_options_inherited_global">Глобално</string>
   <string name="prefs_font_and_colors_title">Слова и боје</string>
   <string name="prefs_text_layout_title">Распоред текста</string>
   <string name="prefs_strongs_and_morphology_title">Стронг и морфологија</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace">Радна површ</string>
   <string name="copy_settings_to_window">Прозор %1$d (%2$s:%3$s)</string>
   <string name="copy_settings_to_global">Глобалне подразумеване вредности</string>
+  <string name="copy_settings_to_workspaces">У друге радне површи…</string>
+  <string name="copy_settings_to_global_defaults">У глобалне подразумеване вредности…</string>
+  <string name="menu_back">Назад</string>
   <string name="change_to_normal">Промени у обичан прозор</string>
   <string name="window_pin_mode">Истакни</string>
   <!--Notes screen-->
@@ -311,6 +372,7 @@
   <string name="failed_repositories_message">Неуспело повезивање на ризнице следећег документа: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следеће датотеке не могу бити преузете:n\n%s\n\n</string>
   <string name="cant_delete_document">Овај документ се не може избрисати</string>
+  <string name="bad_document_warning">Овај документ има познатих проблема.</string>
   <!--Install zip file-->
   <string name="install_zip">Учитај документа из Менаџера фајлова</string>
   <string name="install_zip_module">Угради библијски модул</string>
@@ -379,6 +441,11 @@
   <string name="delete_index">Избриши индекс претраге</string>
   <string name="about">О програму</string>
   <string name="delete_doc">Обриши %s?</string>
+  <string name="interrupted_downloads_title">Преузимање је прекинуто</string>
+  <string name="interrupted_downloads_message">Ови документи нису инсталирани јер је њихово преузимање прекинуто:</string>
+  <string name="interrupted_downloads_question">Преузети их поново?</string>
+  <string name="download_again">Преузми поново</string>
+  <string name="delete_docs_confirm">Обрисати ове документе?</string>
   <string name="delete_search_index_doc">Обрисати индекс од %s?</string>
   <!--Verse context menu-->
   <string name="notes">Фусноте и референце</string>
@@ -399,6 +466,7 @@
   <string name="assign_labels">Додели налепнице</string>
   <string name="new_item">Нови</string>
   <string name="label_name_prompt">Име</string>
+  <string name="new_label_default_name">Ознака %d</string>
   <string name="label_unlabelled">Неозначено</string>
   <string name="add_bookmark1">Обележивач</string>
   <string name="add_bookmark3">Одабир</string>
@@ -448,6 +516,8 @@
   <string name="rewind">Премотај уназад</string>
   <string name="forward">Премотај унапред</string>
   <string name="tts_lang_not_available">Језик није доступан.</string>
+  <string name="tts_engine_not_available">Претварање текста у говор не ради на овом уређају. Проверите да ли је говорни механизам инсталиран и омогућен у системским поставкама претварања текста у говор.</string>
+  <string name="tts_audio_focus_denied">Говор није могао да почне јер друга апликација користи звук.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Брзина изговора</string>
   <string name="speak_and_play_earcons_title">Изговори и пусти кратке звуке за</string>
@@ -457,6 +527,10 @@
   <string name="speak_bookmarks_menu_title">Изговарај од обелижавача</string>
   <string name="speak_advanced_settings">Напредне поставке</string>
   <string name="speak_sleep_timer_title">Тајмер спавања</string>
+  <string name="speak_sleep_timer_minutes">%d мин</string>
+  <string name="speak_sleep_timer_custom">Прилагођено…</string>
+  <string name="speak_sleep_timer_off">Искључено</string>
+  <string name="speak_other_settings">Остало</string>
   <string name="speak_no_books_available">Нема доступних књига за изговор</string>
   <string name="speak_general_error">Изговор се  није могао покренути за ову књигу.</string>
   <string name="repeat_passage">Понови одељак</string>
@@ -485,6 +559,11 @@
   <string name="speak_autobookmarking_disabled">Аутоматско обележавање онемогућено!</string>
   <string name="system_speak_settings">Отвори системске ТТС поставке</string>
   <string name="auto_assing_labels_help1">Овде можете подесити које ће ознаке бите додељене аутоматски обележивачима које ви направите.</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Овде можете додавати, уређивати и уклањати ознаке и подесити које се аутоматски додељују обележивачима које направите.\n\nНедавне ознаке: недавно коришћене ознаке.\nОстале ознаке: све остале ознаке.\n\nКористите опције филтера на траци за претрагу да видите само аутоматски додељене или омиљене ознаке.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Ово подешавање се односи и на %s.</string>
   <string name="setting_scope_window">Овај прозор</string>
@@ -596,6 +675,9 @@
   <string name="loading_backup">Учитавање базе података из резервне копије...</string>
   <string name="backup_success2">Успешно су направаљене резервне копије Моје белешке, Обележивачи, Радне Свеске, Планови читања и Радне површине.</string>
   <string name="backup_modules_success">Израда резервних копија одабраних модула је завршена успешно.</string>
+  <string name="backup_modules_conflict">Резервна копија није направљена: %1$s и %2$s обоје садрже датотеку %3$s, са различитим садржајем. Изаберите само један од њих и покушајте поново.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (верзија %2$s, фасцикла %3$s)</string>
   <string name="backup_modules_email_subject_2">Резервна копија модула %s </string>
   <string name="backup_modules_email_message_2">У прилогу је %1$s резервна копија модула, која садржи следеће модуле: %2$s</string>
   <string name="backup_email_subject_2">Резервна копија базе података %s</string>
@@ -604,6 +686,9 @@
   <string name="exported_studypads_message">Ваша %s база података са обележивачима и белешкама повезаним са изабраним радним свескама је прикачена</string>
   <string name="restore_unsuccessfull">Враћање базе података је било неуспешно. Можда сте дали неодговарајућу датотеку.</string>
   <string name="send_backup_file">Пошаљи датотеку резервне копије</string>
+  <string name="export_destination_title">Извести где?</string>
+  <string name="export_destination_message">Сачувајте извоз на овом телефону или га пошаљите негде другде помоћу опције Дели.</string>
+  <string name="send_export_file">Пошаљи датотеку извоза</string>
   <string name="backup_modules_title">Одабери модуле за резервну копију</string>
   <string name="install_zip_canceled">Уградња модула отказана</string>
   <string name="ask_restore_or_import">База података за %s може бити враћена (тј. постојећа база се уклања и учитава изабрана) или увезена (изабрана база се увози у постојећу). Шта желите да урадите?</string>
@@ -644,12 +729,25 @@
   <string name="doc_type_book">Књига</string>
   <string name="doc_type_map">Карта</string>
   <string name="doc_type_addons">Додаци</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Остало</string>
+  <string name="document_type_label">Врста документа</string>
   <!--Languages-->
   <string name="lang_default">Подразумевани</string>
   <!--General-->
   <string name="okay">ОК</string>
   <string name="cancel">Откажи</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Назад</string>
+  <string name="settings_editor_close">Затвори</string>
+  <string name="settings_editor_apply">Примени</string>
   <string name="discard_changes_confirmation">Одбацити несачуване измене?</string>
+  <string name="discard">Одбаци</string>
+  <string name="remove">Уклони</string>
+  <string name="overwrite">Препиши</string>
+  <string name="set_current_day_action">Постави дан</string>
   <string name="yes">Да</string>
   <string name="no">Не</string>
   <string name="error">Грешка</string>
@@ -659,6 +757,7 @@
   <string name="watch_tutorial_video">Погледајте видео са упутствима (на енглеском)</string>
   <string name="verse_not_found">Стих није пронађен</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Настави</string>
   <string name="report_error">Пријави грешку</string>
   <string name="error_occurred">Догодила се грешка</string>
   <string name="error_occurred_crash_last_time">Последњи пут када сте користили ову апликацију, дошло је до пада. Како би нам помогли при отклањању грешке, били бисмо Вам захвални уколико нам пошаљете извештај о грешци.</string>
@@ -669,8 +768,14 @@
   <string name="error_key_not_in_document2">%1$s није пронађен у документу %2$s.</string>
   <string name="empty_list">Нема ставки за приказ</string>
   <string name="error_skip">Прескочи</string>
+  <string name="debug_test_error">Тестна грешка (debug верзија)</string>
+  <string name="bug_report_prepare_failed">Извештај није могао да се припреми или подели. Можете поново покушати или користити Резервну копију и враћање да сачувате своје податке.</string>
   <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
   <string name="bug_report_email_text">Следеће, молимо Вас да одаберете Вашу жељену имејл апликацију (као на пример Gmail) како бисте послати извештај програмерском тиму.</string>
+  <string name="bug_report_manual_title">Пошаљите извештај имејлом</string>
+  <string name="bug_report_manual_text_saved">Извештај је сачуван у</string>
+  <string name="bug_report_manual_text_unsaved">На овом уређају није могао да се отвори ниједан програм за имејл.\n\nПошаљите извештај имејлом на</string>
+  <string name="bug_report_copy_address">Копирај адресу</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст у изговор</string>
   <string name="notification_channel_progress_status">Статус обавештења о напретку за преузимање докумената и сл.</string>
@@ -694,6 +799,7 @@
   <string name="search_settings">Подешавања претраге</string>
   <string name="dismiss">Откажи</string>
   <string name="workspace_listing_with_current">%s (тренутно)</string>
+  <string name="workspace_manage_workspaces">Управљај радним површима…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ово је бета верзија!</string>
   <string name="beta_notice_content_1">
@@ -745,7 +851,10 @@
   <string name="help_search_title">Претрага</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Текст претраге може садржати специјалне знакове попут *, И, ИЛИ, НЕ</string>
+  <string name="help_search_bible">Изаберите како се речи упоређују: Све речи налази стихове који садрже сваку реч, Било која реч налази стихове који садрже бар једну, а Фраза налази речи једну поред друге тим редоследом.\n\nУнутар претраге можете користити и * и ? као џокер знакове (на пример bless* одговара речима blessed и blessing), комбиновати изразе са AND, OR и NOT и директно претраживати Стронгове бројеве (на пример strong:h0430).</string>
+  <string name="help_search_epub">Изаберите како се речи упоређују: Све речи налази одломке који садрже сваку реч, Било која реч налази одломке који садрже бар једну, а Фраза налази речи једну поред друге тим редоследом.\n\nСирова синтакса упита прослеђује ваш текст претраживачу непромењен, па можете написати сопствени упит: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" за тачну фразу, bless* за сваку реч која почиње са bless и grace NEAR faith да их нађете блиске једну другој.</string>
   <string name="help_search_details">Погледајте %s за више детаља.</string>
+  <string name="help_search_syntax">Синтакса претраге</string>
   <string name="help_fts5">FTS5 синтакса потпуног текстуалног упита</string>
   <string name="help_workspaces_title">Радне површи</string>
   <string name="help_workspaces_text">
@@ -772,6 +881,12 @@
         осталог додатног материјала када проучавате Библију.
     </string>
   <!--Welcome text-->
+  <string name="welcome_intro">У вашој библиотеци још нема докумената. Додајте их да бисте почели.</string>
+  <string name="welcome_redownload_row_hint">Изаберите међу раније инсталираним документима</string>
+  <string name="welcome_download_row_hint">Прегледајте онлајн каталог</string>
+  <string name="welcome_restore_row_hint">Датотека базе са обележивачима и белешкама</string>
+  <string name="welcome_link_website">Веб-сајт</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Морате изабрати фајл који желите очитати у %s.</string>
@@ -787,9 +902,8 @@
   <string name="format_studypads">Радне свеске из AndBible база података (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Затвори</string>
+  <string name="reading_toolbar_options">Више опција</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Разумем</string>
-  <string name="first_time_help_show_next_time">Прикажи и следећи пут</string>
   <string name="strongs_mode_title">Изаберите strongs мод</string>
   <string name="download_dialog_message">Следеће књиге не могу бити преузете:</string>
   <string name="journal_description">Корисничко-уређивачке Радне свеске са текстовима и обележивачима по вољи.</string>
@@ -814,6 +928,7 @@
   <string name="prefs_experimental_features_summary">Изабери које експерименталне функције да омогућиш. Ове функције су још у развоју и могу се мењати или уклонити</string>
   <string name="experimental_feature_bookmark_edit_actions">Радње уређивања обележивача</string>
   <string name="experimental_feature_add_paragraph_break">Додај обележивач за прелом пасуса</string>
+  <string name="experimental_feature_toolbar_literal_color">Користи дословну боју радне површи за траку читања (уместо боје теме)</string>
   <string name="raw_llm_log_title">Необрађени АИ дневник</string>
   <string name="raw_llm_log_empty">Нема доступних необрађених података дневника</string>
   <string name="raw_llm_log_copied">Дневник је копиран у оставу</string>
@@ -911,6 +1026,7 @@
   <string name="display_mode_underline">Подвуци</string>
   <string name="display_mode_marker">Само маркер</string>
   <string name="display_mode_hidden">Скривено</string>
+  <string name="display_mode_inherit">Исто као избор</string>
   <string name="workspace_override_indicator">Ова ознака има начин приказа специфичан за радну površ</string>
   <string name="primary_label">Главна ознака</string>
   <string name="favourite_label">Омиљена ознака</string>
@@ -924,6 +1040,8 @@
   <string name="book_menu_show_long_book_name">Прикажи дуго име књиге</string>
   <string name="book_menu_show_progress_bars">Прикажи траке напретка</string>
   <string name="reset_workspace_labels">Да ли желите да ресетује ауто-додељивање и омиљена подешавања за ову радну површ?</string>
+  <string name="clear_auto_assign_labels">Обриши ознаке за аутоматско додељивање</string>
+  <string name="reset_workspace_auto_assign_labels">Желите ли да уклоните све ознаке за аутоматско додељивање из ове радне површи?</string>
   <string name="reset_hide_labels">Да ли желите да ресетујете параметре за  подешавања скривања одређених ознаке?</string>
   <string name="reorder">Поново преуреди</string>
   <string name="system_items">Системске радње</string>
@@ -995,6 +1113,27 @@
   <string name="instructions_for_translators">упутства за преводиоце</string>
   <string name="questions_title">Да ли имате питања?</string>
   <string name="bookmark_style">Стил обележивача</string>
+  <string name="bookmark_style_preview_sample">Јер Бог толико заволе свет</string>
+  <string name="bookmark_style_selection">Обележивачи избора текста</string>
+  <string name="bookmark_style_whole_verse">Обележивачи целог стиха</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Користи другачији стил за обележиваче целог стиха</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Избор</string>
+  <string name="bookmark_style_tag_whole_verse">Цео стих</string>
+  <string name="bookmark_style_tag_workspace">Радна површ</string>
+  <string name="show_style_examples">Прикажи примере стила</string>
+  <string name="labels_search_section">Претрага</string>
+  <string name="labels_filter_section">Прикажи</string>
+  <string name="labels_filter_auto_assign">Само ознаке за аутоматско додељивање</string>
+  <string name="labels_filter_favourite">Само омиљене ознаке</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Означите ознаку да бисте је доделили овом обележивачу.</string>
+  <string name="manage_labels_help_primary">Примарна ознака. Њена боја и стил су оно што обележивач приказује.</string>
+  <string name="manage_labels_help_autoassign">Аутоматски додели ову ознаку сваком новом обележивачу. Празна муња значи искључено.</string>
+  <string name="manage_labels_help_favourite">Задржи ознаку међу омиљенима ради брзог приступа.</string>
+  <string name="manage_labels_help_styles">Испод имена мали пример приказује изглед ознаке: Избор за обележивач избора текста, Цео стих за обележивач целог стиха и ознака Радна површ за стил који ова радна површ преписује. Засивљен пример без украса значи да се обележивачи те ознаке не цртају. Сакријте примере из менија ⋮.</string>
+  <string name="manage_labels_help_reorder">Промените редослед листе из менија ⋮.</string>
   <string name="added_to_bookmark">Додељен овом обележивачу</string>
   <string name="strongs_links">Линкови</string>
   <string name="strongs_text_and_links">Текст и линкови</string>
@@ -1042,6 +1181,7 @@
   <string name="sync_group_n">Група %d</string>
   <string name="disable_sync">Онемогући усклађивање</string>
   <string name="open_in_window">Отвори резултате у прозору</string>
+  <string name="open_result_in_links_window">Отвори резултат у прозору веза</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Особене ризнице</string>
@@ -1052,7 +1192,6 @@
   <string name="delete_custom_repository">Да ли желите да уклоните особену ризницу %s?</string>
   <string name="custom_repositories_help1">Како бисте додали нову особену ризницу, укуцајте или копирајте &amp;аmp;  залепите URL особене ризнице овде.</string>
   <string name="custom_repositories_help2">Можете прочитати више о особеним ризницама на %s.</string>
-  <string name="wiki_page">Вики страница</string>
   <string name="custom_repositories_help0">Можете инсталирати документа са спољашњих особених ризница инсталирањем особених ризница.</string>
   <string name="duplicate_custom_repository">Ризница под именом %s већ постоји, не можете додати још једну.</string>
   <string name="packages_dir">Директориј пакета (Zip фајлови)</string>
@@ -1096,6 +1235,7 @@
   <string name="reading_progress_new_cycle_confirm">Започети нови циклус читања? Ово ће почети пратити ваш напредак од почетка, уз чување података претходног циклуса.</string>
   <string name="reading_progress_previous_cycle">Претходни циклус</string>
   <string name="reading_progress_next_cycle">Следећи циклус</string>
+  <string name="cloud_merge_data">Споји податке</string>
   <string name="cloud_fetch_and_restore_initial">Копирај из Облака на овај уређај</string>
   <string name="cloud_create_new">Копирај из овог уређаја на Облак</string>
   <string name="cloud_disable_sync">Откажи &amp; онемогући усклађивање</string>
@@ -1109,6 +1249,19 @@
   <string name="sync_adapter_summary">Тренутни: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Адреса WebDAV фасцикле, нпр. https://nas.local/dav/ или https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Синхронизација захтева безбедну https:// адресу.</string>
+  <string name="webdav_certificate_title">Сертификат сервера</string>
+  <string name="webdav_forget_certificate_message">Заборавити поуздани сертификат сервера? Од вас ће се при следећој вези поново тражити да потврдите сертификат.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Непоуздан сертификат сервера</string>
+  <string name="webdav_untrusted_certificate_message">Android не верује сертификату за %1$s. Верујте му само ако га препознајете, на пример зато што сте сами подесили овај сервер.\n\nСубјект: %2$s\nИздавалац: %3$s\nВажи: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Веруј овом сертификату</string>
+  <string name="webdav_wrong_credentials">Погрешно корисничко име или лозинка.</string>
+  <string name="webdav_not_a_folder">Адреса није WebDAV фасцикла.</string>
+  <string name="webdav_certificate_changed">Сертификат сервера се променио. Синхронизација је паузирана док не потврдите нови сертификат, о чему вас AndBible пита приликом следећег отварања или синхронизације у првом плану.</string>
+  <string name="webdav_storage_full">Складиште сервера је пуно.</string>
   <string name="auth_server_uri">URL сервера</string>
   <string name="auth_username">Корисничко име</string>
   <string name="auth_password">Лозинка</string>
@@ -1118,6 +1271,7 @@
   <string name="sync_general_settings">Информације &amp; опште поставке</string>
   <string name="sync_introduction">Увод</string>
   <string name="are_you_sure">Да ли сте сигурни?</string>
+  <string name="are_you_sure_merge">И подаци на овом уређају и %s у облаку биће задржани. Где је иста ставка измењена на оба места, задржава се новија измена. Подаци овог уређаја биће послати на ваше остале уређаје.</string>
   <string name="are_you_sure_reset_local">Ово ће ресетовати Вашу локалну базу података за %s са садржајем који се тренутно складишти на Облаку.</string>
   <string name="are_you_sure_reset_cloud">Ово ће ресетовати Вашу базу података у Облаку за %s са садржајем који имате на овом уређају.</string>
   <string name="sync_cant_fetch">Верзија базе података или закрпе које се држе на Облаку новија је него она коју подржава ова апликација.</string>
@@ -1153,6 +1307,7 @@
   <string name="pref_font_size_multiplier_title">Множилац величине слова</string>
   <string name="pref_font_size_multiplier_summary_1">Помножи величине слова текста овим бројем.</string>
   <string name="pref_font_size_multiplier_summary_2">Корисно ако имате синхронизован уређај са већим фонтом.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Тренутна вредност: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Радња за превлачење лево/десно</string>
   <string name="prefs_bible_view_swipe_mode_summary">Превлачење лево/десно може се користити за прелазак на следећу страницу/поглавље.</string>
@@ -1273,6 +1428,7 @@
   <string name="prompt_max_iterations_unlimited">Неограничено</string>
   <string name="prompt_max_iterations_global_default">Глобална подразумевана (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Замени глобалне максималне итерације за овај упит. 0 = неограничено.\nТренутно: %s</string>
+  <string name="prompt_max_iterations_use_global">Користи глобалну поставку (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Управљај АИ упитима</string>
   <string name="manage_prompts_summary">Kreирај и уређуј АИ упите</string>
@@ -1406,6 +1562,7 @@
   <string name="built_in_prompt_notice">Ово је уграђени упит и не може се уређивати. Употреби „Копирај за прилагођавање\" да направиш уређујућу копију.</string>
   <string name="copy_to_customize">Копирај за прилагођавање</string>
   <string name="prompt_copied">Упит копиран</string>
+  <string name="prompt_copy_failed">Упит није могао да се копира. Можда је обрисан.</string>
   <string name="delete_prompt_confirmation">Обрисати упит \"%s\"?</string>
   <string name="prompt_name_required">Назив упита је обавезан</string>
   <string name="prompt_template_required">Шаблон упита је обавезан</string>
@@ -1613,6 +1770,8 @@
   <string name="tool_option_default_disabled">Подразумевано (онемогућено)</string>
   <string name="tool_option_default_allowed">Подразумевано (дозвољено)</string>
   <string name="tool_option_default_denied">Подразумевано (одбијено)</string>
+  <string name="tool_description_info">Прикажи опис алата</string>
+  <string name="tool_permission_mixed">Мешовито</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Модел</string>
   <string name="prompt_model_default">Подразумевано</string>
@@ -1658,6 +1817,8 @@
   <string name="my_document_pages_empty">Нема страница у овом документу.</string>
   <string name="my_document_page_rename_title">Преименуј страницу</string>
   <string name="my_document_page_delete_confirmation">Обрисати страницу „%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Обрисати ове странице?</string>
+  <string name="my_documents_switch_document">Промени документ</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Врста садржаја</string>
@@ -1754,4 +1915,91 @@
   <string name="document_sync_started">Синхронизација докумената је започета</string>
   <string name="document_sync_enable_dialog_title">Започети синхронизацију докумената?</string>
   <string name="document_sync_enable_dialog_nothing">Још нема докумената за пренос. Новоинсталирани документи ће се синхронизовати аутоматски.</string>
+  <string name="help_document_sync_text">Синхронизација докумената копира ваше инсталиране Библије, коментаре и остале документе у облак и одржава их усклађеним на вашим уређајима. Помоћу овог приказа видите шта је сачувано у облаку, преузмите или отпремите појединачне документе, уклоните документе и управљајте оним што се синхронизује на овај уређај.</string>
+  <string name="background_image_title">Позадинска слика</string>
+  <string name="background_image_none">Без позадине</string>
+  <string name="background_image_import">Увези из галерије…</string>
+  <string name="background_image_empty">Још нема увезених слика. Додирните \"Увези из галерије…\" да додате једну.</string>
+  <string name="background_image_importing">Увоз…</string>
+  <string name="background_image_delete_title">Обрисати слику?</string>
+  <string name="background_image_delete_confirm">Обрисати ову позадинску слику? Радне површи које је још користе вратиће се на без слике.</string>
+  <string name="background_image_day">Позадинска слика (дан)</string>
+  <string name="background_image_night">Позадинска слика (ноћ)</string>
+  <string name="background_image_opacity_day">Провидност позадинске слике (дан)</string>
+  <string name="background_image_opacity_night">Провидност позадинске слике (ноћ)</string>
+  <string name="background_image_change">Промени</string>
+  <string name="color_picker_title">Изаберите боју</string>
+  <string name="color_picker_presets">Унапред задато</string>
+  <string name="color_picker_custom">Прилагођено</string>
+  <string name="bookmark_expand_row">Прикажи цео текст</string>
+  <string name="bookmark_collapse_row">Прикажи мање</string>
+  <string name="bookmark_label_filter">Филтрирај по ознаци</string>
+  <string name="document_quick_all_documents">Сви документи…</string>
+  <string name="document_quick_tab_recent">Недавно</string>
+  <string name="document_quick_tab_for_verse">Овај стих</string>
+  <string name="document_quick_tab_last_filter">Последњи филтер</string>
+  <string name="document_quick_tab_all">Све</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Филтрирање и сортирање</string>
+  <string name="doc_arrange_repository">Репозиторијум</string>
+  <string name="doc_arrange_all_repositories">Сви репозиторијуми</string>
+  <string name="doc_arrange_sort">Редослед сортирања</string>
+  <string name="doc_arrange_group_by">Групиши по</string>
+  <string name="doc_arrange_remember">Запамти ове поставке</string>
+  <string name="doc_arrange_reset">Врати на подразумевано</string>
+  <string name="doc_arrange_more_filters">Више филтера</string>
+  <string name="doc_arrange_reorder">Промени редослед</string>
+  <string name="doc_sort_ascending">Растуће</string>
+  <string name="doc_sort_descending">Опадајуће</string>
+  <string name="doc_sort_status">Статус</string>
+  <string name="doc_sort_recommended">Препоручено прво</string>
+  <string name="doc_sort_name">Име</string>
+  <string name="doc_sort_size">Величина</string>
+  <string name="doc_group_none">Без груписања</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Преузимање</string>
+  <string name="doc_group_status_update_available">Ажурирање доступно</string>
+  <string name="doc_group_status_installed">Инсталирано</string>
+  <string name="doc_group_status_not_installed">Није инсталирано</string>
+  <string name="prompt_filter_title">Филтрирај упите</string>
+  <string name="prompt_filter_type">Врста</string>
+  <string name="prompt_type_addon">Додатак</string>
+  <string name="prompt_type_user">Прилагођено</string>
+  <string name="prompt_filter_clear">Обриши филтере</string>
+  <string name="prompt_favorite_add">Додај у омиљене</string>
+  <string name="prompt_favorite_remove">Уклони из омиљених</string>
+  <string name="window_unmaximise">Врати све прозоре</string>
+  <string name="window_menu_button">Мени прозора</string>
+  <string name="paste_from_clipboard">Налепи</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Ручка за превлачење</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Ажурирање ваших података…</string>
+  <string name="legacy_migration_progress_neutral">Ажурирање…</string>
+  <string name="legacy_migration_failed_title">Ваши подаци нису могли да се ажурирају</string>
+  <string name="legacy_migration_failed_message">Ваши подаци из претходне верзије апликације безбедни су и непромењени на овом уређају. Изаберите шта ћете даље.</string>
+  <string name="legacy_migration_failed_keychain">Сачуване лозинке из претходне верзије нису могле да се прочитају. Откључајте уређај, затим затворите и поново отворите апликацију.</string>
+  <string name="legacy_migration_rollback_pending">Ажурирање је прекинуто и још није потпуно поништено. Затворите и поново отворите апликацију да завршите поништавање.</string>
+  <string name="legacy_migration_save_old_data">Сачувај старе податке</string>
+  <string name="legacy_migration_send_report">Пошаљи извештај о грешци</string>
+  <string name="legacy_migration_try_again">Покушај поново</string>
+  <string name="legacy_migration_try_again_hint">Затворите апликацију и поново је отворите да покушате поново.</string>
+  <string name="legacy_migration_restore_backup">Врати резервну копију</string>
+  <string name="legacy_migration_start_fresh">Почни без старих података</string>
+  <string name="legacy_migration_start_fresh_confirm">Ваши стари подаци остају на овом уређају. Можете их касније увезти у поставкама.</string>
+  <string name="legacy_import_title">Увези податке из претходне верзије апликације</string>
+  <string name="legacy_import_summary">Замени тренутне податке подацима претходне верзије апликације</string>
+  <string name="legacy_import_confirm">Ово замењује ваше тренутне радне површи, обележиваче и остале податке подацима претходне верзије апликације. Копија ваших тренутних података чува се на овом уређају.</string>
+  <string name="legacy_import_reopen">Затворите апликацију и поново је отворите да увезете своје податке.</string>
+  <string name="legacy_notice_icloud">Синхронизација сада користи iCloud Drive. Поново је укључите у Поставке → Синхронизација. Овај уређај задржава оно што је имао; измене са ваших осталих уређаја стижу када се синхронизација поново подеси. Да ослободите стари iCloud простор: Поставке → ваше име → iCloud → Управљање складиштем → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Ваша Nextcloud веза је пренета, али је синхронизација искључена. Укључите је у Поставке → Синхронизација и изаберите да преузмете из облака или да направите ново.</string>
+  <string name="legacy_notice_nextcloud_unsent">Неке измене на овом уређају још нису послате на Nextcloud. Нису послате и остају само на овом уређају.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">То је моћна, а ипак једноставна офлајн апликација за проучавање Библије.</string>
+  <string name="webdav_untrusted_certificate_message_device">Овај уређај не верује сертификату за %1$s. Верујте му само ако га препознајете, на пример зато што сте сами подесили овај сервер.\n\nСубјект: %2$s\nИздавалац: %3$s\nВажи: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Прилагођени репозиторијуми морају користити безбедну https:// адресу.</string>
+  <string name="custom_repository_https_required_refresh">%1$s користи http:// адресу. Могу се користити само https:// репозиторијуми.</string>
 </resources>

@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible nemohol spustiť WebView2, ktorý je potrebný na zobrazenie textu Biblie. Nainštalujte alebo opravte Microsoft Edge WebView2 Evergreen Runtime z:\n%1$s\n\nPodrobnosti sú v súbore denníka:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible vyžaduje grafiku Direct3D na zobrazenie textu Biblie pomocou WebView2. Aktuálny grafický renderer je %1$s. Skontrolujte svoj grafický ovládač a podporu Direct3D.\n\nPodrobnosti sú v súbore denníka:\n%2$s</string>
+  <string name="desktop_update_setting_title">Kontrolovať aktualizácie</string>
+  <string name="desktop_update_setting_summary">Raz denne z github.com</string>
+  <string name="desktop_update_consent_title">Kontrolovať aktualizácie?</string>
+  <string name="desktop_update_consent_message">AndBible môže raz denne skontrolovať na github.com, či je dostupná novšia verzia. GitHub uvidí vašu IP adresu; nič iné sa neodosiela. Neskôr to môžete zmeniť v Nastaveniach.</string>
+  <string name="desktop_update_consent_yes">Kontrolovať aktualizácie</string>
+  <string name="desktop_update_consent_no">Nekontrolovať</string>
+  <string name="desktop_update_available_title">Je dostupná nová verzia</string>
+  <string name="desktop_update_available_message">Je dostupný AndBible %1$s. Máte verziu %2$s.</string>
+  <string name="desktop_update_download">Stiahnuť</string>
+  <string name="desktop_update_later">Neskôr</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Štúdium Biblie</string>
   <string name="app_name_medium">Štúdium Biblie (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">Nájdené výsledky: %d</string>
   <string name="search_showing_first">Príliš veľa výsledkov. Zobrazujem prvých %d</string>
   <string name="search_bible_section_group_prompt">Kde hľadať</string>
+  <string name="search_type_prompt">Typ vyhľadávania</string>
+  <string name="search_show_results">Zobraziť výsledky vyhľadávania</string>
   <string name="search_all_bible">Celá Biblia</string>
   <string name="search_new_testament">Nový Zákon</string>
   <string name="search_old_testament">Starý zákon</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Hľadať \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Preklady</string>
+  <string name="recent_searches">Nedávne vyhľadávania</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Zavrieť vyhľadávanie</string>
+  <string name="search_options">Nastavenia vyhľadávania</string>
+  <string name="search_submit">Hľadať</string>
+  <string name="search_clear">Vymazať text vyhľadávania</string>
+  <string name="search_engine_changed_reindex">Vyhľadávací nástroj bol aktualizovaný. Vyhľadávací index je potrebné vytvoriť znova; môže to chvíľu trvať.</string>
+  <string name="search_unsupported_syntax">Toto vyhľadávanie používa nepodporovanú syntax: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Po dokončení indexovania sa vyhľadávanie spustí automaticky.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">V dokumente %1$s sa nedá vyhľadávať</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">V tomto dokumente sa nedá vyhľadávať</string>
+  <string name="search_indexing_notification_title">Vytváranie vyhľadávacieho indexu</string>
   <string name="choose_translations">Vyberte preklady…</string>
   <string name="multi_search_results">%1$d veršov v %2$d prekladoch</string>
   <string name="search_index_not_created">žiadny index</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Vyberte, ako sa zobrazujú farby. Farebný e-ink zachováva čiernobiely základ, ale zobrazuje farby záložiek, indikátor aktívneho okna a pomocné čiary vo farbe — pre farebné e-ink obrazovky.</string>
   <string name="prefs_display_color_mode_normal">Normálny</string>
   <string name="prefs_display_color_mode_bw">Čiernobiely</string>
+  <string name="prefs_display_color_mode_monochrome">Monochromatický</string>
   <string name="prefs_display_color_mode_color_eink">Farebný e-ink</string>
+  <string name="prefs_theme_palette_style_title">Štýl motívu</string>
+  <string name="prefs_theme_palette_style_summary">Ako sa farby aplikácie odvodzujú od farby pracovnej plochy. Platí iba vtedy, keď je režim farieb Normálny.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tónový akcent (jemný, zachová sivú)</string>
+  <string name="prefs_theme_palette_style_fidelity">Vernosť (presná farba)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tónový akcent (pôvodný)</string>
+  <string name="prefs_theme_palette_style_content">Obsah (blízko farbe)</string>
+  <string name="prefs_theme_palette_style_neutral">Neutrálny (tlmený)</string>
+  <string name="prefs_theme_palette_style_monochrome">Monochromatický (sivý)</string>
+  <string name="prefs_theme_palette_style_vibrant">Živý</string>
+  <string name="prefs_theme_palette_style_expressive">Výrazný</string>
+  <string name="prefs_theme_palette_style_rainbow">Dúha</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Ovocný šalát</string>
   <string name="prefs_eink_settings_cat">Nastavenia e-ink</string>
   <string name="prefs_eink_display_title">Funkcie e-ink</string>
   <string name="prefs_eink_display_summary">Povoliť funkcie pre e-ink (tlačidlá posúvania stránok, pomocné čiary)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Automaticky označovať kapitoly ako prečítané pri posúvaní cez ne</string>
   <string name="reading_progress_read_count_scale">Počet\nprečítaní</string>
   <string name="reading_progress_percent_read_scale">Percento\nprečítaného</string>
+  <string name="monochrome_activity_count">Počet aktivít: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Počet: %d</string>
+  <string name="monochrome_level">Úroveň: %d/4</string>
+  <string name="monochrome_buckets">Sivá: žiadna; obrys: čiastočná; vyplnená: plná alebo najvyššia úroveň. Presné hodnoty zobrazíte výberom položky.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">História čítania</string>
   <string name="reading_progress_history_for">Pokrok v čítaní pre %1$s</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">Upraviť nastavenia zobrazenia textu pre túto pracovnú plochu</string>
   <string name="global_text_options_link">Globálne možnosti textu</string>
   <string name="global_text_options_link_summary">Upraviť predvolené nastavenia zobrazenia textu pre všetky pracovné plochy</string>
+  <string name="text_options_inherited_workspace">Pracovná plocha</string>
+  <string name="text_options_inherited_global">Globálne</string>
   <string name="prefs_font_and_colors_title">Písmo a farby</string>
   <string name="prefs_text_layout_title">Rozloženie textu</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s a morfológia</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace">Pracovná plocha</string>
   <string name="copy_settings_to_window">Okno %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Globálne predvolené</string>
+  <string name="copy_settings_to_workspaces">Do ostatných pracovných plôch…</string>
+  <string name="copy_settings_to_global_defaults">Do globálnych predvolených hodnôt…</string>
+  <string name="menu_back">Späť</string>
   <string name="change_to_normal">Zmeniť na normálne okno</string>
   <string name="window_pin_mode">Pripnúť</string>
   <!--Notes screen-->
@@ -311,6 +372,7 @@
   <string name="failed_repositories_message">Nie je možné sa pripojiť k nasledujúcemu dokumentovému  serveru: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nasledujúce súbory nie je možné stiahnuť:\n\n%s\n\n</string>
   <string name="cant_delete_document">Dokument nie je možné zmazať.</string>
+  <string name="bad_document_warning">Tento dokument má známe problémy.</string>
   <!--Install zip file-->
   <string name="install_zip">Načítať dokumenty zo súborov</string>
   <string name="install_zip_module">Inštalovať modul Biblie</string>
@@ -379,6 +441,11 @@
   <string name="delete_index">Vymazať index vyhľadávania</string>
   <string name="about">O programe</string>
   <string name="delete_doc">Vymazať %s?</string>
+  <string name="interrupted_downloads_title">Sťahovanie bolo prerušené</string>
+  <string name="interrupted_downloads_message">Tieto dokumenty neboli nainštalované, pretože ich sťahovanie bolo prerušené:</string>
+  <string name="interrupted_downloads_question">Stiahnuť ich znova?</string>
+  <string name="download_again">Stiahnuť znova</string>
+  <string name="delete_docs_confirm">Vymazať tieto dokumenty?</string>
   <string name="delete_search_index_doc">Vymazať index pre %s?</string>
   <!--Verse context menu-->
   <string name="notes">Poznámky pod čiarou a referencie</string>
@@ -399,6 +466,7 @@
   <string name="assign_labels">Priradiť štítok</string>
   <string name="new_item">Nový</string>
   <string name="label_name_prompt">Názov</string>
+  <string name="new_label_default_name">Štítok %d</string>
   <string name="label_unlabelled">Neoštítkový</string>
   <string name="add_bookmark1">Záložka</string>
   <string name="add_bookmark3">Výber</string>
@@ -449,6 +517,8 @@
   <string name="rewind">Dozadu</string>
   <string name="forward">Dopredu</string>
   <string name="tts_lang_not_available">Zvolený jazyk nie je podporovaný</string>
+  <string name="tts_engine_not_available">Prevod textu na reč na tomto zariadení nefunguje. Skontrolujte, či je v systémových nastaveniach prevodu textu na reč nainštalovaný a povolený hlasový nástroj.</string>
+  <string name="tts_audio_focus_denied">Čítanie sa nepodarilo spustiť, pretože zvuk používa iná aplikácia.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Rýchlosť čítania</string>
   <string name="speak_and_play_earcons_title">Prečítať a prehrať upozorňujúce zvuky pre</string>
@@ -458,6 +528,10 @@
   <string name="speak_bookmarks_menu_title">Čítať zo záložky</string>
   <string name="speak_advanced_settings">Pokročilé nastavenia</string>
   <string name="speak_sleep_timer_title">Čas uspania</string>
+  <string name="speak_sleep_timer_minutes">%d min</string>
+  <string name="speak_sleep_timer_custom">Vlastné…</string>
+  <string name="speak_sleep_timer_off">Vypnuté</string>
+  <string name="speak_other_settings">Ostatné</string>
   <string name="speak_no_books_available">Nie sú k dispozícii žiadne knihy na čítanie</string>
   <string name="speak_general_error">Pre túto knihu nebolo možné začať čítanie</string>
   <string name="repeat_passage">Zopakuj pasáž</string>
@@ -486,6 +560,11 @@
   <string name="speak_autobookmarking_disabled">Automatická tvorba záložiek je vypnutá!</string>
   <string name="system_speak_settings">Otvoriť systémové nastavenie TTS</string>
   <string name="auto_assing_labels_help1">Tu môžete upraviť, ktoré štítky sa automaticky priradia k záložkám, ktoré vytvoríte. </string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Tu môžete pridávať, upravovať a odstraňovať štítky a nastaviť, ktoré sa majú automaticky priraďovať k záložkám, ktoré vytvoríte.\n\nNedávne štítky: nedávno použité štítky.\nOstatné štítky: všetky ostatné štítky.\n\nPomocou možností filtra vo vyhľadávacom paneli zobrazíte iba automaticky priraďované alebo obľúbené štítky.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Tieto nastavenia sa použijú na %s.</string>
   <string name="setting_scope_window">toto okno</string>
@@ -593,6 +672,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="loading_backup">Načítavanie databázy zo zálohy…</string>
   <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovnej plochy boli úspešne zálohované</string>
   <string name="backup_modules_success">Označené moduly boli úspešne zálohované.</string>
+  <string name="backup_modules_conflict">Záloha sa nevytvorila: %1$s a %2$s obsahujú rovnaký súbor %3$s s rôznym obsahom. Vyberte iba jeden z nich a skúste to znova.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (verzia %2$s, priečinok %3$s)</string>
   <string name="backup_modules_email_subject_2">záloha modulov %s</string>
   <string name="backup_modules_email_message_2">V prílohe je %1$s záloha vašich modulov, ktorá obsahuje nasledujúce moduly: %2$s</string>
   <string name="backup_email_subject_2">záloha databázy %s</string>
@@ -601,6 +683,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="exported_studypads_message">Vaša databáza %s, obsahujúca záložky a poznámky týkajúce sa vybraných Študijných zložiek, je pripojená</string>
   <string name="restore_unsuccessfull">Obnovenie databázy nebolo úspešné. Pravdepodobne ste zadali neplatný databázový súbor. </string>
   <string name="send_backup_file">Odoslať zálohovací súbor</string>
+  <string name="export_destination_title">Exportovať kam?</string>
+  <string name="export_destination_message">Uložte export do tohto telefónu alebo ho pošlite inam cez Zdieľať.</string>
+  <string name="send_export_file">Odoslať exportovaný súbor</string>
   <string name="backup_modules_title">Vybrať, ktoré moduly zálohovať</string>
   <string name="install_zip_canceled">Inštalovanie modulov prerušené</string>
   <string name="ask_restore_or_import">Databáza pre %s môže byť buď obnovená (t. j. existujúca databáza sa odstráni a vybraná databáza sa načíta) alebo importovaná (vybraná databáza sa importuje do existujúcej databázy). Čo si prajete vykonať?</string>
@@ -642,12 +727,25 @@ Režim opakovania bol vypnutý, pretože
   <string name="doc_type_book">Kniha</string>
   <string name="doc_type_map">Mapa</string>
   <string name="doc_type_addons">Doplnky</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Iné</string>
+  <string name="document_type_label">Typ dokumentu</string>
   <!--Languages-->
   <string name="lang_default">Predvolené</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Zrušiť</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Späť</string>
+  <string name="settings_editor_close">Zavrieť</string>
+  <string name="settings_editor_apply">Použiť</string>
   <string name="discard_changes_confirmation">Zahodiť neuložené zmeny?</string>
+  <string name="discard">Zahodiť</string>
+  <string name="remove">Odstrániť</string>
+  <string name="overwrite">Prepísať</string>
+  <string name="set_current_day_action">Nastaviť deň</string>
   <string name="yes">Áno</string>
   <string name="no">Nie</string>
   <string name="error">Chyba</string>
@@ -657,6 +755,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="watch_tutorial_video">Pozri si ukážkové video (Anglicky)</string>
   <string name="verse_not_found">Verš nebol nájdený</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Pokračovať</string>
   <string name="report_error">Poslať hlásenie</string>
   <string name="error_occurred">Vyskytla sa chyba</string>
   <string name="error_occurred_crash_last_time">Keď ste aplikáciu naposledy použili, zlyhala. Ocenili by sme, ak nám pošlete hlásenie chyby, aby nám pomohlo s opravou chyby. </string>
@@ -667,8 +766,14 @@ Režim opakovania bol vypnutý, pretože
   <string name="error_key_not_in_document2">%1$s nebolo nájdené v dokumente %2$s.</string>
   <string name="empty_list">Žiadne položky k zobrazeniu</string>
   <string name="error_skip">Preskočiť</string>
+  <string name="debug_test_error">Testovacia chyba (ladiaca zostava)</string>
+  <string name="bug_report_prepare_failed">Správu sa nepodarilo pripraviť alebo zdieľať. Môžete to skúsiť znova alebo použiť Zálohovanie a obnovenie na uloženie svojich údajov.</string>
   <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
   <string name="bug_report_email_text">Potom vyberte preferovanú e-mailovú aplikáciu (napríklad Gmail), aby ste správu odoslali tímu vývojárov.</string>
+  <string name="bug_report_manual_title">Odoslať správu e-mailom</string>
+  <string name="bug_report_manual_text_saved">Správa bola uložená do</string>
+  <string name="bug_report_manual_text_unsaved">Na tomto zariadení sa nepodarilo otvoriť žiadny e-mailový program.\n\nPošlite správu e-mailom na adresu</string>
+  <string name="bug_report_copy_address">Kopírovať adresu</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov atď.</string>
@@ -692,6 +797,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="search_settings">Nastavenia hľadania</string>
   <string name="dismiss">Odmietnuť</string>
   <string name="workspace_listing_with_current">%s (aktuálne)</string>
+  <string name="workspace_manage_workspaces">Spravovať pracovné plochy…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verzia</string>
   <string name="beta_notice_content_1">
@@ -746,7 +852,10 @@ Režim opakovania bol vypnutý, pretože
   <string name="help_search_title">Hľadať</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Hľadaný text môže obsahovať špeciálne znaky ako *, AND, OR, NOT</string>
+  <string name="help_search_bible">Vyberte, ako sa slová porovnávajú: Všetky slová nájde verše obsahujúce každé slovo, Ľubovoľné slovo nájde verše obsahujúce aspoň jedno a Fráza nájde slová vedľa seba v danom poradí.\n\nV rámci vyhľadávania môžete tiež používať * a ? ako zástupné znaky (napríklad bless* nájde blessed aj blessing), kombinovať výrazy pomocou AND, OR a NOT a vyhľadávať priamo Strongove čísla (napríklad strong:h0430).</string>
+  <string name="help_search_epub">Vyberte, ako sa slová porovnávajú: Všetky slová nájde state obsahujúce každé slovo, Ľubovoľné slovo nájde state obsahujúce aspoň jedno a Fráza nájde slová vedľa seba v danom poradí.\n\nSyntax surového dotazu odovzdá váš text vyhľadávaciemu nástroju nezmenený, takže môžete napísať vlastný dotaz: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" pre presnú frázu, bless* pre ľubovoľné slovo začínajúce na bless a grace NEAR faith na nájdenie slov blízko seba.</string>
   <string name="help_search_details">Ďalšie podrobnosti nájdete v%s.</string>
+  <string name="help_search_syntax">Syntax vyhľadávania</string>
   <string name="help_fts5">Syntax celotextového dopytu FTS5</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
   <string name="help_workspaces_text">
@@ -773,6 +882,12 @@ Režim opakovania bol vypnutý, pretože
         ďalším materiálom pri štúdiu Biblie.
     </string>
   <!--Welcome text-->
+  <string name="welcome_intro">Vo vašej knižnici zatiaľ nie sú žiadne dokumenty. Pridajte nejaké a začnite.</string>
+  <string name="welcome_redownload_row_hint">Vyberte z predtým nainštalovaných dokumentov</string>
+  <string name="welcome_download_row_hint">Prehliadať online katalóg</string>
+  <string name="welcome_restore_row_hint">Súbor databázy so záložkami a poznámkami</string>
+  <string name="welcome_link_website">Webová stránka</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Musíte vybrať súbor, ktorý chcete nahrať do %s. </string>
@@ -788,9 +903,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="format_studypads">Študijné zložky z databáz AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Zatvoriť</string>
+  <string name="reading_toolbar_options">Ďalšie možnosti</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Rozumiem</string>
-  <string name="first_time_help_show_next_time">Nabudúce ukázať znova </string>
   <string name="strongs_mode_title">Zvoliť režim strongov</string>
   <string name="download_dialog_message">Nasledujúce knihy nie je možné stiahnuť:</string>
   <string name="journal_description">Používateľom upravovateľné študijné zložky s vlastným textom a záložkami</string>
@@ -815,6 +929,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="prefs_experimental_features_summary">Vyberte experimentálne funkcie na povolenie. Tieto funkcie sú stále vo vývoji a môžu sa zmeniť alebo odstrániť</string>
   <string name="experimental_feature_bookmark_edit_actions">Akcie úpravy záložiek</string>
   <string name="experimental_feature_add_paragraph_break">Pridať záložku odsekovej prestávky</string>
+  <string name="experimental_feature_toolbar_literal_color">Použiť presnú farbu pracovnej plochy pre panel nástrojov čítania (namiesto farby motívu)</string>
   <string name="raw_llm_log_title">Surový záznam LLM</string>
   <string name="raw_llm_log_empty">Žiadne surové záznamy nie sú k dispozícii</string>
   <string name="raw_llm_log_copied">Záznam skopírovaný do schránky</string>
@@ -922,6 +1037,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="display_mode_underline">Podčiarknutie</string>
   <string name="display_mode_marker">Iba značka</string>
   <string name="display_mode_hidden">Skryté</string>
+  <string name="display_mode_inherit">Rovnaké ako výber</string>
   <string name="workspace_override_indicator">Tento štítok má špecifický režim zobrazenia pre pracovnú plochu</string>
   <string name="primary_label">Primárny štítok</string>
   <string name="favourite_label">Obľúbený štítok</string>
@@ -935,6 +1051,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="book_menu_show_long_book_name">Zobraziť dlhý názov knihy</string>
   <string name="book_menu_show_progress_bars">Zobraziť ukazovatele postupu</string>
   <string name="reset_workspace_labels">Chcete zresetovať automaticky priraďovanie a obľúbené nastavenia pre túto pracovnú plochu?</string>
+  <string name="clear_auto_assign_labels">Vymazať automaticky priraďované štítky</string>
+  <string name="reset_workspace_auto_assign_labels">Chcete z tejto pracovnej plochy odstrániť všetky automaticky priraďované štítky?</string>
   <string name="reset_hide_labels">Chcete resetovať nastavenia pre skrytie zadaných nastavení štítkov?</string>
   <string name="reorder">Pre-usporiadať</string>
   <string name="system_items">Systémové akcie</string>
@@ -1006,6 +1124,27 @@ Režim opakovania bol vypnutý, pretože
   <string name="instructions_for_translators">pokyny pre prekladateľov</string>
   <string name="questions_title">Otázky?</string>
   <string name="bookmark_style">Štýl záložiek</string>
+  <string name="bookmark_style_preview_sample">Lebo tak Boh miloval svet</string>
+  <string name="bookmark_style_selection">Záložky výberu textu</string>
+  <string name="bookmark_style_whole_verse">Záložky celého verša</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Použiť iný štýl pre záložky celého verša</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Výber</string>
+  <string name="bookmark_style_tag_whole_verse">Celý verš</string>
+  <string name="bookmark_style_tag_workspace">Pracovná plocha</string>
+  <string name="show_style_examples">Zobraziť ukážky štýlov</string>
+  <string name="labels_search_section">Hľadať</string>
+  <string name="labels_filter_section">Zobraziť</string>
+  <string name="labels_filter_auto_assign">Iba automaticky priraďované štítky</string>
+  <string name="labels_filter_favourite">Iba obľúbené štítky</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Zaškrtnutím štítka ho priradíte k tejto záložke.</string>
+  <string name="manage_labels_help_primary">Hlavný štítok. Jeho farba a štýl sú to, čo záložka zobrazuje.</string>
+  <string name="manage_labels_help_autoassign">Priradiť tento štítok automaticky ku každej novej záložke. Prázdny blesk znamená vypnuté.</string>
+  <string name="manage_labels_help_favourite">Ponechať štítok medzi obľúbenými pre rýchly prístup.</string>
+  <string name="manage_labels_help_styles">Pod názvom malá ukážka zobrazuje vzhľad štítka: Výber pre záložku výberu textu, Celý verš pre záložku celého verša a značka Pracovná plocha pre štýl, ktorý táto pracovná plocha prepisuje. Sivá ukážka bez ozdôb znamená, že záložky štítka sa nevykresľujú. Ukážky môžete skryť z ponuky ⋮.</string>
+  <string name="manage_labels_help_reorder">Zoznam môžete usporiadať znova z ponuky ⋮.</string>
   <string name="added_to_bookmark">Priradené k tejto záložke</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Texty a odkazy</string>
@@ -1059,6 +1198,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="sync_group_n">Skupina %d</string>
   <string name="disable_sync">Vypnúť synchronizáciu</string>
   <string name="open_in_window">Otvoriť výsledky v okne</string>
+  <string name="open_result_in_links_window">Otvoriť výsledok v okne odkazov</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Vlastné repozitáre</string>
@@ -1069,7 +1209,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="delete_custom_repository">Chcete odstrániť vlastný repozitár %s?</string>
   <string name="custom_repositories_help1">Ak chcete pridať nové vlastný repozitár, napíšte alebo skopírujte a vložte sem vlastnú adresu URL úložiska.</string>
   <string name="custom_repositories_help2">Viac informácií o vlastných repozitároch si môžete prečítať v %s.</string>
-  <string name="wiki_page">WIKI stránka</string>
   <string name="custom_repositories_help0">Môžete nainštalovať dokumenty z vlastných externých repozitárov cez inštaláciu vlastných repozitárov.</string>
   <string name="duplicate_custom_repository">Repozitár s názvom %s už existuje, nie je možné pridať ďalší.</string>
   <string name="packages_dir">Priečinok s balíčkami (Zip súbory)</string>
@@ -1116,6 +1255,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="reading_progress_new_cycle_confirm">Začať nový cyklus čítania? Tým sa začne sledovanie vášho pokroku od začiatku, pričom sa zachovajú údaje z predchádzajúceho cyklu.</string>
   <string name="reading_progress_previous_cycle">Predchádzajúci cyklus</string>
   <string name="reading_progress_next_cycle">Nasledujúci cyklus</string>
+  <string name="cloud_merge_data">Zlúčiť údaje</string>
   <string name="cloud_fetch_and_restore_initial">Skopírovať z claudu na toto zariadenie</string>
   <string name="cloud_create_new">Skopírovať z tohoto zariadenia do cloudu</string>
   <string name="cloud_disable_sync">Zrušiť &amp; zakázať synchronizáciu</string>
@@ -1129,6 +1269,19 @@ Režim opakovania bol vypnutý, pretože
   <string name="sync_adapter_summary">Aktuálne: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Adresa priečinka WebDAV, napr. https://nas.local/dav/ alebo https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Synchronizácia vyžaduje zabezpečenú adresu https://.</string>
+  <string name="webdav_certificate_title">Certifikát servera</string>
+  <string name="webdav_forget_certificate_message">Zabudnúť dôveryhodný certifikát servera? Pri nasledujúcom pripojení sa vás znova opýtame na potvrdenie certifikátu.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Nedôveryhodný certifikát servera</string>
+  <string name="webdav_untrusted_certificate_message">Certifikát servera %1$s nie je pre Android dôveryhodný. Dôverujte mu, iba ak ho spoznávate, napríklad preto, že ste tento server nastavili sami.\n\nSubjekt: %2$s\nVydavateľ: %3$s\nPlatný: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Dôverovať tomuto certifikátu</string>
+  <string name="webdav_wrong_credentials">Nesprávne používateľské meno alebo heslo.</string>
+  <string name="webdav_not_a_folder">Adresa nie je priečinok WebDAV.</string>
+  <string name="webdav_certificate_changed">Certifikát servera sa zmenil. Synchronizácia je pozastavená, kým nepotvrdíte nový certifikát; AndBible sa na to opýta pri ďalšom otvorení alebo synchronizácii na popredí.</string>
+  <string name="webdav_storage_full">Úložisko servera je plné.</string>
   <string name="auth_server_uri">URL servera</string>
   <string name="auth_username">Používateľské meno</string>
   <string name="auth_password">Heslo</string>
@@ -1138,6 +1291,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="sync_general_settings">Info &amp; všeobecné nastavenia</string>
   <string name="sync_introduction">Úvod</string>
   <string name="are_you_sure">Ste si istý?</string>
+  <string name="are_you_sure_merge">Údaje na tomto zariadení aj údaje %s v cloude budú zachované. Ak bola tá istá položka zmenená na oboch miestach, zachová sa novšia zmena. Údaje tohto zariadenia budú odoslané do vašich ostatných zariadení.</string>
   <string name="are_you_sure_reset_local">Toto resetuje vašu lokálnu databázu pre %s s obsahom, ktorý je momentálne uložený v cloudovej službe.</string>
   <string name="are_you_sure_reset_cloud">Toto resetuje vašu cloudovú databázu pre %s s obsahom, ktorý je máte na tomto zariadení.</string>
   <string name="sync_cant_fetch">Verzia databázy alebo súboru opravy uložená v cloude je vyššia ako verzia podporovaná touto aplikáciou.</string>
@@ -1174,6 +1328,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="pref_font_size_multiplier_title">Násobič veľkosti písma</string>
   <string name="pref_font_size_multiplier_summary_1">Vynásobiť veľkosti písma textu týmto číslom.</string>
   <string name="pref_font_size_multiplier_summary_2">Užitočné, ak máte synchronizované zariadenie, ktoré sa používa s väčším písmom.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Aktuálna hodnota: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Akcia pre gesto potiahnutia doľava/doprava</string>
   <string name="prefs_bible_view_swipe_mode_summary">Gesto potiahnutia doľava/doprava možno použiť na prechod na ďalšiu stranu/kapitolu.</string>
@@ -1294,6 +1449,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="prompt_max_iterations_unlimited">Neobmedzene</string>
   <string name="prompt_max_iterations_global_default">Globálne predvolené (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Prepísať globálne max. iterácie pre tento prompt. 0 = neobmedzene.\nAktuálne: %s</string>
+  <string name="prompt_max_iterations_use_global">Použiť globálne nastavenie (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Spravovať AI prompty</string>
   <string name="manage_prompts_summary">Vytvárať a upravovať AI prompty</string>
@@ -1427,6 +1583,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="built_in_prompt_notice">Toto je vstavaná výzva a nedá sa upraviť. Použite „Kopírovať na prispôsobenie\" na vytvorenie upraviteľnej kópie.</string>
   <string name="copy_to_customize">Kopírovať na prispôsobenie</string>
   <string name="prompt_copied">Výzva skopírovaná</string>
+  <string name="prompt_copy_failed">Výzvu sa nepodarilo skopírovať. Možno bola vymazaná.</string>
   <string name="delete_prompt_confirmation">Vymazať výzvu \"%s\"?</string>
   <string name="prompt_name_required">Názov výzvy je povinný</string>
   <string name="prompt_template_required">Šablóna výzvy je povinná</string>
@@ -1634,6 +1791,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="tool_option_default_disabled">Predvolené (vypnuté)</string>
   <string name="tool_option_default_allowed">Predvolené (povolené)</string>
   <string name="tool_option_default_denied">Predvolené (odmietnuté)</string>
+  <string name="tool_description_info">Zobraziť popis nástroja</string>
+  <string name="tool_permission_mixed">Zmiešané</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Predvolený</string>
@@ -1679,6 +1838,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
   <string name="my_document_page_rename_title">Premenovať stránku</string>
   <string name="my_document_page_delete_confirmation">Vymazať stránku \"%s\"?</string>
+  <string name="my_document_pages_delete_confirmation">Vymazať tieto strany?</string>
+  <string name="my_documents_switch_document">Prepnúť dokument</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
@@ -1775,4 +1936,91 @@ Režim opakovania bol vypnutý, pretože
   <string name="document_sync_started">Synchronizácia dokumentov sa spustila</string>
   <string name="document_sync_enable_dialog_title">Spustiť synchronizáciu dokumentov?</string>
   <string name="document_sync_enable_dialog_nothing">Zatiaľ žiadne dokumenty na prenos. Novo nainštalované dokumenty sa budú synchronizovať automaticky.</string>
+  <string name="help_document_sync_text">Synchronizácia dokumentov kopíruje vaše nainštalované Biblie, komentáre a ďalšie dokumenty do cloudu a udržiava ich synchronizované na vašich zariadeniach. V tomto zobrazení vidíte, čo je uložené v cloude, môžete sťahovať alebo nahrávať jednotlivé dokumenty, odstraňovať dokumenty a určovať, čo sa synchronizuje do tohto zariadenia.</string>
+  <string name="background_image_title">Obrázok na pozadí</string>
+  <string name="background_image_none">Bez pozadia</string>
+  <string name="background_image_import">Importovať z galérie…</string>
+  <string name="background_image_empty">Zatiaľ žiadne importované obrázky. Ťuknutím na \"Importovať z galérie…\" pridáte jeden.</string>
+  <string name="background_image_importing">Importuje sa…</string>
+  <string name="background_image_delete_title">Vymazať obrázok?</string>
+  <string name="background_image_delete_confirm">Vymazať tento obrázok na pozadí? Pracovné plochy, ktoré ho stále používajú, sa vrátia k stavu bez obrázka.</string>
+  <string name="background_image_day">Obrázok na pozadí (deň)</string>
+  <string name="background_image_night">Obrázok na pozadí (noc)</string>
+  <string name="background_image_opacity_day">Nepriehľadnosť obrázka na pozadí (deň)</string>
+  <string name="background_image_opacity_night">Nepriehľadnosť obrázka na pozadí (noc)</string>
+  <string name="background_image_change">Zmeniť</string>
+  <string name="color_picker_title">Vyberte farbu</string>
+  <string name="color_picker_presets">Predvoľby</string>
+  <string name="color_picker_custom">Vlastná</string>
+  <string name="bookmark_expand_row">Zobraziť celý text</string>
+  <string name="bookmark_collapse_row">Zobraziť menej</string>
+  <string name="bookmark_label_filter">Filtrovať podľa štítka</string>
+  <string name="document_quick_all_documents">Všetky dokumenty…</string>
+  <string name="document_quick_tab_recent">Nedávne</string>
+  <string name="document_quick_tab_for_verse">Tento verš</string>
+  <string name="document_quick_tab_last_filter">Posledný filter</string>
+  <string name="document_quick_tab_all">Všetky</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtrovať a zoradiť</string>
+  <string name="doc_arrange_repository">Úložisko</string>
+  <string name="doc_arrange_all_repositories">Všetky úložiská</string>
+  <string name="doc_arrange_sort">Poradie zoradenia</string>
+  <string name="doc_arrange_group_by">Zoskupiť podľa</string>
+  <string name="doc_arrange_remember">Zapamätať si tieto nastavenia</string>
+  <string name="doc_arrange_reset">Obnoviť predvolené</string>
+  <string name="doc_arrange_more_filters">Ďalšie filtre</string>
+  <string name="doc_arrange_reorder">Zmeniť poradie</string>
+  <string name="doc_sort_ascending">Vzostupne</string>
+  <string name="doc_sort_descending">Zostupne</string>
+  <string name="doc_sort_status">Stav</string>
+  <string name="doc_sort_recommended">Najprv odporúčané</string>
+  <string name="doc_sort_name">Názov</string>
+  <string name="doc_sort_size">Veľkosť</string>
+  <string name="doc_group_none">Bez zoskupenia</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Sťahuje sa</string>
+  <string name="doc_group_status_update_available">Dostupná aktualizácia</string>
+  <string name="doc_group_status_installed">Nainštalované</string>
+  <string name="doc_group_status_not_installed">Nenainštalované</string>
+  <string name="prompt_filter_title">Filtrovať výzvy</string>
+  <string name="prompt_filter_type">Typ</string>
+  <string name="prompt_type_addon">Doplnok</string>
+  <string name="prompt_type_user">Vlastná</string>
+  <string name="prompt_filter_clear">Vymazať filtre</string>
+  <string name="prompt_favorite_add">Pridať do obľúbených</string>
+  <string name="prompt_favorite_remove">Odstrániť z obľúbených</string>
+  <string name="window_unmaximise">Obnoviť všetky okná</string>
+  <string name="window_menu_button">Ponuka okna</string>
+  <string name="paste_from_clipboard">Prilepiť</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Úchyt na presúvanie</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Aktualizujú sa vaše údaje…</string>
+  <string name="legacy_migration_progress_neutral">Aktualizuje sa…</string>
+  <string name="legacy_migration_failed_title">Vaše údaje sa nepodarilo aktualizovať</string>
+  <string name="legacy_migration_failed_message">Vaše údaje z predchádzajúcej verzie aplikácie sú v bezpečí a na tomto zariadení nezmenené. Vyberte, čo urobiť ďalej.</string>
+  <string name="legacy_migration_failed_keychain">Uložené heslá z predchádzajúcej verzie sa nepodarilo prečítať. Odomknite zariadenie, potom aplikáciu zatvorte a znova otvorte.</string>
+  <string name="legacy_migration_rollback_pending">Aktualizácia bola prerušená a zatiaľ nie je úplne vrátená späť. Zatvorte a znova otvorte aplikáciu, aby sa vrátenie dokončilo.</string>
+  <string name="legacy_migration_save_old_data">Uložiť staré údaje</string>
+  <string name="legacy_migration_send_report">Odoslať správu o chybe</string>
+  <string name="legacy_migration_try_again">Skúsiť znova</string>
+  <string name="legacy_migration_try_again_hint">Zatvorte aplikáciu a otvorte ju znova, aby ste to skúsili ešte raz.</string>
+  <string name="legacy_migration_restore_backup">Obnoviť zálohu</string>
+  <string name="legacy_migration_start_fresh">Začať bez starých údajov</string>
+  <string name="legacy_migration_start_fresh_confirm">Vaše staré údaje zostanú na tomto zariadení. Môžete ich importovať neskôr v Nastaveniach.</string>
+  <string name="legacy_import_title">Importovať údaje z predchádzajúcej verzie aplikácie</string>
+  <string name="legacy_import_summary">Nahradiť aktuálne údaje údajmi z predchádzajúcej verzie aplikácie</string>
+  <string name="legacy_import_confirm">Týmto sa vaše aktuálne pracovné plochy, záložky a ďalšie údaje nahradia údajmi z predchádzajúcej verzie aplikácie. Kópia vašich aktuálnych údajov zostane na tomto zariadení.</string>
+  <string name="legacy_import_reopen">Zatvorte aplikáciu a otvorte ju znova, aby sa vaše údaje importovali.</string>
+  <string name="legacy_notice_icloud">Synchronizácia teraz používa iCloud Drive. Zapnite ju znova v Nastavenia → Synchronizácia. Toto zariadenie si ponecháva svoje údaje; zmeny z vašich ostatných zariadení prídu, keď sa synchronizácia znova nastaví. Ak chcete uvoľniť staré údaje iCloud: Nastavenia → vaše meno → iCloud → Spravovať úložisko → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Vaše pripojenie k Nextcloud bolo prenesené, ale synchronizácia je vypnutá. Zapnite ju v Nastavenia → Synchronizácia a vyberte, či sa majú údaje načítať z cloudu alebo vytvoriť nové.</string>
+  <string name="legacy_notice_nextcloud_unsent">Niektoré zmeny na tomto zariadení ešte neboli odoslané do Nextcloud. Neboli odoslané a zostávajú iba na tomto zariadení.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Je to výkonná a zároveň ľahko použiteľná offline aplikácia na štúdium Biblie.</string>
+  <string name="webdav_untrusted_certificate_message_device">Certifikát servera %1$s nie je pre toto zariadenie dôveryhodný. Dôverujte mu, iba ak ho spoznávate, napríklad preto, že ste tento server nastavili sami.\n\nSubjekt: %2$s\nVydavateľ: %3$s\nPlatný: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Vlastné úložiská musia používať zabezpečenú adresu https://.</string>
+  <string name="custom_repository_https_required_refresh">%1$s používa adresu http://. Môžu sa používať iba úložiská s https://.</string>
 </resources>

@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">விவிலிய உரையைக் காட்டத் தேவையான WebView2-ஐ ஆண்ட்பைபிளால் தொடங்க முடியவில்லை. Microsoft Edge WebView2 Evergreen Runtime-ஐ இங்கிருந்து நிறுவவும் அல்லது பழுதுபார்க்கவும்:\n%1$s\n\nவிவரங்கள் பதிவுக் கோப்பில் உள்ளன:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">WebView2 மூலம் விவிலிய உரையைக் காட்ட ஆண்ட்பைபிளுக்கு Direct3D கிராபிக்ஸ் தேவை. தற்போதைய கிராபிக்ஸ் ரெண்டரர் %1$s. உங்கள் கிராபிக்ஸ் இயக்கி மற்றும் Direct3D ஆதரவைச் சரிபார்க்கவும்.\n\nவிவரங்கள் பதிவுக் கோப்பில் உள்ளன:\n%2$s</string>
+  <string name="desktop_update_setting_title">புதுப்பிப்புகளைச் சரிபார்</string>
+  <string name="desktop_update_setting_summary">ஒரு நாளுக்கு ஒருமுறை, github.com இலிருந்து</string>
+  <string name="desktop_update_consent_title">புதுப்பிப்புகளைச் சரிபார்க்கவா?</string>
+  <string name="desktop_update_consent_message">புதிய பதிப்பிற்காக ஆண்ட்பைபிள் ஒரு நாளுக்கு ஒருமுறை github.com-ஐச் சரிபார்க்கலாம். GitHub உங்கள் IP முகவரியைப் பார்க்கும்; வேறு எதுவும் அனுப்பப்படாது. இதை பின்னர் அமைப்புகளில் மாற்றலாம்.</string>
+  <string name="desktop_update_consent_yes">புதுப்பிப்புகளைச் சரிபார்</string>
+  <string name="desktop_update_consent_no">சரிபார்க்க வேண்டாம்</string>
+  <string name="desktop_update_available_title">புதிய பதிப்பு உள்ளது</string>
+  <string name="desktop_update_available_message">ஆண்ட்பைபிள் %1$s கிடைக்கிறது. உங்களிடம் %2$s உள்ளது.</string>
+  <string name="desktop_update_download">தரவிறக்கு</string>
+  <string name="desktop_update_later">பின்னர்</string>
   <string name="app_name_andbible">ஆண்ட் பைபில்</string>
   <string name="app_name_short">விவிலிய ஆய்வு</string>
   <string name="app_name_medium">விவிலிய ஆய்வு (ஆண்ட் பைபில்)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d ஒத்துள்ளன</string>
   <string name="search_showing_first">நிறைய பொருத்தங்கள் உள்ளன. முதல் %d காட்டப்படுகிறது.</string>
   <string name="search_bible_section_group_prompt">எங்கே தேடுவது</string>
+  <string name="search_type_prompt">தேடல் வகை</string>
+  <string name="search_show_results">தேடல் முடிவுகளைக் காட்டு</string>
   <string name="search_all_bible">முழு திருவிவிலியமும்</string>
   <string name="search_new_testament">புதிய ஏற்பாடு</string>
   <string name="search_old_testament">பழைய ஏற்பாடு</string>
@@ -80,6 +94,28 @@
   <string name="search_what">%sஐ தேடுக</string>
   <!--Multi-translation search-->
   <string name="search_translations">மொழிபெயர்ப்புகள்</string>
+  <string name="recent_searches">சமீபத்திய தேடல்கள்</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">தேடலை மூடு</string>
+  <string name="search_options">தேடல் அமைப்புகள்</string>
+  <string name="search_submit">தேடு</string>
+  <string name="search_clear">தேடல் உரையை அழி</string>
+  <string name="search_engine_changed_reindex">தேடு பொறி புதுப்பிக்கப்பட்டுள்ளது. தேடல் குறியீட்டை மீண்டும் உருவாக்க வேண்டும்; இதற்குச் சிறிது நேரம் ஆகலாம்.</string>
+  <string name="search_unsupported_syntax">இந்தத் தேடல் ஆதரிக்கப்படாத தொடரமைப்பைப் பயன்படுத்துகிறது: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">குறியீடு உருவாக்கம் முடிந்ததும் தேடல் தானாக இயங்கும்.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s இல் தேட முடியாது</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">இந்தக் கோப்பில் தேட முடியாது</string>
+  <string name="search_indexing_notification_title">தேடல் குறியீட்டை உருவாக்குகிறது</string>
   <string name="choose_translations">மொழிபெயர்ப்புகளை தேர்ந்தெடு…</string>
   <string name="multi_search_results">%2$d மொழிபெயர்ப்புகளில் %1$d வசனங்கள்</string>
   <string name="search_index_not_created">அட்டவணை இல்லை</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">வண்ணங்கள் எவ்வாறு காட்டப்படும் என்பதைத் தேர்வு செய்யவும். வண்ண e-ink பயன்முறையில் கருப்பு &amp; வெள்ளை அடிப்படை இருந்தாலும், புக்மார்க் வண்ணங்கள், செயலில் உள்ள சாளர குறிகாட்டி மற்றும் உதவி கோடுகள் வண்ணத்தில் காட்டப்படும் — வண்ண e-ink திரைகளுக்கு.</string>
   <string name="prefs_display_color_mode_normal">இயல்பானது</string>
   <string name="prefs_display_color_mode_bw">கருப்பு &amp; வெள்ளை</string>
+  <string name="prefs_display_color_mode_monochrome">ஒற்றை நிறம்</string>
   <string name="prefs_display_color_mode_color_eink">வண்ண e-ink</string>
+  <string name="prefs_theme_palette_style_title">தீம் பாணி</string>
+  <string name="prefs_theme_palette_style_summary">பணியிட நிறத்திலிருந்து செயலியின் நிறங்கள் எவ்வாறு பெறப்படுகின்றன என்பது. நிறப் பயன்முறை இயல்பாக இருக்கும்போது மட்டுமே பொருந்தும்.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">டோனல் ஸ்பாட் (மென்மையானது, சாம்பலை வைத்திருக்கும்)</string>
+  <string name="prefs_theme_palette_style_fidelity">ஃபிடிலிட்டி (துல்லியமான நிறம்)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">டோனல் ஸ்பாட் (அசல்)</string>
+  <string name="prefs_theme_palette_style_content">உள்ளடக்கம் (நிறத்திற்கு அருகில்)</string>
+  <string name="prefs_theme_palette_style_neutral">நடுநிலை (மங்கலானது)</string>
+  <string name="prefs_theme_palette_style_monochrome">ஒற்றை நிறம் (சாம்பல்)</string>
+  <string name="prefs_theme_palette_style_vibrant">துடிப்பானது</string>
+  <string name="prefs_theme_palette_style_expressive">வெளிப்பாடானது</string>
+  <string name="prefs_theme_palette_style_rainbow">வானவில்</string>
+  <string name="prefs_theme_palette_style_fruit_salad">பழக் கலவை</string>
   <string name="prefs_eink_settings_cat">E-ink அமைப்புகள்</string>
   <string name="prefs_eink_display_title">E-ink அம்சங்கள்</string>
   <string name="prefs_eink_display_summary">E-ink சிறப்பு அம்சங்களை இயக்கு (பக்க உருட்டு பொத்தான்கள், உருட்டு உதவிக் கோடுகள்)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">உருட்டும்போது அதிகாரங்களை தானாக படித்ததாக குறி</string>
   <string name="reading_progress_read_count_scale">படித்த\nஎண்ணிக்கை</string>
   <string name="reading_progress_percent_read_scale">படித்த\nசதவீதம்</string>
+  <string name="monochrome_activity_count">செயல்பாட்டு எண்ணிக்கை: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">எண்ணிக்கை: %d</string>
+  <string name="monochrome_level">நிலை: %d/4</string>
+  <string name="monochrome_buckets">சாம்பல்: எதுவுமில்லை; வெளிக்கோடு: பகுதியளவு; நிரப்பப்பட்டது: முழுமை அல்லது உயர்ந்த நிலை. துல்லியமான மதிப்புகளுக்கு ஒரு உருப்படியைத் தேர்ந்தெடுக்கவும்.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">படிக்கும் வரலாறு</string>
   <string name="reading_progress_history_for">%1$s-க்கான வாசிப்பு முன்னேற்றம்</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">இந்த பணியிடத்திற்கான உரை காட்சி அமைப்புகளை மாற்று</string>
   <string name="global_text_options_link">உலகளாவிய உரை விருப்பங்கள்</string>
   <string name="global_text_options_link_summary">அனைத்து பணியிடங்களுக்கும் இயல்புநிலை உரை காட்சி அமைப்புகளை மாற்று</string>
+  <string name="text_options_inherited_workspace">பணியிடம்</string>
+  <string name="text_options_inherited_global">பொது</string>
   <string name="prefs_font_and_colors_title">எழுத்துரு &amp; நிறங்கள்</string>
   <string name="prefs_text_layout_title">உரை அமைப்பு</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; சொற்பகுப்பியல்</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace">பணியிடம்</string>
   <string name="copy_settings_to_window">சாளரம் %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">உலகளாவிய இயல்புநிலைகள்</string>
+  <string name="copy_settings_to_workspaces">பிற பணியிடங்களுக்கு…</string>
+  <string name="copy_settings_to_global_defaults">பொது இயல்புநிலைகளுக்கு…</string>
+  <string name="menu_back">பின்செல்</string>
   <string name="change_to_normal">சாதாரண சாரளமாக மாற்று</string>
   <string name="window_pin_mode">கடவு எண்</string>
   <!--Notes screen-->
@@ -311,6 +372,7 @@
   <string name="failed_repositories_message">பின்வரும் ஆவண சேவையகத்துடன் இணைக்க முடியவில்லை: \n\n%s\n\n</string>
   <string name="failed_downloads_message">பின்வரும் கோப்புகளை பதிவிறக்க முடியவில்லை:\n\n%s\n\n</string>
   <string name="cant_delete_document">இந்த ஆவணத்தை நீக்க இயலாது.</string>
+  <string name="bad_document_warning">இந்தக் கோப்பில் அறியப்பட்ட சிக்கல்கள் உள்ளன.</string>
   <!--Install zip file-->
   <string name="install_zip">கோப்புகளிலிருந்து ஆவணங்களை ஏற்றவும்</string>
   <string name="install_zip_module">விவிலிய Module நிறுவவும்</string>
@@ -377,6 +439,11 @@
   <string name="delete_index">தேடல் அட்டவணையை நீக்கு</string>
   <string name="about">எம்மைப் பற்றி</string>
   <string name="delete_doc">%s நீக்கவா?</string>
+  <string name="interrupted_downloads_title">தரவிறக்கம் தடைபட்டது</string>
+  <string name="interrupted_downloads_message">இந்தக் கோப்புகளின் தரவிறக்கம் தடைபட்டதால் அவை நிறுவப்படவில்லை:</string>
+  <string name="interrupted_downloads_question">மீண்டும் தரவிறக்கவா?</string>
+  <string name="download_again">மீண்டும் தரவிறக்கு</string>
+  <string name="delete_docs_confirm">இந்தக் கோப்புகளை நீக்கவா?</string>
   <string name="delete_search_index_doc"> %sஇன் அட்டவணையை நீக்க வா?</string>
   <!--Verse context menu-->
   <string name="notes">அடிக்குறிப்புகள் மற்றும் பிற குறிப்புகள்</string>
@@ -397,6 +464,7 @@
   <string name="assign_labels">லேபிள்களை தேர்ந்தெடு</string>
   <string name="new_item">புதிய</string>
   <string name="label_name_prompt">பெயர்</string>
+  <string name="new_label_default_name">லேபிள் %d</string>
   <string name="label_unlabelled">லேபிள் இல்லாதது</string>
   <string name="add_bookmark1">புக்மார்க்</string>
   <string name="add_bookmark3">தேர்வு</string>
@@ -446,6 +514,8 @@
   <string name="rewind">பின் செல்</string>
   <string name="forward">முன் செல்</string>
   <string name="tts_lang_not_available">மொழி இல்லை.</string>
+  <string name="tts_engine_not_available">இந்தச் சாதனத்தில் உரையிலிருந்து பேச்சு செயல்படவில்லை. கணினியின் உரையிலிருந்து பேச்சு அமைப்புகளில் ஒரு பேச்சு இயந்திரம் நிறுவப்பட்டு இயக்கப்பட்டுள்ளதா எனச் சரிபார்க்கவும்.</string>
+  <string name="tts_audio_focus_denied">மற்றொரு செயலி ஒலியைப் பயன்படுத்துவதால் பேச்சைத் தொடங்க முடியவில்லை.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">பேசும் வேகம்</string>
   <string name="speak_and_play_earcons_title">பேச்சு மற்றும் இயர்கான் ஒலிகள் </string>
@@ -455,6 +525,10 @@
   <string name="speak_bookmarks_menu_title">புக்மாக்கில் இருந்து பேசு</string>
   <string name="speak_advanced_settings">மேலதிக அமைப்புகள்</string>
   <string name="speak_sleep_timer_title">தூங்கு கடிகாரம்</string>
+  <string name="speak_sleep_timer_minutes">%d நிமி</string>
+  <string name="speak_sleep_timer_custom">தனிப்பயன்…</string>
+  <string name="speak_sleep_timer_off">நிறுத்தம்</string>
+  <string name="speak_other_settings">மற்றவை</string>
   <string name="speak_no_books_available">பேச நூல் ஏதுமில்லை</string>
   <string name="speak_general_error">இந்த நூலுக்கு பேச்சை தொடங்க இயலவில்லை</string>
   <string name="repeat_passage">மீண்டும் மீண்டும் படிக்கவும் </string>
@@ -483,6 +557,11 @@
   <string name="speak_autobookmarking_disabled">தானாக புக் மார்க் செய்வது முடக்கப்பட்டது!</string>
   <string name="system_speak_settings">கருவியின் TTS அமைப்புகளைத் திற</string>
   <string name="auto_assing_labels_help1">நீங்கள் உருவாக்கும் புக் மார்க்குகளுக்கு எந்த லேபில்கள் தானாக கொடுக்கப்படும் என்பதை இங்கே நீங்கள் தெரிவு செய்யலாம்</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">இங்கே நீங்கள் லேபிள்களைச் சேர்க்கலாம், திருத்தலாம், நீக்கலாம், மேலும் நீங்கள் உருவாக்கும் புக்மார்க்குகளுக்கு எவை தானாக ஒதுக்கப்படும் என்பதை மாற்றலாம்.\n\nசமீபத்திய லேபிள்கள்: சமீபத்தில் பயன்படுத்தப்பட்ட லேபிள்கள்.\nபிற லேபிள்கள்: மற்ற எல்லா லேபிள்களும்.\n\nதானாக ஒதுக்கப்பட்ட அல்லது பிடித்த லேபிள்களை மட்டும் பார்க்க தேடல் பட்டியின் வடிகட்டி விருப்பங்களைப் பயன்படுத்தவும்.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">இந்த அமைப்புகள் %s க்கானது</string>
   <string name="setting_scope_window">இந்த சாரலம்</string>
@@ -594,6 +673,9 @@
   <string name="loading_backup">நகலிலிருந்து தரவு தளம் ஏற்றப்படுகிறது...</string>
   <string name="backup_success2">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்கள் காப்புப் பிரதி எடுக்கப்பட்டன.</string>
   <string name="backup_modules_success">தேர்வு செய்யப்பட்ட மாடியுல்கள் சரியாக நகலெடுக்கப்பட்டன.</string>
+  <string name="backup_modules_conflict">காப்புப்பிரதி உருவாக்கப்படவில்லை: %1$s மற்றும் %2$s இரண்டிலும் %3$s கோப்பு வெவ்வேறு உள்ளடக்கத்துடன் உள்ளது. அவற்றில் ஒன்றை மட்டும் தேர்ந்தெடுத்து மீண்டும் முயலவும்.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (பதிப்பு %2$s, கோப்புறை %3$s)</string>
   <string name="backup_modules_email_subject_2">%s மாடியுல்களின் நகல்</string>
   <string name="backup_modules_email_message_2">இணைக்கப்பட்டிருப்பது பின்வரும் மாடியுல்களைக் கொண்ட உங்கள் %1$s மாடியல்களின் நகல்: %2$s</string>
   <string name="backup_email_subject_2">%s தரவு தள நகல்</string>
@@ -602,6 +684,9 @@
   <string name="exported_studypads_message">தேர்ந்தெடுத்த ஸ்டடி பேடுகளுடன் தொடர்புடைய புக்மார்க்குகள் மற்றும் குறிப்புகளை கொண்ட %s தரவுதளம் இணைக்கப்பட்டுள்ளது</string>
   <string name="restore_unsuccessfull">தரவு தளத்தை மீட்டமைப்பதில் சிக்கல். தவறான தரவு தளக் கோப்பை நீங்கள் தந்திருக்கலாம்.</string>
   <string name="send_backup_file">நகல் கோப்பை அனுப்பு</string>
+  <string name="export_destination_title">எங்கே ஏற்றுமதி செய்வது?</string>
+  <string name="export_destination_message">ஏற்றுமதியை இந்தத் தொலைபேசியில் சேமிக்கவும், அல்லது பகிர் மூலம் வேறு இடத்திற்கு அனுப்பவும்.</string>
+  <string name="send_export_file">ஏற்றுமதிக் கோப்பை அனுப்பு</string>
   <string name="backup_modules_title">நகல் எடுக்கவேண்டிய மாடியுல்களை தெரிவு செய்க</string>
   <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
   <string name="ask_restore_or_import">%s-க்கான தரவுதளத்தை மீட்டமைக்கலாம் (அதாவது ஏற்கனவே உள்ள தரவுதளம் நீக்கப்பட்டு தேர்ந்தெடுத்த தரவுதளம் ஏற்றப்படும்) அல்லது இறக்குமதி செய்யலாம் (தேர்ந்தெடுத்த தரவுதளம் ஏற்கனவே உள்ளதில் இறக்குமதி செய்யப்படும்). என்ன செய்ய வேண்டும்?</string>
@@ -643,12 +728,25 @@
   <string name="doc_type_book">நூல்</string>
   <string name="doc_type_map">வரைபடம்</string>
   <string name="doc_type_addons">துணை நிரல்கள்</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">மற்றவை</string>
+  <string name="document_type_label">கோப்பு வகை</string>
   <!--Languages-->
   <string name="lang_default">தானியல்பு</string>
   <!--General-->
   <string name="okay">சரி</string>
   <string name="cancel">ரத்து செய்</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">பின்செல்</string>
+  <string name="settings_editor_close">மூடு</string>
+  <string name="settings_editor_apply">செயல்படுத்து</string>
   <string name="discard_changes_confirmation">சேமிக்காத மாற்றங்களை நிராகரிக்கவா?</string>
+  <string name="discard">நிராகரி</string>
+  <string name="remove">நீக்கு</string>
+  <string name="overwrite">மேலெழுது</string>
+  <string name="set_current_day_action">நாளை அமை</string>
   <string name="yes">ஆம்</string>
   <string name="no">இல்லை</string>
   <string name="error">பிழை</string>
@@ -658,6 +756,7 @@
   <string name="watch_tutorial_video">பயிற்சி காணொளியை காண்க (ஆங்கிலம்)</string>
   <string name="verse_not_found">வசனம் கிடைக்கவில்லை</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">தொடர்</string>
   <string name="report_error">அறிக்கையை அனுப்புக</string>
   <string name="error_occurred">பிழை ஏற்பட்டது</string>
   <string name="error_occurred_crash_last_time">அடந்தமுறை நீங்கள் செயலியைப் பயன்படுத்தியபோது, அது எதிர்பாரா விதமாக முடங்கியது. பஎங்களுக்கு பிழை அறிக்கையை அனுப்பினால், அதனை சரி செய்ய ஏதுவாக இருக்கும்.</string>
@@ -668,8 +767,14 @@
   <string name="error_key_not_in_document2">%1$s, ஆவணம் %2$s இல் இல்லை.</string>
   <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
   <string name="error_skip">தவிர்க்க</string>
+  <string name="debug_test_error">சோதனைப் பிழை (டீபக் பதிப்பு)</string>
+  <string name="bug_report_prepare_failed">அறிக்கையைத் தயார்செய்ய அல்லது பகிர முடியவில்லை. மீண்டும் முயலலாம், அல்லது உங்கள் தரவைச் சேமிக்க காப்புப்பிரதி &amp; மீட்டமைப்பைப் பயன்படுத்தலாம்.</string>
   <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
   <string name="bug_report_email_text">அடுத்து, டெவலப்பர் குழுவிற்கு அறிக்கையை அனுப்ப, உங்களுக்கு விருப்பமான மின்னஞ்சல் பயன்பாட்டை (உதாரணமாக ஜிமெயில்) தேர்ந்தெடுக்கவும்.</string>
+  <string name="bug_report_manual_title">அறிக்கையை மின்னஞ்சலில் அனுப்பு</string>
+  <string name="bug_report_manual_text_saved">அறிக்கை சேமிக்கப்பட்டது:</string>
+  <string name="bug_report_manual_text_unsaved">இந்தச் சாதனத்தில் மின்னஞ்சல் செயலி எதையும் திறக்க முடியவில்லை.\n\nஅறிக்கையை இந்த முகவரிக்கு மின்னஞ்சலில் அனுப்பவும்:</string>
+  <string name="bug_report_copy_address">முகவரியை நகலெடு</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">உரையிலிருந்து பேச்சுக்கு</string>
   <string name="notification_channel_progress_status">ஆவணப் பதிவிறக்கங்கள் போன்றவற்றுக்கான முன்னேற்ற நிலை அறிவிப்பு முதலியன.</string>
@@ -693,6 +798,7 @@
   <string name="search_settings">தேடல் அமைப்புகள்</string>
   <string name="dismiss">நிராகரி</string>
   <string name="workspace_listing_with_current">%s (தற்போதையது)</string>
+  <string name="workspace_manage_workspaces">பணியிடங்களை நிர்வகி…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">இது பீட்டா பதிப்பு!</string>
   <string name="beta_notice_content_1">
@@ -746,7 +852,10 @@
   <string name="help_search_title">தேடல்</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">தேடல் உரையில் *, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளை சேர்க்கலாம்</string>
+  <string name="help_search_bible">சொற்கள் எவ்வாறு பொருத்தப்படுகின்றன என்பதைத் தேர்ந்தெடுக்கவும்: எல்லா சொற்களும் என்பது ஒவ்வொரு சொல்லும் உள்ள வசனங்களைக் கண்டறியும், ஏதேனும் ஒரு சொல் என்பது குறைந்தது ஒரு சொல் உள்ளவற்றைக் கண்டறியும், சொற்றொடர் என்பது சொற்களை அதே வரிசையில் அருகருகே கண்டறியும்.\n\nதேடலுக்குள் * மற்றும் ? ஆகியவற்றை வைல்ட்கார்டுகளாகவும் பயன்படுத்தலாம் (எடுத்துக்காட்டாக bless* என்பது blessed மற்றும் blessing ஆகியவற்றைப் பொருத்தும்), AND, OR, NOT மூலம் சொற்களை இணைக்கலாம், மேலும் Strong எண்களை நேரடியாகத் தேடலாம் (எடுத்துக்காட்டாக strong:h0430).</string>
+  <string name="help_search_epub">சொற்கள் எவ்வாறு பொருத்தப்படுகின்றன என்பதைத் தேர்ந்தெடுக்கவும்: எல்லா சொற்களும் என்பது ஒவ்வொரு சொல்லும் உள்ள பகுதிகளைக் கண்டறியும், ஏதேனும் ஒரு சொல் என்பது குறைந்தது ஒரு சொல் உள்ளவற்றைக் கண்டறியும், சொற்றொடர் என்பது சொற்களை அதே வரிசையில் அருகருகே கண்டறியும்.\n\nமூல வினவல் தொடரமைப்பு உங்கள் உரையை மாற்றாமல் தேடு பொறிக்கு அனுப்பும், எனவே நீங்களே வினவலை எழுதலாம்: grace AND faith, grace OR faith, grace NOT faith, சரியான சொற்றொடருக்கு \"hope of glory\", bless-ல் தொடங்கும் எந்தச் சொல்லையும் பொருத்த bless*, அவை அருகருகே இருப்பதைக் காண grace NEAR faith.</string>
   <string name="help_search_details">மேலும் விவரங்களுக்கு %s பார்க்கவும்.</string>
+  <string name="help_search_syntax">தேடல் தொடரமைப்பு</string>
   <string name="help_fts5">FTS5 முழு-உரை வினவல் தொடரியல்</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
   <string name="help_workspaces_text">
@@ -773,6 +882,12 @@
         போன்றவற்றை விரைவாக மாற்றலாம்.
     </string>
   <!--Welcome text-->
+  <string name="welcome_intro">உங்கள் நூலகத்தில் இன்னும் கோப்புகள் இல்லை. தொடங்குவதற்குச் சிலவற்றைச் சேர்க்கவும்.</string>
+  <string name="welcome_redownload_row_hint">முன்பு நிறுவிய கோப்புகளிலிருந்து தேர்ந்தெடு</string>
+  <string name="welcome_download_row_hint">இணைய பட்டியலை உலாவு</string>
+  <string name="welcome_restore_row_hint">புக்மார்க்குகள் மற்றும் குறிப்புகளுடன் தரவுத்தளக் கோப்பு</string>
+  <string name="welcome_link_website">இணையதளம்</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%sக்கு ஏற்ற விரும்பும் கோப்பை நீங்கள் தெரிவு செய்ய வேண்டும்.</string>
@@ -788,9 +903,8 @@
   <string name="format_studypads">AndBible தரவுதளங்களிலிருந்து ஸ்டடி பேடுகள் (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">மூடு</string>
+  <string name="reading_toolbar_options">மேலும் விருப்பங்கள்</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">நான் ஏற்கிறேன்</string>
-  <string name="first_time_help_show_next_time">அடுத்த முறை மீண்டும் காட்டவும்</string>
   <string name="strongs_mode_title">Strongs முறையினை தேர்வு செய்க</string>
   <string name="download_dialog_message">பின்வரும் நூல்களை தரவிறக்க இயலவில்லை:</string>
   <string name="journal_description">உரை மற்றும் புக்மார்க்குகளுடன் பயனர் திருத்தக்கூடிய ஸ்டடி பேடுகள்</string>
@@ -815,6 +929,7 @@
   <string name="prefs_experimental_features_summary">எந்த சோதனை அம்சங்களை இயக்க வேண்டும் என தேர்வு செய்க. இந்த அம்சங்கள் இன்னும் உருவாக்கத்தில் உள்ளன, மாறலாம் அல்லது நீக்கப்படலாம்</string>
   <string name="experimental_feature_bookmark_edit_actions">புக்மார்க் திருத்த செயல்கள்</string>
   <string name="experimental_feature_add_paragraph_break">பத்தி முறிவு புக்மார்க் சேர்</string>
+  <string name="experimental_feature_toolbar_literal_color">வாசிப்புக் கருவிப்பட்டிக்கு (தீம் நிறத்திற்குப் பதிலாக) பணியிடத்தின் அதே நிறத்தைப் பயன்படுத்து</string>
   <string name="raw_llm_log_title">LLM நேரடி பதிவு</string>
   <string name="raw_llm_log_empty">நேரடி பதிவு தரவு இல்லை</string>
   <string name="raw_llm_log_copied">பதிவு கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது</string>
@@ -923,6 +1038,7 @@
   <string name="display_mode_underline">அடிக்கோடு</string>
   <string name="display_mode_marker">குறி மட்டும்</string>
   <string name="display_mode_hidden">மறைக்கப்பட்டது</string>
+  <string name="display_mode_inherit">தேர்வைப் போலவே</string>
   <string name="workspace_override_indicator">இந்த லேபிளுக்கு பணியிட-குறிப்பிட்ட காட்சி முறை உள்ளது</string>
   <string name="primary_label">முதன்மை லேபிள்</string>
   <string name="favourite_label">விருப்பமான லேபிள்</string>
@@ -936,6 +1052,8 @@
   <string name="book_menu_show_long_book_name">நூலின் முழு பெயரையும் காட்டு</string>
   <string name="book_menu_show_progress_bars">முன்னேற்ற பட்டைகளை காட்டு</string>
   <string name="reset_workspace_labels">இந்தப் பணியிடத்திற்கான தானியங்கி மற்றும் பிடித்த அமைப்புகளை மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="clear_auto_assign_labels">தானாக ஒதுக்கும் லேபிள்களை அழி</string>
+  <string name="reset_workspace_auto_assign_labels">இந்தப் பணியிடத்திலிருந்து தானாக ஒதுக்கும் எல்லா லேபிள்களையும் நீக்க விரும்புகிறீர்களா?</string>
   <string name="reset_hide_labels">குறிப்பிட்ட லேபிள் அமைப்புகளை மறைப்பதற்கான அமைப்பை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="reorder">மீல் வரிசைப்படுத்து</string>
   <string name="system_items">சிஸ்டம் செயல்கள்</string>
@@ -1007,6 +1125,27 @@
   <string name="instructions_for_translators">மொழிபெயர்ப்பாளர்களுக்கான வழிமுறைகள்</string>
   <string name="questions_title">கேள்விகள்?</string>
   <string name="bookmark_style">புக் மார்க் வடிவமைத்து</string>
+  <string name="bookmark_style_preview_sample">தேவன் உலகத்தின்மேல் அன்புகூர்ந்தார்</string>
+  <string name="bookmark_style_selection">உரைத் தேர்வு புக்மார்க்குகள்</string>
+  <string name="bookmark_style_whole_verse">முழு வசன புக்மார்க்குகள்</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">முழு வசன புக்மார்க்குகளுக்கு வேறு பாணியைப் பயன்படுத்து</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">தேர்வு</string>
+  <string name="bookmark_style_tag_whole_verse">முழு வசனம்</string>
+  <string name="bookmark_style_tag_workspace">பணியிடம்</string>
+  <string name="show_style_examples">பாணி எடுத்துக்காட்டுகளைக் காட்டு</string>
+  <string name="labels_search_section">தேடல்</string>
+  <string name="labels_filter_section">காட்டு</string>
+  <string name="labels_filter_auto_assign">தானாக ஒதுக்கும் லேபிள்கள் மட்டும்</string>
+  <string name="labels_filter_favourite">பிடித்த லேபிள்கள் மட்டும்</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">இந்தப் புக்மார்க்கிற்கு ஒதுக்க ஒரு லேபிளைத் தேர்வுசெய்யவும்.</string>
+  <string name="manage_labels_help_primary">முதன்மை லேபிள். அதன் நிறமும் பாணியுமே புக்மார்க்கில் காட்டப்படும்.</string>
+  <string name="manage_labels_help_autoassign">இந்த லேபிளை ஒவ்வொரு புதிய புக்மார்க்கிற்கும் தானாக ஒதுக்கு. வெற்று மின்னல் குறி என்றால் நிறுத்தம்.</string>
+  <string name="manage_labels_help_favourite">விரைவாக அணுக இந்த லேபிளை உங்கள் பிடித்தவற்றில் வைத்திருங்கள்.</string>
+  <string name="manage_labels_help_styles">பெயருக்குக் கீழே ஒரு சிறிய எடுத்துக்காட்டு லேபிளின் தோற்றத்தைக் காட்டும்: உரைத் தேர்வு புக்மார்க்கிற்குத் தேர்வு, முழு வசன புக்மார்க்கிற்கு முழு வசனம், இந்தப் பணியிடம் மாற்றியமைக்கும் பாணிக்குப் பணியிட குறிச்சொல். அலங்காரமின்றிச் சாம்பல் நிறத்தில் உள்ள எடுத்துக்காட்டு என்றால் லேபிளின் புக்மார்க்குகள் வரையப்படுவதில்லை. எடுத்துக்காட்டுகளை ⋮ பட்டியிலிருந்து மறைக்கலாம்.</string>
+  <string name="manage_labels_help_reorder">⋮ பட்டியிலிருந்து பட்டியலை மறுவரிசைப்படுத்தலாம்.</string>
   <string name="added_to_bookmark">இந்த புக்மார்க்கிற்கு ஒதுக்கப்பட்டது</string>
   <string name="strongs_links">இணைப்புகள்</string>
   <string name="strongs_text_and_links">உரை மற்றும் இணைப்புகள்</string>
@@ -1060,6 +1199,7 @@
   <string name="sync_group_n">தோகுதி %d</string>
   <string name="disable_sync">ஒத்திசைவை முடக்கு</string>
   <string name="open_in_window">முடிவுகளை சாளரத்தில் திற</string>
+  <string name="open_result_in_links_window">முடிவை இணைப்புகள் சாளரத்தில் திற</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">தனிப்பயன் களஞ்சியங்கள்</string>
@@ -1070,7 +1210,6 @@
   <string name="delete_custom_repository">தனிப்பயன் களஞ்சியம் %s ஐ நீக்கவா?</string>
   <string name="custom_repositories_help1">புதிய தனிப்பயன் களஞ்சியத்தைச் சேர்க்க, இங்கே தட்டச்சு செய்யலாம் அல்லது களஞ்சிய URL ஐ இங்கே நகலெடுத்து ஒட்டலாம்.</string>
   <string name="custom_repositories_help2">தனிப்பயன் களஞ்சியங்கள் பற்றிய கூடுதல் தகவல்களை %sஇல் பெறலாம்.</string>
-  <string name="wiki_page">விக்கி பக்கம்</string>
   <string name="custom_repositories_help0">தனிப்பயன் களஞ்சியங்களை நிறுவுவதன் மூலம் வெளிப்புற தனிப்பயன் களஞ்சியங்களிலிருந்து ஆவணங்களை நிறுவலாம்.</string>
   <string name="duplicate_custom_repository">%s எனும் பெயருடைய களஞ்சியம் ஏற்கனவே உள்ளது, ஆகவே மற்றொன்றை சேர்க்க இயலாது.</string>
   <string name="packages_dir">தொகுப்பு அடைவு (Zip கோப்புகள்)</string>
@@ -1117,6 +1256,7 @@
   <string name="reading_progress_new_cycle_confirm">புதிய வாசிப்பு சுழற்சியை தொடங்கவா? இது உங்கள் முன்னேற்றத்தை தொடக்கத்திலிருந்து கண்காணிக்கும், முந்தைய சுழற்சியின் தரவை பாதுகாக்கும்.</string>
   <string name="reading_progress_previous_cycle">முந்தைய சுழற்சி</string>
   <string name="reading_progress_next_cycle">அடுத்த சுழற்சி</string>
+  <string name="cloud_merge_data">தரவை ஒன்றிணை</string>
   <string name="cloud_fetch_and_restore_initial">மேக சேமிப்பகத்திலிருந்து இந்தக் கருவிக்கு நகலெடுக்கவும்</string>
   <string name="cloud_create_new">இந்தக் கருவியிலிருந்து மேக சேமிப்பகத்துக்கு நகலெடுக்கவும்</string>
   <string name="cloud_disable_sync">ரத்து செய்  &amp; ஒத்திசைவை முடக்கு</string>
@@ -1130,6 +1270,19 @@
   <string name="sync_adapter_summary">தற்போதையது: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV கோப்புறையின் முகவரி, எ.கா. https://nas.local/dav/ அல்லது https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">ஒத்திசைவுக்குப் பாதுகாப்பான https:// முகவரி தேவை.</string>
+  <string name="webdav_certificate_title">சர்வர் சான்றிதழ்</string>
+  <string name="webdav_forget_certificate_message">நம்பப்பட்ட சர்வர் சான்றிதழை மறக்கவா? அடுத்த இணைப்பில் சான்றிதழை மீண்டும் உறுதிப்படுத்தக் கேட்கப்படும்.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">நம்பப்படாத சர்வர் சான்றிதழ்</string>
+  <string name="webdav_untrusted_certificate_message">%1$s இன் சான்றிதழை Android நம்பவில்லை. அதை நீங்கள் அறிந்திருந்தால் மட்டுமே நம்புங்கள், எடுத்துக்காட்டாக இந்த சர்வரை நீங்களே அமைத்திருந்தால்.\n\nபொருள்: %2$s\nவழங்கியவர்: %3$s\nசெல்லுபடி: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">இந்தச் சான்றிதழை நம்பு</string>
+  <string name="webdav_wrong_credentials">தவறான பயனர்பெயர் அல்லது கடவுச்சொல்.</string>
+  <string name="webdav_not_a_folder">இந்த முகவரி WebDAV கோப்புறை அல்ல.</string>
+  <string name="webdav_certificate_changed">சர்வர் சான்றிதழ் மாறியுள்ளது. புதிய சான்றிதழை நீங்கள் உறுதிப்படுத்தும் வரை ஒத்திசைவு இடைநிறுத்தப்பட்டுள்ளது; ஆண்ட்பைபிள் அடுத்த முறை திறக்கும்போது அல்லது முன்புலத்தில் ஒத்திசைக்கும்போது அதைப்பற்றிக் கேட்கும்.</string>
+  <string name="webdav_storage_full">சர்வர் சேமிப்பிடம் நிரம்பியுள்ளது.</string>
   <string name="auth_server_uri">சேவையக URL</string>
   <string name="auth_username">பயனர் பெயர்</string>
   <string name="auth_password">கடவுச்சொல்</string>
@@ -1139,6 +1292,7 @@
   <string name="sync_general_settings">தகவல் &amp; பொது அமைப்புகள்</string>
   <string name="sync_introduction">முன்னுரை</string>
   <string name="are_you_sure">உறுதியாகவா?</string>
+  <string name="are_you_sure_merge">இந்தச் சாதனத்தில் உள்ள தரவும் மேகத்தில் உள்ள %s தரவும் இரண்டும் வைத்திருக்கப்படும். ஒரே உருப்படி இரண்டிலும் மாற்றப்பட்டிருந்தால் புதிய மாற்றம் வைத்திருக்கப்படும். இந்தச் சாதனத்தின் தரவு உங்கள் பிற சாதனங்களுக்கு அனுப்பப்படும்.</string>
   <string name="are_you_sure_reset_local">இது உங்கள் கருவில் உள்ள %sக்கான தரவு தளத்தை மேக சேமிப்பகத்தில் உள்ளவற்றால் மாற்றும்.</string>
   <string name="are_you_sure_reset_cloud">இது உங்கள் மேக சேமிப்பகத்தில் உள்ள %s ஆன தரவு தளத்தை இந்த கருவியில் உள்ள உள்ளவற்றால் மாற்றும்.</string>
   <string name="sync_cant_fetch">மேக சேமிப்பகத்தில் உள்ள தரவு தளம் அல்லது ஒட்டு கோப்பு இந்த செயலியால் பயன்படுத்தக்கூடிய பதிப்பினை விட முந்தியது ஆகும்.</string>
@@ -1175,6 +1329,7 @@
   <string name="pref_font_size_multiplier_title">எழுத்துரு அளவு பெருக்கி</string>
   <string name="pref_font_size_multiplier_summary_1">உரை எழுத்துரு அளவுகளை இந்த எண்ணால் பெருக்கு.</string>
   <string name="pref_font_size_multiplier_summary_2">பெரிய எழுத்துருவுடன் பயன்படுத்தப்படும் ஒத்திசைவு கருவி இருந்தால் பயனுள்ளது.</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">தற்போதைய மதிப்பு: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">இடது/வலது ஸ்வைப் சைகைக்கான செயல்</string>
   <string name="prefs_bible_view_swipe_mode_summary">இடது/வலது ஸ்வைப் சைகையை அடுத்த பக்கம்/அதிகாரம் செல்ல பயன்படுத்தலாம்.</string>
@@ -1295,6 +1450,7 @@
   <string name="prompt_max_iterations_unlimited">வரம்பற்றது</string>
   <string name="prompt_max_iterations_global_default">உலகளாவிய இயல்புநிலை (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">இந்த வரைவுக்கான உலகளாவிய அதிகபட்ச மறுசெய்கைகளை மேலீடு செய். 0 = வரம்பற்றது.\nதற்போதையது: %s</string>
+  <string name="prompt_max_iterations_use_global">பொது அமைப்பைப் பயன்படுத்து (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AI வரைவுகளை நிர்வகி</string>
   <string name="manage_prompts_summary">AI வரைவுகளை உருவாக்கவும் திருத்தவும்</string>
@@ -1428,6 +1584,7 @@
   <string name="built_in_prompt_notice">இது உள்ளமைக்கப்பட்ட வரைவு, திருத்த முடியாது. திருத்தக்கூடிய நகல் உருவாக்க \"தனிப்பயனாக்க நகலெடு\" பயன்படுத்தவும்.</string>
   <string name="copy_to_customize">தனிப்பயனாக்க நகலெடு</string>
   <string name="prompt_copied">வரைவு நகலெடுக்கப்பட்டது</string>
+  <string name="prompt_copy_failed">வரைவை நகலெடுக்க முடியவில்லை. அது நீக்கப்பட்டிருக்கலாம்.</string>
   <string name="delete_prompt_confirmation">\"%s\" வரைவை நீக்கவா?</string>
   <string name="prompt_name_required">வரைவு பெயர் தேவை</string>
   <string name="prompt_template_required">வரைவு வார்ப்புரு தேவை</string>
@@ -1635,6 +1792,8 @@
   <string name="tool_option_default_disabled">இயல்புநிலை (முடக்கப்பட்டது)</string>
   <string name="tool_option_default_allowed">இயல்புநிலை (அனுமதிக்கப்பட்டது)</string>
   <string name="tool_option_default_denied">இயல்புநிலை (மறுக்கப்பட்டது)</string>
+  <string name="tool_description_info">கருவி விளக்கத்தைக் காட்டு</string>
+  <string name="tool_permission_mixed">கலப்பு</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">மாடல்</string>
   <string name="prompt_model_default">இயல்புநிலை</string>
@@ -1680,6 +1839,8 @@
   <string name="my_document_pages_empty">இந்த ஆவணத்தில் பக்கங்கள் இல்லை.</string>
   <string name="my_document_page_rename_title">பக்கத்தை மறுபெயரிடு</string>
   <string name="my_document_page_delete_confirmation">\"%s\" பக்கத்தை நீக்கவா?</string>
+  <string name="my_document_pages_delete_confirmation">இந்தப் பக்கங்களை நீக்கவா?</string>
+  <string name="my_documents_switch_document">கோப்பை மாற்று</string>
   <string name="my_document_new_page_name">பக்கம் %1$d</string>
   <string name="my_document_create_page_title">புதிய பக்கம்</string>
   <string name="my_document_content_type_label">உள்ளடக்க வகை</string>
@@ -1776,4 +1937,91 @@
   <string name="document_sync_started">கோப்பு ஒத்திசைவு தொடங்கியது</string>
   <string name="document_sync_enable_dialog_title">கோப்புகளை ஒத்திசைக்கத் தொடங்கவா?</string>
   <string name="document_sync_enable_dialog_nothing">இன்னும் பரிமாற்ற கோப்புகள் எதுவும் இல்லை. புதிதாக நிறுவப்பட்ட கோப்புகள் தானாக ஒத்திசைக்கப்படும்.</string>
+  <string name="help_document_sync_text">கோப்பு ஒத்திசைவு நீங்கள் நிறுவிய விவிலியங்கள், விளக்க உரைகள் மற்றும் பிற கோப்புகளை மேகத்திற்கு நகலெடுத்து, உங்கள் சாதனங்கள் முழுவதும் ஒத்திசைவில் வைத்திருக்கும். மேகத்தில் என்ன சேமிக்கப்பட்டுள்ளது என்பதைப் பார்க்கவும், தனித்தனி கோப்புகளைத் தரவிறக்க அல்லது பதிவேற்றவும், கோப்புகளை நீக்கவும், இந்தச் சாதனத்திற்கு எவை ஒத்திசைக்கப்படும் என்பதைக் கட்டுப்படுத்தவும் இந்தக் காட்சியைப் பயன்படுத்தவும்.</string>
+  <string name="background_image_title">பின்னணிப் படம்</string>
+  <string name="background_image_none">பின்னணி இல்லை</string>
+  <string name="background_image_import">கேலரியிலிருந்து இறக்குமதி செய்…</string>
+  <string name="background_image_empty">இறக்குமதி செய்யப்பட்ட படங்கள் இன்னும் இல்லை. ஒன்றைச் சேர்க்க \"கேலரியிலிருந்து இறக்குமதி செய்…\" என்பதைத் தட்டவும்.</string>
+  <string name="background_image_importing">இறக்குமதி செய்கிறது…</string>
+  <string name="background_image_delete_title">படத்தை நீக்கவா?</string>
+  <string name="background_image_delete_confirm">இந்தப் பின்னணிப் படத்தை நீக்கவா? இதைப் பயன்படுத்தும் பணியிடங்கள் படம் இல்லாத நிலைக்கு மாறும்.</string>
+  <string name="background_image_day">பின்னணிப் படம் (பகல்)</string>
+  <string name="background_image_night">பின்னணிப் படம் (இரவு)</string>
+  <string name="background_image_opacity_day">பின்னணிப் படத்தின் ஒளிபுகாத்தன்மை (பகல்)</string>
+  <string name="background_image_opacity_night">பின்னணிப் படத்தின் ஒளிபுகாத்தன்மை (இரவு)</string>
+  <string name="background_image_change">மாற்று</string>
+  <string name="color_picker_title">ஒரு நிறத்தைத் தேர்ந்தெடுக்கவும்</string>
+  <string name="color_picker_presets">முன்னமைவுகள்</string>
+  <string name="color_picker_custom">தனிப்பயன்</string>
+  <string name="bookmark_expand_row">முழு உரையைக் காட்டு</string>
+  <string name="bookmark_collapse_row">குறைவாகக் காட்டு</string>
+  <string name="bookmark_label_filter">லேபிள் மூலம் வடிகட்டு</string>
+  <string name="document_quick_all_documents">எல்லா கோப்புகளும்…</string>
+  <string name="document_quick_tab_recent">சமீபத்தியவை</string>
+  <string name="document_quick_tab_for_verse">இந்த வசனம்</string>
+  <string name="document_quick_tab_last_filter">கடைசி வடிகட்டி</string>
+  <string name="document_quick_tab_all">அனைத்தும்</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">வடிகட்டு மற்றும் வரிசைப்படுத்து</string>
+  <string name="doc_arrange_repository">களஞ்சியம்</string>
+  <string name="doc_arrange_all_repositories">எல்லா களஞ்சியங்களும்</string>
+  <string name="doc_arrange_sort">வரிசை முறை</string>
+  <string name="doc_arrange_group_by">குழுவாக்கு</string>
+  <string name="doc_arrange_remember">இந்த அமைப்புகளை நினைவில் வை</string>
+  <string name="doc_arrange_reset">இயல்புநிலைக்கு மீட்டமை</string>
+  <string name="doc_arrange_more_filters">மேலும் வடிகட்டிகள்</string>
+  <string name="doc_arrange_reorder">மறுவரிசைப்படுத்து</string>
+  <string name="doc_sort_ascending">ஏறுவரிசை</string>
+  <string name="doc_sort_descending">இறங்குவரிசை</string>
+  <string name="doc_sort_status">நிலை</string>
+  <string name="doc_sort_recommended">பரிந்துரைக்கப்பட்டவை முதலில்</string>
+  <string name="doc_sort_name">பெயர்</string>
+  <string name="doc_sort_size">அளவு</string>
+  <string name="doc_group_none">குழுவாக்கம் இல்லை</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">தரவிறக்குகிறது</string>
+  <string name="doc_group_status_update_available">புதுப்பிப்பு உள்ளது</string>
+  <string name="doc_group_status_installed">நிறுவப்பட்டது</string>
+  <string name="doc_group_status_not_installed">நிறுவப்படவில்லை</string>
+  <string name="prompt_filter_title">வரைவுகளை வடிகட்டு</string>
+  <string name="prompt_filter_type">வகை</string>
+  <string name="prompt_type_addon">கூடுதல் இணைப்பு</string>
+  <string name="prompt_type_user">தனிப்பயன்</string>
+  <string name="prompt_filter_clear">வடிகட்டிகளை அழி</string>
+  <string name="prompt_favorite_add">பிடித்தவற்றில் சேர்</string>
+  <string name="prompt_favorite_remove">பிடித்தவற்றிலிருந்து நீக்கு</string>
+  <string name="window_unmaximise">எல்லா சாளரங்களையும் மீட்டமை</string>
+  <string name="window_menu_button">சாளர பட்டி</string>
+  <string name="paste_from_clipboard">ஒட்டு</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">இழுக்கும் கைப்பிடி</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">உங்கள் தரவைப் புதுப்பிக்கிறது…</string>
+  <string name="legacy_migration_progress_neutral">புதுப்பிக்கிறது…</string>
+  <string name="legacy_migration_failed_title">உங்கள் தரவைப் புதுப்பிக்க முடியவில்லை</string>
+  <string name="legacy_migration_failed_message">செயலியின் முந்தைய பதிப்பின் தரவு இந்தச் சாதனத்தில் பாதுகாப்பாகவும் மாற்றமின்றியும் உள்ளது. அடுத்து என்ன செய்வது என்பதைத் தேர்ந்தெடுக்கவும்.</string>
+  <string name="legacy_migration_failed_keychain">முந்தைய பதிப்பிலிருந்து சேமிக்கப்பட்ட கடவுச்சொற்களைப் படிக்க முடியவில்லை. உங்கள் சாதனத்தைத் திறந்து, செயலியை மூடி மீண்டும் திறக்கவும்.</string>
+  <string name="legacy_migration_rollback_pending">புதுப்பிப்பு தடைபட்டது, இன்னும் முழுமையாகத் திரும்பப்பெறப்படவில்லை. அதை முடிக்க செயலியை மூடி மீண்டும் திறக்கவும்.</string>
+  <string name="legacy_migration_save_old_data">பழைய தரவைச் சேமி</string>
+  <string name="legacy_migration_send_report">பிழை அறிக்கையை அனுப்பு</string>
+  <string name="legacy_migration_try_again">மீண்டும் முயல்</string>
+  <string name="legacy_migration_try_again_hint">மீண்டும் முயல செயலியை மூடி மீண்டும் திறக்கவும்.</string>
+  <string name="legacy_migration_restore_backup">காப்புப்பிரதியை மீட்டமை</string>
+  <string name="legacy_migration_start_fresh">பழைய தரவு இல்லாமல் தொடங்கு</string>
+  <string name="legacy_migration_start_fresh_confirm">உங்கள் பழைய தரவு இந்தச் சாதனத்திலேயே இருக்கும். அதை பின்னர் அமைப்புகளில் இறக்குமதி செய்யலாம்.</string>
+  <string name="legacy_import_title">செயலியின் முந்தைய பதிப்பிலிருந்து தரவை இறக்குமதி செய்</string>
+  <string name="legacy_import_summary">தற்போதைய தரவை செயலியின் முந்தைய பதிப்பின் தரவால் மாற்று</string>
+  <string name="legacy_import_confirm">இது உங்கள் தற்போதைய பணியிடங்கள், புக்மார்க்குகள் மற்றும் பிற தரவை செயலியின் முந்தைய பதிப்பின் தரவால் மாற்றும். உங்கள் தற்போதைய தரவின் நகல் இந்தச் சாதனத்தில் வைக்கப்படும்.</string>
+  <string name="legacy_import_reopen">உங்கள் தரவை இறக்குமதி செய்ய செயலியை மூடி மீண்டும் திறக்கவும்.</string>
+  <string name="legacy_notice_icloud">ஒத்திசைவு இப்போது iCloud Drive-ஐப் பயன்படுத்துகிறது. அமைப்புகள் → ஒத்திசைவு என்பதில் அதை மீண்டும் இயக்கவும். இந்தச் சாதனம் தன்னிடம் இருப்பதை வைத்திருக்கும்; ஒத்திசைவு மீண்டும் அமைக்கப்பட்டதும் உங்கள் பிற சாதனங்களின் மாற்றங்கள் வந்து சேரும். பழைய iCloud தரவை விடுவிக்க: அமைப்புகள் → உங்கள் பெயர் → iCloud → சேமிப்பிடத்தை நிர்வகி → AndBible.</string>
+  <string name="legacy_notice_nextcloud">உங்கள் Nextcloud இணைப்பு கொண்டுவரப்பட்டது, ஆனால் ஒத்திசைவு நிறுத்தத்தில் உள்ளது. அமைப்புகள் → ஒத்திசைவு என்பதில் அதை இயக்கி, மேகத்திலிருந்து பெறுவதா அல்லது புதிதாக உருவாக்குவதா என்பதைத் தேர்ந்தெடுக்கவும்.</string>
+  <string name="legacy_notice_nextcloud_unsent">இந்தச் சாதனத்தில் சில மாற்றங்கள் இன்னும் Nextcloud-க்கு அனுப்பப்படவில்லை. அவை அனுப்பப்படவில்லை, இந்தச் சாதனத்தில் மட்டுமே இருக்கும்.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">இது சக்திவாய்ந்த, ஆனாலும் பயன்படுத்த எளிதான, இணையமின்றிச் செயல்படும் விவிலிய ஆய்வுச் செயலி.</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s இன் சான்றிதழை இந்தச் சாதனம் நம்பவில்லை. அதை நீங்கள் அறிந்திருந்தால் மட்டுமே நம்புங்கள், எடுத்துக்காட்டாக இந்த சர்வரை நீங்களே அமைத்திருந்தால்.\n\nபொருள்: %2$s\nவழங்கியவர்: %3$s\nசெல்லுபடி: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">தனிப்பயன் களஞ்சியங்கள் பாதுகாப்பான https:// முகவரியைப் பயன்படுத்த வேண்டும்.</string>
+  <string name="custom_repository_https_required_refresh">%1$s http:// முகவரியைப் பயன்படுத்துகிறது. https:// களஞ்சியங்களை மட்டுமே பயன்படுத்த முடியும்.</string>
 </resources>

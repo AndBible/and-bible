@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible 無法啟動 WebView2，而顯示聖經文字需要它。請從以下位置安裝或修復 Microsoft Edge WebView2 Evergreen Runtime：\n%1$s\n\n詳細資訊請見記錄檔：\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible 需要 Direct3D 圖形才能透過 WebView2 顯示聖經文字。目前的圖形算繪器為 %1$s。請檢查您的顯示驅動程式與 Direct3D 支援。\n\n詳細資訊請見記錄檔：\n%2$s</string>
+  <string name="desktop_update_setting_title">檢查更新</string>
+  <string name="desktop_update_setting_summary">每天一次，從 github.com 檢查</string>
+  <string name="desktop_update_consent_title">檢查更新？</string>
+  <string name="desktop_update_consent_message">AndBible 可以每天一次連到 github.com 檢查是否有新版本。GitHub 會看到您的 IP 位址，但不會傳送其他資料。您之後可以在「設定」中變更。</string>
+  <string name="desktop_update_consent_yes">檢查更新</string>
+  <string name="desktop_update_consent_no">不要檢查</string>
+  <string name="desktop_update_available_title">有新版本可用</string>
+  <string name="desktop_update_available_message">AndBible %1$s 已推出。您目前使用的是 %2$s。</string>
+  <string name="desktop_update_download">下載</string>
+  <string name="desktop_update_later">稍後</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">研經工具</string>
   <string name="app_name_medium">研經工具 (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">找到 %d 條記錄</string>
   <string name="search_showing_first">符合條件的結果太多。僅顯示前面的 %d 條</string>
   <string name="search_bible_section_group_prompt">搜尋範圍</string>
+  <string name="search_type_prompt">搜尋類型</string>
+  <string name="search_show_results">顯示搜尋結果</string>
   <string name="search_all_bible">聖經全文</string>
   <string name="search_new_testament">新約</string>
   <string name="search_old_testament">舊約</string>
@@ -80,6 +94,28 @@
   <string name="search_what">尋找 \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">翻譯版本</string>
+  <string name="recent_searches">最近搜尋</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">關閉搜尋</string>
+  <string name="search_options">搜尋設定</string>
+  <string name="search_submit">搜尋</string>
+  <string name="search_clear">清除搜尋文字</string>
+  <string name="search_engine_changed_reindex">搜尋引擎已更新。需要重新建立搜尋索引，這可能需要一些時間。</string>
+  <string name="search_unsupported_syntax">此搜尋使用了不支援的語法：%s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">索引建立完成後，將自動執行搜尋。</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">無法搜尋 %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">無法搜尋此文件</string>
+  <string name="search_indexing_notification_title">正在建立搜尋索引</string>
   <string name="choose_translations">選擇翻譯版本…</string>
   <string name="multi_search_results">%2$d 個翻譯版本中共 %1$d 節經文</string>
   <string name="search_index_not_created">無索引</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">選擇顏色的顯示方式。彩色電子墨水保留黑白為基底，但以彩色顯示書籤顏色、使用中視窗指示器與輔助線 — 適用於彩色電子墨水螢幕。</string>
   <string name="prefs_display_color_mode_normal">一般</string>
   <string name="prefs_display_color_mode_bw">黑白</string>
+  <string name="prefs_display_color_mode_monochrome">單色</string>
   <string name="prefs_display_color_mode_color_eink">彩色電子墨水</string>
+  <string name="prefs_theme_palette_style_title">主題樣式</string>
+  <string name="prefs_theme_palette_style_summary">App 的顏色如何從工作區顏色衍生。僅在色彩模式為「一般」時適用。</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">色調點綴（柔和，保留灰色）</string>
+  <string name="prefs_theme_palette_style_fidelity">高保真（精確顏色）</string>
+  <string name="prefs_theme_palette_style_tonal_spot">色調點綴（原始）</string>
+  <string name="prefs_theme_palette_style_content">內容（接近該顏色）</string>
+  <string name="prefs_theme_palette_style_neutral">中性（柔和）</string>
+  <string name="prefs_theme_palette_style_monochrome">單色（灰階）</string>
+  <string name="prefs_theme_palette_style_vibrant">鮮豔</string>
+  <string name="prefs_theme_palette_style_expressive">表現力</string>
+  <string name="prefs_theme_palette_style_rainbow">彩虹</string>
+  <string name="prefs_theme_palette_style_fruit_salad">水果沙拉</string>
   <string name="prefs_eink_settings_cat">電子墨水設定</string>
   <string name="prefs_eink_display_title">電子墨水功能</string>
   <string name="prefs_eink_display_summary">啟用電子墨水專屬功能（翻頁按鈕、捲動輔助線）</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">捲動瀏覽章節時自動標記為已讀</string>
   <string name="reading_progress_read_count_scale">已讀\n次數</string>
   <string name="reading_progress_percent_read_scale">已讀\n百分比</string>
+  <string name="monochrome_activity_count">活動次數：%d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">次數：%d</string>
+  <string name="monochrome_level">等級：%d/4</string>
+  <string name="monochrome_buckets">灰色：無；外框：部分；實心：完整或最高等級。選取項目可查看精確數值。</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">閱讀歷史</string>
   <string name="reading_progress_history_for">%1$s 的閱讀進度</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">編輯此工作區的文字顯示設定</string>
   <string name="global_text_options_link">全域文字選項</string>
   <string name="global_text_options_link_summary">編輯所有工作區的預設文字顯示設定</string>
+  <string name="text_options_inherited_workspace">工作區</string>
+  <string name="text_options_inherited_global">全域</string>
   <string name="prefs_font_and_colors_title">字型與色彩</string>
   <string name="prefs_text_layout_title">文字排版</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s 與詞形分析</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">工作區</string>
   <string name="copy_settings_to_window">視窗 %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">全域預設值</string>
+  <string name="copy_settings_to_workspaces">複製到其他工作區…</string>
+  <string name="copy_settings_to_global_defaults">複製到全域預設值…</string>
+  <string name="menu_back">返回</string>
   <string name="change_to_normal">轉換至正常視窗</string>
   <string name="window_pin_mode">釘選</string>
   <!--Notes screen-->
@@ -309,6 +370,7 @@
   <string name="failed_repositories_message">未能連接以下文件伺服器：\n\n%s\n\n</string>
   <string name="failed_downloads_message">未能下載以下檔案:\n\n%s\n\n</string>
   <string name="cant_delete_document">此文件無法被刪除。</string>
+  <string name="bad_document_warning">此文件有已知問題。</string>
   <!--Install zip file-->
   <string name="install_zip">從檔案載入文件</string>
   <string name="install_zip_module">安裝聖經模組</string>
@@ -377,6 +439,11 @@ http://www.heartlight.org 准予使用
   <string name="delete_index">刪除索引</string>
   <string name="about">關於</string>
   <string name="delete_doc">刪除 %s</string>
+  <string name="interrupted_downloads_title">下載已中斷</string>
+  <string name="interrupted_downloads_message">下列文件因下載中斷而未安裝：</string>
+  <string name="interrupted_downloads_question">要重新下載嗎？</string>
+  <string name="download_again">重新下載</string>
+  <string name="delete_docs_confirm">要刪除這些文件嗎？</string>
   <string name="delete_search_index_doc">刪除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注腳及參考</string>
@@ -397,6 +464,7 @@ http://www.heartlight.org 准予使用
   <string name="assign_labels">分配標籤</string>
   <string name="new_item">建立</string>
   <string name="label_name_prompt">標籤名稱</string>
+  <string name="new_label_default_name">標籤 %d</string>
   <string name="label_unlabelled">未有標籤</string>
   <string name="add_bookmark1">書籤</string>
   <string name="add_bookmark3">選取</string>
@@ -446,6 +514,8 @@ http://www.heartlight.org 准予使用
   <string name="rewind">倒帶</string>
   <string name="forward">快進</string>
   <string name="tts_lang_not_available">不支持此語言</string>
+  <string name="tts_engine_not_available">此裝置上的文字轉語音無法運作。請確認系統的文字轉語音設定中已安裝並啟用語音引擎。</string>
+  <string name="tts_audio_focus_denied">無法開始朗讀，因為另一個 App 正在使用音訊。</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">朗讀速度</string>
   <string name="speak_and_play_earcons_title">朗讀及播放提示聲</string>
@@ -455,6 +525,10 @@ http://www.heartlight.org 准予使用
   <string name="speak_bookmarks_menu_title">朗讀書籤</string>
   <string name="speak_advanced_settings">進階設定</string>
   <string name="speak_sleep_timer_title">睡眠計時器</string>
+  <string name="speak_sleep_timer_minutes">%d 分鐘</string>
+  <string name="speak_sleep_timer_custom">自訂…</string>
+  <string name="speak_sleep_timer_off">關閉</string>
+  <string name="speak_other_settings">其他</string>
   <string name="speak_no_books_available">沒有可朗讀書本</string>
   <string name="speak_general_error">此文件無法開始朗讀</string>
   <string name="repeat_passage">重複段落</string>
@@ -483,6 +557,11 @@ http://www.heartlight.org 准予使用
   <string name="speak_autobookmarking_disabled">自動書籤已停用！</string>
   <string name="system_speak_settings">開啟系統文字轉語音(TTS)設定</string>
   <string name="auto_assing_labels_help1">你可以調整自動分配標籤至你定義的書籤。</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">您可以在這裡新增、編輯和移除標籤，並調整哪些標籤會自動指派給您建立的書籤。\n\n最近的標籤：最近使用過的標籤。\n其他標籤：所有其他標籤。\n\n使用搜尋列的篩選選項，可以只顯示自動指派或最愛的標籤。</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">此設定應用至%s。</string>
   <string name="setting_scope_window">此視窗</string>
@@ -589,6 +668,9 @@ http://www.heartlight.org 准予使用
   <string name="loading_backup">正在從備份載入資料庫</string>
   <string name="backup_success2">成功備份我的筆記、書籤、研習筆記、讀經計劃及工作區</string>
   <string name="backup_modules_success">選擇的模組已成功備份</string>
+  <string name="backup_modules_conflict">備份未完成：%1$s 與 %2$s 都包含檔案 %3$s，但內容不同。請只選擇其中一個，然後再試一次。</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s（版本 %2$s，資料夾 %3$s）</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
   <string name="backup_modules_email_message_2">此附你的 %1$s 模組備份，包含了以下模組: %2$s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
@@ -597,6 +679,9 @@ http://www.heartlight.org 准予使用
   <string name="exported_studypads_message">您的 %s 資料庫（包含所選學習筆記相關的書籤和筆記）已附加</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
   <string name="send_backup_file">傳送備份檔案</string>
+  <string name="export_destination_title">匯出到哪裡？</string>
+  <string name="export_destination_message">將匯出檔儲存到此手機，或使用「分享」傳送到其他地方。</string>
+  <string name="send_export_file">傳送匯出檔</string>
   <string name="backup_modules_title">選擇備份模組</string>
   <string name="install_zip_canceled">模組安裝已取消</string>
   <string name="ask_restore_or_import">%s 的資料庫可以選擇還原（即刪除現有資料庫並載入所選資料庫）或匯入（將所選資料庫匯入現有資料庫）。請選擇操作？</string>
@@ -637,12 +722,25 @@ http://www.heartlight.org 准予使用
   <string name="doc_type_book">書卷</string>
   <string name="doc_type_map">地圖</string>
   <string name="doc_type_addons">附加</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">其他</string>
+  <string name="document_type_label">文件類型</string>
   <!--Languages-->
   <string name="lang_default">預設</string>
   <!--General-->
   <string name="okay">確定</string>
   <string name="cancel">取消</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">返回</string>
+  <string name="settings_editor_close">關閉</string>
+  <string name="settings_editor_apply">套用</string>
   <string name="discard_changes_confirmation">放棄未儲存的變更？</string>
+  <string name="discard">捨棄</string>
+  <string name="remove">移除</string>
+  <string name="overwrite">覆寫</string>
+  <string name="set_current_day_action">設定天數</string>
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
@@ -652,6 +750,7 @@ http://www.heartlight.org 准予使用
   <string name="watch_tutorial_video">觀看示範影片 (英文)</string>
   <string name="verse_not_found">找不到節</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">繼續</string>
   <string name="report_error">發送報告</string>
   <string name="error_occurred">發生錯誤</string>
   <string name="error_occurred_crash_last_time">你上一次使用程式時不幸意外地結束了。請回報錯誤以協助我們修正。謝謝。</string>
@@ -662,8 +761,14 @@ http://www.heartlight.org 准予使用
   <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>
   <string name="empty_list">沒有可顯示項目</string>
   <string name="error_skip">暫停</string>
+  <string name="debug_test_error">測試錯誤（除錯版本）</string>
+  <string name="bug_report_prepare_failed">無法準備或分享報告。您可以重試，或使用「備份與還原」來儲存您的資料。</string>
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
   <string name="bug_report_email_text">然後，請選擇你想用的電郵程式 (例如Gmail)，將回報發送至開發團隊。</string>
+  <string name="bug_report_manual_title">以電子郵件傳送報告</string>
+  <string name="bug_report_manual_text_saved">報告已儲存到</string>
+  <string name="bug_report_manual_text_unsaved">此裝置上無法開啟任何電子郵件程式。\n\n請以電子郵件將報告傳送到</string>
+  <string name="bug_report_copy_address">複製地址</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字轉語音</string>
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>
@@ -687,6 +792,7 @@ http://www.heartlight.org 准予使用
   <string name="search_settings">搜尋設定</string>
   <string name="dismiss">取消</string>
   <string name="workspace_listing_with_current">%s(現時)</string>
+  <string name="workspace_manage_workspaces">管理工作區…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">這是beta版本！</string>
   <string name="beta_notice_content_1">
@@ -731,7 +837,10 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="help_search_title">搜尋</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">搜尋文字可包含特殊字元，如 *、AND、OR、NOT</string>
+  <string name="help_search_bible">選擇詞語的比對方式：「所有詞語」會找出包含每個詞語的經文，「任一詞語」會找出至少包含一個詞語的經文，「片語」則會找出依該順序相連的詞語。\n\n搜尋時您也可以使用 * 和 ? 作為萬用字元（例如 bless* 可比對 blessed 和 blessing），用 AND、OR 和 NOT 組合詞語，並直接搜尋 Strong 編號（例如 strong:h0430）。</string>
+  <string name="help_search_epub">選擇詞語的比對方式：「所有詞語」會找出包含每個詞語的段落，「任一詞語」會找出至少包含一個詞語的段落，「片語」則會找出依該順序相連的詞語。\n\n「原始查詢語法」會將您的文字原封不動傳給搜尋引擎，因此您可以自己撰寫查詢：grace AND faith、grace OR faith、grace NOT faith、\"hope of glory\" 表示精確片語、bless* 可比對任何以 bless 開頭的詞，grace NEAR faith 可找出彼此相近的詞。</string>
   <string name="help_search_details">詳情請參閱 %s。</string>
+  <string name="help_search_syntax">搜尋語法</string>
   <string name="help_fts5">FTS5 全文查詢語法</string>
   <string name="help_workspaces_title">工作區</string>
   <string name="help_workspaces_text">
@@ -753,6 +862,12 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 已釘選的視窗會優先顯示，之後到未釘選的視窗。
 例如你可以將聖經文件釘選，再以未釘選的方法開啟註解或地圖等，在查經時方便同時閱讀其他參考文件。</string>
   <!--Welcome text-->
+  <string name="welcome_intro">您的資料庫中還沒有任何文件。新增一些文件即可開始使用。</string>
+  <string name="welcome_redownload_row_hint">從先前安裝過的文件中挑選</string>
+  <string name="welcome_download_row_hint">瀏覽線上目錄</string>
+  <string name="welcome_restore_row_hint">含有書籤與筆記的資料庫檔案</string>
+  <string name="welcome_link_website">網站</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">您需要選擇載入到 %s 的檔案。</string>
@@ -768,9 +883,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="format_studypads">來自 AndBible 資料庫的學習筆記（*.abdb）</string>
   <!--Uncategorized-->
   <string name="close">關閉</string>
+  <string name="reading_toolbar_options">更多選項</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">我明白</string>
-  <string name="first_time_help_show_next_time">下次再顯示</string>
   <string name="strongs_mode_title">還擇Strong\'s模式</string>
   <string name="download_dialog_message">以下的書本無發下載：</string>
   <string name="journal_description">使用者可自行編輯研習筆記及標記書籤</string>
@@ -795,6 +909,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="prefs_experimental_features_summary">選擇要啟用的實驗性功能。這些功能仍在開發中，可能會變更或移除</string>
   <string name="experimental_feature_bookmark_edit_actions">書籤編輯操作</string>
   <string name="experimental_feature_add_paragraph_break">新增段落分隔符書籤</string>
+  <string name="experimental_feature_toolbar_literal_color">閱讀工具列使用工作區的原始顏色（而非主題顏色）</string>
   <string name="raw_llm_log_title">原始 LLM 日誌</string>
   <string name="raw_llm_log_empty">暫無原始日誌資料</string>
   <string name="raw_llm_log_copied">日誌已複製到剪貼簿</string>
@@ -903,6 +1018,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="display_mode_underline">底線</string>
   <string name="display_mode_marker">僅標記</string>
   <string name="display_mode_hidden">隱藏</string>
+  <string name="display_mode_inherit">與所選項目相同</string>
   <string name="workspace_override_indicator">此標籤具有特定工作區的顯示模式</string>
   <string name="primary_label">主標籤</string>
   <string name="favourite_label">最愛標籤</string>
@@ -916,6 +1032,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="book_menu_show_long_book_name">顯示詳細書名</string>
   <string name="book_menu_show_progress_bars">顯示進度條</string>
   <string name="reset_workspace_labels">你想重設此工作區的自動標示及最愛設定嗎？</string>
+  <string name="clear_auto_assign_labels">清除自動指派標籤</string>
+  <string name="reset_workspace_auto_assign_labels">要移除此工作區的所有自動指派標籤嗎？</string>
   <string name="reset_hide_labels">你想重設隱藏標籤設定嗎？</string>
   <string name="reorder">重新排列</string>
   <string name="system_items">系統行動</string>
@@ -987,6 +1105,27 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="instructions_for_translators">給翻譯者的指示</string>
   <string name="questions_title">問題？</string>
   <string name="bookmark_style">書籤樣式</string>
+  <string name="bookmark_style_preview_sample">神愛世人</string>
+  <string name="bookmark_style_selection">選取文字書籤</string>
+  <string name="bookmark_style_whole_verse">整節經文書籤</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">整節經文書籤使用不同樣式</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">選取文字</string>
+  <string name="bookmark_style_tag_whole_verse">整節經文</string>
+  <string name="bookmark_style_tag_workspace">工作區</string>
+  <string name="show_style_examples">顯示樣式範例</string>
+  <string name="labels_search_section">搜尋</string>
+  <string name="labels_filter_section">顯示</string>
+  <string name="labels_filter_auto_assign">僅自動指派標籤</string>
+  <string name="labels_filter_favourite">僅最愛標籤</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">勾選標籤即可將其指派給此書籤。</string>
+  <string name="manage_labels_help_primary">主要標籤。書籤會顯示它的顏色和樣式。</string>
+  <string name="manage_labels_help_autoassign">自動將此標籤指派給每個新書籤。空心閃電表示關閉。</string>
+  <string name="manage_labels_help_favourite">將標籤保留在最愛中，方便快速存取。</string>
+  <string name="manage_labels_help_styles">名稱下方的小範例顯示標籤的外觀：「選取文字」代表選取文字書籤，「整節經文」代表整節經文書籤，「工作區」標記代表此工作區覆寫的樣式。灰色且沒有裝飾的範例表示該標籤的書籤不會繪製。可從 ⋮ 選單隱藏這些範例。</string>
+  <string name="manage_labels_help_reorder">可從 ⋮ 選單重新排列清單。</string>
   <string name="added_to_bookmark">分配至此書籤</string>
   <string name="strongs_links">連結</string>
   <string name="strongs_text_and_links">文字及連結</string>
@@ -1036,6 +1175,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="sync_group_n">小組 %d</string>
   <string name="disable_sync">停用同步</string>
   <string name="open_in_window">在視窗中打開結果</string>
+  <string name="open_result_in_links_window">在連結視窗中開啟結果</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">自訂儲存庫</string>
@@ -1046,7 +1186,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="delete_custom_repository">你想刪除自訂儲存庫%s嗎？</string>
   <string name="custom_repositories_help1">請在此輸入或貼上自訂儲存庫URL，以新增自訂儲存庫。</string>
   <string name="custom_repositories_help2">在%s可以閱讀更多有關自訂儲存庫的資訊。</string>
-  <string name="wiki_page">WIKI頁面</string>
   <string name="custom_repositories_help0">你可以安裝自訂儲存庫，以安裝外部自訂儲存庫的文件。</string>
   <string name="duplicate_custom_repository">儲存庫%s已經存在，無法再次建立。</string>
   <string name="packages_dir">封包目錄 (Zip檔案)</string>
@@ -1093,6 +1232,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="reading_progress_new_cycle_confirm">開始新一輪閱讀？這將從頭開始記錄您的進度，同時保留上一輪的資料。</string>
   <string name="reading_progress_previous_cycle">上一輪</string>
   <string name="reading_progress_next_cycle">下一輪</string>
+  <string name="cloud_merge_data">合併資料</string>
   <string name="cloud_fetch_and_restore_initial">從雲端複製至此裝置</string>
   <string name="cloud_create_new">從此裝置複製至雲端</string>
   <string name="cloud_disable_sync">取消或停用同步功能</string>
@@ -1106,6 +1246,19 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="sync_adapter_summary">現時：%s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">下一個雲端</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV 資料夾的位址，例如 https://nas.local/dav/ 或 https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">同步需要安全的 https:// 位址。</string>
+  <string name="webdav_certificate_title">伺服器憑證</string>
+  <string name="webdav_forget_certificate_message">要忘記信任的伺服器憑證嗎？下次連線時會再次要求您確認憑證。</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">不受信任的伺服器憑證</string>
+  <string name="webdav_untrusted_certificate_message">%1$s 的憑證不受 Android 信任。只有在您認得它時才信任，例如是您自己架設的伺服器。\n\n主體：%2$s\n簽發者：%3$s\n有效期間：%4$s – %5$s\nSHA-256：%6$s</string>
+  <string name="webdav_trust_certificate">信任此憑證</string>
+  <string name="webdav_wrong_credentials">使用者名稱或密碼錯誤。</string>
+  <string name="webdav_not_a_folder">此位址不是 WebDAV 資料夾。</string>
+  <string name="webdav_certificate_changed">伺服器憑證已變更。同步已暫停，直到您確認新憑證；AndBible 會在下次開啟或在前景同步時詢問您。</string>
+  <string name="webdav_storage_full">伺服器儲存空間已滿。</string>
   <string name="auth_server_uri">伺服器位址</string>
   <string name="auth_username">用戶名稱</string>
   <string name="auth_password">密碼</string>
@@ -1115,6 +1268,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="sync_general_settings">資訊及一般設定</string>
   <string name="sync_introduction">簡介</string>
   <string name="are_you_sure">你確定嗎？</string>
+  <string name="are_you_sure_merge">此裝置上的資料與雲端的 %s 都會保留。若同一項目在兩邊都有變更，則保留較新的變更。此裝置的資料會傳送到您的其他裝置。</string>
   <string name="are_you_sure_reset_local">這會以雲端資料庫，重設你的本地%s資料庫。</string>
   <string name="are_you_sure_reset_cloud">這會以裝置資料庫，重設你的雲端%s資料庫。</string>
   <string name="sync_cant_fetch">雲端上資料庫或修補文件版本，高於此程式的支援。</string>
@@ -1151,6 +1305,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="pref_font_size_multiplier_title">字體大小倍數</string>
   <string name="pref_font_size_multiplier_summary_1">將文字字體大小乘以此數值。</string>
   <string name="pref_font_size_multiplier_summary_2">如果您有用於較大字體的同步裝置，此功能非常實用。</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">目前值：%s</string>
   <string name="prefs_bible_view_swipe_mode_title">左右滑動手勢動作</string>
   <string name="prefs_bible_view_swipe_mode_summary">左右滑動手勢可用於翻到下一頁／章節。</string>
@@ -1271,6 +1426,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="prompt_max_iterations_unlimited">不限</string>
   <string name="prompt_max_iterations_global_default">全域預設（%d）</string>
   <string name="prompt_max_iterations_summary_with_value">覆蓋此提示詞的全域最大迭代次數。0 = 不限。\n目前值：%s</string>
+  <string name="prompt_max_iterations_use_global">使用全域設定 (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">管理AI提示詞</string>
   <string name="manage_prompts_summary">建立和編輯AI提示詞</string>
@@ -1404,6 +1560,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="built_in_prompt_notice">這是內建提示詞，無法編輯。請使用「複製以自定義」來建立可編輯的副本。</string>
   <string name="copy_to_customize">複製以自定義</string>
   <string name="prompt_copied">提示詞已複製</string>
+  <string name="prompt_copy_failed">無法複製提示詞。它可能已被刪除。</string>
   <string name="delete_prompt_confirmation">刪除提示詞「%s」？</string>
   <string name="prompt_name_required">提示詞名稱不能為空</string>
   <string name="prompt_template_required">提示詞範本不能為空</string>
@@ -1611,6 +1768,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tool_option_default_disabled">預設（已停用）</string>
   <string name="tool_option_default_allowed">預設（已允許）</string>
   <string name="tool_option_default_denied">預設（已拒絕）</string>
+  <string name="tool_description_info">顯示工具說明</string>
+  <string name="tool_permission_mixed">混合</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">模型</string>
   <string name="prompt_model_default">預設</string>
@@ -1656,6 +1815,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="my_document_pages_empty">此文件中沒有頁面。</string>
   <string name="my_document_page_rename_title">重新命名頁面</string>
   <string name="my_document_page_delete_confirmation">刪除頁面「%s」？</string>
+  <string name="my_document_pages_delete_confirmation">要刪除這些頁面嗎？</string>
+  <string name="my_documents_switch_document">切換文件</string>
   <string name="my_document_new_page_name">第 %1$d 頁</string>
   <string name="my_document_create_page_title">新增頁面</string>
   <string name="my_document_content_type_label">內容類型</string>
@@ -1752,4 +1913,91 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="document_sync_started">文件同步已開始</string>
   <string name="document_sync_enable_dialog_title">要開始同步文件嗎？</string>
   <string name="document_sync_enable_dialog_nothing">目前沒有需要傳輸的文件。新安裝的文件將會自動同步。</string>
+  <string name="help_document_sync_text">文件同步會將您已安裝的聖經、註釋及其他文件複製到雲端，並在您的各個裝置間保持同步。您可以使用此檢視查看雲端儲存的內容、下載或上傳個別文件、移除文件，並控制哪些內容同步到此裝置。</string>
+  <string name="background_image_title">背景圖片</string>
+  <string name="background_image_none">無背景</string>
+  <string name="background_image_import">從相簿匯入…</string>
+  <string name="background_image_empty">尚未匯入任何圖片。點選「從相簿匯入…」即可新增。</string>
+  <string name="background_image_importing">正在匯入…</string>
+  <string name="background_image_delete_title">要刪除圖片嗎？</string>
+  <string name="background_image_delete_confirm">要刪除此背景圖片嗎？仍在使用它的工作區將改為無圖片。</string>
+  <string name="background_image_day">背景圖片（日間）</string>
+  <string name="background_image_night">背景圖片（夜間）</string>
+  <string name="background_image_opacity_day">背景圖片不透明度（日間）</string>
+  <string name="background_image_opacity_night">背景圖片不透明度（夜間）</string>
+  <string name="background_image_change">變更</string>
+  <string name="color_picker_title">選取顏色</string>
+  <string name="color_picker_presets">預設</string>
+  <string name="color_picker_custom">自訂</string>
+  <string name="bookmark_expand_row">顯示完整文字</string>
+  <string name="bookmark_collapse_row">顯示較少</string>
+  <string name="bookmark_label_filter">依標籤篩選</string>
+  <string name="document_quick_all_documents">所有文件…</string>
+  <string name="document_quick_tab_recent">最近</string>
+  <string name="document_quick_tab_for_verse">此經文</string>
+  <string name="document_quick_tab_last_filter">上次篩選</string>
+  <string name="document_quick_tab_all">全部</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">篩選與排序</string>
+  <string name="doc_arrange_repository">儲存庫</string>
+  <string name="doc_arrange_all_repositories">所有儲存庫</string>
+  <string name="doc_arrange_sort">排序方式</string>
+  <string name="doc_arrange_group_by">分組依據</string>
+  <string name="doc_arrange_remember">記住這些設定</string>
+  <string name="doc_arrange_reset">重設為預設值</string>
+  <string name="doc_arrange_more_filters">更多篩選條件</string>
+  <string name="doc_arrange_reorder">重新排序</string>
+  <string name="doc_sort_ascending">遞增</string>
+  <string name="doc_sort_descending">遞減</string>
+  <string name="doc_sort_status">狀態</string>
+  <string name="doc_sort_recommended">推薦優先</string>
+  <string name="doc_sort_name">名稱</string>
+  <string name="doc_sort_size">大小</string>
+  <string name="doc_group_none">不分組</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">下載中</string>
+  <string name="doc_group_status_update_available">有可用更新</string>
+  <string name="doc_group_status_installed">已安裝</string>
+  <string name="doc_group_status_not_installed">未安裝</string>
+  <string name="prompt_filter_title">篩選提示詞</string>
+  <string name="prompt_filter_type">類型</string>
+  <string name="prompt_type_addon">附加元件</string>
+  <string name="prompt_type_user">自訂</string>
+  <string name="prompt_filter_clear">清除篩選條件</string>
+  <string name="prompt_favorite_add">加入最愛</string>
+  <string name="prompt_favorite_remove">從最愛移除</string>
+  <string name="window_unmaximise">還原所有視窗</string>
+  <string name="window_menu_button">視窗選單</string>
+  <string name="paste_from_clipboard">貼上</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">拖曳控點</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">正在更新您的資料…</string>
+  <string name="legacy_migration_progress_neutral">正在更新…</string>
+  <string name="legacy_migration_failed_title">無法更新您的資料</string>
+  <string name="legacy_migration_failed_message">您來自舊版 App 的資料在此裝置上安全且未變更。請選擇接下來要做什麼。</string>
+  <string name="legacy_migration_failed_keychain">無法讀取舊版儲存的密碼。請解鎖您的裝置，然後關閉並重新開啟 App。</string>
+  <string name="legacy_migration_rollback_pending">更新被中斷，尚未完全復原。請關閉並重新開啟 App 以完成復原。</string>
+  <string name="legacy_migration_save_old_data">儲存舊資料</string>
+  <string name="legacy_migration_send_report">傳送錯誤報告</string>
+  <string name="legacy_migration_try_again">再試一次</string>
+  <string name="legacy_migration_try_again_hint">請關閉 App 並重新開啟以再試一次。</string>
+  <string name="legacy_migration_restore_backup">還原備份</string>
+  <string name="legacy_migration_start_fresh">不使用舊資料開始</string>
+  <string name="legacy_migration_start_fresh_confirm">您的舊資料會保留在此裝置上。您之後可以在「設定」中匯入。</string>
+  <string name="legacy_import_title">從舊版 App 匯入資料</string>
+  <string name="legacy_import_summary">以舊版 App 的資料取代目前的資料</string>
+  <string name="legacy_import_confirm">這會以舊版 App 的資料取代您目前的工作區、書籤和其他資料。您目前資料的副本會保留在此裝置上。</string>
+  <string name="legacy_import_reopen">請關閉 App 並重新開啟以匯入您的資料。</string>
+  <string name="legacy_notice_icloud">同步現在使用 iCloud Drive。請在「設定」→「同步」中重新開啟。此裝置會保留原有資料；其他裝置的變更會在重新設定同步後送達。若要釋放舊的 iCloud 資料：「設定」→ 您的名稱 → iCloud → 管理儲存空間 → AndBible。</string>
+  <string name="legacy_notice_nextcloud">您的 Nextcloud 連線已沿用，但同步已關閉。請在「設定」→「同步」中開啟，並選擇從雲端取回或建立新的。</string>
+  <string name="legacy_notice_nextcloud_unsent">此裝置上有些變更尚未傳送到 Nextcloud。它們未被傳送，只保留在此裝置上。</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">這是一款功能強大又易於使用的離線聖經研讀應用程式。</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s 的憑證不受此裝置信任。只有在您認得它時才信任，例如是您自己架設的伺服器。\n\n主體：%2$s\n簽發者：%3$s\n有效期間：%4$s – %5$s\nSHA-256：%6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">自訂儲存庫必須使用安全的 https:// 位址。</string>
+  <string name="custom_repository_https_required_refresh">%1$s 使用 http:// 位址。只能使用 https:// 儲存庫。</string>
 </resources>

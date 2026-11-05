@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBibleは聖書の本文を表示するために必要なWebView2を起動できませんでした。次の場所からMicrosoft Edge WebView2 Evergreen Runtimeをインストールまたは修復してください:\n%1$s\n\n詳細はログファイルを参照してください:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBibleがWebView2で聖書の本文を表示するには、Direct3Dグラフィックスが必要です。現在のグラフィックスレンダラーは%1$sです。グラフィックスドライバーとDirect3Dのサポートを確認してください。\n\n詳細はログファイルを参照してください:\n%2$s</string>
+  <string name="desktop_update_setting_title">アップデートを確認</string>
+  <string name="desktop_update_setting_summary">1日1回、github.comから</string>
+  <string name="desktop_update_consent_title">アップデートを確認しますか？</string>
+  <string name="desktop_update_consent_message">AndBibleは1日1回github.comで新しいバージョンを確認できます。GitHubにはお使いのIPアドレスが表示されますが、それ以外は何も送信されません。この設定は後で「設定」から変更できます。</string>
+  <string name="desktop_update_consent_yes">アップデートを確認</string>
+  <string name="desktop_update_consent_no">確認しない</string>
+  <string name="desktop_update_available_title">新しいバージョンがあります</string>
+  <string name="desktop_update_available_message">AndBible %1$sが利用可能です。現在のバージョンは%2$sです。</string>
+  <string name="desktop_update_download">ダウンロード</string>
+  <string name="desktop_update_later">後で</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">聖書研究</string>
   <string name="app_name_medium">聖書研究（AndBible）</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d 件一致</string>
   <string name="search_showing_first">一致件数が多すぎます。最初の %d 件を表示します</string>
   <string name="search_bible_section_group_prompt">検索範囲</string>
+  <string name="search_type_prompt">検索タイプ</string>
+  <string name="search_show_results">検索結果を表示</string>
   <string name="search_all_bible">聖書全体</string>
   <string name="search_new_testament">新約聖書</string>
   <string name="search_old_testament">旧約聖書</string>
@@ -80,6 +94,28 @@
   <string name="search_what">\"%s\" を検索</string>
   <!--Multi-translation search-->
   <string name="search_translations">翻訳版</string>
+  <string name="recent_searches">最近の検索</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">検索を閉じる</string>
+  <string name="search_options">検索設定</string>
+  <string name="search_submit">検索</string>
+  <string name="search_clear">検索テキストを消去</string>
+  <string name="search_engine_changed_reindex">検索エンジンが更新されました。検索インデックスを再作成する必要があります。時間がかかる場合があります。</string>
+  <string name="search_unsupported_syntax">この検索にはサポートされていない構文が使われています: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">インデックス作成が完了すると、検索が自動的に実行されます。</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$sは検索できません</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">この文書は検索できません</string>
+  <string name="search_indexing_notification_title">検索インデックスを作成中</string>
   <string name="choose_translations">翻訳版を選択…</string>
   <string name="multi_search_results">%2$d 翻訳版で %1$d 節</string>
   <string name="search_index_not_created">インデックスなし</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">色の表示方法を選択します。カラーE-Inkは白黒をベースにしつつ、ブックマークの色、アクティブウィンドウの表示、補助線をカラーで表示します — カラーE-Ink画面向けです。</string>
   <string name="prefs_display_color_mode_normal">通常</string>
   <string name="prefs_display_color_mode_bw">白黒</string>
+  <string name="prefs_display_color_mode_monochrome">モノクロ</string>
   <string name="prefs_display_color_mode_color_eink">カラーE-Ink</string>
+  <string name="prefs_theme_palette_style_title">テーマスタイル</string>
+  <string name="prefs_theme_palette_style_summary">ワークスペースの色からアプリの配色を生成する方法です。カラーモードが「標準」の場合のみ適用されます。</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">トーナルスポット（柔らかく、グレーを保持）</string>
+  <string name="prefs_theme_palette_style_fidelity">フィデリティ（正確な色）</string>
+  <string name="prefs_theme_palette_style_tonal_spot">トーナルスポット（オリジナル）</string>
+  <string name="prefs_theme_palette_style_content">コンテンツ（色に近い）</string>
+  <string name="prefs_theme_palette_style_neutral">ニュートラル（落ち着いた色）</string>
+  <string name="prefs_theme_palette_style_monochrome">モノクローム（グレー）</string>
+  <string name="prefs_theme_palette_style_vibrant">ビビッド</string>
+  <string name="prefs_theme_palette_style_expressive">エクスプレッシブ</string>
+  <string name="prefs_theme_palette_style_rainbow">レインボー</string>
+  <string name="prefs_theme_palette_style_fruit_salad">フルーツサラダ</string>
   <string name="prefs_eink_settings_cat">電子インク設定</string>
   <string name="prefs_eink_display_title">電子インク機能</string>
   <string name="prefs_eink_display_summary">電子インク専用機能を有効にします（ページスクロールボタン、スクロール補助線）</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">スクロールして読んだ章を自動的に既読としてマークします</string>
   <string name="reading_progress_read_count_scale">既読\n件数</string>
   <string name="reading_progress_percent_read_scale">既読\n割合</string>
+  <string name="monochrome_activity_count">アクティビティ数: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">件数: %d</string>
+  <string name="monochrome_level">レベル: %d/4</string>
+  <string name="monochrome_buckets">グレー: なし、輪郭のみ: 一部、塗りつぶし: 全体または最高レベル。正確な値は項目を選択すると表示されます。</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">読書履歴</string>
   <string name="reading_progress_history_for">%1$sの読書進捗</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">このワークスペースのテキスト表示設定を編集します</string>
   <string name="global_text_options_link">グローバルテキストオプション</string>
   <string name="global_text_options_link_summary">すべてのワークスペースのデフォルトのテキスト表示設定を編集します</string>
+  <string name="text_options_inherited_workspace">ワークスペース</string>
+  <string name="text_options_inherited_global">全体</string>
   <string name="prefs_font_and_colors_title">フォントと色</string>
   <string name="prefs_text_layout_title">テキストレイアウト</string>
   <string name="prefs_strongs_and_morphology_title">ストロングス &amp; 形態論</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">ワークスペース</string>
   <string name="copy_settings_to_window">ウィンドウ %1$d（%2$s：%3$s）</string>
   <string name="copy_settings_to_global">グローバルデフォルト</string>
+  <string name="copy_settings_to_workspaces">他のワークスペースへ…</string>
+  <string name="copy_settings_to_global_defaults">全体の既定値へ…</string>
+  <string name="menu_back">戻る</string>
   <string name="change_to_normal">通常ウィンドウに変更</string>
   <string name="window_pin_mode">ピン留め</string>
   <!--Notes screen-->
@@ -304,6 +365,7 @@
   <string name="failed_repositories_message">以下のドキュメントサーバーに接続できませんでした：\n\n%s\n\n</string>
   <string name="failed_downloads_message">以下のファイルをダウンロードできませんでした：\n\n%s\n\n</string>
   <string name="cant_delete_document">このドキュメントは削除できません。</string>
+  <string name="bad_document_warning">この文書には既知の問題があります。</string>
   <!--Install zip file-->
   <string name="install_zip">ファイルからドキュメントを読み込む</string>
   <string name="install_zip_module">聖書モジュールをインストール</string>
@@ -348,6 +410,11 @@
   <string name="delete_index">検索インデックスを削除</string>
   <string name="about">情報</string>
   <string name="delete_doc">%s を削除しますか？</string>
+  <string name="interrupted_downloads_title">ダウンロードが中断されました</string>
+  <string name="interrupted_downloads_message">ダウンロードが中断されたため、次の文書はインストールされませんでした:</string>
+  <string name="interrupted_downloads_question">もう一度ダウンロードしますか？</string>
+  <string name="download_again">もう一度ダウンロード</string>
+  <string name="delete_docs_confirm">これらの文書を削除しますか？</string>
   <string name="delete_search_index_doc">%s のインデックスを削除しますか？</string>
   <!--Verse context menu-->
   <string name="notes">脚注と参照</string>
@@ -368,6 +435,7 @@
   <string name="assign_labels">ラベルを割り当て</string>
   <string name="new_item">新規</string>
   <string name="label_name_prompt">名前</string>
+  <string name="new_label_default_name">ラベル %d</string>
   <string name="label_unlabelled">ラベルなし</string>
   <string name="add_bookmark1">ブックマーク</string>
   <string name="add_bookmark3">選択範囲</string>
@@ -415,6 +483,8 @@
   <string name="rewind">巻き戻し</string>
   <string name="forward">早送り</string>
   <string name="tts_lang_not_available">この言語は利用できません。</string>
+  <string name="tts_engine_not_available">このデバイスでは音声読み上げが機能していません。システムの音声読み上げ設定で、音声エンジンがインストールされ有効になっていることを確認してください。</string>
+  <string name="tts_audio_focus_denied">別のアプリが音声を使用しているため、読み上げを開始できませんでした。</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">読み上げ速度</string>
   <string name="speak_and_play_earcons_title">読み上げとイヤーコン音の再生</string>
@@ -424,6 +494,10 @@
   <string name="speak_bookmarks_menu_title">ブックマークから読み上げ</string>
   <string name="speak_advanced_settings">詳細設定</string>
   <string name="speak_sleep_timer_title">スリープタイマー</string>
+  <string name="speak_sleep_timer_minutes">%d分</string>
+  <string name="speak_sleep_timer_custom">カスタム…</string>
+  <string name="speak_sleep_timer_off">オフ</string>
+  <string name="speak_other_settings">その他</string>
   <string name="speak_no_books_available">読み上げられる書がありません</string>
   <string name="speak_general_error">この書の読み上げを開始できませんでした</string>
   <string name="repeat_passage">箇所を繰り返す</string>
@@ -452,6 +526,11 @@
   <string name="speak_autobookmarking_disabled">自動ブックマークが無効になりました！</string>
   <string name="system_speak_settings">システムの TTS 設定を開く</string>
   <string name="auto_assing_labels_help1">ここでは、作成するブックマークに自動的に割り当てるラベルを設定できます。</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">ここではラベルの追加、編集、削除を行い、作成するブックマークに自動的に割り当てるラベルを調整できます。\n\n最近のラベル: 最近使ったラベル。\nその他のラベル: それ以外のすべてのラベル。\n\n検索バーのフィルターオプションを使うと、自動割り当てのラベルやお気に入りのラベルだけを表示できます。</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">この設定は %s に適用されます。</string>
   <string name="setting_scope_window">このウィンドウ</string>
@@ -529,6 +608,9 @@
   <string name="loading_backup">バックアップからデータベースを読み込んでいます…</string>
   <string name="backup_success2">マイノート、ブックマーク、スタディパッド、読書プラン、ワークスペースのバックアップが完了しました。</string>
   <string name="backup_modules_success">選択したモジュールのバックアップが完了しました。</string>
+  <string name="backup_modules_conflict">バックアップは作成されませんでした: %1$sと%2$sの両方にファイル%3$sが含まれていますが、内容が異なります。どちらか一方だけを選択して、もう一度お試しください。</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s（バージョン %2$s、フォルダー %3$s）</string>
   <string name="backup_modules_email_subject_2">%s モジュールのバックアップ</string>
   <string name="backup_modules_email_message_2">添付は %1$s モジュールのバックアップです。以下のモジュールが含まれています：%2$s</string>
   <string name="backup_email_subject_2">%s データベースのバックアップ</string>
@@ -537,6 +619,9 @@
   <string name="exported_studypads_message">選択したスタディパッドに関連するブックマークとノートを含む %s データベースが添付されています</string>
   <string name="restore_unsuccessfull">データベースの復元に失敗しました。無効なデータベースファイルが指定された可能性があります。</string>
   <string name="send_backup_file">バックアップファイルを送信</string>
+  <string name="export_destination_title">エクスポート先</string>
+  <string name="export_destination_message">エクスポートをこの携帯電話に保存するか、「共有」で他の場所へ送信します。</string>
+  <string name="send_export_file">エクスポートファイルを送信</string>
   <string name="backup_modules_title">バックアップするモジュールを選択</string>
   <string name="install_zip_canceled">モジュールのインストールがキャンセルされました</string>
   <string name="ask_restore_or_import">%s のデータベースは、復元（既存のデータベースを削除して選択したデータベースを読み込む）またはインポート（選択したデータベースを既存のデータベースにインポート）のどちらかを選択できます。どうしますか？</string>
@@ -577,12 +662,25 @@
   <string name="doc_type_book">書籍</string>
   <string name="doc_type_map">地図</string>
   <string name="doc_type_addons">アドオン</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">その他</string>
+  <string name="document_type_label">文書の種類</string>
   <!--Languages-->
   <string name="lang_default">デフォルト</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">キャンセル</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">戻る</string>
+  <string name="settings_editor_close">閉じる</string>
+  <string name="settings_editor_apply">適用</string>
   <string name="discard_changes_confirmation">未保存の変更を破棄しますか？</string>
+  <string name="discard">破棄</string>
+  <string name="remove">削除</string>
+  <string name="overwrite">上書き</string>
+  <string name="set_current_day_action">日を設定</string>
   <string name="yes">はい</string>
   <string name="no">いいえ</string>
   <string name="error">エラー</string>
@@ -592,6 +690,7 @@
   <string name="watch_tutorial_video">チュートリアル動画を見る（英語）</string>
   <string name="verse_not_found">節が見つかりません</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">続行</string>
   <string name="report_error">レポートを送信</string>
   <string name="error_occurred">エラーが発生しました</string>
   <string name="error_occurred_crash_last_time">前回のご利用時にアプリがクラッシュしました。バグの修正にご協力いただけますと幸いです。バグ報告をお送りください。</string>
@@ -602,8 +701,14 @@
   <string name="error_key_not_in_document2">%1$s は文書 %2$s 内に見つかりませんでした。</string>
   <string name="empty_list">表示するアイテムがありません</string>
   <string name="error_skip">スキップ</string>
+  <string name="debug_test_error">テストエラー（デバッグビルド）</string>
+  <string name="bug_report_prepare_failed">レポートを準備または共有できませんでした。再試行するか、「バックアップと復元」を使ってデータを保存してください。</string>
   <string name="bug_report_email_title">メールでバグ報告を送信</string>
   <string name="bug_report_email_text">次に、レポートを開発チームに送信するためのメールアプリ（Gmailなど）を選択してください。</string>
+  <string name="bug_report_manual_title">レポートをメールで送信</string>
+  <string name="bug_report_manual_text_saved">レポートの保存先:</string>
+  <string name="bug_report_manual_text_unsaved">このデバイスでは、メールプログラムを開けませんでした。\n\nレポートを次のアドレスにメールで送信してください:</string>
+  <string name="bug_report_copy_address">アドレスをコピー</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">テキスト読み上げ</string>
   <string name="notification_channel_progress_status">ドキュメントのダウンロードなどの進捗状況通知</string>
@@ -627,6 +732,7 @@
   <string name="search_settings">設定を検索</string>
   <string name="dismiss">閉じる</string>
   <string name="workspace_listing_with_current">%s（現在）</string>
+  <string name="workspace_manage_workspaces">ワークスペースを管理…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">これはベータ版です！</string>
   <string name="beta_notice_content_1">ベータ版には、まだ十分にテストされていない新機能が含まれているため、予期しない動作（バグ）が発生することがあります。 通常の聖書読者の方には、安定版のご利用をお勧めします。</string>
@@ -654,7 +760,10 @@
   <string name="help_search_title">検索</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">検索テキストには *, AND, OR, NOT などの特殊文字を使用できます</string>
+  <string name="help_search_bible">単語の一致方法を選択します。「すべての単語」はすべての単語を含む節、「いずれかの単語」は少なくとも1つの単語を含む節、「フレーズ」は単語がその順序で連続している節を検索します。\n\n検索では、ワイルドカードとして * と ? を使用したり（例: bless* は blessed や blessing に一致）、AND、OR、NOT で語を組み合わせたり、ストロング番号を直接検索したり（例: strong:h0430）することもできます。</string>
+  <string name="help_search_epub">単語の一致方法を選択します。「すべての単語」はすべての単語を含む箇所、「いずれかの単語」は少なくとも1つの単語を含む箇所、「フレーズ」は単語がその順序で連続している箇所を検索します。\n\n「生のクエリ構文」は入力したテキストをそのまま検索エンジンに渡すので、独自のクエリを書けます: grace AND faith、grace OR faith、grace NOT faith、完全一致のフレーズには \"hope of glory\"、bless で始まる任意の単語に一致させるには bless*、近くにある語を探すには grace NEAR faith。</string>
   <string name="help_search_details">詳細については %s をご参照ください。</string>
+  <string name="help_search_syntax">検索構文</string>
   <string name="help_fts5">FTS5 全文検索クエリ構文</string>
   <string name="help_workspaces_title">ワークスペース</string>
   <string name="help_workspaces_text">ワークスペースにより、複数のコンテキスト依存の作業環境を持つことができます。ワークスペース機能には、オプションメニュー（右上隅）の「ワークスペース」項目からアクセスできます。ツールバーから下方向にスワイプすると素早くアクセスできます。ツールバー上で左右にスワイプすると、前後のワークスペースに切り替えることもできます。</string>
@@ -663,6 +772,12 @@
   <string name="help_window_pinning_title">ウィンドウのピン留め</string>
   <string name="help_window_pinning_text">オプションメニュー（右上隅の三点ボタン）からウィンドウのピン留めを有効にできます。 ピン留めを有効にすると、聖書ビューに複数のピン留めされたウィンドウを表示できますが、ピン留めされていないウィンドウは1つだけ表示できます。ピン留めされたウィンドウが先に表示され、その後にピン留めされていないウィンドウが表示されます。聖書文書をピン留めウィンドウとして開き、注解や地図などをピン留めなしのウィンドウとして開くと便利です。これにより、聖書文書を常に表示したまま、注解やその他の参考資料をすばやく切り替えながら聖書研究ができます。</string>
   <!--Welcome text-->
+  <string name="welcome_intro">ライブラリにはまだ文書がありません。追加して始めましょう。</string>
+  <string name="welcome_redownload_row_hint">以前インストールした文書から選択</string>
+  <string name="welcome_download_row_hint">オンラインカタログを閲覧</string>
+  <string name="welcome_restore_row_hint">ブックマークとノートを含むデータベースファイル</string>
+  <string name="welcome_link_website">ウェブサイト</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s に読み込むファイルを選択してください。</string>
@@ -678,9 +793,8 @@
   <string name="format_studypads">AndBibleデータベースのスタディパッド（*.abdb）</string>
   <!--Uncategorized-->
   <string name="close">閉じる</string>
+  <string name="reading_toolbar_options">その他のオプション</string>
   <string name="something_with_parenthesis">%1$s（%2$s）</string>
-  <string name="first_time_help_do_not_show_again">理解しました</string>
-  <string name="first_time_help_show_next_time">次回も表示する</string>
   <string name="strongs_mode_title">ストロングモードを選択</string>
   <string name="download_dialog_message">次の書籍はダウンロードできませんでした：</string>
   <string name="journal_description">カスタムテキストとブックマークを含むユーザー編集可能なスタディパッド</string>
@@ -705,6 +819,7 @@
   <string name="prefs_experimental_features_summary">有効にする試験的機能を選択してください。これらの機能はまだ開発中であり、変更または削除される場合があります</string>
   <string name="experimental_feature_bookmark_edit_actions">ブックマーク編集アクション</string>
   <string name="experimental_feature_add_paragraph_break">段落区切りブックマークを追加</string>
+  <string name="experimental_feature_toolbar_literal_color">閲覧ツールバーに（テーマカラーの代わりに）ワークスペースの色をそのまま使用する</string>
   <string name="raw_llm_log_title">LLM生ログ</string>
   <string name="raw_llm_log_empty">生ログデータがありません</string>
   <string name="raw_llm_log_copied">ログをクリップボードにコピーしました</string>
@@ -791,6 +906,7 @@
   <string name="display_mode_underline">下線</string>
   <string name="display_mode_marker">マーカーのみ</string>
   <string name="display_mode_hidden">非表示</string>
+  <string name="display_mode_inherit">選択と同じ</string>
   <string name="workspace_override_indicator">このラベルにはワークスペース固有の表示モードがあります</string>
   <string name="primary_label">プライマリラベル</string>
   <string name="favourite_label">お気に入りラベル</string>
@@ -804,6 +920,8 @@
   <string name="book_menu_show_long_book_name">書の長い名前を表示</string>
   <string name="book_menu_show_progress_bars">進捗バーを表示</string>
   <string name="reset_workspace_labels">このワークスペースの自動割り当てとお気に入り設定をリセットしますか？</string>
+  <string name="clear_auto_assign_labels">自動割り当てラベルをクリア</string>
+  <string name="reset_workspace_auto_assign_labels">このワークスペースからすべての自動割り当てラベルを削除しますか？</string>
   <string name="reset_hide_labels">指定したラベルを非表示にする設定をリセットしますか？</string>
   <string name="reorder">並び替え</string>
   <string name="system_items">システム操作</string>
@@ -875,6 +993,27 @@
   <string name="instructions_for_translators">翻訳者向けの説明</string>
   <string name="questions_title">ご質問は？</string>
   <string name="bookmark_style">ブックマークのスタイル</string>
+  <string name="bookmark_style_preview_sample">神は、そのひとり子を賜わったほどに、この世を愛してくださった</string>
+  <string name="bookmark_style_selection">テキスト選択ブックマーク</string>
+  <string name="bookmark_style_whole_verse">節全体ブックマーク</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">節全体ブックマークに別のスタイルを使用</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">選択</string>
+  <string name="bookmark_style_tag_whole_verse">節全体</string>
+  <string name="bookmark_style_tag_workspace">ワークスペース</string>
+  <string name="show_style_examples">スタイルの例を表示</string>
+  <string name="labels_search_section">検索</string>
+  <string name="labels_filter_section">表示</string>
+  <string name="labels_filter_auto_assign">自動割り当てラベルのみ</string>
+  <string name="labels_filter_favourite">お気に入りラベルのみ</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">ラベルにチェックを入れると、このブックマークに割り当てられます。</string>
+  <string name="manage_labels_help_primary">プライマリラベルです。ブックマークにはこのラベルの色とスタイルが表示されます。</string>
+  <string name="manage_labels_help_autoassign">このラベルを、新しいブックマークすべてに自動的に割り当てます。中抜きの稲妻はオフを意味します。</string>
+  <string name="manage_labels_help_favourite">すばやくアクセスできるよう、ラベルをお気に入りに保持します。</string>
+  <string name="manage_labels_help_styles">名前の下に、ラベルの見た目を示す小さな例が表示されます。「選択」はテキスト選択ブックマーク、「節全体」は節全体のブックマーク、「ワークスペース」タグはこのワークスペースで上書きされているスタイルを表します。装飾のないグレーの例は、そのラベルのブックマークが描画されないことを意味します。例は⋮メニューから非表示にできます。</string>
+  <string name="manage_labels_help_reorder">リストの並べ替えは⋮メニューから行えます。</string>
   <string name="added_to_bookmark">このブックマークに割り当て済み</string>
   <string name="strongs_links">リンク</string>
   <string name="strongs_text_and_links">テキストとリンク</string>
@@ -913,6 +1052,7 @@
   <string name="sync_group_n">グループ %d</string>
   <string name="disable_sync">同期を無効化</string>
   <string name="open_in_window">結果をウィンドウで開く</string>
+  <string name="open_result_in_links_window">結果をリンクウィンドウで開く</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">カスタムリポジトリ</string>
@@ -923,7 +1063,6 @@
   <string name="delete_custom_repository">カスタムリポジトリ %s を削除しますか？</string>
   <string name="custom_repositories_help1">新しいカスタムリポジトリを追加するには、カスタムリポジトリのURLを入力またはコピー &amp; ペーストしてください。</string>
   <string name="custom_repositories_help2">カスタムリポジトリの詳細については %s をご覧ください。</string>
-  <string name="wiki_page">WIKIページ</string>
   <string name="custom_repositories_help0">カスタムリポジトリをインストールすることで、外部のカスタムリポジトリからドキュメントをインストールできます。</string>
   <string name="duplicate_custom_repository">名前 %s のリポジトリはすでに存在するため、追加できません。</string>
   <string name="packages_dir">パッケージディレクトリ（Zipファイル）</string>
@@ -963,6 +1102,7 @@
   <string name="reading_progress_new_cycle_confirm">新しい読書サイクルを開始しますか？以前のサイクルのデータを保持したまま、最初から進捗を記録します。</string>
   <string name="reading_progress_previous_cycle">前のサイクル</string>
   <string name="reading_progress_next_cycle">次のサイクル</string>
+  <string name="cloud_merge_data">データを統合</string>
   <string name="cloud_fetch_and_restore_initial">クラウドからこのデバイスにコピー</string>
   <string name="cloud_create_new">このデバイスからクラウドにコピー</string>
   <string name="cloud_disable_sync">キャンセルして同期を無効化</string>
@@ -976,6 +1116,19 @@
   <string name="sync_adapter_summary">現在: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAVフォルダーのアドレス。例: https://nas.local/dav/ または https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">同期には安全なhttps://アドレスが必要です。</string>
+  <string name="webdav_certificate_title">サーバー証明書</string>
+  <string name="webdav_forget_certificate_message">信頼済みのサーバー証明書を削除しますか？次回の接続時に、もう一度証明書の確認を求められます。</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">信頼されていないサーバー証明書</string>
+  <string name="webdav_untrusted_certificate_message">%1$sの証明書はAndroidに信頼されていません。たとえばご自身でこのサーバーを設定した場合など、心当たりがある場合にのみ信頼してください。\n\nサブジェクト: %2$s\n発行者: %3$s\n有効期間: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">この証明書を信頼</string>
+  <string name="webdav_wrong_credentials">ユーザー名またはパスワードが正しくありません。</string>
+  <string name="webdav_not_a_folder">このアドレスはWebDAVフォルダーではありません。</string>
+  <string name="webdav_certificate_changed">サーバー証明書が変更されました。新しい証明書を確認するまで同期は一時停止されます。AndBibleは次にアプリを開いたとき、またはフォアグラウンドで同期したときに確認を求めます。</string>
+  <string name="webdav_storage_full">サーバーのストレージがいっぱいです。</string>
   <string name="auth_server_uri">サーバーURL</string>
   <string name="auth_username">ユーザー名</string>
   <string name="auth_password">パスワード</string>
@@ -985,6 +1138,7 @@
   <string name="sync_general_settings">情報と一般設定</string>
   <string name="sync_introduction">はじめに</string>
   <string name="are_you_sure">よろしいですか？</string>
+  <string name="are_you_sure_merge">このデバイスのデータとクラウド上の%sの両方が保持されます。同じ項目が両方で変更されている場合は、新しい変更が保持されます。このデバイスのデータは他のデバイスに送信されます。</string>
   <string name="are_you_sure_reset_local">%sのローカルデータベースを、クラウドサービスに現在保存されている内容でリセットします。</string>
   <string name="are_you_sure_reset_cloud">%sのクラウドデータベースを、このデバイスの内容でリセットします。</string>
   <string name="sync_cant_fetch">クラウドに保存されているデータベースまたはパッチファイルのバージョンが、このアプリでサポートされているバージョンより新しいです。</string>
@@ -1019,6 +1173,7 @@
   <string name="pref_font_size_multiplier_title">フォントサイズの倍率</string>
   <string name="pref_font_size_multiplier_summary_1">テキストのフォントサイズをこの数値で乗算します。</string>
   <string name="pref_font_size_multiplier_summary_2">大きなフォントで使用する同期デバイスがある場合に便利です。</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">現在の値: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">左右スワイプのジェスチャー操作</string>
   <string name="prefs_bible_view_swipe_mode_summary">左右スワイプで次のページや章に移動できます。</string>
@@ -1139,6 +1294,7 @@
   <string name="prompt_max_iterations_unlimited">無制限</string>
   <string name="prompt_max_iterations_global_default">グローバルデフォルト（%d）</string>
   <string name="prompt_max_iterations_summary_with_value">このプロンプトのグローバル最大反復回数を上書きします。0＝無制限。\n現在: %s</string>
+  <string name="prompt_max_iterations_use_global">全体の設定を使用（%s）</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">AIプロンプトの管理</string>
   <string name="manage_prompts_summary">AIプロンプトの作成と編集</string>
@@ -1272,6 +1428,7 @@
   <string name="built_in_prompt_notice">これは組み込みプロンプトであり、編集できません。編集可能なコピーを作成するには「カスタマイズのためにコピー」を使用してください。</string>
   <string name="copy_to_customize">カスタマイズのためにコピー</string>
   <string name="prompt_copied">プロンプトをコピーしました</string>
+  <string name="prompt_copy_failed">プロンプトをコピーできませんでした。削除された可能性があります。</string>
   <string name="delete_prompt_confirmation">プロンプト「%s」を削除しますか？</string>
   <string name="prompt_name_required">プロンプト名は必須です</string>
   <string name="prompt_template_required">プロンプトテンプレートは必須です</string>
@@ -1479,6 +1636,8 @@
   <string name="tool_option_default_disabled">デフォルト（無効）</string>
   <string name="tool_option_default_allowed">デフォルト（許可）</string>
   <string name="tool_option_default_denied">デフォルト（拒否）</string>
+  <string name="tool_description_info">ツールの説明を表示</string>
+  <string name="tool_permission_mixed">混在</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">モデル</string>
   <string name="prompt_model_default">デフォルト</string>
@@ -1524,6 +1683,8 @@
   <string name="my_document_pages_empty">このドキュメントにページはありません。</string>
   <string name="my_document_page_rename_title">ページ名を変更</string>
   <string name="my_document_page_delete_confirmation">ページ\"%s\"を削除しますか？</string>
+  <string name="my_document_pages_delete_confirmation">これらのページを削除しますか？</string>
+  <string name="my_documents_switch_document">文書を切り替え</string>
   <string name="my_document_new_page_name">ページ %1$d</string>
   <string name="my_document_create_page_title">新しいページ</string>
   <string name="my_document_content_type_label">コンテンツの種類</string>
@@ -1620,4 +1781,91 @@
   <string name="document_sync_started">ドキュメント同期を開始しました</string>
   <string name="document_sync_enable_dialog_title">ドキュメントの同期を開始しますか？</string>
   <string name="document_sync_enable_dialog_nothing">転送するドキュメントはまだありません。新しくインストールされたドキュメントは自動的に同期されます。</string>
+  <string name="help_document_sync_text">文書の同期は、インストール済みの聖書、注解、その他の文書をクラウドにコピーし、お使いのデバイス間で同期を保ちます。この画面では、クラウドに保存されている内容の確認、個々の文書のダウンロードやアップロード、文書の削除、このデバイスに同期する内容の管理ができます。</string>
+  <string name="background_image_title">背景画像</string>
+  <string name="background_image_none">背景なし</string>
+  <string name="background_image_import">ギャラリーからインポート…</string>
+  <string name="background_image_empty">インポートした画像はまだありません。「ギャラリーからインポート…」をタップして追加してください。</string>
+  <string name="background_image_importing">インポート中…</string>
+  <string name="background_image_delete_title">画像を削除しますか？</string>
+  <string name="background_image_delete_confirm">この背景画像を削除しますか？まだこの画像を使用しているワークスペースは、画像なしに戻ります。</string>
+  <string name="background_image_day">背景画像（昼）</string>
+  <string name="background_image_night">背景画像（夜）</string>
+  <string name="background_image_opacity_day">背景画像の不透明度（昼）</string>
+  <string name="background_image_opacity_night">背景画像の不透明度（夜）</string>
+  <string name="background_image_change">変更</string>
+  <string name="color_picker_title">色を選択</string>
+  <string name="color_picker_presets">プリセット</string>
+  <string name="color_picker_custom">カスタム</string>
+  <string name="bookmark_expand_row">全文を表示</string>
+  <string name="bookmark_collapse_row">表示を減らす</string>
+  <string name="bookmark_label_filter">ラベルで絞り込み</string>
+  <string name="document_quick_all_documents">すべての文書…</string>
+  <string name="document_quick_tab_recent">最近</string>
+  <string name="document_quick_tab_for_verse">この節</string>
+  <string name="document_quick_tab_last_filter">前回のフィルター</string>
+  <string name="document_quick_tab_all">すべて</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">フィルターと並べ替え</string>
+  <string name="doc_arrange_repository">リポジトリ</string>
+  <string name="doc_arrange_all_repositories">すべてのリポジトリ</string>
+  <string name="doc_arrange_sort">並べ替え順</string>
+  <string name="doc_arrange_group_by">グループ化</string>
+  <string name="doc_arrange_remember">これらの設定を記憶</string>
+  <string name="doc_arrange_reset">既定値にリセット</string>
+  <string name="doc_arrange_more_filters">その他のフィルター</string>
+  <string name="doc_arrange_reorder">並べ替え</string>
+  <string name="doc_sort_ascending">昇順</string>
+  <string name="doc_sort_descending">降順</string>
+  <string name="doc_sort_status">状態</string>
+  <string name="doc_sort_recommended">おすすめを先頭に</string>
+  <string name="doc_sort_name">名前</string>
+  <string name="doc_sort_size">サイズ</string>
+  <string name="doc_group_none">グループ化なし</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">ダウンロード中</string>
+  <string name="doc_group_status_update_available">アップデートあり</string>
+  <string name="doc_group_status_installed">インストール済み</string>
+  <string name="doc_group_status_not_installed">未インストール</string>
+  <string name="prompt_filter_title">プロンプトを絞り込み</string>
+  <string name="prompt_filter_type">種類</string>
+  <string name="prompt_type_addon">アドオン</string>
+  <string name="prompt_type_user">カスタム</string>
+  <string name="prompt_filter_clear">フィルターをクリア</string>
+  <string name="prompt_favorite_add">お気に入りに追加</string>
+  <string name="prompt_favorite_remove">お気に入りから削除</string>
+  <string name="window_unmaximise">すべてのウィンドウを元に戻す</string>
+  <string name="window_menu_button">ウィンドウメニュー</string>
+  <string name="paste_from_clipboard">貼り付け</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">ドラッグハンドル</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">データを更新中…</string>
+  <string name="legacy_migration_progress_neutral">更新中…</string>
+  <string name="legacy_migration_failed_title">データを更新できませんでした</string>
+  <string name="legacy_migration_failed_message">以前のバージョンのアプリのデータは、このデバイス上で安全に変更されないまま保たれています。次に行う操作を選択してください。</string>
+  <string name="legacy_migration_failed_keychain">以前のバージョンで保存されたパスワードを読み取れませんでした。デバイスのロックを解除してから、アプリを閉じて開き直してください。</string>
+  <string name="legacy_migration_rollback_pending">更新が中断され、まだ完全には元に戻されていません。アプリを閉じて開き直し、元に戻す処理を完了してください。</string>
+  <string name="legacy_migration_save_old_data">古いデータを保存</string>
+  <string name="legacy_migration_send_report">エラーレポートを送信</string>
+  <string name="legacy_migration_try_again">再試行</string>
+  <string name="legacy_migration_try_again_hint">アプリを閉じて開き直し、もう一度お試しください。</string>
+  <string name="legacy_migration_restore_backup">バックアップを復元</string>
+  <string name="legacy_migration_start_fresh">古いデータなしで開始</string>
+  <string name="legacy_migration_start_fresh_confirm">古いデータはこのデバイスに残ります。後で「設定」からインポートできます。</string>
+  <string name="legacy_import_title">以前のアプリバージョンのデータをインポート</string>
+  <string name="legacy_import_summary">現在のデータを以前のアプリバージョンのデータで置き換えます</string>
+  <string name="legacy_import_confirm">現在のワークスペース、ブックマーク、その他のデータが、以前のアプリバージョンのデータで置き換えられます。現在のデータのコピーはこのデバイスに保持されます。</string>
+  <string name="legacy_import_reopen">アプリを閉じて開き直すと、データをインポートします。</string>
+  <string name="legacy_notice_icloud">同期はiCloud Driveを使用するようになりました。「設定」→「同期」でもう一度オンにしてください。このデバイスは現在のデータを保持します。他のデバイスでの変更は、同期を再設定すると反映されます。古いiCloudデータを解放するには、「設定」→ 自分の名前 →「iCloud」→「ストレージを管理」→「AndBible」の順に進んでください。</string>
+  <string name="legacy_notice_nextcloud">Nextcloudの接続は引き継がれましたが、同期はオフです。「設定」→「同期」でオンにし、クラウドから取得するか新規作成するかを選択してください。</string>
+  <string name="legacy_notice_nextcloud_unsent">このデバイスでの一部の変更は、まだNextcloudに送信されていませんでした。それらは送信されず、このデバイスにのみ残ります。</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">強力でありながら使いやすい、オフライン対応の聖書研究アプリです。</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$sの証明書はこのデバイスに信頼されていません。たとえばご自身でこのサーバーを設定した場合など、心当たりがある場合にのみ信頼してください。\n\nサブジェクト: %2$s\n発行者: %3$s\n有効期間: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">カスタムリポジトリには安全なhttps://アドレスが必要です。</string>
+  <string name="custom_repository_https_required_refresh">%1$sはhttp://アドレスを使用しています。https://のリポジトリのみ使用できます。</string>
 </resources>

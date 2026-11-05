@@ -8,6 +8,7 @@ noteTextWithoutType: حاشیے
 crossReferenceText: کراس حوالہ جات
 findAllOccurrences: تمام مثالیں تلاش کریں
 reportError: خرابی رپورٹ کریں
+retryLoad: دوبارہ کوشش کریں
 errorTitle: خرابی پیش آئی
 warningTitle: تنبیہ
 normalTitle: براہ کرم نوٹ کریں
@@ -36,6 +37,7 @@ createdAt: "بنایا گیا: %s"
 lastUpdatedOn: "آخری اپ ڈیٹ: %s"
 strongsAndMorph: تعریف اور صرف و نحو
 externalLink: بیرونی لنک کھولیں
+internalLink: اندرونی لنک کھولیں
 referenceLink: حوالہ لنک کھولیں
 openFootnote: حاشیہ کھولیں
 noMyNotesTitle: اس باب کے لیے کوئی میرے نوٹس نہیں۔
@@ -92,6 +94,7 @@ editActionModeAppend: متن شامل کریں
 editActionModePrepend: شروع میں متن شامل کریں
 editActionContentLabel: مواد
 editActionContentPlaceholder: دستاویز میں شامل کیا جانے والا متن داخل کریں...
+editActionContentRequired: مواد درج کریں یا کوئی نہیں منتخب کریں۔
 experimentalFeatureTitle: تجرباتی
 experimentalFeatureHelpTitle: تجرباتی خصوصیات کے بارے میں
 experimentalFeatureHelpContent: تجرباتی خصوصیات نئی صلاحیتیں ہیں جو ابھی تیار اور جانچی جا رہی ہیں۔ وہ بالکل کام نہ کریں اور آئندہ ایپ ورژنز میں نمایاں طور پر تبدیل یا ہٹائی جا سکتی ہیں۔

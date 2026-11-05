@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">Το AndBible δεν μπόρεσε να εκκινήσει το WebView2, το οποίο απαιτείται για την εμφάνιση του κειμένου της Αγίας Γραφής. Εγκαταστήστε ή επισκευάστε το Microsoft Edge WebView2 Evergreen Runtime από:\n%1$s\n\nΟι λεπτομέρειες βρίσκονται στο αρχείο καταγραφής:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">Το AndBible απαιτεί γραφικά Direct3D για την εμφάνιση του κειμένου της Αγίας Γραφής με το WebView2. Ο τρέχων επεξεργαστής γραφικών είναι %1$s. Ελέγξτε το πρόγραμμα οδήγησης γραφικών και την υποστήριξη Direct3D.\n\nΟι λεπτομέρειες βρίσκονται στο αρχείο καταγραφής:\n%2$s</string>
+  <string name="desktop_update_setting_title">Έλεγχος για ενημερώσεις</string>
+  <string name="desktop_update_setting_summary">Μία φορά την ημέρα, από το github.com</string>
+  <string name="desktop_update_consent_title">Έλεγχος για ενημερώσεις;</string>
+  <string name="desktop_update_consent_message">Το AndBible μπορεί να ελέγχει το github.com μία φορά την ημέρα για νεότερη έκδοση. Το GitHub βλέπει τη διεύθυνση IP σας· δεν αποστέλλεται τίποτα άλλο. Μπορείτε να το αλλάξετε αργότερα στις Ρυθμίσεις.</string>
+  <string name="desktop_update_consent_yes">Έλεγχος για ενημερώσεις</string>
+  <string name="desktop_update_consent_no">Να μη γίνεται έλεγχος</string>
+  <string name="desktop_update_available_title">Διαθέσιμη νέα έκδοση</string>
+  <string name="desktop_update_available_message">Είναι διαθέσιμο το AndBible %1$s. Έχετε την έκδοση %2$s.</string>
+  <string name="desktop_update_download">Λήψη</string>
+  <string name="desktop_update_later">Αργότερα</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Βιβλική Μελέτη (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d αποτελέσματα βρέθηκαν </string>
   <string name="search_showing_first">Πάρα πολλα αποτελέσματα. Εμφάνιση του πρώτου %d</string>
   <string name="search_bible_section_group_prompt">Αναζήτηση που</string>
+  <string name="search_type_prompt">Τύπος αναζήτησης</string>
+  <string name="search_show_results">Εμφάνιση αποτελεσμάτων αναζήτησης</string>
   <string name="search_all_bible">Ολόκληρη η Αγία Γραφή</string>
   <string name="search_new_testament">Καινή Διαθήκη</string>
   <string name="search_old_testament">Παλαιά Διαθήκη</string>
@@ -80,6 +94,28 @@
   <string name="search_what">Αναζήτηση \"%s\"</string>
   <!--Multi-translation search-->
   <string name="search_translations">Μεταφράσεις</string>
+  <string name="recent_searches">Πρόσφατες αναζητήσεις</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Κλείσιμο αναζήτησης</string>
+  <string name="search_options">Ρυθμίσεις αναζήτησης</string>
+  <string name="search_submit">Αναζήτηση</string>
+  <string name="search_clear">Εκκαθάριση κειμένου αναζήτησης</string>
+  <string name="search_engine_changed_reindex">Η μηχανή αναζήτησης ενημερώθηκε. Το ευρετήριο αναζήτησης πρέπει να δημιουργηθεί ξανά· αυτό μπορεί να διαρκέσει λίγο.</string>
+  <string name="search_unsupported_syntax">Αυτή η αναζήτηση χρησιμοποιεί σύνταξη που δεν υποστηρίζεται: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Όταν ολοκληρωθεί η δημιουργία ευρετηρίου, η αναζήτηση θα εκτελεστεί αυτόματα.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">Δεν είναι δυνατή η αναζήτηση στο %1$s</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Δεν είναι δυνατή η αναζήτηση σε αυτό το έγγραφο</string>
+  <string name="search_indexing_notification_title">Δημιουργία ευρετηρίου αναζήτησης</string>
   <string name="choose_translations">Επιλέξτε μεταφράσεις…</string>
   <string name="multi_search_results">%1$d στίχοι σε %2$d μεταφράσεις</string>
   <string name="search_index_not_created">χωρίς ευρετήριο</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Επιλέξτε πώς εμφανίζονται τα χρώματα. Η λειτουργία έγχρωμου e-ink διατηρεί μια βάση ασπρόμαυρου, αλλά εμφανίζει τα χρώματα σελιδοδεικτών, την ένδειξη ενεργού παραθύρου και τις βοηθητικές γραμμές έγχρωμα — για έγχρωμες οθόνες e-ink.</string>
   <string name="prefs_display_color_mode_normal">Κανονική</string>
   <string name="prefs_display_color_mode_bw">Ασπρόμαυρη</string>
+  <string name="prefs_display_color_mode_monochrome">Μονόχρωμο</string>
   <string name="prefs_display_color_mode_color_eink">Έγχρωμο e-ink</string>
+  <string name="prefs_theme_palette_style_title">Στυλ θέματος</string>
+  <string name="prefs_theme_palette_style_summary">Πώς προκύπτουν τα χρώματα της εφαρμογής από το χρώμα του χώρου εργασίας. Ισχύει μόνο όταν η λειτουργία χρώματος είναι Κανονική.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Τονικό σημείο (απαλό, διατηρεί το γκρι)</string>
+  <string name="prefs_theme_palette_style_fidelity">Πιστότητα (ακριβές χρώμα)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Τονικό σημείο (αρχικό)</string>
+  <string name="prefs_theme_palette_style_content">Περιεχόμενο (κοντά στο χρώμα)</string>
+  <string name="prefs_theme_palette_style_neutral">Ουδέτερο (σκιασμένο)</string>
+  <string name="prefs_theme_palette_style_monochrome">Μονόχρωμο (γκρι)</string>
+  <string name="prefs_theme_palette_style_vibrant">Ζωηρό</string>
+  <string name="prefs_theme_palette_style_expressive">Εκφραστικό</string>
+  <string name="prefs_theme_palette_style_rainbow">Ουράνιο τόξο</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Φρουτοσαλάτα</string>
   <string name="prefs_eink_settings_cat">Ρυθμίσεις E-ink</string>
   <string name="prefs_eink_display_title">Λειτουργίες E-ink</string>
   <string name="prefs_eink_display_summary">Ενεργοποίηση λειτουργιών ειδικά για E-ink (κουμπιά κύλισης σελίδας, βοηθητικές γραμμές κύλισης)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Αυτόματη σήμανση κεφαλαίων ως αναγνωσμένων καθώς τα περιηγείστε</string>
   <string name="reading_progress_read_count_scale">Πλήθος\nΑναγνώσεων</string>
   <string name="reading_progress_percent_read_scale">Ποσοστό\nΑνάγνωσης</string>
+  <string name="monochrome_activity_count">Αριθμός δραστηριοτήτων: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Πλήθος: %d</string>
+  <string name="monochrome_level">Επίπεδο: %d/4</string>
+  <string name="monochrome_buckets">Γκρι: κανένα· περίγραμμα: μερικό· γεμάτο: πλήρες ή ανώτατο επίπεδο. Επιλέξτε ένα στοιχείο για τις ακριβείς τιμές.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Ιστορικό Ανάγνωσης</string>
   <string name="reading_progress_history_for">Πρόοδος ανάγνωσης για %1$s</string>
@@ -196,6 +252,8 @@
   <string name="workspace_text_options_link_summary">Επεξεργασία ρυθμίσεων εμφάνισης κειμένου για αυτόν τον Χώρο Εργασίας</string>
   <string name="global_text_options_link">Καθολικές επιλογές κειμένου</string>
   <string name="global_text_options_link_summary">Επεξεργασία προεπιλεγμένων ρυθμίσεων εμφάνισης κειμένου για όλους τους Χώρους Εργασίας</string>
+  <string name="text_options_inherited_workspace">Χώρος εργασίας</string>
+  <string name="text_options_inherited_global">Καθολικό</string>
   <string name="prefs_font_and_colors_title">Γραμματοσειρά &amp; Χρώματα</string>
   <string name="prefs_text_layout_title">Διάταξη κειμένου</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Μορφολογία</string>
@@ -272,6 +330,9 @@
   <string name="copy_settings_to_workspace">Χώρο εργασίας</string>
   <string name="copy_settings_to_window">Παράθυρο %1$d (%2$s:%3$s)</string>
   <string name="copy_settings_to_global">Καθολικές προεπιλογές</string>
+  <string name="copy_settings_to_workspaces">Σε άλλους χώρους εργασίας…</string>
+  <string name="copy_settings_to_global_defaults">Στις καθολικές προεπιλογές…</string>
+  <string name="menu_back">Πίσω</string>
   <string name="change_to_normal">Αλλαγή σε κανονικό παράθυρο</string>
   <string name="window_pin_mode">Καρφίτσωμα</string>
   <!--Notes screen-->
@@ -308,6 +369,7 @@
   <string name="failed_repositories_message">Αδυναμία σύνδεσης στον ακόλουθο διακομιστή εγγράφων: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Τα ακόλουθα αρχεία δεν μπορούσαν να ληφθούν:\n\n%s\n\n</string>
   <string name="cant_delete_document">Αδυναμία διαγραφής εγγράφου.</string>
+  <string name="bad_document_warning">Αυτό το έγγραφο έχει γνωστά προβλήματα.</string>
   <!--Install zip file-->
   <string name="install_zip">Φόρτωση Εγγράφων από αρχεία</string>
   <string name="install_zip_module">Εγκατάσταση Προσθέτου Βίβλου</string>
@@ -368,6 +430,11 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="delete_index">Διαγραφή ευρετήριου αναζήτησης</string>
   <string name="about">Σχετικά με</string>
   <string name="delete_doc">Διαγραφή του %s?</string>
+  <string name="interrupted_downloads_title">Η λήψη διακόπηκε</string>
+  <string name="interrupted_downloads_message">Αυτά τα έγγραφα δεν εγκαταστάθηκαν επειδή η λήψη τους διακόπηκε:</string>
+  <string name="interrupted_downloads_question">Να γίνει ξανά λήψη;</string>
+  <string name="download_again">Νέα λήψη</string>
+  <string name="delete_docs_confirm">Να διαγραφούν αυτά τα έγγραφα;</string>
   <string name="delete_search_index_doc">Διαγραφή ευρετήριου του %s?</string>
   <!--Verse context menu-->
   <string name="notes">Υποσημειώσεις και παραπομπές</string>
@@ -388,6 +455,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="assign_labels">Εκχώρηση ετικετών</string>
   <string name="new_item">Νέος</string>
   <string name="label_name_prompt">Ονομα</string>
+  <string name="new_label_default_name">Ετικέτα %d</string>
   <string name="label_unlabelled">Μη σημασμένο</string>
   <string name="add_bookmark1">Σελιδοδείκτης</string>
   <string name="add_bookmark3">Επιλογή</string>
@@ -437,6 +505,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="rewind">Επαναφορά</string>
   <string name="forward">Προώθηση</string>
   <string name="tts_lang_not_available">Η γλώσσα δεν είναι διαθέσιμη.</string>
+  <string name="tts_engine_not_available">Η σύνθεση ομιλίας δεν λειτουργεί σε αυτή τη συσκευή. Ελέγξτε ότι υπάρχει εγκατεστημένη και ενεργοποιημένη μηχανή ομιλίας στις ρυθμίσεις σύνθεσης ομιλίας του συστήματος.</string>
+  <string name="tts_audio_focus_denied">Η ομιλία δεν μπόρεσε να ξεκινήσει επειδή μια άλλη εφαρμογή χρησιμοποιεί τον ήχο.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Ταχύτητα ακρόασης</string>
   <string name="speak_and_play_earcons_title">Ήχοι ομιλίας και αναπαραγωγής για</string>
@@ -446,6 +516,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_bookmarks_menu_title">Ακρόαση από σελιδοδείκτη</string>
   <string name="speak_advanced_settings">Προχωρημένες ρυθμίσεις</string>
   <string name="speak_sleep_timer_title">Χρονοδιακόπτης ύπνου</string>
+  <string name="speak_sleep_timer_minutes">%d λεπτά</string>
+  <string name="speak_sleep_timer_custom">Προσαρμοσμένο…</string>
+  <string name="speak_sleep_timer_off">Ανενεργό</string>
+  <string name="speak_other_settings">Άλλες</string>
   <string name="speak_no_books_available">Κανένα βιβλίο διαθέσιμο για ακρόαση</string>
   <string name="speak_general_error">Η ακρόαση δεν μπορούσε να ξεκινήσει για αυτό το βιβλίο</string>
   <string name="repeat_passage">Επανάληψη αποσπάσματος</string>
@@ -474,6 +548,11 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_autobookmarking_disabled">Αυτόματοι σελιδοδείκτες απενεργοποιήθηκαν!</string>
   <string name="system_speak_settings">Άνοιγμα ρυθμίσεων TTS συστήματος</string>
   <string name="auto_assing_labels_help1">Εδώ μπορείτε να ρυθμίσετε ποιές ετικέτες εκχωρούνται αυτόματα στους σελιδοδείκτες που δημιουργείτε</string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Εδώ μπορείτε να προσθέσετε, να επεξεργαστείτε και να αφαιρέσετε ετικέτες, και να ρυθμίσετε ποιες ανατίθενται αυτόματα στους σελιδοδείκτες που δημιουργείτε.\n\nΠρόσφατες ετικέτες: ετικέτες που χρησιμοποιήθηκαν πρόσφατα.\nΆλλες ετικέτες: όλες οι υπόλοιπες ετικέτες.\n\nΧρησιμοποιήστε τις επιλογές φίλτρου της γραμμής αναζήτησης για να βλέπετε μόνο τις ετικέτες με αυτόματη ανάθεση ή τις αγαπημένες.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Ρυθμίστηκε %s</string>
   <string name="setting_scope_window">αυτό το παράθυρο</string>
@@ -571,6 +650,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="loading_backup">Επαναφορά βάσης δεδομένων από αντίγραφο...</string>
   <string name="backup_success2">Οι Σημειώσεις Μου, σελιδοδείκτες, Μπλοκ Μελέτης, σχέδια ανάγνωσης και χώροι εργασίας αποθηκεύτηκαν επιτυχώς</string>
   <string name="backup_modules_success">Τα επιλεγμένα πρόσθετα ή έγγραφα αποθηκεύτηκαν επιτυχώς.</string>
+  <string name="backup_modules_conflict">Το αντίγραφο ασφαλείας δεν δημιουργήθηκε: τα %1$s και %2$s περιέχουν και τα δύο το αρχείο %3$s, με διαφορετικό περιεχόμενο. Επιλέξτε μόνο ένα από αυτά και δοκιμάστε ξανά.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (έκδοση %2$s, φάκελος %3$s)</string>
   <string name="backup_modules_email_subject_2">Αντίγραφα προσθέτων %s</string>
   <string name="backup_modules_email_message_2">Τα αντίγραφο σας των προσθέτων %1$s επισυνάπτονται, που περιέχει τα ακόλουθα πρόσθετα: %2$s</string>
   <string name="backup_email_subject_2">Αντίγραφο βάσης δεδομένων %s</string>
@@ -579,6 +661,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="exported_studypads_message">Η βάση δεδομένων του %s επισυνάπτεται και περιέχει Σελιδοδείκτες και Σημειώσεις σχετικές με τα επιλεγμένα μπλοκ μελέτης</string>
   <string name="restore_unsuccessfull">Η επαναφορά της βάσης απέτυχε. Πιθανόν δώσατε άκυρο αρχείο βάσης δεδομένων.</string>
   <string name="send_backup_file">Αποστολή αντιγράφου ασφαλείας</string>
+  <string name="export_destination_title">Εξαγωγή πού;</string>
+  <string name="export_destination_message">Αποθηκεύστε την εξαγωγή σε αυτό το τηλέφωνο ή στείλτε την αλλού με την Κοινοποίηση.</string>
+  <string name="send_export_file">Αποστολή αρχείου εξαγωγής</string>
   <string name="backup_modules_title">Επιλέξτε ποιά πρόσθετα θα αντιγράψετε</string>
   <string name="install_zip_canceled">Ακυρώθηκε η εγκατάσταση προσθέτου</string>
   <string name="ask_restore_or_import">Η βάση δεδομένων για %s μπορεί είτε να αντικατασταθεί (π.χ. η υπάρχουσα βάση διαγράφεται και η επιλεγμένη βάση φορτώνεται) είτε να εισαχθεί (η επιλεγμένη βάση εισάγεται μέσα στην υπάρχουσα βάση). Τι θέλετε να κάνετε?</string>
@@ -619,12 +704,25 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="doc_type_book">Βιβλίο</string>
   <string name="doc_type_map">Χάρτης</string>
   <string name="doc_type_addons">Πρόσθετα</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Άλλο</string>
+  <string name="document_type_label">Τύπος εγγράφου</string>
   <!--Languages-->
   <string name="lang_default">Προεπιλογή</string>
   <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Ακύρωση</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Πίσω</string>
+  <string name="settings_editor_close">Κλείσιμο</string>
+  <string name="settings_editor_apply">Εφαρμογή</string>
   <string name="discard_changes_confirmation">Απόρριψη μη αποθηκευμένων αλλαγών;</string>
+  <string name="discard">Απόρριψη</string>
+  <string name="remove">Αφαίρεση</string>
+  <string name="overwrite">Αντικατάσταση</string>
+  <string name="set_current_day_action">Ορισμός ημέρας</string>
   <string name="yes">Ναί</string>
   <string name="no">Οχι</string>
   <string name="error">Σφάλμα</string>
@@ -634,6 +732,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="watch_tutorial_video">Δείτε βίντεο καθοδήγησης (Αγγλικά)</string>
   <string name="verse_not_found">Δεν βρέθηκε ο στίχος</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Συνέχεια</string>
   <string name="report_error">Αποστολή αναφοράς</string>
   <string name="error_occurred">Παρουσιάστηκε ένα σφάλμα</string>
   <string name="error_occurred_crash_last_time">Η εφαρμογή κατέρρευσε κατά την τελευταία χρήση της. Θα εκτιμούσαμε τη βοήθειά σας στην επίλυση του σφάλματος, αν μας στείλετε μια σχετική αναφορά.</string>
@@ -644,8 +743,14 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="error_key_not_in_document2">%1$s δεν βρέθηκε στο έγγραφο %2$s.</string>
   <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
   <string name="error_skip">Παράβλεψη</string>
+  <string name="debug_test_error">Δοκιμαστικό σφάλμα (έκδοση αποσφαλμάτωσης)</string>
+  <string name="bug_report_prepare_failed">Δεν ήταν δυνατή η προετοιμασία ή η κοινοποίηση της αναφοράς. Μπορείτε να δοκιμάσετε ξανά ή να χρησιμοποιήσετε το Αντίγραφο ασφαλείας και επαναφορά για να αποθηκεύσετε τα δεδομένα σας.</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
+  <string name="bug_report_manual_title">Αποστολή της αναφοράς με email</string>
+  <string name="bug_report_manual_text_saved">Η αναφορά αποθηκεύτηκε στο</string>
+  <string name="bug_report_manual_text_unsaved">Δεν ήταν δυνατό να ανοίξει πρόγραμμα email σε αυτή τη συσκευή.\n\nΠαρακαλούμε στείλτε την αναφορά με email στη διεύθυνση</string>
+  <string name="bug_report_copy_address">Αντιγραφή διεύθυνσης</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Κείμενο σε ομιλία</string>
   <string name="notification_channel_progress_status">Ενημέρωση κατάστασης προόδου κατεβάσματος εγγράφων κλπ.</string>
@@ -669,6 +774,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="search_settings">Ρυθμίσεις αναζήτησης</string>
   <string name="dismiss">Απόρριψη</string>
   <string name="workspace_listing_with_current">%s (τρέχων)</string>
+  <string name="workspace_manage_workspaces">Διαχείριση χώρων εργασίας…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Αυτή είναι μία δοκιμαστική έκδοση!</string>
   <string name="beta_notice_content_1">
@@ -714,7 +820,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="help_search_title">Αναζήτηση</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Το κείμενο αναζήτησης μπορεί να περιλαμβάνει ειδικούς χαρακτήρες όπως *, AND, OR, NOT</string>
+  <string name="help_search_bible">Επιλέξτε πώς αντιστοιχίζονται οι λέξεις: Όλες οι λέξεις βρίσκει εδάφια που περιέχουν κάθε λέξη, Οποιαδήποτε λέξη βρίσκει εδάφια που περιέχουν τουλάχιστον μία, και Φράση βρίσκει τις λέξεις η μία δίπλα στην άλλη με αυτή τη σειρά.\n\nΣτην αναζήτηση μπορείτε επίσης να χρησιμοποιήσετε τα * και ? ως μπαλαντέρ (για παράδειγμα το bless* ταιριάζει με τα blessed και blessing), να συνδυάσετε όρους με AND, OR και NOT, και να αναζητήσετε απευθείας αριθμούς Strong (για παράδειγμα strong:h0430).</string>
+  <string name="help_search_epub">Επιλέξτε πώς αντιστοιχίζονται οι λέξεις: Όλες οι λέξεις βρίσκει αποσπάσματα που περιέχουν κάθε λέξη, Οποιαδήποτε λέξη βρίσκει αποσπάσματα που περιέχουν τουλάχιστον μία, και Φράση βρίσκει τις λέξεις η μία δίπλα στην άλλη με αυτή τη σειρά.\n\nΗ σύνταξη ακατέργαστου ερωτήματος περνά το κείμενό σας στη μηχανή αναζήτησης αυτούσιο, ώστε να γράψετε το δικό σας ερώτημα: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" για ακριβή φράση, bless* για να ταιριάξει κάθε λέξη που αρχίζει με bless, και grace NEAR faith για να βρείτε τις λέξεις κοντά η μία στην άλλη.</string>
   <string name="help_search_details">Παρακαλώ δείτε %s για περισσότερες λεπτομέρειες</string>
+  <string name="help_search_syntax">Σύνταξη αναζήτησης</string>
   <string name="help_fts5">FTS5 Σύνταξη ερωτήματος πλήρους κειμένου</string>
   <string name="help_workspaces_title">Χώροι εργασίας</string>
   <string name="help_workspaces_text">
@@ -737,6 +846,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 να έχετε βιβλικά έγγραφα πάντοτε ανοιχτά και να μετακινήστε γρήγορα μεταξύ των σχολίων και του
 υπολοίπου επιπλέον υλικού όταν μελετάτε τη Βίβλο.</string>
   <!--Welcome text-->
+  <string name="welcome_intro">Δεν υπάρχουν ακόμη έγγραφα στη βιβλιοθήκη σας. Προσθέστε μερικά για να ξεκινήσετε.</string>
+  <string name="welcome_redownload_row_hint">Επιλογή από έγγραφα που είχαν εγκατασταθεί παλαιότερα</string>
+  <string name="welcome_download_row_hint">Περιήγηση στον online κατάλογο</string>
+  <string name="welcome_restore_row_hint">Αρχείο βάσης δεδομένων με σελιδοδείκτες και σημειώσεις</string>
+  <string name="welcome_link_website">Ιστότοπος</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Πρέπει να επιλέξεις το αρχείο που θέλεις να φορτώσεις στο %s.</string>
@@ -752,9 +867,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="format_studypads">Μπλοκ μελέτης από βάσεις δεδομένων του AndBible (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Κλείσιμο</string>
+  <string name="reading_toolbar_options">Περισσότερες επιλογές</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">Κατάλαβα</string>
-  <string name="first_time_help_show_next_time">Δείξε το πάλι την επόμενη φορά</string>
   <string name="strongs_mode_title">Διάλεξε επιλογή strongs</string>
   <string name="download_dialog_message">Τα ακόλουθα βιβλία δεν ήταν δυνατό να μεταφορτωθούν:</string>
   <string name="journal_description">Μπλοκ Μελέτης του χρήστη με ιδιόχειρες σημειώσεις και σελιδοδείκτες</string>
@@ -779,6 +893,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prefs_experimental_features_summary">Επιλέξτε ποιές πειραματικές δυνατότητες θέλετε να ενεργοποιήσετε. Αυτές οι δυνατότητες βρίσκονται ακόμα υπό ανάπτυξη και μπορεί να αλλάξουν ή να καταργηθούν</string>
   <string name="experimental_feature_bookmark_edit_actions">Ενέργειες επεξεργασίας σελιδοδείκτη</string>
   <string name="experimental_feature_add_paragraph_break">Προσθήκη σελιδοδείκτη αλλαγής παραγράφου</string>
+  <string name="experimental_feature_toolbar_literal_color">Χρήση του ακριβούς χρώματος του χώρου εργασίας για τη γραμμή εργαλείων ανάγνωσης (αντί για το χρώμα του θέματος)</string>
   <string name="raw_llm_log_title">Ακατέργαστο Αρχείο Καταγραφής LLM</string>
   <string name="raw_llm_log_empty">Δεν υπάρχουν διαθέσιμα ακατέργαστα δεδομένα καταγραφής</string>
   <string name="raw_llm_log_copied">Το αρχείο καταγραφής αντιγράφηκε στο πρόχειρο</string>
@@ -876,6 +991,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="display_mode_underline">Υπογράμμιση</string>
   <string name="display_mode_marker">Μόνο δείκτης</string>
   <string name="display_mode_hidden">Κρυφό</string>
+  <string name="display_mode_inherit">Ίδιο με την επιλογή</string>
   <string name="workspace_override_indicator">Αυτή η ετικέτα έχει λειτουργία εμφάνισης ειδική για τον Χώρο Εργασίας</string>
   <string name="primary_label">Κύρια ετικέτα</string>
   <string name="favourite_label">Αγαπημένη ετικέτα</string>
@@ -889,6 +1005,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="book_menu_show_long_book_name">Εμφάνιση ολόκληρου ονόματος βιβλίου</string>
   <string name="book_menu_show_progress_bars">Εμφάνιση γραμμών προόδου</string>
   <string name="reset_workspace_labels">Θέλετε να επαναφέρτε τις προκαθορισμένες και προτιμώμενες ρυθμίσεις γι\'αυτόν τον Χώρο Εργασίας?</string>
+  <string name="clear_auto_assign_labels">Εκκαθάριση ετικετών αυτόματης ανάθεσης</string>
+  <string name="reset_workspace_auto_assign_labels">Θέλετε να αφαιρέσετε όλες τις ετικέτες αυτόματης ανάθεσης από αυτόν τον χώρο εργασίας;</string>
   <string name="reset_hide_labels">Θέλετε να επαναφέρετε την ρύθμιση για την απόκρυψη ρυθμίσεων των συγκεκριμένων ετικετών?</string>
   <string name="reorder">Αναδιάταξη</string>
   <string name="system_items">Ενέργειες συστήματος</string>
@@ -960,6 +1078,27 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="instructions_for_translators">Οδηγίες για μεταφραστές</string>
   <string name="questions_title">Ερωτήσεις?</string>
   <string name="bookmark_style">Στυλ σελιδοδείκτη</string>
+  <string name="bookmark_style_preview_sample">Τόσο πολύ αγάπησε ο Θεός τον κόσμο</string>
+  <string name="bookmark_style_selection">Σελιδοδείκτες επιλογής κειμένου</string>
+  <string name="bookmark_style_whole_verse">Σελιδοδείκτες ολόκληρου εδαφίου</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Χρήση διαφορετικού στυλ για σελιδοδείκτες ολόκληρου εδαφίου</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Επιλογή</string>
+  <string name="bookmark_style_tag_whole_verse">Ολόκληρο εδάφιο</string>
+  <string name="bookmark_style_tag_workspace">Χώρος εργασίας</string>
+  <string name="show_style_examples">Εμφάνιση παραδειγμάτων στυλ</string>
+  <string name="labels_search_section">Αναζήτηση</string>
+  <string name="labels_filter_section">Εμφάνιση</string>
+  <string name="labels_filter_auto_assign">Μόνο ετικέτες αυτόματης ανάθεσης</string>
+  <string name="labels_filter_favourite">Μόνο αγαπημένες ετικέτες</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Επιλέξτε μια ετικέτα για να την αναθέσετε σε αυτόν τον σελιδοδείκτη.</string>
+  <string name="manage_labels_help_primary">Η κύρια ετικέτα. Το χρώμα και το στυλ της είναι αυτά που εμφανίζει ο σελιδοδείκτης.</string>
+  <string name="manage_labels_help_autoassign">Ανάθεση αυτής της ετικέτας αυτόματα σε κάθε νέο σελιδοδείκτη. Ένας κούφιος κεραυνός σημαίνει ανενεργό.</string>
+  <string name="manage_labels_help_favourite">Διατήρηση της ετικέτας στα αγαπημένα σας για γρήγορη πρόσβαση.</string>
+  <string name="manage_labels_help_styles">Κάτω από το όνομα, ένα μικρό παράδειγμα δείχνει την εμφάνιση της ετικέτας: Επιλογή για σελιδοδείκτη επιλογής κειμένου, Ολόκληρο εδάφιο για σελιδοδείκτη ολόκληρου εδαφίου, και μια ένδειξη Χώρος εργασίας για στυλ που παρακάμπτεται από αυτόν τον χώρο εργασίας. Ένα γκριζαρισμένο παράδειγμα χωρίς διακόσμηση σημαίνει ότι οι σελιδοδείκτες της ετικέτας δεν σχεδιάζονται. Αποκρύψτε τα παραδείγματα από το μενού ⋮.</string>
+  <string name="manage_labels_help_reorder">Αλλάξτε τη σειρά της λίστας από το μενού ⋮.</string>
   <string name="added_to_bookmark">Εκχωρημένο σε αυτόν τον σελιδοδείκτη</string>
   <string name="strongs_links">Σύνδεσμοι</string>
   <string name="strongs_text_and_links">Κείμενο και σύνδεσμοι</string>
@@ -1006,6 +1145,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sync_group_n">Ομάδα %d</string>
   <string name="disable_sync">Απενεργοποίηση συγχρονισμού</string>
   <string name="open_in_window">Άνοιγμα αποτελεσμάτων σε ένα παράθυρο</string>
+  <string name="open_result_in_links_window">Άνοιγμα αποτελέσματος στο παράθυρο συνδέσμων</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Αποθετήρια χρήστη</string>
@@ -1016,7 +1156,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="delete_custom_repository">Θέλετε να διαγράψετε το αποθετήριο χρήστη %s?</string>
   <string name="custom_repositories_help1">Για να προσθέσετε ενα νέο προσαρμοσμένο αποθετήριο, γράψτε ή αντιγράψτε &amp; επικολλήστε το URL του αποθετηρίου εδώ.</string>
   <string name="custom_repositories_help2">Μπορείτε να διαβάσετε περισσότερες πληροφορίες για τα προσαρμοσμένα αποθετήρια στο %s</string>
-  <string name="wiki_page">Σελίδα WIKI</string>
   <string name="custom_repositories_help0">Μπορείτε να εγκαταστήσετε έγγραφα από εξωτερικά προσαρμοσμένα αποθετήρια εγκαθιστώντας προσσαρμοσμένα αποθετήρια</string>
   <string name="duplicate_custom_repository">Αποθετήριο με όνομα %s υπάρχει ήδη, δεν μπορεί να προστεθεί άλλο.</string>
   <string name="packages_dir">Κατάλογος πακέτων (αρχεία Zip)</string>
@@ -1061,6 +1200,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reading_progress_new_cycle_confirm">Έναρξη νέου κύκλου ανάγνωσης; Θα ξεκινήσει η παρακολούθηση της προόδου σας από την αρχή, διατηρώντας τα δεδομένα του προηγούμενου κύκλου.</string>
   <string name="reading_progress_previous_cycle">Προηγούμενος κύκλος</string>
   <string name="reading_progress_next_cycle">Επόμενος κύκλος</string>
+  <string name="cloud_merge_data">Συγχώνευση δεδομένων</string>
   <string name="cloud_fetch_and_restore_initial">Αντιγραφή από το cloud στη συσκευή</string>
   <string name="cloud_create_new">Αντιγραφή από τη συσκευή στο Cloud</string>
   <string name="cloud_disable_sync">Ακύρωση &amp; απενεργοποίηση συγχρονισμού</string>
@@ -1074,6 +1214,19 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sync_adapter_summary">Τρέχον : %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">Διεύθυνση του φακέλου WebDAV, π.χ. https://nas.local/dav/ ή https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Ο συγχρονισμός απαιτεί ασφαλή διεύθυνση https://.</string>
+  <string name="webdav_certificate_title">Πιστοποιητικό διακομιστή</string>
+  <string name="webdav_forget_certificate_message">Να ξεχαστεί το αξιόπιστο πιστοποιητικό διακομιστή; Θα σας ζητηθεί να επιβεβαιώσετε ξανά το πιστοποιητικό στην επόμενη σύνδεση.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Μη αξιόπιστο πιστοποιητικό διακομιστή</string>
+  <string name="webdav_untrusted_certificate_message">Το πιστοποιητικό του %1$s δεν θεωρείται αξιόπιστο από το Android. Εμπιστευτείτε το μόνο αν το αναγνωρίζετε, για παράδειγμα επειδή στήσατε εσείς αυτόν τον διακομιστή.\n\nΘέμα: %2$s\nΕκδότης: %3$s\nΙσχύει: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Εμπιστοσύνη σε αυτό το πιστοποιητικό</string>
+  <string name="webdav_wrong_credentials">Λάθος όνομα χρήστη ή κωδικός πρόσβασης.</string>
+  <string name="webdav_not_a_folder">Η διεύθυνση δεν είναι φάκελος WebDAV.</string>
+  <string name="webdav_certificate_changed">Το πιστοποιητικό του διακομιστή άλλαξε. Ο συγχρονισμός είναι σε παύση μέχρι να επιβεβαιώσετε το νέο πιστοποιητικό, για το οποίο το AndBible θα ρωτήσει την επόμενη φορά που θα ανοίξει ή θα συγχρονίσει στο προσκήνιο.</string>
+  <string name="webdav_storage_full">Ο αποθηκευτικός χώρος του διακομιστή είναι γεμάτος.</string>
   <string name="auth_server_uri">URL Διακομιστή</string>
   <string name="auth_username">Όνομα χρήστη</string>
   <string name="auth_password">Κωδικός</string>
@@ -1083,6 +1236,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sync_general_settings">Πληροφορίες &amp; γενικές ρυθμίσεις</string>
   <string name="sync_introduction">Εισαγωγή</string>
   <string name="are_you_sure">Είστε σίγουρος?</string>
+  <string name="are_you_sure_merge">Θα διατηρηθούν και τα δεδομένα σε αυτή τη συσκευή και το %s στο νέφος. Όπου το ίδιο στοιχείο άλλαξε και στα δύο, διατηρείται η νεότερη αλλαγή. Τα δεδομένα αυτής της συσκευής θα σταλούν στις άλλες συσκευές σας.</string>
   <string name="are_you_sure_reset_local">Αυτό θα επαναφέρει στην τοπική βάση για το %s το περιεχομενο που είναι τώρα αποθηκευμένο στην υπηρεσία cloud </string>
   <string name="are_you_sure_reset_cloud">Αυτό θα επαναφέρει στην υπηρεσία cloud για το %s το περιεχομενο που  έχετε σε αυτή τη συσκευή.</string>
   <string name="sync_cant_fetch">Η έκδοση της βάσης ή του αρχείου επιδιόρθωσης που βρίσκεται στο cloud είναι υψηλότερη της υποστηριζόμενης από αυτή την εφαρμογή</string>
@@ -1118,6 +1272,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="pref_font_size_multiplier_title">Μεγέθυνση γραμματοσειράς</string>
   <string name="pref_font_size_multiplier_summary_1">Μεγέθυνση γραμματοσειράς κατά αυτό το νούμερο</string>
   <string name="pref_font_size_multiplier_summary_2">Χρήσιμο αν διαθέτετε συγχρονισμένη συσκευή που χρησιμοποιεί μεγαλύτερη γραμματοσειρά</string>
+  <string name="pref_font_size_multiplier_percent_format">%d %%</string>
   <string name="current_value">Τρέχουσα τιμή: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Ενέργεια χειρονομίας συρσίματος αριστερά / δεξιά</string>
   <string name="prefs_bible_view_swipe_mode_summary">Η χειρονομία συρσίματος δεξιά/αριστερά μπορεί να χρησιμοποιηθεί για μετάβαση στην επόμενη σελίδα / κεφάλαιο</string>
@@ -1238,6 +1393,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prompt_max_iterations_unlimited">Απεριόριστο</string>
   <string name="prompt_max_iterations_global_default">Γενική προεπιλογή (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Παράκαμψη των γενικών μέγιστων επαναλήψεων για αυτήν την εντολή. 0 = απεριόριστο.\nΤρέχουσα: %s</string>
+  <string name="prompt_max_iterations_use_global">Χρήση της καθολικής ρύθμισης (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Διαχείριση εντολών AI</string>
   <string name="manage_prompts_summary">Δημιουργία και επεξεργασία εντολών AI</string>
@@ -1371,6 +1527,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="built_in_prompt_notice">Αυτή είναι μια ενσωματωμένη εντολή και δεν μπορεί να επεξεργαστεί. Χρησιμοποιήστε \"Αντιγραφή για προσαρμογή\" για να δημιουργήσετε ένα επεξεργάσιμο αντίγραφο.</string>
   <string name="copy_to_customize">Αντιγραφή για προσαρμογή</string>
   <string name="prompt_copied">Η εντολή αντιγράφηκε</string>
+  <string name="prompt_copy_failed">Δεν ήταν δυνατή η αντιγραφή της εντολής. Ίσως έχει διαγραφεί.</string>
   <string name="delete_prompt_confirmation">Διαγραφή εντολής \"%s\";</string>
   <string name="prompt_name_required">Το όνομα εντολής είναι υποχρεωτικό</string>
   <string name="prompt_template_required">Το πρότυπο εντολής είναι υποχρεωτικό</string>
@@ -1578,6 +1735,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tool_option_default_disabled">Προεπιλογή (απενεργοποιημένο)</string>
   <string name="tool_option_default_allowed">Προεπιλογή (επιτρέπεται)</string>
   <string name="tool_option_default_denied">Προεπιλογή (απορρίπτεται)</string>
+  <string name="tool_description_info">Εμφάνιση περιγραφής εργαλείου</string>
+  <string name="tool_permission_mixed">Μικτό</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Μοντέλο</string>
   <string name="prompt_model_default">Προεπιλογή</string>
@@ -1623,6 +1782,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="my_document_pages_empty">Δεν υπάρχουν σελίδες σε αυτό το έγγραφο.</string>
   <string name="my_document_page_rename_title">Μετονομασία σελίδας</string>
   <string name="my_document_page_delete_confirmation">Διαγραφή σελίδας \"%s\";</string>
+  <string name="my_document_pages_delete_confirmation">Να διαγραφούν αυτές οι σελίδες;</string>
+  <string name="my_documents_switch_document">Αλλαγή εγγράφου</string>
   <string name="my_document_new_page_name">Σελίδα %1$d</string>
   <string name="my_document_create_page_title">Νέα σελίδα</string>
   <string name="my_document_content_type_label">Τύπος περιεχομένου</string>
@@ -1719,4 +1880,91 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="document_sync_started">Ο συγχρονισμός εγγράφων ξεκίνησε</string>
   <string name="document_sync_enable_dialog_title">Έναρξη συγχρονισμού εγγράφων;</string>
   <string name="document_sync_enable_dialog_nothing">Δεν υπάρχουν ακόμη έγγραφα προς μεταφορά. Τα νέα εγκατεστημένα έγγραφα θα συγχρονίζονται αυτόματα.</string>
+  <string name="help_document_sync_text">Ο συγχρονισμός εγγράφων αντιγράφει στο νέφος τις εγκατεστημένες Αγίες Γραφές, τα σχόλια και τα άλλα έγγραφά σας και τα διατηρεί συγχρονισμένα στις συσκευές σας. Χρησιμοποιήστε αυτή την προβολή για να δείτε τι είναι αποθηκευμένο στο νέφος, να κάνετε λήψη ή αποστολή μεμονωμένων εγγράφων, να αφαιρέσετε έγγραφα και να ελέγξετε τι συγχρονίζεται σε αυτή τη συσκευή.</string>
+  <string name="background_image_title">Εικόνα φόντου</string>
+  <string name="background_image_none">Χωρίς φόντο</string>
+  <string name="background_image_import">Εισαγωγή από τη συλλογή…</string>
+  <string name="background_image_empty">Δεν υπάρχουν ακόμη εισαγμένες εικόνες. Πατήστε «Εισαγωγή από τη συλλογή…» για να προσθέσετε μία.</string>
+  <string name="background_image_importing">Εισαγωγή…</string>
+  <string name="background_image_delete_title">Διαγραφή εικόνας;</string>
+  <string name="background_image_delete_confirm">Να διαγραφεί αυτή η εικόνα φόντου; Οι χώροι εργασίας που τη χρησιμοποιούν θα επανέλθουν σε φόντο χωρίς εικόνα.</string>
+  <string name="background_image_day">Εικόνα φόντου (ημέρα)</string>
+  <string name="background_image_night">Εικόνα φόντου (νύχτα)</string>
+  <string name="background_image_opacity_day">Αδιαφάνεια εικόνας φόντου (ημέρα)</string>
+  <string name="background_image_opacity_night">Αδιαφάνεια εικόνας φόντου (νύχτα)</string>
+  <string name="background_image_change">Αλλαγή</string>
+  <string name="color_picker_title">Επιλογή χρώματος</string>
+  <string name="color_picker_presets">Προεπιλογές</string>
+  <string name="color_picker_custom">Προσαρμοσμένο</string>
+  <string name="bookmark_expand_row">Εμφάνιση πλήρους κειμένου</string>
+  <string name="bookmark_collapse_row">Εμφάνιση λιγότερων</string>
+  <string name="bookmark_label_filter">Φιλτράρισμα ανά ετικέτα</string>
+  <string name="document_quick_all_documents">Όλα τα έγγραφα…</string>
+  <string name="document_quick_tab_recent">Πρόσφατα</string>
+  <string name="document_quick_tab_for_verse">Αυτό το εδάφιο</string>
+  <string name="document_quick_tab_last_filter">Τελευταίο φίλτρο</string>
+  <string name="document_quick_tab_all">Όλα</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Φιλτράρισμα και ταξινόμηση</string>
+  <string name="doc_arrange_repository">Αποθετήριο</string>
+  <string name="doc_arrange_all_repositories">Όλα τα αποθετήρια</string>
+  <string name="doc_arrange_sort">Σειρά ταξινόμησης</string>
+  <string name="doc_arrange_group_by">Ομαδοποίηση κατά</string>
+  <string name="doc_arrange_remember">Απομνημόνευση αυτών των ρυθμίσεων</string>
+  <string name="doc_arrange_reset">Επαναφορά προεπιλογών</string>
+  <string name="doc_arrange_more_filters">Περισσότερα φίλτρα</string>
+  <string name="doc_arrange_reorder">Αναδιάταξη</string>
+  <string name="doc_sort_ascending">Αύξουσα</string>
+  <string name="doc_sort_descending">Φθίνουσα</string>
+  <string name="doc_sort_status">Κατάσταση</string>
+  <string name="doc_sort_recommended">Πρώτα τα προτεινόμενα</string>
+  <string name="doc_sort_name">Όνομα</string>
+  <string name="doc_sort_size">Μέγεθος</string>
+  <string name="doc_group_none">Χωρίς ομαδοποίηση</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">Λήψη σε εξέλιξη</string>
+  <string name="doc_group_status_update_available">Διαθέσιμη ενημέρωση</string>
+  <string name="doc_group_status_installed">Εγκατεστημένα</string>
+  <string name="doc_group_status_not_installed">Μη εγκατεστημένα</string>
+  <string name="prompt_filter_title">Φιλτράρισμα εντολών</string>
+  <string name="prompt_filter_type">Τύπος</string>
+  <string name="prompt_type_addon">Πρόσθετο</string>
+  <string name="prompt_type_user">Προσαρμοσμένο</string>
+  <string name="prompt_filter_clear">Εκκαθάριση φίλτρων</string>
+  <string name="prompt_favorite_add">Προσθήκη στα αγαπημένα</string>
+  <string name="prompt_favorite_remove">Αφαίρεση από τα αγαπημένα</string>
+  <string name="window_unmaximise">Επαναφορά όλων των παραθύρων</string>
+  <string name="window_menu_button">Μενού παραθύρου</string>
+  <string name="paste_from_clipboard">Επικόλληση</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Λαβή μεταφοράς</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Ενημέρωση των δεδομένων σας…</string>
+  <string name="legacy_migration_progress_neutral">Ενημέρωση…</string>
+  <string name="legacy_migration_failed_title">Δεν ήταν δυνατή η ενημέρωση των δεδομένων σας</string>
+  <string name="legacy_migration_failed_message">Τα δεδομένα σας από την προηγούμενη έκδοση της εφαρμογής είναι ασφαλή και αναλλοίωτα σε αυτή τη συσκευή. Επιλέξτε τι θα κάνετε στη συνέχεια.</string>
+  <string name="legacy_migration_failed_keychain">Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων κωδικών πρόσβασης από την προηγούμενη έκδοση. Ξεκλειδώστε τη συσκευή σας και μετά κλείστε και ανοίξτε ξανά την εφαρμογή.</string>
+  <string name="legacy_migration_rollback_pending">Η ενημέρωση διακόπηκε και δεν έχει αναιρεθεί πλήρως ακόμη. Κλείστε και ανοίξτε ξανά την εφαρμογή για να ολοκληρωθεί η αναίρεση.</string>
+  <string name="legacy_migration_save_old_data">Αποθήκευση παλαιών δεδομένων</string>
+  <string name="legacy_migration_send_report">Αποστολή αναφοράς σφάλματος</string>
+  <string name="legacy_migration_try_again">Δοκιμή ξανά</string>
+  <string name="legacy_migration_try_again_hint">Κλείστε την εφαρμογή και ανοίξτε την ξανά για να δοκιμάσετε πάλι.</string>
+  <string name="legacy_migration_restore_backup">Επαναφορά αντιγράφου ασφαλείας</string>
+  <string name="legacy_migration_start_fresh">Έναρξη χωρίς παλαιά δεδομένα</string>
+  <string name="legacy_migration_start_fresh_confirm">Τα παλαιά δεδομένα σας παραμένουν σε αυτή τη συσκευή. Μπορείτε να τα εισαγάγετε αργότερα στις Ρυθμίσεις.</string>
+  <string name="legacy_import_title">Εισαγωγή δεδομένων από την προηγούμενη έκδοση της εφαρμογής</string>
+  <string name="legacy_import_summary">Αντικατάσταση των τρεχόντων δεδομένων με τα δεδομένα της προηγούμενης έκδοσης της εφαρμογής</string>
+  <string name="legacy_import_confirm">Αυτό αντικαθιστά τους τρέχοντες χώρους εργασίας, σελιδοδείκτες και άλλα δεδομένα σας με τα δεδομένα της προηγούμενης έκδοσης της εφαρμογής. Ένα αντίγραφο των τρεχόντων δεδομένων σας διατηρείται σε αυτή τη συσκευή.</string>
+  <string name="legacy_import_reopen">Κλείστε την εφαρμογή και ανοίξτε την ξανά για να εισαγάγετε τα δεδομένα σας.</string>
+  <string name="legacy_notice_icloud">Ο συγχρονισμός χρησιμοποιεί πλέον το iCloud Drive. Ενεργοποιήστε τον ξανά στις Ρυθμίσεις → Συγχρονισμός. Αυτή η συσκευή διατηρεί ό,τι είχε· οι αλλαγές από τις άλλες συσκευές σας θα φτάσουν όταν ρυθμιστεί ξανά ο συγχρονισμός. Για να ελευθερώσετε τα παλαιά δεδομένα του iCloud: Ρυθμίσεις → το όνομά σας → iCloud → Διαχείριση αποθηκευτικού χώρου → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Η σύνδεσή σας στο Nextcloud μεταφέρθηκε, αλλά ο συγχρονισμός είναι ανενεργός. Ενεργοποιήστε τον στις Ρυθμίσεις → Συγχρονισμός και επιλέξτε λήψη από το νέφος ή δημιουργία νέου.</string>
+  <string name="legacy_notice_nextcloud_unsent">Ορισμένες αλλαγές σε αυτή τη συσκευή δεν είχαν σταλεί ακόμη στο Nextcloud. Δεν στάλθηκαν και παραμένουν μόνο σε αυτή τη συσκευή.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Είναι μια ισχυρή αλλά εύκολη στη χρήση εφαρμογή μελέτης της Αγίας Γραφής χωρίς σύνδεση.</string>
+  <string name="webdav_untrusted_certificate_message_device">Το πιστοποιητικό του %1$s δεν θεωρείται αξιόπιστο από αυτή τη συσκευή. Εμπιστευτείτε το μόνο αν το αναγνωρίζετε, για παράδειγμα επειδή στήσατε εσείς αυτόν τον διακομιστή.\n\nΘέμα: %2$s\nΕκδότης: %3$s\nΙσχύει: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Τα προσαρμοσμένα αποθετήρια πρέπει να χρησιμοποιούν ασφαλή διεύθυνση https://.</string>
+  <string name="custom_repository_https_required_refresh">Το %1$s χρησιμοποιεί διεύθυνση http://. Μπορούν να χρησιμοποιηθούν μόνο αποθετήρια https://.</string>
 </resources>

@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="desktop_webview2_startup_error">AndBible, Kutsal Kitap metnini görüntülemek için gereken WebView2\'yi başlatamadı. Microsoft Edge WebView2 Evergreen Runtime\'ı şuradan yükleyin veya onarın:\n%1$s\n\nAyrıntılar günlük dosyasındadır:\n%2$s</string>
+  <string name="desktop_webview2_graphics_error">AndBible\'ın WebView2 ile Kutsal Kitap metnini görüntülemesi için Direct3D grafikleri gerekir. Geçerli grafik oluşturucu: %1$s. Grafik sürücünüzü ve Direct3D desteğini kontrol edin.\n\nAyrıntılar günlük dosyasındadır:\n%2$s</string>
+  <string name="desktop_update_setting_title">Güncellemeleri denetle</string>
+  <string name="desktop_update_setting_summary">Günde bir kez, github.com üzerinden</string>
+  <string name="desktop_update_consent_title">Güncellemeler denetlensin mi?</string>
+  <string name="desktop_update_consent_message">AndBible, daha yeni bir sürüm için günde bir kez github.com\'u denetleyebilir. GitHub IP adresinizi görür; başka hiçbir şey gönderilmez. Bunu daha sonra Ayarlar\'dan değiştirebilirsiniz.</string>
+  <string name="desktop_update_consent_yes">Güncellemeleri denetle</string>
+  <string name="desktop_update_consent_no">Denetleme</string>
+  <string name="desktop_update_available_title">Yeni sürüm mevcut</string>
+  <string name="desktop_update_available_message">AndBible %1$s mevcut. Sizdeki sürüm: %2$s.</string>
+  <string name="desktop_update_download">İndir</string>
+  <string name="desktop_update_later">Daha sonra</string>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
   <string name="app_name_medium">Kutsal Kitap Çalışması (AndBible)</string>
@@ -68,6 +80,8 @@
   <string name="search_result_count">%d sonuç bulundu</string>
   <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösteriliyor</string>
   <string name="search_bible_section_group_prompt">Arama Alını</string>
+  <string name="search_type_prompt">Arama türü</string>
+  <string name="search_show_results">Arama sonuçlarını göster</string>
   <string name="search_all_bible">Tüm Kutsal Kitap</string>
   <string name="search_new_testament">Yeni Antlaşma</string>
   <string name="search_old_testament">Eski Antlaşma</string>
@@ -80,6 +94,28 @@
   <string name="search_what">\"%s\" için ara</string>
   <!--Multi-translation search-->
   <string name="search_translations">Çeviriler</string>
+  <string name="recent_searches">Son aramalar</string>
+  <!--F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording.-->
+  <string name="search_close">Aramayı kapat</string>
+  <string name="search_options">Arama ayarları</string>
+  <string name="search_submit">Ara</string>
+  <string name="search_clear">Arama metnini temizle</string>
+  <string name="search_engine_changed_reindex">Arama motoru güncellendi. Arama dizininin yeniden oluşturulması gerekiyor; bu biraz zaman alabilir.</string>
+  <string name="search_unsupported_syntax">Bu arama, desteklenmeyen bir sözdizimi kullanıyor: %s</string>
+  <!--F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place.-->
+  <string name="search_indexing_then_search">Dizinleme bittiğinde arama otomatik olarak çalışacak.</string>
+  <!--F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing).-->
+  <string name="search_not_available_for_document">%1$s içinde arama yapılamaz</string>
+  <!--Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases.-->
+  <string name="search_not_available">Bu belgede arama yapılamaz</string>
+  <string name="search_indexing_notification_title">Arama dizini oluşturuluyor</string>
   <string name="choose_translations">Çeviriler seçin…</string>
   <string name="multi_search_results">%2$d çeviride %1$d ayet</string>
   <string name="search_index_not_created">dizin yok</string>
@@ -92,7 +128,20 @@
   <string name="prefs_display_color_mode_summary">Renklerin nasıl görüntüleneceğini seçin. Renkli e-kağıt, siyah beyaz tabanı korur ancak yer imi renklerini, etkin pencere göstergesini ve yardımcı çizgileri renkli olarak gösterir — renkli e-kağıt ekranlar için.</string>
   <string name="prefs_display_color_mode_normal">Normal</string>
   <string name="prefs_display_color_mode_bw">Siyah beyaz</string>
+  <string name="prefs_display_color_mode_monochrome">Tek renkli</string>
   <string name="prefs_display_color_mode_color_eink">Renkli e-kağıt</string>
+  <string name="prefs_theme_palette_style_title">Tema stili</string>
+  <string name="prefs_theme_palette_style_summary">Uygulamanın renklerinin çalışma alanı renginden nasıl türetildiği. Yalnızca Renk modu Normal olduğunda geçerlidir.</string>
+  <string name="prefs_theme_palette_style_tonal_spot_grey">Tonal nokta (yumuşak, griyi korur)</string>
+  <string name="prefs_theme_palette_style_fidelity">Sadakat (tam renk)</string>
+  <string name="prefs_theme_palette_style_tonal_spot">Tonal nokta (özgün)</string>
+  <string name="prefs_theme_palette_style_content">İçerik (renge yakın)</string>
+  <string name="prefs_theme_palette_style_neutral">Nötr (soluk)</string>
+  <string name="prefs_theme_palette_style_monochrome">Tek renkli (gri)</string>
+  <string name="prefs_theme_palette_style_vibrant">Canlı</string>
+  <string name="prefs_theme_palette_style_expressive">Etkileyici</string>
+  <string name="prefs_theme_palette_style_rainbow">Gökkuşağı</string>
+  <string name="prefs_theme_palette_style_fruit_salad">Meyve salatası</string>
   <string name="prefs_eink_settings_cat">E-ink ayarları</string>
   <string name="prefs_eink_display_title">E-ink özellikleri</string>
   <string name="prefs_eink_display_summary">E-ink özelliklerini etkinleştir (sayfa kaydırma düğmeleri, kaydırma yardımcı çizgileri)</string>
@@ -138,6 +187,13 @@
   <string name="prefs_auto_track_reading_summary">Bölümlerde kaydırırken otomatik olarak okundu olarak işaretle</string>
   <string name="reading_progress_read_count_scale">Okuma\nSayısı</string>
   <string name="reading_progress_percent_read_scale">Okunan\nYüzde</string>
+  <string name="monochrome_activity_count">Etkinlik sayısı: %d</string>
+  <string name="monochrome_cell_count">%d x</string>
+  <string name="monochrome_cell_level">%d/4</string>
+  <string name="monochrome_percent">%s%%</string>
+  <string name="monochrome_count">Sayı: %d</string>
+  <string name="monochrome_level">Düzey: %d/4</string>
+  <string name="monochrome_buckets">Gri: yok; çerçeveli: kısmi; dolu: tam veya en yüksek düzey. Kesin değerler için bir öğe seçin.</string>
   <string name="reading_progress_percent_label">%d%%</string>
   <string name="reading_progress_history_title">Okuma Geçmişi</string>
   <string name="reading_progress_history_for">%1$s için okuma ilerlemesi</string>
@@ -198,6 +254,8 @@
   <string name="workspace_text_options_link_summary">Bu çalışma alanı için metin görüntüleme ayarlarını düzenle</string>
   <string name="global_text_options_link">Genel metin seçenekleri</string>
   <string name="global_text_options_link_summary">Tüm çalışma alanları için varsayılan metin görüntüleme ayarlarını düzenle</string>
+  <string name="text_options_inherited_workspace">Çalışma alanı</string>
+  <string name="text_options_inherited_global">Genel</string>
   <string name="prefs_font_and_colors_title">Yazı Tipi ve Renkler</string>
   <string name="prefs_text_layout_title">Metin Düzeni</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s ve Morfoloji</string>
@@ -274,6 +332,9 @@
   <string name="copy_settings_to_workspace">Çalışma Alanı</string>
   <string name="copy_settings_to_window">Pencere %1$d (%2$s: %3$s)</string>
   <string name="copy_settings_to_global">Genel varsayılanlar</string>
+  <string name="copy_settings_to_workspaces">Diğer çalışma alanlarına…</string>
+  <string name="copy_settings_to_global_defaults">Genel varsayılanlara…</string>
+  <string name="menu_back">Geri</string>
   <string name="change_to_normal">Normal pencereye geç</string>
   <string name="window_pin_mode">İğnele</string>
   <!--Notes screen-->
@@ -311,6 +372,7 @@
   <string name="failed_repositories_message">Aşağıdaki belge sunucusuna bağlanılamadı: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Aşağıdaki dosyalar indirilemedi: \n\n%s\n\n</string>
   <string name="cant_delete_document">Bu belge silinemez.</string>
+  <string name="bad_document_warning">Bu belgenin bilinen sorunları var.</string>
   <!--Install zip file-->
   <string name="install_zip">Dosyalardan Belge Yükle</string>
   <string name="install_zip_module">İncil Modülü Yükle</string>
@@ -379,6 +441,11 @@
   <string name="delete_index">Arama dizinini sil</string>
   <string name="about">Belge hakkında</string>
   <string name="delete_doc">%s silinsin mi?</string>
+  <string name="interrupted_downloads_title">İndirme kesintiye uğradı</string>
+  <string name="interrupted_downloads_message">İndirmeleri kesintiye uğradığı için bu belgeler yüklenmedi:</string>
+  <string name="interrupted_downloads_question">Yeniden indirilsin mi?</string>
+  <string name="download_again">Yeniden indir</string>
+  <string name="delete_docs_confirm">Bu belgeler silinsin mi?</string>
   <string name="delete_search_index_doc">%s’in dizini silinsin mi?</string>
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
@@ -399,6 +466,7 @@
   <string name="assign_labels">Etiketle</string>
   <string name="new_item">Yeni</string>
   <string name="label_name_prompt">Etiket</string>
+  <string name="new_label_default_name">Etiket %d</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
   <string name="add_bookmark1">Yer imi</string>
   <string name="add_bookmark3">Seçim</string>
@@ -449,6 +517,8 @@
   <string name="rewind">Geri al</string>
   <string name="forward">İleri al</string>
   <string name="tts_lang_not_available">Dil bulunmadı.</string>
+  <string name="tts_engine_not_available">Metin okuma bu cihazda çalışmıyor. Sistemin metin okuma ayarlarında bir konuşma motorunun yüklü ve etkin olduğunu kontrol edin.</string>
+  <string name="tts_audio_focus_denied">Başka bir uygulama sesi kullandığı için konuşma başlatılamadı.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Sesli okuma hızı</string>
   <string name="speak_and_play_earcons_title">Şunlar için earcon sesleri çalın ve konuşun</string>
@@ -458,6 +528,10 @@
   <string name="speak_bookmarks_menu_title">Yer iminden konuş</string>
   <string name="speak_advanced_settings">Gelişmiş Ayarlar</string>
   <string name="speak_sleep_timer_title">Uyku süre ayarlayıcı</string>
+  <string name="speak_sleep_timer_minutes">%d dk</string>
+  <string name="speak_sleep_timer_custom">Özel…</string>
+  <string name="speak_sleep_timer_off">Kapalı</string>
+  <string name="speak_other_settings">Diğer</string>
   <string name="speak_no_books_available">Konuşacak kitap yok</string>
   <string name="speak_general_error">Bu kitap için konuşma başlatılamadı</string>
   <string name="repeat_passage">Kısmı tekrarla</string>
@@ -486,6 +560,11 @@
   <string name="speak_autobookmarking_disabled">Otomatik yer imleme devre dışı bırakıldı!</string>
   <string name="system_speak_settings">Sistem MOÇ ayarlarını açın</string>
   <string name="auto_assing_labels_help1">Burada, oluşturduğunuz yer imlerine hangi etiketlerin otomatik olarak atanacağını ayarlayabilirsiniz. </string>
+  <!--Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact.-->
+  <string name="auto_assign_labels_help_intro_workspace">Burada etiket ekleyebilir, düzenleyebilir ve kaldırabilir, oluşturduğunuz yer imlerine hangilerinin otomatik atanacağını ayarlayabilirsiniz.\n\nSon etiketler: yakın zamanda kullanılan etiketler.\nDiğer etiketler: diğer tüm etiketler.\n\nYalnızca otomatik atanan veya favori etiketleri görmek için arama çubuğunun filtre seçeneklerini kullanın.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Bu ayar %s için geçerlidir.</string>
   <string name="setting_scope_window">bu pencere</string>
@@ -597,6 +676,9 @@
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor…</string>
   <string name="backup_success2">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla yedeklendi.</string>
   <string name="backup_modules_success">Seçilen modüller başarıyla yedeklendi.</string>
+  <string name="backup_modules_conflict">Yedek alınamadı: %1$s ve %2$s, farklı içeriklere sahip aynı %3$s dosyasını içeriyor. Bunlardan yalnızca birini seçip yeniden deneyin.</string>
+  <!--One of the two books in backup_modules_conflict: book name, its module version, the folder it is installed in.-->
+  <string name="backup_modules_conflict_book">%1$s (sürüm %2$s, klasör %3$s)</string>
   <string name="backup_modules_email_subject_2">%s modüllerini yedeklemek</string>
   <string name="backup_modules_email_message_2">Aşağıdaki modülleri içeren %1$s modülleri yedeğiniz ektedir: %2$s</string>
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
@@ -605,6 +687,9 @@
   <string name="exported_studypads_message">Seçilen Çalışma Defterlerine ilişkin Yer İmleri ve Notları içeren %s veritabanınız ekte yer almaktadır</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
+  <string name="export_destination_title">Nereye aktarılsın?</string>
+  <string name="export_destination_message">Dışa aktarılan dosyayı bu telefona kaydedin veya Paylaş ile başka bir yere gönderin.</string>
+  <string name="send_export_file">Dışa aktarma dosyası gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
   <string name="ask_restore_or_import">%s için veritabanı ya geri yüklenebilir (yani mevcut veritabanı kaldırılarak seçilen veritabanı yüklenir) ya da içe aktarılabilir (seçilen veritabanı mevcut veritabanına aktarılır). Ne yapmak istiyorsunuz?</string>
@@ -646,12 +731,25 @@
   <string name="doc_type_book">Kitap</string>
   <string name="doc_type_map">Harita</string>
   <string name="doc_type_addons">Eklentiler</string>
+  <!--Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context.-->
+  <string name="doc_type_other">Diğer</string>
+  <string name="document_type_label">Belge türü</string>
   <!--Languages-->
   <string name="lang_default">Varsayılan</string>
   <!--General-->
   <string name="okay">Tamam</string>
   <string name="cancel">İptal</string>
+  <!--Settings editor sheets T5 — SettingsEditorSheet header-->
+  <string name="settings_editor_back">Geri</string>
+  <string name="settings_editor_close">Kapat</string>
+  <string name="settings_editor_apply">Uygula</string>
   <string name="discard_changes_confirmation">Kaydedilmemiş değişiklikler atılsın mı?</string>
+  <string name="discard">Vazgeç</string>
+  <string name="remove">Kaldır</string>
+  <string name="overwrite">Üzerine yaz</string>
+  <string name="set_current_day_action">Günü ayarla</string>
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="error">Hata</string>
@@ -661,6 +759,7 @@
   <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
   <string name="verse_not_found">Ayet bulunamadı</string>
   <!--Errors-->
+  <string name="crash_recovery_continue">Devam</string>
   <string name="report_error">Bildiri Gönder</string>
   <string name="error_occurred">Bir hata oldu</string>
   <string name="error_occurred_crash_last_time">Uygulamayı en son kullandığınızda çöktü. Hatayı düzeltmemize yardımcı olmak için bize bir hata raporu gönderirseniz memnun oluruz. </string>
@@ -671,8 +770,14 @@
   <string name="error_key_not_in_document2">%1$s,  %2$s belgesinde bulunamadı.</string>
   <string name="empty_list">Öğe bulunmadı</string>
   <string name="error_skip">Atla</string>
+  <string name="debug_test_error">Test hatası (hata ayıklama sürümü)</string>
+  <string name="bug_report_prepare_failed">Rapor hazırlanamadı veya paylaşılamadı. Yeniden deneyebilir veya verilerinizi kaydetmek için Yedekle ve Geri Yükle\'yi kullanabilirsiniz.</string>
   <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
   <string name="bug_report_email_text">Ardından, raporu geliştirici ekibine göndermek için lütfen tercih ettiğiniz e-posta uygulamasını (örneğin Gmail) seçin.</string>
+  <string name="bug_report_manual_title">Raporu e-postayla gönderin</string>
+  <string name="bug_report_manual_text_saved">Rapor şuraya kaydedildi:</string>
+  <string name="bug_report_manual_text_unsaved">Bu cihazda hiçbir e-posta uygulaması açılamadı.\n\nLütfen raporu şu e-posta adresine gönderin:</string>
+  <string name="bug_report_copy_address">Adresi kopyala</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Metin seslendirmesi</string>
   <string name="notification_channel_progress_status">Belge indirmeleri vb. için ilerleme durumu bildirimi</string>
@@ -696,6 +801,7 @@
   <string name="search_settings">Arama ayarları</string>
   <string name="dismiss">Yok say</string>
   <string name="workspace_listing_with_current">%s (aktif)</string>
+  <string name="workspace_manage_workspaces">Çalışma alanlarını yönet…</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
   <string name="beta_notice_content_1">
@@ -750,7 +856,10 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="help_search_title">Arama</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
+  <string name="help_search_bible">Sözcüklerin nasıl eşleştirileceğini seçin: Tüm sözcükler, her sözcüğü içeren ayetleri bulur; Herhangi bir sözcük, en az birini içerenleri bulur; İfade ise sözcükleri bu sırayla yan yana bulur.\n\nArama içinde ayrıca joker karakter olarak * ve ? kullanabilir (örneğin bless* ifadesi blessed ve blessing ile eşleşir), terimleri AND, OR ve NOT ile birleştirebilir ve Strong numaralarını doğrudan arayabilirsiniz (örneğin strong:h0430).</string>
+  <string name="help_search_epub">Sözcüklerin nasıl eşleştirileceğini seçin: Tüm sözcükler, her sözcüğü içeren bölümleri bulur; Herhangi bir sözcük, en az birini içerenleri bulur; İfade ise sözcükleri bu sırayla yan yana bulur.\n\nHam sorgu sözdizimi, metninizi arama motoruna değiştirmeden iletir; böylece kendi sorgunuzu yazabilirsiniz: grace AND faith, grace OR faith, grace NOT faith, tam ifade için \"hope of glory\", bless ile başlayan her sözcüğü eşleştirmek için bless*, birbirine yakın bulmak için grace NEAR faith.</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
+  <string name="help_search_syntax">Arama sözdizimi</string>
   <string name="help_fts5">FTS5 Tam Metin Sorgu Sözdizimi</string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_workspaces_text">
@@ -777,6 +886,12 @@ katkıda bulunmayı düşünün. :-)</string>
     diğer ekstra materyaller arasında hızlıca geçiş yapabilirsiniz.
   </string>
   <!--Welcome text-->
+  <string name="welcome_intro">Kütüphanenizde henüz belge yok. Başlamak için biraz ekleyin.</string>
+  <string name="welcome_redownload_row_hint">Daha önce yüklenen belgelerden seçin</string>
+  <string name="welcome_download_row_hint">Çevrimiçi kataloğa göz atın</string>
+  <string name="welcome_restore_row_hint">Yer imleri ve notlar içeren veritabanı dosyası</string>
+  <string name="welcome_link_website">Web sitesi</string>
+  <string name="welcome_link_github">GitHub</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s’ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
@@ -792,9 +907,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="format_studypads">AndBible veritabanlarından Çalışma Defterleri (*.abdb)</string>
   <!--Uncategorized-->
   <string name="close">Kapat</string>
+  <string name="reading_toolbar_options">Diğer seçenekler</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
-  <string name="first_time_help_do_not_show_again">I understand</string>
-  <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
   <string name="strongs_mode_title">Strong’un numaraları modunu seç</string>
   <string name="download_dialog_message">Aşağıdaki kitaplar indirilemedi:</string>
   <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
@@ -819,6 +933,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prefs_experimental_features_summary">Etkinleştirilecek deneysel özellikleri seçin. Bu özellikler hâlâ geliştirme aşamasındadır ve değişebilir veya kaldırılabilir</string>
   <string name="experimental_feature_bookmark_edit_actions">Yer imi düzenleme eylemleri</string>
   <string name="experimental_feature_add_paragraph_break">Paragraf sonu yer imi ekle</string>
+  <string name="experimental_feature_toolbar_literal_color">Okuma araç çubuğu için (tema rengi yerine) çalışma alanının gerçek rengini kullan</string>
   <string name="raw_llm_log_title">Ham LLM Günlüğü</string>
   <string name="raw_llm_log_empty">Ham günlük verisi mevcut değil</string>
   <string name="raw_llm_log_copied">Günlük panoya kopyalandı</string>
@@ -927,6 +1042,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="display_mode_underline">Alt çizgi</string>
   <string name="display_mode_marker">Yalnızca işaretçi</string>
   <string name="display_mode_hidden">Gizli</string>
+  <string name="display_mode_inherit">Seçimle aynı</string>
   <string name="workspace_override_indicator">Bu etiketin çalışma alanına özel görüntüleme modu var</string>
   <string name="primary_label">Birincil etiket</string>
   <string name="favourite_label">Favori etiket</string>
@@ -940,6 +1056,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="book_menu_show_long_book_name">Uzun kitap adını göster</string>
   <string name="book_menu_show_progress_bars">İlerleme çubuklarını göster</string>
   <string name="reset_workspace_labels">Bu çalışma alanı için otomatik atama ve sık kullanılan ayarlarını sıfırlamak istiyor musunuz?</string>
+  <string name="clear_auto_assign_labels">Otomatik atanan etiketleri temizle</string>
+  <string name="reset_workspace_auto_assign_labels">Bu çalışma alanındaki tüm otomatik atanan etiketleri kaldırmak istiyor musunuz?</string>
   <string name="reset_hide_labels">Belirtilen etiketlerin gizlenmesi ayarlarını sıfırlamak istiyor musunuz?</string>
   <string name="reorder">Yeniden sırala</string>
   <string name="system_items">Sistem eylemleri</string>
@@ -1011,6 +1129,27 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="instructions_for_translators">çevirmenler için talimatlar</string>
   <string name="questions_title">Sorularınız?</string>
   <string name="bookmark_style">Yer imi stili</string>
+  <string name="bookmark_style_preview_sample">Çünkü Tanrı dünyayı o kadar sevdi ki</string>
+  <string name="bookmark_style_selection">Metin seçimi yer imleri</string>
+  <string name="bookmark_style_whole_verse">Tüm ayet yer imleri</string>
+  <!--Switch in the label editor: reveals a separate style picker for whole-verse bookmarks.-->
+  <string name="bookmark_style_whole_verse_custom">Tüm ayet yer imleri için farklı bir stil kullan</string>
+  <!--Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style.-->
+  <string name="bookmark_style_tag_selection">Seçim</string>
+  <string name="bookmark_style_tag_whole_verse">Tüm ayet</string>
+  <string name="bookmark_style_tag_workspace">Çalışma alanı</string>
+  <string name="show_style_examples">Stil örneklerini göster</string>
+  <string name="labels_search_section">Ara</string>
+  <string name="labels_filter_section">Göster</string>
+  <string name="labels_filter_auto_assign">Yalnızca otomatik atanan etiketler</string>
+  <string name="labels_filter_favourite">Yalnızca favori etiketler</string>
+  <!--Round 15a: the labels help legend. No %s placeholders — the icon is its own column.-->
+  <string name="manage_labels_help_checkbox">Bir etiketi bu yer imine atamak için işaretleyin.</string>
+  <string name="manage_labels_help_primary">Birincil etiket. Yer iminin gösterdiği renk ve stil bu etiketin renk ve stilidir.</string>
+  <string name="manage_labels_help_autoassign">Bu etiketi her yeni yer imine otomatik olarak ata. İçi boş şimşek kapalı demektir.</string>
+  <string name="manage_labels_help_favourite">Etiketi hızlı erişim için favorilerinizde tutun.</string>
+  <string name="manage_labels_help_styles">Adın altında küçük bir örnek etiketin görünümünü gösterir: metin seçimi yer imi için Seçim, tüm ayet yer imi için Tüm ayet ve bu çalışma alanının geçersiz kıldığı bir stil için Çalışma alanı etiketi. Süslemesiz, grileştirilmiş bir örnek, etiketin yer imlerinin çizilmediği anlamına gelir. Örnekleri ⋮ menüsünden gizleyebilirsiniz.</string>
+  <string name="manage_labels_help_reorder">Listeyi ⋮ menüsünden yeniden sıralayın.</string>
   <string name="added_to_bookmark">Bu yer imine atandı</string>
   <string name="strongs_links">Bağlantılar</string>
   <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
@@ -1064,6 +1203,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_group_n">Grup %d</string>
   <string name="disable_sync">Senkronizasyonu devre dışı bırak</string>
   <string name="open_in_window">Sonuçları bir pencerede açın</string>
+  <string name="open_result_in_links_window">Sonucu bağlantılar penceresinde aç</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Özel depolar</string>
@@ -1074,7 +1214,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
   <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
   <string name="custom_repositories_help2">Özel depolar hakkında daha fazla bilgiyi %s bölümünde okuyabilirsiniz.</string>
-  <string name="wiki_page">WIKI page</string>
   <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
   <string name="duplicate_custom_repository">İsmi %s olan depo zaten mevcut, başka bir tane eklenemiyor.</string>
   <string name="packages_dir">Paketler dizini (Zip dosyaları)</string>
@@ -1121,6 +1260,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="reading_progress_new_cycle_confirm">Yeni bir okuma döngüsü başlatılsın mı? Bu, önceki döngünüzün verileri korunurken ilerlemenizi sıfırdan takip etmeye başlayacaktır.</string>
   <string name="reading_progress_previous_cycle">Önceki döngü</string>
   <string name="reading_progress_next_cycle">Sonraki döngü</string>
+  <string name="cloud_merge_data">Verileri birleştir</string>
   <string name="cloud_fetch_and_restore_initial">Buluttan bu cihaza kopyala</string>
   <string name="cloud_create_new">Bu cihazdan Buluta kopyala</string>
   <string name="cloud_disable_sync">İptal ve senkronizasyonu devre dışı bırak</string>
@@ -1134,6 +1274,19 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_adapter_summary">Güncel: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="adapters_webdav">WebDAV</string>
+  <string name="webdav_server_url_hint">WebDAV klasörünün adresi, örn. https://nas.local/dav/ veya https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+  <string name="webdav_https_required">Eşitleme için güvenli bir https:// adresi gerekir.</string>
+  <string name="webdav_certificate_title">Sunucu sertifikası</string>
+  <string name="webdav_forget_certificate_message">Güvenilen sunucu sertifikası unutulsun mu? Bir sonraki bağlantıda sertifikayı yeniden onaylamanız istenecek.</string>
+  <string name="adapters_icloud_drive">iCloud Drive</string>
+  <string name="webdav_untrusted_certificate_title">Güvenilmeyen sunucu sertifikası</string>
+  <string name="webdav_untrusted_certificate_message">%1$s sertifikasına Android güvenmiyor. Yalnızca tanıyorsanız, örneğin bu sunucuyu kendiniz kurduysanız güvenin.\n\nKonu: %2$s\nVeren: %3$s\nGeçerlilik: %4$s – %5$s\nSHA-256: %6$s</string>
+  <string name="webdav_trust_certificate">Bu sertifikaya güven</string>
+  <string name="webdav_wrong_credentials">Kullanıcı adı veya parola hatalı.</string>
+  <string name="webdav_not_a_folder">Adres bir WebDAV klasörü değil.</string>
+  <string name="webdav_certificate_changed">Sunucu sertifikası değişti. Yeni sertifikayı onaylayana kadar eşitleme duraklatıldı; AndBible bunu bir sonraki açılışında veya ön planda eşitleme yaptığında soracaktır.</string>
+  <string name="webdav_storage_full">Sunucu depolama alanı dolu.</string>
   <string name="auth_server_uri">URL servera</string>
   <string name="auth_username">Kullanıcı adı</string>
   <string name="auth_password">Şifre</string>
@@ -1143,6 +1296,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_general_settings">Bilgi ve genel ayarlar</string>
   <string name="sync_introduction">Giriş</string>
   <string name="are_you_sure">Emin misin?</string>
+  <string name="are_you_sure_merge">Bu cihazdaki veriler ve buluttaki %s birlikte korunacak. Aynı öğenin her iki tarafta da değiştirildiği durumlarda daha yeni değişiklik korunur. Bu cihazın verileri diğer cihazlarınıza gönderilecek.</string>
   <string name="are_you_sure_reset_local">Bu, %s için yerel veritabanınızı şu anda bulut hizmetinde depolanan içerikle sıfırlayacaktır.</string>
   <string name="are_you_sure_reset_cloud">Bu, %s için bulut veritabanınızı bu cihazda sahip olduğunuz içerikle sıfırlayacaktır.</string>
   <string name="sync_cant_fetch">Bulutta depolanan veritabanı veya yama dosyasının sürümü, bu uygulama tarafından desteklenenden daha yüksektir. </string>
@@ -1179,6 +1333,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="pref_font_size_multiplier_title">Yazı tipi boyutu çarpanı</string>
   <string name="pref_font_size_multiplier_summary_1">Metin yazı tipi boyutlarını bu sayıyla çarp.</string>
   <string name="pref_font_size_multiplier_summary_2">Daha büyük yazı tipiyle kullanılan eşitlenmiş bir cihazınız varsa kullanışlıdır.</string>
+  <string name="pref_font_size_multiplier_percent_format">%% %d</string>
   <string name="current_value">Mevcut değer: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Akcia pre gesto potiahnutia doľava/doprava</string>
   <string name="prefs_bible_view_swipe_mode_summary">Gesto potiahnutia doľava/doprava možno použiť na prechod na ďalšiu stranu/kapitolu.</string>
@@ -1299,6 +1454,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prompt_max_iterations_unlimited">Sınırsız</string>
   <string name="prompt_max_iterations_global_default">Genel varsayılan (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Bu istem için genel maksimum yinelemeyi geçersiz kılın. 0 = sınırsız.\nMevcut: %s</string>
+  <string name="prompt_max_iterations_use_global">Genel ayarı kullan (%s)</string>
   <!--Prompt Manager-->
   <string name="manage_prompts">Yapay Zeka İstemlerini Yönet</string>
   <string name="manage_prompts_summary">Yapay zeka istemleri oluştur ve düzenle</string>
@@ -1432,6 +1588,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="built_in_prompt_notice">Bu yerleşik bir istemdir ve düzenlenemez. Düzenlenebilir bir kopya oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
   <string name="copy_to_customize">Özelleştirmek için kopyala</string>
   <string name="prompt_copied">İstem kopyalandı</string>
+  <string name="prompt_copy_failed">İstem kopyalanamadı. Silinmiş olabilir.</string>
   <string name="delete_prompt_confirmation">\"%s\" istemi silinsin mi?</string>
   <string name="prompt_name_required">İstem adı zorunludur</string>
   <string name="prompt_template_required">İstem şablonu zorunludur</string>
@@ -1639,6 +1796,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tool_option_default_disabled">Varsayılan (devre dışı)</string>
   <string name="tool_option_default_allowed">Varsayılan (izin verildi)</string>
   <string name="tool_option_default_denied">Varsayılan (reddedildi)</string>
+  <string name="tool_description_info">Araç açıklamasını göster</string>
+  <string name="tool_permission_mixed">Karışık</string>
   <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Varsayılan</string>
@@ -1684,6 +1843,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="my_document_pages_empty">Bu belgede sayfa yok.</string>
   <string name="my_document_page_rename_title">Sayfayı yeniden adlandır</string>
   <string name="my_document_page_delete_confirmation">\"%s\" sayfası silinsin mi?</string>
+  <string name="my_document_pages_delete_confirmation">Bu sayfalar silinsin mi?</string>
+  <string name="my_documents_switch_document">Belge değiştir</string>
   <string name="my_document_new_page_name">Sayfa %1$d</string>
   <string name="my_document_create_page_title">Yeni sayfa</string>
   <string name="my_document_content_type_label">İçerik türü</string>
@@ -1780,4 +1941,91 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="document_sync_started">Belge senkronizasyonu başladı</string>
   <string name="document_sync_enable_dialog_title">Belge senkronizasyonu başlatılsın mı?</string>
   <string name="document_sync_enable_dialog_nothing">Henüz aktarılacak belge yok. Yeni yüklenen belgeler otomatik olarak senkronize edilecek.</string>
+  <string name="help_document_sync_text">Belge eşitleme, yüklü Kutsal Kitap\'larınızı, yorum kitaplarınızı ve diğer belgelerinizi buluta kopyalar ve cihazlarınız arasında eşitler. Bu görünümü, bulutta nelerin depolandığını görmek, tek tek belgeleri indirmek veya yüklemek, belgeleri kaldırmak ve bu cihaza nelerin eşitleneceğini denetlemek için kullanın.</string>
+  <string name="background_image_title">Arka plan resmi</string>
+  <string name="background_image_none">Arka plan yok</string>
+  <string name="background_image_import">Galeriden içe aktar…</string>
+  <string name="background_image_empty">Henüz içe aktarılmış resim yok. Eklemek için \"Galeriden içe aktar…\" öğesine dokunun.</string>
+  <string name="background_image_importing">İçe aktarılıyor…</string>
+  <string name="background_image_delete_title">Resim silinsin mi?</string>
+  <string name="background_image_delete_confirm">Bu arka plan resmi silinsin mi? Hâlâ kullanan çalışma alanları resimsiz duruma dönecek.</string>
+  <string name="background_image_day">Arka plan resmi (gündüz)</string>
+  <string name="background_image_night">Arka plan resmi (gece)</string>
+  <string name="background_image_opacity_day">Arka plan resmi opaklığı (gündüz)</string>
+  <string name="background_image_opacity_night">Arka plan resmi opaklığı (gece)</string>
+  <string name="background_image_change">Değiştir</string>
+  <string name="color_picker_title">Renk seçin</string>
+  <string name="color_picker_presets">Hazır ayarlar</string>
+  <string name="color_picker_custom">Özel</string>
+  <string name="bookmark_expand_row">Tam metni göster</string>
+  <string name="bookmark_collapse_row">Daha azını göster</string>
+  <string name="bookmark_label_filter">Etikete göre filtrele</string>
+  <string name="document_quick_all_documents">Tüm belgeler…</string>
+  <string name="document_quick_tab_recent">Son</string>
+  <string name="document_quick_tab_for_verse">Bu ayet</string>
+  <string name="document_quick_tab_last_filter">Son filtre</string>
+  <string name="document_quick_tab_all">Tümü</string>
+  <!--Round 17e: document list filter/sort/group sheet-->
+  <string name="doc_arrange_title">Filtrele ve sırala</string>
+  <string name="doc_arrange_repository">Depo</string>
+  <string name="doc_arrange_all_repositories">Tüm depolar</string>
+  <string name="doc_arrange_sort">Sıralama düzeni</string>
+  <string name="doc_arrange_group_by">Gruplandırma ölçütü</string>
+  <string name="doc_arrange_remember">Bu ayarları hatırla</string>
+  <string name="doc_arrange_reset">Varsayılanlara sıfırla</string>
+  <string name="doc_arrange_more_filters">Daha fazla filtre</string>
+  <string name="doc_arrange_reorder">Yeniden sırala</string>
+  <string name="doc_sort_ascending">Artan</string>
+  <string name="doc_sort_descending">Azalan</string>
+  <string name="doc_sort_status">Durum</string>
+  <string name="doc_sort_recommended">Önerilenler önce</string>
+  <string name="doc_sort_name">Ad</string>
+  <string name="doc_sort_size">Boyut</string>
+  <string name="doc_group_none">Gruplandırma yok</string>
+  <!--Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet.-->
+  <string name="doc_group_status_downloading">İndiriliyor</string>
+  <string name="doc_group_status_update_available">Güncelleme mevcut</string>
+  <string name="doc_group_status_installed">Yüklü</string>
+  <string name="doc_group_status_not_installed">Yüklü değil</string>
+  <string name="prompt_filter_title">İstemleri filtrele</string>
+  <string name="prompt_filter_type">Tür</string>
+  <string name="prompt_type_addon">Eklenti</string>
+  <string name="prompt_type_user">Özel</string>
+  <string name="prompt_filter_clear">Filtreleri temizle</string>
+  <string name="prompt_favorite_add">Favorilere ekle</string>
+  <string name="prompt_favorite_remove">Favorilerden kaldır</string>
+  <string name="window_unmaximise">Tüm pencereleri geri yükle</string>
+  <string name="window_menu_button">Pencere menüsü</string>
+  <string name="paste_from_clipboard">Yapıştır</string>
+  <!--R3 (accessibility audit)-->
+  <string name="sheet_drag_handle">Sürükleme tutamacı</string>
+  <!--I3b legacy migration-->
+  <string name="legacy_migration_progress">Verileriniz güncelleniyor…</string>
+  <string name="legacy_migration_progress_neutral">Güncelleniyor…</string>
+  <string name="legacy_migration_failed_title">Verileriniz güncellenemedi</string>
+  <string name="legacy_migration_failed_message">Uygulamanın önceki sürümüne ait verileriniz bu cihazda güvende ve değişmeden duruyor. Sonraki adımı seçin.</string>
+  <string name="legacy_migration_failed_keychain">Önceki sürümden kayıtlı parolalar okunamadı. Cihazınızın kilidini açın, ardından uygulamayı kapatıp yeniden açın.</string>
+  <string name="legacy_migration_rollback_pending">Güncelleme kesintiye uğradı ve henüz tamamen geri alınmadı. Geri almayı tamamlamak için uygulamayı kapatıp yeniden açın.</string>
+  <string name="legacy_migration_save_old_data">Eski verileri kaydet</string>
+  <string name="legacy_migration_send_report">Hata raporu gönder</string>
+  <string name="legacy_migration_try_again">Yeniden dene</string>
+  <string name="legacy_migration_try_again_hint">Yeniden denemek için uygulamayı kapatıp tekrar açın.</string>
+  <string name="legacy_migration_restore_backup">Yedekten geri yükle</string>
+  <string name="legacy_migration_start_fresh">Eski veriler olmadan başla</string>
+  <string name="legacy_migration_start_fresh_confirm">Eski verileriniz bu cihazda kalır. Bunları daha sonra Ayarlar\'dan içe aktarabilirsiniz.</string>
+  <string name="legacy_import_title">Uygulamanın önceki sürümünden veri içe aktar</string>
+  <string name="legacy_import_summary">Geçerli verileri uygulamanın önceki sürümünün verileriyle değiştir</string>
+  <string name="legacy_import_confirm">Bu işlem, geçerli çalışma alanlarınızı, yer imlerinizi ve diğer verilerinizi uygulamanın önceki sürümünün verileriyle değiştirir. Geçerli verilerinizin bir kopyası bu cihazda saklanır.</string>
+  <string name="legacy_import_reopen">Verilerinizi içe aktarmak için uygulamayı kapatıp yeniden açın.</string>
+  <string name="legacy_notice_icloud">Eşitleme artık iCloud Drive kullanıyor. Ayarlar → Eşitleme bölümünden yeniden açın. Bu cihaz sahip olduklarını korur; diğer cihazlarınızdaki değişiklikler eşitleme yeniden kurulduktan sonra gelir. Eski iCloud verilerini temizlemek için: Ayarlar → adınız → iCloud → Depolamayı Yönet → AndBible.</string>
+  <string name="legacy_notice_nextcloud">Nextcloud bağlantınız aktarıldı, ancak eşitleme kapalı. Ayarlar → Eşitleme bölümünden açın ve buluttan almayı veya yeni oluşturmayı seçin.</string>
+  <string name="legacy_notice_nextcloud_unsent">Bu cihazdaki bazı değişiklikler henüz Nextcloud\'a gönderilmemişti. Gönderilmediler ve yalnızca bu cihazda duruyorlar.</string>
+  <!--H2: platform-neutral iOS recommendation.-->
+  <string name="tell_friend_message2_device">Güçlü ama kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır.</string>
+  <string name="webdav_untrusted_certificate_message_device">%1$s sertifikasına bu cihaz güvenmiyor. Yalnızca tanıyorsanız, örneğin bu sunucuyu kendiniz kurduysanız güvenin.\n\nKonu: %2$s\nVeren: %3$s\nGeçerlilik: %4$s – %5$s\nSHA-256: %6$s</string>
+  <!--I2c-B-->
+  <string name="custom_repository_https_required">Özel depolar güvenli bir https:// adresi kullanmalıdır.</string>
+  <string name="custom_repository_https_required_refresh">%1$s bir http:// adresi kullanıyor. Yalnızca https:// depoları kullanılabilir.</string>
 </resources>
