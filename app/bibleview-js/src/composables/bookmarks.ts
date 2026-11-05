@@ -721,11 +721,10 @@ export function useBookmarks(
         return fragment;
     }
 
-    function createEditActionElement(bookmark: BaseBookmark): HTMLElement {
+    function createEditActionElement(bookmark: BaseBookmark): HTMLElement | null {
         const editAction = bookmark.editAction;
-        if (!editAction.mode || !editAction.content) {
-            throw new Error("Edit action is missing mode or content");
-        }
+        // Older bookmarks can have an insertion mode saved without any content.
+        if (!editAction.mode || !editAction.content?.trim()) return null;
 
         const container = document.createElement("span");
         container.classList.add("bookmark-edit-action", "skip-offset");
@@ -891,17 +890,21 @@ export function useBookmarks(
                 if (b.editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
                     // PREPEND: Add content before the bookmark start
                     const editElement = createEditActionElement(b);
-                    editElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                    firstElement.parentElement!.insertBefore(editElement, firstElement);
-                    undoHighlights.push(() => editElement.remove());
+                    if (editElement) {
+                        editElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        firstElement.parentElement!.insertBefore(editElement, firstElement);
+                        undoHighlights.push(() => editElement.remove());
+                    }
                 } else if (b.editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
                     // APPEND: Add content after the bookmark end
                     const editElement = createEditActionElement(b);
-                    editElement.addEventListener("click", event => addEventFunction(event,
-                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                    lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
-                    undoHighlights.push(() => editElement.remove());
+                    if (editElement) {
+                        editElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
+                        undoHighlights.push(() => editElement.remove());
+                    }
                 }
 
                 // Handle paragraph breaks by special label
@@ -988,7 +991,13 @@ export function useBookmarks(
 
     function addHighLights() {
         for (const s of styleRanges.value) {
-            highlightStyleRange(s);
+            try {
+                highlightStyleRange(s);
+            } catch (error) {
+                console.error("Bookmark highlight range failed", {
+                    documentId, bookmarks: s.bookmarks, ordinalAndOffsetRange: s.ordinalAndOffsetRange,
+                }, error);
+            }
         }
     }
 

@@ -64,6 +64,18 @@ To change a bookmark’s icon:
 3. Choose a new icon for your bookmark. This icon will be displayed at the end
     of the bookmarked verse (or text), before the space separating it from the next verse.
 
+## Experimental edit actions
+
+With **Bookmark edit actions** enabled under Application preferences > Advanced
+settings > Experimental features, the bookmark settings dialog includes an **Edit
+action** tab. Choose **Prepend text** or **Append text** to insert content before
+or after the bookmarked text. The formatting buttons can insert a paragraph break
+or a subtitle.
+
+An insertion mode requires content; empty or whitespace-only content cannot be
+saved. Choose **None** to remove the edit action. Previously saved empty edit
+actions are ignored when displaying the chapter, without hiding other bookmarks.
+
 ## Labels
 
 To learn more about adding labels to your bookmarks, see [Labels](labels.md)
