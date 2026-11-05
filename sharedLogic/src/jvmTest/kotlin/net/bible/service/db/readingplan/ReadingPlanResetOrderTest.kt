@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.bible.android.database.DbDate
+import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.database.IdType
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
@@ -21,6 +22,41 @@ import kotlin.test.assertTrue
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ReadingPlanResetOrderTest {
+    @Test fun passageTicksSurviveStatusRecreation() = runTest {
+        val dao = FakeReadingPlanDao()
+        val repo = ReadingPlanRepository({ dao }, AppCoroutineScope(coroutineContext), unusedCalendar())
+        val status = ReadingStatus("plan", 1, 2, repo)
+        status.reloadStatus()
+        assertTrue(!status.isAllRead)
+        status.setRead(1)
+
+        val reopened = ReadingStatus("plan", 1, 2, repo)
+        reopened.reloadStatus()
+        assertTrue(reopened.isRead(1))
+        assertTrue(!reopened.isRead(2))
+        assertTrue(!reopened.isAllRead)
+        reopened.setRead(2)
+        val again = ReadingStatus("plan", 1, 2, repo)
+        again.reloadStatus()
+        assertTrue(again.isAllRead)
+        val nextDay = ReadingStatus("plan", 2, 2, repo)
+        nextDay.reloadStatus()
+        assertTrue(!nextDay.isRead(1) && !nextDay.isRead(2))
+    }
+
+    @Test fun pastStartDateSurvivesRepositoryRecreationWithoutResettingDay() = runTest {
+        val dao = FakeReadingPlanDao()
+        val repo = ReadingPlanRepository({ dao }, AppCoroutineScope(coroutineContext), unusedCalendar())
+        val original = DbDate(1_800_000_000_000L)
+        val past = DbDate(original.getTime() - 7L * 24 * 60 * 60 * 1000)
+        repo.startPlan("plan", original)
+        repo.setCurrentDay("plan", 3).join()
+        repo.startPlan("plan", past)
+        val reopened = ReadingPlanRepository({ dao }, AppCoroutineScope(coroutineContext), unusedCalendar())
+        assertEquals(past, reopened.getStartDate("plan"))
+        assertEquals(3, reopened.getCurrentDay("plan"))
+    }
+
     @Test fun resetThenRestartKeepsTheStartRow() = runTest {
         val dao = FakeReadingPlanDao()
         val oldDate = DbDate(1_700_000_000_000L)
