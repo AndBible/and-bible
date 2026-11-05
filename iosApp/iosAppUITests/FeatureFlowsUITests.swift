@@ -510,15 +510,14 @@ final class FeatureFlowsUITests: RealAppUITestCase {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.985)).tap()
 
         openTextOptions(app)
-        let strongs = settingRow(app, "Strong's numbers")
-        let morphology = app.switches.matching(NSPredicate(format: "label CONTAINS[c] 'Morphological codes'")).firstMatch
         let redLetters = redLettersSwitch(app)
-        harnessRequire(strongs.waitForExistence(timeout: 15), app, "KJV Strong's setting exists")
-        XCTAssertTrue(strongs.isEnabled, "KJV metadata enables Strong's numbers")
-        harnessRequire(morphology.waitForExistence(timeout: 15), app, "KJV morphology setting exists")
-        XCTAssertTrue(morphology.isEnabled, "KJV metadata enables morphological codes")
         XCTAssertTrue(redLetters.isEnabled, "KJV words-of-Christ metadata enables red letters")
-
+        // These rows are below the lazy list's first screen; their labels do not exist until scrolled into view.
+        let strongs = revealSettingsRow(app, "STRONGS")
+        XCTAssertTrue(strongs.isEnabled, "KJV metadata enables Strong's numbers")
+        let morphology = revealSettingsRow(app, "MORPH")
+        XCTAssertTrue(morphology.isEnabled, "KJV metadata enables morphological codes")
+        _ = revealSettingsRow(app, "FONTFAMILY")
         chooseFontFamily(app, "Monospace")
         let fontRow = settingRow(app, "Font family")
         XCTAssertTrue(fontRow.label.contains("Monospace"), "Font family row reflects the selected generic family")
