@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.download
 
 import kotlinx.serialization.builtins.ListSerializer
@@ -17,6 +19,7 @@ import net.bible.sharedui.strings.Strings
  * reported again. The explicit decline (the dialog's neutral button) forgets them. A dialog dropped without an
  * answer ([AppDialogResult.Cancel], e.g. `AppDialogController.cancelAll`) keeps them for the next launch.
  */
+@kotlin.native.HiddenFromObjC
 object InterruptedInstallsNotice {
     suspend fun show(
         interrupted: suspend () -> List<PendingRepoInstall>,
@@ -29,7 +32,9 @@ object InterruptedInstallsNotice {
         if (requests.isEmpty()) return
         val request = AppDialogRequest.Message(
             title = strings.interruptedDownloadsTitle,
-            message = strings.interruptedDownloadsMessage(requests.joinToString("\n") { it.initials }),
+            // Built here, one document per line: a resource's own line breaks do not survive every platform's table.
+            message = strings.interruptedDownloadsMessage + "\n\n" + requests.joinToString("\n") { it.initials } +
+                "\n\n" + strings.interruptedDownloadsQuestion,
             confirmText = strings.downloadAgain,
             neutralText = strings.cancel,
         )

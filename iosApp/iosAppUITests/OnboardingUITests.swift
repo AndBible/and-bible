@@ -127,6 +127,7 @@ final class OnboardingUITests: RealAppUITestCase {
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch.exists,
                       "the report does not name the interrupted document")
         again.tap()
+        confirmDownloadIfAsked(app) // the Download screen's own consent question, as on every first visit
         let notFound = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'could not be downloaded'")).firstMatch
         let retried = notFound.waitForExistence(timeout: 120)
         shot(app, "interrupted-install-retry")

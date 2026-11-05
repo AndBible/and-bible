@@ -467,8 +467,8 @@ interface Strings {
     val unlockModule: String
     fun deleteDoc(name: String): String
     val interruptedDownloadsTitle: String
-    /** [names]: one document per line. */
-    fun interruptedDownloadsMessage(names: String): String
+    val interruptedDownloadsMessage: String
+    val interruptedDownloadsQuestion: String
     val downloadAgain: String
     fun deleteSearchIndexDoc(name: String): String
     val cantDeleteDocument: String
