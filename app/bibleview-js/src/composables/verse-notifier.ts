@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {ComputedRef, ref, watch} from "vue";
+import {ComputedRef, onUnmounted, ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
 import {CalculatedConfig} from "@/composables/config";
@@ -122,5 +122,7 @@ export function useVerseNotifier(
     const onScroll = throttle(() => updateCurrentVerse(), 50);
 
     setupWindowEventListener('scroll', onScroll)
+    // A pending trailing call must not run after the view is gone (e.g. a test environment torn down).
+    onUnmounted(() => onScroll.cancel())
     return {currentVerse, currentKey, updateCurrentVerse}
 }
