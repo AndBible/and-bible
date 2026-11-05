@@ -175,6 +175,7 @@ For environment selection and automated-gate boundaries, use `verifying-on-a-run
 
 Use the `ios-mac` skill. A real Mac reachable over SSH (optional mount `mac-ssh`, host alias
 `andbible-mac`) runs Xcode and simulator steps without a CI round trip; setup in `docs/ios-remote-mac.md`.
+TestFlight internal builds: use the `testflight` skill (`make testflight`, scripts in `scripts/release/`).
 
 ## Desktop runtime verification
 
