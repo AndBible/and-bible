@@ -161,7 +161,9 @@ jobs:
           import subprocess
           for name, repo in (('jsword', r'https://github\.com/AndBible/jsword\.git'),
                              ('kdom', r'https://github\.com/Sykero-Software/kdom\.git')):
-              gitlink = subprocess.check_output(['git', 'rev-parse', f'{sha}:{name}'], text=True).strip()
+              # The job container runs as another user than the checkout's owner: allow this one repository.
+              gitlink = subprocess.check_output(['git', '-c', 'safe.directory=*', 'rev-parse',
+                                                 f'{sha}:{name}'], text=True).strip()
               assert re.fullmatch(r'[0-9a-f]{40}', gitlink), name
               text, count = re.subn(rf'(url: {repo}\n\s+commit: )[0-9a-f]+', lambda m: m.group(1) + gitlink, text)
               assert count == 1, f'Expected exactly one {name} source'
