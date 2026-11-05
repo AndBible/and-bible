@@ -247,6 +247,48 @@ class CachedKeyPageTest {
         }
     }
 
+    /** Independent v5 review: a document update must invalidate an in-flight old snapshot too. */
+    @Test
+    fun reviewV5AnUpdateDuringKeyListConstructionCannotRepublishTheOldList() {
+        val manager = createPageManager()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        var reader: Thread? = null
+        try {
+            val page = manager.currentGeneralBook
+            val a = DefaultLeafKeyList("a", "a")
+            val b = DefaultLeafKeyList("b", "b")
+            val c = DefaultLeafKeyList("c", "c")
+            val keys = java.util.concurrent.atomic.AtomicReference<List<Key>>(listOf(a, b))
+            val meta = mock(BookMetaData::class.java)
+            `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+            `when`(meta.getProperty("AndBibleMyDocument")).thenReturn("1")
+            val book = mock(Book::class.java).apply {
+                `when`(bookMetaData).thenReturn(meta)
+                `when`(initials).thenReturn("MyDoc_3975_inflight")
+                `when`(getGlobalKeyList()).thenAnswer {
+                    val snapshot = keys.get()
+                    entered.countDown()
+                    check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                    DefaultKeyList().apply { snapshot.forEach { addAll(it) } }
+                }
+            }
+            page.onlySetCurrentDocument(book)
+            reader = Thread { page.keyListOf(book) }.apply { start() }
+            org.junit.Assert.assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            keys.set(listOf(a, b, c))
+            MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated(book.initials))
+            release.countDown()
+            reader.join(5_000)
+            org.junit.Assert.assertFalse(reader.isAlive)
+            assertThat("the new entry is visible to paging after the update", page.getKeyPlus(b, 1), equalTo(c as Key))
+        } finally {
+            release.countDown()
+            reader?.join(5_000)
+            manager.destroy()
+        }
+    }
+
     /** C3: the next key of a captured book is read from that book's key list, whatever the page shows now. */
     @Test
     fun theNextKeyOfACapturedBookIsReadFromThatBook() {

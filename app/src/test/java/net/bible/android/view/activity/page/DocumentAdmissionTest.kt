@@ -726,6 +726,195 @@ class DocumentAdmissionTest {
         assertEquals("after restart", window.pageManager.jsState)
     }
 
+    /** Independent v5 review: notes use KJVA ordinals even when the window retains a foreign verse. */
+    @Test
+    fun reviewV5MyNotesWithAForeignVerseJumpsToItsKjvaOrdinal() {
+        val synodal = Versifications.instance().getVersification("Synodal")!!
+        val stored = Verse(synodal, BibleBook.PS, 9, 22)
+        val expected = stored.toV11n(net.bible.android.database.bookmarks.KJVA)
+        val notes = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.download.FakeBookFactory>().myNotesDocument
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(notes, stored)
+            window.pageManager.currentBibleVerse.setVerseSelected(synodal, stored)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("notes admitted") { session.firstDocument is net.bible.android.control.page.MyNotesDocument }
+        val setup = host.snapshot().last { it.contains("setup_content") }
+        assertTrue("KJVA ordinal ${expected.ordinal}, not Synodal ${stored.ordinal}: $setup",
+            setup.contains("\"jumpToOrdinal\": ${expected.ordinal}"))
+        post("saveState", "[\"notes admitted\"]", session.documentGeneration)
+        onMain {}
+        assertEquals("notes admitted", window.pageManager.jsState)
+    }
+
+    /** Independent v5 review: requests owned by the dead JS page must not advance the replayed page's range. */
+    @Test
+    fun reviewV5ARestartDiscardsWaitingPagingOfThePreviousJsPage() {
+        val generation = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        onMain {
+            window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011"))
+            loader.runForPageDocument(generation,
+                call = { loader.requestMoreToEnd(84) },
+                drop = { session.jsChannel.execute(BibleViewEvents.response(84, null)) })
+            window.pageManager.currentBible.onlySetCurrentDocument(book("KJV"))
+            loader.setClientReady()
+        }
+        Thread.sleep(700)
+        onMain {}
+        assertEquals("the restarted page only received John 6; no stale request may reserve John 7",
+            6 to 6, session.minChapter to session.maxChapter)
+        assertFalse("no chapter response from the previous JS page may reach the restarted one", notNull(84))
+    }
+
+    /** Independent v5 review: replay delivery needs the same failure recovery as a freshly loaded document. */
+    @Test
+    fun reviewV5ARestartDeliveryFailureShowsARetryableErrorDocument() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+        host.failOnce = { it.contains("clear_document") }
+        // Production dispatch catches exceptions: without loader recovery the page silently stays blank.
+        dispatcher().dispatch("""{"method":"setClientReady","args":[]}""")
+        waitUntil("restart delivers a retryable error", 3_000) {
+            host.snapshot().any { it.contains("add_documents") && it.contains("'retry': true") }
+        }
+    }
+
+    /** Independent v5 review: an absent book must produce a usable error page, not a permanently closed window. */
+    @Test
+    fun reviewV5ABookMissingFromTheModuleDoesNotGateTheWindow() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        val stored = Verse(net.bible.android.database.bookmarks.KJVA, BibleBook.TOB, 1, 1)
+        onMain {
+            window.pageManager.currentBibleVerse.setVerseSelected(stored.versification, stored)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("missing book document delivered") { session.admission.state.pending == null }
+        val generation = session.documentGeneration
+        assertTrue("a missing book leaves an admitted error document: ${stateText()}",
+            onMain { session.admission.admits(generation) })
+        post("saveState", "[\"missing book\"]", generation)
+        onMain {}
+        assertEquals("missing book", window.pageManager.jsState)
+    }
+
+    /** Independent v5 review: chapter-zero conversion and nonexistent verses retain a callable page. */
+    @Test
+    fun reviewV5ForeignIntroductionsAndMissingVersesKeepBibleAdmissionOpen() {
+        val synodal = Versifications.instance().getVersification("Synodal")!!
+        val cases = listOf(
+            Verse(synodal, BibleBook.GEN, 0, 0),
+            Verse(synodal, BibleBook.PS, 0, 0),
+            Verse(synodal, BibleBook.PS, 151, 1),
+            Verse(net.bible.android.database.bookmarks.KJVA, BibleBook.TOB, 1, 1),
+        )
+        cases.forEach { stored ->
+            onMain {
+                window.pageManager.currentBible.onlySetCurrentDocument(book("KJV"))
+                window.pageManager.currentBibleVerse.setVerseSelected(stored.versification, stored)
+                window.loadText()
+            }
+            view.awaitLastRequestEnded()
+            waitUntil("${stored.getOsisID()} request settled") { session.admission.state.pending == null }
+            val generation = session.documentGeneration
+            assertTrue("${stored.getOsisID()} must not gate the window: ${stateText()}",
+                onMain { session.admission.admits(generation) })
+            if (session.firstDocument is BibleDocument) {
+                assertEquals("Bible jump uses the page versification", kjv, (session.initialKey as Verse).versification)
+                if (stored.chapter == 0) assertEquals("introduction pages onward from chapter 1", 1, session.maxChapter)
+            }
+        }
+    }
+
+    /** Independent v5 review: KJVA reports must leave notes admitted even at a split Synodal chapter boundary. */
+    @Test
+    fun reviewV5MyNotesReportAcrossASplitChapterDoesNotCloseAdmission() {
+        val synodal = Versifications.instance().getVersification("Synodal")!!
+        val stored = Verse(synodal, BibleBook.PS, 9, 1)
+        val notes = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.download.FakeBookFactory>().myNotesDocument
+        onMain {
+            window.pageManager.setCurrentDocumentAndKey(notes, stored)
+            window.pageManager.currentBibleVerse.setVerseSelected(synodal, stored)
+            window.loadText()
+        }
+        view.awaitLastRequestEnded()
+        waitUntil("split chapter notes admitted") { session.firstDocument is net.bible.android.control.page.MyNotesDocument }
+        val generation = session.documentGeneration
+        assertTrue("fixture spans KJVA Psalms 9 and 10: ${stateText()}", "Ps.10" in admitted()!!.contexts)
+        val reported = Verse(net.bible.android.database.bookmarks.KJVA, BibleBook.PS, 10, 5)
+        post("scrolledToOrdinal", "[\"Ps.10\",${reported.ordinal}]", generation)
+        onMain {}
+        assertEquals("Ps.10.5", shownVerse.toV11n(net.bible.android.database.bookmarks.KJVA).getOsisID())
+        post("saveState", "[\"split notes\"]", generation)
+        onMain {}
+        assertEquals("split notes", window.pageManager.jsState)
+    }
+
+    /** Independent v5 review: every real MyDocument scroll key round-trips, including the entry added by paging. */
+    @Test
+    fun reviewV5GeneralBookPagingReportsAndRestartRemainUsable() {
+        val book = myDocument("MyDoc_3975_review", "page_a", "page_b", "page_c")
+        val keys = book.getGlobalKeyList().toList()
+        keys.forEach { assertEquals(it.getOsisRef(), book.getKey(it.getOsisRef()).getOsisRef()) }
+        val generation = showEntry(book, keys[0])
+        post("requestMoreToEnd", "[81]", generation)
+        waitUntil("entry b delivered") { notNull(81) }
+        post("scrolledToOrdinal", "[\"${keys[1].getOsisRef()}\",2]", generation)
+        onMain {}
+        assertEquals(keys[1].getOsisRef(), window.pageManager.currentPage.key?.getOsisRef())
+        post("saveState", "[\"entry b\"]", generation)
+        onMain {}
+        assertEquals("entry b", window.pageManager.jsState)
+        val before = view.lastRequest
+        onMain { loader.setClientReady() }
+        waitUntil("restart reloads entry b") { view.lastRequest != before }
+        view.awaitLastRequestEnded()
+        waitUntil("entry b admitted after restart") { keys[1].getOsisRef() in (admitted()?.loaded ?: emptySet()) }
+        val restarted = session.documentGeneration
+        post("requestMoreToEnd", "[82]", restarted)
+        waitUntil("entry c delivered after restart") { notNull(82) }
+        assertEquals(keys[2].getOsisRef(), session.lastKey?.getOsisRef())
+    }
+
+    /** Independent v5 review: equal metadata does not make a reinstalled module's key list the old one's. */
+    @Test
+    fun reviewV5ReinstalledGeneralBookDoesNotReuseTheOldInstancesKeyList() {
+        val initials = "MyDoc_3975_reinstalled"
+        val old = myDocument(initials, "page_a", "page_b")
+        val page = window.pageManager.currentGeneralBook
+        onMain { page.onlySetCurrentDocument(old) }
+        val oldKeys = page.cachedGlobalKeyList!!
+        onMain { MyDocumentBookManager.unregisterDocument(initials) }
+        val document = runBlocking { dao.documentByInitials(initials)!! }
+        runBlocking {
+            dao.insertPageWithContent(MyDocumentPage(documentId = document.id, title = "Title page_c", pageKey = "page_c",
+                contentType = MyDocumentContentType.MARKDOWN, orderNumber = 2), "content of page_c")
+        }
+        val replacement = onMain { MyDocumentBookManager.registerDocument(document)!! }
+        assertFalse("replacement is a new instance", old === replacement)
+        assertEquals("JSword equality compares metadata, not module instances", old, replacement)
+        onMain { page.setCurrentDocument(replacement) }
+        val actualNext = page.getKeyPlus(oldKeys[1], 1, replacement)
+        assertEquals("the replacement contains a third entry", "page_c", actualNext.getOsisRef())
+    }
+
+    /** Independent v5 review: backoff is bounded and closing the session cancels its timer, not the host scope. */
+    @Test
+    fun reviewV5WaitingPagingBacksOffAndItsTimerDiesWithTheSession() {
+        val generation = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
+        post("requestMoreToEnd", "[83]", generation)
+        val owned = session.scope.coroutineContext[kotlinx.coroutines.Job]!!
+        Thread.sleep(2_100)
+        onMain {}
+        assertTrue("still waiting, not a premature end of paging", response(83).isEmpty())
+        assertEquals("one timer, not one per poll", 1, owned.children.count())
+        onMain { session.dispose() }
+        waitUntil("session timer cancelled") { owned.children.none() }
+        assertTrue("host lifetime remains active", sessionScope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+    }
+
     /** Review of rework 5 (M1): a general book entry whose read fails is not kept as a context of the page. */
     @Test
     fun aFailedEntryReadIsNotKeptAsAContext() {
