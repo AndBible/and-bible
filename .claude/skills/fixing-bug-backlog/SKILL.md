@@ -10,7 +10,7 @@ what comes back, keeps the containers busy, and stages a comment for every fixed
 one issue. Children do the debugging and TDD; the orchestrator owns review, merge, gates and GitHub.
 
 **REQUIRED SUB-SKILLS:** jailbee-orchestration for everything about children (grant, spawn,
-inbox, done, import, destroy); jailbee-issue-management for the outbox manifest format;
+inbox, done, import, destroy); jailbee-issue-management for staging issue actions (`jailbee issue ...`);
 issue-management for tracker rules. This skill only adds the AndBible-specific choices.
 
 ## 1. Pick candidates
@@ -68,7 +68,7 @@ BATCH=.local/bug-batch-<date> bash .claude/skills/fixing-bug-backlog/scripts/spa
   MODEL_NAME="Claude Opus"`.
 - Waiting, reading the inbox, answering questions, statuses and cleanup: follow
   **jailbee-orchestration**. Watching children:
-  - Use `jailbee-inbox wait` directly and read every message, notes included. Do not wrap it in a
+  - Use `jailbee inbox wait` directly and read every message, notes included. Do not wrap it in a
     filter that marks notes read: a restarted child reports its recovery as a note.
   - Run exactly one wait loop, and never while a `send ... --wait` is pending (they race for
     the same status message).
@@ -136,18 +136,32 @@ does not count: children may not dispatch subagents and ask the orchestrator to 
 
 ## 5. Stage a comment and a close per fixed issue
 
-One manifest `~/.jailbee/issue-outbox/NNN-fix-comments.json` with a `comment` action per issue
-(regenerate it as fixes land; start a new NNN once the user has applied it). Comment shape:
+Stage with the `jailbee issue` commands into one draft batch per round (never write
+`~/.jailbee/issue-outbox/` files by hand; the commands capture the expected state themselves):
+
+```bash
+jailbee issue comment <n> --body-file /tmp/<n>-comment.md --batch fix-comments-<date>
+jailbee issue state <n> closed --reason completed --batch fix-comments-<date>
+```
+
+Add each fixed issue to the batch as its fix lands; `jailbee outbox show issue/fix-comments-<date>`
+shows the draft. Comment shape:
 "Fixed: <what the user sees now>. <one sentence why, if useful>. The fix will be in an upcoming
 version." End every comment with a signature as its final line, separated by a blank line:
 `_— bug-fix round, <Mon YYYY>_` (e.g. `_— bug-fix round, Oct 2026_`), so the maintainer's own
 comments are never confused with session-written ones (same idea as the triage marker in
 issue-management). Read the issue title first so the comment matches what was reported. Close each fixed
-issue in the same manifest, right after its comment: a `state` action with `"state": "closed"`,
-`"reason": "completed"` (the maintainer wants fixed issues closed when the fix is merged here,
-not only when the `Fixes #<n>` commit reaches the default branch). An issue found already fixed is
-closed too; one the round did not fix (nothing merged, or not reproducible) is not. Tell the user to run
-`jb issue apply <container>` on the host.
+issue in the same batch, right after its comment (`state <n> closed --reason completed`): the
+maintainer wants fixed issues closed when the fix is merged here, not only when the `Fixes #<n>`
+commit reaches the default branch. An issue found already fixed is closed too; one the round did not
+fix (nothing merged, or not reproducible) is not. Keep body files outside the work tree (`/tmp`), so
+the tree stays clean for fork spawns.
+
+When the round is done, `jailbee outbox submit fix-comments-<date> --kind issue`. If `grant.json`
+`publish.issues` covers the actions, publish with `jailbee inbox send publish --issue <file> --wait`
+and read the final status; otherwise tell the user to run `jb issue apply <container>` (or
+`jb outbox <container>` to inspect) on the host. A child never stages GitHub writes: it sends the
+exact text to the orchestrator, which stages it.
 
 ## 6. Final gate and report
 

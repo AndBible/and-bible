@@ -9,8 +9,11 @@ description: Use for AndBible issue and project-board work — creating, comment
 
 - **Routine issue work → the JailBee issue outbox.** Creating an issue (a follow-up, a bug found
   while working, an osTicket report), commenting, editing a title or body, adding or removing labels,
-  closing or reopening: write a manifest to `~/.jailbee/issue-outbox/` with the
-  `jailbee-issue-management` skill; the maintainer publishes it on the host with `jb issue apply`.
+  closing or reopening: stage it with the `jailbee issue create|comment|edit|labels|assign|state`
+  commands (skill `jailbee-issue-management`; `--batch NAME` + `jailbee outbox submit NAME --kind issue`
+  for several related actions). Never write `~/.jailbee/issue-outbox/` files by hand. The maintainer
+  publishes on the host with `jb issue apply` (or an orchestrator with `publish.issues` rights uses
+  `jailbee inbox send publish --issue ...`).
   No submodule commit is involved. This is the default for everything in day-to-day work.
 - **Large triage runs → the triage batch toolchain** (`docs/superpowers/tools/triage/`,
   `triage/batches/`, `apply.py`, below). It exists for whole-area or whole-tracker passes that also
