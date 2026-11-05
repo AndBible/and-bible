@@ -162,8 +162,14 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
     /** A waiting chapter request; main thread only. */
     private class WaitingPaging(val generation: Long, val call: () -> Unit, val drop: () -> Unit)
     private val waitingPaging = mutableListOf<WaitingPaging>()
-    private var recheckScheduled = false
+    private var recheckJob: kotlinx.coroutines.Job? = null
     private var recheckDelay = PAGING_RECHECK
+
+    private fun resetRecheck() {
+        recheckJob?.cancel()
+        recheckJob = null
+        recheckDelay = PAGING_RECHECK
+    }
 
     /** Set by [DocumentLoader]: shows an error document for [target] after its request failed (main thread). */
     internal var onLoadFailed: (target: DocumentSource, failure: Throwable) -> Unit = { _, _ -> }
@@ -213,7 +219,7 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         state = State(admitted?.withContexts(admitted.loaded), state.pending, NO_DOCUMENT_GENERATION)
         // Calls belong to the old JS page; even answering them would target the new page's call IDs.
         waitingPaging.clear()
-        recheckDelay = PAGING_RECHECK
+        resetRecheck()
     }
 
     /**
@@ -329,11 +335,10 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
      * stand, since a null answer ends the page's infinite scroll; the next document drops them.
      */
     private fun scheduleRecheck() {
-        if (recheckScheduled) return
-        recheckScheduled = true
-        session.scope.launch(Dispatchers.Main) {
+        if (recheckJob != null) return
+        recheckJob = session.scope.launch(Dispatchers.Main) {
             delay(recheckDelay)
-            recheckScheduled = false
+            recheckJob = null
             val nextDelay = minOf(recheckDelay * 2, MAX_PAGING_RECHECK)
             if (waitingPaging.isNotEmpty() && recheckDelay < MAX_PAGING_RECHECK && nextDelay == MAX_PAGING_RECHECK) {
                 Log.w(TAG, "Waiting paging requests reached the maximum 5 second recheck interval")
@@ -348,11 +353,13 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
         val waiting = waitingPaging.toList()
         waitingPaging.clear()
         waiting.forEach { evaluatePaging(it.generation, it.call, it.drop) }
+        if (waitingPaging.isEmpty()) resetRecheck()
     }
 
     private fun dropWaitingPaging() {
         val waiting = waitingPaging.toList()
         waitingPaging.clear()
+        resetRecheck()
         waiting.forEach { it.drop() }
     }
 

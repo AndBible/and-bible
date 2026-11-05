@@ -359,9 +359,11 @@ class DocumentLoader(
     fun updateActive() =
         emit(BibleViewEvents.setActive(isActive, platform.hasActiveIndicator))
 
-    private fun replaceDocument() {
+    private fun replaceDocument(onDeliveryFailure: ((Exception) -> Unit)? = null) {
         Log.i(TAG, "replaceDocument")
-        cancelPendingChapterLoads()
+        val startingGeneration = admission.admittedGeneration
+        cancelPendingChapterLoads(onDeliveryFailure)
+        if (admission.admittedGeneration != startingGeneration) return
 
         val verse = if (isBible || session.firstDocument is MyNotesDocument) session.initialKey as? Verse else null
         var generation = NO_DOCUMENT_GENERATION
@@ -378,7 +380,8 @@ class DocumentLoader(
 
         if (!labelsUploaded) {
             val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map { ClientBookmarkLabel(it) })
-            emit(BibleViewEvents.updateLabels(JsExpr(bookmarkLabels)))
+            if (!session.isDisposed) session.jsChannel.execute(BibleViewEvents.updateLabels(JsExpr(bookmarkLabels)), onDeliveryFailure)
+            if (admission.admittedGeneration != generation) return
             labelsUploaded = true
         }
 
@@ -388,8 +391,7 @@ class DocumentLoader(
                 "o-${abs(doc.entryId.hashCode())}"
             else initialHtmlId
 
-        emit(
-            BibleViewEvents.clearDocument(generation) + configCommand(true) +
+        val call = BibleViewEvents.clearDocument(generation) + configCommand(true) +
                 BibleViewEvents.addDocuments(JsExpr("$documentStr")) +
                 BibleViewEvents.setupContent(SetupContent(
                     jumpToOrdinal = verse?.ordinal,
@@ -403,7 +405,7 @@ class DocumentLoader(
                     bookInitials = window.pageManager.currentPage.currentDocument?.initials,
                     osisRef = window.pageManager.currentPage.key?.getOsisRef(),
                 )) + BibleViewEvents.setTitle("BibleView-${window.displayId}")
-        )
+        if (!session.isDisposed) session.jsChannel.execute(call, onDeliveryFailure)
     }
 
     fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) {
@@ -488,13 +490,13 @@ class DocumentLoader(
     }
 
     /** Cancel all in-flight chapter loads (stale after document replacement / navigation). */
-    private fun cancelPendingChapterLoads() {
+    private fun cancelPendingChapterLoads(onDeliveryFailure: ((Exception) -> Unit)? = null) {
         if (chapterLoadJobs.isNotEmpty()) {
             Log.i(TAG, "Cancelling ${chapterLoadJobs.size} pending chapter load(s)")
             chapterLoadJobs.forEach { it.cancel() }
             chapterLoadJobs.clear()
         }
-        emit(BibleViewEvents.resetLoadingCount())
+        if (!session.isDisposed) session.jsChannel.execute(BibleViewEvents.resetLoadingCount(), onDeliveryFailure)
     }
 
     /**
@@ -657,22 +659,27 @@ class DocumentLoader(
         session.jsChannel.markClientReady()
         documentLoadingLock.withLock { if (latestDocumentStr != null) needsDocument = true }
         labelsUploaded = false
+        val replay = admission.state.admitted
+        fun recoverReplay(e: Exception) {
+            if (replay == null || admission.state.admitted?.generation != replay.generation) {
+                Log.e(TAG, "Delivering an obsolete restarted document failed", e)
+                return
+            }
+            Log.e(TAG, "Delivering restarted document failed; showing an error document", e)
+            try {
+                showLoadError(replay.source, e)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (again: Exception) {
+                Log.e(TAG, "Delivering the error document failed too", again)
+            }
+        }
         try {
-            replaceDocument()
+            replaceDocument(::recoverReplay)
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
-            val target = admission.state.admitted?.source
-            if (target != null) {
-                Log.e(TAG, "Delivering restarted document failed; showing an error document", e)
-                try {
-                    showLoadError(target, e)
-                } catch (again: Exception) {
-                    Log.e(TAG, "Delivering the error document failed too", again)
-                }
-            } else {
-                Log.e(TAG, "Delivering restarted page failed without an admitted document", e)
-            }
+            recoverReplay(e)
         }
         updateActive()
         // The window may stand where only the old page reached (a chapter or entry infinite scroll added): the replayed

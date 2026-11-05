@@ -110,10 +110,12 @@ class DocumentAdmissionTest {
         val evaluated: MutableList<String> = Collections.synchronizedList(mutableListOf())
         /** The next evaluation matching this throws (once), like a WebView that fails to take the call. */
         @Volatile var failOnce: ((String) -> Boolean)? = null
-        override val isMainThread = true
+        override var isMainThread = true
         override val isAttached = true
         override val mainDispatcher: CoroutineDispatcher = Dispatchers.Unconfined
-        override fun post(block: () -> Unit) = block()
+        val posted = mutableListOf<() -> Unit>()
+        override fun post(block: () -> Unit) { posted += block }
+        fun flushPosted() { val pending = posted.toList(); posted.clear(); pending.forEach { it() } }
         override fun evaluate(js: String, callback: ((String) -> Unit)?) {
             failOnce?.let { fail -> if (fail(js)) { failOnce = null; throw IllegalStateException("evaluate failed") } }
             evaluated += js
@@ -813,6 +815,56 @@ class DocumentAdmissionTest {
         }
     }
 
+    @Test
+    fun reviewV6QueuedRestartDeliveryFailureShowsRetryableError() {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+        host.failOnce = { it.contains("clear_document") }
+        host.isMainThread = false
+        dispatcher().dispatch("""{"method":"setClientReady","args":[]}""")
+        session.jsChannel.runOnMain { }
+        host.isMainThread = true
+        host.flushPosted()
+        assertLastReplayIsRetryableError()
+    }
+
+    @Test fun reviewV6QueuedRestartResetFailureShowsRetryableError() = assertQueuedPrefixFailure("reset_loading_count")
+
+    @Test fun reviewV6QueuedRestartLabelsFailureShowsRetryableError() = assertQueuedPrefixFailure("update_labels")
+
+    private fun assertQueuedPrefixFailure(failedEvent: String) {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+        host.failOnce = { it.contains(failedEvent) }
+        host.isMainThread = false
+        dispatcher().dispatch("""{"method":"setClientReady","args":[]}""")
+        session.jsChannel.runOnMain { }
+        host.isMainThread = true
+        host.flushPosted()
+        assertLastReplayIsRetryableError()
+    }
+
+    @Test fun reviewV6ImmediateRestartResetFailureShowsRetryableError() = assertImmediateReplayFailure("reset_loading_count")
+    @Test fun reviewV6ImmediateRestartLabelsFailureShowsRetryableError() = assertImmediateReplayFailure("update_labels")
+    @Test fun reviewV6ImmediateRestartClearFailureShowsRetryableError() = assertImmediateReplayFailure("clear_document")
+
+    private fun assertImmediateReplayFailure(failedEvent: String) {
+        show("KJV", verse(BibleBook.JOHN, 6, 1))
+        host.evaluated.clear()
+        host.failOnce = { it.contains(failedEvent) }
+        dispatcher().dispatch("""{"method":"setClientReady","args":[]}""")
+        assertLastReplayIsRetryableError()
+    }
+
+    private fun assertLastReplayIsRetryableError() {
+        val last = host.snapshot().last { it.contains("clear_document") && it.contains("add_documents") }
+        assertTrue("last delivered document must be retryable: $last", last.contains("'retry': true"))
+        assertTrue("last delivered generation must match admission: $last",
+            last.contains(BibleViewEvents.clearDocument(session.admission.admittedGeneration).js))
+        assertTrue("the admitted document must be an error", session.admission.state.admitted!!.isError)
+        assertTrue("the active document must be an error", session.firstDocument is net.bible.android.control.page.ErrorDocument)
+    }
+
     /** Independent v5 review: an absent book must produce a usable error page, not a permanently closed window. */
     @Test
     fun reviewV5ABookMissingFromTheModuleDoesNotGateTheWindow() {
@@ -1043,6 +1095,31 @@ class DocumentAdmissionTest {
             assertEquals("one warning per continuous stall", 1, messages.size)
             assertTrue("warning identifies the stalled paging request", messages.single().contains("paging", ignoreCase = true))
             assertTrue("the request remains waiting", response(86).isEmpty())
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = originalSink
+        }
+    }
+
+    @Test
+    fun reviewV6NewPagingStallRestartsBackoffAfterPreviousWaitIsDropped() {
+        val generation = show("KJV", verse(BibleBook.JOHN, 6, 1))
+        val messages = Collections.synchronizedList(mutableListOf<String>())
+        val originalSink = net.bible.sharedcore.log.Log.sinkOverride
+        net.bible.sharedcore.log.Log.sinkOverride = { _, tag, message, _ ->
+            if (tag == "DocumentAdmission" && message.contains("paging", ignoreCase = true)) messages.add(message)
+        }
+        try {
+            onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
+            post("requestMoreToEnd", "[88]", generation)
+            waitUntil("first stall reaches maximum backoff", 8_000) { messages.size == 1 }
+            onMain {
+                window.pageManager.currentBible.onlySetCurrentDocument(book("KJV"))
+                session.admission.admitCurrentForTest(generation + 1)
+                window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011"))
+                loader.runForPageDocument(generation + 1, {}, {})
+            }
+            waitUntil("second stall reaches maximum backoff", 10_000) { messages.size == 2 }
+            assertEquals("each separate stall is logged once", 2, messages.size)
         } finally {
             net.bible.sharedcore.log.Log.sinkOverride = originalSink
         }
