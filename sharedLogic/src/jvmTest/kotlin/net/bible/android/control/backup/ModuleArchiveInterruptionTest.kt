@@ -3,6 +3,9 @@ package net.bible.android.control.backup
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentArchiver
+import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.sharedcore.platform.desktop.DesktopDateTimeFormats
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
@@ -19,7 +22,11 @@ import okio.source
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.StoredZipWriter
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.NullBackend
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookDriver
+import java.util.zip.ZipFile
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -71,6 +78,7 @@ class ModuleArchiveInterruptionTest {
         startKoin {
             modules(module {
                 single<AppDirectories> { TestDirs(dest.absolutePath.toPath()) }
+                single<DateTimeFormats> { DesktopDateTimeFormats() }
             })
         }
         SwordBookPathJvm.setDownloadDir(dest)
@@ -106,8 +114,8 @@ class ModuleArchiveInterruptionTest {
         return unsafeClass.getMethod("allocateInstance", Class::class.java).invoke(field.get(null), T::class.java) as T
     }
 
-    private fun backupControl() = BackupControl(
-        dialogs = AppDialogController(), strings = stub<CoreStrings>(), env = stub<AppEnvironment>(),
+    private fun backupControl(env: AppEnvironment = stub<AppEnvironment>()) = BackupControl(
+        dialogs = AppDialogController(), strings = stub<CoreStrings>(), env = env,
         settings = stub<AppSettings>(), windowControl = blank<WindowControl>(), cloudSync = blank<CloudSync>(),
         notifier = stub<UserNotifier>(), dirs = TestDirs(dest.absolutePath.toPath()),
     )
@@ -450,6 +458,44 @@ class ModuleArchiveInterruptionTest {
             if (result.exceptionOrNull()?.message?.contains("injected") == true) {
                 assertTrue(File(dest, "mods.d/$INITIALS.conf").readBytes().contentEquals(oldConf), "failAt=$failAt: old conf must be restored")
             }
+        }
+    }
+
+    @Test fun cloudArchiveRoundTripPreservesEachGenerationAndUnrelatedModules() = runBlocking {
+        val env = Proxy.newProxyInstance(AppEnvironment::class.java.classLoader, arrayOf(AppEnvironment::class.java)) { _, method, _ ->
+            when (method.name) {
+                "getTmpDir" -> work.absolutePath
+                "getVersionNumber" -> 1L
+                else -> error("unexpected environment call: ${method.name}")
+            }
+        } as AppEnvironment
+        val control = backupControl(env)
+        val unrelated = File(dest, "modules/unrelated/keep.bin").apply { parentFile.mkdirs(); writeBytes(byteArrayOf(9, 8, 7)) }
+        for (generationNumber in 1..3) {
+            val entries = generation(1).map { (name, bytes) ->
+                if (name.startsWith("mods.d/")) name to (bytes + "\nVersion=$generationNumber.0\n".toByteArray())
+                else name to (bytes + ByteArray(generationNumber) { generationNumber.toByte() })
+            }
+            control.extractAndRegisterModuleArchive({ zip(entries, "input.zip").source() })
+            val metadata = SwordBookMetaData(
+                File(dest, "mods.d/$INITIALS.conf").absolutePath.toPath(), directoryKUri(dest.absolutePath.toPath()),
+            )
+            val book = SwordBook(metadata, NullBackend())
+            val expectedPath = work.absolutePath.toPath() / "doc-$INITIALS.abmd.zip"
+            File(expectedPath.toString()).writeText("stale archive must not be reused")
+            val archive = DocumentArchiver.packageDocument(book, env, control)
+            assertEquals(expectedPath, archive)
+            val contents = ZipFile(archive.toString()).use { z ->
+                z.entries().asSequence().filter { it.name != "AndBibleBackupManifest.json" }
+                    .associate { entry -> entry.name to z.getInputStream(entry).use { it.readBytes().toList() } }
+            }
+            assertEquals(entries.associate { it.first to it.second.toList() }, contents, "generation $generationNumber")
+            File(dest, "mods.d/$INITIALS.conf").delete()
+            File(dest, "modules/$INITIALS").deleteRecursively()
+            Books.installed().getBook(INITIALS)?.let { Books.installed().removeBook(it) }
+            assertTrue(DocumentArchiver.installArchive(archive, INITIALS, control), "generation $generationNumber")
+            assertTrue(matches(entries), "round trip must preserve every file of generation $generationNumber")
+            assertEquals(listOf<Byte>(9, 8, 7), unrelated.readBytes().toList(), "unrelated module remains byte-identical")
         }
     }
 
