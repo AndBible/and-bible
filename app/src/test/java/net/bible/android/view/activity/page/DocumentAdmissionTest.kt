@@ -844,6 +844,16 @@ class DocumentAdmissionTest {
         assertLastReplayIsRetryableError()
     }
 
+    /** A queued replay whose labels upload fails later must not leave the labels marked as uploaded for the error document. */
+    @Test
+    fun followUpQueuedRestartLabelsFailureUploadsLabelsAgainWithTheErrorDocument() {
+        assertQueuedPrefixFailure("update_labels")
+        val events = host.snapshot()
+        val errorAt = events.indexOfLast { it.contains("clear_document") && it.contains("add_documents") }
+        assertTrue("labels are uploaded again before the error document: $events",
+            events.take(errorAt).any { it.contains("update_labels") })
+    }
+
     @Test fun reviewV6ImmediateRestartResetFailureShowsRetryableError() = assertImmediateReplayFailure("reset_loading_count")
     @Test fun reviewV6ImmediateRestartLabelsFailureShowsRetryableError() = assertImmediateReplayFailure("update_labels")
     @Test fun reviewV6ImmediateRestartClearFailureShowsRetryableError() = assertImmediateReplayFailure("clear_document")
@@ -1079,6 +1089,22 @@ class DocumentAdmissionTest {
         }
     }
 
+    /** Virtual time: the recheck wait is replaced by a controllable one, so no test waits for real backoff delays. */
+    private val recheckSleeps = Collections.synchronizedList(mutableListOf<kotlin.time.Duration>())
+    private val recheckTicks = kotlinx.coroutines.channels.Channel<Unit>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+
+    private fun installVirtualRecheck() {
+        recheckSleeps.clear()
+        session.admission.recheckSleep = { d -> recheckSleeps.add(d); recheckTicks.receive() }
+    }
+
+    /** Completes the current recheck wait and waits until the next one has started. */
+    private fun finishRecheckWait() {
+        val before = recheckSleeps.size
+        recheckTicks.trySend(Unit)
+        waitUntil("next recheck wait starts", 3_000) { recheckSleeps.size > before }
+    }
+
     @Test
     fun rework6WaitingPagingLogsOnceAtMaximumBackoff() {
         val generation = show("KJV", verse(BibleBook.JOHN, 6, 1))
@@ -1088,11 +1114,18 @@ class DocumentAdmissionTest {
             if (tag == "DocumentAdmission") messages.add(message)
         }
         try {
+            installVirtualRecheck()
             onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
             post("requestMoreToEnd", "[86]", generation)
-            waitUntil("stall is logged at maximum backoff", 8_000) { messages.isNotEmpty() }
-            Thread.sleep(5_500)
+            waitUntil("first recheck wait starts", 3_000) { recheckSleeps.isNotEmpty() }
+            repeat(4) { finishRecheckWait() }
+            assertTrue("no warning before the interval reaches its maximum", messages.isEmpty())
+            finishRecheckWait()
+            assertEquals("stall is logged once the interval reaches 5 s", 1, messages.size)
+            repeat(3) { finishRecheckWait() }
             assertEquals("one warning per continuous stall", 1, messages.size)
+            assertEquals(listOf(250L, 500L, 1000L, 2000L, 4000L, 5000L, 5000L, 5000L, 5000L),
+                recheckSleeps.map { it.inWholeMilliseconds })
             assertTrue("warning identifies the stalled paging request", messages.single().contains("paging", ignoreCase = true))
             assertTrue("the request remains waiting", response(86).isEmpty())
         } finally {
@@ -1109,16 +1142,24 @@ class DocumentAdmissionTest {
             if (tag == "DocumentAdmission" && message.contains("paging", ignoreCase = true)) messages.add(message)
         }
         try {
+            installVirtualRecheck()
             onMain { window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011")) }
             post("requestMoreToEnd", "[88]", generation)
-            waitUntil("first stall reaches maximum backoff", 8_000) { messages.size == 1 }
+            waitUntil("first recheck wait starts", 3_000) { recheckSleeps.isNotEmpty() }
+            repeat(5) { finishRecheckWait() }
+            assertEquals("first stall reaches maximum backoff", 1, messages.size)
+            recheckSleeps.clear()
             onMain {
                 window.pageManager.currentBible.onlySetCurrentDocument(book("KJV"))
                 session.admission.admitCurrentForTest(generation + 1)
                 window.pageManager.currentBible.onlySetCurrentDocument(book("ESV2011"))
                 loader.runForPageDocument(generation + 1, {}, {})
             }
-            waitUntil("second stall reaches maximum backoff", 10_000) { messages.size == 2 }
+            waitUntil("second stall starts its backoff again", 3_000) { recheckSleeps.isNotEmpty() }
+            assertEquals("the new stall starts at the initial interval", 250L, recheckSleeps.first().inWholeMilliseconds)
+            repeat(4) { finishRecheckWait() }
+            assertEquals("not yet at the maximum", 1, messages.size)
+            finishRecheckWait()
             assertEquals("each separate stall is logged once", 2, messages.size)
         } finally {
             net.bible.sharedcore.log.Log.sinkOverride = originalSink

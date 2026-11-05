@@ -607,7 +607,7 @@ class DocumentLoader(
                     null
                 } ?: return@withLock null
                 if (admission.admittedGeneration != generation) return@withLock null
-                if (page.currentDocument != book) {
+                if (page.currentDocument !== book) {
                     // The window switched module without a request yet: wait for its outcome.
                     admission.runPaging(generation, call = { requestMoreKey(callId, forward) }, drop = { answerNull(callId) })
                     return@launch
@@ -661,6 +661,8 @@ class DocumentLoader(
         labelsUploaded = false
         val replay = admission.state.admitted
         fun recoverReplay(e: Exception) {
+            // The labels may have been part of the failed delivery; the error document must upload them again.
+            labelsUploaded = false
             if (replay == null || admission.state.admitted?.generation != replay.generation) {
                 Log.e(TAG, "Delivering an obsolete restarted document failed", e)
                 return

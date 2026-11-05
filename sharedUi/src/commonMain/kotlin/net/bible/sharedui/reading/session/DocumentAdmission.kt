@@ -311,7 +311,8 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
      * the page's document; waits while a request of another document is pending or the window does not show the
      * page's document (a page change not requested yet); otherwise [call] runs there, so the check and the request's
      * synchronous effects (the chapter range, the source it reads) are one main-thread step. Exactly one of [call] and
-     * [drop] runs, once.
+     * [drop] runs, once, with one exception: [pageRestarted] discards waiting requests without running either, since
+     * they belong to the dead page and answering them would target the new page's call IDs.
      */
     fun runPaging(generation: Long?, call: () -> Unit, drop: () -> Unit) = onMain { evaluatePaging(generation, call, drop) }
 
@@ -334,14 +335,17 @@ class DocumentAdmission internal constructor(private val session: BibleWindowSes
      * off-main page change undone before its request). They are never dropped while the page's document may still
      * stand, since a null answer ends the page's infinite scroll; the next document drops them.
      */
+    /** Test seam (public like [admitCurrentForTest]; the app tests are another module): the wait between rechecks. */
+    var recheckSleep: suspend (kotlin.time.Duration) -> Unit = { delay(it) }
+
     private fun scheduleRecheck() {
         if (recheckJob != null) return
         recheckJob = session.scope.launch(Dispatchers.Main) {
-            delay(recheckDelay)
+            recheckSleep(recheckDelay)
             recheckJob = null
             val nextDelay = minOf(recheckDelay * 2, MAX_PAGING_RECHECK)
             if (waitingPaging.isNotEmpty() && recheckDelay < MAX_PAGING_RECHECK && nextDelay == MAX_PAGING_RECHECK) {
-                Log.w(TAG, "Waiting paging requests reached the maximum 5 second recheck interval")
+                Log.w(TAG, "Waiting paging requests have stalled for about 8 seconds; rechecking at the maximum 5 second interval from now on")
             }
             recheckDelay = nextDelay
             settleWaitingPaging()
