@@ -44,13 +44,14 @@ internal object IosIncomingRuntimeHarness {
         "genbook" to "h2-genbook.zip",
         "maps" to "h2-maps.zip",
         "dict" to "h2-dict.zip",
+        "font" to "StudyMono.ttf",
     )
     private val allowedOffers = coldFixtures.values.toSet() + "f-runtime.epub"
 
     /** Initials installed by the H2 fixtures, which must be absent before the cold offer is delivered. */
     private val h2Initials = mapOf(
         "h2-cipher.zip" to "H2Cipher", "h2-genbook.zip" to "K4GenBook",
-        "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD",
+        "h2-maps.zip" to "H2Maps", "h2-dict.zip" to "K4ZLD", "StudyMono.ttf" to "TTF_StudyMono",
     )
     private var coldOffered = emptyList<String>()
     private var removeColdFixtures = false

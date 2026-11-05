@@ -218,6 +218,7 @@ fun desktopPlatformModule(
                 documentControl = { get() },
                 settings = { get() },
                 backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
+                installedFonts = { scanner.fonts() },
                 showMarginPageJumpTip = false,
             )
         }

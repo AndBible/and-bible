@@ -81,6 +81,24 @@ class DesktopPageAssetRoutesTest {
         assertEquals(emptyList(), logs, "fonts.css is not an error: $logs")
     }
 
+    @Test fun generatedFontCssIsMaterializedAndReusesItsFile() {
+        val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
+            """[DesktopAssetFont]
+ModDrv=RawGenBook
+AndBibleProvidesFont=Desktop Study;css/extra.woff2
+""".encodeToByteArray(), "DesktopAssetFont")
+        metadata.location = org.crosswire.common.util.NetUtil.fileKUri(okio.Path.Companion.run { book.toString().toPath() }, directory = true)
+        val fontBook = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
+        org.crosswire.jsword.book.Books.installed().addBook(fontBook)
+        try {
+            val r = DesktopPageAssetRoutes({ emptyMap() }, { book }, { null }, { _, _ -> false })
+            val first = assertNotNull(r.resolve("/fonts/DesktopAssetFont/fonts.css"))
+            assertEquals("@font-face { font-family: 'Desktop Study'; src: url('css/extra.woff2'); }\n", Files.readString(first.file))
+            assertEquals(first.file, assertNotNull(r.resolve("/fonts/DesktopAssetFont/fonts.css")).file)
+            Files.delete(first.file)
+        } finally { org.crosswire.jsword.book.Books.installed().removeBook(fontBook) }
+    }
+
     @Test fun signedFeatureServed() {
         assertEquals(book.resolve("feat.js"), assertNotNull(routes().resolve("/features/KJV/feat.js")).file)
     }

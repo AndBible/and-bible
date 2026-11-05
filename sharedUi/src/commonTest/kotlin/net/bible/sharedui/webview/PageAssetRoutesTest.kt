@@ -59,7 +59,7 @@ class PageAssetRoutesTest {
         epub: PageAssetEpubSource? = null,
     ) = PageAssetRoutes(
         backgrounds = { mapOf("D3DBackground" to image) },
-        bookLocation = { if (it == "KJV") book else null },
+        bookLocation = { if (it == "KJV" || it == "AssetFont") book else null },
         bookStyleFile = { if (it == "KJV") "css/my.css" else null },
         verify = verify,
         epub = epub,
@@ -98,6 +98,38 @@ class PageAssetRoutesTest {
         assertEquals("", css.text())
         assertNull(routes().resolve("/fonts/NOPE/fonts.css"))
         assertEquals("font/woff2", routes().resolve("/fonts/KJV/css/extra.woff2")!!.mimeType)
+    }
+
+    @Test fun installedFontStylesheetDefinesTheFamilyAndFile() {
+        // The real registry is the default source used by both the chooser and the asset route.
+        val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
+            """[AssetFont]
+ModDrv=RawGenBook
+AndBibleProvidesFont=Study Font;css/extra.woff2
+AndBibleProvidesFont=Missing;missing.ttf
+AndBibleProvidesFont=Outside;../../secret.txt
+""".encodeToByteArray(), "AssetFont")
+        metadata.location = org.crosswire.common.util.NetUtil.fileKUri(book, directory = true)
+        val fontBook = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
+        org.crosswire.jsword.book.Books.installed().addBook(fontBook)
+        try {
+            val css = assertNotNull(routes().resolve("/fonts/AssetFont/fonts.css"))
+            assertEquals("@font-face { font-family: 'Study Font'; src: url('css/extra.woff2'); }\n", css.text())
+        } finally { org.crosswire.jsword.book.Books.installed().removeBook(fontBook) }
+    }
+
+    @Test fun fontCssEscapesNamesAndEncodesFileUrlsWithoutExposingTraversal() {
+        write(book / "css/study font#1.woff2", "font")
+        val r = PageAssetRoutes(
+            backgrounds = { emptyMap() }, bookLocation = { book }, bookStyleFile = { null }, verify = null,
+            fonts = { listOf(
+                net.bible.sharedlogic.platform.AddonFont("Fonts", "Study 'Font\\Name", "css/study font#1.woff2"),
+                net.bible.sharedlogic.platform.AddonFont("Fonts", "Outside", "../../secret.txt"),
+            ) },
+        )
+        assertEquals("@font-face { font-family: 'Study \\'Font\\\\Name'; src: url('css/study%20font%231.woff2'); }\n",
+            r.resolve("/fonts/Fonts/fonts.css").text())
+        assertEquals(book / "css/study font#1.woff2", r.resolve("/fonts/Fonts/css/study font#1.woff2").file())
     }
 
     @Test fun onlySignedFeaturesServed() {

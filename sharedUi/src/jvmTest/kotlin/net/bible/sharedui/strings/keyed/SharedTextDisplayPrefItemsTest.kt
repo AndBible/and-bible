@@ -258,6 +258,33 @@ class SharedTextDisplayPrefItemsTest {
         assertTrue(items.item(bundle, Types.JUSTIFY).visible)
     }
 
+    @Test fun installedFontCatalogIsLiveAndSelectionSurvivesBundleSerialization() {
+        val fs = okio.FileSystem.SYSTEM
+        val dir = java.nio.file.Files.createTempDirectory("font-picker").toString().let { okio.Path.Companion.run { it.toPath() } }
+        try {
+            val file = dir / "Study Font.ttf"
+            fs.write(file) { writeUtf8("font fixture") }
+            val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
+                """[TTF_Study Font]
+ModDrv=RawGenBook
+Category=And Bible
+AndBibleProvidesFont=Study Font;Study Font.ttf
+""".encodeToByteArray(), "TTF_Study Font")
+            metadata.location = org.crosswire.common.util.NetUtil.fileKUri(dir, directory = true)
+            val book = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
+            val items = items()
+            assertFalse(items.fonts.any { it.value == "Study Font" })
+            org.crosswire.jsword.book.Books.installed().addBook(book)
+            try {
+                assertTrue(items.fonts.any { it.value == "Study Font" }, "installed font must be offered, not only CSS generics")
+                items.item(bundle, Types.FONTFAMILY).value = "Study Font"
+                val restored = SettingsBundle.fromJson(bundle.toJson())
+                assertEquals("Study Font", items.item(restored, Types.FONTFAMILY).value)
+            } finally { org.crosswire.jsword.book.Books.installed().removeBook(book) }
+            assertFalse(items.fonts.any { it.value == "Study Font" }, "uninstalled fonts disappear without rebuilding the picker")
+        } finally { fs.deleteRecursively(dir) }
+    }
+
     @Test fun passThroughMembers() {
         val items = items(mapOf("a" to "Image A"))
         assertSame(source, items.contentSource())

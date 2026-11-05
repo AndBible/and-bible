@@ -16,6 +16,17 @@ listing it as a Bible or commentary.
 
 It is possible to offer new fonts to users with custom font modules.
 
+On iOS, you can also import a `.ttf` file through **Install module from zip**
+(the installer accepts font files as well as module archives), or share the file
+with AndBible. After installation, open **All text options** and choose
+**Font family**. Imported fonts and fonts supplied by installed modules appear
+alongside the standard font families. The selected font is used in the reading
+pane and is remembered when you reopen the app, at the text options level you
+selected (window, workspace, or global).
+
+Font files must remain installed for the chosen family to render. Removing a
+font removes it from the chooser; text using it falls back to an available font.
+
 Define category as “And Bible” and your fonts with `AndBibleProvidesFont` keys,
 like in the following example:
 

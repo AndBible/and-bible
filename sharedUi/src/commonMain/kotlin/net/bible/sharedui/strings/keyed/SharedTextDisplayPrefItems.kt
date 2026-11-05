@@ -79,13 +79,19 @@ class SharedTextDisplayPrefItems(
     private val settings: () -> AppSettings,
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
     private val showMarginPageJumpTip: Boolean = true,
-    override val fonts: List<SettingsItem.Choice> = listOf(
-        // The CSS generic families every WebView resolves; a platform with a font scan passes its own.
+    private val installedFonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = {
+        net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() }).fonts()
+    },
+    private val baseFonts: List<SettingsItem.Choice> = listOf(
+        // Only CSS generic families are portable across WebView engines.
         genericFontChoice("sans-serif"),
         genericFontChoice("serif"),
         genericFontChoice("monospace"),
     ),
 ) : TextDisplayPrefItems {
+    override val fonts: List<SettingsItem.Choice>
+        get() = installedFonts().map { SettingsItem.Choice(it.name, it.name) } + baseFonts
+
     /** The recently used types, shared with the menus that offer them as shortcuts. */
     val recent: RecentDisplaySettings by lazy { RecentDisplaySettings(settings()) }
 

@@ -19,7 +19,7 @@ import java.nio.file.Paths
  * the route list and traversal rules are documented there) over `java.nio` paths, answering engine [BundleResource]s.
  *
  * Desktop has no EPUB resource source yet: `/epub/…` and `/module-style/epub/…` are a 404 logged once per route.
- * `fonts.css` is served as an empty stylesheet file ([emptyCssFile]).
+ * Generated font stylesheets are materialized as bounded, reusable files for the desktop engine.
  */
 class DesktopPageAssetRoutes(
     backgrounds: () -> Map<String, Path>,
@@ -41,13 +41,23 @@ class DesktopPageAssetRoutes(
     override fun resolve(path: String): BundleResource? = when (val asset = routes.resolve(path)) {
         null -> null
         is PageAsset.File -> BundleResource(asset.path.toNioPath(), asset.mimeType, fromBundle = false)
-        // Only `fonts.css` is generated on desktop (no EPUB source): one shared empty stylesheet file.
-        is PageAsset.Bytes -> if (asset.bytes.isEmpty()) BundleResource(emptyCssFile(), asset.mimeType, fromBundle = false) else null
+        is PageAsset.Bytes -> BundleResource(generatedCssFile(path, asset.bytes), asset.mimeType, fromBundle = false)
         is PageAsset.Stream -> { asset.source.close(); null }
     }
 
+    private val generatedCss = mutableMapOf<String, Path>()
+
+    /** Reuse one file per module route instead of leaking a temp file on every settings update. */
+    private fun generatedCssFile(route: String, bytes: ByteArray): Path = synchronized(generatedCss) {
+        if (bytes.isEmpty()) return@synchronized emptyCssFile()
+        val file = generatedCss[route]?.takeIf { Files.isRegularFile(it) }
+            ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); generatedCss[route] = it }
+        Files.write(file, bytes)
+        file
+    }
+
     companion object {
-        /** The one empty stylesheet every `fonts.css` answer shares (a [BundleResource] needs a file). */
+        /** The one empty stylesheet every empty `fonts.css` answer shares (a [BundleResource] needs a file). */
         @Volatile private var emptyCss: Path? = null
 
         /** The shared empty stylesheet, recreated when tmp cleaning removed it during a long session. */

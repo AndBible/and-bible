@@ -23,6 +23,9 @@ import org.crosswire.jsword.book.Book
 /** A reading plan provided by an installed add-on module; [path] is the plan file inside the module. */
 class AddonReadingPlan(val book: Book, val fileName: String, val isDateBased: Boolean, val path: Path)
 
+/** A font family supplied by a module; [relativePath] is relative to that module's location. */
+data class AddonFont(val module: String, val name: String, val relativePath: String)
+
 /** Background images keyed by installed module initials, never by a user-supplied filesystem path. */
 data class AddonBackgroundImage(val name: String, val path: Path)
 

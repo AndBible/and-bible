@@ -1,5 +1,6 @@
 package net.bible.sharedui.webview
 
+import io.ktor.http.encodeURLPathPart
 import kotlinx.atomicfu.atomic
 import okio.FileSystem
 import okio.Path
@@ -12,7 +13,7 @@ sealed interface PageAsset {
     /** A file on disk (module files, background images). */
     data class File(val path: Path, override val mimeType: String) : PageAsset
 
-    /** A generated body (the empty `fonts.css`, a cleaned EPUB stylesheet). */
+    /** A generated body (a font stylesheet or a cleaned EPUB stylesheet). */
     class Bytes(val bytes: ByteArray, override val mimeType: String) : PageAsset
 
     /** An EPUB resource stream; the caller owns and must close [source] (the backend waits for it before retiring). */
@@ -55,8 +56,8 @@ private val epubLineHeightRe = Regex("""\bline-height:[^;]*;""")
  *
  * - `/background/<module>`: the add-on background image of that module ([backgrounds]).
  * - `/module/<initials>/<path>`: a file under the installed book's location ([bookLocation]).
- * - `/fonts/<initials>/<path>`: a file under the book's location. `fonts.css` (Android's add-on font list, an
- *   Android-only catalog) is an empty stylesheet for an installed book, so the page's link succeeds; no add-on fonts.
+ * - `/fonts/<initials>/<path>`: a file under the book's location. `fonts.css` declares readable add-on fonts
+ *   from [fonts], with relative URLs resolved through this same traversal-safe route.
  * - `/features/<initials>/<path>`: as `/module/`, but only with a valid `<file>.sign` ([verify]); without a verifier
  *   nothing is served.
  * - `/module-style/<initials>/<path>`: the book's `AndBibleCSS` stylesheet (`style.css`) or a file beside it.
@@ -76,6 +77,9 @@ class PageAssetRoutes(
     private val log: (String) -> Unit = {},
     private val mimeType: (String) -> String = ::pageAssetMimeType,
     private val fs: FileSystem = FileSystem.SYSTEM,
+    private val fonts: () -> List<net.bible.sharedlogic.platform.AddonFont> = {
+        net.bible.sharedlogic.addons.SharedAddonScanner({ org.crosswire.jsword.book.Books.installed().getBooks() }).fonts()
+    },
 ) {
     private val epubLogged = atomic(false)
     private val epubStyleLogged = atomic(false)
@@ -89,7 +93,7 @@ class PageAssetRoutes(
         return when (route) {
             "background" -> if (parts.size == 2 || (parts.size == 3 && rest.isNullOrEmpty())) background(module) else null
             "module" -> inBook(module, rest, signed = false)
-            "fonts" -> if (rest == "fonts.css") emptyFontsCss(module) else inBook(module, rest, signed = false)
+            "fonts" -> if (rest == "fonts.css") fontsCss(module) else inBook(module, rest, signed = false)
             "features" -> inBook(module, rest, signed = true)
             "module-style" -> if (module == "epub") epubModuleStyle(rest) else moduleStyle(module, rest)
             "epub" -> epubResource(path.trimStart('/').removePrefix("epub").removePrefix("/"))
@@ -103,9 +107,21 @@ class PageAssetRoutes(
         return null
     }
 
-    private fun emptyFontsCss(module: String): PageAsset? {
-        if (module.isEmpty() || bookLocation(module) == null) return null
-        return PageAsset.Bytes(ByteArray(0), "text/css")
+    private fun fontsCss(module: String): PageAsset? {
+        val base = bookLocation(module)?.takeIf { module.isNotEmpty() } ?: return null
+        val css = fonts().filter { it.module == module && within(base, it.relativePath) != null }.joinToString("") {
+            val url = it.relativePath.split('/').joinToString("/") { part -> part.encodeURLPathPart() }
+            "@font-face { font-family: '${cssString(it.name)}'; src: url('${cssString(url)}'); }\n"
+        }
+        return PageAsset.Bytes(css.encodeToByteArray(), "text/css")
+    }
+
+    private fun cssString(value: String): String = buildString {
+        for (char in value) when (char) {
+            '\\', '\'' -> { append('\\'); append(char) }
+            '\n', '\r', '\u000c' -> { append('\\'); append(char.code.toString(16)); append(' ') }
+            else -> append(char)
+        }
     }
 
     private fun background(module: String): PageAsset? {

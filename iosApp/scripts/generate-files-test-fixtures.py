@@ -29,6 +29,8 @@ def incoming_fixtures(output):
         ("ch1.xhtml", '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>One</title></head><body><p>F runtime chapter one proof.</p></body></html>'),
         ("ch2.xhtml", '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Two</title></head><body><p>F runtime chapter two proof.</p></body></html>'),
     ])
+    (output / "StudyMono.ttf").write_bytes((root / "iosApp/test-fixtures/fonts/StudyMono.ttf").read_bytes())
+    (output / "StudyMono-LICENSE.txt").write_bytes((root / "iosApp/test-fixtures/fonts/LICENSE.txt").read_bytes())
     (output / "f-invalid.zip").write_bytes(bytes((0x50, 0x4B, 3, 4, 0)))
     h2_fixtures(output, modules)
     h2_bookmarks_csv(output)
