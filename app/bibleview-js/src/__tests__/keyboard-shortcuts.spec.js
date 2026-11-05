@@ -54,7 +54,7 @@ describe("reading shortcut ownership", () => {
     });
 
     it("uses one native owner on iOS even when WebKit also sends the DOM keydown", () => {
-        window.webkit = {messageHandlers: {bridge: {}}};
+        window.__abNativeReadingChords = true;
         try {
             const {commands, press} = keyboard();
             press("KeyF", {ctrlKey: true});
@@ -63,7 +63,7 @@ describe("reading shortcut ownership", () => {
                 detail: {code: "KeyF", ctrlKey: true},
             }));
             expect(commands).toEqual(["CtrlKeyF"]);
-        } finally { delete window.webkit; }
+        } finally { delete window.__abNativeReadingChords; }
     });
 
     it("preserves the key value required by priority handlers on the native route", () => {
@@ -82,7 +82,7 @@ describe("reading shortcut ownership", () => {
     });
 
     it("leaves unsupported native chords available to DOM priority handlers on iOS", () => {
-        window.webkit = {messageHandlers: {bridge: {}}};
+        window.__abNativeReadingChords = true;
         try {
             const {api, press} = keyboard();
             let notes = 0;
@@ -92,7 +92,30 @@ describe("reading shortcut ownership", () => {
             }})));
             press("KeyN", {ctrlKey: true});
             expect(notes).toBe(1);
-        } finally { delete window.webkit; }
+        } finally { delete window.__abNativeReadingChords; }
+    });
+
+    it("leaves all native iOS reading chords to the editor while editing", () => {
+        window.__abNativeReadingChords = true;
+        try {
+            const {commands, api, press} = keyboard();
+            let handled = 0;
+            wrappers.push(mount(defineComponent({setup() {
+                api.setupKeyboardListener(() => { handled++; return true; });
+                return () => null;
+            }})));
+            api.editorMode.value++;
+            for (const code of ["KeyF", "KeyB", "KeyC", "KeyW"]) {
+                expect(press(code, {ctrlKey: true}).defaultPrevented).toBe(false);
+                window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {detail: {code, ctrlKey: true}}));
+            }
+            for (const code of ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "KeyM", "KeyO"]) {
+                expect(press(code, {altKey: true}).defaultPrevented).toBe(false);
+                window.dispatchEvent(new CustomEvent("andbible-native-reading-key", {detail: {code, altKey: true}}));
+            }
+            expect(commands).toEqual([]);
+            expect(handled).toBe(0);
+        } finally { delete window.__abNativeReadingChords; }
     });
 
     it("checks editor ownership at dispatch time for the native iOS route", async () => {
@@ -108,6 +131,16 @@ describe("reading shortcut ownership", () => {
             detail: {code: "KeyB", ctrlKey: true},
         }));
         expect(commands).toEqual(["CtrlKeyB"]);
+    });
+
+    it("delivers all reading chords with a WebKitGTK bridge and no native ownership flag", () => {
+        window.webkit = {messageHandlers: {bridge: {}}};
+        try {
+            const {commands, press} = keyboard();
+            for (const code of ["KeyF", "KeyB", "KeyC", "KeyW"]) press(code, {ctrlKey: true});
+            for (const code of ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "KeyM", "KeyO"]) press(code, {altKey: true});
+            expect(commands).toEqual(["CtrlKeyF", "CtrlKeyB", "CtrlKeyC", "CtrlKeyW", "AltArrowDown", "AltArrowUp", "AltArrowLeft", "AltArrowRight", "AltKeyM", "AltKeyO"]);
+        } finally { delete window.webkit; }
     });
 
     it("delivers each supported reading chord once", () => {

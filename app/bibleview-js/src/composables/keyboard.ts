@@ -64,6 +64,8 @@ export function useKeyboard(
     }
 
     function handleReadingKey(e: KeyboardEvent) {
+        if (isEditing.value && (window as any).__abNativeReadingChords === true && !e.metaKey &&
+            !(e.ctrlKey && e.altKey) && ((e.ctrlKey && ctrlKeys.has(e.code)) || (e.altKey && altKeys.has(e.code)))) return;
         if(executeCustomHandlers(e)) {
             e.preventDefault();
             e.stopPropagation();
@@ -74,7 +76,7 @@ export function useKeyboard(
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
             console.log("Base listener", e);
             let key = e.code;
-            if (isEditing.value && (e.altKey || (e.ctrlKey && editorCtrlKeys.has(e.code)))) {
+            if (isEditing.value && (e.altKey || (e.ctrlKey && (editorCtrlKeys.has(e.code) || (window as any).__abNativeReadingChords === true)))) {
                 // The editor owns copy, bold and Option navigation, without a delayed native editing flag.
                 return;
             }
@@ -106,7 +108,7 @@ export function useKeyboard(
         // Never execute the same chord again if WebKit also emits it. Plain arrows/Space stay DOM-owned.
         const nativeChord = !e.metaKey && !(e.ctrlKey && e.altKey) &&
             ((e.ctrlKey && ctrlKeys.has(e.code)) || (e.altKey && altKeys.has(e.code)));
-        if ((window as any).webkit?.messageHandlers?.bridge && nativeChord) return;
+        if ((window as any).__abNativeReadingChords === true && nativeChord) return;
         handleReadingKey(e);
     });
     setupWindowEventListener("andbible-native-reading-key", (event: Event) => {

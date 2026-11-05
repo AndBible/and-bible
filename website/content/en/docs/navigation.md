@@ -137,8 +137,10 @@ on iPhone and iPad with a connected keyboard. You can also open the same search
 from **Find** in the main menu. These are **Control** shortcuts, not Command
 shortcuts on an Apple keyboard. While a native text field has focus, its own
 keyboard commands take precedence over reading shortcuts. In the Bible text's
-note editor, copying, bold formatting and Option/Alt navigation stay with the
-editor.
+note editor, **Ctrl+C** copies and **Ctrl+B** stays with the editor. Alt+arrow
+keys and Alt+M/O do not trigger reading actions while editing, on Android and
+other platforms as well as iOS. On iOS, the editor also owns Control shortcuts
+such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 
