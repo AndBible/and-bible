@@ -8,7 +8,8 @@ trap 'xcrun simctl shutdown "$id" 2>/dev/null || true; xcrun simctl delete "$id"
 bundle=org.andbible.ios.dev
 xcrun simctl boot "$id" 2>/dev/null || true
 xcrun simctl bootstatus "$id" -b
-app="$PWD/build/dd-iphone/Build/Products/Debug-iphonesimulator/AndBibleDev.app"
+products=$(xcodebuild -showBuildSettings -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator 2>/dev/null | /usr/bin/grep -m 1 ' BUILT_PRODUCTS_DIR = ' | cut -d= -f2- | xargs)
+app="$products/AndBibleDev.app"
 test -d "$app"
 xcrun simctl install "$id" "$app"
 xcrun simctl terminate "$id" "$bundle" 2>/dev/null || true

@@ -6,7 +6,8 @@ id=$(xcrun simctl create "3959 Checker disposable" com.apple.CoreSimulator.SimDe
 trap 'xcrun simctl shutdown "$id" 2>/dev/null || true; xcrun simctl delete "$id"' EXIT
 xcrun simctl boot "$id"
 xcrun simctl bootstatus "$id" -b
-xcrun simctl install "$id" build/dd-iphone/Build/Products/Debug-iphonesimulator/AndBibleDev.app
+products=$(xcodebuild -showBuildSettings -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator 2>/dev/null | /usr/bin/grep -m 1 ' BUILT_PRODUCTS_DIR = ' | cut -d= -f2- | xargs)
+xcrun simctl install "$id" "$products/AndBibleDev.app"
 checker="$(xcode-select -p)/usr/lib/libMainThreadChecker.dylib"
 test -f "$checker"
 pid=$(SIMCTL_CHILD_DYLD_INSERT_LIBRARIES="$checker" xcrun simctl launch "$id" org.andbible.ios.dev -task6ResetCrashState -standardTestFixture | tr -d '\r' | cut -d: -f2 | tr -d ' ')
