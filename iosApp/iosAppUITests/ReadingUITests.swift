@@ -1421,8 +1421,8 @@ final class ReadingUITests: RealAppUITestCase {
         }
         editor.typeKey(XCUIKeyboardKey.leftArrow, modifierFlags: .option)
         editor.typeText("X")
-        // The simulator intermittently drops the arrow before DOM delivery, even with native interception bypassed.
-        XCTExpectFailure("Intermittent simulator hardware arrow delivery (issue 3972)", options: .nonStrict()) {
+        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
+        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha Xbeta" },
                           "Option+Left should move to the previous word: \(editor.value ?? "nil")")
         }
@@ -1444,8 +1444,8 @@ final class ReadingUITests: RealAppUITestCase {
         }
         editor.typeKey(XCUIKeyboardKey.rightArrow, modifierFlags: .option)
         editor.typeText("X")
-        // The simulator intermittently drops the arrow before DOM delivery, even with native interception bypassed.
-        XCTExpectFailure("Intermittent simulator hardware arrow delivery (issue 3972)", options: .nonStrict()) {
+        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
+        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alphaX beta" },
                           "Option+Right should move by a word before insertion: \(editor.value ?? "nil")")
         }
