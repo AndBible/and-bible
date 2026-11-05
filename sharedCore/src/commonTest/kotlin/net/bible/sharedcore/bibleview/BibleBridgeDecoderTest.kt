@@ -108,7 +108,7 @@ class BibleBridgeDecoderTest {
     }
 
     @Test fun tableHas87MethodsAndDeferredOnesStartWithACallId() {
-        assertEquals(87, BibleBridgeDecoder.entries.size)
+        assertEquals(88, BibleBridgeDecoder.entries.size)
         assertEquals(5, BibleBridgeDecoder.deferredMethods.size)
         BibleBridgeDecoder.deferredMethods.forEach { assertEquals('L', BibleBridgeDecoder.entries.getValue(it).kinds.first(), it) }
     }
