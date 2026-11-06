@@ -128,6 +128,26 @@ class ActivitySourcesTest {
         }
     }
 
+    /** The default predicate, with the job id `DownloadQueue` really creates (`INSTALL_BOOK-<repo>--<initials>`). */
+    @Test
+    fun jobDefaultPredicateSkipsRealInstallBookJobButNotIndexJob() = runTest {
+        val c = center()
+        val source = JobActivitySource(c)
+        source.attach()
+        val install = JobManager.createJob(Progress.INSTALL_BOOK.replace("%s", "CrossWire--TestInstDoc"), "TestInstall", null)
+        val index = JobManager.createJob("${Progress.CREATE_INDEX.replace("%s", "KJV")}-t2", "TestIndexing2", null)
+        try {
+            install.beginJob("x", 100); install.work = 30
+            index.beginJob("x", 100); index.work = 30
+            advance(1000)
+            index.work = 40
+            assertEquals(listOf("TestIndexing2"), c.mine("TestInstall", "TestIndexing2").map { it.title })
+        } finally {
+            runCatching { install.done() }; runCatching { index.done() }
+            source.detach()
+        }
+    }
+
     @Test
     fun jobCancelOnlyWhenCancelable() = runTest {
         val c = center()

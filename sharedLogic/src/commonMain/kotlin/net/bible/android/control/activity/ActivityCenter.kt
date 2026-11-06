@@ -9,6 +9,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.time.TimeSource
+
+/**
+ * A monotonic clock for [ActivityCenter]: milliseconds elapsed since this call. Unlike the wall clock it never
+ * jumps (NTP, manual change, DST), which would hide or expire items early against the monotonic `delay`. The values
+ * are only meaningful relative to each other ([ActivityItem.startedAt]/[ActivityItem.finishedAt] are not wall-clock times).
+ */
+fun monotonicActivityClock(): () -> Long {
+    val mark = TimeSource.Monotonic.markNow()
+    return { mark.elapsedNow().inWholeMilliseconds }
+}
 
 /**
  * Registry of long-running background work (downloads, installs, indexing, sync) for the activity center UI.
@@ -20,7 +31,7 @@ import kotlinx.coroutines.launch
  * Thread-safe: every mutation is serialised by one lock, so the source adapters may call it from whatever
  * thread JSword jobs, downloads or sync happen to report on. The registered [scope] hosts
  * one coroutine that wakes at the next debounce end / success expiry, using [delay], so a test
- * scheduler's virtual time works as long as [clock] follows it.
+ * scheduler's virtual time works as long as [clock] follows it. Production passes [monotonicActivityClock].
  */
 class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
 

@@ -201,4 +201,13 @@ class ActivityCenterTest {
         assertEquals(setOf("boom", "bang"), c.items.value.map { it.message }.toSet())
         assertEquals(2, c.unreadFailures.value)
     }
+
+    @Test
+    fun monotonicClockStartsNearZeroAndNeverGoesBack() {
+        val clock = monotonicActivityClock()
+        val first = clock()
+        assertTrue(first in 0..5_000, "elapsed since construction, not an epoch time: $first")
+        var last = first
+        repeat(1000) { val now = clock(); assertTrue(now >= last); last = now }
+    }
 }

@@ -44,9 +44,7 @@ fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenu
         content(null)
         return
     }
-    // The preference's `enabled` getter re-reads the store on each access: take the flow once.
-    val enabledFlow = remember(wiring.preference) { wiring.preference.enabled }
-    val enabled by enabledFlow.collectAsState()
+    val enabled by wiring.preference.enabled.collectAsState()
     // The State objects are only handed on: reading `.value` here would recompose the whole reading screen on
     // every progress event. The readers (button, menu section, list layer) read them where they draw.
     val items = wiring.center.items.collectAsState()

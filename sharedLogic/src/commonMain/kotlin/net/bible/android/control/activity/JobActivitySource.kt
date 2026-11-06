@@ -27,7 +27,12 @@ fun Progress.isDownloadInstallJob(): Boolean = jobID.startsWith(Progress.INSTALL
  * Jobs for which [isDownloadJob] is true are skipped (a download must not show twice). Cancel is offered only
  * while the job is cancelable (re-checked on every progress event). JSword reports a cancel like a normal finish, so
  * a cancel requested through the row is remembered and recorded as cancelled; a cancel from elsewhere looks
- * like a success. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
+ * like a success.
+ *
+ * Known limitation: a job that ends in error is recorded as SUCCEEDED. JSword's [Progress] has no error state
+ * (it only knows finished or not; failures are reported through `Reporter`, not on the job), so a failed job cannot be
+ * told from a finished one here. Sources that do know their outcome (downloads, zip installs, sync) report failures
+ * themselves. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
  */
 class JobActivitySource(
     private val center: ActivityCenter,
