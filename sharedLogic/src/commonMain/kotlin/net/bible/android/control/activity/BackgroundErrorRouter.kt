@@ -1,0 +1,24 @@
+package net.bible.android.control.activity
+
+/**
+ * Sends background errors to the activity list instead of a modal dialog (#4007), on platforms that have the list
+ * as the place to look (desktop, iOS). Android keeps its dialogs and never installs one.
+ *
+ * @param enabled whether the activity menu preference is on; read per error, so toggling takes effect at once
+ * @param toastText the short toast shown instead of the dialog (for example "<message> - see menu")
+ */
+class BackgroundErrorRouter(
+    private val enabled: () -> Boolean,
+    private val sync: SyncActivitySource,
+    private val toastText: (String) -> String,
+) {
+    /**
+     * Records [message] as a failed item and returns the toast text to show, or null when the preference is off
+     * and the caller must keep today's dialog.
+     */
+    fun reroute(message: String): String? {
+        if (!enabled()) return null
+        sync.reportFailure(message)
+        return toastText(message)
+    }
+}

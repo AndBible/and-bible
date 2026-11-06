@@ -154,6 +154,10 @@ import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
 import net.bible.sharedui.reading.host.LocalReadingPane
+import net.bible.sharedui.reading.activity.ActivityHostWiring
+import net.bible.sharedui.reading.activity.activityItemRoute
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedui.reading.host.ReadingHost
 import net.bible.sharedui.reading.host.ReadingHostDeps
 import net.bible.sharedui.reading.host.ReadingHostHooks
@@ -1411,10 +1415,25 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
+     * Background activity in the overflow menu (#4007). Android's preference defaults to off, in which case the
+     * shared wiring hands the toolbar `null` and nothing changes; the user can turn it on in the settings.
+     */
+    private fun activityWiring(): ActivityHostWiring? {
+        val center = getKoin().getOrNull<ActivityCenter>() ?: return null
+        val preference = getKoin().getOrNull<ActivityMenuPreference>() ?: return null
+        return ActivityHostWiring(center, preference) { item ->
+            activityItemRoute(item)?.let { route ->
+                activity.hostActivity.startActivity(NavHostComposeActivity.intentFor(activity.hostContext, route))
+            }
+        }
+    }
+
+    /**
      * THIS host's collaborators bound into the common `ReadingHost`'s deps -- what used to be
      * [ReadingView]'s argument block for the 71-parameter content composable, and nothing else.
      */
     private fun readingHostDeps() = ReadingHostDeps(
+        activity = activityWiring(),
         state = hostState,
         onRailLayoutChanged = activity.readingInsets::setRailLayout,
         controller = controller,

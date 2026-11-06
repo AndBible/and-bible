@@ -39,6 +39,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ZipInstallActivityAdapter
 import net.bible.android.control.event.UserMessages
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
@@ -103,9 +105,18 @@ class DocumentInstallService : Service() {
         private fun createController() = InstallServiceController(
             runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), clearAddonCaches = { AndBibleAddons.clearCaches() })) },
             newJobId = { UUID.randomUUID().toString() },
-            onTerminal = { _, phase -> postTerminalEvents(phase) },
+            onTerminal = { jobId, phase -> postTerminalEvents(phase); reportToActivityCenter(jobId, phase) },
             scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
         )
+
+        /** Shows zip installs in the activity center (#4007); a no-op when the center is not in the Koin graph. */
+        private val activityAdapter = ZipInstallActivityAdapter(
+            center = { KoinJavaComponent.getKoin().getOrNull<ActivityCenter>() },
+            cancel = { jobId -> cancel(jobId) },
+        )
+
+        private fun reportToActivityCenter(jobId: JobId, phase: InstallPhase) =
+            activityAdapter.onTerminal(jobId, phase, terminalEventMessage(phase, KoinJavaComponent.get(CoreStrings::class.java)))
 
         val controller: InstallServiceController
             get() = _controller ?: synchronized(this) { _controller ?: createController().also { _controller = it } }
@@ -325,6 +336,7 @@ class DocumentInstallService : Service() {
             return
         }
         hasSeenActiveJob = true
+        activityAdapter.onJobs(jobs)
 
         val awaiting = jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision }
         if (awaiting != null && !isHostBound()) {

@@ -207,7 +207,10 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
             externalPass = { scheduler.runningPass },
         )
     }
-    single(createdAtStart = true) { DesktopUserMessagesPresenter({ get<UserNotifier>() }) } onClose { it?.close() }
+    single(createdAtStart = true) {
+        // Background errors go to the activity list when the preference is on (#4007); resolved lazily per error.
+        DesktopUserMessagesPresenter({ get<UserNotifier>() }, reroute = { text -> getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.reroute(text) })
+    } onClose { it?.close() }
     single<BackupHost> {
         HostBackupHost(
             get<FilePicker>(), get<FileDelivery>(), { get<AppDialogController>() },

@@ -456,6 +456,7 @@ interface Strings {
     val activityClearFinished: String             // R.string.activity_clear_finished
     val activityTitle: String                     // R.string.activity_title
     val activityEmpty: String                     // R.string.activity_empty
+    fun activityFailedToast(message: String): String // R.string.activity_failed_toast
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String

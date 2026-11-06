@@ -1,0 +1,172 @@
+package net.bible.sharedui.reading.activity
+
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.v2.runComposeUiTest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.activity.ActivityMenuPreference
+import net.bible.sharedcore.platform.ActivityMenuDefault
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedui.reading.ReadingToolbar
+import net.bible.sharedui.reading.ReadingToolbarCallbacks
+import net.bible.sharedui.reading.ReadingToolbarIcons
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.iosStrings
+import net.bible.sharedui.theme.AbTheme
+
+/** The host glue (#4007): preference + [ActivityCenter] flows -> the toolbar's [ActivityMenuState]. */
+@OptIn(ExperimentalTestApi::class)
+class ActivityHostWiringTest {
+    private class MemorySettings : AppSettings {
+        val values = mutableMapOf<String, Any?>()
+        override fun getString(key: String, default: String?) = values["String:$key"] as? String ?: default
+        override fun getLong(key: String, default: Long) = values["Long:$key"] as? Long ?: default
+        override fun getInt(key: String, default: Int) = values["Int:$key"] as? Int ?: default
+        override fun getBoolean(key: String, default: Boolean) = values["Boolean:$key"] as? Boolean ?: default
+        override fun getDouble(key: String, default: Double) = values["Double:$key"] as? Double ?: default
+        override fun getFloat(key: String, default: Float) = values["Float:$key"] as? Float ?: default
+        override fun setString(key: String, value: String?) { values["String:$key"] = value }
+        override fun setLong(key: String, value: Long?) { values["Long:$key"] = value }
+        override fun setInt(key: String, value: Int?) { values["Int:$key"] = value }
+        override fun setBoolean(key: String, value: Boolean?) { values["Boolean:$key"] = value }
+        override fun setDouble(key: String, value: Double?) { values["Double:$key"] = value }
+        override fun setFloat(key: String, value: Float?) { values["Float:$key"] = value }
+    }
+
+    private val strings = iosStrings("en")
+    private val painter = ColorPainter(Color.Gray)
+    private val icons = ReadingToolbarIcons(painter, painter, painter, painter, painter, painter, painter, painter, painter)
+    private val callbacks = ReadingToolbarCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+    private val toolbarState = ToolbarState(
+        pageTitle = "John 3", documentTitle = "KJV", syncRunning = false, showBible = false, showCommentary = false,
+        showStrongs = false, strongsMode = 0, searchable = false, speakable = false, speakStopped = true,
+    )
+
+    private class Fixture(default: Boolean) {
+        var now = 0L
+        val center = ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now }
+        val preference = ActivityMenuPreference(MemorySettings(), ActivityMenuDefault { default })
+        val wiring = ActivityHostWiring(center, preference, onOpenItem = {})
+
+        /** A running item, past the 1 s debounce so the center shows it. */
+        fun runningItem() {
+            center.start("dl", ActivityKind.DOWNLOAD, "Downloading KJV")
+            now = 5_000L
+            center.update("dl", 40)
+        }
+    }
+
+    private fun androidx.compose.ui.test.ComposeUiTest.host(
+        wiring: ActivityHostWiring?, expanded: Boolean = false, seen: MutableList<ActivityMenuState?> = mutableListOf(),
+    ) = setContent {
+        AbTheme {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityHost(wiring) { activity ->
+                    seen += activity
+                    ReadingToolbar(toolbarState, icons, callbacks, overflowExpanded = expanded, activity = activity)
+                }
+            }
+        }
+    }
+
+    @Test fun togglingPreferenceShowsCurrentWork() = runComposeUiTest {
+        val f = Fixture(default = false)
+        f.runningItem()
+        host(f.wiring)
+        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
+
+        f.preference.set(true)
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(1)
+
+        f.preference.set(false)
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test fun menuOpenMarksRead() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.center.start("x", ActivityKind.DOWNLOAD, "KJV")
+        f.center.fail("x", "boom")
+        host(f.wiring, expanded = true)
+        waitForIdle()
+        assertEquals(0, f.center.unreadFailures.value)
+        assertEquals(1, f.center.items.value.size, "the row stays, only the badge goes")
+        onAllNodesWithTag(ACTIVITY_BADGE_TAG, useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    /** Android's default is off: its host must render today's toolbar until the user opts in. */
+    @Test fun androidHostUnchangedWhenPrefOff() = runComposeUiTest {
+        val f = Fixture(default = false)
+        f.runningItem()
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(f.wiring, seen = seen)
+        waitForIdle()
+        assertTrue(seen.isNotEmpty())
+        assertTrue(seen.all { it == null }, "off -> ReadingToolbar(activity = null)")
+        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
+        onAllNodesWithTag(ACTIVITY_BADGE_TAG, useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test fun noWiringIsNull() = runComposeUiTest {
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(null, seen = seen)
+        assertTrue(seen.all { it == null })
+    }
+
+    @Test fun stateIsStableWhileNothingChanges() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.runningItem()
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(f.wiring, seen = seen)
+        waitForIdle()
+        val first = assertNotNull(seen.last())
+        f.center.update("dl", 40) // same progress: no new item list value worth a new state
+        waitForIdle()
+        assertEquals(first.onShowAll, seen.last()!!.onShowAll, "lambdas are remembered, so equality can hold")
+        assertEquals(first.onMenuOpened, seen.last()!!.onMenuOpened)
+    }
+
+    @Test fun showAllOpensListAndPreferenceOffClosesIt() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.runningItem()
+        val seen = mutableListOf<ActivityMenuState?>()
+        host(f.wiring, seen = seen)
+        waitForIdle()
+        seen.last()!!.onShowAll()
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(1)
+        f.preference.set(false)
+        waitForIdle()
+        onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
+        assertNull(seen.last())
+    }
+
+    private fun routeItem(kind: ActivityKind, state: net.bible.android.control.activity.ActivityState) =
+        net.bible.android.control.activity.ActivityItem("x", kind, "t", state, null, null, null, 0L, null, true)
+
+    @Test fun rowsLeadToExistingScreens() {
+        val running = net.bible.android.control.activity.ActivityState.RUNNING
+        val failed = net.bible.android.control.activity.ActivityState.FAILED
+        assertEquals(net.bible.sharedcore.nav.NavRoutes.download(), activityItemRoute(routeItem(ActivityKind.DOWNLOAD, running)))
+        assertEquals(net.bible.sharedcore.nav.NavRoutes.download(), activityItemRoute(routeItem(ActivityKind.INSTALL, failed)))
+        assertEquals(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS, activityItemRoute(routeItem(ActivityKind.SYNC, failed)))
+        assertNull(activityItemRoute(routeItem(ActivityKind.SYNC, running)))
+        assertNull(activityItemRoute(routeItem(ActivityKind.INDEX, failed)))
+        assertNull(activityItemRoute(routeItem(ActivityKind.OTHER, running)))
+    }
+}

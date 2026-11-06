@@ -100,4 +100,30 @@ class UserMessagesPresenterTest {
             Dispatchers.resetMain()
         }
     }
+
+    @Test
+    fun rerouteTakesErrorNotificationsAndLeavesOthersToTheNotifier() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val events = EventSource<UserMessage>()
+        val rerouted = mutableListOf<String>()
+        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { text ->
+            if (text == "sync broke") { rerouted += text; "sync broke - see menu" } else null
+        })
+        val calls = mutableListOf<String>()
+        try {
+            presenter.attach(object : UserNotifier {
+                override fun showInfo(message: String, long: Boolean) { calls += "info:$message" }
+                override fun showError(message: String, cause: Throwable?) { calls += "error:$message" }
+            })
+            events.emit(UserMessage.ErrorNotification("sync broke", null, false))
+            events.emit(UserMessage.ErrorNotification("other", null, false))
+            events.emit(UserMessage.Toast("t", null, false))
+            runCurrent()
+            assertEquals(listOf("info:sync broke - see menu", "error:other", "info:t"), calls)
+            assertEquals(listOf("sync broke"), rerouted)
+        } finally {
+            presenter.close()
+            Dispatchers.resetMain()
+        }
+    }
 }

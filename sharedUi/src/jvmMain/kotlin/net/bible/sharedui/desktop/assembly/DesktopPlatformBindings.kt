@@ -207,6 +207,14 @@ fun desktopPlatformModule(
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { HostStartup.databasesOpen }) }
         // No system notifications for background work here, so the activity menu entry is on by default (#4007).
         single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
+        single {
+            val preference = get<net.bible.android.control.activity.ActivityMenuPreference>()
+            net.bible.android.control.activity.BackgroundErrorRouter(
+                enabled = { preference.enabled.value },
+                sync = get(),
+                toastText = { get<HostStringTableHolder>().current.fmt("activity_failed_toast", it) },
+            )
+        }
 
         // --- strings (retained wrappers read the current language per access)
         single {

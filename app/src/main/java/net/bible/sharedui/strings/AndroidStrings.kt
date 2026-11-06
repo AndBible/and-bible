@@ -446,6 +446,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val activityClearFinished: String get() = context.getString(R.string.activity_clear_finished)
     override val activityTitle: String get() = context.getString(R.string.activity_title)
     override val activityEmpty: String get() = context.getString(R.string.activity_empty)
+    override fun activityFailedToast(message: String): String = context.getString(R.string.activity_failed_toast, message)
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
