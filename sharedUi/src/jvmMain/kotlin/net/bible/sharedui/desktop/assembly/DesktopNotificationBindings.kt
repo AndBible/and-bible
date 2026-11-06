@@ -16,7 +16,11 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
 import net.bible.sharedlogic.util.currentTimeMillis
+import kotlinx.coroutines.withContext
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import org.koin.core.module.Module
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import javax.swing.SwingUtilities
@@ -41,7 +45,13 @@ fun desktopNotificationModule(
     runOnUi: (() -> Unit) -> Unit = { SwingUtilities.invokeLater(it) },
     notifierFactory: (CoroutineScope) -> NativeNotifier = { scope -> linuxNativeNotifier(scope = scope) },
 ): Module = module {
-    single { NotificationRuntime() } onClose { it?.shutdown() }
+    // Real exit never closes Koin: the exit path runs these tasks (on IO, bounded) after the lifecycle's Background event.
+    // onClose covers graph teardown in tests and startup failure; shutdown() is idempotent.
+    single {
+        NotificationRuntime().also { runtime ->
+            getOrNull<DesktopExitTasks>()?.register("native notifications") { withContext(Dispatchers.IO) { runtime.shutdown() } }
+        }
+    } onClose { it?.shutdown() }
     single<NativeNotifier> {
         val runtime = get<NotificationRuntime>()
         notifierFactory(runtime.scope).also { notifier ->
@@ -73,11 +83,14 @@ fun desktopNotificationModule(
  */
 internal class NotificationRuntime {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val steps = java.util.concurrent.CopyOnWriteArrayList<() -> Unit>()
+    private val steps = CopyOnWriteArrayList<() -> Unit>()
 
     fun onShutdown(step: () -> Unit) { steps += step }
 
+    private val done = AtomicBoolean(false)
+
     fun shutdown() {
+        if (!done.compareAndSet(false, true)) return
         steps.reversed().forEach { step -> runCatching(step).onFailure { Log.e(TAG, "Notification shutdown step failed", it) } }
         scope.cancel()
     }

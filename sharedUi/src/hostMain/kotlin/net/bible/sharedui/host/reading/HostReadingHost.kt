@@ -18,6 +18,7 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.sharedui.reading.activity.ActivityHostWiring
@@ -790,7 +791,7 @@ class HostReadingHost(
         return ActivityHostWiring(
             center, preference,
             onOpenItem = { item -> activityItemRoute(item)?.let { shell.navigate(it) } },
-            listRequests = koin.getOrNull<net.bible.android.control.activity.ActivityListRequests>()?.requests,
+            listRequests = koin.getOrNull<ActivityListRequests>()?.requests,
         )
     }
 

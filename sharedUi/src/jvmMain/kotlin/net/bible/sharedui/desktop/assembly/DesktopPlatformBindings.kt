@@ -16,6 +16,9 @@
  */
 package net.bible.sharedui.desktop.assembly
 
+import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
+import net.bible.sharedcore.platform.NativeNotifier
+import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.buildSharedBindings
 import net.bible.android.control.link.LinkPlatform
 import net.bible.android.control.page.GlobalTextDisplaySettingsSource
@@ -178,8 +181,8 @@ fun desktopPlatformModule(
     uiLanguage: String? = null,
     launchArgs: List<String> = emptyList(),
     lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
-    notifierFactory: (kotlinx.coroutines.CoroutineScope) -> net.bible.sharedcore.platform.NativeNotifier =
-        { scope -> net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier(scope = scope) },
+    notifierFactory: (CoroutineScope) -> NativeNotifier =
+        { scope -> linuxNativeNotifier(scope = scope) },
 ): Module {
     // One scanner for both add-on ports, so a clearCaches() on the catalog also reloads the prompt packs.
     // It applies the same add-on filter as Android's AndBibleAddons, and is also the one catalog behind the font

@@ -1,5 +1,13 @@
 package net.bible.android.control.activity
 
+import org.koin.core.module.Module
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.CopyOnWriteArrayList
+import net.bible.sharedcore.platform.NativeNotification
+import net.bible.sharedcore.platform.NativeNotifier
 import net.bible.android.control.buildSharedBindings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedlogic.startup.SharedAppStartup
@@ -40,7 +48,7 @@ class StartActivityCenterTest {
             if (m.returnType == String::class.java) m.name else error("unexpected call of CoreStrings.${m.name}")
         } as CoreStrings
 
-    private fun app(extra: org.koin.core.module.Module? = null): Koin = koinApplication {
+    private fun app(extra: Module? = null): Koin = koinApplication {
         allowOverride(false)
         modules(
             buildSharedBindings(),
@@ -92,18 +100,18 @@ class StartActivityCenterTest {
         assertEquals(null, JobManager.findJob("test-start-1"))
     }
 
-    private class RecordingNotifier : net.bible.sharedcore.platform.NativeNotifier {
+    private class RecordingNotifier : NativeNotifier {
         override val supportsProgress = false
-        val shown = java.util.concurrent.CopyOnWriteArrayList<String>()
-        override fun show(n: net.bible.sharedcore.platform.NativeNotification) { shown += n.id }
+        val shown = CopyOnWriteArrayList<String>()
+        override fun show(n: NativeNotification) { shown += n.id }
         override fun remove(id: String) {}
         override fun setOnActivated(handler: (id: String) -> Unit) {}
     }
 
-    private fun policyModule(notifier: RecordingNotifier, scope: kotlinx.coroutines.CoroutineScope) = module {
+    private fun policyModule(notifier: RecordingNotifier, scope: CoroutineScope) = module {
         single {
             NativeNotificationPolicy(
-                get<ActivityCenter>().items, notifier, { false }, kotlinx.coroutines.flow.MutableStateFlow(true), { 0L }, scope, { "Finished" },
+                get<ActivityCenter>().items, notifier, { false }, MutableStateFlow(true), { 0L }, scope, { "Finished" },
             )
         }
     }
@@ -111,12 +119,12 @@ class StartActivityCenterTest {
     @Test
     fun startStartsTheNativeNotificationPolicyWhenBound() {
         val notifier = RecordingNotifier()
-        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val koin = app(policyModule(notifier, scope))
         try {
             SharedAppStartup.startActivityCenter(koin)
             val center = koin.get<ActivityCenter>()
-            center.start("x", net.bible.android.control.activity.ActivityKind.DOWNLOAD, "T")
+            center.start("x", ActivityKind.DOWNLOAD, "T")
             center.fail("x", "boom")
             val deadline = System.nanoTime() + 10_000_000_000L
             while (notifier.shown.isEmpty() && System.nanoTime() < deadline) Thread.sleep(10)

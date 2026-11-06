@@ -19,6 +19,7 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.NativeNotification
 import net.bible.sharedcore.platform.NativeNotifier
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
@@ -29,6 +30,7 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import java.lang.reflect.Proxy
 import kotlin.test.Test
+import net.bible.sharedui.MemoryAppSettings
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -46,29 +48,15 @@ class DesktopNotificationBindingsTest {
     private class RecordingNotifier : NativeNotifier, AutoCloseable {
         override val supportsProgress = true
         val shows = CopyOnWriteArrayList<NativeNotification>()
-        val removes = CopyOnWriteArrayList<String>()
+
+        /** Every call in order: `show:<id>`, `remove:<id>`, `close`. */
+        val events = CopyOnWriteArrayList<String>()
         @Volatile var handler: ((String) -> Unit)? = null
         @Volatile var closed = false
-        override fun show(n: NativeNotification) { shows += n }
-        override fun remove(id: String) { removes += id }
+        override fun show(n: NativeNotification) { shows += n; events += "show:${n.id}" }
+        override fun remove(id: String) { events += "remove:$id" }
         override fun setOnActivated(handler: (id: String) -> Unit) { this.handler = handler }
-        override fun close() { closed = true }
-    }
-
-    private class MemorySettings : AppSettings {
-        val values = mutableMapOf<String, Any?>()
-        override fun getString(key: String, default: String?) = values["String:$key"] as? String ?: default
-        override fun getLong(key: String, default: Long) = values["Long:$key"] as? Long ?: default
-        override fun getInt(key: String, default: Int) = values["Int:$key"] as? Int ?: default
-        override fun getBoolean(key: String, default: Boolean) = values["Boolean:$key"] as? Boolean ?: default
-        override fun getDouble(key: String, default: Double) = values["Double:$key"] as? Double ?: default
-        override fun getFloat(key: String, default: Float) = values["Float:$key"] as? Float ?: default
-        override fun setString(key: String, value: String?) { values["String:$key"] = value }
-        override fun setLong(key: String, value: Long?) { values["Long:$key"] = value }
-        override fun setInt(key: String, value: Int?) { values["Int:$key"] = value }
-        override fun setBoolean(key: String, value: Boolean?) { values["Boolean:$key"] = value }
-        override fun setDouble(key: String, value: Double?) { values["Double:$key"] = value }
-        override fun setFloat(key: String, value: Float?) { values["Float:$key"] = value }
+        override fun close() { closed = true; events += "close" }
     }
 
     private val strings: CoreStrings =
@@ -76,7 +64,7 @@ class DesktopNotificationBindingsTest {
             if (m.returnType == String::class.java) m.name else error("unexpected ${m.name}")
         } as CoreStrings
 
-    private class Rig(val koin: Koin, val window: FakeWindow, val events: DesktopLifecycleEvents, val center: ActivityCenter, val notifier: RecordingNotifier)
+    private class Rig(val koin: Koin, val window: FakeWindow, val events: DesktopLifecycleEvents, val center: ActivityCenter, val notifier: RecordingNotifier, val exitTasks: DesktopExitTasks)
 
     private var now = 0L
 
@@ -87,12 +75,14 @@ class DesktopNotificationBindingsTest {
     ): T {
         val window = FakeWindow()
         val events = DesktopLifecycleEvents()
+        val exitTasks = DesktopExitTasks()
         val app = koinApplication {
             modules(
                 module {
-                    single<AppSettings> { MemorySettings() }
+                    single<AppSettings> { MemoryAppSettings() }
                     single<CoreStrings> { strings }
                     single { events }
+                    single { exitTasks }
                     single { ActivityListRequests() }
                     single { ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now } }
                 },
@@ -103,7 +93,7 @@ class DesktopNotificationBindingsTest {
             )
         }
         try {
-            return block(Rig(app.koin, window, events, app.koin.get(), notifier))
+            return block(Rig(app.koin, window, events, app.koin.get(), notifier, exitTasks))
         } finally {
             app.close()
         }
@@ -123,7 +113,7 @@ class DesktopNotificationBindingsTest {
             assertIs<NoOpNativeNotifier>(rig.koin.get<NativeNotifier>())
             assertTrue(rig.koin.get<SystemNotificationsPreference>().enabled.value, "desktop default is on")
             assertIs<NativeNotificationPolicy>(rig.koin.get<NativeNotificationPolicy>())
-            assertEquals(null, (rig.koin.get<AppSettings>() as MemorySettings).values["Boolean:system_notifications"], "default never persisted")
+            assertEquals(null, (rig.koin.get<AppSettings>() as MemoryAppSettings).values["Boolean:system_notifications"], "default never persisted")
         }
     }
 
@@ -143,35 +133,59 @@ class DesktopNotificationBindingsTest {
         assertTrue(got.isCompleted, "the list was requested after the window was raised")
     }
 
-    @Test fun foregroundEventsReachThePolicyAndStateStartsFromTheWindow() = withRig { rig ->
-        rig.window.focused = true
+    @Test fun foregroundEventsReachThePolicy() = withRig { rig ->
         rig.koin.get<NativeNotificationPolicy>().start()
         rig.events.emit(DesktopLifecycleEvent.ResignActive)
         rig.center.start("a", ActivityKind.DOWNLOAD, "A")
         now = 20_000
         rig.center.succeed("a")
-        await("background finish notifies") { rig.notifier.shows.size == 1 }
+        await("background finish notifies") { "show:andbible-a" in rig.notifier.events }
 
         rig.events.emit(DesktopLifecycleEvent.Active)
-        now = 20_000
         rig.center.start("b", ActivityKind.DOWNLOAD, "B")
         now = 50_000
         rig.center.succeed("b")
-        Thread.sleep(300)
-        assertEquals(1, rig.notifier.shows.size, "foreground finish is silent")
+        // A later failure always notifies, so once it shows, the foreground success has been evaluated (and was silent).
+        rig.center.start("c", ActivityKind.DOWNLOAD, "C")
+        rig.center.fail("c", "boom")
+        await("barrier failure shows") { "show:andbible-c" in rig.notifier.events }
+        assertTrue("show:andbible-b" !in rig.notifier.events, "foreground finish is silent")
     }
 
-    @Test fun closingTheGraphClosesPolicyThenNotifier() {
+    @Test fun initialForegroundStateComesFromTheWindow() = withRig { rig ->
+        rig.window.focused = true // focused at start(), no lifecycle event has arrived
+        rig.koin.get<NativeNotificationPolicy>().start()
+        rig.center.start("b", ActivityKind.DOWNLOAD, "B")
+        now = 30_000
+        rig.center.succeed("b")
+        rig.center.start("c", ActivityKind.DOWNLOAD, "C")
+        rig.center.fail("c", "boom")
+        await("barrier failure shows") { "show:andbible-c" in rig.notifier.events }
+        assertTrue("show:andbible-b" !in rig.notifier.events, "a long finish while focused is silent")
+    }
+
+    @Test fun exitTasksRemoveProgressThenCloseNotifierAndNothingShowsAfter() {
         val notifier = RecordingNotifier()
         withRig(notifier) { rig ->
-            rig.events.emit(DesktopLifecycleEvent.ResignActive)
             rig.koin.get<NativeNotificationPolicy>().start()
+            rig.events.emit(DesktopLifecycleEvent.ResignActive)
             rig.center.start("a", ActivityKind.DOWNLOAD, "A")
             now = 15_000
             rig.center.update("a", 40)
-            await("progress shown") { notifier.shows.isNotEmpty() }
+            await("progress shown") { "show:andbible-a" in notifier.events }
+
+            // What persistBeforeExit does: Koin stays open, only the registered exit tasks run.
+            rig.events.emit(DesktopLifecycleEvent.Background)
+            assertTrue(runBlocking { rig.exitTasks.runAll(5_000) })
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a", "close"), notifier.events.toList())
+
+            now = 16_000
+            rig.center.update("a", 70)
+            rig.center.start("z", ActivityKind.DOWNLOAD, "Z")
+            rig.center.fail("z", "late")
+            Thread.sleep(200) // nothing to wait for: the policy is closed, so only absence can be asserted
+            assertEquals(listOf("show:andbible-a", "remove:andbible-a", "close"), notifier.events.toList(), "no call after shutdown")
         }
-        assertEquals(listOf("andbible-a"), notifier.removes, "policy removed its progress notification on close")
-        assertTrue(notifier.closed)
+        assertEquals(3, notifier.events.size, "closing the graph afterwards does not shut down twice")
     }
 }
