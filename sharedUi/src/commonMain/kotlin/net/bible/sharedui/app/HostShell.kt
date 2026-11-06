@@ -40,6 +40,12 @@ interface HostShell {
 
     fun goBackInHistory(): Boolean
 
+    /**
+     * True when [goBackInHistory] is a reading-History step separate from the NavHost back stack (Android), so destinations
+     * install their own History-first back handler. iOS/desktop: false, their [goBackInHistory] is the NavHost pop.
+     */
+    val separateHistoryBack: Boolean get() = true
+
     /** In-graph navigation used by hosts that today call `navigateInGraph` / `navController.navigate`. */
     fun navigate(route: String)
 }

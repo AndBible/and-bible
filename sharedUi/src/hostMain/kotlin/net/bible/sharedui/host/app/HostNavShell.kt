@@ -130,5 +130,8 @@ class HostNavShell(
 
     override fun goBackInHistory(): Boolean = navigator.popBackStack()
 
+    /** The pop above is the NavHost's own back; its handler pops with the predictive animation (#4003). */
+    override val separateHistoryBack: Boolean get() = false
+
     override fun navigate(route: String) = navigator.navigate(route)
 }

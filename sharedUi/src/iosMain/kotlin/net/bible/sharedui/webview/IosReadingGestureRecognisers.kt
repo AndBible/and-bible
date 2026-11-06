@@ -37,6 +37,8 @@ import platform.UIKit.UITouchTypeDirect
 import platform.UIKit.UITouchTypeIndirectPointer
 import platform.UIKit.UIPanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
+import platform.UIKit.UITouch
+import net.bible.sharedui.HostBackDispatcher
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
 import platform.UIKit.UISwipeGestureRecognizerDirectionRight
 import platform.UIKit.UITapGestureRecognizer
@@ -129,6 +131,32 @@ internal class IosReadingGestureRecognisers(
         shouldRecognizeSimultaneouslyWithGestureRecognizer: UIGestureRecognizer,
     ): Boolean = true
 
+    /** Whether the touch that the chapter swipes are tracking started in a screen-edge back zone. */
+    private var swipeTouchAtScreenEdge = false
+
+    override fun gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch: UITouch): Boolean {
+        // By type, not identity: the recogniser UIKit passes back is not `===` to the Kotlin reference. Only this class's
+        // own recognisers have it as their delegate, and only the chapter swipes are swipe recognisers.
+        if (gestureRecognizer is UISwipeGestureRecognizer) {
+            val window = webView.window
+            swipeTouchAtScreenEdge = window != null && shouldReceiveTouch.locationInView(window).useContents {
+                val width = window.bounds.useContents { size.width }
+                x < BACK_EDGE_ZONE_POINTS || x > width - BACK_EDGE_ZONE_POINTS
+            }
+        }
+        return true
+    }
+
+    /**
+     * #4003: a drag from the screen edge while back has something to close (Find, the drawer, a sheet) is the scene's
+     * back edge-swipe; it must not also turn the chapter. UIKit let both recognise (seen on the iOS 26.5 simulator: one
+     * drag closed Find and turned John 3 to John 2), so the chapter swipe steps aside itself. On the plain
+     * reading view nothing is enabled, the back recogniser is off, and an edge drag turns the chapter as before.
+     */
+    override fun gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer): Boolean =
+        !(gestureRecognizer is UISwipeGestureRecognizer && swipeTouchAtScreenEdge &&
+            HostBackDispatcher.hasEnabledHandler())
+
     @ObjCAction
     fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()
 
@@ -166,3 +194,6 @@ internal class IosReadingGestureRecognisers(
         }
     }
 }
+
+/** Width of the screen-edge zone where UIKit's back edge-swipe starts (its recogniser takes touches about 20 pt in). */
+private const val BACK_EDGE_ZONE_POINTS = 24.0

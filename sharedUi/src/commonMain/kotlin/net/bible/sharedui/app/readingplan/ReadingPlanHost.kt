@@ -173,6 +173,7 @@ class ReadingPlanHost(
             setHistoryRoute = { owner, route -> shell.setHistoryRoute(owner, route) },
             clearHistoryRoute = { owner -> shell.clearHistoryRoute(owner) },
             goBackInHistory = { shell.goBackInHistory() },
+            historyBackEnabled = shell.separateHistoryBack,
             pendingSelection = pendingReadingPlanSelection,
             dailyReading = DailyReadingDeps(
                 controllerFor = { onChangePlan, onChangeDay -> buildDailyReadingController(onChangePlan, onChangeDay) },

@@ -787,6 +787,11 @@ class HostReadingHost(
         isSearchBarOpen = { searchState.controller.searchModeActive.value },
         closeSearchBar = { searchState.leaveSearch() },
         reopenSearchResults = { searchState.controller.reopenResultsOnBack() },
+        observeOpen = {
+            val sheetVisible by searchState.controller.sheetVisible.collectAsState()
+            val searchModeActive by searchState.controller.searchModeActive.collectAsState()
+            hostState.isDrawerOpen || sheetVisible || searchModeActive
+        },
     )
 
     init {
@@ -812,11 +817,13 @@ fun hostReadingNavDeps(
     table: net.bible.sharedui.strings.keyed.StringTable,
     results: List<ReadingResultCollector<*>> = emptyList(),
     onBack: (passThrough: () -> Unit) -> Unit = { passThrough -> passThrough() },
+    backEnabled: @Composable () -> Boolean = { false },
     content: @Composable () -> Unit,
 ): ReadingNavDeps = ReadingNavDeps(
     host = hostToken,
     windowTitle = table.text("app_name_short"),
     onBack = onBack,
+    backEnabled = backEnabled,
     content = content,
     onKey = { false },
     onScreenTurnedOn = {},

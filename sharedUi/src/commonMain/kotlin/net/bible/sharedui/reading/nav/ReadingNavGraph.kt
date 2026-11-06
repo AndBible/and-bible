@@ -102,6 +102,13 @@ class ReadingNavDeps(
      */
     val onBack: (passThrough: () -> Unit) -> Unit,
     /**
+     * Whether the destination's [onBack] handler is enabled, read in composition. Android keeps the default `true`: its
+     * chain falls back to History and the Activity, so it must always be asked. iOS/desktop pass whether their back chain
+     * has something to close: an always-enabled handler there turns on the iOS edge-swipe back recognizer over the Bible
+     * text even though back would do nothing (#4003).
+     */
+    val backEnabled: @Composable () -> Boolean = { true },
+    /**
      * The reading view itself — see this class's kdoc for why it is one slot. Composed directly in
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
      * byte-for-byte what `ComposeReadingViewHost.install` renders into the classic Activity.
@@ -294,9 +301,9 @@ fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: Read
         // error. rememberUpdatedState + delegating handlers make that impossible without giving up
         // the Unit key.
         val currentDeps = rememberUpdatedState(deps)
-        // Always enabled: the chain must be asked first, and the dispatcher cannot ask a callback whether it would
-        // consume. Consequence: no predictive "back to home" animation on the reading view (spec §3.1).
-        PassThroughBackHandler(enabled = true) { passThrough -> currentDeps.value.onBack(passThrough) }
+        // Enabled by default (Android): the chain must be asked first, and the dispatcher cannot ask a callback whether
+        // it would consume. Consequence: no predictive "back to home" animation on the reading view (spec §3.1).
+        PassThroughBackHandler(enabled = currentDeps.value.backEnabled()) { passThrough -> currentDeps.value.onBack(passThrough) }
         // One effect for both seams — see this function's kdoc. Keyed on Unit: the destination is
         // argument-free, so there is nothing that could legitimately re-key it, and a re-key would
         // mean an exit/enter pair that History would see as the reading view briefly leaving.

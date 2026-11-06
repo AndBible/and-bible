@@ -17,12 +17,8 @@
 package net.bible.sharedui.desktop.reading
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.input.key.Key
-import androidx.navigationevent.NavigationEventDispatcher
-import androidx.navigationevent.NavigationEventInput
+import net.bible.sharedui.HostBackDispatcher
 
 /**
  * Desktop back navigation: Esc, Alt+Left (Alt+Right in RTL) and the mouse back button reach the Compose back stack
@@ -30,97 +26,22 @@ import androidx.navigationevent.NavigationEventInput
  *
  * Compose already feeds an Esc pressed in a focused Compose window to its own scene. CEF panes hold the keyboard
  * focus while the user reads, so their keys arrive through the page script and need [back] explicitly. The
- * dispatcher knows every scene's NavigationEventDispatcher that has composed back handlers (see [Attach]); [back]
- * completes a back event in the most recently attached one that has an enabled handler.
+ * shared [HostBackDispatcher] knows every scene with composed back handlers (see [Attach]); [back] completes
+ * a back event in the most recently attached one that has an enabled handler, also used on iOS.
  *
- * Threading: [back] and [passThrough] are Swing (AWT event) thread only; the `unhandled` flag is not synchronized. A
- * pass-through can reach an older attachment (another window's scene) when the topmost one has none left; harmless
- * with the single main window.
+ * Threading: [back] is Swing (AWT event) thread only. A pass-through can reach an older attachment
+ * (another window's scene) when the topmost one has none left; harmless with the single main window.
  */
 object DesktopBackDispatcher {
     /** A navigation request produced by a key or a mouse button. */
     enum class Navigation { Back, Forward }
 
-    private class Tracking : NavigationEventInput() {
-        var hasEnabled = false
-            private set
-
-        override fun onHasEnabledHandlersChanged(enabled: Boolean) {
-            hasEnabled = enabled
-        }
-
-        fun complete() = dispatchOnBackCompleted()
-    }
-
-    private class Attachment(val dispatcher: NavigationEventDispatcher, val input: Tracking, var refs: Int)
-
-    private val lock = Any()
-    private val attachments = mutableListOf<Attachment>() // oldest first, last = topmost
-    private var unhandled = false
-
-    private fun attach(dispatcher: NavigationEventDispatcher) = synchronized(lock) {
-        val existing = attachments.firstOrNull { it.dispatcher === dispatcher }
-        if (existing != null) {
-            existing.refs++
-        } else {
-            val input = Tracking()
-            dispatcher.addInput(input)
-            attachments += Attachment(dispatcher, input, 1)
-        }
-    }
-
-    private fun detach(dispatcher: NavigationEventDispatcher) = synchronized(lock) {
-        val a = attachments.firstOrNull { it.dispatcher === dispatcher } ?: return@synchronized
-        if (--a.refs <= 0) {
-            attachments.remove(a)
-            // Can fail when the scene was already disposed (its dispatcher is gone with it); nothing is left to clean up then.
-            runCatching { dispatcher.removeInput(a.input) }
-                .onFailure { System.err.println("desktop back dispatcher: removeInput failed (scene already disposed?): $it") }
-        }
-    }
-
-    /** Registers the current scene's dispatcher with this object while the caller stays in the composition. */
+    /** Registers this scene with the shared iOS/desktop back route. */
     @Composable
-    fun Attach() {
-        val dispatcher = currentDispatcher()
-        DisposableEffect(dispatcher) {
-            if (dispatcher != null) attach(dispatcher)
-            onDispose { if (dispatcher != null) detach(dispatcher) }
-        }
-    }
+    fun Attach() = HostBackDispatcher.Attach()
 
-    /**
-     * The back-event dispatcher of the current scene, null when the host provides none. It is the composition local
-     * the common `BackHandler` reads (`LocalCompatNavigationEventDispatcherOwner`, an internal-use API of
-     * compose-ui that :sharedUi's Compose version pins).
-     */
-    @OptIn(InternalComposeUiApi::class)
-    @Composable
-    internal fun currentDispatcher(): NavigationEventDispatcher? =
-        LocalCompatNavigationEventDispatcherOwner.current?.navigationEventDispatcher
-
-    private fun dispatchTopmost(): Boolean {
-        val top = synchronized(lock) { attachments.lastOrNull { it.input.hasEnabled } } ?: return false
-        top.input.complete()
-        return true
-    }
-
-    /**
-     * Completes a back event in the topmost scene that has an enabled back handler (the topmost handler runs first).
-     * Returns true when a handler consumed it, false when there was none or every one passed it through.
-     */
-    fun back(): Boolean {
-        unhandled = false
-        return dispatchTopmost() && !unhandled
-    }
-
-    /**
-     * Called by a pass-through handler (already disabled by the caller) that did not handle the back event: offers it
-     * to the handlers below. With none left the event counts as unhandled, so [back] returns false.
-     */
-    internal fun passThrough() {
-        if (!dispatchTopmost()) unhandled = true
-    }
+    /** Returns false if no shared handler consumes the request. */
+    fun back(): Boolean = HostBackDispatcher.back()
 
     /**
      * Runs [navigation]. Back goes to [back]; forward is consumed without effect, as AndBible has no forward history.

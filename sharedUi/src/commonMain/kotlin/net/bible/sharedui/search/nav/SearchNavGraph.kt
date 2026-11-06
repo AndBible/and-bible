@@ -358,6 +358,13 @@ class SearchNavDeps(
      * history route runs it first on BACK and passes the press on when it declines (spec 2026-10-08 API 36 §3.2).
      */
     val goBackInHistory: () -> Boolean,
+    /**
+     * Whether the destination's own History-first back handler is installed. Android: true (History is separate from the
+     * NavHost back stack). iOS/desktop: false, as their [goBackInHistory] is the NavHost pop itself; leaving the press to
+     * the NavHost's own handler keeps the iOS predictive (edge-swipe) pop animation, which a pass-through handler would
+     * swallow (#4003).
+     */
+    val historyBackEnabled: Boolean = true,
     // — SEARCH FORM —
     val searchForm: SearchFormDeps,
     // — SEARCH INDEX PROMPT —
@@ -495,7 +502,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             }
             // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
             // the destination so it registers after the NavHost's own callback and wins over it.
-            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
+            PassThroughBackHandler(enabled = deps.historyBackEnabled) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
             SearchScreen(
                 title = setup.title,
@@ -697,7 +704,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             }
             // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
             // the destination so it registers after the NavHost's own callback and wins over it.
-            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
+            PassThroughBackHandler(enabled = deps.historyBackEnabled) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
             val query by controller.query.collectAsState()
             val mode by controller.mode.collectAsState()
