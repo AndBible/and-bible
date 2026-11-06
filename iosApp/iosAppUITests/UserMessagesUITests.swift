@@ -31,11 +31,28 @@ final class UserMessagesUITests: XCTestCase {
         app.launchArguments = ["-standardTestFixture", "-task6ResetCrashState",
                                "-discrete_mode", "NO", "-show_calculator", "NO",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
-                               "-task5Settings", "-startupUserMessage"]
+                               "-startupUserMessage"]
         app.launch()
         let toast = app.staticTexts["Test error (debug build) \u{2014} see menu"].firstMatch
         XCTAssertTrue(toast.waitForExistence(timeout: 60), "The rerouted error must show as a toast")
         XCTAssertFalse(app.buttons["OK"].firstMatch.exists, "No modal dialog when the error goes to the activity list")
+        let badge = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "1 failed")).firstMatch
+        XCTAssertTrue(badge.waitForExistence(timeout: 10), "The overflow button must carry the unread-failure badge")
+        attach(app, "activity-toast-and-badge")
+        let more = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "More options")).firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 10))
+        more.tap()
+        let row = app.staticTexts["Test error (debug build)"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "The failure must be a row in the overflow menu")
+        attach(app, "activity-menu-row")
+        XCTAssertTrue(badge.waitForNonExistence(timeout: 10), "Opening the menu marks the failure read")
         app.terminate()
+    }
+
+    private func attach(_ app: XCUIApplication, _ name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
     }
 }
