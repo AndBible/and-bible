@@ -1,5 +1,6 @@
 net/bible/sharedui/ai/AgentPermissionDialog.kt # dialog
 net/bible/sharedui/ai/EasySetupWizard.kt # dialog
+net/bible/sharedui/components/AbAlertDialog.kt # dialog (title scroll only)
 net/bible/sharedui/components/AbColorPickerDialog.kt # dialog
 net/bible/sharedui/components/AbInfoDialog.kt # dialog
 net/bible/sharedui/components/AbListChoiceDialog.kt # dialog
