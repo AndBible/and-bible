@@ -188,6 +188,16 @@ remain reachable on a phone.
     failure badge on the button, and an activity list in the menu. On by default
     on desktop and iOS, off on Android, where the system notifications show the
     same information. See [Background activity](navigation.md#background-activity).
+- **System notifications:** (desktop and iOS only) Shows a system notification
+    when background work fails, and when a long download, install or index (over
+    about 10 seconds) finishes while AndBible is in the background. Successful
+    syncs never notify. On Linux, a running job also shows a progress
+    notification while AndBible is in the background: KDE Plasma and several
+    other desktops show a progress bar, GNOME shows the percentage as text, and
+    the Flatpak build shows no progress notifications. Clicking a notification
+    brings AndBible to the front and opens the activity list. On by default; your
+    operating system's notification settings apply on top. See
+    [Background activity](navigation.md#background-activity).
 
 ### One-Tap Actions
 
