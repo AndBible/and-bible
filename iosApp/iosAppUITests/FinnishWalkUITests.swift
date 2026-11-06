@@ -33,10 +33,16 @@ final class FinnishWalkUITests: RealAppUITestCase {
         var app = launch(["-standardTestFixture", "-task5Settings"])
         harnessRequire(waitForSettingsRoot(app), app, "fi-settings-root-missing")
         revealSettingsRow(app, "locale_pref").tap()
+        let close = app.buttons.matching(NSPredicate(format: "label == 'Close'")).firstMatch
+        harnessRequire(close.waitForExistence(timeout: 10) && close.isHittable, app, "fi-language-sheet-not-open")
         let finnish = app.staticTexts["fi: Suomi"].firstMatch
-        let ready = bringIntoBand(app, finnish, band: 0.5...0.9, maxSteps: 40)
+        for _ in 0..<40 where !(finnish.exists && finnish.isHittable) {
+            harnessRequire(close.exists, app, "fi-language-sheet-dismissed-while-scrolling")
+            nudgeSheetList(app)
+        }
+        harnessRequire(close.exists, app, "fi-language-sheet-dismissed-while-scrolling")
         let choices = app.buttons.containing(.staticText, identifier: "fi: Suomi")
-        harnessRequire(ready && choices.count == 1 && choices.firstMatch.isHittable, app, "fi-choice-not-settled")
+        harnessRequire(finnish.exists && waitForStableOnScreen(app, finnish) && choices.count == 1 && choices.firstMatch.isHittable, app, "fi-choice-not-settled")
         choices.firstMatch.tap()
         harnessRequire(anyLabel(app, "Sovelluksen asetukset").waitForExistence(timeout: 15), app, "fi-runtime-switch-missing")
         app.terminate()
@@ -47,7 +53,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
         let manage = anyLabel(app, "Hallitse kirjanmerkkiryhmi\u{00e4}")
         harnessRequire(manage.waitForExistence(timeout: 15) && manage.isHittable, app, "fi-manage-labels-not-hittable")
         manage.tap()
-        let back = app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up'}")).firstMatch
+        let back = app.buttons["Takaisin"].firstMatch
         harnessRequire(anyLabel(app, "Ryhm\u{00e4}t").waitForExistence(timeout: 20) && back.isHittable, app, "fi-label-manager-not-open")
         shot(app, "fi-native-manage-labels")
         back.tap()
@@ -70,7 +76,7 @@ final class FinnishWalkUITests: RealAppUITestCase {
             var last = CGRect.null
             _ = waitUntil(timeout: 5) { let frame = row.frame; defer { last = frame }; return frame == last }
             row.tap()
-            let destinationBack = app.buttons.matching(NSPredicate(format: "label IN {'Back','Navigate up'}")).firstMatch
+            let destinationBack = app.buttons["Takaisin"].firstMatch
             if !destinationBack.waitForExistence(timeout: 10), row.exists { row.tap() }
             harnessRequire(destinationBack.waitForExistence(timeout: 30) && anyLabel(app, title).exists, app, "fi-native-drawer-destination-missing")
             shot(app, "fi-native-\(title)")
