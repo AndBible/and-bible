@@ -52,6 +52,14 @@ class DisplayScaleProbeTest {
         assertEquals(1, settle(gnomeWayland + ("XDG_CURRENT_DESKTOP" to "KDE"), listOf(empty, ready)).second, "KDE Wayland")
     }
 
+    /** The read itself takes time (opening the display): that is not a wait and must not be reported as one. */
+    @Test fun aSlowFirstReadIsNotAWait() {
+        val clock = FakeClock()
+        val r = X11DisplayScaleProbe.readUntilSettled(mapOf("DISPLAY" to ":0"), { clock.nowMs += 80; ready }, clock::sleep, clock::nanoTime)
+        assertEquals(0L, r.waitedMs)
+        assertEquals(null, r.note())
+    }
+
     @Test fun noWaitWhenAnySettingIsThereOrTheDisplayFailed() {
         assertEquals(1, settle(gnomeWayland, listOf(ready, empty)).second)
         assertEquals(1, settle(gnomeWayland, listOf(empty.copy(xResources = "Xft.antialias: 1\n"), ready)).second)

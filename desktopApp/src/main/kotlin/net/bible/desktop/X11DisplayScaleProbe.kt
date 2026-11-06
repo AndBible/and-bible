@@ -53,15 +53,16 @@ internal object X11DisplayScaleProbe {
      * Xlib caches `RESOURCE_MANAGER` at XOpenDisplay.
      */
     fun readUntilSettled(env: Map<String, String>, readOnce: () -> Result, sleep: (Long) -> Unit, nanoTime: () -> Long): Result {
+        var r = readOnce()
+        if (!awaitsGnomeSettings(env, r)) return r
+        // Counted from the first read's end: opening the display is not waiting.
         val start = nanoTime()
         fun elapsedMs() = (nanoTime() - start) / 1_000_000
-        var r = readOnce()
         while (awaitsGnomeSettings(env, r) && elapsedMs() < GNOME_WAIT_MS) {
             sleep(GNOME_POLL_MS)
             r = readOnce()
         }
-        val waited = elapsedMs()
-        return if (waited > 0) r.copy(waitedMs = waited) else r
+        return r.copy(waitedMs = elapsedMs().coerceAtLeast(1))
     }
 
     /** The display answered but has no settings yet, in a GNOME Wayland session (where they come from gsd-xsettings). */
