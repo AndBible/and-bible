@@ -37,16 +37,27 @@ fun toastTag(id: String): String = if (id.length <= 64) id else
         .joinToString("") { byte -> (byte.toInt() and 0xff).toString(16).padStart(2, '0') }.take(64)
 
 private fun xmlEscape(value: String): String = buildString(value.length) {
-    value.forEach { char ->
-        append(
-            when (char) {
-                '&' -> "&amp;"
-                '<' -> "&lt;"
-                '>' -> "&gt;"
-                '\"' -> "&quot;"
-                '\'' -> "&apos;"
-                else -> char
-            },
-        )
+    var index = 0
+    while (index < value.length) {
+        val char = value[index]
+        when {
+            char.isHighSurrogate() && index + 1 < value.length && value[index + 1].isLowSurrogate() -> {
+                append(char).append(value[index + 1])
+                index++
+            }
+            char.isSurrogate() -> Unit
+            char == '\t' || char == '\n' || char == '\r' || char.code in 0x20..0xD7FF ||
+                char.code in 0xE000..0xFFFD -> append(
+                when (char) {
+                    '&' -> "&amp;"
+                    '<' -> "&lt;"
+                    '>' -> "&gt;"
+                    '\"' -> "&quot;"
+                    '\'' -> "&apos;"
+                    else -> char
+                },
+            )
+        }
+        index++
     }
 }

@@ -54,11 +54,22 @@ class ToastContentTest {
     }
 
     @Test
-    fun longIdTagIsStable64Chars() {
-        val id = "a".repeat(65)
+    fun xmlRoundTripsTextAfterRemovingForbiddenControlsAndUnpairedSurrogates() {
+        val title = "before\u0001after\uD800tail"
+        val body = "left\u0000middle\uDC00right😀"
+        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(InputSource(StringReader(toastXml(notification(title = title, body = body)))))
 
-        assertEquals(64, toastTag(id).length)
-        assertEquals(toastTag(id), toastTag(id))
+        assertEquals("beforeaftertail", document.getElementsByTagName("text").item(0).textContent)
+        assertEquals("leftmiddleright😀", document.getElementsByTagName("text").item(1).textContent)
+    }
+
+    @Test
+    fun longIdTagUsesKnownSha256PrefixAndRespectsLengthBoundary() {
+        assertEquals("a".repeat(64), toastTag("a".repeat(64)))
+        assertEquals("635361c48bb9eab14198e76ea8ab7f1a41685d6ad62aa9146d301d4f17eb0ae0", toastTag("a".repeat(65)))
+        assertEquals("a".repeat(64), toastTag("a".repeat(64)))
+        assertEquals(64, toastTag("a".repeat(65)).length)
     }
 
     @Test
