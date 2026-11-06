@@ -227,6 +227,70 @@ class WindowsToastNotifierTest {
         } finally { sta.closeAndJoin(500) }
     }
 
+    @Test
+    fun failedPumpReportsOnceRejectsFutureWorkAndCompletesQueuedCalls() {
+        for (afterStart in listOf(false, true)) {
+            val release = CountDownLatch(1)
+            val entering = CountDownLatch(1)
+            val queued = CountDownLatch(3) // Initial wake, post and the pending synchronous call.
+            val reported = CountDownLatch(1)
+            val reports = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
+            val pump = object : MessagePump {
+                override fun run(drain: () -> Unit) {
+                    if (afterStart) drain()
+                    entering.countDown()
+                    check(release.await(2, TimeUnit.SECONDS))
+                    error("pump failed")
+                }
+                override fun wake() { queued.countDown() }
+                override fun quit() = Unit
+            }
+            val sta = StaThread("toast-failing-pump", pump, onFailure = { reports += it; reported.countDown() })
+            val callerDone = CountDownLatch(1)
+            var callFailure: Throwable? = null
+            var ran = false
+            val caller = Thread {
+                try { sta.call(10_000) { ran = true } }
+                catch (t: Throwable) { callFailure = t }
+                finally { callerDone.countDown() }
+            }
+            try {
+                assertTrue(entering.await(1, TimeUnit.SECONDS))
+                sta.post { ran = true }
+                caller.start()
+                assertTrue(queued.await(1, TimeUnit.SECONDS))
+                release.countDown()
+                assertTrue(reported.await(1, TimeUnit.SECONDS))
+                assertTrue(callerDone.await(1, TimeUnit.SECONDS), "queued call was stranded by dead pump")
+                repeat(100) { assertFalse(sta.post { ran = true }, "dead owner accepted work") }
+                assertFalse(ran)
+                assertTrue(callFailure != null)
+                assertEquals(listOf("pump failed"), reports.map { it.message })
+                assertFalse(sta.awaitStarted(50) && !afterStart)
+            } finally { release.countDown(); sta.closeAndJoin(500); caller.join(500) }
+        }
+    }
+
+    @Test
+    fun productionOwnerReportsStartupFailureOnlyOnceWithoutNativeApiInitialization() {
+        val failed = CountDownLatch(1)
+        val logs = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val notifier = WindowsToastNotifier(null, pumpFactory = {
+            object : MessagePump {
+                override fun run(drain: () -> Unit): Unit = error("startup failure")
+                override fun wake() = Unit
+                override fun quit() = Unit
+            }
+        }, log = { logs += it; failed.countDown() })
+        try {
+            notifier.show(notification())
+            assertTrue(failed.await(1, TimeUnit.SECONDS))
+            repeat(100) { notifier.show(notification()); notifier.remove("job") }
+        } finally { notifier.close() }
+        assertEquals(1, logs.size)
+        assertTrue("startup failure" in logs.single())
+    }
+
     private class QueuePump : MessagePump {
         private val wakes = LinkedBlockingQueue<Boolean>()
         val stopped = CountDownLatch(1)

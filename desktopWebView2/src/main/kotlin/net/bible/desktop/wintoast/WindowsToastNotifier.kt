@@ -1,5 +1,6 @@
 package net.bible.desktop.wintoast
 
+import net.bible.desktop.webview2.MessagePump
 import net.bible.desktop.webview2.ComException
 import net.bible.desktop.webview2.StaThread
 import net.bible.desktop.webview2.Win32MessagePump
@@ -18,10 +19,16 @@ class WindowsToastNotifier(
     private val log: (String) -> Unit = { Log.w("WindowsToast", it) },
     private val cleanupThread: (Runnable) -> Unit = thread,
 ) : NativeNotifier, AutoCloseable {
-    private class Owner {
+    private class Owner(
+        private val pumpFactory: () -> MessagePump = { Win32MessagePump() },
+        private val log: (String) -> Unit = { Log.w("WindowsToast", it) },
+    ) {
         private var sta: StaThread? = null
         @Synchronized fun post(task: Runnable) {
-            val owner = sta ?: StaThread("AndBible-WindowsToast", Win32MessagePump()).also { sta = it }
+            val owner = sta ?: StaThread("AndBible-WindowsToast", pumpFactory(), onFailure = { error ->
+                val detail = if (error is ComException) hresultString(error.hresult) else "${error.javaClass.name}: ${error.message}"
+                runCatching { log("Windows toast owner failed: $detail") }
+            }).also { sta = it }
             owner.post { task.run() }
         }
         @Synchronized fun cleanup(task: Runnable) { sta?.post { task.run() } }
@@ -34,6 +41,9 @@ class WindowsToastNotifier(
 
     /** Null selects an MSIX package identity; the default selects the installer's registered AUMID. */
     constructor(aumid: String? = ANDBIBLE_AUMID) : this(Owner(), aumid)
+
+    internal constructor(aumid: String?, pumpFactory: () -> MessagePump, log: (String) -> Unit) :
+        this(Owner(pumpFactory, log), aumid)
 
     override val supportsProgress = true
     private val closed = AtomicBoolean()
@@ -65,6 +75,7 @@ class WindowsToastNotifier(
         guarded("initialize") {
             val created = api()
             try {
+                created.onCleanupFailure { operation, hr -> report("cleanup $operation", hresultString(hr)) }
                 created.onActivated { tag ->
                     if (!closed.get()) ids[tag]?.let { id -> guarded("activation") { activated(id); 0 } }
                 }
