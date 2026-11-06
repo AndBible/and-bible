@@ -102,6 +102,7 @@ class SearchHost(
         setHistoryRoute = { owner, route -> shell.setHistoryRoute(owner, route) },
         clearHistoryRoute = { owner -> shell.clearHistoryRoute(owner) },
         goBackInHistory = { shell.goBackInHistory() },
+        historyBackEnabled = shell.separateHistoryBack,
         searchForm = SearchFormDeps(
             prepare = { restoredBibleBook -> prepareSearchForm(restoredBibleBook) },
             loadTranslations = { loadSearchTranslations() },

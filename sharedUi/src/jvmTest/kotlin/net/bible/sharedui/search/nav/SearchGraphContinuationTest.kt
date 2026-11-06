@@ -1,5 +1,12 @@
 package net.bible.sharedui.search.nav
 
+import kotlin.test.assertTrue
+import net.bible.sharedui.HostBackDispatcher
+import androidx.navigationevent.NavigationEventInput
+import androidx.navigationevent.NavigationEvent
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -38,9 +45,12 @@ class SearchGraphContinuationTest {
     private fun deps(
         submit: (SearchRequest) -> SearchSubmission = { error("unexpected form submission") },
         mode: EpubSearchMode = EpubSearchMode.FTS,
+        goBackInHistory: () -> Boolean = { false },
+        historyBackEnabled: Boolean = true,
     ) = SearchNavDeps(
         exitHost = { error("unexpected host exit") }, setWindowTitle = {},
-        setHistoryRoute = { _, _ -> }, clearHistoryRoute = {}, goBackInHistory = { false },
+        setHistoryRoute = { _, _ -> }, clearHistoryRoute = {}, goBackInHistory = goBackInHistory,
+        historyBackEnabled = historyBackEnabled,
         searchForm = SearchFormDeps(
             prepare = { SearchFormSetup("Find", "John") },
             loadTranslations = { TranslationSelection(listOf("KJV" to "KJV", "ESV" to "ESV"), listOf("KJV", "ESV")) },
@@ -150,5 +160,54 @@ class SearchGraphContinuationTest {
         onNodeWithText(strings.create).performClick()
         waitForIdle()
         assertEquals(request, received)
+    }
+
+    /** Feeds a predictive back gesture into the scene, as UIKit's edge-swipe recognizer does on iOS. */
+    private class GestureInput : NavigationEventInput() {
+        fun start() = dispatchOnBackStarted(NavigationEvent(touchX = 0f, touchY = 300f, progress = 0f, swipeEdge = NavigationEvent.EDGE_LEFT))
+        fun progress(p: Float) = dispatchOnBackProgressed(NavigationEvent(touchX = 200f, touchY = 300f, progress = p, swipeEdge = NavigationEvent.EDGE_LEFT))
+        fun complete() = dispatchOnBackCompleted()
+    }
+
+    /**
+     * #4003 review: with the host shell (iOS/desktop) the search destination leaves back to the NavHost, whose own handler
+     * runs the predictive pop. A History-first pass-through handler on top would receive the gesture's start and progress
+     * and only pop on completion, so the previous screen never shows during the iOS edge swipe.
+     */
+    @Test
+    fun hostSearchScreenKeepsThePredictiveBackGestureForTheNavHost() = runComposeUiTest {
+        val gesture = GestureInput()
+        lateinit var nav: NavHostController
+        val popped = mutableListOf<String>()
+        setContent {
+            val dispatcher = HostBackDispatcher.currentDispatcher()
+            DisposableEffect(dispatcher) {
+                dispatcher?.addInput(gesture)
+                onDispose { dispatcher?.removeInput(gesture) }
+            }
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false, disableAnimations = false) {
+                    nav = rememberNavController()
+                    AbNavHost(nav, startDestination = "home") {
+                        composable("home") { Text("Home screen") }
+                        searchNavGraph(nav, deps(goBackInHistory = { popped += "history"; nav.popBackStack() }, historyBackEnabled = false))
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle { nav.navigate(NavRoutes.EPUB_SEARCH) }
+        waitForIdle()
+        assertTrue(onAllNodesWithText("Home screen").fetchSemanticsNodes().isEmpty(), "home must be covered before the gesture")
+        mainClock.autoAdvance = false
+        runOnIdle { gesture.start(); gesture.progress(0.5f) }
+        repeat(5) { mainClock.advanceTimeByFrame() }
+        assertTrue(onAllNodesWithText("Home screen").fetchSemanticsNodes().isNotEmpty(),
+            "mid-gesture the NavHost must show the previous screen (predictive pop)")
+        runOnIdle { gesture.complete() }
+        mainClock.autoAdvance = true
+        waitForIdle()
+        assertEquals("home", nav.currentDestination?.route)
+        assertEquals(emptyList(), popped, "the NavHost, not a History pass-through, pops on the host")
     }
 }

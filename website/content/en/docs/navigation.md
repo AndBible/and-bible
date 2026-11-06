@@ -142,10 +142,20 @@ keys and Alt+M/O do not trigger reading actions while editing, on Android and
 other platforms as well as iOS. On iOS, the editor also owns Control shortcuts
 such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
-On iOS with a hardware keyboard, **Esc** acts as Back: it dismisses the topmost
-sheet, dialog or popup, exits Find mode, or returns from a pushed screen.
-On the plain reading screen it does nothing. A focused text field or input
-method that consumes Esc keeps that key; it does not also trigger Back.
+### Esc Key as Back {#esc-key-as-back}
+
+With a hardware keyboard on iPhone, iPad, the iOS app on a Mac, and the
+desktop app, **Esc** works like the Back button. Each press closes the topmost
+open thing first: a dialog, popup or sheet, then the main menu, then the search
+results and finally **Find** (the search field in the toolbar). On a screen
+opened over the Bible text, such as the settings or the Bible chooser, Esc
+returns to the previous screen. On the Bible text with nothing open, Esc does
+nothing.
+
+On iPhone, iPad and the iOS app on a Mac, while you type in a text field, the
+first Esc only leaves the field (and hides the on-screen keyboard); press Esc
+again to go back. Esc that a note editor or an input method uses itself, for
+example to cancel a composition, never also counts as Back.
 
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 

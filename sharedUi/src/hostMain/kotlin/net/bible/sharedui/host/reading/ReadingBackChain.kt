@@ -16,6 +16,11 @@
  */
 package net.bible.sharedui.host.reading
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 /**
  * The shared reading host's back chain (Esc, Alt+Left and the mouse back button on desktop; the hardware back where the
  * host has one). It closes the topmost of: the drawer, then the search sheet (the results or the "index needed"
@@ -30,7 +35,16 @@ internal class ReadingBackChain(
     private val isSearchBarOpen: () -> Boolean,
     private val closeSearchBar: () -> Unit,
     private val reopenSearchResults: () -> Boolean = { false },
+    private val observeOpen: @Composable () -> Boolean = { true },
 ) {
+    /**
+     * Whether a back press would close something here, observed in composition: the drawer, the search sheet or search
+     * mode (a pending results reopen exists only while search mode is on). The reading destination enables its back
+     * handler only then, so the iOS edge-swipe back recognizer stays off over the plain Bible text.
+     */
+    @Composable
+    fun hasOpenLayer(): Boolean = observeOpen()
+
     /** One back press: closes the topmost of the three, or calls [passThrough] when none is open. */
     fun onBack(passThrough: () -> Unit) {
         when {
@@ -49,8 +63,12 @@ internal class ReadingBackChain(
  * the host has set [chain].
  */
 internal class ReadingBackRoute {
-    @kotlin.concurrent.Volatile
-    var chain: ReadingBackChain? = null
+    /** Snapshot state, so a destination composed before the host exists re-reads [hasOpenLayer] once it is bound. */
+    var chain: ReadingBackChain? by mutableStateOf(null)
+
+    /** False until the host exists (a press would only pass through), then the chain's [ReadingBackChain.hasOpenLayer]. */
+    @Composable
+    fun hasOpenLayer(): Boolean = chain?.hasOpenLayer() ?: false
 
     fun onBack(passThrough: () -> Unit) {
         val c = chain

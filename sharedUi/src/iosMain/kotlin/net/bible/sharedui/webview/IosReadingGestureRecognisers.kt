@@ -36,6 +36,8 @@ import platform.UIKit.UILongPressGestureRecognizer
 import platform.UIKit.UITouchTypeDirect
 import platform.UIKit.UITouchTypeIndirectPointer
 import platform.UIKit.UIPanGestureRecognizer
+import kotlinx.cinterop.ObjCSignatureOverride
+import platform.UIKit.UIScreenEdgePanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
 import platform.UIKit.UISwipeGestureRecognizerDirectionRight
@@ -124,10 +126,29 @@ internal class IosReadingGestureRecognisers(
         webView.scrollView.panGestureRecognizer.removeTarget(this, NSSelectorFromString("scrollPanned:"))
     }
 
+    /**
+     * Simultaneous with everything (WebKit's selection, scrolling, links) except the scene's back edge-swipe recogniser
+     * (#4003): a chapter swipe must not also run when the same drag is a back swipe.
+     */
+    @ObjCSignatureOverride
     override fun gestureRecognizer(
         gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWithGestureRecognizer: UIGestureRecognizer,
-    ): Boolean = true
+    ): Boolean = !isChapterSwipeAgainstBackEdge(gestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer)
+
+    /**
+     * A chapter swipe waits for the back edge-swipe to fail (#4003). The edge recogniser is enabled only while back has
+     * something to close (Find, the drawer, a sheet); there a drag from the left edge closes that and no longer also
+     * turns the chapter. On the plain reading view the edge recogniser is off and the swipe turns the chapter as before.
+     */
+    @ObjCSignatureOverride
+    override fun gestureRecognizer(
+        gestureRecognizer: UIGestureRecognizer,
+        shouldRequireFailureOfGestureRecognizer: UIGestureRecognizer,
+    ): Boolean = isChapterSwipeAgainstBackEdge(gestureRecognizer, shouldRequireFailureOfGestureRecognizer)
+
+    private fun isChapterSwipeAgainstBackEdge(ours: UIGestureRecognizer, other: UIGestureRecognizer): Boolean =
+        (ours === swipeLeft || ours === swipeRight) && other is UIScreenEdgePanGestureRecognizer
 
     @ObjCAction
     fun doubleTapped(sender: UIGestureRecognizer) = gestures.onDoubleTap()

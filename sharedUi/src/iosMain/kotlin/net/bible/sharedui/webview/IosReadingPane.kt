@@ -47,6 +47,7 @@ import platform.Foundation.NSThread
 import platform.Foundation.setValue
 import platform.UIKit.UIColor
 import platform.UIKit.UIKeyboardHIDUsageKeyboardA
+import platform.UIKit.UIKeyboardHIDUsageKeyboardEscape
 import platform.UIKit.UIKeyboardHIDUsageKeyboardZ
 import platform.UIKit.UIKeyboardHIDUsageKeyboardRightArrow
 import platform.UIKit.UIKeyboardHIDUsageKeyboardLeftArrow
@@ -73,8 +74,14 @@ internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>,
     override fun pressesBegan(presses: Set<*>, withEvent: platform.UIKit.UIPressesEvent?) {
         val unhandled = presses.filterNot { value ->
             val press = value as? platform.UIKit.UIPress ?: return@filterNot false
-            if (isEditing()) return@filterNot false
             val key = press.key ?: return@filterNot false
+            // Esc (#4003): the page already received it and routes it to back itself (READING_ESCAPE_SCRIPT), or its
+            // editor used it; bubbling it on would let Compose's scene input go back a second time.
+            if (key.keyCode == UIKeyboardHIDUsageKeyboardEscape) {
+                swallowedPresses.add(press)
+                return@filterNot true
+            }
+            if (isEditing()) return@filterNot false
             val code = when (key.keyCode) {
                 in UIKeyboardHIDUsageKeyboardA..UIKeyboardHIDUsageKeyboardZ ->
                     "Key" + ('A' + (key.keyCode - UIKeyboardHIDUsageKeyboardA).toInt())
@@ -269,6 +276,7 @@ object IosReadingWebViews {
         checkMain()
         val entry = entries.remove(windowId) ?: return
         removeConsoleHandler(entry.webView.configuration.userContentController)
+        entry.webView.configuration.userContentController.removeScriptMessageHandlerForName(READING_ESCAPE_HANDLER_NAME)
         if (entry.handlerCount > 0) {
             entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
             entry.handlerCount = 0
@@ -310,6 +318,15 @@ object IosReadingWebViews {
                     forMainFrameOnly = true,
                 ),
             )
+            // #4003: Esc with the Bible text focused reaches the shared back through the page (see IosReadingEscape.kt).
+            webView.configuration.userContentController.addUserScript(
+                WKUserScript(
+                    source = READING_ESCAPE_SCRIPT,
+                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                    forMainFrameOnly = true,
+                ),
+            )
+            webView.configuration.userContentController.addScriptMessageHandler(sharedReadingEscapeHandler, READING_ESCAPE_HANDLER_NAME)
             ReadingEntry(webView, navDelegate).also {
                 // The first set_config arrives after creation, possibly after attachment. Seed all WebKit
                 // backing layers now, before the cached view can be returned to a UIKitView or a JsHost.

@@ -26,7 +26,15 @@ import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import net.bible.sharedcore.log.nsLog
 
-/** Shared iOS/desktop scene back route. Call back/passThrough on the platform UI thread. */
+/**
+ * The shared iOS/desktop scene back route. Every scene with composed back handlers registers its
+ * NavigationEventDispatcher here (see [Attach]); [back] completes a back event in the most recently attached scene that
+ * has an enabled handler, and [passThrough] hands an event a pass-through handler declined to the handlers below it.
+ *
+ * Threading: UI thread only (the main thread on iOS, the AWT event thread on desktop). [back], [passThrough] and the
+ * composition callbacks must run there: the `unhandled` flag is not synchronized, and the dispatcher's handlers run
+ * synchronously on the calling thread. The lock guards only the attachment list.
+ */
 internal object HostBackDispatcher {
     private class Tracking : NavigationEventInput() {
         var hasEnabled = false

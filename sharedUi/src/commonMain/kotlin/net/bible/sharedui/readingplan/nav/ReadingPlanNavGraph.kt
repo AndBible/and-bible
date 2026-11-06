@@ -238,6 +238,13 @@ class ReadingPlanNavDeps(
      */
     val goBackInHistory: () -> Boolean,
     /**
+     * Whether the destination's own History-first back handler is installed. Android: true (History is separate from the
+     * NavHost back stack). iOS/desktop: false, as their [goBackInHistory] is the NavHost pop itself; leaving the press to
+     * the NavHost's own handler keeps the iOS predictive (edge-swipe) pop animation, which a pass-through handler would
+     * swallow (#4003).
+     */
+    val historyBackEnabled: Boolean = true,
+    /**
      * Child -> parent channel replacing two `setResult(Intent(<value as action>))` round trips —
      * see [ReadingPlanSelection]. Created by the HOST, not `remember`ed in a destination's arm:
      * the parent destination's composition is disposed while the child that writes to it is on top,
@@ -345,7 +352,7 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         }
         // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
         // the destination so it registers after the NavHost's own callback and wins over it.
-        PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
+        PassThroughBackHandler(enabled = deps.historyBackEnabled) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
         /** NO_PLAN -> classic's selector-then-finish pair; see DailyReadingDeps.onPlanMissing. */
         fun applyLoad(result: DailyReadingLoad) {

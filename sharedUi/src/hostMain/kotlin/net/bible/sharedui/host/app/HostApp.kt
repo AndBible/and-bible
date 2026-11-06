@@ -511,7 +511,7 @@ private fun HostAppContent(
         startRoute = route,
         graphs = graphs,
         readingGraph = {
-            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors(), readingHostHolder.backRoute::onBack) {
+            readingNavGraph(navController, hostReadingNavDeps(readingToken, shell, table, readingResults.collectors(), readingHostHolder.backRoute::onBack, { readingHostHolder.backRoute.hasOpenLayer() }) {
                 if (nightObserver != null) HostReadingDestination(platform, shell, table, strings, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
             })
         },

@@ -111,6 +111,9 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.koin.test)
             implementation(libs.kotlinx.coroutines.test)
+            // #4003: Native Compose tests of the iOS back handlers (runComposeUiTest on the simulator).
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
         }
         jvmMain {
             dependencies {

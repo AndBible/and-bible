@@ -1576,6 +1576,84 @@ final class ReadingUITests: RealAppUITestCase {
         // Whether UIKit/Compose inserts 'b' for Control+B is the editor's policy, not a reading action.
     }
 
+    // MARK: #4003: Back (hardware Esc, edge swipe) on the reading view
+    //
+    // XCTest cannot press a hardware Esc here: on Xcode 26.6 / iOS 26.5 simulators `typeKey(.escape)` never reaches the
+    // app (not even `UIWindow.sendEvent`, while letters, Tab, Shift and Control do; probed in a bare WKWebView window, see
+    // docs/superpowers/status/2026-11-06-issue-4003-escape-back.md). The left-edge swipe is the other UIKit input of the
+    // same route (UIKitNavigationEventInput -> the scene's back dispatcher -> the reading view's back chain), so these
+    // tests drive back with it; Esc itself needs a real keyboard (maintainer check on a Mac).
+
+    /// A fast drag from the very left screen edge to the right, as a back swipe.
+    private func leftEdgeSwipe(_ app: XCUIApplication) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.0, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.55)),
+                    withVelocity: .fast, thenHoldForDuration: 0)
+    }
+
+    /// Opens Find from the drawer and returns its field, or nil (with a failure recorded).
+    private func openFind(_ app: XCUIApplication, _ step: String) -> XCUIElement? {
+        guard openDrawerRow(app, "Find") else { return nil }
+        let field = element(app, "reading-search-field")
+        guard field.waitForExistence(timeout: 15) else {
+            attachTree(app, "\(step)-no-find-field"); XCTFail("Find did not open"); return nil
+        }
+        return field
+    }
+
+    /// Back from the reading view's chain: with Find open (and the index prompt or results sheet over it, when a search
+    /// ran), a left-edge back swipe closes the topmost layer only, then Find, and stays on reading. Before #4003 the
+    /// iOS reading destination registered no back handler, so the swipe did nothing in Find.
+    func testEdgeSwipeBackClosesSearchSheetThenFind() throws {
+        let app = try launchReading()
+        guard let field = openFind(app, "edge-back") else { return }
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, "the Find field has no keyboard focus")
+        field.typeText("Nicodemus\n")
+        let countLabel = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", "[0-9]+ verses in [0-9]+ translations")).firstMatch
+        let create = app.buttons.matching(NSPredicate(format: "label == 'Create'")).firstMatch
+        let sheetShown = waitUntil(timeout: 60) { countLabel.exists || create.exists }
+        shot(app, "edge-back-sheet-before")
+        guard sheetShown else { attachTree(app, "edge-back-no-sheet"); XCTFail("no search sheet after Return"); return }
+        XCTAssertEqual(nicodemusInWebViews(app), nicodemusPerPane, "John 3 must be shown before the back swipes")
+        leftEdgeSwipe(app)
+        let sheetClosed = waitUntil(timeout: 10) { !countLabel.exists && !create.exists }
+        shot(app, "edge-back-after-first")
+        if !sheetClosed { attachTree(app, "edge-back-sheet-still-open") }
+        XCTAssertTrue(sheetClosed, "the first back swipe must close the search sheet")
+        XCTAssertTrue(field.exists, "the first back swipe must keep Find open behind the sheet")
+        leftEdgeSwipe(app)
+        let findClosed = waitUntil(timeout: 10) { !field.exists }
+        shot(app, "edge-back-after-second")
+        if !findClosed { attachTree(app, "edge-back-find-still-open") }
+        XCTAssertTrue(findClosed, "the second back swipe must close Find")
+        // The same drags must not also turn the chapter (the pane's chapter swipe waits for the back swipe to fail).
+        usleep(1_500_000)
+        XCTAssertEqual(nicodemusInWebViews(app), nicodemusPerPane, "a back swipe also turned the chapter away from John 3")
+        XCTAssertTrue(element(app, "reading-host").exists, "back left the reading view")
+        XCTAssertFalse(app.buttons["Back"].exists, "back opened a pushed screen")
+    }
+
+    /// A drag that starts at the left screen edge of the plain reading view stays with the Bible text (#4003 review): the
+    /// back edge-swipe recognizer is enabled only while the reading view's back chain has something to close. Right to
+    /// left first so the left-edge swipe has a previous chapter to return to.
+    func testLeftEdgeSwipeOnReadingTurnsChapter() throws {
+        let app = try launchReading()
+        XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown first")
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15), "no pane")
+        let title = { self.toolbarTitle(app)?.label ?? "" }
+        pane.swipeLeft()
+        XCTAssertTrue(waitUntil(timeout: 30) { title().hasPrefix("John 4") }, "the left swipe did not open John 4: '\(title())'")
+        leftEdgeSwipe(app)
+        let back = waitUntil(timeout: 30) { title().hasPrefix("John 3") }
+        shot(app, "edge-swipe-reading")
+        if !back { attachTree(app, "edge-swipe-reading-not-john-3") }
+        XCTAssertTrue(back, "a left-edge swipe on reading must turn back to John 3, got '\(title())'")
+        XCTAssertTrue(element(app, "reading-host").exists && !app.buttons["Back"].exists, "the edge swipe navigated away")
+    }
+
     /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
     /// when the prompt "An index is required to search" appears: "Create"), the sheet shows "<n> verses in 1
     /// translations" with n > 0 and result cards; the card of John 7:50 (or 19:39) opens that chapter (a chapter with
