@@ -191,5 +191,22 @@ fun awaitHostCondition(
         advanceComposition()
         Thread.sleep(10)
     }
-    assertTrue(ready(), "$message (not met after ${(System.nanoTime() - start) / 1_000_000} ms, limit $timeoutMs ms)")
+    if (ready()) return
+    // The report is the only evidence of a rare suite-only stall (#3947): what every live thread was doing.
+    assertTrue(false, "$message (not met after ${(System.nanoTime() - start) / 1_000_000} ms, limit $timeoutMs ms)\n" +
+        hostStallReport())
+}
+
+/** Main looper state and the stacks of all live threads, for a timed-out host wait. */
+internal fun hostStallReport(): String = buildString {
+    val looper = shadowOf(Looper.getMainLooper())
+    append("Main looper: idle=").append(looper.isIdle).append(", next task delay=")
+        .append(looper.nextScheduledTaskTime.minus(java.time.Duration.ofMillis(android.os.SystemClock.uptimeMillis())))
+        .append('\n')
+    for ((thread, stack) in Thread.getAllStackTraces().entries.sortedBy { it.key.name }) {
+        append('"').append(thread.name).append("\" ").append(thread.state)
+        if (thread.isDaemon) append(" daemon")
+        append('\n')
+        stack.take(40).forEach { append("\tat ").append(it).append('\n') }
+    }
 }

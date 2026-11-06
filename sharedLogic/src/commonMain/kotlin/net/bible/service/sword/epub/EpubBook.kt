@@ -172,10 +172,20 @@ suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = withCo
 }
 
 /** Retire the registered owner before removing external files and the internal metadata cache. */
-fun deleteEpubModule(epubDir: Path) {
+fun deleteEpubModule(epubDir: Path) = deleteEpubModule(epubDir, retiring = null)
+
+/**
+ * Deletes the module; [retiring] is a state of this module that may not be the registered one (never
+ * registered, or already replaced). It is closed, waiting for its leases, before the database it holds open is
+ * deleted: a live connection to an unlinked file fails its next write with SQLite 1032 or recreates it empty.
+ */
+internal fun deleteEpubModule(epubDir: Path, retiring: EpubBackendState?) {
     val owner = moduleOwner(epubDir)
     KoinPlatform.getKoin().get<EpubStoreEdge>().lockOwner(owner)
-    try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
+    try {
+        retiring?.close()
+        deleteOwnedEpubModule(epubDir)
+    } finally { owner.unlock() }
 }
 
 /** Deletes the module's files and retires its owner; the caller must already hold the module owner lock. */

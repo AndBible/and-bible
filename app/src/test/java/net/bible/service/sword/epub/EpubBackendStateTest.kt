@@ -65,6 +65,7 @@ class EpubBackendStateTest {
     private lateinit var epubRoot: File
     private lateinit var originalDownloadDir: File
     private val createdDbFilenames = mutableListOf<String>()
+    private val ownership = EpubFixtureOwnership()
 
     @Before
     fun setUp() {
@@ -76,8 +77,7 @@ class EpubBackendStateTest {
     @After
     fun tearDown() {
         try {
-            epubRoot.deleteRecursively()
-            createdDbFilenames.forEach { application.deleteDatabase(it) }
+            ownership.cleanUp(epubRoot, createdDbFilenames)
         } finally {
             SwordBookPathJvm.setDownloadDir(originalDownloadDir)
         }
@@ -141,7 +141,14 @@ class EpubBackendStateTest {
         return epubDir
     }
 
-    private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+    private fun newState(dir: File) = openState(dir)
+
+    /** Opens a state on a fixture-built EPUB directory; [tearDown] retires it before deleting its files. */
+    internal fun openState(
+        dir: File,
+        strings: net.bible.sharedcore.platform.CoreStrings = testCoreStrings(),
+        env: net.bible.sharedcore.platform.AppEnvironment = AndroidAppEnvironment(application),
+    ): EpubBackendState = ownership.track(EpubBackendState(dir.toOkioPath(), strings, env))
 
     /** #3568: exercise the real installer optimizer with many files and references, without a private attachment. */
     @Test
@@ -396,7 +403,7 @@ class EpubBackendStateTest {
                 return name
             }
         }
-        val state = EpubBackendState(dir.toOkioPath(), strings, AndroidAppEnvironment(application))
+        val state = openState(dir, strings)
         buildJob = launch(start = kotlinx.coroutines.CoroutineStart.LAZY) { state.buildSearchIndex() }
         try {
             buildJob.start()
