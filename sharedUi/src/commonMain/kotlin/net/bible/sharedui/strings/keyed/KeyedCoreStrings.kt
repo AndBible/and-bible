@@ -153,6 +153,7 @@ class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
     override val backupSuccess2: String get() = t.text("backup_success2")
     override val pleaseWait: String get() = t.text("please_wait")
     override val synchronizing: String get() = t.text("synchronizing")
+    override val notificationFinished: String get() = t.text("notification_finished")
     override val restoreBackupSections: String get() = t.text("restore_backup_sections")
     override val backupModulesTitle: String get() = t.text("backup_modules_title")
     override val backupModulesSuccess: String get() = t.text("backup_modules_success")

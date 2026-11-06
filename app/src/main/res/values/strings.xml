@@ -1385,6 +1385,7 @@
     <string name="db_repositories">Repositories and related settings</string>
     <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
     <string name="synchronizing">Synchronizing…</string>
+    <string name="notification_finished">Finished</string>
     <string name="overrideBackup">
         Existing database that this device is not synchronized to is found in Cloud.
         Database contains %s. What do you want to do?
