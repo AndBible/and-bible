@@ -620,7 +620,7 @@ fun ReadingToolbar(
                             onItemClick = onOverflowItemClick,
                             onDismiss = onOverflowDismiss,
                             icon = overflowIcon,
-                            header = activity?.let { { ActivityMenuSection(it) } },
+                            header = remember(activity) { activity?.let { a -> @Composable { ActivityMenuSection(a) } } },
                         )
                     }
                 }

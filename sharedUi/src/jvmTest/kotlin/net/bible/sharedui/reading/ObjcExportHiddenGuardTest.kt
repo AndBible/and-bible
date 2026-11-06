@@ -76,7 +76,7 @@ class ObjcExportHiddenGuardTest {
                 File(reading, "TiltAxis.kt"), File(reading, "WorkspaceResultTarget.kt"),
                 File(common, "sharedui/components/AppToastHost.kt"), File(common, "sharedui/strings/PaneMenuStrings.kt"),
             )
-        return r2 + listOf("bridge", "session", "host").flatMap {
+        return r2 + listOf("bridge", "session", "host", "activity").flatMap {
             // Recursive: reading/host/slots/** is a subdirectory of host.
             File(reading, it).walkTopDown().filter { f -> f.isFile && f.extension == "kt" }.toList()
         } + appRoot +

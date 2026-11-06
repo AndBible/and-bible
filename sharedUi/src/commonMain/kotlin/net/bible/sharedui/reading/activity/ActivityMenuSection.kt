@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.activity
 
 import androidx.compose.foundation.layout.Column
@@ -6,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityState
+import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.isPureMonochrome
@@ -28,6 +50,7 @@ internal const val MENU_ACTIVITY_ROWS = 3
  * failure message, then "Show all (N)" when more exist or any failure exists, then a divider.
  * Renders nothing when there is nothing to show, so the menu is then exactly the normal one.
  */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun ActivityMenuSection(activity: ActivityMenuState) {
     // Stable sort: the incoming order (newest first) is kept within each state.
@@ -62,8 +85,8 @@ private fun ActivityRow(item: ActivityItem) {
         Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         when {
             item.state == ActivityState.RUNNING -> {
-                val barColor = if (mono) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
-                val trackColor = if (mono) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.surfaceVariant
+                val barColor = LocalContentColor.current
+                val trackColor = barColor.copy(alpha = 0.2f)
                 val barModifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(3.dp)
                 if (progress != null) {
                     LinearProgressIndicator(
@@ -71,7 +94,7 @@ private fun ActivityRow(item: ActivityItem) {
                         modifier = barModifier, color = barColor, trackColor = trackColor,
                     )
                 } else {
-                    LinearProgressIndicator(modifier = barModifier, color = barColor, trackColor = trackColor)
+                    AbLoadingIndicator(modifier = barModifier, color = barColor, trackColor = trackColor)
                 }
             }
             message != null -> Text(

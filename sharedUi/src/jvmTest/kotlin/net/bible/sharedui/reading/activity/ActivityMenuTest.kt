@@ -21,6 +21,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -81,13 +82,27 @@ class ActivityMenuTest {
     private fun ring(t: androidx.compose.ui.test.ComposeUiTest) = t.onNodeWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true)
     private fun rangeOf(n: SemanticsNodeInteraction) = n.fetchSemanticsNode().config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
 
-    @Test fun nullActivityRendersTodaysToolbar() = runComposeUiTest {
-        toolbar(activity = null, syncRunning = true)
-        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
-        onAllNodesWithTag(ACTIVITY_BADGE_TAG, useUnmergedTree = true).assertCountEquals(0)
-        // The title-side sync glyph (ColorPainter has no semantics) shows as the title row's second child: the
-        // toolbar still renders its options button as today.
-        onNodeWithContentDescription(strings.readingToolbarOptions).assertExists()
+    @Test fun nullActivityRendersTodaysToolbar() {
+        fun tree(withArgument: Boolean): String {
+            var out = ""
+            runComposeUiTest {
+                setContent {
+                    AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+                        if (withArgument) {
+                            ReadingToolbar(toolbarState(true), icons, callbacks, activity = null)
+                        } else {
+                            ReadingToolbar(toolbarState(true), icons, callbacks)
+                        }
+                    } }
+                }
+                // Node ids differ between separate compositions; the structure must not.
+                out = onRoot(useUnmergedTree = true).printToString().replace(Regex("#\\d+"), "#")
+            }
+            return out
+        }
+        val baseline = tree(withArgument = false)
+        assertEquals(baseline, tree(withArgument = true))
+        assertFalse(baseline.contains(ACTIVITY_RING_TAG) || baseline.contains(ACTIVITY_BADGE_TAG))
     }
 
     @Test fun activityHidesTitleSyncGlyphAndNullKeepsIt() {
@@ -249,8 +264,28 @@ class ActivityMenuTest {
     private fun assertSamePixels(a: androidx.compose.ui.graphics.PixelMap, b: androidx.compose.ui.graphics.PixelMap) =
         assertTrue(samePixels(a, b), "ring changed between frames with animations disabled")
 
+    @Test fun noAnimationsStaticIndeterminateRow() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        setContent { Section(menu(listOf(item("a"))), noAnim = true) }
+        waitForIdle()
+        val row = onNodeWithTag(ACTIVITY_ROW_TAG)
+        val before = row.captureToImage().toPixelMap()
+        mainClock.advanceTimeBy(700)
+        assertTrue(samePixels(before, row.captureToImage().toPixelMap()), "row bar changed with animations disabled")
+    }
+
+    @Test fun animatedIndeterminateRowMovesSoTheStaticCheckCanFail() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        setContent { Section(menu(listOf(item("a")))) }
+        waitForIdle()
+        val row = onNodeWithTag(ACTIVITY_ROW_TAG)
+        val before = row.captureToImage().toPixelMap()
+        mainClock.advanceTimeBy(700)
+        assertFalse(samePixels(before, row.captureToImage().toPixelMap()), "an indeterminate bar with animations on must move")
+    }
+
     @androidx.compose.runtime.Composable
-    private fun Section(activity: ActivityMenuState) {
-        AbTheme { CompositionLocalProvider(LocalStrings provides strings) { Column { ActivityMenuSection(activity) } } }
+    private fun Section(activity: ActivityMenuState, noAnim: Boolean = false) {
+        AbTheme(disableAnimations = noAnim) { CompositionLocalProvider(LocalStrings provides strings) { Column { ActivityMenuSection(activity) } } }
     }
 }

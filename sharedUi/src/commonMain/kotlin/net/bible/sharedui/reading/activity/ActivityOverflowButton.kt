@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.activity
 
 import androidx.compose.animation.core.LinearEasing
@@ -13,9 +33,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Badge
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -26,6 +48,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
@@ -52,6 +75,7 @@ private const val SpinMillis = 1100
  * unchanged. The ring and badge are non-interactive overlays with their own semantics nodes, so the button's
  * own label and click action are untouched.
  */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun ActivityOverflowButton(
     icon: Painter,
@@ -80,7 +104,7 @@ fun ActivityOverflowButton(
                     .align(Alignment.TopEnd)
                     .offset(x = (-2).dp, y = 4.dp)
                     .testTag(ACTIVITY_BADGE_TAG)
-                    .semantics(mergeDescendants = true) {
+                    .clearAndSetSemantics {
                         this.contentDescription = strings.activityFailedBadge(activity.unreadFailures)
                     },
             ) {
@@ -96,15 +120,18 @@ fun ActivityOverflowButton(
  */
 @Composable
 private fun ActivityRing(percent: Int?, description: String) {
-    val color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
+    // The toolbar's own content colour, so the ring shows on workspace-coloured toolbars and in monochrome.
+    val color = LocalContentColor.current
     val animate = !LocalDisableAnimations.current && !LocalInspectionMode.current
-    val rotation = if (percent == null && animate) {
+    // The animated value is a State read only inside the draw lambda, so the ring redraws each frame without
+    // recomposing (a recomposition would re-create the semantics block every frame).
+    val rotation: State<Float>? = if (percent == null && animate) {
         rememberInfiniteTransition(label = "activityRing").animateFloat(
             initialValue = 0f, targetValue = 360f,
             animationSpec = infiniteRepeatable(tween(SpinMillis, easing = LinearEasing), RepeatMode.Restart),
             label = "activityRingRotation",
-        ).value
-    } else 0f
+        )
+    } else null
     Canvas(
         Modifier
             .size(RingSize)
@@ -123,7 +150,7 @@ private fun ActivityRing(percent: Int?, description: String) {
         val arcSize = Size(size.width - stroke, size.height - stroke)
         val style = Stroke(width = stroke, cap = StrokeCap.Round)
         if (percent == null) {
-            drawArc(color, startAngle = -90f + rotation, sweepAngle = IndeterminateSweep, useCenter = false,
+            drawArc(color, startAngle = -90f + (rotation?.value ?: 0f), sweepAngle = IndeterminateSweep, useCenter = false,
                 topLeft = Offset(inset, inset), size = arcSize, style = style)
         } else {
             drawArc(color.copy(alpha = 0.2f), 0f, 360f, false, Offset(inset, inset), arcSize, style = style)
