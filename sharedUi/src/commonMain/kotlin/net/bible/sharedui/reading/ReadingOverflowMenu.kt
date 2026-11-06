@@ -26,9 +26,15 @@ import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import kotlinx.coroutines.flow.StateFlow
+import net.bible.service.cloudsync.SyncNow
+import net.bible.service.cloudsync.SyncNowPorts
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedui.reading.toolbar.SYNC_NOW_MENU_ID
+import org.koin.mp.KoinPlatform
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.TrackOverlay
 import net.bible.sharedui.components.UncappedFontScale
@@ -73,7 +79,11 @@ fun ReadingOverflowMenu(
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
             header?.invoke()
-            ReadingOverflowMenuRows(items, onItemClick, icon)
+            val syncRunning = if (expanded && items.any { it.id == SYNC_NOW_MENU_ID }) {
+                val koin = KoinPlatform.getKoinOrNull()
+                if (koin?.getOrNull<SyncNowPorts>() != null) koin.get<SyncNow>().running else null
+            } else null
+            ReadingOverflowMenuRows(items, onItemClick, icon, syncRunning)
         }
     }
 }
@@ -114,19 +124,32 @@ fun ReadingOverflowMenuRows(
     items: List<OptionsMenuItem>,
     onItemClick: (id: String) -> Unit,
     icon: @Composable (iconKey: String) -> Painter? = { null },
+    syncRunning: StateFlow<Boolean>? = null,
 ) {
     val resolved = resolveMenuIconRows(items, OptionsMenuItem::iconKey, icon)
     resolved.rows.forEachIndexed { index, (item, painter) ->
         // Classic's group divider (MenuCompat.setGroupDividerEnabled). Never above the first row.
         if (index > 0 && item.startsNewSection) HorizontalDivider()
-        AbMenuItem(
-            text = if (item.opensDialog) "${item.label} …" else item.label,
-            onClick = { onItemClick(item.id) },
-            icon = painter?.let { p -> { Icon(painter = p, contentDescription = null) } },
-            reserveIconSlot = resolved.reserveIconSlot && painter == null,
-            checkable = item.checkable,
-            checked = item.checked,
-            enabled = item.enabled,
-        )
+        OverflowMenuRow(item, painter, resolved.reserveIconSlot, onItemClick, syncRunning)
     }
+}
+
+@Composable
+private fun OverflowMenuRow(
+    item: OptionsMenuItem,
+    painter: Painter?,
+    reserveIconSlot: Boolean,
+    onItemClick: (String) -> Unit,
+    syncRunning: StateFlow<Boolean>?,
+) {
+    val enabled = if (item.id == SYNC_NOW_MENU_ID && syncRunning != null) !syncRunning.collectAsState().value else item.enabled
+    AbMenuItem(
+        text = if (item.opensDialog) "${item.label} …" else item.label,
+        onClick = { onItemClick(item.id) },
+        icon = painter?.let { p -> { Icon(painter = p, contentDescription = null) } },
+        reserveIconSlot = reserveIconSlot && painter == null,
+        checkable = item.checkable,
+        checked = item.checked,
+        enabled = enabled,
+    )
 }
