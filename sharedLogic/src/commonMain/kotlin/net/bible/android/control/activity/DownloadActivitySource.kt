@@ -62,8 +62,7 @@ class DownloadActivitySource(
             DocumentInstallStatus.ERROR_DOWNLOADING -> {
                 cancelActions.remove(status.id)
                 val title = titleOf(status.id)
-                if (!center.isRunning(id)) center.start(id, ActivityKind.DOWNLOAD, title)
-                center.fail(id, failedText(title))
+                center.startOrFail(id, ActivityKind.DOWNLOAD, title, failedText(title))
             }
             DocumentInstallStatus.INSTALL_CANCELLED -> { cancelActions.remove(status.id); center.cancelled(id) }
             DocumentInstallStatus.NOT_INSTALLED, DocumentInstallStatus.UPGRADE_AVAILABLE -> Unit

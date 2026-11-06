@@ -29,8 +29,7 @@ class SyncActivitySource(
      */
     fun reportFailure(kind: ActivityKind, message: String) {
         val id = "failed:${kind.name}:${message.hashCode()}"
-        center.start(id, kind, message)
-        center.fail(id, message)
+        center.startOrFail(id, kind, message, message)
     }
 
     private companion object {

@@ -189,4 +189,16 @@ class ActivityCenterTest {
         assertTrue(c.items.value.isEmpty())
         assertFalse(c.isRunning("a"))
     }
+
+    @Test
+    fun startOrFailFailsRunningItemAndCreatesFailedWhenAbsent() = runTest {
+        val c = center()
+        c.start("a", ActivityKind.INSTALL, "A")
+        advance(2000)
+        c.startOrFail("a", ActivityKind.INSTALL, "A", "boom")
+        c.startOrFail("b", ActivityKind.INSTALL, "B", "bang")
+        assertEquals(setOf("a" to ActivityState.FAILED, "b" to ActivityState.FAILED), c.items.value.map { it.id to it.state }.toSet())
+        assertEquals(setOf("boom", "bang"), c.items.value.map { it.message }.toSet())
+        assertEquals(2, c.unreadFailures.value)
+    }
 }

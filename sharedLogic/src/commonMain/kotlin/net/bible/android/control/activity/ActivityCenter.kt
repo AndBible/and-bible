@@ -75,6 +75,22 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         }
     }
 
+    /**
+     * Atomically: if [id] is RUNNING, fail it with [message]; otherwise (absent, failed or succeeded) record it as a
+     * fresh failed, unread row. One lock hold, so there is no intermediate hidden RUNNING row: [items] and
+     * [unreadFailures] never lose an existing failed row while it is refreshed, and a concurrent [dismiss] cannot
+     * make the failure vanish.
+     */
+    fun startOrFail(id: String, kind: ActivityKind, title: String, message: String) = change { recs ->
+        val rec = recs[id]
+        val now = clock()
+        if (rec != null && rec.item.state == ActivityState.RUNNING) {
+            recs + (id to Rec(rec.seq, rec.item.copy(state = ActivityState.FAILED, message = message, finishedAt = now, cancel = null, read = false)))
+        } else {
+            recs + (id to Rec(nextSeq(), ActivityItem(id, kind, title, ActivityState.FAILED, null, message, null, now, now, false)))
+        }
+    }
+
     fun start(id: String, kind: ActivityKind, title: String, cancel: (() -> Unit)? = null) = change { recs ->
         val now = clock()
         recs + (id to Rec(nextSeq(), ActivityItem(id, kind, title, ActivityState.RUNNING, null, null, cancel, now, null, true)))

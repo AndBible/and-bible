@@ -67,8 +67,7 @@ class ZipInstallActivityAdapter(
                 is InstallPhase.Done -> c.succeed(id)
                 is InstallPhase.Cancelled -> c.cancelled(id)
                 is InstallPhase.Error -> {
-                    if (!c.isRunning(id)) c.start(id, ActivityKind.INSTALL, name)
-                    c.fail(id, if (message.isBlank()) name else "$name: $message")
+                    c.startOrFail(id, ActivityKind.INSTALL, name, if (message.isBlank()) name else "$name: $message")
                 }
                 else -> Unit
             }

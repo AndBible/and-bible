@@ -1,7 +1,9 @@
 package net.bible.android.control.activity
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -266,6 +268,38 @@ class ActivitySourcesTest {
         sync.reportFailure(ActivityKind.SYNC, "y")
         assertEquals(2, c.items.value.size)
         assertFalse(c.items.value.any { it.state != ActivityState.FAILED })
+    }
+
+    /** Collects every emission of [ActivityCenter.items] and [ActivityCenter.unreadFailures] (unconfined, so none is skipped). */
+    private fun TestScope.record(c: ActivityCenter): Pair<MutableList<List<ActivityItem>>, MutableList<Int>> {
+        val items = mutableListOf<List<ActivityItem>>()
+        val unread = mutableListOf<Int>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { c.items.collect { items += it } }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { c.unreadFailures.collect { unread += it } }
+        return items to unread
+    }
+
+    @Test
+    fun repeatedFailureNeverDropsRowOrUnreadCount() = runTest {
+        val c = center()
+        val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        val (items, unread) = record(c)
+        items.clear(); unread.clear()
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        assertTrue(items.all { list -> list.any { it.state == ActivityState.FAILED } }, "row vanished between emissions: $items")
+        assertTrue(unread.all { it == 1 }, "unread count dipped: $unread")
+    }
+
+    @Test
+    fun downloadErrorWithoutRunningRowIsOneFailedEmission() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        download(c, events)
+        val (items, _) = record(c)
+        items.clear()
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        assertEquals(listOf(listOf(ActivityState.FAILED)), items.map { l -> l.map { it.state } })
     }
 
     @Test
