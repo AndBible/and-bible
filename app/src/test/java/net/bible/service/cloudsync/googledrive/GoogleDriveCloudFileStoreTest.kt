@@ -191,7 +191,9 @@ class GoogleDriveCloudFileStoreTest {
             assertTrue("One Tap must launch without a saved account", request != null)
             activity.finishOneTap(request!!.requestCode, resultCode, data)
             val completionDeadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
-            while (sync.running.value && center.items.value.isEmpty() && System.nanoTime() < completionDeadline) {
+            while (System.nanoTime() < completionDeadline &&
+                if (failureExpected) center.items.value.isEmpty() || dialog.pending.value == null else sync.running.value
+            ) {
                 org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
                 Thread.sleep(10)
             }
