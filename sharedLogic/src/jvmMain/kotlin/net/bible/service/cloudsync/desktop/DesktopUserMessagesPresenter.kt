@@ -18,6 +18,7 @@ package net.bible.service.cloudsync.desktop
 
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
+import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.event.Events
@@ -28,10 +29,14 @@ import net.bible.sharedcore.event.Subscription
  * disabled for an incompatible patch version) through `UserMessages`, which only the Android application subscribes to.
  * Toasts go to [UserNotifier.showInfo], error notifications to [UserNotifier.showError]; a message that carries only an
  * Android resource id cannot be resolved here and is logged and dropped. The subscription lives until [close].
+ *
+ * [reroute] may take an error notification's text, record it elsewhere (the activity list, #4007) and answer the toast
+ * text to show instead of the dialog; null keeps the dialog.
  */
 class DesktopUserMessagesPresenter(
     private val notifier: () -> UserNotifier,
     messages: Events<UserMessage> = UserMessages.messages,
+    private val reroute: (String) -> String? = { null },
 ) : AutoCloseable {
     private val subscription: Subscription = messages.subscribe(::present)
 
@@ -39,7 +44,7 @@ class DesktopUserMessagesPresenter(
         try {
             when (message) {
                 is UserMessage.Toast -> message.text?.let { notifier().showInfo(it, message.long) } ?: dropped(message)
-                is UserMessage.ErrorNotification -> message.text?.let { notifier().showError(it) } ?: dropped(message)
+                is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text)?.let { notifier().showInfo(it, false) } ?: notifier().showError(text) } ?: dropped(message)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Presenting a user message failed", e)

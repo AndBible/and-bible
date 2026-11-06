@@ -16,6 +16,8 @@
  */
 package net.bible.android.control.download
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.service.download.DownloadManager
@@ -116,8 +118,15 @@ class DownloadControl(
         return languageList
     }
 
+    private val namesLock = SynchronizedObject()
+    private val documentNames = HashMap<String, String>()
+
+    /** The display name of a document whose download was requested through [downloadDocument], by repoIdentity; null if unknown. */
+    fun documentName(repoIdentity: String): String? = synchronized(namesLock) { documentNames[repoIdentity] }
+
     suspend fun downloadDocument(repoFactory: RepoFactory, document: Book) {
         Log.i(TAG, "Download requested")
+        synchronized(namesLock) { documentNames[document.repoIdentity] = document.name }
 
         // ensure SBMD is fully, not just partially, loaded
         val bmd = document.bookMetaData

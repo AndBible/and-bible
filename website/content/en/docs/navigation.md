@@ -126,6 +126,38 @@ on the book reference section of the top main toolbar:
 
 For more information about managing workspaces, see [Workspaces](workspaces.md).
 
+## Background activity
+
+On desktop and iOS (including iOS on a Mac) the top right three-dot menu (⋮)
+can show what the app is doing in the background, such as downloads, search
+indexing and sync. On Android the same information is shown as system
+notifications, so this is off by default there. Turn it on or off with
+*Show background activity in the menu* in the *Look & feel* section of the
+application settings (see [Look and Feel](look_and_feel.md#look-feel)).
+
+When the setting is on:
+
+- While a download or install, search indexing or sync is running, a thin
+    progress ring is drawn around the ⋮ button. The ring shows real progress
+    when exactly one item reports a percentage.
+- A failure shows a small count badge on the ⋮ button. The small sync icon next
+    to the title is not shown, because the ring already covers sync.
+- Opening the ⋮ menu shows an activity section at the top with up to three
+    rows: running items first, then failures. Each row has a progress bar or the
+    error text. Opening the menu marks the failures as read, so the badge goes
+    away, but the rows stay.
+- *Show all (N)* opens the *Background activity* list, with a *Running* and a
+    *Recent* section. Running items that can be stopped have *Cancel*, finished
+    items have *Dismiss*, and *Clear finished* removes all finished items. Tap a
+    download row to open the download screen, or a sync failure to open the sync
+    settings. On wide windows the list is a dialog, on phones a bottom sheet.
+- On desktop and iOS, a background sync error appears as a short message
+    ("... see menu") and a row in the list instead of an error dialog.
+
+Successful items stay in the list for one minute, and a successful sync is not
+listed. Failures stay until you dismiss them or restart the app. Very short
+jobs (under a second) are not shown.
+
 ## Gestures and Shortcuts
 
 *AndBible* supports a variety of gestures and shortcuts for efficient navigation.

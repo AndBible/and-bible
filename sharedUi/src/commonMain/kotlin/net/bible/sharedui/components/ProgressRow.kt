@@ -29,6 +29,7 @@ import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,13 +49,17 @@ import net.bible.sharedui.theme.LocalDisableAnimations
  * indeterminate bar at an arbitrary (often empty) frame, so a static half-filled bar is drawn instead.
  */
 @Composable
-fun AbLoadingIndicator(modifier: Modifier = Modifier) {
+fun AbLoadingIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
+) {
     if (LocalInspectionMode.current) {
-        LinearProgressIndicator(progress = { 0f }, modifier = modifier)
+        LinearProgressIndicator(progress = { 0f }, modifier = modifier, color = color, trackColor = trackColor)
     } else if (LocalDisableAnimations.current) {
-        LinearProgressIndicator(progress = { STATIC_INDETERMINATE_FRACTION }, modifier = modifier)
+        LinearProgressIndicator(progress = { STATIC_INDETERMINATE_FRACTION }, modifier = modifier, color = color, trackColor = trackColor)
     } else {
-        LinearProgressIndicator(modifier = modifier)
+        LinearProgressIndicator(modifier = modifier, color = color, trackColor = trackColor)
     }
 }
 

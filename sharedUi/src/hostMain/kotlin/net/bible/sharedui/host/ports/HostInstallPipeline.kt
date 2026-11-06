@@ -2,6 +2,10 @@
 
 package net.bible.sharedui.host.ports
 
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ZipInstallActivityAdapter
+import net.bible.service.installzip.terminalEventMessage
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.document.DocumentChanges
 import net.bible.sharedcore.platform.UserNotifier
@@ -73,6 +77,20 @@ private class EntryDelayingCommitter(
         }
 }
 
+/**
+ * The terminal handler of the install queue: the user-visible feedback first, then the activity list (#4007). The list
+ * can never break the feedback: its message lookup is guarded.
+ */
+internal fun installTerminalHandler(
+    feedback: HostInstallTerminalFeedback,
+    adapter: ZipInstallActivityAdapter,
+    strings: () -> CoreStrings,
+): (JobId, InstallPhase) -> Unit = { jobId, phase ->
+    feedback.handle(phase)
+    val message = try { terminalEventMessage(phase, strings()) } catch (e: Exception) { "" }
+    adapter.onTerminal(jobId, phase, message)
+}
+
 /** One headless queue for the process; its scope is not owned/cancelled by a screen or a Koin test container. */
 internal object HostInstallPipeline {
     private val io: InstallPipelineIo by lazy { installPipelineIo() }
@@ -87,7 +105,13 @@ internal object HostInstallPipeline {
         if (!ReadingAppInit.initialized) ReadingAppInit.initialise(HostReadingAppInitPlatform(HostStartup.stringTable))
     }
 
-    val controller by lazy {
+    /** Shows zip installs in the activity list (#4007); a no-op in a graph without the activity center. */
+    internal val activityAdapter = ZipInstallActivityAdapter(
+        center = { KoinPlatform.getKoinOrNull()?.getOrNull<ActivityCenter>() },
+        cancel = { jobId -> controller.cancel(jobId) },
+    )
+
+    val controller: InstallServiceController by lazy {
         val feedback = HostInstallTerminalFeedback()
         createIosInstallController(
             initialise = { ensureInitialized() },
@@ -102,9 +126,9 @@ internal object HostInstallPipeline {
                     if (delayMs > 0) EntryDelayingCommitter(committer, delayMs, io::sleepMs) else committer)
             },
             newJobId = { io.newJobId() },
-            onTerminal = { _, phase -> feedback.handle(phase) },
+            onTerminal = installTerminalHandler(feedback, activityAdapter) { KoinPlatform.getKoin().get<CoreStrings>() },
             scope = scope,
-        )
+        ).also { c -> scope.launch { c.jobs.collect { activityAdapter.onJobs(it) } } }
     }
 
     fun deps(): InstallServiceController.JobDeps = InstallServiceController.JobDeps(

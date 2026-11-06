@@ -78,7 +78,7 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     PromptPackSource::class, PlatformLocales::class, LocaleSupport::class,
     ReadOnlyModuleDbOpener::class, SearchIndexScheduler::class, LocalCalendar::class,
     FirstLoadEdge::class, EpubStoreEdge::class, MyDocumentStoreEdge::class, SentenceBreaker::class,
-    NightModeState::class,
+    NightModeState::class, net.bible.sharedcore.platform.ActivityMenuDefault::class,
     GlobalTextDisplaySettingsSource::class, WindowSettingsPicker::class, KeyChooserLauncher::class,
     HistoryPlatform::class, LinkPlatform::class, HtmlToPlainText::class, ContentSource::class,
     SaxTextPolicy::class, SearchTextHighlighter::class, ManualInstallFolderEnabler::class, TextDisplayPrefItems::class,

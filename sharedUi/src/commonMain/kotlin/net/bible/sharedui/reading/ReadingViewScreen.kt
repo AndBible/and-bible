@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.reading.activity.ActivityMenuState
 import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Box
@@ -198,6 +199,8 @@ fun ReadingViewScreen(
      */
     edgeBackground: Color? = null,
     onRailLayoutChanged: (covered: Set<String>, bottom: Set<String>?) -> Unit = { _, _ -> },
+    /** Background activity state for the toolbar's overflow button and menu (#4007); `null` = today's toolbar. */
+    activity: ActivityMenuState? = null,
 ) {
     val density = LocalDensity.current
     // Whether the column carries IME padding is this screen's own decision (not Compose's `ime`
@@ -231,6 +234,7 @@ fun ReadingViewScreen(
                     onOverflowItemClick = onOverflowItemClick,
                     onOverflowDismiss = onOverflowDismiss,
                     overflowIcon = overflowIcon,
+                    activity = activity,
                 )
             }
             SplitContent(

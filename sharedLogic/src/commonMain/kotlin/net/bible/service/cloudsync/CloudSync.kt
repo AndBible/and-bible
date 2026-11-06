@@ -675,7 +675,7 @@ class CloudSync(
         needsReconnect: AtomicBoolean,
     ) {
         if (e.requiresReconnect) needsReconnect.value = true
-        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
+        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false)
     }
 
     suspend fun synchronize(allowInteraction: Boolean = true) = withContext(Dispatchers.IO) {

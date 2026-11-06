@@ -101,6 +101,8 @@ import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.activity.ActivityHost
+import net.bible.sharedui.reading.activity.ActivityHostWiring
 import net.bible.sharedui.reading.WindowButton
 import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
@@ -215,6 +217,8 @@ class ReadingHostDeps(
     /** The body of the open quick sheet; [ReadingHost] decides WHEN one is open, from [ReadingHostState.quickSheet]. */
     val quickSheetContent: @Composable (ReadingQuickSheet) -> Unit = {},
     val readingDialogSlot: @Composable () -> Unit = {},
+    /** Background activity in the overflow menu (#4007); `null` keeps today's toolbar. */
+    val activity: ActivityHostWiring? = null,
 )
 
 /**
@@ -428,9 +432,10 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
         ) { _ ->
             // Keying the whole screen on `gen` forces every pane's host view to be recreated on the
             // host's `rebuild()`.
-            key(gen) {
+            ActivityHost(deps.activity) { activityMenu -> key(gen) {
                 ReadingViewScreen(
                     onRailLayoutChanged = deps.onRailLayoutChanged,
+                    activity = activityMenu,
                     layout = layout,
                     toolbar = toolbarState,
                     toolbarIcons = deps.toolbarIcons(),
@@ -522,7 +527,7 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
                         }
                     },
                 )
-            }
+            } }
         }
     }
     // Siblings of the screen (not nested inside `key(gen)`, which only needs to scope the panes): an

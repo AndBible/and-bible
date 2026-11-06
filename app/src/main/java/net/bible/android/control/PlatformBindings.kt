@@ -46,6 +46,8 @@ fun buildPlatformBindings() = module {
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
+    // Android has system notifications for background work: the activity menu entry is opt-in here (#4007).
+    single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { false } }
     single<MarkdownRenderer> { MarkdownToXhtml }
     single<net.bible.sharedcore.platform.secrets.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }

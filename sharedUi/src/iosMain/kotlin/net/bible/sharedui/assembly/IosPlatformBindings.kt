@@ -191,6 +191,17 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         // #3973: a repository transfer runs inside a UIKit background task, so a short app switch does not stop it.
         single<net.bible.android.control.download.DownloadKeepAlive> { IosDownloadKeepAlive }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { IosAppStartup.databasesOpen }) }
+        // No system notifications for background work here, so the activity menu entry is on by default (#4007).
+        single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
+        single {
+            val preference = get<net.bible.android.control.activity.ActivityMenuPreference>()
+            net.bible.android.control.activity.BackgroundErrorRouter(
+                // `-activityMenuOff` (debug builds): UI tests that prove the dialog path.
+                enabled = { !IosDebugLaunchArgs.hasLaunchFlag("-activityMenuOff") && preference.enabled.value },
+                sync = get(),
+                toastText = { get<HostStringTableHolder>().current.fmt("activity_failed_toast", it) },
+            )
+        }
 
         // --- strings (retained wrappers read the current language per access)
         single { parts.stringTableHolder }

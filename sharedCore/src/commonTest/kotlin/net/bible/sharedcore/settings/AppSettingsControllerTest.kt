@@ -228,13 +228,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyFourRowsCarryAnIconKey() {
+    @Test fun fortyFiveRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(44, items.count { it.iconKeyOrNull() != null })
+        assertEquals(45, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -279,6 +279,7 @@ class AppSettingsControllerTest {
             "show_active_window_indicator",
             "disable_bible_bookmark_modal_buttons",
             "disable_gen_bookmark_modal_buttons",
+            "show_activity_in_menu",
             "prefs_eink_settings_cat",
             "display_color_mode",
             "eink_mode",

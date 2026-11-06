@@ -82,6 +82,8 @@ interface Strings {
     val prefsDictionariesCat: String
     val prefsDisableAnimationsSummary: String
     val prefsDisableAnimationsTitle: String
+    val prefsShowActivityInMenuTitle: String
+    val prefsShowActivityInMenuSummary: String
     val prefsDisableClickToEditSummary: String
     val prefsDisableClickToEditTitle: String
     val prefsDisableTwoStepBookmarkingSummary: String
@@ -449,6 +451,15 @@ interface Strings {
 
     // Batch 4 — document selection
     fun docFilterResults(count: Int): String
+    fun activityShowAll(count: Int): String       // R.string.activity_show_all
+    fun activityFailedBadge(count: Int): String   // R.string.activity_failed_badge
+    val activityRunningDescription: String        // R.string.activity_running_description
+    val activityRunning: String                   // R.string.activity_running
+    val activityRecent: String                    // R.string.activity_recent
+    val activityClearFinished: String             // R.string.activity_clear_finished
+    val activityTitle: String                     // R.string.activity_title
+    val activityEmpty: String                     // R.string.activity_empty
+    fun activityFailedToast(message: String): String // R.string.activity_failed_toast
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String

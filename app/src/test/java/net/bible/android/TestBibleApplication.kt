@@ -310,6 +310,9 @@ open class TestBibleApplication : BibleApplication() {
         cleanup { InstallZipProgress.resetSubscribersForTest() }
         // Their subscriptions die with the stream resets; drop them so the next test builds subscribed ones.
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.page.toolbar.ToolbarStateServiceImpl::class) }
+        // Same for the activity sources (#4007): SyncActivitySource listened to the CloudSync stream reset above.
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.SyncActivitySource::class) }
+        cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.activity.DownloadActivitySource::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakSettingsServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakTransportServiceImpl::class) }
         cleanup { GlobalContext.getOrNull()?.dropSingle(net.bible.android.control.speak.SpeakControl::class) }

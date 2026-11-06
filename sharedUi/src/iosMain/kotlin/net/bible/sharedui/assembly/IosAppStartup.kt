@@ -184,7 +184,10 @@ object IosAppStartup {
     suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val selected = withContext(Dispatchers.Main.immediate) {
             // Subscribe before JSword/Koin initialization: neither the notifier nor a UI exists yet.
-            if (userMessages == null) userMessages = UserMessagesPresenter(processScope)
+            if (userMessages == null) userMessages = UserMessagesPresenter(processScope, reroute = { text ->
+                // Background errors go to the activity list when the preference is on (#4007); Koin exists by the time one is presented.
+                KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.BackgroundErrorRouter>()?.reroute(text)
+            })
             owner ?: HostStartupOwner(processScope,
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
@@ -222,6 +225,8 @@ object IosAppStartup {
                     try { DatabaseContainer.instance.sync() }
                     catch (e: Throwable) { DatabaseContainer.ready = false; throw e }
                     withContext(Dispatchers.Main.immediate) { opened = true }
+                    // The activity-menu preference may have been read while the store still answered defaults.
+                    runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
                 },
             ).also { owner = it }
         }

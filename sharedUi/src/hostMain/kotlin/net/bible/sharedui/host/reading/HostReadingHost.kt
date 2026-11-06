@@ -18,6 +18,10 @@
 
 package net.bible.sharedui.host.reading
 
+import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.ActivityMenuPreference
+import net.bible.sharedui.reading.activity.ActivityHostWiring
+import net.bible.sharedui.reading.activity.activityItemRoute
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
@@ -776,7 +780,15 @@ class HostReadingHost(
         onLlmModelChosen = llmDialogs::onModelChosen,
         onLlmRegenerateConfirmed = llmDialogs::onRegenerateConfirmed,
         onLlmDismiss = llmDialogs::dismiss,
+        activity = activityWiring(),
     )
+
+    /** Background activity (#4007); `null` in a graph without the activity center (minimal test graphs). */
+    private fun activityWiring(): ActivityHostWiring? {
+        val center = koin.getOrNull<ActivityCenter>() ?: return null
+        val preference = koin.getOrNull<ActivityMenuPreference>() ?: return null
+        return ActivityHostWiring(center, preference) { item -> activityItemRoute(item)?.let { shell.navigate(it) } }
+    }
 
     /** Back (Esc on desktop) closes the drawer, the search sheet and the search bar before it passes on; see [ReadingBackChain] and [ReadingBackRoute]. */
     internal val backChain = ReadingBackChain(

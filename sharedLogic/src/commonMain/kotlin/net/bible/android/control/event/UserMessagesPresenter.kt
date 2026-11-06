@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.event.Events
+import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
 
@@ -14,10 +15,15 @@ import net.bible.sharedcore.platform.UserNotifier
  * App-owned subscription, installed before startup can emit messages. Registration is synchronous;
  * delivery waits for [attach] without needing Koin or a UI host. The notifier's dialog queue and
  * toast state retain messages until the UI mounts. [close] belongs to app teardown, not composition.
+ *
+ * [reroute] may take an error notification's text, record it in the activity list (#4007) and answer the toast text
+ * to show instead of the dialog; null keeps the dialog. It runs on Main, after [attach].
  */
 @OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
-class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage> = UserMessages.messages) : AutoCloseable {
+class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage> = UserMessages.messages,
+    private val reroute: (String) -> String? = { null },
+) : AutoCloseable {
     private val pending = Channel<UserMessage>(Channel.UNLIMITED)
     private val notifier = CompletableDeferred<UserNotifier>()
     private val subscription = messages.subscribe { pending.trySend(it) }
@@ -27,7 +33,7 @@ class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage>
             try {
                 when (message) {
                     is UserMessage.Toast -> message.text?.let { target.showInfo(it, message.long) } ?: dropped(message)
-                    is UserMessage.ErrorNotification -> message.text?.let { target.showError(it) } ?: dropped(message)
+                    is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text)?.let { target.showInfo(it, false) } ?: target.showError(text) } ?: dropped(message)
                 }
             } catch (e: CancellationException) {
                 throw e

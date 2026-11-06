@@ -177,6 +177,8 @@
 
     <string name="prefs_disable_animations_title">Disable animations</string>
     <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>
+    <string name="prefs_show_activity_in_menu_title">Show background activity in the menu</string>
+    <string name="prefs_show_activity_in_menu_summary">Downloads, sync and indexing progress, and failures, in the ⋮ menu</string>
 
     <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>
     <string name="prefs_disable_click_to_edit_summary">Requires using the edit button to edit notes in the Study Pad.</string>
@@ -422,6 +424,15 @@
     <string name="chooce_language_hint">Language</string>
     <string name="one_more_back_press">Press back again to close the app</string>
     <string name="document_filter_results">%d documents</string>
+    <string name="activity_show_all">Show all (%1$d)</string>
+    <string name="activity_failed_badge">%1$d failed</string>
+    <string name="activity_running_description">Background work running</string>
+    <string name="activity_running">Running</string>
+    <string name="activity_recent">Recent</string>
+    <string name="activity_clear_finished">Clear finished</string>
+    <string name="activity_title">Background activity</string>
+    <string name="activity_empty">Nothing running</string>
+    <string name="activity_failed_toast">%1$s — see menu</string>
     <string name="download_question_title">Do you want to proceed to download documents?</string>
     <string name="download_question_message">If you live in a persecuted country,
         you might need to be careful about downloading christian material via Internet.

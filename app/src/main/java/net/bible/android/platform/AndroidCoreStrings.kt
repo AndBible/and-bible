@@ -130,6 +130,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val backupBackupMessage: String get() = context.getString(R.string.backup_backup_message)
     override val backupSuccess2: String get() = context.getString(R.string.backup_success2)
     override val pleaseWait: String get() = context.getString(R.string.please_wait)
+    override val synchronizing: String get() = context.getString(R.string.synchronizing)
     override val restoreBackupSections: String get() = context.getString(R.string.restore_backup_sections)
     override val backupModulesTitle: String get() = context.getString(R.string.backup_modules_title)
     override val backupModulesSuccess: String get() = context.getString(R.string.backup_modules_success)
