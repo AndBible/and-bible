@@ -41,6 +41,7 @@ import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.sword.ContentSource
 import net.bible.service.sword.backgroundimage.BackgroundImageImporter
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.persistCipherKey
 import net.bible.sharedcore.platform.AppDirectories
@@ -283,7 +284,8 @@ class ReadingAppInitTest {
                 assertEquals(image, registered.backgroundImageFile)
                 assertEquals(image, assertNotNull(catalog.backgroundImages[selected]).path)
             }
-            ReadingAppInit.initialise(platform)
+            // initialise() is a no-op once initialized is set, so repeat only the scan it would have done.
+            addManuallyInstalledBackgroundImageBooks()
             assertEquals(1, Books.installed().getBooks().count { it.initials == imported.initials })
         } finally {
             Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
