@@ -54,6 +54,9 @@ import kotlin.test.assertTrue
  * The real desktop startup (Koin, databases, Sword) against temporary XDG directories. Every test resets the startup in
  * [after]; the database host is global, so the one installed before the class is put back.
  */
+/** How long [DesktopAppStartupTest] waits for an apply notification another thread may deliver; never reached when green. */
+private const val APPLY_WAIT_MS = 10_000L
+
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DesktopAppStartupTest {
     private class FakeWindow : DesktopWindowHandle {
@@ -384,6 +387,33 @@ class DesktopAppStartupTest {
         assertEquals(1, catalogReads, "the config reads the injected catalog once per build")
     }
 
+    /**
+     * The state objects applied to the global snapshot after [action], collected until every one of [readSets] has a
+     * member among them (or [APPLY_WAIT_MS] passes, which only a real regression reaches).
+     *
+     * Issue #4002: our own `sendApplyNotifications()` does not guarantee that the notification reached our observer
+     * when it returns. Any earlier Compose test in the JVM starts the never-stopped `GlobalSnapshotManager`, which
+     * applies the global snapshot on the AWT thread too. Compose takes the change set under its lock but calls the apply
+     * observers after releasing it, so when the AWT thread wins, our call finds nothing to apply and returns while the
+     * AWT thread is still calling the observers registered before ours. Asserting (and disposing the observer) at that
+     * point missed the write. The observer may run on any thread, so it hands each change set over a channel.
+     */
+    private suspend fun appliedWritesAfter(vararg readSets: Set<Any>, action: suspend () -> Unit): Set<Any> {
+        val applied = kotlinx.coroutines.channels.Channel<Set<Any>>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val observer = androidx.compose.runtime.snapshots.Snapshot.registerApplyObserver { changed, _ -> applied.trySend(changed.toSet()) }
+        val written = mutableSetOf<Any>()
+        try {
+            action()
+            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+            kotlinx.coroutines.withTimeoutOrNull(APPLY_WAIT_MS) {
+                while (!readSets.all { reads -> reads.any { it in written } }) written.addAll(applied.receive())
+            }
+        } finally {
+            observer.dispose()
+        }
+        return written
+    }
+
     @Test fun railLabelsFollowARealDocumentChange() = kotlinx.coroutines.runBlocking {
         val paths = paths()
         StartupFixture.files.forEach { (name, bytes) ->
@@ -423,31 +453,21 @@ class DesktopAppStartupTest {
                 val before = androidx.compose.runtime.snapshots.Snapshot.observe({ reads += it }, null) { deps.windowLabel(snapshot) }
                 val topReads = mutableSetOf<Any>()
                 androidx.compose.runtime.snapshots.Snapshot.observe({ topReads += it }, null) { deps.windowTopLabel(snapshot) }
-                val written = mutableSetOf<Any>()
-                val observer = androidx.compose.runtime.snapshots.Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
-                try {
+                val written = appliedWritesAfter(reads, topReads) {
                     window.pageManager.setCurrentDocument(second)
                     kotlinx.coroutines.yield() // Main-dispatched passage observers run on the test main thread.
-                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
-                } finally {
-                    observer.dispose()
                 }
                 assertEquals(first.abbreviation, before)
                 assertEquals(second.abbreviation, deps.windowLabel(snapshot))
                 assertTrue(reads.any { it in written }, "document change must invalidate the rail label")
                 assertTrue(topReads.any { it in written }, "document change must invalidate the rail top label")
 
-                written.clear()
-                val verseObserver = androidx.compose.runtime.snapshots.Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
-                try {
+                val verseWritten = appliedWritesAfter(reads, topReads) {
                     net.bible.android.control.PassageChangeMediator.onBibleVerseSelected()
                     kotlinx.coroutines.yield()
-                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
-                } finally {
-                    verseObserver.dispose()
                 }
-                assertTrue(reads.any { it in written }, "BibleVerseChanged must invalidate the rail label")
-                assertTrue(topReads.any { it in written }, "BibleVerseChanged must invalidate the rail top label")
+                assertTrue(reads.any { it in verseWritten }, "BibleVerseChanged must invalidate the rail label")
+                assertTrue(topReads.any { it in verseWritten }, "BibleVerseChanged must invalidate the rail top label")
             } finally {
                 try {
                     host?.dispose()
