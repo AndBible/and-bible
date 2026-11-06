@@ -1684,14 +1684,17 @@ final class ReadingUITests: RealAppUITestCase {
         let app = try launchReading()
         XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown first")
         guard let field = openFind(app, "right-edge") else { return }
-        let title = { self.toolbarTitle(app)?.label ?? "" }
+        // Find replaces the toolbar title, so the chapter is read from the page: John 4:5 names Sychar, John 3 does not.
+        let john4 = { app.webViews.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Sychar'")).count > 0
+            && self.nicodemusInWebViews(app) == 0 }
+        XCTAssertFalse(john4(), "John 4 shown before the swipe")
         let start = app.coordinate(withNormalizedOffset: CGVector(dx: 1.0, dy: 0.55)).withOffset(CGVector(dx: -2, dy: 0))
         start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.55)),
                     withVelocity: .fast, thenHoldForDuration: 0)
-        let turned = waitUntil(timeout: 30) { title().hasPrefix("John 4") }
+        let turned = waitUntil(timeout: 30) { john4() }
         shot(app, "right-edge-swipe-find-open")
         if !turned { attachTree(app, "right-edge-swipe-not-john-4") }
-        XCTAssertTrue(turned, "a right-edge drag with Find open must turn to John 4, got '\(title())'")
+        XCTAssertTrue(turned, "a right-edge drag with Find open must turn to John 4")
         XCTAssertTrue(field.exists, "the right-edge drag must not act as back and close Find")
     }
 
