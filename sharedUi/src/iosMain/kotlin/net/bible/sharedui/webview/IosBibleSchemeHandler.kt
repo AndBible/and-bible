@@ -12,6 +12,7 @@ import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedlogic.platform.BackgroundImageCatalog
+import net.bible.sharedlogic.security.FeatureSignatureVerifier
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -145,8 +146,8 @@ internal class IosBibleSchemeHandler(bundleDir: Path?) : NSObject(), WKURLScheme
 
 /**
  * The page asset routes over the app's Koin graph: installed books from JSword, background images from
- * [BackgroundImageCatalog], EPUB content through the book's backend. Null before the graph exists. No `/features/`
- * files on iOS yet: there is no iOS signature verifier, so unsigned and signed feature files alike are a 404.
+ * [BackgroundImageCatalog], EPUB content through the book's backend. Null before the graph exists.
+ * Feature files are served only after verifying their detached signature with the bundled release key.
  */
 internal fun iosPageAssetRoutes(currentDocument: () -> Document?): PageAssetRoutes? {
     val koin = KoinPlatform.getKoinOrNull() ?: return null
@@ -156,7 +157,7 @@ internal fun iosPageAssetRoutes(currentDocument: () -> Document?): PageAssetRout
         },
         bookLocation = { initials -> Books.installed().getBook(initials)?.bookMetaData?.location?.getPath()?.toPath() },
         bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
-        verify = null,
+        verify = FeatureSignatureVerifier()::verify,
         epub = IosEpubAssets(currentDocument),
         fonts = { koin.getOrNull<net.bible.sharedlogic.addons.SharedAddonScanner>()?.fonts().orEmpty() },
         log = { nsLog("bibleview scheme: $it") },

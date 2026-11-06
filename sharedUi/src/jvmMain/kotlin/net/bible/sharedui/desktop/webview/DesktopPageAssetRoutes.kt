@@ -109,7 +109,7 @@ class DesktopPageAssetRoutes(
                     Books.installed().getBook(initials)?.bookMetaData?.location?.getPath()?.let { Paths.get(it) }
                 },
                 bookStyleFile = { initials -> Books.installed().getBook(initials)?.bookMetaData?.getProperty("AndBibleCSS") },
-                verify = { file, signature -> verifier.verify(file, signature) },
+                verify = { file, signature -> verifier.verify(file.toOkioPath(), signature.toOkioPath()) },
                 log = log,
                 fonts = { KoinPlatform.getKoin().get<net.bible.sharedlogic.addons.SharedAddonScanner>().fonts() },
                 currentBook = { id ->

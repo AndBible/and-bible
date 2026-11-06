@@ -107,6 +107,8 @@ kotlin {
             implementation(libs.koin.test)
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
+        // The RSA verifier uses JCA on both Java platforms; keep one implementation.
+        androidMain { kotlin.srcDir("src/jvmMain/kotlin/net/bible/sharedlogic/security") }
         jvmTest {
             kotlin.srcDir(project(":sharedData").file("src/jvmTestFixtures/kotlin"))
             kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")

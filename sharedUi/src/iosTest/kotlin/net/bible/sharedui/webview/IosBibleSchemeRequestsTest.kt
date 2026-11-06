@@ -1,5 +1,8 @@
 package net.bible.sharedui.webview
 
+import platform.Foundation.dateWithTimeIntervalSinceNow
+import platform.Foundation.runUntilDate
+import platform.Foundation.timeIntervalSinceNow
 import okio.FileSystem
 import okio.Path
 import kotlin.random.Random
@@ -60,6 +63,73 @@ class IosBibleSchemeRequestsTest {
         assertEquals(404, requests.answer("app", "/C:secret.txt").status)
         assertEquals(404, requests.answer("evil", "/index.html").status)
         assertEquals(404, requests.answer("app", null).status)
+    }
+
+    @Test fun koinRoutesServeSignedRefParserAndFailClosedAfterTampering() {
+        val installed = org.crosswire.jsword.book.Books.installed()
+        val initials = "SignedFeature3984"
+        val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
+            "[$initials]\nModDrv=RawGenBook\n".encodeToByteArray(), initials,
+        ).apply { location = org.crosswire.common.util.NetUtil.fileKUri(book, directory = true) }
+        val module = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
+        val parser = book / "fi_bcv_parser.js"
+        val signature = book / "fi_bcv_parser.js.sign"
+        fs.write(parser) { write(SignedFeatureFixture.content) }
+        fs.write(signature) { write(SignedFeatureFixture.signature) }
+        org.koin.core.context.startKoin { }
+        try {
+            installed.addBook(module)
+            val production = IosBibleSchemeRequests(bundle, { iosPageAssetRoutes { null } })
+            val url = "/features/$initials/fi_bcv_parser.js"
+            val answer = production.answer("app", url)
+            assertEquals(200, answer.status)
+            assertEquals("text/javascript", answer.contentType)
+            kotlin.test.assertContentEquals(SignedFeatureFixture.content, answer.body)
+            fs.write(parser) { writeUtf8("tampered") }
+            assertEquals(404, production.answer("app", url).status)
+            fs.write(parser) { write(SignedFeatureFixture.content) }
+            fs.delete(signature)
+            assertEquals(404, production.answer("app", url).status)
+        } finally {
+            installed.removeBook(module)
+            org.koin.core.context.stopKoin()
+        }
+    }
+
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    @Test fun webKitLoadsSignedFinnishRefParserThroughProductionScheme() {
+        val installed = org.crosswire.jsword.book.Books.installed()
+        val initials = "SignedWebKit3984"
+        val metadata = org.crosswire.jsword.book.sword.SwordBookMetaData(
+            "[$initials]\nModDrv=RawGenBook\n".encodeToByteArray(), initials,
+        ).apply { location = org.crosswire.common.util.NetUtil.fileKUri(book, directory = true) }
+        val module = org.crosswire.jsword.book.sword.SwordBook(metadata, org.crosswire.jsword.book.sword.NullBackend())
+        fs.write(book / "fi_bcv_parser.js") { write(SignedFeatureFixture.content) }
+        fs.write(book / "fi_bcv_parser.js.sign") { write(SignedFeatureFixture.signature) }
+        fs.write(bundle / "index.html") {
+            writeUtf8("""<html><head><script src="/features/$initials/fi_bcv_parser.js"></script>
+                <script>var parser = new bcv_parser(); window.parsedReference = parser.parse('Johanneksen evankeliumi 3:16').osis();</script>
+                </head><body>Signed feature smoke</body></html>""")
+        }
+        org.koin.core.context.startKoin { }
+        val configuration = platform.WebKit.WKWebViewConfiguration()
+        configuration.setURLSchemeHandler(IosBibleSchemeHandler(bundle), forURLScheme = BIBLE_SCHEME)
+        val webView = platform.WebKit.WKWebView(platform.CoreGraphics.CGRectMake(0.0, 0.0, 320.0, 480.0), configuration)
+        try {
+            installed.addBook(module)
+            webView.loadRequest(platform.Foundation.NSURLRequest.requestWithURL(platform.Foundation.NSURL(string = "$BIBLE_ORIGIN/index.html")))
+            val deadline = platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(20.0)
+            var parsed: Any? = null
+            while (parsed != "John.3.16" && deadline.timeIntervalSinceNow > 0) {
+                webView.evaluateJavaScript("window.parsedReference") { result, _ -> parsed = result }
+                platform.Foundation.NSRunLoop.mainRunLoop.runUntilDate(platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(0.05))
+            }
+            assertEquals("John.3.16", parsed, "WebKit must execute the signed Finnish parser from the production /features/ route")
+        } finally {
+            webView.stopLoading()
+            installed.removeBook(module)
+            org.koin.core.context.stopKoin()
+        }
     }
 
     @Test fun noBundleAndNoKoinStill404() {
