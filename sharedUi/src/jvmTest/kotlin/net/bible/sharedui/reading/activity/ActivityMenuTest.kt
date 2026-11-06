@@ -244,7 +244,8 @@ class ActivityMenuTest {
         }
         onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(2)
         assertEquals(0, onAllNodesWithText("Item ok").fetchSemanticsNodes().size)
-        onNodeWithText("Show all (2)").assertExists()
+        // The count is what the full list shows: the succeeded row is in it too.
+        onNodeWithText("Show all (3)").assertExists()
     }
 
     @Test fun onlySucceededRowsRenderNoSection() = runComposeUiTest {
@@ -266,6 +267,22 @@ class ActivityMenuTest {
         expanded = true
         waitForIdle()
         assertEquals(1, opened)
+    }
+
+    @Test fun failureArrivingWhileTheMenuIsOpenIsMarkedRead() = runComposeUiTest {
+        var opened = 0
+        var activity by mutableStateOf(menu(listOf(item("a")), unread = 0, onOpened = { opened++ }))
+        setContent {
+            AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+                ReadingToolbar(toolbarState(), icons, callbacks, overflowExpanded = true, activity = activity)
+            } }
+        }
+        waitForIdle()
+        val afterOpen = opened
+        assertTrue(afterOpen >= 1, "opening marks read")
+        activity = menu(listOf(item("a"), item("f", ActivityState.FAILED, message = "boom")), unread = 1, onOpened = { opened++ })
+        waitForIdle()
+        assertTrue(opened > afterOpen, "a failure that arrives while the menu is open is marked read too")
     }
 
     @Test fun noAnimationsStaticRing() = runComposeUiTest {

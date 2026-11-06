@@ -14,6 +14,11 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.runtime.Composable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -166,6 +171,62 @@ class ActivityHostWiringTest {
         waitForIdle()
         onAllNodesWithTag(ACTIVITY_LIST_POPOVER_TAG, useUnmergedTree = true).assertCountEquals(0)
         assertNull(seen.last())
+    }
+
+    /** Counts how often [ProbeContent] is recomposed. */
+    private class Counter { var n = 0 }
+
+    /**
+     * Stands for the reading screen: it only forwards the state to a reader (the overflow button). It must not
+     * recompose when the items change, only the reader may.
+     */
+    @Composable
+    private fun ProbeContent(activity: ActivityMenuState?, counter: Counter) {
+        SideEffect { counter.n++ }
+        ActivityOverflowButton(icon = painter, contentDescription = "more", activity = activity, onClick = {})
+    }
+
+    private fun progressOfRing(t: androidx.compose.ui.test.ComposeUiTest): Float? =
+        t.onNodeWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).fetchSemanticsNode().config
+            .getOrNull(SemanticsProperties.ProgressBarRangeInfo)?.current
+
+    private fun androidx.compose.ui.test.ComposeUiTest.probe(wiring: ActivityHostWiring, counter: Counter) = setContent {
+        AbTheme(disableAnimations = true) {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                ActivityHost(wiring) { activity -> ProbeContent(activity, counter) }
+            }
+        }
+    }
+
+    @Test fun progressUpdatesDoNotRecomposeTheContentButTheReaderSeesThem() = runComposeUiTest {
+        val f = Fixture(default = true)
+        f.runningItem()
+        val counter = Counter()
+        probe(f.wiring, counter)
+        waitForIdle()
+        assertEquals(0.4f, progressOfRing(this)!!, 0.001f)
+        val before = counter.n
+        for (p in listOf(50, 60, 70)) {
+            f.center.update("dl", p)
+            waitForIdle()
+        }
+        assertEquals(0.7f, progressOfRing(this)!!, 0.001f, "the reader of the state shows the new progress")
+        assertEquals(before, counter.n, "the content must not recompose on a progress update")
+    }
+
+    @Test fun nothingReadsTheItemsWhilePreferenceIsOff() = runComposeUiTest {
+        val f = Fixture(default = false)
+        f.runningItem()
+        val counter = Counter()
+        probe(f.wiring, counter)
+        waitForIdle()
+        val before = counter.n
+        for (p in listOf(50, 60, 70)) {
+            f.center.update("dl", p)
+            waitForIdle()
+        }
+        assertEquals(before, counter.n, "preference off: progress events never reach the reading content")
+        onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
     }
 
     private fun routeItem(kind: ActivityKind, state: net.bible.android.control.activity.ActivityState) =

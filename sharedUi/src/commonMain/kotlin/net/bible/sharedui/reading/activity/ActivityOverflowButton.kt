@@ -88,14 +88,15 @@ fun ActivityOverflowButton(
         return
     }
     val strings = LocalStrings.current
-    val running = activity.items.filter { it.state == ActivityState.RUNNING }
+    val running = activity.items.value.filter { it.state == ActivityState.RUNNING }
     val single = running.singleOrNull()?.progress
     Box(Modifier.fillMaxHeight().width(ToolbarButtonWidth), contentAlignment = Alignment.Center) {
         ToolbarIconButton(icon = icon, contentDescription = contentDescription, onClick = onClick)
         if (running.isNotEmpty()) {
             ActivityRing(percent = single, description = strings.activityRunningDescription)
         }
-        if (activity.unreadFailures > 0) {
+        val unread = activity.unreadFailures.value
+        if (unread > 0) {
             val mono = isPureMonochrome()
             Badge(
                 containerColor = if (mono) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
@@ -105,10 +106,10 @@ fun ActivityOverflowButton(
                     .offset(x = (-2).dp, y = 4.dp)
                     .testTag(ACTIVITY_BADGE_TAG)
                     .clearAndSetSemantics {
-                        this.contentDescription = strings.activityFailedBadge(activity.unreadFailures)
+                        this.contentDescription = strings.activityFailedBadge(unread)
                     },
             ) {
-                Text(activity.unreadFailures.toString(), fontSize = 10.sp)
+                Text(unread.toString(), fontSize = 10.sp)
             }
         }
     }

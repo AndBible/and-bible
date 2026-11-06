@@ -20,26 +20,40 @@
 
 package net.bible.sharedui.reading.activity
 
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import net.bible.android.control.activity.ActivityItem
 
 /**
  * What the reading toolbar's overflow button and menu need to show background activity (#4007).
  *
- * The host collects [net.bible.android.control.activity.ActivityCenter]'s flows into this value; a `null`
- * state means the preference is off and the toolbar renders exactly as before.
+ * The host hands this to the reading screen once (the instance is remembered per wiring and never changes
+ * while the preference stays on); the changing data lives in the [items] and [unreadFailures] [State]s, which
+ * only the composables that draw them read (the overflow button, the menu section, the list). A progress update
+ * therefore recomposes those readers and not the reading screen. A `null` state means the preference is off and
+ * the toolbar renders exactly as before.
  *
- * @param items the activity items, running first, then finished ones, each newest first
- * @param unreadFailures failures the user has not seen yet (the badge count)
+ * @param items the activity items, running first, then finished ones, each newest first; read only where drawn
+ * @param unreadFailures failures the user has not seen yet (the badge count); read only where drawn
  * @param onShowAll opens the full activity list
- * @param onMenuOpened called when the overflow menu opens; the host marks failures read
+ * @param onMenuOpened called when the overflow menu opens or a failure arrives while it is open; the host marks failures read
  */
 @kotlin.native.HiddenFromObjC
-data class ActivityMenuState(
-    val items: List<ActivityItem>,
-    val unreadFailures: Int,
+@Stable
+class ActivityMenuState(
+    val items: State<List<ActivityItem>>,
+    val unreadFailures: State<Int>,
     val onShowAll: () -> Unit,
     val onMenuOpened: () -> Unit,
-)
+) {
+    /** A snapshot of plain values, for tests and goldens. */
+    constructor(items: List<ActivityItem>, unreadFailures: Int, onShowAll: () -> Unit, onMenuOpened: () -> Unit) :
+        this(mutableStateOf(items), mutableStateOf(unreadFailures), onShowAll, onMenuOpened)
+
+    /** The same data with another "show all" action. */
+    fun withShowAll(onShowAll: () -> Unit) = ActivityMenuState(items, unreadFailures, onShowAll, onMenuOpened)
+}
 
 /** Semantics test tags of the activity UI. */
 @kotlin.native.HiddenFromObjC

@@ -54,7 +54,8 @@ internal const val MENU_ACTIVITY_ROWS = 3
 @Composable
 fun ActivityMenuSection(activity: ActivityMenuState) {
     // Stable sort: the incoming order (newest first) is kept within each state.
-    val shown = activity.items
+    val all = activity.items.value
+    val shown = all
         .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
         .sortedBy { it.state.menuRank() }
     if (shown.isEmpty()) return
@@ -62,7 +63,7 @@ fun ActivityMenuSection(activity: ActivityMenuState) {
     Column(Modifier.testTag(ACTIVITY_SECTION_TAG)) {
         shown.take(MENU_ACTIVITY_ROWS).forEach { ActivityRow(it) }
         if (shown.size > MENU_ACTIVITY_ROWS || shown.any { it.state == ActivityState.FAILED }) {
-            AbMenuItem(text = strings.activityShowAll(shown.size), onClick = activity.onShowAll)
+            AbMenuItem(text = strings.activityShowAll(all.size), onClick = activity.onShowAll)
         }
         HorizontalDivider()
     }
