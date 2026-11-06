@@ -1420,8 +1420,9 @@ final class ReadingUITests: RealAppUITestCase {
         }) else {
             XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
         }
-        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
-        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
+        // Issue #3980: XCTest's Option+arrow chord intermittently loses the arrow inside UIKit/WebKit, also in a bare
+        // WKWebView without SwiftUI, Compose or app code (WebKitChordProbeUITests); strict again once that passes.
+        XCTExpectFailure("System loss of XCTest Option+arrow chords in WebKit editors (#3980)", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alpha Xbeta" },
                           "Option+Left should move to the previous word: \(editor.value ?? "nil")")
         }
@@ -1449,8 +1450,9 @@ final class ReadingUITests: RealAppUITestCase {
         }) else {
             XCTFail("note editor did not insert exactly one X: \(editor.value ?? "nil")"); return
         }
-        // Hardware-arrow delivery before the page is intermittent, even with native interception bypassed.
-        XCTExpectFailure("Known intermittent editor arrow delivery; see issue 3972 follow-up evidence", options: .nonStrict()) {
+        // Issue #3980: XCTest's Option+arrow chord intermittently loses the arrow inside UIKit/WebKit, also in a bare
+        // WKWebView without SwiftUI, Compose or app code (WebKitChordProbeUITests); strict again once that passes.
+        XCTExpectFailure("System loss of XCTest Option+arrow chords in WebKit editors (#3980)", options: .nonStrict()) {
             XCTAssertTrue(waitUntil(timeout: 10) { (editor.value as? String) == "alphaX beta" },
                           "Option+Right should move by a word before insertion: \(editor.value ?? "nil")")
         }
