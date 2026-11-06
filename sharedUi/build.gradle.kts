@@ -103,8 +103,8 @@ kotlin {
             kotlin.srcDir(iosStringsOutDir)
             dependencies {
                 // iOS and desktop use the same Compose back handlers and synchronous pass-through route.
-                implementation("org.jetbrains.compose.ui:ui-backhandler:1.11.1")
-                implementation("androidx.navigationevent:navigationevent:1.0.1")
+                implementation(libs.jetbrains.compose.ui.backhandler)
+                implementation(libs.androidx.navigationevent)
             }
         }
         iosTest.dependencies {

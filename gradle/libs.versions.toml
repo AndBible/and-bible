@@ -47,6 +47,11 @@ navigationCompose = "2.9.2"
 # or drop there would be a silent Android-only failure with nothing in this file to flag it.
 # Measured via `./gradlew :sharedUi:dependencies --configuration iosSimulatorArm64CompileKlibraries`.
 lifecycleRuntimeCompose = "2.9.6"
+# Compose Multiplatform (plugin and the JetBrains Compose artifacts declared by hand). Bump together with
+# navigationEvent: it is the version CMP's own `ui` module requires (see ui-<target>-<cmp>.module), and the
+# hostMain back handlers (#4003) must link against that same version.
+composeMultiplatform = "1.11.1"
+navigationEvent = "1.0.1"
 # Desktop D5: JNA for the WebKitGTK experiment (:desktopWebkitGtk)
 jna = "5.17.0"
 dbusJava = "4.3.1"
@@ -98,6 +103,8 @@ roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit
 materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+jetbrains-compose-ui-backhandler = { group = "org.jetbrains.compose.ui", name = "ui-backhandler", version.ref = "composeMultiplatform" }
+androidx-navigationevent = { group = "androidx.navigationevent", name = "navigationevent", version.ref = "navigationEvent" }
 jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 # WebDAV sync client (sharedCore)
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
@@ -112,6 +119,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 # Pre-staged for Spec 2 (KMP foundations) — declared, NOT applied anywhere yet
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.compose", version = "1.11.1" }
+compose = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 android-kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
