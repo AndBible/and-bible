@@ -87,7 +87,7 @@ class DesktopNotificationBindingsTest {
                     single { ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now } }
                 },
                 desktopNotificationModule(
-                    window, runOnUi = { it() },
+                    window, available = true, runOnUi = { it() }, clock = { now },
                     notifierFactory = { scope -> if (dbus != null) linuxNativeNotifier(dbus, scope = scope) else notifier },
                 ),
             )
@@ -114,6 +114,19 @@ class DesktopNotificationBindingsTest {
             assertTrue(rig.koin.get<SystemNotificationsPreference>().enabled.value, "desktop default is on")
             assertIs<NativeNotificationPolicy>(rig.koin.get<NativeNotificationPolicy>())
             assertEquals(null, (rig.koin.get<AppSettings>() as MemoryAppSettings).values["Boolean:system_notifications"], "default never persisted")
+        }
+    }
+
+    @Test fun nothingIsBoundWhereNoRealNotifierExists() {
+        val app = koinApplication {
+            modules(module { single<AppSettings> { MemoryAppSettings() } }, desktopNotificationModule(FakeWindow(), available = false))
+        }
+        try {
+            assertEquals(null, app.koin.getOrNull<SystemNotificationsPreference>(), "settings row stays hidden")
+            assertEquals(null, app.koin.getOrNull<NativeNotificationPolicy>())
+            assertEquals(null, app.koin.getOrNull<NativeNotifier>())
+        } finally {
+            app.close()
         }
     }
 
@@ -170,8 +183,11 @@ class DesktopNotificationBindingsTest {
             rig.koin.get<NativeNotificationPolicy>().start()
             rig.events.emit(DesktopLifecycleEvent.ResignActive)
             rig.center.start("a", ActivityKind.DOWNLOAD, "A")
-            now = 15_000
-            rig.center.update("a", 40)
+            now = 2_000 // ActivityCenter hides a running item for its first second
+            rig.center.update("a", 40) // first seen running by the policy at now = 2_000
+            Thread.sleep(300) // the policy's first evaluation has no observable effect to wait for
+            now = 13_000
+            rig.center.update("a", 41)
             await("progress shown") { "show:andbible-a" in notifier.events }
 
             // What persistBeforeExit does: Koin stays open, only the registered exit tasks run.

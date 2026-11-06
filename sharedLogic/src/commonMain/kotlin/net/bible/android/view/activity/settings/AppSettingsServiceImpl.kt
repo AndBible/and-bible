@@ -112,8 +112,8 @@ class AppSettingsServiceImpl(
     } catch (e: IllegalStateException) { // Koin not started
         null
     },
-    // The shared system-notifications preference (#4012); bound only where a native notifier exists (desktop/iOS), so
-    // Android and a bare unit test leave it null and the row hidden.
+    // The shared system-notifications preference (#4012); bound only where a native notifier exists (Linux desktop
+    // for now), so Android, other desktops and a bare unit test leave it null and the row hidden.
     private val systemNotifications: SystemNotificationsPreference? = try {
         KoinPlatform.getKoin().getOrNull<SystemNotificationsPreference>()
     } catch (e: IllegalStateException) { // Koin not started

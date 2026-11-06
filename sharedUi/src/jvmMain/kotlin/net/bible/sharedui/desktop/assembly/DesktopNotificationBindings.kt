@@ -14,22 +14,22 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.NativeNotifier
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
+import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
 import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
 import net.bible.sharedlogic.util.currentTimeMillis
 import kotlinx.coroutines.withContext
-import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import org.koin.core.module.Module
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.dsl.module
 import org.koin.dsl.onClose
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 
 private const val TAG = "DesktopNotifications"
 
 /**
- * Native system notifications of the desktop graph (#4012): the [NativeNotifier] (D-Bus on Linux, a no-op on Windows and
- * macOS until #4013), the [SystemNotificationsPreference] (default on), and the [NativeNotificationPolicy] that
+ * Native system notifications of the desktop graph (#4012): the [NativeNotifier] (D-Bus on Linux; Windows and macOS follow in #4013), the [SystemNotificationsPreference] (default on), and the [NativeNotificationPolicy] that
  * `SharedAppStartup.startActivityCenter` starts. Needs [ActivityCenter], [ActivityListRequests], [DesktopLifecycleEvents],
  * `AppSettings` and [CoreStrings] from the rest of the graph.
  *
@@ -37,19 +37,26 @@ private const val TAG = "DesktopNotifications"
  * graph closes the policy first (it removes its progress notifications through the notifier) and then the notifier
  * (flushes its queue, at most about 2 s), then cancels the scope.
  *
+ * Nothing is bound when [available] is false (Windows and macOS until #4013): there the notifier would be a no-op, and
+ * an unbound [SystemNotificationsPreference] keeps the settings row hidden instead of showing a toggle that does nothing.
+ *
+ * @param available whether a real notifier exists on this OS; defaults to the D-Bus platforms
+ * @param clock the policy's clock, only compared with itself (not with ActivityCenter's); a test seam
  * @param runOnUi posts to the UI thread; a notification click raises the window there
  * @param notifierFactory test seam, given the IO scope
  */
 fun desktopNotificationModule(
     window: DesktopWindowHandle,
+    available: Boolean = DesktopDbus().supportedOs,
     runOnUi: (() -> Unit) -> Unit = { SwingUtilities.invokeLater(it) },
+    clock: () -> Long = ::currentTimeMillis,
     notifierFactory: (CoroutineScope) -> NativeNotifier = { scope -> linuxNativeNotifier(scope = scope) },
-): Module = module {
+): Module = if (!available) module { } else module {
     // Real exit never closes Koin: the exit path runs these tasks (on IO, bounded) after the lifecycle's Background event.
     // onClose covers graph teardown in tests and startup failure; shutdown() is idempotent.
     single {
         NotificationRuntime().also { runtime ->
-            getOrNull<DesktopExitTasks>()?.register("native notifications") { withContext(Dispatchers.IO) { runtime.shutdown() } }
+            getOrNull<DesktopExitTasks>()?.register("native notifications", runFirst = true) { withContext(Dispatchers.IO) { runtime.shutdown() } }
         }
     } onClose { it?.shutdown() }
     single<NativeNotifier> {
@@ -67,7 +74,7 @@ fun desktopNotificationModule(
             notifier = get<NativeNotifier>(),
             foreground = AppForeground { window.isFocusedAndVisible },
             enabled = get<SystemNotificationsPreference>().enabled,
-            clock = ::currentTimeMillis, // must be the clock ActivityCenter is bound with (SharedBindings)
+            clock = clock,
             scope = runtime.scope,
             finishedText = { get<CoreStrings>().notificationFinished },
         )

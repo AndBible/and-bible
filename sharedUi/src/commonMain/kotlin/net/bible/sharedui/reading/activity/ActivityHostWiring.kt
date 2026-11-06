@@ -8,15 +8,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
-import kotlinx.coroutines.flow.Flow
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.Flow
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityItem
 import net.bible.android.control.activity.ActivityKind
+import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.control.activity.ActivityMenuPreference
 
 /**
  * What a reading host needs to show background activity (#4007): the registry, the user's preference and what a
