@@ -1677,6 +1677,65 @@ final class ReadingUITests: RealAppUITestCase {
         XCTAssertTrue(element(app, "reading-host").exists && !app.buttons["Back"].exists, "the edge swipe navigated away")
     }
 
+    /// #4003 review: only the LEADING edge is the back edge-swipe (Compose's end-edge back gesture is off), so a drag from
+    /// the trailing (right) edge while Find is open is still a chapter swipe. Before the fix the pane ignored chapter
+    /// swipes that started at either edge whenever back had something to close, and this drag did nothing.
+    func testRightEdgeSwipeWithFindOpenTurnsChapter() throws {
+        let app = try launchReading()
+        XCTAssertTrue(waitUntil(timeout: 20) { nicodemusInWebViews(app) == nicodemusPerPane }, "John 3 must be shown first")
+        guard let field = openFind(app, "right-edge") else { return }
+        // Find replaces the toolbar title, so the chapter is read from the page: John 4:5 names Sychar, John 3 does not.
+        let john4 = { app.webViews.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Sychar'")).count > 0
+            && self.nicodemusInWebViews(app) == 0 }
+        XCTAssertFalse(john4(), "John 4 shown before the swipe")
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 1.0, dy: 0.55)).withOffset(CGVector(dx: -2, dy: 0))
+        start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.55)),
+                    withVelocity: .fast, thenHoldForDuration: 0)
+        let turned = waitUntil(timeout: 30) { john4() }
+        shot(app, "right-edge-swipe-find-open")
+        if !turned { attachTree(app, "right-edge-swipe-not-john-4") }
+        XCTAssertTrue(turned, "a right-edge drag with Find open must turn to John 4")
+        XCTAssertTrue(field.exists, "the right-edge drag must not act as back and close Find")
+    }
+
+    /// #4005 checklist 1 on iOS: with the Bible pane (a WKWebView) holding focus, the drawer's Device synchronization ->
+    /// Server URL sheet takes keyboard focus itself, and typed letters plus Backspace reach the field, not the pane.
+    func testTextSheetFocusFromReadingPane() throws {
+        let app = try launchReading()
+        let pane = firstPane(app)
+        XCTAssertTrue(pane.waitForExistence(timeout: 15), "no pane")
+        pane.tap()
+        guard openDrawerRow(app, "Device synchronization") else { return }
+        let adapter = element(app, "settings-row-sync_adapter")
+        XCTAssertTrue(adapter.waitForExistence(timeout: 30), "Device synchronization did not open")
+        if !adapter.label.contains("NextCloud") {
+            adapter.tap()
+            let choice = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "NextCloud")).firstMatch
+            XCTAssertTrue(choice.waitForExistence(timeout: 10), "NextCloud choice missing")
+            choice.tap()
+            XCTAssertTrue(waitUntil(timeout: 15) { adapter.label.contains("NextCloud") }, "NextCloud not chosen")
+        }
+        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Server URL")).firstMatch
+        var swipes = 0
+        while !(row.exists && row.isHittable) && swipes < 8 { app.swipeUp(); swipes += 1; usleep(800_000) }
+        XCTAssertTrue(row.isHittable, "Server URL row not reachable")
+        row.tap()
+        let field = app.textViews.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "Server URL editor missing")
+        let focused = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "hasKeyboardFocus == true"),
+                                                                     object: field)], timeout: 10) == .completed
+        shot(app, "focus-from-reading-opened")
+        if !focused { attachTree(app, "focus-from-reading-not-focused") }
+        XCTAssertTrue(focused, "the Server URL editor did not take focus from the Bible pane")
+        app.typeText("https://from-reading.examplex")
+        app.typeText(XCUIKeyboardKey.delete.rawValue)
+        XCTAssertTrue(waitUntil(timeout: 5) { (field.value as? String) == "https://from-reading.example" },
+                      "typed text reads '\(field.value as? String ?? "nil")'")
+        shot(app, "focus-from-reading-typed")
+        app.buttons["Cancel"].firstMatch.tap()
+        XCTAssertTrue(waitUntil(timeout: 10) { !field.exists }, "the sheet did not close after Cancel")
+    }
+
     /// Drawer "Find" opens the in-place search field; "Nicodemus" + Return runs the search (creating the KJV index first
     /// when the prompt "An index is required to search" appears: "Create"), the sheet shows "<n> verses in 1
     /// translations" with n > 0 and result cards; the card of John 7:50 (or 19:39) opens that chapter (a chapter with
