@@ -85,7 +85,7 @@ fun AbTextInputContent(
             value = value,
             onValueChange = { value = it; onValueChange(it.text) },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().sheetInitialTextFocus(),
             colors = if (mono) OutlinedTextFieldDefaults.colors(
                 selectionColors = TextSelectionColors(
                     handleColor = ink,

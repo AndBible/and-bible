@@ -58,6 +58,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import net.bible.sharedui.components.AbModalBottomSheet
+import net.bible.sharedui.components.sheetInitialTextFocus
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Switch
@@ -904,7 +905,7 @@ fun MaxIterationsSheetContent(
                 singleLine = true,
                 label = { Text(strings.promptMaxIterationsLabel) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().sheetInitialTextFocus(enabled = !useGlobal),
             )
         }
         SheetConfirmRow(
