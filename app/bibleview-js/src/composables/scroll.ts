@@ -84,6 +84,18 @@ export function useScroll(
         }
     }
 
+    // An instant scroll marks the state as scrolling (-1) so the verse notifier ignores the scroll
+    // event it causes, and then clears that mark. Without the clear, an instant scroll that interrupts
+    // an animation left isScrolling true until the next touch, freezing the title bar verse for
+    // keyboard, volume key and wheel scrolling (#3697).
+    function settleInstantScroll() {
+        setTimeout(() => {
+            if (currentScrollAnimation.value === -1) {
+                currentScrollAnimation.value = null;
+            }
+        }, 100);
+    }
+
     function doScrolling(elementY: number, duration = 1000) {
         console.log("doScrolling", elementY, duration);
         const noScrolling = duration === 0 || appSettings.disableAnimations;
@@ -94,6 +106,7 @@ export function useScroll(
 
         if (noScrolling) {
             scrollWindowTo(elementY);
+            if (currentScrollAnimation.value === -1) settleInstantScroll();
             return;
         }
 
@@ -193,11 +206,7 @@ export function useScroll(
             if (now) {
                 currentScrollAnimation.value = -1;
                 scrollWindowTo(elementTop - delta);
-                setTimeout(() => {
-                    if (currentScrollAnimation.value === -1) {
-                        currentScrollAnimation.value = null;
-                    }
-                }, 100);
+                settleInstantScroll();
             } else {
                 doScrolling(elementTop - delta, duration);
             }
