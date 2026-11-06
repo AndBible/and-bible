@@ -22,18 +22,21 @@ import net.bible.sharedcore.platform.NativeNotifier
  *
  * Rules: a FAILED item always notifies (urgent). A SUCCEEDED non-SYNC item that ran at least [LONG_JOB_MS] notifies
  * only when the app is not in the foreground. A RUNNING item shows a progress notification only when the notifier
- * supports it, the app is in the background and the item has run [LONG_JOB_MS]; updates are limited to one per
+ * supports it, the app is in the background and the item has been seen RUNNING for [LONG_JOB_MS] (measured with [clock] from the
+ * first time this policy saw it running, so [clock] need not share a time base with ActivityCenter); updates are limited to one per
  * [PROGRESS_THROTTLE_MS] per item and only when the progress changed, the newest value being shown by a trailing update.
  * A vanished or CANCELLED item that had a notification (and was RUNNING or FAILED) removes it; a vanished SUCCEEDED
  * item leaves it to the OS.
  *
- * All state is confined to one collector coroutine in [scope]; every input (items, preference, foreground, a time
- * wake-up, close) is a flow combined into it, so no locks are needed and notifier calls run in that coroutine.
+ * Policy state is confined to one collector coroutine in [scope]; every input (items, preference, foreground, a time
+ * wake-up, close) is a flow combined into it, and notifier calls run in that coroutine. The only lock is [closeLock],
+ * which serialises those calls with [close].
  * Time-based triggers (10 s reached, throttle window elapsed) are covered by a single one-shot wake-up job that is
  * scheduled after each evaluation only when something is pending, so an idle policy has no timer, it works with
  * virtual time and it dies with [close] or the scope.
  *
- * [clock] must be the clock the [ActivityItem] `startedAt`/`finishedAt` values come from (the one ActivityCenter uses).
+ * [clock] may be any monotonic-ish millisecond clock; it is only compared with itself. The finished check uses
+ * `finishedAt - startedAt`, which share ActivityCenter's time base.
  * The inputs are conflated state flows, so a FAILED, RUNNING, FAILED sequence between two collections can miss the
  * second failure; that is accepted.
  *
@@ -73,6 +76,7 @@ class NativeNotificationPolicy(
     private val shown = mutableMapOf<String, Shown>()
     private val lastSeen = mutableMapOf<String, ActivityState>()
     private val progressShown = mutableMapOf<String, ProgressShown>()
+    private val firstSeenRunningAt = mutableMapOf<String, Long>()
     private var wasEnabled = true
     private var needBaseline = false
     private var wakeJob: Job? = null
@@ -141,6 +145,7 @@ class NativeNotificationPolicy(
         if (input.fg) removeWhere { it == Shown.PROGRESS }
         var wakeAt = Long.MAX_VALUE
         val current = input.list.associateBy { it.id }
+        firstSeenRunningAt.keys.retainAll { current[it]?.state == ActivityState.RUNNING }
 
         lastSeen.keys.filter { it !in current }.forEach { id ->
             val last = lastSeen.remove(id)
@@ -152,9 +157,10 @@ class NativeNotificationPolicy(
         for (item in input.list) {
             val prev = lastSeen[item.id]
             lastSeen[item.id] = item.state
+            if (item.state == ActivityState.RUNNING) firstSeenRunningAt.getOrPut(item.id) { now }
             when (item.state) {
                 ActivityState.FAILED -> if (prev != ActivityState.FAILED) {
-                    showNotification(item, item.message ?: "", null, urgent = true, Shown.FINAL)
+                    showNotification(item, item.message?.removePrefix("${item.title}: ") ?: "", null, urgent = true, Shown.FINAL)
                 }
                 ActivityState.SUCCEEDED -> if (prev != ActivityState.SUCCEEDED) {
                     val finishedAt = item.finishedAt
@@ -167,7 +173,7 @@ class NativeNotificationPolicy(
                 }
                 ActivityState.CANCELLED -> if (shown.containsKey(item.id)) dropShown(item.id)
                 ActivityState.RUNNING -> if (notifier.supportsProgress && !input.fg) {
-                    val due = item.startedAt + LONG_JOB_MS
+                    val due = firstSeenRunningAt.getValue(item.id) + LONG_JOB_MS
                     val last = progressShown[item.id]
                     when {
                         now < due -> wakeAt = minOf(wakeAt, due)
@@ -193,7 +199,7 @@ class NativeNotificationPolicy(
     private fun showProgress(item: ActivityItem, now: Long) {
         val p = item.progress
         progressShown[item.id] = ProgressShown(p, now)
-        showNotification(item, if (p != null) "$p %" else "", p, urgent = false, Shown.PROGRESS)
+        showNotification(item, item.message ?: "", p, urgent = false, Shown.PROGRESS)
     }
 
     private fun showNotification(item: ActivityItem, body: String, progress: Int?, urgent: Boolean, kind: Shown) {

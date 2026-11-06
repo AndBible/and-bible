@@ -95,9 +95,9 @@ class NativeNotificationPolicyTest {
     @Test
     fun syncSuccessIsSilentAndRemovesProgress() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(kind = ActivityKind.SYNC, progress = 10))
         runCurrent()
+        advance(10_000)
         assertEquals(listOf("show:andbible-a"), f.notifier.calls)
         f.set(item(kind = ActivityKind.SYNC, state = ActivityState.SUCCEEDED, started = 0, finished = 20_000))
         runCurrent()
@@ -107,8 +107,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun longSuccessReplacesProgressInPlace() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(progress = 50)); runCurrent()
+        advance(10_000)
         f.set(item(state = ActivityState.SUCCEEDED, progress = 100, finished = 12_000)); runCurrent()
         assertEquals(listOf("show:andbible-a", "show:andbible-a"), f.notifier.calls)
         assertEquals("Finished", f.notifier.shows.last().body)
@@ -122,7 +122,7 @@ class NativeNotificationPolicyTest {
         assertTrue(f.notifier.calls.isEmpty())
         advance(1) // reaches 10_000 with no new emission: the time trigger shows it
         assertEquals(listOf("show:andbible-a"), f.notifier.calls)
-        f.notifier.shows.single().let { assertEquals(5, it.progress); assertEquals("5 %", it.body); assertTrue(!it.indeterminate) }
+        f.notifier.shows.single().let { assertEquals(5, it.progress); assertEquals("", it.body); assertTrue(!it.indeterminate) }
 
         val g = fixture(supportsProgress = false)
         g.set(item(id = "b", progress = 5, started = currentTime))
@@ -138,16 +138,16 @@ class NativeNotificationPolicyTest {
     @Test
     fun indeterminateProgressShowsEmptyBody() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(progress = null)); runCurrent()
+        advance(10_000)
         f.notifier.shows.single().let { assertTrue(it.indeterminate); assertEquals("", it.body); assertNull(it.progress) }
     }
 
     @Test
     fun progressThrottledToOnePerSecondAndOnlyOnChange() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(progress = 10)); runCurrent()
+        advance(10_000)
         assertEquals(1, f.notifier.shows.size)
         f.set(item(progress = 10, message = "x")); runCurrent() // unchanged progress
         advance(2_000)
@@ -178,8 +178,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun closeRemovesShownProgress() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(id = "p", progress = 1), item(id = "f", state = ActivityState.FAILED)); runCurrent()
+        advance(10_000)
         f.notifier.calls.clear()
         f.policy.close(); runCurrent()
         assertEquals(listOf("remove:andbible-p"), f.notifier.calls)
@@ -190,12 +190,12 @@ class NativeNotificationPolicyTest {
     @Test
     fun vanishRulesDependOnLastState() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(
             item(id = "run", progress = 1),
             item(id = "fail", state = ActivityState.FAILED),
             item(id = "ok", state = ActivityState.SUCCEEDED, started = 0, finished = 20_000),
         ); runCurrent()
+        advance(10_000)
         f.notifier.calls.clear()
         f.set(); runCurrent()
         assertEquals(setOf("remove:andbible-run", "remove:andbible-fail"), f.notifier.calls.toSet())
@@ -205,8 +205,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun cancelledItemIsRemovedLikeVanishedRunning() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(progress = 1)); runCurrent()
+        advance(10_000)
         f.set(item(state = ActivityState.CANCELLED)); runCurrent()
         assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
     }
@@ -214,8 +214,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun foregroundRemovesProgress() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(progress = 1)); runCurrent()
+        advance(10_000)
         f.setForeground(true); runCurrent()
         assertEquals(listOf("show:andbible-a", "remove:andbible-a"), f.notifier.calls)
         f.set(item(progress = 2)); advance(5_000)
@@ -227,8 +227,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun preferenceOffRemovesAllAndOnDoesNotReplay() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(id = "p", progress = 1), item(id = "f", state = ActivityState.FAILED)); runCurrent()
+        advance(10_000)
         f.notifier.calls.clear()
         f.enabled.value = false; runCurrent()
         assertEquals(setOf("remove:andbible-p", "remove:andbible-f"), f.notifier.calls.toSet())
@@ -265,8 +265,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun closeIsSynchronousEvenIfScopeIsCancelledRightAfter() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(id = "p", progress = 1)); runCurrent()
+        advance(10_000)
         f.notifier.calls.clear()
         f.policy.close()
         backgroundScope.cancel()
@@ -278,8 +278,8 @@ class NativeNotificationPolicyTest {
     @Test
     fun shortOrForegroundNonSyncSuccessRemovesShownProgress() = runTest {
         val f = fixture()
-        advance(10_000)
         f.set(item(id = "short", progress = 1, started = 0), item(id = "fgd", progress = 1, started = 0)); runCurrent()
+        advance(10_000)
         f.notifier.calls.clear()
         f.set(item(id = "short", state = ActivityState.SUCCEEDED, started = 0, finished = 9_000), item(id = "fgd", progress = 1, started = 0)); runCurrent()
         assertEquals(listOf("remove:andbible-short"), f.notifier.calls)
@@ -296,6 +296,25 @@ class NativeNotificationPolicyTest {
         f.set(item(progress = 1, started = 0)); runCurrent() // under 10 s: not shown
         f.set(); runCurrent()
         assertTrue(f.notifier.calls.isEmpty())
+    }
+
+    @Test
+    fun progressGateCountsFromFirstSightNotFromStartedAt() = runTest {
+        val f = fixture()
+        advance(3_000)
+        f.set(item(progress = 5, started = 987_654_321)); runCurrent() // foreign time base: must not matter
+        advance(9_999)
+        assertTrue(f.notifier.calls.isEmpty())
+        advance(1)
+        assertEquals(listOf("show:andbible-a"), f.notifier.calls)
+    }
+
+    @Test
+    fun failureBodyDropsRepeatedTitlePrefix() = runTest {
+        val f = fixture()
+        f.set(item(id = "a", state = ActivityState.FAILED, message = "T-a: disk full")); runCurrent()
+        f.set(item(id = "a", state = ActivityState.FAILED, message = "T-a: disk full"), item(id = "b", state = ActivityState.FAILED, message = "other")); runCurrent()
+        assertEquals(listOf("disk full", "other"), f.notifier.shows.map { it.body })
     }
 
     @Test
