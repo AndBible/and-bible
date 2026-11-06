@@ -190,10 +190,12 @@ class ActivityHostWiringTest {
         t.onNodeWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.ProgressBarRangeInfo)?.current
 
-    private fun androidx.compose.ui.test.ComposeUiTest.probe(wiring: ActivityHostWiring, counter: Counter) = setContent {
+    private fun androidx.compose.ui.test.ComposeUiTest.probe(
+        wiring: ActivityHostWiring, counter: Counter, hostCounter: Counter = Counter(),
+    ) = setContent {
         AbTheme(disableAnimations = true) {
             CompositionLocalProvider(LocalStrings provides strings) {
-                ActivityHost(wiring) { activity -> ProbeContent(activity, counter) }
+                ActivityHostImpl(wiring, onHostComposed = { hostCounter.n++ }) { activity -> ProbeContent(activity, counter) }
             }
         }
     }
@@ -202,16 +204,19 @@ class ActivityHostWiringTest {
         val f = Fixture(default = true)
         f.runningItem()
         val counter = Counter()
-        probe(f.wiring, counter)
+        val hostCounter = Counter()
+        probe(f.wiring, counter, hostCounter)
         waitForIdle()
         assertEquals(0.4f, progressOfRing(this)!!, 0.001f)
         val before = counter.n
+        val hostBefore = hostCounter.n
         for (p in listOf(50, 60, 70)) {
             f.center.update("dl", p)
             waitForIdle()
         }
         assertEquals(0.7f, progressOfRing(this)!!, 0.001f, "the reader of the state shows the new progress")
         assertEquals(before, counter.n, "the content must not recompose on a progress update")
+        assertEquals(hostBefore, hostCounter.n, "ActivityHost itself must not read the items either")
     }
 
     @Test fun nothingReadsTheItemsWhilePreferenceIsOff() = runComposeUiTest {

@@ -4,6 +4,7 @@ package net.bible.sharedui.reading.activity
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +40,20 @@ class ActivityHostWiring(
  */
 @kotlin.native.HiddenFromObjC
 @Composable
-fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) {
+fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenuState?) -> Unit) =
+    ActivityHostImpl(wiring, onHostComposed = null, content = content)
+
+/**
+ * [ActivityHost]'s body. [onHostComposed] is a test probe, called after each composition of this function itself
+ * (not of [content]): tests use it to prove the host never reads the item flows on the reading screen's behalf.
+ */
+@Composable
+internal fun ActivityHostImpl(
+    wiring: ActivityHostWiring?,
+    onHostComposed: (() -> Unit)?,
+    content: @Composable (ActivityMenuState?) -> Unit,
+) {
+    if (onHostComposed != null) SideEffect(onHostComposed)
     if (wiring == null) {
         content(null)
         return

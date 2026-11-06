@@ -192,6 +192,28 @@ class ActivityMenuTest {
         onNodeWithText("Show all (1)").assertExists()
     }
 
+    @Test fun showAllShownWhenFinishedItemsAreOnlyInTheList() = runComposeUiTest {
+        setContent {
+            Section(menu((1..3).map { item("r$it") } + (1..4).map { item("s$it", ActivityState.SUCCEEDED) }))
+        }
+        onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(3)
+        onNodeWithText("Show all (7)").assertExists()
+    }
+
+    @Test fun showAllCountIgnoresCancelledLikeTheList() = runComposeUiTest {
+        setContent { Section(menu(listOf(item("a"), item("b"), item("c", ActivityState.CANCELLED)))) }
+        onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(2)
+        assertEquals(0, onAllNodesWithText("Show all", substring = true).fetchSemanticsNodes().size,
+            "a cancelled item is not in the list, so nothing is hidden from the menu")
+    }
+
+    @Test fun showAllCountExcludesCancelledWhenShown() = runComposeUiTest {
+        setContent {
+            Section(menu((1..4).map { item("r$it") } + item("c", ActivityState.CANCELLED)))
+        }
+        onNodeWithText("Show all (4)").assertExists()
+    }
+
     @Test fun showAllHiddenForTwoRunningRows() = runComposeUiTest {
         setContent { Section(menu(listOf(item("a"), item("b")))) }
         onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(2)
@@ -271,7 +293,10 @@ class ActivityMenuTest {
 
     @Test fun failureArrivingWhileTheMenuIsOpenIsMarkedRead() = runComposeUiTest {
         var opened = 0
-        var activity by mutableStateOf(menu(listOf(item("a")), unread = 0, onOpened = { opened++ }))
+        // One state instance for the whole run, like the real host: only the State values change.
+        val items = mutableStateOf(listOf(item("a")))
+        val unread = mutableStateOf(0)
+        val activity = ActivityMenuState(items, unread, {}, { opened++ })
         setContent {
             AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
                 ReadingToolbar(toolbarState(), icons, callbacks, overflowExpanded = true, activity = activity)
@@ -280,7 +305,8 @@ class ActivityMenuTest {
         waitForIdle()
         val afterOpen = opened
         assertTrue(afterOpen >= 1, "opening marks read")
-        activity = menu(listOf(item("a"), item("f", ActivityState.FAILED, message = "boom")), unread = 1, onOpened = { opened++ })
+        items.value = listOf(item("a"), item("f", ActivityState.FAILED, message = "boom"))
+        unread.value = 1
         waitForIdle()
         assertTrue(opened > afterOpen, "a failure that arrives while the menu is open is marked read too")
     }
