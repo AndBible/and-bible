@@ -62,6 +62,33 @@ class TestSqliteUseGuardTest {
         assertContains(violation, "closingWhileAnotherThreadStepsWaitsForTheStepAndNamesTheStepper")
     }
 
+    /**
+     * The stepping thread releases the lock and takes it again for its next call within nanoseconds; the closer
+     * waiting on the non-fair lock needs microseconds to wake. Without the close taking precedence the reader barged
+     * in, its next call succeeded and the close came late (47 of 60 rounds of this loop before the fix; the
+     * once-flaky test above is the same scenario with one slow round).
+     */
+    @Test fun aCloseWaitingForAStepRunsBeforeTheSteppersNextCall() {
+        val rounds = 20
+        val readsAfterClose = (1..rounds).count {
+            val connection = TestSqliteUseGuard.guard(":memory:", BundledSQLiteDriver().open(":memory:"))
+            val statement = connection.prepare(SHORT_SINGLE_STEP_QUERY)
+            var nextCall: Result<Long>? = null
+            val reader = thread(name = "guard-test-barging-reader") {
+                val stepped = runCatching { statement.step() }
+                nextCall = if (stepped.isSuccess) runCatching { statement.getLong(0) } else Result.failure(stepped.exceptionOrNull()!!)
+            }
+            awaitInsideNative(connection, reader)
+            statement.close()
+            connection.close()
+            reader.join(60_000)
+            assertTrue(!reader.isAlive, "reader must finish")
+            nextCall!!.isSuccess
+        }
+        TestSqliteUseGuard.takeViolations()
+        assertEquals(0, readsAfterClose, "rounds in which the reader's next call ran before the waiting close")
+    }
+
     @Test fun sequentialUseAfterCloseIsLeftToTheDriverAndIsNoViolation() {
         fun stepAfterClose(connection: SQLiteConnection): Throwable {
             val statement = connection.prepare("SELECT 1")
@@ -117,5 +144,9 @@ class TestSqliteUseGuardTest {
         /** One `sqlite3_step` that runs for seconds: the window in which the close lands. */
         const val LONG_SINGLE_STEP_QUERY =
             "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < 10000000) SELECT count(*) FROM c"
+
+        /** Long enough for the close to start inside the step, short enough to repeat. */
+        const val SHORT_SINGLE_STEP_QUERY =
+            "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < 300000) SELECT count(*) FROM c"
     }
 }

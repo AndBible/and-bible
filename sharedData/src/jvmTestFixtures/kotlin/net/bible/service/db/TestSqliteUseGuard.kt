@@ -4,6 +4,8 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.LockSupport
 import java.util.concurrent.locks.ReentrantLock
 
 /**
@@ -58,9 +60,20 @@ object TestSqliteUseGuard {
         @Volatile var inside: Thread? = null
         @Volatile private var insideCall: String? = null
 
+        /** Closes that have started on this connection and do not hold the lock yet; ordinary calls wait for them. */
+        private val pendingCloses = AtomicInteger()
+
         fun <T> call(what: String, closing: Boolean = false, block: () -> T): T {
-            if (!lock.tryLock()) {
-                if (closing) awaitUserBeforeClose(what) else lock.lock()
+            if (closing) {
+                pendingCloses.incrementAndGet()
+                try {
+                    if (!lock.tryLock()) awaitUserBeforeClose(what)
+                } finally {
+                    pendingCloses.decrementAndGet()
+                }
+            } else {
+                awaitPendingCloses()
+                lock.lock()
             }
             val previous = inside
             val previousCall = insideCall
@@ -75,7 +88,16 @@ object TestSqliteUseGuard {
             }
         }
 
-        /** A close found the lock taken: name the user, wait for its call to return, then let the close proceed. */
+        /**
+         * A close that waits for a user runs before that user's next call. The non-fair lock alone would let the user
+         * barge back in (it releases and re-acquires within nanoseconds, while the woken closer needs microseconds),
+         * so the user kept working after the close was requested and got no "closed" error. A thread that already
+         * holds the lock (a nested call) does not wait: the close is waiting for it.
+         */
+        private fun awaitPendingCloses() {
+            while (pendingCloses.get() > 0 && !lock.isHeldByCurrentThread) LockSupport.parkNanos(100_000L)
+        }
+
         /**
          * [ReentrantLock.tryLock] with a timeout that an interrupt does not cut short: Room may close from a cancelled
          * coroutine or an interrupted thread, and an [InterruptedException] escaping here would skip both the close and
@@ -97,6 +119,7 @@ object TestSqliteUseGuard {
             }
         }
 
+        /** A close found the lock taken: name the user, wait for its call to return, then let the close proceed. */
         private fun awaitUserBeforeClose(what: String) {
             val closer = Thread.currentThread()
             val user = inside
