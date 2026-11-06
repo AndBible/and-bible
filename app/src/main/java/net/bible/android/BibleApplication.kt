@@ -200,8 +200,7 @@ open class BibleApplication : Application() {
 
     /**
      * Records the error as a failed row (of the notification's kind) for the activity list (#4007), whatever the
-     * preference says, so turning the menu on later shows it; the system notification is unchanged (Android never
-     * reroutes). Never lets the list break error reporting.
+     * preference says, so turning the menu on later shows it. Never lets the list break error reporting.
      */
     private fun recordForActivityList(message: UserMessage.ErrorNotification) =
         net.bible.android.control.activity.recordErrorNotification(
@@ -213,6 +212,19 @@ open class BibleApplication : Application() {
         if(BuildVariant.Appearance.isDiscrete) return
 
         recordForActivityList(message)
+
+        val current = CurrentActivityHolder.currentActivity
+        if (!message.background && message.kind == net.bible.android.control.activity.ActivityKind.SYNC &&
+            current != null && !current.isFinishing && !current.isDestroyed
+        ) {
+            val text = message.text ?: getString(message.textId ?: R.string.error_occurred)
+            if (message.showReportButton) {
+                net.bible.android.view.activity.base.Dialogs.showErrorMsg(text, null as Exception?)
+            } else {
+                net.bible.android.view.activity.base.Dialogs.showErrorMsg(text)
+            }
+            return
+        }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
