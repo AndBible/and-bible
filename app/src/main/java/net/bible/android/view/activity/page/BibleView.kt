@@ -397,6 +397,7 @@ class BibleView(
                     step2 = true
                     mode.menu.clear()
                     mode.invalidate()
+                    reshowFloatingToolbar(mode)
                 }
                 return false
             }
@@ -489,6 +490,21 @@ class BibleView(
                 return true
             }
             else -> false
+        }
+    }
+
+    /**
+     * Makes a floating selection toolbar show the menu that [ActionMode.invalidate] just rebuilt.
+     *
+     * The two-step bookmark swap changes the menu while the selection (the toolbar's content rect) stays put. AOSP
+     * re-reads the menu on every invalidate, but some vendor toolbars (Xiaomi, Android 15: osTicket 3193, #3759)
+     * re-lay out their rows only when the content rect moves or the toolbar is shown again, so they kept the stale
+     * "Bookmark" row whose tap did nothing; the notification shade fixed it by taking window focus (hide + show).
+     * A minimal [ActionMode.hide] does that same hide and re-show.
+     */
+    private fun reshowFloatingToolbar(mode: ActionMode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mode.type == ActionMode.TYPE_FLOATING) {
+            mode.hide(1)
         }
     }
 
