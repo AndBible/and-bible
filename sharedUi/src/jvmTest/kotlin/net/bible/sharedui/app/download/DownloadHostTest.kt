@@ -325,6 +325,47 @@ class DownloadHostTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun failedPermissionDoesNotCancelCurrentOrLaterDownloads() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        try {
+            var requests = 0
+            val pending = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val downloadControl = net.bible.android.control.download.DownloadControl(unused(), unused(), unused())
+            val host = host(IntSettings(),
+                backgroundPermission = net.bible.sharedcore.platform.NotificationPermission {
+                    requests++
+                    if (requests == 1) { pending.await(); error("permission failed") }
+                },
+                downloadControlProvider = { downloadControl },
+            )
+            val controller = host.downloadControllerFor(DocTypeFilter.ALL)
+            fun book(id: String) = SwordBook(SwordBookMetaData("""
+                [$id]
+                Description=$id
+                ModDrv=RawText
+                Versification=KJV
+                Lang=en
+            """.trimIndent().encodeToByteArray(), id), NullBackend())
+            val first = book("firstTest")
+            val second = book("secondTest")
+            val session = DownloadHost::class.java.getDeclaredField("session").apply { isAccessible = true }.get(host)
+            session.javaClass.getDeclaredField("booksById").apply { isAccessible = true }
+                .set(session, listOf(first, second).associateBy { it.repoIdentity })
+            controller.requestDownloadConfirm(first.repoIdentity, "confirm")
+            controller.confirmDialog()
+            assertEquals(first.name, downloadControl.documentName(first.repoIdentity))
+            pending.complete(Unit)
+            controller.requestDownloadConfirm(second.repoIdentity, "confirm")
+            controller.confirmDialog()
+            assertEquals(2, requests)
+            assertEquals(second.name, downloadControl.documentName(second.repoIdentity))
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
     @Test
     fun firstCatalogueUsesSystemLanguage() {
         val host = host(IntSettings(), "en")
