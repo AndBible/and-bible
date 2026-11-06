@@ -142,6 +142,11 @@ keys and Alt+M/O do not trigger reading actions while editing, on Android and
 other platforms as well as iOS. On iOS, the editor also owns Control shortcuts
 such as Ctrl+B and Ctrl+F for caret navigation, and Option+arrow navigation.
 
+On iOS with a hardware keyboard, **Esc** acts as Back: it dismisses the topmost
+sheet, dialog or popup, exits Find mode, or returns from a pushed screen.
+On the plain reading screen it does nothing. A focused text field or input
+method that consumes Esc keeps that key; it does not also trigger Back.
+
 ### Swipe Left/Right on Bible Text {#swipe-left-right-on-bible-text}
 
 You can swipe left or right on the Bible text to navigate. The behavior can be

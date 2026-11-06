@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.sharedui
 
 import androidx.compose.runtime.Composable
@@ -8,17 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigationevent.NavigationEventHandler
 import androidx.navigationevent.NavigationEventInfo
-import net.bible.sharedui.desktop.reading.DesktopBackDispatcher
 
-/**
- * Desktop: a back handler that may hand the event on. `passThrough` disables this handler for the current event and
- * offers it to the handlers below (and then to the next scene); with none left [DesktopBackDispatcher.back] reports
- * the event as unhandled.
- */
+/** iOS and desktop share the same back chain, including synchronous pass-through to navigation. */
 @Composable
 actual fun PassThroughBackHandler(enabled: Boolean, onBack: (passThrough: () -> Unit) -> Unit) {
-    DesktopBackDispatcher.Attach()
-    val dispatcher = DesktopBackDispatcher.currentDispatcher()
+    HostBackDispatcher.Attach()
+    val dispatcher = HostBackDispatcher.currentDispatcher()
     val currentOnBack by rememberUpdatedState(onBack)
     val currentEnabled by rememberUpdatedState(enabled)
     val handler = remember {
@@ -27,7 +38,7 @@ actual fun PassThroughBackHandler(enabled: Boolean, onBack: (passThrough: () -> 
                 currentOnBack {
                     isBackEnabled = false
                     try {
-                        DesktopBackDispatcher.passThrough()
+                        HostBackDispatcher.passThrough()
                     } finally {
                         isBackEnabled = currentEnabled
                     }
