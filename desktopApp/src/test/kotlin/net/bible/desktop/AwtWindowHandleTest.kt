@@ -30,4 +30,14 @@ class AwtWindowHandleTest {
         assertEquals(IntOffset(110, 50), AwtWindowHandle.initialPositionDp(Rectangle(100, 40, 1220, 820), IntSize(1200, 800)))
         assertEquals(null, AwtWindowHandle.initialPositionDp(null, IntSize(1200, 800)))
     }
+
+    @Test fun restoredExtendedStateClearsOnlyTheIconifiedBit() {
+        assertEquals(java.awt.Frame.NORMAL, AwtWindowHandle.restoredExtendedState(java.awt.Frame.ICONIFIED))
+        assertEquals(
+            java.awt.Frame.MAXIMIZED_BOTH,
+            AwtWindowHandle.restoredExtendedState(java.awt.Frame.ICONIFIED or java.awt.Frame.MAXIMIZED_BOTH),
+        )
+        assertEquals(java.awt.Frame.NORMAL, AwtWindowHandle.restoredExtendedState(java.awt.Frame.NORMAL))
+        assertEquals(java.awt.Frame.MAXIMIZED_HORIZ, AwtWindowHandle.restoredExtendedState(java.awt.Frame.MAXIMIZED_HORIZ))
+    }
 }

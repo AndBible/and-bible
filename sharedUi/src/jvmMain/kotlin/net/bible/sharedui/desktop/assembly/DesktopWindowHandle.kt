@@ -27,6 +27,7 @@ interface DesktopWindowHandle {
     val sizeDp: IntSize
     val density: Float
     val isFocusedAndVisible: Boolean get() = false
+    /** Brings the window to the front and focuses it; a minimized window is restored first (notification click, incoming files). */
     fun toFront()
 }
 
