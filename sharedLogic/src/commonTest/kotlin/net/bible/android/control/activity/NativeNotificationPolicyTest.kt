@@ -1,12 +1,15 @@
 package net.bible.android.control.activity
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.LogLevel
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.NativeNotification
 import net.bible.sharedcore.platform.NativeNotifier
@@ -242,12 +245,57 @@ class NativeNotificationPolicyTest {
     }
 
     @Test
-    fun notifierExceptionsDoNotStopThePolicy() = runTest {
+    fun notifierExceptionsDoNotStopThePolicyAndAreLoggedOncePerKind() = runTest {
+        val logged = mutableListOf<String>()
+        val old = Log.sinkOverride
+        Log.sinkOverride = { level, _, msg, _ -> if (level == LogLevel.WARN) logged += msg }
+        try {
+            val f = fixture()
+            f.notifier.throwOnShow = true
+            f.set(item(id = "x", state = ActivityState.FAILED)); runCurrent()
+            f.set(item(id = "x", state = ActivityState.FAILED), item(id = "y", state = ActivityState.FAILED)); runCurrent()
+            f.set(item(id = "x", state = ActivityState.FAILED), item(id = "y", state = ActivityState.FAILED), item(id = "z", state = ActivityState.FAILED)); runCurrent()
+            assertEquals(listOf("show:andbible-x", "show:andbible-y", "show:andbible-z"), f.notifier.calls)
+            assertEquals(1, logged.size)
+        } finally {
+            Log.sinkOverride = old
+        }
+    }
+
+    @Test
+    fun closeIsSynchronousEvenIfScopeIsCancelledRightAfter() = runTest {
         val f = fixture()
-        f.notifier.throwOnShow = true
-        f.set(item(id = "x", state = ActivityState.FAILED)); runCurrent()
-        f.set(item(id = "x", state = ActivityState.FAILED), item(id = "y", state = ActivityState.FAILED)); runCurrent()
-        assertEquals(listOf("show:andbible-x", "show:andbible-y"), f.notifier.calls)
+        advance(10_000)
+        f.set(item(id = "p", progress = 1)); runCurrent()
+        f.notifier.calls.clear()
+        f.policy.close()
+        backgroundScope.cancel()
+        assertEquals(listOf("remove:andbible-p"), f.notifier.calls)
+        f.policy.close() // idempotent
+        assertEquals(1, f.notifier.calls.size)
+    }
+
+    @Test
+    fun shortOrForegroundNonSyncSuccessRemovesShownProgress() = runTest {
+        val f = fixture()
+        advance(10_000)
+        f.set(item(id = "short", progress = 1, started = 0), item(id = "fgd", progress = 1, started = 0)); runCurrent()
+        f.notifier.calls.clear()
+        f.set(item(id = "short", state = ActivityState.SUCCEEDED, started = 0, finished = 9_000), item(id = "fgd", progress = 1, started = 0)); runCurrent()
+        assertEquals(listOf("remove:andbible-short"), f.notifier.calls)
+        f.notifier.calls.clear()
+        f.setForeground(true); runCurrent()
+        f.notifier.calls.clear()
+        f.set(item(id = "short", state = ActivityState.SUCCEEDED, started = 0, finished = 9_000), item(id = "fgd", state = ActivityState.SUCCEEDED, started = 0, finished = 50_000)); runCurrent()
+        assertTrue(f.notifier.calls.isEmpty()) // progress was already removed by entering the foreground
+    }
+
+    @Test
+    fun neverShownRunningItemVanishingMakesNoCall() = runTest {
+        val f = fixture()
+        f.set(item(progress = 1, started = 0)); runCurrent() // under 10 s: not shown
+        f.set(); runCurrent()
+        assertTrue(f.notifier.calls.isEmpty())
     }
 
     @Test

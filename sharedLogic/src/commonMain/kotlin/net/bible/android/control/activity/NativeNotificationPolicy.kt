@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.NativeNotification
@@ -30,6 +31,10 @@ import net.bible.sharedcore.platform.NativeNotifier
  * scheduled after each evaluation only when something is pending, so an idle policy has no timer, it works with
  * virtual time and it dies with [close] or the scope.
  *
+ * [clock] must be the clock the [ActivityItem] `startedAt`/`finishedAt` values come from (the one ActivityCenter uses).
+ * The inputs are conflated state flows, so a FAILED, RUNNING, FAILED sequence between two collections can miss the
+ * second failure; that is accepted.
+ *
  * Items already present when [start] is called are treated as new. When the preference goes false everything shown
  * is removed; when it comes back true the current list becomes the baseline (no replay of past transitions).
  */
@@ -49,7 +54,11 @@ class NativeNotificationPolicy(
     private val inForeground = MutableStateFlow(false)
     private val tick = MutableStateFlow(0L)
     private val closed = MutableStateFlow(false)
-    private var job: Job? = null
+    @Volatile private var job: Job? = null
+
+    /** Ids currently shown as PROGRESS: an immutable snapshot published by the collector so [close] can read it on any thread. */
+    @Volatile private var progressIds: Set<String> = emptySet()
+    @Volatile private var isClosed = false
 
     // Confined to the collector coroutine.
     private val shown = mutableMapOf<String, Shown>()
@@ -60,7 +69,7 @@ class NativeNotificationPolicy(
     private var wakeJob: Job? = null
     private val loggedFailures = mutableSetOf<String>()
 
-    /** Starts collecting. Idempotent. */
+    /** Starts collecting. Idempotent, but call it from one thread (it is not an atomic check-and-set). */
     fun start() {
         if (job != null) return
         inForeground.value = foreground.isForeground()
@@ -74,8 +83,21 @@ class NativeNotificationPolicy(
     /** Reports an app focus change; entering the foreground removes shown progress notifications. */
     fun onForegroundChanged(foreground: Boolean) { inForeground.value = foreground }
 
-    /** Removes shown progress notifications and stops collecting (asynchronously, on the policy's scope). */
-    fun close() { closed.value = true }
+    /**
+     * Stops collecting and removes the progress notifications shown so far, synchronously on the calling thread, so it is
+     * reliable when the scope is cancelled or the JVM exits right after. Notifier calls are non-blocking by the port
+     * contract, but do not call this on the AWT/Compose thread. Idempotent.
+     */
+    fun close() {
+        if (isClosed) return
+        isClosed = true
+        closed.value = true
+        job?.cancel()
+        wakeJob?.cancel()
+        val ids = progressIds
+        progressIds = emptySet()
+        ids.forEach { removeNotification(it) }
+    }
 
     /** The activity id behind a notification id made by this policy, or null for a foreign id. */
     fun activityIdOf(notificationId: String): String? =
@@ -85,12 +107,9 @@ class NativeNotificationPolicy(
 
     /** Returns false to end collection. */
     private fun evaluate(input: Input): Boolean {
+        if (isClosed || input.closed) return false
         wakeJob?.cancel()
         wakeJob = null
-        if (input.closed) {
-            removeWhere { it == Shown.PROGRESS }
-            return false
-        }
         if (!input.on) {
             if (wasEnabled) {
                 removeWhere { true }
@@ -116,6 +135,7 @@ class NativeNotificationPolicy(
             val last = lastSeen.remove(id)
             val kind = shown.remove(id)
             progressShown.remove(id)
+            publishProgressIds()
             if (kind != null && (last == ActivityState.RUNNING || last == ActivityState.FAILED)) removeNotification(id)
         }
         for (item in input.list) {
@@ -168,6 +188,7 @@ class NativeNotificationPolicy(
     private fun showNotification(item: ActivityItem, body: String, progress: Int?, urgent: Boolean, kind: Shown) {
         shown[item.id] = kind
         if (kind == Shown.FINAL) progressShown.remove(item.id)
+        publishProgressIds()
         guarded("show") {
             notifier.show(NativeNotification(ID_PREFIX + item.id, item.title, body, progress, progress == null && kind == Shown.PROGRESS, urgent))
         }
@@ -176,8 +197,11 @@ class NativeNotificationPolicy(
     private fun dropShown(id: String) {
         shown.remove(id)
         progressShown.remove(id)
+        publishProgressIds()
         removeNotification(id)
     }
+
+    private fun publishProgressIds() { progressIds = shown.filterValues { it == Shown.PROGRESS }.keys.toSet() }
 
     private fun removeWhere(predicate: (Shown) -> Boolean) {
         shown.filterValues(predicate).keys.forEach { dropShown(it) }
@@ -190,7 +214,7 @@ class NativeNotificationPolicy(
         try {
             block()
         } catch (e: Exception) {
-            if (loggedFailures.add(kind)) Log.w(TAG, "Native notifier $kind failed; further failures of this kind are not logged", e)
+            if (loggedFailures.add(kind)) Log.w(TAG, "Native notifier $kind failed (${e.message}); further failures of this kind are not logged")
         }
     }
 
