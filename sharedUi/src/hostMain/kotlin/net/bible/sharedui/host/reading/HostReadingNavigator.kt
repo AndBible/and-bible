@@ -44,11 +44,13 @@ import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.host.app.HostNavShell
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.host.ReadingHostState
+import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.index.IndexStatus
@@ -91,6 +93,8 @@ class HostReadingNavigator(
     private val labelResults: NavResultChannel<ManageLabelsResult>,
     private val downloadControl: () -> DownloadControl,
     private val fakeBooks: () -> FakeBookFactory,
+    private val dialogs: AppDialogController,
+    private val strings: () -> Strings,
     private val workspaceSettings: () -> WorkspaceEntities.WorkspaceSettings? = { null },
     private val mainContext: CoroutineContext = Dispatchers.Main,
     /** Told which window opened a chooser, so its answer is applied to that window ([HostReadingResults]). */
@@ -159,8 +163,7 @@ class HostReadingNavigator(
 
     override fun openPromptEditor(promptId: String) = onMain { shell.navigate(NavRoutes.promptEdit(promptId = promptId)) }
 
-    // TODO(Stream F): Android passes forceAsk = true here; ExternalLinks has no force-ask yet, add it with the real IosExternalLinks.
-    override fun openExternalUrl(url: String) = links.open(url)
+    override fun openExternalUrl(url: String) = links.confirmAndOpen(url, dialogs, strings)
 
     override fun openWebLink(url: String) = links.open(url)
 

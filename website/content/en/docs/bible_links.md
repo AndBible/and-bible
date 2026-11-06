@@ -48,6 +48,16 @@ Bible.com links are also supported:
 
 <https://www.bible.com/fi/bible/1745/1SA.13.FINRK>
 
+## External Links in Document Text
+
+When you tap an external web link in Bible text, a commentary, or another document,
+*AndBible* asks for confirmation before opening it in your browser. This applies
+on Android, iOS, and desktop. Choose **OK** to open the link or **Cancel** to stay
+in *AndBible* without opening it.
+
+Other web links, including help and homepage links in the app's interface, keep
+their usual behavior; discrete mode still asks before opening external links.
+
 ## Enabling the Feature
 
 Enable the feature via `Application Preferences > Open Bible links in AndBible`.

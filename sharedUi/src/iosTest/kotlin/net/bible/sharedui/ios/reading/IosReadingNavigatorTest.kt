@@ -31,6 +31,9 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.startup.ReadingAppInit
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
@@ -122,6 +125,8 @@ class IosReadingNavigatorTest {
                 shell = shell,
                 hostState = host.hostState,
                 links = links,
+                dialogs = koin.get(),
+                strings = { iosStrings("en") },
                 labelResults = labels,
                 downloadControl = { koin.get<DownloadControl>() },
                 fakeBooks = { koin.get<FakeBookFactory>() },
@@ -162,6 +167,7 @@ class IosReadingNavigatorTest {
         var opened = 0
         val inPlace = HostReadingNavigator(
             shell = shell, hostState = hostState, links = links, labelResults = labels,
+            dialogs = KoinPlatform.getKoin().get(), strings = { iosStrings("en") },
             downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
             fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
             mainContext = Dispatchers.Unconfined,
@@ -181,6 +187,7 @@ class IosReadingNavigatorTest {
         }
         val withRequests = HostReadingNavigator(
             shell = shell, hostState = hostState, links = links, labelResults = labels,
+            dialogs = KoinPlatform.getKoin().get(), strings = { iosStrings("en") },
             downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
             fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
             mainContext = Dispatchers.Unconfined,
@@ -227,7 +234,11 @@ class IosReadingNavigatorTest {
 
     @Test
     fun externalAndWebLinksGoThroughExternalLinks() = withNavigator {
+        val dialogs = KoinPlatform.getKoin().get<AppDialogController>()
         navigator.openExternalUrl("https://a.example")
+        assertEquals(emptyList(), links.opened)
+        val shown = kotlin.test.assertNotNull(dialogs.pending.value)
+        dialogs.respond(shown.id, AppDialogResult.Ok)
         navigator.openWebLink("https://b.example")
         assertEquals(listOf("https://a.example", "https://b.example"), links.opened)
         assertEquals(emptyList(), nav.routes)
@@ -325,6 +336,8 @@ class IosReadingNavigatorTest {
         shell = shell,
         hostState = hostState,
         links = links,
+        dialogs = KoinPlatform.getKoin().get(),
+        strings = { iosStrings("en") },
         labelResults = labels,
         downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
         fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
