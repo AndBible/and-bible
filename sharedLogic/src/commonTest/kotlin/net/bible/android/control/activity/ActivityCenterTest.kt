@@ -147,8 +147,22 @@ class ActivityCenterTest {
         assertEquals(1, c.unreadFailures.value)
         c.start("a", ActivityKind.DOWNLOAD, "A")
         assertEquals(0, c.unreadFailures.value)
-        advance(1000)
+        advance(999)
+        assertTrue(c.items.value.isEmpty())
+        advance(1)
         assertEquals(listOf(ActivityState.RUNNING), c.items.value.map { it.state })
+    }
+
+    @Test
+    fun lateProgressDoesNotChangeFinishedItem() = runTest {
+        val c = center()
+        c.start("a", ActivityKind.DOWNLOAD, "A")
+        advance(2000)
+        c.update("a", 40)
+        assertEquals(40, c.items.value.single().progress)
+        c.fail("a", "x")
+        c.update("a", 10)
+        assertEquals(40, c.items.value.single().progress)
     }
 
     @Test

@@ -24,23 +24,24 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private class Rec(val seq: Long, val item: ActivityItem)
 
     private class Model(
-        val now: Long,
         val recs: Map<String, Rec>,
-        val seq: Long,
         val items: List<ActivityItem>,
         val unread: Int,
         /** Next time visibility changes by itself, or null. */
         val nextDeadline: Long?,
     )
 
-    private val model = MutableStateFlow(build(0L, emptyMap(), 0L))
+    private val model = MutableStateFlow(build(0L, emptyMap()))
     private val _items = MutableStateFlow<List<ActivityItem>>(emptyList())
     private val _unread = MutableStateFlow(0)
 
-    /** Visible items: running first, then finished; each group newest first. */
+    /**
+     * Visible items: running first, then finished; each group newest first.
+     * Separate flow from [unreadFailures]; the two are updated one after the other, not atomically.
+     */
     val items: StateFlow<List<ActivityItem>> = _items.asStateFlow()
 
-    /** Number of failed items the user has not acknowledged with [markAllRead]. */
+    /** Number of failed items the user has not acknowledged with [markAllRead]. Updated after [items], not atomically with it. */
     val unreadFailures: StateFlow<Int> = _unread.asStateFlow()
 
     init {
@@ -58,7 +59,10 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         recs + (id to Rec(nextSeq(), ActivityItem(id, kind, title, ActivityState.RUNNING, null, null, cancel, now, null, true)))
     }
 
-    fun update(id: String, progress: Int?) = modify(id) { it.copy(progress = progress) }
+    /** Ignored unless the item is still RUNNING, so a late progress event cannot change a finished row. */
+    fun update(id: String, progress: Int?) = modify(id) {
+        if (it.state == ActivityState.RUNNING) it.copy(progress = progress) else it
+    }
 
     fun succeed(id: String) = change { recs ->
         val rec = recs[id] ?: return@change recs
@@ -92,7 +96,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     private fun nextSeq() = ++seqCounter
 
     private fun change(f: (Map<String, Rec>) -> Map<String, Rec>) {
-        val m = build(clock(), f(model.value.recs), seqCounter)
+        val m = build(clock(), f(model.value.recs))
         model.value = m
         _items.value = m.items
         _unread.value = m.unread
@@ -103,7 +107,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
         const val SUCCESS_KEEP_MS = 60_000L
         const val MAX_FINISHED = 50
 
-        private fun build(now: Long, input: Map<String, Rec>, seq: Long): Model {
+        private fun build(now: Long, input: Map<String, Rec>): Model {
             // Drop expired successes, then cap the finished items to the newest MAX_FINISHED.
             var recs = input.filterValues {
                 !(it.item.state == ActivityState.SUCCEEDED && now >= it.item.finishedAt!! + SUCCESS_KEEP_MS)
@@ -121,7 +125,7 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
             val deadlines = running.filter { now - it.item.startedAt < DEBOUNCE_MS }.map { it.item.startedAt + DEBOUNCE_MS } +
                 recs.values.filter { it.item.state == ActivityState.SUCCEEDED }.map { it.item.finishedAt!! + SUCCESS_KEEP_MS }
             return Model(
-                now, recs, seq,
+                recs,
                 (visibleRunning + visibleFinished).map { it.item },
                 recs.values.count { it.item.state == ActivityState.FAILED && !it.item.read },
                 deadlines.minOrNull(),
