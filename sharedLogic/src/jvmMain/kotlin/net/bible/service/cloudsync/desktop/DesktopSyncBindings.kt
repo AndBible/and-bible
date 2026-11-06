@@ -154,7 +154,6 @@ fun desktopSyncModule(secretBackend: () -> KeyringBackend = { JavaKeyringBackend
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
-            notifier = get<UserNotifier>(),
             syncErrorMessage = get<HostSyncStrings>().syncError,
             begin = { 0uL },
             end = {},

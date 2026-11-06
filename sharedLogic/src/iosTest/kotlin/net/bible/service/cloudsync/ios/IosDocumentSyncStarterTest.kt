@@ -7,9 +7,11 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.documents.DocumentSyncActions
-import net.bible.sharedcore.platform.UserNotifier
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
 import okio.IOException
 import platform.UIKit.UIBackgroundTaskInvalid
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -53,13 +55,15 @@ class IosDocumentSyncStarterTest {
         override suspend fun refreshCache() { events += "refresh"; onRefresh() }
         override fun dropAdapterForReconnect() { drops++ }
     }
-    private val notifier = object : UserNotifier {
-        override fun showInfo(message: String, long: Boolean) {}
-        override fun showError(message: String, cause: Throwable?) { errors += message }
+    /** Errors now go through the global [UserMessages]; collect them for the test's lifetime. */
+    private val subscription = UserMessages.messages.subscribe { m ->
+        if (m is UserMessage.ErrorNotification) m.text?.let { errors += it }
     }
 
+    @AfterTest fun unsubscribe() = subscription.cancel()
+
     private fun kotlinx.coroutines.test.TestScope.starter() = HostDocumentSyncStarter.forDriver(
-        backgroundScope, driver, notifier, { "generic" },
+        backgroundScope, driver, { "generic" },
         begin = { handler -> begins++; expire = handler; 7uL },
         end = { ends += it },
     )
@@ -78,7 +82,7 @@ class IosDocumentSyncStarterTest {
 
     @Test fun invalidBackgroundTaskIdIsNeverEnded() = runTest {
         val s = HostDocumentSyncStarter.forDriver(
-            backgroundScope, driver, notifier, { "generic" },
+            backgroundScope, driver, { "generic" },
             begin = { begins++; UIBackgroundTaskInvalid },
             end = { ends += it },
             invalidTask = UIBackgroundTaskInvalid,

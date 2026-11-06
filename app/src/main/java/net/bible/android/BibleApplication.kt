@@ -203,16 +203,11 @@ open class BibleApplication : Application() {
      * preference says, so turning the menu on later shows it; the system notification is unchanged (Android never
      * reroutes). Never lets the list break error reporting.
      */
-    private fun recordForActivityList(message: UserMessage.ErrorNotification) {
-        try {
-            val koin = org.koin.mp.KoinPlatform.getKoinOrNull() ?: return
-            val sync = koin.getOrNull<net.bible.android.control.activity.SyncActivitySource>() ?: return
-            val text = message.text ?: getString(message.textId ?: R.string.error_occurred)
-            sync.reportFailure(message.kind, text)
-        } catch (e: Exception) {
-            Log.w(TAG, "Recording an error in the activity list failed", e)
-        }
-    }
+    private fun recordForActivityList(message: UserMessage.ErrorNotification) =
+        net.bible.android.control.activity.recordErrorNotification(
+            { org.koin.mp.KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.activity.SyncActivitySource>() },
+            message,
+        ) { getString(it ?: R.string.error_occurred) }
 
     private fun showErrorNotification(message: UserMessage.ErrorNotification) {
         if(BuildVariant.Appearance.isDiscrete) return

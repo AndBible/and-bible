@@ -17,7 +17,6 @@ import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.cloud.IosUbiquityContainer
 import net.bible.sharedcore.platform.cloud.iCloudDriveStore
 import net.bible.sharedcore.platform.files.IosFileDelivery
@@ -81,7 +80,6 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
             scope = get<AppCoroutineScope>(),
             documents = DocumentSyncProvider { get() },
             cloudSync = CloudSyncProvider { get() },
-            notifier = get<UserNotifier>(),
             syncErrorMessage = strings.syncError,
             begin = UiKitBackgroundTask.begin("document-sync"),
             end = UiKitBackgroundTask.end,

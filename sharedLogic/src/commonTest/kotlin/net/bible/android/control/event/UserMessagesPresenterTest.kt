@@ -128,4 +128,24 @@ class UserMessagesPresenterTest {
             Dispatchers.resetMain()
         }
     }
+
+    @Test
+    fun aThrowingRouterFallsBackToTheErrorDialog() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val events = EventSource<UserMessage>()
+        val presenter = UserMessagesPresenter(backgroundScope, events, reroute = { _, _, _ -> error("router broke") })
+        val calls = mutableListOf<String>()
+        try {
+            presenter.attach(object : UserNotifier {
+                override fun showInfo(message: String, long: Boolean) { calls += "info:$message" }
+                override fun showError(message: String, cause: Throwable?) { calls += "error:$message" }
+            })
+            events.emit(UserMessage.ErrorNotification("sync broke", null, false, background = true, kind = ActivityKind.SYNC))
+            runCurrent()
+            assertEquals(listOf("error:sync broke"), calls)
+        } finally {
+            presenter.close()
+            Dispatchers.resetMain()
+        }
+    }
 }

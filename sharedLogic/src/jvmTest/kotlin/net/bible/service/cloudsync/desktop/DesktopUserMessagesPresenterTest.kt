@@ -163,4 +163,13 @@ class DesktopUserMessagesPresenterTest {
         assertEquals(listOf("info:hello:false"), r.calls)
         assertTrue(center.items.value.isEmpty())
     }
+
+    @Test fun aThrowingRouterFallsBackToTheErrorDialog() {
+        val recorder = Recorder()
+        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = { _, _, _ -> error("router broke") })
+        try {
+            UserMessages.errorNotification("WebDAV failed", background = true, kind = ActivityKind.SYNC)
+            assertEquals(listOf("error:WebDAV failed"), recorder.calls)
+        } finally { presenter.close() }
+    }
 }
