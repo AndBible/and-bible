@@ -24,13 +24,21 @@ The two `.deb` packages have separate launchers but share the same AndBible data
 
 AndBible follows your desktop's display scale: the menus, toolbars and the Bible text get the same size as in other apps. It reads the scale that GNOME, KDE Plasma and Xfce publish for X11 apps (the `Xft.dpi` setting, which also includes GNOME's "Large Text" setting), or `GDK_SCALE` when it is set. On Wayland the app runs through Xwayland, so the scale comes from what the desktop gives Xwayland apps.
 
-If the size is still wrong, set it yourself with the `ANDBIBLE_UI_SCALE` environment variable, from `0.5` to `4` (fractions such as `1.25` work):
+If the size is still wrong, set it yourself with the `ANDBIBLE_UI_SCALE` environment variable, from `0.5` to `4` (fractions such as `1.25` work, as do `125%` and `120dpi`):
 
 ```bash
 ANDBIBLE_UI_SCALE=1.5 andbible
 ```
 
-For the Flatpak use `flatpak override --user --env=ANDBIBLE_UI_SCALE=1.5 org.andbible.AndBible`. The chosen scale and where it came from are written at start-up to the log (`~/.local/share/andbible/logs`) as a line starting with `display scale`; please include that line when you report a scaling problem.
+For the Flatpak use `flatpak override --user --env=ANDBIBLE_UI_SCALE=1.5 org.andbible.AndBible`.
+
+Good to know:
+
+- The scale is read when the app starts. After changing the desktop's scale or `ANDBIBLE_UI_SCALE`, restart AndBible.
+- The WebKitGTK variant rounds a fractional scale to a whole number for the menus and toolbars (125 % shows them at 100 %, 150 % at 200 %); its Bible text still gets the desktop's size. The Chromium variant started with `-Dandbible.kcef.rendering=windowed` rounds the Bible text too.
+- On GNOME with fractional scaling where X11 apps are not scaled natively (they look slightly blurry), GNOME enlarges the whole app window itself. There `ANDBIBLE_UI_SCALE` multiplies with GNOME's scale: `1.25` makes the app 25 % larger than other apps.
+
+The chosen scale and where it came from are written at start-up to the log as a line starting with `display scale`: `~/.local/share/andbible/logs`, or for the Flatpak `~/.var/app/org.andbible.AndBible/data/andbible/logs`. If no scale was found, the line says why. Please include that line when you report a scaling problem.
 
 ## Update checks
 
