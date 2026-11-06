@@ -438,6 +438,9 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 4 — document selection
     override fun docFilterResults(count: Int): String = context.getString(R.string.document_filter_results, count)
+    override fun activityShowAll(count: Int): String = context.getString(R.string.activity_show_all, count)
+    override fun activityFailedBadge(count: Int): String = context.getString(R.string.activity_failed_badge, count)
+    override val activityRunningDescription: String get() = context.getString(R.string.activity_running_description)
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)

@@ -53,6 +53,9 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import net.bible.sharedui.components.AbDropdownMenu
+import net.bible.sharedui.reading.activity.ActivityMenuSection
+import net.bible.sharedui.reading.activity.ActivityMenuState
+import net.bible.sharedui.reading.activity.ActivityOverflowButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.text.BasicTextField
@@ -212,7 +215,7 @@ data class ReadingSearchBarCallbacks(
 private val ToolbarHeight = 56.dp
 
 /** Touch-target width for a single icon button (home / quick button / overflow). */
-private val ToolbarButtonWidth = 48.dp
+internal val ToolbarButtonWidth = 48.dp
 
 /** The EPUB search engine's own syntax reference (`EpubSearchComposeActivity.help`'s link). */
 private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
@@ -313,6 +316,7 @@ fun ReadingToolbar(
     onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
+    activity: ActivityMenuState? = null,
 ) {
     val mono = isPureMonochrome()
     val density = LocalDensity.current
@@ -587,7 +591,10 @@ fun ReadingToolbar(
                         contentDescription = strings.menu,
                         onClick = callbacks.onHome,
                     )
-                    ReadingToolbarTitle(state, callbacks, documentTitleColor, icons.sync, Modifier.weight(1f).fillMaxHeight())
+                    ReadingToolbarTitle(
+                        state, callbacks, documentTitleColor, icons.sync, Modifier.weight(1f).fillMaxHeight(),
+                        showSyncGlyph = activity == null,
+                    )
                     buttons.forEach { button ->
                         QuickToolbarButton(
                             button = button,
@@ -597,17 +604,23 @@ fun ReadingToolbar(
                         )
                     }
                     Box {
-                        ToolbarIconButton(
+                        ActivityOverflowButton(
                             icon = icons.overflow,
                             contentDescription = strings.readingToolbarOptions,
+                            activity = activity,
                             onClick = callbacks.onOverflow,
                         )
+                        if (activity != null) {
+                            // The host marks failures read once the menu is seen (the badge goes, the rows stay).
+                            LaunchedEffect(overflowExpanded) { if (overflowExpanded) activity.onMenuOpened() }
+                        }
                         ReadingOverflowMenu(
                             items = overflowItems,
                             expanded = overflowExpanded,
                             onItemClick = onOverflowItemClick,
                             onDismiss = onOverflowDismiss,
                             icon = overflowIcon,
+                            header = activity?.let { { ActivityMenuSection(it) } },
                         )
                     }
                 }
@@ -673,7 +686,7 @@ private fun ToolbarVectorButton(
 
 /** A single toolbar icon button: fixed touch-target width, full-height, tap + optional long-press. */
 @Composable
-private fun ToolbarIconButton(
+internal fun ToolbarIconButton(
     icon: Painter,
     contentDescription: String,
     onClick: () -> Unit,
@@ -713,6 +726,7 @@ private fun ReadingToolbarTitle(
     documentTitleColor: Color,
     syncIcon: Painter,
     modifier: Modifier = Modifier,
+    showSyncGlyph: Boolean = true,
 ) {
     // Keyed on Unit (stable) rather than `callbacks` — a recomposition mid-gesture (e.g.
     // state.syncRunning flipping) must not restart the gesture-detector coroutine and abort an
@@ -750,7 +764,7 @@ private fun ReadingToolbarTitle(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false),
             )
-            if (state.syncRunning) {
+            if (state.syncRunning && showSyncGlyph) {
                 SyncIndicator(icon = syncIcon, modifier = Modifier.padding(start = 6.dp))
             }
         }

@@ -448,6 +448,9 @@ interface Strings {
 
     // Batch 4 — document selection
     fun docFilterResults(count: Int): String
+    fun activityShowAll(count: Int): String       // R.string.activity_show_all
+    fun activityFailedBadge(count: Int): String   // R.string.activity_failed_badge
+    val activityRunningDescription: String        // R.string.activity_running_description
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String

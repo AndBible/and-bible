@@ -48,6 +48,8 @@ import net.bible.sharedui.components.UncappedFontScale
  * [icon] resolves each row's [OptionsMenuItem.iconKey] to a `Painter` — the same host-lambda seam
  * [ReadingDrawerContent]'s `icon` parameter uses, keeping this file free of Android types.
  * Defaulted to always-`null` so existing call sites and their goldens are unaffected.
+ *
+ * [header] is an optional slot above the rows (the activity section, #4007); `null` adds nothing.
  */
 @Composable
 fun ReadingOverflowMenu(
@@ -57,6 +59,7 @@ fun ReadingOverflowMenu(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable (iconKey: String) -> Painter? = { null },
+    header: (@Composable () -> Unit)? = null,
 ) {
     // Closing the menu (Esc) leaves the focus nowhere: the platform returns the keys to the pane that had them.
     TrackOverlay(active = expanded)
@@ -69,6 +72,7 @@ fun ReadingOverflowMenu(
             shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
             border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         ) {
+            header?.invoke()
             ReadingOverflowMenuRows(items, onItemClick, icon)
         }
     }
