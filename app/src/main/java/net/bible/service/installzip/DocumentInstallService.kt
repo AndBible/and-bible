@@ -116,7 +116,11 @@ class DocumentInstallService : Service() {
         )
 
         private fun reportToActivityCenter(jobId: JobId, phase: InstallPhase) =
-            activityAdapter.onTerminal(jobId, phase, terminalEventMessage(phase, KoinJavaComponent.get(CoreStrings::class.java)))
+            activityAdapter.onTerminal(jobId, phase, activityMessage(phase))
+
+        /** The failure text for the list; blank when the lookup fails, so it can never break an install (as the host twin). */
+        private fun activityMessage(phase: InstallPhase): String =
+            try { terminalEventMessage(phase, KoinJavaComponent.get(CoreStrings::class.java)) } catch (e: Exception) { "" }
 
         val controller: InstallServiceController
             get() = _controller ?: synchronized(this) { _controller ?: createController().also { _controller = it } }

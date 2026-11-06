@@ -115,10 +115,27 @@ class DesktopUserMessagesPresenterTest {
     @Test fun desktopErrorNotificationDialogWhenOff() = withRouter(enabled = false) { r, center, pref ->
         UserMessages.errorNotification("WebDAV failed")
         assertEquals(listOf("error:WebDAV failed"), r.calls)
-        assertTrue(center.items.value.isEmpty())
+        // The failure is recorded even though the dialog is kept, so turning the setting on later shows it.
+        assertEquals(listOf("WebDAV failed"), center.items.value.map { it.message })
         pref.set(true)
         UserMessages.errorNotification("again")
         assertEquals("info:again - see menu:false", r.calls.last())
+    }
+
+    @Test fun androidRecordIsOnlyDoneWhenOnAndNeverReroutes() {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val center = ActivityCenter(scope) { 0L }
+        val pref = ActivityMenuPreference(MemorySettings(), ActivityMenuDefault { false })
+        val sync = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
+        val router = BackgroundErrorRouter({ pref.enabled.value }, sync) { "$it - see menu" }
+        try {
+            router.record("off")
+            assertTrue(center.items.value.isEmpty())
+            pref.set(true)
+            router.record("on")
+            assertEquals(listOf("on"), center.items.value.map { it.message })
+            assertEquals(1, center.unreadFailures.value)
+        } finally { sync.close() }
     }
 
     @Test fun toastsAreNeverRerouted() = withRouter(enabled = true) { r, center, _ ->

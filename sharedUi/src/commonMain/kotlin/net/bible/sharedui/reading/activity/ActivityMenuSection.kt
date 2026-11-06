@@ -46,7 +46,7 @@ internal const val MENU_ACTIVITY_ROWS = 3
 
 /**
  * The activity section at the top of the overflow menu (#4007): up to [MENU_ACTIVITY_ROWS] rows (running first,
- * then failures, then recent successes; newest first within each), each a title with a slim progress bar or the
+ * then failures; newest first within each; finished successes only appear in the full list), each a title with a slim progress bar or the
  * failure message, then "Show all (N)" when more exist or any failure exists, then a divider.
  * Renders nothing when there is nothing to show, so the menu is then exactly the normal one.
  */
@@ -55,7 +55,7 @@ internal const val MENU_ACTIVITY_ROWS = 3
 fun ActivityMenuSection(activity: ActivityMenuState) {
     // Stable sort: the incoming order (newest first) is kept within each state.
     val shown = activity.items
-        .filter { it.state != ActivityState.CANCELLED }
+        .filter { it.state == ActivityState.RUNNING || it.state == ActivityState.FAILED }
         .sortedBy { it.state.menuRank() }
     if (shown.isEmpty()) return
     val strings = LocalStrings.current
@@ -70,8 +70,7 @@ fun ActivityMenuSection(activity: ActivityMenuState) {
 
 private fun ActivityState.menuRank(): Int = when (this) {
     ActivityState.RUNNING -> 0
-    ActivityState.FAILED -> 1
-    else -> 2
+    else -> 1
 }
 
 @Composable

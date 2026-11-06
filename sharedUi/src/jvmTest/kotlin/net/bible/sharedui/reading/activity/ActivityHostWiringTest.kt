@@ -175,7 +175,7 @@ class ActivityHostWiringTest {
         val running = net.bible.android.control.activity.ActivityState.RUNNING
         val failed = net.bible.android.control.activity.ActivityState.FAILED
         assertEquals(net.bible.sharedcore.nav.NavRoutes.download(), activityItemRoute(routeItem(ActivityKind.DOWNLOAD, running)))
-        assertEquals(net.bible.sharedcore.nav.NavRoutes.download(), activityItemRoute(routeItem(ActivityKind.INSTALL, failed)))
+        assertNull(activityItemRoute(routeItem(ActivityKind.INSTALL, failed)))
         assertEquals(net.bible.sharedcore.nav.NavRoutes.SYNC_SETTINGS, activityItemRoute(routeItem(ActivityKind.SYNC, failed)))
         assertNull(activityItemRoute(routeItem(ActivityKind.SYNC, running)))
         assertNull(activityItemRoute(routeItem(ActivityKind.INDEX, failed)))

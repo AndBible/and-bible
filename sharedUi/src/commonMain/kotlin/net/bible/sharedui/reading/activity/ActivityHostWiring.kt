@@ -70,12 +70,12 @@ fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenu
 }
 
 /**
- * The existing screen a tapped activity row leads to, or `null` for rows that lead nowhere: downloads and installs
- * open the download screen, a failed sync opens the sync settings.
+ * The existing screen a tapped activity row leads to, or `null` for rows that lead nowhere: downloads open the download
+ * screen (a local zip install has no screen), a failed sync opens the sync settings.
  */
 @kotlin.native.HiddenFromObjC
 fun activityItemRoute(item: ActivityItem): String? = when {
-    item.kind == ActivityKind.DOWNLOAD || item.kind == ActivityKind.INSTALL -> NavRoutes.download()
+    item.kind == ActivityKind.DOWNLOAD -> NavRoutes.download()
     item.kind == ActivityKind.SYNC && item.state == ActivityState.FAILED -> NavRoutes.SYNC_SETTINGS
     else -> null
 }

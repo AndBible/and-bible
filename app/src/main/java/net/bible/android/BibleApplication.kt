@@ -198,8 +198,27 @@ open class BibleApplication : Application() {
         }
     }
 
+    /**
+     * With the activity menu preference on, also records the error as a failed row for the activity list (#4007);
+     * the system notification is unchanged. Never lets the list break error reporting.
+     */
+    private fun recordForActivityList(message: UserMessage.ErrorNotification) {
+        try {
+            val koin = org.koin.mp.KoinPlatform.getKoinOrNull() ?: return
+            val preference = koin.getOrNull<net.bible.android.control.activity.ActivityMenuPreference>() ?: return
+            val sync = koin.getOrNull<net.bible.android.control.activity.SyncActivitySource>() ?: return
+            val textId = message.textId
+            val text = message.text ?: getString(textId ?: R.string.error_occurred)
+            net.bible.android.control.activity.BackgroundErrorRouter({ preference.enabled.value }, sync) { it }.record(text)
+        } catch (e: Exception) {
+            Log.w(TAG, "Recording an error in the activity list failed", e)
+        }
+    }
+
     private fun showErrorNotification(message: UserMessage.ErrorNotification) {
         if(BuildVariant.Appearance.isDiscrete) return
+
+        recordForActivityList(message)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

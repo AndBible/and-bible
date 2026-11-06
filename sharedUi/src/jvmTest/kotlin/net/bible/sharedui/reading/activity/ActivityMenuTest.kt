@@ -221,6 +221,37 @@ class ActivityMenuTest {
         assertEquals(1, calls)
     }
 
+    @Test fun showAllInTheOverflowMenuClosesTheMenuAndOpensTheList() = runComposeUiTest {
+        var showAll = 0
+        var dismissed = 0
+        val activity = menu((1..4).map { item("$it") }, onShowAll = { showAll++ })
+        setContent {
+            AbTheme { CompositionLocalProvider(LocalStrings provides strings) {
+                ReadingToolbar(
+                    toolbarState(), icons, callbacks, overflowExpanded = true, onOverflowDismiss = { dismissed++ },
+                    activity = activity,
+                )
+            } }
+        }
+        onNodeWithText("Show all (4)").performClick()
+        assertEquals(1, dismissed, "the overflow menu must be closed")
+        assertEquals(1, showAll)
+    }
+
+    @Test fun menuSectionDropsSucceededRows() = runComposeUiTest {
+        setContent {
+            Section(menu(listOf(item("ok", ActivityState.SUCCEEDED), item("run"), item("bad", ActivityState.FAILED, message = "m")), unread = 1))
+        }
+        onAllNodesWithTag(ACTIVITY_ROW_TAG).assertCountEquals(2)
+        assertEquals(0, onAllNodesWithText("Item ok").fetchSemanticsNodes().size)
+        onNodeWithText("Show all (2)").assertExists()
+    }
+
+    @Test fun onlySucceededRowsRenderNoSection() = runComposeUiTest {
+        setContent { Section(menu(listOf(item("ok", ActivityState.SUCCEEDED)))) }
+        onAllNodesWithTag(ACTIVITY_SECTION_TAG).assertCountEquals(0)
+    }
+
     @Test fun openingMenuCallsOnMenuOpened() = runComposeUiTest {
         var opened = 0
         var expanded by mutableStateOf(false)
