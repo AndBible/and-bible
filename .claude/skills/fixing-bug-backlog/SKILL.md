@@ -169,6 +169,18 @@ exact text to the orchestrator, which stages it.
   selection": Vue `test:ci`/`lint`/`type-check` for bibleview-js; shared `jvmTest` + iOS
   compiles; `:app:cleanTestStandardGoogleplayDebugUnitTest :app:verifyRoborazziStandardGoogleplayDebug`
   for anything in `app/` or rendered; `assembleStandardGithubDebug` for Kotlin changes.
+- **Run the gate in parallel, not as one sequential script.** Verify (45-80 min) is the long pole;
+  nothing should queue behind it:
+  - Start verify first, in this container.
+  - Run the light, non-Gradle steps (Vue gate, `make site site-check`) here at the same time; they
+    do not compete with Gradle.
+  - Never run a second Gradle build in this checkout while verify runs: it contends for the same
+    build directories and locks. Give the other Gradle steps (`assembleStandardGithubDebug`, and
+    the shared `jvmTest` + iOS compiles or desktop tests when they are not done yet) to a light
+    child: a `fork` of HEAD (warm build outputs; the APK took about 2 min on 2026-11-06), spawned
+    with `--autostart-profile none`, with a bounded command and "report the result, change nothing".
+  - The host's cores are shared by all containers: parallel Gradle runs slow each other, so do
+    this when the load allows; the light steps are always worth it.
 - A golden that moves because of a fix: inspect it and re-record in the same batch.
 - Report per issue: root cause, fix, confidence (high / medium + why), and what was skipped.
 - Clean up: no emulator, no own idle Gradle daemons; remind `jailbee unmount osticket <container>`
