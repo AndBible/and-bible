@@ -5,6 +5,7 @@ package net.bible.sharedui.webview
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -198,6 +199,22 @@ internal fun uiColorFromArgb(argb: Int): UIColor = UIColor(
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
 
+    /**
+     * Bumped when a window's web view is dropped ([release]); read by the pane factory, so a pane whose window was rebuilt
+     * with a new web view ([IosPaneLiveness]) recomposes and hosts the new one.
+     */
+    internal var releases by mutableIntStateOf(0)
+        private set
+
+    /**
+     * Probes the wired panes when the app becomes active and rebuilds dead or hung ones (issue #4004). Only panes that
+     * have loaded something are probed: a web view with no URL has no page that could have died.
+     */
+    private val liveness = IosPaneLiveness(
+        panes = { entries.filterValues { it.handlerCount > 0 && it.webView.URL != null }.mapValues { it.value.webView } },
+        recover = { windowId -> HostReadingWindows.rebuild(windowId) },
+    )
+
     /** The installed Bibles' languages as a JSON list, read when a window's WebView is created (set by the reading assembly). */
     internal var activeLanguages: () -> String = { "[\"en\"]" }
 
@@ -268,6 +285,7 @@ object IosReadingWebViews {
     fun release(windowId: String) {
         checkMain()
         val entry = entries.remove(windowId) ?: return
+        releases++
         removeConsoleHandler(entry.webView.configuration.userContentController)
         if (entry.handlerCount > 0) {
             entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
@@ -298,6 +316,7 @@ object IosReadingWebViews {
     internal fun entry(windowId: String): ReadingEntry {
         checkMain()
         IosWebContentKillHook.installIfRequested { entries.mapValues { it.value.webView } }
+        liveness.installOnBecomeActive()
         return entries.getOrPut(windowId) {
             val navDelegate = IosNavDelegate(windowId)
             val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {
@@ -433,7 +452,9 @@ fun iosReadingPaneFactory(
     if (isOpen(windowId)) attachReadingGestures(windowId, gesturesFor(windowId))
     // ReadingHost composes panes only for windows in the layout; this check covers the gap between the window
     // closing and the asynchronous release, so recomposition never recreates a released window's WebView.
-    if (isOpen(windowId)) {
+    // Read so that a rebuilt window (new web view after a dead page, IosPaneLiveness) recomposes this pane.
+    IosReadingWebViews.releases
+    if (isOpen(windowId)) key(IosReadingWebViews.entry(windowId).webView) {
         val entry = IosReadingWebViews.entry(windowId)
         // Compose iOS caches a node's native accessibility children; after the cached WKWebView is re-parented into this
         // new holder that cache can stay empty, so VoiceOver (and XCUITest) lose the Bible text. Changing a semantics

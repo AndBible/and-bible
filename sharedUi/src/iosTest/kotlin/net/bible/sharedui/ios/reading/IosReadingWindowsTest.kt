@@ -430,6 +430,42 @@ class IosReadingWindowsTest {
         assertEquals(2, changes)
     }
 
+    /**
+     * Issue #4004: a pane whose page is hung cannot be reloaded in place (the reload goes to the same hung process), so
+     * rebuilding the window gives it a new web view (new content process) and a new session wired to it, and tells the
+     * pane factory to recompose. A closed window is not rebuilt.
+     */
+    @Test
+    fun rebuildGivesTheWindowANewWebViewAndSession() = withWindows { id ->
+        var loads = 0
+        IosReadingWebViews.bundleLoader = { _, _, _ -> loads++ }
+        attach(id)
+        val oldSession = HostReadingWindows.sessionFor(id)
+        val oldView = IosReadingWebViews.webViewFor(id)
+        val releases = IosReadingWebViews.releases
+        assertEquals(1, loads)
+
+        assertTrue(HostReadingWindows.rebuild(id))
+        attach(id) // the pane factory's recomposition
+        assertTrue(oldSession.isDisposed, "the old session is disposed")
+        assertNotSame(oldSession, HostReadingWindows.sessionFor(id))
+        assertNotSame(oldView, IosReadingWebViews.webViewFor(id), "a new web view, so a new content process")
+        assertEquals(1, IosReadingWebViews.bridgeHandlerCount(id))
+        assertEquals(2, loads, "the new web view loads the bundle")
+        assertTrue(IosReadingWebViews.releases > releases, "the pane factory is told to host the new web view")
+
+        val window = KoinPlatform.getKoin().get<WindowControl>().windowRepository.getWindow(IdType(id))!!
+        val before = window.windowState
+        try {
+            window.windowState = WindowLayout.WindowState.CLOSED
+            assertFalse(HostReadingWindows.rebuild(id))
+            assertFalse(HostReadingWindows.hasAssembly(id))
+        } finally {
+            window.windowState = before
+        }
+        assertFalse(HostReadingWindows.rebuild(IdType().toString()), "a window without an assembly is ignored")
+    }
+
     /** A missing or closed window is never (re)assembled by the pane path: no session, no WebView entry. */
     @Test
     fun closedOrMissingWindowIsNotReassembled() = withWindows { id ->

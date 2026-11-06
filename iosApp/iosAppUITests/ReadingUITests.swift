@@ -162,6 +162,28 @@ final class ReadingUITests: RealAppUITestCase {
         assertTextOncePerPane(app, panes: 2, "after the second kill")
     }
 
+    /// Issue #4004: on the Mac a pane stayed blank after AndBible was hidden on another virtual desktop for a long time,
+    /// with no termination for `IosNavDelegate` to recover from. With the debug-only `-stopWebContentOnBackground` the
+    /// app SIGSTOPs its reading WebViews' content processes when it resigns active: the pages are alive but hung, WebKit
+    /// reports nothing and a reload goes to the same hung process. Back in the foreground the liveness probe
+    /// (`IosPaneLiveness`, app log `I0-WEBVIEW-DEAD <windowId>: Unresponsive`) must rebuild each pane with a new web
+    /// view. Nothing is queried for the first seconds after activation: an accessibility snapshot of a hung page blocks
+    /// XCUITest for a minute.
+    func testPanesRecoverAfterWebContentHungInBackground() throws {
+        let app = try launchReading(extraArguments: ["-stopWebContentOnBackground"])
+        addWindow(app, from: 1)
+        assertTextOncePerPane(app, panes: 2, "before background")
+
+        for round in 1...2 {
+            sendToBackground(app)
+            app.activate()
+            sleep(20)
+            XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 30), "reading host not shown after foreground")
+            assertTextOncePerPane(app, panes: 2, "after the WebContent processes hung in background, round \(round)")
+            shot(app, "after-webcontent-hung-\(round)")
+        }
+    }
+
     /// Opens a sheet over the reading view and dismisses it: the panes (re-parented by Compose when the sheet host
     /// recomposes) must still expose their text once, and VoiceOver's order (the tree order of the panes) must follow
     /// the visual order (top-to-bottom, then left-to-right).

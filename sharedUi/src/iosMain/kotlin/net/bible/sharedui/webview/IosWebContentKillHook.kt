@@ -24,6 +24,7 @@ import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSNumber
 import platform.Foundation.valueForKey
 import platform.posix.SIGKILL
+import platform.posix.SIGSTOP
 import platform.posix.kill
 import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.WebKit.WKWebView
@@ -34,6 +35,12 @@ import kotlin.native.Platform
 internal const val KILL_WEB_CONTENT_ON_BACKGROUND = "-killWebContentOnBackground"
 
 /**
+ * Debug-only launch flag: stop (SIGSTOP, never continued) every reading WebView's WebContent process when the app leaves
+ * the foreground. The process stays alive but hung, which WebKit never reports (issue #4004).
+ */
+internal const val STOP_WEB_CONTENT_ON_BACKGROUND = "-stopWebContentOnBackground"
+
+/**
  * Debug-only test seam for the "panes stay loading after the app was hidden" bug: macOS/iOS WebKit kills the
  * WebContent process of a hidden app, the page restarts on the same native session. With [KILL_WEB_CONTENT_ON_BACKGROUND]
  * (debug binaries only) every reading WebView's WebContent process gets SIGKILL as soon as the app resigns active
@@ -42,7 +49,9 @@ internal const val KILL_WEB_CONTENT_ON_BACKGROUND = "-killWebContentOnBackground
  * termination is not reported to the navigation delegate (Mac run 20261103-124841: no I0-WEBVIEW-TERMINATED). The
  * trigger is `willResignActive`, not `didEnterBackground`: on the iPadOS 26 simulator the Home button only takes the
  * focus away and the app never enters the background (Mac run 20261103-141732). The process id comes from WebKit's
- * private `_webProcessIdentifier`. Release builds never read the flag.
+ * private `_webProcessIdentifier`. With [STOP_WEB_CONTENT_ON_BACKGROUND] the processes get SIGSTOP instead and stay hung:
+ * WebKit reports no termination for that, so only [IosPaneLiveness] can recover the panes. Release builds never read
+ * the flags.
  */
 @OptIn(ExperimentalNativeApi::class, ExperimentalForeignApi::class)
 internal object IosWebContentKillHook {
@@ -51,14 +60,19 @@ internal object IosWebContentKillHook {
     /** Registers the background observer once when the flag is present; [webViews] lists the live reading WebViews by window id. */
     fun installIfRequested(webViews: () -> Map<String, WKWebView>) {
         if (installed || !Platform.isDebugBinary) return
-        if (NSProcessInfo.processInfo.arguments.none { it.toString() == KILL_WEB_CONTENT_ON_BACKGROUND }) return
+        val arguments = NSProcessInfo.processInfo.arguments.map { it.toString() }
+        val signal = when {
+            KILL_WEB_CONTENT_ON_BACKGROUND in arguments -> SIGKILL
+            STOP_WEB_CONTENT_ON_BACKGROUND in arguments -> SIGSTOP
+            else -> return
+        }
         installed = true
         NSNotificationCenter.defaultCenter.addObserverForName(
             UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue,
-        ) { _ -> killAll(webViews()) }
+        ) { _ -> signalAll(webViews(), signal) }
     }
 
-    private fun killAll(webViews: Map<String, WKWebView>) {
+    private fun signalAll(webViews: Map<String, WKWebView>, signal: Int) {
         // Assembled at run time: the private key never appears as one literal in the binary.
         val pidKey = listOf("_web", "Process", "Identifier").joinToString("")
         for ((windowId, webView) in webViews) {
@@ -68,8 +82,8 @@ internal object IosWebContentKillHook {
                     nsLog("I0-WEBVIEW-KILL $windowId: no content process")
                     continue
                 }
-                val result = kill(pid, SIGKILL)
-                nsLog("I0-WEBVIEW-KILL $windowId: pid $pid result $result")
+                val result = kill(pid, signal)
+                nsLog("I0-WEBVIEW-KILL $windowId: pid $pid signal $signal result $result")
             } catch (t: Throwable) {
                 nsLog("I0-WEBVIEW-KILL $windowId: failure $t")
             }
