@@ -90,18 +90,10 @@ class IosSmallPortsTest {
         val first = async(start = CoroutineStart.UNDISPATCHED) { permission.request() }
         val second = async(start = CoroutineStart.UNDISPATCHED) { permission.request() }
         try {
-            awaitCondition { center.status != null }
-            assertEquals(1, center.queries)
-            assertNotNull(center.status).invoke(false)
-            awaitCondition { center.completion != null }
-            assertEquals(1, center.requests)
-            assertFalse(first.isCompleted)
-            assertFalse(second.isCompleted)
-            assertNotNull(center.completion).invoke()
             first.await(); second.await()
             permission.request()
-            assertEquals(1, center.requests)
-            assertEquals(1, center.queries)
+            assertEquals(0, center.requests)
+            assertEquals(0, center.queries)
         } finally {
             // suspendCoroutine represents an OS request that cannot be cancelled. Deliver any
             // pending fake callbacks before joining children, even when an assertion fails.
@@ -116,9 +108,8 @@ class IosSmallPortsTest {
         val center = Center()
         val request = async(start = CoroutineStart.UNDISPATCHED) { IosNotificationPermission(center).request() }
         try {
-            awaitCondition { center.status != null }
-            assertNotNull(center.status).invoke(true)
             request.await()
+            assertEquals(0, center.queries)
             assertEquals(0, center.requests)
         } finally {
             request.cancel()

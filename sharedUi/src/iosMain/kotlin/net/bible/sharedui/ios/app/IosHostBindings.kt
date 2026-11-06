@@ -62,6 +62,11 @@ fun buildIosHostBindings(): Module = module {
     single<SettingsPlatform> { get<HostSettingsPlatform>() }
     single<SettingsPlatformFlags> { get<HostSettingsPlatform>() }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }
-    single<DocumentInstallStarter> { HostDocumentInstallStarter() }
+    single<DocumentInstallStarter> {
+        val koin = getKoin()
+        net.bible.sharedui.host.ports.PermissionInstallStarter(HostDocumentInstallStarter(), net.bible.sharedui.host.ports.HostInstallPipeline.scope) {
+            koin.getOrNull<net.bible.sharedcore.platform.NotificationPermission>()?.ensureAsked()
+        }
+    }
     factory<AppSettingsService> { AppSettingsServiceImpl() }
 }
