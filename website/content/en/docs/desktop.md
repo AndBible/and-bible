@@ -20,6 +20,18 @@ The optional `andbible-webkitgtk` `.deb` uses the system's **WebKitGTK 6.0 (GTK4
 
 The two `.deb` packages have separate launchers but share the same AndBible data and settings. Only one can use that data at a time. The WebKitGTK variant is a beta alternative; keep the regular Chromium package available if you encounter rendering or input problems.
 
+## Display scaling on Linux
+
+AndBible follows your desktop's display scale: the menus, toolbars and the Bible text get the same size as in other apps. It reads the scale that GNOME, KDE Plasma and Xfce publish for X11 apps (the `Xft.dpi` setting, which also includes GNOME's "Large Text" setting), or `GDK_SCALE` when it is set. On Wayland the app runs through Xwayland, so the scale comes from what the desktop gives Xwayland apps.
+
+If the size is still wrong, set it yourself with the `ANDBIBLE_UI_SCALE` environment variable, from `0.5` to `4` (fractions such as `1.25` work):
+
+```bash
+ANDBIBLE_UI_SCALE=1.5 andbible
+```
+
+For the Flatpak use `flatpak override --user --env=ANDBIBLE_UI_SCALE=1.5 org.andbible.AndBible`. The chosen scale and where it came from are written at start-up to the log (`~/.local/share/andbible/logs`) as a line starting with `display scale`; please include that line when you report a scaling problem.
+
 ## Update checks
 
 Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. Flatpak and MSIX use their distribution channels instead and do not offer this check.

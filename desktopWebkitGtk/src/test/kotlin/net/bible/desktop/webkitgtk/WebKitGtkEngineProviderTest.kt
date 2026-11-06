@@ -28,6 +28,14 @@ class WebKitGtkEngineProviderTest {
 
     private val paths: DesktopPaths get() = DesktopPaths({ null }, "Linux", Path.of("/tmp/ab-provider-test"))
 
+    /** #4006: GTK gets the JDK's integer scale, so the reparented web view and its AWT canvas agree. */
+    @Test
+    fun gdkScaleIsTheAwtScale() {
+        val env = mutableMapOf<String, String>()
+        applyGdkScale(2) { k, v -> env[k] = v }
+        assertEquals(mapOf("GDK_SCALE" to "2"), env)
+    }
+
     @Test
     fun usesWindowedRendering() {
         assertTrue(WebKitGtkEngineProvider({ _, _ -> FakeEngine() }, { throw Exited(it) }).windowedRendering)

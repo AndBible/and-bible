@@ -6,6 +6,7 @@ import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
+import net.bible.desktop.DesktopDisplayScale
 import net.bible.desktop.DesktopEngineProvider
 import net.bible.desktop.runDesktopApp
 import net.bible.sharedcore.platform.desktop.DesktopPaths
@@ -31,8 +32,17 @@ fun appMain(args: Array<String>) {
         System.err.println("AndBible desktop (WebKitGTK): DISPLAY is not set: the WebKitGTK engine needs an X11 display (Xwayland under Wayland)")
         kotlin.system.exitProcess(1)
     }
+    // #4006: GTK takes its integer scale from GDK_SCALE (else XSETTINGS); give it the app's, before GTK initialises.
+    DesktopDisplayScale.init(integerOnly = true) // windowed panes: Compose popups are own windows
+    if (DesktopDisplayScale.description != null) applyGdkScale(DesktopDisplayScale.awtScale) { k, v -> Gtk.glib.g_setenv(k, v, 1) }
     runDesktopApp(args, WebKitGtkEngineProvider())
 }
+
+/**
+ * Gives GTK the app's integer display scale ([awtScale], the JDK's too), so the web view's CSS pixels match the AWT
+ * canvas it is reparented into. The WebKitGTK app's scale is always whole ([DesktopDisplayScale.init] with integerOnly).
+ */
+internal fun applyGdkScale(awtScale: Int, setenv: (String, String) -> Unit) = setenv("GDK_SCALE", awtScale.toString())
 
 /**
  * [DesktopEngineProvider] of the WebKitGTK engine. Windowed rendering (the web view is its own X window).

@@ -17,7 +17,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -98,6 +97,8 @@ fun main(args: Array<String>) {
 }
 
 fun runDesktopApp(args: Array<String>, provider: DesktopEngineProvider) {
+    // Linux display scale (#4006): before anything touches AWT, which reads sun.java2d.uiScale once.
+    DesktopDisplayScale.init(integerOnly = provider.windowedRendering)
     desktopLayersType(provider)?.let { System.setProperty("compose.layers.type", it) }
     runApp(args.toList(), provider)
 }
@@ -184,12 +185,18 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
     if (lockFailure == null) {
         configureDesktopLogFile(paths.data.resolve("logs"))
         logDesktopStartupFacts()
+        DesktopDisplayScale.description?.let { line ->
+            println("[desktop] $line")
+            Log.i(TAG, line)
+            net.bible.sharedcore.log.ReportFacts.global.set("Display scale", line.removePrefix("display scale "))
+        }
     }
     // Before the crash gate and the app graph: a second launch during the gate hands its files over and they are queued.
     if (lockFailure == null) DesktopEarlyIncomingFiles.install(paths.data)
     requireDisplay()
 
-    val windowHandle = AwtWindowHandle()
+    val scaleFactor = DesktopDisplayScale.composeFactor
+    val windowHandle = AwtWindowHandle(factor = scaleFactor)
     val lifecycle = DesktopHostLifecycle()
     val exitRequested = mutableStateOf(false)
     var shutdownEngine: () -> Unit = {}
@@ -268,9 +275,9 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         }
         if (exitRequested.value) LaunchedEffect(Unit) { requestClose() }
         if (closing) LaunchedEffect(Unit) { shutDown(persistence, closeCoordinator, watchdog) }
-        val defaultSize = IntSize(AwtWindowHandle.DEFAULT_WIDTH_DP, AwtWindowHandle.DEFAULT_HEIGHT_DP)
+        val defaultSize = AwtWindowHandle.initialSizeDp(null, scaleFactor)
         val workArea = remember { AwtWindowHandle.screenWorkArea() }
-        val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea) }
+        val initialSize = remember { AwtWindowHandle.initialSizeDp(workArea, scaleFactor) }
         Window(
             title = "AndBible",
             icon = painterResource("andbible.png"),
@@ -290,7 +297,10 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
         ) {
             val awtWindow = window
             DisposableEffect(awtWindow) {
-                awtWindow.minimumSize = Dimension(AwtWindowHandle.MIN_WIDTH_DP, AwtWindowHandle.MIN_HEIGHT_DP)
+                awtWindow.minimumSize = Dimension(
+                    AwtWindowHandle.minSize(AwtWindowHandle.MIN_WIDTH_DP, scaleFactor),
+                    AwtWindowHandle.minSize(AwtWindowHandle.MIN_HEIGHT_DP, scaleFactor),
+                )
                 windowHandle.attach(awtWindow)
                 // Active / ResignActive for the app as a whole: a Compose dialog or popup is a window of its own
                 // owned by this one in windowed mode (layers=WINDOW; in-window and no window at all in off-screen mode), so moving the focus into it is not leaving the app.
@@ -315,7 +325,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
                 },
                 onCancelled = closeCoordinator::readinessCancelled,
             ) {
-                DesktopAppRoot(state)
+                ScaledDensity(scaleFactor) { DesktopAppRoot(state) }
             }
         }
     }
