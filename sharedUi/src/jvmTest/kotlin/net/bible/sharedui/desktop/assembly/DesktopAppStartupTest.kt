@@ -179,6 +179,14 @@ class DesktopAppStartupTest {
         kotlin.test.assertContentEquals(png, Files.readAllBytes(paneImage.file))
         assertEquals("image/png", paneImage.contentType)
         assertEquals(paneImage.file, assertNotNull(pane.resolve("/epub/images/pic.png")).file)
+        assertEquals(content.resolve("images/pic.png").toRealPath(), paneImage.file.toRealPath(), "served in place, not copied")
+        val cacheFiles = { Files.list(net.bible.sharedui.desktop.webview.DesktopAssetCache.directory()).use { it.count() } }
+        val before = cacheFiles()
+        repeat(3) {
+            assertNotNull(paneAssets.forPane { "epub-pane" }.resolve("/epub/images/pic.png"))
+            assertNotNull(assets.resolve("/module-style/epub/Epub-DesktopAssets/images/pic.png"))
+        }
+        assertEquals(before, cacheFiles(), "EPUB images must not create temp files")
         assertNull(paneAssets.forPane("other-pane").resolve("/epub/images/pic.png"))
         paneOwner = "other-pane"
         assertNull(pane.resolve("/epub/images/pic.png"), "an adopted transport uses its new owner")

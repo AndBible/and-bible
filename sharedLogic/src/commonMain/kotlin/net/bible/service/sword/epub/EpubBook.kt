@@ -120,6 +120,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     suspend fun tocKeys(): List<Key> = state.tocKeys()
 
     fun openResource(resourcePath: String) = state.openResource(resourcePath)
+    fun resourceFile(resourcePath: String) = state.resourceFile(resourcePath)
     suspend fun styleSheetContent(key: Key) = state.styleSheetContent(key)
     override fun readRawContent(state: EpubBackendState, key: Key?): String = state.read(key!!)
     fun delete() = state.delete()

@@ -28,6 +28,15 @@ interface PageAssetEpubSource {
     /** `/module-style/epub/<initials>/<path>`: a resource of the installed EPUB [initials]. */
     fun openBookResource(initials: String, relativePath: String): Source?
 
+    /**
+     * The verified file behind `/epub/<path>` when the platform can serve it straight from disk (no copy, no lease),
+     * else null and [openResource] is used. The path is already inside the book's directory.
+     */
+    fun resourceFile(relativePath: String): Path? = null
+
+    /** The verified file behind `/module-style/epub/<initials>/<path>`, or null (see [resourceFile]). */
+    fun bookResourceFile(initials: String, relativePath: String): Path? = null
+
     /** `/module-style/epub/<initials>/<key>/style.css`: the stylesheets of that EPUB page joined, or null. Called off the main thread. */
     fun styleSheet(initials: String, key: String): String?
 }
@@ -156,6 +165,7 @@ class PageAssetRoutes(
     private fun epubResource(relative: String): PageAsset? {
         val source = epub ?: return unsupported("epub")
         if (!isSafeRelative(relative)) return null
+        source.resourceFile(relative)?.let { return PageAsset.File(it, mimeType(relative)) }
         return source.openResource(relative)?.let { PageAsset.Stream(it, mimeType(relative)) }
     }
 
@@ -172,6 +182,7 @@ class PageAssetRoutes(
             val cleaned = css.replace(epubColorRe, "").replace(epubBodyRe, "").replace(epubLineHeightRe, "")
             return PageAsset.Bytes(cleaned.encodeToByteArray(), "text/css")
         }
+        source.bookResourceFile(initials, relative)?.let { return PageAsset.File(it, mimeType(relative)) }
         return source.openBookResource(initials, relative)?.let { PageAsset.Stream(it, mimeType(relative)) }
     }
 

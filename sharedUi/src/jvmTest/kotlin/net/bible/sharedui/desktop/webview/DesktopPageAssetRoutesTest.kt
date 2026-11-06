@@ -221,4 +221,31 @@ AndBibleProvidesFont=Desktop Study;css/extra.woff2
     @Test fun anEmptyCatalogServesAnEmptyStylesheet() {
         assertEquals(0, fontRoutes { emptyList() }.resolve("/fonts/KJV/fonts.css")!!.file.let { Files.size(it) }.toInt())
     }
+
+    private class StreamOnlyEpub(val body: String) : net.bible.sharedui.webview.PageAssetEpubSource {
+        override fun openResource(relativePath: String): okio.Source? =
+            if (relativePath == "pic.png") okio.Buffer().writeUtf8(body) else null
+        override fun openBookResource(initials: String, relativePath: String): okio.Source? = openResource(relativePath)
+        override fun styleSheet(initials: String, key: String): String? = null
+    }
+
+    @Test fun streamsFromRepeatedRequestsAndPanesShareOneBoundedCopy() {
+        fun paneRoutes(body: String) = DesktopPageAssetRoutes(
+            { emptyMap() }, { null }, { null }, { _, _ -> false }, epub = StreamOnlyEpub(body),
+        )
+        val cache = DesktopAssetCache.directory()
+        val count = { Files.list(cache).use { it.count() } }
+        val a = paneRoutes("image-bytes")
+        val b = paneRoutes("image-bytes")
+        val first = assertNotNull(a.resolve("/epub/pic.png"))
+        val after = count()
+        repeat(3) { for (pane in listOf(a, b)) {
+            val r = assertNotNull(pane.resolve("/epub/pic.png"))
+            assertEquals("image-bytes", r.file.readText())
+            assertEquals("image/png", r.contentType)
+        } }
+        assertEquals(after, count(), "repeated requests from two panes create no new files")
+        assertEquals(first.file, assertNotNull(b.resolve("/epub/pic.png")).file)
+        assertNull(a.resolve("/epub/missing.png"))
+    }
 }

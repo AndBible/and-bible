@@ -16,9 +16,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.koin.mp.KoinPlatform
 import java.net.URLConnection
-import java.nio.file.AtomicMoveNotSupportedException
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -26,7 +23,8 @@ import java.nio.file.Paths
  * The page asset routes of the desktop BibleView: the shared [PageAssetRoutes] (Android `BibleView` path handlers;
  * the route list and traversal rules are documented there) over `java.nio` paths, answering engine [BundleResource]s.
  *
- * EPUB streams and generated stylesheets are materialized as reusable files for the desktop engines.
+ * EPUB files are served straight from the book's verified directory; only generated stylesheets (and streams of
+ * sources that cannot give a path) are materialized, in the one bounded [DesktopAssetCache] shared by all panes.
  * [forPane] binds unqualified EPUB resources to the document shown in that pane.
  */
 class DesktopPageAssetRoutes(
@@ -54,7 +52,7 @@ class DesktopPageAssetRoutes(
         null -> null
         is PageAsset.File -> BundleResource(asset.path.toNioPath(), asset.mimeType, fromBundle = false)
         is PageAsset.Bytes -> BundleResource(generatedCssFile(path, asset.bytes), asset.mimeType, fromBundle = false)
-        is PageAsset.Stream -> BundleResource(materializedStream(path, asset), asset.mimeType, fromBundle = false)
+        is PageAsset.Stream -> BundleResource(materializedStream(asset), asset.mimeType, fromBundle = false)
     }
 
     override fun forPane(id: () -> String?): DesktopPageAssets = DesktopPageAssetRoutes(
@@ -62,66 +60,12 @@ class DesktopPageAssetRoutes(
         DesktopEpubAssets({ id()?.let(currentBook) }), currentBook,
     )
 
-    private val resourceFiles = mutableMapOf<String, Path>()
+    /** Copy while holding the backend lease, closing it even on failure, into the shared bounded cache. */
+    private fun materializedStream(asset: PageAsset.Stream): Path = asset.source.buffer().use { DesktopAssetCache.stream(it) }
 
-    /** Copy while holding the backend lease, closing it even on failure; one reusable file per pane/resource URL. */
-    private fun materializedStream(route: String, asset: PageAsset.Stream): Path = asset.source.buffer().use { source ->
-        synchronized(resourceFiles) {
-            val file = resourceFiles[route]?.takeIf { Files.isRegularFile(it) }
-                ?: Files.createTempFile("andbible-epub", ".asset").also { it.toFile().deleteOnExit(); resourceFiles[route] = it }
-            val staging = Files.createTempFile(file.parent, "andbible-epub", ".tmp")
-            try {
-                Files.newOutputStream(staging).use { source.inputStream().copyTo(it) }
-                try {
-                    Files.move(staging, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-                } catch (_: AtomicMoveNotSupportedException) {
-                    Files.move(staging, file, StandardCopyOption.REPLACE_EXISTING)
-                }
-            } finally {
-                Files.deleteIfExists(staging)
-            }
-            file
-        }
-    }
-
-    private val generatedCss = mutableMapOf<String, Path>()
-    private val generatedBytes = mutableMapOf<String, ByteArray>()
-
-    /**
-     * Reuse one file per module route instead of leaking a temp file on every settings update. The file is only
-     * rewritten when its content changed, and then atomically (temp file + move), so the engine never reads a
-     * half-written stylesheet.
-     */
-    private fun generatedCssFile(route: String, bytes: ByteArray): Path = synchronized(generatedCss) {
-        if (bytes.isEmpty()) return@synchronized emptyCssFile()
-        val existing = generatedCss[route]?.takeIf { Files.isRegularFile(it) }
-        if (existing != null && generatedBytes[route]?.contentEquals(bytes) == true) return@synchronized existing
-        val file = existing ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); generatedCss[route] = it }
-        val staging = Files.createTempFile(file.parent, "andbible-fonts", ".tmp")
-        try {
-            Files.write(staging, bytes)
-            try {
-                Files.move(staging, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-            } catch (_: AtomicMoveNotSupportedException) {
-                Files.move(staging, file, StandardCopyOption.REPLACE_EXISTING)
-            }
-        } finally {
-            Files.deleteIfExists(staging)
-        }
-        generatedBytes[route] = bytes
-        file
-    }
+    private fun generatedCssFile(route: String, bytes: ByteArray): Path = DesktopAssetCache.bytes(if (bytes.isEmpty()) "" else route, bytes)
 
     companion object {
-        /** The one empty stylesheet every empty `fonts.css` answer shares (a [BundleResource] needs a file). */
-        @Volatile private var emptyCss: Path? = null
-
-        /** The shared empty stylesheet, recreated when tmp cleaning removed it during a long session. */
-        internal fun emptyCssFile(): Path = synchronized(this) {
-            emptyCss?.takeIf { Files.isRegularFile(it) }
-                ?: Files.createTempFile("andbible-fonts", ".css").also { it.toFile().deleteOnExit(); emptyCss = it }
-        }
-
         private val MIME = mapOf(
             "css" to "text/css", "js" to "text/javascript", "mjs" to "text/javascript", "html" to "text/html",
             "htm" to "text/html", "json" to "application/json", "svg" to "image/svg+xml", "png" to "image/png",
