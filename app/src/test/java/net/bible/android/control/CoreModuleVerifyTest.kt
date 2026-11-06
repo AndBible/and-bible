@@ -11,12 +11,22 @@ class CoreModuleVerifyTest {
      * The Koin analogue of Dagger's compile-time graph check. Fails loudly on a
      * missing/unresolvable binding.
      */
-    @OptIn(KoinExperimentalAPI::class)
+    @OptIn(KoinExperimentalAPI::class, org.koin.core.annotation.KoinInternalApi::class)
     @Test
     fun `coreModule graph resolves`() {
+        // Koin's verifier cannot reflect a suspend-function parameter (its classifier is null).
+        // The explicitly constructed ports are exercised by the real-container resolve test.
+        val module = buildCoreModule()
+        for (type in listOf("SyncNowPorts", "SyncNow")) {
+            val key = "net.bible.service.cloudsync.$type::_root_"
+            val removed = module.includedModules.count { it.mappings.remove(key) != null }
+            org.junit.Assert.assertEquals("exactly one explicit $type binding", 1, removed)
+        }
         // androidContext() supplies Context/Application-typed constructor params;
-        coreModule.verify(
+        module.verify(
             extraTypes = listOf(
+                net.bible.service.cloudsync.SyncNowPorts::class,
+                net.bible.service.cloudsync.SyncNow::class,
                 Application::class,
                 android.content.Context::class,
                 // OrderedLauncher is bound with the AppCoroutineScope explicitly; verify() only sees its declared CoroutineScope parameter.

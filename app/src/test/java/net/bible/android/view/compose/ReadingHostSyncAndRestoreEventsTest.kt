@@ -316,16 +316,30 @@ class ReadingHostSyncAndRestoreEventsTest {
 
     @Test
     fun returningToForegroundStartsSync() {
-        val activity = readingHost().get()
-        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
-        assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val manager = context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val shadow = shadowOf(manager)
+        val original = manager.activeNetworkInfo
+        val state = org.koin.mp.KoinPlatform.getKoin().get<net.bible.android.view.activity.page.SyncNetworkState>()
+        val originalAvailable = state.available
+        try {
+            // The periodic job is started even offline; avoid launching real sign-in in this lifecycle test.
+            shadow.setActiveNetworkInfo(null)
+            val activity = readingHost().get()
+            assertFalse(activity.readingAppBootstrap.networkAvailable)
+            SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
+            assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
 
-        CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
+            CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
 
-        // startSync runs on syncScope (Dispatchers.IO); bounded wait for its synchronous prefix.
-        val deadline = System.currentTimeMillis() + 5_000
-        while (syncJobOf(activity) == null && System.currentTimeMillis() < deadline) Thread.sleep(10)
-        assertNotNull(syncJobOf(activity), "returning to foreground must start the cloud-sync loop")
+            // startSync runs on syncScope (Dispatchers.IO); bounded wait for its synchronous prefix.
+            val deadline = System.currentTimeMillis() + 5_000
+            while (syncJobOf(activity) == null && System.currentTimeMillis() < deadline) Thread.sleep(10)
+            assertNotNull(syncJobOf(activity), "returning to foreground must start the cloud-sync loop")
+        } finally {
+            shadow.setActiveNetworkInfo(original)
+            state.available = originalAvailable
+        }
     }
 
     /**

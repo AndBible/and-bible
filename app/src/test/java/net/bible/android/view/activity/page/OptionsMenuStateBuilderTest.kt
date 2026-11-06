@@ -87,6 +87,7 @@ class OptionsMenuStateBuilderTest {
 
     @Before
     fun setUp() {
+        runBlocking { org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.documents.DocumentSyncSettings>().ensureLoaded() }
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository

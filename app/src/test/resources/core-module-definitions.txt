@@ -55,6 +55,7 @@ net.bible.android.view.activity.ai.ToolPermissionServiceImpl::_root_
 net.bible.android.view.activity.bookmark.BookmarksServiceImpl::_root_
 net.bible.android.view.activity.bookmark.LabelEditServiceImpl::_root_
 net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl::_root_
+net.bible.android.view.activity.page.SyncNetworkState::_root_
 net.bible.android.view.activity.search.AndroidEpubSearchService::_root_
 net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl::_root_
 net.bible.android.view.activity.settings.SyncSettingsServiceImpl::_root_
@@ -66,6 +67,8 @@ net.bible.service.cloudsync.CloudAdapterFactory::_root_
 net.bible.service.cloudsync.CloudSync::_root_
 net.bible.service.cloudsync.CloudSyncProvider::_root_
 net.bible.service.cloudsync.DocumentSyncProvider::_root_
+net.bible.service.cloudsync.SyncNow::_root_
+net.bible.service.cloudsync.SyncNowPorts::_root_
 net.bible.service.cloudsync.SyncSettingsCategories::_root_
 net.bible.service.cloudsync.SyncSettingsPlatform::_root_
 net.bible.service.cloudsync.documents.DocumentSync::_root_
