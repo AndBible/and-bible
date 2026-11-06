@@ -38,6 +38,7 @@ import platform.UIKit.UITouchTypeIndirectPointer
 import platform.UIKit.UIPanGestureRecognizer
 import platform.UIKit.UISwipeGestureRecognizer
 import platform.UIKit.UITouch
+import platform.UIKit.UIUserInterfaceLayoutDirection
 import net.bible.sharedui.HostBackDispatcher
 import platform.UIKit.UISwipeGestureRecognizerDirectionLeft
 import platform.UIKit.UISwipeGestureRecognizerDirectionRight
@@ -131,7 +132,7 @@ internal class IosReadingGestureRecognisers(
         shouldRecognizeSimultaneouslyWithGestureRecognizer: UIGestureRecognizer,
     ): Boolean = true
 
-    /** Whether the touch that the chapter swipes are tracking started in a screen-edge back zone. */
+    /** Whether the touch that the chapter swipes are tracking started in the leading-edge back zone. */
     private var swipeTouchAtScreenEdge = false
 
     override fun gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch: UITouch): Boolean {
@@ -140,8 +141,12 @@ internal class IosReadingGestureRecognisers(
         if (gestureRecognizer is UISwipeGestureRecognizer) {
             val window = webView.window
             swipeTouchAtScreenEdge = window != null && shouldReceiveTouch.locationInView(window).useContents {
-                val width = window.bounds.useContents { size.width }
-                x < BACK_EDGE_ZONE_POINTS || x > width - BACK_EDGE_ZONE_POINTS
+                isInBackEdgeZone(
+                    x = x,
+                    windowWidth = window.bounds.useContents { size.width },
+                    rightToLeft = webView.effectiveUserInterfaceLayoutDirection ==
+                        UIUserInterfaceLayoutDirection.UIUserInterfaceLayoutDirectionRightToLeft,
+                )
             }
         }
         return true
@@ -197,3 +202,11 @@ internal class IosReadingGestureRecognisers(
 
 /** Width of the screen-edge zone where UIKit's back edge-swipe starts (its recogniser takes touches about 20 pt in). */
 private const val BACK_EDGE_ZONE_POINTS = 24.0
+
+/**
+ * Whether a touch at [x] (window points) lies in the zone where the scene's back edge-swipe starts: the LEADING edge
+ * only (left, or right in a right-to-left layout). Compose's end-edge pan is off by default
+ * (`EndEdgePanGestureBehavior.Disabled`), so a drag from the trailing edge is never back and stays a chapter swipe.
+ */
+internal fun isInBackEdgeZone(x: Double, windowWidth: Double, rightToLeft: Boolean): Boolean =
+    if (rightToLeft) x > windowWidth - BACK_EDGE_ZONE_POINTS else x < BACK_EDGE_ZONE_POINTS
