@@ -515,6 +515,9 @@ class IosAssemblyTest {
         // ... and the platform module binds nothing that the declared list does not name (concrete helpers excepted).
         val module = buildIosPlatformBindings(config())
         val bound = module.mappings.values.flatMap { f -> listOf(f.beanDefinition.primaryType) + f.beanDefinition.secondaryTypes }.toSet()
+        val router = net.bible.android.control.activity.BackgroundErrorRouter::class
+        assertTrue(router in bound, "iOS background error router must be bound by the platform module")
+        koin.get<net.bible.android.control.activity.BackgroundErrorRouter>()
         val undeclared = bound - IOS_BOUND_PORT_TYPES.toSet() - IOS_CONCRETE_BINDINGS
         assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
     }
@@ -577,6 +580,8 @@ class IosAssemblyTest {
             // Optional iOS-only seam (#3973) read through getOrNull by SharedBindings; Android has no binding, so it is
             // deliberately not in IOS_BOUND_PORT_TYPES (IosPortParityTest would require it on Android).
             net.bible.android.control.download.DownloadKeepAlive::class,
+            // iOS presentation helper, not an Android platform port; resolved explicitly by the graph test above.
+            net.bible.android.control.activity.BackgroundErrorRouter::class,
         )
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */
