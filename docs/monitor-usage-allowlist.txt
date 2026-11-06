@@ -16,7 +16,7 @@ sharedLogic/src/commonMain/kotlin/net/bible/service/readingplan/ReadingPlanTextF
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordContentFacade.kt | 6 | Per-book rendering/plain-text cache; BibleNames parsing and BookName formatting have their own targets.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/SwordDocumentFacade.kt | 1 | Per-book index scheduling/status transition, not a process-wide monitor; legacy observer semantics retained.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBackendState.kt | 10 | Lifetime state/wait/notify only; close outside; metadata uses backend target, not lifetime/global lock.
-sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBook.kt | 4 | Registry membership/owner lookup only; installation, deletion and retirement outside.
+sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubBook.kt | 6 | Registry membership/owner lookup only; installation, deletion and retirement outside. EpubBackend.stateLock (2 sites): once-only state build cached with its failure (same scope as a synchronized lazy; the build runs under the lock so concurrent first users wait for one parse), and a read of the cached result.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubReplace.kt | 4 | Staging-name set only; directory enumeration and file moves outside.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/epub/EpubSearch.kt | 7 | Per-connection SQLite exclusion is required for queries/transactions/close; no unrelated connection shares it.
 sharedLogic/src/commonMain/kotlin/net/bible/service/sword/esword/ESwordBook.kt | 5 | Backend identity owns one SQLite connection; recursive queries/metadata/close serialized per connection.
