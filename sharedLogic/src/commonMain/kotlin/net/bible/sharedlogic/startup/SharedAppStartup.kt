@@ -2,6 +2,7 @@ package net.bible.sharedlogic.startup
 
 import androidx.annotation.VisibleForTesting
 import net.bible.android.control.activity.ActivityCenter
+import net.bible.android.control.activity.NativeNotificationPolicy
 import net.bible.android.control.activity.DownloadActivitySource
 import net.bible.android.control.activity.JobActivitySource
 import net.bible.android.control.activity.SyncActivitySource
@@ -134,6 +135,8 @@ object SharedAppStartup {
         start("DownloadActivitySource") { koin.get<DownloadActivitySource>() }
         start("JobActivitySource") { koin.get<JobActivitySource>() }
         start("SyncActivitySource") { koin.get<SyncActivitySource>() }
+        // Native system notifications (#4012): bound only on platforms that have a native notifier (desktop).
+        start("NativeNotificationPolicy") { koin.getOrNull<NativeNotificationPolicy>()?.start() ?: Unit }
     }
 
     /** Installs the shared download transport; needs Koin up, and must run before any download consumer is resolved. */

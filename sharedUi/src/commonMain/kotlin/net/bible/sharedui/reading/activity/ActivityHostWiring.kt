@@ -7,6 +7,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import kotlinx.coroutines.flow.Flow
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import net.bible.android.control.activity.ActivityCenter
@@ -21,12 +23,14 @@ import net.bible.android.control.activity.ActivityMenuPreference
  * tapped row does. A host that leaves this out (`null`) renders today's toolbar.
  *
  * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing
+ * @param listRequests each emission opens the full list when the preference is on (a desktop notification click, #4012)
  */
 @kotlin.native.HiddenFromObjC
 class ActivityHostWiring(
     val center: ActivityCenter,
     val preference: ActivityMenuPreference,
     val onOpenItem: (ActivityItem) -> Unit,
+    val listRequests: Flow<Unit>? = null,
 )
 
 /**
@@ -54,6 +58,10 @@ fun ActivityHost(wiring: ActivityHostWiring?, content: @Composable (ActivityMenu
 
     // Turning the preference off must not leave the list orphaned on screen.
     LaunchedEffect(enabled) { if (!enabled) listVisible = false }
+
+    // A request while the preference is off is dropped, not remembered.
+    val enabledNow by rememberUpdatedState(enabled)
+    LaunchedEffect(wiring.listRequests) { wiring.listRequests?.collect { if (enabledNow) listVisible = true } }
 
     val state = remember(enabled, items, unread, onShowAll, onMenuOpened) {
         if (enabled) ActivityMenuState(items, unread, onShowAll, onMenuOpened) else null

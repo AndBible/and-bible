@@ -178,6 +178,8 @@ fun desktopPlatformModule(
     uiLanguage: String? = null,
     launchArgs: List<String> = emptyList(),
     lifecycleEvents: DesktopLifecycleEvents = DesktopLifecycleEvents(),
+    notifierFactory: (kotlinx.coroutines.CoroutineScope) -> net.bible.sharedcore.platform.NativeNotifier =
+        { scope -> net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier(scope = scope) },
 ): Module {
     // One scanner for both add-on ports, so a clearCaches() on the catalog also reloads the prompt packs.
     // It applies the same add-on filter as Android's AndBibleAddons, and is also the one catalog behind the font
@@ -205,7 +207,7 @@ fun desktopPlatformModule(
         single<AppEnvironment> { get<DesktopAppEnvironment>() }
         single<AppDirectories> { DesktopAppDirectories(paths) }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { HostStartup.databasesOpen }) }
-        // No system notifications for background work here, so the activity menu entry is on by default (#4007).
+        // The activity menu entry is on by default (#4007); native notifications are bound in desktopNotificationModule (#4012).
         single<net.bible.sharedcore.platform.ActivityMenuDefault> { net.bible.sharedcore.platform.ActivityMenuDefault { true } }
         single {
             val preference = get<net.bible.android.control.activity.ActivityMenuPreference>()
@@ -352,6 +354,6 @@ fun desktopPlatformModule(
         single<HostDebugArgs> { DesktopNoDebugArgs }
         single<DesktopWindowHandle> { window }
     }
-    return module { includes(platform, buildSharedBindings()) }
+    return module { includes(platform, desktopNotificationModule(window, notifierFactory = notifierFactory), buildSharedBindings()) }
 }
 
