@@ -120,6 +120,12 @@ To add a Bible reference link:
 >
 > [![Note editing](images/note-editing.png){ .align-left width="443" height="221" }](images/note-editing.png)
 
+The **RefParser** add-on enables reference recognition in additional languages,
+including on iOS. Install it from the document downloader to use the languages
+of your active Bible documents. Only correctly signed add-on parser files are
+loaded. If a language parser is missing or cannot be loaded, English reference
+recognition remains available; you can also use the verse picker.
+
 ### Markdown Editor
 
 The Markdown editor lets you write notes using Markdown syntax. It provides a

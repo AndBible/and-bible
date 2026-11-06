@@ -140,6 +140,21 @@ AndBibleProvidesFont=Outside;../../secret.txt
         assertNull(routes(verify = null).resolve("/features/KJV/feat.js"))
     }
 
+    @Test fun bundledVerifierServesOriginalRefParserButRefusesTamperingAndMissingSignature() {
+        val parser = book / "fi_bcv_parser.js"
+        val signature = book / "fi_bcv_parser.js.sign"
+        fs.write(parser) { write(SignedFeatureFixture.content) }
+        fs.write(signature) { write(SignedFeatureFixture.signature) }
+        val verifier = net.bible.sharedlogic.security.FeatureSignatureVerifier()
+        val r = routes(verify = verifier::verify)
+        assertEquals(parser, r.resolve("/features/KJV/fi_bcv_parser.js").file())
+        fs.write(parser) { writeUtf8("tampered") }
+        assertNull(r.resolve("/features/KJV/fi_bcv_parser.js"))
+        fs.write(parser) { write(SignedFeatureFixture.content) }
+        fs.delete(signature)
+        assertNull(r.resolve("/features/KJV/fi_bcv_parser.js"))
+    }
+
     @Test fun moduleStyleServed() {
         assertEquals(book / "css/my.css", routes().resolve("/module-style/KJV/style.css").file())
         assertEquals(book / "css/extra.woff2", routes().resolve("/module-style/KJV/extra.woff2").file())
