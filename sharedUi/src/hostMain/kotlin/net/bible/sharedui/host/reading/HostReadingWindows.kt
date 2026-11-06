@@ -245,6 +245,22 @@ object HostReadingWindows {
         session.windowOrNull?.loadText()
     }
 
+    /**
+     * Replaces the window's page and session with new ones (iOS: the page is dead or hung and WebKit reported no
+     * termination, so reloading the same web view cannot help, see `IosPaneLiveness`). Releases the assembly (session
+     * disposed, web view dropped) and, when the window is still open, assembles it again and loads its text at the
+     * current position; the pane factory then hosts the new web view. Desktop's renderer-crash recovery does the same.
+     * Main thread; a window without an assembly is ignored. True when the window was rebuilt.
+     */
+    fun rebuild(windowId: String): Boolean {
+        if (!assemblies.containsKey(windowId)) return false
+        release(windowId)
+        if (!isOpen(windowId)) return false
+        val session = sessionFor(windowId)
+        session.windowOrNull?.loadText()
+        return true
+    }
+
     /** The reading gestures of the bound host, for the pane factory; null while no host is bound. */
     fun gesturesFor(@Suppress("UNUSED_PARAMETER") windowId: String): HostReadingGestures? = binding?.host?.gestures
 
