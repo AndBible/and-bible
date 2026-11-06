@@ -234,6 +234,45 @@ class ActivitySourcesTest {
     }
 
     @Test
+    fun downloadCancelAfterFailRetryCycleTargetsCurrentJob() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        val cancelled = mutableListOf<String>()
+        var generation = 1
+        // Like jswordCancelFor: the returned action names the job that is current when it is created.
+        DownloadActivitySource(c, events, { it }, { it }, cancelFor = { id -> val g = generation; ({ cancelled += "$id#$g" }) })
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 5))
+        advance(1000)
+        assertNotNull(c.items.value.single().cancel)
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        generation = 2
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 1))
+        advance(1000)
+        val retry = assertNotNull(c.items.value.single().cancel)
+        assertTrue(c.items.value.single().state == ActivityState.RUNNING)
+        retry()
+        assertEquals(listOf("d#2"), cancelled, "cancel resolves the job current at tap time")
+    }
+
+    @Test
+    fun jobRestartedWithSameIdGetsWorkingCancel() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            var cancelled = 0
+            val first = job("test-restart-1", "TestRestart") { cancelled += 1 }
+            advance(1000)
+            assertNotNull(c.mine("TestRestart").single().cancel)
+            first.done()
+            val second = job("test-restart-1", "TestRestart") { cancelled += 10 }
+            advance(1000)
+            second.work = 20
+            val secondCancel = assertNotNull(c.mine("TestRestart").last().cancel)
+            secondCancel()
+            assertEquals(10, cancelled, "the restarted job is the one cancelled")
+        }
+    }
+
+    @Test
     fun downloadCloseReleasesMonitoringAndSubscription() = runTest {
         val c = center()
         val events = EventSource<DocumentStatus>()

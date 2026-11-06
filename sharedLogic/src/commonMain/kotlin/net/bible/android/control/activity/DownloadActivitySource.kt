@@ -1,5 +1,7 @@
 package net.bible.android.control.activity
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.sharedcore.event.Events
@@ -31,6 +33,9 @@ class DownloadActivitySource(
     private val subscription: Subscription
     private var closed = false
 
+    /** Guards [cancelActions]: status events arrive on several download threads. Never held while calling out. */
+    private val lock = SynchronizedObject()
+
     /** One cancel action per document, so repeated progress events compare equal (see [JobActivitySource]). */
     private val cancelActions = HashMap<String, () -> Unit>()
 
@@ -50,21 +55,23 @@ class DownloadActivitySource(
     /** The cached action while [cancelFor] still offers cancel (cancelability can change), else `null`. */
     private fun stableCancel(docId: String): (() -> Unit)? {
         if (cancelFor(docId) == null) return null
-        return cancelActions.getOrPut(docId) { { cancelFor(docId)?.invoke() } }
+        return synchronized(lock) { cancelActions.getOrPut(docId) { { cancelFor(docId)?.invoke() } } }
     }
+
+    private fun forget(docId: String) { synchronized(lock) { cancelActions.remove(docId) } }
 
     private fun onStatus(status: DocumentStatus) {
         val id = "download:${status.id}"
         when (status.documentInstallStatus) {
             DocumentInstallStatus.BEING_INSTALLED ->
                 center.startOrUpdate(id, ActivityKind.DOWNLOAD, titleOf(status.id), status.percentDone, stableCancel(status.id))
-            DocumentInstallStatus.INSTALLED -> { cancelActions.remove(status.id); center.succeed(id) }
+            DocumentInstallStatus.INSTALLED -> { forget(status.id); center.succeed(id) }
             DocumentInstallStatus.ERROR_DOWNLOADING -> {
-                cancelActions.remove(status.id)
+                forget(status.id)
                 val title = titleOf(status.id)
                 center.startOrFail(id, ActivityKind.DOWNLOAD, title, failedText(title))
             }
-            DocumentInstallStatus.INSTALL_CANCELLED -> { cancelActions.remove(status.id); center.cancelled(id) }
+            DocumentInstallStatus.INSTALL_CANCELLED -> { forget(status.id); center.cancelled(id) }
             DocumentInstallStatus.NOT_INSTALLED, DocumentInstallStatus.UPGRADE_AVAILABLE -> Unit
         }
     }
