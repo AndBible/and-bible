@@ -17,6 +17,7 @@
 package net.bible.sharedui.desktop.webengine.kcef
 
 import java.awt.Point
+import java.awt.Rectangle
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -27,9 +28,28 @@ import kotlin.math.roundToInt
  * @param widthPx view width in physical pixels
  * @param heightPx view height in physical pixels
  * @param scale device scale factor (pixels per DIP)
- * @param screenOrigin screen position of the view's top-left corner, in screen coordinates
+ * @param screenOriginPx screen position of the view's top-left corner in screen pixels (Compose `positionOnScreen`)
+ * @param awtScale the AWT scale of the window (`GraphicsConfiguration` transform). Equal to [scale] except on Linux with a
+ *   fractional display scale (#4006), where the integer part goes to AWT and the rest multiplies the Compose density.
  */
-internal data class OsrGeometry(val widthPx: Int, val heightPx: Int, val scale: Double, val screenOrigin: Point) {
+internal data class OsrGeometry(
+    val widthPx: Int,
+    val heightPx: Int,
+    val scale: Double,
+    val screenOriginPx: Point,
+    val awtScale: Double = scale,
+) {
+    /** CEF's screen coordinates of the view's top-left corner: screen DIP (pixels / [scale]). */
+    val screenOrigin: Point get() = Point((screenOriginPx.x / scale).toInt(), (screenOriginPx.y / scale).toInt())
+
+    /** The view's bounds on screen in AWT units, as AWT mouse events and window bounds report them. */
+    val awtScreenRect: Rectangle get() = Rectangle(
+        floor(screenOriginPx.x / awtScale).toInt(),
+        floor(screenOriginPx.y / awtScale).toInt(),
+        ceil(widthPx / awtScale).toInt(),
+        ceil(heightPx / awtScale).toInt(),
+    )
+
     /** View width in DIP, at least 1 (CEF rejects an empty view rect). */
     val widthDip: Int get() = ceil(widthPx / scale).toInt().coerceAtLeast(1)
 

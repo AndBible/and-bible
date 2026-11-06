@@ -49,7 +49,7 @@ class OsrRenderHandlerTest {
     }
 
     @Test fun screenPointAddsWindowOrigin() {
-        val (h, _) = handler(OsrGeometry(1000, 600, 2.0, Point(300, 200)))
+        val (h, _) = handler(OsrGeometry(1000, 600, 2.0, Point(600, 400)))
         assertEquals(Point(310, 220), h.getScreenPoint(null, Point(10, 20)))
     }
 

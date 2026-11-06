@@ -204,6 +204,7 @@ internal fun ScaledDensity(factor: Double, content: @androidx.compose.runtime.Co
     val base = androidx.compose.ui.platform.LocalDensity.current
     androidx.compose.runtime.CompositionLocalProvider(
         androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(base.density * factor.toFloat(), base.fontScale),
+        net.bible.sharedui.desktop.webengine.LocalDensityOverAwt provides factor,
         content = content,
     )
 }
