@@ -22,15 +22,16 @@ import net.bible.sharedcore.nav.NavRoutes
  * What a reading host needs to show background activity (#4007): the registry, the user's preference and what a
  * tapped row does. A host that leaves this out (`null`) renders today's toolbar.
  *
- * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing
  * @param listRequests each emission opens the full list when the preference is on (a desktop notification click, #4012)
+ * @param onOpenItem routes a tapped row to existing navigation (download screen, sync settings); other rows do nothing.
+ * Kept last so Android's trailing-lambda call `ActivityHostWiring(center, preference) { ... }` still compiles.
  */
 @kotlin.native.HiddenFromObjC
 class ActivityHostWiring(
     val center: ActivityCenter,
     val preference: ActivityMenuPreference,
-    val onOpenItem: (ActivityItem) -> Unit,
     val listRequests: Flow<Unit>? = null,
+    val onOpenItem: (ActivityItem) -> Unit,
 )
 
 /**
