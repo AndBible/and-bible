@@ -68,6 +68,10 @@ class DesktopNotificationBindingsTest {
 
     private var now = 0L
 
+    /** The policy's own clock (decoupled from ActivityCenter's `now`) and how often the policy has read it. */
+    @Volatile private var policyNow = 0L
+    private val policyClockReads = java.util.concurrent.atomic.AtomicInteger()
+
     private fun <T> withRig(
         notifier: RecordingNotifier = RecordingNotifier(),
         dbus: DesktopDbus? = null,
@@ -87,7 +91,7 @@ class DesktopNotificationBindingsTest {
                     single { ActivityCenter(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)) { now } }
                 },
                 desktopNotificationModule(
-                    window, available = true, runOnUi = { it() }, clock = { now },
+                    window, available = true, runOnUi = { it() }, clock = { policyClockReads.incrementAndGet(); policyNow },
                     notifierFactory = { scope -> if (dbus != null) linuxNativeNotifier(dbus, scope = scope) else notifier },
                 ),
             )
@@ -184,9 +188,13 @@ class DesktopNotificationBindingsTest {
             rig.events.emit(DesktopLifecycleEvent.ResignActive)
             rig.center.start("a", ActivityKind.DOWNLOAD, "A")
             now = 2_000 // ActivityCenter hides a running item for its first second
-            rig.center.update("a", 40) // first seen running by the policy at now = 2_000
-            Thread.sleep(300) // the policy's first evaluation has no observable effect to wait for
+            policyNow = 2_000
+            val readsBefore = policyClockReads.get()
+            rig.center.update("a", 40) // first seen running by the policy at policyNow = 2_000
+            // Evaluating a RUNNING item that is not yet due reads the clock twice (now, then the wake-up delay).
+            await("policy saw the running item") { policyClockReads.get() >= readsBefore + 2 }
             now = 13_000
+            policyNow = 13_000
             rig.center.update("a", 41)
             await("progress shown") { "show:andbible-a" in notifier.events }
 

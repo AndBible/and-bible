@@ -10,6 +10,7 @@ import net.bible.sharedcore.platform.NativeNotifier
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -40,8 +41,12 @@ class NativeNotificationPolicyConcurrencyTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         try {
             val item = ActivityItem("a", ActivityKind.DOWNLOAD, "T", ActivityState.RUNNING, 5, null, null, 0, null, true)
+            // Progress shows 10 s after the policy first saw the item. The first clock read (first sight) is 0 and every
+            // later one is 100_000, so the wake-up scheduled after the first evaluation fires at once and show() runs.
+            val reads = AtomicInteger()
+            val clock = { if (reads.getAndIncrement() == 0) 0L else 100_000L }
             val policy = NativeNotificationPolicy(
-                MutableStateFlow(listOf(item)), notifier, { false }, MutableStateFlow(true), { 100_000L }, scope, { "Finished" },
+                MutableStateFlow(listOf(item)), notifier, { false }, MutableStateFlow(true), clock, scope, { "Finished" },
             )
             policy.start()
             assertTrue(notifier.entered.await(10, TimeUnit.SECONDS), "collector never reached show()")

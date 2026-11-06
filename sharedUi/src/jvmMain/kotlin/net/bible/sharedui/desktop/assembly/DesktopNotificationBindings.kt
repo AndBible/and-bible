@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.NativeNotificationPolicy
@@ -12,13 +13,12 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.NativeNotifier
+import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
-import net.bible.sharedcore.platform.desktop.DesktopExitTasks
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
 import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
 import net.bible.sharedlogic.util.currentTimeMillis
-import kotlinx.coroutines.withContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -29,9 +29,10 @@ import javax.swing.SwingUtilities
 private const val TAG = "DesktopNotifications"
 
 /**
- * Native system notifications of the desktop graph (#4012): the [NativeNotifier] (D-Bus on Linux; Windows and macOS follow in #4013), the [SystemNotificationsPreference] (default on), and the [NativeNotificationPolicy] that
- * `SharedAppStartup.startActivityCenter` starts. Needs [ActivityCenter], [ActivityListRequests], [DesktopLifecycleEvents],
- * `AppSettings` and [CoreStrings] from the rest of the graph.
+ * Native system notifications of the desktop graph (#4012): the [NativeNotifier] (D-Bus on Linux; Windows and macOS
+ * follow in #4013), the [SystemNotificationsPreference] (default on), and the [NativeNotificationPolicy] that
+ * `SharedAppStartup.startActivityCenter` starts. Needs [ActivityCenter], [ActivityListRequests],
+ * [DesktopLifecycleEvents], `AppSettings` and [CoreStrings] from the rest of the graph.
  *
  * The policy and the notifier run on one IO scope (their D-Bus calls must never reach the AWT thread). Closing the
  * graph closes the policy first (it removes its progress notifications through the notifier) and then the notifier
