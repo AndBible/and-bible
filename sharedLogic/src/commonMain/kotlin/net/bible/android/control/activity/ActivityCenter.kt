@@ -61,6 +61,20 @@ class ActivityCenter(scope: CoroutineScope, private val clock: () -> Long) {
     /** True while [id] is a RUNNING item, shown or still inside its debounce window. */
     fun isRunning(id: String): Boolean = model.value.recs[id]?.item?.state == ActivityState.RUNNING
 
+    /**
+     * Atomically: if [id] is RUNNING, set its [progress] and [cancel] (the work may become cancelable or stop
+     * being so); otherwise start it with them. One lock hold, so a concurrent [cancelled]/[dismiss] cannot
+     * leave a RUNNING row behind that nobody will finish.
+     */
+    fun startOrUpdate(id: String, kind: ActivityKind, title: String, progress: Int?, cancel: (() -> Unit)?) = change { recs ->
+        val rec = recs[id]
+        if (rec != null && rec.item.state == ActivityState.RUNNING) {
+            recs + (id to Rec(rec.seq, rec.item.copy(progress = progress, cancel = cancel)))
+        } else {
+            recs + (id to Rec(nextSeq(), ActivityItem(id, kind, title, ActivityState.RUNNING, progress, null, cancel, clock(), null, true)))
+        }
+    }
+
     fun start(id: String, kind: ActivityKind, title: String, cancel: (() -> Unit)? = null) = change { recs ->
         val now = clock()
         recs + (id to Rec(nextSeq(), ActivityItem(id, kind, title, ActivityState.RUNNING, null, null, cancel, now, null, true)))

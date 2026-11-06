@@ -87,53 +87,126 @@ class ActivitySourcesTest {
         assertTrue(c.items.value.isEmpty())
     }
 
-    private fun withJobs(c: ActivityCenter, isDownload: (Progress) -> Boolean, block: (JobActivitySource) -> Unit) {
+    /** Runs [block] with an attached source; every job it created through [job] is ended and the source detached afterwards. */
+    private fun withJobs(c: ActivityCenter, isDownload: (Progress) -> Boolean, block: (JobActivitySource, (String, String, (() -> Unit)?) -> Progress) -> Unit) {
+        val created = mutableListOf<Progress>()
         val source = JobActivitySource(c, isDownload)
         source.attach()
-        try { block(source) } finally { source.detach() }
+        try {
+            block(source) { id, name, canceller ->
+                JobManager.createJob(id, name, canceller).also { created += it; it.beginJob("x", 100) }
+            }
+        } finally {
+            created.forEach { runCatching { it.done() } }
+            source.detach()
+        }
     }
+
+    /** Items of this test's own jobs only, so jobs left running by other tests in the JVM cannot disturb the assertions. */
+    private fun ActivityCenter.mine(vararg titles: String) = items.value.filter { it.title in titles }
 
     @Test
     fun jobSkipsDownloadJobs() = runTest {
         val c = center()
-        val prefix = "test-dl-${currentTime}-"
-        withJobs(c, { it.jobID.startsWith("test-dl-") }) {
-            val dl = JobManager.createJob("test-dl-job", "Download", null)
-            dl.beginJob("x", 100)
+        withJobs(c, { it.jobID.startsWith("test-dl-") }) { _, job ->
+            val dl = job("test-dl-job", "TestDownload", null)
             dl.work = 30
-            val index = JobManager.createJob("${Progress.CREATE_INDEX.replace("%s", "KJV")}-t1", "Indexing KJV", null)
-            index.beginJob("x", 100)
+            val index = job("${Progress.CREATE_INDEX.replace("%s", "KJV")}-t1", "TestIndexing", null)
             index.work = 40
             advance(1000)
             index.work = 60
-            assertEquals(listOf("Indexing KJV"), c.items.value.map { it.title })
-            assertEquals(ActivityKind.INDEX, c.items.value[0].kind)
-            assertEquals(60, c.items.value[0].progress)
+            assertEquals(listOf("TestIndexing"), c.mine("TestDownload", "TestIndexing").map { it.title })
+            val item = c.mine("TestIndexing").single()
+            assertEquals(ActivityKind.INDEX, item.kind)
+            assertEquals(60, item.progress)
             dl.done()
             index.done()
-            assertEquals(listOf(ActivityState.SUCCEEDED), c.items.value.map { it.state })
+            assertEquals(listOf(ActivityState.SUCCEEDED), c.mine("TestIndexing").map { it.state })
         }
-        assertTrue(prefix.isNotEmpty())
     }
 
     @Test
     fun jobCancelOnlyWhenCancelable() = runTest {
         val c = center()
         var cancelled = 0
-        withJobs(c, { false }) {
-            val plain = JobManager.createJob("test-plain-1", "Plain", null)
-            plain.beginJob("x", 100)
-            val cancelable = JobManager.createJob("test-cancelable-1", "Cancelable", { cancelled++ })
-            cancelable.beginJob("x", 100)
+        withJobs(c, { false }) { _, job ->
+            job("test-plain-1", "TestPlain", null)
+            job("test-cancelable-1", "TestCancelable") { cancelled++ }
             advance(1000)
-            val byTitle = c.items.value.associateBy { it.title }
-            assertNull(byTitle.getValue("Plain").cancel)
-            val cancel = assertNotNull(byTitle.getValue("Cancelable").cancel)
+            val byTitle = c.mine("TestPlain", "TestCancelable").associateBy { it.title }
+            assertNull(byTitle.getValue("TestPlain").cancel)
+            val cancel = assertNotNull(byTitle.getValue("TestCancelable").cancel)
             cancel()
             assertEquals(1, cancelled)
-            assertEquals(listOf("Plain"), c.items.value.map { it.title })
-            plain.done()
+            assertEquals(listOf("TestPlain"), c.mine("TestPlain", "TestCancelable").map { it.title })
         }
+    }
+
+    @Test
+    fun jobCancelabilityIsRereadOnEachEvent() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            val j = job("test-late-1", "TestLate", { })
+            advance(1000)
+            assertNotNull(c.mine("TestLate").single().cancel)
+            // JobManager listeners only see progress events (state changes go to per-job listeners), so the
+            // new cancelability shows with the next progress event.
+            j.isCancelable = false
+            j.work = 10
+            assertNull(c.mine("TestLate").single().cancel)
+            j.isCancelable = true
+            j.work = 20
+            assertNotNull(c.mine("TestLate").single().cancel)
+        }
+    }
+
+    @Test
+    fun finishAfterIneffectiveCancelIsSuccess() = runTest {
+        val c = center()
+        withJobs(c, { false }) { _, job ->
+            // The job reports cancelable but its cancel() is a no-op for it: simulate with a job that is already
+            // finished by the time cancel runs (cancel() then does nothing and the job is not "cancelled").
+            val j = job("test-ineffective-1", "TestIneffective", { })
+            advance(1000)
+            val cancel = assertNotNull(c.mine("TestIneffective").single().cancel)
+            j.done() // finished normally; the row becomes SUCCEEDED
+            assertEquals(listOf(ActivityState.SUCCEEDED), c.mine("TestIneffective").map { it.state })
+            cancel() // late tap: job already finished, so cancel() is a no-op and must not leave a stale cancel mark
+            val again = job("test-ineffective-1", "TestIneffective", { })
+            advance(1000)
+            again.done()
+            assertEquals(ActivityState.SUCCEEDED, c.mine("TestIneffective").last().state)
+        }
+    }
+
+    @Test
+    fun downloadCloseReleasesMonitoringAndSubscription() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        var started = 0
+        var stopped = 0
+        val source = DownloadActivitySource(c, events, { it }, { it }, { started++ }, { stopped++ }, { null })
+        assertEquals(1, started)
+        assertEquals(0, stopped)
+        source.close()
+        source.close()
+        assertEquals(1, stopped)
+        events.emit(status("d", DocumentInstallStatus.ERROR_DOWNLOADING))
+        assertTrue(c.items.value.isEmpty())
+    }
+
+    @Test
+    fun downloadCancelFollowsJswordCancelability() = runTest {
+        val c = center()
+        val events = EventSource<DocumentStatus>()
+        var allowed = false
+        DownloadActivitySource(c, events, { it }, { it }, cancelFor = { if (allowed) ({ }) else null })
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 1))
+        advance(1000)
+        assertNull(c.items.value.single().cancel)
+        allowed = true
+        events.emit(status("d", DocumentInstallStatus.BEING_INSTALLED, 2))
+        assertNotNull(c.items.value.single().cancel)
     }
 
     @Test

@@ -238,13 +238,17 @@ fun buildSharedBindings() = module {
     single {
         val strings = get<net.bible.sharedcore.platform.CoreStrings>()
         val downloads = get<DownloadControl>()
-        // The activity center holds one monitoring reference for good, so progress events flow without the download screen.
-        downloads.startMonitoringDownloads()
         DownloadActivitySource(
             get(), downloads.progress,
-            // repoIdentity is "<repo>--<initials>"; show the installed-catalogue name when known, else the initials.
-            titleOf = { id -> id.substringAfter("--").let { initials -> Books.installed().getBook(initials)?.name ?: initials } },
+            // repoIdentity is "<repo>--<initials>": the name captured when the download was requested (first-time
+            // downloads are not installed yet), else the installed book's name, else the initials.
+            titleOf = { id ->
+                downloads.documentName(id) ?: id.substringAfter("--").let { initials -> Books.installed().getBook(initials)?.name ?: initials }
+            },
             failedText = { title -> "$title: ${strings.errorDownloading}" },
+            // The activity center needs progress without the download screen; DownloadActivitySource.close() releases it.
+            startMonitoring = downloads::startMonitoringDownloads,
+            stopMonitoring = downloads::stopMonitoringDownloads,
         )
     }.onClose { it?.close() }
     single { JobActivitySource(get()).also { it.attach() } }.onClose { it?.detach() }

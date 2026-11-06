@@ -176,4 +176,17 @@ class ActivityCenterTest {
         advance(1000)
         assertEquals(setOf("a", "b"), c.items.value.map { it.id }.toSet())
     }
+
+    @Test
+    fun startOrUpdateStartsThenUpdatesAndNeverRevivesAFinishedItem() = runTest {
+        val c = center()
+        c.startOrUpdate("a", ActivityKind.DOWNLOAD, "A", 10, null)
+        advance(1000)
+        c.startOrUpdate("a", ActivityKind.DOWNLOAD, "A", 60, {})
+        assertEquals(60, c.items.value.single().progress)
+        assertTrue(c.items.value.single().cancel != null)
+        c.cancelled("a")
+        assertTrue(c.items.value.isEmpty())
+        assertFalse(c.isRunning("a"))
+    }
 }

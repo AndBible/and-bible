@@ -130,7 +130,7 @@ object SharedAppStartup {
                 Log.e(TAG, "Activity center component $name failed to start", e)
             }
         }
-        start("ActivityCenter") { koin.get<ActivityCenter>() }
+        if (koin.getOrNull<ActivityCenter>() == null) return // module without the activity center (minimal test graphs)
         start("DownloadActivitySource") { koin.get<DownloadActivitySource>() }
         start("JobActivitySource") { koin.get<JobActivitySource>() }
         start("SyncActivitySource") { koin.get<SyncActivitySource>() }

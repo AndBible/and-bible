@@ -9,7 +9,10 @@ import org.crosswire.common.progress.ProgressMode
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 
-/** True for the JSword jobs that build or download a search index (SWORD, downloaded index, EPUB). */
+/**
+ * True for the JSword jobs that build or download a search index (SWORD, downloaded index, EPUB). The single
+ * rule: sharedUi's `Progress.isSearchIndexJob()` delegates here.
+ */
 fun Progress.isIndexJob(): Boolean =
     jobID.startsWith(Progress.CREATE_INDEX.substringBefore("%s")) ||
         jobID.startsWith(Progress.DOWNLOAD_SEARCH_INDEX.substringBefore("%s")) ||
@@ -22,7 +25,7 @@ fun Progress.isDownloadInstallJob(): Boolean = jobID.startsWith(Progress.INSTALL
  * Shows JSword [JobManager] jobs (search indexing, other long jobs) in the [ActivityCenter] as `job:<jobID>`.
  *
  * Jobs for which [isDownloadJob] is true are skipped (a download must not show twice). Cancel is offered only
- * when the job is cancelable at the moment it first appears. JSword reports a cancel like a normal finish, so
+ * while the job is cancelable (re-checked on every progress event). JSword reports a cancel like a normal finish, so
  * a cancel requested through the row is remembered and recorded as cancelled; a cancel from elsewhere looks
  * like a success. Listener callbacks may come from any thread; [ActivityCenter] is thread-safe.
  */
@@ -57,15 +60,15 @@ class JobActivitySource(
             return
         }
         val percent = if (job.progressMode == ProgressMode.UNKNOWN) null else job.work.coerceIn(0, 100)
-        if (center.isRunning(id)) {
-            center.update(id, percent)
-        } else {
-            val cancel = if (job.isCancelable) ({
+        // Re-read cancelability on every event (JobManager listeners see progress events, not state changes).
+        val cancel = if (job.isCancelable) ({
+            if (!job.isFinished) {
                 synchronized(lock) { cancelRequested.add(id) }
                 job.cancel()
-            }) else null
-            center.start(id, kindOf(job), job.jobName, cancel)
-            center.update(id, percent)
-        }
+                // A cancel that did not end the job was ineffective: a later normal finish is a success.
+                if (!job.isFinished) synchronized(lock) { cancelRequested.remove(id) }
+            }
+        }) else null
+        center.startOrUpdate(id, kindOf(job), job.jobName, percent, cancel)
     }
 }

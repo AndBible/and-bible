@@ -15,7 +15,7 @@ class SyncActivitySource(
 ) {
     private val subscription: Subscription = running.subscribe { isRunning ->
         if (isRunning) {
-            if (!center.isRunning(ID)) center.start(ID, ActivityKind.SYNC, syncingText())
+            center.startOrUpdate(ID, ActivityKind.SYNC, syncingText(), null, null)
         } else {
             center.succeed(ID)
         }
