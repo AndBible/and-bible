@@ -16,13 +16,8 @@
  */
 package net.bible.sharedui.workspaces
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.LayoutDirection
-import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.components.currentRowHighlight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -297,27 +292,6 @@ fun WorkspaceSelectorScreen(
             onDismissRequest = onDismissPendingSelect,
         )
     }
-}
-
-/**
- * Marks the current workspace row: a tinted container plus a 4dp accent bar at the leading edge.
- * Pure monochrome (e-ink) gets no tint (no hue) but a 2dp ink outline and an ink bar instead.
- */
-@Composable
-private fun Modifier.currentRowHighlight(current: Boolean): Modifier {
-    if (!current) return this
-    val mono = isPureMonochrome()
-    val scheme = MaterialTheme.colorScheme
-    val barColor = if (mono) scheme.onSurface else scheme.primary
-    val tint = if (mono) Color.Transparent else scheme.secondaryContainer
-    return this
-        .background(tint)
-        .monoBorder(width = 2.dp)
-        .drawBehind {
-            val bar = 4.dp.toPx()
-            val x = if (layoutDirection == LayoutDirection.Rtl) size.width - bar else 0f
-            drawRect(barColor, topLeft = Offset(x, 0f), size = Size(bar, size.height))
-        }
 }
 
 private data class IndexedLabel(val index: Int, val label: String)

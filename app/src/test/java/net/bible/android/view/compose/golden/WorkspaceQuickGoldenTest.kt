@@ -43,4 +43,21 @@ class WorkspaceQuickGoldenTest {
             }
         }
     }
+
+    // #4015: the current row carries the shared highlight (tint + accent bar; mono: outline + ink bar).
+    @Test fun workspaceQuick_currentLastRow() = captureMatrix("WorkspaceQuick", "currentLastRow") {
+        SheetSurface {
+            val strings = LocalStrings.current
+            val many = (1..4).map {
+                WorkspaceRowVd("w$it", "Workspace $it", null, 0xFF1B5E20.toInt(), isCurrent = it == 4)
+            }
+            AbQuickSheetContent(
+                title = strings.switchToWorkspace,
+                onClose = {},
+                footer = { AbQuickSheetFooterRow(strings.manageWorkspaces) {} },
+            ) {
+                WorkspaceQuickContent(rows = many, onSelect = {})
+            }
+        }
+    }
 }
