@@ -91,7 +91,7 @@ abstract class ComposeReadingViewHostHelpers {
      * book is not in.
      */
     internal fun documentIndexDone(book: Book): Boolean =
-        documentIndexDone(book) { it.epubBackend?.state?.isIndexed == true }
+        documentIndexDone(book) { it.epubBackend?.isIndexed == true }
 
     /**
      * The two-argument overload exists so a unit test can drive both sides of the EPUB

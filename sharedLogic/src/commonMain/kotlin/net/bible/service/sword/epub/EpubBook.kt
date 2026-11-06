@@ -101,8 +101,32 @@ class EpubSwordDriver: AbstractBookDriver() {
 class EpubBackend(private val createState: () -> EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
     constructor(state: EpubBackendState, metadata: SwordBookMetaData): this({ state }, metadata)
 
-    // JSword discovers books before Koin and the database host exist on every platform.
-    val state: EpubBackendState by lazy(createState)
+    private val stateLock = Any()
+    /** Outcome of the first build, success or failure: a broken module must not be re-parsed on every access. */
+    private var built: Result<EpubBackendState>? = null
+
+    /**
+     * Built on first use because JSword discovers books before Koin and the database host exist on every platform.
+     * The first outcome is cached: a failed build rethrows the same failure on every later access without re-parsing.
+     */
+    val state: EpubBackendState get() {
+        val result = withMonitor(stateLock) {
+            built ?: (try { Result.success(createState()) } catch (e: Exception) { Result.failure(e) }).also { built = it }
+        }
+        return result.getOrThrow()
+    }
+
+    /** The state if it was built successfully; null when it failed to build. Builds it (once) when untouched. */
+    val stateOrNull: EpubBackendState? get() = try { state } catch (_: Exception) { null }
+
+    /** The state only if it has already been built successfully; never builds it. */
+    val openedStateOrNull: EpubBackendState? get() = withMonitor(stateLock) { built?.getOrNull() }
+
+    /** Closes the state if it was ever opened. Never builds it, so a broken module can always be retired. */
+    fun closeIfOpened() { openedStateOrNull?.close() }
+
+    /** Tolerant of a module that cannot be opened: such a module is simply not indexed. */
+    val isIndexed: Boolean get() = stateOrNull?.isIndexed == true
     override fun initState(): EpubBackendState = state
     override fun readIndex(): Key {
         val key = DefaultKeyList(null, bookMetaData.name)
@@ -127,12 +151,18 @@ class EpubBackend(private val createState: () -> EpubBackendState, metadata: Swo
     fun resourceFile(resourcePath: String) = state.resourceFile(resourcePath)
     suspend fun styleSheetContent(key: Key) = state.styleSheetContent(key)
     override fun readRawContent(state: EpubBackendState, key: Key?): String = state.read(key!!)
-    fun delete() = state.delete()
+    /** Deletes the module without building its state: a module that cannot be opened must still be removable. */
+    fun delete() {
+        val opened = openedStateOrNull
+        if (opened != null) opened.delete() else deleteEpubModule(epubDirOf(bookMetaData as SwordBookMetaData))
+    }
     suspend fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
     suspend fun bookOrdinalSpan() = state.bookOrdinalSpan()
     suspend fun fragmentOffset(key: Key) = state.fragmentOffset(key)
     suspend fun totalCharacters() = state.totalCharacters()
 }
+
+private fun epubDirOf(sbmd: SwordBookMetaData): Path = sbmd.location!!.getPath()!!.toPath()
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book =
@@ -140,7 +170,7 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         return EpubBackend({
             val koin = KoinPlatform.getKoin()
-            EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, koin.get<CoreStrings>(), koin.get<AppEnvironment>())
+            EpubBackendState(epubDirOf(sbmd), sbmd, koin.get<CoreStrings>(), koin.get<AppEnvironment>())
         }, sbmd)
     }
 }
@@ -206,9 +236,9 @@ internal fun deleteOwnedEpubModule(epubDir: Path) {
  */
 internal fun retireOwnedEpubModule(epubDir: Path) {
     val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
-    oldBook?.epubBackend?.state?.let { state ->
+    oldBook?.epubBackend?.let { backend ->
         Books.installed().removeBook(oldBook)
-        state.close()
+        backend.closeIfOpened() // never builds the state: a never-opened or broken module is retired as is
     }
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
     deleteAppDatabase(appDbFilename)

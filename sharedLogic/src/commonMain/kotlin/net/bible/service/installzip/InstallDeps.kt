@@ -207,7 +207,7 @@ suspend fun checkEpubUpgrade(displayName: String): Boolean {
     if (!FileSystem.SYSTEM.exists(dir)) return false
     val initials = epubInitials(displayName)
     val book = Books.installed().getBook(initials)
-    val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.state?.optimizerVersion ?: 1
+    val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.stateOrNull?.optimizerVersion ?: 1
     val bookmarkCount = if (DatabaseContainer.ready) {
         DatabaseContainer.instance.bookmarkDb.bookmarkDao().genericBookmarkCountFor(initials)
     } else 0

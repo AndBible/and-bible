@@ -47,7 +47,11 @@ object HostSwordEnvironment {
             .forEach { files.createDirectories(it) }
     }
 
-    fun initialiseJSwordFolders(modulesDir: Path) {
+    /**
+     * Sets JSword up. A failure is logged and startup goes on without books (the iOS behaviour) unless
+     * [rethrowFailures] is true (desktop, which shows a startup failure screen instead).
+     */
+    fun initialiseJSwordFolders(modulesDir: Path, rethrowFailures: Boolean = false) {
         if (loaded) return
         try {
             createModuleFolders(modulesDir)
@@ -66,7 +70,7 @@ object HostSwordEnvironment {
             loaded = true
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising JSword folders", e)
-            throw e
+            if (rethrowFailures) throw e
         }
     }
 

@@ -353,7 +353,7 @@ internal object DesktopSwordFolders {
         // property names the home: without it the JVM gets `~/<absolute module path>`. CWProject keeps the first home
         // it establishes for the process.
         System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
-        HostSwordEnvironment.initialiseJSwordFolders(modules)
+        HostSwordEnvironment.initialiseJSwordFolders(modules, rethrowFailures = true)
         if (current == dir) return
         // Always re-register here (setDownloadDir alone does not): the book list is exactly this folder's, whatever an
         // earlier start or the first registration saw.

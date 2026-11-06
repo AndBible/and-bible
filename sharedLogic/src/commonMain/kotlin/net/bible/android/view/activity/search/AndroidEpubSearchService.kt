@@ -42,14 +42,14 @@ class AndroidEpubSearchService : EpubSearchService {
 
     override fun isIndexed(docId: String): Boolean {
         val doc = bookOf(docId) ?: return false
-        return doc.isEpub && doc.epubBackend?.state?.isIndexed == true
+        return doc.isEpub && doc.epubBackend?.isIndexed == true
     }
 
     override suspend fun searchEpub(docId: String, query: String, mode: EpubSearchMode): List<EpubResultRow> =
         withContext(Dispatchers.IO) {
             val doc = bookOf(docId) ?: return@withContext emptyList()
             if (!doc.isEpub) return@withContext emptyList()
-            val state = doc.epubBackend?.state ?: return@withContext emptyList()
+            val state = doc.epubBackend?.stateOrNull ?: return@withContext emptyList()
             state.search(adjustSearchText(mode, query))
                 // Keep one extra row so the host can distinguish ">MAX" from "exactly MAX" and show
                 // the classic "+" overflow affordance (consumer tests size > MAX_SEARCH_RESULTS,

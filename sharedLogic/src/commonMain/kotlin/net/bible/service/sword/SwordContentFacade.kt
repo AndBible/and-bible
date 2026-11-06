@@ -169,7 +169,7 @@ class SwordContentFacade(
          * Keeps the "$initials-" prefix that [evictBook] relies on.
          */
         private fun renderCacheKey(book: Book?, key: Key?): String {
-            val owner = book?.takeIf { it.isEpub }?.epubBackend?.state?.ownerGeneration
+            val owner = book?.takeIf { it.isEpub }?.epubBackend?.stateOrNull?.ownerGeneration
             return if (owner == null) "${book?.initials}-${key?.getOsisRef()}"
             else "${book.initials}-@$owner-${key?.getOsisRef()}"
         }

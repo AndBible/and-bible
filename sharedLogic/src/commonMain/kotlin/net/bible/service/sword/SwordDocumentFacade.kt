@@ -171,7 +171,7 @@ object SwordDocumentFacade {
     fun deleteDocumentIndex(document: Book?) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
         if(realDocument?.isEpub == true) {
-            realDocument.epubBackend?.state?.deleteSearchIndex()
+            realDocument.epubBackend?.stateOrNull?.deleteSearchIndex()
             return
         }
         document?.initials?.let { org.koin.mp.KoinPlatform.getKoin().get<SearchIndexScheduler>().dequeue(it) }
@@ -183,7 +183,7 @@ object SwordDocumentFacade {
     fun hasIndex(document: Book?): Boolean { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
         if(realDocument?.isEpub == true) {
-            return realDocument.epubBackend?.state?.isIndexed == true
+            return realDocument.epubBackend?.isIndexed == true
         }
         return IndexManagerFactory.getIndexManager().hasUsableIndex(realDocument)
     }
