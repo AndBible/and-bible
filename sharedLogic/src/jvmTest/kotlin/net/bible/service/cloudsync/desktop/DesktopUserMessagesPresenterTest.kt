@@ -22,6 +22,7 @@ import kotlinx.coroutines.SupervisorJob
 import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityMenuPreference
 import net.bible.android.control.activity.ActivityState
+import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.BackgroundErrorRouter
 import net.bible.android.control.activity.SyncActivitySource
 import net.bible.android.control.event.UserMessages
@@ -31,6 +32,7 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DesktopUserMessagesPresenterTest {
@@ -92,19 +94,22 @@ class DesktopUserMessagesPresenterTest {
         override fun setFloat(key: String, value: Float?) { values["Float:$key"] = value }
     }
 
-    private fun withRouter(enabled: Boolean, block: (Recorder, ActivityCenter, ActivityMenuPreference) -> Unit) {
+    private fun withRouter(enabled: Boolean, block: (Recorder, ActivityCenter, ActivityMenuPreference, BackgroundErrorRouter) -> Unit) {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val center = ActivityCenter(scope) { 0L }
         val pref = ActivityMenuPreference(MemorySettings(), ActivityMenuDefault { enabled })
         val sync = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
         val router = BackgroundErrorRouter({ pref.enabled.value }, sync) { "$it - see menu" }
         val recorder = Recorder()
-        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = router::reroute)
-        try { block(recorder, center, pref) } finally { presenter.close(); sync.close() }
+        val presenter = DesktopUserMessagesPresenter({ recorder }, reroute = router::route)
+        try { block(recorder, center, pref, router) } finally { presenter.close(); sync.close() }
     }
 
-    @Test fun desktopErrorNotificationGoesToListWhenOn() = withRouter(enabled = true) { r, center, _ ->
-        UserMessages.errorNotification("WebDAV failed")
+    private fun backgroundError(text: String, kind: ActivityKind = ActivityKind.SYNC) =
+        UserMessages.errorNotification(text, showReportButton = true, background = true, kind = kind)
+
+    @Test fun backgroundErrorGoesToToastAndListWhenOn() = withRouter(enabled = true) { r, center, _, _ ->
+        backgroundError("WebDAV failed")
         assertEquals(listOf("info:WebDAV failed - see menu:false"), r.calls)
         val item = center.items.value.single()
         assertEquals(ActivityState.FAILED, item.state)
@@ -112,33 +117,48 @@ class DesktopUserMessagesPresenterTest {
         assertEquals(1, center.unreadFailures.value)
     }
 
-    @Test fun desktopErrorNotificationDialogWhenOff() = withRouter(enabled = false) { r, center, pref ->
+    @Test fun foregroundErrorKeepsItsDialogAndIsRecordedWhenOn() = withRouter(enabled = true) { r, center, _, _ ->
         UserMessages.errorNotification("WebDAV failed")
+        assertEquals(listOf("error:WebDAV failed"), r.calls)
+        val item = center.items.value.single()
+        assertEquals(ActivityState.FAILED, item.state)
+        assertEquals("WebDAV failed", item.message)
+    }
+
+    @Test fun errorDialogWhenOffForBackgroundAndRecorded() = withRouter(enabled = false) { r, center, pref, _ ->
+        backgroundError("WebDAV failed")
         assertEquals(listOf("error:WebDAV failed"), r.calls)
         // The failure is recorded even though the dialog is kept, so turning the setting on later shows it.
         assertEquals(listOf("WebDAV failed"), center.items.value.map { it.message })
         pref.set(true)
-        UserMessages.errorNotification("again")
+        backgroundError("again")
         assertEquals("info:again - see menu:false", r.calls.last())
     }
 
-    @Test fun androidRecordIsOnlyDoneWhenOnAndNeverReroutes() {
+    @Test fun theNotificationKindIsCarriedToTheRow() = withRouter(enabled = true) { _, center, _, _ ->
+        UserMessages.errorNotification("plain")
+        backgroundError("download broke", ActivityKind.DOWNLOAD)
+        assertEquals(mapOf<String?, ActivityKind>("plain" to ActivityKind.OTHER, "download broke" to ActivityKind.DOWNLOAD),
+            center.items.value.associate { it.message to it.kind })
+    }
+
+    @Test fun routeAlwaysRecordsAndOnlyBackgroundWithPreferenceGetsAToast() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val center = ActivityCenter(scope) { 0L }
         val pref = ActivityMenuPreference(MemorySettings(), ActivityMenuDefault { false })
         val sync = SyncActivitySource(center, EventSource<Boolean>()) { "Syncing" }
         val router = BackgroundErrorRouter({ pref.enabled.value }, sync) { "$it - see menu" }
         try {
-            router.record("off")
-            assertTrue(center.items.value.isEmpty())
+            assertNull(router.route("off", background = true, kind = ActivityKind.SYNC))
             pref.set(true)
-            router.record("on")
-            assertEquals(listOf("on"), center.items.value.map { it.message })
-            assertEquals(1, center.unreadFailures.value)
+            assertNull(router.route("fg", background = false, kind = ActivityKind.OTHER))
+            assertEquals("bg - see menu", router.route("bg", background = true, kind = ActivityKind.SYNC))
+            assertEquals(setOf("off", "fg", "bg"), center.items.value.map { it.message }.toSet())
+            assertEquals(3, center.unreadFailures.value)
         } finally { sync.close() }
     }
 
-    @Test fun toastsAreNeverRerouted() = withRouter(enabled = true) { r, center, _ ->
+    @Test fun toastsAreNeverRerouted() = withRouter(enabled = true) { r, center, _, _ ->
         UserMessages.toast("hello")
         assertEquals(listOf("info:hello:false"), r.calls)
         assertTrue(center.items.value.isEmpty())

@@ -40,6 +40,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
@@ -290,7 +291,7 @@ class CloudSync(
         val syncFolderName = syncFolderName(dbDef.categoryName)
         resetIfNamespaceChanged(dbDef)
 
-        recoverInterruptedMerge(dbDef)
+        recoverInterruptedMerge(dbDef, background = !allowInteraction)
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
@@ -591,7 +592,8 @@ class CloudSync(
             throw CancelStartedSync()
         } catch (e: IOException) {
             Log.e(TAG, "Merge failed (probably network down)", e)
-            UserMessages.errorNotification(strings.syncError)
+            // Only reached with interaction (the user enabled the category): a foreground failure keeps its dialog.
+            UserMessages.errorNotification(strings.syncError, kind = ActivityKind.SYNC)
             throw CancelStartedSync()
         } finally {
             // On success, and after every restore, the durable copy is no longer needed.
@@ -621,7 +623,7 @@ class CloudSync(
      * [CancelStartedSync]; the user can enable sync again. Runs inside [initializeSync], so a signed-in adapter is
      * needed first: until then the database stays as the interrupted merge left it.
      */
-    private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>) {
+    private suspend fun recoverInterruptedMerge(dbDef: SyncableDatabaseAccessor<*>, background: Boolean) {
         val original = mergeOriginalPath(dbDef)
         val partial = "$original.partial".toPath()
         val hasOriginal = FileSystem.SYSTEM.exists(original)
@@ -641,7 +643,7 @@ class CloudSync(
             runCatching { FileSystem.SYSTEM.delete(partial, mustExist = false) }
         }
         dbDef.category.setSyncEnabled(settings, false)
-        UserMessages.errorNotification(strings.syncError)
+        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
         throw CancelStartedSync()
     }
 
@@ -673,11 +675,18 @@ class CloudSync(
         e: CloudSyncUserFacingException,
         reported: AtomicBoolean,
         needsReconnect: AtomicBoolean,
+        background: Boolean,
     ) {
         if (e.requiresReconnect) needsReconnect.value = true
-        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false)
+        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message?.takeIf { it.isNotBlank() } ?: strings.syncError, showReportButton = false, background = background, kind = ActivityKind.SYNC)
     }
 
+    /**
+     * Runs one sync pass. With [allowInteraction] false (the periodic and close-pass syncs) every error it reports is a
+     * background error: desktop and iOS show a toast and an activity-list row instead of a dialog (#4007). With true
+     * (an interactive caller such as the "Sync now" menu item, #4008) errors are foreground: they keep their dialog and
+     * are recorded in the list as well. No other flag is needed; the caller only chooses [allowInteraction].
+     */
     suspend fun synchronize(allowInteraction: Boolean = true) = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(syncMutex.isLocked) {
@@ -694,6 +703,7 @@ class CloudSync(
 
             val reported = atomic(false)
             val needsReconnect = atomic(false)
+            val background = !allowInteraction
             try {
                 DatabaseContainer.databaseAccessorFactories.asyncMap {
                     val dbDef = it.invoke()
@@ -708,11 +718,11 @@ class CloudSync(
                         Log.e(TAG, "IOException (probably network down)", e)
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect)
+                        reportUserFacing(e, reported, needsReconnect, background)
                         return@asyncMap
                     } catch (e: Exception) {
                         Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                        UserMessages.errorNotification(strings.syncError)
+                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
                         return@asyncMap
                     }
                     try {
@@ -724,11 +734,11 @@ class CloudSync(
                         Log.w(TAG, "Skipping upload, will rejoin on the next sync", e)
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect)
+                        reportUserFacing(e, reported, needsReconnect, background)
                         return@asyncMap
                     } catch (e: Exception) {
                         Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                        UserMessages.errorNotification(strings.syncError)
+                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
                     }
                     try {
                         try {
@@ -744,15 +754,15 @@ class CloudSync(
                         Log.w(TAG, "Skipping download, will rejoin on the next sync", e)
                         return@asyncMap
                     } catch (e: IncompatiblePatchVersion) {
-                        UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false)
+                        UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false, background = background, kind = ActivityKind.SYNC)
                         dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
                         return@asyncMap
                     } catch (e: CloudSyncUserFacingException) {
-                        reportUserFacing(e, reported, needsReconnect)
+                        reportUserFacing(e, reported, needsReconnect, background)
                         return@asyncMap
                     } catch (e: Exception) {
                         Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                        UserMessages.errorNotification(strings.syncError)
+                        UserMessages.errorNotification(strings.syncError, background = background, kind = ActivityKind.SYNC)
                     }
                 }
                 try {
@@ -763,7 +773,7 @@ class CloudSync(
                         manual = false,
                     )
                 } catch (e: CloudSyncUserFacingException) {
-                    reportUserFacing(e, reported, needsReconnect)
+                    reportUserFacing(e, reported, needsReconnect, background)
                 } catch (e: Exception) {
                     Log.e(TAG, "Document sync pull failed", e)
                 }

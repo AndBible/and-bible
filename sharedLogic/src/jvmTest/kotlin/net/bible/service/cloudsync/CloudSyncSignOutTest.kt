@@ -256,4 +256,29 @@ class CloudSyncSignOutTest {
         assertEquals("new-folder-2", db.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY))
         assertTrue(db.dao.getLong(LAST_SYNCHRONIZED_KEY) != 12345L, "Stale watermark replaced by the fresh join")
     }
+
+    private suspend fun syncFailureMessages(f: Fixture, allowInteraction: Boolean): List<UserMessage.ErrorNotification> {
+        val errors = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { errors += it }
+        try {
+            f.adapter.finishUpload.complete(Unit)
+            f.adapter.onUpload = { throw IllegalStateException("boom") }
+            f.cloud.synchronize(allowInteraction)
+        } finally {
+            subscription.cancel()
+        }
+        return errors.filterIsInstance<UserMessage.ErrorNotification>()
+    }
+
+    @Test fun failureInASyncWithoutInteractionIsABackgroundSyncError() = withFixture { f ->
+        val errors = syncFailureMessages(f, allowInteraction = false)
+        assertTrue(errors.isNotEmpty(), "The failing upload must be reported")
+        assertTrue(errors.all { it.background && it.kind == net.bible.android.control.activity.ActivityKind.SYNC }, "$errors")
+    }
+
+    @Test fun failureInAnInteractiveSyncIsAForegroundSyncError() = withFixture { f ->
+        val errors = syncFailureMessages(f, allowInteraction = true)
+        assertTrue(errors.isNotEmpty(), "The failing upload must be reported")
+        assertTrue(errors.all { !it.background && it.kind == net.bible.android.control.activity.ActivityKind.SYNC }, "$errors")
+    }
 }

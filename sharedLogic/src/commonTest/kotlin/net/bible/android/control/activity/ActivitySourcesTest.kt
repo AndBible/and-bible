@@ -227,12 +227,22 @@ class ActivitySourcesTest {
     fun repeatedSyncFailureCollapsesToOneRow() = runTest {
         val c = center()
         val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
-        sync.reportFailure("x")
-        sync.reportFailure("x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
         assertEquals(listOf(ActivityState.FAILED), c.items.value.map { it.state })
         assertEquals(1, c.unreadFailures.value)
-        sync.reportFailure("y")
+        sync.reportFailure(ActivityKind.SYNC, "y")
         assertEquals(2, c.items.value.size)
         assertFalse(c.items.value.any { it.state != ActivityState.FAILED })
+    }
+
+    @Test
+    fun failureKeepsItsKindAndSameMessageOfAnotherKindIsAnotherRow() = runTest {
+        val c = center()
+        val sync = SyncActivitySource(c, EventSource<Boolean>(), { "Syncing" })
+        sync.reportFailure(ActivityKind.OTHER, "x")
+        sync.reportFailure(ActivityKind.SYNC, "x")
+        assertEquals(setOf(ActivityKind.OTHER, ActivityKind.SYNC), c.items.value.map { it.kind }.toSet())
+        assertEquals(2, c.items.value.size)
     }
 }

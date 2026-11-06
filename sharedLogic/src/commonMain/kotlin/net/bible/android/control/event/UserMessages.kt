@@ -17,6 +17,7 @@
 
 package net.bible.android.control.event
 
+import net.bible.android.control.activity.ActivityKind
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -30,6 +31,14 @@ sealed interface UserMessage {
         val text: String?,
         val textId: Int?,
         val showReportButton: Boolean,
+        /**
+         * True for a failure of work the user did not just ask for (a periodic or close-pass sync). Only those may be
+         * rerouted to a toast plus an activity-list row (#4007). The default, false, is a foreground failure: it keeps
+         * its dialog (and is recorded in the list as well).
+         */
+        val background: Boolean = false,
+        /** The activity-list kind of the row recording this failure. */
+        val kind: ActivityKind = ActivityKind.OTHER,
     ) : UserMessage
 }
 
@@ -49,9 +58,13 @@ object UserMessages {
 
     fun toast(text: String) = _messages.emit(UserMessage.Toast(text, null, long = false))
 
-    fun errorNotification(id: Int) =
-        _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true))
+    fun errorNotification(id: Int, background: Boolean = false, kind: ActivityKind = ActivityKind.OTHER) =
+        _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true, background = background, kind = kind))
 
-    fun errorNotification(text: String, showReportButton: Boolean = true) =
-        _messages.emit(UserMessage.ErrorNotification(text, null, showReportButton))
+    fun errorNotification(
+        text: String,
+        showReportButton: Boolean = true,
+        background: Boolean = false,
+        kind: ActivityKind = ActivityKind.OTHER,
+    ) = _messages.emit(UserMessage.ErrorNotification(text, null, showReportButton, background, kind))
 }

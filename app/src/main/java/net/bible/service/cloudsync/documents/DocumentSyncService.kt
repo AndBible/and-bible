@@ -33,6 +33,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
@@ -204,11 +205,11 @@ class DocumentSyncService : Service() {
                         // Wrong password / changed certificate / full storage: every remaining op would hit
                         // the same wall. Tell the user once, drop the adapter if a reconnect is needed, and
                         // abandon the rest of the queue (ops are retried on the next sync).
-                        UserMessages.errorNotification(outcome.message, showReportButton = false)
+                        UserMessages.errorNotification(outcome.message, showReportButton = false, background = true, kind = ActivityKind.SYNC)
                         if (outcome.requiresReconnect) cloudSync.dropAdapterForReconnect()
                         queue.clear()
                     }
-                    DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(R.string.sync_error)
+                    DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(R.string.sync_error, background = true, kind = ActivityKind.SYNC)
                 }
                 done.incrementAndGet()
             }
