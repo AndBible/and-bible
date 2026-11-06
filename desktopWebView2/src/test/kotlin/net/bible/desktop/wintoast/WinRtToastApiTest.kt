@@ -3,6 +3,7 @@ package net.bible.desktop.wintoast
 import com.sun.jna.Pointer
 import net.bible.desktop.webview2.ComPtr
 import net.bible.desktop.webview2.Iid
+import net.bible.sharedcore.platform.NativeNotification
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -30,7 +31,7 @@ class WinRtToastApiTest {
         assertEquals(0, api.show("<toast/>", "job", "andbible", emptyMap()))
         assertEquals(1, runtime.events.count { it == "remove_Activated:91" })
         api.close()
-        assertEquals(2, runtime.events.count { it == "remove_Activated:91" })
+        assertEquals(2, runtime.events.count { it.startsWith("remove_Activated:") })
         assertEquals("uninitialize", runtime.events.last())
         runtime.assertReleased()
     }
@@ -59,10 +60,15 @@ class WinRtToastApiTest {
     fun failedShowReleasesTemporaryObjectsAndCallbackAndPreservesPriorToast() {
         val runtime = RecordingWinRt()
         val api = WinRtToastApi(null) { runtime }
+        val clicked = mutableListOf<String>()
+        api.onActivated { clicked += it }
         api.show("<toast/>", "job", "andbible", emptyMap())
+        val oldCallback = runtime.callbackPointers().single()
         runtime.fail = "Show"
         assertTrue(api.show("<toast/>", "job", "andbible", emptyMap()) < 0)
-        assertEquals(1, runtime.events.count { it == "remove_Activated:91" })
+        assertEquals(listOf(oldCallback), runtime.callbackPointers(), "failed Show removed the prior toast's callback")
+        runtime.activate()
+        assertEquals(listOf("job"), clicked)
         runtime.fail = null
         api.close()
         runtime.assertReleased()
@@ -86,10 +92,49 @@ class WinRtToastApiTest {
         val api = WinRtToastApi(null) { runtime }
         api.show("<toast/>", "one", "andbible", emptyMap())
         api.show("<toast/>", "two", "andbible", emptyMap())
+        val failures = mutableListOf<Pair<String, Int>>()
+        api.onCleanupFailure { operation, hr -> failures += operation to hr }
         runtime.fail = "remove_Activated"
-        assertFailsWith<net.bible.desktop.webview2.ComException> { api.close() }
-        assertEquals(2, runtime.events.count { it == "remove_Activated:91" })
+        api.close()
+        assertEquals(listOf("remove_Activated" to 0x80004005.toInt()), failures)
+        assertEquals(2, runtime.events.count { it.startsWith("remove_Activated:") })
         assertEquals("uninitialize", runtime.events.last())
+        runtime.assertReleased()
+    }
+
+    @Test
+    fun cleanupFailureDoesNotRemoveSuccessfullyShownFinalToastAtNotifierClose() {
+        val runtime = RecordingWinRt()
+        val api = WinRtToastApi(null) { runtime }
+        val logs = mutableListOf<String>()
+        val notifier = WindowsToastNotifier({ api }, { it.run() }, log = { logs += it })
+        notifier.show(NativeNotification("job", "Title", "Working", 1, false, false))
+        runtime.fail = "remove_Activated"
+        notifier.show(NativeNotification("job", "Title", "Finished", null, false, false))
+        notifier.close()
+        assertFalse(runtime.events.any { it.startsWith("RemoveGroupedTag") }, "final toast was mistaken for progress")
+        assertEquals(2, runtime.events.count { it.startsWith("Show") })
+        assertEquals(1, logs.count { "cleanup" in it && "0x80004005" in it })
+        assertFalse(logs.any { "show failed" in it })
+        runtime.assertReleased()
+    }
+
+    @Test
+    fun cleanupFailureAfterNotFoundDoesNotCauseEndlessProgressUpdates() {
+        val runtime = RecordingWinRt()
+        val api = WinRtToastApi(null) { runtime }
+        val logs = mutableListOf<String>()
+        val notifier = WindowsToastNotifier({ api }, { it.run() }, log = { logs += it })
+        val n = NativeNotification("job", "Title", "Working", 1, false, false)
+        notifier.show(n)
+        runtime.updateResult = 2
+        runtime.fail = "remove_Activated"
+        repeat(4) { notifier.show(n.copy(progress = it + 2)) }
+        assertEquals(1, runtime.events.count { it.startsWith("Update:") })
+        assertEquals(1, logs.count { "cleanup" in it && "0x80004005" in it })
+        assertFalse(logs.any { "update failed" in it })
+        runtime.fail = null
+        notifier.close()
         runtime.assertReleased()
     }
 
@@ -114,7 +159,8 @@ class WinRtToastApiTest {
         private var nextPointer = 1L
         private val strings = mutableMapOf<Pointer, String>()
         private val objects = mutableSetOf<ToastCom>()
-        private val callbacks = mutableListOf<ComPtr>()
+        private val callbacks = linkedMapOf<Pair<Pointer, Long>, ComPtr>()
+        private var nextToken = 91L
         private fun string(value: Any?) = strings[value as Pointer?] ?: ""
         private fun result(name: String): Int = if (fail == name) 0x80004005.toInt() else 0
         override fun initialize(): Int { events += "initialize"; return result("initialize") }
@@ -172,13 +218,15 @@ class WinRtToastApiTest {
                                 val typed = callback.query(ToastAbi.ACTIVATED)!!
                                 typed.release()
                                 callback.addRef()
-                                callbacks += callback
-                                (args[1] as Pointer).setLong(0, 91)
+                                val token = nextToken++
+                                callbacks[pointer to token] = callback
+                                (args[1] as Pointer).setLong(0, token)
                             }
                             "add_Activated"
                         }
                         12 -> {
-                            assertEquals(0, callbacks.removeAt(0).call(2), "callback creator reference leaked")
+                            val callback = checkNotNull(callbacks.remove(pointer to (args[0] as Long))) { "wrong toast/token unsubscription" }
+                            assertEquals(0, callback.call(2), "callback creator reference leaked")
                             "remove_Activated:${args[0]}"
                         }
                         else -> error("toast $slot")
@@ -197,7 +245,8 @@ class WinRtToastApiTest {
             }
         }.also { objects += it }
 
-        fun activate() { callbacks.last().call(3, null, null) }
+        fun callbackPointers(): List<Pointer> = callbacks.values.map { it.ptr }
+        fun activate() { callbacks.values.last().call(3, null, null) }
         fun assertReleased() {
             assertTrue(objects.isEmpty(), "leaked ${objects.size} COM interfaces")
             assertTrue(strings.isEmpty(), "leaked HSTRINGs")

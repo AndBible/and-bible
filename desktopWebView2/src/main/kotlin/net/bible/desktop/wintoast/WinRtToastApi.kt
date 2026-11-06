@@ -10,6 +10,8 @@ import net.bible.desktop.webview2.ComCallback
 import net.bible.desktop.webview2.ComException
 import net.bible.desktop.webview2.ComPtr
 import net.bible.desktop.webview2.Iid
+import net.bible.desktop.webview2.hresultString
+import net.bible.sharedcore.log.Log
 
 /** SDK ABI declarations. Slots include IUnknown (0..2) and IInspectable (3..5). */
 internal object ToastAbi {
@@ -128,6 +130,10 @@ class WinRtToastApi internal constructor(
     private var closed = false
     private var state: State? = null
     private var handler: (String) -> Unit = {}
+    private val reportedCleanup = mutableSetOf<Pair<String, Int>>()
+    private var cleanupFailure: (String, Int) -> Unit = { operation, hr ->
+        Log.w("WindowsToast", "Windows toast cleanup $operation failed: ${hresultString(hr)}")
+    }
     private val retained = mutableMapOf<Pair<String, String>, Subscription>()
 
     private class Subscription(val toast: ToastCom, val token: Long) {
@@ -192,6 +198,21 @@ class WinRtToastApi internal constructor(
         this.handler = handler
     }
 
+    override fun onCleanupFailure(handler: (String, Int) -> Unit) {
+        checkOwner()
+        cleanupFailure = handler
+    }
+
+    private fun closeSubscription(subscription: Subscription?) {
+        try {
+            subscription?.close()
+        } catch (e: ComException) {
+            if (reportedCleanup.add("remove_Activated" to e.hresult)) {
+                runCatching { cleanupFailure("remove_Activated", e.hresult) }
+            }
+        }
+    }
+
     override fun show(xml: String, tag: String, group: String, data: Map<String, String>): Int = operation { s ->
         val toast = use(hstring(s.calls, ToastAbi.XML_CLASS) { s.calls.activate(it) }) { instance ->
             use(instance.query(ToastAbi.XML_DOCUMENT)) { document ->
@@ -222,11 +243,11 @@ class WinRtToastApi internal constructor(
             checked(s.notifier.call(ToastAbi.SHOW, toast.pointer), "Show")
             val previous = retained.put(tag to group, subscription)
             transferred = true
-            previous?.close()
+            closeSubscription(previous)
             0
         } finally {
             if (!transferred) {
-                if (subscription != null) subscription.close() else toast.release()
+                if (subscription != null) closeSubscription(subscription) else toast.release()
             }
         }
     }
@@ -258,7 +279,7 @@ class WinRtToastApi internal constructor(
                 checked(s.updates.call(ToastAbi.UPDATE_WITH_TAG_AND_GROUP, notificationData.pointer, t, g, result), "UpdateWithTagAndGroup")
                 when (result.getInt(0)) {
                     0 -> 0 // NotificationUpdateResult_Succeeded
-                    2 -> { retained.remove(tag to group)?.close(); 1 } // NotificationNotFound -> S_FALSE, no resurrection.
+                    2 -> { closeSubscription(retained.remove(tag to group)); 1 } // NotificationNotFound -> S_FALSE, no resurrection.
                     else -> ToastAbi.E_FAIL
                 }
             } }
@@ -271,7 +292,7 @@ class WinRtToastApi internal constructor(
                 if (aumid == null) s.history.call(ToastAbi.REMOVE_GROUPED_TAG, t, g)
                 else hstring(s.calls, aumid) { s.history.call(ToastAbi.REMOVE_GROUPED_TAG_WITH_ID, t, g, it) }
             } }
-        } finally { retained.remove(tag to group)?.close() }
+        } finally { closeSubscription(retained.remove(tag to group)) }
     }
 
     override fun close() {
@@ -280,7 +301,7 @@ class WinRtToastApi internal constructor(
         closed = true
         handler = {}
         try {
-            cleanup(retained.values.map { subscription -> { subscription.close() } } + listOf({ state?.close(); Unit }))
+            cleanup(retained.values.map { subscription -> { closeSubscription(subscription) } } + listOf({ state?.close(); Unit }))
         } finally { retained.clear(); state = null }
     }
 
