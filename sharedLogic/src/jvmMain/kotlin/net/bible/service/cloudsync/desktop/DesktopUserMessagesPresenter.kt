@@ -18,6 +18,7 @@ package net.bible.service.cloudsync.desktop
 
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
+import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.event.Events
@@ -43,7 +44,7 @@ class DesktopUserMessagesPresenter(
         try {
             when (message) {
                 is UserMessage.Toast -> message.text?.let { notifier().showInfo(it, message.long) } ?: dropped(message)
-                is UserMessage.ErrorNotification -> message.text?.let { text -> runCatching { reroute(text) }.getOrNull()?.let { notifier().showInfo(it, false) } ?: notifier().showError(text) } ?: dropped(message)
+                is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text)?.let { notifier().showInfo(it, false) } ?: notifier().showError(text) } ?: dropped(message)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Presenting a user message failed", e)

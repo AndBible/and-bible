@@ -196,9 +196,10 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single {
             val preference = get<net.bible.android.control.activity.ActivityMenuPreference>()
             net.bible.android.control.activity.BackgroundErrorRouter(
-                enabled = { preference.enabled.value },
+                // `-activityMenuOff` (debug builds): UI tests that prove the dialog path.
+                enabled = { !IosDebugLaunchArgs.hasLaunchFlag("-activityMenuOff") && preference.enabled.value },
                 sync = get(),
-                toastText = { parts.strings.fmt("activity_failed_toast", it) },
+                toastText = { get<HostStringTableHolder>().current.fmt("activity_failed_toast", it) },
             )
         }
 

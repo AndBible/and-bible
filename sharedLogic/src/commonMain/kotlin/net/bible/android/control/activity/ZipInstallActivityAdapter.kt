@@ -25,37 +25,47 @@ class ZipInstallActivityAdapter(
     private val names = HashMap<String, String>()
     private val finished = HashSet<String>()
 
-    /** The controller's current jobs; each unfinished one is started or updated. */
+    /**
+     * The controller's current jobs; each unfinished one is started or updated. Ids of finished jobs that are no
+     * longer in [jobs] are forgotten. The lock spans the check and the [ActivityCenter] call, so a terminal event
+     * cannot slip in between and leave a RUNNING row behind.
+     */
     fun onJobs(jobs: List<InstallJobState>) = guarded {
         val c = center() ?: return@guarded
-        for (job in jobs) {
-            if (synchronized(lock) { job.jobId in finished }) continue
-            synchronized(lock) { names[job.jobId] = job.displayName ?: job.jobId }
-            val progress = when (val phase = job.phase) {
-                is InstallPhase.Acquiring -> phase.percent
-                is InstallPhase.Committing -> phase.percent
-                else -> null
+        synchronized(lock) {
+            finished.retainAll(jobs.map { it.jobId }.toSet())
+            for (job in jobs) {
+                if (job.jobId in finished) continue
+                names[job.jobId] = job.displayName ?: job.jobId
+                val progress = when (val phase = job.phase) {
+                    is InstallPhase.Acquiring -> phase.percent
+                    is InstallPhase.Committing -> phase.percent
+                    else -> null
+                }
+                c.startOrUpdate(itemId(job.jobId), ActivityKind.INSTALL, job.displayName ?: job.jobId, progress) { cancel(job.jobId) }
             }
-            val id = itemId(job.jobId)
-            c.startOrUpdate(id, ActivityKind.INSTALL, job.displayName ?: job.jobId, progress) { cancel(job.jobId) }
         }
     }
 
     /**
-     * A job reached its terminal [phase]. [message] is the user-visible text for a failure (the same text the toast shows).
+     * A job reached its terminal [phase]. [message] is the user-visible text for a failure (the same text the toast shows);
+     * a failed row reads "<name>: <message>".
      */
     fun onTerminal(jobId: String, phase: InstallPhase, message: String) = guarded {
         val c = center() ?: return@guarded
-        val name = synchronized(lock) { finished += jobId; names.remove(jobId) } ?: jobId
-        val id = itemId(jobId)
-        when (phase) {
-            is InstallPhase.Done -> c.succeed(id)
-            is InstallPhase.Cancelled -> c.cancelled(id)
-            is InstallPhase.Error -> {
-                if (!c.isRunning(id)) c.start(id, ActivityKind.INSTALL, name)
-                c.fail(id, if (message.isBlank()) name else "$name: $message")
+        synchronized(lock) {
+            finished += jobId
+            val name = names.remove(jobId) ?: jobId
+            val id = itemId(jobId)
+            when (phase) {
+                is InstallPhase.Done -> c.succeed(id)
+                is InstallPhase.Cancelled -> c.cancelled(id)
+                is InstallPhase.Error -> {
+                    if (!c.isRunning(id)) c.start(id, ActivityKind.INSTALL, name)
+                    c.fail(id, if (message.isBlank()) name else "$name: $message")
+                }
+                else -> Unit
             }
-            else -> Unit
         }
     }
 

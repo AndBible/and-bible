@@ -8,7 +8,6 @@ import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -51,7 +50,7 @@ class ZipInstallActivityAdapterTest {
         adapter.onTerminal("j1", InstallPhase.Error(InstallError.INVALID_FILE, null), "Invalid module")
         val item = center.items.value.single()
         assertEquals(ActivityState.FAILED, item.state)
-        assertTrue(item.message!!.contains("Invalid module"))
+        assertEquals("kjv.zip: Invalid module", item.message)
         assertEquals(1, center.unreadFailures.value)
     }
 
@@ -65,13 +64,23 @@ class ZipInstallActivityAdapterTest {
         adapter.onTerminal("j1", InstallPhase.Cancelled, "")
         adapter.onJobs(listOf(job(InstallPhase.Committing(90)))) // stale snapshot arriving after the terminal event
         assertTrue(center.items.value.isEmpty())
-        assertNull(center.items.value.firstOrNull())
+    }
+
+    @Test fun aFinishedJobIdIsForgottenOnceItLeavesTheSnapshot() {
+        adapter.onJobs(listOf(job(InstallPhase.Committing(10))))
+        adapter.onTerminal("j1", InstallPhase.Cancelled, "")
+        adapter.onJobs(emptyList()) // the controller dropped it
+        // The same id again (not realistic, but proves the set was pruned rather than kept forever).
+        adapter.onJobs(listOf(job(InstallPhase.Committing(20))))
+        now = 5_000
+        adapter.onJobs(listOf(job(InstallPhase.Committing(20))))
+        assertEquals(1, center.items.value.size)
     }
 
     @Test fun missingCenterIsHarmless() {
         val a = ZipInstallActivityAdapter({ null }, cancel = {})
         a.onJobs(listOf(job(InstallPhase.Inspecting)))
         a.onTerminal("j1", InstallPhase.Done, "")
-        assertNotNull(a)
+        assertTrue(center.items.value.isEmpty(), "nothing may reach an unrelated center")
     }
 }

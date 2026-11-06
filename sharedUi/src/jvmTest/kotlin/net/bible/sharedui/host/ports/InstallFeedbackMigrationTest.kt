@@ -93,6 +93,9 @@ class InstallFeedbackMigrationTest {
             val notifier = HostUserNotifier(dialogs, onInfo = { message, _ -> infos += message })
             val feedback = HostInstallTerminalFeedback({ strings }, { notifier }, { changes.incrementAndGet() })
             var nextId = 0
+            val activity = koin.get<net.bible.android.control.activity.ActivityCenter>()
+            val zipAdapter = net.bible.android.control.activity.ZipInstallActivityAdapter({ activity }, {})
+            val terminal = installTerminalHandler(feedback, zipAdapter) { strings }
             val controller = createIosInstallController(
                 scope = scope,
                 initialise = {},
@@ -102,7 +105,7 @@ class InstallFeedbackMigrationTest {
                     ))
                 },
                 newJobId = { (++nextId).toString() },
-                onTerminal = { _, phase -> phases += phase; feedback.handle(phase) },
+                onTerminal = { id, phase -> phases += phase; terminal(id, phase) },
             )
             val deps = InstallServiceController.JobDeps(
                 acquireDir = root.resolve("acquired").toString().toPath(),
@@ -130,6 +133,12 @@ class InstallFeedbackMigrationTest {
             val starter = HostDocumentInstallStarter({ controller }, { deps }, scope)
             starter.startAndAwait(listOf(DocumentRef(bad.toUri().toString())), null)
             assertEquals(listOf<InstallPhase>(InstallPhase.Error(InstallError.INVALID_FILE, "invalid.zip")), phases)
+            // The failed zip also reaches the activity list (#4007), as "<name>: <message>".
+            assertEquals(
+                listOf("File does not contain a valid SWORD module"),
+                activity.items.value.filter { it.state == net.bible.android.control.activity.ActivityState.FAILED }
+                    .map { it.message!!.substringAfter(": ") },
+            )
             runComposeUiTest {
                 setContent {
                     CompositionLocalProvider(LocalStrings provides iosStrings("en")) {

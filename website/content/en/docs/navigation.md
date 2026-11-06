@@ -132,8 +132,8 @@ On desktop and iOS (including iOS on a Mac) the top right three-dot menu (⋮)
 can show what the app is doing in the background, such as downloads, search
 indexing and sync. On Android the same information is shown as system
 notifications, so this is off by default there. Turn it on or off with
-*Show background activity in the menu* in the *Display* section of the
-application settings (see [Look and Feel](look_and_feel.md#display)).
+*Show background activity in the menu* in the *Look & feel* section of the
+application settings (see [Look and Feel](look_and_feel.md#look-feel)).
 
 When the setting is on:
 

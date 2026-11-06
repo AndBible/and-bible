@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.event.Events
+import net.bible.android.control.activity.rerouteOrNull
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
 
@@ -32,7 +33,7 @@ class UserMessagesPresenter(scope: CoroutineScope, messages: Events<UserMessage>
             try {
                 when (message) {
                     is UserMessage.Toast -> message.text?.let { target.showInfo(it, message.long) } ?: dropped(message)
-                    is UserMessage.ErrorNotification -> message.text?.let { text -> runCatching { reroute(text) }.getOrNull()?.let { target.showInfo(it, false) } ?: target.showError(text) } ?: dropped(message)
+                    is UserMessage.ErrorNotification -> message.text?.let { text -> reroute.rerouteOrNull(text)?.let { target.showInfo(it, false) } ?: target.showError(text) } ?: dropped(message)
                 }
             } catch (e: CancellationException) {
                 throw e

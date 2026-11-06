@@ -181,7 +181,7 @@ remain reachable on a phone.
     with a colored border. Makes it easier to see which window is currently
     active when using multiple windows side by side.
 
-### Display
+### Look & feel
 
 - **Show background activity in the menu:** Shows downloads, sync and indexing
     progress, and failures, in the three-dot menu (⋮): a progress ring and a

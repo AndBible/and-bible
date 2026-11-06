@@ -22,3 +22,15 @@ class BackgroundErrorRouter(
         return toastText(message)
     }
 }
+
+/**
+ * [BackgroundErrorRouter.reroute] for presenters: the toast text when the error went to the list, null when the
+ * dialog must be shown. A failing router is logged and counts as "not rerouted", so an error is never lost.
+ */
+fun ((String) -> String?).rerouteOrNull(message: String): String? =
+    try {
+        this(message)
+    } catch (e: Exception) {
+        net.bible.sharedcore.log.Log.w("BackgroundErrorRouter", "Rerouting an error to the activity list failed", e)
+        null
+    }

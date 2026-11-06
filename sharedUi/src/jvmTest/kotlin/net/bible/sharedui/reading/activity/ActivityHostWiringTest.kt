@@ -4,7 +4,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -72,12 +77,13 @@ class ActivityHostWiringTest {
 
     private fun androidx.compose.ui.test.ComposeUiTest.host(
         wiring: ActivityHostWiring?, expanded: Boolean = false, seen: MutableList<ActivityMenuState?> = mutableListOf(),
+        syncRunning: Boolean = false,
     ) = setContent {
-        AbTheme {
+        AbTheme(disableAnimations = true) {
             CompositionLocalProvider(LocalStrings provides strings) {
                 ActivityHost(wiring) { activity ->
                     seen += activity
-                    ReadingToolbar(toolbarState, icons, callbacks, overflowExpanded = expanded, activity = activity)
+                    ReadingToolbar(toolbarState.copy(syncRunning = syncRunning), icons, callbacks, overflowExpanded = expanded, activity = activity)
                 }
             }
         }
@@ -86,16 +92,22 @@ class ActivityHostWiringTest {
     @Test fun togglingPreferenceShowsCurrentWork() = runComposeUiTest {
         val f = Fixture(default = false)
         f.runningItem()
-        host(f.wiring)
+        host(f.wiring, syncRunning = true)
+        fun pixels() = onRoot().captureToImage().toPixelMap()
+        fun same(a: PixelMap, b: PixelMap) = a.width == b.width && a.height == b.height &&
+            (0 until a.width).all { x -> (0 until a.height).all { y -> a[x, y] == b[x, y] } }
         onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
+        val offBefore = pixels() // title-side sync glyph shown
 
         f.preference.set(true)
         waitForIdle()
         onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(1)
+        assertFalse(same(offBefore, pixels()), "ring appears and the sync glyph is replaced")
 
         f.preference.set(false)
         waitForIdle()
         onAllNodesWithTag(ACTIVITY_RING_TAG, useUnmergedTree = true).assertCountEquals(0)
+        assertTrue(same(offBefore, pixels()), "ring gone, sync glyph back exactly as before")
     }
 
     @Test fun menuOpenMarksRead() = runComposeUiTest {
