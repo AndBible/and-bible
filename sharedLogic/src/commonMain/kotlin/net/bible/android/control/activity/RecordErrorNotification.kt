@@ -13,7 +13,7 @@ import net.bible.sharedcore.log.Log
 fun recordErrorNotification(source: () -> SyncActivitySource?, message: UserMessage.ErrorNotification, textOf: (Int?) -> String) {
     try {
         val target = source() ?: return
-        target.reportFailure(message.kind, message.text ?: textOf(message.textId))
+        target.reportFailure(message.kind, message.text ?: textOf(message.textId), message.background)
     } catch (e: Exception) {
         Log.w("ActivityList", "Recording an error in the activity list failed", e)
     }

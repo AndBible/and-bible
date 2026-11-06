@@ -83,7 +83,7 @@ class InstallFeedbackMigrationTest {
                 override val density = 1f
                 override fun toFront() = Unit
             }
-            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, window, "en", repositories = { PropertyMap() }))
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, window, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
             val koin = KoinPlatform.getKoin()
             val strings = koin.get<CoreStrings>()
             val infos = CopyOnWriteArrayList<String>()

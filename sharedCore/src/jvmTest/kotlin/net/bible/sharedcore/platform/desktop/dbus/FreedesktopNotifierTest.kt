@@ -87,7 +87,7 @@ class FreedesktopNotifierTest {
         assertEquals(2.toByte(), n.hints.getValue("urgency").value)
         assertEquals(42, n.hints.getValue("value").value)
         assertEquals(true, n.hints.getValue("transient").value)
-        assertEquals(0, n.expire)
+        assertTrue(n.expire in 1..120_000, "progress must expire within two minutes after a crash")
         assertEquals(0L, n.replacesId)
     }
 

@@ -26,4 +26,6 @@ data class ActivityItem(
     val startedAt: Long,
     val finishedAt: Long?,
     val read: Boolean,
+    val backgroundFailure: Boolean = true,
+    val failureOccurrence: Long = 0,
 )

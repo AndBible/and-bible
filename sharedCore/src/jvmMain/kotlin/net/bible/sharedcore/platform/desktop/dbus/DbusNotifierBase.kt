@@ -163,8 +163,11 @@ abstract class DbusNotifierBase(
         handler?.let { h -> scope.launch(Dispatchers.Default) { runCatching { h(id) } } }
     }
 
-    protected fun listenTo(connection: DBusConnection, iface: String, member: String, path: String? = null, callback: (DBusSignal) -> Unit) {
-        connection.addGenericSigHandler(DBusMatchRule("signal", iface, member, path)) { signal ->
+    protected fun listenTo(connection: DBusConnection, iface: String, member: String, path: String? = null, arg0: String? = null, callback: (DBusSignal) -> Unit) {
+        val rule = object : DBusMatchRule("signal", iface, member, path) {
+            override fun toString(): String = super.toString() + (arg0?.let { ",arg0='$it'" } ?: "")
+        }
+        connection.addGenericSigHandler(rule) { signal ->
             runCatching { callback(signal) }
         }
     }
@@ -189,7 +192,7 @@ abstract class DbusNotifierBase(
 
     companion object {
         const val DEFAULT_RETRY_AFTER_FAILURE_MS = 5_000L
-        const val FLUSH_TIMEOUT_MS = 2_000L
+        const val FLUSH_TIMEOUT_MS = 250L
         const val MAX_REPLAY_ATTEMPTS = 10
         private val LOST_ERRORS = listOf("ServiceUnknown", "NameHasNoOwner", "Disconnected", "NoServer")
     }

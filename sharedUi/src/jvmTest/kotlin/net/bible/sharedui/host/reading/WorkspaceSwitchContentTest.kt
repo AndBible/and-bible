@@ -121,7 +121,7 @@ class WorkspaceSwitchContentTest {
             Files.createDirectories(target.parent)
             Files.write(target, bytes)
         }
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         HostReadingReady.ensure(HostStartup.stringTable)
         val koin = KoinPlatform.getKoin()
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + main)
@@ -219,7 +219,7 @@ class WorkspaceSwitchContentTest {
             Files.createDirectories(target.parent)
             Files.write(target, bytes)
         }
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         HostReadingReady.ensure(HostStartup.stringTable)
         val koin = KoinPlatform.getKoin()
         val scope = HostReadingReady.scope
@@ -337,7 +337,7 @@ class WorkspaceSwitchContentTest {
             Files.createDirectories(target.parent)
             Files.write(target, bytes)
         }
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         HostReadingReady.ensure(HostStartup.stringTable)
         val koin = KoinPlatform.getKoin()
         val scope = HostReadingReady.scope
@@ -429,7 +429,7 @@ class WorkspaceSwitchContentTest {
             Files.createDirectories(target.parent)
             Files.write(target, bytes)
         }
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         HostReadingReady.ensure(HostStartup.stringTable)
         val koin = KoinPlatform.getKoin()
         val scope = HostReadingReady.scope
@@ -478,7 +478,7 @@ class WorkspaceSwitchContentTest {
             Files.write(target, bytes)
         }
         runBlocking {
-            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
             HostReadingReady.ensure(HostStartup.stringTable)
         }
         val koin = KoinPlatform.getKoin()
@@ -545,7 +545,7 @@ class WorkspaceSwitchContentTest {
             Files.createDirectories(target.parent)
             Files.write(target, bytes)
         }
-        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+        assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
         HostReadingReady.ensure(HostStartup.stringTable)
         val koin = KoinPlatform.getKoin()
         val scope = HostReadingReady.scope
@@ -627,7 +627,7 @@ class WorkspaceSwitchContentTest {
             Files.write(target, bytes)
         }
         runBlocking {
-            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }))
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, WindowHandle, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
             HostReadingReady.ensure(HostStartup.stringTable)
         }
         val koin = KoinPlatform.getKoin()

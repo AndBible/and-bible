@@ -9,6 +9,7 @@ import net.bible.android.control.activity.ActivityCenter
 import net.bible.android.control.activity.ActivityListRequests
 import net.bible.android.control.activity.NativeNotificationPolicy
 import net.bible.android.control.activity.SystemNotificationsPreference
+import net.bible.android.control.activity.monotonicActivityClock
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppForeground
 import net.bible.sharedcore.platform.CoreStrings
@@ -18,7 +19,6 @@ import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvent
 import net.bible.sharedcore.platform.desktop.DesktopLifecycleEvents
 import net.bible.sharedcore.platform.desktop.dbus.DesktopDbus
 import net.bible.sharedcore.platform.desktop.dbus.linuxNativeNotifier
-import net.bible.sharedlogic.util.currentTimeMillis
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -36,7 +36,7 @@ private const val TAG = "DesktopNotifications"
  *
  * The policy and the notifier run on one IO scope (their D-Bus calls must never reach the AWT thread). Closing the
  * graph closes the policy first (it removes its progress notifications through the notifier) and then the notifier
- * (flushes its queue, at most about 2 s), then cancels the scope.
+ * (flushes its queue for at most 250 ms; transport close is separate), then cancels the scope.
  *
  * Nothing is bound when [available] is false (Windows and macOS until #4013): there the notifier would be a no-op, and
  * an unbound [SystemNotificationsPreference] keeps the settings row hidden instead of showing a toggle that does nothing.
@@ -50,7 +50,7 @@ fun desktopNotificationModule(
     window: DesktopWindowHandle,
     available: Boolean = DesktopDbus().supportedOs,
     runOnUi: (() -> Unit) -> Unit = { SwingUtilities.invokeLater(it) },
-    clock: () -> Long = ::currentTimeMillis,
+    clock: () -> Long = monotonicActivityClock(),
     notifierFactory: (CoroutineScope) -> NativeNotifier = { scope -> linuxNativeNotifier(scope = scope) },
 ): Module = if (!available) module { } else module {
     // Real exit never closes Koin: the exit path runs these tasks (on IO, bounded) after the lifecycle's Background event.

@@ -77,7 +77,7 @@ class FinnishHostWalkTest {
                 override val density = 1f
                 override fun toFront() = Unit
             }
-            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, window, "en", repositories = { PropertyMap() }))
+            assertEquals(StartupPhase.Ready, DesktopAppStartup.ensureStarted(paths, window, "en", repositories = { PropertyMap() }, notifierFactory = { net.bible.sharedcore.platform.desktop.dbus.NoOpNativeNotifier }))
             val koin = KoinPlatform.getKoin()
             // Persisted user label names are not UI chrome and need not change with the app language.
             koin.get<AppSettings>().setLong("data-version", 1L)

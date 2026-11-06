@@ -20,7 +20,7 @@ class BackgroundErrorRouter(
      * show the dialog.
      */
     fun route(message: String, background: Boolean, kind: ActivityKind): String? {
-        sync.reportFailure(kind, message)
+        sync.reportFailure(kind, message, background)
         return if (background && enabled()) toastText(message) else null
     }
 }

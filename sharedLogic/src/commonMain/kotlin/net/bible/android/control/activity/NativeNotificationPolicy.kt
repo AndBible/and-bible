@@ -20,11 +20,11 @@ import net.bible.sharedcore.platform.NativeNotifier
 /**
  * Turns [ActivityItem] changes into [NativeNotifier] calls (#4012), with no platform dependency.
  *
- * Rules: a FAILED item always notifies (urgent). A SUCCEEDED non-SYNC item that ran at least [LONG_JOB_MS] notifies
- * only when the app is not in the foreground. A RUNNING item shows a progress notification only when the notifier
- * supports it, the app is in the background and the item has been seen RUNNING for [LONG_JOB_MS] (measured with [clock] from the
- * first time this policy saw it running, so [clock] need not share a time base with ActivityCenter); updates are limited to one per
- * [PROGRESS_THROTTLE_MS] per item and only when the progress changed, the newest value being shown by a trailing update.
+ * Rules: a FAILED item notifies urgently unless it is a foreground user-started failure. A SUCCEEDED non-SYNC item
+ * that ran at least [LONG_JOB_MS] notifies only when the app is not in the foreground. A RUNNING item shows progress
+ * only when supported, in the background, and seen RUNNING for [LONG_JOB_MS] on this policy's [clock]. Progress or
+ * message changes are throttled to [PROGRESS_THROTTLE_MS] with a trailing update; unchanged progress is refreshed
+ * every [PROGRESS_REFRESH_MS] so finite-lived native notifications remain visible.
  * A vanished or CANCELLED item that had a notification (and was RUNNING or FAILED) removes it; a vanished SUCCEEDED
  * item leaves it to the OS.
  *
@@ -54,7 +54,7 @@ class NativeNotificationPolicy(
 ) {
     private enum class Shown { PROGRESS, FINAL }
 
-    private class ProgressShown(val progress: Int?, val at: Long)
+    private class ProgressShown(val progress: Int?, val message: String?, val at: Long)
 
     private val inForeground = MutableStateFlow(false)
     private val tick = MutableStateFlow(0L)
@@ -74,12 +74,12 @@ class NativeNotificationPolicy(
 
     // Confined to the collector coroutine.
     private val shown = mutableMapOf<String, Shown>()
-    private val lastSeen = mutableMapOf<String, ActivityState>()
+    private val lastSeen = mutableMapOf<String, ActivityItem>()
     private val progressShown = mutableMapOf<String, ProgressShown>()
     private val firstSeenRunningAt = mutableMapOf<String, Long>()
     private var wasEnabled = true
     private var needBaseline = false
-    private var wakeJob: Job? = null
+    @Volatile private var wakeJob: Job? = null
     private val loggedFailures = mutableSetOf<String>()
 
     /** Starts collecting. Idempotent, but call it from one thread (it is not an atomic check-and-set). */
@@ -138,7 +138,7 @@ class NativeNotificationPolicy(
         wasEnabled = true
         if (needBaseline) {
             lastSeen.clear()
-            input.list.forEach { lastSeen[it.id] = it.state }
+            input.list.forEach { lastSeen[it.id] = it }
             needBaseline = false
         }
         val now = clock()
@@ -152,17 +152,20 @@ class NativeNotificationPolicy(
             val kind = shown.remove(id)
             progressShown.remove(id)
             publishProgressIds()
-            if (kind != null && (last == ActivityState.RUNNING || last == ActivityState.FAILED)) removeNotification(id)
+            if (kind != null && (last?.state == ActivityState.RUNNING || last?.state == ActivityState.FAILED)) removeNotification(id)
         }
         for (item in input.list) {
             val prev = lastSeen[item.id]
-            lastSeen[item.id] = item.state
+            lastSeen[item.id] = item
             if (item.state == ActivityState.RUNNING) firstSeenRunningAt.getOrPut(item.id) { now }
             when (item.state) {
-                ActivityState.FAILED -> if (prev != ActivityState.FAILED) {
-                    showNotification(item, item.message?.removePrefix("${item.title}: ") ?: "", null, urgent = true, Shown.FINAL)
+                ActivityState.FAILED -> if (prev?.state != ActivityState.FAILED || prev.finishedAt != item.finishedAt || prev.failureOccurrence != item.failureOccurrence || (prev.read && !item.read)) {
+                    if (!input.fg || item.backgroundFailure) {
+                        val body = item.message?.let { if (it == item.title) "" else it.removePrefix("${item.title}: ") } ?: ""
+                        showNotification(item, body, null, urgent = true, Shown.FINAL)
+                    }
                 }
-                ActivityState.SUCCEEDED -> if (prev != ActivityState.SUCCEEDED) {
+                ActivityState.SUCCEEDED -> if (prev?.state != ActivityState.SUCCEEDED) {
                     val finishedAt = item.finishedAt
                     val long = finishedAt != null && finishedAt - item.startedAt >= LONG_JOB_MS
                     if (item.kind != ActivityKind.SYNC && long && !input.fg) {
@@ -177,11 +180,22 @@ class NativeNotificationPolicy(
                     val last = progressShown[item.id]
                     when {
                         now < due -> wakeAt = minOf(wakeAt, due)
-                        last == null -> showProgress(item, now)
-                        last.progress != item.progress -> {
-                            val next = last.at + PROGRESS_THROTTLE_MS
-                            if (now >= next) showProgress(item, now) else wakeAt = minOf(wakeAt, next)
+                        last == null -> {
+                            showProgress(item, now)
+                            wakeAt = minOf(wakeAt, now + PROGRESS_REFRESH_MS)
                         }
+                        last.progress != item.progress || last.message != item.message -> {
+                            val next = last.at + PROGRESS_THROTTLE_MS
+                            if (now >= next) {
+                                showProgress(item, now)
+                                wakeAt = minOf(wakeAt, now + PROGRESS_REFRESH_MS)
+                            } else wakeAt = minOf(wakeAt, next)
+                        }
+                        now >= last.at + PROGRESS_REFRESH_MS -> {
+                            showProgress(item, now)
+                            wakeAt = minOf(wakeAt, now + PROGRESS_REFRESH_MS)
+                        }
+                        else -> wakeAt = minOf(wakeAt, last.at + PROGRESS_REFRESH_MS)
                     }
                 }
             }
@@ -198,7 +212,7 @@ class NativeNotificationPolicy(
 
     private fun showProgress(item: ActivityItem, now: Long) {
         val p = item.progress
-        progressShown[item.id] = ProgressShown(p, now)
+        progressShown[item.id] = ProgressShown(p, item.message, now)
         showNotification(item, item.message ?: "", p, urgent = false, Shown.PROGRESS)
     }
 
@@ -234,13 +248,16 @@ class NativeNotificationPolicy(
         try {
             block()
         } catch (e: Exception) {
-            if (loggedFailures.add(kind)) Log.w(TAG, "Native notifier $kind failed (${e.message}); further failures of this kind are not logged")
+            synchronized(closeLock) { // L1-common-ok: atomicfu lock
+                if (loggedFailures.add(kind)) Log.w(TAG, "Native notifier $kind failed (${e.message}); further failures of this kind are not logged")
+            }
         }
     }
 
     companion object {
         const val LONG_JOB_MS = 10_000L
         const val PROGRESS_THROTTLE_MS = 1_000L
+        const val PROGRESS_REFRESH_MS = 60_000L
         private const val ID_PREFIX = "andbible-"
         private const val TAG = "NativeNotificationPolicy"
     }

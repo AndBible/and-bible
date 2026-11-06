@@ -70,7 +70,7 @@ class FreedesktopNotifier(
         owner = runCatching {
             connection.getRemoteObject("org.freedesktop.DBus", "/org/freedesktop/DBus", DBus::class.java).GetNameOwner(SERVICE)
         }.getOrNull()
-        listenTo(connection, "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus") { signal ->
+        listenTo(connection, "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus", SERVICE) { signal ->
             if (signal.parameters[0] == SERVICE) {
                 val newOwner = (signal.parameters[2] as String).ifEmpty { null }
                 owner = newOwner
@@ -130,7 +130,7 @@ class FreedesktopNotifier(
         }
         // Servers without progress bars still show the percentage in the body; the caller's body must not repeat it.
         val body = listOfNotNull(n.body.ifBlank { null }, percent?.let { "$it %" }).joinToString("\n")
-        val expire = if (n.progress != null || n.indeterminate) 0 else -1
+        val expire = if (n.progress != null || n.indeterminate) 120_000 else -1
         notifyInFlight.add(n.id)
         try {
             val serverId = proxy(connection).Notify(
