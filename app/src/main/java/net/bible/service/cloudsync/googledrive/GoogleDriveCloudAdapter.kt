@@ -178,7 +178,13 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             account = null
             throw e
         }
-        val success = ensureDriveAccess(activity)
+        val success = try {
+            ensureDriveAccess(activity)
+        } catch (e: net.bible.service.cloudsync.CloudSyncUserCancelledException) {
+            account = null
+            lastAccount = null
+            throw e
+        }
         if(!success) {
             account = null
             lastAccount = null
@@ -212,7 +218,8 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                 .execute()
         } catch (e: UserRecoverableAuthIOException) {
             val result = activity.awaitIntent(e.intent)
-            return result.resultCode == Activity.RESULT_OK
+            if (result.resultCode != Activity.RESULT_OK) throw net.bible.service.cloudsync.CloudSyncUserCancelledException()
+            return true
         } catch (e: IOException) {
             Log.e(TAG, "Network unavailable", e)
             return true // We do not want to log out because of this!

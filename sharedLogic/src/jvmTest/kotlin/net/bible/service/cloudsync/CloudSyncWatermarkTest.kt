@@ -226,6 +226,24 @@ class CloudSyncWatermarkTest {
         } finally { subscription.cancel() }
     }
 
+    @Test fun concurrentCategoryTransportFailuresProduceOneNotification() = withFixture { f ->
+        val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            val settings = DatabaseAppSettings({ f.container.settingsStore }, { true })
+            val other = DatabaseContainer.databaseAccessorsByCategory.getValue(SyncableDatabaseDefinition.WORKSPACES)
+            other.category.setSyncEnabled(settings, true)
+            other.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, "sync-folder")
+            other.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, "device-folder")
+            other.dao.setConfig(LAST_SYNCHRONIZED_KEY, 100L)
+            val attempts = java.util.concurrent.atomic.AtomicInteger()
+            f.adapter.onList = { attempts.incrementAndGet(); throw IOException("connection refused") }
+            f.cloud.synchronize(allowInteraction = true)
+            assertTrue(attempts.get() >= 2, "both enabled categories must reach the failing listing")
+            assertEquals(1, messages.filterIsInstance<net.bible.android.control.event.UserMessage.ErrorNotification>().size)
+        } finally { subscription.cancel() }
+    }
+
     @Test fun backgroundTransportFailureRemainsSilent() = withFixture { f ->
         val messages = java.util.concurrent.CopyOnWriteArrayList<net.bible.android.control.event.UserMessage>()
         val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
