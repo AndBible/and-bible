@@ -18,9 +18,15 @@ package net.bible.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,9 +35,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -39,6 +47,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,6 +56,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.desktop.assembly.DesktopGateOutcome
@@ -54,6 +64,7 @@ import net.bible.sharedui.desktop.assembly.DesktopStartupGate
 import net.bible.sharedui.desktop.assembly.DesktopUiLanguage
 import net.bible.sharedui.host.app.AppHostPlatform
 import net.bible.sharedui.host.app.HostApp
+import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.webview.BibleWebViewFactory
@@ -78,6 +89,15 @@ class DesktopStartupState(
     val onExit: () -> Unit = {},
     val onStartupReady: () -> Unit = {},
     val onCleanExit: () -> Unit = {},
+    val logDirectory: java.nio.file.Path = net.bible.sharedcore.platform.desktop.DesktopPaths.system().data.resolve("logs"),
+    val openLogFolder: suspend () -> Unit = {
+        try { java.awt.Desktop.getDesktop().open(logDirectory.toFile()) }
+        catch (e: Exception) {
+            val os = System.getProperty("os.name").orEmpty().lowercase()
+            if (os.startsWith("windows") || os.startsWith("mac")) throw e
+            ProcessBuilder("xdg-open", logDirectory.toString()).start()
+        }
+    },
 ) {
     private val launched = AtomicBoolean(false)
     private val lifecycleLock = Any()
@@ -148,7 +168,7 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 val phase by produceState<StartupPhase>(StartupPhase.Starting) { value = state.startForRecovery() }
                 when (val p = phase) {
                     StartupPhase.Starting -> StartupSplash(dark)
-                    is StartupPhase.Failed -> StartupFailed(dark, strings.errorOccurred, p.error)
+                    is StartupPhase.Failed -> StartupFailed(dark, strings, p.error, state)
                     StartupPhase.Ready -> AppProviders(state, layoutDirection) {
                         HostApp(state.platform(), NavRoutes.BACKUP, dark, returnFromBackup)
                     }
@@ -160,7 +180,7 @@ fun DesktopAppRoot(state: DesktopStartupState) {
                 val phase by state.phase.collectAsState()
                 when (val p = phase) {
                     StartupPhase.Starting -> StartupSplash(dark)
-                    is StartupPhase.Failed -> StartupFailed(dark, strings.errorOccurred, p.error)
+                    is StartupPhase.Failed -> StartupFailed(dark, strings, p.error, state)
                     StartupPhase.Ready -> AppProviders(state, layoutDirection) { HostApp(state.platform()) }
                 }
             }
@@ -185,16 +205,51 @@ private fun StartupSplash(dark: Boolean) {
     }
 }
 
-/** The failure screen: the generic error text and the failure's own message (which names the data directory). */
+/** Recovery remains usable without Koin or open databases, including after a failed recovery startup. */
 @Composable
-private fun StartupFailed(dark: Boolean, title: String, error: Throwable) {
+private fun StartupFailed(dark: Boolean, strings: Strings, error: Throwable, state: DesktopStartupState) {
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+    var actionError by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    fun runAction(action: suspend () -> Unit) {
+        if (busy) return
+        busy = true
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) { action() }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                actionError = e.message ?: e.toString()
+                Log.e("DesktopStartupFailed", "Recovery action failed", e)
+            } finally { busy = false }
+        }
+    }
     AbTheme(darkTheme = dark) {
         Box(
             Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(24.dp).testTag("desktop-startup-failed"),
             contentAlignment = Alignment.Center,
         ) {
-            val detail = error.message ?: error.toString()
-            Text("$title\n\n$detail", color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                val detail = error.message ?: error.toString()
+                Text("${strings.errorOccurred}\n\n$detail", color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
+                SelectionContainer {
+                    Text("${strings.startupLogFolder}\n${state.logDirectory}", textAlign = TextAlign.Center)
+                }
+                Button(
+                    onClick = { runAction(state.openLogFolder) }, enabled = !busy,
+                    modifier = Modifier.testTag("desktop-open-logs"),
+                ) { Text(strings.openLogFolder) }
+                Button(
+                    onClick = { runAction(state.reportBug) }, enabled = !busy,
+                    modifier = Modifier.testTag("desktop-report-bug"),
+                ) { Text(strings.startupReportBug) }
+                actionError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            }
         }
     }
 }

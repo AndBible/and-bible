@@ -44,6 +44,12 @@ The chosen scale and where it came from are written at start-up to the log as a 
 
 Eligible GitHub builds ask whether to check for updates. If you agree, AndBible contacts GitHub at most once a day. GitHub sees your IP address and the app version in the user agent. No cookies or device identifier are sent. You can change your choice using **Check for updates** in Settings. When a newer version is found, AndBible can open its release page; you install it yourself. Flatpak and MSIX use their distribution channels instead and do not offer this check.
 
+## If AndBible cannot start
+
+The startup error screen shows the error details and the log folder under your data directory. Choose **Open log folder** to inspect `andbible.log`, or **Report a bug** to prepare a diagnostic report and open your mail application. These actions work even when the app cannot finish starting. If your data directory is not writable, fix its permissions first so a report can be saved.
+
+A module that fails during discovery is logged and skipped so the remaining documents can load. Include `andbible.log` when reporting a document that disappeared after restarting. EPUB documents installed through document sync can be opened after a cold start, just like other installed documents.
+
 ## Where your data lives
 
 On Linux, AndBible stores data in `$XDG_DATA_HOME/andbible` (normally `~/.local/share/andbible`), configuration in `$XDG_CONFIG_HOME/andbible` (normally `~/.config/andbible`), and cache in `$XDG_CACHE_HOME/andbible` (normally `~/.cache/andbible`). Flatpak uses its own XDG directories under `~/.var/app/org.andbible.AndBible/`, with `andbible` appended under `data`, `config`, and `cache`.

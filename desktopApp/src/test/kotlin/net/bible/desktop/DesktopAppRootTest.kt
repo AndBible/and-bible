@@ -37,16 +37,28 @@ class DesktopAppRootTest {
     @Test
     fun failedPhaseShowsMessage() = runComposeUiTest {
         val dataDir = "/home/someone/.local/share/andbible"
+        val reports = AtomicInteger(0)
+        val opened = AtomicInteger(0)
         val state = DesktopStartupState(
             language = "en",
-            start = { StartupPhase.Failed(IllegalStateException("Data directory is not writable: $dataDir")) },
+            start = { StartupPhase.Failed(net.bible.sharedui.desktop.assembly.DesktopStartupException(java.nio.file.Path.of(dataDir), IllegalStateException("Not writable"))) },
             platform = noPlatform,
+            reportBug = { reports.incrementAndGet() },
+            logDirectory = java.nio.file.Path.of(dataDir, "logs"),
+            openLogFolder = { opened.incrementAndGet() },
         )
         setContent { DesktopAppRoot(state) }
         waitUntil(timeoutMillis = 10_000) { state.phase.value is StartupPhase.Failed }
         onNodeWithTag("desktop-startup-failed").assertExists()
-        onNodeWithText(dataDir, substring = true).assertExists()
+        onNodeWithText("data directory $dataDir", substring = true).assertExists()
         onNodeWithTag("desktop-splash").assertDoesNotExist()
+        onNodeWithText("$dataDir/logs", substring = true).assertExists()
+        onNodeWithTag("desktop-open-logs").performClick()
+        waitUntil(timeoutMillis = 10_000) { opened.get() == 1 }
+        waitForIdle()
+        onNodeWithText("Report a bug").assertExists()
+        onNodeWithTag("desktop-report-bug").performClick()
+        waitUntil(timeoutMillis = 10_000) { reports.get() == 1 && opened.get() == 1 }
     }
 
     @Test

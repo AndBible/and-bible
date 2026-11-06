@@ -81,15 +81,20 @@ fun desktopCrashGate(paths: DesktopPaths): DesktopCrashGate {
     }
     return DesktopCrashGate(
         recoveryRequired = tracker::shouldOfferRecovery,
-        reportBug = {
-            net.bible.sharedui.desktop.misc.recoveryBugReport(
-                paths.data, System.getProperty("andbible.version")?.takeIf { it.isNotBlank() } ?: "dev",
-                ::recentLogSnapshot, net.bible.sharedui.assembly.hostStringTable(DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))).text("report_bug_line_1"),
-            ).report(null)
-        },
+        reportBug = { desktopRecoveryBugReport(paths) },
         onStartupReady = tracker::continueStartup,
         onCleanExit = tracker::onCleanExit,
     )
+}
+
+/** A startup-failure report must not resolve anything through the possibly absent Koin graph. */
+suspend fun desktopRecoveryBugReport(paths: DesktopPaths) {
+    net.bible.sharedui.desktop.misc.recoveryBugReport(
+        paths.data, System.getProperty("andbible.version")?.takeIf { it.isNotBlank() } ?: "dev",
+        ::recentLogSnapshot, net.bible.sharedui.assembly.hostStringTable(
+            DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE))),
+        ).text("report_bug_line_1"),
+    ).report(null)
 }
 
 class DesktopNightModeAdapter(private val state: net.bible.sharedlogic.platform.desktop.misc.DesktopNightModeState) : DesktopNightModeSource {

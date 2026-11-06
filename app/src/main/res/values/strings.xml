@@ -807,6 +807,9 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
+    <string name="startup_log_folder">Log folder</string>
+    <string name="open_log_folder">Open log folder</string>
+    <string name="startup_report_bug">Report a bug</string>
     <string name="send_bug_report_title">Feedback / bug report</string>
     <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
 
