@@ -50,13 +50,13 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+/** How long [DesktopAppStartupTest] waits for an apply notification another thread may deliver; never reached when green. */
+private const val APPLY_WAIT_MS = 10_000L
+
 /**
  * The real desktop startup (Koin, databases, Sword) against temporary XDG directories. Every test resets the startup in
  * [after]; the database host is global, so the one installed before the class is put back.
  */
-/** How long [DesktopAppStartupTest] waits for an apply notification another thread may deliver; never reached when green. */
-private const val APPLY_WAIT_MS = 10_000L
-
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DesktopAppStartupTest {
     private class FakeWindow : DesktopWindowHandle {
