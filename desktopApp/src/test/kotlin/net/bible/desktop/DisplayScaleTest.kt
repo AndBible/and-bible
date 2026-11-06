@@ -195,6 +195,64 @@ class DisplayScaleTest {
         assertEquals(emptyList(), windowedScaleArgs(windowed = true, scale = 1.0))
     }
 
+    /**
+     * Xft/DPI used to beat Gdk/WindowScalingFactor unconditionally: an xsettingsd with a scaling factor 2 and the
+     * default Xft/DPI 96 gave 1. The XSETTINGS scale is now the larger of Xft/DPI / 96 and the factor times
+     * Gdk/UnscaledDPI / 96 (GNOME publishes both consistently: 2 x 96 = 192).
+     */
+    @Test fun windowScalingFactorIsNotLostToAnUnscaledXftDpi() {
+        val s = detect(xsettings = XSettingsValues(windowScalingFactor = 2, xftDpi = 96.0))!!
+        assertEquals(2.0, s.scale)
+        assertEquals("XSETTINGS Gdk/WindowScalingFactor 2", s.source)
+        // GNOME X11 200 % with Large Text (1.25): factor 2, unscaled 120, Xft/DPI 240.
+        assertEquals(2.5, detect(xsettings = XSettingsValues(2, 240.0, unscaledDpi = 120.0))!!.scale)
+        assertEquals(2.5, detect(xsettings = XSettingsValues(2, 96.0, unscaledDpi = 120.0))!!.scale)
+        assertEquals(2.0, detect(xsettings = XSettingsValues(2, 192.0, unscaledDpi = 96.0))!!.scale)
+    }
+
+    @Test fun unscaledDpiIsParsed() {
+        val blob = xsettingsBlob(ByteOrder.LITTLE_ENDIAN) { int("Gdk/WindowScalingFactor", 2); int("Gdk/UnscaledDPI", 122880); int("Xft/DPI", 245760) }
+        assertEquals(XSettingsValues(2, 240.0, unscaledDpi = 120.0), DisplayScaleDetector.parseXSettings(blob))
+    }
+
+    /** The JDK accepts sun.java2d.uiScale as 2, 2x, 200% and 192dpi; so does the app now. */
+    @Test fun jdkUiScaleForms() {
+        assertEquals(2.0, detect(props = mapOf("sun.java2d.uiScale" to "2x"))!!.scale)
+        assertEquals(1.5, detect(props = mapOf("sun.java2d.uiScale" to "150%"))!!.scale)
+        assertEquals(2.0, detect(props = mapOf("sun.java2d.uiScale" to "192dpi"))!!.scale)
+        assertEquals(1.25, detect(env = mapOf("J2D_UISCALE" to "1.25x"))!!.scale)
+        assertEquals(2.0, detect(env = mapOf("ANDBIBLE_UI_SCALE" to "200%"))!!.scale)
+    }
+
+    /** An explicit -Dsun.java2d.uiScale.enabled=false switches JDK scaling off; the app no longer turns it back on. */
+    @Test fun explicitlyDisabledJdkScalingIsRespected() {
+        val s = detect(props = mapOf("sun.java2d.uiScale.enabled" to "false"), resources = "Xft.dpi: 192")!!
+        assertEquals(1.0, s.scale)
+        assertEquals("-Dsun.java2d.uiScale.enabled=false", s.source)
+        val set = mutableMapOf<String, String>()
+        s.applyToJdk { k, v -> set[k] = v }
+        assertEquals(mapOf("skiko.linux.autodpi" to "false"), set)
+        // The app's own override still works, entirely through the Compose density.
+        val o = detect(props = mapOf("sun.java2d.uiScale.enabled" to "false", "andbible.uiScale" to "2"))!!
+        assertEquals(1, o.awtScale)
+        assertEquals(2.0, o.composeFactor)
+        // A host that cannot take a Compose factor (popups as own windows) stays at 1, the rest goes to the text.
+        assertEquals(1.0, o.integerOnly().composeFactor)
+        assertEquals(1, o.integerOnly().awtScale)
+        assertEquals(2.0, o.integerOnly().textFactor)
+    }
+
+    /**
+     * WebKitGTK rounds the scale (Compose popups are own windows) and sets GTK's font DPI to 96: a 125 % desktop lost
+     * its text scaling entirely. The rounding's leftover goes to the font DPI instead.
+     */
+    @Test fun integerOnlyKeepsTheLeftoverAsTextFactor() {
+        assertEquals(1.25, detect(resources = "Xft.dpi: 120")!!.integerOnly().textFactor)
+        assertEquals(0.75, detect(resources = "Xft.dpi: 144")!!.integerOnly().textFactor)
+        assertEquals(1.0, detect(resources = "Xft.dpi: 192")!!.integerOnly().textFactor)
+        assertEquals(1.0, detect(resources = "Xft.dpi: 120")!!.textFactor)
+    }
+
     private class Blob(val order: ByteOrder) {
         val parts = mutableListOf<ByteArray>()
         var count = 0

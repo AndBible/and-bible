@@ -12,6 +12,8 @@ import com.sun.jna.ptr.LongByReference
 import com.sun.jna.ptr.PointerByReference
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.roundToInt
+import net.bible.desktop.DesktopDisplayScale
 
 /*
  * Thin JNA bindings for GTK 4 + WebKitGTK 6.0 (D5 experiment). DRAFT written without the libraries installed:
@@ -291,6 +293,23 @@ internal object Gtk {
 }
 
 /**
+ * #4006: the app gives GTK its scale through `GDK_SCALE` (see `applyGdkScale`). With a fixed `GDK_SCALE`, GTK takes
+ * `gtk-xft-dpi` from the already scaled XSETTINGS `Xft/DPI` (192 at 200 %), and WebKit multiplies its text by
+ * `gtk-xft-dpi` / 96: the Bible text would be scaled twice. The app's scale already includes the desktop's DPI (and text
+ * scaling), so GTK's font DPI is set to 96 times [textFactor] (in 1/1024 units), at application priority over XSETTINGS.
+ * [textFactor] is what the whole-number `GDK_SCALE` left over (125 % gives scale 1 and text 1.25; 150 %, scale 2 and
+ * text 0.75), so the Bible text keeps the desktop's size.
+ */
+internal fun applyFontDpi(textFactor: Double) {
+    Gtk.gtk.gtk_settings_get_default()?.let { Gtk.gobject.g_object_set(it, "gtk-xft-dpi", gtkXftDpiFor(textFactor), null) }
+}
+
+internal const val NEUTRAL_XFT_DPI = 96 * 1024
+
+/** GTK's `gtk-xft-dpi` (DPI x 1024) for [textFactor]. */
+internal fun gtkXftDpiFor(textFactor: Double): Int = (NEUTRAL_XFT_DPI * textFactor).roundToInt()
+
+/**
  * The real [MainLoopDriver]: a `GMainLoop` on the default context, run on the calling (GTK) thread.
  *
  * - Backend: GDK is restricted to X11 (`gdk_set_allowed_backends("x11")`, before `gtk_init_check`), because the web view
@@ -298,18 +317,6 @@ internal object Gtk {
  * - [invoke] queues the task and, if no drain is scheduled, `g_idle_add_full`s [drain] (one persistent JNA callback,
  *   referenced here for the driver's lifetime). `g_idle_add_full` is thread-safe.
  */
-/**
- * #4006: the app gives GTK its scale through `GDK_SCALE` (see `applyGdkScale`). With a fixed `GDK_SCALE`, GTK takes
- * `gtk-xft-dpi` from the already scaled XSETTINGS `Xft/DPI` (192 at 200 %), and WebKit multiplies its text by
- * `gtk-xft-dpi` / 96: the Bible text would be scaled twice. The app's scale already includes the desktop's DPI (and text
- * scaling), so GTK's font DPI is set to the neutral 96 (in 1/1024 units), at application priority over XSETTINGS.
- */
-internal fun neutralFontDpi() {
-    Gtk.gtk.gtk_settings_get_default()?.let { Gtk.gobject.g_object_set(it, "gtk-xft-dpi", NEUTRAL_XFT_DPI, null) }
-}
-
-internal const val NEUTRAL_XFT_DPI = 96 * 1024
-
 class GtkMainLoopDriver : MainLoopDriver {
     private val queue = ConcurrentLinkedQueue<Runnable>()
     private val scheduled = AtomicBoolean(false)
@@ -335,7 +342,7 @@ class GtkMainLoopDriver : MainLoopDriver {
     override fun run(onStarted: () -> Unit) {
         Gtk.gtk.gdk_set_allowed_backends("x11")
         if (Gtk.gtk.gtk_init_check() == 0) error("gtk_init_check failed: no usable X11 display (is DISPLAY set?)")
-        neutralFontDpi()
+        applyFontDpi(DesktopDisplayScale.textFactor)
         val l = Gtk.glib.g_main_loop_new(null, 0)
         loop = l
         onStarted()
