@@ -29,6 +29,7 @@ import net.bible.android.control.activity.ActivityKind
 import net.bible.android.control.activity.ActivityState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedui.reading.ReadingToolbar
+import net.bible.sharedui.reading.activity.ActivityListContent
 import net.bible.sharedui.reading.activity.ActivityMenuSection
 import net.bible.sharedui.reading.activity.ActivityMenuState
 import org.junit.Test
@@ -58,7 +59,7 @@ class ActivityCenterGoldenTest {
     private fun item(
         id: String, state: ActivityState = ActivityState.RUNNING, progress: Int? = null, message: String? = null,
     ) = ActivityItem(
-        id = id, kind = ActivityKind.DOWNLOAD, title = "Item $id", state = state, progress = progress, message = message,
+        id = id, kind = ActivityKind.DOWNLOAD, title = id, state = state, progress = progress, message = message,
         cancel = null, startedAt = 1_000L, finishedAt = if (state == ActivityState.RUNNING) null else 2_000L,
         read = state != ActivityState.FAILED,
     )
@@ -112,4 +113,24 @@ class ActivityCenterGoldenTest {
     fun menu_section_single_running() = capture("menu_section_single_running") {
         Column(Modifier.width(280.dp)) { ActivityMenuSection(activity(listOf(item("Download KJV", progress = 70)))) }
     }
+
+    private fun list(items: List<ActivityItem>): @Composable () -> Unit = {
+        Column(Modifier.width(360.dp)) {
+            ActivityListContent(items, onDismissItem = {}, onClearFinished = {}, onOpenItem = {}, onClose = {})
+        }
+    }
+
+    @Test
+    fun list_running_and_recent() = capture(
+        "list_running_and_recent",
+        list(listOf(
+            item("Download KJV", progress = 35),
+            item("Index ESV"),
+            item("Sync", ActivityState.FAILED, message = "Could not reach the server, check your connection and try again"),
+            item("Download NASB", ActivityState.SUCCEEDED),
+        ).map { if (it.id == "Download KJV") it.copy(cancel = {}) else it }),
+    )
+
+    @Test
+    fun list_empty() = capture("list_empty", list(emptyList()))
 }
