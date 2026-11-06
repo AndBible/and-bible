@@ -150,6 +150,42 @@ class OptionsMenuStateBuilderTest {
         assertTrue(syncItems().any { it.id == "syncNow" })
     }
 
+    @Test fun networkCallbackUpdatesSharedManualSyncStateAcrossHosts() {
+        val state = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        val other = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        val network = org.mockito.Mockito.mock(android.net.Network::class.java)
+        state.available = false
+        activity.readingAppBootstrap.hostPaused = true
+        try {
+            activity.readingAppBootstrap.networkCallback.onAvailable(network)
+            assertTrue(other.readingAppBootstrap.networkAvailable)
+            other.readingAppBootstrap.networkCallback.onLost(network)
+            assertFalse(state.available)
+            assertFalse(activity.readingAppBootstrap.networkAvailable)
+        } finally { state.available = false }
+    }
+
+    @Test fun realSyncNowDispatchReportsOfflineWithoutStarting() {
+        val network = org.koin.mp.KoinPlatform.getKoin().get<SyncNetworkState>()
+        network.available = false
+        val sync = org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.cloudsync.SyncNow>()
+        val messages = mutableListOf<net.bible.android.control.event.UserMessage>()
+        val subscription = net.bible.android.control.event.UserMessages.messages.subscribe { messages.add(it) }
+        try {
+            val stayOpen = OptionsMenuStateBuilder.dispatch(
+                activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",
+            )
+            assertFalse(stayOpen)
+            assertFalse(sync.running.value)
+            assertEquals(net.bible.android.control.event.UserMessage.Toast("No network connection", null, false), messages.last())
+        } finally {
+            subscription.cancel()
+        }
+    }
+
     @Test fun syncNowClickStartsAndClosesMenu() {
         val stayOpen = OptionsMenuStateBuilder.dispatch(
             activity, { windowRepository }, { null }, { _, _ -> SubMenuPreference() }, "syncNow",

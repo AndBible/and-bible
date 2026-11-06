@@ -161,10 +161,10 @@ object ReadingAppInit {
         DatabaseContainer.ready = true
         loadStores()
         MyDocumentBookManager.launcher.join("mydocument-sync")
+        loadDocumentSyncSettings()
         if (!initialized) {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            loadDocumentSyncSettings()
             platform.platformStart()
             withContext(platform.ioDispatcher) { installManualBooks() }
             MyDocumentBookManager.registerAllDocuments()

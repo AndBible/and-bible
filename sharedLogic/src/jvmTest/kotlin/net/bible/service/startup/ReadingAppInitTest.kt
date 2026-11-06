@@ -218,6 +218,37 @@ class ReadingAppInitTest {
     }
 
     @Test
+    fun alreadyInitializedStartupStillLoadsDocumentSyncSettings() = runTest(timeout = 10.minutes) {
+        stubSettingsAndBooks()
+        val db = DatabaseContainer.instance.documentSyncDb
+        db.documentSyncPreferencesDao().set(net.bible.android.database.DocumentSyncPreferences(enabled = true))
+        val environment = Proxy.newProxyInstance(AppEnvironment::class.java.classLoader, arrayOf(AppEnvironment::class.java)) { _, m, _ ->
+            when (m.returnType) { java.lang.Boolean.TYPE -> true; java.lang.Long.TYPE -> 0L; else -> null }
+        } as AppEnvironment
+        val documents = DocumentSyncSettings(
+            { db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, OrderedLauncher(scope), environment,
+        )
+        ReadingAppInit.loadDocumentSyncSettings = { documents.ensureLoaded() }
+        val sync = net.bible.service.cloudsync.SyncNow(
+            object : net.bible.service.cloudsync.CloudSyncPort {
+                override val signedIn = false
+                override suspend fun signIn(): Boolean? = false
+                override fun start(): Deferred<Boolean> = error("not started")
+                override suspend fun waitUntilFinished() = Unit
+                override val runningChanged = net.bible.sharedcore.event.EventSource<Boolean>()
+            }, net.bible.sharedcore.event.EventSource(),
+            { net.bible.service.cloudsync.SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(settings) } || documents.enabled },
+            {}, { true }, { false }, {}, scope,
+        )
+        try {
+            ReadingAppInit.markInitialized()
+            ReadingAppInit.initialise(platform)
+            assertTrue(sync.available(), "document-only sync must be available after alternate startup")
+        } finally { sync.close() }
+    }
+
+    @Test
     fun initialiseIsIdempotent() = runTest(timeout = 10.minutes) {
         val installs = IntArray(2)
         stubSettingsAndBooks(installs)

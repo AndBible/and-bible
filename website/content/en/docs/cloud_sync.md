@@ -6,6 +6,11 @@ across multiple devices using Google Drive, Nextcloud or your own WebDAV server.
 Sync is automatic — once set up, changes are synchronized in the background
 while the app is open, as well as when opening or exiting the app.
 
+To start a sync yourself, open the top-right three-dot menu and choose **Sync now**.
+The command is available once at least one data category or document sync is enabled,
+and is disabled while a sync is running. Document transfers still follow your automatic
+transfer settings. On Android, an unavailable network shows a short message instead.
+
 On iOS, sync errors and recovery notices appear as in-app messages. If a message
 asks you to update AndBible to keep syncing, update the app before trying again.
 Errors raised during startup remain queued until the app can display them.

@@ -92,6 +92,10 @@ fun buildIosSyncBindings(strings: HostSyncStrings, backgroundRefresh: Background
             sync = { runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>()) },
         )
     }
+    single {
+        val saver = get<net.bible.service.cloudsync.SyncNowWorkspaceSaver>()
+        net.bible.service.cloudsync.SyncNowPorts({ saver.save() }, { true }, {})
+    }
     single<BackupHost> {
         HostBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
             { get<net.bible.sharedcore.platform.CoreStrings>().errorReport },

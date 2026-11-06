@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.service.cloudsync.SyncNow
-import net.bible.service.cloudsync.SyncNowPorts
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedui.reading.toolbar.SYNC_NOW_MENU_ID
 import org.koin.mp.KoinPlatform
@@ -80,8 +79,7 @@ fun ReadingOverflowMenu(
         ) {
             header?.invoke()
             val syncRunning = if (expanded && items.any { it.id == SYNC_NOW_MENU_ID }) {
-                val koin = KoinPlatform.getKoinOrNull()
-                if (koin?.getOrNull<SyncNowPorts>() != null) koin.get<SyncNow>().running else null
+                KoinPlatform.getKoin().get<SyncNow>().running
             } else null
             ReadingOverflowMenuRows(items, onItemClick, icon, syncRunning)
         }

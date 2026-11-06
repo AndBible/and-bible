@@ -128,6 +128,8 @@ For more information about managing workspaces, see [Workspaces](workspaces.md).
 
 ## Background activity
 
+When sync is configured, **Sync now** is the first row of this section.
+
 On desktop and iOS (including iOS on a Mac) the top right three-dot menu (⋮)
 can show what the app is doing in the background, such as downloads, search
 indexing and sync. On Android the same information is shown as system

@@ -97,6 +97,7 @@ class DesktopSyncBindingsContractTest {
                     single<FileDelivery> { inert() }
                     single { AppDialogController() }
                     single { scope }
+                    single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> { net.bible.service.cloudsync.SyncNowWorkspaceSaver {} }
                     single { DesktopExitTasks() }
                     single { DesktopLifecycleEvents() }
                 },
@@ -110,6 +111,64 @@ class DesktopSyncBindingsContractTest {
             scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
             app.close()
         }
+    }
+
+    @Test fun manualSyncSavesBeforeSchedulingThroughProductionGraph() {
+        val calls = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val scheduled = java.util.concurrent.CountDownLatch(1)
+        val scope = AppCoroutineScope()
+        val settings = Proxy.newProxyInstance(AppSettings::class.java.classLoader, arrayOf(AppSettings::class.java)) { _, method, _ ->
+            when (method.returnType) {
+                java.lang.Boolean.TYPE -> true
+                java.lang.Long.TYPE -> 0L
+                java.lang.Integer.TYPE -> 0
+                String::class.java -> "test"
+                else -> null
+            }
+        } as AppSettings
+        val adapter = Proxy.newProxyInstance(net.bible.service.cloudsync.CloudAdapter::class.java.classLoader,
+            arrayOf(net.bible.service.cloudsync.CloudAdapter::class.java)) { _, method, _ ->
+            when (method.name) { "getSignedIn", "signIn" -> true; else -> null }
+        } as net.bible.service.cloudsync.CloudAdapter
+        val app = koinApplication {
+            modules(net.bible.android.control.buildSharedBindings(),
+                desktopSyncModule({ net.bible.sharedcore.platform.desktop.secrets.SessionMemoryBackend() }),
+                module {
+                    single<AppSettings> { settings }
+                    single<AppEnvironment> { inert() }
+                    single<CoreStrings> { inert() }
+                    single { AppDialogController() }
+                    single { scope }
+                    single { net.bible.sharedcore.platform.OrderedLauncher(scope) }
+                    single<net.bible.sharedlogic.platform.AddonCatalog> { inert() }
+                    single<DocumentSyncStarter> { inert() }
+                    single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> {
+                        net.bible.service.cloudsync.SyncNowWorkspaceSaver { calls.add("save") }
+                    }
+                    single<SyncScheduler> { DesktopSyncScheduler(scope) { calls.add("schedule"); scheduled.countDown(); true } }
+                    single<DeviceLocalPrefs> { MapPrefs() }
+                    single { DesktopExitTasks() }
+                    single { DesktopLifecycleEvents() }
+                    single<UserNotifier> { inert() }
+                    single<CloudAdapterFactory> { object : CloudAdapterFactory {
+                        override val available = listOf("test")
+                        override fun displayName(id: String) = id
+                        override fun create(id: String) = adapter
+                    } }
+                })
+        }
+        try {
+            app.koin.get<net.bible.service.cloudsync.SyncNow>().start()
+            assertTrue(scheduled.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertEquals(listOf("save", "schedule"), calls)
+        } finally {
+            scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+            app.close()
+        }
+    }
+
+    @Test fun desktopGraphProvidesManualSyncPorts() = withGraph { koin ->
+        assertTrue(koin.get<net.bible.service.cloudsync.SyncNowPorts>().networkAvailable())
     }
 
     @Test fun syncTypesResolveToTheRealDesktopClasses() = withGraph { koin ->

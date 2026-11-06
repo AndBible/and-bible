@@ -33,6 +33,10 @@ interface CloudSyncPort {
     }
 }
 
+fun interface SyncNowWorkspaceSaver {
+    suspend fun save()
+}
+
 class SyncNowPorts(
     val saveWorkspace: suspend () -> Unit,
     val networkAvailable: () -> Boolean,

@@ -47,6 +47,10 @@ import org.koin.dsl.module
 /** Host ports bound in Koin, including the iOS-only discrete permission policy; see [IOS_HOST_BINDING_TYPES]. */
 @kotlin.native.HiddenFromObjC
 fun buildIosHostBindings(): Module = module {
+    single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> {
+        val koin = getKoin()
+        net.bible.service.cloudsync.SyncNowWorkspaceSaver { net.bible.sharedui.host.app.HostWorkspaceSaver.saveNow(koin) }
+    }
     single<NotificationPermission> {
         IosDiscreteNotificationPermission(
             IosNotificationPermission(),

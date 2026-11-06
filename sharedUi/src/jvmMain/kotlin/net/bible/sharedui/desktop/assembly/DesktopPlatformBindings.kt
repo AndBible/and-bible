@@ -190,6 +190,10 @@ fun desktopPlatformModule(
     val promptPacks = SharedPromptPackSource(scanner)
 
     val platform = module {
+        single<net.bible.service.cloudsync.SyncNowWorkspaceSaver> {
+            val koin = getKoin()
+            net.bible.service.cloudsync.SyncNowWorkspaceSaver { net.bible.sharedui.host.app.HostWorkspaceSaver.saveNow(koin) }
+        }
         // --- launch, lifecycle and exit (wave-3 seams: D3b reads the arguments, D3c observes and registers)
         single { scanner }
         single { DesktopLaunchArgs(launchArgs) }
