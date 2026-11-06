@@ -66,6 +66,7 @@ object HostSwordEnvironment {
             loaded = true
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising JSword folders", e)
+            throw e
         }
     }
 

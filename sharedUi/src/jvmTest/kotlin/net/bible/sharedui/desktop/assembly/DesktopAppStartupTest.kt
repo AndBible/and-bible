@@ -110,6 +110,46 @@ class DesktopAppStartupTest {
         }
     }
 
+    @Test fun swordEpubIsDiscoveredBeforeKoinAndReadableAfterStartup() {
+        val paths = paths()
+        val epub = paths.sword.resolve("modules/epub/startup")
+        Files.createDirectories(epub.resolve("META-INF"))
+        Files.createDirectories(paths.sword.resolve("mods.d"))
+        Files.writeString(epub.resolve("META-INF/container.xml"), """
+            <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles>
+              <rootfile full-path="content.opf"/></rootfiles></container>
+        """.trimIndent())
+        Files.writeString(epub.resolve("content.opf"), """
+            <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Startup EPUB</dc:title><dc:language>en</dc:language></metadata>
+              <manifest><item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/></manifest>
+              <spine><itemref idref="chapter"/></spine>
+            </package>
+        """.trimIndent())
+        Files.writeString(epub.resolve("chapter.xhtml"), """
+            <html xmlns="http://www.w3.org/1999/xhtml"><head><title>Startup</title></head>
+              <body><p>EPUB cold startup works.</p></body></html>
+        """.trimIndent())
+        Files.writeString(paths.sword.resolve("mods.d/startup-epub.conf"), """
+            [StartupEpub]
+            Description=Startup EPUB
+            ModDrv=EpubBook
+            DataPath=./modules/epub/startup/
+            Encoding=UTF-8
+            Lang=en
+        """.trimIndent())
+        assertNull(KoinPlatform.getKoinOrNull())
+        assertEquals(StartupPhase.Ready, start(paths))
+        val book = assertNotNull(Books.installed().getBook("StartupEpub"), "the scan must not skip the EPUB")
+        val backend = assertNotNull(book.epubBackend)
+        try {
+            val key = backend.state.keys.first()
+            assertTrue(backend.state.read(key).contains("EPUB cold startup works."))
+        } finally {
+            backend.state.close()
+        }
+    }
+
     @Test fun startsWithEmptyDataDir() {
         val paths = paths()
         assertEquals(StartupPhase.Ready, start(paths))
@@ -625,6 +665,12 @@ class DesktopAppStartupTest {
             .getOrElse { CWProject.Companion::class.java.getDeclaredMethod("reset") }
         method.isAccessible = true
         method.invoke(if (java.lang.reflect.Modifier.isStatic(method.modifiers)) null else CWProject.Companion)
+    }
+
+    @Test fun startupFailureMessageIncludesTheRootCause() {
+        val failure = DesktopStartupException(paths().data,
+            IllegalStateException("JSword setup failed", IllegalArgumentException("Unreadable module folder")))
+        assertTrue(failure.message!!.contains("Unreadable module folder"), failure.message)
     }
 
     @Test fun unwritableDataDirFails() {
