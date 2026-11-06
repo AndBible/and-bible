@@ -86,6 +86,19 @@ class StaThread(name: String, private val pump: MessagePump) {
         closed = true
     }
 
+    /** Stops after queued cleanup and waits at most [timeoutMs]; never joins the owner from itself. */
+    fun closeAndJoin(timeoutMs: Long) {
+        require(timeoutMs > 0)
+        close()
+        if (!isCurrent) {
+            try {
+                thread.join(timeoutMs)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
+    }
+
     private fun drain() {
         while (true) {
             val task = queue.poll() ?: return

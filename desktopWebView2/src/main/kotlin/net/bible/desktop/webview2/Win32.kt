@@ -178,13 +178,22 @@ class Win32MessagePump : MessagePump {
 
     override fun run(drain: () -> Unit) {
         Win32.coInitializeSta()
-        val (h, p) = Win32.createPumpWindow(drain)
-        proc = p
-        hwnd = h
-        drain()
-        if (wakeRequested) Win32.post(h, Win32.WM_APP)
-        Win32.pumpMessages()
-        Win32.destroyWindow(h)
+        try {
+            val (h, p) = Win32.createPumpWindow(drain)
+            proc = p
+            hwnd = h
+            try {
+                drain()
+                if (wakeRequested) Win32.post(h, Win32.WM_APP)
+                Win32.pumpMessages()
+            } finally {
+                hwnd = null
+                Win32.destroyWindow(h)
+                proc = null
+            }
+        } finally {
+            Ole32.INSTANCE.CoUninitialize()
+        }
     }
 
     override fun wake() {
