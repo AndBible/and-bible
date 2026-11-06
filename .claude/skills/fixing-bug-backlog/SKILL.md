@@ -13,6 +13,13 @@ one issue. Children do the debugging and TDD; the orchestrator owns review, merg
 inbox, done, import, destroy); jailbee-issue-management for staging issue actions (`jailbee issue ...`);
 issue-management for tracker rules. This skill only adds the AndBible-specific choices.
 
+## 0. Keep the orchestrator's context for coordination
+
+Larger reading and writing tasks go to a fork (Agent `subagent_type: "fork"`, inherits the conversation)
+or a fresh subagent: code surveys, spec drafts, implementation plans, long status write-ups, reviews.
+The orchestrator keeps live conversation with the user, decisions, merges and short lookups
+(memory `orchestrator-delegate-reading-and-writing`).
+
 ## 1. Pick candidates
 
 1. Open bugs with board fields: `docs/superpowers/triage/snapshot/index.tsv` + `board.json`
