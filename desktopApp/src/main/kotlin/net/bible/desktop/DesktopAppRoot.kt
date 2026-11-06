@@ -238,7 +238,7 @@ private fun StartupFailed(dark: Boolean, strings: Strings, error: Throwable, sta
                 val detail = error.message ?: error.toString()
                 Text("${strings.errorOccurred}\n\n$detail", color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
                 SelectionContainer {
-                    Text("${strings.startupLogFolder}\n${state.logDirectory}", textAlign = TextAlign.Center)
+                    Text("${strings.startupLogFolder}\n${state.logDirectory}", color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
                 }
                 Button(
                     onClick = { runAction(state.openLogFolder) }, enabled = !busy,
