@@ -190,18 +190,33 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
         val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
         dao.styleSheets(frag.originalId)
             .map { file.parent!!.child(it.styleSheetFile).normalized() }
-            .filter { file ->
-                try {
-                    val root = FileSystem.SYSTEM.canonicalize(rootFolder)
-                    val real = FileSystem.SYSTEM.canonicalize(file)
-                    FileSystem.SYSTEM.metadata(real).isRegularFile && real.root == root.root &&
-                        real.segments.size > root.segments.size &&
-                        real.segments.take(root.segments.size) == root.segments
-                } catch (_: Exception) {
-                    false
-                }
-            }
+            .mapNotNull { canonicalInsideBook(it) }
             .joinToString("\n") { KFiles.readUtf8(it) }
+    }
+
+    /**
+     * The canonical path of [file] when it is a regular file inside the whole extracted EPUB directory (not only the
+     * OPF folder: a stylesheet at `/css/x.css` beside `OEBPS/content.opf` is legitimate), else null. Symlinks leaving
+     * the EPUB directory are refused. Callers must read the returned path, not [file], so there is no check-then-reopen race.
+     */
+    private fun canonicalInsideBook(file: Path): Path? = try {
+        val root = FileSystem.SYSTEM.canonicalize(epubDir)
+        val real = FileSystem.SYSTEM.canonicalize(file)
+        real.takeIf {
+            FileSystem.SYSTEM.metadataOrNull(it)?.isRegularFile == true && it.root == root.root &&
+                it.segments.size > root.segments.size && it.segments.take(root.segments.size) == root.segments
+        }
+    } catch (_: Exception) {
+        null
+    }
+
+    /**
+     * The verified canonical file of a resource, for engines that serve it by path (no stream lease is held), or null
+     * when it is missing, escapes the EPUB directory, or this state is retired.
+     */
+    fun resourceFile(resourcePath: String): Path? {
+        try { acquireUse() } catch (_: IllegalStateException) { return null }
+        try { return canonicalInsideBook(rootFolder.child(resourcePath)) } finally { releaseUse() }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -407,8 +422,8 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     fun openResource(resourcePath: String): Source? {
         try { acquireUse() } catch (_: IllegalStateException) { return null }
         try {
-            val file = rootFolder.child(resourcePath)
-            if (!KFiles.exists(file)) {
+            val file = canonicalInsideBook(rootFolder.child(resourcePath))
+            if (file == null) {
                 releaseUse()
                 return null
             }

@@ -38,6 +38,7 @@ import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -230,6 +231,30 @@ class EpubBackendStateTest {
     }
 
     /** Issue #3591 (original trace): a stylesheet linked by a chapter but missing on disk must be skipped. */
+    /** M2 (#3998): the boundary is the whole EPUB directory, not the OPF folder; M1: openResource shares it. */
+    @Test
+    fun resourcesOutsideTheOpfFolderButInsideTheEpubAreServedAndSymlinksOutOfItAreRefused() = runTest {
+        val dir = buildEpub("opf-subfolder-boundary")
+        File(dir, "css").mkdirs()
+        File(dir, "css/x.css").writeText("p { margin: 2px; }")
+        File(dir, "img").mkdirs()
+        File(dir, "img/pic.png").writeText("png")
+        File(dir, "OEBPS/ch1.xhtml").writeText(
+            chapterXhtml("Chapter One", "Styled.").replace("</head>",
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"../css/x.css\"/>" +
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"leak.css\"/></head>"))
+        val outside = File(epubRoot, "outside-secret.css").apply { writeText("p { color: secret; }") }
+        java.nio.file.Files.createSymbolicLink(File(dir, "OEBPS/leak.css").toPath(), outside.toPath())
+        java.nio.file.Files.createSymbolicLink(File(dir, "OEBPS/leak.png").toPath(), outside.toPath())
+        val state = newState(dir)
+        val css = state.styleSheetContent(state.keys.first())
+        assertTrue(css, css.contains("margin: 2px"))
+        assertFalse(css, css.contains("secret"))
+        assertEquals("png", state.openResource("../img/pic.png")!!.buffer().use { it.readUtf8() })
+        assertNull("a symlink leaving the EPUB is refused", state.openResource("leak.png"))
+        assertNull(state.openResource("missing.png"))
+    }
+
     @Test
     fun missingStyleSheetIsSkippedWhenReadingStyles() = runTest {
         val dir = buildEpub("issue-3591-missing-css")
