@@ -32,7 +32,7 @@ class PortalNotifier(
     private fun proxy(connection: DBusConnection) =
         connection.getRemoteObject(SERVICE, PATH, PortalNotificationInterface::class.java)
 
-    override fun show(n: NativeNotification) = submit { connection ->
+    override fun show(n: NativeNotification) = submit(n.id) { connection ->
         proxy(connection).AddNotification(
             n.id,
             mapOf(
@@ -44,7 +44,7 @@ class PortalNotifier(
         )
     }
 
-    override fun remove(id: String) = submit { connection -> proxy(connection).RemoveNotification(id) }
+    override fun remove(id: String) = submit(id) { connection -> proxy(connection).RemoveNotification(id) }
 
     private companion object {
         const val SERVICE = "org.freedesktop.portal.Desktop"

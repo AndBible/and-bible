@@ -1,11 +1,14 @@
 package net.bible.sharedcore.platform.desktop.dbus
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import net.bible.sharedcore.platform.NativeNotification
 import org.freedesktop.dbus.annotations.DBusInterfaceName
 import org.freedesktop.dbus.connections.impl.DBusConnection
+import org.freedesktop.dbus.interfaces.DBus
 import org.freedesktop.dbus.interfaces.DBusInterface
+import org.freedesktop.dbus.messages.DBusSignal
 import org.freedesktop.dbus.types.UInt32
 import org.freedesktop.dbus.types.Variant
 
@@ -24,9 +27,14 @@ interface FreedesktopNotificationsInterface : DBusInterface {
 /**
  * Notifications through the freedesktop `org.freedesktop.Notifications` service (outside Flatpak, #4012).
  *
- * Our notification ids are mapped to the server's ids so a later [show] replaces in place. [supportsProgress] becomes
- * true when `GetCapabilities` answers; that probe runs on the IO dispatcher right after construction (which also opens
- * the connection), so it is normally known before the first running item could be shown. Until then it is false.
+ * Our notification ids are mapped to the server's ids so a later [show] replaces in place. [supportsProgress] is true
+ * from the moment `GetCapabilities` has answered; that probe runs on the IO dispatcher right after construction (which
+ * also opens the connection). It is false before the first answer, and goes false again while the notification service
+ * has no owner (it left the bus) until the probe answers anew after it returns.
+ *
+ * The service's owner is tracked through `NameOwnerChanged`: on any owner change the server-side ids are forgotten (a
+ * restarted daemon knows none of them), capabilities are probed again, and signals from any other sender than the
+ * current owner are ignored.
  */
 class FreedesktopNotifier(
     dbus: DesktopDbus,
@@ -35,32 +43,63 @@ class FreedesktopNotifier(
     retryAfterFailureMs: Long = DEFAULT_RETRY_AFTER_FAILURE_MS,
 ) : DbusNotifierBase(dbus, scope, "FreedesktopNotifier", retryAfterFailureMs) {
     private val serverIds = ConcurrentHashMap<String, UInt32>()
+    private val notifyInFlight: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val ownerChangeCount = AtomicInteger()
 
+    @Volatile private var owner: String? = null
     @Volatile private var capabilitiesAnswered = false
 
     override val supportsProgress: Boolean get() = capabilitiesAnswered
 
+    /** Test hook: number of `NameOwnerChanged` events for the service handled so far. */
+    internal val ownerChanges: Int get() = ownerChangeCount.get()
+
+    /** Test hook: whether a server id is currently mapped for [id]. */
+    internal fun hasServerId(id: String): Boolean = serverIds.containsKey(id)
+
     init { submit { } }
 
+    private fun fromOwner(signal: DBusSignal): Boolean = owner.let { it == null || it == signal.source }
+
     override fun onConnected(connection: DBusConnection) {
+        owner = runCatching {
+            connection.getRemoteObject("org.freedesktop.DBus", "/org/freedesktop/DBus", DBus::class.java).GetNameOwner(SERVICE)
+        }.getOrNull()
+        listenTo(connection, "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus") { signal ->
+            if (signal.parameters[0] == SERVICE) {
+                val newOwner = (signal.parameters[2] as String).ifEmpty { null }
+                owner = newOwner
+                serverIds.clear()
+                capabilitiesAnswered = false
+                if (newOwner != null) submit { c -> proxy(c).GetCapabilities(); capabilitiesAnswered = true }
+                ownerChangeCount.incrementAndGet()
+            }
+        }
         listenTo(connection, INTERFACE, "ActionInvoked") { signal ->
             val serverId = (signal.parameters[0] as Number).toLong()
-            if (signal.parameters[1] == "default") serverIds.entries.firstOrNull { it.value.toLong() == serverId }?.let { activated(it.key) }
+            if (fromOwner(signal) && signal.parameters[1] == "default") {
+                serverIds.entries.firstOrNull { it.value.toLong() == serverId }?.let { activated(it.key) }
+            }
         }
         listenTo(connection, INTERFACE, "NotificationClosed") { signal ->
             val serverId = (signal.parameters[0] as Number).toLong()
-            serverIds.entries.removeIf { it.value.toLong() == serverId }
+            // A server that echoes replaces_id may close the old notification while our Notify for it is in flight.
+            if (fromOwner(signal)) serverIds.entries.removeIf { it.value.toLong() == serverId && it.key !in notifyInFlight }
         }
         proxy(connection).GetCapabilities()
         capabilitiesAnswered = true
     }
 
-    override fun onDisconnected() { serverIds.clear() }
+    override fun onDisconnected() {
+        serverIds.clear()
+        capabilitiesAnswered = false
+        owner = null
+    }
 
     private fun proxy(connection: DBusConnection) =
         connection.getRemoteObject(SERVICE, PATH, FreedesktopNotificationsInterface::class.java)
 
-    override fun show(n: NativeNotification) = submit { connection ->
+    override fun show(n: NativeNotification) = submit(n.id) { connection ->
         val percent = n.progress?.coerceIn(0, 100)
         val hints = buildMap<String, Variant<*>> {
             put("urgency", Variant(if (n.urgent) 2.toByte() else 1.toByte()))
@@ -70,14 +109,22 @@ class FreedesktopNotifier(
         // Servers without progress bars still show the percentage in the body.
         val body = listOfNotNull(n.body.ifBlank { null }, percent?.let { "$it %" }).joinToString("\n")
         val expire = if (n.progress != null || n.indeterminate) 0 else -1
-        val serverId = proxy(connection).Notify(
-            "AndBible", serverIds[n.id] ?: UInt32(0), appIcon, n.title, body, listOf("default", "Open"), hints, expire,
-        )
-        serverIds[n.id] = serverId
+        notifyInFlight.add(n.id)
+        try {
+            val serverId = proxy(connection).Notify(
+                "AndBible", serverIds[n.id] ?: UInt32(0), appIcon, n.title, body, listOf("default", "Open"), hints, expire,
+            )
+            serverIds[n.id] = serverId
+        } finally {
+            notifyInFlight.remove(n.id)
+        }
     }
 
-    override fun remove(id: String) = submit { connection ->
-        serverIds.remove(id)?.let { proxy(connection).CloseNotification(it) }
+    override fun remove(id: String) = submit(id) { connection ->
+        serverIds[id]?.let { serverId ->
+            proxy(connection).CloseNotification(serverId)
+            serverIds.remove(id)
+        }
     }
 
     private companion object {

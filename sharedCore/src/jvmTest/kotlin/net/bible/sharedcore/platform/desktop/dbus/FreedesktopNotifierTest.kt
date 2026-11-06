@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class FakeNotifications : FreedesktopNotificationsInterface {
+class FakeNotifications(firstId: Int = 100) : FreedesktopNotificationsInterface {
     data class Notify(
         val appName: String, val replacesId: Long, val appIcon: String, val summary: String, val body: String,
         val actions: List<String>, val hints: Map<String, Variant<*>>, val expire: Int,
@@ -26,7 +26,7 @@ class FakeNotifications : FreedesktopNotificationsInterface {
 
     val notifies = CopyOnWriteArrayList<Notify>()
     val closed = CopyOnWriteArrayList<Long>()
-    private val nextId = AtomicInteger(100)
+    private val nextId = AtomicInteger(firstId)
 
     override fun Notify(
         appName: String, replacesId: UInt32, appIcon: String, summary: String, body: String,
@@ -67,8 +67,8 @@ class FreedesktopNotifierTest {
         bus?.close()
     }
 
-    private fun startService() {
-        fake = FakeNotifications()
+    private fun startService(firstId: Int = 100) {
+        fake = FakeNotifications(firstId)
         service = FakeService(bus!!, "org.freedesktop.Notifications", "/org/freedesktop/Notifications", fake)
     }
 
@@ -137,12 +137,13 @@ class FreedesktopNotifierTest {
         service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(101), "default")
         assertTrue(waitUntil { got.isNotEmpty() })
         assertEquals(listOf("a"), got.toList())
-        // Other actions and unknown notifications are ignored.
+        // Other actions and unknown notifications are ignored; signals of one sender arrive in order, so once the
+        // later valid one has been handled the ignored ones were too.
         service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(101), "other")
         service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(999), "default")
-        flushed()
-        Thread.sleep(200)
-        assertEquals(1, got.size)
+        service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(101), "default")
+        assertTrue(waitUntil { got.size >= 2 })
+        assertEquals(listOf("a", "a"), got.toList())
     }
 
     @Test
@@ -150,8 +151,7 @@ class FreedesktopNotifierTest {
         notifier!!.show(note)
         flushed()
         service!!.emit("org.freedesktop.Notifications", "NotificationClosed", "uu", UInt32(101), UInt32(2))
-        // The signal travels on another connection; a round trip through the bus after it orders the two.
-        Thread.sleep(300)
+        assertTrue(waitUntil { !notifier!!.hasServerId("a") })
         notifier!!.show(note)
         flushed()
         assertEquals(listOf(0L, 0L), fake.notifies.map { it.replacesId })
@@ -167,12 +167,63 @@ class FreedesktopNotifierTest {
         flushed()
         assertEquals(1, warnings.size, warnings.toString())
         startService()
-        Thread.sleep(250) // past the reconnect back-off
-        notifier!!.show(note.copy(body = "back"))
-        flushed()
-        assertEquals("back", fake.notifies.single().body)
+        // The last show (n19) is replayed after the back-off without any further show call.
+        assertTrue(waitUntil { fake.notifies.isNotEmpty() })
+        assertEquals("n19", fake.notifies.single().body)
         assertEquals(0L, fake.notifies.single().replacesId, "stale server ids are not reused after a reconnect")
         assertEquals(1, warnings.size)
+    }
+
+    @Test
+    fun finalShowDuringOutageArrivesAfterServiceReturnsWithoutFurtherCalls() {
+        notifier!!.show(note.copy(body = "progress", progress = 10))
+        flushed()
+        service!!.stop()
+        notifier!!.show(note.copy(title = "Failed", body = "boom", urgent = true))
+        flushed() // the failed attempt has run and is parked
+        assertTrue(fake.notifies.size == 1)
+        startService()
+        assertTrue(waitUntil { fake.notifies.isNotEmpty() })
+        val n = fake.notifies.single()
+        assertEquals("Failed", n.summary)
+        assertEquals(2.toByte(), n.hints.getValue("urgency").value)
+        assertEquals(1, warnings.size)
+    }
+
+    @Test
+    fun brokenBusConnectionRecoversAndReplaysAfterDaemonRestart() {
+        notifier!!.show(note)
+        flushed()
+        bus!!.kill()
+        notifier!!.show(note.copy(body = "final"))
+        flushed()
+        assertTrue(warnings.size <= 1)
+        bus!!.restart()
+        startService()
+        assertTrue(waitUntil(8_000) { fake.notifies.isNotEmpty() })
+        assertEquals("final", fake.notifies.single().body)
+        assertEquals(0L, fake.notifies.single().replacesId)
+        assertEquals(1, warnings.size)
+    }
+
+    @Test
+    fun ownerChangeWithoutFailingCallForgetsServerIdsAndIgnoresStaleActions() {
+        val got = CopyOnWriteArrayList<String>()
+        notifier!!.setOnActivated { got.add(it) }
+        notifier!!.show(note)
+        flushed()
+        assertTrue(waitUntil { notifier!!.supportsProgress })
+        service!!.stop()
+        startService(firstId = 200)
+        assertTrue(waitUntil { notifier!!.ownerChanges >= 2 && notifier!!.supportsProgress })
+        notifier!!.show(note.copy(body = "b"))
+        flushed()
+        assertEquals(0L, fake.notifies.single().replacesId)
+        // An action for the old notification's server id from the new owner must not fire; the later valid one does.
+        service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(101), "default")
+        service!!.emit("org.freedesktop.Notifications", "ActionInvoked", "us", UInt32(201), "default")
+        assertTrue(waitUntil { got.isNotEmpty() })
+        assertEquals(listOf("a"), got.toList())
     }
 
     @Test

@@ -1,6 +1,7 @@
 package net.bible.sharedcore.platform.desktop.dbus
 
 import java.io.File
+import java.nio.file.Files
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import org.freedesktop.dbus.connections.impl.DBusConnection
@@ -12,8 +13,23 @@ import org.freedesktop.dbus.messages.DBusSignal
  * A private `dbus-daemon --session` for integration tests; [startOrNull] is null when the daemon is not installed so
  * tests can skip. [close] closes every connection made through it and kills the daemon.
  */
-class PrivateBus private constructor(val address: String, private val process: Process) : AutoCloseable {
+class PrivateBus private constructor(private val daemon: String, private val dir: File) : AutoCloseable {
     private val connections = CopyOnWriteArrayList<DBusConnection>()
+    private val socket = File(dir, "bus")
+    private var process: Process? = null
+
+    /** The bus address; stable across [restart]. */
+    val address: String = "unix:path=${socket.absolutePath}"
+
+    private fun launch(): Boolean {
+        socket.delete()
+        val p = ProcessBuilder(daemon, "--session", "--nofork", "--address=$address", "--print-address")
+            .redirectError(ProcessBuilder.Redirect.DISCARD).start()
+        process = p
+        val line = try { p.inputStream.bufferedReader().readLine()?.trim().orEmpty() } catch (e: Exception) { "" }
+        if (line.isEmpty()) { p.destroyForcibly(); process = null }
+        return line.isNotEmpty()
+    }
 
     fun newConnection(): DBusConnection =
         DBusConnectionBuilder.forAddress(address).withShared(false).build().also { connections.add(it) }
@@ -23,21 +39,27 @@ class PrivateBus private constructor(val address: String, private val process: P
         override fun connect(): DBusConnection = newConnection()
     }
 
+    /** Kills the daemon, which breaks every connection made so far. */
+    fun kill() {
+        process?.destroyForcibly()?.waitFor(5, TimeUnit.SECONDS)
+        process = null
+    }
+
+    /** Starts a new daemon on the same address after [kill]. */
+    fun restart() { check(launch()) { "dbus-daemon did not restart" } }
+
     override fun close() {
         connections.forEach { runCatching { it.close() } }
-        process.destroyForcibly()
-        process.waitFor(5, TimeUnit.SECONDS)
+        kill()
+        dir.deleteRecursively()
     }
 
     companion object {
         fun startOrNull(): PrivateBus? {
             val daemon = listOf("/usr/bin/dbus-daemon", "/bin/dbus-daemon").firstOrNull { File(it).canExecute() } ?: return null
-            val process = ProcessBuilder(daemon, "--session", "--nofork", "--print-address").redirectErrorStream(false).start()
-            val address = try {
-                process.inputStream.bufferedReader().readLine()?.trim().orEmpty()
-            } catch (e: Exception) { "" }
-            if (address.isEmpty()) { process.destroyForcibly(); return null }
-            return PrivateBus(address, process)
+            val bus = PrivateBus(daemon, Files.createTempDirectory("andbible-bus").toFile())
+            if (!bus.launch()) { bus.dir.deleteRecursively(); return null }
+            return bus
         }
     }
 }
