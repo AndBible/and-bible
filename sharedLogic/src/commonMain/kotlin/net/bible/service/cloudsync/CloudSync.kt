@@ -98,11 +98,16 @@ class CloudSync(
     val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 
     private var runningSource = EventSource<Boolean>()
+    private val runningStateMutable = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val runningState: kotlinx.coroutines.flow.StateFlow<Boolean> get() = runningStateMutable
 
     /** `true` when a cloud sync starts, `false` when it finishes (replaces `CloudSyncEvent`). */
     val runningChanged: Events<Boolean> get() = runningSource
 
-    fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
+    fun notifySyncRunning(running: Boolean) {
+        runningStateMutable.value = running
+        runningSource.emit(running)
+    }
 
     private var refreshSource = EventSource<Unit>()
 
