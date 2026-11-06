@@ -222,6 +222,8 @@ object IosAppStartup {
                     try { DatabaseContainer.instance.sync() }
                     catch (e: Throwable) { DatabaseContainer.ready = false; throw e }
                     withContext(Dispatchers.Main.immediate) { opened = true }
+                    // The activity-menu preference may have been read while the store still answered defaults.
+                    runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
                 },
             ).also { owner = it }
         }

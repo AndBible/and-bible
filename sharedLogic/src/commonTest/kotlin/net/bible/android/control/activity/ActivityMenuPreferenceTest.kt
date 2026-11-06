@@ -52,5 +52,29 @@ class ActivityMenuPreferenceTest {
         assertTrue(p.enabled.value)
     }
 
+    @Test fun storeNotReadyAtConstructionThenReadyPicksUpStoredValue() {
+        val s = MemorySettings().apply { setBoolean(ActivityMenuPreference.KEY, false) }
+        var ready = false
+        val gated = object : AppSettings by s {
+            override fun getBoolean(key: String, default: Boolean) = if (ready) s.getBoolean(key, default) else default
+        }
+        val p = ActivityMenuPreference(gated, ActivityMenuDefault { true })
+        assertTrue(p.enabled.value) // not ready: the default
+        ready = true
+        p.refresh()
+        assertFalse(p.enabled.value)
+    }
+
+    @Test fun accessingEnabledAfterReadyAlsoRecovers() {
+        val s = MemorySettings().apply { setBoolean(ActivityMenuPreference.KEY, false) }
+        var ready = false
+        val gated = object : AppSettings by s {
+            override fun getBoolean(key: String, default: Boolean) = if (ready) s.getBoolean(key, default) else default
+        }
+        val p = ActivityMenuPreference(gated, ActivityMenuDefault { true })
+        ready = true
+        assertFalse(p.enabled.value)
+    }
+
     @Test fun keyIsStable() = assertEquals("show_activity_in_menu", ActivityMenuPreference.KEY)
 }

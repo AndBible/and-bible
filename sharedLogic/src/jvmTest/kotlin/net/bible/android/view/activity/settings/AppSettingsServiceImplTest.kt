@@ -45,6 +45,7 @@ class AppSettingsServiceImplTest {
         for (default in listOf(true, false)) {
             val pref = net.bible.android.control.activity.ActivityMenuPreference(db, net.bible.sharedcore.platform.ActivityMenuDefault { default })
             val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, pref)
+            try {
             val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
             fun row() = controller.state.value.items.single { it.key == "show_activity_in_menu" } as SettingsItem.SwitchRow
             assertEquals(default, row().checked)
@@ -54,8 +55,14 @@ class AppSettingsServiceImplTest {
             assertEquals(!default, row().checked)
             assertEquals(!default, pref.enabled.value)
             assertEquals(!default, db.getBoolean("show_activity_in_menu", default))
-            db.setBoolean("show_activity_in_menu", null)
+            } finally { db.setBoolean("show_activity_in_menu", null) }
         }
+    }
+
+    @Test fun activityRowHiddenWithoutPreference() = kotlinx.coroutines.test.runTest {
+        val s = AppSettingsServiceImpl(dictionaries, db, local, strings, flags, null)
+        val controller = AppSettingsController(s, backgroundScope, AppSettingsLabels.forTest(), onNavigate = {})
+        assertFalse(controller.state.value.items.single { it.key == "show_activity_in_menu" }.visible)
     }
 
     @Test fun bluetoothSwitchPersistsAcrossServiceRecreation() = kotlinx.coroutines.test.runTest {

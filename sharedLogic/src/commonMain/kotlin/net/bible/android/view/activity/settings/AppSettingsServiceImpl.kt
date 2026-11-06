@@ -105,8 +105,12 @@ class AppSettingsServiceImpl(
     private val strings: CoreStrings = KoinPlatform.getKoin().get(),
     private val platform: SettingsPlatformFlags = KoinPlatform.getKoin().get(),
     // The shared activity-menu preference (#4007); the "show_activity_in_menu" row writes through it so its flow emits.
-    // Null (Koin not started, e.g. a bare unit test) falls back to the plain store with a default of true.
-    private val activityMenu: ActivityMenuPreference? = runCatching { KoinPlatform.getKoin().getOrNull<ActivityMenuPreference>() }.getOrNull(),
+    // Null (Koin not started, e.g. a bare unit test) hides the row: there is no platform default to show.
+    private val activityMenu: ActivityMenuPreference? = try {
+        KoinPlatform.getKoin().getOrNull<ActivityMenuPreference>()
+    } catch (e: IllegalStateException) { // Koin not started
+        null
+    },
 ) : AppSettingsService {
 
     // The four dictionary/morphology option lists each do a live Books.installed() scan; a routine
@@ -233,7 +237,8 @@ class AppSettingsServiceImpl(
             displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(platform.isOnyx).value),
             einkMode = readBool("eink_mode", false),
             disableAnimations = readBool("disable_animations", false),
-            showActivityInMenu = activityMenu?.enabled?.value ?: readBool(ActivityMenuPreference.KEY, true),
+            showActivityInMenu = activityMenu?.enabled?.value ?: false,
+            activityMenuVisible = activityMenu != null,
             // Persecution
             discreteMode = readBool("discrete_mode", false),
             showCalculator = readBool("show_calculator", false),

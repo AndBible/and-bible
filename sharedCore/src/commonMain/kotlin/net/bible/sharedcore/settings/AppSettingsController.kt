@@ -370,6 +370,7 @@ class AppSettingsController(
                 summary = labels.showActivityInMenuSummary,
                 checked = s.showActivityInMenu,
                 iconKey = "show_activity_in_menu",
+                visible = s.activityMenuVisible,
             ),
             // ---- Persecution ----
             // Classic parity: the category header, discrete_help and calculator_pin are always

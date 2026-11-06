@@ -185,6 +185,8 @@ object DesktopAppStartup {
             throw e
         }
         opened = true
+        // The activity-menu preference may have been read while the store still answered defaults.
+        runCatching { org.koin.mp.KoinPlatform.getKoin().getOrNull<net.bible.android.control.activity.ActivityMenuPreference>()?.refresh() }
         Log.i(TAG, "Databases open")
     }
 
