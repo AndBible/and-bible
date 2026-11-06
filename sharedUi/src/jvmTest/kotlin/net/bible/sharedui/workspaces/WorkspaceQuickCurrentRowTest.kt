@@ -16,7 +16,12 @@
  */
 package net.bible.sharedui.workspaces
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -85,5 +90,56 @@ class WorkspaceQuickCurrentRowTest {
         showSheet(rows(3, current = 2), animations = false, lateRows = false)
         onNodeWithText("Workspace 2", substring = true).assertIsSelected()
         onNodeWithText("Workspace 1").assertIsNotSelected()
+    }
+
+    /**
+     * The row only PARTLY inside the viewport must not count as "already visible": in the desktop sheet the
+     * ninth row sat half under the bottom edge (and its fade) and was never scrolled into full view.
+     */
+    @Test
+    fun scrollsWhenCurrentRowIsOnlyPartlyVisible() = runComposeUiTest {
+        lateinit var state: androidx.compose.foundation.lazy.LazyListState
+        setContent {
+            CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                AbTheme(darkTheme = false, disableAnimations = true) {
+                    state = rememberLazyListState()
+                    // 400dp holds eight 48dp rows; the ninth starts inside the viewport and ends below it.
+                    Box(Modifier.height(410.dp)) {
+                        WorkspaceQuickContent(rows = rows(9, current = 9), onSelect = {}, listState = state)
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle {
+            val info = state.layoutInfo
+            val row = info.visibleItemsInfo.first { it.index == 8 }
+            kotlin.test.assertTrue(row.offset + row.size <= info.viewportEndOffset, "current row is cut off")
+        }
+    }
+
+    /** The desktop repro of #4015: nine rows in the real sheet, the current one last, must end fully inside the list. */
+    @Test
+    fun sheetWithNineRowsShowsCurrentRowFullyInsideTheList() = runComposeUiTest {
+        lateinit var state: androidx.compose.foundation.lazy.LazyListState
+        var shown by mutableStateOf<List<WorkspaceRowVd>>(emptyList())
+        setContent {
+            CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
+                AbTheme(darkTheme = false, disableAnimations = true) {
+                    state = rememberLazyListState()
+                    AbQuickSheet(open = true, title = "Switch workspace", onDismiss = {}) {
+                        WorkspaceQuickContent(rows = shown, onSelect = {}, listState = state)
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        shown = rows(9, current = 9)
+        waitForIdle()
+        runOnIdle {
+            val info = state.layoutInfo
+            val row = info.visibleItemsInfo.first { it.index == 8 }
+            kotlin.test.assertTrue(row.offset + row.size <= info.viewportEndOffset, "current row is cut off: $row, end ${info.viewportEndOffset}")
+        }
     }
 }

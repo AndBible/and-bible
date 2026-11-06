@@ -21,10 +21,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -35,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoBorder
+import kotlinx.coroutines.flow.first
 
 /**
  * Marks the current row of a list: a tinted container plus a 4dp accent bar at the leading edge.
@@ -59,20 +57,30 @@ fun Modifier.currentRowHighlight(current: Boolean): Modifier {
 }
 
 /**
- * Scrolls [listState] once so the item at [targetIndex] is visible (no scroll if it already is). The index may
- * be unknown (negative) at first, e.g. while the rows still load; the scroll happens when it first appears.
- * Animated unless "Disable animations" is on, then it jumps (an animated scroll inside a one-frame sheet slide
- * would otherwise race the sheet's own motion).
+ * Scrolls [listState] so the item at [targetIndex] is FULLY visible (a half-visible row, e.g. under a sheet's
+ * bottom edge, does not count). The index may be unknown (negative) at first, e.g. while the rows still load.
+ * The list's viewport and content keep changing while a sheet opens and grows, so the check is repeated on each
+ * layout until the item is fully in view once (a few attempts at most), then it never scrolls again: the user's
+ * own scrolling is left alone. Animated unless "Disable animations" is on, then it jumps (an animated scroll
+ * inside a one-frame sheet slide would race the sheet's own motion).
  */
 @Composable
 fun ScrollToItemOnce(listState: LazyListState, targetIndex: Int) {
     val disableAnimations = LocalDisableAnimations.current
-    var scrolled by remember { mutableStateOf(false) }
     LaunchedEffect(targetIndex >= 0) {
-        if (scrolled || targetIndex < 0) return@LaunchedEffect
-        scrolled = true
-        if (listState.layoutInfo.visibleItemsInfo.any { it.index == targetIndex }) return@LaunchedEffect
-        if (disableAnimations) listState.scrollToItem(targetIndex)
-        else listState.animateScrollToItem(targetIndex)
+        if (targetIndex < 0) return@LaunchedEffect
+        var attempts = 0
+        snapshotFlow { listState.layoutInfo }
+            .first { info ->
+                if (info.viewportSize.height == 0) return@first false // not measured yet
+                val row = info.visibleItemsInfo.firstOrNull { it.index == targetIndex }
+                if (row != null && row.offset >= info.viewportStartOffset &&
+                    row.offset + row.size <= info.viewportEndOffset
+                ) return@first true
+                if (++attempts > 5) return@first true
+                if (disableAnimations) listState.scrollToItem(targetIndex)
+                else listState.animateScrollToItem(targetIndex)
+                false
+            }
     }
 }
