@@ -98,7 +98,11 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 }
 
-class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
+class EpubBackend(private val createState: () -> EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
+    constructor(state: EpubBackendState, metadata: SwordBookMetaData): this({ state }, metadata)
+
+    // JSword discovers books before Koin and the database host exist on every platform.
+    val state: EpubBackendState by lazy(createState)
     override fun initState(): EpubBackendState = state
     override fun readIndex(): Key {
         val key = DefaultKeyList(null, bookMetaData.name)
@@ -134,8 +138,10 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book =
         SwordGenBook(sbmd, backend)
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val state = EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, KoinPlatform.getKoin().get<CoreStrings>(), KoinPlatform.getKoin().get<AppEnvironment>())
-        return EpubBackend(state, sbmd)
+        return EpubBackend({
+            val koin = KoinPlatform.getKoin()
+            EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, koin.get<CoreStrings>(), koin.get<AppEnvironment>())
+        }, sbmd)
     }
 }
 

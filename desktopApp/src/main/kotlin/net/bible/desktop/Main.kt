@@ -211,6 +211,8 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             start = { StartupPhase.Failed(failure) },
             platform = { error("no app root without a startup") },
             onExit = { exitRequested.value = true },
+            reportBug = { net.bible.sharedui.desktop.assembly.desktopRecoveryBugReport(paths) },
+            logDirectory = paths.data.resolve("logs"),
         )
     } else {
         val language = DesktopUiLanguage.resolve(DesktopDeviceSettings(paths.config.resolve(DESKTOP_DEVICE_SETTINGS_FILE)))
@@ -237,6 +239,7 @@ private fun runApp(launchArgs: List<String>, provider: DesktopEngineProvider) {
             onExit = { exitRequested.value = true },
             onStartupReady = crashGate.onStartupReady,
             onCleanExit = crashGate.onCleanExit,
+            logDirectory = paths.data.resolve("logs"),
         )
         shutdownEngine = {
             try {

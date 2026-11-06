@@ -392,6 +392,9 @@ interface Strings {
     val crashRecoveryMessage: String
     val crashRecoveryContinue: String
     val crashRecoveryReport: String
+    val startupLogFolder: String                    // R.string.startup_log_folder
+    val openLogFolder: String                       // R.string.open_log_folder
+    val startupReportBug: String                    // R.string.startup_report_bug
     val errorOccurred: String
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing

@@ -63,7 +63,10 @@ private const val TAG = "DesktopAppStartup"
 
 /** A desktop startup failure; the message always names the data directory, which the failure screen shows. */
 class DesktopStartupException(val dataDir: Path, cause: Throwable) :
-    Exception("AndBible could not start with the data directory $dataDir: ${cause.message ?: cause}", cause)
+    Exception("AndBible could not start with the data directory $dataDir: ${startupFailureDetails(cause)}", cause)
+
+private fun startupFailureDetails(error: Throwable): String =
+    generateSequence(error) { it.cause }.distinct().map { it.message ?: it.toString() }.distinct().joinToString(": ")
 
 /**
  * The desktop app startup, the counterpart of `IosAppStartup` without the iOS gates (legacy migration, discrete
@@ -351,8 +354,6 @@ internal object DesktopSwordFolders {
         // it establishes for the process.
         System.setProperty(JSWORD_HOME_PROPERTY, dir.toAbsolutePath().toString())
         HostSwordEnvironment.initialiseJSwordFolders(modules)
-        // initialiseJSwordFolders logs and swallows its own failures.
-        if (!HostSwordEnvironment.isLoaded) throw IllegalStateException("JSword could not be set up with the module folder $dir")
         if (current == dir) return
         // Always re-register here (setDownloadDir alone does not): the book list is exactly this folder's, whatever an
         // earlier start or the first registration saw.
